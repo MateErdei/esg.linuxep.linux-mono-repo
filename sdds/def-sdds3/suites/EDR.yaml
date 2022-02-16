@@ -3,10 +3,9 @@
 sus: ["linuxep"]
 line-id: ServerProtectionLinux-Plugin-EDR
 instances:
-  - tags: ["RECOMMENDED", "BETA"]
-    generate_static: True
+  - tags: ["RECOMMENDED"]
     marketing_version: "{version} {sprint}"
     views:
       - platforms:
           - LINUX_INTEL_LIBC6
-        component: EDRComponentSuite.latest
+        component: edr.latest.x64

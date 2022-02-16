@@ -1,5 +1,12 @@
 #!/usr/bin/env python
-# Copyright 2020-2023 Sophos Limited. All rights reserved.
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------------------------
+# Copyright 2020-2021 Sophos Limited. All rights reserved.
+#
+# Sophos is a registered trademark of Sophos Limited and Sophos Group. All
+# other product and company names mentioned are trademarks or registered
+# trademarks of their respective owners.
+# ------------------------------------------------------------------------------
 """Generate bazel rules to create SDDS3 packages and suites from YAML defs"""
 
 # pylint: disable=C0302     # too many lines (>1000)
@@ -20,16 +27,12 @@ import shutil
 import subprocess
 import sys
 import time
-import uuid
 import zipfile
 
 import requests
 import yaml
 
 from retry import retry
-from common import  set_inputs_mode, is_static_suite_instance
-from common import hash_file,change_version_to_999
-from auto_versioning import _generate_static_suite_flags, _expand_static_suites, _import_static_suite_flags
 
 ARTIFACTORY_URL = f'https://{os.environ["TAP_PROXY_ARTIFACT_AUTHORITY_EXTERNAL"]}/artifactory' \
                   if 'TAP_PROXY_ARTIFACT_AUTHORITY_EXTERNAL' in os.environ \
@@ -49,6 +52,7 @@ VERSION = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "version.yaml")).r
 FILESET_TO_PKGTARGET = {}
 # Map of package target -> fileset
 PKGTARGET_TO_FILESET = {}
+
 
 def say(msg, level=logging.INFO):
     logging.log(level=level, msg=msg)
@@ -92,19 +96,25 @@ def copy_file_or_url(origin, target):
     return False
 
 
-
+def hash_file(name):
+    sha256 = hashlib.sha256()
+    with open(name, 'rb') as f:
+        for byte_block in iter(lambda: f.read(65536), b""):
+            sha256.update(byte_block)
+    return sha256.hexdigest()
 
 
 EMITTED_BUILDFILES = {}
 
 
 def emit_buildfile_for_imported_fileset(fileset, **kwargs):
+    print("JAKE1B")
     buildfile = os.path.join(fileset, 'BUILD')
     if buildfile in EMITTED_BUILDFILES:
         raise FileExistsError(f'Error: BUILD file already exists {buildfile}')
     EMITTED_BUILDFILES[buildfile] = True
     with open(buildfile, 'w') as f:
-        print("""# AUTO-GENERATED BUILD FILE. DO NOT EDIT.
+        print(f"""# AUTO-GENERATED BUILD FILE. DO NOT EDIT.
 filegroup(
     name = "sdds_import",
     srcs = ["SDDS-Import.xml"],
@@ -275,12 +285,11 @@ def create_suite_package(compdef, suite, view, mode):
             shutil.rmtree(pkg_fileset)
         shutil.copytree(src=os.path.dirname(sdds_import), dst=pkg_fileset)
 
-        if 'subcomponents' in view:
-            say(f'{line_id} {pkg_version}: setting name/line-id to {line_id}')
-            xml.find('Component/RigidName').text = line_id
-            xml.find('Component/Name').text = line_id
-            say(f'{line_id} {pkg_version}: setting version to {pkg_version}')
-            xml.find('Component/Version').text = pkg_version
+        say(f'{line_id} {pkg_version}: setting name/line-id to {line_id}')
+        xml.find('Component/RigidName').text = line_id
+        xml.find('Component/Name').text = line_id
+        say(f'{line_id} {pkg_version}: setting version to {pkg_version}')
+        xml.find('Component/Version').text = pkg_version
 
         for f in xml.findall('Component/FileList/File'):
             if 'Offset' not in f.attrib and f.attrib['Name'] == 'version':
@@ -291,14 +300,8 @@ def create_suite_package(compdef, suite, view, mode):
                 break
 
         sdds_import = os.path.join(pkg_fileset, 'SDDS-Import.xml')
-        if 'subcomponents' in view:
-            with open(sdds_import, 'wb') as f:
-                ET.ElementTree(element=xml).write(f, encoding='UTF-8', xml_declaration=True)
-        else:
-            shutil.copy(
-                os.path.join(BASE, compdef['fileset'], 'SDDS-Import.xml'),
-                os.path.join(pkg_fileset, 'SDDS-Import.xml')
-            )
+        with open(sdds_import, 'wb') as f:
+            ET.ElementTree(element=xml).write(f, encoding='UTF-8', xml_declaration=True)
 
     # Set things up so that maker.py can identify the platforms and supplements of this
     # particular view's suite package.
@@ -373,30 +376,12 @@ copy_prebuilt_sdds3_package(
 """, file=rulefh, flush=True)
 
 
-def emit_package_rule(rulefh, component, compdef, package_folder='package', mode='dev'):
+def emit_package_rule(rulefh, component, compdef, package_folder='package'):
     if 'fileset' not in compdef:
         raise SyntaxError(f'{component}: Missing "fileset" in components.yaml')
     if 'prebuilt' in compdef:
         emit_copy_prebuilt_package_rule(rulefh, component, compdef, compdef['prebuilt'], package_folder)
         return
-
-    dist = os.path.join(BASE, compdef['fileset'])
-    if mode == '999':
-        change_version_to_999(dist)
-    # if static flags create copy of component to insert in flags
-    if 'static_suite_flags' in compdef:
-        sdds_import = os.path.join(BASE, compdef['fileset'], 'SDDS-Import.xml')
-        with open(sdds_import) as f:
-            xml = ET.fromstring(f.read())
-
-        sdds_import_filelist = xml.find('Component/FileList')
-        new_location = dist+"static"
-        shutil.rmtree(new_location,True)
-        shutil.copytree(dist,new_location)
-        compdef['fileset'] = compdef['fileset']+'static'
-        _import_static_suite_flags(compdef, sdds_import_filelist, new_location)
-        with open(os.path.join(new_location,'SDDS-Import.xml'), 'wb') as f:
-            ET.ElementTree(element=xml).write(f, encoding='UTF-8', xml_declaration=True)
 
     name, version, nonce = _get_package_info_from_sdds_import_xml(compdef)
     target = _get_package_target_from_name_version_nonce(name, version, nonce)
@@ -419,6 +404,7 @@ def emit_package_rule(rulefh, component, compdef, package_folder='package', mode
 
     fileset = os.path.join(BASE, compdef['fileset'])
     emit_buildfile_for_imported_fileset(fileset, prebuilt_package=os.path.basename(prebuilt))
+
     if os.path.exists(prebuilt):
         bazel_prebuilt_package = bazelize_sdds_import_target(fileset, 'prebuilt_package')
         print(f"""
@@ -453,13 +439,14 @@ def emit_package_rules(rulefh, suites, common_component_data, mode):
                 instance['_view'] = j
 
                 create_suite_package(common_component_data[view['component']], instance, view, mode)
+
                 emit_package_rule(rulefh, suite, view['def'])
 
                 if 'subcomponents' not in view:
                     continue
                 for component in view['subcomponents']:
                     compdef = common_component_data[component]
-                    emit_package_rule(rulefh, component, compdef,'package', mode)
+                    emit_package_rule(rulefh, component, compdef)
 
 
 def add_subcomponents(suitemeta, sdds_imports, packages, common_component_data):
@@ -529,22 +516,7 @@ def add_launchdarkly_flag(launchdarkly_flags, sus, tag, suitedef, suite_src):
         'version': suitedef['package_version'],
     }
 
-def add_static_flags(static_flags,product,suitedef,suite_src):
-    subscription = suitedef['line-id']
-    if product not in static_flags:
-        static_flags[product] = {}
-    flags = static_flags[product]
-    if subscription not in flags:
-        flags[subscription] = {}
-    version = suitedef['package_version']
-    #remove the extra version number that is used distingiush between static and non static suite
-    if len(version.split('.')) == 5:
-        version = version[:version.rindex('.')]
 
-    flags[subscription] = {
-        'suite': suite_src,
-        'version': version,
-    }
 def write_launchdarkly_flags(launchdarkly_flags):
     flagsdir = os.path.join(ROOT, 'output', 'launchdarkly')
     if os.path.exists(flagsdir):
@@ -556,68 +528,15 @@ def write_launchdarkly_flags(launchdarkly_flags):
             with open(mock_flag_value, 'w') as f:
                 json.dump(launchdarkly_flags[entry][flag], f, indent=2, sort_keys=True)
 
-def write_static_flags(static_flags):
-
-    flagsdir = os.path.join(ROOT, 'output', 'prod-sdds3-static-suites')
-    if os.path.exists(flagsdir):
-        shutil.rmtree(flagsdir)
-    os.makedirs(flagsdir)
-
-    for entry in static_flags:
-        newflag = {}
-        newflag['device_class'] = entry
-        static = VERSION['static']
-        newflag['name'] = f'{static} ' + static_flags[entry]['ServerProtectionLinux-Base']['version']
-        newflag['suite_info'] = {}
-
-        for suite in static_flags[entry]:
-            newflag['suite_info'][suite] = {}
-
-            newflag['suite_info'][suite]['suite'] = static_flags[entry][suite]['suite']
-            newflag['suite_info'][suite]['display_version'] = f'{static} ' + static_flags[entry][suite]['version']
-        xramp = VERSION['xRAMP'] if 'xRAMP' in VERSION else False
-        if xramp:
-            newflag['xRAMP'] = "true"
-        newflag['token'] = str(uuid.uuid5(uuid.NAMESPACE_URL, json.dumps(newflag)))
-        mock_flag_value = os.path.join(flagsdir, f'{entry}.json')
-        with open(mock_flag_value, 'w') as f:
-            json.dump(newflag, f, indent=2, sort_keys=True)
-
-
 
 # pylint: disable=R0914     # too many local variables. Honestly.
-def emit_suite_rules(rulefh, suites, common_component_data,common_supplements_data):
-    # Generate LaunchDarkly flags content, so we can configure the dev version of LD.
+def emit_suite_rules(rulefh, suites, common_component_data):
+    # Generate LaunchDarkly flags content so we can configure the dev version of LD.
     launchdarkly_flags = {}
-    static_flags = {}
 
     for suite in suites:
         suitemeta = suites[suite]
-
         for instance in suitemeta['instances']:
-            if is_static_suite_instance(instance):
-                (name, _) = os.path.splitext(suite)
-                tag1 = instance['tags'][0]
-                plat1 = view['platforms'][0]
-
-                for view in instance['views']:
-                    if 'subcomponents' not in view:
-                        continue
-                    for subcomponent in view['subcomponents']:
-                        sub_content = view['subcomponents'][subcomponent]
-                        if sub_content:
-                            if 'supplements' in sub_content:
-                                lineid = common_component_data[subcomponent]['line-id']
-                                tgt = f'flags_{name}.{lineid}.{tag1}.{VERSION["static"]}.{plat1}'
-                                flags_file = os.path.join(BASE, ".output",f'{tgt}.json')
-                                if _generate_static_suite_flags(flags_file,
-                                                                sub_content,
-                                                                common_component_data,
-                                                                common_supplements_data):
-                                    compdef = common_component_data[subcomponent]
-                                    compdef['static_suite_flags'] = {"sspl_flags/files/base/etc/sophosspl/flags-warehouse.json" :flags_file}
-                                    emit_package_rule(rulefh, subcomponent, compdef)
-
             # To build a suite, we need:
             #
             # 1. The suite's metadata (its version/description, and where to attach supplements)
@@ -662,13 +581,9 @@ build_sdds3_suite(
 """, file=rulefh, flush=True)
 
             for product in suitemeta['sus']:
-                if is_static_suite_instance(instance):
-                    add_static_flags(static_flags, product, instance['def'],suite_src)
-                else:
-                    for tag in instance['tags']:
-                        add_launchdarkly_flag(launchdarkly_flags, product, tag, instance['def'], suite_src)
+                for tag in instance['tags']:
+                    add_launchdarkly_flag(launchdarkly_flags, product, tag, instance['def'], suite_src)
 
-    write_static_flags(static_flags)
     write_launchdarkly_flags(launchdarkly_flags)
     write_mock_sus_responses(launchdarkly_flags)
 
@@ -757,7 +672,7 @@ def import_scit_supplement(fromdir, supplements, components):
     now = time.gmtime()
     baseversion = f'{now.tm_year}.{now.tm_mon}.{now.tm_mday}.'
     suffix = 0
-    for pkg in manifest.findall('package'):
+    for pkg in manifest.findall(f'package'):
         suffix += 1
         if 'version' in pkg.attrib:
             version = pkg.attrib['version']
@@ -818,7 +733,7 @@ def sync_sdds3_supplement(supplement, syncdir):
         sys.executable, '-u', f'{TOOLS}/sync_sdds3_supplement.py',
         '--mirror', syncdir,
         '--supplement', f'{SDDS3_URL}/supplement/sdds3.{supplement}.dat',
-        '--builder', f'{ROOT}/imports/internal/sdds3_utils/sdds3-builder',
+        '--builder', f'{ROOT}/redist/sdds3/sdds3-builder',
     ]
     say(f"Running {args}")
     subprocess.run(args, check=True)
@@ -827,7 +742,7 @@ def sync_sdds3_supplement(supplement, syncdir):
 
 def load_sdds3_supplement(supplement):
     args = [
-        os.path.join(ROOT, "imports", "internal", "sdds3_utils", "sdds3-builder"),
+        os.path.join(ROOT, "redist", "sdds3", "sdds3-builder"),
         '--unpack-signed-file',
         supplement
     ]
@@ -842,7 +757,7 @@ def load_sdds3_supplement(supplement):
 
 
 def import_external_supplements(supplements, components):
-    say('Importing external supplements')
+    say(f'Importing external supplements')
     if 'external_supplements' not in supplements['supplements']:
         return
 
@@ -887,13 +802,16 @@ def import_internal_supplements(supplements, components):
 
     internal_supplements = supplements['supplements']['internal_supplements']
     del supplements['supplements']['internal_supplements']
+    print("JAKE1")
     for path in internal_supplements:
         found = False
+        print(f"JAKE1A: {f'{ROOT}/inputs/supplements/{path}'}")
         for manifest in glob(f'{ROOT}/inputs/supplements/{path}'):
             import_scit_supplement(os.path.dirname(manifest), supplements, components)
             found = True
         if not found:
             raise FileNotFoundError(f'Failed to import internal supplement {ROOT}/inputs/supplements/{path}')
+    print("JAKE2")
 
 
 def insert_telemetry_supplements(supplements, components):
@@ -1026,6 +944,7 @@ def expand_supplement_refs(suites, supplement_refs):
         for instance in suites[suite]['instances']:
             for view in instance['views']:
                 _expand_supplements_in(view)
+                print(view)
                 if 'subcomponents' in view:
                     for comp in view['subcomponents']:
                         _expand_supplements_in(view['subcomponents'][comp])
@@ -1104,7 +1023,6 @@ def emit_bazel_build_files(mode):
     # Slurp in all of the definitions
     common_component_data = load_components()
     suites = load_suites()
-    _expand_static_suites(suites)
     supplements = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "supplements.yaml")).read())
     supplement_refs = yaml.safe_load(open(os.path.join(ROOT, "def-sdds3", "supplement-refs.yaml")).read())
 
@@ -1129,12 +1047,11 @@ load("//sdds3/tools:tools.bzl",
         say('Generating package rules')
         emit_package_rules(build, suites, common_component_data, mode)
 
-        import_internal_supplements(supplements, common_component_data)
         say('Generating suite rules')
-        emit_suite_rules(build, suites, common_component_data, supplements)
+        emit_suite_rules(build, suites, common_component_data)
 
         say('Generating supplement rules')
-
+        import_internal_supplements(supplements, common_component_data)
         import_external_supplements(supplements, common_component_data)
 
         # NOT NEEDED FOR SSPL
@@ -1160,9 +1077,9 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', choices=['dev', 'prod', '999'], default='dev')
+    parser.add_argument('--mode', choices=['dev', 'prod'], default='dev')
     args = parser.parse_args()
-    set_inputs_mode(args.mode)
+
     set_artifactory_auth_headers()
     cleanup_output_folders()
     emit_bazel_build_files(args.mode)

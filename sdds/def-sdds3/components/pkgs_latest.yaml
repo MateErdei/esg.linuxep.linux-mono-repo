@@ -7,30 +7,5 @@
 #
 # Changes to this file only affect the latest platforms (see suites.yaml)
 edr.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/edr/SDDS-COMPONENT/
+  prod-artifact: esg-build-tested/linuxep.sspl-plugin-edr-component/feature--LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files/20220210161929-363c040c17555da14530cf5085e28dd2fc89864e-7jpfeE/build/edr/SDDS3-PACKAGE
   line-id: ServerProtectionLinux-Plugin-EDR
-  mountpoint: ServerProtectionLinux-Plugin-EDR
-av.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/sspl-plugin-anti-virus/SDDS-COMPONENT/
-  line-id: ServerProtectionLinux-Plugin-AV
-  mountpoint: ServerProtectionLinux-Plugin-AV
-base.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/base/linux_x64_rel/installer/
-  line-id: ServerProtectionLinux-Base-component
-  mountpoint: ServerProtectionLinux-Base-component
-event-journaler.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/eventjournaler/SDDS-COMPONENT/
-  line-id: ServerProtectionLinux-Plugin-EventJournaler
-  mountpoint: ServerProtectionLinux-Plugin-EventJournaler
-liveresponse.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/liveterminal/sdds/
-  line-id: ServerProtectionLinux-Plugin-liveresponse
-  mountpoint: ServerProtectionLinux-Plugin-liveresponse
-runtimedetections.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--2023-40/20230928222423-cacb41961565c52e19025f8cdf77c748cd1ac6f9-amkUxE/SDDS-COMPONENT/
-  line-id: ServerProtectionLinux-Plugin-RuntimeDetections
-  mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
-responseactions.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.linux-mono-repo/release--2023-40/20231003092240-064e6aa4d01052c0df6e5c981dcf594ff44ae8a5-hUgCv3/response_actions/linux_x64_rel/installer
-  line-id: ServerProtectionLinux-Plugin-responseactions
-  mountpoint: ServerProtectionLinux-Plugin-responseactions

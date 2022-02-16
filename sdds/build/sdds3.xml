@@ -10,6 +10,10 @@
             <release-version branch="release/WINEP-2022.09" build-id="20220209235229-033dd8f5191e85fd84cfe2f974f0295fd0304ee1-WdQV7w"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="redist/sdds3"/>
         </build-asset>
+        <build-asset project="em" repo="esg">
+            <release-version branch="release/bazeltools" build-id="20220209132531-8fe21319f1312c7db02ef2c8f0a2750603df2f54-LvLU7i"/>
+            <include artifact-path="bazel-tools" dest-dir="." />
+        </build-asset>
         <!-- gcc -->
         <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="redist/gcc"/>
 
@@ -36,7 +40,7 @@
 
         <build-asset project="linuxep" repo="sspl-plugin-edr-component">
             <release-version branch="release--version_1_1_5" build-id="20220125200542-816e9518ada05b441819e66a7e5699f448a1335b-sVF733"/>
-            <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/package/sspl-plugin-edr-component"/>
+            <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/edr/latest/x64"/>
         </build-asset>
 
         <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
@@ -55,6 +59,11 @@
             <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/package/sspl-plugin-anti-virus"/>
         </build-asset>
 
+        <build-asset project="em" repo="esg">
+            <development-version branch="develop"/>
+            <release-version branch="release/scheduled_query_pack/1.8" build-id="20211130093048-3f0a191b04d3cc712f00bb795506227fbe0c2882-UqYeJA"/>
+            <include artifact-path="scheduled-query-pack-scit" dest-dir="inputs/supplements/scheduled-query-pack"/>
+        </build-asset>
     </inputs>
 
     <buildcommands>
