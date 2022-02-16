@@ -92,19 +92,6 @@ Exclude As Zip Bomb
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is a Zip Bomb
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is a Zip Bomb
 
-Exclude UnixSocket Failed To Read Length
-    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  UnixSocket <> Aborting Scanning Server Connection Thread: failed to read length
-    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  UnixSocket <> Aborting Scanning Server Connection Thread: failed to read length
-
-Exclude UnixSocket Connection Reset By Peer
-    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  UnixSocket <> Reading socket returned error: Connection reset by peer
-    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  UnixSocket <> Reading socket returned error: Connection reset by peer
-
-Exclude UnixSocket Connection Reset By Peer Scan Now
-    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  UnixSocket <> Reading socket returned error: Connection reset by peer
-    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  UnixSocket <> Reading socket returned error: Connection reset by peer
-
-
 Exclude UnixSocket Environment Interruption Error
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  UnixSocket <> Exiting Scanning Connection Thread: Environment interruption
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  UnixSocket <> Exiting Scanning Connection Thread: Environment interruption

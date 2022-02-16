@@ -57,8 +57,6 @@ AVCommandLineScanner Test Setup
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
     Register Cleanup      Exclude UnixSocket Environment Interruption Error
-    Register Cleanup      Exclude UnixSocket Connection Reset By Peer
-    Register Cleanup      Exclude UnixSocket Failed To Read Length
     Register Cleanup      Exclude CustomerID Failed To Read Error
 
 AVCommandLineScanner Test TearDown

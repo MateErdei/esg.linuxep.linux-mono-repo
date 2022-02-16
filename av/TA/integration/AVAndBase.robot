@@ -56,8 +56,6 @@ AV plugin runs scan now
     Configure and check scan now with offset
 
 AV plugin runs scan now while CLS is running
-    Register Cleanup    Exclude UnixSocket Failed To Read Length
-    Register Cleanup    Exclude UnixSocket Connection Reset By Peer
     Register Cleanup    Exclude UnixSocket Environment Interruption Error
     Configure scan now
     Mark AV Log
@@ -309,7 +307,6 @@ AV Configures No Scheduled Scan Correctly
 AV plugin runs scheduled scan while CLS is running
     #Terminate Process might cause this error
     Register Cleanup    Exclude UnixSocket Environment Interruption Error
-    Register Cleanup    Exclude UnixSocket Connection Reset By Peer
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base

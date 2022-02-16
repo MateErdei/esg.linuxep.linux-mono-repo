@@ -64,11 +64,9 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Mark AV Log
     Mark Sophos Threat Detector Log
     Start AV
-    register cleanup  Exclude UnixSocket Connection Reset By Peer Scan Now
     register cleanup  Exclude Scan Now Terminated
     register cleanup  Exclude Unixsocket Failed To Send Scan Request To STD
     register cleanup  Exclude Failed To Scan Files
-    register cleanup  Exclude UnixSocket Connection Reset By Peer
 
     register cleanup  Start AV
     register cleanup  Stop AV
