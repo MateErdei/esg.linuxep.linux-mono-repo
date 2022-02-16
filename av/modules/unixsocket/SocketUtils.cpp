@@ -71,7 +71,7 @@ int unixsocket::readLength(int socket_fd)
         }
         else if (count == -1)
         {
-            LOGERROR("Reading socket returned error: " << std::strerror(errno));
+            LOGDEBUG("Reading socket returned error: " << std::strerror(errno));
             return -1;
         }
         else if (count == 0)

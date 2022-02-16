@@ -191,7 +191,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             }
             else if (length < 0)
             {
-                LOGERROR("Aborting Scanning Server Connection Thread: failed to read length");
+                LOGDEBUG("Aborting Scanning Server Connection Thread: failed to read length");
                 break;
             }
             else if (length == 0)
