@@ -169,8 +169,8 @@ namespace Plugin
             LOGDEBUG("Processing request to restart sophos threat detector");
             if(!m_queueTask->queueContainsPolicyTask())
             {
-                LOGINFO("Reloading susi as configuration changed");
-                m_threatDetector->configuration_changed();
+                LOGDEBUG("Requesting scan monitor to reload susi");
+                m_threatDetector->policy_configuration_changed();
                 m_restartSophosThreatDetector = false;
             }
         }

@@ -30,13 +30,12 @@ static void clearPipe(Common::Threads::NotifyPipe& pipe)
     }
 }
 
-void plugin::manager::scanprocessmonitor::ScanProcessMonitor::requestShutdownOfThreatDetector()
+void plugin::manager::scanprocessmonitor::ScanProcessMonitor::sendRequestToThreatDetector(scan_messages::E_COMMAND_TYPE requestType)
 {
     try
     {
-        LOGINFO("Restarting sophos_threat_detector as the system/susi configuration has changed");
         unixsocket::ProcessControllerClientSocket processController(m_processControllerSocket);
-        scan_messages::ProcessControlSerialiser processControlRequest;
+        scan_messages::ProcessControlSerialiser processControlRequest(requestType);
         processController.sendProcessControlRequest(processControlRequest);
     }
     catch (const std::exception& e)
@@ -58,6 +57,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     int max_fd = -1;
     max_fd = FDUtils::addFD(&readfds, m_notifyPipe.readFd(), max_fd);
     max_fd = FDUtils::addFD(&readfds, m_config_changed.readFd(), max_fd);
+    max_fd = FDUtils::addFD(&readfds, m_policy_changed.readFd(), max_fd);
 
     //this is also triggering the m_config_changed pipe
     m_config_monitor.start();
@@ -88,11 +88,18 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
             break;
         }
 
+        if (FDUtils::fd_isset(m_policy_changed.readFd(), &tempReadfds))
+        {
+            clearPipe(m_policy_changed);
+            LOGINFO("Reloading susi as configuration changed");
+            sendRequestToThreatDetector(scan_messages::E_RELOAD);
+        }
+
         if (FDUtils::fd_isset(m_config_changed.readFd(), &tempReadfds))
         {
             clearPipe(m_config_changed);
-            // is it a request for shutdown or a request for reload?
-            requestShutdownOfThreatDetector();
+            LOGINFO("Restarting sophos_threat_detector as the system configuration has changed");
+            sendRequestToThreatDetector(scan_messages::E_SHUTDOWN);
         }
     }
 
@@ -101,8 +108,8 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
     LOGSUPPORT("Exiting sophos_threat_detector monitor");
 }
 
-void plugin::manager::scanprocessmonitor::ScanProcessMonitor::configuration_changed()
+void plugin::manager::scanprocessmonitor::ScanProcessMonitor::policy_configuration_changed()
 {
-    LOGDEBUG("External notification of configuration changed");
-    m_config_changed.notify();
+    LOGDEBUG("External notification of policy configuration changed");
+    m_policy_changed.notify();
 }

@@ -195,8 +195,8 @@ void ProcessControllerServerConnectionThread::inner_run()
             }
             else if(processControlReader.getCommandType() == scan_messages::E_RELOAD)
             {
-                //trigger reload pipe
                 m_reloadPipe->notify();
+                LOGDEBUG("Reload pipe has been notified");
                 continue;
             }
             else

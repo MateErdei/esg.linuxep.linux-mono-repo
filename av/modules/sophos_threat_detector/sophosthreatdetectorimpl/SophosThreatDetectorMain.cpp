@@ -409,7 +409,7 @@ static int inner_main()
         struct timespec timeout{};
         timeout.tv_sec = shutdownTimer->timeout();
         LOGDEBUG("Setting shutdown timeout to " << timeout.tv_sec << " seconds");
-        //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
+        //wait for an activity on one of the sockets
         int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
 
         if (activity < 0)
@@ -468,15 +468,21 @@ static int inner_main()
         {
             LOGINFO("Sophos Threat Detector received shutdown request");
             create_shutdown_notice_file(pluginInstall);
-            processController.triggeredReload();
+            processController.triggeredShutdown();
             break;
         }
 
         if (FDUtils::fd_isset(processController.monitorReloadFd(), &tempRead)  && scannerFactory->susiIsInitialized())
         {
             LOGINFO("Sophos Threat Detector received reload request");
-            processController.triggeredShutdown();
+            processController.triggeredReload();
+            reloader->reload();
             continue;
+        }
+        else
+        {
+            LOGDEBUG("Skipping susi reload because susi is not initialised");
+            processController.triggeredReload();
         }
 
     }

@@ -23,10 +23,11 @@ namespace plugin::manager::scanprocessmonitor
          * Externally drive a configuration change event.
          * Causes sophos_threat_detector to be restarted.
          */
-        void configuration_changed();
+        void policy_configuration_changed();
     private:
-        void requestShutdownOfThreatDetector();
+        void sendRequestToThreatDetector(scan_messages::E_COMMAND_TYPE requestType);
         Common::Threads::NotifyPipe m_config_changed;
+        Common::Threads::NotifyPipe m_policy_changed;
         ConfigMonitor m_config_monitor;
         std::string m_processControllerSocket;
     };
