@@ -50,6 +50,7 @@ EDR Installer Directories And Files
 *** Keywords ***
 EDR Tests Teardown With Installed File Replacement
     Run Keyword If Test Failed  Save Current EDR InstalledFiles To Local Path
+    Check For Osquery Errors Or Warnings And Log File Contents
     EDR And Base Teardown
     Uninstall All
     Unmount All Comms Component Folders
@@ -58,3 +59,11 @@ Save Current EDR InstalledFiles To Local Path
     Create File  ${INSTALL_SET_PATH}/FileInfo  ${FileInfo}
     Create File  ${INSTALL_SET_PATH}/DirectoryInfo  ${DirectoryInfo}
     Create File  ${INSTALL_SET_PATH}/SymbolicLinkInfo  ${SymbolicLinkInfo}
+
+Check For Osquery Errors Or Warnings And Log File Contents
+    ${result} =   Run Process  find ${COMPONENT_ROOT_PATH}/log/osqueryd.*   shell=True
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${result} =   Run Process  cat ${COMPONENT_ROOT_PATH}/log/osqueryd.*   shell=True
+    Log  ${result.stdout}
+    Log  ${result.stderr}
