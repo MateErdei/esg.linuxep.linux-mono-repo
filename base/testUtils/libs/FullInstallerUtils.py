@@ -796,12 +796,12 @@ def version_ini_file_contains_proper_format_for_product_name(file, product_name)
     version_pattern = "^PRODUCT_VERSION = ([0-9]*\.)*[0-9]*\n\Z"
     date_pattern = "^BUILD_DATE = [0-9]{4}\-[0-9]{2}\-[0-9]{2}\n\Z"
     git_commit_pattern = "^COMMIT_HASH = [0-9a-fA-F]{40}\n\Z"
+    plugin_api_commit_pattern = "^PLUGIN_API_COMMIT_HASH = [0-9a-fA-F]{40}\n\Z"
 
-    # TODO: LINUXDAR-3920 Update this to expect git commit hashes for all version files
     if product_name == "Sophos Server Protection Linux - Base Component":
         patterns = [name_pattern, version_pattern, date_pattern, git_commit_pattern]
     else:
-        patterns = [name_pattern, version_pattern, date_pattern]
+        patterns = [name_pattern, version_pattern, date_pattern, git_commit_pattern, plugin_api_commit_pattern]
 
 
     lines = []
