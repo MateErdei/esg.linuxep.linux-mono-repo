@@ -15,9 +15,7 @@ int main()
     const std::string path = "/tmp/fd_chroot/tmp/unix_socket";
     unixsocket::ProcessControllerClientSocket socket(path);
 
-    scan_messages::ProcessControlSerialiser shutDownRequest;
-
-    shutDownRequest.setCommandType(E_SHUTDOWN);
+    scan_messages::ProcessControlSerialiser shutDownRequest(E_SHUTDOWN);
 
     socket.sendProcessControlRequest(shutDownRequest);
 
