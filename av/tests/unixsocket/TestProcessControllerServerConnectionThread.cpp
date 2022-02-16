@@ -35,7 +35,7 @@ namespace
     class MockProcessControlSerialiser : public scan_messages::ProcessControlSerialiser
     {
     public:
-        MockProcessControlSerialiser(): scan_messages::ProcessControlSerialiser()
+        MockProcessControlSerialiser(scan_messages::E_COMMAND_TYPE type): scan_messages::ProcessControlSerialiser(type)
         {
             m_intCommandType = m_commandType;
         }
@@ -334,8 +334,7 @@ TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_shutdown_
 {
     const std::string expected = "Managed to get file descriptor: ";
 
-    auto processControl = scan_messages::ProcessControlSerialiser();
-    processControl.setCommandType(scan_messages::E_SHUTDOWN);
+    auto processControl = scan_messages::ProcessControlSerialiser(scan_messages::E_SHUTDOWN);
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
@@ -352,12 +351,34 @@ TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_shutdown_
     EXPECT_TRUE(shutdownPipe->notified());
 }
 
+TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_reload_notification) // NOLINT
+{
+    const std::string expected = "Managed to get file descriptor: ";
+
+    auto processControl = scan_messages::ProcessControlSerialiser(scan_messages::E_RELOAD);
+
+    auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    ProcessControllerServerConnectionThread connectionThread(m_serverFd, shutdownPipe, reloadPipe);
+    connectionThread.start();
+    EXPECT_TRUE(connectionThread.isRunning());
+    unixsocket::writeLengthAndBuffer(m_clientFd.get(), processControl.serialise());
+
+    waitForLog(expected);
+    connectionThread.requestStop();
+    connectionThread.join();
+
+    EXPECT_GT(m_memoryAppender->size(), 0);
+    EXPECT_TRUE(reloadPipe->notified());
+    waitForLog("Reload pipe has been notified");
+}
+
 TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_invalid_notification) // NOLINT
 {
-    const std::string expected = "Received unknown signal on Process Controller: 2";
+    const std::string expected = "Received unknown signal on Process Controller: 3";
 
-    auto processControl = MockProcessControlSerialiser();
-    processControl.setCommandTypeInt(2);
+    auto processControl = MockProcessControlSerialiser(scan_messages::E_SHUTDOWN);
+    processControl.setCommandTypeInt(3);
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();

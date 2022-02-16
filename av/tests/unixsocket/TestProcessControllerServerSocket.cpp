@@ -62,7 +62,7 @@ TEST_F(TestProcessControllerServerSocket, testSendMessageNoServer)
     UsingMemoryAppender memoryAppenderHolder(*this);
     const struct timespec sleepTime {0,1'000'000};
     unixsocket::ProcessControllerClientSocket processControllerClient(m_socketPath, sleepTime);
-    scan_messages::ProcessControlSerialiser processControlRequest;
+    scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_SHUTDOWN);
     EXPECT_NO_THROW(processControllerClient.sendProcessControlRequest(processControlRequest));
     EXPECT_FALSE(appenderContains("Failed to write Process Control Request to socket. Exception caught: "));
 }
@@ -80,7 +80,7 @@ TEST_F(TestProcessControllerServerSocket, testTriggerNotified) // NOLINT
     EXPECT_GT(processControllerServer.monitorShutdownFd(), -1);
 
     unixsocket::ProcessControllerClientSocket processControllerClient(m_socketPath);
-    scan_messages::ProcessControlSerialiser processControlRequest;
+    scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_SHUTDOWN);
     processControllerClient.sendProcessControlRequest(processControlRequest);
 
     int retries=0;

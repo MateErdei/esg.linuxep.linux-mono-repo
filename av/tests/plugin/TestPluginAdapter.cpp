@@ -247,7 +247,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
     // We now see all of the restart events
     EXPECT_TRUE(appenderContains("Processing request to restart sophos threat detector", 3));
-    EXPECT_TRUE(appenderContains("Reloading susi as configuration changed", 1));
+    EXPECT_TRUE(appenderContains("Requesting scan monitor to reload susi", 1));
 }
 
 TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPolicy) //NOLINT
