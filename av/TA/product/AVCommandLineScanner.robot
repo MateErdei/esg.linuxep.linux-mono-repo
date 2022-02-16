@@ -47,13 +47,12 @@ Reset AVCommandLineScanner Suite
 AVCommandLineScanner Test Setup
     check av plugin running
     Check Sophos Threat Detector Running
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    Mark Susi Debug Log
 
     Create Directory     ${NORMAL_DIRECTORY}
     ${result} =     Check If The Logs Are Close To Rotating
     run keyword if  ${result}   Clear logs
+
+    Mark logs
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
     Register Cleanup      Exclude UnixSocket Environment Interruption Error
@@ -82,7 +81,17 @@ Clear logs
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}
+
+    Set Test Variable   ${AV_LOG_MARK}  ${None}
+    Set Test Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${None}
+    Set Test Variable   ${SUSI_DEBUG_LOG_MARK}  ${None}
+
     Start AV
+
+Mark logs
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    Mark Susi Debug Log
 
 Start AV
     Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
@@ -1176,9 +1185,9 @@ CLS Scans file on NFS
 
 
 CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
+    # log can get rotated during test, so reset first.
     Clear logs
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    Mark logs
 
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
 
