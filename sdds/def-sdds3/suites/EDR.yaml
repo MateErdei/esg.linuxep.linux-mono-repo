@@ -1,0 +1,11 @@
+%YAML 1.2
+---
+sus: ["linuxep"]
+line-id: ServerProtectionLinux-Plugin-EDR
+instances:
+  - tags: ["RECOMMENDED"]
+    marketing_version: "{version} {sprint}"
+    views:
+      - platforms:
+          - LINUX_INTEL_LIBC6
+        component: edr.latest.x64

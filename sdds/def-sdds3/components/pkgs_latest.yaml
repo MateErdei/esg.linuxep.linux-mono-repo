@@ -1,0 +1,11 @@
+%YAML 1.2
+---
+# Edit this file to:
+#
+#   (a) define a new package for inclusion into the latest develop warehouse; or
+#   (b) update an existing package's prod-artifact for inclusion in the next production warehouse.
+#
+# Changes to this file only affect the latest platforms (see suites.yaml)
+edr.latest.x64:
+  prod-artifact: esg-build-tested/linuxep.sspl-plugin-edr-component/feature--LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files/20220210161929-363c040c17555da14530cf5085e28dd2fc89864e-7jpfeE/build/edr/SDDS3-PACKAGE
+  line-id: ServerProtectionLinux-Plugin-EDR

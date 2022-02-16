@@ -1,0 +1,51 @@
+%YAML 1.2
+---
+
+# CEPNG Latest (Win10/Win11 64-bit) flags & repairkit
+cepngflags.latest.recommended: { line-id: CEPNGFLAGS, decode-path: '@flags', tag: &cepngflags_latest_rec 2022-1 }
+cepngflags.latest.beta: { line-id: CEPNGFLAGS, decode-path: '@flags', tag: &cepngflags_latest_eap 2022-1-EAP }
+cepngflags.win8_10x86_legacy.recommended: { line-id: CEPW8FLAGS, decode-path: '@flags', tag: &cepngflags_legacy_rec 2021-3-1 }
+cepngflags.win8_10x86_legacy.beta: { line-id: CEPW8FLAGS, decode-path: '@flags', tag: *cepngflags_legacy_rec }
+cepngflags.win7_legacy.recommended: { line-id: CEPW7FLAGS, decode-path: '@flags', tag: *cepngflags_legacy_rec }
+cepngflags.win7_legacy.beta: { line-id: CEPW7FLAGS, decode-path: '@flags', tag: *cepngflags_legacy_rec }
+
+repairkit.latest.recommended: { line-id: REPAIRKIT, tag: *cepngflags_latest_rec }
+repairkit.latest.beta: { line-id: REPAIRKIT, tag: *cepngflags_latest_rec }        # NOTE: 2022-1, not 2022-1-EAP
+repairkit.win8_10x86_legacy.recommended: { line-id: REPAIRKIT, tag: *cepngflags_legacy_rec }
+repairkit.win8_10x86_legacy.beta: { line-id: REPAIRKIT, tag: *cepngflags_legacy_rec }
+repairkit.win7_legacy.recommended: { line-id: REPAIRKIT, tag: *cepngflags_legacy_rec }
+repairkit.win7_legacy.beta: { line-id: REPAIRKIT, tag: *cepngflags_legacy_rec }
+
+cepngsrvflags.latest.recommended: { line-id: CEPNGSRVFLAGS, decode-path: '@flags', tag: *cepngflags_latest_rec }
+cepngsrvflags.latest.beta: { line-id: CEPNGSRVFLAGS, decode-path: '@flags', tag: *cepngflags_latest_eap }
+cepngsrvflags.win8_10x86_legacy.recommended: { line-id: CEPW8SRVFLAGS, decode-path: '@flags', tag: *cepngflags_legacy_rec }
+cepngsrvflags.win8_10x86_legacy.beta: { line-id: CEPW8SRVFLAGS, decode-path: '@flags', tag: *cepngflags_legacy_rec }
+cepngsrvflags.win7_legacy.recommended: { line-id: CEPW7SRVFLAGS, decode-path: '@flags', tag: *cepngflags_legacy_rec }
+cepngsrvflags.win7_legacy.beta: { line-id: CEPW7SRVFLAGS, decode-path: '@flags', tag: *cepngflags_legacy_rec }
+
+# CIX flags & repairkit
+cixflags.latest.recommended: { line-id: CIXFLAGS, decode-path: '@flags', tag: 3-9-0 }
+cixflags.latest.beta: { line-id: CIXFLAGS, decode-path: '@flags', tag: 3-9-0-EAP }
+cixflags.win8_10x86_legacy.recommended: { line-id: CIXW8FLAGS, decode-path: '@flags', tag: &cixflags-legacy 3-8-3 }
+cixflags.win8_10x86_legacy.beta: { line-id: CIXW8FLAGS, decode-path: '@flags', tag: &cixflags-legacy-eap 3-8-3-EAP }
+cixflags.win7_legacy.recommended: { line-id: CIXW7FLAGS, decode-path: '@flags', tag: *cixflags-legacy }
+cixflags.win7_legacy.beta: { line-id: CIXW7FLAGS, decode-path: '@flags', tag: *cixflags-legacy-eap }
+
+cixsrvflags.latest.recommended: { line-id: CIXSRVFLAGS, decode-path: '@flags', tag: 3-9-0 }
+cixsrvflags.latest.beta: { line-id: CIXSRVFLAGS, decode-path: '@flags', tag: 3-9-0-EAP }
+cixsrvflags.win8_10x86_legacy.recommended: { line-id: CIXW8SRVFLAGS, decode-path: '@flags', tag: &cixsrvflags-legacy 3-8-3 }
+cixsrvflags.win8_10x86_legacy.beta: { line-id: CIXW8SRVFLAGS, decode-path: '@flags', tag: &cixsrvflags-legacy-eap 3-8-3-EAP }
+cixsrvflags.win7_legacy.recommended: { line-id: CIXW7SRVFLAGS, decode-path: '@flags', tag: *cixsrvflags-legacy }
+cixsrvflags.win7_legacy.beta: { line-id: CIXW7SRVFLAGS, decode-path: '@flags', tag: *cixsrvflags-legacy-eap }
+
+# ESH Rules
+eshrules.latest: { line-id: D3147E4B-BECB-4CE5-A2B4-DD098CD8AEFE, tag: LATEST }
+eshrules.win8_10x86_legacy: { line-id: D3147E4B-BECB-4CE5-A2B4-DD098CD8AEFE, tag: LATEST }
+eshrules.win7_legacy: { line-id: D3147E4B-BECB-4CE5-A2B4-DD098CD8AEFE, tag: LATEST }
+
+scheduledquerypack: { line-id: ScheduledQueryPack, tag: LATEST, decode-path: scheduled_query_pack_latest }
+
+behave: { line-id: behave, tag: LATEST_CLOUD_ENDPOINT, decode-path: 'Config/BehavioralRules' }
+
+telemsup: { line-id: TELEMSUP, tag: RECOMMENDED }
+crtsup: { line-id: 97B6A561-5F87-4A2E-A4FE-177F48D8899F, tag: RECOMMENDED, decode-path: crt }

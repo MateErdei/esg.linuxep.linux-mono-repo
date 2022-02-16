@@ -1,0 +1,30 @@
+%YAML 1.2
+---
+supplements:
+  # NOTE: the telemetry supplement is inserted by sdds3/tools/gen_bazel.py
+
+  # sdds3/tools/gen_bazel.py generates these supplements from 'tap fetch'ed inputs.
+  internal_supplements:
+    - 'scheduled-query-pack/supplement/ScheduledQueryPack/manifest.xml'
+
+  # sdds3/tools/gen_bazel.py mirrors these external supplements into the build output.
+  # It also parses the supplements to help verify all supplement-refs are valid.
+  external_supplements:
+    - hmpa_data
+    - behave
+    - DataSetA
+    - LocalRepData
+    - EPIPS_data
+    - ML_MODEL_ARM64
+    - 995645D3-DA2A-407E-AC5D-7267B8B43975  # ML_MODEL_32
+    - C19A85E4-728F-4E92-8528-6B42B30639B2  # ML_MODEL_64
+    - DOC_MODEL_32
+    - DOC_MODEL_64
+    - DOC_MODEL_ARM64
+    - ML_MODEL2_32
+    - ML_MODEL2_64
+    - ML_MODEL2_ARM64
+    - DOC_MODEL2_32
+    - DOC_MODEL2_64
+    - DOC_MODEL2_ARM64
+  
