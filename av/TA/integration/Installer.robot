@@ -41,18 +41,21 @@ IDE update doesnt restart av processes
 
 IDE update copies updated ide
     Mark Sophos Threat Detector Log
-
     Force SUSI to be initialized
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    ${WRITTEN_TO_DISK_BEFORE} =  Get Amount Written To Disk  /opt/
+    Run Shell Process  touch ${SOPHOS_INSTALL}/mark  OnError=failed to mark
     Install IDE  ${IDE_NAME}
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-    ${WRITTEN_TO_DISK_AFTER} =  Get Amount Written To Disk  /opt/
-    ${WRITTEN_TO_DISK_DURING} =  Evaluate  ${WRITTEN_TO_DISK_AFTER} - ${WRITTEN_TO_DISK_BEFORE}
-    #On amazon linux weve seen 150kb copied
-    Should Be True  ${WRITTEN_TO_DISK_DURING} < 200000
+    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs ls -ilhd  OnError=find failed
+    Log  ${result.stdout}
+    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs du -cb  OnError=find failed
+    Log  ${result.stdout}
+    ${lastline} =  Fetch From Right    ${result.stdout}  \n
+    ${WRITTEN_TO_DISK_DURING} =  Fetch From Left    ${lastline}  \t
+    # SUSI copies libraries every time, so expect up to 200MB
+    Should Be True  ${WRITTEN_TO_DISK_DURING} < ${ 200 * 1024 ** 2 }
 
 
 Restart then Update Sophos Threat Detector
