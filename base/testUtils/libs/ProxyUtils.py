@@ -120,14 +120,15 @@ def restart_Secure_Server_Proxy():
 
     output = subprocess.check_output(command)
 
-    wait_for_secure_proxy_server_to_be_up()
+    if not wait_for_secure_proxy_server_to_be_up():
+        raise AssertionError("Proxy server not up after restart")
 
     return output
 
 def wait_for_secure_proxy_server_to_be_up():
     i = 0
     output = False
-    while i < 15:
+    while i < 30:
         i += 1
         if can_secure_proxy_server_contact_internet():
             output = True
