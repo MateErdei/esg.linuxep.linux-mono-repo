@@ -87,7 +87,10 @@ Successful Register With Cloud And Migrate To Another Cloud Server
 
     Create File  ${MCS_DIR}/datafeed/garbage_result  Please recycle
     ${result} =  Run Process  chown  sophos-spl-local:sophos-spl-group  ${MCS_DIR}/datafeed/garbage_result
-
+    Wait Until Keyword Succeeds
+    ...  60s
+    ...  5s
+    ...  File Should Exist  /opt/sophos-spl/base/mcs/status/SHS_status.xml
     Trigger Migration Now
 
     # Long wait due to Push Server triggering reduced polling
@@ -107,7 +110,7 @@ Successful Register With Cloud And Migrate To Another Cloud Server
     ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 
     Wait Until Keyword Succeeds
-    ...  20s
+    ...  30s
     ...  1s
     ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
 

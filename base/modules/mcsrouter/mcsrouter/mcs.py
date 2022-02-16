@@ -84,10 +84,8 @@ class CommandCheckInterval:
         self.__m_command_check_maximum_retry_number = self.__m_config.get_int(
             "COMMAND_CHECK_MAXIMUM_RETRY_NUMBER", 10)
         self.__m_command_check_base_retry_delay = self.__m_config.get_int(
-            "COMMAND_CHECK_BASE_RETRY_DELAY", 20)
-        self.__m_command_check_semi_permanent_error_retry_delay = self.__m_config.get_int(
-            "COMMAND_CHECK_SEMI_PERMANENT_RETRY_DELAY", self.__m_command_check_base_retry_delay * 2)
-
+            "COMMAND_CHECK_INTERVAL_MINIMUM", 20)
+        self.__m_command_check_semi_permanent_error_retry_delay = self.__m_command_check_base_retry_delay * 2
         self.set()
         self.__get_ping_timeout()
         self.__get_push_poll_interval()
@@ -807,7 +805,9 @@ class MCS:
                             self.__m_command_check_interval.set_use_fallback_polling_interval(True)
                         else:
                             self.__m_command_check_interval.set_use_fallback_polling_interval(False)
-
+                        if (self.__m_command_check_interval.get() != self.__m_config.get_int(
+                            "COMMAND_CHECK_INTERVAL_MINIMUM",0)):
+                            self.__m_command_check_interval = CommandCheckInterval(self.__m_config)
                         if commands:
                             LOGGER.debug("Got commands")
 
