@@ -490,6 +490,7 @@ function build()
     rm -rf output/SDDS-COMPONENT
     cp -a build${BITS}/distribution/ output/SDDS-COMPONENT || exitFailure 21 "Failed to copy SDDS package: $?"
     cp -a build${BITS}/SDDS3-PACKAGE output/SDDS3-PACKAGE || exitFailure 21 "Failed to copy SDDS3-PACKAGE: $?"
+    cp -a build${BITS}/distribution/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure 21 "Failed to copy SDDS-Import.xml to SDDS3-PACKAGE: $?"
     cp -a build${BITS}/products/PluginApi/pluginapi.tar.gz output/pluginapi.tar.gz || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
     pushd build${BITS}
     tar -zcvf ../output/SystemProductTestOutput.tar.gz SystemProductTestOutput/ || exitFailure 23 "Failed to tar SystemProductTestOutput package: $?"
