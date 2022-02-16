@@ -99,17 +99,22 @@ set(FEATURE_LIST "CORE")
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
 
+# /build/input is where inputs are fetched from artifactory
+if(NOT EXISTS /build/input)
+    message("Fetching build inputs because /build/input does not exist.")
+    execute_process(
+            COMMAND bash tap_fetch.sh
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
+
+# /build/redist is currently named INPUT in our cmake, it is where inputs are unpacked to
 if(NOT DEFINED INPUT)
     set( INPUT /build/redist )
 endif()
 
-if(NOT EXISTS ${INPUT})
-    message("Unpacking build inputs because ${INPUT} does not exist.")
-    execute_process(
-            COMMAND bash unpack_build_inputs.sh
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-endif()
-
+execute_process(
+        COMMAND bash unpack_build_inputs.sh
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 #if(NOT EXISTS ${INPUT})
 #    string( APPEND ERRORMESSAGE

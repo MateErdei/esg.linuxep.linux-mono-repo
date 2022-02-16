@@ -19,54 +19,10 @@ cd "$BASEDIR"
 TAP_VENV="$BASEDIR/tap_venv"
 
 # Install python3 venv for TAP and then install TAP
-# TODO deal with OSs with python3.6 as deafult = e.g. 18.04
-
-if which python3
+# TODO deal with OSs with python3.6 as default = e.g. 18.04
+if ! apt list --installed python3-venv 2>/dev/null | grep -q python3-venv
 then
-  PYTHON_TO_USE=python3
-else
-  echo "Python3 not installed"
-  exit 1
-fi
-
-if python3 -c "import sys; print(sys.version_info.major >= 3 and sys.version_info.minor >= 7)" | grep False
-then
-  echo "python3 version is too old, trying 'python3.8' explicitly"
-  if which python3.8
-  then
-    PYTHON_TO_USE=python3.8
-  else
-    echo "Python3.8 not installed, trying python3.7"
-    if which python3.7
-      then
-        PYTHON_TO_USE=python3.7
-      else
-        echo "Python3.7 not installed, will try installing python3.8"
-        sleep 3
-        sudo apt-get install python3.8-venv -y
-        if which python3.8
-        then
-          PYTHON_TO_USE=python3.8
-        else
-          echo "Could not install python3.8, will try installing python3.7"
-          sudo apt-get install python3.7-venv -y
-          if which python3.7
-          then
-            PYTHON_TO_USE=python3.7
-          else
-            echo "Could not find or install a python version of 3.7 or newer."
-            exit 1
-          fi
-        fi
-      fi
-  fi
-fi
-echo "Using $PYTHON_TO_USE for python commands"
-
-
-if ! apt list --installed $PYTHON_TO_USE-venv 2>/dev/null | grep -q $PYTHON_TO_USE-venv
-then
-  sudo apt-get install $PYTHON_TO_USE-venv -y
+  sudo apt-get install python3-venv -y
 fi
 
 if [ -d "$TAP_VENV" ]
@@ -74,21 +30,20 @@ then
  echo "$TAP_VENV already exists, not re-creating it"
  source "$TAP_VENV/bin/activate"
 else
-  $PYTHON_TO_USE -m venv "$TAP_VENV"
+  python3 -m venv "$TAP_VENV"
   pushd "$TAP_VENV"
     echo "[global]" > pip.conf
     echo "index-url = https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple" >> pip.conf
     echo "trusted-host = tap-artifactory1.eng.sophos" >> pip.conf
   popd
-  # Within TAP python venv just use "python3"
   source "$TAP_VENV/bin/activate"
-    echo "Using python:"
-    which python
-    python3 -m pip install pip --upgrade
-    python3 -m pip install wheel
-    ##python3 -m pip install build_scripts
-    python3 -m pip install keyrings.alt
-    python3 -m pip install tap
+  echo "Using python:"
+  which python
+  python3 -m pip install pip --upgrade
+  python3 -m pip install wheel
+  ##python3 -m pip install build_scripts
+  python3 -m pip install keyrings.alt
+  python3 -m pip install tap
 fi
 
 # TODO - raise ticket to get this dependency removed - Not sure why tap needs this, seems to never be used?
