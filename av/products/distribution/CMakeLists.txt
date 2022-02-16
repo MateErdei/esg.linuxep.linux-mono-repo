@@ -49,7 +49,7 @@ add_custom_target(
         COMMAND ${PYTHON} ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
         COMMAND ${PYTHON} ${GENERATE_TOOL} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR} ${DISTRIBUTION_TOOL_DIR}
-        COMMAND ${INPUT}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/SDDS-Import.xml --nonce "$(sha1sum ${DIST}/SDDS-Import.xml | head -c 10)"
+        COMMAND ${INPUT}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/SDDS-Import.xml --nonce `sha1sum ${DIST}/SDDS-Import.xml | head -c 10`
 )
 
 set(SDDS "${CMAKE_BINARY_DIR}/sdds")
