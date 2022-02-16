@@ -503,13 +503,15 @@ function build()
 
     local INSTALLSET=build64/installset
     local SDDS=build64/sdds
+    local SDDS3=build64/SDDS3-PACKAGE
 
     if [[ -d $SDDS ]]
     then
         echo "Separate SDDS component"
         [[ -f $SDDS/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
         cp -rL "$SDDS" output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
-        cp -rL "$SDDS" output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS3 package to output"
+        cp -rL "$SDDS3" output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS3 package to output"
+        cp -rL $SDDS/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3 package output"
     else
         exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to find SDDS component in build"
     fi
