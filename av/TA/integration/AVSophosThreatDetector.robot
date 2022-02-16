@@ -63,8 +63,6 @@ Threat detector recreates logging symlink if missing
     Create file   ${CHROOT_LOGGING_SYMLINK}/testfile
     Should exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
 
-
-
 Threat detector aborts if logging symlink cannot be created
     register cleanup   Exclude Failed To Create Symlink
     register cleanup   Install With Base SDDS
@@ -78,8 +76,6 @@ Threat detector aborts if logging symlink cannot be created
     Sophos Threat Detector Log Contains With Offset   LogSetup <> Failed to create symlink for logs at
     Threat Detector Log Should Not Contain With Offset   LogSetup <> Create symlink for logs at
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
-
-
 
 Threat Detector Restarts When /etc/hosts changed
     Wait until threat detector running
@@ -104,7 +100,6 @@ Threat Detector Restarts When /etc/hosts changed
     Wait until threat detector running
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
     Should Not Be Equal As Integers  ${SOPHOS_THREAT_DETECTOR_PID_AT_START}  ${SOPHOS_THREAT_DETECTOR_PID_AT_END}
-
 
 Threat Detector restarts if no scans requested within the configured timeout
     Stop sophos_threat_detector
@@ -473,6 +468,21 @@ SUSI Debug Log Does Not Contain Info Level Logs By Default
         Log  ${line}
         Should Not Start With  ${line}  I
     END
+
+Sophos Threat Detector Is Not Shutdown On A New Policy
+     Force SUSI to be initialized
+     Stop AV Plugin Process
+     Send Sav Policy With Imminent Scheduled Scan To Base
+     Start AV Plugin Process
+     Wait Until Sophos Threat Detector Log Contains With Offset  Reload pipe has been notified
+
+Sophos Threat Detector Is Ignoring Reload Request
+     Stop sophos_threat_detector
+     Start sophos_threat_detector
+     Stop AV Plugin Process
+     Send Sav Policy With Imminent Scheduled Scan To Base
+     Start AV Plugin Process
+     Wait Until Sophos Threat Detector Log Contains With Offset  Skipping susi reload because susi is not initialised
 
 *** Keywords ***
 Stop sophos_threat_detector and mark log
