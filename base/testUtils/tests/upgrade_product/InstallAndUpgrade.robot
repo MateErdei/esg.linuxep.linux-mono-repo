@@ -34,6 +34,7 @@ Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../GeneralTeardownResource.robot
 Resource    UpgradeResources.robot
+Resource    ../management_agent/ManagementAgentResources.robot
 
 *** Variables ***
 ${BaseEdrAndMtrAndAVDogfoodPolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
@@ -149,15 +150,30 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait until threat detector running
 
+    ${HealthyShsStatusXmlContents} =  Set Variable  <item name="health" value="1" />
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  15 secs
+    ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
+
     Mark Watchdog Log
     Mark Managementagent Log
     Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Trigger Update Now
 
     Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   10 secs
+    ...   Check Log Contains  Installing product: ServerProtectionLinux-Base-component  /tmp/preserve-sul-downgrade   suldownloader_log
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+
+    Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  2
+
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
@@ -213,6 +229,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check AV Plugin Permissions
     Check AV Plugin Can Scan Files
     Check Update Reports Have Been Processed
+
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
@@ -463,15 +481,33 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait until threat detector running
 
+# TODO LINUXDAR-4263: Uncomment this when SSPL Shipping has Health
+#    ${HealthyShsStatusXmlContents} =  Set Variable  <item name="health" value="1" />
+#
+#    Wait Until Keyword Succeeds
+#    ...  60 secs
+#    ...  15 secs
+#    ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
+#
     Mark Watchdog Log
     Mark Managementagent Log
     Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Trigger Update Now
 
+# TODO LINUXDAR-4263: Uncomment this when SSPL Shipping has Health
+#    Wait Until Keyword Succeeds
+#    ...   60 secs
+#    ...   10 secs
+#    ...   Check Log Contains  Installing product: ServerProtectionLinux-Base-component  /tmp/preserve-sul-downgrade   suldownloader_log
+#    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  2
+
+# TODO LINUXDAR-4263: Uncomment this when SSPL Shipping has Health
+#    SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
@@ -526,6 +562,9 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check AV Plugin Permissions
     Check AV Plugin Can Scan Files
     Check Update Reports Have Been Processed
+
+# TODO LINUXDAR-4263: Uncomment this when SSPL Shipping has Health
+#    SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 
 We Can Downgrade From VUT to Release Without Unexpected Errors
