@@ -163,8 +163,6 @@ AV Plugin gets customer id after upgrade
     ${customerId2} =   Get File   ${customerIdFile_chroot}
     Should Be Equal   ${customerId2}   ${expectedId}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   Skipping susi reload because susi is not initialised
-
     # force an upgrade, check that customer id is set
     Mark Sophos Threat Detector Log
 
@@ -183,9 +181,6 @@ AV Plugin gets customer id after upgrade
     Wait Until Created   ${customerIdFile_chroot}   timeout=12sec
     ${customerId2} =   Get File   ${customerIdFile_chroot}
     Should Be Equal   ${customerId2}   ${expectedId}
-
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket  timeout=30
-
 
 IDE can be removed
     #Our "fake" IDE update might cause a SIGTERM to STD
