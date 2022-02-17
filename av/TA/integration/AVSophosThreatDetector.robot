@@ -472,9 +472,23 @@ SUSI Debug Log Does Not Contain Info Level Logs By Default
 Sophos Threat Detector Is Not Shutdown On A New Policy
      Force SUSI to be initialized
      Stop AV Plugin Process
-     Send Sav Policy With Imminent Scheduled Scan To Base
+     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
      Start AV Plugin Process
-     Wait Until Sophos Threat Detector Log Contains With Offset  Reload pipe has been notified
+     Wait Until Sophos Threat Detector Log Contains With Offset  Susi configuration reloaded
+     mark susi debug log
+     Check avscanner can detect eicar
+     Wait Until SUSI DEBUG Log Contains With Offset    "enableLookup":false
+
+     mark sophos threat detector log
+     mark susi debug log
+     Stop AV Plugin Process
+     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
+     Start AV Plugin Process
+     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled
+     Wait Until Sophos Threat Detector Log Contains With Offset  Susi configuration reloaded
+     Check avscanner can detect eicar
+     Wait Until SUSI DEBUG Log Contains With Offset    "enableLookup":true
+     Dump Log  ${SUSI_DEBUG_LOG_PATH}
 
 Sophos Threat Detector Is Ignoring Reload Request
      Stop sophos_threat_detector
