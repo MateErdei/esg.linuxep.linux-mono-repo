@@ -76,6 +76,7 @@ namespace ManagementAgent
             {
                 try
                 {
+                    LOGINFO("Writing health status");
                     Common::FileSystem::fileSystem()->writeFileAtomically(statusFilePath, statusXmlResult.second, tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
                 }
                 catch(const Common::FileSystem::IFileSystemException& ex)

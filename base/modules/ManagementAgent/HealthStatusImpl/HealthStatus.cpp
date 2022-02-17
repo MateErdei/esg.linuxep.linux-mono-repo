@@ -169,6 +169,10 @@ namespace ManagementAgent
                       << R"(</health>)";
 
             bool hasStatusChanged = (statusXml.str() != m_cachedHealthStatusXml);
+            if (hasStatusChanged)
+            {
+                LOGDEBUG("Health status changed, cached: " << m_cachedHealthStatusXml << ", new: " << statusXml.str());
+            }
             m_cachedHealthStatusXml = statusXml.str();
             return std::make_pair(hasStatusChanged, statusXml.str());
         }

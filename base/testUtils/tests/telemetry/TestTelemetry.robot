@@ -84,6 +84,15 @@ Reset MachineID Permissions
     Run Process  chmod  640  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
     Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 
+Run Telemetry And Expect Field Missing
+    [Arguments]   ${missing_field}
+    Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${SUCCESS}
+    ${telemetry_file_contents} =  Get File  ${TELEMETRY_OUTPUT_JSON}
+    # Both test generated and product generated telemetry fill in the over all health field by reading
+    # the SHS status file, if this file changes between the reads then there can be a mismatch and the test fails.
+    # As the tests using this keyword have nothing to do with health we're ignoring that telemetry field.
+    Check Base Telemetry Json Is Correct  ${telemetry_file_contents}  expected_missing_keys=${missing_field}  ignored_fields=overall-health
+
 
 *** Test Cases ***
 Telemetry Executable Generates System Base and Watchdog Telemetry
@@ -289,31 +298,23 @@ Telemetry Executable Handles Errors When Reading Missing MCS Config For Endpoint
     Drop ALC Policy Into Place
     Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
     Should Not Exist  ${TELEMETRY_OUTPUT_JSON}
-    Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${SUCCESS}
-    ${telemetryFileContents} =  Get File  ${TELEMETRY_OUTPUT_JSON}
-    Check Base Telemetry Json Is Correct  ${telemetryFileContents}  endpointId
+    Run Telemetry And Expect Field Missing  endpointId
 
 Telemetry Executable Handles Errors When Reading MCS Config With Missing Key For Endpoint ID
     Drop ALC Policy Into Place
     Drop sophos-spl-local File Into Place  ${SUPPORT_FILES}/base_data/mcs.config-missing-mcs-id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${SUCCESS}
-    ${telemetryFileContents} =  Get File  ${TELEMETRY_OUTPUT_JSON}
-    Check Base Telemetry Json Is Correct  ${telemetryFileContents}  endpointId
+    Run Telemetry And Expect Field Missing  endpointId
 
 Telemetry Executable Handles Errors When Reading Corrupt MCS Config For Endpoint ID
     Drop ALC Policy Into Place
     Drop sophos-spl-local File Into Place  ${SUPPORT_FILES}/base_data/garbage-text  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${SUCCESS}
-    ${telemetryFileContents} =  Get File  ${TELEMETRY_OUTPUT_JSON}
-    Check Base Telemetry Json Is Correct  ${telemetryFileContents}  endpointId
+    Run Telemetry And Expect Field Missing  endpointId
 
 Telemetry Executable Handles Errors When Reading Machine ID With Invalid Permissions
     Drop ALC Policy Into Place
     Run Process  chmod  600  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
     Run Process  chown  root:root  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
-    Run Telemetry Executable  ${EXE_CONFIG_FILE}  ${SUCCESS}
-    ${telemetryFileContents} =  Get File  ${TELEMETRY_OUTPUT_JSON}
-    Check Base Telemetry Json Is Correct  ${telemetryFileContents}  machineId
+    Run Telemetry And Expect Field Missing   machineId
     Reset MachineID Permissions
     #move the last seen line forward to ignore errors caused by changing achine_id.txt permissions
     Mark Log File  ${SOPHOS_INSTALL}/logs/base/watchdog.log
