@@ -146,42 +146,42 @@ Scanner works after upgrade
 AV Plugin gets customer id after upgrade
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Register Cleanup    Exclude UpdateScheduler Fails
-    ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
-    ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
-    Remove Files   ${customerIdFile1}   ${customerIdFile2}
+    ${customerIdFile} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
+    ${customerIdFile_chroot} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile}
+    Remove Files   ${customerIdFile}   ${customerIdFile_chroot}
 
     Send Alc Policy
 
     ${expectedId} =   Set Variable   a1c0f318e58aad6bf90d07cabda54b7d
     #A max of 10 seconds might pass before the threatDetector starts
-    Wait Until Created   ${customerIdFile1}   timeout=12sec
-    ${customerId1} =   Get File   ${customerIdFile1}
+    Wait Until Created   ${customerIdFile}   timeout=12sec
+    ${customerId1} =   Get File   ${customerIdFile}
     Should Be Equal   ${customerId1}   ${expectedId}
 
     #A max of 10 seconds might pass before the threatDetector starts
-    Wait Until Created   ${customerIdFile2}   timeout=12sec
-    ${customerId2} =   Get File   ${customerIdFile2}
+    Wait Until Created   ${customerIdFile_chroot}   timeout=12sec
+    ${customerId2} =   Get File   ${customerIdFile_chroot}
     Should Be Equal   ${customerId2}   ${expectedId}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket  timeout=30
+    Wait Until Sophos Threat Detector Log Contains With Offset   Skipping susi reload because susi is not initialised
 
     # force an upgrade, check that customer id is set
     Mark Sophos Threat Detector Log
 
-    Remove Files   ${customerIdFile1}   ${customerIdFile2}
+    Remove Files   ${customerIdFile}   ${customerIdFile_chroot}
 
     # modify the manifest to force the installer to perform a full product update
     Modify manifest
     Run Installer From Install Set
 
     #A max of 10 seconds might pass before the threatDetector starts
-    Wait Until Created   ${customerIdFile1}   timeout=12sec
-    ${customerId1} =   Get File   ${customerIdFile1}
+    Wait Until Created   ${customerIdFile}   timeout=12sec
+    ${customerId1} =   Get File   ${customerIdFile}
     Should Be Equal   ${customerId1}   ${expectedId}
 
     #A max of 10 seconds might pass before the threatDetector starts
-    Wait Until Created   ${customerIdFile2}   timeout=12sec
-    ${customerId2} =   Get File   ${customerIdFile2}
+    Wait Until Created   ${customerIdFile_chroot}   timeout=12sec
+    ${customerId2} =   Get File   ${customerIdFile_chroot}
     Should Be Equal   ${customerId2}   ${expectedId}
 
     Wait Until Sophos Threat Detector Log Contains With Offset   UnixSocket <> Starting listening on socket  timeout=30
