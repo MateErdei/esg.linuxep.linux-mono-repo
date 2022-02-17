@@ -179,7 +179,7 @@ AV Plugin Scans local secondary mount only once
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
     Wait until scheduled scan updated With Offset
-    Restart threat detector if it was requested to shutdown
+
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: ${scanName}   timeout=30
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${scanName}     timeout=90
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${scanName}    timeout=60
@@ -247,7 +247,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     Send Plugin Policy  av  sav  ${policyContent}
     Wait until scheduled scan updated With Offset
-    Restart threat detector if it was requested to shutdown
+
     Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=240  interval=5
     AV Plugin Log Contains  Starting scan MyScan
     File Should Exist  ${myscan_log}
@@ -409,7 +409,7 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
     Log    ${policyContent}
     Send Plugin Policy  av  sav  ${policyContent}
     Wait until scheduled scan updated With Offset
-    Restart threat detector if it was requested to shutdown
+
     ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
 
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec

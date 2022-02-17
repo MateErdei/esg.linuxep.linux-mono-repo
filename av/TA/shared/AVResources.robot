@@ -581,11 +581,6 @@ Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=180
 
-Restart threat detector if it was requested to shutdown
-    Run Keyword And Ignore Error  AV Plugin Log Contains  SAV policy received for the first time.
-    ${status}  ${value}=  Run Keyword And Ignore Error  Wait Until AV Plugin Log Contains With Offset  Reloading susi as policy configuration has changed
-    Run Keyword If  '${status}' == 'PASS'  Restart threat detector once it stops
-
 Configure Scan Exclusions Everything Else
     [Arguments]  ${inclusion}
     ${exclusions} =  exclusions_for_everything_else  ${inclusion}

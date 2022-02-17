@@ -22,13 +22,13 @@ Run Scheduled Scan
     ${policy_contents} =  Get File  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
     Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated
-    Restart threat detector if it was requested to shutdown
+
 
 Configure Scan Now Scan
     ${policy_contents} =  Get Complete Sav Policy
     Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated
-    Restart threat detector if it was requested to shutdown
+
 
 Trigger Scan Now Scan
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
@@ -37,7 +37,7 @@ Run Scan Now Scan
     ${policy_contents} =  Get Complete Sav Policy
     Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated With Offset
-    Restart threat detector if it was requested to shutdown
+
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 
 Run Scan Now Scan For Excluded Files Test
@@ -45,14 +45,14 @@ Run Scan Now Scan For Excluded Files Test
 
     Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated With Offset
-    Restart threat detector if it was requested to shutdown
+
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 
 Run Scan Now Scan With No Exclusions
     ${policy_contents} =  Get Sav Policy With No Exclusions  ${RESOURCES_PATH}/${SAV_POLICY_FOR_SCAN_NOW_TEST}
     Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated With Offset
-    Restart threat detector if it was requested to shutdown
+
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
 
 # list of exclusions: https://wiki.sophos.net/display/SAVLU/Exclusions
@@ -60,5 +60,5 @@ Run Scan Now Scan With All Types of Exclusions
     ${policy_contents} =  Get File  ${RESOURCES_PATH}/${SAV_POLICY_FOR_EXCLUSION_TYPE_TEST}
     Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated With Offset
-    Restart threat detector if it was requested to shutdown
+
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
