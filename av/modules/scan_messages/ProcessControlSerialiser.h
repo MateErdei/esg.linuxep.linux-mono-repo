@@ -25,8 +25,6 @@ namespace scan_messages
         ProcessControlSerialiser() = delete;
         explicit ProcessControlSerialiser(E_COMMAND_TYPE requestType);
 
-        void setCommandType(E_COMMAND_TYPE commandType);
-
         [[nodiscard]] std::string serialise() const;
 
     protected:

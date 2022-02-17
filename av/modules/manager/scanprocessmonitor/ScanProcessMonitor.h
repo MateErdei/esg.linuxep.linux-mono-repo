@@ -21,7 +21,7 @@ namespace plugin::manager::scanprocessmonitor
 
         /**
          * Externally drive a configuration change event.
-         * Causes sophos_threat_detector to be restarted.
+         * Causes sophos_threat_detector to reload susi config.
          */
         void policy_configuration_changed();
     private:

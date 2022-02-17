@@ -19,11 +19,6 @@ ProcessControlSerialiser::ProcessControlSerialiser(E_COMMAND_TYPE requestType)
 {
 }
 
-void ProcessControlSerialiser::setCommandType(E_COMMAND_TYPE commandType)
-{
-    m_commandType = commandType;
-}
-
 std::string ProcessControlSerialiser::serialise() const
 {
     ::capnp::MallocMessageBuilder message;

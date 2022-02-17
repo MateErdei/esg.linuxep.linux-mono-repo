@@ -92,7 +92,7 @@ bool SusiGlobalHandler::reload(const std::string& config)
     if(!susiIsInitialized())
     {
         LOGDEBUG("Susi not initialized, skipping global configuration reload");
-        return false;
+        return true;
     }
 
     SusiResult res = SUSI_UpdateGlobalConfiguration(config.c_str());
