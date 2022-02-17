@@ -226,6 +226,13 @@ namespace threat_scanner
         return m_globalHandler->update(pluginInstall() / "chroot/susi/update_source", pluginInstall() / "chroot/var/susi_update.lock");
     }
 
+    bool  SusiWrapperFactory::reload()
+    {
+        std::string scannerInfo = create_scanner_info(false, false);
+        std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId(), isSxlLookupEnabled());
+        return 0;
+    }
+
     bool SusiWrapperFactory::susiIsInitialized()
     {
         return m_globalHandler->susiIsInitialized();

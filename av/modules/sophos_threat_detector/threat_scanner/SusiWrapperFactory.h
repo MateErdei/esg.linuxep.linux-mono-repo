@@ -20,6 +20,7 @@ namespace threat_scanner
 
         bool update() override;
         bool susiIsInitialized() override;
+        bool reload() override;
 
     private:
         SusiGlobalHandlerSharePtr m_globalHandler;

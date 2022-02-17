@@ -36,6 +36,11 @@ bool SusiScannerFactory::update()
     return m_wrapperFactory->update();
 }
 
+bool SusiScannerFactory::reload()
+{
+    return m_wrapperFactory->reload();
+}
+
 bool SusiScannerFactory::susiIsInitialized()
 {
     return m_wrapperFactory->susiIsInitialized();

@@ -87,6 +87,25 @@ SusiGlobalHandler::~SusiGlobalHandler()
     assert(res == SUSI_S_OK);
 }
 
+bool SusiGlobalHandler::reload(const std::string& config)
+{
+    if(!susiIsInitialized())
+    {
+        LOGDEBUG("Susi not initialized, skipping global configuration reload");
+        return false;
+    }
+
+    SusiResult res = SUSI_UpdateGlobalConfiguration(config.c_str());
+    if (res == SUSI_S_OK)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 bool SusiGlobalHandler::update(const std::string& path, const std::string& lockfile)
 {
     /*

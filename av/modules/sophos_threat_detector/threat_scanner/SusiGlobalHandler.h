@@ -39,6 +39,14 @@ namespace threat_scanner
         bool update(const std::string& path, const std::string& lockfile);
 
         /**
+         * Update SUSI if initialized, otherwise store the update for later.
+         *
+         * @param path
+         * @return true if the update was successful or wasn't attempted.
+         */
+        bool reload(const std::string& config);
+
+        /**
          * Initialize SUSI if it hasn't been initialized before
          * @param jsonConfig Configuration to initialize SUSI if required
          * @return true if we initialized susi

@@ -55,6 +55,11 @@ namespace
             return true;
         }
 
+        bool reload() override
+        {
+            return true;
+        }
+
         bool susiIsInitialized() override
         {
             return true;

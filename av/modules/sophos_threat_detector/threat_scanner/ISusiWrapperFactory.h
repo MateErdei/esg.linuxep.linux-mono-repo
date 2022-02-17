@@ -17,6 +17,7 @@ namespace threat_scanner
         virtual ~ISusiWrapperFactory() = default;
 
         virtual bool update() = 0;
+        virtual bool reload() = 0;
         virtual bool susiIsInitialized() = 0;
     };
 
