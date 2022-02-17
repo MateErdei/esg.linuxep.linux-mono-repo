@@ -135,8 +135,11 @@ class HttpsServer(object):
         print("Start Simple HTTPS Server localhost:{}".format(port))
         self.m_last_port = port
 
-        httpd = SophosHTTPServer(('', port), HttpsHandler)
-        httpd.timeout = 60  # stop server after timeout
+        try:
+            httpd = SophosHTTPServer(('', port), HttpsHandler)
+            httpd.timeout = 60  # stop server after timeout
+        except Exception as e:
+            print("Server failed on port: {} with error: {}".format(port, e))
 
         protocol = tls_from_string(protocol_string)
         if not protocol:
