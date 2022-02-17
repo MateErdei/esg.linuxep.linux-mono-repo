@@ -446,8 +446,10 @@ SUSI Can Work Despite Specified Log File Being Read-Only
 
 SUSI Debug Log Does Not Contain Info Level Logs By Default
     register cleanup     Exclude Watchdog Log Unable To Open File Error
+    register cleanup     restart sophos_threat_detector
+    register cleanup     Set Log Level  DEBUG
+
     Create Temporary eicar in  ${NORMAL_DIRECTORY}/eicar.com
-    register cleanup  Set Log Level  DEBUG
     run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
     Set Log Level  INFO
     restart sophos_threat_detector
