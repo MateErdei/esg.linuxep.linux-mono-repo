@@ -61,7 +61,7 @@ Verify threat detector log rotated
 
 Dump and Reset Logs
     Register Cleanup   Empty Directory   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
-    Register Cleanup   Dump log          ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
+    Register Cleanup   Dump log          ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log
 
 *** Test Cases ***
 
@@ -107,11 +107,13 @@ Threat detector is killed gracefully
     Dump and Reset Logs
     Start AV
     Wait until threat detector running
-    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /  stdout=${TESTTMP}/cli.log  stderr=STDOUT
+    Register Cleanup  Dump Log  ${TESTTMP}/cli.log
+    Register Cleanup  Terminate Process  ${cls_handle}
 
     Wait Until Sophos Threat Detector Log Contains  Scan requested of
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
-    Run Process   /bin/kill   -SIGTERM   ${pid}
+    Evaluate  os.kill(${pid}, signal.SIGTERM)  modules=os, signal
 
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector received SIGTERM - shutting down
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector is exiting
