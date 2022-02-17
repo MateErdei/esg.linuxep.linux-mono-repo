@@ -34,6 +34,7 @@ namespace UpdateSchedulerImpl
 
     private:
         void waitForSulDownloaderToFinish(int numberOfSeconds2Wait);
+        void waitForJWTokenToArrive(int numberOfSeconds2Wait);
         void processPolicy(const std::string& policyXml);
 
         void processUpdateNow(const std::string& actionXml);

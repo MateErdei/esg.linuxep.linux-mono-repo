@@ -140,6 +140,15 @@ void ConfigurationData::setPolicyProxy(const Proxy& proxy)
     m_policyProxy = proxy;
 }
 
+const std::string& ConfigurationData::getJWToken() const
+{
+    return m_jwToken;
+}
+
+void ConfigurationData::setJWToken(const std::string& token)
+{
+    m_jwToken = token;
+}
 std::string ConfigurationData::getLocalWarehouseRepository() const
 {
     return Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseRepository();
@@ -346,6 +355,7 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     configurationData.setPrimarySubscription(primary);
     configurationData.setProductsSubscription(products);
     configurationData.setFeatures(features);
+    configurationData.setJWToken(settings.jwtoken());
 
     std::vector<std::string> installArgs(
         std::begin(settings.installarguments()), std::end(settings.installarguments()));
@@ -468,6 +478,7 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
         configurationData.getPolicyProxy().getCredentials().getProxyType());
     settings.mutable_proxy()->mutable_url()->assign(configurationData.getPolicyProxy().getUrl());
 
+    settings.mutable_jwtoken()->assign(configurationData.getJWToken());
     const auto& primarySubscription = configurationData.getPrimarySubscription();
     setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
     for (const auto& product : configurationData.getProductsSubscription())

@@ -73,3 +73,78 @@ TEST_F(UpdateSchedulerUtils, allHealthBadWhendownloadStateeIsGarbage)
     expectedHealth["overall"] = 1;
     ASSERT_EQ(expectedHealth.dump(),actualHealth.dump());
 }
+TEST_F(UpdateSchedulerUtils, getJwTokenWhenConfigFileDoesNotExist)
+{
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    std::string token = UpdateSchedulerImpl::UpdateSchedulerUtils::getJWToken();
+    ASSERT_EQ("",token);
+}
+TEST_F(UpdateSchedulerUtils, getJwTokenWhenConfigEmpty)
+{
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+
+    std::vector<std::string> contents{{""}} ;
+
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillRepeatedly(Return(true));
+
+    EXPECT_CALL(*filesystemMock, readLines(_)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    std::string token = UpdateSchedulerImpl::UpdateSchedulerUtils::getJWToken();
+    ASSERT_EQ("",token);
+}
+TEST_F(UpdateSchedulerUtils, getJwTokenFromFile)
+{
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+
+    std::vector<std::string> contents{{"jwt_token=stuff"}} ;
+
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillRepeatedly(Return(true));
+
+    EXPECT_CALL(*filesystemMock, readLines(_)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    std::string token = UpdateSchedulerImpl::UpdateSchedulerUtils::getJWToken();
+    ASSERT_EQ("stuff",token);
+}
+
+TEST_F(UpdateSchedulerUtils, getUpdateConfigWithLatestJWTWhenTokenInUpdateConfigIsUpToDate)
+{
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::string mcsConfigFile = "/opt/sophos-spl/base/etc/sophosspl/mcs.config";
+    std::vector<std::string> mcscontents{{"jwt_token=stuff"}} ;
+    EXPECT_CALL(*filesystemMock, isFile(mcsConfigFile)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readLines(mcsConfigFile)).WillOnce(Return(mcscontents));
+
+    std::string updateConfigFile = "/opt/sophos-spl/base/update/var/updatescheduler/update_config.json";
+    std::string updatecontents= "{\"JWToken\": \"stuff\"}" ;
+    EXPECT_CALL(*filesystemMock, isFile(updateConfigFile)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(updateConfigFile)).WillOnce(Return(updatecontents));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> pair = UpdateSchedulerImpl::UpdateSchedulerUtils::getUpdateConfigWithLatestJWT();
+    ASSERT_EQ(pair.second,false);
+}
+
+TEST_F(UpdateSchedulerUtils, getUpdateConfigWithLatestJWTWhenTokenInUpdateConfigIsOutOfDate)
+{
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::string mcsConfigFile = "/opt/sophos-spl/base/etc/sophosspl/mcs.config";
+    std::vector<std::string> mcscontents{{"jwt_token=tuff"}} ;
+    EXPECT_CALL(*filesystemMock, isFile(mcsConfigFile)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readLines(mcsConfigFile)).WillOnce(Return(mcscontents));
+
+    std::string updateConfigFile = "/opt/sophos-spl/base/update/var/updatescheduler/update_config.json";
+    std::string updatecontents= "{\"JWToken\": \"stuff\"}" ;
+    EXPECT_CALL(*filesystemMock, isFile(updateConfigFile)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(updateConfigFile)).WillOnce(Return(updatecontents));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> pair = UpdateSchedulerImpl::UpdateSchedulerUtils::getUpdateConfigWithLatestJWT();
+    ASSERT_EQ(pair.second,true);
+    ASSERT_EQ(pair.first.getJWToken(),"tuff");
+}

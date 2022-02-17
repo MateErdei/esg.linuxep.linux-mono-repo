@@ -6,9 +6,12 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #include "UpdateSchedulerUtils.h"
 #include "Logger.h"
+
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/UtilityImpl/StringUtils.h>
+
 
 #include <json.hpp>
 namespace UpdateSchedulerImpl
@@ -66,5 +69,65 @@ namespace UpdateSchedulerImpl
                 LOGERROR("Failed to remove file "<< path << " due to error "<< ex.what());
             }
         }
+    }
+
+    std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> UpdateSchedulerUtils::getUpdateConfigWithLatestJWT()
+    {
+        SulDownloader::suldownloaderdata::ConfigurationData config;
+        std::string path = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
+        auto fs = Common::FileSystem::fileSystem();
+        std::string contents;
+        std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> pair = std::make_pair(config,false);
+        try
+        {
+            if (fs->isFile(path))
+            {
+                contents = fs->readFile(path);
+            }
+            else
+            {
+                return pair;
+            }
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGERROR("Failed to read file "<< path << " due to error "<< ex.what());
+
+            return pair;
+        }
+        config = SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(contents);
+
+        std::string token = getJWToken();
+        if (token != config.getJWToken())
+        {
+            config.setJWToken(token);
+            pair.first = config;
+            pair.second = true;
+        }
+
+        return pair;
+    }
+
+    std::string UpdateSchedulerUtils::getJWToken()
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        std::string path = Common::ApplicationConfiguration::applicationPathManager().getMcsConfigFilePath();
+        std::string token;
+        try
+        {
+            if (fs->isFile(path))
+            {
+                token = Common::UtilityImpl::StringUtils::extractValueFromConfigFile(path, "jwt_token");
+            }
+            else
+            {
+                LOGWARN("mcs.config file not found at path " << path);
+            }
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGERROR("Failed to read file "<< path << " due to error "<< ex.what());
+        }
+        return token;
     }
 }

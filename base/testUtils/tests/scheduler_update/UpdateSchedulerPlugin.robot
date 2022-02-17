@@ -95,6 +95,8 @@ UpdateScheduler Regenerates The Config File If It Does Not Exist
     ...  10 secs
     ...  2 secs
     ...  File Should Exist  ${UPDATE_CONFIG}
+    ${File}=  Get File   ${UPDATE_CONFIG}
+    Should Contain   ${File}  "JWToken": "stuff",
     ${eventPath} =  Check Status and Events Are Created
     Check Event Report Success  ${eventPath}
 

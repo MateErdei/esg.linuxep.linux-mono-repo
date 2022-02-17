@@ -140,6 +140,63 @@ TEST(TestStringUtils, extractValueFromIniFileThrowsIfKeydoesntExist) // NOLINT
     EXPECT_EQ(StringUtils::extractValueFromIniFile(filePath,"KEY"),"");
 }
 
+TEST(TestStringUtils, extractValueFromConfigFileCanGetKeyValue) // NOLINT
+{
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::vector<std::string> contents{{"KEY=stuff"}} ;
+    std::string filePath = "/tmp/file";
+
+    EXPECT_CALL(*filesystemMock, isFile(filePath)).WillOnce(Return(true));
+
+    EXPECT_CALL(*filesystemMock, readLines(filePath)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_EQ(StringUtils::extractValueFromConfigFile(filePath,"KEY"),"stuff");
+
+}
+
+TEST(TestStringUtils, extractValueFromConfigFileThrowsIfFiledoesntExist) // NOLINT
+{
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::string filePath1 = "/tmp/file1";
+    EXPECT_CALL(*filesystemMock, isFile(filePath1)).WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_THROW(StringUtils::extractValueFromConfigFile(filePath1,"KEY"),std::runtime_error);
+}
+TEST(TestStringUtils, extractValueFromConfigFileKeyDoesNotexist) // NOLINT
+{
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::vector<std::string> contents{{"KEY1=stuff"}} ;
+    std::string filePath = "/tmp/file";
+
+    EXPECT_CALL(*filesystemMock, isFile(filePath)).WillOnce(Return(true));
+
+    EXPECT_CALL(*filesystemMock, readLines(filePath)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_EQ(StringUtils::extractValueFromConfigFile(filePath,"KEY"),"");
+
+}
+
+TEST(TestStringUtils, extractValueFromConfigFileCanGetKeyValueWhenKeyIsDefinedMoreThanOnce) // NOLINT
+{
+
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::vector<std::string> contents{{"KEY=stuff"},{"KEY=notstuff"}} ;
+    std::string filePath = "/tmp/file";
+
+    EXPECT_CALL(*filesystemMock, isFile(filePath)).WillOnce(Return(true));
+
+    EXPECT_CALL(*filesystemMock, readLines(filePath)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_EQ(StringUtils::extractValueFromConfigFile(filePath,"KEY"),"stuff");
+
+}
 TEST(TestStringUtils, isVersionOlderthrowsOnNonVersionData) // NOLINT
 {
     EXPECT_THROW(StringUtils::isVersionOlder("1.2","1.a"),std::invalid_argument);

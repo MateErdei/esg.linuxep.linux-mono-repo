@@ -167,7 +167,6 @@ namespace UpdateSchedulerImpl
         LOGINFO("Update Scheduler Starting");
         m_callback->setRunning(true);
         waitForSulDownloaderToFinish(600);
-
         m_cronThread->start();
 
         // Request policy on startup
@@ -264,7 +263,12 @@ namespace UpdateSchedulerImpl
                 // Update immediately if we haven't previously had a policy
                 m_pendingUpdate = true;
             }
-
+            std::string token = UpdateSchedulerUtils::getJWToken();
+            if (token.empty())
+            {
+                LOGWARN("No jwt token field found in mcs.config");
+            }
+            settingsHolder.configurationData.setJWToken(token);
             writeConfigurationData(settingsHolder.configurationData);
             m_scheduledUpdateConfig = settingsHolder.weeklySchedule;
             m_featuresInPolicy = settingsHolder.configurationData.getFeatures();
@@ -398,6 +402,11 @@ namespace UpdateSchedulerImpl
             m_baseService->requestPolicies(UpdateSchedulerProcessor::ALC_API);
             m_pendingUpdate = true;
             return;
+        }
+        std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> pair = UpdateSchedulerUtils::getUpdateConfigWithLatestJWT();
+        if (pair.second)
+        {
+            writeConfigurationData(pair.first);
         }
 
         // Check if we should do a supplement-only update or not
@@ -806,4 +815,5 @@ namespace UpdateSchedulerImpl
 
         LOGINFO("No instance of SulDownloader running.");
     }
+
 } // namespace UpdateSchedulerImpl

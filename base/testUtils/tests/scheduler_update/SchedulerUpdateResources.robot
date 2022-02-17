@@ -81,6 +81,7 @@ Setup Update Scheduler Environment
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
     Disable mcsrouter
+    setup mcs config with JWT token
 
 
 
@@ -89,10 +90,16 @@ Setup Update Scheduler Environment and Stop All Services
     Stop Update Scheduler
     Stop Management Agent Via WDCTL
 
+setup mcs config with JWT token
+    create file    ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config    jwt_token=stuff
+    Run Process  chmod  640  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Run Process  chown  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+
 Setup Current Update Scheduler Environment
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
     Disable mcsrouter
+    setup mcs config with JWT token
     Create Empty Config File To Stop First Update On First Policy Received
     Set Log Level For Component And Reset and Return Previous Log  sophos_managementagent   DEBUG
     Set Log Level For Component And Reset and Return Previous Log  updatescheduler   DEBUG
@@ -102,6 +109,7 @@ Setup Current Update Scheduler Environment Without Policy
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
     Disable mcsrouter
+    setup mcs config with JWT token
 
 
 Check Status and Events Are Created

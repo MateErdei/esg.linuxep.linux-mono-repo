@@ -160,6 +160,26 @@ namespace Common
                 }
                 throw std::runtime_error("File doesn't exist :" + filePath);
             }
+            static std::string extractValueFromConfigFile(const std::string& filePath, const std::string& key)
+            {
+                auto fs = Common::FileSystem::fileSystem();
+                if (fs->isFile(filePath))
+                {
+                    std::vector<std::string> contents = fs->readLines(filePath);
+                    for (auto const& line : contents)
+                    {
+
+                        if (startswith(line, key + "="))
+                        {
+                            std::vector<std::string> list = splitString(line, "=");
+                            return list[1];
+                        }
+                    }
+                    return "";
+                }
+                throw std::runtime_error("File doesn't exist :" + filePath);
+            }
+
 
             static bool isVersionOlder(const std::string& currentVersion, const std::string& newVersion)
             {

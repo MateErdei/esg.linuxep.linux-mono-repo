@@ -13,6 +13,7 @@ Resource  ../GeneralTeardownResource.robot
 Resource  ../installer/InstallerResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
 Resource  ../comms_component/CommsComponentResources.robot
+Resource  ../scheduler_update/SchedulerUpdateResources.robot
 
 Suite Setup      Setup Telemetry Tests
 Suite Teardown   Cleanup Telemetry Tests
@@ -146,7 +147,7 @@ Telemetry Executable Generates Update Scheduler Telemetry
     Require Fresh Install
 
     Create Empty SulDownloader Config
-
+    setup mcs config with JWT token
     Drop ALC Policy Into Place
 
     Prepare To Run Telemetry Executable
@@ -162,7 +163,7 @@ Telemetry Executable Generates Update Scheduler Telemetry With Fixed Version And
     Require Fresh Install
 
     Create Empty SulDownloader Config
-
+    setup mcs config with JWT token
     Drop ALC Policy With Fixed Version Into Place
 
     Prepare To Run Telemetry Executable

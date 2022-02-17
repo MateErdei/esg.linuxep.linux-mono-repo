@@ -132,6 +132,18 @@ namespace SulDownloader::suldownloaderdata
         void setPolicyProxy(const Proxy& proxy);
 
         /**
+         * Gets the JWToken
+         * @return string containing the latest JWToken
+         */
+        const std::string& getJWToken() const;
+
+        /**
+         * Sets the configured JWToken
+         * @param pstring containing the latest JWToken
+         */
+        void setJWToken(const std::string& token);
+
+        /**
          * On top of the configured proxy (getProxy) there is the environment proxy that has to be considered.
          * Hence, there will be either:
          *  - 1 proxy to try: configured proxy
@@ -275,10 +287,6 @@ namespace SulDownloader::suldownloaderdata
          * @test installationRootPath is a valid directory
          * @test localWarehouseRepository is a valid directory
          * @test localDistributionRepository is a valid directory
-         * @test certificatePath is valid directory, which contains the rootca.crt and "ps_rootca.crt" files
-         * @test systemSslCertificatePath is a valid directory
-         * @test updateCacheSslCertificatePath is a valid directory
-         * @test updateCacheSslCertificatePath is a valid directory
          * @return true, if all required settings are valid, false otherwise
          */
         bool verifySettingsAreValid();
@@ -328,6 +336,7 @@ namespace SulDownloader::suldownloaderdata
         std::vector<std::string> m_localUpdateCacheUrls;
         Proxy m_policyProxy;
         State m_state;
+        std::string  m_jwToken;
         std::vector<ProductSubscription> m_productsSubscription;
         ProductSubscription m_primarySubscription;
         std::vector<std::string> m_features;
