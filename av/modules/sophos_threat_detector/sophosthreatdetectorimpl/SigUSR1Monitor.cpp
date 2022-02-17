@@ -25,7 +25,7 @@ void SigUSR1Monitor::triggered()
 
     LOGWARN("Reload triggered by USR1");
 
-    m_reloader->reload();
+    m_reloader->update();
 }
 
 static int GL_USR1_MONITOR_PIPE = -1; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)

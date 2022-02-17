@@ -43,7 +43,7 @@ ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread
 
     if (m_reloadPipe == nullptr)
     {
-        throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null reload pipe");
+        throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null update pipe");
     }
 }
 

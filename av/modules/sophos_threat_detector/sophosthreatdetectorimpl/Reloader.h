@@ -21,8 +21,9 @@ namespace sspl::sophosthreatdetectorimpl
             : m_scannerFactory(std::move(scannerFactory))
         {}
 
+        void update() override;
         void reload() override;
-        
+
         void reset(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
         {
             m_scannerFactory = std::move(scannerFactory);

@@ -49,7 +49,7 @@ TEST_F(TestReloader, testReload) // NOLINT
     EXPECT_CALL(*scannerFactory, update()).WillOnce(Return(true));
 
     sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory);
-    EXPECT_NO_THROW(reloader.reload());
+    EXPECT_NO_THROW(reloader.update());
 }
 
 TEST_F(TestReloader, testReloadFails) // NOLINT
@@ -58,13 +58,13 @@ TEST_F(TestReloader, testReloadFails) // NOLINT
     EXPECT_CALL(*scannerFactory, update()).WillOnce(Return(false));
 
     sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory);
-    EXPECT_THROW(reloader.reload(), std::runtime_error);
+    EXPECT_THROW(reloader.update(), std::runtime_error);
 }
 
 TEST_F(TestReloader, testReloadWithoutFactoryThrows) // NOLINT
 {
     sspl::sophosthreatdetectorimpl::Reloader reloader;
-    EXPECT_THROW(reloader.reload(), std::runtime_error);
+    EXPECT_THROW(reloader.update(), std::runtime_error);
 }
 
 TEST_F(TestReloader, testReset) // NOLINT
@@ -74,7 +74,7 @@ TEST_F(TestReloader, testReset) // NOLINT
 
     sspl::sophosthreatdetectorimpl::Reloader reloader;
     reloader.reset(scannerFactory);
-    EXPECT_NO_THROW(reloader.reload());
+    EXPECT_NO_THROW(reloader.update());
 }
 
 TEST_F(TestReloader, testResetWithExistingFactory) // NOLINT
@@ -86,5 +86,5 @@ TEST_F(TestReloader, testResetWithExistingFactory) // NOLINT
 
     sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory);
     reloader.reset(scannerFactory2);
-    EXPECT_NO_THROW(reloader.reload());
+    EXPECT_NO_THROW(reloader.update());
 }

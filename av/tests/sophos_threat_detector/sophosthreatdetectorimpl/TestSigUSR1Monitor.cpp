@@ -31,6 +31,11 @@ namespace
     {
     public:
         int m_reloadCount = 0;
+        int m_updateCount = 0;
+        void update() override
+        {
+            m_updateCount++;
+        }
         void reload() override
         {
             m_reloadCount++;
@@ -66,10 +71,10 @@ TEST_F(TestSigUSR1Monitor, testSignal) // NOLINT
 }
 
 
-TEST_F(TestSigUSR1Monitor, triggerCallsReload) // NOLINT
+TEST_F(TestSigUSR1Monitor, triggerCallsUpdate) // NOLINT
 {
     auto reloadable = std::make_shared<FakeReloadable>();
     sspl::sophosthreatdetectorimpl::SigUSR1Monitor monitor(reloadable);
     monitor.triggered();
-    EXPECT_EQ(reloadable->m_reloadCount, 1);
+    EXPECT_EQ(reloadable->m_updateCount, 1);
 }

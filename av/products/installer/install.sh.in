@@ -411,7 +411,7 @@ function update_supplement()
 
     generate_susi_package_manifest
 
-    # reload sophos_threat_detector
+    # update sophos_threat_detector
     local PID=$(ps -C sophos_threat_d -o pid=)
     if [[ -n "$PID" ]]
     then
