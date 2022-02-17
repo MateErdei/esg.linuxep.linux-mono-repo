@@ -22,7 +22,7 @@ def build_sdds3_warehouse(stage: tap.Root, name="sdds3", image='centos79_x64_baz
                                component=component,
                                image=image,
                                release_package='./build/sdds3.xml',
-                               mode=name)
+                               mode="dev")
 
 
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput) -> Dict[str, Input]:

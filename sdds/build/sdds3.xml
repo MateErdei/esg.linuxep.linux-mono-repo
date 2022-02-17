@@ -39,8 +39,8 @@
         </build-asset>
 
         <build-asset project="linuxep" repo="sspl-plugin-edr-component">
-            <release-version branch="release--version_1_1_5" build-id="20220125200542-816e9518ada05b441819e66a7e5699f448a1335b-sVF733"/>
-            <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/edr/latest/x64"/>
+            <development-version branch="feature/LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files"/>
+            <include artifact-path="edr/SDDS3-PACKAGE" dest-dir="redist/edr/latest/x64"/>
         </build-asset>
 
         <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
@@ -68,8 +68,28 @@
 
     <buildcommands>
         <command>
-            <program>/bin/bash</program>
-            <args>sdds3/tools/build_sdds3.sh</args>
+            <program>chmod</program>
+            <args>+x redist/sdds3/sdds3-builder</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command>
+            <program>python3</program>
+            <args>-u tools/src/dump_environment/dump_environment.py</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="dev">
+            <program>python3</program>
+            <args>-u sdds3/tools/gen_bazel.py</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="prod">
+            <program>python3</program>
+            <args>-u sdds3/tools/gen_bazel.py --mode prod</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command>
+            <program>bazel</program>
+            <args>build //sdds3/... --verbose_failures</args>
             <workingdir>.</workingdir>
         </command>
     </buildcommands>

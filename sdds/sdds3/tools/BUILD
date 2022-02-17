@@ -13,8 +13,3 @@ filegroup(
     visibility = ["//sdds3:__pkg__"],
 )
 
-pylint(
-    name = "pylint",
-    srcs = glob(["*.py"]),
-    visibility = ["//sdds3:__pkg__"],
-)

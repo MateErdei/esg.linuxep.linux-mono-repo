@@ -114,7 +114,7 @@ def emit_buildfile_for_imported_fileset(fileset, **kwargs):
         raise FileExistsError(f'Error: BUILD file already exists {buildfile}')
     EMITTED_BUILDFILES[buildfile] = True
     with open(buildfile, 'w') as f:
-        print(f"""# AUTO-GENERATED BUILD FILE. DO NOT EDIT.
+        print("""# AUTO-GENERATED BUILD FILE. DO NOT EDIT.
 filegroup(
     name = "sdds_import",
     srcs = ["SDDS-Import.xml"],
@@ -285,11 +285,12 @@ def create_suite_package(compdef, suite, view, mode):
             shutil.rmtree(pkg_fileset)
         shutil.copytree(src=os.path.dirname(sdds_import), dst=pkg_fileset)
 
-        say(f'{line_id} {pkg_version}: setting name/line-id to {line_id}')
-        xml.find('Component/RigidName').text = line_id
-        xml.find('Component/Name').text = line_id
-        say(f'{line_id} {pkg_version}: setting version to {pkg_version}')
-        xml.find('Component/Version').text = pkg_version
+        if 'subcomponents' in view:
+            say(f'{line_id} {pkg_version}: setting name/line-id to {line_id}')
+            xml.find('Component/RigidName').text = line_id
+            xml.find('Component/Name').text = line_id
+            say(f'{line_id} {pkg_version}: setting version to {pkg_version}')
+            xml.find('Component/Version').text = pkg_version
 
         for f in xml.findall('Component/FileList/File'):
             if 'Offset' not in f.attrib and f.attrib['Name'] == 'version':
@@ -300,8 +301,14 @@ def create_suite_package(compdef, suite, view, mode):
                 break
 
         sdds_import = os.path.join(pkg_fileset, 'SDDS-Import.xml')
-        with open(sdds_import, 'wb') as f:
-            ET.ElementTree(element=xml).write(f, encoding='UTF-8', xml_declaration=True)
+        if 'subcomponents' in view:
+            with open(sdds_import, 'wb') as f:
+                ET.ElementTree(element=xml).write(f, encoding='UTF-8', xml_declaration=True)
+        else:
+            shutil.copy(
+                os.path.join(BASE, compdef['fileset'], 'SDDS-Import.xml'),
+                os.path.join(pkg_fileset, 'SDDS-Import.xml')
+            )
 
     # Set things up so that maker.py can identify the platforms and supplements of this
     # particular view's suite package.
@@ -317,6 +324,7 @@ def create_suite_package(compdef, suite, view, mode):
 def _get_package_info_from_sdds_import_xml(compdef):
     # Read the SDDS-Import.xml file to grok the name, version and nonce
     sdds_import = os.path.join(BASE, compdef['fileset'], 'SDDS-Import.xml')
+    print(f"JAKE-SDDS-IMPORT: {sdds_import}")
     nonce = hash_file(sdds_import)[:10]
     with open(sdds_import) as f:
         xml = ET.ElementTree(None, f)
@@ -400,11 +408,13 @@ def emit_package_rule(rulefh, component, compdef, package_folder='package'):
     PKGTARGET_TO_FILESET[target] = compdef['fileset']
 
     package = f'{target}.zip'
+    print(f"JAKE-PREBUILT: {compdef}")
     prebuilt = os.path.join(BASE, compdef['fileset'], package)
+    print(f"JAKE-PREBUILT2: {prebuilt}")
+    print(f"JAKE-PREBUILT3: {os.path.exists(prebuilt)}")
 
     fileset = os.path.join(BASE, compdef['fileset'])
     emit_buildfile_for_imported_fileset(fileset, prebuilt_package=os.path.basename(prebuilt))
-
     if os.path.exists(prebuilt):
         bazel_prebuilt_package = bazelize_sdds_import_target(fileset, 'prebuilt_package')
         print(f"""
@@ -427,7 +437,9 @@ build_sdds3_package(
 
 def emit_package_rules(rulefh, suites, common_component_data, mode):
     for suite in suites:
+        print(f"JAKE-SUITE: {suite}")
         suitedef = suites[suite]
+        print(f"JAKE-SUITE: {suitedef}")
 
         for i, instance in enumerate(suitedef['instances']):
             instance['_instance'] = i
@@ -672,7 +684,7 @@ def import_scit_supplement(fromdir, supplements, components):
     now = time.gmtime()
     baseversion = f'{now.tm_year}.{now.tm_mon}.{now.tm_mday}.'
     suffix = 0
-    for pkg in manifest.findall(f'package'):
+    for pkg in manifest.findall('package'):
         suffix += 1
         if 'version' in pkg.attrib:
             version = pkg.attrib['version']
@@ -757,7 +769,7 @@ def load_sdds3_supplement(supplement):
 
 
 def import_external_supplements(supplements, components):
-    say(f'Importing external supplements')
+    say('Importing external supplements')
     if 'external_supplements' not in supplements['supplements']:
         return
 

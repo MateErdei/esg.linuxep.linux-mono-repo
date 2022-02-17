@@ -17,7 +17,7 @@ def _set_environment():
     # environment and local dev machines.
 
     # needed for linux?
-    # os.environ["PATH"] += r";C:\python37\scripts;C:\temp;C:\bazeltools\python\scripts"
+    os.environ["PATH"] += r":/home/pair/gitrepos/sspl-tools/tap_venv/bin"
 
     # If the environment file isn't there (for example, because the user is
     # running bazel commands directly), just silently continue.
@@ -31,6 +31,10 @@ def _set_environment():
         os.environ["CI_SIGNING_URL"] = environment["CI_SIGNING_URL"]
     if "BUILD_JWT_PATH" in environment:
         os.environ["BUILD_JWT_PATH"] = environment["BUILD_JWT_PATH"]
+    if "BUILD_JWT_PATH" in environment:
+        os.environ["BUILD_JWT_PATH"] = environment["BUILD_JWT_PATH"]
+    if "VIRTUAL_ENV" in environment:
+        os.environ["BUILD_JWT_PATH"] = environment["VIRTUAL_ENV"]
 
 
 def main(args):
