@@ -10,6 +10,7 @@ Resource    ../shared/ErrorMarkers.robot
 
 Library         Collections
 Library         Process
+Library         ../Libs/FullInstallerUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
@@ -24,6 +25,11 @@ Test Setup      Installer Test Setup
 Test Teardown   Installer Test TearDown
 
 *** Test Cases ***
+AV Plugin Installs With Version Ini File
+    AV And Base Setup
+    Wait Until AV Plugin running
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
+    VERSION Ini File Contains Proper Format   ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
 
 IDE update doesnt restart av processes
     ${AVPLUGIN_PID} =  Record AV Plugin PID
