@@ -230,7 +230,8 @@ namespace threat_scanner
     {
         std::string scannerInfo = create_scanner_info(false, false);
         std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId(), isSxlLookupEnabled());
-        return 0;
+        LOGINFO("reload in susi wrapper factory");
+        return m_globalHandler->reload(runtimeConfig);
     }
 
     bool SusiWrapperFactory::susiIsInitialized()

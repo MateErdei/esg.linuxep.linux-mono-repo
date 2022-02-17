@@ -98,10 +98,12 @@ bool SusiGlobalHandler::reload(const std::string& config)
     SusiResult res = SUSI_UpdateGlobalConfiguration(config.c_str());
     if (res == SUSI_S_OK)
     {
+        LOGDEBUG("Susi configuration reloaded");
         return true;
     }
     else
     {
+        LOGDEBUG("Susi configuration reload failed");
         return false;
     }
 }

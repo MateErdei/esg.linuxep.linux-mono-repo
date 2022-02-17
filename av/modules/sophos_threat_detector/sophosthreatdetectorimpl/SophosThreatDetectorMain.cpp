@@ -481,7 +481,7 @@ static int inner_main()
         }
         else
         {
-            LOGDEBUG("Skipping susi update because susi is not initialised");
+            LOGDEBUG("Skipping susi reload because susi is not initialised");
             processController.triggeredReload();
         }
 
