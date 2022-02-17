@@ -91,7 +91,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         if (FDUtils::fd_isset(m_policy_changed.readFd(), &tempReadfds))
         {
             clearPipe(m_policy_changed);
-            LOGINFO("Reloading susi as configuration changed");
+            LOGINFO("Reloading susi as policy configuration has changed");
             sendRequestToThreatDetector(scan_messages::E_RELOAD);
         }
 

@@ -193,7 +193,7 @@ SAV and ALC Policy Arrives And Is Handled Correctly
     Wait Until AV Plugin Log Contains  Processing SAV Policy
     Wait Until AV Plugin Log Contains  Received policy from management agent for AppId: ALC
     Wait until scheduled scan updated
-    Wait Until AV Plugin Log Contains   Restarting sophos_threat_detector as the system/susi configuration has changed
+    Wait Until AV Plugin Log Contains   Reloading susi as policy configuration has changed
     #Expect error to show up either 0 times or once
     Run Keyword And Expect Error  *
     ...     Check Log Contains String N  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector.log  sophos_threat_detector.log  Failed to read customerID - using default value  2
