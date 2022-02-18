@@ -9,3 +9,5 @@ instances:
       - platforms:
           - LINUX_INTEL_LIBC6
         component: edr.latest.x64
+        supplements:
+          - scheduledquerypack

@@ -9,3 +9,24 @@
 edr.latest.x64:
   prod-artifact: esg-build-tested/linuxep.sspl-plugin-edr-component/feature--LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files/20220210161929-363c040c17555da14530cf5085e28dd2fc89864e-7jpfeE/build/edr/SDDS3-PACKAGE
   line-id: ServerProtectionLinux-Plugin-EDR
+av.latest.x64:
+  prod-artifact: esg-build-tested/linuxep.sspl-plugin-edr-component/feature--LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files/20220210161929-363c040c17555da14530cf5085e28dd2fc89864e-7jpfeE/build/edr/SDDS3-PACKAGE
+  line-id: ServerProtectionLinux-Plugin-AV
+mdr.latest.x64:
+  prod-artifact: esg-build-tested/linuxep.sspl-plugin-edr-component/feature--LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files/20220210161929-363c040c17555da14530cf5085e28dd2fc89864e-7jpfeE/build/edr/SDDS3-PACKAGE
+  line-id: ServerProtectionLinux-Plugin-MDR
+base.latest.x64:
+  prod-artifact: esg-build-tested/linuxep.sspl-plugin-edr-component/feature--LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files/20220210161929-363c040c17555da14530cf5085e28dd2fc89864e-7jpfeE/build/edr/SDDS3-PACKAGE
+  line-id: ServerProtectionLinux-Base-component
+event-journaler.latest.x64:
+  prod-artifact: esg-build-tested/linuxep.sspl-plugin-edr-component/feature--LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files/20220210161929-363c040c17555da14530cf5085e28dd2fc89864e-7jpfeE/build/edr/SDDS3-PACKAGE
+  line-id: ServerProtectionLinux-Plugin-EventJournaler
+liveresponse.latest.x64:
+  prod-artifact: esg-build-tested/linuxep.sspl-plugin-edr-component/feature--LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files/20220210161929-363c040c17555da14530cf5085e28dd2fc89864e-7jpfeE/build/edr/SDDS3-PACKAGE
+  line-id: ServerProtectionLinux-Plugin-liveresponse
+runtimedetections.latest.x64:
+  prod-artifact: esg-build-tested/linuxep.sspl-plugin-edr-component/feature--LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files/20220210161929-363c040c17555da14530cf5085e28dd2fc89864e-7jpfeE/build/edr/SDDS3-PACKAGE
+  line-id: ServerProtectionLinux-Plugin-RuntimeDetections
+heartbeat.latest.x64:
+  prod-artifact: esg-build-tested/linuxep.sspl-plugin-edr-component/feature--LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files/20220210161929-363c040c17555da14530cf5085e28dd2fc89864e-7jpfeE/build/edr/SDDS3-PACKAGE
+  line-id: ServerProtectionLinux-Plugin-Heartbeat
