@@ -22,8 +22,11 @@
         <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="input/."/>
         <!-- Need to compile our own messages -->
         <trusted-asset artifact-path="filer5-migrate/capnprotolinux11/0-8-0-3/222233/output/capnproto.tar" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/openssllinux11/1-1-1l-1/222963/output/openssl.tar" dest-dir="input/."/>
 
+        <build-asset project="thirdparty" repo="openssl">
+            <release-version branch="release/sophos/linux-sspl-1.1.1m" build-id="20220218085722-91596941d3ff56cdd0a1cf91d33937ebe1ff97bb-lqPu2T"/>
+            <include artifact-path="output" dest-dir="input/." />
+        </build-asset>
 
         <!-- SUSI imports -->
         <build-asset project="core" repo="engine">
