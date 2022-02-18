@@ -1,0 +1,15 @@
+%YAML 1.2
+---
+sus: ["linuxep"]
+line-id: ServerProtectionLinux-Plugin-AV
+instances:
+  - tags: ["RECOMMENDED"]
+    marketing_version: "{version} {sprint}"
+    views:
+      - platforms:
+          - LINUX_INTEL_LIBC6
+        component: av.latest.x64
+        supplements:
+        - vdl
+        - dataseta
+        - mlmodel

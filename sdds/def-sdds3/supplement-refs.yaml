@@ -5,9 +5,12 @@
 scheduledquerypack: { line-id: ScheduledQueryPack, tag: LATEST, decode-path: scheduled_query_pack_latest }
 
 #base
-ssplflags: { line-id: SSPLFLAGS, tag: 2021-2, decode-path: "files/base/etc/sophosspl" }
+ssplflags: { line-id: SSPLFLAGS, tag: 2021-2, decode-path: files/base/etc/sophosspl }
+
+#rtd
+rdrules: { line-id: RuntimeDetectionRules, tag: LATEST, decode-path: content_rules }
 
 #av
-vdl: { line-id: LocalRepData, tag: LATEST_CLOUD_ENDPOINT, decode-path: "files/plugins/av/chroot/susi/update_source/reputation" }
+vdl: { line-id: LocalRepData, tag: LATEST_CLOUD_ENDPOINT, decode-path: files/plugins/av/chroot/susi/update_source/reputation }
 dataseta: { line-id: DataSetA, tag: LATEST_CLOUD_ENDPOINT, decode-path: files/plugins/av/chroot/susi/update_source/vdl }
-mlmodel: { line-id: ML_MODEL2_64, tag: SVR_SCAN, decode-path: files/plugins/av/chroot/susi/update_source/model }
+mlmodel: { line-id: ML_MODEL2_LINUX, tag: LINUX_SCAN, decode-path: files/plugins/av/chroot/susi/update_source/model }

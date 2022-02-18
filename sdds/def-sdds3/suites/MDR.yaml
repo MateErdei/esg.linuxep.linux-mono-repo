@@ -1,0 +1,11 @@
+%YAML 1.2
+---
+sus: ["linuxep"]
+line-id: ServerProtectionLinux-Plugin-MDR
+instances:
+  - tags: ["RECOMMENDED"]
+    marketing_version: "{version} {sprint}"
+    views:
+      - platforms:
+          - LINUX_INTEL_LIBC6
+        component: mdr.latest.x64

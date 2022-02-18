@@ -1,0 +1,21 @@
+%YAML 1.2
+---
+sus: ["linuxep"]
+line-id: ServerProtectionLinux-Base
+instances:
+  - tags: ["RECOMMENDED"]
+    marketing_version: "{version} {sprint}"
+    views:
+      - platforms:
+          - LINUX_INTEL_LIBC6
+        component: BaseComponentSuite.latest
+        subcomponents:
+          base.latest.x64:
+            supplements:
+              - ssplflags
+          event-journaler.latest.x64:
+          liveresponse.latest.x64:
+          runtimedetections.latest.x64:
+            supplements:
+              - rdrules
+          heartbeat.latest.x64:
