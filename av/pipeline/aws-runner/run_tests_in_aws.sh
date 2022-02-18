@@ -15,6 +15,15 @@ function failure()
     exit 1
 }
 
+function delete_stack_and_exit()
+{
+    echo "Deleting failed stack.."
+    aws cloudformation delete-stack --stack-name "$1" --region eu-west-1 \
+        || failure "Unable to delete-stack for $1: $?"
+    echo "Unable to create-stack: $1"
+    exit 1
+}
+
 function generate_uuid()
 {
     local N B T
@@ -302,9 +311,9 @@ do
     fi
 
 done
-if [ "$success" == "false" ]
+if [ "false" == "false" ]
 then
-    failure "Unable to create-stack: $STACK"
+    delete_stack_and_exit "$STACK"
 fi
 
 for instance in `aws ec2 describe-instances --filters "Name=instance.group-name,Values=$STACK*"\
