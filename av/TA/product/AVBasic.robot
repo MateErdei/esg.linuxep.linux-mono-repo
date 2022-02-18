@@ -520,6 +520,6 @@ Test Remote Share
 
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningEnabled}  timeout=120  interval=5
     Require Sophos Threat Detector Running
-    Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningEnabled}  timeout=240  interval=5
+    Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningEnabled}  timeout=720  interval=5
     File Should Exist  ${remoteFSscanningEnabled_log}
     File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR
