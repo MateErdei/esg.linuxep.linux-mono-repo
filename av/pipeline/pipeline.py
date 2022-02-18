@@ -392,7 +392,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     do_999_build: bool = parameters.do_999_build != 'false'
 
     component = tap.Component(name='sspl-plugin-anti-virus', base_version=get_base_version())
-    build_image = 'JenkinsLinuxTemplate6'
+    build_image = 'JenkinsLinuxTemplate7'
     release_package = "./build-files/release-package.xml"
     with stage.parallel('build'):
         if do_cppcheck:

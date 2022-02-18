@@ -41,3 +41,5 @@ tmp/
 /TA/sophos_threat_detector/sophos_threat_detector.log
 /TA/manual/sophos_threat_detector/
 /TA/sophos_threat_detector/
+/cmake-build-debug-coverage/
+/cmake-build-fuzz-coverage/
