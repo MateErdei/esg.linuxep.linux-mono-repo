@@ -35,7 +35,8 @@ Create Local SMB Share
     ...  100 ms
     ...  Mount Samba Share  ${destination}
 
-
+    ${rc}   ${output} =    Run And Return Rc And Output    mount
+    Log  ${output}
     Register Cleanup  Remove Local SMB Share   ${source}   ${destination}
 
 Restore Samba config

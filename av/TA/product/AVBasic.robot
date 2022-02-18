@@ -209,6 +209,7 @@ AV Plugin Can Disable Scanning Of Mounted NFS Shares
 AV Plugin Can Disable Scanning Of Mounted SMB Shares
     [Timeout]  10 minutes
     [Tags]  SMB
+    Run Process  setenforce  0
     Start Samba
     Register On Fail   Dump Log  /var/log/samba/log.smbd
     Register On Fail   Dump Log  /var/log/samba/log.nmbd
@@ -222,7 +223,7 @@ AV Plugin Can Disable Scanning Of Mounted SMB Shares
     Create Local SMB Share   ${source}   ${destination}
 
     Test Remote Share  ${destination}
-
+    Run Process  setenforce  1
 
 AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${eicar_path1} =  Set Variable  /tmp_test/eicar.com
@@ -486,7 +487,7 @@ Product Test Teardown
 
 Test Remote Share
     [Arguments]  ${destination}
-    Should exist  ${destination}/eicar.com
+    Wait Until File exists  ${destination}/eicar.com
     ${remoteFSscanningDisabled} =   Set Variable  remoteFSscanningDisabled
     ${remoteFSscanningEnabled} =    Set Variable  remoteFSscanningEnabled
     ${remoteFSscanningDisabled_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${remoteFSscanningDisabled}.log
