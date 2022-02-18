@@ -13,6 +13,13 @@ class OnFail(object):
     def register_on_fail(self, keyword, *args):
         self.__m_fail_actions.append((keyword, args))
 
+    def register_on_fail_if_unique(self, keyword, *args):
+        for (k, a) in self.__m_fail_actions:
+            if k == keyword and a == args:
+                return False
+        self.__m_fail_actions.append((keyword, args))
+        return True
+
     def deregister_on_fail(self, keyword, *args):
         self.__m_fail_actions.remove((keyword, args))
 

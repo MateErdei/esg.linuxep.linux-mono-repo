@@ -94,6 +94,7 @@ Configure scan now with lookups disabled
 
 Check scan now with Offset
     Mark AV Log
+    Register On Fail If Unique  dump log  ${SCANNOW_LOG_PATH}
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=10
     AV Plugin Log Contains With Offset  Evaluating Scan Now

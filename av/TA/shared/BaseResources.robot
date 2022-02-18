@@ -92,7 +92,7 @@ Prepare To Run Telemetry Executable
 Prepare To Run Telemetry Executable With HTTPS Protocol
     [Arguments]  ${port}=${443}  ${TLSProtocol}=tlsv1_2
     HttpsServer.Start Https Server  ${CERT_PATH}  ${port}  ${TLSProtocol}
-    register cleanup  Stop Https Server
+    Register Cleanup If Unique  Stop Https Server
 
     Wait Until Keyword Succeeds  10 seconds  1.0 seconds  File Should Exist  ${MACHINE_ID_FILE}
     Create Test Telemetry Config File  ${EXE_CONFIG_FILE}  ${CERT_PATH}  port=${port}
@@ -109,6 +109,7 @@ Run Telemetry Executable
 Check AV Telemetry
     [Arguments]    ${telemetryKey}    ${telemetryValue}
     Prepare To Run Telemetry Executable
+    Remove File  ${TELEMETRY_OUTPUT_JSON}
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
     Wait Until Keyword Succeeds
     ...  10 secs

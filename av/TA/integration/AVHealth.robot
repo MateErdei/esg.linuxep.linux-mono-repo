@@ -9,7 +9,7 @@ Suite Setup     AV Health Suite Setup
 Suite Teardown  Uninstall All
 
 Test Setup      AV Health Test Setup
-Test Teardown   AV Health Teardown
+Test Teardown   AV Health Test Teardown
 
 *** Keywords ***
 AV Health Suite Setup
@@ -20,7 +20,7 @@ AV Health Test Setup
     Wait Until AV Plugin running
     Wait Until threat detector running
 
-AV Health Teardown
+AV Health Test Teardown
     Remove File    /tmp_test/naughty_eicar
     AV And Base Teardown
     Uninstall All
@@ -122,15 +122,16 @@ Clean Scan Now Result Resets Threat Health
     Mark AV Log
     Configure and check scan now with offset
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    AV Plugin Log Contains With Offset   Completed scan Scan Now and detected threats
 
     Check Threat Health is Reporting Correctly    2
 
     Remove File  /tmp_test/naughty_eicar
-    Register Cleanup    Remove File  /tmp_test/naughty_eicar
 
     Mark AV Log
     Configure and check scan now with offset
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    AV Plugin Log Contains With Offset   Completed scan Scan Now without detecting any threats
 
     Check Threat Health is Reporting Correctly    1
 
@@ -150,7 +151,6 @@ Clean Scheduled Scan Result Resets Threat Health
     Check Threat Health is Reporting Correctly    2
 
     Remove File  /tmp_test/naughty_eicar
-    Register Cleanup    Remove File  /tmp_test/naughty_eicar
 
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
