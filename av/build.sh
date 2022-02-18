@@ -319,17 +319,6 @@ function setup_susi()
 
 function cppcheck_build()
 {
-    PKG_MANAGER="$( command -v yum || command -v apt-get )"
-    case "${PKG_MANAGER}" in
-      *yum*)
-        "${PKG_MANAGER}" -y install cppcheck
-        "${PKG_MANAGER}" -y install python36-pygments
-      ;;
-      *apt*)
-        sudo "${PKG_MANAGER}" -y install python3-pygments cppcheck
-      ;;
-    esac
-
     local CPP_XML_REPORT="err.xml"
     local CPP_REPORT_DIR="cppcheck"
     local CPPCHECK=${CPPCHECK:-cppcheck}
