@@ -4,9 +4,12 @@ sus: ["linuxep"]
 line-id: ServerProtectionLinux-Plugin-AV
 instances:
   - tags: ["RECOMMENDED"]
-    generate_static: True
     marketing_version: "{version} {sprint}"
     views:
       - platforms:
           - LINUX_INTEL_LIBC6
-        component: AVComponentSuite.latest
+        component: av.latest.x64
+        supplements:
+        - vdl
+        - dataseta
+        - mlmodel

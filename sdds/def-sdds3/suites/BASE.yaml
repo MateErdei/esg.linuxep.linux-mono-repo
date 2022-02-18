@@ -3,8 +3,7 @@
 sus: ["linuxep"]
 line-id: ServerProtectionLinux-Base
 instances:
-  - tags: ["RECOMMENDED", "BETA", "BETA2"]
-    generate_static: True
+  - tags: ["RECOMMENDED"]
     marketing_version: "{version} {sprint}"
     views:
       - platforms:
@@ -16,16 +15,7 @@ instances:
               - ssplflags
           event-journaler.latest.x64:
           liveresponse.latest.x64:
-          responseactions.latest.x64:
           runtimedetections.latest.x64:
             supplements:
               - rdrules
-          edr.latest.x64:
-            supplements:
-              - scheduledquerypack
-              - scheduledquerypacknext
-          av.latest.x64:
-            supplements:
-              - vdl
-              - dataseta
-              - mlmodel
+          heartbeat.latest.x64:

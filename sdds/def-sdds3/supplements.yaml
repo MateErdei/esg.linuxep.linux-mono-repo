@@ -7,10 +7,11 @@ supplements:
   internal_supplements:
     - 'scheduled-query-pack/supplement/ScheduledQueryPack/manifest.xml'
     - 'sspl-flags/supplement/sspl-flags/manifest.xml'
+    - 'RuntimeDetectionRules/supplement/rd_rules/manifest.xml'
 
   # sdds3/tools/gen_bazel.py mirrors these external supplements into the build output.
   # It also parses the supplements to help verify all supplement-refs are valid.
   external_supplements:
-    - ML_MODEL2_64
+    - ML_MODEL2_LINUX
     - LocalRepData
     - DataSetA

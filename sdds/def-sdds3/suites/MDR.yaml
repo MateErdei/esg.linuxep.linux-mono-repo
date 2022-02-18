@@ -3,10 +3,9 @@
 sus: ["linuxep"]
 line-id: ServerProtectionLinux-Plugin-MDR
 instances:
-  - tags: ["RECOMMENDED", "BETA"]
-    generate_static: True
+  - tags: ["RECOMMENDED"]
     marketing_version: "{version} {sprint}"
     views:
       - platforms:
           - LINUX_INTEL_LIBC6
-        component: MDRComponentSuite.latest
+        component: mdr.latest.x64
