@@ -16,13 +16,13 @@ def build_dev_warehouse(stage: tap.Root, name="release-package", image='Warehous
                                release_package='./build/dev.xml',
                                mode=name)
 
-def build_sdds3_warehouse(stage: tap.Root, name="sdds3", image='centos79_x64_bazel_20211025'):
-    component = tap.Component(name='sdds3-warehouse-'+name, base_version='1.0.0')
-    return stage.artisan_build(name=name,
+def build_sdds3_warehouse(stage: tap.Root, mode="dev", image='centos79_x64_bazel_20211025'):
+    component = tap.Component(name='sdds3-warehouse-'+mode, base_version='1.0.0')
+    return stage.artisan_build(name=mode,
                                component=component,
                                image=image,
                                release_package='./build/sdds3.xml',
-                               mode="dev")
+                               mode=mode)
 
 
 def get_inputs(context: tap.PipelineContext, build: ArtisanInput) -> Dict[str, Input]:
@@ -106,8 +106,21 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
             run_tests
         else:
             build = False
-        build_sdds3_warehouse(stage=stage)
 
+        is_release_branch = branch.startswith('release-') or branch.startswith('hotfix-')
 
-        if run_tests and build:
-            run_tap_tests(stage, context, parameters, build)
+        if is_release_branch:
+            do_dev = False
+            do_prod = True
+        else:
+            do_dev = parameters.dev != 'false'
+            do_prod = parameters.prod == 'true'
+
+        with stage.parallel('sdds3'):
+            if do_prod:
+                build_sdds3_warehouse(stage=stage, mode="prod")
+            if do_dev:
+                build_sdds3_warehouse(stage=stage, mode="dev")
+
+    if run_tests and build:
+        run_tap_tests(stage, context, parameters, build)

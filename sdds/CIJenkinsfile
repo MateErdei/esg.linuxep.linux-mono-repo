@@ -16,6 +16,10 @@ def params = [
                      description: 'Build 060 warehouses'),
     booleanParam(name: 'RUN_TESTS', defaultValue: true,
                      description: 'Run TAP tests'),
+    booleanParam(name: 'PROD', defaultValue: false,
+                 description: 'Build production SDDS3 repo? (builds if checked OR on release branches)'),
+    booleanParam(name: 'DEV', defaultValue: true,
+                 description: 'Build dev SDDS3 repo? (builds if checked AND NOT on release branches)'),
 ]
 
 CIPipeline { pipelineEntryPoint = 'warehouse'; buildParameters = params }
