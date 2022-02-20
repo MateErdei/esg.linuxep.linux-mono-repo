@@ -144,14 +144,12 @@ def get_sspl_mdr_component_suite():
     local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-mdr-componentsuite")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "output"))
-    dbos = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-DBOS-Component", "SDDS-SSPL-DBOS_COMPONENT", "SDDS_SSPL_DBOS_COMPONENT", candidates)
     mdr_plugin = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-Control", "SDDS-SSPL-MDR-COMPONENT", "SDDS_SSPL_MDR_COMPONENT", candidates)
     mdr_suite = get_component_suite_sdds_entry("ServerProtectionLinux-Plugin-MDR", "SDDS-SSPL-MDR-COMPONENT-SUITE", "SDDS_SSPL_MDR_COMPONENT_SUITE", candidates)
     return MDRSuite(dbos, mdr_plugin, mdr_suite)
 
 def get_sspl_mdr_component_suite_060():
     candidates = [os.path.join(PathManager.SYSTEM_PRODUCT_TEST_INPUTS, "sspl-mdr-componentsuite-0-6-0")]
-    dbos = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-DBOS-Component", "SDDS-SSPL-DBOS-COMPONENT", "SDDS_SSPL_DBOS_COMPONENT_0_6_0", candidates)
     mdr_plugin = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-Control", "SDDS-SSPL-MDR-COMPONENT", "SDDS_SSPL_MDR_COMPONENT_0_6_0", candidates)
     mdr_suite = get_component_suite_sdds_entry("ServerProtectionLinux-Plugin-MDR", "SDDS-SSPL-MDR-COMPONENT-SUITE", "SDDS_SSPL_MDR_COMPONENT_SUITE_0_6_0", candidates)
     return MDRSuite(dbos, mdr_plugin, mdr_suite)
@@ -163,7 +161,6 @@ def get_sspl_mdr_component_suite_1():
         candidates = ["/uk-filer5/prodro/bir/sspl-mdr-componentsuite/1-0-0-2/217070/output"]
     else:
         candidates = [release_1_override]
-    dbos = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-DBOS-Component",  "SDDS_SSPL_DBOS_COMPONENT", candidates, use_env_overrides=False)
 
     mdr_plugin = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-Control",  "SDDS_SSPL_MDR_COMPONENT", candidates, use_env_overrides=False)
     mdr_suite = get_component_suite_sdds_entry("ServerProtectionLinux-Plugin-MDR",  "SDDS_SSPL_MDR_COMPONENT_SUITE", candidates, use_env_overrides=False)

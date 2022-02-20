@@ -335,8 +335,6 @@ Install Directly From Component Suite
     ${MDR_COMPONENT_SUITE} =  Get SSPL MDR Component Suite
     ${result} =  Run Process    rsync   -r   -v   ${MDR_COMPONENT_SUITE.mdr_plugin.sdds}/  ${COMPONENT_TEMP_DIR}/
     Should Be Equal As Integers    ${result.rc}    0    Failed to copy ${MDR_COMPONENT_SUITE.mdr_plugin.sdds} to ${COMPONENT_TEMP_DIR}
-    ${result} =  Run Process    rsync   -r   -v   ${MDR_COMPONENT_SUITE.dbos.sdds}/  ${COMPONENT_TEMP_DIR}/
-    Should Be Equal As Integers    ${result.rc}    0    Failed to copy ${MDR_COMPONENT_SUITE.dbos.sdds} to ${COMPONENT_TEMP_DIR}
     ${result} =  Run Process    rsync   -r   -v   ${MDR_COMPONENT_SUITE.mdr_suite.sdds}/  ${COMPONENT_TEMP_DIR}/
     Should Be Equal As Integers    ${result.rc}    0    Failed to copy ${MDR_COMPONENT_SUITE.mdr_suite.sdds} to ${COMPONENT_TEMP_DIR}
     LIST FILES IN DIRECTORY  ${COMPONENT_TEMP_DIR}
