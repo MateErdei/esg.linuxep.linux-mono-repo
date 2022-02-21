@@ -5,7 +5,7 @@ set -e
 
 if [[ $(id -u) == 0 ]]
 then
-    echo "You don't need to run the entire script as root, sudo will prompt you if needed."
+    echo "You don't need to run this is as root."
     exit 1
 fi
 
@@ -58,7 +58,6 @@ function is_older_than()
   [[ $path1_date < $path2_date ]]
 }
 
-
 function should_skip_based_on_date()
 {
   local archive=$1
@@ -69,7 +68,8 @@ function should_skip_based_on_date()
   fi
   local should_skip_rc=0
   local should_unpack_rc=1
-  local archive_basename=$(basename "$archive")
+  local archive_basename
+  archive_basename=$(basename "$archive")
   local marker_file="$REDIST/$archive_basename-marker"
   if [[ -f "$marker_file" ]]
   then
@@ -85,7 +85,8 @@ function unpack_tars()
 {
   shopt -s nullglob
   for tarfile in "$FETCHED_INPUTS_DIR/"*.tar; do
-    local archive_basename=$(basename "$tarfile")
+    local archive_basename
+    archive_basename=$(basename "$tarfile")
     local marker_file="$REDIST/$archive_basename-marker"
     if should_skip_based_on_date "$tarfile"
     then
@@ -109,7 +110,8 @@ function unpack_tars()
       fi
       echo "Extracting .tar: $tarfile - $TARFILE_HASH"
       # Remove old dir if needed
-      local output_dir_name=$(tar -tf "$tarfile" | cut -f1 -d"/" | sort | uniq | head -n 1)
+      local output_dir_name
+      output_dir_name=$(tar -tf "$tarfile" | cut -f1 -d"/" | sort | uniq | head -n 1)
       local output_dir_full_path="$REDIST/$output_dir_name"
       [[ -d "$output_dir_full_path" ]] && rm -rf "$output_dir_full_path"
 
@@ -130,7 +132,8 @@ function unpack_gzipped_tars()
 {
   shopt -s nullglob
   for tarfile in "$FETCHED_INPUTS_DIR/"*.tar.gz; do
-    local archive_basename=$(basename "$tarfile")
+    local archive_basename
+    archive_basename=$(basename "$tarfile")
     local marker_file="$REDIST/$archive_basename-marker"
     if should_skip_based_on_date "$tarfile"
     then
@@ -173,7 +176,8 @@ function unpack_zips()
 {
   shopt -s nullglob
   for zipfile in $FETCHED_INPUTS_DIR/*.zip; do
-    local archive_basename=$(basename "$zipfile")
+    local archive_basename
+    archive_basename=$(basename "$zipfile")
     local marker_file="$REDIST/$archive_basename-marker"
     if should_skip_based_on_date "$zipfile"
     then
@@ -212,16 +216,36 @@ function unpack_zips()
    shopt -u nullglob
 }
 
+function copy_google_test()
+{
+  if [[ -d $BASEDIR/tests/googletest ]]
+  then
+    echo "Skipping copy, already present: $BASEDIR/tests/googletest"
+  else
+    echo "Copying google test into place"
+    cp -r $REDIST/googletest-release-1.8.1 $BASEDIR/tests/googletest
+  fi
+}
+
+function copy_certs()
+{
+  mkdir -p "$REDIST/certificates"
+  if [[ -f $FETCHED_INPUTS_DIR/ps_rootca.crt ]]
+  then
+      cp -u "$FETCHED_INPUTS_DIR/ps_rootca.crt" "$REDIST/certificates/"
+      # Manifest cert, currently same as ps_rootca
+      cp -u "$FETCHED_INPUTS_DIR/ps_rootca.crt" "$REDIST/certificates/rootca.crt"
+  else
+      echo "ERROR - ps_rootca.crt not found here: $FETCHED_INPUTS_DIR/ps_rootca.cr"
+      exit 1
+  fi
+  echo "Certificates synced to $REDIST/certificates"
+}
+
 unpack_tars
 unpack_gzipped_tars
 unpack_zips
-
-if [[ -d $BASEDIR/tests/googletest ]]
-then
-  echo "Skipping copy, already present: $BASEDIR/tests/googletest"
-else
-  echo "Copying google test into place"
-  cp -r $REDIST/googletest-release-1.8.1 $BASEDIR/tests/googletest
-fi
+copy_google_test
+copy_certs
 
 echo "Finished unpacking"

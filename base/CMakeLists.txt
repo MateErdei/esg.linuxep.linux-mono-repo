@@ -114,7 +114,13 @@ endif()
 
 execute_process(
         COMMAND bash unpack_build_inputs.sh
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE unpack_result)
+
+if (NOT ${unpack_result} EQUAL 0)
+    message(FATAL_ERROR "Unpacking build dependencies failed")
+endif()
+
 
 #if(NOT EXISTS ${INPUT})
 #    string( APPEND ERRORMESSAGE

@@ -1,11 +1,8 @@
 #!/bin/bash
 
-# TODO move common_vars to this script?
 source common_vars.sh
 
 # Run this to set environment settings to build SSPL
-# TODO - could not get this working directly from IDE, i.e. Adding this to your IDE as it's environment file, e.g.: https://www.jetbrains.com/help/clion/how-to-create-toolchain-in-clion.html#env-scripts
-
 BUILD_TOOLS_DIR="/build/build_tools"
 export   CC=$BUILD_TOOLS_DIR/gcc/bin/gcc
 export  CXX=$BUILD_TOOLS_DIR/gcc/bin/g++
@@ -14,7 +11,7 @@ export PATH=$BUILD_TOOLS_DIR/cmake/bin:$PATH
 # TODO 'make' and 'as' when not installed via pkg manager
 
 # TODO TEMP until we can sort out a better self contained built toolchain
-export LD_LIBRARY_PATH=$BUILD_TOOLS_DIR/gcc/lib64:${LD_LIBRARY_PATH}
+#export LD_LIBRARY_PATH=$BUILD_TOOLS_DIR/gcc/lib64:${LD_LIBRARY_PATH}
 export LIBRARY_PATH=$BUILD_TOOLS_DIR/gcc/lib64:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
 #export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$BUILD_TOOLS_DIR/gcc/lib64:${LIBRARY_PATH}
 export CPLUS_INCLUDE_PATH=$BUILD_TOOLS_DIR/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}

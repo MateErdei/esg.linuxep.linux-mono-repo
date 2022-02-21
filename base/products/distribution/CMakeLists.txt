@@ -1,5 +1,4 @@
 
-
 configure_file(PRODUCT_NAME.in PRODUCT_NAME @ONLY )
 configure_file(RIGID_NAME.in RIGID_NAME @ONLY )
 configure_file(DEFAULT_HOME_FOLDER.in DEFAULT_HOME_FOLDER @ONLY )
@@ -82,10 +81,20 @@ install(FILES ${third_party_libs}
 install(FILES ${VERSIG_INPUT}/bin64/versig
         DESTINATION files/base/update)
 
+# libasan and libubsan are only used during debug builds and needed for unit tests to run but we do not want to add
+# them to the shipped third party library list, so create a separate list of build time only libs
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libasan.so.5
+        OUTPUT_VARIABLE libasan_path)
+string(STRIP "${libasan_path}" libasan_path)
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libubsan.so.1
+        OUTPUT_VARIABLE libubsan_path)
+string(STRIP "${libubsan_path}" libubsan_path )
+set(build_time_only_libs ${libasan_path} ${libubsan_path})
+
 add_custom_target(
         copy_libs
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
-        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
+        COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs} ${build_time_only_libs}
 )
 if (DEFINED ENV{VERSION_OVERRIDE})
     set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")

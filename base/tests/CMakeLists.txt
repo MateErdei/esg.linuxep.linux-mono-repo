@@ -1,11 +1,13 @@
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/googletest)
+    message( FATAL_ERROR "googletest directory not present. \nPlease, run ${CMAKE_SOURCE_DIR}/unpack_build_inputs.sh")
+endif()
 
+add_subdirectory(googletest EXCLUDE_FROM_ALL)
 add_custom_target(echogTest
         COMMAND echo gtest_SOURCE_DIR=${gtest_SOURCE_DIR}
         COMMAND ls -l ${gtest_SOURCE_DIR}/include/gtest/gtest.h
         )
-add_dependencies(echogTest copy_libs)
 add_subdirectory(manualTools)
-add_subdirectory(cmscrouter)
 add_subdirectory(Common)
 add_subdirectory(CommsComponent)
 add_subdirectory(diagnose)
