@@ -317,7 +317,7 @@ do
     fi
 
 done
-if [ "false" == "false" ]
+if [ "$success" == "false" ]
 then
     delete_stack_and_exit "$STACK" "Unable to create-stack:"
 fi
