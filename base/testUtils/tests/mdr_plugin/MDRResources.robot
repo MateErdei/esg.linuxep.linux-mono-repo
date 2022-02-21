@@ -26,7 +26,7 @@ Install MDR Directly
     ${MDR_SDDS_DIR} =  Get SSPL MDR Plugin SDDS
     ${result} =    Run Process  bash -x ${MDR_SDDS_DIR}/install.sh 2> /tmp/install_mdr.log   shell=True
     ${stderr} =  Get File  /tmp/install_mdr.log
-    Should Be Equal As Integers    ${result.rc}    20   "Installer failed: Reason ${result.stderr} ${stderr}"
+    Should Be Equal As Integers    ${result.rc}    0   "Installer failed: Reason ${result.stderr} ${stderr}"
     Log  ${result.stdout}
     Log  ${stderr}
     Log  ${result.stderr}
@@ -36,7 +36,7 @@ Install MDR Directly with Fake SophosMTR
     ${MDR_SDDS_DIR} =  Get SSPL MDR Plugin SDDS
     ${result} =    Run Process  bash  ${MDR_SDDS_DIR}/install.sh
     # installer will report version copy error since SophosMTR is not present
-    Should Be Equal As Integers    ${result.rc}    20
+    Should Be Equal As Integers    ${result.rc}    0
     Log  ${result.stdout}
     Log  ${result.stderr}
     Create Fake MDR Executable
