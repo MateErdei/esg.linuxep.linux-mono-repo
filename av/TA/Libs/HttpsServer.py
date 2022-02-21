@@ -140,7 +140,7 @@ class HttpsServer(object):
             httpd.timeout = 60  # stop server after timeout
         except Exception as e:
             print("Server failed on port: {} with error: {}".format(port, e))
-            raise e
+            raise
 
         protocol = tls_from_string(protocol_string)
         if not protocol:
