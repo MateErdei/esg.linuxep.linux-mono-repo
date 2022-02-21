@@ -118,7 +118,7 @@
         </command>
         <command>
             <program>bazel</program>
-            <args>build //sdds3/... --verbose_failures --spawn_strategy=standalone --remote_http_cache=https://****@bazel.sophos-ops.com/ --remote_upload_local_results=true --distdir /opt/distdir</args>
+            <args>build //sdds3/... --verbose_failures --spawn_strategy=standalone --distdir /opt/distdir</args>
             <workingdir>.</workingdir>
         </command>
     </buildcommands>
