@@ -128,6 +128,7 @@
         <release-asset artifact-path="sdds3-repo" source-dir="bazel-out/k8-fastbuild/bin/sdds3">
             <include glob="package/**"/>
             <include glob="suite/**"/>
+            <include glob="supplement/**"/>
         </release-asset>
         <release-asset artifact-path="sdds3-launchdarkly" source-dir="output/launchdarkly">
             <include glob="*.json"/>
