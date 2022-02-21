@@ -107,13 +107,19 @@ def sync_sdds3_supplement(args):
         '--unpack-signed-file',
         target,
     ]
-    result = subprocess.run(
-        runargs,
-        check=True,
-        capture_output=True,
-        universal_newlines=True,
-        encoding='utf-8',
-    )
+    try:
+        result = subprocess.run(
+            runargs,
+            check=True,
+            capture_output=True,
+            universal_newlines=True,
+            encoding='utf-8',
+        )
+    except Exception as e:
+        trace(f"FAILED CALL: {result}")
+        trace(result.stdout)
+        trace(result.stderr)
+        raise e
     root = ET.fromstring(result.stdout)
     for pkgref in root.findall('package-ref'):
         src = pkgref.attrib['src']
