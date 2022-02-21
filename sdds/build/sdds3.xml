@@ -88,6 +88,10 @@
 
     <buildcommands>
         <command>
+            <program>env</program>
+            <workingdir>.</workingdir>
+        </command>
+        <command>
             <program>python3</program>
             <args>makesuites.py</args>
             <workingdir>./linuxep_suites</workingdir>
