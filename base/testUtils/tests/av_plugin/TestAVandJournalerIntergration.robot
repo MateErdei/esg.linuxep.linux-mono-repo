@@ -60,10 +60,6 @@ Test av can publish events and that journaler can receive them after av restart
     ...  15 secs
     ...  1 secs
     ...  Check AV Plugin Running
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  2 secs
-    ...  Check Marked Sophos Threat Detector Log Contains  SophosThreatDetectorImpl <> Starting USR1 monitor
 
     Mark Livequery Log
 
