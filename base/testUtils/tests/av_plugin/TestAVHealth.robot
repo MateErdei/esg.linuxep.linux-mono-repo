@@ -36,7 +36,7 @@ Test av health is green right after install
     Wait Until Keyword Succeeds
     ...  40 secs
     ...  10 secs
-    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/watchdog.log   watchdog Log    Starting /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher  2
+    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/watchdog.log   watchdog Log    Starting /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher  1
     ${contents}=  Get File   ${AV_LOG_FILE}
     Should Not Contain  ${contents}   Health found previous Sophos Threat Detector process no longer running:
 
