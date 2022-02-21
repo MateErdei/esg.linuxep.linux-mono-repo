@@ -1,0 +1,6 @@
+%YAML 1.2
+---
+# This file defines the top-level suite packages.
+BaseComponentSuite.latest: &enc
+  fileset: ../linuxep_suites/suite_data/ServerProtectionLinux-Base/data
+  line-id: ServerProtectionLinux-Base
