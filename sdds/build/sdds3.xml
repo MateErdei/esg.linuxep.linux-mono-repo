@@ -19,7 +19,7 @@
         <trusted-asset artifact-path="filer5-migrate/sddsimportgen/1-0-12/214456/sddsimportgen" dest-dir="./linuxep_suites"/>
 
         <build-asset project="linuxep" repo="everest-base" >
-            <development-version branch="feature/LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64"/>
         </build-asset>
 
