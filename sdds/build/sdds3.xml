@@ -7,7 +7,7 @@
 
         <build-asset project="winep" repo="sau">
             <!-- Import a specific release version of SDDS3 tools, because we don't want the sdds3 repo rebuilding for each SAU build. -->
-            <release-version branch="feature/LINUXDAR-4179-statically-link-libstdcpp"/>
+            <development-version branch="feature/LINUXDAR-4179-statically-link-libstdcpp"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="redist/sdds3"/>
         </build-asset>
         <build-asset project="em" repo="esg">
