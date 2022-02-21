@@ -88,6 +88,11 @@
 
     <buildcommands>
         <command>
+            <program>python3</program>
+            <args>makesuites.py</args>
+            <workingdir>./linuxep_suites</workingdir>
+        </command>
+        <command>
             <program>chmod</program>
             <args>+x redist/sdds3/sdds3-builder</args>
             <workingdir>.</workingdir>
