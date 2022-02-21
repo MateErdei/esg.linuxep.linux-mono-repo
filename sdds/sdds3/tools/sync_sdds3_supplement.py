@@ -115,10 +115,8 @@ def sync_sdds3_supplement(args):
             universal_newlines=True,
             encoding='utf-8',
         )
-    except Exception as e:
-        trace(f"FAILED CALL: {result}")
-        trace(result.stdout)
-        trace(result.stderr)
+    except subprocess.CalledProcessError as e:
+        trace(f"FAILED CALL: {e.returncode},\n{e.stderr}\n{e.stdout}")
         raise e
     root = ET.fromstring(result.stdout)
     for pkgref in root.findall('package-ref'):
