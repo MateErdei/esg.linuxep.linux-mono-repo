@@ -114,7 +114,7 @@
         </command>
         <command>
             <program>bazel</program>
-            <args>build //sdds3/... --verbose_failures --spawn_strategy=standalone</args>
+            <args>build //sdds3/... --verbose_failures --spawn_strategy=standalone $CI_BAZEL_CACHE_PARAMS_V1</args>
             <workingdir>.</workingdir>
         </command>
     </buildcommands>
