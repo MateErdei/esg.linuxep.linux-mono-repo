@@ -160,3 +160,16 @@ Clean Scheduled Scan Result Resets Threat Health
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=210
 
     Check Threat Health is Reporting Correctly    1
+
+Test av health is green right after install
+    Install With Base SDDS
+    Wait Until Keyword Succeeds
+    ...  45 secs
+    ...  5 secs
+    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log    Management Agent Log   Starting service health checks  1
+
+    Wait until AV Plugin running
+    Wait until threat detector running
+    AV Plugin Log Does Not Contain       Health found previous Sophos Threat Detector process no longer running:
+
+    SHS Status File Contains    <detail name="Sophos Linux AntiVirus" value="0" />
