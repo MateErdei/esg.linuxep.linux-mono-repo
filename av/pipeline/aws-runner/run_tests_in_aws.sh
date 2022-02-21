@@ -17,10 +17,16 @@ function failure()
 
 function delete_stack_and_exit()
 {
+    echo "Failed to setup stack: $1 reason: $2"
     echo "Deleting failed stack.."
     aws cloudformation delete-stack --stack-name "$1" --region eu-west-1 \
         || failure "Unable to delete-stack for $1: $?"
-    echo "Unable to create-stack: $1"
+
+    echo "Delete unused volumes for $STACK:" >&2
+    pwd
+    python3 ./DeleteUnusedVolumes.py \
+        || failure "Unable to delete unused volumes for $STACK: $?"
+
     exit 1
 }
 
@@ -313,7 +319,7 @@ do
 done
 if [ "false" == "false" ]
 then
-    delete_stack_and_exit "$STACK"
+    delete_stack_and_exit "$STACK" "Unable to create-stack:"
 fi
 
 for instance in `aws ec2 describe-instances --filters "Name=instance.group-name,Values=$STACK*"\
@@ -326,11 +332,11 @@ do
 done
 
 aws s3 rm "s3://sspl-testbucket/templates/$STACK.template" \
-    || failure "Unable to delete template file from s3 for $STACK"
+    || delete_stack_and_exit "$STACK" "Unable to delete template file from s3 for"
 
 if aws cloudformation list-stacks --stack-status-filter ROLLBACK_IN_PROGRESS | grep $STACK
 then
-    failure "Stack rolling back for $STACK"
+    delete_stack_and_exit "$STACK" "Stack rolling back"
 fi
 
 ## Wait for termination
