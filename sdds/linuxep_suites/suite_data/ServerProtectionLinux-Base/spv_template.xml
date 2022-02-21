@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SDDSData>
+  <ProductInstance>
+    <!-- Product Instance Identity (Primary) -->
+    <ProductLineId>ServerProtectionLinux-Base</ProductLineId>
+    <ProductVersionId>1.1.9.9</ProductVersionId>
+      <!-- Product Instance Identity (Secondary) -->
+    <ProductLineCanonicalName>ServerProtectionLinux-Base</ProductLineCanonicalName>
+    <ProductVersionLabels>
+      <Label>1.1.9.9</Label>
+    </ProductVersionLabels>
+    <ProductInstanceNames>
+      <Name>Sophos Server Protection for Linux Base</Name>
+    </ProductInstanceNames>
+    <!-- Product Instance Form -->
+    <Form>compound</Form>
+    <Managed>1</Managed>
+    <SignedManifest>0</SignedManifest>
+      <!-- Product Instance Details -->
+    <DefaultHomeFolder>ServerProtectionLinux-Base</DefaultHomeFolder>
+    <Roles>
+      <Role>SAU</Role>
+    </Roles>
+    <Platforms>
+      <Platform>LINUX_INTEL_LIBC6</Platform>
+    </Platforms>
+    <Features>
+      <Feature>CORE</Feature>
+    </Features>
+    <TargetTypes>
+      <TargetType>ENDPOINT</TargetType>
+    </TargetTypes>
+  </ProductInstance>
+</SDDSData>

@@ -120,11 +120,11 @@
 <!--        <build-asset artifact-path="sdds3-repo" source-dir="output\repo" mode="dev"/>-->
 <!--        <build-asset artifact-path="sdds3-launchdarkly" source-dir="output\launchdarkly" mode="dev"/>-->
         <!--prod version-->
-        <release-asset artifact-path="prod-sdds3-repo" source-dir="output/repo">
+        <release-asset artifact-path="sdds3-repo" source-dir="bazel-out/k8-fastbuild/bin/sdds3">
             <include glob="package/**"/>
             <include glob="suite/**"/>
         </release-asset>
-        <release-asset artifact-path="prod-sdds3-launchdarkly" source-dir="output/launchdarkly">
+        <release-asset artifact-path="sdds3-launchdarkly" source-dir="output/launchdarkly">
             <include glob="*.json"/>
         </release-asset>
     </publish>
