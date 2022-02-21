@@ -1,15 +1,9 @@
 include(GoogleTest)
 add_executable(PluginRegistryImplTests TestPluginRegistryImpl.cpp)
-target_include_directories(PluginRegistryImplTests SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${PROTOBUF_INCLUDE_DIR})
-target_include_directories(PluginRegistryImplTests BEFORE PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(PluginRegistryImplTests
-        ${GTEST_LIBRARY}
-        ${GTEST_MAIN_LIBRARY}
-        pluginregistryimpl
-        ${Protobuf_LIBRARIES}
-        applicationconfigurationimpl
-        testhelpers)
-
+target_include_directories(PluginRegistryImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" ${PROTOBUF_INCLUDE_DIR})
+target_include_directories(PluginRegistryImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" ${CMAKE_SOURCE_DIR})
+target_link_libraries(PluginRegistryImplTests gtest gtest_main)
+target_link_libraries(PluginRegistryImplTests pluginregistryimpl ${Protobuf_LIBRARIES} applicationconfigurationimpl gtest gtest_main testhelpers)
 gtest_discover_tests(PluginRegistryImplTests)
 SET_TARGET_PROPERTIES(PluginRegistryImplTests
         PROPERTIES
