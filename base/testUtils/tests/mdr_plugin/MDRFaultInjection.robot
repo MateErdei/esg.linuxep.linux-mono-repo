@@ -64,11 +64,7 @@ MDR Agent Which Writes To Stdout And Stderr Repeatedly Does Not Cause MTR Plugin
     Check Intended Fault Injection Argument Was Used  ${spam}
 
 MTR Plugin Can Restart A Deadlocked MTR Executable
-    Stop MDR Plugin
     Create Fake Sophos MDR Executable With Pick Your Poison  ${deadlock}
-    #clear errors from when there was no MDR Executable
-    Remove Mtr Plugin Log
-    Start MDR Plugin
     Wait for MDR Executable To Be Running
     ${SophosMTRPid1} =  Get Process Pid  ${MtrAgentExecutableName}
     sleep  5
@@ -88,11 +84,7 @@ MTR Plugin Can Restart A Deadlocked MTR Executable
 
 MTR Plugin Backs Off When MTR Executable Does Not Have Execute Permissions
     [Tags]   MDR_PLUGIN  FAULTINJECTION
-    Stop MDR Plugin
     Create Fake Sophos MDR Executable With Pick Your Poison  ${run}  000
-    #clear errors from when there was no MDR Executable
-    Remove Mtr Plugin Log
-    Start MDR Plugin
     sleep  25
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -103,8 +95,6 @@ MTR Plugin Backs Off When SophosMTR Is Not Really An Executable
     [Tags]   MDR_PLUGIN  FAULTINJECTION
     Stop MDR Plugin
     Create Executable Text File
-    #clear errors from when there was no MDR Executable
-    Remove Mtr Plugin Log
     Start MDR Plugin
     sleep  25
     Wait Until Keyword Succeeds
@@ -130,6 +120,9 @@ MDR Plugin Restarts MDR Agent When It Stops On Its Own
     Check Intended Fault Injection Argument Was Used  ${exit}
 
 Start MDR Plugin Without An MDR Executable Raises Error
+    Stop MDR Plugin
+    Remove File  ${SophosMDRExe}
+    Start MDR Plugin
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
@@ -207,8 +200,10 @@ Create Executable Text File
 
 Create Fake Sophos MDR Executable With Pick Your Poison
     [Arguments]  ${arg}  ${permissions}=u+x
+    Stop MDR Plugin
     Create Pick Your Poison Argument File  ${arg}
     Create Pick Your Poison Executable As SophosMDR  ${permissions}
+    Start MDR Plugin
 
 Create Pick Your Poison Argument File
     [Arguments]  ${arg}

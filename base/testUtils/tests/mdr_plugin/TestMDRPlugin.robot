@@ -112,12 +112,25 @@ Only One MDR Plugin May Be Running at a Time
     MDR Plugin Log Contains  Only one instance of mtr can run.
 
 
+Remove Plugin Registration Stops All Sophos MTR Processes
+    [Teardown]  Append Kill To Teardown
+    Wait for MDR Executable To Be Running
+
+    ${result}=  Run Process  /opt/sophos-spl/bin/wdctl  removePluginRegistration  mtr
+    Run Keyword If   ${result.rc} != 0  Log  "Result: ${result.rc}. Stdout: ${result.stdout}. Stderr: ${result.stderr}"
+
+    Wait Until Keyword Succeeds
+    ...   15
+    ...   5
+    ...   Check SophosMTR Executable Not Running
+
+
 *** Keywords ***
 
 MDR Test Setup
     Require Installed
     Override LogConf File as Global Level  DEBUG
-    Install MDR Directly with Fake SophosMTR
+    Install MDR Directly
 
 Append Kill To Teardown
     Terminate All Processes  kill=True

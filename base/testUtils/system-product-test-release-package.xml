@@ -42,13 +42,6 @@
             <include mode="mdr-coverage" artifact-path="mdr-coverage/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
             <include mode="mdr-coverage" artifact-path="mdr-coverage/covfile" dest-dir="coverage"/>
         </build-asset>
-        <build-asset project="linuxep" repo="sspl-plugin-mdr-componentsuite">
-            <development-version branch="feature/LINUXDAR-4179-setup-warehouse-packaging-of-sdds3-files"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="output/SDDS-SSPL-MDR-COMPONENT" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="output/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="sspl-mdr-componentsuite/SDDS-SSPL-MDR-COMPONENT-SUITE"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="output-060/SDDS-SSPL-MDR-COMPONENT" dest-dir="sspl-mdr-componentsuite-0-6-0/SDDS-SSPL-MDR-COMPONENT"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="output-060/SDDS-SSPL-MDR-COMPONENT-SUITE" dest-dir="sspl-mdr-componentsuite-0-6-0/SDDS-SSPL-MDR-COMPONENT-SUITE"/>
-        </build-asset>
 
         <build-asset project="linuxep" repo="sspl-plugin-edr-componentsuite">
             <development-version branch="develop"/>

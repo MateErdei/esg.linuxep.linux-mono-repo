@@ -32,16 +32,6 @@ Install MDR Directly
     Log  ${result.stderr}
     Check MDR Plugin Installed
 
-Install MDR Directly with Fake SophosMTR
-    ${MDR_SDDS_DIR} =  Get SSPL MDR Plugin SDDS
-    ${result} =    Run Process  bash  ${MDR_SDDS_DIR}/install.sh
-    # installer will report version copy error since SophosMTR is not present
-    Should Be Equal As Integers    ${result.rc}    0
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    Create Fake MDR Executable
-    Check MDR Plugin Installed
-
 Check MDR Plugin Installed
     File Should Exist   ${MDR_PLUGIN_PATH}/bin/mtr
     Wait Until Keyword Succeeds
@@ -197,22 +187,6 @@ Kill OSQuery And Wait Until Osquery Running Again
     # osquery 5.0.1 is behaving differently and can take longer to stabilize when restarting quickly, this sleep forces
     # the test to give it time to stabilize before continuing
     sleep  10
-
-Create Fake MDR Executable Contents
-    ${script} =     Catenate    SEPARATOR=\n
-    ...    \#!/bin/bash
-    ...    echo 'MDR Perpetual Executable started'
-    ...    while true; do
-    ...       sleep 3
-    ...    done
-    ...    \
-    [Return]  ${script}
-
-Create Fake MDR Executable
-    ${script} =  Create Fake MDR Executable Contents
-    Create Directory   ${MDR_PLUGIN_PATH}/dbos/
-    Create File   ${SophosMDRExe}    content=${script}
-    Run Process  chmod  u+x  ${SophosMDRExe}
 
 Disable MDR Executable And Restart MDR Plugin
     Wait for MDR Executable To Be Running

@@ -91,7 +91,7 @@ MDR Plugin Receives Valid MDR Policy And Writes Policy To Expected Location And 
 *** Keywords ***
 
 MDR Test Setup
-    Install MDR Directly with Fake SophosMTR
+    Install MDR Directly
     Check SophosMTR installed
 
 MDR Status Test Teardown
