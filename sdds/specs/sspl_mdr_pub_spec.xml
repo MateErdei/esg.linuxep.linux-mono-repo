@@ -2,8 +2,8 @@
 <publicationspec importspec="sspl_mdr_import_spec.xml">
   <componentsuites>
     <line id="ServerProtectionLinux-Plugin-MDR">
-    <componentsuite importreference="ServerProtectionLinux-Plugin-MDR-1.0.10.30">
-        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.10.57" line="ServerProtectionLinux-MDR-Control-Component" mountpoint="."/>
+    <componentsuite importreference="ServerProtectionLinux-Plugin-MDR-1.0.11.4">
+        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.11.1" line="ServerProtectionLinux-MDR-Control-Component" mountpoint="."/>
         <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.4.0.12" line="ServerProtectionLinux-MDR-DBOS-Component" mountpoint="."/>
     </componentsuite>
     <componentsuite importreference="ServerProtectionLinux-Plugin-MDR-1.0.10.2">
@@ -25,32 +25,12 @@
         <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.0.0.94" line="ServerProtectionLinux-MDR-DBOS-Component" mountpoint="."/>
         <component importreference="ServerProtectionLinux-MDR-osquery-Component-4.5.0" line="ServerProtectionLinux-MDR-osquery-Component" mountpoint="."/>
       </componentsuite>
-	  <componentsuite importreference="ServerProtectionLinux-Plugin-MDR-1.0.6.50">
-        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.6.81" line="ServerProtectionLinux-MDR-Control-Component" mountpoint="."/>
-        <component importreference="ServerProtectionLinux-MDR-DBOS-Component-1.0.3.15" line="ServerProtectionLinux-MDR-DBOS-Component" mountpoint="."/>
-        <component importreference="ServerProtectionLinux-MDR-osquery-Component-4.4.0" line="ServerProtectionLinux-MDR-osquery-Component" mountpoint="."/>
-      </componentsuite>
-	  <componentsuite importreference="ServerProtectionLinux-Plugin-MDR-1.0.4.21">
-        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.4.35" line="ServerProtectionLinux-MDR-Control-Component" mountpoint="."/>
-        <component importreference="ServerProtectionLinux-MDR-DBOS-Component-1.0.3.15" line="ServerProtectionLinux-MDR-DBOS-Component" mountpoint="."/>
-        <component importreference="ServerProtectionLinux-MDR-osquery-Component-4.3.0" line="ServerProtectionLinux-MDR-osquery-Component" mountpoint="."/>
-      </componentsuite>
-      <componentsuite importreference="ServerProtectionLinux-Plugin-MDR-1.0.2.105">
-        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.2.105" line="ServerProtectionLinux-MDR-Control-Component" mountpoint="."/>
-        <component importreference="ServerProtectionLinux-MDR-DBOS-Component-1.0.3.15" line="ServerProtectionLinux-MDR-DBOS-Component" mountpoint="."/>
-        <component importreference="ServerProtectionLinux-MDR-osquery-Component-4.0.2.1" line="ServerProtectionLinux-MDR-osquery-Component" mountpoint="."/>
-      </componentsuite>
-      <componentsuite importreference="ServerProtectionLinux-Plugin-MDR-1.0.1.62">
-        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.1.62" line="ServerProtectionLinux-MDR-Control-Component" mountpoint="."/>
-        <component importreference="ServerProtectionLinux-MDR-DBOS-Component-1.0.1.162" line="ServerProtectionLinux-MDR-DBOS-Component" mountpoint="."/>
-        <component importreference="ServerProtectionLinux-MDR-osquery-Component-4.0.2.1" line="ServerProtectionLinux-MDR-osquery-Component" mountpoint="."/>
-      </componentsuite>
     </line>
   </componentsuites>
    <warehouses>
     <warehouse furcatedentitlement="SSPL_MDR" id="ssplmdr">
   <line id="ServerProtectionLinux-Plugin-MDR">
-    <component importreference="ServerProtectionLinux-Plugin-MDR-1.0.10.30">
+    <component importreference="ServerProtectionLinux-Plugin-MDR-1.0.11.4">
         <releasetag baseversion="" tag="BETA"/>
         <releasetag baseversion="" tag="RECOMMENDED"/>
     </component>
@@ -62,40 +42,23 @@
     </component>
     <component importreference="ServerProtectionLinux-Plugin-MDR-1.0.7.60">
     </component>
-    <component importreference="ServerProtectionLinux-Plugin-MDR-1.0.6.50">
-    </component>
-    <component importreference="ServerProtectionLinux-Plugin-MDR-1.0.4.21">
-    </component>
-    <component importreference="ServerProtectionLinux-Plugin-MDR-1.0.2.105">
-    </component>
-    <component importreference="ServerProtectionLinux-Plugin-MDR-1.0.1.62">
-    </component>
   </line>
       <line id="ServerProtectionLinux-MDR-Control-Component">
-        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.10.57"/>
+        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.11.1"/>
         <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.10.3"/>
         <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.9.10"/>
 		<component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.8.18"/>
         <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.7.60"/>
-		<component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.6.81"/>
-		<component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.4.35"/>
-        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.2.105"/>
-        <component importreference="ServerProtectionLinux-MDR-Control-Component-1.0.1.62"/>
       </line>
       <line id="ServerProtectionLinux-MDR-DBOS-Component">
         <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.4.0.12"/>
         <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.4.0.9"/>
         <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.1.0.65"/>
         <component importreference="ServerProtectionLinux-MDR-DBOS-Component-2.0.0.94"/>
-        <component importreference="ServerProtectionLinux-MDR-DBOS-Component-1.0.3.15"/>
-        <component importreference="ServerProtectionLinux-MDR-DBOS-Component-1.0.1.162"/>
       </line>
       <line id="ServerProtectionLinux-MDR-osquery-Component">
 		<component importreference="ServerProtectionLinux-MDR-osquery-Component-4.6.0"/>
 		<component importreference="ServerProtectionLinux-MDR-osquery-Component-4.5.0"/>
-		<component importreference="ServerProtectionLinux-MDR-osquery-Component-4.4.0"/>
-		<component importreference="ServerProtectionLinux-MDR-osquery-Component-4.3.0"/>
-        <component importreference="ServerProtectionLinux-MDR-osquery-Component-4.0.2.1"/>
       </line>
     </warehouse>
   </warehouses>
