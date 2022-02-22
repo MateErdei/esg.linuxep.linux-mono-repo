@@ -216,7 +216,6 @@ AV Plugin Can Disable Scanning Of Mounted SMB Shares
     ${destination} =  Set Variable  /testmnt/smbshare
     Create Directory  ${source}
     Create File       ${source}/eicar.com    ${EICAR_STRING}
-    wait until created  ${source}/eicar.com
     Register Cleanup  Remove File      ${source}/eicar.com
     Create Directory  ${destination}
     Create Local SMB Share   ${source}   ${destination}
@@ -486,7 +485,7 @@ Product Test Teardown
 
 Test Remote Share
     [Arguments]  ${destination}
-    Wait Until File exists  ${destination}/eicar.com
+    Should Exist  ${destination}/eicar.com
     ${remoteFSscanningDisabled} =   Set Variable  remoteFSscanningDisabled
     ${remoteFSscanningEnabled} =    Set Variable  remoteFSscanningEnabled
     ${remoteFSscanningDisabled_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/${remoteFSscanningDisabled}.log
