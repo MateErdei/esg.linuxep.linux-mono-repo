@@ -23,7 +23,7 @@ Force Tags  LOAD6
 
 *** Test Cases ***
 MTR Plugin Reports Telemetry Correctly With A SophosMTR Restart And Also Uses Cached Values From Disk
-    Install MTR From Fake Component Suite
+    Install MDR Directly
     Kill SophosMTR Executable
     Wait Until SophosMTR Executable Running  20
 
@@ -45,7 +45,7 @@ MTR Plugin Reports Telemetry Correctly With A SophosMTR Restart And Also Uses Ca
 
 
 MTR Plugin Counts SophosMTR Restarts Correctly And Reports In Telemetry
-    Install MTR From Fake Component Suite
+    Install MDR Directly
     # the server seems to die if it doesn't recieve any input for a while
     Run Telemetry Executable     ${EXE_CONFIG_FILE}      ${SUCCESS}
 

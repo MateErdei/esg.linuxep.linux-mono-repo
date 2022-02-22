@@ -120,7 +120,7 @@ VersionCopy File in the Wrong Location Is Removed
     Combine MTR 0-6-0 Component Suite
     Combine MTR Develop Component Suite
     Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-control-plugin-060/install.sh
 
     #fake the file being copied to the wrong location
     Create Directory   ${SOPHOS_INSTALL}/opt/sophos-spl/base/bin
@@ -140,7 +140,7 @@ VersionCopy File in the Wrong Location Is Removed
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
 
     Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-control-plugin/install.sh
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -154,10 +154,10 @@ Verify Upgrading Will Remove Files Which Are No Longer Required
     Combine MTR 0-6-0 Component Suite
     Combine MTR Develop Component Suite
     Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-control-plugin-060/install.sh
     Check Files Before Upgrade
     Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-control-plugin/install.sh
     Check Files After Upgrade
 
 Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
@@ -166,7 +166,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     Combine MTR 0-6-0 Component Suite
     Combine MTR Develop Component Suite
     Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-control-plugin-060/install.sh
     Move File   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Base-component/manifest.dat  /tmp/base-manifest.dat
     Move File  ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat  /tmp/MDR-manifest.dat
 
@@ -174,7 +174,7 @@ Verify Upgrading Will Not Remove Files Which Are Outside Of The Product Realm
     Move File  /tmp/base-manifest.dat   ${SOPHOS_INSTALL}/base/update/ServerProtectionLinux-Plugin-MDR/manifest.dat
 
     Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-control-plugin/install.sh
 
     # ensure that the list of files to remove contains files which are outside of the components realm
     ${BASE_REMOVE_FILE_CONTENT} =  Get File  ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Base-component/removedFiles_manifest.dat
@@ -196,7 +196,7 @@ Version Copy Versions All Changed Files When Upgrading
     Combine MTR 0-6-0 Component Suite
     Combine MTR Develop Component Suite
     Run Specific Installer Directly   ${Root_Install_Location}/sspl-base-0-6-0/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-0-6-0-sdds/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-control-plugin-060/install.sh
 
     ${BaseReleaseVersion}=  Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrReleaseVersion}=  Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -208,7 +208,7 @@ Version Copy Versions All Changed Files When Upgrading
     ${BeforeManifestPluginMdr}=  Get File  ${MTRPluginManifestPath}
 
     Run Specific Installer Directly   ${Root_Install_Location}/sspl-base/install.sh
-    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-componentsuite-sdds/install.sh
+    Run Specific Installer Directly   ${Root_Install_Location}/sspl-mdr-control-plugin/install.sh
 
 
     ${BaseDevVersion} =  Get Version Number From Ini File   ${InstalledBaseVersionFile}

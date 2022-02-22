@@ -32,7 +32,7 @@ Test Components Shutdown Cleanly
     ...  1 secs
     ...  Check Event Journaler Installed
     Block Connection Between EndPoint And FleetManager
-    Install Directly From Component Suite
+    Install MDR Directly
     Check MDR Component Suite Installed Correctly
     Insert MTR Policy
     Wait for MDR Executable To Be Running

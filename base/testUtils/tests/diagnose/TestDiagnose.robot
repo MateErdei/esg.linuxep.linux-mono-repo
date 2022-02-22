@@ -88,7 +88,7 @@ Diagnose Tool Gathers MDR Logs When Run From Installation
 
     Create Directory  ${TAR_FILE_DIRECTORY}
 
-    Install Directly From Component Suite
+    Install MDR Directly
     Mimic MDR Component Files   ${SOPHOS_INSTALL}
 
     ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}

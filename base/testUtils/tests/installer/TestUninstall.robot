@@ -21,7 +21,7 @@ Uninstallation of base removes all plugins cleanly
     Wait For EDR to be Installed
 
     Block Connection Between EndPoint And FleetManager
-    Install Directly From Component Suite
+    Install MDR Directly
     Insert MTR Policy
     Check MDR component suite running
 
@@ -108,7 +108,7 @@ Test Mtr Plugin uninstalls cleanly
     Require Fresh Install
 
     Block Connection Between EndPoint And FleetManager
-    Install Directly From Component Suite
+    Install MDR Directly
     Insert MTR Policy
     Check MDR component suite running
 
