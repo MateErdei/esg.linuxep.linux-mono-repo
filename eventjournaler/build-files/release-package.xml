@@ -7,14 +7,14 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/Version_1_1_9" build-id="20220111115616-63e343f79cd351f4b766d0f4697fff50969105d6-T8rvVv"/>
+            <release-version branch="release/2022-09" build-id="20220221084824-ace4c3223c45f194d3441e496f06a60574f40232-uNLJJ9"/>
             <development-version branch="develop" />
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
             <include artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <release-version branch="release/SED_3.0.1_linux_libs" build-id="20210929204637-2500f58d99d60db61f6c2f61f9f2a02c533f50da-GFlHOK" />
+            <release-version branch="release/SED_2022.09_libs" build-id="20220217194912-2bdf7d8503655d57176360807cbee0433bdb7488-mH1q6h" />
             <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
             <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="/build/input"/>
