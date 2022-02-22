@@ -10,9 +10,9 @@
 				 artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--2022-09/20220222110919-d0f7bea07e25da0d0caca61f778c6e4fa39ac327-xgx5NU/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
 				 longdic="Sophos Linux Base"
 				 shortdic="Sophos Linux Base"/>
-	  <componentsuite id="ServerProtectionLinux-Base-1.1.9.4"
-                 version="1.1.9.4"
-                 artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--Version_1_1_9/20220127170530-d0f7bea07e25da0d0caca61f778c6e4fa39ac327-U6ZibK/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
+	  <componentsuite id="ServerProtectionLinux-Base-1.1.9.7"
+                 version="1.1.9.7"
+				  artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--Version_1_1_9/20220203134128-d0f7bea07e25da0d0caca61f778c6e4fa39ac327-bKt1t7/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
                  longdic="Sophos Linux Base"
                  shortdic="Sophos Linux Base"/>
 	  <componentsuite id="ServerProtectionLinux-Base-1.1.8.2"
@@ -170,9 +170,9 @@
 				 artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--2022-09/20220222084300-9fea0d3307f8e85a5fcc9f7655c48bb4772f27dc-hk0Lgo/SDDS-COMPONENT"
 				 longdic="Sophos Linux Runtime Detection Plugin"
 				 shortdic="Sophos Linux Runtime Detection Plugin"/>
-      <component id="ServerProtectionLinux-Plugin-RuntimeDetections-4.10.0.109"
-				 version="4.10.0.109"
-				 artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--version_4_10_0/20220126191215-c52a9bcc10f39b3ce68e907c944ce14c7c744398-p8tnVU/SDDS-COMPONENT"
+      <component id="ServerProtectionLinux-Plugin-RuntimeDetections-4.10.0.139"
+				 version="4.10.0.139"
+				 artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--version_4_10_0/20220202230147-153c90b52dfc3e9d3c40d151c789bfd00b38f5c5-I9yzI3/SDDS-COMPONENT"
 				 longdic="Sophos Linux Runtime Detection Plugin"
 				 shortdic="Sophos Linux Runtime Detection Plugin"/>
       <component id="ServerProtectionLinux-Plugin-RuntimeDetections-4.9.0.134"
