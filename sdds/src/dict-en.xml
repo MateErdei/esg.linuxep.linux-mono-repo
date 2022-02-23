@@ -1732,7 +1732,7 @@
     </Features>
     <Features>
       <Label>
-        <Token>HEARTBEAT</Token>
+        <Token>HBT</Token>
         <Language lang="en">
           <ShortDesc>Heartbeat</ShortDesc>
           <LongDesc>Heartbeat</LongDesc>
