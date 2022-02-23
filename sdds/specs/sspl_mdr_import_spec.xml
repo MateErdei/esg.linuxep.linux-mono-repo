@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <importspec>
   <warehouses>
-    <warehouse id="ssplmdr" name="DNR_SSPL_SPRINT_2022_09"/>
+    <warehouse id="ssplmdr" name="DNR_SSPL_MDR_SPRINT_2022_09"/>
   </warehouses>
   <imports>
     <line id="ServerProtectionLinux-Plugin-MDR">
