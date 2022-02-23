@@ -219,9 +219,9 @@
                  shortdic="Sophos Linux AntiVirus"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-Heartbeat">
-	  <component id="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.406"
-				 version="1.0.0.406"
-				 artifact="esg-releasable-candidate/linuxep.sspl-plugin-heartbeat/release--2022-09/20220222073014-c2a4a474931f85178c351dd90b0ca42e14041527-0Uopoy/sspl-plugin-heartbeat/SDDS-COMPONENT"
+	  <component id="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.410"
+				 version="1.0.0.410"
+				 artifact="esg-releasable-candidate/linuxep.sspl-plugin-heartbeat/release--2022-09/20220223101817-059e553a15b6b69dfc4636f488846d06c301b6da-opj8Jv/sspl-plugin-heartbeat/SDDS-COMPONENT"
 				 longdic="Sophos Linux Heartbeat Plugin"
 				 shortdic="Sophos Linux Heartbeat Plugin"/>
     </line>
