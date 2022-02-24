@@ -103,6 +103,15 @@ def unmodify_hosts_file(**newLines):
     open("/etc/hosts", "w").writelines(output)
 
 def restart_Secure_Server_Proxy():
+    proxy_hostname = "ssplsecureproxyserver.eng.sophos"
+
+    # Add a call to nslookup so that we can tell if/what the hostname is resolving
+    result = subprocess.Popen(["nslookup", proxy_hostname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = result.communicate()
+    return_code = result.returncode
+    logger.info(f"nslookup stdout: {stdout}")
+    logger.info(f"nslookup stderr: {stderr}")
+    logger.info(f"nslookup return_code: {return_code}")
 
     SUPPORTFILEPATH = PathManager.get_support_file_path()
     APPSERVER_KEYFILE=os.path.join(SUPPORTFILEPATH, "secureServerProxy", "secure_server_ssh_key")
@@ -112,14 +121,12 @@ def restart_Secure_Server_Proxy():
     command = ["ssh",
                "-o", "StrictHostKeyChecking=no",
                "-i", APPSERVER_KEYFILE,
+               f"root@{proxy_hostname}",
+               "/etc/init.d/tinyproxy restart"
                ]
 
-    command.append("root@ssplsecureproxyserver.eng.sophos")
-    command.append("/etc/init.d/tinyproxy restart")
-
-
     output = subprocess.check_output(command)
-
+    logger.info(output)
     if not wait_for_secure_proxy_server_to_be_up():
         raise AssertionError("Proxy server not up after restart")
 
