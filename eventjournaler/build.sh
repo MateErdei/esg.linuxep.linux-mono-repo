@@ -208,18 +208,6 @@ function cppcheck_build()
 {
     local BUILD_BITS_DIR=$1
 
-    PKG_MANAGER="$( command -v yum || command -v apt-get )"
-    case "${PKG_MANAGER}" in
-      *yum*)
-        "${PKG_MANAGER}" -y install cppcheck
-        "${PKG_MANAGER}" -y install python36-pygments
-      ;;
-      *apt*)
-        sudo "${PKG_MANAGER}" -y install python3-pygments
-        sudo "${PKG_MANAGER}" -y install cppcheck
-      ;;
-    esac
-
     [[ -d ${BUILD_BITS_DIR} ]] || mkdir -p ${BUILD_BITS_DIR}
     CURR_WD=$(pwd)
     cd ${BUILD_BITS_DIR}
