@@ -52,7 +52,12 @@ def Allow_Samba_To_Access_Share(directory):
         logger.error("Failed to add or modify semanage fcontext!")
         return
 
-    subprocess.check_call(['restorecon', '-Rv', directory])
+    p = subprocess.run(['restorecon', '-Rv', directory],
+                   stdout=subprocess.PIPE,
+                   stderr=subprocess.STDOUT)
+    if p.returncode != 0:
+        logger.info("restorecon failed: %s", p.stdout)
+        raise Exception("Failed to execute restorecon")
 
     p = subprocess.run(['sestatus'],
                        stdout=subprocess.PIPE,

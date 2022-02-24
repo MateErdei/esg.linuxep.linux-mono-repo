@@ -6,7 +6,6 @@
 import os
 import ssl
 import subprocess
-import sys
 import threading
 
 import http.server
@@ -17,16 +16,19 @@ from robot.api import logger
 
 
 class HttpsHandler(http.server.SimpleHTTPRequestHandler):
+    def __new__(cls, request, client_address, server):
+        return super().__new__(cls)
+
     def __init__(self, request, client_address, server):
         buffer = 1
         self.log_file = open('/tmp/https_server.log', 'w', buffer)
         http.server.SimpleHTTPRequestHandler.__init__(self, request, client_address, server)
 
-    def log_message(self, format, *args):
+    def log_message(self, fmt, *args):
         self.log_file.write("%s - - [%s] %s\n" %
                             (self.client_address[0],
                              self.log_date_time_string(),
-                             format % args))
+                             fmt % args))
 
     def handle_request(self, verb):
         self.log_message("%s", "Received HTTP {} Request".format(verb))
@@ -62,6 +64,7 @@ class SophosHTTPServer(http.server.HTTPServer):
 OPENSSL = "/usr/bin/openssl"
 KEY_FILE_PATH = None
 
+
 def _generate_key():
     """
     Generate the key once
@@ -73,11 +76,17 @@ def _generate_key():
 
     keyfile_path = "/tmp/key.pem"
     if not os.path.isfile(keyfile_path):
-        subprocess.check_call([
-            OPENSSL,
-            'genrsa',
-            '-out', keyfile_path,
-            '4096'])
+        p = subprocess.run(
+            [
+                OPENSSL, 'genrsa',
+                '-out', keyfile_path,
+                '4096'
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT)
+        if p.returncode != 0:
+            logger.info("openssl failed to generate key: %s", p.stdout)
+            raise Exception("Failed to generate RSA key")
     KEY_FILE_PATH = keyfile_path
     return KEY_FILE_PATH
 
@@ -88,12 +97,26 @@ class HttpsServer(object):
         self.m_last_port = None
         self.m_server = None
 
-    def __generate_key(self, certfile_path):
+    @staticmethod
+    def __generate_key(certfile_path):
         keyfile_path = _generate_key()
 
         subject = "/C=GB/ST=London/L=London/O=Sophos/OU=ESG/CN=localhost"
-        subprocess.check_call('{} req -x509 -key {} -out {} -days 2 -nodes -subj "{}"'
-                              .format(OPENSSL, keyfile_path, certfile_path, subject), shell=True)
+        p = subprocess.run(
+            [
+                OPENSSL, 'req',
+                '-x509',
+                '-key', keyfile_path,
+                '-out', certfile_path,
+                '-days', '2',
+                '-nodes',
+                '-subj', subject
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT)
+        if p.returncode != 0:
+            logger.info("openssl failed to request key: %s", p.stdout)
+            raise Exception("Failed to request X509 key")
 
         return keyfile_path
 

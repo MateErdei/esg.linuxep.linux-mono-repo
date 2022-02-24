@@ -464,7 +464,7 @@ AV Plugin Can Send Telemetry After IDE Update
 
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${AV_PLUGIN_PATH}/chroot/susi/update_source/
-    Log To Console  ${output}
+    Log  ${output}
     Prepare To Run Telemetry Executable
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
@@ -498,7 +498,7 @@ AV Plugin Can Send Telemetry After Upgrade
 
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${AV_PLUGIN_PATH}/chroot/susi/update_source/
-    Log To Console  ${output}
+    Log  ${output}
     Prepare To Run Telemetry Executable
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
