@@ -77,6 +77,7 @@ def get_package_version(package_path):
     package_node = package_tree.getroot()
     return package_node.attrib['version']
 
+BUILD_TEMPLATE = 'JenkinsLinuxTemplate7'
 PACKAGE_PATH = './build-files/release-package.xml'
 PACKAGE_VERSION = get_package_version(PACKAGE_PATH)
 def install_requirements(machine: tap.Machine):
@@ -152,22 +153,22 @@ def event_journaler(stage: tap.Root, context: tap.PipelineContext, parameters: t
     ej_build = None
     with stage.parallel('build'):
         if mode == release_mode or mode == analysis_mode:
-            ej_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate6',
+            ej_build = stage.artisan_build(name=release_mode, component=component, image=BUILD_TEMPLATE,
                                             mode=release_mode, release_package=PACKAGE_PATH)
-            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate6',
+            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=BUILD_TEMPLATE,
                                                        mode=nine_nine_nine_mode, release_package=PACKAGE_PATH)
-            zero_six_zero = stage.artisan_build(name=zero_six_zero_mode, component=component, image='JenkinsLinuxTemplate6',
+            zero_six_zero = stage.artisan_build(name=zero_six_zero_mode, component=component, image=BUILD_TEMPLATE,
                                                 mode=zero_six_zero_mode, release_package=PACKAGE_PATH)
-            analysis_build = stage.artisan_build(name=analysis_mode, component=component, image='JenkinsLinuxTemplate6',
+            analysis_build = stage.artisan_build(name=analysis_mode, component=component, image=BUILD_TEMPLATE,
                                                  mode=analysis_mode, release_package=PACKAGE_PATH)
         elif mode == coverage_mode:
-            release_build = stage.artisan_build(name=release_mode, component=component, image='JenkinsLinuxTemplate6',
+            release_build = stage.artisan_build(name=release_mode, component=component, image=BUILD_TEMPLATE,
                                                 mode=release_mode, release_package=PACKAGE_PATH)
-            ej_build = stage.artisan_build(name=coverage_mode, component=component, image='JenkinsLinuxTemplate6',
+            ej_build = stage.artisan_build(name=coverage_mode, component=component, image=BUILD_TEMPLATE,
                                                  mode=coverage_mode, release_package=PACKAGE_PATH)
-            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image='JenkinsLinuxTemplate6',
+            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=BUILD_TEMPLATE,
                                                        mode=nine_nine_nine_mode, release_package=PACKAGE_PATH)
-            zero_six_zero = stage.artisan_build(name=zero_six_zero_mode, component=component, image='JenkinsLinuxTemplate6',
+            zero_six_zero = stage.artisan_build(name=zero_six_zero_mode, component=component, image=BUILD_TEMPLATE,
                                                 mode=zero_six_zero_mode, release_package=PACKAGE_PATH)
 
     if mode == analysis_mode:
