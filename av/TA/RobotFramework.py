@@ -1,3 +1,4 @@
+import argparse
 import json
 import robot
 import sys
@@ -5,13 +6,13 @@ import sys
 from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 
-def main(argv):
-    # Exclusions are added in pipeline.py and passed in through args
-    exclude = []
-    for arg in argv:
-        exclude.append(arg)
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--include', nargs='+', help='keywords to include')
+    parser.add_argument('--exclude', nargs='+', help='keywords to exclude')
+    args = parser.parse_args()
 
-    tags = {'include': ['INTEGRATION', 'PRODUCT'], 'exclude': exclude}
+    tags = {'include': args.include, 'exclude': args.exclude}
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {
@@ -41,4 +42,4 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())

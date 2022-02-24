@@ -77,16 +77,12 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, environment=None
         # Exclude MANUAL on TAP
         # Exclude DISABLED on TAP
         # Exclude STRESS on TAP; as some tests here will not be appropriate
-        robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS', 'PRODUCT', 'INTEGRATION']
-
-        if include_tag == "product":
-            robot_exclusion_tags.remove('PRODUCT')
-
-        if include_tag == "integration":
-            robot_exclusion_tags.remove('INTEGRATION')
+        robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS']
 
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
-        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py', *robot_exclusion_tags,
+        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
+                    '--include', include_tag,
+                    '--exclude', *robot_exclusion_tags,
                     environment=environment,
                     timeout=5400)
     finally:
@@ -387,8 +383,10 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     global BRANCH_NAME
     BRANCH_NAME = context.branch
 
-    run_tests = parameters.run_tests != 'false'
-    run_aws_tests = decide_whether_to_run_aws_tests(parameters, context)
+    run_tests: bool = parameters.run_tests != 'false'
+    run_aws_tests: bool = decide_whether_to_run_aws_tests(parameters, context)
+    include_tag = parameters.include_tag or "integration product"
+
     do_coverage: bool = decide_whether_to_do_coverage(parameters, context)
     do_cppcheck: bool = decide_whether_to_run_cppcheck(parameters, context)
     do_999_build: bool = parameters.do_999_build != 'false'
@@ -415,51 +413,54 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     with stage.parallel('testing'):
         if run_tests:
-            test_inputs = get_inputs(context, av_build)
             with stage.parallel('TA'):
-                for (name, machine) in get_test_machines(test_inputs, parameters):
-                    stage.task(task_name=name+"_component", func=pytest_task, machine=machine)
+                test_inputs = get_inputs(context, av_build)
+                with stage.parallel('pytest'):
+                    with stage.parallel('component'):
+                        for (name, machine) in get_test_machines(test_inputs, parameters):
+                            stage.task(task_name=name, func=pytest_task, machine=machine)
 
-                for (name, machine) in get_test_machines(test_inputs, parameters):
-                    stage.task(task_name=name+"_product", func=robot_task, machine=machine,
-                               include_tag="product")
-
-                for (name, machine) in get_test_machines(test_inputs, parameters):
-                    stage.task(task_name=name+"_integration", func=robot_task, machine=machine,
-                               include_tag="integration")
+                with stage.parallel('robot'):
+                    for include in include_tag.split():
+                        with stage.parallel(include):
+                            for (name, machine) in get_test_machines(test_inputs, parameters):
+                                stage.task(task_name=name, func=robot_task, machine=machine,
+                                           include_tag=include)
 
             if do_coverage:
                 with stage.parallel('coverage'):
                     coverage_inputs = get_inputs(context, coverage_build, coverage=True)
 
-                    machine_bullseye_pytest = \
-                        tap.Machine('ubuntu1804_x64_server_en_us',
-                                    inputs=coverage_inputs,
-                                    outputs={'covfile': TaskOutput('covfiles')},
-                                    platform=tap.Platform.Linux)
-                    stage.task(task_name='ubuntu1804_bullseye_component',
-                               func=bullseye_coverage_pytest_task,
-                               machine=machine_bullseye_pytest)
+                    with stage.parallel('pytest'):
+                        machine_bullseye_pytest = \
+                            tap.Machine('ubuntu1804_x64_server_en_us',
+                                        inputs=coverage_inputs,
+                                        outputs={'covfile': TaskOutput('covfiles')},
+                                        platform=tap.Platform.Linux)
+                        stage.task(task_name='component',
+                                   func=bullseye_coverage_pytest_task,
+                                   machine=machine_bullseye_pytest)
 
-                    machine_bullseye_robot_product = \
-                        tap.Machine('ubuntu1804_x64_server_en_us',
-                                    inputs=coverage_inputs,
-                                    outputs={'covfile': TaskOutput('covfiles')},
-                                    platform=tap.Platform.Linux)
-                    stage.task(task_name='ubuntu1804_bullseye_robot_product',
-                               func=bullseye_coverage_robot_task,
-                               machine=machine_bullseye_robot_product,
-                               include_tag="product")
+                    with stage.parallel('robot'):
+                        machine_bullseye_robot_product = \
+                            tap.Machine('ubuntu1804_x64_server_en_us',
+                                        inputs=coverage_inputs,
+                                        outputs={'covfile': TaskOutput('covfiles')},
+                                        platform=tap.Platform.Linux)
+                        stage.task(task_name='product',
+                                   func=bullseye_coverage_robot_task,
+                                   machine=machine_bullseye_robot_product,
+                                   include_tag="product")
 
-                    machine_bullseye_robot_integration = \
-                        tap.Machine('ubuntu1804_x64_server_en_us',
-                                    inputs=coverage_inputs,
-                                    outputs={'covfile': TaskOutput('covfiles')},
-                                    platform=tap.Platform.Linux)
-                    stage.task(task_name='ubuntu1804_bullseye_robot_integration',
-                               func=bullseye_coverage_robot_task,
-                               machine=machine_bullseye_robot_integration,
-                               include_tag="integration")
+                        machine_bullseye_robot_integration = \
+                            tap.Machine('ubuntu1804_x64_server_en_us',
+                                        inputs=coverage_inputs,
+                                        outputs={'covfile': TaskOutput('covfiles')},
+                                        platform=tap.Platform.Linux)
+                        stage.task(task_name='integration',
+                                   func=bullseye_coverage_robot_task,
+                                   machine=machine_bullseye_robot_integration,
+                                   include_tag="integration")
 
                     combine_inputs = coverage_inputs
                     combine_inputs['covfiles'] = TaskOutput('covfiles')
@@ -467,12 +468,11 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                         tap.Machine('ubuntu1804_x64_server_en_us',
                                     inputs=combine_inputs,
                                     platform=tap.Platform.Linux)
-                    stage.task(task_name='ubuntu1804_bullseye_combine',
+                    stage.task(task_name='combine',
                                func=bullseye_coverage_combine_task,
                                machine=machine_bullseye_combine)
 
         if run_aws_tests:
             aws_test_inputs = get_inputs(context, av_build, aws=True)
             machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=aws_test_inputs, platform=tap.Platform.Linux)
-            include_tag = parameters.aws_include_tag or "integration product"
             stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
