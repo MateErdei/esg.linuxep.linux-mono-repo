@@ -15,6 +15,7 @@ function check_exists
 check_exists ${BASE_DIST}
 
 check_exists ${SSPL_MDR_PLUGIN_SDDS}
+check_exists ${SSPL_MDR_PLUGIN_SDDS_060}
 check_exists ${SSPL_EDR_PLUGIN_SDDS}
 check_exists ${SSPL_EVENT_JOURNALER_PLUGIN_SDDS}
 check_exists ${SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS}

@@ -52,9 +52,9 @@ Setup For Test
     Install Local SSL Server Cert To System
     Set Environment Variable  CORRUPTINSTALL  no
 
-Setup For Test With MTR
+Teardown For Test With MTR
+    Teardown for Test
     Uninstall MDR Plugin
-    Setup For Test
 
 Teardown for Test
     General Test Teardown
@@ -1729,6 +1729,7 @@ Test Suldownloader Can Download A Component Suite And Component From A Multiple 
 
 Test Suldownloader Does Not Install MDR When Features And Subscription Do Not Match
     [Tags]  SULDOWNLOADER  MDR_PLUGIN
+    [Teardown]    Teardown for Test With MTR
     Setup Warehouse For MDR
     Setup Environment After Warehouse Generation
     Check MDR Plugin Uninstalled
@@ -1764,7 +1765,7 @@ Test Suldownloader Does Not Install MDR When Features And Subscription Do Not Ma
 
 Test Suldownloader purges files
     [Tags]  SULDOWNLOADER  MDR_PLUGIN
-    [Setup]  Setup For Test With MTR
+    [Teardown]    Teardown for Test With MTR
     Setup Warehouse For MDR 060
     Setup Environment After Warehouse Generation  suldownloader_log_level=INFO
     Check MDR Plugin Uninstalled
@@ -1813,14 +1814,17 @@ Test Suldownloader purges files
 
     # 3rd/4th update (causes purge)
     Create File   /opt/sophos-spl/base/update/cache/primarywarehouse/catalogue/purge.txt   2009-09-13T11:13:16Z
+
+    Copy File   ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/ps_rootca.crt
+    Copy File   ${SUPPORT_FILES}/sophos_certs/rootca.crt     ${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
     log  ${result.stdout}
     Create File   /opt/sophos-spl/base/update/cache/primarywarehouse/catalogue/purge.txt   2009-09-13T11:13:16Z
     ${result} =    Run Process    ${SUL_DOWNLOADER}    ${tmpdir}/update_config.json    ${tmpdir}/update_report.json
     log  ${result.stdout}
-    Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${also_a_fake_lib_md5}ex000.dat
+    Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${also_a_fake_lib_md5}x000.dat
     Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
-    Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${fake_lib_md5}x000.dat
+#    Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${fake_lib_md5}x000.dat
     Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/fake_lib.so.1.66.999
     Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${faker_lib_md5}x000.dat
     Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/faker_lib.so.2.23.999

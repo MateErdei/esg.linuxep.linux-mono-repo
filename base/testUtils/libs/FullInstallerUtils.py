@@ -138,21 +138,6 @@ class MDRSuite:
         self.mdr_plugin = mdr_plugin
         self.mdr_suite = mdr_suite
 
-def get_sspl_mdr_component_suite():
-    candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-mdr-componentsuite")
-    if local_path_to_plugin:
-        candidates.append(os.path.join(local_path_to_plugin, "output"))
-    mdr_plugin = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-Control", "SDDS-SSPL-MDR-COMPONENT", "SDDS_SSPL_MDR_COMPONENT", candidates)
-    mdr_suite = get_component_suite_sdds_entry("ServerProtectionLinux-Plugin-MDR", "SDDS-SSPL-MDR-COMPONENT-SUITE", "SDDS_SSPL_MDR_COMPONENT_SUITE", candidates)
-    return MDRSuite(mdr_plugin, mdr_suite)
-
-def get_sspl_mdr_component_suite_060():
-    candidates = [os.path.join(PathManager.SYSTEM_PRODUCT_TEST_INPUTS, "sspl-mdr-componentsuite-0-6-0")]
-    mdr_plugin = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-Control", "SDDS-SSPL-MDR-COMPONENT", "SDDS_SSPL_MDR_COMPONENT_0_6_0", candidates)
-    mdr_suite = get_component_suite_sdds_entry("ServerProtectionLinux-Plugin-MDR", "SDDS-SSPL-MDR-COMPONENT-SUITE", "SDDS_SSPL_MDR_COMPONENT_SUITE_0_6_0", candidates)
-    return MDRSuite(mdr_plugin, mdr_suite)
-
 def get_sspl_mdr_component_suite_1():
     release_1_override = os.environ.get("SDDS_SSPL_MDR_COMPONENT_SUITE_RELEASE_1_0", None)
 
@@ -172,6 +157,14 @@ def get_sspl_mdr_plugin_sdds():
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
     return get_plugin_sdds("SSPL MDR Plugin", "SSPL_MDR_PLUGIN_SDDS", candidates)
+
+def get_sspl_mdr_plugin_060_sdds():
+    candidates = []
+    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-mdr-control-plugin-060")
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
+        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
+    return get_plugin_sdds("SSPL MDR Plugin", "SSPL_MDR_PLUGIN_SDDS_060", candidates)
 
 def get_sspl_live_response_plugin_sdds():
     candidates = []

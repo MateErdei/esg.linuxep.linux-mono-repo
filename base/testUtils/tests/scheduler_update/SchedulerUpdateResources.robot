@@ -190,6 +190,32 @@ Setup Warehouse For Mdr
     ${base_dist} =  Get Folder With Installer
     ${dist} =  get_sspl_mdr_plugin_sdds
 
+    Remove Directory  ${tmpdir}/TestInstallFiles/  recursive=${TRUE}
+    Remove Directory  ${tmpdir}/temp_warehouse/  recursive=${TRUE}
+
+    Copy Directory     ${base_dist}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
+    Copy Directory  ${dist}  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Plugin-MDR
+    Create File   ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini   PRODUCT_NAME = Sophos Server Protection Linux - Base Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
+    log file  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini
+
+    Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}  Warehouse1
+    Add Component Warehouse Config   ServerProtectionLinux-Plugin-MDR   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ServerProtectionLinux-Plugin-MDR    Warehouse1
+    Generate Warehouse    MDR_FEATURES=MDR
+
+    Start Update Server    1233    ${tmpdir}/temp_warehouse//customer_files/
+    Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
+    Can Curl Url    https://localhost:1234/catalogue/sdds.ServerProtectionLinux-Plugin-MDR.xml
+    Can Curl Url    https://localhost:1233
+
+Setup Warehouse For Mdr 060
+    Generate Update Certs
+    ${base_dist} =  Get Folder With Installer
+    ${dist} =  get_sspl_mdr_plugin_060_sdds
+
+    Remove Directory  ${tmpdir}/TestInstallFiles/  recursive=${TRUE}
+    Remove Directory  ${tmpdir}/temp_warehouse/  recursive=${TRUE}
+
+
     Copy Directory     ${base_dist}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
     Copy Directory  ${dist}  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Plugin-MDR
     Create File   ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini   PRODUCT_NAME = Sophos Server Protection Linux - Base Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
@@ -214,29 +240,6 @@ Setup For Test With Warehouse Containing Base and MDR
     Setup Environment Before Warehouse Generation
     Setup Warehouse For MDR
     Setup Environment After Warehouse Generation
-
-Setup Warehouse For MDR 060
-    Generate Update Certs
-    ${base_dist} =  Get Folder With Installer
-    ${mdr_component_suite} =  get_sspl_mdr_component_suite_060
-
-    Remove Directory  ${tmpdir}/TestInstallFiles/  recursive=${TRUE}
-    Remove Directory  ${tmpdir}/temp_warehouse/  recursive=${TRUE}
-    Copy Directory     ${base_dist}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
-
-    Copy MDR Component Suite To   ${tmpdir}/TestInstallFiles   mdr_component_suite=${mdr_component_suite}
-    Clear Warehouse Config
-    Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}  Warehouse1
-
-    Add Component Suite Warehouse Config   ${mdr_component_suite.mdr_suite.rigid_name}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   Warehouse1
-    Add Component Warehouse Config   ${mdr_component_suite.mdr_plugin.rigid_name}  ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/  ${mdr_component_suite.mdr_suite.rigid_name}  Warehouse1
-
-    Generate Warehouse   MDR_FEATURES=MDR  MDR_Control_FEATURES=MDR  MDR_DBOS_Component_FEATURES=MDR
-
-    Start Update Server    1233    ${tmpdir}/temp_warehouse/customer_files/
-    Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
-    Can Curl Url    https://localhost:1234/catalogue/sdds.live.xml
-    Can Curl Url    https://localhost:1233
 
 Setup Environment Before Warehouse Generation
     Setup Update Scheduler Environment
