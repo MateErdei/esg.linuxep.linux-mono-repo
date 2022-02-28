@@ -388,7 +388,7 @@ function build()
 
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
-    cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
+    ln -s ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 
     if (( RUN_CPPCHECK == 1 ))
     then
