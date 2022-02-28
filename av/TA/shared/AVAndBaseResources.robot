@@ -23,6 +23,10 @@ Start AV Plugin Process
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start   av
     Should Be Equal As Integers    ${result.rc}    0
 
+Restart AV Plugin
+    Stop AV Plugin
+    Start AV Plugin
+
 Stop AV Plugin
     Stop AV Plugin Process
     Stop Sophos_Threat_Detector

@@ -878,6 +878,9 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     [Tags]  FAULT INJECTION
     Register Cleanup    Exclude Configuration Data Invalid
     Register Cleanup    Exclude Invalid Settings No Primary Product
+    Register Cleanup    Restart AV Plugin
+    Register Cleanup    Remove Files  ${SUSI_STARTUP_SETTINGS_FILE}  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+
     Restart sophos_threat_detector
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
@@ -997,8 +1000,8 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
     Log  New permissions: ${result.stdout}
 
-    Mark AV Log
     Configure scan now
+    Mark AV Log
 
     Send Sav Action To Base  ScanNow_Action.xml
 
