@@ -997,8 +997,8 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
     Log  New permissions: ${result.stdout}
 
-    Configure scan now
     Mark AV Log
+    Configure scan now
 
     Send Sav Action To Base  ScanNow_Action.xml
 
