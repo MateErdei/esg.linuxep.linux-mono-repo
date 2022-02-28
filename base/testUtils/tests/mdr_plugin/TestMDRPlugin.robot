@@ -32,6 +32,27 @@ ${MtrAgentExecutableName}  SophosMTR
 
 *** Test Cases ***
 
+MDR Plugin Starts and Stops Correctly
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/dbos/etc/licenses.txt
+
+    Wait Until SophosMTR Executable Running  20
+
+    # sleep for five sconds as golang seems to take some time before it can kill a process
+    sleep  5
+    ${result} =    Run Process   ${SOPHOS_INSTALL}/bin/wdctl  stop  mtr
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Check MDR Plugin Not Running
+
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check SophosMTR Executable Not Running
+
+
 MDR Plugin Receives Valid MDR Policy And Writes Policy To Expected Location And Sends Same Status
     Remove File   ${MDRPluginPolicyLocation}
 
