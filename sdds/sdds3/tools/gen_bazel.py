@@ -108,7 +108,6 @@ EMITTED_BUILDFILES = {}
 
 
 def emit_buildfile_for_imported_fileset(fileset, **kwargs):
-    print("JAKE1B")
     buildfile = os.path.join(fileset, 'BUILD')
     if buildfile in EMITTED_BUILDFILES:
         raise FileExistsError(f'Error: BUILD file already exists {buildfile}')
@@ -324,7 +323,6 @@ def create_suite_package(compdef, suite, view, mode):
 def _get_package_info_from_sdds_import_xml(compdef):
     # Read the SDDS-Import.xml file to grok the name, version and nonce
     sdds_import = os.path.join(BASE, compdef['fileset'], 'SDDS-Import.xml')
-    print(f"JAKE-SDDS-IMPORT: {sdds_import}")
     nonce = hash_file(sdds_import)[:10]
     with open(sdds_import) as f:
         xml = ET.ElementTree(None, f)
@@ -408,10 +406,7 @@ def emit_package_rule(rulefh, component, compdef, package_folder='package'):
     PKGTARGET_TO_FILESET[target] = compdef['fileset']
 
     package = f'{target}.zip'
-    print(f"JAKE-PREBUILT: {compdef}")
     prebuilt = os.path.join(BASE, compdef['fileset'], package)
-    print(f"JAKE-PREBUILT2: {prebuilt}")
-    print(f"JAKE-PREBUILT3: {os.path.exists(prebuilt)}")
 
     fileset = os.path.join(BASE, compdef['fileset'])
     emit_buildfile_for_imported_fileset(fileset, prebuilt_package=os.path.basename(prebuilt))
@@ -437,9 +432,7 @@ build_sdds3_package(
 
 def emit_package_rules(rulefh, suites, common_component_data, mode):
     for suite in suites:
-        print(f"JAKE-SUITE: {suite}")
         suitedef = suites[suite]
-        print(f"JAKE-SUITE: {suitedef}")
 
         for i, instance in enumerate(suitedef['instances']):
             instance['_instance'] = i
@@ -814,16 +807,13 @@ def import_internal_supplements(supplements, components):
 
     internal_supplements = supplements['supplements']['internal_supplements']
     del supplements['supplements']['internal_supplements']
-    print("JAKE1")
     for path in internal_supplements:
         found = False
-        print(f"JAKE1A: {f'{ROOT}/inputs/supplements/{path}'}")
         for manifest in glob(f'{ROOT}/inputs/supplements/{path}'):
             import_scit_supplement(os.path.dirname(manifest), supplements, components)
             found = True
         if not found:
             raise FileNotFoundError(f'Failed to import internal supplement {ROOT}/inputs/supplements/{path}')
-    print("JAKE2")
 
 
 def insert_telemetry_supplements(supplements, components):
