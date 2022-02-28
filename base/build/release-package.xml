@@ -35,6 +35,12 @@
             <development-version branch="sophos/linux-sspl-master"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
+        <build-asset project="em" repo="esg">
+          <release-version branch="release/sophlib" build-id="20220124144433-58a1c0c0500350918d190a7bca9b60e44c0fed41-ZXJHx9" />
+          <!--<development-version branch="develop" />-->
+          <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib" />
+          <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64" />
+        </build-asset>
         <build-asset project="winep" repo="sau">
             <release-version branch="release/WINEP-2022.06" build-id="20220128115031-a862cc637baabe31c7c0807ca7b4836ed21d7bf1-YQAQrA"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>

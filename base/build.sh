@@ -335,6 +335,7 @@ function build()
         untar_input python-urllib3
         untar_input pycryptodome
         untar_input $GOOGLETESTTAR
+        cp -r ${INPUT}/sophlib "$REDIST"
         cp -r ${INPUT}/sdds3 "$REDIST"/sdds3 && chmod +x "$REDIST"/sdds3/*
 
 
