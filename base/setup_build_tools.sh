@@ -10,43 +10,99 @@ then
 fi
 
 BASEDIR=$(dirname "$0")
-
 # Just in case this script ever gets symlinked
 BASEDIR=$(readlink -f "$BASEDIR")
+
+function install_package()
+{
+  local package=$1
+  if which apt 2>/dev/null
+  then
+    if ! apt list --installed $package 2>/dev/null | grep -q $package
+    then
+      sudo apt-get install $package -y || exit 1
+    fi
+  else
+    # TODO support yum
+    echo "Not implemented yet - currently only support apt"
+  fi
+}
+
+
 cd "$BASEDIR"
 
 # Where the TAP Python venv will be put
 TAP_VENV="$BASEDIR/tap_venv"
 
 # Install python3 venv for TAP and then install TAP
-# TODO deal with OSs with python3.6 as default = e.g. 18.04
-if ! apt list --installed python3-venv 2>/dev/null | grep -q python3-venv
+# For TAP we try to work out which python to use or install and then set PYTHON_TO_USE for use by TAP and TAP venv.
+if which python3
 then
-  sudo apt-get install python3-venv -y
+  PYTHON_TO_USE=python3
+else
+  echo "Python3 not installed"
+  exit 1
 fi
+
+if python3 -c "import sys; print(sys.version_info.major >= 3 and sys.version_info.minor >= 7)" | grep False
+then
+  echo "python3 version is too old, trying 'python3.8' explicitly"
+  if which python3.8
+  then
+    PYTHON_TO_USE=python3.8
+  else
+    echo "Python3.8 not installed, trying python3.7"
+    if which python3.7
+      then
+        PYTHON_TO_USE=python3.7
+      else
+        echo "Python3.7 not installed, will try installing python3.8"
+        sleep 3
+        sudo apt-get install python3.8-venv -y
+        if which python3.8
+        then
+          PYTHON_TO_USE=python3.8
+        else
+          echo "Could not install python3.8, will try installing python3.7"
+          sudo apt-get install python3.7-venv -y
+          if which python3.7
+          then
+            PYTHON_TO_USE=python3.7
+          else
+            echo "Could not find or install a python version of 3.7 or newer."
+            exit 1
+          fi
+        fi
+      fi
+  fi
+fi
+echo "Using $PYTHON_TO_USE for python commands"
+
+install_package $PYTHON_TO_USE-venv
 
 if [ -d "$TAP_VENV" ]
 then
  echo "$TAP_VENV already exists, not re-creating it"
  source "$TAP_VENV/bin/activate"
 else
-  python3 -m venv "$TAP_VENV"
+  $PYTHON_TO_USE -m venv "$TAP_VENV"
   pushd "$TAP_VENV"
     echo "[global]" > pip.conf
     echo "index-url = https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple" >> pip.conf
     echo "trusted-host = tap-artifactory1.eng.sophos" >> pip.conf
   popd
+  # Within TAP python venv just use "python3"
   source "$TAP_VENV/bin/activate"
-  echo "Using python:"
-  which python
-  python3 -m pip install pip --upgrade
-  python3 -m pip install wheel
-  ##python3 -m pip install build_scripts
-  python3 -m pip install keyrings.alt
-  python3 -m pip install tap
+    echo "Using python:"
+    which python
+    python3 -m pip install pip --upgrade
+    python3 -m pip install wheel
+    ##python3 -m pip install build_scripts
+    python3 -m pip install keyrings.alt
+    python3 -m pip install tap
 fi
 
-# TODO - raise ticket to get this dependency removed - Not sure why tap needs this, seems to never be used?
+# TODO - raise ticket to get this dependency removed - Not sure why tap needs this, seems to never be used and is always empty.
 TAP_CACHE="/SophosPackages"
 if [ -d "$TAP_CACHE" ]
 then
@@ -72,6 +128,8 @@ fi
 tap --version
 tap ls
 tap fetch sspl_base.build.release
+# We're done with TAP now, so deactivate the venv.
+deactivate
 
 BUILD_TOOLS_DIR="$ROOT_LEVEL_BUILD_DIR/build_tools"
 FETCHED_INPUTS_DIR="$ROOT_LEVEL_BUILD_DIR/input"
@@ -150,10 +208,7 @@ echo "---"
 # Make
 # TODO
 # Make is not yet available in artifactory so for now we'll install it directly
-if ! apt list --installed make 2>/dev/null | grep -q make
-then
-  sudo apt-get install make -y
-fi
+install_package make
 MAKE_DIR="$BUILD_TOOLS_DIR/make"
 mkdir -p "$MAKE_DIR"
 which make
@@ -167,10 +222,7 @@ echo "---"
 # AS (assembler)
 # TODO
 # AS (assembler) is not yet available in artifactory so for now we'll install it directly
-if ! apt list --installed binutils 2>/dev/null | grep -q binutils
-then
-  sudo apt-get install binutils -y
-fi
+install_package binutils
 AS_DIR="$BUILD_TOOLS_DIR/as"
 mkdir -p "$AS_DIR"
 which as
@@ -184,19 +236,29 @@ echo "---"
 # TODO - try and use crosstoolng to build a GCC toolchain
 # This install works around this error:
 # /usr/bin/ld: cannot find crt1.o: No such file or directory
-if ! apt list --installed libc6-dev 2>/dev/null | grep -q libc6-dev
-then
-  sudo apt-get install libc6-dev -y
-fi
+install_package libc6-dev
 
 # zip is used when packing up mcs router
-if ! apt list --installed zip 2>/dev/null | grep -q zip
+install_package zip
+
+# For python unit tests install required packages.
+install_package python3-pip
+# Also need python3-dev for building certain python packages
+install_package python3-dev
+if [[ -f $BASEDIR/python_unit_test_requirements.txt ]]
 then
-  sudo apt install zip -y
+  python3 -m pip install -r $BASEDIR/python_unit_test_requirements.txt
+else
+  echo "Could not find python_unit_test_requirements.txt to install dependencies for MCSRouter python unit tests"
+  exit 1
 fi
 
 echo "---"
-echo "Done, please 'source setup_env_vars.sh'"
+echo "Done"
+echo "To build you can use these options:"
+echo "In your IDE set the toolchain environment file to be: 'source setup_env_vars.sh' and then build."
+echo "Build.sh"
+echo "cmdline 'source setup_env_vars.sh'"
 
 # TODO For SSPL only dev machines this may be ok but might break other things?
 # [[ -f /etc/profile.d/setup_env_vars.sh ]] || sudo ln -s "$BASEDIR/setup_env_vars.sh" /etc/profile.d/setup_env_vars.sh

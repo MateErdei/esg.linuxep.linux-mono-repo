@@ -91,6 +91,7 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh li
 string(STRIP "${libubsan_path}" libubsan_path )
 set(build_time_only_libs ${libasan_path} ${libubsan_path})
 
+# Put all needed libs into <build dir>/libs so that unit tests can link against them without setting LD_LIBARY_PATH.
 add_custom_target(
         copy_libs
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
