@@ -557,7 +557,7 @@ AV Plugin sends non-zero processInfo to Telemetry
 
 AV plugin Saves and Restores Scan Now Counter
     # Run telemetry to reset counters to 0
-    Run Telemetry Executable With HTTPS Protocol    port=${4433
+    Run Telemetry Executable With HTTPS Protocol    port=${4433}
     Remove File   ${TELEMETRY_OUTPUT_JSON}
 
     # run a scan, count should increase to 1
