@@ -105,13 +105,18 @@ def unmodify_hosts_file(**newLines):
 def restart_Secure_Server_Proxy():
     proxy_hostname = "ssplsecureproxyserver.eng.sophos"
 
-    # Add a call to nslookup so that we can tell if/what the hostname is resolving
-    result = subprocess.Popen(["nslookup", proxy_hostname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = result.communicate()
-    return_code = result.returncode
-    logger.info(f"nslookup stdout: {stdout}")
-    logger.info(f"nslookup stderr: {stderr}")
-    logger.info(f"nslookup return_code: {return_code}")
+    try:
+        # Add a debug step so that we can tell if/what the hostname is resolving, example output:
+        # getent hosts ssplsecureproxyserver.eng.sophos
+        # 10.55.36.87     ssplsecureproxyserver.eng.sophos
+        result = subprocess.Popen(["getent", "hosts", proxy_hostname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = result.communicate()
+        return_code = result.returncode
+        logger.info(f"host lookup stdout: {stdout}")
+        logger.info(f"host lookup stderr: {stderr}")
+        logger.info(f"host lookup return_code: {return_code}")
+    except Exception as ex:
+        logger.info(f"debug host lookup call failed: {ex}")
 
     SUPPORTFILEPATH = PathManager.get_support_file_path()
     APPSERVER_KEYFILE=os.path.join(SUPPORTFILEPATH, "secureServerProxy", "secure_server_ssh_key")
