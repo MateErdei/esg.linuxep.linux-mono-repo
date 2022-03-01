@@ -1055,3 +1055,30 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     File Log Should Not Contain With Offset  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
 
+Telemetry Counters Are Zero by default
+    # Run telemetry to reset counters to 0
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4436}
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Wait Until Keyword Succeeds
+                ...  10 secs
+                ...  1 secs
+                ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Remove File   ${TELEMETRY_OUTPUT_JSON}
+
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4436}
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Wait Until Keyword Succeeds
+                ...  10 secs
+                ...  1 secs
+                ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+
+    Dictionary Should Contain Item   ${avDict}   threat-eicar-count   0
+    Dictionary Should Contain Item   ${avDict}   threat-count   0
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   0
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   0
