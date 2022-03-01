@@ -11,6 +11,7 @@ ${AV_PLUGIN_PATH}                   ${SOPHOS_INSTALL}/plugins/av
 ${AV_LOG_PATH}                      ${AV_PLUGIN_PATH}/log/
 ${AV_LOG_FILE}                      ${AV_PLUGIN_PATH}/log/av.log
 ${THREAT_DETECTOR_LOG_PATH}         ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
+${THREAT_REPORT_SOCKET_PATH}        ${AV_PLUGIN_PATH}/chroot/var/threat_report_socket
 ${SOPHOS_THREAT_DETECTOR_BINARY}    ${AV_PLUGIN_PATH}/sbin/sophos_threat_detector
 ${CLS_PATH}                         ${AV_PLUGIN_PATH}/bin/avscanner
 ${PLUGIN_BINARY}                    ${AV_PLUGIN_PATH}/sbin/av

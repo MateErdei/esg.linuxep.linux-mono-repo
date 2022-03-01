@@ -5,10 +5,11 @@ Resource  ../installer/InstallerResources.robot
 Resource  ../event_journaler/EventJournalerResources.robot
 Resource  AVResources.robot
 Resource  ../watchdog/WatchdogResources.robot
-Resource    ../edr_plugin/EDRResources.robot
-Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
-Library     ${LIBS_DIRECTORY}/LogUtils.py
+Resource  ../edr_plugin/EDRResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
+
+Library   ${LIBS_DIRECTORY}/LiveQueryUtils.py
+Library   ${LIBS_DIRECTORY}/LogUtils.py
 
 Suite Setup     Run keywords
 ...             Setup For Fake Cloud  AND
@@ -55,6 +56,7 @@ Test av can publish events and that journaler can receive them after av restart
 
     Stop AV Plugin
     Start AV Plugin
+    Wait Until Threat Report Socket Exists
 
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -125,6 +127,13 @@ Test av can publish events and that journaler can receive them after edr restart
 
 
 *** Keywords ***
+Wait Until Threat Report Socket Exists
+    [Arguments]    ${time_to_wait}=5
+    Wait Until Keyword Succeeds
+    ...  ${time_to_wait} secs
+    ...  1 secs
+    ...  Should Exist    ${THREAT_REPORT_SOCKET_PATH}
+
 Setup For Fake Cloud
     Regenerate Certificates
     Require Fresh Install
