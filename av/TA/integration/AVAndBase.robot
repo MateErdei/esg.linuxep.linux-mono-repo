@@ -134,16 +134,11 @@ AV plugin runs scheduled scan
 
 AV plugin runs scheduled scan and updates telemetry
     [Tags]  SLOW  RHEL7  TELEMETRY
-#    Register On Fail  Log Telemetry files
+    #Register On Fail  Log Telemetry files
     Log Telemetry files
 
     # Run telemetry to reset counters to 0
-    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4421}
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
-    Wait Until Keyword Succeeds
-                ...  10 secs
-                ...  1 secs
-                ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol    port=${4421}
     Remove File   ${TELEMETRY_OUTPUT_JSON}
 
     Mark AV Log
@@ -152,12 +147,7 @@ AV plugin runs scheduled scan and updates telemetry
 
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
-    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4421}
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
-    Wait Until Keyword Succeeds
-                 ...  10 secs
-                 ...  1 secs
-                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol    port=${4421}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log   ${telemetryFileContents}
@@ -541,13 +531,7 @@ AV Plugin Saves Logs On Downgrade
     Check Logs Saved On Downgrade
 
 AV Plugin Can Send Telemetry
-    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4431}
-
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
-    Wait Until Keyword Succeeds
-             ...  10 secs
-             ...  1 secs
-             ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol    port=${4431}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
@@ -557,12 +541,7 @@ AV Plugin Can Send Telemetry
 
 AV Plugin sends non-zero processInfo to Telemetry
     Restart sophos_threat_detector
-    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4432}
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
-    Wait Until Keyword Succeeds
-                 ...  10 secs
-                 ...  1 secs
-                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol    port=${4432}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log   ${telemetryFileContents}
@@ -578,12 +557,7 @@ AV Plugin sends non-zero processInfo to Telemetry
 
 AV plugin Saves and Restores Scan Now Counter
     # Run telemetry to reset counters to 0
-    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4433}
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
-    Wait Until Keyword Succeeds
-                 ...  10 secs
-                 ...  1 secs
-                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol    port=${4433
     Remove File   ${TELEMETRY_OUTPUT_JSON}
 
     # run a scan, count should increase to 1
@@ -606,12 +580,7 @@ AV plugin Saves and Restores Scan Now Counter
     Mark AV Log
     Start AV Plugin
     Wait Until AV Plugin Log Contains With Offset  Restoring telemetry from disk for plugin: av
-    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4434}
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
-    Wait Until Keyword Succeeds
-                 ...  10 secs
-                 ...  1 secs
-                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol    port=${4434}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log   ${telemetryFileContents}
@@ -625,12 +594,7 @@ AV plugin Saves and Restores Scan Now Counter
 
 AV plugin increments Scan Now Counter after Save and Restore
     # Run telemetry to reset counters to 0
-    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4435}
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
-    Wait Until Keyword Succeeds
-                 ...  10 secs
-                 ...  1 secs
-                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol    port=${4435}
     Remove File   ${TELEMETRY_OUTPUT_JSON}
 
     # run a scan, count should increase to 1
@@ -1057,20 +1021,10 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
 
 Telemetry Counters Are Zero by default
     # Run telemetry to reset counters to 0
-    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4436}
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
-    Wait Until Keyword Succeeds
-                ...  10 secs
-                ...  1 secs
-                ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol    port=${4436}
     Remove File   ${TELEMETRY_OUTPUT_JSON}
 
-    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${4436}
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
-    Wait Until Keyword Succeeds
-                ...  10 secs
-                ...  1 secs
-                ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol    port=${4436}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log   ${telemetryFileContents}

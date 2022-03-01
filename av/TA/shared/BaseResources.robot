@@ -106,6 +106,15 @@ Run Telemetry Executable
 
     Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code: ${result.stdout}
 
+Run Telemetry Executable With HTTPS Protocol
+    [Arguments]     ${port}
+    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${port}
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
+    Wait Until Keyword Succeeds
+                ...  10 secs
+                ...  1 secs
+                ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
 Check AV Telemetry
     [Arguments]    ${telemetryKey}    ${telemetryValue}
     Prepare To Run Telemetry Executable
