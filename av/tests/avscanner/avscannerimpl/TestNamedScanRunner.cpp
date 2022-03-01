@@ -375,7 +375,7 @@ TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
     m_scanOptical = true;
     m_scanRemovable = true;
 
-    fs::path testDir = m_testDir / "mount/point/";
+    fs::path testDir = m_testDir / "mount/point";
     fs::create_directories(testDir);
 
     std::shared_ptr<FakeMountInfo> mountInfo;
@@ -729,7 +729,7 @@ TEST_F(TestNamedScanRunner, TestMissingMountpoint) // NOLINT
     m_scanOptical = true;
     m_scanRemovable = true;
 
-    fs::path testDir1 = m_testDir / "mount/point/";
+    fs::path testDir1 = m_testDir / "mount/point";
     fs::create_directories(testDir1);
 
     fs::path testfile1 = testDir1 / "file.txt";
@@ -737,9 +737,9 @@ TEST_F(TestNamedScanRunner, TestMissingMountpoint) // NOLINT
     testfileStream1 << "scan this file";
     testfileStream1.close();
 
-    fs::path testDir2 = m_testDir / "missing/mount/";
+    fs::path testDir2 = m_testDir / "missing/mount";
 
-    fs::path testDir3 = m_testDir / "mount/point3/";
+    fs::path testDir3 = m_testDir / "mount/point3";
     fs::create_directories(testDir3);
 
     fs::path testfile3 = testDir3 / "file.txt";

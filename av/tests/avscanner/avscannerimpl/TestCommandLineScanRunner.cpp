@@ -1181,11 +1181,11 @@ TEST_F(TestCommandLineScanRunner, AbsolutePathDoesntExist) // NOLINT
     EXPECT_TRUE(appenderContains("Failed to scan one or more files due to an error"));
 }
 
-TEST_F(TestCommandLineScanRunner, TestMissingMountpoint) // NOLINT
+TEST_F(TestCommandLineScanRunner, TestMissingPath) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    fs::path testDir1 = m_testDir / "mount/point/";
+    fs::path testDir1 = m_testDir / "scan/dir";
     fs::create_directories(testDir1);
 
     fs::path testfile1 = testDir1 / "file.txt";
@@ -1193,9 +1193,9 @@ TEST_F(TestCommandLineScanRunner, TestMissingMountpoint) // NOLINT
     testfileStream1 << "scan this file";
     testfileStream1.close();
 
-    fs::path testDir2 = m_testDir / "missing/mount/";
+    fs::path testDir2 = m_testDir / "missing/dir";
 
-    fs::path testDir3 = m_testDir / "mount/point3/";
+    fs::path testDir3 = m_testDir / "scan/dir3";
     fs::create_directories(testDir3);
 
     fs::path testfile3 = testDir3 / "file.txt";
