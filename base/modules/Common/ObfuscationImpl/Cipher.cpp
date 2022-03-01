@@ -166,11 +166,7 @@ namespace Common
             int len = -1;
             evpCipherWrapper.DecryptUpdate(
                 plaintextbuffer.data(), &len, (const unsigned char*)cipherText.data(), cipherText.size());
-            if (len < 0)
-            {
-                throw Common::Obfuscation::ICipherException(
-                    "SECDeobfuscation failed, EVP_DecryptUpdate did not return a valid length.");
-            }
+//            assert(len >= 0);
 
             int plaintext_len = len;
 
