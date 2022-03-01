@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018 Sophos Limited.  All rights reserved.
+Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -27,7 +27,7 @@ namespace Plugin
         TaskType taskType;
         std::string Content;
 
-        [[nodiscard]] std::string getTaskName() {
+        [[nodiscard]] std::string getTaskName() const {
             switch (taskType)
             {
                 case TaskType::Policy:

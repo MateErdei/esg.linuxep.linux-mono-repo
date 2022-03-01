@@ -1,11 +1,13 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 
+#include "MockMountPoint.h"
 #include "RecordingMockSocket.h"
 #include "ScanRunnerMemoryAppenderUsingTests.h"
 
@@ -19,7 +21,10 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 namespace fs = sophos_filesystem;
 
 using namespace avscanner::avscannerimpl;
+using namespace avscanner::mountinfo;
 using namespace common;
+
+using namespace testing;
 
 namespace
 {
@@ -1040,68 +1045,6 @@ TEST_F(TestCommandLineScanRunner, excludeSpecialMounts) // NOLINT
 {
     fs::path startingpoint = fs::absolute("sandbox");
 
-    using namespace avscanner::avscannerimpl;
-    using namespace avscanner::mountinfo;
-    class MockMountPoint : public IMountPoint
-    {
-    public:
-        std::string m_mountPoint;
-
-        explicit MockMountPoint(const fs::path& startingpoint)
-            : m_mountPoint(startingpoint / "a/b")
-        {}
-
-        [[nodiscard]] std::string device() const override
-        {
-            return std::__cxx11::string();
-        }
-
-        [[nodiscard]] std::string filesystemType() const override
-        {
-            return std::__cxx11::string();
-        }
-
-        [[nodiscard]] bool isHardDisc() const override
-        {
-            return false;
-        }
-
-        [[nodiscard]] bool isNetwork() const override
-        {
-            return false;
-        }
-
-        [[nodiscard]] bool isOptical() const override
-        {
-            return false;
-        }
-
-        [[nodiscard]] bool isRemovable() const override
-        {
-            return false;
-        }
-
-        [[nodiscard]] bool isSpecial() const override
-        {
-            return true;
-        }
-
-        [[nodiscard]] std::string mountPoint() const override
-        {
-            return m_mountPoint;
-        }
-    };
-
-    class MockMountInfo : public IMountInfo
-    {
-    public:
-        std::vector<std::shared_ptr<IMountPoint>> m_mountPoints;
-        std::vector<std::shared_ptr<IMountPoint>> mountPoints() override
-        {
-            return m_mountPoints;
-        }
-    };
-
     fs::create_directories("sandbox/a/b/d/e");
     std::ofstream("sandbox/a/b/file1.txt");
 
@@ -1116,10 +1059,10 @@ TEST_F(TestCommandLineScanRunner, excludeSpecialMounts) // NOLINT
     auto socket = std::make_shared<RecordingMockSocket>();
     runner.setSocket(socket);
 
-    std::shared_ptr<MockMountInfo> mountInfo;
-    mountInfo.reset(new MockMountInfo());
+    std::shared_ptr<FakeMountInfo> mountInfo;
+    mountInfo.reset(new FakeMountInfo());
     mountInfo->m_mountPoints.emplace_back(
-            std::make_shared<MockMountPoint>(startingpoint)
+            std::make_shared<FakeMountPoint>(startingpoint / "a/b", FakeMountPoint::type::special)
             );
     runner.setMountInfo(mountInfo);
 
@@ -1236,4 +1179,52 @@ TEST_F(TestCommandLineScanRunner, AbsolutePathDoesntExist) // NOLINT
     expectedErrMsg << nonexistentAbsPath.string() << "\": file/folder does not exist: No such file or directory";
     EXPECT_TRUE(appenderContains(expectedErrMsg.str()));
     EXPECT_TRUE(appenderContains("Failed to scan one or more files due to an error"));
+}
+
+TEST_F(TestCommandLineScanRunner, TestMissingMountpoint) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::path testDir1 = m_testDir / "mount/point/";
+    fs::create_directories(testDir1);
+
+    fs::path testfile1 = testDir1 / "file.txt";
+    std::ofstream testfileStream1(testfile1.string());
+    testfileStream1 << "scan this file";
+    testfileStream1.close();
+
+    fs::path testDir2 = m_testDir / "missing/mount/";
+
+    fs::path testDir3 = m_testDir / "mount/point3/";
+    fs::create_directories(testDir3);
+
+    fs::path testfile3 = testDir3 / "file.txt";
+    std::ofstream testfileStream3(testfile3.string());
+    testfileStream3 << "scan this file";
+    testfileStream3.close();
+
+    std::vector<std::string> paths = {
+        testDir1,
+        testDir2,
+        testDir3
+    };
+    std::vector<std::string> exclusions;
+    Options options(false, paths, exclusions, false, false, false);
+    avscanner::avscannerimpl::CommandLineScanRunner runner(options);
+
+    auto socket = std::make_shared<RecordingMockSocket>(false);
+    runner.setSocket(socket);
+
+    EXPECT_EQ(runner.run(), ENOENT);
+
+    std::vector<std::string> filePaths = {
+        testfile1,
+        testfile3
+    };
+    EXPECT_THAT(socket->m_paths, ContainerEq(filePaths));
+
+    std::stringstream expectedErrMsg;
+    expectedErrMsg << "Failed to scan \"" << testDir2.string() << "\": file/folder does not exist";
+    EXPECT_TRUE(appenderContains(expectedErrMsg.str()));
+    EXPECT_TRUE(appenderContains("1 scan error encountered."));
 }

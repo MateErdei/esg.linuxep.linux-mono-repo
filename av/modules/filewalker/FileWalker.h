@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -61,12 +61,21 @@ namespace filewalker
         {
             m_stay_on_device = stay_on_device;
         }
+
+        /**
+         * Set option to abort scan if starting point is missing - defaults to true
+         */
+        void abortOnMissingStartingPoint(bool abort_on_missing_starting_point=false)
+        {
+            m_abort_on_missing_starting_point = abort_on_missing_starting_point;
+        }
     private:
         void scanDirectory(const sophos_filesystem::path& current_dir);
 
         IFileWalkCallbacks& m_callback;
         bool m_follow_symlinks = false;
         bool m_stay_on_device = false;
+        bool m_abort_on_missing_starting_point = true;
 
         std::unordered_set<file_id, file_id_hash> m_seen_directories;
         sophos_filesystem::directory_options m_options = sophos_filesystem::directory_options::none;

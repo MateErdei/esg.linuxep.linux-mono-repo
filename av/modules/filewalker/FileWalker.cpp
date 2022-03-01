@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -51,7 +51,15 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         std::ostringstream oss;
         oss << "Failed to scan \"" << common::escapePathForLogging(starting_point) << "\": file/folder does not exist";
         std::error_code ec (ENOENT, std::system_category());
-        throw fs::filesystem_error(oss.str(), ec);
+
+        if (m_abort_on_missing_starting_point)
+        {
+            throw fs::filesystem_error(oss.str(), ec);
+        }
+        else
+        {
+            m_callback.registerError(oss);
+        }
     }
 
     m_startIsSymlink = fs::is_symlink(symlinkStatus);
@@ -123,7 +131,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
     scanDirectory(starting_point);
 }
 
-void FileWalker::scanDirectory(const fs::path& current_dir)
+void FileWalker::scanDirectory(const fs::path& current_dir) // NOLINT(misc-no-recursion)
 {
     try
     {
@@ -180,7 +188,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir)
          iterator != fs::directory_iterator();
          iterator.increment(ec))
     {
-        // if the iterator fails, it will set ec and return an end iterator. Check for ec is outside of the loop.
+        // if the iterator fails, it will return an end iterator and set ec. Check for ec is outside the loop.
         const auto& p = *iterator;
         fs::file_status symlinkStatus;
         try

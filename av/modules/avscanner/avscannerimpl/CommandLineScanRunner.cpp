@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -10,15 +10,12 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "Options.h"
 #include "ScanClient.h"
 
-#include "avscanner/mountinfoimpl/Mounts.h"
 #include "filewalker/FileWalker.h"
 
 #include "common/AbortScanException.h"
 #include "common/PathUtils.h"
 #include <common/StringUtils.h>
 
-#include <csignal>
-#include <exception>
 #include <memory>
 #include <utility>
 
@@ -69,6 +66,7 @@ namespace avscanner::avscannerimpl
         m_imageScanning(options.imageScanning()),
         m_followSymlinks(options.followSymlinks())
     {
+        static_cast<void>(m_logger);
     }
 
     int CommandLineScanRunner::run()
@@ -189,7 +187,7 @@ namespace avscanner::avscannerimpl
         // E_GENERIC_FAILURE should override E_CLEAN_SUCCESS but no other error code
         if (m_returnCode == common::E_CLEAN_SUCCESS)
         {
-            // Tracks erros in filewalker is either E_CLEAN_SUCCESS or E_GENERIC_FAILURE
+            // Tracks errors in filewalker is either E_CLEAN_SUCCESS or E_GENERIC_FAILURE
             m_returnCode = commandLineWalkerCallbacks.returnCode();
 
             if (m_returnCode == common::E_CLEAN_SUCCESS)

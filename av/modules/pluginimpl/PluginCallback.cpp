@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021 Sophos Limited.  All rights reserved.
+Copyright 2020-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -88,7 +88,7 @@ namespace Plugin
         m_threatStatus = threatStatus;
     }
 
-    long PluginCallback::getThreatHealth()
+    long PluginCallback::getThreatHealth() const
     {
         return m_threatStatus;
     }
@@ -221,7 +221,7 @@ namespace Plugin
         return versionStr;
     }
 
-    bool PluginCallback::shutdownFileValid()
+    bool PluginCallback::shutdownFileValid() const
     {
         // Threat detector is expected to shut down periodically but should be restarted by watchdog after 10 seconds
 
@@ -288,7 +288,7 @@ namespace Plugin
         {
             LOGDEBUG("Received new policy with revision ID: " << revID);
             m_revID = revID;
-            m_task->push(Task{.taskType=Task::TaskType::SendStatus, generateSAVStatusXML()});
+            m_task->push(Task{ .taskType=Task::TaskType::SendStatus, .Content=generateSAVStatusXML() });
         }
     }
 
@@ -337,7 +337,7 @@ namespace Plugin
 
         if (pid == 0)
         {
-            LOGWARN("Health encountered a error resolving pid for ThreatDetector");
+            LOGWARN("Health encountered an error resolving pid for ThreatDetector");
             return E_HEALTH_STATUS_BAD;
         }
 
@@ -405,7 +405,7 @@ namespace Plugin
         return j.dump();
     }
 
-    std::pair<unsigned long , unsigned long> PluginCallback::getThreatScannerProcessinfo(std::shared_ptr<datatypes::ISystemCallWrapper> sysCalls)
+    std::pair<unsigned long , unsigned long> PluginCallback::getThreatScannerProcessinfo(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
         const int expectedStatFileSize = 52;
         const int rssEntryInStat = 24;
@@ -456,13 +456,13 @@ namespace Plugin
             return std::pair(0,0);
         }
 
-        return std::pair(memoryUsage, runTime);
+        return { memoryUsage, runTime };
     }
 
     int PluginCallback::getThreatDetectorPID(Common::FileSystem::IFileSystem* fileSystem)
     {
-        int pid = 0;
-        std::string pidAsString = "";
+        int pid;
+        std::string pidAsString;
 
         Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
 

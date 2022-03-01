@@ -14,4 +14,4 @@ def params = [
     booleanParam(name: 'do_999_build', defaultValue: true, description: 'Do 999 build (default everywhere)'),
 ]
 
-CIPipeline { pipelineEntryPoint = 'av_plugin'; buildParameters = params }
+CIPipeline { pipelineEntryPoint = 'av_plugin'; buildParameters = params; skipInitialBuild = 'true' }

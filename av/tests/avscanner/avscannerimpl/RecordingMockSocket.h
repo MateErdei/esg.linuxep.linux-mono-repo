@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -27,13 +27,21 @@ namespace
 
     class RecordingMockSocket : public unixsocket::IScanningClientSocket {
     public:
+        bool m_withDetections;
+        explicit RecordingMockSocket(const bool withDetections=true)
+        : m_withDetections(withDetections)
+        {}
+
         scan_messages::ScanResponse
         scan(datatypes::AutoFd &, const scan_messages::ClientScanRequest &request) override {
             std::string p = ScanPathAccessor(request);
             m_paths.emplace_back(p);
 //            PRINT("Scanning " << p);
             scan_messages::ScanResponse response;
-            response.addDetection(p, "","");
+            if (m_withDetections)
+            {
+                response.addDetection(p, "threatName","sha256");
+            }
             return response;
         }
 

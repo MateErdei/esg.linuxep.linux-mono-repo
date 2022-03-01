@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -55,11 +55,13 @@ namespace avscanner::avscannerimpl
     NamedScanRunner::NamedScanRunner(const std::string& configPath) :
         m_config(configFromFile(configPath)), m_logger(m_config.m_scanName)
     {
+        static_cast<void>(m_logger);
     }
 
     NamedScanRunner::NamedScanRunner(const Sophos::ssplav::NamedScan::Reader& namedScanConfig) :
         m_config(namedScanConfig), m_logger(m_config.m_scanName)
     {
+        static_cast<void>(m_logger);
     }
 
     avscanner::mountinfo::IMountPointSharedVector NamedScanRunner::getIncludedMountpoints(
@@ -111,7 +113,8 @@ namespace avscanner::avscannerimpl
         NamedScanWalkerCallbackImpl callbacks(scanner, excludedMountPoints, m_config);
 
         filewalker::FileWalker walker(callbacks);
-        walker.stayOnDevice();
+        walker.stayOnDevice(true);
+        walker.abortOnMissingStartingPoint(false);
 
         std::set<std::string> mountsScanned;
 
@@ -143,7 +146,7 @@ namespace avscanner::avscannerimpl
             {
                 m_returnCode = common::E_VIRUS_FOUND;
             }
-         }
+        }
 
         if (m_returnCode != common::E_CLEAN_SUCCESS && m_returnCode != common::E_VIRUS_FOUND)
         {

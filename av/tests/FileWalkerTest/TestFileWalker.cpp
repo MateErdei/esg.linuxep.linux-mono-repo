@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2019-2021, Sophos Limited.  All rights reserved.
+Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -832,7 +832,7 @@ TEST_F(TestFileWalker, startWithBrokenSymlinkPath) // NOLINT
     try
     {
         filewalker::FileWalker fw(*callbacks);
-    fw.walk(startingPoint);
+        fw.walk(startingPoint);
         FAIL() << "walk() didn't throw";
     }
     catch (fs::filesystem_error& e)
@@ -1141,4 +1141,63 @@ TEST_F(TestFileWalker, symlinkNoPermission) // NOLINT
     fw.walk(startingPoint);
 
     EXPECT_FALSE(appenderContains("Failed to get the status of"));
+}
+
+TEST_F(TestFileWalker, missingStartPoint) // NOLINT
+{
+    fs::path startingPoint = fs::path("sandbox/missing");
+
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    try
+    {
+        filewalker::FileWalker fw(*callbacks);
+        fw.walk(startingPoint);
+
+        FAIL() << "walk() didn't throw";
+    }
+    catch (fs::filesystem_error& e)
+    {
+        EXPECT_EQ(
+            e.what(),
+            std::string("filesystem error: Failed to scan "
+                        "\"sandbox/missing\": file/folder does not exist: No such file or directory"));
+        EXPECT_EQ(e.code().value(), ENOENT);
+    }
+}
+
+TEST_F(TestFileWalker, missingStartPointNoError) // NOLINT
+{
+    fs::path startingPoint = fs::path("sandbox/missing");
+
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+    EXPECT_CALL(*callbacks, registerError(_)).Times(1);
+
+    filewalker::FileWalker fw(*callbacks);
+    fw.abortOnMissingStartingPoint(false);
+
+    EXPECT_NO_THROW(fw.walk(startingPoint));
+}
+
+TEST_F(TestFileWalker, pathTooLong) // NOLINT
+{
+    std::string longPathStr(4097, 'a');
+    fs::path startingPoint = fs::path(longPathStr);
+
+    auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
+
+    try
+    {
+        filewalker::FileWalker fw(*callbacks);
+        fw.walk(startingPoint);
+        FAIL() << "walk() didn't throw";
+    }
+    catch (fs::filesystem_error& e)
+    {
+        EXPECT_EQ(
+            e.what(),
+            std::string("filesystem error: Failed to start scan: "
+                        "Starting Path too long: File name too long"));
+        EXPECT_EQ(e.code().value(), ENAMETOOLONG);
+    }
 }

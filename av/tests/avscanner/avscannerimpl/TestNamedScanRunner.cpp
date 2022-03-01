@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -15,7 +15,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "datatypes/sophos_filesystem.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
@@ -28,102 +27,105 @@ using namespace testing;
 
 namespace fs = sophos_filesystem;
 
-class TestNamedScanRunner : public ScanRunnerMemoryAppenderUsingTests
+namespace
 {
-protected:
-    void SetUp() override
+    class TestNamedScanRunner : public ScanRunnerMemoryAppenderUsingTests
     {
-        const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
-        m_testDir = fs::temp_directory_path();
-        m_testDir /= test_info->test_case_name();
-        m_testDir /= test_info->name();
-        fs::remove_all(m_testDir);
-        fs::create_directories(m_testDir);
-
-        for(const auto& p: getAllOtherDirs(m_testDir))
+    protected:
+        void SetUp() override
         {
-            m_expectedExclusions.push_back(p);
+            const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+            m_testDir = fs::temp_directory_path();
+            m_testDir /= test_info->test_case_name();
+            m_testDir /= test_info->name();
+            fs::remove_all(m_testDir);
+            fs::create_directories(m_testDir);
+
+            for(const auto& p: getAllOtherDirs(m_testDir))
+            {
+                m_expectedExclusions.push_back(p);
+            }
+
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
         }
 
-        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
-    }
-
-    void TearDown() override
-    {
-        fs::remove_all(m_testDir);
-    }
-
-    static std::vector<std::string> getAllOtherDirs(const std::string& includedDir)
-    {
-        fs::path currentDir = includedDir;
-        std::vector<std::string> allOtherDirs;
-        do
+        void TearDown() override
         {
-            currentDir = currentDir.parent_path();
-            for (const auto& p : fs::directory_iterator(currentDir))
-            {
+            fs::remove_all(m_testDir);
+        }
 
-                if (includedDir.rfind(p.path(), 0) != 0)
+        static std::vector<std::string> getAllOtherDirs(const std::string& includedDir)
+        {
+            fs::path currentDir = includedDir;
+            std::vector<std::string> allOtherDirs;
+            do
+            {
+                currentDir = currentDir.parent_path();
+                for (const auto& p : fs::directory_iterator(currentDir))
                 {
-                    if (p.status().type() == fs::file_type::directory)
+
+                    if (includedDir.rfind(p.path(), 0) != 0)
                     {
-                        allOtherDirs.push_back(p.path().string() + "/");
-                    }
-                    else
-                    {
-                        allOtherDirs.push_back(p.path().string());
+                        if (p.status().type() == fs::file_type::directory)
+                        {
+                            allOtherDirs.push_back(p.path().string() + "/");
+                        }
+                        else
+                        {
+                            allOtherDirs.push_back(p.path().string());
+                        }
                     }
                 }
-            }
-        } while (currentDir != "/");
-        return allOtherDirs;
-    }
-
-    Sophos::ssplav::NamedScan::Reader createNamedScanConfig(
-            ::capnp::MallocMessageBuilder& message,
-            std::vector<std::string> expectedExclusions,
-            bool scanHardDisc,
-            bool scanNetwork,
-            bool scanOptical,
-            bool scanRemovable)
-    {
-        Sophos::ssplav::NamedScan::Builder scanConfigIn = message.initRoot<Sophos::ssplav::NamedScan>();
-        scanConfigIn.setName(m_expectedScanName);
-        auto exclusions = scanConfigIn.initExcludePaths(expectedExclusions.size());
-        for (unsigned i=0; i < expectedExclusions.size(); i++)
-        {
-            exclusions.set(i, expectedExclusions[i]);
+            } while (currentDir != "/");
+            return allOtherDirs;
         }
-        scanConfigIn.setScanHardDrives(scanHardDisc);
-        scanConfigIn.setScanNetworkDrives(scanNetwork);
-        scanConfigIn.setScanCDDVDDrives(scanOptical);
-        scanConfigIn.setScanRemovableDrives(scanRemovable);
 
-        Sophos::ssplav::NamedScan::Reader scanConfigOut = message.getRoot<Sophos::ssplav::NamedScan>();
+        Sophos::ssplav::NamedScan::Reader createNamedScanConfig(
+                ::capnp::MallocMessageBuilder& message,
+                std::vector<std::string> expectedExclusions,
+                bool scanHardDisc,
+                bool scanNetwork,
+                bool scanOptical,
+                bool scanRemovable)
+        {
+            Sophos::ssplav::NamedScan::Builder scanConfigIn = message.initRoot<Sophos::ssplav::NamedScan>();
+            scanConfigIn.setName(m_expectedScanName);
+            auto exclusions = scanConfigIn.initExcludePaths(expectedExclusions.size());
+            for (unsigned i=0; i < expectedExclusions.size(); i++)
+            {
+                exclusions.set(i, expectedExclusions[i]);
+            }
+            scanConfigIn.setScanHardDrives(scanHardDisc);
+            scanConfigIn.setScanNetworkDrives(scanNetwork);
+            scanConfigIn.setScanCDDVDDrives(scanOptical);
+            scanConfigIn.setScanRemovableDrives(scanRemovable);
 
-        return scanConfigOut;
-    }
+            Sophos::ssplav::NamedScan::Reader scanConfigOut = message.getRoot<Sophos::ssplav::NamedScan>();
 
-    Sophos::ssplav::NamedScan::Reader createNamedScanConfig(::capnp::MallocMessageBuilder& message)
-    {
-        return createNamedScanConfig(
-            message,
-            m_expectedExclusions,
-            m_scanHardDisc,
-            m_scanNetwork,
-            m_scanOptical,
-            m_scanRemovable);
-    }
+            return scanConfigOut;
+        }
 
-    fs::path m_testDir;
-    std::string m_expectedScanName = "testScan";
-    std::vector<std::string> m_expectedExclusions;
-    bool m_scanHardDisc = true;
-    bool m_scanNetwork = false;
-    bool m_scanOptical = false;
-    bool m_scanRemovable = false;
-};
+        Sophos::ssplav::NamedScan::Reader createNamedScanConfig(::capnp::MallocMessageBuilder& message)
+        {
+            return createNamedScanConfig(
+                message,
+                m_expectedExclusions,
+                m_scanHardDisc,
+                m_scanNetwork,
+                m_scanOptical,
+                m_scanRemovable);
+        }
+
+        fs::path m_testDir;
+        std::string m_expectedScanName = "testScan";
+        std::vector<std::string> m_expectedExclusions;
+        bool m_scanHardDisc = true;
+        bool m_scanNetwork = false;
+        bool m_scanOptical = false;
+        bool m_scanRemovable = false;
+    };
+}
 
 TEST_F(TestNamedScanRunner, TestNamedScanConfigDeserialisation) // NOLINT
 {
@@ -365,68 +367,6 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
 
 TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
 {
-    using namespace avscanner::avscannerimpl;
-    using namespace avscanner::mountinfo;
-    class MockMountPoint : public IMountPoint
-    {
-    public:
-        std::string m_mountPoint;
-
-        explicit MockMountPoint(const fs::path& fakeMount)
-                : m_mountPoint(fakeMount)
-        {}
-
-        [[nodiscard]] std::string device() const override
-        {
-            return std::__cxx11::string();
-        }
-
-        [[nodiscard]] std::string filesystemType() const override
-        {
-            return std::__cxx11::string();
-        }
-
-        [[nodiscard]] bool isHardDisc() const override
-        {
-            return true;
-        }
-
-        [[nodiscard]] bool isNetwork() const override
-        {
-            return false;
-        }
-
-        [[nodiscard]] bool isOptical() const override
-        {
-            return false;
-        }
-
-        [[nodiscard]] bool isRemovable() const override
-        {
-            return false;
-        }
-
-        [[nodiscard]] bool isSpecial() const override
-        {
-            return false;
-        }
-
-        [[nodiscard]] std::string mountPoint() const override
-        {
-            return m_mountPoint;
-        }
-    };
-
-    class MockMountInfo : public IMountInfo
-    {
-    public:
-        std::vector<std::shared_ptr<IMountPoint>> m_mountPoints;
-        std::vector<std::shared_ptr<IMountPoint>> mountPoints() override
-        {
-            return m_mountPoints;
-        }
-    };
-
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     m_scanHardDisc = true;
@@ -438,13 +378,13 @@ TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
     fs::path testDir = m_testDir / "mount/point/";
     fs::create_directories(testDir);
 
-    std::shared_ptr<MockMountInfo> mountInfo;
-    mountInfo.reset(new MockMountInfo());
+    std::shared_ptr<FakeMountInfo> mountInfo;
+    mountInfo.reset(new FakeMountInfo());
     mountInfo->m_mountPoints.emplace_back(
-            std::make_shared<MockMountPoint>(testDir)
+            std::make_shared<FakeMountPoint>(testDir)
     );
     mountInfo->m_mountPoints.emplace_back(
-            std::make_shared<MockMountPoint>(testDir)
+            std::make_shared<FakeMountPoint>(testDir)
     );
 
     ::capnp::MallocMessageBuilder message;
@@ -777,4 +717,74 @@ TEST_F(TestNamedScanRunner, TestAbortOnlyHappensOnce) // NOLINT
 
     EXPECT_EQ(socket->m_abortCount, 1);
     EXPECT_EQ(appenderCount("Deliberate Abort"), 1);
+}
+
+TEST_F(TestNamedScanRunner, TestMissingMountpoint) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    m_scanHardDisc = true;
+    m_scanNetwork = true;
+    m_scanOptical = true;
+    m_scanOptical = true;
+    m_scanRemovable = true;
+
+    fs::path testDir1 = m_testDir / "mount/point/";
+    fs::create_directories(testDir1);
+
+    fs::path testfile1 = testDir1 / "file.txt";
+    std::ofstream testfileStream1(testfile1.string());
+    testfileStream1 << "scan this file";
+    testfileStream1.close();
+
+    fs::path testDir2 = m_testDir / "missing/mount/";
+
+    fs::path testDir3 = m_testDir / "mount/point3/";
+    fs::create_directories(testDir3);
+
+    fs::path testfile3 = testDir3 / "file.txt";
+    std::ofstream testfileStream3(testfile3.string());
+    testfileStream3 << "scan this file";
+    testfileStream3.close();
+
+    std::shared_ptr<FakeMountInfo> mountInfo;
+    mountInfo.reset(new FakeMountInfo());
+
+    mountInfo->m_mountPoints.emplace_back(
+        std::make_shared<FakeMountPoint>(testDir1)
+    );
+    mountInfo->m_mountPoints.emplace_back(
+        std::make_shared<FakeMountPoint>(testDir2)
+    );
+    mountInfo->m_mountPoints.emplace_back(
+        std::make_shared<FakeMountPoint>(testDir3)
+    );
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
+        message,
+        m_expectedExclusions,
+        m_scanHardDisc,
+        m_scanNetwork,
+        m_scanOptical,
+        m_scanRemovable);
+
+    auto socket = std::make_shared<RecordingMockSocket>(false);
+    NamedScanRunner runner(scanConfigOut);
+
+    runner.setMountInfo(mountInfo);
+    runner.setSocket(socket);
+
+    ASSERT_EQ(runner.run(), common::E_CLEAN_SUCCESS);
+
+    std::vector<std::string> paths = {
+        testfile1,
+        testfile3
+    };
+    EXPECT_THAT(socket->m_paths, ContainerEq(paths));
+
+    std::stringstream expectedErrMsg;
+    expectedErrMsg << "Failed to scan \"" << testDir2.string() << "\": file/folder does not exist";
+    EXPECT_TRUE(appenderContains(expectedErrMsg.str()));
+    EXPECT_TRUE(appenderContains("1 scan error encountered."));
 }

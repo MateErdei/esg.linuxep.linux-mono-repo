@@ -39,25 +39,25 @@ namespace Plugin
         std::string getHealth() override;
 
         long calculateHealth();
-        std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(std::shared_ptr<datatypes::ISystemCallWrapper> sysCalls);
+        static std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
 
         void sendStatus(const std::string& revID);
         void setRunning(bool running);
         bool isRunning();
         void setSXL4Lookups(bool sxl4Lookup);
         void setThreatHealth(long threatStatus);
-        long getThreatHealth();
+        [[nodiscard]] long getThreatHealth() const;
 
     private:
         std::string generateSAVStatusXML();
-        unsigned long getIdeCount();
-        std::string getLrDataHash();
-        std::string getMlLibHash();
-        std::string getMlModelVersion();
-        std::string getVirusDataVersion();
+        static unsigned long getIdeCount();
+        static std::string getLrDataHash();
+        static std::string getMlLibHash();
+        static std::string getMlModelVersion();
+        static std::string getVirusDataVersion();
 
-        int getThreatDetectorPID(Common::FileSystem::IFileSystem* fileSystem);
-        bool shutdownFileValid();
+        static int getThreatDetectorPID(Common::FileSystem::IFileSystem* fileSystem);
+        [[nodiscard]] bool shutdownFileValid() const;
 
         /**
          * Takes a linux process status file's contents and returns a value at of a
@@ -86,4 +86,4 @@ namespace Plugin
         int m_allowedShutdownTime = 60;
         long m_threatStatus = E_THREAT_HEALTH_STATUS_GOOD;
     };
-}; // namespace Plugin
+} // namespace Plugin
