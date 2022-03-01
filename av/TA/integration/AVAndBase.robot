@@ -970,7 +970,6 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
     Register Cleanup    Exclude SPL Base Not In Subscription Of The Policy
     Register Cleanup    Exclude Core Not In Policy Features
-    Register Cleanup    Exclude Permission Denied Setting Default Values For Susi Startup Settings
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
     Remove File  ${SCANNOW_LOG_PATH}
 
