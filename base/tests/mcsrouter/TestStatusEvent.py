@@ -12,13 +12,17 @@ import PathManager
 
 
 import mcsrouter.mcsclient.status_event
+import mcsrouter.utils.xml_helper
 
 
 class TestStatusEvent(unittest.TestCase):
     def testNoAdapters(self):
         statusEvent = mcsrouter.mcsclient.status_event.StatusEvent()
-        x = statusEvent.xml()
-        self.assertEqual(x, """<?xml version="1.0" encoding="utf-8"?><ns:statuses xmlns:ns="http://www.sophos.com/xml/mcs/statuses" schemaVersion="1.0"/>""")
+        status = statusEvent.xml()
+        statusAsXml = mcsrouter.utils.xml_helper.parseString(status)
+        self.assertEqual(statusAsXml.documentElement.tagName, "ns:statuses")
+        self.assertEqual(statusAsXml.documentElement.getAttribute("xmlns:ns"), "http://www.sophos.com/xml/mcs/statuses")
+        self.assertEqual(statusAsXml.documentElement.getAttribute("schemaVersion"), "1.0")
 
     def testOneAdapter(self):
         statusEvent = mcsrouter.mcsclient.status_event.StatusEvent()

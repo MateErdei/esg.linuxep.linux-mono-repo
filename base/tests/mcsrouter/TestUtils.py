@@ -178,16 +178,54 @@ alc_status="""<?xml version="1.0" encoding="utf-8" ?>
 <status xmlns="com.sophos\mansys\status" type="sau">
     <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="@@revid@@" policyType="1" />
 </status>"""
-alc_expected="""<?xml version="1.0" encoding="utf-8"?><ns:statuses xmlns:ns="http://www.sophos.com/xml/mcs/statuses" schemaVersion="1.0"><status><appId>ALC</appId><creationTime>20190912T100000</creationTime><ttl>2</ttl><body>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
-&lt;status xmlns=&quot;com.sophos\mansys\status&quot; type=&quot;sau&quot;&gt;
-    &lt;CompRes xmlns=&quot;com.sophos\msys\csc&quot; Res=&quot;Same&quot; RevID=&quot;@@revid@@&quot; policyType=&quot;1&quot; /&gt;
-&lt;/status&gt;</body></status></ns:statuses>"""
 
 class TestStatusEvents(unittest.TestCase):
-    def testStatusEventXmlShouldReturnString(self):
+    def testStatusEventXmlShouldReturnExpectedString(self):
+        """
+        Expected XML for reference:
+        <?xml version="1.0" encoding="utf-8"?><ns:statuses xmlns:ns="http://www.sophos.com/xml/mcs/statuses" schemaVersion="1.0">
+        <status>
+            <appId>ALC</appId>
+            <creationTime>20190912T100000</creationTime>
+            <ttl>2</ttl>
+            <body>
+                <?xml version="1.0" encoding="utf-8" ?><status xmlns="com.sophos\mansys\status" type="sau">
+                    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="@@revid@@" policyType="1" />
+                </status>
+            </body>
+        </status></ns:statuses>
+        """
         se = status_event.StatusEvent()
         se.add_adapter('ALC', '2', '20190912T100000', alc_status)
-        self.assertEqual(se.xml(), alc_expected)
+        self.assertEqual(type(se.xml()), str)
+
+        seAsXml = xml_helper.parseString(se.xml())
+
+        self.assertEqual(seAsXml.documentElement.tagName, "ns:statuses")
+        self.assertEqual(seAsXml.documentElement.getAttribute("xmlns:ns"), "http://www.sophos.com/xml/mcs/statuses")
+        self.assertEqual(seAsXml.documentElement.getAttribute("schemaVersion"), "1.0")
+
+        self.assertEqual(seAsXml.getElementsByTagName("status")[0].childNodes.length, 4)
+
+        appId = seAsXml.getElementsByTagName("status")[0].firstChild
+        self.assertEqual(appId.nodeName, "appId")
+        self.assertEqual(appId.firstChild.nodeValue, "ALC")
+
+        creationTime = appId.nextSibling
+        self.assertEqual(creationTime.nodeName, "creationTime")
+        self.assertEqual(creationTime.firstChild.nodeValue, "20190912T100000")
+
+        ttl = creationTime.nextSibling
+        self.assertEqual(ttl.nodeName, "ttl")
+        self.assertEqual(ttl.firstChild.nodeValue, "2")
+
+        body = ttl.nextSibling
+        expectedBody = """<?xml version="1.0" encoding="utf-8" ?>
+<status xmlns="com.sophos\mansys\status" type="sau">
+    <CompRes xmlns="com.sophos\msys\csc" Res="Same" RevID="@@revid@@" policyType="1" />
+</status>"""
+        self.assertEqual(body.nodeName, "body")
+        self.assertEqual(body.firstChild.nodeValue, expectedBody)
 
 
 class TestSophosHTTPS(unittest.TestCase):
