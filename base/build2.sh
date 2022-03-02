@@ -164,12 +164,13 @@ function build()
 #            echo 'Valgrind test finished'
 #            exit 0
 #
-#        [[ -n ${TEST_NPROC:-} ]] || TEST_NPROC=$NPROC
+        [[ -n ${TEST_NPROC:-} ]] || TEST_NPROC=$NPROC
 #        elif (( ${BULLSEYE_SYSTEM_TESTS} == 0 ))
 #        then
             ## If we are doing bullseye system tests then don't run unit test first
             ## Otherwise run the unit-tests now
-            ctest \
+            timeout 310s ctest \
+                --parallel ${TEST_NPROC} \
                 --test-action test \
                 --no-compress-output --output-on-failure \
                 --timeout 300 \
@@ -180,19 +181,7 @@ function build()
                   cat /tmp/unitTest.log || true
                   exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
                 }
-            exit 0
-#            ctest \
-#                --test-action test \
-#                --parallel ${TEST_NPROC} \
-#                --no-compress-output --output-on-failure \
-#                --timeout 300 \
-#                || {
-#                local EXITCODE=$?
-#                echo "Unit tests failed with $EXITCODE"
-#                cat Testing/Temporary/LastTest.log || true
-#                cat /tmp/unitTest.log || true
-#                exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
-#            }
+
             cat /tmp/unitTest.log || true
             exit 0
 #        fi
