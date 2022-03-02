@@ -397,7 +397,7 @@ def get_delete_group_cmd():
 def Uninstall_SSPL(installdir=None):
     if installdir is None:
         installdir = get_sophos_install()
-    uninstaller_executed=False
+    uninstaller_executed = False
     counter = 0
     if os.path.isdir(installdir):
         p = os.path.join(installdir, "bin", "uninstall.sh")
@@ -437,8 +437,8 @@ def Uninstall_SSPL(installdir=None):
         start = output.find(installdir_string)+len(installdir_string)
         end = output.find(installdir_name)+len(installdir_name)
         installdir = output[start:end]
-        logger.info("Installdir from service files: {}".format(installdir))
-        p = os.path.join(installdir,"bin","uninstall.sh")
+        logger.info(f"Installdir from service files: {installdir}")
+        p = os.path.join(installdir, "bin", "uninstall.sh")
         if os.path.isfile(p):
             try:
                 subprocess.call([p, "--force"])
@@ -448,29 +448,30 @@ def Uninstall_SSPL(installdir=None):
 
     # Find delete user command, deluser on ubuntu and userdel on centos/rhel.
     delete_user_cmd = get_delete_user_cmd()
-    logger.debug("Using delete user command:{}".format(delete_user_cmd))
+    logger.debug(f"Using delete user command:{delete_user_cmd}")
 
 
     # Find delete group command, delgroup on ubuntu and groupdel on centos/rhel.
     delete_group_cmd = get_delete_group_cmd()
-    logger.debug("Using delete group command:{}".format(delete_group_cmd))
+    logger.debug(f"Using delete group command:{delete_group_cmd}")
     counter2 = 0 
     time.sleep(0.2)
     while does_group_exist() and counter2 < 5:
-        logger.info("removing group, it should have already been removed by now. Counter: {}".format(counter))        
+        logger.info(f"Removing group, it should have already been removed by now. Counter: {counter2}")
         counter2 = counter2 + 1
         for user in ['sophos-spl-user', 'sophos-spl-network', 'sophos-spl-local']:
             if does_user_exist(user):
-                remove_user(delete_user_cmd,user)
+                remove_user(delete_user_cmd, user)
 
         out, code = run_proc_with_safe_output([delete_group_cmd, SOPHOS_GROUP])
         if code != 0:
             logger.info(out)
 
         time.sleep(0.5)
-    if uninstaller_executed and ( counter>0  or counter2>0):
+    if uninstaller_executed and ( counter > 0 or counter2 > 0):
         logger.info( _get_file_content( '/tmp/install.log'))
-        message = "Uninstaller failed to properly clean everything. Attempt to remove /opt/sophos-spl {} attempt to remove group {}".format(counter, counter2)
+        message = f"Uninstaller failed to properly clean everything. Attempt to remove /opt/sophos-spl {counter} " \
+                  f"attempt to remove group {counter2}"
         logger.warn(message)
         raise RuntimeError(message)
     
