@@ -2,6 +2,7 @@
 set -e
 
 [[ -z $SYSTEMPRODUCT_TEST_INPUT ]] && SYSTEMPRODUCT_TEST_INPUT=/tmp/system-product-test-inputs
+export SYSTEMPRODUCT_TEST_INPUT
 if [[  -n $COVERAGE_BASE_BUILD ]]; then
   export BASE_DIST=$COVERAGE_BASE_BUILD
 else

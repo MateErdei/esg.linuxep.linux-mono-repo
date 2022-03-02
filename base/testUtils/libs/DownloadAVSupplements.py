@@ -114,7 +114,7 @@ def process(baseurl, filename, dirname):
 
 
 def run(argv):
-    dest = "/tmp/system-product-test-inputs"
+    dest = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
     try:
         if argv[1]:
             dest = argv[1]

@@ -252,13 +252,13 @@ Verify Sophos Users And Sophos Groups Are Created
     Verify User Created   sophos-spl-updatescheduler
 
 Combine MTR Develop Component Suite
-    ${source} =   Set Variable  /tmp/system-product-test-inputs/sspl-mdr-componentsuite
-    ${dest} =     Set Variable  /tmp/system-product-test-inputs/sspl-mdr-componentsuite-sdds
+    ${source} =   Set Variable  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-mdr-componentsuite
+    ${dest} =     Set Variable  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-mdr-componentsuite-sdds
     Combine MTR Component Suite  ${source}  ${dest}
 
 Combine MTR 0-6-0 Component Suite
-    ${source} =   Set Variable  /tmp/system-product-test-inputs/sspl-mdr-componentsuite-0-6-0
-    ${dest} =     Set Variable  /tmp/system-product-test-inputs/sspl-mdr-componentsuite-0-6-0-sdds
+    ${source} =   Set Variable  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-mdr-componentsuite-0-6-0
+    ${dest} =     Set Variable  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-mdr-componentsuite-0-6-0-sdds
     Combine MTR Component Suite  ${source}  ${dest}
 
 Combine MTR Component Suite

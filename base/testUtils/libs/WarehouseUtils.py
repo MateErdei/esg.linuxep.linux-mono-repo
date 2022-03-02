@@ -30,7 +30,8 @@ TEMPLATE_FILE_DIRECTORY = os.path.join(REAL_WAREHOUSE_DIRECTORY, "templates")
 GENERATED_FILE_DIRECTORY = os.path.join(REAL_WAREHOUSE_DIRECTORY, "GeneratedAlcPolicies")
 
 FILER_6_DIRECTORY = os.path.join("/", "mnt", "filer6", "bfr", "sspl-warehouse")
-LOCAL_WAREHOUSES_ROOT = "/tmp/system-product-test-inputs/local_warehouses"
+SYSTEMPRODUCT_TEST_INPUT = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
+LOCAL_WAREHOUSES_ROOT = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "local_warehouses")
 LOCAL_WAREHOUSES = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse")
 WAREHOUSE_LOCAL_SERVER_PORT = 443
 # newline is important in the redirect below
@@ -165,7 +166,8 @@ def getYesterday():
     yesterday = now - datetime.timedelta(days=1)
     return yesterday.strftime("%A")  # Returns day as week day name
 
-sdds_specs_directory = "/tmp/system-product-test-inputs/sdds-specs"
+
+sdds_specs_directory = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "sdds-specs")
 
 def get_importrefrence_for_component_with_tag(rigid_name, tag, pubspec):
     line = list(filter(lambda n: rigid_name == n.attrib["id"], pubspec.findall("./warehouses//line")))[0]
@@ -671,14 +673,13 @@ class WarehouseUtils(object):
 
 
     def __get_localwarehouse_path_for_branch(self, branch):
-        return os.path.join("/tmp/system-product-test-inputs/local_warehouses/dev/sspl-warehouse",
-                            branch,
+        return os.path.join(SYSTEMPRODUCT_TEST_INPUT, "/local_warehouses/dev/sspl-warehouse", branch,
                             "warehouse/warehouse/catalogue")
 
 
     def Disable_Product_Warehouse_to_ensure_we_only_perform_a_supplement_update(self, branch="develop"):
-        # /tmp/system-product-test-inputs/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/catalogue
-        # LOCAL_WAREHOUSES=/tmp/system-product-test-inputs/local_warehouses/dev/sspl-warehouse
+        # ${SYSTEMPRODUCT_TEST_INPUT}/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/catalogue
+        # LOCAL_WAREHOUSES=${SYSTEMPRODUCT_TEST_INPUT}/local_warehouses/dev/sspl-warehouse
         # templateConfig = self._get_template_config_from_dictionary_using_path(template_path)
         # base = templateConfig.get_basename_from_url()
         logger.info("Disable_Product_Warehouse_to_ensure_we_only_perform_a_supplement_update for {}".format(branch))
@@ -727,7 +728,7 @@ class WarehouseUtils(object):
             return get_version_from_sdds_import_file(os.path.join(PathManager.SYSTEM_PRODUCT_TEST_INPUTS, "sspl-componentsuite", "SDDS-Import.xml"))
         warehouse_root = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse", "develop", "warehouse", "warehouse")
         product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
-        version = subprocess.check_output(f'grep -r "PRODUCT_NAME = {product_name}" /tmp/system-product-test-inputs/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/ | awk -F: \'{{print $1}}\' | xargs grep "PRODUCT_VERSION" | sed "s/PRODUCT_VERSION\ =\ //"', shell=True)
+        version = subprocess.check_output(f'grep -r "PRODUCT_NAME = {product_name}" {SYSTEMPRODUCT_TEST_INPUT}/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/ | awk -F: \'{{print $1}}\' | xargs grep "PRODUCT_VERSION" | sed "s/PRODUCT_VERSION\ =\ //"', shell=True)
         return version.strip().decode()
 
     def second_version_is_lower(self, version1, version2):

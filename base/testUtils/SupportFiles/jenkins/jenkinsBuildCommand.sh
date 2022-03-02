@@ -21,6 +21,7 @@ JENKINS_DIR=$(dirname ${0})
 #  in place before running this script to change the inputs without pushing code. This will not trickle down
 #  into any aws runner jobs.
 
+[[ -z $SYSTEMPRODUCT_TEST_INPUT ]] && SYSTEMPRODUCT_TEST_INPUT=/tmp/system-product-test-inputs
 
 date
 
@@ -79,7 +80,7 @@ source $WORKSPACE/testUtils/SupportFiles/jenkins/exportInputLocations.sh        
 source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh     || fail "Error: failed to validate gathered inputs"
 python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py  || fail "Error: failed to gather av supplements locations"
 #setup coverage inputs and exports
-COVERAGE_STAGING=/tmp/system-product-test-inputs/coverage
+COVERAGE_STAGING="$SYSTEMPRODUCT_TEST_INPUT/coverage"
 
 
 if [[ -n "${BASE_COVERAGE:-}" ]]; then
@@ -138,7 +139,7 @@ elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   export COV_HTML_BASE=sspl-liveresponse-unittest
   export BULLSEYE_UPLOAD=1
   export UPLOAD_PATH=UnifiedPipelines/winep/liveterminal
-  export COVERAGE_SCRIPT=/tmp/system-product-test-inputs/bazel-tools/tools/src/bullseye/test_coverage.py
+  export COVERAGE_SCRIPT="$SYSTEMPRODUCT_TEST_INPUT/bazel-tools/tools/src/bullseye/test_coverage.py"
   COVERAGE_TYPE=unit bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
   # Begin merging the combined coverage with the unit-test coverage
   mv $COVERAGE_STAGING/covfile/liveterminal_unittests.cov $COVERAGE_STAGING/sspl-liveresponse-combined.cov
@@ -185,7 +186,7 @@ fi
 
 #upload coverage results
 if [[ -n "${BASE_COVERAGE:-}" || -n "${MDR_COVERAGE:-}" || -n "${EDR_COVERAGE:-}" || -n "${LIVERESPONSE_COVERAGE:-}" || -n "${PLUGIN_TEMPLATE_COVERAGE:-}" || -n "${PLUGIN_EVENTJOURNALER_COVERAGE:-}" ]]; then
-  export COVERAGE_SCRIPT=/tmp/system-product-test-inputs/bazel-tools/tools/src/bullseye/test_coverage.py
+  export COVERAGE_SCRIPT="$SYSTEMPRODUCT_TEST_INPUT/bazel-tools/tools/src/bullseye/test_coverage.py"
   bash -x $WORKSPACE/build/bullseye/uploadResults.sh || fail "ERROR failed to upload results exit code:"$?
 fi
 

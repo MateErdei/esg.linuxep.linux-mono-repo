@@ -26,7 +26,7 @@ from robot.libraries.BuiltIn import BuiltIn
 import robot.libraries.BuiltIn
 
 PUB_SUB_LOGGING_DIST_LOCATION = "/tmp/pub_sub_logging_dist"
-
+SYSTEM_PRODUCT_TEST_INPUTS = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
 # using the subprocess.PIPE can make the robot test to hang as the buffer could be filled up. 
 # this auxiliary method ensure that this does not happen. It also uses a temporary file in 
 # order not to keep files or other stuff around. 
@@ -183,7 +183,7 @@ def get_sspl_edr_plugin_sdds():
     return get_plugin_sdds("SSPL EDR Plugin", "SSPL_EDR_PLUGIN_SDDS", candidates)
 
 def get_sspl_runtimedetections_plugin_sdds():
-    candidates = ["/tmp/system-product-test-inputs/sspl-runtimedetections-plugin",]
+    candidates = [os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "sspl-runtimedetections-plugin")]
     local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-runtimedetections-component")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
@@ -218,11 +218,11 @@ def setup_av_install():
         path_to_model_data = SDDS_PATH + "/ml_model"
         path_to_localrep_data = SDDS_PATH + "/local_rep"
     else:
-        path_to_vdl_data = "/tmp/system-product-test-inputs/vdl"
-        path_to_model_data = "/tmp/system-product-test-inputs/ml_model"
-        path_to_localrep_data = "/tmp/system-product-test-inputs/local_rep"
+        path_to_vdl_data = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "vdl")
+        path_to_model_data = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "ml_model")
+        path_to_localrep_data = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "local_rep")
 
-    full_av_sdds = "/tmp/system-product-test-inputs/av-sdds"
+    full_av_sdds = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "av-sdds")
     if os.path.exists(full_av_sdds):
         shutil.rmtree(full_av_sdds)
     shutil.copytree(path_to_sdds, full_av_sdds)

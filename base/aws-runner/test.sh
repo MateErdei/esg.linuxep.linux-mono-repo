@@ -63,7 +63,7 @@ fi
 export TEST_UTILS=$SCRIPT_DIR
 source $SCRIPT_DIR/SupportFiles/jenkins/exportInputLocations.sh || failure 21 "failed to export input locations"
 # only unpack if location doesn't exist to prevent repeated unpacks during manual testing
-[[ -d /tmp/system-product-test-inputs ]] ||  tar xzf $SCRIPT_DIR/SystemProductTestInputs.tgz -C /tmp/
+[[ -d $SYSTEMPRODUCT_TEST_INPUT ]] ||  tar xzf $SCRIPT_DIR/SystemProductTestInputs.tgz -C $(dirname $SYSTEMPRODUCT_TEST_INPUT)
 source $SCRIPT_DIR/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 22 "failed to validate input locations"
 
 

@@ -26,7 +26,8 @@ Global Setup Tasks
     ${CLOUD_IP} =  Get Central Ip
     Set Suite Variable    ${CLOUD_IP}     ${CLOUD_IP}   children=true
 
-
+    ${placeholder} =  Get Environment Variable  SYSTEMPRODUCT_TEST_INPUT  default=/tmp/system-product-test-inputs
+    Set Global Variable  ${SYSTEMPRODUCT_TEST_INPUT}  ${placeholder}
 
     ${placeholder} =  Get Environment Variable  SAV_INPUT  default=/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package
     Set Global Variable  ${SAV_INPUT}  ${placeholder}
@@ -71,9 +72,9 @@ Global Setup Tasks
     ${placeholder}=  PathManager.get_libs_path
     Set Global Variable  ${LIBS_DIRECTORY}  ${placeholder}
 
-    ${placeholder} =  Get Environment Variable  SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS  default=/tmp/system-product-test-inputs/sspl-plugin-event-journaler-manual-tools
+    ${placeholder} =  Get Environment Variable  SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS  default=${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-event-journaler-manual-tools
     Set Global Variable  ${EVENT_JOURNALER_TOOLS}  ${placeholder}
-    ${placeholder} =  Get Environment Variable  SSPL_EDR_PLUGIN_MANUAL_TOOLS  default=/tmp/system-product-test-inputs/sspl-edr-plugin-manual-tools
+    ${placeholder} =  Get Environment Variable  SSPL_EDR_PLUGIN_MANUAL_TOOLS  default=${SYSTEMPRODUCT_TEST_INPUT}/sspl-edr-plugin-manual-tools
     Set Global Variable  ${EDR_PLUGIN_MANUAL_TOOLS}  ${placeholder}
     ${OPENSSL_FOLDER} =  Unpack Openssl   ${TEMPORARY_DIRECTORIES}
     Set Global Variable  ${OPENSSL_BIN_PATH}            ${TEMPORARY_DIRECTORIES}/openssl/bin64
