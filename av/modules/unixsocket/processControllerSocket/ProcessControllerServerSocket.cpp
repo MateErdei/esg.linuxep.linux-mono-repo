@@ -17,6 +17,12 @@ ProcessControllerServerSocket::ProcessControllerServerSocket(
 {
 }
 
+ProcessControllerServerSocket::~ProcessControllerServerSocket()
+{
+    requestStop();
+    join();
+}
+
 int ProcessControllerServerSocket::monitorShutdownFd()
 {
     return m_shutdownPipe->readFd();

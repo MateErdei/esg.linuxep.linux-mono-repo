@@ -20,7 +20,7 @@ namespace unixsocket
             const std::string& path,
             const mode_t mode,
             std::shared_ptr<IMessageCallback> threatReportCallback);
-
+            ~ThreatReporterServerSocket();
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {

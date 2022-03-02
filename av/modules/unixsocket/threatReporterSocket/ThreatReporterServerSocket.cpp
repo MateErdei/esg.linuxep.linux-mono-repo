@@ -16,3 +16,9 @@ ThreatReporterServerSocket::ThreatReporterServerSocket(
     , m_threatReportCallback(std::move(threatReportCallback))
 {
 }
+
+ThreatReporterServerSocket::~ThreatReporterServerSocket()
+{
+    requestStop();
+    join();
+}
