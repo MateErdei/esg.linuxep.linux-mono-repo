@@ -333,6 +333,7 @@ combineResults()
   rm -rf results-combine-workspace
   mkdir results-combine-workspace
   python3 -m robot.rebot --merge -o ./results-combine-workspace/amazonlinux2x64-output.xml -l none -r none -N amazonlinux2x64  ./results/amazonlinux2x64*
+  python3 -m robot.rebot --merge -o ./results-combine-workspace/amazonlinux2022x64-output.xml -l none -r none -N amazonlinux2022x64  ./results/amazonlinux2022x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/centosstreamx64-output.xml -l none -r none -N centosstreamx64  ./results/centosstreamx64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel78x64-output.xml -l none -r none -N rhel78x64  ./results/rhel78x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel81x64-output.xml -l none -r none -N rhel81x64  ./results/rhel81x64*
@@ -352,6 +353,7 @@ combineResults()
   python3 -m robot.rebot -l ./results/centos7x64-log.html -r ./results/centos7x64-report.html -N combined ./results-combine-workspace/centos7x64-output.xml
   python3 -m robot.rebot -l ./results/centos8x64-log.html -r ./results/centos8x64-report.html -N combined ./results-combine-workspace/centos8x64-output.xml
   python3 -m robot.rebot -l ./results/amazonlinux2x64-log.html -r ./results/amazonlinux2x64-report.html -N combined ./results-combine-workspace/amazonlinux2x64-output.xml
+  python3 -m robot.rebot -l ./results/amazonlinux2022x64-log.html -r ./results/amazonlinux2022x64-report.html -N combined ./results-combine-workspace/amazonlinux2022x64-output.xml
 }
 rm -rf report
 mkdir report
