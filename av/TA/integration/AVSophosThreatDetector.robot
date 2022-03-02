@@ -98,7 +98,7 @@ Threat Detector Restarts When /etc/hosts changed
     Mark Sophos Threat Detector Log
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
 
-    Wait until threat detector running
+    Wait until threat detector running with offset
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
     Should Not Be Equal As Integers  ${SOPHOS_THREAT_DETECTOR_PID_AT_START}  ${SOPHOS_THREAT_DETECTOR_PID_AT_END}
 
@@ -129,7 +129,7 @@ Threat Detector restarts if no scans requested within the configured timeout
 
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
 
-    Wait until threat detector running
+    Wait until threat detector running with offset
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
     Should Not Be Equal As Integers  ${SOPHOS_THREAT_DETECTOR_PID_AT_START}  ${SOPHOS_THREAT_DETECTOR_PID_AT_END}
 
@@ -181,7 +181,7 @@ SUSI Is Given Non-Permission EndpointId
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
     Register Cleanup  Remove File  ${MACHINEID_FILE}
     Start AV Plugin
-    Wait until threat detector running
+    Wait until threat detector running with offset
     Run Process  chmod  000  ${MACHINEID_CHROOT_FILE}
     Register Cleanup  Remove File  ${MACHINEID_CHROOT_FILE}
     Force SUSI to be initialized
