@@ -3,7 +3,7 @@ project(everest_base CXX)
 
 option(test "Build all tests." ON) # Makes boolean 'test' available.
 option(BUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
-option(PythonCoverage "Turn of the instrumentation for producing python coverage results" OFF)
+option(PythonCoverage "Turn ON/OFF the instrumentation for producing python coverage results" OFF)
 option(STRACE_SUPPORT "Prevent sanitize options that break strace" OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(SOPHOS_SPL_USER "sophos-spl-user")
