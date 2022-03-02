@@ -94,8 +94,6 @@ TEST_F(TestProcessControllerServerSocket, testTriggerNotified) // NOLINT
         retries++;
     }
 
-    processControllerServer.requestStop();
-    processControllerServer.join();
-
     EXPECT_TRUE(processControllerServer.triggeredShutdown());
+    //destructor will stop the thread
 }

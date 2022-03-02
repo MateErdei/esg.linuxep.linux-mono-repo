@@ -82,8 +82,7 @@ TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
     threatReporterSocket.sendThreatDetection(threatDetected);
 
     serverWaitGuard.wait();
-    threatReporterServer.requestStop();
-    threatReporterServer.join();
+    //destructor will stop the thread
 }
 
 TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
@@ -121,7 +120,5 @@ TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
 
     threatReporterSocket.sendThreatDetection(threatDetected);
     serverWaitGuard2.wait();
-
-    threatReporterServer.requestStop();
-    threatReporterServer.join();
+    //destructor will stop the thread
 }

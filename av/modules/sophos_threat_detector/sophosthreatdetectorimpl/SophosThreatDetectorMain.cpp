@@ -486,10 +486,6 @@ static int inner_main()
         }
 
     }
-    processController.requestStop();
-    processController.join();
-    server.requestStop();
-    server.join();
 
     LOGINFO("Sophos Threat Detector is exiting with return code " << returnCode);
     return returnCode;
