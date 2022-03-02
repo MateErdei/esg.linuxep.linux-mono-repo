@@ -1824,7 +1824,7 @@ Test Suldownloader purges files
     log  ${result.stdout}
     Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${also_a_fake_lib_md5}x000.dat
     Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/also_a_fake_lib.so.5.86.999
-#    Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${fake_lib_md5}x000.dat
+    Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${fake_lib_md5}x000.dat
     Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/fake_lib.so.1.66.999
     Should Not Exist  /opt/sophos-spl/base/update/cache/primarywarehouse/${faker_lib_md5}x000.dat
     Should Not Exist  /opt/sophos-spl/plugins/mtr/lib64/faker_lib.so.2.23.999
