@@ -57,6 +57,131 @@ export ENABLE_STRIP=1
 #VALGRIND=0
 UNIT_TESTS=1
 
+
+# Deal with arguments
+
+while [[ $# -ge 1 ]]
+do
+    case $1 in
+        --clean-log)
+            rm -f $LOG
+            ;;
+        --clean)
+            CLEAN=1
+            ;;
+        --no-clean|--noclean)
+            CLEAN=0
+            ;;
+        --remove-gcc)
+            NO_REMOVE_GCC=0
+            ;;
+        --input)
+            shift
+            INPUT=$1
+            ;;
+        --debug)
+            CMAKE_BUILD_TYPE=Debug
+            DEBUG=1
+            export ENABLE_STRIP=0
+            ;;
+        --999)
+            export VERSION_OVERRIDE=99.9.9.999
+            ;;
+        --060)
+            export VERSION_OVERRIDE=0.6.0.999
+            export O_SIX_O=1
+            touch also_a_fake_lib.so.5.86.999
+            touch fake_lib.so.1.66.999
+            touch faker_lib.so.2.23.999
+            ;;
+        --release|--no-debug)
+            CMAKE_BUILD_TYPE=RelWithDebInfo
+            DEBUG=0
+            export ENABLE_STRIP=1
+            ;;
+        --build-type)
+            shift
+            CMAKE_BUILD_TYPE="$1"
+            ;;
+        --strip)
+            export ENABLE_STRIP=1
+            ;;
+        --no-strip)
+            export ENABLE_STRIP=0
+            ;;
+        --no-build)
+            NO_BUILD=1
+            ;;
+         --analysis)
+            ANALYSIS=1
+            ;;
+        --no-unpack)
+            NO_UNPACK=1
+            ;;
+        --bullseye|--bulleye)
+            BULLSEYE=1
+            ;;
+        --covfile)
+            shift
+            COVFILE=$1
+            ;;
+        --bullseye-system-tests)
+            BULLSEYE=1
+            BULLSEYE_UPLOAD=1
+            BULLSEYE_SYSTEM_TESTS=1
+            COVFILE="/tmp/root/sspl-base-combined.cov"
+            #ToDo remove the above LINUXDAR-1816
+            ;;
+        --bullseye-system-test-selector)
+            shift
+            export TEST_SELECTOR="$1"
+            ;;
+        --bullseye-upload-unittest|--bullseye-upload)
+            BULLSEYE_UPLOAD=1
+            ;;
+        --bullseye-system-test-branch)
+            shift
+            BULLSEYE_SYSTEM_TEST_BRANCH=$1
+            ;;
+        --python-coverage)
+            PythonCoverage="ON"
+            ;;
+        -j|--parallel)
+            shift
+            NPROC=$1
+            ;;
+        -j*)
+            NPROC=${1#-j}
+            ;;
+        --parallel-test)
+            shift
+            TEST_NPROC=$1
+            ;;
+        --valgrind)
+            VALGRIND=1
+            ;;
+        --unittest)
+            UNIT_TESTS=1
+            ;;
+        --no-unittest|--no-unittests)
+            UNIT_TESTS=0
+            ;;
+        --strace|--strace-support)
+            STRACE_SUPPORT="ON"
+            ;;
+        --setup)
+            python3 -m build_scripts.artisan_fetch build/release-package.xml
+            # delete gcc
+            DELETE_GCC=1
+            NO_BUILD=1
+            ;;
+        *)
+            exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
+            ;;
+    esac
+    shift
+done
+
 function build()
 {
     echo "STARTINGDIR=$STARTINGDIR"
