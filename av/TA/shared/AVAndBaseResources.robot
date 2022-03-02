@@ -65,10 +65,12 @@ Check Logs Saved On Downgrade
     File Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/sophos_threat_detector.log
 
 Run plugin uninstaller
-    Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh
+    ${result} =   Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh   stderr=STDOUT
+    Log    ${result.stdout}
 
 Run plugin uninstaller with downgrade flag
-    Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh  --downgrade
+    ${result} =   Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh  --downgrade   stderr=STDOUT
+    Log    ${result.stdout}
 
 Configure and check scan now with offset
     Configure scan now

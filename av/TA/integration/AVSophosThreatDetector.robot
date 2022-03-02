@@ -551,6 +551,7 @@ AVSophosThreatDetector Suite TearDown
 AVSophosThreatDetector Test Setup
     Require Plugin Installed and Running  DEBUG
     Mark AV Log
+
     register on fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     register on fail  dump log  ${WATCHDOG_LOG}
     register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/wdctl.log
@@ -563,9 +564,11 @@ AVSophosThreatDetector Test Setup
     Register Cleanup      Exclude CustomerID Failed To Read Error
 
 AVSophosThreatDetector Test TearDown
+    run teardown functions
+
     #restore machineID file
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
-    run teardown functions
+
     run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests
 
 Alter Hosts

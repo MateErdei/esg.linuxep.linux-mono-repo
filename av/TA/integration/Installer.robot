@@ -26,7 +26,6 @@ Test Teardown   Installer Test TearDown
 
 *** Test Cases ***
 AV Plugin Installs With Version Ini File
-    AV And Base Setup
     Wait Until AV Plugin running
     File Should Exist   ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
     VERSION Ini File Contains Proper Format   ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
@@ -586,7 +585,7 @@ Installer Test Setup
     Register Cleanup    Check All Product Logs Do Not Contain Error
     Register Cleanup    Exclude CustomerID Failed To Read Error
     Register Cleanup    Exclude MCS Router is dead
-    Register Cleanup    Exclude Communication Between AV And Base Due To No Incomming Data
+    Register Cleanup    Exclude Communication Between AV And Base Due To No Incoming Data
 
 Installer Test TearDown
     Run Teardown Functions
