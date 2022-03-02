@@ -195,24 +195,25 @@ function build()
     make -j${NPROC} install || exitFailure 17 "Failed to install $PRODUCT"
 #    make dist || exitFailure 18 "Failed to create distribution"
 #    cd ..
-  exit 0
-#    mkdir -p output
-#    echo "STARTINGDIR=$STARTINGDIR" >output/STARTINGDIR
-#    echo "BASE=$BASE" >output/BASE
-#    echo "PATH=$PATH" >output/PATH
-#    echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >output/LD_LIBRARY_PATH
-#
-#    rm -rf output/SDDS-COMPONENT
-#    cp -a build${BITS}/distribution/ output/SDDS-COMPONENT || exitFailure 21 "Failed to copy SDDS package: $?"
-#    cp -a build${BITS}/products/PluginApi/pluginapi.tar.gz output/pluginapi.tar.gz || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
-#    pushd build${BITS}
-#    tar -zcvf ../output/SystemProductTestOutput.tar.gz SystemProductTestOutput/ || exitFailure 23 "Failed to tar SystemProductTestOutput package: $?"
-#    popd
-#
-#    if [[ -d build${BITS}/symbols ]]
-#    then
-#        cp -a build${BITS}/symbols output/
-#    fi
+
+    # TODO - do this in cmake and also save on having two copies of distribution / output
+    echo "Generating output dir: $OUTPUT"
+    mkdir -p $OUTPUT
+    echo "STARTINGDIR=$STARTINGDIR" >$OUTPUT/STARTINGDIR
+    echo "BASE=$BASE" >$OUTPUT/BASE
+    echo "PATH=$PATH" >$OUTPUT/PATH
+    echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >$OUTPUT/LD_LIBRARY_PATH
+    rm -rf $OUTPUT/SDDS-COMPONENT
+    cp -a "$BUILD_DIR/distribution/" "$OUTPUT/SDDS-COMPONENT" || exitFailure 21 "Failed to copy SDDS package: $?"
+    cp -a "$BUILD_DIR/products/PluginApi/pluginapi.tar.gz" "$OUTPUT/pluginapi.tar.gz" || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
+    pushd "$BUILD_DIR"
+      tar -zcvf "$OUTPUT/SystemProductTestOutput.tar.gz" SystemProductTestOutput/ || exitFailure 23 "Failed to tar SystemProductTestOutput package: $?"
+    popd
+
+    if [[ -d $BUILD_DIR/symbols ]]
+    then
+        cp -a $BUILD_DIR/symbols output/
+    fi
 
 #    if [[ ${BULLSEYE} == 1 ]]
 #    then
