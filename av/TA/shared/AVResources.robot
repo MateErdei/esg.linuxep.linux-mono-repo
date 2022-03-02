@@ -120,9 +120,6 @@ Mark Sophos Threat Detector Log
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
     [Return]  ${count}
 
-Get Sophos Threat Detector Log Mark
-    [Return]  ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
-
 Mark Susi Debug Log
     ${count} =  Count File Log Lines  ${SUSI_DEBUG_LOG_PATH}
     Set Test Variable   ${SUSI_DEBUG_LOG_MARK}  ${count}
@@ -237,6 +234,7 @@ SUSI Debug Log Does Not Contain
 Wait Until SUSI DEBUG Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15
     ${offset} =  Get Variable Value  ${SUSI_DEBUG_LOG_MARK}  0
+    # TODO - doesn't actually wait!!
     File Log Contains With Offset  ${SUSI_DEBUG_LOG_PATH}   ${input}   offset=${offset}
 
 Wait Until Sophos Threat Detector Log Contains
@@ -435,6 +433,8 @@ Install With Base SDDS
     Install Base For Component Tests
     Set Log Level  DEBUG
     Install AV Directly from SDDS
+    Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
+    Wait Until Sophos Threat Detector Log Contains  Starting listening on socket: /var/process_control_socket  timeout=120
 
 Uninstall And Revert Setup
     Uninstall All

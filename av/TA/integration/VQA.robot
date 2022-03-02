@@ -89,6 +89,7 @@ VQA Suite TearDown
 VQA Test Setup
     Register On Fail  Debug install set
     Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
+    Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
     Register On Fail  dump log  ${AV_LOG_PATH}
     Check Plugin Installed and Running
     Mark AV Log

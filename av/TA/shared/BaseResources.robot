@@ -107,23 +107,18 @@ Run Telemetry Executable
     Should Be Equal As Integers  ${result.rc}  ${expectedResult}  Telemetry executable returned a non-successful error code: ${result.stdout}
 
 Run Telemetry Executable With HTTPS Protocol
-    [Arguments]     ${port}
-    Prepare To Run Telemetry Executable With HTTPS Protocol  port=${port}
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
-    Wait Until Keyword Succeeds
-                ...  10 secs
-                ...  1 secs
-                ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
-
-Check AV Telemetry
-    [Arguments]    ${telemetryKey}    ${telemetryValue}
-    Prepare To Run Telemetry Executable
+    [Arguments]  ${port}=${443}  ${TLSProtocol}=tlsv1_2
+    Prepare To Run Telemetry Executable With HTTPS Protocol   port=${port}  TLSProtocol=${TLSProtocol}
     Remove File  ${TELEMETRY_OUTPUT_JSON}
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
     ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+
+Check AV Telemetry
+    [Arguments]    ${telemetryKey}    ${telemetryValue}
+    Run Telemetry Executable With HTTPS Protocol
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json

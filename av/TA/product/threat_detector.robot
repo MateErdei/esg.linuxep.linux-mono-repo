@@ -35,6 +35,7 @@ List AV Plugin Path
 Threat Detector Test Teardown
     List AV Plugin Path
     run teardown functions
+    Stop AV
 
     Exclude CustomerID Failed To Read Error
     Exclude Expected Sweep Errors
@@ -177,8 +178,6 @@ Threat detector exits if it cannot acquire the susi update lock
     ...  2 secs
     ...  Check Threat Detector Not Running
 
-    Stop AV
-
 
 Threat Detector Logs Susi Version when applicable
     Dump and Reset Logs
@@ -203,8 +202,10 @@ Threat Detector Doesnt Log Every Scan
     Dump and Reset Logs
     Register On Fail   dump log  ${SUSI_DEBUG_LOG_PATH}
     Set Log Level  INFO
+    Register Cleanup       Set Log Level  DEBUG
     Remove File    ${SUSI_DEBUG_LOG_PATH}
     Start AV
+
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
     Sophos Threat Detector Log Contains With Offset  Initializing SUSI
     check log does not contain   Starting scan of    ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log

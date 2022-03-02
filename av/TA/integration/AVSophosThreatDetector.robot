@@ -32,11 +32,14 @@ Test Global Rep works in chroot
     check sophos_threat_dector log for successful global rep lookup
 
 Sophos Threat Detector Has No Unnecessary Capabilities
+    # ensure that threat_detector is fully started up
+    Restart sophos_threat_detector and mark logs
+
     ${rc}   ${pid} =       Run And Return Rc And Output    pgrep sophos_threat
     ${rc}   ${output} =    Run And Return Rc And Output    getpcaps ${pid}
     Should Not Contain  ${output}  cap_sys_chroot
     # Handle different format of the output from getpcaps on Ubuntu 20.04
-    Run Keyword Unless  "${output}" == "Capabilities for `${pid}\': =" or "${output}" == "${pid}: ="  FAIL  msg=Enexpected capabilities: ${output}
+    Run Keyword Unless  "${output}" == "Capabilities for `${pid}\': =" or "${output}" == "${pid}: ="  FAIL  msg=Unexpected capabilities: ${output}
 
 Threat detector does not recreate logging symlink if present
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
@@ -78,13 +81,11 @@ Threat detector aborts if logging symlink cannot be created
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
 
 Threat Detector Restarts When /etc/hosts changed
-    Wait until threat detector running
-    ${SOPHOS_THREAT_DETECTOR_PID_AT_START} =  Get Sophos Threat Detector PID From File
-
-    # Can't mark logs at this point, since services have already been started
-
-    Wait Until AV Plugin Log Contains With Offset  Starting sophos_threat_detector monitor
+    # ensure that both AV and threat_detector are ready
+    Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
     Wait Until Sophos Threat Detector Log Contains  Starting listening on socket: /var/process_control_socket  timeout=120
+
+    ${SOPHOS_THREAT_DETECTOR_PID_AT_START} =  Get Sophos Threat Detector PID From File
 
     Mark AV Log
     Mark Sophos Threat Detector Log
@@ -104,13 +105,14 @@ Threat Detector Restarts When /etc/hosts changed
 Threat Detector restarts if no scans requested within the configured timeout
     Stop sophos_threat_detector
     Create File  ${AV_PLUGIN_PATH}/chroot/etc/threat_detector_config  {"shutdownTimeout":15}
+
     Mark Sophos Threat Detector Log
     Start sophos_threat_detector
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
     Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
     Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
-    Mark Sophos Threat Detector Log
 
+    Mark Sophos Threat Detector Log
     # Request a scan in order to load SUSI
     Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
@@ -120,11 +122,11 @@ Threat Detector restarts if no scans requested within the configured timeout
     Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
     Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
 
-    ${timeout} =  Get Shutdown Timeout From Threat Detector Log
-
-    Wait Until Sophos Threat Detector Log Contains With Offset  No scans requested for ${timeout} seconds - shutting down.  timeout=20
+    # No scans requested for ${timeout} seconds - shutting down.
+    Wait Until Sophos Threat Detector Log Contains With Offset  No scans requested  timeout=20
     Wait Until Sophos Threat Detector Shutdown File Exists
     Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
+
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
 
     Wait until threat detector running
@@ -147,15 +149,13 @@ Threat Detector prolongs timeout if a scan is requested within the configured ti
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    ${timeout1} =  Get Shutdown Timeout From Threat Detector Log
-
     Mark Sophos Threat Detector Log
-    Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested less than ${timeout1} seconds ago - continuing
+    # Scan requested less than ${timeout1} seconds ago - continuing
+    Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested less than
     Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
 
-    ${timeout2} =  Get Shutdown Timeout From Threat Detector Log
-
-    Wait Until Sophos Threat Detector Log Contains With Offset  No scans requested for ${timeout2} seconds - shutting down.  timeout=20
+    # No scans requested for ${timeout2} seconds - shutting down.
+    Wait Until Sophos Threat Detector Log Contains With Offset  No scans requested for  timeout=20
     Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
     Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
@@ -168,6 +168,7 @@ Threat Detector Is Given Non-Permission EndpointId
     Stop sophos_threat_detector and mark log
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
     Run Process  chmod  000  ${MACHINEID_FILE}
+    Register Cleanup  Remove File  ${MACHINEID_FILE}
     Remove File  ${MACHINEID_CHROOT_FILE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to copy: "${MACHINEID_FILE}"
@@ -386,6 +387,7 @@ SUSI Is Given Non-Permission CustomerId
     Stop sophos_threat_detector and mark log
     Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baeffaa
     Run Process  chmod  000  ${CUSTOMERID_FILE}
+    Register Cleanup    Remove File  ${CUSTOMERID_FILE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
 

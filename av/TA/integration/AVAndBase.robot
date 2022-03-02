@@ -39,6 +39,7 @@ Remove Users Stop Processes
     Run Process   /bin/kill   -SIGKILL   ${output}
     Run Process  /usr/sbin/userdel   sophos-spl-av
     Run Process  /usr/sbin/userdel   sophos-spl-threat-detector
+
 *** Test Cases ***
 
 AV plugin Can Start sophos_threat_detector
@@ -139,7 +140,6 @@ AV plugin runs scheduled scan and updates telemetry
 
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol    port=${4421}
-    Remove File   ${TELEMETRY_OUTPUT_JSON}
 
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
@@ -179,8 +179,9 @@ AV plugin runs scheduled scan after restart
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
-AV plugin doesnt report a error message if no policy is received
+AV plugin doesnt report an error message if no policy is received
     register cleanup  Set Log Level  DEBUG
+    register cleanup  Stop AV Plugin
     Mark AV Log
     Stop AV Plugin
     Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
@@ -257,8 +258,8 @@ AV Gets SAV Policy When Plugin Restarts
 Av Plugin Processes First SAV Policy Correctly After Initial Wait For Policy Fails
     Mark Sophos Threat Detector Log
     Stop AV Plugin
-    File Should Not Exist   ${SUSI_STARTUP_SETTINGS_FILE}
-    File Should Not Exist    ${MCS_PATH}/policy/SAV-2_policy.xml
+    Remove File    ${SUSI_STARTUP_SETTINGS_FILE}
+    Remove File    ${MCS_PATH}/policy/SAV-2_policy.xml
     Remove File    ${AV_LOG_PATH}
     Start AV Plugin
     Wait Until AV Plugin Log Contains   SAV policy has not been sent to the plugin
@@ -492,6 +493,7 @@ AV Plugin Reports encoded eicars To Base
    Create Encoded Eicars
    register cleanup  Remove Directory  /tmp_test/encoded_eicars  true
    register cleanup  Empty Directory  ${MCS_PATH}/event/
+   register cleanup  List Directory  ${MCS_PATH}/event/
 
    ${expected_count} =  Count Eicars in Directory  /tmp_test/encoded_eicars/
    Should Be True  ${expected_count} > 0
@@ -558,7 +560,6 @@ AV Plugin sends non-zero processInfo to Telemetry
 AV plugin Saves and Restores Scan Now Counter
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol    port=${4433}
-    Remove File   ${TELEMETRY_OUTPUT_JSON}
 
     # run a scan, count should increase to 1
     Configure and check scan now with offset
@@ -594,8 +595,7 @@ AV plugin Saves and Restores Scan Now Counter
 
 AV plugin increments Scan Now Counter after Save and Restore
     # Run telemetry to reset counters to 0
-    Run Telemetry Executable With HTTPS Protocol    port=${4435}
-    Remove File   ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
     # run a scan, count should increase to 1
     Configure and check scan now with offset
@@ -618,12 +618,7 @@ AV plugin increments Scan Now Counter after Save and Restore
     # run a scan, count should increase to 1
     Configure and check scan now with offset
 
-    Prepare To Run Telemetry Executable
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${0}
-    Wait Until Keyword Succeeds
-                 ...  10 secs
-                 ...  1 secs
-                 ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log   ${telemetryFileContents}
@@ -694,28 +689,23 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}    interval=20
 
 AV Runs Scan With SXL Lookup Enable
-    Mark Susi Debug Log
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
-    Configure and check scan now with offset
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
+
+    Mark Susi Debug Log
+    Configure and check scan now with offset
     Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central   timeout=60
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now
     SUSI Debug Log Contains With Offset  Post-scan lookup succeeded
 
 
 AV Runs Scan With SXL Lookup Disabled
-    Mark Sophos Threat Detector Log
-    Restart sophos_threat_detector
-    Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
-    ...   timeout=60
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
+    Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
+
     Mark AV Log
     Mark Susi Debug Log
     Mark Sophos Threat Detector Log
-
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
-    Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
     Configure and check scan now with lookups disabled
 
@@ -733,6 +723,9 @@ AV Plugin does not restart threat detector on customer id change
     Register Cleanup    Exclude Invalid Settings No Primary Product
     ${pid} =   Record Sophos Threat Detector PID
 
+    # scan eicar to ensure susi is loaded, so that we know which log messages to expect later
+    Check avscanner can detect eicar
+
     ${id1} =   Generate Random String
     ${policyContent} =   Get ALC Policy   revid=${id1}  userpassword=${id1}  username=${id1}
     Log   ${policyContent}
@@ -745,7 +738,8 @@ AV Plugin does not restart threat detector on customer id change
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Reloading susi as policy configuration has changed
-    Wait Until Sophos Threat Detector Log Contains With Offset   Skipping susi reload because susi is not initialised
+    #Wait Until Sophos Threat Detector Log Contains With Offset   Skipping susi reload because susi is not initialised
+    Wait Until Sophos Threat Detector Log Contains With Offset   Susi configuration reloaded
     Check Sophos Threat Detector has same PID   ${pid}
 
     # change revid only, threat_detector should not restart
@@ -779,7 +773,8 @@ AV Plugin does not restart threat detector on customer id change
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Reloading susi as policy configuration has changed
-    Wait Until Sophos Threat Detector Log Contains With Offset   Skipping susi reload because susi is not initialised
+    #Wait Until Sophos Threat Detector Log Contains With Offset   Skipping susi reload because susi is not initialised
+    Wait Until Sophos Threat Detector Log Contains With Offset   Susi configuration reloaded
     Check Sophos Threat Detector has same PID   ${pid}
 
 
@@ -789,21 +784,30 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Register Cleanup    Exclude Invalid Settings No Primary Product
     Register Cleanup    Exclude Configuration Data Invalid
 
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
+    Comment  set our initial policy
+
+    ${revid} =   Generate Random String
+    ${policyContent} =   Get SAV Policy  revid=${revid}  sxlLookupEnabled=true
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
     Send Sav Policy To Base  tempSavPolicy.xml
+    Wait Until SAV Status XML Contains  RevID="${revid}"
+
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
     ...   timeout=60
-    Mark AV Log
-    Mark Sophos Threat Detector Log
     stop sophos_threat_detector
 
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
+    Comment  disable SXL lookups, AV should try to reload SUSI
+
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
+    ${revid} =   Generate Random String
+    ${policyContent} =   Get SAV Policy  revid=${revid}  sxlLookupEnabled=false
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
     Send Sav Policy To Base  tempSavPolicy.xml
@@ -816,13 +820,14 @@ AV Plugin tries to restart threat detector on susi startup settings change
     start sophos_threat_detector
     Wait until threat detector running with offset
 
-    # change lookup setting, threat_detector should restart
+    Comment  change lookup setting, threat_detector should reload SUSI
+
     Mark AV Log
     Mark Sophos Threat Detector Log
     ${pid} =   Record Sophos Threat Detector PID
 
-    ${id3} =   Generate Random String
-    ${policyContent} =   Get SAV Policy  sxlLookupEnabled=true
+    ${revid} =   Generate Random String
+    ${policyContent} =   Get SAV Policy  revid=${revid}  sxlLookupEnabled=true
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
     Send Sav Policy To Base  tempSavPolicy.xml
@@ -842,8 +847,6 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     [Tags]  FAULT INJECTION
     Register Cleanup    Exclude Configuration Data Invalid
     Register Cleanup    Exclude Invalid Settings No Primary Product
-    Register Cleanup    Restart AV Plugin
-    Register Cleanup    Remove Files  ${SUSI_STARTUP_SETTINGS_FILE}  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
 
     Restart sophos_threat_detector
     Wait Until Sophos Threat Detector Log Contains With Offset
@@ -862,6 +865,8 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
     Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}
     Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+    Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE}
+    Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
 
     Mark Sophos Threat Detector Log
     ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat

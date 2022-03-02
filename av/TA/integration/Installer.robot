@@ -210,8 +210,8 @@ sophos_threat_detector can start after multiple IDE updates
     Register Cleanup  Installer Suite Setup
 
     Force SUSI to be initialized
-    Sophos Threat Detector Log Contains With Offset  Initializing SUSI
-    Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
+    # can't check for SUSI in logs, as it may have already been initialized
+
     mark sophos threat detector log
 
     Install IDE with SUSI loaded  ${IDE_NAME}
@@ -353,6 +353,8 @@ Check installer corrects permissions of var directory on upgrade
     Register On Fail  dump watchdog log
 
     Mark Watchdog Log
+    Mark Sophos Threat Detector Log
+
     ${customerIdFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/var/customer_id.txt
     Create file   ${customerIdFile}
     Change Owner  ${customerIdFile}  sophos-spl-user  sophos-spl-group
@@ -370,7 +372,7 @@ Check installer corrects permissions of var directory on upgrade
     Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Threat Detector Does Not Log Contain  Failed to read customerID - using default value
+    threat detector log should not contain with offset  Failed to read customerID - using default value
 
 Check installer corrects permissions of logs directory on upgrade
     Register Cleanup    Exclude Failed To connect To Warehouse Error
@@ -414,6 +416,8 @@ Check installer corrects permissions of chroot files on upgrade
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/ld.so.cache  sophos-spl-user  sophos-spl-group
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/hosts  sophos-spl-user  sophos-spl-group
     Modify manifest
+
+    Mark Sophos Threat Detector Log
     Install AV Directly from SDDS
     ${rc}  ${output} =  Run And Return Rc And Output  ls -l ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/av/var/
     Log  ${output}
@@ -426,7 +430,7 @@ Check installer corrects permissions of chroot files on upgrade
     Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Threat Detector Does Not Log Contain  Failed to read customerID - using default value
+    threat detector log should not contain with offset  Failed to read customerID - using default value
 
 Check installer can handle versioned copied Virus Data from 1.0.0
     # Simulate the versioned copied Virus Data that exists in a 1.0.0 install
@@ -465,14 +469,8 @@ AV Plugin Can Send Telemetry After IDE Update
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${AV_PLUGIN_PATH}/chroot/susi/update_source/
     Log  ${output}
-    Prepare To Run Telemetry Executable
 
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
-    Wait Until Keyword Succeeds
-             ...  10 secs
-             ...  1 secs
-             ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
-
+    Run Telemetry Executable With HTTPS Protocol
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
     Check Telemetry  ${telemetryFileContents}
@@ -499,13 +497,8 @@ AV Plugin Can Send Telemetry After Upgrade
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${AV_PLUGIN_PATH}/chroot/susi/update_source/
     Log  ${output}
-    Prepare To Run Telemetry Executable
 
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     0
-    Wait Until Keyword Succeeds
-             ...  10 secs
-             ...  1 secs
-             ...  File Should Exist  ${TELEMETRY_OUTPUT_JSON}
+    Run Telemetry Executable With HTTPS Protocol
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
