@@ -317,3 +317,6 @@ include(cppcheck.cmake)
 add_subdirectory(modules)
 add_subdirectory(products)
 add_subdirectory(tests)
+
+# Must come last
+add_subdirectory(PostInstall)

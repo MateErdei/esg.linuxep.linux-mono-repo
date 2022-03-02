@@ -253,6 +253,21 @@ else
   exit 1
 fi
 
+# We depend on the TAP script ./tap_venv/bin/sb_manifest_sign
+# To make this easy to find we add a symlink that will be found on the default PATH.
+if [[ -f "$TAP_VENV/bin/sb_manifest_sign" ]]
+then
+  if which sb_manifest_sign
+  then
+    echo "Skipping adding symlink for sb_manifest_sign"
+  else
+    sudo ln -s "$TAP_VENV/bin/sb_manifest_sign" "/usr/local/bin/sb_manifest_sign"
+  fi
+else
+  echo "Could not find $TAP_VENV/bin/sb_manifest_sign"
+  exit 1
+fi
+
 echo "---"
 echo "Done"
 echo "To build you can use these options:"
