@@ -19,7 +19,7 @@ namespace unixsocket
         ProcessControllerServerSocket(
             const std::string& path,
             const mode_t mode);
-        ~ProcessControllerServerSocket();
+        ~ProcessControllerServerSocket() override;
         int monitorShutdownFd();
         int monitorReloadFd();
         bool triggeredShutdown();
