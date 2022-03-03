@@ -46,7 +46,7 @@ Mock Base Installation
 
 Set Log Level
     [Arguments]  ${logLevel}
-    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  VERBOSITY=${logLevel}
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  [global]\nVERBOSITY=${logLevel}
 
 Bootstrap SUSI From Update Source
     ${SUSI_UPDATE_SRC} =  Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/

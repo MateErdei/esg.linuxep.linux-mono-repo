@@ -430,8 +430,12 @@ Check AV Plugin Installed
 Install With Base SDDS
     Uninstall All
     Directory Should Not Exist  ${SOPHOS_INSTALL}
+
     Install Base For Component Tests
     Set Log Level  DEBUG
+    # restart the service to apply the new log level to watchdog
+    Run Shell Process  systemctl restart sophos-spl  OnError=failed to restart sophos-spl
+
     Install AV Directly from SDDS
     Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
     Wait Until Sophos Threat Detector Log Contains  Starting listening on socket: /var/process_control_socket  timeout=120
