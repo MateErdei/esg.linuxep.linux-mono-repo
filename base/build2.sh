@@ -1,4 +1,9 @@
 #!/bin/bash
+
+echo "Running with env:"
+env
+echo "------"
+
 PRODUCT=sspl-base
 export PRODUCT_NAME="Sophos Server Protection Linux - Base Component"
 export PRODUCT_LINE_ID="ServerProtectionLinux-Base-component"
