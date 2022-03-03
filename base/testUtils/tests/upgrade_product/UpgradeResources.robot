@@ -125,8 +125,7 @@ Wait For Initial Update To Fail
 
 Check MDR and Base Components Inside The ALC Status
     ${statusContent} =  Get File  /opt/sophos-spl/base/mcs/status/ALC_status.xml
-    Should Contain  ${statusContent}  ServerProtectionLinux-MDR-DBOS-Component
-    Should Contain  ${statusContent}  ServerProtectionLinux-MDR-Control-Component
+    Should Contain  ${statusContent}  ServerProtectionLinux-Plugin-MDR
     Should Contain  ${statusContent}  ServerProtectionLinux-Base
 
 Check Status Has Changed

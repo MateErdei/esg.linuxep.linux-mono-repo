@@ -500,7 +500,7 @@ class WarehouseUtils(object):
     RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES = {
         "ServerProtectionLinux-Plugin-AV": "Sophos Server Protection Linux - av",
         "ServerProtectionLinux-Plugin-liveresponse": "Sophos Live Response",
-        "ServerProtectionLinux-MDR-Control-Component": "Sophos Managed Threat Response plug-in" ,
+        "ServerProtectionLinux-Plugin-MDR": "Sophos Managed Threat Response plug-in" ,
         "ServerProtectionLinux-Plugin-EventJournaler": "EventJournaler",
         "ServerProtectionLinux-Base-component": "Sophos Server Protection Linux - Base Component",
         "ServerProtectionLinux-Plugin-EDR": "Sophos Endpoint Detection and Response plug-in",

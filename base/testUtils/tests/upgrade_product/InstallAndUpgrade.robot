@@ -118,7 +118,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Be Equal As Strings  ${ExpectedBaseReleaseVersion}  ${BaseReleaseVersion}
-    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
+    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-MDR
     ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedMtrReleaseVersion}  ${MtrReleaseVersion}
@@ -259,7 +259,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${ExpectBaseDowngrade} =  second_version_is_lower  ${ExpectedBaseDevVersion}  ${ExpectedBaseReleaseVersion}
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseVersion}
-    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
+    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-MDR
     ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
     ${MtrVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrVersion}
@@ -460,7 +460,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
     ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Be Equal As Strings  ${ExpectedBaseReleaseVersion}  ${BaseReleaseVersion}
-    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
+    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-MDR
     ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
     ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedMtrReleaseVersion}  ${MtrReleaseVersion}
@@ -594,7 +594,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${ExpectBaseDowngrade} =  second_version_is_lower  ${ExpectedBaseDevVersion}  ${ExpectedBaseReleaseVersion}
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseVersion}
-    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
+    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-MDR
     ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVReleasePolicy}  ServerProtectionLinux-MDR-Control-Component  ServerProtectionLinux-Plugin-MDR
     ${MtrVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrVersion}
@@ -858,8 +858,7 @@ Check Installed Version In Status Message Is Correctly Reported Based On Version
     # Check content of ALC_status.xml file contsins the expected installedVersion values.
     Check Status File Component Installed Version Is Correct  ServerProtectionLinux-Base-component  1.0.123.123  ${status_file}
     Check Status File Component Installed Version Is Correct  ServerProtectionLinux-Plugin-liveresponse  ${EMPTY}  ${status_file}
-    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-MDR-Control-Component  1.0.0.234  ${status_file}
-    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-MDR-DBOS-Component  1.0.0.345  ${status_file}
+    Check Status File Component Installed Version Is Correct  ServerProtectionLinux-Plugin-MDR  1.0.0.234  ${status_file}
 
 *** Keywords ***
 

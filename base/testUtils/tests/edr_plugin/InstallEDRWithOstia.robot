@@ -663,7 +663,7 @@ Check Installed Plugins Are VUT Versions
     ${edr_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
     Should Contain   ${contents}   PRODUCT_VERSION = ${edr_vut_version}
     ${contents} =  Get File  ${MTR_DIR}/VERSION.ini
-    ${mtr_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-MDR-Control-Component
+    ${mtr_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-MDR
     Should Contain   ${contents}   PRODUCT_VERSION = ${mtr_vut_version}
     ${contents} =  Get File  ${LIVERESPONSE_DIR}/VERSION.ini
     ${liveresponse_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
