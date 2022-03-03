@@ -2,7 +2,7 @@
 
 echo "Running with env:"
 env
-echo "------"
+echo "-----------------"
 
 PRODUCT=sspl-base
 export PRODUCT_NAME="Sophos Server Protection Linux - Base Component"
@@ -200,8 +200,6 @@ function build()
     then
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No input available"
     fi
-
-
 
     echo "After setup: PATH=$PATH"
     echo "After setup: LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"

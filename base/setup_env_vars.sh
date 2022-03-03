@@ -1,9 +1,18 @@
 #!/bin/bash
 
 #source common_vars.sh
+export LINUX_ENV_SETUP=true
+export ROOT_LEVEL_BUILD_DIR="/build"
+export REDIST="$ROOT_LEVEL_BUILD_DIR/redist"
+#export BUILD_TOOLS_DIR="$ROOT_LEVEL_BUILD_DIR/build_tools" - atm we can't use a machine setup script so for now we have to work around what's pre-installed to be able to build in CI
+export BUILD_TOOLS_DIR="$ROOT_LEVEL_BUILD_DIR/redist"
+export FETCHED_INPUTS_DIR="$ROOT_LEVEL_BUILD_DIR/input"
+export DEBUG_BUILD_DIR="cmake-build-debug"
+export RELEASE_BUILD_DIR="cmake-build-release"
+
+
 
 # Run this to set environment settings to build SSPL
-BUILD_TOOLS_DIR="/build/redist"
 export   CC=$BUILD_TOOLS_DIR/gcc/bin/gcc
 export  CXX=$BUILD_TOOLS_DIR/gcc/bin/g++
 export PATH=$BUILD_TOOLS_DIR/gcc/bin:$PATH

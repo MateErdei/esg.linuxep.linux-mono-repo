@@ -13,7 +13,10 @@ BASEDIR=$(dirname "$0")
 # Just in case this script ever gets symlinked
 BASEDIR=$(readlink -f "$BASEDIR")
 
-source "$BASEDIR/common_vars.sh"
+if [[ "$LINUX_ENV_SETUP" != "true" ]]
+then
+  source "$BASEDIR/setup_env_vars.sh"
+fi
 
 function install_package()
 {
@@ -272,10 +275,12 @@ fi
 
 echo "---"
 echo "Done"
-echo "To build you can use these options:"
-echo "In your IDE set the toolchain environment file to be: 'source setup_env_vars.sh' and then build."
-echo "Build.sh"
-echo "cmdline 'source setup_env_vars.sh'"
+echo "To build, you can one of these options:"
+echo "a) In your IDE set the toolchain environment file to be: 'setup_env_vars.sh' and then select build."
+echo "b) run ./Build.sh"
+echo "c) cmdline 'source setup_env_vars.sh' and then: "
+echo "    mkdir cmake-build-debug && cd cmake-build-debug"
+echo "    cmake .. && make install"
 
 # TODO For SSPL only dev machines this may be ok but might break other things?
 # [[ -f /etc/profile.d/setup_env_vars.sh ]] || sudo ln -s "$BASEDIR/setup_env_vars.sh" /etc/profile.d/setup_env_vars.sh

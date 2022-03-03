@@ -32,7 +32,11 @@ BASEDIR=$(dirname "$0")
 # Just in case this script ever gets symlinked
 BASEDIR=$(readlink -f "$BASEDIR")
 cd "$BASEDIR"
-source "$BASEDIR/common_vars.sh"
+
+if [[ "$LINUX_ENV_SETUP" != "true" ]]
+then
+  source "$BASEDIR/setup_env_vars.sh"
+fi
 
 if [[ -z ${ROOT_LEVEL_BUILD_DIR+x} ]]
 then
