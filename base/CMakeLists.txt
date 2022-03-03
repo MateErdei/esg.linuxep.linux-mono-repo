@@ -297,6 +297,7 @@ include_directories(modules)
 
 set(REL_DIST distribution)
 set(DIST "${CMAKE_BINARY_DIR}/${REL_DIST}")
+set(OUTPUT "${CMAKE_SOURCE_DIR}/output")
 set(CMAKE_INSTALL_PREFIX "${REL_DIST}")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
