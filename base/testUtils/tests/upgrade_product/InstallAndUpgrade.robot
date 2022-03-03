@@ -227,10 +227,15 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Check Event Journaler Executable Running
     Check AV Plugin Permissions
-    Check AV Plugin Can Scan Files
     Check Update Reports Have Been Processed
-
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
+
+    # This will turn health bad because "Check AV Plugin Can Scan Files" scans an eicar.
+    Check AV Plugin Can Scan Files
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  3 secs
+    ...  SHS Status File Contains  <item name="threat" value="2" />
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
