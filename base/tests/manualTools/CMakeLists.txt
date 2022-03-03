@@ -64,3 +64,6 @@ SET_TARGET_PROPERTIES(UseCommsComponent
 
 SET_TARGET_PROPERTIES(EventPubSub
         PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")
+
+SET_TARGET_PROPERTIES(SDDS3DownloaderTest
+        PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")

@@ -86,7 +86,7 @@ static std::string getUserAgent(const std::string& tenant_id, const std::string&
 
 static void printUsageAndExit(const std::string name)
 {
-    std::cout << "usage: " << name << " [-c <certificates directory> -r <repo directory> -u <source URL>] <MCS config>" << std::endl;
+    std::cout << "usage: " << name << " [-c <certificates directory> -r <repo directory> -u <source URL> -v] <MCS config>" << std::endl;
     exit(EXIT_FAILURE);
 }
 
@@ -100,9 +100,10 @@ int main(int argc, char* argv[])
     std::string certs_dir = ".";
     std::string repo_dir = ".";
     std::string src_url = DEFAULT_UPDATE_URL;
+    bool verbose = false;
     int opt = 0;
 
-    while ((opt = getopt(argc, argv, "c:r:u:")) != -1)
+    while ((opt = getopt(argc, argv, "c:r:u:v")) != -1)
     {
         switch (opt)
         {
@@ -115,6 +116,9 @@ int main(int argc, char* argv[])
             case 'u':
                 src_url = optarg;
                 break;
+            case 'v':
+                verbose = true;
+                break;
             default:
                 printUsageAndExit(argv[0]);
         }
@@ -126,6 +130,9 @@ int main(int argc, char* argv[])
     }
 
     std::string config_filename = argv[optind];
+
+    sophlib::logging::LogLevel log_level = verbose ? sophlib::logging::LogLevel::Debug : sophlib::logging::LogLevel::Info;
+    sophlib::logging::g_logger.SetupConsole(log_level);
 
     std::string jwt_token;
     std::string tenant_id;
@@ -161,8 +168,7 @@ int main(int argc, char* argv[])
         std::string request_json = writeSUSRequest(request_parameters);
         std::cout << request_json << std::endl;
 
-        auto http_session = std::make_unique<utilities::http::Session>(
-            getUserAgent(tenant_id, device_id), utilities::http::Proxy(), true);
+        auto http_session = std::make_unique<utilities::http::Session>(getUserAgent(tenant_id, device_id), utilities::http::Proxy(), true);
         http_session->SetTimeouts(DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
 
         std::string url = DEFAULT_SERVICE_URL + "/v3/" + tenant_id + "/" + device_id;
