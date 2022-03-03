@@ -43,7 +43,7 @@
         <!-- Release build -->
         <command mode="release">
             <program>/bin/bash</program>
-            <args>./unpack_build_inputs.sh</args>
+            <args>./unpack_build_inputs.sh --ci</args>
             <workingdir>.</workingdir>
         </command>
         <command mode="release">
@@ -55,7 +55,7 @@
         <!-- Debug build -->
         <command mode="debug">
             <program>/bin/bash</program>
-            <args>./unpack_build_inputs.sh</args>
+            <args>./unpack_build_inputs.sh --ci</args>
             <workingdir>.</workingdir>
         </command>
         <command mode="debug">

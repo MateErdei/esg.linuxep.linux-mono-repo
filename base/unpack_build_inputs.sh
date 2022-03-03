@@ -3,10 +3,31 @@
 #set -x
 set -e
 
-if [[ $(id -u) == 0 ]]
-then
-    echo "You don't need to run this is as root."
-    exit 1
+ALLOW_RUN_AS_ROOT=0
+CLEAN=0
+while [[ $# -ge 1 ]]
+do
+    case $1 in
+        --ci)
+            ALLOW_RUN_AS_ROOT=1
+            ;;
+        --clean)
+            CLEAN=1
+            ;;
+        *)
+            exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
+            ;;
+    esac
+    shift
+done
+
+if [[ "$ALLOW_RUN_AS_ROOT" == "0" ]]
+  then
+  if [[ $(id -u) == 0 ]]
+  then
+      echo "You don't need to run this as root"
+      exit 1
+  fi
 fi
 
 BASEDIR=$(dirname "$0")
@@ -45,6 +66,11 @@ then
   echo "REDIST is not set"
   echo "Please run: . ./setup_env_vars.sh"
   exit 1
+fi
+
+if [[ "$CLEAN" == "1" ]]
+then
+  rm -rf "$REDIST"
 fi
 
 [[ -d "$REDIST" ]] || mkdir -p "$REDIST"
@@ -94,11 +120,11 @@ function unpack_tars()
       continue
     else
       # If archive is newer than marker then check if we need to unpack archive based on hash.
-      TARFILE_HASH=$(md5sum "$tarfile" | cut -d ' ' -f 1)
+      local archive_hash=$(md5sum "$tarfile" | cut -d ' ' -f 1)
       if [[ -f $marker_file ]]
       then
         echo "$tarfile is newer than $marker_file, will check hash."
-        if [[ $(cat "$marker_file") == "$TARFILE_HASH" ]]
+        if [[ $(cat "$marker_file") == "$archive_hash" ]]
         then
           # touch the marker so that if we're in the situation where marker is older than archive but is the same,
           # (e.g. someone ran TAP fetch and the archives 'change time' got updated but they're still the same) then
@@ -108,7 +134,7 @@ function unpack_tars()
           continue
         fi
       fi
-      echo "Extracting .tar: $tarfile - $TARFILE_HASH"
+      echo "Extracting .tar: $tarfile - $archive_hash"
       # Remove old dir if needed
       local output_dir_name
       output_dir_name=$(tar -tf "$tarfile" | cut -f1 -d"/" | sort | uniq | head -n 1)
@@ -122,7 +148,7 @@ function unpack_tars()
       tar xf "$tarfile" -C "$REDIST" || exitFailure 1 "Not a valid input .tar"
 
       # Create marker
-      echo "$TARFILE_HASH" > "$marker_file"
+      echo "$archive_hash" > "$marker_file"
     fi
   done
   shopt -u nullglob
@@ -142,11 +168,11 @@ function unpack_gzipped_tars()
     fi
 
     # If archive is newer than dir then check if we need to unpack archive based on hash.
-    TARFILE_HASH=$(md5sum "$tarfile" | cut -d ' ' -f 1)
+    local archive_hash=$(md5sum "$tarfile" | cut -d ' ' -f 1)
     if [[ -f $marker_file ]]
     then
       echo "$tarfile is newer than $marker_file, will check hash."
-      if [[ $(cat "$marker_file") == "$TARFILE_HASH" ]]
+      if [[ $(cat "$marker_file") == "$archive_hash" ]]
       then
         touch "$marker_file"
         echo "Skipping unpack based on hash, already up-to-date: $tarfile"
@@ -154,7 +180,7 @@ function unpack_gzipped_tars()
       fi
     fi
 
-    echo "Extracting .tar.gz: $tarfile - $TARFILE_HASH"
+    echo "Extracting .tar.gz: $tarfile - $archive_hash"
     # Remove old dir if needed
     output_dir_name=$(tar -tzf "$tarfile" | cut -f1 -d"/" | sort | uniq | head -n 1)
     output_dir_full_path="$REDIST/$output_dir_name"
@@ -167,7 +193,7 @@ function unpack_gzipped_tars()
     tar xzf "$tarfile" -C "$REDIST" || exitFailure 1 "Not a valid input .tar.gz"
 
     # Create marker
-    echo "$TARFILE_HASH" > "$marker_file"
+    echo "$archive_hash" > "$marker_file"
   done
   shopt -u nullglob
 }
@@ -186,7 +212,7 @@ function unpack_zips()
     fi
 
     # If archive is newer than marker then check if we need to unpack archive based on hash.
-    archive_hash=$(md5sum "$zipfile" | cut -d ' ' -f 1)
+    local archive_hash=$(md5sum "$zipfile" | cut -d ' ' -f 1)
     if [[ -f $marker_file ]]
     then
       echo "$zipfile is newer than $marker_file, will check hash."
