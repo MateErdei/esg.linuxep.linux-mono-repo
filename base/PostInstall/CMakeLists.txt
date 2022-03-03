@@ -25,3 +25,7 @@ INSTALL(CODE "MESSAGE(STATUS \"Generating SDDS2 manifests\")
 # Generate SDDS3 manifests
 INSTALL(CODE "MESSAGE(STATUS \"Generating SDDS3 manifests\")
     execute_process(COMMAND ${INPUT}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/SDDS-Import.xml --nonce `sha256sum ${DIST}/SDDS-Import.xml | head -c 10`)")
+
+if (NOT EXISTS ${INPUT}/sdds3/sdds3-builder)
+    message(FATAL_ERROR "Could not find SDDS3 Builder: ${INPUT}/sdds3/sdds3-builder")
+endif()

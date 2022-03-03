@@ -263,10 +263,24 @@ function copy_certs()
       # Manifest cert, currently same as ps_rootca
       cp -u "$FETCHED_INPUTS_DIR/ps_rootca.crt" "$REDIST/certificates/rootca.crt"
   else
-      echo "ERROR - ps_rootca.crt not found here: $FETCHED_INPUTS_DIR/ps_rootca.cr"
+      echo "ERROR - ps_rootca.crt not found here: $FETCHED_INPUTS_DIR/ps_rootca.crt"
       exit 1
   fi
   echo "Certificates synced to $REDIST/certificates"
+}
+
+function copy_sdds3builder()
+{
+  mkdir -p "$REDIST/sdds3"
+  if [[ -d $FETCHED_INPUTS_DIR/sdds3 ]]
+  then
+      cp -ru "$FETCHED_INPUTS_DIR/sdds3" "$REDIST/"
+      chmod +x $REDIST/sdds3/sdds3-builder
+  else
+      echo "ERROR - sdds3 tools not found here: $FETCHED_INPUTS_DIR/sdds3"
+      exit 1
+  fi
+  echo "sdds3 tools synced to $REDIST/sdds3"
 }
 
 unpack_tars
@@ -274,5 +288,6 @@ unpack_gzipped_tars
 unpack_zips
 copy_google_test
 copy_certs
+copy_sdds3builder
 
 echo "Finished unpacking"
