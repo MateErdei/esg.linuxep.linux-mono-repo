@@ -3,7 +3,7 @@
 source common_vars.sh
 
 # Run this to set environment settings to build SSPL
-BUILD_TOOLS_DIR="/build/build_tools"
+#BUILD_TOOLS_DIR="/build/build_tools"
 export   CC=$BUILD_TOOLS_DIR/gcc/bin/gcc
 export  CXX=$BUILD_TOOLS_DIR/gcc/bin/g++
 export PATH=$BUILD_TOOLS_DIR/gcc/bin:$PATH

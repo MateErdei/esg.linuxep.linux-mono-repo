@@ -13,10 +13,12 @@ BASEDIR=$(dirname "$0")
 # Just in case this script ever gets symlinked
 BASEDIR=$(readlink -f "$BASEDIR")
 
+source "$BASEDIR/common_vars.sh"
+
 function install_package()
 {
   local package=$1
-  if which apt 2>/dev/null
+  if which apt &>/dev/null
   then
     if ! apt list --installed $package 2>/dev/null | grep -q $package
     then
@@ -115,7 +117,7 @@ fi
 
 # Temporary - When in monorepo we will not need to do this and have it in / and created by root, we'll be able to have
 # it in the root of the repo dir or similar
-ROOT_LEVEL_BUILD_DIR="/build"
+#ROOT_LEVEL_BUILD_DIR="/build"
 if [ -d "$ROOT_LEVEL_BUILD_DIR" ]
 then
   echo "Root level dir already exists: $ROOT_LEVEL_BUILD_DIR"
@@ -131,8 +133,8 @@ tap fetch sspl_base.build.release
 # We're done with TAP now, so deactivate the venv.
 deactivate
 
-BUILD_TOOLS_DIR="$ROOT_LEVEL_BUILD_DIR/build_tools"
-FETCHED_INPUTS_DIR="$ROOT_LEVEL_BUILD_DIR/input"
+#BUILD_TOOLS_DIR="$ROOT_LEVEL_BUILD_DIR/build_tools"
+#FETCHED_INPUTS_DIR="$ROOT_LEVEL_BUILD_DIR/input"
 if [[ ! -d "$FETCHED_INPUTS_DIR" ]]
 then
   echo "$FETCHED_INPUTS_DIR does not exist"

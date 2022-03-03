@@ -196,21 +196,7 @@ function build()
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No input available"
     fi
 
-    if [[ ! -d "$REDIST" ]]
-    then
-        exitFailure $FAILURE_INPUT_NOT_AVAILABLE "REDIST does not exist"
-    fi
 
-    # TODO LINUXDAR-1506: remove the patching when the related issue is incorporated into the released version of boost
-    # https://github.com/boostorg/process/issues/62
-    BOOST_PROCESS_TARGET=${REDIST}/boost/include/boost/process/detail/posix/executor.hpp
-    diff -u patched_boost_executor.hpp ${BOOST_PROCESS_TARGET} && DIFFERS=0 || DIFFERS=1
-    if [[ "${DIFFERS}" == "1" ]]; then
-      echo "Patch Boost executor"
-      cp patched_boost_executor.hpp  ${BOOST_PROCESS_TARGET}
-    else
-      echo 'Boost executor already patched'
-    fi
 
     echo "After setup: PATH=$PATH"
     echo "After setup: LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
@@ -269,6 +255,19 @@ function build()
 #        -DSTRACE_SUPPORT="${STRACE_SUPPORT}" \
 #        .. \
 #        || exitFailure 14 "Failed to configure $PRODUCT"
+
+
+    # TODO - MOVE TO CMAKE
+    # TODO LINUXDAR-1506: remove the patching when the related issue is incorporated into the released version of boost
+    # https://github.com/boostorg/process/issues/62
+    BOOST_PROCESS_TARGET=${REDIST}/boost/include/boost/process/detail/posix/executor.hpp
+    diff -u patched_boost_executor.hpp ${BOOST_PROCESS_TARGET} && DIFFERS=0 || DIFFERS=1
+    if [[ "${DIFFERS}" == "1" ]]; then
+      echo "Patch Boost executor"
+      cp "$BASE/patched_boost_executor.hpp"  ${BOOST_PROCESS_TARGET}
+    else
+      echo 'Boost executor already patched'
+    fi
 
 
 #    make -j${NPROC} copy_libs || exitFailure 15 "Failed to build $PRODUCT"
