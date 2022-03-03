@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation    Fuzzer tests for MCS
 
-Default Tags  MCS_FUZZ
+#Default Tags  MCS_FUZZ
 
 Library    Process
 Library    ${LIBS_DIRECTORY}/LogUtils.py
@@ -40,7 +40,7 @@ Test MCS Policy Fuzzer
 
 Test MDR Policy Fuzzer
     Start Watchdog
-    Install MTR From Fake Component Suite
+    Install MDR Directly
     Stop System Watchdog
     Run MCS Router Fuzzer   mdr  2
 
