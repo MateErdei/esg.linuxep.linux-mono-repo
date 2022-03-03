@@ -238,27 +238,13 @@ function build()
 
     mkdir -p "$BUILD_DIR"
     cd "$BUILD_DIR"
-#    echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >env
-#    echo "export PATH=$PATH" >>env
 
     [[ -n ${NPROC:-} ]] || { which nproc > /dev/null 2>&1 && NPROC=$((`nproc`)); } || NPROC=2
     (( $NPROC < 1 )) && NPROC=1
     cmake -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
+          -G "Unix Makefiles" \
           .. \
           || exitFailure 14 "Failed to configure $PRODUCT"
-#    cmake -v \
-#        -DPRODUCT_NAME="${PRODUCT_NAME}" \
-#        -DPRODUCT_LINE_ID="${PRODUCT_LINE_ID}" \
-#        -DDEFAULT_HOME_FOLDER="${DEFAULT_HOME_FOLDER}" \
-#        -DREDIST="${REDIST}" \
-#        -DINPUT="${REDIST}" \
-#        -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
-#        -DNO_GCOV="true" \
-#        -DPythonCoverage="${PythonCoverage}" \
-#        -DSTRACE_SUPPORT="${STRACE_SUPPORT}" \
-#        .. \
-#        || exitFailure 14 "Failed to configure $PRODUCT"
-
 
     # TODO - MOVE TO CMAKE
     # TODO LINUXDAR-1506: remove the patching when the related issue is incorporated into the released version of boost
@@ -320,26 +306,8 @@ function build()
     fi
     make -j${NPROC} install || exitFailure 17 "Failed to install $PRODUCT"
 
-    # TODO - do this in cmake and also save on having two copies of distribution / output
-#    echo "Generating output dir: $OUTPUT"
-#    mkdir -p $OUTPUT
-#    echo "STARTINGDIR=$STARTINGDIR" >$OUTPUT/STARTINGDIR
-#    echo "BASE=$BASE" >$OUTPUT/BASE
-#    echo "PATH=$PATH" >$OUTPUT/PATH
-#    echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >$OUTPUT/LD_LIBRARY_PATH
-
-#    rm -rf "$OUTPUT/SDDS-COMPONENT"
-#    cp -a "$BUILD_DIR/distribution/" "$OUTPUT/SDDS-COMPONENT" || exitFailure 21 "Failed to copy SDDS package: $?"
-#    cp -a "$BUILD_DIR/SDDS3-PACKAGE" "$OUTPUT/SDDS3-PACKAGE" || exitFailure 21 "Failed to copy SDDS3-PACKAGE: $?"
-#    cp -a "$BUILD_DIR/distribution/SDDS-Import.xml" "$OUTPUT/SDDS3-PACKAGE" || exitFailure 21 "Failed to copy SDDS-Import.xml to SDDS3-PACKAGE: $?"
-#    cp -a "$BUILD_DIR/products/PluginApi/pluginapi.tar.gz" "$OUTPUT/pluginapi.tar.gz" || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
-#    tar -zcvf -C "$BUILD_DIR" "$OUTPUT/SystemProductTestOutput.tar.gz" SystemProductTestOutput/ || exitFailure 23 "Failed to tar SystemProductTestOutput package: $?"
-
-
-    if [[ -d $BUILD_DIR/symbols ]]
-    then
-        cp -a $BUILD_DIR/symbols output/
-    fi
+    echo "output conents:"
+    ls -l "$OUTPUT"
 
 #    if [[ ${BULLSEYE} == 1 ]]
 #    then
