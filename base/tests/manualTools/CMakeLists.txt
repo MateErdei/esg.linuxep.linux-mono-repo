@@ -31,13 +31,13 @@ target_include_directories(RunHttpRequest PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${PROJ
 target_include_directories(UseCommsComponent PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
 target_include_directories(EventPubSub PUBLIC ${PROJECT_SOURCE_DIR})
 
-target_link_libraries(LoggerLimit logging -static-libstdc++)
-target_link_libraries(FaultInjectionLogger logging -static-libstdc++)
-target_link_libraries(JailBreakerTest logging commscomponentimpl -static-libstdc++)
-target_link_libraries(RunHttpRequest logging commscomponentimpl -static-libstdc++)
-target_link_libraries(UseCommsComponent logging commscomponentimpl -static-libstdc++)
-target_link_libraries(EventPubSub zmqwrapperapiimpl -static-libstdc++)
-target_link_libraries(PickYourPoison pthread -static-libstdc++)
+target_link_libraries(LoggerLimit logging)
+target_link_libraries(FaultInjectionLogger logging)
+target_link_libraries(JailBreakerTest logging commscomponentimpl)
+target_link_libraries(RunHttpRequest logging commscomponentimpl)
+target_link_libraries(UseCommsComponent logging commscomponentimpl)
+target_link_libraries(EventPubSub zmqwrapperapiimpl)
+target_link_libraries(PickYourPoison pthread)
 
 # TODO once we update to modern cmake version
 #target_link_options(LoggerLimit PRIVATE -static-libstdc++)
