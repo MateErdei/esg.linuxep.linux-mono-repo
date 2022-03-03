@@ -565,7 +565,9 @@ AVSophosThreatDetector Test Setup
     Register Cleanup      Exclude CustomerID Failed To Read Error
 
 AVSophosThreatDetector Test TearDown
-    run teardown functions
+    #run teardown functions
+    run cleanup functions
+    run failure functions if failed
 
     #restore machineID file
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb

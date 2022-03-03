@@ -447,6 +447,7 @@ Check installer can handle versioned copied Virus Data from 1.0.0
     Should Be True   ${number_of_VDL_files} > 1
 
 AV Plugin Can Send Telemetry After IDE Update
+    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
