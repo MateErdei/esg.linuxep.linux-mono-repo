@@ -2,15 +2,10 @@
 
 #set -x
 set -e
-
-ALLOW_RUN_AS_ROOT=0
 CLEAN=0
 while [[ $# -ge 1 ]]
 do
     case $1 in
-        --ci)
-            ALLOW_RUN_AS_ROOT=1
-            ;;
         --clean)
             CLEAN=1
             ;;
@@ -21,13 +16,15 @@ do
     shift
 done
 
-if [[ "$ALLOW_RUN_AS_ROOT" == "0" ]]
+if [[ "$CI" == "true" ]]
   then
-  if [[ $(id -u) == 0 ]]
-  then
-      echo "You don't need to run this as root"
-      exit 1
-  fi
+    echo "Building in CI, allowing root user execution."
+  else
+    if [[ $(id -u) == 0 ]]
+    then
+        echo "You don't need to run this as root"
+        exit 1
+    fi
 fi
 
 BASEDIR=$(dirname "$0")
