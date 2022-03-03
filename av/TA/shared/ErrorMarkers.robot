@@ -174,4 +174,5 @@ Exclude Communication Between AV And Base Due To No Incoming Data
 
 Exclude Expected Sweep Errors
    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       ThreatScanner <> Failed to scan /mnt/pandorum/BullseyeLM/BullseyeCoverageLicenseManager due to a sweep failure
+   mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}.1     ThreatScanner <> Failed to scan /mnt/pandorum/BullseyeLM/BullseyeCoverageLicenseManager due to a sweep failure
    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to scan /mnt/pandorum/BullseyeLM/BullseyeCoverageLicenseManager due to a sweep failure
