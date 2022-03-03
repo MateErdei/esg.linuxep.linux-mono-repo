@@ -57,6 +57,7 @@ AVCommandLineScanner Test Setup
     Register Cleanup      Check All Product Logs Do Not Contain Error
     Register Cleanup      Exclude UnixSocket Environment Interruption Error
     Register Cleanup      Exclude CustomerID Failed To Read Error
+    Register Cleanup      Exclude Expected Sweep Errors
 
 AVCommandLineScanner Test TearDown
     Run Teardown Functions
@@ -242,7 +243,7 @@ CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Register cleanup  Remove File  /tmp/stdout
 
     sleep  2s
-    Send Signal To Process  2
+    Send Signal To Process  SIGINT
     ${result} =  Wait For Process  timeout=20s
     Process Should Be Stopped
 
