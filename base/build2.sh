@@ -330,8 +330,11 @@ function build()
     echo "BASE=$BASE" >$OUTPUT/BASE
     echo "PATH=$PATH" >$OUTPUT/PATH
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >$OUTPUT/LD_LIBRARY_PATH
+
     rm -rf $OUTPUT/SDDS-COMPONENT
     cp -a "$BUILD_DIR/distribution/" "$OUTPUT/SDDS-COMPONENT" || exitFailure 21 "Failed to copy SDDS package: $?"
+    cp -a "$BUILD_DIR/SDDS3-PACKAGE" output/SDDS3-PACKAGE || exitFailure 21 "Failed to copy SDDS3-PACKAGE: $?"
+    cp -a "$BUILD_DIR/distribution/SDDS-Import.xml" output/SDDS3-PACKAGE || exitFailure 21 "Failed to copy SDDS-Import.xml to SDDS3-PACKAGE: $?"
     cp -a "$BUILD_DIR/products/PluginApi/pluginapi.tar.gz" "$OUTPUT/pluginapi.tar.gz" || exitFailure 22 "Failed to copy pluginapi.tar.gz package: $?"
     pushd "$BUILD_DIR"
       tar -zcvf "$OUTPUT/SystemProductTestOutput.tar.gz" SystemProductTestOutput/ || exitFailure 23 "Failed to tar SystemProductTestOutput package: $?"
