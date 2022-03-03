@@ -39,9 +39,14 @@
     <buildcommands>
         <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
         <!--<command  buildtype="prod"> -->
-        <command mode="release,oldci">
+        <command mode="release">
             <program>/bin/bash</program>
-            <args>./build2.sh --clean --parallel-test 1</args>
+            <args>./unpack_build_inputs.sh</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="release">
+            <program>/bin/bash</program>
+            <args>./build2.sh --release --clean --parallel-test 1</args>
             <workingdir>.</workingdir>
         </command>
 
