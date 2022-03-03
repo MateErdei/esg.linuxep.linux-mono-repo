@@ -477,6 +477,7 @@ AV Plugin Can Send Telemetry After IDE Update
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 AV Plugin Can Send Telemetry After Upgrade
+    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
@@ -506,6 +507,7 @@ AV Plugin Can Send Telemetry After Upgrade
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 AV Plugin Restores Downgrade Logs
+    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     Run plugin uninstaller with downgrade flag
     Check AV Plugin Not Installed
     Install AV Directly from SDDS
@@ -519,7 +521,6 @@ AV Can not install from SDDS Component
     Should Be Equal As Integers  ${result.rc}  ${26}
 
 Check installer keeps SUSI startup settings as writable by AV Plugin
-    Register Cleanup  Exclude Invalid Day From Policy Error
     Restart AV Plugin And Clear The Logs For Integration Tests
     Create file   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
     Change Owner  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}  sophos-spl-av  sophos-spl-group
@@ -530,12 +531,11 @@ Check installer keeps SUSI startup settings as writable by AV Plugin
     Log   ${output}
 
     Mark AV Log
-    Send Sav Policy To Base  SAV_Policy.xml
+    Send Sav Policy To Base  SAV_Policy_No_Scans.xml
     Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
     AV Plugin Log Does Not Contain With Offset  Failed to create file
 
 Check installer removes sophos_threat_detector log symlink
-    Register Cleanup    Exclude Invalid Day From Policy Error
     Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector/sophos_threat_detector.log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
     File Should Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
     # modify the manifest to force the installer to perform a full product update
@@ -578,9 +578,11 @@ Installer Test Setup
     Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
     Register On Fail  dump log  ${AV_LOG_PATH}
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+
     Check Plugin Installed and Running
     Mark AV Log
     Mark Sophos Threat Detector Log
+
     #Register Cleanup has LIFO order, so checking for errors is done last.
     Register Cleanup    Check All Product Logs Do Not Contain Error
     Register Cleanup    Exclude CustomerID Failed To Read Error
@@ -588,7 +590,9 @@ Installer Test Setup
     Register Cleanup    Exclude Communication Between AV And Base Due To No Incoming Data
 
 Installer Test TearDown
-    Run Teardown Functions
+    #Run Teardown Functions
+    run cleanup functions
+    run failure functions if failed
     Run Keyword If Test Failed   Installer Suite Setup
 
 Debug install set
