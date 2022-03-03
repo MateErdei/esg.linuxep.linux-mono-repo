@@ -22,20 +22,10 @@ sspl-event-journaler:
     fileset: ..\redist\sspl-plugin-event-journaler
     canonical-name: ServerProtectionLinuxPlugin-eventjournaler
     line-id: ServerProtectionLinux-Plugin-EventJournaler
-ssplmdr-suite:
-    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-MDR-COMPONENT-SUITE
+sspl-mdr:
+    fileset: ..\redist\sspl-plugin-mdr-component
     canonical-name: ServerProtectionLinuxPlugin-MDR
     line-id: ServerProtectionLinux-Plugin-MDR
-ssplmdr-control-component:
-    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-MDR-COMPONENT
-    canonical-name: ServerProtectionLinux-MDR-Control-Component
-    line-id: ServerProtectionLinux-MDR-Control-Component
-    mountpoint: .
-ssplmdr-dbos-component:
-    fileset: ..\redist\sspl-plugin-mdr-componentsuite\SDDS-SSPL-DBOS-COMPONENT
-    canonical-name: ServerProtectionLinux-MDR-DBOS-Component
-    line-id: ServerProtectionLinux-MDR-DBOS-Component
-    mountpoint: .
 
 sspl-av:
     fileset: ..\redist\sspl-plugin-anti-virus

@@ -42,7 +42,7 @@ warehouses:
 
     ssplmdr-wh:
         components:
-            ssplmdr-suite:
+            sspl-mdr:
                 import:
                     description: "Sophos Server Protection for Linux MTR"
                     version: "1.0.0"
@@ -53,9 +53,6 @@ warehouses:
                       tag: RECOMMENDED
                     - base-version: ""
                       tag: BETA
-                subcomponents:
-                    ssplmdr-control-component:
-                    ssplmdr-dbos-component:
     ssplav-wh:
         components:
             sspl-base:
