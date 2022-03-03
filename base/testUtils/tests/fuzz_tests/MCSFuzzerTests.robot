@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation    Fuzzer tests for MCS
 
-#Default Tags  MCS_FUZZ
+Default Tags  MCS_FUZZ
 
 Library    Process
 Library    ${LIBS_DIRECTORY}/LogUtils.py
