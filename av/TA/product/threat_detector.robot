@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Product tests for sophos_threat_detector
-Force Tags      PRODUCT
+Force Tags      PRODUCT  THREAT_DETECTOR
 
 Library         Process
 Library         OperatingSystem
@@ -15,6 +15,7 @@ Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 
+Test Setup     Threat Detector Test Setup
 Test Teardown  Threat Detector Test Teardown
 
 *** Variables ***
@@ -31,6 +32,10 @@ List AV Plugin Path
     ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}  stdout=${TESTTMP}/lsstdout  stderr=STDOUT
     Log  ls -lR: ${result.stdout}
     Remove File  ${TESTTMP}/lsstdout
+
+Threat Detector Test Setup
+    Component Test Setup
+    Mark Sophos Threat Detector Log
 
 Threat Detector Test Teardown
     List AV Plugin Path
@@ -119,7 +124,7 @@ Threat detector is killed gracefully
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector received SIGTERM - shutting down
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector is exiting
     Wait Until Sophos Threat Detector Log Contains  Closing scanning socket thread
-    Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result =0
+    Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result = 0
     Threat Detector Does Not Log Contain  Failed to open lock file
     Threat Detector Does Not Log Contain  Failed to acquire lock
     Threat Detector Does Not Log Contain  Sophos Threat Detector is exiting with return code 15

@@ -76,8 +76,9 @@ SusiGlobalHandler::~SusiGlobalHandler()
 {
     if (m_susiInitialised.load(std::memory_order_acquire))
     {
+        LOGDEBUG("Exiting Global Susi");
         auto res = SUSI_Terminate();
-        LOGSUPPORT("Exiting Global Susi result =" << std::hex << res << std::dec);
+        LOGSUPPORT("Exiting Global Susi result = " << std::hex << res << std::dec);
         assert(res == SUSI_S_OK);
     }
 
@@ -167,9 +168,10 @@ bool SusiGlobalHandler::internal_update(const std::string& path, const std::stri
     // Try up to 20 times 0.5s apart to acquire the file lock
     int maxRetries = 20;
     int attempt = 1;
-    struct timespec timeout;
-    timeout.tv_sec  = 0;
-    timeout.tv_nsec = 500000000L;
+    struct timespec timeout
+    {
+        .tv_sec = 0, .tv_nsec = 500000000L
+    };
 
     while(!acquireLock(fd))
     {
@@ -242,7 +244,7 @@ bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
     if (res != SUSI_S_OK)
     {
         // This can fail for reasons outside the programs control, therefore is an exception
-        // rather then an assert
+        // rather than an assert
         std::ostringstream ost;
         ost << "Failed to initialise SUSI: 0x" << std::hex << res << std::dec;
         LOGERROR(ost.str());
