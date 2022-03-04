@@ -31,7 +31,7 @@ ${HANDLE}
 
 *** Test Cases ***
 AV Plugin Can Receive Actions
-    ${actionContent} =  Set Variable  This is an action test
+    ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="Test" id="" subtype="TestAction" replyRequired="1"/>
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Received new Action
 
@@ -470,7 +470,6 @@ Product Test Setup
     register on fail  Dump Log  ${THREAT_DETECTOR_LOG_PATH}
     Register Cleanup  Check All Product Logs Do Not Contain Error
     Register Cleanup  Exclude CustomerID Failed To Read Error
-    Register Cleanup  Exclude Parse Xml Error
 
 Product Test Teardown
     Delete Eicars From Tmp

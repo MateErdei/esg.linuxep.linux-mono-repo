@@ -36,10 +36,11 @@ class ManagementAgentPluginRequester(object):
         return Message(app_id, self.name, command.value, contents)
 
     def action(self, app_id, correlation, action):
-        self.logger.info("Sending {} action [correlation {}] to {} via {}".format(action,
-                                                                                  correlation,
-                                                                                  self.name,
-                                                                                  self.__m_socket_path))
+        self.logger.info("Sending '{}' action [correlation '{}'] to '{}' via '{}'".format(
+                action,
+                correlation,
+                self.name,
+                self.__m_socket_path))
         filename = "ScanNow_Action.xml"
         sophos_install = os.environ['SOPHOS_INSTALL']
         with open(os.path.join(sophos_install,"base/mcs/action/"+filename), "w") as f:
