@@ -50,7 +50,7 @@ MDR Plugin Starts And Stops MDR Agent When Starting and Stopping
 MDR Agent Which Writes To Stdout And Stderr Repeatedly Does Not Cause MTR Plugin To Use Lots Of Memory Or Hang
     Create Fake Sophos MDR Executable With Pick Your Poison  ${spam}
     Wait for MDR Executable To Be Running
-    sleep 5
+    sleep  5
     ${memorySize1} =  Get Process Memory Usage  ${MtrPluginExecutableName}
     sleep  5
     ${memorySize2} =  Get Process Memory Usage  ${MtrPluginExecutableName}
