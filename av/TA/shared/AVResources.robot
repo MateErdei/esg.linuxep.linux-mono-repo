@@ -98,7 +98,9 @@ Check Threat Detector Not Running
 
 Count File Log Lines
     [Arguments]  ${path}
-    ${content} =  Get File   ${path}  encoding_errors=replace
+    ${status}  ${content} =  Run Keyword And Ignore Error
+    ...      Get File   ${path}  encoding_errors=replace
+    Return From Keyword If   '${status}' == 'FAIL'   ${0}
     ${count} =  Get Line Count   ${content}
     [Return]   ${count}
 
@@ -568,6 +570,27 @@ Wait Until File exists
         ...    ${timeout} secs
         ...    ${interval}
         ...    File Should Exist  ${filename}
+
+
+Get File Size or Zero
+    [Arguments]  ${filename}
+    ${status}  ${size} =   Run Keyword And Ignore Error
+    ...          Get File Size  ${filename}
+    Return From Keyword If   '${status}' == 'FAIL'   ${0}
+    [Return]   ${size}
+
+File size is different
+    [Arguments]  ${filename}  ${old_size}
+    ${new_size} =   Get File Size or Zero   ${filename}
+    Should Be True   ${new_size} != ${old_size}
+
+Wait until file size changes
+    [Arguments]  ${filename}  ${timeout}=15
+    ${orig_size} =   Get File Size or Zero  ${filename}
+    Wait Until Keyword Succeeds
+        ...    ${timeout} secs
+        ...    1 secs
+        ...    File size is different  ${filename}  ${orig_size}
 
 Wait Until AV Plugin Log exists
     [Arguments]  ${timeout}=15  ${interval}=0

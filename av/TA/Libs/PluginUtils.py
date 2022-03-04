@@ -13,14 +13,17 @@ except ImportError as ex:
 
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 
+
 def get_variable(varName, defaultValue=None):
     try:
         return BuiltIn().get_variable_value("${}".format(varName)) or defaultValue
     except RobotNotRunningError:
         return os.environ.get(varName, defaultValue)
 
+
 def get_sophos_install():
     return get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
+
 
 def get_plugin_install():
     SOPHOS_INSTALL = get_sophos_install()
@@ -32,10 +35,12 @@ def install_av_if_not_installed():
     if not os.path.isdir(PLUGIN_INSTALL):
         BuiltIn().run_keyword("Install AV Directly from SDDS")
 
+
 def __start_plugin(name):
     wdctl = os.path.join(get_sophos_install(), "bin", "wdctl")
     assert os.path.isfile(wdctl)
     subprocess.check_call([wdctl, "start", name])
+
 
 def start_av_plugin_if_not_running():
     PLUGIN_INSTALL = get_plugin_install()
@@ -45,8 +50,10 @@ def start_av_plugin_if_not_running():
         __start_plugin("av")
         ProcessUtils.wait_for_pid(av_exe, 15)
 
-    av_log = os.path.join(PLUGIN_INSTALL, "log", "av.log")
-    BuiltIn().run_keyword("Wait Until File exists", av_log)
+        av_log = os.path.join(PLUGIN_INSTALL, "log", "av.log")
+        BuiltIn().run_keyword("Wait until file size changes", av_log)
+    return pid
+
 
 def start_sophos_threat_detector_if_not_running():
     PLUGIN_INSTALL = get_plugin_install()
@@ -56,6 +63,6 @@ def start_sophos_threat_detector_if_not_running():
         __start_plugin("threat_detector")
         pid = ProcessUtils.wait_for_pid(threat_detector_exe, 15)
 
-    threat_detector_log = os.path.join(PLUGIN_INSTALL, "chroot", "log", "sophos_threat_detector.log")
-    BuiltIn().run_keyword("Wait Until File exists", threat_detector_log)
+        threat_detector_log = os.path.join(PLUGIN_INSTALL, "chroot", "log", "sophos_threat_detector.log")
+        BuiltIn().run_keyword("Wait until file size changes", threat_detector_log)
     return pid
