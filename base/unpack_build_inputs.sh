@@ -275,7 +275,7 @@ function copy_sdds3builder()
   if [[ -d $FETCHED_INPUTS_DIR/sdds3 ]]
   then
       cp -ru "$FETCHED_INPUTS_DIR/sdds3" "$REDIST/"
-      chmod +x $REDIST/sdds3/sdds3-builder
+      chmod +x $REDIST/sdds3/*
   else
       echo "ERROR - sdds3 tools not found here: $FETCHED_INPUTS_DIR/sdds3"
       exit 1
