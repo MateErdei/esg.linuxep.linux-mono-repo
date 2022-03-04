@@ -193,7 +193,7 @@ AV plugin doesnt report an error message if no policy is received
     AV Plugin Log Does Not Contain With Offset  Failed to get SAV policy at startup (No Policy Available)
     AV Plugin Log Does Not Contain With Offset  Failed to get ALC policy at startup (No Policy Available)
 
-AV plugin does report a info message if no policy is received
+AV plugin does report an info message if no policy is received
     Mark AV Log
     Stop AV Plugin
     Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml

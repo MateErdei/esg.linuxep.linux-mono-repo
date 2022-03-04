@@ -83,9 +83,9 @@ Clear logs
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}
 
-    Set Test Variable   ${AV_LOG_MARK}  ${None}
-    Set Test Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${None}
-    Set Test Variable   ${SUSI_DEBUG_LOG_MARK}  ${None}
+    Set Suite Variable   ${AV_LOG_MARK}  ${None}
+    Set Suite Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${None}
+    Set Suite Variable   ${SUSI_DEBUG_LOG_MARK}  ${None}
 
     Start AV
 

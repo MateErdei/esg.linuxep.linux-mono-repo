@@ -4,11 +4,13 @@ import os
 import shutil
 from robot.api import logger
 
+
 def copy_file_if_destination_missing(source, destination):
     if os.path.isfile(destination):
         return False
     shutil.copy2(source, destination)
     return True
+
 
 def ensure_list_appears_once(path, line_to_append):
     assert os.path.isfile(path)
@@ -29,6 +31,11 @@ def ensure_list_appears_once(path, line_to_append):
         return True
     return False
 
+
 def get_file_size_in_mb(path):
-    logger.info("{}  size {}".format(path, os.path.getsize(path)/(1024*1024)))
-    return os.path.getsize(path)/(1024*1024)
+    try:
+        size = os.path.getsize(path)/(1024*1024)
+    except FileNotFoundError:
+        size = 0
+    logger.info("{}  size {}".format(path, size))
+    return size

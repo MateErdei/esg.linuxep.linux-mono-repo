@@ -47,11 +47,10 @@ def start_av_plugin_if_not_running():
     av_exe = os.path.join(PLUGIN_INSTALL, "sbin", "av")
     pid = ProcessUtils.pidof(av_exe)
     if pid == -1:
+        BuiltIn().run_keyword("Mark AV Log")
         __start_plugin("av")
         ProcessUtils.wait_for_pid(av_exe, 15)
-
-        av_log = os.path.join(PLUGIN_INSTALL, "log", "av.log")
-        BuiltIn().run_keyword("Wait until file size changes", av_log)
+        BuiltIn().run_keyword("Wait until AV Plugin running with offset")
     return pid
 
 
@@ -60,9 +59,9 @@ def start_sophos_threat_detector_if_not_running():
     threat_detector_exe = os.path.join(PLUGIN_INSTALL, "sbin", "sophos_threat_detector")
     pid = ProcessUtils.pidof(threat_detector_exe)
     if pid == -1:
+        BuiltIn().run_keyword("Mark Sophos Threat Detector Log")
         __start_plugin("threat_detector")
         pid = ProcessUtils.wait_for_pid(threat_detector_exe, 15)
 
-        threat_detector_log = os.path.join(PLUGIN_INSTALL, "chroot", "log", "sophos_threat_detector.log")
-        BuiltIn().run_keyword("Wait until file size changes", threat_detector_log)
+        BuiltIn().run_keyword("Wait until threat detector running with offset")
     return pid

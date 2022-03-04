@@ -112,19 +112,19 @@ Mark AV Log
     # Marks characters in the log, used for log checking, returns count of lines
     ${count} =  LogUtils.Mark AV Log
     # Marks the lines in the log, used for log splitting
-    Set Test Variable   ${AV_LOG_MARK}  ${count}
+    Set Suite Variable   ${AV_LOG_MARK}  ${count}
     Log  "AV LOG MARK = ${AV_LOG_MARK}"
 
 Mark Sophos Threat Detector Log
     [Arguments]  ${mark}=""
     ${count} =  Count Optional File Log Lines  ${THREAT_DETECTOR_LOG_PATH}
-    Set Test Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${count}
+    Set Suite Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${count}
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
     [Return]  ${count}
 
 Mark Susi Debug Log
     ${count} =  Count File Log Lines  ${SUSI_DEBUG_LOG_PATH}
-    Set Test Variable   ${SUSI_DEBUG_LOG_MARK}  ${count}
+    Set Suite Variable   ${SUSI_DEBUG_LOG_MARK}  ${count}
     Log  "SUSI_DEBUG LOG MARK = ${SUSI_DEBUG_LOG_MARK}"
 
 Mark Log
@@ -462,11 +462,17 @@ Install Base For Component Tests
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install AV Directly from SDDS
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
     ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}
     ${log_contents} =  Get File  ${install_log}
     File Log Should Not Contain  ${AV_INSTALL_LOG}  chown: cannot access
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install plugin.\noutput: \n${log_contents}"
+
+    Wait until AV Plugin running with offset
+    Wait until threat detector running with offset
 
 Require Plugin Installed and Running
     [Arguments]  ${LogLevel}=DEBUG
@@ -891,15 +897,13 @@ Get SAV Policy
     [Return]   ${policyContent}
 
 Check If The Logs Are Close To Rotating
-    ${AV_LOG_SIZE}=  get_file_size_in_mb   ${AV_LOG_PATH}
-    Log  ${AV_LOG_SIZE}
-
-    ${THREAT_DETECTOR_LOG_SIZE}=  Get File Size   ${THREAT_DETECTOR_LOG_PATH}
-    ${SUSI_DEBUG_LOG_SIZE}=  Get File Size   ${SUSI_DEBUG_LOG_PATH}
+    ${AV_LOG_SIZE}=  Get File Size in MB   ${AV_LOG_PATH}
+    ${THREAT_DETECTOR_LOG_SIZE}=  Get File Size in MB   ${THREAT_DETECTOR_LOG_PATH}
+    ${SUSI_DEBUG_LOG_SIZE}=  Get File Size in MB   ${SUSI_DEBUG_LOG_PATH}
 
     ${av_evaluation}=  Evaluate  ${AV_LOG_SIZE} > ${0.5}
-    ${susi_evaluation}=  Evaluate  ${SUSI_DEBUG_LOG_SIZE} / ${1000000} > ${9}
-    ${threat_detector_evaluation}=  Evaluate  ${THREAT_DETECTOR_LOG_SIZE} / ${1000000} > ${9}
+    ${susi_evaluation}=  Evaluate  ${SUSI_DEBUG_LOG_SIZE} > ${9}
+    ${threat_detector_evaluation}=  Evaluate  ${THREAT_DETECTOR_LOG_SIZE} > ${9}
 
     [return]  ${av_evaluation} or ${susi_evaluation} or ${threat_detector_evaluation}
 
