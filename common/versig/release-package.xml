@@ -1,36 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package name="versig" version="2.0.0">
     <inputs>
-        <workingdir>versig-build</workingdir>
-        <package name="gcclinux" version="8-1-0-43/213047/gcclinux" dest="input">
-            <include src="gcc-8.1.0-linux.tar.gz" dest="."/>
-        </package>
-        <package name="openssllinux11" version="1-1-1l-1/222963/output" dest="input">
-            <include src="openssl.tar" dest="."/>
-        </package>
-        <package name="cmakelinux"
-                 version="3-11-2-4/213056/cmakelinux" dest="input">
-            <include src="cmake-3.11.2-linux.tar.gz" dest="."/>
-        </package>
-        <package name="googletest"
-                 version="1-8-1/EES-8928" dest="input">
-            <include src="googletest-release-1.8.1.tar.gz" dest="."/>
-        </package>
+        <workingdir>.</workingdir>
+        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/openssllinux11/1-1-1l-1/222963/output/openssl.tar" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="/build/input/"/>
     </inputs>
     <buildcommands>
         <command>
-          <program>/bin/bash</program>
-          <args>./build.sh</args>
-          <workingdir>versig-build</workingdir>
+            <workingdir>.</workingdir>
+            <program>/bin/bash</program>
+            <args>./build.sh</args>
         </command>
     </buildcommands>
     <publish>
-        <workingdir>versig-build</workingdir>
-        <destdir>versig</destdir>
-        <buildoutputs>
-            <output name="output" srcfolder="output"> </output>
-            <output name="build_log" srcfolder="log"> </output>
-        </buildoutputs>
+        <workingdir>.</workingdir>
         <publishbranches>master</publishbranches>
+        <destdir>versig</destdir>
+        <build-asset artifact-path="output" source-dir="output" />
+        <build-asset artifact-path="build_log" source-dir="log" />
     </publish>
 </package>
