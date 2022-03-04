@@ -39,7 +39,7 @@ do
     shift
 done
 
-INPUT=$BASE/input
+INPUT=/build/input
 if [[ ! -d "$INPUT" ]]
 then
     if [[ -d "$BASE/versig-build" ]]
