@@ -1211,8 +1211,9 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
     ...  1 secs
     ...  File Log Contains With Offset  ${LOG_FILE}   Scanning   offset=${offset}
 
-    Terminate Process   handle=${HANDLE}
-
+    Process should Be Running   handle=${HANDLE}
+    ${result} =   Terminate Process   handle=${HANDLE}
+    Sleep   0.5   wait for threat detector logs to catch up
 
 CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     [Timeout]  15min
