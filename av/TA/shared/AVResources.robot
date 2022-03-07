@@ -438,7 +438,7 @@ Install With Base SDDS
     # restart the service to apply the new log level to watchdog
     Run Shell Process  systemctl restart sophos-spl  OnError=failed to restart sophos-spl
     # Stop MCS router since we haven't configured Central
-    Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
+    Run Keyword and Ignore Error   Run Shell Process   ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
     Install AV Directly from SDDS
     Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
@@ -461,7 +461,7 @@ Install Base For Component Tests
     # Check watchdog running
     ProcessUtils.wait_for_pid  ${WATCHDOG_BINARY}  ${5}
     # Stop MCS router since we haven't configured Central
-    Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
+    Run Keyword and Ignore Error   Run Shell Process    ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
 Install AV Directly from SDDS
     Mark AV Log
@@ -557,7 +557,7 @@ Restart AV Plugin And Clear The Logs For Integration Tests
     Remove File    ${SULDOWNLOADER_LOG}
     Remove File    ${SCANNOW_LOG_PATH}
 
-    Empty Directory  /opt/sophos-spl/base/mcs/event/
+    Empty Directory  ${SOPHOS_INSTALL}/base/mcs/event/
 
     Run Shell Process  systemctl start sophos-spl  OnError=failed to stop plugin
     Wait until AV Plugin running

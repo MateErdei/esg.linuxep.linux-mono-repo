@@ -366,18 +366,21 @@ E  ", search_list)
     def mark_expected_error_in_log(self, log_location, error_message):
         error_string = "ERROR"
         mark_string = "expected-error"
-        contents = _get_log_contents(log_location)
-        if contents is None:
-            print("File not found not marking expected error, if you are you error checking then the error won't exist!")
-            return
 
-        for line in contents.splitlines():
-            if error_message in line:
-                new_line = line.replace(error_string, mark_string)
-                contents = contents.replace(line, new_line)
+        for logfile in glob.glob(log_location + "*"):
+            logger.info("marking: " + logfile)
+            contents = _get_log_contents(logfile)
+            if contents is None:
+                print("File not found not marking expected error, if you are you error checking then the error won't exist!")
+                return
 
-        with open(log_location, "w") as log:
-            log.write(contents)
+            for line in contents.splitlines():
+                if error_message in line:
+                    new_line = line.replace(error_string, mark_string)
+                    contents = contents.replace(line, new_line)
+
+            with open(logfile, "w") as log:
+                log.write(contents)
 
     def dump_thininstaller_log(self):
         self.dump_log(self.thin_install_log)
