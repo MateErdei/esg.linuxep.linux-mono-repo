@@ -10,6 +10,7 @@ import time
 
 from robot.api import logger
 
+
 def pidof(executable):
     for d in os.listdir("/proc"):
         p = os.path.join("/proc", d, "exe")
@@ -23,11 +24,13 @@ def pidof(executable):
             return int(d)
     return -1
 
+
 def pidof_or_fail(executable):
     pid = pidof(executable)
     if pid == -1:
         raise AssertionError("%s is not running" % executable)
     return pid
+
 
 def wait_for_pid(executable, timeout=15):
     start = time.time()
@@ -37,6 +40,17 @@ def wait_for_pid(executable, timeout=15):
             return pid
         time.sleep(0.01)
     raise AssertionError("Unable to find executable: {} in {} seconds".format(executable, timeout))
+
+
+def wait_for_no_pid(executable, timeout=15):
+    start = time.time()
+    while time.time() < start + timeout:
+        pid = pidof(executable)
+        if pid < 0:
+            return
+        time.sleep(0.01)
+    raise AssertionError("Executable still running: {} after {} seconds".format(executable, timeout))
+
 
 def wait_for_different_pid(executable, original_pid, timeout=5):
     start = time.time()

@@ -8,7 +8,7 @@ AV and Base Setup
     Require Plugin Installed and Running
     Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
     Remove Directory  /tmp/DiagnoseOutput  true
-    register cleanup      Check All Product Logs Do Not Contain Error
+
     ${result} =  Run Process  id  sophos-spl-user  stderr=STDOUT
     Log  "id sophos-spl-user = ${result.stdout}"
 
@@ -82,9 +82,10 @@ Configure and check scan now with lookups disabled
 
 Configure scan now
     register cleanup  Empty Directory  ${MCS_PATH}/action/
-    Mark Sophos Threat Detector Log
+    Mark AV Log
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
-    Run Keyword and Ignore Error  Wait until scheduled scan updated
+    # Run Keyword and Ignore Error
+    Wait until scheduled scan updated With Offset
 
 Configure scan now with lookups disabled
     register cleanup  Empty Directory  ${MCS_PATH}/action/

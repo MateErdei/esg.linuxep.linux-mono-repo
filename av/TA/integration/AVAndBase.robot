@@ -18,7 +18,7 @@ Resource        ../shared/BaseResources.robot
 Resource        ../shared/AVAndBaseResources.robot
 
 Suite Setup     AVAndBase Suite Setup
-Suite Teardown  Uninstall All
+Suite Teardown  AVAndBase Suite Teardown
 
 Test Setup      AV And Base Setup
 Test Teardown   AV And Base Teardown
@@ -26,6 +26,11 @@ Test Teardown   AV And Base Teardown
 *** Keywords ***
 AVAndBase Suite Setup
     Install With Base SDDS
+    Send Alc Policy
+    Send Sav Policy With No Scheduled Scans
+
+AVAndBase Suite Teardown
+    Uninstall All
 
 Log Telemetry files
     ${result} =  Run Process  ls -ld ${SSPL_BASE}/bin/telemetry ${SSPL_BASE}/bin ${SSPL_BASE}/bin/telemetry.*  shell=True  stdout=/tmp/telemetry.files  stderr=STDOUT
@@ -127,7 +132,7 @@ AV plugin attempts to run scan now twice simultaneously
 AV plugin runs scheduled scan
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
     Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
@@ -143,7 +148,7 @@ AV plugin runs scheduled scan and updates telemetry
 
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
@@ -164,7 +169,7 @@ AV plugin runs multiple scheduled scans
     Mark AV Log
     Register Cleanup  Restart AV Plugin And Clear The Logs For Integration Tests
     Send Sav Policy With Multiple Imminent Scheduled Scans To Base
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
     Wait Until AV Plugin Log Contains With Offset  Refusing to run a second Scan named: Sophos Cloud Scheduled Scan  timeout=120
@@ -174,7 +179,7 @@ AV plugin runs scheduled scan after restart
     Stop AV Plugin
     Mark AV Log
     Start AV Plugin
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
@@ -182,10 +187,10 @@ AV plugin runs scheduled scan after restart
 AV plugin doesnt report an error message if no policy is received
     register cleanup  Set Log Level  DEBUG
     register cleanup  Stop AV Plugin
-    Mark AV Log
     Stop AV Plugin
-    Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Remove File     ${MCS_PATH}/policy/SAV-2_policy.xml
 
+    Mark AV Log
     Set Log Level  ERROR
     Start AV Plugin
     Wait Until AV Plugin Log Contains With Offset   Logger av configured for level
@@ -194,10 +199,11 @@ AV plugin doesnt report an error message if no policy is received
     AV Plugin Log Does Not Contain With Offset  Failed to get ALC policy at startup (No Policy Available)
 
 AV plugin does report an info message if no policy is received
-    Mark AV Log
     Stop AV Plugin
-    Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Remove File     ${MCS_PATH}/policy/ALC-1_policy.xml
+    Remove File     ${MCS_PATH}/policy/SAV-2_policy.xml
 
+    Mark AV Log
     Start AV Plugin
     Wait Until AV Plugin Log Contains With Offset  Failed to get SAV policy at startup (No Policy Available)
     Wait Until AV Plugin Log Contains With Offset  Failed to get ALC policy at startup (No Policy Available)
@@ -205,7 +211,7 @@ AV plugin does report an info message if no policy is received
 AV plugin fails scan now if no policy
     Register Cleanup    Exclude Scan As Invalid
     Stop AV Plugin
-    Remove File     /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    Remove File     ${MCS_PATH}/policy/SAV-2_policy.xml
     Mark AV Log
     Mark Sophos Threat Detector Log
     Start AV Plugin
@@ -276,7 +282,7 @@ AV Gets ALC Policy When Plugin Restarts
     Register Cleanup    Exclude UpdateScheduler Fails
     # Doesn't mark AV log since it removes it
     Send Alc Policy
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/ALC-1_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/ALC-1_policy.xml
     Stop AV Plugin
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
@@ -293,7 +299,7 @@ AV Configures No Scheduled Scan Correctly
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Mark AV Log
     Send Sav Policy With No Scheduled Scans
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 0
 
@@ -333,7 +339,7 @@ AV plugin runs CLS while scheduled scan is running
 AV Configures Single Scheduled Scan Correctly
     Mark AV Log
     Send Fixed Sav Policy
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan
@@ -346,7 +352,7 @@ AV Configures Single Scheduled Scan Correctly
 AV Configures Multiple Scheduled Scans Correctly
     Mark AV Log
     Send Sav Policy With Multiple Scheduled Scans
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 2
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan One
@@ -364,7 +370,7 @@ AV Handles Scheduled Scan With Badly Configured Day
     Register Cleanup    Exclude Scan As Invalid
     Mark AV Log
     Send Sav Policy With Invalid Scan Day
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     Wait Until AV Plugin Log Contains With Offset  Invalid day from policy: blernsday
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
@@ -376,7 +382,7 @@ AV Handles Scheduled Scan With No Configured Day
     Mark AV Log
     Mark Watchdog Log
     Send Sav Policy With No Scan Day
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains With Offset  Days: \n
@@ -387,7 +393,7 @@ AV Handles Scheduled Scan With No Configured Day
 AV Handles Scheduled Scan With Badly Configured Time
     Mark Av Log
     Send Sav Policy With Invalid Scan Time
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains With Offset  Days: Monday
@@ -397,7 +403,7 @@ AV Handles Scheduled Scan With No Configured Time
     Mark Watchdog Log
     Mark AV Log
     Send Sav Policy With No Scan Time
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains With Offset  Days: Monday
@@ -408,7 +414,7 @@ AV Handles Scheduled Scan With No Configured Time
 AV Reconfigures Scans Correctly
     Mark AV Log
     Send Fixed Sav Policy
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated With Offset
     AV Plugin Log Contains  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan
@@ -418,7 +424,7 @@ AV Reconfigures Scans Correctly
     Wait Until AV Plugin Log Contains With Offset  Configured number of Sophos Defined Extension Exclusions: 3
     Wait Until AV Plugin Log Contains With Offset  Configured number of User Defined Extension Exclusions: 4
     Send Sav Policy With Multiple Scheduled Scans
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 2
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan One
@@ -434,7 +440,7 @@ AV Reconfigures Scans Correctly
 AV Deletes Scan Correctly
     Mark AV Log
     Send Complete Sav Policy
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated With Offset
     AV Plugin Log Contains  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan
@@ -443,13 +449,13 @@ AV Deletes Scan Correctly
 
     Mark AV Log
     Send Sav Policy With No Scheduled Scans
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 0
 
 AV Plugin Reports Threat XML To Base
-   Empty Directory  /opt/sophos-spl/base/mcs/event/
-   Register Cleanup  Empty Directory  /opt/sophos-spl/base/mcs/event
+   Empty Directory  ${MCS_PATH}/event/
+   Register Cleanup  Empty Directory  ${MCS_PATH}/event
    ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
 
    Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
@@ -465,8 +471,10 @@ AV Plugin Reports Threat XML To Base
          ...  check threat event received by base  1  naugthyEicarThreatReport
 
 Avscanner runs as non-root
-   Empty Directory  /opt/sophos-spl/base/mcs/event/
-   Register Cleanup  Empty Directory  /opt/sophos-spl/base/mcs/event/
+   Empty Directory  ${MCS_PATH}/event/
+   Register Cleanup  Empty Directory  ${MCS_PATH}/event/
+   Register Cleanup  List Directory  ${MCS_PATH}/event/
+
    ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
 
    Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
@@ -492,8 +500,10 @@ AV Plugin Reports encoded eicars To Base
    Register Cleanup  Exclude Failed To connect To Warehouse Error
    Create Encoded Eicars
    register cleanup  Remove Directory  /tmp_test/encoded_eicars  true
-   register cleanup  Empty Directory  ${MCS_PATH}/event/
-   register cleanup  List Directory  ${MCS_PATH}/event/
+
+   Empty Directory  ${MCS_PATH}/event/
+   Register Cleanup  Empty Directory  ${MCS_PATH}/event/
+   Register Cleanup  List Directory  ${MCS_PATH}/event/
 
    ${expected_count} =  Count Eicars in Directory  /tmp_test/encoded_eicars/
    Should Be True  ${expected_count} > 0
@@ -886,8 +896,9 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude SPL Base Not In Subscription Of The Policy
     Register Cleanup    Exclude Core Not In Policy Features
-    Register Cleanup  Empty Directory  /opt/sophos-spl/base/mcs/event
-    Empty Directory  /opt/sophos-spl/base/mcs/event/
+    Register Cleanup    Empty Directory  ${MCS_PATH}/event/
+    Register Cleanup    List Directory  ${MCS_PATH}/event/
+    Empty Directory    ${MCS_PATH}/event/
 
     Create File  ${NORMAL_DIRECTORY}/naugthy_eicar  ${EICAR_STRING}
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naugthy_eicar
@@ -904,7 +915,7 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
        ...  5 secs
        ...  check threat event received by base  1  naugthyEicarThreatReport
 
-    Empty Directory  /opt/sophos-spl/base/mcs/event/
+    Empty Directory  ${MCS_PATH}/event/
 
     Run  chmod 444 ${AV_LOG_PATH}
     Register Cleanup  Stop AV Plugin
@@ -992,7 +1003,7 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
 
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
     Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=250
@@ -1015,7 +1026,7 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
 
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
-    File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
     Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=250

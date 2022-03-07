@@ -571,6 +571,7 @@ AVSophosThreatDetector Test TearDown
 
     #restore machineID file
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
+    Remove File  ${CUSTOMERID_FILE}
 
     run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests
 

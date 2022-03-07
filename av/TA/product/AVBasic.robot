@@ -142,7 +142,7 @@ Scan Now Logs Should Be As Expected
     File Log Contains             ${SCANNOW_LOG_PATH}        End of Scan Summary:
     File Log Contains             ${SCANNOW_LOG_PATH}        1 file out of
     File Log Contains             ${SCANNOW_LOG_PATH}        1 EICAR-AV-Test infection discovered.
-    File Log Should Not Contain With Offset   ${AV_LOG_PATH}             Notify trimmed output
+    AV Plugin Log Should Not Contain With Offset             Notify trimmed output
 
 
 AV Plugin Will Fail Scan Now If No Policy
@@ -288,8 +288,7 @@ AV Plugin Scan Now Does Not Detect PUA
 
     AV Plugin Log Does Not Contain With Offset  /tmp_test/eicar_pua.com
 
-    File Log Should Not Contain With Offset  ${AV_PLUGIN_PATH}/log/Scan Now.log  "/tmp_test/eicar_pua.com" is infected
-
+    File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  "/tmp_test/eicar_pua.com" is infected
 
 AV Plugin Scan Now with Bind Mount
     ${source} =       Set Variable  /tmp_test/directory

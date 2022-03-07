@@ -437,6 +437,8 @@ Install With Base SDDS
     Set Log Level  DEBUG
     # restart the service to apply the new log level to watchdog
     Run Shell Process  systemctl restart sophos-spl  OnError=failed to restart sophos-spl
+    # Stop MCS router since we haven't configured Central
+    Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
     Install AV Directly from SDDS
     Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
@@ -451,10 +453,10 @@ Uninstall and full reinstall
     Install With Base SDDS
 
 Install Base For Component Tests
-    File Should Exist     ${BASE_SDDS}install.sh
-    Run Process  chmod  +x  ${BASE_SDDS}install.sh
+    File Should Exist     ${BASE_SDDS}/install.sh
+    Run Process  chmod  +x  ${BASE_SDDS}/install.sh
     Run Process  chmod  +x  ${BASE_SDDS}/files/base/bin/*
-    ${result} =   Run Process   bash  ${BASE_SDDS}install.sh  timeout=600s    stderr=STDOUT
+    ${result} =   Run Process   bash  ${BASE_SDDS}/install.sh  timeout=600s    stderr=STDOUT
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install base.\noutput: \n${result.stdout}"
     # Check watchdog running
     ProcessUtils.wait_for_pid  ${WATCHDOG_BINARY}  ${5}
@@ -477,6 +479,7 @@ Install AV Directly from SDDS
 Require Plugin Installed and Running
     [Arguments]  ${LogLevel}=DEBUG
     Install Base if not installed
+
     Set Log Level  ${LogLevel}
     Install AV if not installed
     Start AV Plugin if not running
@@ -501,6 +504,9 @@ AV And Base Teardown
 
     #Just in case something restarted it, stop mcsrouter
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter   OnError=failed to stop plugin
+
+    Run Cleanup Functions
+
     #mark errors related to scheduled scans being forcefully terminated at the end of a test
     Exclude Failed To Scan Multiple Files Cloud
     Exclude UnixSocket Interrupted System Call Error Cloud Scan
@@ -517,8 +523,10 @@ AV And Base Teardown
     Exclude SPL Base Not In Subscription Of The Policy
     Exclude UpdateScheduler Fails
     Exclude MCS Router is dead
+    Check All Product Logs Do Not Contain Error
 
-    Run Teardown Functions
+    Run Failure Functions If Failed
+
     Run Keyword If Test Failed   Restart AV Plugin And Clear The Logs For Integration Tests
 
 Restart AV Plugin And Clear The Logs For Integration Tests
