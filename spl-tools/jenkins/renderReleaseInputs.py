@@ -24,7 +24,7 @@ dot.node("KEY - SSPL Components", color='blue', shape='doublecircle')
 dot.node("KEY - Repos we build", color='blue')
 
 for component_name, info_dict in root_dictionary.items():
-    component_id = "{} ({})".format(component_name, info_dict["version"])
+    component_id = f"{component_name} ({info_dict['version']})"
 
     if "sspl" in component_id.lower():
         dot.node(component_id, color='blue', shape='doublecircle')
@@ -32,7 +32,7 @@ for component_name, info_dict in root_dictionary.items():
         dot.node(component_id, color='blue')
 
     for i in info_dict["inputs"]:
-        input_id = "{} ({})".format(i["name"], i["version"])
+        input_id = f"{i['name']} ({i['build_id']})"
         dot.edge(input_id, component_id)
 
 dot.attr('graph', overlap='false')

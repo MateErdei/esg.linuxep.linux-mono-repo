@@ -22,12 +22,11 @@ def process_release_files(release_files):
             content = release_file.read()
             as_dictionary = xmltodict.parse(content, dict_constructor=dict)
             name = as_dictionary['package']['@name']
-            version_parts = as_dictionary['package']['@version'].replace("-", ".").split(".")
-            version = "{}.{}.{}".format(version_parts[0], version_parts[1], version_parts[2])
+            version = as_dictionary['package']['@version'].replace("-", ".")
 
             # Check the component has inputs
-            if "package" not in as_dictionary or "inputs" not in as_dictionary['package'] or "package" not in as_dictionary['package']['inputs']:
-                print("Skipping: {} as it has no inputs".format(name))
+            if "package" not in as_dictionary or "inputs" not in as_dictionary['package'] or "build-asset" not in as_dictionary['package']['inputs']:
+                print(f"Skipping: {name} as it has no inputs")
                 continue
 
             all_dict[name] = {}
@@ -36,29 +35,21 @@ def process_release_files(release_files):
             inputs = []
 
             # Ensure that this is a list in all circumstances (it defaults to a single dictionary if only one input)
-            pkg_inputs_list = as_dictionary["package"]["inputs"]["package"]
+            pkg_inputs_list = as_dictionary["package"]["inputs"]["build-asset"]
             if not isinstance(pkg_inputs_list, list):
                 pkg_inputs_list = [pkg_inputs_list]
 
             for input_pkg in pkg_inputs_list:
-                input_dict = {}
-                input_dict["name"] = input_pkg["@name"]
-                input_dict["version_string"] = input_pkg["@version"]
-
-                if "LASTGOODCOMPONENTBUILD" in input_dict["version_string"]:
-                    print("Skipping input: {} in: {}, as it is dev only".format(input_dict["name"], release_file_path))
+                if 'release-version' not in input_pkg:
+                    print(f"Skipping input: {input_dict['name']} in: {release_file_path}, as there is no release-version")
                     continue
 
-                version_parts = input_pkg['@version'].split("/")[0].replace("-", ".").split(".")
-                if len(version_parts) < 3:
-                    print("Skipping input: {} in: {}, as the version is not formatted correctly".format(input_dict["name"], release_file_path))
-                    continue
+                input_dict = {"name": input_pkg["@repo"], "build_id": input_pkg["release-version"]["@build-id"]}
 
                 print(input_dict["name"])
-                print(version_parts)
-                input_dict["version"] = "{}.{}.{}".format(version_parts[0], version_parts[1], version_parts[2])
-
+                print(input_dict["build_id"])
                 inputs.append(input_dict)
+
             this_entry["inputs"] = inputs
     return all_dict
 

@@ -5,13 +5,13 @@ import sys
 import json
 
 
-def get_component_using_input_version(root_dictionary, input_name, input_version):
-    components_using_input_version = set()
+def get_component_using_input_build_id(root_dictionary, input_name, input_build_id):
+    components_using_input_build_id = set()
     for component_name, component_info in root_dictionary.items():
         for i in component_info["inputs"]:
-            if i["name"] == input_name and i["version"] == input_version:
-                components_using_input_version.add(component_name)
-    return components_using_input_version
+            if i["name"] == input_name and i["build_id"] == input_build_id:
+                components_using_input_build_id.add(component_name)
+    return components_using_input_build_id
 
 
 def verify_json(json_string):
@@ -21,15 +21,15 @@ def verify_json(json_string):
         for i in info_dict["inputs"]:
             if i["name"] not in all_inputs:
                 all_inputs[i["name"]] = set()
-            all_inputs[i["name"]].add(i["version"])
+            all_inputs[i["name"]].add(i["build_id"])
     found_inconsistencies = False
-    for input_name, input_versions in all_inputs.items():
-        if (len(input_versions)) > 1:
+    for input_name, input_build_ids in all_inputs.items():
+        if (len(input_build_ids)) > 1:
             found_inconsistencies = True
             print("ERROR:")
-            for version in input_versions:
-                for c in get_component_using_input_version(root_dict, input_name, version):
-                    print("Inconsistent versions, input: {}, version: {}, component using it: {}".format(input_name, version, c))
+            for build_id in input_build_ids:
+                for c in get_component_using_input_build_id(root_dict, input_name, build_id):
+                    print(f"Inconsistent build_ids, input: {input_name}, build_id: {build_id}, component using it: {c}")
 
     if found_inconsistencies:
         print("FAILED: Inputs are inconsistent, refer to logged errors")
@@ -37,10 +37,9 @@ def verify_json(json_string):
 
 
 def main(argv):
-
     json_string = ""
 
-    # URL at time of writing: "https://10.55.36.24/job/Generate-Release-Package-Input-Data/HTML_20Report/releaseInputs.json"
+    # URL at time of writing: "https://sspljenkins.eng.sophos/job/Generate-Release-Package-Input-Data/HTML_20Report/releaseInputs.json"
     url_to_json = None
     if len(argv) > 1:
         url_to_json = argv[1]
