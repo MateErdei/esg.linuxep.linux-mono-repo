@@ -108,6 +108,25 @@ Scan Now scans dir with name similar to excluded mount
     File Log Contains  ${AV_PLUGIN_PATH}/log/Scan Now.log  "/process/eicar.com" is infected
 
 
+Scan Now scan errors do not get logged to av log
+    Remove Directory  /process  recursive=True
+    # configure scan before creating test dir, so that it isn't excluded
+    Configure Scan Now Scan
+    Register Cleanup  Remove Directory  /process  recursive=True
+    Create Directory  /process
+    Copy File  ${RESOURCES_PATH}/file_samples/passwd-protected.xls  /process
+    Copy File  ${RESOURCES_PATH}/file_samples/corrupted.xls  /process
+
+    Remove File   ${AV_PLUGIN_PATH}/log/Scan Now.log
+    Mark AV Log
+    Trigger Scan Now Scan
+    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240
+    File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /process/passwd-protected.xls as it is password protected
+    File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /process/corrupted.xls as it is corrupted
+
+    AV Plugin Log Does Not Contain With Offset   Failed to scan
+
+
 *** Keywords ***
 
 ScanNow Suite Setup

@@ -40,11 +40,6 @@ Logger::Logger(const std::string& fileName, log4cplus::LogLevel logLevel, bool i
     // Log to stdout (Common::Logging::ConsoleLoggingSetup logs to stderr)
     log4cplus::SharedAppenderPtr stdout_appender(new log4cplus::ConsoleAppender(false));
     Common::Logging::LoggingSetup::applyPattern(stdout_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
-    if (!isCommandLine)
-    {
-        // For scheduled scan only log error messages to stdout, normal logs should only go to logFilePath
-        stdout_appender->setThreshold(log4cplus::ERROR_LOG_LEVEL);
-    }
     log4cplus::Logger::getRoot().addAppender(stdout_appender);
 
     if (!logFilePath.empty())
