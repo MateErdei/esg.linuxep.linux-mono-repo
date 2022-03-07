@@ -81,7 +81,7 @@ then
       fi
   fi
 fi
-echo "Using $PYTHON_TO_USE for python commands"
+echo "Using \"$PYTHON_TO_USE\" for python commands"
 
 install_package $PYTHON_TO_USE-venv
 
