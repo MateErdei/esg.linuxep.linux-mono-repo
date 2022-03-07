@@ -53,7 +53,7 @@
         </command>
         <command mode="release">
             <program>/bin/bash</program>
-            <args>./build2.sh --release --clean --parallel-test 1</args>
+            <args>./build2.sh --release</args>
             <workingdir>.</workingdir>
         </command>
 
@@ -65,7 +65,7 @@
         </command>
         <command mode="debug">
             <program>/bin/bash</program>
-            <args>./build2.sh --debug --clean --parallel-test 1</args>
+            <args>./build2.sh --debug</args>
             <workingdir>.</workingdir>
         </command>
 

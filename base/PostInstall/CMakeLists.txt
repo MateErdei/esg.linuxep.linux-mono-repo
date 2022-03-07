@@ -6,6 +6,8 @@ set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImpor
 
 INSTALL(CODE "MESSAGE(STATUS \"Post install steps\")")
 
+# TODO - exit if any of these fail.
+
 # Strip executables
 INSTALL(CODE "MESSAGE(STATUS \"Stripping executables\")
     execute_process(COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR} ${CMAKE_BUILD_TYPE})")
@@ -29,8 +31,7 @@ endif()
 INSTALL(CODE "MESSAGE(STATUS \"Generating SDDS3 manifests\")
     execute_process(COMMAND ${INPUT}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/SDDS-Import.xml --nonce `sha256sum ${DIST}/SDDS-Import.xml | head -c 10`)")
 
-MESSAGE("tar -zcvf -C ${CMAKE_BINARY_DIR} ${OUTPUT}/SystemProductTestOutput.tar.gz SystemProductTestOutput/")
-
+# Generate the output dir to be published
 INSTALL(CODE "MESSAGE(STATUS \"Generating output directory\")
     execute_process(COMMAND mkdir -p ${OUTPUT})
     execute_process(COMMAND rm -rf ${OUTPUT}/SDDS-COMPONENT)

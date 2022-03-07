@@ -122,17 +122,14 @@ if (NOT ${unpack_result} EQUAL 0)
     message(FATAL_ERROR "Unpacking build dependencies failed")
 endif()
 
+execute_process(
+        COMMAND bash patch_boost.sh ${INPUT} ${CMAKE_CURRENT_SOURCE_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE patch_boost_result)
 
-#if(NOT EXISTS ${INPUT})
-#    string( APPEND ERRORMESSAGE
-#    "To build using CLion you first need to:\n"
-#    "1. Fetch inputs in source folder by running:\n"
-#    "    python3 -m build_scripts.artisan_fetch build/release-package.xml\n"
-#    "2. Run the full build script with no build flag:\n"
-#    "    ./build.sh --no-build\n"
-#    "After that you will be able to build using CLion")
-#    message( FATAL_ERROR ${ERRORMESSAGE})
-#endif()
+if (NOT ${patch_boost_result} EQUAL 0)
+    message(FATAL_ERROR "Patching boost failed")
+endif()
 
 ## Find 3rd party libraries
 set( BOOST_INPUT ${INPUT}/boost )

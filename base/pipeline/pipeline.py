@@ -174,18 +174,28 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
     return test_inputs
 
 
-@tap.pipeline(version=1, component='sspl-base', root_sequential=False)
+@tap.pipeline(version=1, component='sspl_base', root_sequential=False)
 def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    component = tap.Component(name='sspl-base', base_version='1.1.9')
-
+    component = tap.Component(name='sspl_base', base_version='1.1.9')
     BUILD_TEMPLATE = 'JenkinsLinuxTemplate7'
     RELEASE_MODE = 'release'
+    DEBUG_MODE = 'debug'
     ANALYSIS_MODE = 'analysis'
     COVERAGE_MODE = 'coverage'
     NINE_NINE_NINE_MODE = '999'
     ZERO_SIX_ZERO_MODE = '060'
     # export TAP_PARAMETER_MODE=release|analysis
-    mode = parameters.mode or RELEASE_MODE
+
+    # Determine build mode by how tap was called for local builds, not sure it's possible to pass parameters into tap
+    determined_build_mode=None
+    import sys
+    if f"{component.name}.build.{DEBUG_MODE}" in sys.argv:
+        determined_build_mode=DEBUG_MODE
+    elif f"{component.name}.build.{RELEASE_MODE}" in sys.argv:
+        determined_build_mode=RELEASE_MODE
+
+    mode = parameters.mode or determined_build_mode or RELEASE_MODE
+
     base_build = None
     INCLUDE_BUILD_IN_PIPELINE = parameters.get('INCLUDE_BUILD_IN_PIPELINE', True)
     if INCLUDE_BUILD_IN_PIPELINE:
@@ -193,12 +203,16 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
             if mode == RELEASE_MODE or mode == ANALYSIS_MODE:
                 # analysis_build = stage.artisan_build(name=ANALYSIS_MODE, component=component, image=BUILD_TEMPLATE,
                 #                                  mode=ANALYSIS_MODE, release_package='./build/release-package.xml')
-                base_build = stage.artisan_build(name=RELEASE_MODE, component=component, image=BUILD_TEMPLATE,
+                base_build_release = stage.artisan_build(name=RELEASE_MODE, component=component, image=BUILD_TEMPLATE,
                                                  mode=RELEASE_MODE, release_package='./build/release-package.xml')
+
                 # nine_nine_nine_build = stage.artisan_build(name=NINE_NINE_NINE_MODE, component=component, image=BUILD_TEMPLATE,
                 #                                            mode=NINE_NINE_NINE_MODE, release_package='./build/release-package.xml')
                 # zero_siz_zero_build = stage.artisan_build(name=ZERO_SIX_ZERO_MODE, component=component, image=BUILD_TEMPLATE,
                 #                                            mode=ZERO_SIX_ZERO_MODE, release_package='./build/release-package.xml')
+            elif mode == DEBUG_MODE:
+                base_build_debug = stage.artisan_build(name=DEBUG_MODE, component=component, image=BUILD_TEMPLATE,
+                                                 mode=DEBUG_MODE, release_package='./build/release-package.xml')
             # elif mode == COVERAGE_MODE:
             #     base_build = stage.artisan_build(name=COVERAGE_MODE, component=component, image=BUILD_TEMPLATE,
             #                                  mode=COVERAGE_MODE, release_package='./build/release-package.xml')

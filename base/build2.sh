@@ -1,9 +1,5 @@
 #!/bin/bash
 
-echo "Running with env:"
-env
-echo "-----------------"
-
 PRODUCT=sspl-base
 export PRODUCT_NAME="Sophos Server Protection Linux - Base Component"
 export PRODUCT_LINE_ID="ServerProtectionLinux-Base-component"
@@ -16,7 +12,8 @@ FAILURE_BAD_ARGUMENT=53
 FAILURE_COPY_CPPCHECK_RESULT_FAILED=61
 FAILURE_CPPCHECK=62
 
-set -ex
+#set -x
+set -e
 set -o pipefail
 
 STARTINGDIR=$(pwd)
@@ -41,6 +38,8 @@ source_file "$BASE/setup_env_vars.sh"
 LOG=$BASE/log/build.log
 mkdir -p $BASE/log || exit 1
 
+RELEASE_BUILD_TYPE="RelWithDebInfo"
+DEBUG_BUILD_TYPE="Debug"
 PythonCoverage="OFF"
 STRACE_SUPPORT="OFF"
 CLEAN=0
@@ -55,9 +54,8 @@ CLEAN=0
 #export TEST_SELECTOR=
 
 #CMAKE_BUILD_TYPE=RelWithDebInfo
-CMAKE_BUILD_TYPE=Debug
+CMAKE_BUILD_TYPE=$DEBUG_BUILD_TYPE
 
-#DEBUG=0
 export ENABLE_STRIP=1
 #VALGRIND=0
 UNIT_TESTS=1
@@ -68,25 +66,18 @@ UNIT_TESTS=1
 while [[ $# -ge 1 ]]
 do
     case $1 in
-        --clean-log)
-            rm -f $LOG
-            ;;
         --clean)
             CLEAN=1
             ;;
         --no-clean|--noclean)
             CLEAN=0
             ;;
-        --remove-gcc)
-            NO_REMOVE_GCC=0
-            ;;
         --input)
             shift
             INPUT=$1
             ;;
         --debug)
-            CMAKE_BUILD_TYPE=Debug
-            DEBUG=1
+            CMAKE_BUILD_TYPE=$DEBUG_BUILD_TYPE
             export ENABLE_STRIP=0
             ;;
         --999)
@@ -100,28 +91,20 @@ do
             touch faker_lib.so.2.23.999
             ;;
         --release|--no-debug)
-            CMAKE_BUILD_TYPE=RelWithDebInfo
-            DEBUG=0
+            CMAKE_BUILD_TYPE=$RELEASE_BUILD_TYPE
             export ENABLE_STRIP=1
             ;;
-        --build-type)
-            shift
-            CMAKE_BUILD_TYPE="$1"
-            ;;
-        --strip)
-            export ENABLE_STRIP=1
-            ;;
-        --no-strip)
-            export ENABLE_STRIP=0
-            ;;
+#        --strip)
+#            export ENABLE_STRIP=1
+#            ;;
+#        --no-strip)
+#            export ENABLE_STRIP=0
+#            ;;
         --no-build)
             NO_BUILD=1
             ;;
          --analysis)
             ANALYSIS=1
-            ;;
-        --no-unpack)
-            NO_UNPACK=1
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
@@ -174,11 +157,8 @@ do
         --strace|--strace-support)
             STRACE_SUPPORT="ON"
             ;;
-        --setup)
-            python3 -m build_scripts.artisan_fetch build/release-package.xml
-            # delete gcc
-            DELETE_GCC=1
-            NO_BUILD=1
+        --fetch)
+            "$BASE/tap_fetch.sh"
             ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
@@ -187,30 +167,39 @@ do
     shift
 done
 
+
+# Handle detecting if we're doing a local build or a CI build
+if [[ "$CI" == "true" ]]
+then
+  echo "Detected that this is CI build"
+  CLEAN=1
+  TEST_NPROC=1
+else
+  echo "Detected that this is non-CI (local) build"
+fi
+sleep 10
 function build()
 {
-    echo "STARTINGDIR=$STARTINGDIR"
-    echo "BASE=$BASE"
-    echo "Initial PATH=$PATH"
-    echo "Initial LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
-    echo "Build type=${CMAKE_BUILD_TYPE}"
-    echo "Debug=${DEBUG}"
+    COMMON_LDFLAGS="${LINK_OPTIONS:-}"
+    COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
+
+    echo "Building with env:"
+    env
+    echo "-----------------"
 
     if [[ ! -d "$FETCHED_INPUTS_DIR" ]]
     then
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No input available"
     fi
 
-    echo "After setup: PATH=$PATH"
-    echo "After setup: LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
-    echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
-    echo "After setup: CPLUS_INCLUDE_PATH=${CPLUS_INCLUDE_PATH}"
-    COMMON_LDFLAGS="${LINK_OPTIONS:-}"
-    COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
+    if [[ $CLEAN == 1 ]]
+    then
+      rm -rf "$BASE/$DEBUG_BUILD_DIR"
+      rm -rf "$BASE/$RELEASE_BUILD_DIR"
+      rm -rf "$OUTPUT"
+      rm -f "$LOG"
+    fi
 
-    [[ $CLEAN == 1 ]] && rm -rf "$BASE/$DEBUG_BUILD_DIR"
-    [[ $CLEAN == 1 ]] && rm -rf "$BASE/$RELEASE_BUILD_DIR"
-    [[ $CLEAN == 1 ]] && rm -rf $OUTPUT
 
 #    # Run static analysis
 #    if [[ $ANALYSIS == 1 ]]
@@ -220,20 +209,21 @@ function build()
 #
     if [[ "${NO_BUILD}" == "1" ]]
     then
+        echo "Not building (NO_BUILD=1)"
         exit 0
     fi
 
-    if [[ "$CMAKE_BUILD_TYPE" == "RelWithDebInfo" ]]
+    if [[ "$CMAKE_BUILD_TYPE" == "$RELEASE_BUILD_TYPE" ]]
     then
       echo "Build type is release"
       BUILD_DIR="$BASE/$RELEASE_BUILD_DIR"
-    elif [[ "$CMAKE_BUILD_TYPE" == "Debug" ]]
+    elif [[ "$CMAKE_BUILD_TYPE" == "$DEBUG_BUILD_TYPE" ]]
     then
       echo "Build type is debug"
       BUILD_DIR="$BASE/$DEBUG_BUILD_DIR"
     else
       # https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html
-      exitFailure $FAILURE_BAD_ARGUMENT "CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE but should be either Debug or RelWithDebInfo"
+      exitFailure $FAILURE_BAD_ARGUMENT "CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE but should be either $DEBUG_BUILD_TYPE or $RELEASE_BUILD_TYPE"
     fi
 
     mkdir -p "$BUILD_DIR"
@@ -241,23 +231,10 @@ function build()
 
     [[ -n ${NPROC:-} ]] || { which nproc > /dev/null 2>&1 && NPROC=$((`nproc`)); } || NPROC=2
     (( $NPROC < 1 )) && NPROC=1
-    cmake -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}" \
+    cmake -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" \
           -G "Unix Makefiles" \
           .. \
           || exitFailure 14 "Failed to configure $PRODUCT"
-
-    # TODO - MOVE TO CMAKE
-    # TODO LINUXDAR-1506: remove the patching when the related issue is incorporated into the released version of boost
-    # https://github.com/boostorg/process/issues/62
-    BOOST_PROCESS_TARGET=${REDIST}/boost/include/boost/process/detail/posix/executor.hpp
-    diff -u patched_boost_executor.hpp ${BOOST_PROCESS_TARGET} && DIFFERS=0 || DIFFERS=1
-    if [[ "${DIFFERS}" == "1" ]]; then
-      echo "Patch Boost executor"
-      cp "$BASE/patched_boost_executor.hpp"  ${BOOST_PROCESS_TARGET}
-    else
-      echo 'Boost executor already patched'
-    fi
-
 
 #    make -j${NPROC} copy_libs || exitFailure 15 "Failed to build $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
