@@ -246,18 +246,6 @@ install_package libc6-dev
 # zip is used when packing up mcs router
 install_package zip
 
-# For python unit tests install required packages.
-install_package python3-pip
-# Also need python3-dev for building certain python packages
-install_package python3-dev
-if [[ -f $BASEDIR/python_unit_test_requirements.txt ]]
-then
-  python3 -m pip install -r $BASEDIR/python_unit_test_requirements.txt
-else
-  echo "Could not find python_unit_test_requirements.txt to install dependencies for MCSRouter python unit tests"
-  exit 1
-fi
-
 # We depend on the TAP script ./tap_venv/bin/sb_manifest_sign
 # To make this easy to find we add a symlink that will be found on the default PATH.
 if [[ -f "$TAP_VENV/bin/sb_manifest_sign" ]]
