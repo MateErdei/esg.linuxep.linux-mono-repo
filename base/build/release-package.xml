@@ -65,21 +65,31 @@
         </command>
         <command mode="debug">
             <program>/bin/bash</program>
-            <args>./build2.sh --debug</args>
+            <args>./build.sh --debug</args>
             <workingdir>.</workingdir>
         </command>
 
-<!--        <command mode="coverage">-->
-<!--            <program>/bin/bash</program>-->
-<!--            <args>./build.sh &#45;&#45;clean &#45;&#45;bullseye</args>-->
-<!--            <workingdir>.</workingdir>-->
-<!--        </command>-->
+        <command mode="coverage">
+            <program>/bin/bash</program>
+            <args>./unpack_build_inputs.sh</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="coverage">
+            <program>/bin/bash</program>
+            <args>./build.sh --clean --bullseye</args>
+            <workingdir>.</workingdir>
+        </command>
 
-<!--        <command mode="analysis">-->
-<!--            <program>/bin/bash</program>-->
-<!--            <args>./build.sh &#45;&#45;no-build &#45;&#45;analysis</args>-->
-<!--            <workingdir>.</workingdir>-->
-<!--        </command>-->
+        <command mode="analysis">
+            <program>/bin/bash</program>
+            <args>./unpack_build_inputs.sh</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="analysis">
+            <program>/bin/bash</program>
+            <args>./build.sh --no-build --analysis</args>
+            <workingdir>.</workingdir>
+        </command>
 
 <!--        <command mode="999">-->
 <!--            <program>/bin/bash</program>-->
