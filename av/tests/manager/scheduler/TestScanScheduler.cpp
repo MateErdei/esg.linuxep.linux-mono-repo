@@ -282,9 +282,7 @@ TEST_F(TestScanScheduler, scanNow) //NOLINT
 
     ASSERT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
     ASSERT_TRUE(waitForLog("Starting scan Scan Now", 500ms));
-    ASSERT_TRUE(waitForLog("Completed scan Scan Now with exit code:", 500ms));
-    // Check that we no longer log the output from the scan process as it can be found in the scan log
-    EXPECT_FALSE(appenderContains("Output:"));
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 500ms));
 
     schedulerThread.killThreads();
 

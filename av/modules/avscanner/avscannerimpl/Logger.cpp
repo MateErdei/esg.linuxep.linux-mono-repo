@@ -26,16 +26,23 @@ log4cplus::Logger& getNamedScanRunnerLogger()
 
 Logger::Logger(const std::string& fileName, log4cplus::LogLevel logLevel, bool isCommandLine)
 {
+    log4cplus::initialize();
+
     std::string logFilePath = fileName;
-    if (!isCommandLine)
+    if (isCommandLine)
+    {
+        // Log to stdout (Common::Logging::ConsoleLoggingSetup logs to stderr)
+        log4cplus::SharedAppenderPtr stdout_appender(new log4cplus::ConsoleAppender(false));
+        Common::Logging::LoggingSetup::applyPattern(stdout_appender, Common::Logging::LoggingSetup::GL_CONSOLE_PATTERN);
+        log4cplus::Logger::getRoot().addAppender(stdout_appender);
+    }
+    else
     {
         logFilePath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
         logFilePath += "/plugins/av/log/";
         logFilePath += fileName;
         logFilePath += ".log";
     }
-
-    log4cplus::initialize();
 
     if (!logFilePath.empty())
     {
