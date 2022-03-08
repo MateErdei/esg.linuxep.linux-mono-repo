@@ -58,6 +58,9 @@ AVCommandLineScanner Test Setup
     Register Cleanup      Exclude UnixSocket Environment Interruption Error
     Register Cleanup      Exclude CustomerID Failed To Read Error
     Register Cleanup      Exclude Expected Sweep Errors
+    Register Cleanup      Require No Unhandled Exception
+    Register Cleanup      Check For Coredumps  ${TEST NAME}
+    Register Cleanup      Check Dmesg For Segfaults
 
 AVCommandLineScanner Test TearDown
     Run Teardown Functions
@@ -1189,6 +1192,7 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
     # log can get rotated during test, so reset first.
     Clear logs
     Mark logs
+    Register Cleanup     Exclude Scan Errors From File Samples
 
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
 
@@ -1479,6 +1483,7 @@ CLS Can Append Summary To Log When SigTerm Occurs Strace
 CLS Can Append Summary To Log When SIGHUP Is Received
     ${SCAN_LOG} =    Set Variable    /tmp/sighup_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
+    Register Cleanup     Exclude Scan Errors From File Samples
     Remove File  ${SCAN_LOG}
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
     Register cleanup  Terminate Process  handle=${cls_handle}  kill=True

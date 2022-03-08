@@ -128,6 +128,9 @@ ScanNow Test Setup
     Mark Sophos Threat Detector Log
     Register Cleanup      Check All Product Logs Do Not Contain Error
     Register Cleanup      Exclude CustomerID Failed To Read Error
+    Register Cleanup      Require No Unhandled Exception
+    Register Cleanup      Check For Coredumps  ${TEST NAME}
+    Register Cleanup      Check Dmesg For Segfaults
 
 ScanNow Test Teardown
     Dump Log On Failure   ${AV_LOG_PATH}

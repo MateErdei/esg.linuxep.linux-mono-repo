@@ -5,6 +5,7 @@ Library         ../Libs/InstallSet.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/BaseUtils.py
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/TeardownTools.py
 
 *** Variables ***
 ${COMPONENT}        av

@@ -589,6 +589,9 @@ Installer Test Setup
     Register Cleanup    Exclude CustomerID Failed To Read Error
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude Communication Between AV And Base Due To No Incoming Data
+    Register Cleanup    Require No Unhandled Exception
+    Register Cleanup    Check For Coredumps  ${TEST NAME}
+    Register Cleanup    Check Dmesg For Segfaults
 
 Installer Test TearDown
     #Run Teardown Functions

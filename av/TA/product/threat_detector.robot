@@ -36,6 +36,9 @@ List AV Plugin Path
 Threat Detector Test Setup
     Component Test Setup
     Mark Sophos Threat Detector Log
+    Register Cleanup  Require No Unhandled Exception
+    Register Cleanup  Check For Coredumps  ${TEST NAME}
+    Register Cleanup  Check Dmesg For Segfaults
 
 Threat Detector Test Teardown
     List AV Plugin Path

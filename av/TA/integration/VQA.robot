@@ -96,6 +96,9 @@ VQA Test Setup
     Register Cleanup   Check All Product Logs Do Not Contain Error
     Register Cleanup   Exclude MCS Router is dead
     Register Cleanup   Exclude CustomerID Failed To Read Error
+    Register Cleanup   Require No Unhandled Exception
+    Register Cleanup   Check For Coredumps  ${TEST NAME}
+    Register Cleanup   Check Dmesg For Segfaults
 
 VQA Test TearDown
     Run Teardown Functions

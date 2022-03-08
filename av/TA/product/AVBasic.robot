@@ -427,6 +427,12 @@ AV Plugin requests policies at startup
     ...  FakeManagement Log Contains   Received policy request: APPID=ALC
 
 
+AV Plugin segfault test
+    Run Process  python3  -c  "import ctypes;ctypes.string_at(0)"
+    Create File  /tmp/core-fake  Fake core dump
+    Create File  ${AV_PLUGIN_PATH}/log/exception.log   Caught exception at top-level
+
+
 *** Keywords ***
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
@@ -469,6 +475,9 @@ Product Test Setup
     register on fail  Dump Log  ${THREAT_DETECTOR_LOG_PATH}
     Register Cleanup  Check All Product Logs Do Not Contain Error
     Register Cleanup  Exclude CustomerID Failed To Read Error
+    Register Cleanup  Require No Unhandled Exception
+    Register Cleanup  Check For Coredumps  ${TEST NAME}
+    Register Cleanup  Check Dmesg For Segfaults
 
 Product Test Teardown
     Delete Eicars From Tmp
