@@ -8,10 +8,13 @@ import json
 
 
 def find_all_release_xmls(start_dir):
-    release_package_name = "release-package.xml"
+    release_package_names = ["release-package.xml", "release-package-linux.xml", "linux-release-package.xml",
+                             "linux_package.xml", "sed-libs-linux-package.xml", "dev.xml", "sdds3.xml",
+                             "capsule8-content-package.xml", "capsule8-sensor-package.xml", "package.xml"]
     release_file_locations = []
-    for filename in Path(start_dir).rglob(release_package_name):
-        release_file_locations.append(filename)
+    for release_package_name in release_package_names:
+        for filename in Path(start_dir).rglob(release_package_name):
+            release_file_locations.append(filename)
     return release_file_locations
 
 
