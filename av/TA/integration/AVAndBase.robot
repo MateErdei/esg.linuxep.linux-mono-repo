@@ -307,6 +307,7 @@ AV plugin runs scheduled scan while CLS is running
     #Terminate Process might cause this error
     Register Cleanup    Exclude UnixSocket Environment Interruption Error
     Register Cleanup    Exclude Failed To connect To Warehouse Error
+    Register Cleanup    Exclude Scan Errors From File Samples
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1

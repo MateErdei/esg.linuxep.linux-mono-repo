@@ -229,6 +229,7 @@ CLS Summary in Less Than a Second
 
 CLS Duration Summary is Displayed Correctly
     Register Cleanup     Exclude UnixSocket Environment Interruption Error
+    Register Cleanup     Exclude Scan Errors From File Samples
     Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout
 
     Sleep  65s
@@ -1227,6 +1228,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
     Register cleanup  dump log  ${LOG_FILE}
+    Register Cleanup  Exclude Scan Errors From File Samples
     Register On Fail  Terminate Process  handle=${HANDLE}  kill=True
     # Rename the sophos threat detector launcher so that it cannot be restarted
     Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
@@ -1443,6 +1445,7 @@ CLS Return Codes Are Correct
 CLS Can Append Summary To Log When SigTerm Occurs
     ${SCAN_LOG} =    Set Variable    /tmp/sigterm_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
+    Register Cleanup  Exclude Scan Errors From File Samples
     Remove File  ${SCAN_LOG}
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
     Register cleanup  Terminate Process  handle=${cls_handle}  kill=True
@@ -1462,6 +1465,7 @@ CLS Can Append Summary To Log When SigTerm Occurs Strace
     [Tags]  STRACE  MANUAL
     ${SCAN_LOG} =    Set Variable    /tmp/sigterm_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
+    Register Cleanup  Exclude Scan Errors From File Samples
     Remove File  ${SCAN_LOG}
     Remove File  /tmp/sigterm_test_strace.log
     ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sigterm_test_strace.log  ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}

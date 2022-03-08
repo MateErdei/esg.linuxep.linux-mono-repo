@@ -177,3 +177,9 @@ Exclude Communication Between AV And Base Due To No Incoming Data
 Exclude Expected Sweep Errors
    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       ThreatScanner <> Failed to scan /mnt/pandorum/BullseyeLM/BullseyeCoverageLicenseManager due to a sweep failure
    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to scan /mnt/pandorum/BullseyeLM/BullseyeCoverageLicenseManager due to a sweep failure
+
+Exclude Scan Errors From File Samples
+   mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       ThreatScanner <> Failed to scan /opt/test/inputs/test_scripts/resources/file_samples/corrupted.xls as it is corrupted
+   mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to scan /opt/test/inputs/test_scripts/resources/file_samples/corrupted.xls as it is corrupted
+   mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       ThreatScanner <> Failed to scan /opt/test/inputs/test_scripts/resources/file_samples/passwd-protected.xls as it is password protected
+   mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to scan /opt/test/inputs/test_scripts/resources/file_samples/passwd-protected.xls as it is password protected
