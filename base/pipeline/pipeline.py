@@ -180,49 +180,38 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
     return test_inputs
 
 def build_release(stage: tap.Root, component: tap.Component):
-    stage.artisan_build(
+    return stage.artisan_build(
         name=RELEASE_MODE, component=component, image=BUILD_TEMPLATE,
         mode=RELEASE_MODE, release_package=RELEASE_PKG)
 
 def build_debug(stage: tap.Root, component: tap.Component):
-    stage.artisan_build(
+    return stage.artisan_build(
         name=DEBUG_MODE, component=component, image=BUILD_TEMPLATE,
         mode=DEBUG_MODE, release_package=RELEASE_PKG)
 
 def build_analysis(stage: tap.Root, component: tap.Component):
-    stage.artisan_build(
+    return stage.artisan_build(
         name=ANALYSIS_MODE, component=component, image=BUILD_TEMPLATE,
         mode=ANALYSIS_MODE, release_package=RELEASE_PKG)
 
 def build_coverage(stage: tap.Root, component: tap.Component):
-    stage.artisan_build(
+    return stage.artisan_build(
         name=COVERAGE_MODE, component=component, image=BUILD_TEMPLATE,
         mode=COVERAGE_MODE, release_package=RELEASE_PKG)
 
 def build_999(stage: tap.Root, component: tap.Component):
-    stage.artisan_build(
+    return stage.artisan_build(
         name=NINE_NINE_NINE_MODE, component=component, image=BUILD_TEMPLATE,
         mode=NINE_NINE_NINE_MODE, release_package=RELEASE_PKG)
 
 def build_060(stage: tap.Root, component: tap.Component):
-    stage.artisan_build(
+    return stage.artisan_build(
         name=ZERO_SIX_ZERO_MODE, component=component, image=BUILD_TEMPLATE,
         mode=ZERO_SIX_ZERO_MODE, release_package=RELEASE_PKG)
 
 @tap.pipeline(version=1, component=COMPONENT, root_sequential=False)
 def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
     component = tap.Component(name=COMPONENT, base_version='1.1.9')
-    # BUILD_TEMPLATE = 'JenkinsLinuxTemplate7'
-    # RELEASE_MODE = 'release'
-    # DEBUG_MODE = 'debug'
-    # ANALYSIS_MODE = 'analysis'
-    # COVERAGE_MODE = 'coverage'
-    # NINE_NINE_NINE_MODE = '999'
-    # ZERO_SIX_ZERO_MODE = '060'
-    # export TAP_PARAMETER_MODE=release|analysis
-
-
-
 
     # For cmdline/local builds, determine build mode by how tap was called
     # Not sure it's possible to pass parameters into tap so doing this for now.
@@ -236,27 +225,27 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     # In CI parameters.mode will be set
     mode = parameters.mode or determined_build_mode
 
-
+    base_build = None
     INCLUDE_BUILD_IN_PIPELINE = parameters.get('INCLUDE_BUILD_IN_PIPELINE', True)
     if INCLUDE_BUILD_IN_PIPELINE:
         with stage.parallel('build'):
             if mode:
                 if mode == RELEASE_MODE or mode == ANALYSIS_MODE:
                     build_analysis(stage, component)
-                    build_release(stage, component)
-                    build_999(stage, component)
-                    build_060(stage, component)
+                    base_build = build_release(stage, component)
+                    # build_999(stage, component)
+                    # build_060(stage, component)
                 elif mode == DEBUG_MODE:
-                    build_debug(stage, component)
+                    base_build = build_debug(stage, component)
                 elif mode == COVERAGE_MODE:
-                    build_coverage(stage, component)
+                    base_build = build_coverage(stage, component)
                     build_release(stage, component)
-                    build_999(stage, component)
-                    build_060(stage, component)
+                    # build_999(stage, component)
+                    # build_060(stage, component)
             else:
                 # For "tap ls" to work the default path through here with no params etc. must be to run all builds,
                 # else only the default build path, which used to be release will be listed.
-                build_release(stage, component)
+                base_build = build_release(stage, component)
                 build_debug(stage, component)
                 build_analysis(stage, component)
                 build_coverage(stage, component)
@@ -265,25 +254,26 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     else:
         base_build = context.artifact.build()
 
-    if mode == ANALYSIS_MODE:
+    # Modes where do not want to run TAP tests.
+    if mode in [ANALYSIS_MODE]:
         return
 
-    # test_inputs = get_inputs(context, base_build, mode)
-    # machines = (
-    #     ("ubuntu1804",
-    #      tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs,
-    #                  platform=tap.Platform.Linux)),
-    #     ("centos77",
-    #      tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-    #
-    #     ("centos82",
-    #      tap.Machine('centos82_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-    #     # add other distros here
-    # )
-    # with stage.parallel('integration'):
-    #     task_func = robot_task
-    #     if mode == COVERAGE_MODE:
-    #         stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux), branch=context.branch)
-    #     else:
-    #         for template_name, machine in machines:
-    #             stage.task(task_name=template_name, func=task_func, machine=machine)
+    test_inputs = get_inputs(context, base_build, mode)
+    machines = (
+        ("ubuntu1804",
+         tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs,
+                     platform=tap.Platform.Linux)),
+        ("centos77",
+         tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+
+        ("centos82",
+         tap.Machine('centos82_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+        # add other distros here
+    )
+    with stage.parallel('integration'):
+        task_func = robot_task
+        if mode == COVERAGE_MODE:
+            stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux), branch=context.branch)
+        else:
+            for template_name, machine in machines:
+                stage.task(task_name=template_name, func=task_func, machine=machine)

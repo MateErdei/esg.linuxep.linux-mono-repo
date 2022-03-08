@@ -171,11 +171,11 @@ done
 # Handle detecting if we're doing a local build or a CI build
 if [[ "$CI" == "true" ]]
 then
-  echo "Detected that this is CI build"
+  echo "Detected that this is a CI build"
   CLEAN=1
   TEST_NPROC=1
 else
-  echo "Detected that this is non-CI (local) build"
+  echo "Detected that this is a non-CI (local) build"
 fi
 
 function cppcheck_build()
