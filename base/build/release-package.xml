@@ -53,7 +53,7 @@
         </command>
         <command mode="release">
             <program>/bin/bash</program>
-            <args>./build2.sh --release</args>
+            <args>./build.sh --release</args>
             <workingdir>.</workingdir>
         </command>
 
