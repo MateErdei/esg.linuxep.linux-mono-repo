@@ -49,7 +49,7 @@ BULLSEYE_SYSTEM_TESTS=0
 #export NO_REMOVE_GCC=1
 #INPUT=/build/input
 
-#COVFILE="/tmp/root/sspl-base-unittest.cov"
+COVFILE="/tmp/root/sspl-base-unittest.cov"
 #BULLSEYE_SYSTEM_TEST_BRANCH=develop
 #export TEST_SELECTOR=
 

@@ -218,9 +218,9 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     determined_build_mode=None
     import sys
     if f"{component.name}.build.{DEBUG_MODE}" in sys.argv:
-        determined_build_mode=DEBUG_MODE
+        determined_build_mode = DEBUG_MODE
     elif f"{component.name}.build.{RELEASE_MODE}" in sys.argv:
-        determined_build_mode=RELEASE_MODE
+        determined_build_mode = RELEASE_MODE
 
     # In CI parameters.mode will be set
     mode = parameters.mode or determined_build_mode
