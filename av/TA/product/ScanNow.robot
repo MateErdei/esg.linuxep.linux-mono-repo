@@ -109,6 +109,8 @@ Scan Now scans dir with name similar to excluded mount
 
 
 Scan Now scan errors do not get logged to av log
+    Register Cleanup  Exclude As Corrupted
+    Register Cleanup  Exclude As Password Protected
     Remove Directory  /process  recursive=True
     # configure scan before creating test dir, so that it isn't excluded
     Configure Scan Now Scan

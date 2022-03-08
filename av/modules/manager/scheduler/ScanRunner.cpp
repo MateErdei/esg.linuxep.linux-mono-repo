@@ -92,6 +92,9 @@ void ScanRunner::run()
     {
         // Capabilities failed
         LOGERROR("Scan: " << m_name << " failed to start (capability failure) with exit code: " << exitCode);
+        std::string output = process->output();
+        if (output.empty())
+        LOGERROR("Output: " << output);
     }
     else if (exitCode == common::E_CLEAN_SUCCESS)
     {
