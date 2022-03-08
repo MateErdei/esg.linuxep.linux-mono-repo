@@ -105,7 +105,7 @@ void ScanRunner::run()
     else
     {
         LOGINFO("Completed scan " << m_name << " with exit code: " << exitCode);
-        LOGERROR("Output: " << process->output());
+        LOGINFO("Output: " << process->output());
     }
 
     process.reset();
