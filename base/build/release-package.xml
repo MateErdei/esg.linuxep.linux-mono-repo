@@ -91,17 +91,17 @@
             <workingdir>.</workingdir>
         </command>
 
-<!--        <command mode="999">-->
-<!--            <program>/bin/bash</program>-->
-<!--            <args>./build.sh &#45;&#45;clean &#45;&#45;999 &#45;&#45;no-unittest</args>-->
-<!--            <workingdir>.</workingdir>-->
-<!--        </command>-->
+        <command mode="999">
+            <program>/bin/bash</program>
+            <args>./build.sh --clean --999 --no-unittest</args>
+            <workingdir>.</workingdir>
+        </command>
 
-<!--        <command mode="060">-->
-<!--            <program>/bin/bash</program>-->
-<!--            <args>./build.sh &#45;&#45;clean &#45;&#45;060 &#45;&#45;no-unittest</args>-->
-<!--            <workingdir>.</workingdir>-->
-<!--        </command>-->
+        <command mode="060">
+            <program>/bin/bash</program>
+            <args>./build.sh --clean --060 --no-unittest</args>
+            <workingdir>.</workingdir>
+        </command>
 
 <!--        &lt;!&ndash;<command buildtype="dev">-->
 <!--            <program>/bin/bash</program>-->

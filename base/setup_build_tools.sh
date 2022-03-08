@@ -93,8 +93,8 @@ else
   $PYTHON_TO_USE -m venv "$TAP_VENV"
   pushd "$TAP_VENV"
     echo "[global]" > pip.conf
-    echo "index-url = https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple" >> pip.conf
-    echo "trusted-host = tap-artifactory1.eng.sophos" >> pip.conf
+    echo "index-url = https://artifactory.sophos-ops.com/api/pypi/pypi/simple" >> pip.conf
+    echo "trusted-host = artifactory.sophos-ops.com" >> pip.conf
   popd
   # Within TAP python venv just use "python3"
   source "$TAP_VENV/bin/activate"
