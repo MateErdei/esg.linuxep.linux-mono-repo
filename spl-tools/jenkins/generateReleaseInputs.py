@@ -19,11 +19,10 @@ def find_all_release_xmls(start_dir):
 
 
 def release_package_contains_inputs(release_package_dict):
-    if "package" in release_package_dict:
-        if "inputs" in release_package_dict['package']:
-            if release_package_dict['package']["inputs"] is not None:
-                if "build-asset" in release_package_dict['package']['inputs']:
-                    return True
+    if "inputs" in release_package_dict['package']:
+        if release_package_dict['package']["inputs"] is not None:
+            if "build-asset" in release_package_dict['package']['inputs']:
+                return True
     return False
 
 
@@ -31,8 +30,14 @@ def process_release_files(release_files):
     all_dict = {}
     for release_file_path in release_files:
         with open(release_file_path, 'r') as release_file:
+            print(f"Processing {release_file_path}")
+
             content = release_file.read()
             as_dictionary = xmltodict.parse(content, dict_constructor=dict)
+
+            if "package" not in as_dictionary:
+                print(f"Skipping invalid release package: {release_file_path}")
+                continue
 
             if "name" in as_dictionary['package']:
                 name = as_dictionary['package']['name']
