@@ -47,6 +47,10 @@ def process_release_files(release_files):
                 print(f"Skipping input as the release-package is not formatted correctly: {as_dictionary}")
                 continue
 
+            if "@version" not in as_dictionary['package']:
+                print(f"Skipping input as the release-package is not formatted correctly: {as_dictionary}")
+                continue
+
             version = as_dictionary['package']['@version'].replace("-", ".")
 
             # Check the component has inputs
