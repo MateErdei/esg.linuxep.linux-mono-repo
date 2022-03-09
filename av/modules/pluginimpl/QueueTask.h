@@ -57,7 +57,7 @@ namespace Plugin
     public:
         void push(Task);
         Task pop();
-        bool pop(Task&, int timeout);
+        bool pop(Task& task, const std::chrono::time_point<std::chrono::steady_clock>& timeout_time);
         void pushStop();
         bool empty();
         bool queueContainsPolicyTask();

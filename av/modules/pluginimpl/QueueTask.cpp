@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018 Sophos Limited.  All rights reserved.
+Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -30,33 +30,25 @@ namespace Plugin
         push(std::move(stopTask));
     }
 
-    bool QueueTask::pop(Task& task, int timeout)
+    bool QueueTask::pop(Task& task, const std::chrono::time_point<std::chrono::steady_clock>& timeout_time)
     {
         std::unique_lock<std::mutex> lck(m_mutex);
-        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
-        m_cond.wait_until(lck, now + std::chrono::seconds(timeout),[this] { return !m_list.empty(); });
+        bool found = m_cond.wait_until(lck, timeout_time, [this](){ return !m_list.empty(); });
 
-        if (m_list.empty())
+        if (found)
         {
-            return false;
+            task = m_list.front();
+            m_list.pop_front();
         }
 
-        Task val = m_list.front();
-        m_list.pop_front();
-        task =  val;
-        return true;
+        return found;
     }
 
     bool QueueTask::empty()
     {
         std::unique_lock<std::mutex> lck(m_mutex);
-        if (m_list.empty())
-        {
-            return true;
-        }
-
-        return false;
+        return m_list.empty();
     }
 
     bool QueueTask::queueContainsPolicyTask()
@@ -65,7 +57,7 @@ namespace Plugin
 
         for (const auto &item : m_list)
         {
-            if (item.taskType == Plugin::Task::TaskType::Policy)
+            if (item.taskType == Task::TaskType::Policy)
             {
                 return true;
             }

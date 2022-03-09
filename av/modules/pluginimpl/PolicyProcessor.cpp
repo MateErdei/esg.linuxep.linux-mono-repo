@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -90,7 +90,7 @@ namespace Plugin
         return true; // Only restart sophos_threat_detector if it changes
     }
 
-    bool PolicyProcessor::getSXL4LookupsEnabled()
+    bool PolicyProcessor::getSXL4LookupsEnabled() const
     {
         return m_lookupEnabled;
     }
@@ -174,7 +174,6 @@ namespace Plugin
         catch (const Common::FileSystem::IFileSystemException& e)
         {
             LOGERROR(e.what() << ", setting default values for susi startup settings.");
-            return true;
         }
 
         return true;

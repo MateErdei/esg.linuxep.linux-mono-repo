@@ -1,12 +1,13 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "PluginMemoryAppenderUsingTests.h"
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/MockFileSystem.h>
+#include <Common/Helpers/MockApiBaseServices.h>
 
 #include <pluginimpl/PluginAdapter.h>
 #include <pluginimpl/PluginAdapter.cpp>
@@ -56,7 +57,7 @@ namespace
             fs::remove_all(tmpdir());
         }
 
-        std::string generatePolicyXML(const std::string& revID, const std::string& policyID="2", const std::string& sxl="false")
+        static std::string generatePolicyXML(const std::string& revID, const std::string& policyID="2", const std::string& sxl="false")
         {
             return Common::UtilityImpl::StringUtils::orderedStringReplace(
                     R"sophos(<?xml version="1.0"?>
@@ -73,7 +74,7 @@ namespace
            {"@@SXL@@", sxl}});
         }
 
-        std::string generateUpdatePolicyXML(const std::string& revID, const std::string& policyID="1")
+        static std::string generateUpdatePolicyXML(const std::string& revID, const std::string& policyID="1")
         {
             return Common::UtilityImpl::StringUtils::orderedStringReplace(
                     R"sophos(<?xml version="1.0"?>
@@ -89,7 +90,7 @@ namespace
            {"@@POLICY_ID@@", policyID}});
         }
 
-        std::string generateStatusXML(const std::string& res, const std::string& revID)
+        static std::string generateStatusXML(const std::string& res, const std::string& revID)
         {
             return Common::UtilityImpl::StringUtils::orderedStringReplace(
                     R"sophos(<?xml version="1.0" encoding="utf-8"?>
@@ -115,22 +116,9 @@ namespace
                     });
         }
 
-        std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<QueueTask> m_queueTask;
         std::shared_ptr<Plugin::PluginCallback> m_callback;
         fs::path m_threatEventPublisherSocketPath;
-    };
-
-    class MockBase : public Common::PluginApi::IBaseServiceApi
-    {
-    public:
-        MOCK_CONST_METHOD1(requestPolicies, void(const std::string& appId));
-        MOCK_CONST_METHOD2(sendEvent, void(const std::string& appId, const std::string& eventXml));
-        MOCK_CONST_METHOD3(sendStatus, void(
-        const std::string& appId,
-        const std::string& statusXml,
-        const std::string& statusWithoutTimestampsXml));
-        MOCK_CONST_METHOD1(sendThreatHealth, void(const std::string& healthJson));
     };
 }
 
@@ -140,8 +128,8 @@ ACTION_P(QueueStopTask, taskQueue) {
 
 TEST_F(TestPluginAdapter, testConstruction) //NOLINT
 {
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -152,8 +140,8 @@ TEST_F(TestPluginAdapter, testMainLoop) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -168,8 +156,8 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -188,8 +176,8 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows) //NOLINT
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
-    EXPECT_TRUE(appenderContains("Failed to get SAV policy at startup (dummy error)"));
-    EXPECT_TRUE(appenderContains("Failed to get ALC policy at startup (dummy error)"));
+    EXPECT_TRUE(appenderContains("Failed to request SAV policy at startup (dummy error)"));
+    EXPECT_TRUE(appenderContains("Failed to request ALC policy at startup (dummy error)"));
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
@@ -208,11 +196,17 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(_,_)).WillRepeatedly(Throw(ex));
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_queueTask,
+        std::move(mockBaseService),
+        m_callback,
+        m_threatEventPublisherSocketPath,
+        0
+        );
 
     std::string policy1revID = "12345678901";
     std::string policy2revID = "12345678902";
@@ -246,19 +240,17 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
     // We now see all of the restart events
-    EXPECT_TRUE(appenderContains("Processing request to restart sophos threat detector", 3));
-    EXPECT_TRUE(appenderContains("Requesting scan monitor to reload susi", 1));
+    EXPECT_EQ(appenderCount("Processing request to restart sophos threat detector"), 3);
+    EXPECT_EQ(appenderCount("Requesting scan monitor to reload susi"), 1);
 }
 
 TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPolicy) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
-
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <invalidPolicy />
@@ -266,24 +258,39 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
 
     Task policyTask = {Task::TaskType::Policy, policyXml};
     m_queueTask->push(policyTask);
-    m_queueTask->pushStop();
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
 
-    pluginAdapter.mainLoop();
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_queueTask,
+        std::move(mockBaseService),
+        m_callback,
+        m_threatEventPublisherSocketPath,
+        1
+        );
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(appenderContains("ALC policy has not been sent to the plugin"));
-    EXPECT_TRUE(appenderContains("SAV policy has not been sent to the plugin"));
-    EXPECT_TRUE(appenderContains("Keep task: Stop"));
+    std::this_thread::sleep_for(500ms);
+
+    EXPECT_FALSE(appenderContains("ALC policy has not been sent to the plugin"));
+    EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
+
+    EXPECT_TRUE(waitForLog("ALC policy has not been sent to the plugin", 700ms));
+    EXPECT_TRUE(waitForLog("SAV policy has not been sent to the plugin", 200ms));
+
+    m_queueTask->pushStop();
+
+    pluginThread.join();
+
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -319,8 +326,8 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     // Setup Mock filesystem
@@ -357,8 +364,8 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID) //NO
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     // Setup Mock filesystem
@@ -402,8 +409,8 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
     log4cplus::Logger scanLogger = Common::Logging::getInstance("ScanScheduler");
     scanLogger.addAppender(m_sharedAppender);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
@@ -441,8 +448,8 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
     log4cplus::Logger scanLogger = Common::Logging::getInstance("ScanScheduler");
     scanLogger.addAppender(m_sharedAppender);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
@@ -477,8 +484,8 @@ TEST_F(TestPluginAdapter, testProcessScanComplete) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     std::string scanCompleteXml = R"sophos(<?xml version="1.0"?>
@@ -492,9 +499,10 @@ TEST_F(TestPluginAdapter, testProcessScanComplete) //NOLINT
         </event>)sophos";
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", scanCompleteXml));
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}")).Times(1);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    pluginAdapter.processScanComplete(scanCompleteXml);
+    pluginAdapter.processScanComplete(scanCompleteXml, common::E_CLEAN_SUCCESS);
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
 
@@ -512,8 +520,8 @@ TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     std::string threatDetectedXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -560,7 +568,6 @@ public:
     explicit SubscriberThread(Common::ZMQWrapperApi::IContext& context, const std::string& socketPath);
     ~SubscriberThread()
     {
-        m_stopThread = true;
         if (m_thread.joinable())
         {
             m_thread.join();
@@ -577,7 +584,6 @@ private:
     Common::ZMQWrapperApi::IContext& m_context;
     Common::ZeroMQWrapper::ISocketSubscriberPtr m_subscriber;
     std::thread m_thread;
-    bool m_stopThread;
     std::vector<std::string> m_data;
     void run();
 };
@@ -585,8 +591,7 @@ private:
 SubscriberThread::SubscriberThread(Common::ZMQWrapperApi::IContext& context, const std::string& socketPath) :
     m_context(context),
     m_subscriber(m_context.getSubscriber()),
-    m_thread(),
-    m_stopThread(false)
+    m_thread()
 {
     m_subscriber->listen("ipc://" + socketPath);
     m_subscriber->subscribeTo("threatEvents");
@@ -613,8 +618,8 @@ TEST_F(TestPluginAdapter, testPublishThreatReport) //NOLINT
     SubscriberThread thread(*subscriberContext, m_threatEventPublisherSocketPath);
     thread.start();
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     pluginAdapter.connectToThreatPublishingSocket(m_threatEventPublisherSocketPath);
@@ -633,8 +638,8 @@ TEST_F(TestPluginAdapter, testPublishThreatReport) //NOLINT
 
 TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
 {
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     std::string threatDetectedXML = R"sophos(
@@ -664,8 +669,8 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
 
 TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount) //NOLINT
 {
-    auto mockBaseService = std::make_unique<StrictMock<MockBase> >();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     std::string threatDetectedXML = R"sophos(
@@ -697,8 +702,8 @@ TEST_F(TestPluginAdapter, testInvalidTaskType) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockBase>>();
-    MockBase* mockBaseServicePtr = mockBaseService.get();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -721,4 +726,31 @@ TEST_F(TestPluginAdapter, testInvalidTaskType) //NOLINT
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
+}
+
+
+TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies) //NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+
+    m_queueTask->pushStop();
+
+    EXPECT_TRUE(waitForLog("Stopping the main program loop", 500ms));
+
+    pluginThread.join();
+
+    EXPECT_FALSE(appenderContains("ALC policy has not been sent to the plugin"));
+    EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
 }

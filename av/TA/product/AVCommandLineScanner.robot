@@ -539,6 +539,7 @@ CLS Can Scan Zero Byte File
 
 # Long Path is 4064 characters long
 CLS Can Scan Long Path
+    Register Cleanup   Remove Directory   /home/vagrant/${LONG_DIRECTORY}   recursive=True
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  clean_file
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${long_path}/clean_file
 
@@ -549,6 +550,7 @@ CLS Can Scan Long Path
 
 # Huge Path is over 4064 characters long
 CLS Cannot Scan Huge Path
+    Register Cleanup   Remove Directory   /home/vagrant/${LONG_DIRECTORY}   recursive=True
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  clean_file
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${long_path}/clean_file
 
@@ -560,6 +562,7 @@ CLS Cannot Scan Huge Path
 
 # Huge Path is over 4064 characters long
 CLS Can Scan Normal Path But Not SubFolders With a Huge Path
+    Register Cleanup   Remove Directory   /home/vagrant/${LONG_DIRECTORY}   recursive=True
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  clean_file
     create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  clean_file
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${long_path}/

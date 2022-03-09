@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -26,11 +26,11 @@ namespace Plugin
          * @param policy
          * @return True if the Enable SXL Lookup setting has changed - if sophos_threat_detector needs to be restarted
          */
-        bool processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed = false);
+        bool processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed = true);
 
         static std::string getCustomerId(const Common::XmlUtilities::AttributesMap& policy);
         static bool isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy);
-        bool getSXL4LookupsEnabled();
+        [[nodiscard]] bool getSXL4LookupsEnabled() const;
 
     private:
         std::string m_customerId;

@@ -195,8 +195,8 @@ AV plugin doesnt report an error message if no policy is received
     Start AV Plugin
     Wait Until AV Plugin Log Contains With Offset   Logger av configured for level
     Sleep  5  #Giving a chance for the plugin to request policy
-    AV Plugin Log Does Not Contain With Offset  Failed to get SAV policy at startup (No Policy Available)
-    AV Plugin Log Does Not Contain With Offset  Failed to get ALC policy at startup (No Policy Available)
+    AV Plugin Log Does Not Contain With Offset  Failed to request SAV policy at startup (No Policy Available)
+    AV Plugin Log Does Not Contain With Offset  Failed to request ALC policy at startup (No Policy Available)
 
 AV plugin does report an info message if no policy is received
     Stop AV Plugin
@@ -205,8 +205,8 @@ AV plugin does report an info message if no policy is received
 
     Mark AV Log
     Start AV Plugin
-    Wait Until AV Plugin Log Contains With Offset  Failed to get SAV policy at startup (No Policy Available)
-    Wait Until AV Plugin Log Contains With Offset  Failed to get ALC policy at startup (No Policy Available)
+    Wait Until AV Plugin Log Contains With Offset  Failed to request SAV policy at startup (No Policy Available)
+    Wait Until AV Plugin Log Contains With Offset  Failed to request ALC policy at startup (No Policy Available)
 
 AV plugin fails scan now if no policy
     Register Cleanup    Exclude Scan As Invalid
@@ -881,7 +881,7 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
     Mark Sophos Threat Detector Log
     ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
-    Run Process   /bin/kill   -9   ${output}
+    Run Process   /bin/kill   -SIGTERM   ${output}
 
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Starting listening on socket

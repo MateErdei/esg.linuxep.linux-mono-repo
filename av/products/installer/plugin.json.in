@@ -22,6 +22,5 @@
   "threatServiceHealth": true,
   "serviceHealth": true,
   "displayPluginName": "@AV_PRETTY_NAME@",
-  "executableUserAndGroup": "sophos-spl-av:sophos-spl-group",
-  "secondsToShutDown": 10
+  "executableUserAndGroup": "sophos-spl-av:sophos-spl-group"
 }

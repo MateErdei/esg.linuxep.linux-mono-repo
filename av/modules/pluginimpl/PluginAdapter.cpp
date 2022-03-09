@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2021 Sophos Limited.  All rights reserved.
+Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -12,7 +12,6 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #include "StringUtils.h"
 
 #include "datatypes/sophos_filesystem.h"
-#include "modules/common/ThreadRunner.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
@@ -38,9 +37,8 @@ namespace Plugin
         class ThreatReportCallbacks : public IMessageCallback
         {
         public:
-            explicit ThreatReportCallbacks(PluginAdapter& adapter, const std::string& threatEventPublisherSocketPath)
+            explicit ThreatReportCallbacks(PluginAdapter& adapter, const std::string& /* threatEventPublisherSocketPath */)
                 : m_adapter(adapter)
-                , m_threatEventPublisherSocketPath(threatEventPublisherSocketPath)
             {}
 
             void processMessage(const scan_messages::ServerThreatDetected& detection) override
@@ -52,7 +50,6 @@ namespace Plugin
 
         private:
             PluginAdapter& m_adapter;
-            std::string m_threatEventPublisherSocketPath;
         };
     }
 
@@ -79,7 +76,7 @@ namespace Plugin
     void PluginAdapter::mainLoop()
     {
         m_callback->setRunning(true);
-        ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
+        common::ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
         LOGSUPPORT("Starting the main program loop");
         try
         {
@@ -88,7 +85,7 @@ namespace Plugin
         }
         catch (Common::PluginApi::ApiException& e)
         {
-            LOGINFO("Failed to get SAV policy at startup (" << e.what() << ")");
+            LOGINFO("Failed to request SAV policy at startup (" << e.what() << ")");
         }
         try
         {
@@ -97,45 +94,61 @@ namespace Plugin
         }
         catch (Common::PluginApi::ApiException& e)
         {
-            LOGINFO("Failed to get ALC policy at startup (" << e.what() << ")");
+            LOGINFO("Failed to request ALC policy at startup (" << e.what() << ")");
         }
 
         m_callback->setThreatHealth(pluginimpl::getThreatStatus());
-        startupPolicyProcessing();
 
-        ThreadRunner scheduler(
-            m_scanScheduler, "scanScheduler"); // Automatically terminate scheduler on both normal exit and exceptions
-        ThreadRunner sophos_threat_detector(*m_threatDetector, "threatDetector");
-        connectToThreatPublishingSocket(Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
         innerLoop();
+        LOGSUPPORT("Stopping the main program loop");
     }
 
-    void PluginAdapter::startupPolicyProcessing()
+    void PluginAdapter::startThreads()
     {
-        auto policySAVXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_waitForPolicyTimeout), 5, "2", "SAV");
-
-        if (!policySAVXml.empty())
-        {
-            m_restartSophosThreatDetector = processPolicy(policySAVXml);
-            m_isSavPolicyAlreadyProcessed = true;
-        }
-
-        auto policyALCXml = waitForTheFirstPolicy(*m_queueTask, std::chrono::seconds(m_waitForPolicyTimeout), 5, "1", "ALC");
-        if (!policyALCXml.empty())
-        {
-            m_restartSophosThreatDetector = processPolicy(policyALCXml) || m_restartSophosThreatDetector;
-        }
+        m_schedulerThread = std::make_unique<common::ThreadRunner>(m_scanScheduler, "scanScheduler");
+        m_threatDetectorThread = std::make_unique<common::ThreadRunner>(*m_threatDetector, "scanProcessMonitor");
+        connectToThreatPublishingSocket(
+            Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
     }
 
     void PluginAdapter::innerLoop()
     {
+        auto initialPolicyDeadline = std::chrono::steady_clock::now() + std::chrono::seconds(m_waitForPolicyTimeout);
+        bool threadsRunning = false;
+
         while (true)
         {
-            // Because we wait for policies before starting the main loop, we need to check for a restart immediately.
-            // Otherwise a pending update could wait until the first event is received.
-            processSUSIRestartRequest();
+            Task task;
+            if (!threadsRunning)
+            {
+                if ( m_gotSavPolicy && m_gotAlcPolicy )
+                {
+                    startThreads();
+                    threadsRunning = true;
+                    continue;
+                }
+                if (!m_queueTask->pop(task, initialPolicyDeadline))
+                {
+                    // timed out
+                    if (!m_gotSavPolicy)
+                    {
+                        LOGINFO("SAV policy has not been sent to the plugin");
+                    }
+                    if (!m_gotAlcPolicy)
+                    {
+                        LOGINFO("ALC policy has not been sent to the plugin");
+                    }
 
-            Task task = m_queueTask->pop();
+                    startThreads();
+                    threadsRunning = true;
+                    continue;
+                }
+            }
+            else
+            {
+                task = m_queueTask->pop();
+            }
+
             switch (task.taskType)
             {
                 case Task::TaskType::Stop:
@@ -159,6 +172,7 @@ namespace Plugin
                     break;
             }
 
+            processSUSIRestartRequest();
         }
     }
 
@@ -166,11 +180,11 @@ namespace Plugin
     {
         if (m_restartSophosThreatDetector)
         {
-            LOGDEBUG("Processing request to restart sophos threat detector");
-            if(!m_queueTask->queueContainsPolicyTask())
-            {
-                LOGDEBUG("Requesting scan monitor to reload susi");
-                m_threatDetector->policy_configuration_changed();
+        LOGDEBUG("Processing request to restart sophos threat detector");
+        if(!m_queueTask->queueContainsPolicyTask())
+        {
+            LOGDEBUG("Requesting scan monitor to reload susi");
+            m_threatDetector->policy_configuration_changed();
                 m_restartSophosThreatDetector = false;
             }
         }
@@ -192,7 +206,11 @@ namespace Plugin
                 LOGINFO("Processing ALC Policy");
                 LOGDEBUG("Processing policy: " << policyXml);
                 bool updated = m_policyProcessor.processAlcPolicy(attributeMap);
-
+                if (!m_gotAlcPolicy)
+                {
+                    LOGINFO("ALC policy received for the first time.");
+                    m_gotAlcPolicy = true;
+                }
                 return updated;
             }
             else
@@ -213,72 +231,18 @@ namespace Plugin
         LOGINFO("Processing SAV Policy");
         LOGDEBUG("Processing policy: " << policyXml);
 
-        m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
-
-        auto savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap, m_isSavPolicyAlreadyProcessed);
-
+        bool savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap, m_gotSavPolicy);
         m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
-
         m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
         std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
         m_callback->sendStatus(revID);
+        if (!m_gotSavPolicy)
+        {
+            LOGINFO("SAV policy received for the first time.");
+            m_gotSavPolicy = true;
+        }
         return savPolicyHasChanged;
-    }
-
-    std::string PluginAdapter::waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS,
-                                                    int maxTasksThreshold,
-                                                    const std::string& policyAppId, const std::string& policyName)
-    {
-        std::vector<Plugin::Task> nonPolicyTasks;
-        std::string policyXml;
-        std::string tempPolicyXml;
-
-        for (int i = 0; i < maxTasksThreshold; i++)
-        {
-            Plugin::Task task;
-
-            if (!queueTask.pop(task, timeoutInS.count()))
-            {
-                LOGINFO(policyName << " policy has not been sent to the plugin");
-                break;
-            }
-
-            if (task.taskType == Plugin::Task::TaskType::Policy)
-            {
-                tempPolicyXml = task.Content;
-                auto attributeMap = Common::XmlUtilities::parseXml(tempPolicyXml);
-
-                auto alc_comp = attributeMap.lookup("AUConfigurations/csc:Comp");
-                //returns unknown if it's not ALC type
-                auto policyType = alc_comp.value("policyType", "unknown");
-
-                if (policyType == "unknown")
-                {
-                    //returns unknown if it's not SAV type
-                    policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
-                }
-
-                if (policyAppId == policyType)
-                {
-                    LOGINFO(policyName << " policy received for the first time.");
-                    policyXml = tempPolicyXml;
-                    break;
-                }
-            }
-
-            LOGSUPPORT("Keep task: " << task.getTaskName());
-            nonPolicyTasks.push_back(task);
-        }
-
-        LOGDEBUG("Return from waitForTheFirstPolicy");
-
-        for (const auto& task : nonPolicyTasks)
-        {
-            queueTask.push(task);
-        }
-
-        return policyXml;
     }
 
     void PluginAdapter::processAction(const std::string& actionXml)

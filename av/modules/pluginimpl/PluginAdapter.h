@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2021 Sophos Limited.  All rights reserved.
+Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -10,6 +10,7 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 #include "PolicyProcessor.h"
 #include "QueueTask.h"
 
+#include "modules/common/ThreadRunner.h"
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "manager/scheduler/ScanScheduler.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
@@ -42,7 +43,6 @@ namespace Plugin
             std::shared_ptr<PluginCallback> callback,
             const std::string& threatEventPublisherSocketPath,
             int waitForPolicyTimeout = 5);
-        bool m_isSavPolicyAlreadyProcessed = false;
         void mainLoop();
         void processScanComplete(std::string& scanCompletedXml, int exitCode) override;
         void processThreatReport(const std::string& threatDetectedXML);
@@ -58,17 +58,18 @@ namespace Plugin
          */
         bool processPolicy(const std::string& policyXml);
         void processAction(const std::string& actionXml);
+        void startThreads();
         void innerLoop();
         void processSUSIRestartRequest();
-        void incrementTelemetryThreatCount(const std::string &threatName);
-
-
-        std::string waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
-                                          const std::string& policyAppId, const std::string& policyName);
+        static void incrementTelemetryThreatCount(const std::string &threatName);
 
         PolicyProcessor m_policyProcessor;
         bool m_restartSophosThreatDetector = false;
 
-        void startupPolicyProcessing();
+        bool m_gotSavPolicy = false;
+        bool m_gotAlcPolicy = false;
+
+        std::unique_ptr<common::ThreadRunner> m_schedulerThread;
+        std::unique_ptr<common::ThreadRunner> m_threatDetectorThread;
     };
 } // namespace Plugin

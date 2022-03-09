@@ -33,10 +33,12 @@ def Get_Root_Exclusions_for_avscanner_except_proc():
 
 
 def __remove_blanks(node):
-    for x in node.childNodes:
+    for x in list(node.childNodes):
         if x.nodeType == xml.dom.Node.TEXT_NODE:
             if x.nodeValue:
                 x.nodeValue = x.nodeValue.strip()
+            if x.nodeValue == "":
+                node.removeChild(x)
         elif x.nodeType == xml.dom.Node.ELEMENT_NODE:
             __remove_blanks(x)
 
