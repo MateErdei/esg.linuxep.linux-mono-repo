@@ -180,11 +180,11 @@ namespace Plugin
     {
         if (m_restartSophosThreatDetector)
         {
-        LOGDEBUG("Processing request to restart sophos threat detector");
-        if(!m_queueTask->queueContainsPolicyTask())
-        {
-            LOGDEBUG("Requesting scan monitor to reload susi");
-            m_threatDetector->policy_configuration_changed();
+            LOGDEBUG("Processing request to restart sophos threat detector");
+            if(!m_queueTask->queueContainsPolicyTask())
+            {
+                LOGDEBUG("Requesting scan monitor to reload susi");
+                m_threatDetector->policy_configuration_changed();
                 m_restartSophosThreatDetector = false;
             }
         }
