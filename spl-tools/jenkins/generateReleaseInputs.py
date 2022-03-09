@@ -18,6 +18,15 @@ def find_all_release_xmls(start_dir):
     return release_file_locations
 
 
+def release_package_contains_inputs(release_package_dict):
+    if "package" in release_package_dict:
+        if "inputs" in release_package_dict['package']:
+            if release_package_dict['package']["inputs"] is not None:
+                if "build-asset" in release_package_dict['package']['inputs']:
+                    return True
+    return False
+
+
 def process_release_files(release_files):
     all_dict = {}
     for release_file_path in release_files:
@@ -27,15 +36,10 @@ def process_release_files(release_files):
             name = as_dictionary['package']['@name']
             version = as_dictionary['package']['@version'].replace("-", ".")
 
-            try:
-                # Check the component has inputs
-                if "package" not in as_dictionary or "inputs" not in as_dictionary['package'] or "build-asset" not in as_dictionary['package']['inputs']:
-                    print(f"Skipping: {name} as it has no inputs")
-                    continue
-            except Exception as e:
-                print(f"Falied to process: {name}")
-                print(f"Dictionary: {as_dictionary}")
-                print(f"Exception: {e}")
+            # Check the component has inputs
+            if release_package_contains_inputs(as_dictionary) is False:
+                print(f"Skipping: {name} as it has no inputs")
+                continue
 
             all_dict[name] = {}
             this_entry = all_dict[name]
