@@ -34,12 +34,15 @@ def process_release_files(release_files):
             content = release_file.read()
             as_dictionary = xmltodict.parse(content, dict_constructor=dict)
 
-            try:
+            if "name" in as_dictionary['package']:
+                name = as_dictionary['package']['name']
+            elif "@name" in as_dictionary['package']:
                 name = as_dictionary['package']['@name']
-                version = as_dictionary['package']['@version'].replace("-", ".")
-            except Exception as e:
-                print(f"Dictionary sad: {as_dictionary}")
-                print(f"Exception: {e}")
+            else:
+                print(f"Skipping input as the release-package is not formatted correctly: {as_dictionary}")
+                continue
+
+            version = as_dictionary['package']['@version'].replace("-", ".")
 
             # Check the component has inputs
             if release_package_contains_inputs(as_dictionary) is False:
