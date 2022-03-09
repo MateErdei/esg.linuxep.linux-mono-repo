@@ -682,6 +682,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdateButMissin
                                                   "HBT",      "MTD", "NTP",  "SAV", "SDU",      "WEBCNTRL" };
     EXPECT_EQ(features, expectedFeatures);
 
+    // We expect the schedule to be disabled because the policy did not contain both date and time.
     auto schedule = settingsHolder.weeklySchedule;
     EXPECT_EQ(schedule.enabled, false);
     EXPECT_EQ(schedule.weekDay, 0);
