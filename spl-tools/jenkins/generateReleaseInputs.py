@@ -27,10 +27,15 @@ def process_release_files(release_files):
             name = as_dictionary['package']['@name']
             version = as_dictionary['package']['@version'].replace("-", ".")
 
-            # Check the component has inputs
-            if "package" not in as_dictionary or "inputs" not in as_dictionary['package'] or "build-asset" not in as_dictionary['package']['inputs']:
-                print(f"Skipping: {name} as it has no inputs")
-                continue
+            try:
+                # Check the component has inputs
+                if "package" not in as_dictionary or "inputs" not in as_dictionary['package'] or "build-asset" not in as_dictionary['package']['inputs']:
+                    print(f"Skipping: {name} as it has no inputs")
+                    continue
+            except Exception as e:
+                print(f"Falied to process: {name}")
+                print(f"Dictionary: {as_dictionary}")
+                print(f"Exception: {e}")
 
             all_dict[name] = {}
             this_entry = all_dict[name]
