@@ -9,24 +9,32 @@
 edr.latest.x64:
   prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--DNR-2022-09-SDDS3-Test/20220304100134-b8fa7e5bdc101842e1b76f8ab69cb6166e6a586f-c1oJcS/edr/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-EDR
+  mountpoint: ServerProtectionLinux-Plugin-EDR
 av.latest.x64:
   prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--DNR-2022-09-SDDS3-Test/20220304141905-2c97bec665d66a1ff0819f576358dedf6936035f-M12ASk/sspl-plugin-anti-virus/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-AV
+  mountpoint: ServerProtectionLinux-Plugin-AV
 mdr.latest.x64:
   prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--DNR-2022-09-SDDS3-Test/20220304100209-10d9f3cb8875f889277f62016f268f02575634b9-QJX0JI/mdr/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-MDR
+  mountpoint: ServerProtectionLinux-Plugin-MDR
 base.latest.x64:
   prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--DNR-2022-09-SDDS3-Test/20220304100022-ae2cf9c4c716f3015934d74e0fe81ee50b5742d2-5YieOG/sspl-base/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Base-component
+  mountpoint: ServerProtectionLinux-Base-component
 event-journaler.latest.x64:
   prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--DNR-2022-09-SDDS3-Test/20220304100244-c5c36e43bcbaf620fd303ba61c882407bb83cacd-x8zDSl/eventjournaler/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-EventJournaler
+  mountpoint: ServerProtectionLinux-Plugin-EventJournaler
 liveresponse.latest.x64:
   prod-artifact: esg-releasable-candidate/winep.liveterminal/release--DNR-2022-09-SDDS3-Test/20220304100308-9e1364be188e349fd94c0a65e63c5bd08b46256b-A5o9wK/liveterminal/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-liveresponse
+  mountpoint: ServerProtectionLinux-Plugin-liveresponse
 runtimedetections.latest.x64:
   prod-artifact: esg-releasable-candidate/linuxep.capsule8-sensor/release--DNR-2022-09-SDDS3-Test/20220304101156-b59c655eaecd56ac569c6286a1cdecee2778e74b-TEXz6J/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
+  mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
 heartbeat.latest.x64:
   prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-heartbeat/release--DNR-2022-09-SDDS3-Test/20220307105216-919e3ba159f0b751a95c5965f8e209fb1ff29c18-FvgqxV/sspl-plugin-heartbeat/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-Heartbeat
+  mountpoint: ServerProtectionLinux-Plugin-Heartbeat
