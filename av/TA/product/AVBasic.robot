@@ -427,12 +427,6 @@ AV Plugin requests policies at startup
     ...  FakeManagement Log Contains   Received policy request: APPID=ALC
 
 
-AV Plugin segfault test
-    Run Process  python3  -c  "import ctypes;ctypes.string_at(0)"
-    Create File  /tmp/core-fake  Fake core dump
-    Create File  ${AV_PLUGIN_PATH}/log/exception.log   Caught exception at top-level
-
-
 *** Keywords ***
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
