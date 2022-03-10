@@ -864,7 +864,6 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
 
     Mark Sophos Threat Detector Log
-    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
     Restart sophos_threat_detector
 
     # scan eicar to trigger susi to be loaded
