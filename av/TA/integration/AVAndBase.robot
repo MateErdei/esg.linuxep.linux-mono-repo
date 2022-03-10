@@ -64,12 +64,12 @@ AV plugin runs scan now
 AV plugin runs scan now while CLS is running
     Register Cleanup    Exclude UnixSocket Environment Interruption Error
 
-    # Scan whole system with CLS (should take a long time)
+    # Scan /usr/ with CLS (should take a long time)
     ${LOG_FILE} =       Set Variable   /tmp/scan.log
     Remove File  ${LOG_FILE}
     Register Cleanup    Remove File  ${LOG_FILE}
     Register Cleanup    Dump Log     ${LOG_FILE}
-    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /usr/
     ...   stdout=${LOG_FILE}   stderr=STDOUT
     Process Should Be Running   ${cls_handle}
 
@@ -327,12 +327,12 @@ AV plugin runs scheduled scan while CLS is running
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Register Cleanup    Exclude Scan Errors From File Samples
 
-    # Scan whole system with CLS (should take a long time)
+    # Scan /usr/ with CLS (should take a long time)
     ${LOG_FILE} =       Set Variable   /tmp/scan.log
     Remove File  ${LOG_FILE}
     Register Cleanup    Remove File  ${LOG_FILE}
     Register Cleanup    Dump Log     ${LOG_FILE}
-    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /usr/
     ...   stdout=${LOG_FILE}   stderr=STDOUT
     Process Should Be Running   ${cls_handle}
 
