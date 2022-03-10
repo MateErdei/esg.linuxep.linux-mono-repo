@@ -117,6 +117,7 @@ Threat detector is killed gracefully
     Start AV
     Wait until threat detector running
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /  stdout=${TESTTMP}/cli.log  stderr=STDOUT
+    Register Cleanup  Remove File  ${TESTTMP}/cli.log
     Register Cleanup  Dump Log  ${TESTTMP}/cli.log
     Register Cleanup  Terminate Process  ${cls_handle}
 

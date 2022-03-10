@@ -65,7 +65,7 @@ AV plugin runs scan now while CLS is running
     Register Cleanup    Exclude UnixSocket Environment Interruption Error
 
     # Scan whole system with CLS (should take a long time)
-    ${LOG_FILE} =       Set Variable   /tmp_test/scan.log
+    ${LOG_FILE} =       Set Variable   /tmp/scan.log
     Remove File  ${LOG_FILE}
     Register Cleanup    Remove File  ${LOG_FILE}
     Register Cleanup    Dump Log     ${LOG_FILE}
@@ -328,7 +328,7 @@ AV plugin runs scheduled scan while CLS is running
     Register Cleanup    Exclude Scan Errors From File Samples
 
     # Scan whole system with CLS (should take a long time)
-    ${LOG_FILE} =       Set Variable   /tmp_test/scan.log
+    ${LOG_FILE} =       Set Variable   /tmp/scan.log
     Remove File  ${LOG_FILE}
     Register Cleanup    Remove File  ${LOG_FILE}
     Register Cleanup    Dump Log     ${LOG_FILE}
@@ -367,7 +367,7 @@ AV plugin runs scheduled scan while CLS is running
 
     # Stop CLS
     ${result} =   Terminate Process  ${cls_handle}
-    Should Be Equal As Integers  ${result.rc}  ${EXECUTION_INTERRUPTED}
+    Should Contain  ${{ [ ${EXECUTION_INTERRUPTED}, ${SCAN_ABORTED_WITH_THREAT} ] }}   ${result.rc}
 
 AV plugin runs CLS while scheduled scan is running
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
