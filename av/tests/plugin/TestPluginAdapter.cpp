@@ -788,23 +788,22 @@ TEST_F(TestPluginAdapter, testHealthResetsToGreenWhenAppriopriate) //NOLINT
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_SCAN_ABORTED);
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
-    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_CAP_SET_PROC_C);
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
-    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_CAP_SET_AMBIENT_C);
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
-    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_SIGTERM);
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
-    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_VIRUS_FOUND);
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_SCAN_ABORTED_WITH_THREATS);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+
+    pluginAdapter.processScanComplete(scanCompleteXml, common::E_EXECUTION_INTERRUPTED);
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
     EXPECT_TRUE(appenderContains("Publishing good threat health status after clean scan", 2));
