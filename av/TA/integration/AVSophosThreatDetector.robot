@@ -449,7 +449,6 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     SUSI Debug Log Does Not Contain With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
 
 SUSI Debug Log Does Not Contain Info Level Logs By Default
-    Register Cleanup     Exclude SPPLAV Processes Are Killed With SIGKILL
     register cleanup     Exclude Watchdog Log Unable To Open File Error
     register cleanup     Stop sophos_threat_detector
     register cleanup     Set Log Level  DEBUG

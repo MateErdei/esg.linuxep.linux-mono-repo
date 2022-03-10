@@ -64,7 +64,6 @@ IDE update copies updated ide
 
 
 Restart then Update Sophos Threat Detector
-    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
@@ -87,9 +86,7 @@ Restart then Update Sophos Threat Detector
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 Update then Restart Sophos Threat Detector
-    # currently needed, as we're stopping threat_detector during an update
-    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
-
+    Register Cleanup    Exclude Threat Detector Process Is Killed With SIGKILL
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Mark Sophos Threat Detector Log
     Install IDE without reload check  ${IDE_NAME}
@@ -117,7 +114,6 @@ Installer doesnt try to create an existing user
 
 
 Scanner works after upgrade
-    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     Mark AV Log
     Mark Sophos Threat Detector Log
 
@@ -350,7 +346,6 @@ Check no duplicate virus data files
 Check installer corrects permissions of var directory on upgrade
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Register Cleanup    Exclude UpdateScheduler Fails
-    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     Register On Fail  dump watchdog log
 
     Mark Watchdog Log
@@ -378,7 +373,6 @@ Check installer corrects permissions of var directory on upgrade
 Check installer corrects permissions of logs directory on upgrade
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Register Cleanup    Exclude UpdateScheduler Fails
-    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
 
     Register On Fail  dump watchdog log
     Mark Watchdog Log
@@ -449,7 +443,6 @@ Check installer can handle versioned copied Virus Data from 1.0.0
     Should Be True   ${number_of_VDL_files} > 1
 
 AV Plugin Can Send Telemetry After IDE Update
-    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
@@ -480,13 +473,10 @@ AV Plugin Can Send Telemetry After IDE Update
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 AV Plugin Can Send Telemetry After Upgrade
-    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
-    Mark AV Log
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
-    Wait until AV Plugin running with offset
 
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
@@ -512,7 +502,6 @@ AV Plugin Can Send Telemetry After Upgrade
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 AV Plugin Restores Downgrade Logs
-    Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
     Run plugin uninstaller with downgrade flag
     Check AV Plugin Not Installed
     Install AV Directly from SDDS
@@ -593,9 +582,6 @@ Installer Test Setup
     Register Cleanup    Exclude CustomerID Failed To Read Error
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude Communication Between AV And Base Due To No Incoming Data
-    Register Cleanup    Require No Unhandled Exception
-    Register Cleanup    Check For Coredumps  ${TEST NAME}
-    Register Cleanup    Check Dmesg For Segfaults
 
 Installer Test TearDown
     #Run Teardown Functions

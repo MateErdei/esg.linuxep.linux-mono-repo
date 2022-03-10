@@ -510,7 +510,6 @@ AV And Base Teardown
     #mark errors related to scheduled scans being forcefully terminated at the end of a test
     Exclude Failed To Scan Multiple Files Cloud
     Exclude UnixSocket Interrupted System Call Error Cloud Scan
-    Exclude SPPLAV Processes Are Killed With SIGKILL
     Exclude Watchdog Log Unable To Open File Error
     Exclude Expected Sweep Errors
     #mark generic errors caused by the lack of a central connection/warehouse/subscription

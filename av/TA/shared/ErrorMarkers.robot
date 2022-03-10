@@ -46,8 +46,8 @@ Exclude UnixSocket Interrupted System Call Error Cloud Scan
 Exclude UpdateScheduler Fails
     mark_expected_error_in_log  ${UPDATE_SCHEDULER}  updatescheduler <> Update Service (sophos-spl-update.service) failed.
 
-Exclude SPPLAV Processes Are Killed With SIGKILL
-    mark_expected_error_in_log  ${WATCHDOG_LOG}   ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/av died with 9
+Exclude Threat Detector Process Is Killed With SIGKILL
+    mark_expected_error_in_log  ${WATCHDOG_LOG}   ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 9
 
 Exclude Invalid Day From Policy Error
     mark_expected_error_in_log  ${AV_LOG_PATH}  ScanScheduler <> Invalid day from policy:
