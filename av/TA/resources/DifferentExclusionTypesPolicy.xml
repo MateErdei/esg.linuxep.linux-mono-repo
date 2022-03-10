@@ -35,6 +35,7 @@
                 <filePath>/bin/</filePath>
                 <filePath>/proc/</filePath>
                 <filePath>/redist/</filePath>
+                <filePath>/regression/</filePath>
                 <filePath>/root/</filePath>
                 <filePath>/run/</filePath>
                 <filePath>/sbin/</filePath>
