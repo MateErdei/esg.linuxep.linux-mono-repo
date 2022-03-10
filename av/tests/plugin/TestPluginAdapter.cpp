@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -57,7 +57,7 @@ namespace
             fs::remove_all(tmpdir());
         }
 
-        std::string generatePolicyXML(const std::string& revID, const std::string& policyID="2", const std::string& sxl="false")
+        static std::string generatePolicyXML(const std::string& revID, const std::string& policyID="2", const std::string& sxl="false")
         {
             return Common::UtilityImpl::StringUtils::orderedStringReplace(
                     R"sophos(<?xml version="1.0"?>
@@ -74,7 +74,7 @@ namespace
            {"@@SXL@@", sxl}});
         }
 
-        std::string generateUpdatePolicyXML(const std::string& revID, const std::string& policyID="1")
+        static std::string generateUpdatePolicyXML(const std::string& revID, const std::string& policyID="1")
         {
             return Common::UtilityImpl::StringUtils::orderedStringReplace(
                     R"sophos(<?xml version="1.0"?>
@@ -90,7 +90,7 @@ namespace
            {"@@POLICY_ID@@", policyID}});
         }
 
-        std::string generateStatusXML(const std::string& res, const std::string& revID)
+        static std::string generateStatusXML(const std::string& res, const std::string& revID)
         {
             return Common::UtilityImpl::StringUtils::orderedStringReplace(
                     R"sophos(<?xml version="1.0" encoding="utf-8"?>
@@ -116,7 +116,6 @@ namespace
                     });
         }
 
-        std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<QueueTask> m_queueTask;
         std::shared_ptr<Plugin::PluginCallback> m_callback;
         fs::path m_threatEventPublisherSocketPath;
@@ -177,8 +176,8 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows) //NOLINT
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
-    EXPECT_TRUE(appenderContains("Failed to get SAV policy at startup (dummy error)"));
-    EXPECT_TRUE(appenderContains("Failed to get ALC policy at startup (dummy error)"));
+    EXPECT_TRUE(appenderContains("Failed to request SAV policy at startup (dummy error)"));
+    EXPECT_TRUE(appenderContains("Failed to request ALC policy at startup (dummy error)"));
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
@@ -201,7 +200,13 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_queueTask,
+        std::move(mockBaseService),
+        m_callback,
+        m_threatEventPublisherSocketPath,
+        0
+        );
 
     std::string policy1revID = "12345678901";
     std::string policy2revID = "12345678902";
@@ -235,8 +240,8 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
     // We now see all of the restart events
-    EXPECT_TRUE(appenderContains("Processing request to restart sophos threat detector", 3));
-    EXPECT_TRUE(appenderContains("Requesting scan monitor to reload susi", 1));
+    EXPECT_EQ(appenderCount("Processing request to restart sophos threat detector"), 3);
+    EXPECT_EQ(appenderCount("Requesting scan monitor to reload susi"), 1);
 }
 
 TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPolicy) //NOLINT
@@ -247,24 +252,37 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <invalidPolicy />
 )sophos";
 
     Task policyTask = {Task::TaskType::Policy, policyXml};
     m_queueTask->push(policyTask);
-    m_queueTask->pushStop();
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
 
-    pluginAdapter.mainLoop();
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_queueTask,
+        std::move(mockBaseService),
+        m_callback,
+        m_threatEventPublisherSocketPath,
+        1
+        );
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(appenderContains("ALC policy has not been sent to the plugin"));
-    EXPECT_TRUE(appenderContains("SAV policy has not been sent to the plugin"));
-    EXPECT_TRUE(appenderContains("Keep task: Stop"));
+    std::this_thread::sleep_for(500ms);
+
+    EXPECT_FALSE(appenderContains("ALC policy has not been sent to the plugin"));
+    EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
+
+    EXPECT_TRUE(waitForLog("ALC policy has not been sent to the plugin", 700ms));
+    EXPECT_TRUE(waitForLog("SAV policy has not been sent to the plugin", 200ms));
+
+    m_queueTask->pushStop();
+
+    pluginThread.join();
+
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
@@ -550,7 +568,6 @@ public:
     explicit SubscriberThread(Common::ZMQWrapperApi::IContext& context, const std::string& socketPath);
     ~SubscriberThread()
     {
-        m_stopThread = true;
         if (m_thread.joinable())
         {
             m_thread.join();
@@ -567,7 +584,6 @@ private:
     Common::ZMQWrapperApi::IContext& m_context;
     Common::ZeroMQWrapper::ISocketSubscriberPtr m_subscriber;
     std::thread m_thread;
-    bool m_stopThread;
     std::vector<std::string> m_data;
     void run();
 };
@@ -575,8 +591,7 @@ private:
 SubscriberThread::SubscriberThread(Common::ZMQWrapperApi::IContext& context, const std::string& socketPath) :
     m_context(context),
     m_subscriber(m_context.getSubscriber()),
-    m_thread(),
-    m_stopThread(false)
+    m_thread()
 {
     m_subscriber->listen("ipc://" + socketPath);
     m_subscriber->subscribeTo("threatEvents");
@@ -713,7 +728,34 @@ TEST_F(TestPluginAdapter, testInvalidTaskType) //NOLINT
     EXPECT_TRUE(appenderContains("Received Policy"));
 }
 
-TEST_F(TestPluginAdapter, testHealthResetsToGreen) //NOLINT
+
+TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies) //NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+
+    m_queueTask->pushStop();
+
+    EXPECT_TRUE(waitForLog("Stopping the main program loop", 500ms));
+
+    pluginThread.join();
+
+    EXPECT_FALSE(appenderContains("ALC policy has not been sent to the plugin"));
+    EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
+}
+
+TEST_F(TestPluginAdapter, testHealthResetsToGreenWhenAppriopriate) //NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -732,14 +774,10 @@ TEST_F(TestPluginAdapter, testHealthResetsToGreen) //NOLINT
         </event>)sophos";
 
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}")).Times(6);
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}")).Times(2);
 
     m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_GENERIC_FAILURE);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-
-    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_SCAN_ABORTED);
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
 
     m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
@@ -747,16 +785,20 @@ TEST_F(TestPluginAdapter, testHealthResetsToGreen) //NOLINT
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
 
     m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+    pluginAdapter.processScanComplete(scanCompleteXml, common::E_SCAN_ABORTED);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+
+    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_CAP_SET_PROC_C);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
     m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_CAP_SET_AMBIENT_C);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
     m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_SIGTERM);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
     m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_VIRUS_FOUND);
@@ -765,5 +807,5 @@ TEST_F(TestPluginAdapter, testHealthResetsToGreen) //NOLINT
     pluginAdapter.processScanComplete(scanCompleteXml, common::E_SCAN_ABORTED_WITH_THREATS);
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
-    EXPECT_TRUE(appenderContains("Publishing good threat health status after clean scan", 6));
+    EXPECT_TRUE(appenderContains("Publishing good threat health status after clean scan", 2));
 }
