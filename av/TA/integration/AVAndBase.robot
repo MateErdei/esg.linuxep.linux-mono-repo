@@ -107,7 +107,7 @@ AV plugin runs scan now while CLS is running
 
     # Stop CLS
     ${result} =   Terminate Process  ${cls_handle}
-    Should Be Equal As Integers  ${result.rc}  ${EXECUTION_INTERRUPTED}
+    Should Contain  ${{ [ ${EXECUTION_INTERRUPTED}, ${SCAN_ABORTED_WITH_THREAT} ] }}   ${result.rc}
 
 AV plugin runs CLS while scan now is running
     Register Cleanup    Exclude UnixSocket Environment Interruption Error
