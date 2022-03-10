@@ -355,7 +355,7 @@ TEST_F(TestFdTransfer, validFd) // NOLINT
     datatypes::AutoFd client_fd(tf.readFD());
 
     int ret = unixsocket::send_fd(socket_pair.get_client_fd(), client_fd.get());
-    ASSERT_GT(ret, 0);
+    ASSERT_GT(ret, 0) << "send_fd failed with: " << strerror(errno);
 
     int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
     ASSERT_GE(new_fd, 0);
