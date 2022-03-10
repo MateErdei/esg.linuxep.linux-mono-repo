@@ -26,7 +26,6 @@ ${MACHINEID_FILE}   ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 
 *** Test Cases ***
 Test Global Rep works in chroot
-    run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
     Restart sophos_threat_detector and mark logs
     scan GR test file
     check sophos_threat_dector log for successful global rep lookup
@@ -405,6 +404,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
     Register Cleanup  Run  chmod 600 ${THREAT_DETECTOR_LOG_PATH}
     Register Cleanup  Stop Sophos_threat_detector
 
+    # use the basic restart method, as threat detector will not be logging
     restart sophos_threat_detector
 
     ${result} =  Run Process  ls  -l  ${THREAT_DETECTOR_LOG_PATH}
@@ -434,10 +434,7 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Register Cleanup  Stop Sophos_threat_detector
     Register Cleanup  Run  chmod 600 ${SUSI_DEBUG_LOG_PATH}
 
-    restart sophos_threat_detector
-
-    Mark AV Log
-    Mark Susi Debug Log
+    restart sophos_threat_detector and mark logs
 
     ${result} =  Run Process  ls  -l  ${SUSI_DEBUG_LOG_PATH}
     Log  New permissions: ${result.stdout}
@@ -449,14 +446,13 @@ SUSI Can Work Despite Specified Log File Being Read-Only
 SUSI Debug Log Does Not Contain Info Level Logs By Default
     Register Cleanup     Exclude SPPLAV Processes Are Killed With SIGKILL
     register cleanup     Exclude Watchdog Log Unable To Open File Error
-    register cleanup     restart sophos_threat_detector
+    register cleanup     Stop sophos_threat_detector
     register cleanup     Set Log Level  DEBUG
 
     Create Temporary eicar in  ${NORMAL_DIRECTORY}/eicar.com
-    run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
     Set Log Level  INFO
-    restart sophos_threat_detector
-    Wait Until Sophos Threat Detector Log Contains  Starting USR1 monitor  timeout=120
+
+    restart sophos_threat_detector and mark logs
 
     # Request a scan in order to load SUSI
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
@@ -557,6 +553,7 @@ AVSophosThreatDetector Test Setup
     register on fail  dump log  ${WATCHDOG_LOG}
     register on fail  dump log  ${SOPHOS_INSTALL}/logs/base/wdctl.log
     register on fail  dump log  ${SOPHOS_INSTALL}/plugins/av/log/av.log
+    register on fail  dump log   ${SUSI_DEBUG_LOG_PATH}
     register on fail  dump threads  ${SOPHOS_THREAT_DETECTOR_BINARY}
     register on fail  dump threads  ${PLUGIN_BINARY}
 

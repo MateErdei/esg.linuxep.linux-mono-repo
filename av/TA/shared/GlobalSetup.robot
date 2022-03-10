@@ -11,8 +11,17 @@ Library         ../Libs/TeardownTools.py
 ${COMPONENT}        av
 ${COMPONENT_NAME}   ${COMPONENT}
 ${COMPONENT_UC}     AV
+
 ${TEST_INPUT_PATH}  /opt/test/inputs
 ${BASE_SDDS}        ${TEST_INPUT_PATH}/${COMPONENT}/base-sdds/
+
+${CLEAN_RESULT}                    ${0}
+${ERROR_RESULT}                    ${8}
+${PASSWORD_PROTECTED_RESULT}       ${16}
+${VIRUS_DETECTED_RESULT}           ${24}
+${SCAN_ABORTED_WITH_THREAT}        ${25}
+${SCAN_ABORTED}                    ${36}
+${EXECUTION_INTERRUPTED}           ${40}
 
 *** Keywords ***
 Global Setup Tasks
@@ -20,12 +29,12 @@ Global Setup Tasks
     ${placeholder} =  Get Environment Variable              SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}                  ${placeholder}
     Set Environment Variable  SOPHOS_INSTALL                ${SOPHOS_INSTALL}
-    Set Global Variable  ${TEST_INPUT_PATH}                 ${TEST_INPUT_PATH}
+
     Set Global Variable  ${TEST_SCRIPTS_PATH}               ${TEST_INPUT_PATH}/test_scripts
     Set Global Variable  ${INTEGRATION_TESTS_PATH}          ${TEST_SCRIPTS_PATH}/integration
     Set Global Variable  ${PRODUCT_TESTS_PATH}              ${TEST_SCRIPTS_PATH}/product
     Set Global Variable  ${RESOURCES_PATH}                  ${TEST_SCRIPTS_PATH}/resources
-    Set Global Variable  ${COMPONENT_NAME}                  ${COMPONENT_NAME}
+
     Set Global Variable  ${COMPONENT_SDDS_COMPONENT}        ${TEST_INPUT_PATH}/${COMPONENT_NAME}/SDDS-COMPONENT
     Set Global Variable  ${COMPONENT_SDDS}                  ${TEST_INPUT_PATH}/${COMPONENT_NAME}/INSTALL-SET
     Set Global Variable  ${COMPONENT_INSTALL_SET}           ${TEST_INPUT_PATH}/${COMPONENT_NAME}/INSTALL-SET
@@ -39,15 +48,9 @@ Global Setup Tasks
     Set Global Variable  ${MCS_PATH}                        ${SOPHOS_INSTALL}/base/mcs
     Set Global Variable  ${AV_PLUGIN_PATH}                  ${COMPONENT_ROOT_PATH}
     Set Global Variable  ${AV_LOG_PATH}                     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
-    Set Global Variable  ${CLEAN_RESULT}                    ${0}
-    Set Global Variable  ${ERROR_RESULT}                    ${8}
-    Set Global Variable  ${PASSWORD_PROTECTED_RESULT}       ${16}
-    Set Global Variable  ${VIRUS_DETECTED_RESULT}           ${24}
-    Set Global Variable  ${SCAN_ABORTED_WITH_THREAT}        ${25}
-    Set Global Variable  ${SCAN_ABORTED}                    ${36}
 
 
-    Set Global Variable  ${USING_FAKE_AV_SCANNER_FLAG}            UsingFakeAvScanner
+    Set Global Variable  ${USING_FAKE_AV_SCANNER_FLAG}       UsingFakeAvScanner
     Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  false
 
     Create Install Set If Required

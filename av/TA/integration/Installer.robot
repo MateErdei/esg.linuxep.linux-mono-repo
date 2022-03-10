@@ -87,7 +87,9 @@ Restart then Update Sophos Threat Detector
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 Update then Restart Sophos Threat Detector
+    # currently needed, as we're stopping threat_detector during an update
     Register Cleanup    Exclude SPPLAV Processes Are Killed With SIGKILL
+
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Mark Sophos Threat Detector Log
     Install IDE without reload check  ${IDE_NAME}
@@ -482,7 +484,9 @@ AV Plugin Can Send Telemetry After Upgrade
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
+    Mark AV Log
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
+    Wait until AV Plugin running with offset
 
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector

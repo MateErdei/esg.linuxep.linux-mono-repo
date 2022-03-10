@@ -140,6 +140,7 @@ Restart sophos_threat_detector and mark logs
     Stop sophos_threat_detector
     Mark AV Log
     Mark Sophos Threat Detector Log
+    Mark Susi Debug Log
     Start sophos_threat_detector
     Wait until threat detector running with offset
 

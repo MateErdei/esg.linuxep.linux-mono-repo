@@ -211,7 +211,7 @@ CLS Summary is Correct
 
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}  1502 files scanned in  minute  second
+    Should Contain   ${output}  1502 files scanned in
     Should Contain   ${output}  1501 files out of 1502 were infected.
     Should Contain   ${output}  1502 EICAR-AV-Test infections discovered.
     Should Contain   ${output}  1 scan error encountered
@@ -830,8 +830,8 @@ CLS Can Handle Wildcard Exclusions
     Log  return code is ${rc}
     Log  output is ${output}
 
-    Should Contain      ${output}  Excluding directory:  ${NORMAL_DIRECTORY}/clean_eicar_folder/
-    Should Contain      ${output}  Excluding directory:  ${NORMAL_DIRECTORY}/another_eicar_folder/
+    Should Contain      ${output}  Excluding directory: ${NORMAL_DIRECTORY}/naughty_eicar_folder/
+    Should Contain      ${output}  Excluding directory: ${NORMAL_DIRECTORY}/another_eicar_folder/
     Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/eic.nope
     Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/exe_eicar.exe
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}

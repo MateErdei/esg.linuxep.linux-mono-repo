@@ -935,3 +935,14 @@ Check avscanner can detect eicar
 
 Force SUSI to be initialized
     Check avscanner can detect eicar  ${CLI_SCANNER_PATH}
+
+Create Big Dir
+    [Arguments]   ${count}=100   ${path}=${SCAN_DIRECTORY}/big_dir
+    Register Cleanup   Remove Directory   ${path}   recursive=true
+    Create Directory   ${path}
+    Copy File     ${RESOURCES_PATH}/file_samples/Firefox.exe   ${path}/Firefox.exe
+    FOR   ${i}   IN RANGE   ${count}
+       Evaluate   os.link("${path}/Firefox.exe", "${path}/Firefox${i}.exe")   modules=os
+    END
+    List Directory   ${path}
+    [Return]   ${path}
