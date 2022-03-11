@@ -8,11 +8,11 @@ Copyright 2019, Sophos Limited.  All rights reserved.
  * Component tests for libcurl wrapper
  */
 
+#include <Common/CurlWrapper/CurlWrapper.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <memory>
-#include "CurlWrapper/CurlWrapper.h"
 
 class FakeCurlWrapper : public Common::CurlWrapper::CurlWrapper
 {
