@@ -72,7 +72,7 @@ Restart then Update Sophos Threat Detector
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
+    ...   UnixSocket <> Process Controller Server starting listening on socket:
     ...   timeout=60
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Install IDE without reload check  ${IDE_NAME}
@@ -98,7 +98,7 @@ Update then Restart Sophos Threat Detector
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
+    ...   UnixSocket <> Process Controller Server starting listening on socket:
     ...   timeout=60
 
     # Check we can detect PEEND following update
@@ -128,7 +128,7 @@ Scanner works after upgrade
     # Existing robot functions don't check marked logs, so we do our own log check instead
     Check Plugin Installed and Running With Offset
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
+    ...   UnixSocket <> Process Controller Server starting listening on socket:
     ...   timeout=60
     Wait Until AV Plugin Log Contains With Offset
     ...   Starting threatReporter
@@ -190,7 +190,7 @@ IDE can be removed
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
     ...   timeout=60
     File should not exist  ${INSTALL_IDE_DIR}/${ide_name}
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
@@ -227,7 +227,7 @@ sophos_threat_detector can start after multiple IDE updates
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket
+    ...   UnixSocket <> Process Controller Server starting listening on socket:
     ...   timeout=60
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
@@ -326,7 +326,7 @@ Check no duplicate virus data files
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
     ...   timeout=60
     ${rc}   ${susiHash} =    Run And Return Rc And Output   head -n 1 ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/package_manifest.txt
     Should Be Equal As Integers  ${rc}  ${0}
@@ -456,7 +456,7 @@ AV Plugin Can Send Telemetry After IDE Update
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
     ...   timeout=60
     Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source
     ${AVPLUGIN_PID} =  Record AV Plugin PID
@@ -486,7 +486,7 @@ AV Plugin Can Send Telemetry After Upgrade
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
     ...   timeout=60
     Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source/*
 

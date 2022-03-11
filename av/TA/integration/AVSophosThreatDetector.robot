@@ -82,7 +82,7 @@ Threat detector aborts if logging symlink cannot be created
 Threat Detector Restarts When /etc/hosts changed
     # ensure that both AV and threat_detector are ready
     Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
-    Wait Until Sophos Threat Detector Log Contains  Starting listening on socket: /var/process_control_socket  timeout=120
+    Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
 
     ${SOPHOS_THREAT_DETECTOR_PID_AT_START} =  Get Sophos Threat Detector PID From File
 
@@ -95,7 +95,7 @@ Threat Detector Restarts When /etc/hosts changed
     Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system configuration has changed
     Wait Until Sophos Threat Detector Shutdown File Exists
     Mark Sophos Threat Detector Log
-    Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
+    Wait Until Sophos Threat Detector Log Contains With Offset Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
 
     Wait until threat detector running with offset
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
@@ -109,7 +109,7 @@ Threat Detector restarts if no scans requested within the configured timeout
 
     Mark Sophos Threat Detector Log
     Start sophos_threat_detector
-    Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
+    Wait Until Sophos Threat Detector Log Contains With Offset  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
     Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
     Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
 
@@ -128,7 +128,7 @@ Threat Detector restarts if no scans requested within the configured timeout
     Wait Until Sophos Threat Detector Shutdown File Exists
     Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
 
-    Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
+    Wait Until Sophos Threat Detector Log Contains With Offset  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
 
     Wait until threat detector running with offset
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
@@ -142,7 +142,7 @@ Threat Detector prolongs timeout if a scan is requested within the configured ti
 
     Mark Sophos Threat Detector Log
     Start sophos_threat_detector
-    Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
+    Wait Until Sophos Threat Detector Log Contains With Offset  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
     Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
@@ -161,7 +161,7 @@ Threat Detector prolongs timeout if a scan is requested within the configured ti
     # No scans requested for ${timeout2} seconds - shutting down.
     Wait Until Sophos Threat Detector Log Contains With Offset  No scans requested for  timeout=20
     Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
-    Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
+    Wait Until Sophos Threat Detector Log Contains With Offset  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
     Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
     Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace

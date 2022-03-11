@@ -180,7 +180,7 @@ Threat detector exits if it cannot acquire the susi update lock
 
     Wait Until Sophos Threat Detector Log Contains  Reload triggered by USR1
     Wait Until Sophos Threat Detector Log Contains  Failed to acquire lock on ${lockfile}  timeout=120
-    Wait Until Sophos Threat Detector Log Contains  UnixSocket <> Closing socket
+    Wait Until Sophos Threat Detector Log Contains  UnixSocket <> Closing Scanning Server socket
 
     Wait Until Keyword Succeeds
     ...  30 secs

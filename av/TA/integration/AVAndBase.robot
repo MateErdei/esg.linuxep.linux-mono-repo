@@ -155,7 +155,10 @@ AV plugin attempts to run scan now twice simultaneously
     AV Plugin Log Contains With Offset  Refusing to run a second Scan named: Scan Now
 
     ## Check we started only one scan
-    ${count} =   count lines in log with offset   ${AV_LOG_PATH}   Starting scan Scan Now   ${AV_LOG_MARK}
+    ${content} =  Get File Contents From Offset   ${AV_LOG_PATH}  ${AV_LOG_MARK}
+    ${lines} =  Get Lines Containing String     ${content}  Starting scan Scan Now
+
+    ${count} =  Get Line Count   ${lines}
     Should Be Equal As Integers  ${1}  ${count}
 
 AV plugin runs scheduled scan
@@ -258,62 +261,56 @@ AV plugin sends Scan Complete event and (fake) Report To Central
     Validate latest Event  ${now}
 
 AV Gets SAV Policy When Plugin Restarts
+    # Doesn't mark AV log since it removes it
+    Mark Sophos Threat Detector Log
     Send Sav Policy With No Scheduled Scans
     register cleanup  remove file   ${MCS_PATH}/policy/SAV-2_policy.xml
     register cleanup  remove file   ${SUSI_STARTUP_SETTINGS_FILE}
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-
     Stop AV Plugin
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-
+    Remove File    ${AV_LOG_PATH}
     Start AV Plugin
-    Wait Until AV Plugin Log Contains With Offset  SAV policy received for the first time.
-    Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
+    Wait Until AV Plugin Log Contains  SAV policy received for the first time.
+    Wait Until AV Plugin Log Contains  Processing SAV Policy
     File Should Exist    ${SUSI_STARTUP_SETTINGS_FILE}
     File Should Exist    ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 0
+    Wait until scheduled scan updated
+    Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans: 0
     Scan GR Test File
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled
 
 Av Plugin Processes First SAV Policy Correctly After Initial Wait For Policy Fails
+    Mark Sophos Threat Detector Log
     Stop AV Plugin
     Remove File    ${SUSI_STARTUP_SETTINGS_FILE}
     Remove File    ${MCS_PATH}/policy/SAV-2_policy.xml
-
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-
+    Remove File    ${AV_LOG_PATH}
     Start AV Plugin
-    Wait Until AV Plugin Log Contains With Offset   SAV policy has not been sent to the plugin
+    Wait Until AV Plugin Log Contains   SAV policy has not been sent to the plugin
     Send Sav Policy With No Scheduled Scans
-    Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
+    Wait Until AV Plugin Log Contains  Processing SAV Policy
     Wait Until File exists    ${SUSI_STARTUP_SETTINGS_FILE}
     File Should Exist    ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
-
+    Dump log    ${AV_LOG_PATH}
     Scan GR Test File
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled
 
 
 AV Gets ALC Policy When Plugin Restarts
     Register Cleanup    Exclude UpdateScheduler Fails
-
+    # Doesn't mark AV log since it removes it
     Send Alc Policy
     File Should Exist  ${MCS_PATH}/policy/ALC-1_policy.xml
     Stop AV Plugin
-
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    Remove File    ${AV_LOG_PATH}
+    Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Start AV Plugin
-    Wait until AV Plugin running with offset
-    Wait until threat detector running with offset
-
-    Wait Until AV Plugin Log Contains With Offset  Received policy from management agent for AppId: ALC
-    Wait Until AV Plugin Log Contains With Offset  ALC policy received for the first time.
-    Wait Until AV Plugin Log Contains With Offset  Processing ALC Policy
-
-    Threat Detector Log Should Not Contain With Offset  Failed to read customerID - using default value
+    Wait Until AV Plugin Log exists   timeout=30
+    Wait Until Threat Detector Log exists
+    Wait Until AV Plugin Log Contains  ALC policy received for the first time.
+    Wait Until AV Plugin Log Contains  Processing ALC Policy
+    Threat Detector Does Not Log Contain  Failed to read customerID - using default value
+    Wait Until AV Plugin Log Contains  Received policy from management agent for AppId: ALC
 
 AV Configures No Scheduled Scan Correctly
     Register Cleanup    Exclude UpdateScheduler Fails
@@ -750,7 +747,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}
     ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}    interval=20
 
-AV Runs Scan With SXL Lookup Enabled
+AV Runs Scan With SXL Lookup Enable
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
@@ -758,7 +755,6 @@ AV Runs Scan With SXL Lookup Enabled
     Configure and check scan now with offset
     Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central   timeout=60
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now
-
     SUSI Debug Log Contains With Offset  Post-scan lookup succeeded
 
 
@@ -773,10 +769,8 @@ AV Runs Scan With SXL Lookup Disabled
     Configure and check scan now with lookups disabled
 
     Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central   timeout=60
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now
-
-    SUSI Debug Log Does Not Contain With Offset   Post-scan lookup started
     SUSI Debug Log Does Not Contain With Offset   Post-scan lookup succeeded
+    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now
     AV Plugin Log Does Not Contain   Failed to send shutdown request: Failed to connect to unix socket
 
 
@@ -860,7 +854,7 @@ AV Plugin tries to restart threat detector on susi startup settings change
 
     Restart sophos_threat_detector and mark logs
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
     ...   timeout=60
     stop sophos_threat_detector
 
@@ -913,15 +907,16 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
     Restart sophos_threat_detector and mark logs
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
     ...   timeout=60
+    Mark AV Log
     Mark Sophos Threat Detector Log
 
-    Mark AV Log
     ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
     Send Sav Policy To Base  tempSavPolicy.xml
+
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until Sophos Threat Detector Log Contains With Offset  Skipping susi reload because susi is not initialised
 
@@ -931,7 +926,12 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
 
     Mark Sophos Threat Detector Log
-    Restart sophos_threat_detector
+    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
+    Run Process   /bin/kill   -SIGTERM   ${output}
+
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Process Controller Server starting listening on socket:
+    ...   timeout=120
 
     # scan eicar to trigger susi to be loaded
     Check avscanner can detect eicar
