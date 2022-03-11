@@ -74,14 +74,17 @@ void unixsocket::BaseServerSocket::run()
     int ret = ::listen(m_socket_fd, 2);
     if (ret != 0)
     {
-        throw std::runtime_error("Unable to listen on socket_fd");
+        std::stringstream stream;
+        stream << m_socketName;
+        stream << " unable to listen on socket_fd";
+        throw std::runtime_error(stream.str());
     }
 
     bool terminate = false;
 
     // Announce after we have started listening
     announceThreadStarted();
-    LOGSUPPORT("Starting listening on socket: " << m_socketPath);
+    LOGSUPPORT(m_socketName << " starting listening on socket: " << m_socketPath);
 
     while (!terminate)
     {
@@ -99,13 +102,13 @@ void unixsocket::BaseServerSocket::run()
                 continue;
             }
 
-            LOGERROR("Failed socket, closing. Error: " << strerror(error)<< " (" << error << ')');
+            LOGERROR("Socket failed, closing " << m_socketName << ". Error: " << strerror(error)<< " (" << error << ')');
             break;
         }
 
         if (FDUtils::fd_isset(exitFD, &tempRead))
         {
-            LOGDEBUG("Closing socket");
+            LOGDEBUG("Closing " << m_socketName << " socket");
             break;
         }
 
@@ -117,7 +120,10 @@ void unixsocket::BaseServerSocket::run()
 
             if (client_socket.get() < 0)
             {
-                perror("Failed to accept connection");
+                std::stringstream stream;
+                stream << m_socketName;
+                stream << " failed to accept connection";
+                perror(stream.str().c_str());
                 terminate = true;
             }
             else
