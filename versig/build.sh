@@ -77,12 +77,8 @@ function build()
 
     unpack_scaffold_gcc_make $INPUT
 
-    GOOGLE_TEST_TAR=$(ls $INPUT/googletest-release*.tar.gz)
-    pushd $BASE/tests
-    rm -rf googletest
-    tar xzf $GOOGLE_TEST_TAR
-    mv googletest-release-1.8.1 googletest
-    popd
+    rm -rf $BASE/tests/googletest
+    cp -r $INPUT/googletest $BASE/tests
 
     OPENSSL_TAR=$INPUT/openssl.tar
     [[ -f $OPENSSL_TAR ]] || exitFailure 12 "Failed to find openssl"
