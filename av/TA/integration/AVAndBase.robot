@@ -747,7 +747,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}
     ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}    interval=20
 
-AV Runs Scan With SXL Lookup Enable
+AV Runs Scan With SXL Lookup Enabled
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
@@ -755,6 +755,7 @@ AV Runs Scan With SXL Lookup Enable
     Configure and check scan now with offset
     Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central   timeout=60
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now
+
     SUSI Debug Log Contains With Offset  Post-scan lookup succeeded
 
 
@@ -769,8 +770,10 @@ AV Runs Scan With SXL Lookup Disabled
     Configure and check scan now with lookups disabled
 
     Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central   timeout=60
-    SUSI Debug Log Does Not Contain With Offset   Post-scan lookup succeeded
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now
+
+    SUSI Debug Log Does Not Contain With Offset   Post-scan lookup started
+    SUSI Debug Log Does Not Contain With Offset   Post-scan lookup succeeded
     AV Plugin Log Does Not Contain   Failed to send shutdown request: Failed to connect to unix socket
 
 
