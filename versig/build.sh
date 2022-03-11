@@ -95,10 +95,8 @@ function build()
     ln -snf libssl.so.1 ${REDIST}/openssl/lib${BITS}/libssl.so.10
     ln -snf libcrypto.so.1 ${REDIST}/openssl/lib${BITS}/libcrypto.so.10
 
-    CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
-    [[ -f $CMAKE_TAR ]] || exitFailure 13 "Failed to find cmake"
-    tar xzf "$CMAKE_TAR" -C "$REDIST"
-    addpath "$REDIST/cmake/bin"
+    addpath "$INPUT/cmake/bin"
+    chmod 700 $INPUT/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
 
     COMMON_LDFLAGS="${LINK_OPTIONS:-}"
     COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
