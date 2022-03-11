@@ -197,7 +197,7 @@ TEST_F(TestReadLength, FailedRead) // NOLINT
     const std::string expected = "Reading socket returned error: ";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    TestFile tf("TestReadLength_EOFReturnsMinus2_buffer");
+    TestFile tf("TestReadLength_FailedRead");
     tf.create();
 
     datatypes::AutoFd fd(tf.readFD());
@@ -349,7 +349,7 @@ TEST_F(TestFdTransfer, validFd) // NOLINT
 {
     TestSocket socket_pair;
 
-    TestFile tf("TestSocketUtils_passFd");
+    TestFile tf("TestFdTransfer_validFd");
     tf.write("foo");
 
     datatypes::AutoFd client_fd(tf.readFD());
@@ -358,7 +358,7 @@ TEST_F(TestFdTransfer, validFd) // NOLINT
     ASSERT_GT(ret, 0) << "send_fd failed with: " << strerror(errno);
 
     int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
-    ASSERT_GE(new_fd, 0);
+    ASSERT_GE(new_fd, 0) << "recv_fd failed with: " << strerror(errno);
     datatypes::AutoFd server_fd(new_fd);
 
     ASSERT_NE(server_fd.get(), client_fd.get());
