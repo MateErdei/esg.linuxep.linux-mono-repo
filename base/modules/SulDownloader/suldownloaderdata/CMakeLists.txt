@@ -42,8 +42,9 @@ add_library(suldownloaderdata SHARED
         WeekDayAndTimeForDelay.h
         UpdateSupplementDecider.cpp
         UpdateSupplementDecider.h
+        ISdds3Repository.h
         )
-
-target_link_libraries(suldownloaderdata PUBLIC filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl logging obfuscationimpl protobufutil)
+target_include_directories(suldownloaderdata PUBLIC  ../../../thirdparty/nlohmann-json)
+target_link_libraries(suldownloaderdata PUBLIC filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl logging obfuscationimpl protobufutil commscomponentimpl)
 install(TARGETS suldownloaderdata
         LIBRARY DESTINATION files/base/lib64)

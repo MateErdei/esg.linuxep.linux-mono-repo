@@ -36,7 +36,9 @@
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="em" repo="esg">
-          <release-version branch="release/sophlib" build-id="20220124144433-58a1c0c0500350918d190a7bca9b60e44c0fed41-ZXJHx9" />
+          <!--<release-version branch="release/sophlib" build-id="20220124144433-58a1c0c0500350918d190a7bca9b60e44c0fed41-ZXJHx9" /> -->
+          <release-version branch="release/sophlib" build-id="20220218164520-bb6a496024ca70313b2ceb24ecad7abb515d4e59-HAzZFu" />
+
           <!--<development-version branch="develop" />-->
           <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib" />
           <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64" />

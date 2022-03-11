@@ -17,7 +17,12 @@ namespace UpdateSchedulerImpl
             static std::string calculateHealth(StateData::StateMachineData stateMachineData);
             static void cleanUpMarkerFile();
             static std::string getJWToken();
+            static std::string getTenantId();
+            static std::string getDeviceId();
+
             static std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> getUpdateConfigWithLatestJWT();
+        private:
+        static std::string getValueFromMCSConfig(const std::string& key);
     };
 }
 

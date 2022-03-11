@@ -168,6 +168,7 @@ int main(int argc, char* argv[])
         std::string request_json = writeSUSRequest(request_parameters);
         std::cout << request_json << std::endl;
 
+        // start of SUS
         auto http_session = std::make_unique<utilities::http::Session>(getUserAgent(tenant_id, device_id), utilities::http::Proxy(), true);
         http_session->SetTimeouts(DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
 
@@ -186,12 +187,15 @@ int main(int argc, char* argv[])
         }
 
         parseSUSResponse(request->Read(), suites, releaseGroups);
+        // end of SUS
     }
     catch (const std::exception& ex)
     {
         std::cerr << ex.what() << std::endl;
         return EXIT_FAILURE;
     }
+
+
 
     std::cout << "suites:";
     for (const auto& s : suites)
@@ -206,6 +210,7 @@ int main(int argc, char* argv[])
     }
     std::cout << std::endl;
 
+    // CDN sync....
 
     sdds3::Session session(certs_dir);
     sdds3::Repo repo(repo_dir);

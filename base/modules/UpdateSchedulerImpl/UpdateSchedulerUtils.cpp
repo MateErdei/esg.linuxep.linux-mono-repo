@@ -108,7 +108,20 @@ namespace UpdateSchedulerImpl
         return pair;
     }
 
+    std::string UpdateSchedulerUtils::getDeviceId()
+    {
+        return getValueFromMCSConfig("device_id");
+    }
+    std::string UpdateSchedulerUtils::getTenantId()
+    {
+        return getValueFromMCSConfig("tenant_id");
+    }
     std::string UpdateSchedulerUtils::getJWToken()
+    {
+        return getValueFromMCSConfig("jwt_token");
+    }
+
+    std::string UpdateSchedulerUtils::getValueFromMCSConfig(const std::string& key)
     {
         auto fs = Common::FileSystem::fileSystem();
         std::string path = Common::ApplicationConfiguration::applicationPathManager().getMcsConfigFilePath();
@@ -117,7 +130,7 @@ namespace UpdateSchedulerImpl
         {
             if (fs->isFile(path))
             {
-                token = Common::UtilityImpl::StringUtils::extractValueFromConfigFile(path, "jwt_token");
+                token = Common::UtilityImpl::StringUtils::extractValueFromConfigFile(path, key);
             }
             else
             {
