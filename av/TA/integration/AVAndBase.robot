@@ -370,13 +370,13 @@ AV plugin runs scheduled scan while CLS is running
     Should Contain  ${{ [ ${EXECUTION_INTERRUPTED}, ${SCAN_ABORTED_WITH_THREAT} ] }}   ${result.rc}
 
 AV plugin runs CLS while scheduled scan is running
-    Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
     Register Cleanup    Exclude UnixSocket Environment Interruption Error
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
 
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/fakeEicarMaker.sh  stderr=STDOUT
+    # create something for scheduled scan to work on
+    Create Big Dir   count=60   path=/tmp_test/bigdir/
 
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
 
