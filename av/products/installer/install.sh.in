@@ -69,7 +69,12 @@ ROOT_CA=$SOPHOS_INSTALL/base/update/rootcerts/rootca.crt
 [[ -f $ROOT_CA ]] || failure ${EXIT_FAIL_MISSING_VERSIG} "Failed to find root CA in SSPL"
 SUPPLEMENT_DIR="$DIST/files/plugins/av/chroot/susi/update_source"
 VDL="$SUPPLEMENT_DIR/vdl"
-$VERSIG -c"$ROOT_CA" -f"$VDL/vdlmnfst.dat" -d"$VDL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify VDL supplement"
+DATASETA_MANIFEST=$VDL/manifestdata.dat
+# don't do versig check on VDL manifest if using dataset A
+if [[ -f $DATASETA_MANIFEST ]]
+then
+    $VERSIG -c"$ROOT_CA" -f"$VDL/vdlmnfst.dat" -d"$VDL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify VDL supplement"
+fi
 ML_MODEL="$SUPPLEMENT_DIR/model"
 $VERSIG -c"$ROOT_CA" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify Machine Learning supplement"
 
