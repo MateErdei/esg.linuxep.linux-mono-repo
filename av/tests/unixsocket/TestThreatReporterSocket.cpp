@@ -10,8 +10,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "datatypes/sophos_filesystem.h"
 #include "tests/common/Common.h"
-#include "tests/common/LogInitializedTests.h"
 #include "tests/common/WaitForEvent.h"
+#include "UnixSocketMemoryAppenderUsingTests.h"
 
 #include <unixsocket/threatReporterSocket/ThreatReporterClient.h>
 
@@ -21,7 +21,7 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class TestThreatReporterSocket : public LogInitializedTests
+    class TestThreatReporterSocket : public UnixSocketMemoryAppenderUsingTests
     {
     public:
         void SetUp() override
@@ -53,36 +53,44 @@ namespace
 
 TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
 {
-    setupFakeSophosThreatDetectorConfig();
-    WaitForEvent serverWaitGuard;
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    {
+        setupFakeSophosThreatDetectorConfig();
+        WaitForEvent serverWaitGuard;
 
-    std::time_t detectionTimeStamp = std::time(nullptr);
+        std::time_t detectionTimeStamp = std::time(nullptr);
 
-    auto mockThreatReportCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
+        auto mockThreatReportCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
 
-    EXPECT_CALL(*mockThreatReportCallback, processMessage(_)).Times(1).WillOnce(
-            InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
+        EXPECT_CALL(*mockThreatReportCallback, processMessage(_)).Times(1).WillOnce(
+                InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
 
-    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback);
+        unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback);
 
-    threatReporterServer.start();
+        threatReporterServer.start();
 
-    // connect after we start
-    unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath);
+        // connect after we start
+        unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath);
 
-    scan_messages::ThreatDetected threatDetected;
-    threatDetected.setUserID(m_userID);
-    threatDetected.setDetectionTime(detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
-    threatDetected.setThreatName(m_threatName);
-    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
-    threatDetected.setFilePath(m_threatPath);
-    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+        scan_messages::ThreatDetected threatDetected;
+        threatDetected.setUserID(m_userID);
+        threatDetected.setDetectionTime(detectionTimeStamp);
+        threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+        threatDetected.setThreatName(m_threatName);
+        threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
+        threatDetected.setFilePath(m_threatPath);
+        threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
 
-    threatReporterSocket.sendThreatDetection(threatDetected);
+        threatReporterSocket.sendThreatDetection(threatDetected);
 
-    serverWaitGuard.wait();
-    //destructor will stop the thread
+        serverWaitGuard.wait();
+        //destructor will stop the thread
+    }
+
+    EXPECT_TRUE(appenderContains("Threat Reporter Server starting listening on socket:"));
+    EXPECT_TRUE(appenderContains("Threat Reporter Server accepting connection:"));
+    EXPECT_TRUE(appenderContains("Threat Reporter Server thread got connection"));
+    EXPECT_TRUE(appenderContains("Closing Threat Reporter Server socket"));
 }
 
 TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT

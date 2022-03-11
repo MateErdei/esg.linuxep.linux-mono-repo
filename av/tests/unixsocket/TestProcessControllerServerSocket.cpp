@@ -75,25 +75,30 @@ TEST_F(TestProcessControllerServerSocket, testSocketConstruction) // NOLINT
 
 TEST_F(TestProcessControllerServerSocket, testTriggerNotified) // NOLINT
 {
-    unixsocket::ProcessControllerServerSocket processControllerServer(m_socketPath, 0660);
-    processControllerServer.start();
-    EXPECT_GT(processControllerServer.monitorShutdownFd(), -1);
-
-    unixsocket::ProcessControllerClientSocket processControllerClient(m_socketPath);
-    scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_SHUTDOWN);
-    processControllerClient.sendProcessControlRequest(processControlRequest);
-
-    int retries=0;
-    while (!processControllerServer.triggeredShutdown())
+    UsingMemoryAppender memoryAppenderHolder(*this);
     {
-        if (retries > 10)
-        {
-            FAIL() << "Failed to received shutdown request within 10 attempts";
+        unixsocket::ProcessControllerServerSocket processControllerServer(m_socketPath, 0660);
+        processControllerServer.start();
+        EXPECT_GT(processControllerServer.monitorShutdownFd(), -1);
+
+        unixsocket::ProcessControllerClientSocket processControllerClient(m_socketPath);
+        scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_SHUTDOWN);
+        processControllerClient.sendProcessControlRequest(processControlRequest);
+
+        int retries = 0;
+        while (!processControllerServer.triggeredShutdown()) {
+            if (retries > 10) {
+                FAIL() << "Failed to received shutdown request within 10 attempts";
+            }
+            sleep(1);
+            retries++;
         }
-        sleep(1);
-        retries++;
+        EXPECT_TRUE(processControllerServer.triggeredShutdown());
     }
 
-    EXPECT_TRUE(processControllerServer.triggeredShutdown());
+    EXPECT_TRUE(appenderContains("Process Controller Server starting listening on socket"));
+    EXPECT_TRUE(appenderContains("Process Controller Server accepting connection"));
+    EXPECT_TRUE(appenderContains("Process Controller Server thread got connection"));
+    EXPECT_TRUE(appenderContains("Closing Process Controller Server socket"));
     //destructor will stop the thread
 }

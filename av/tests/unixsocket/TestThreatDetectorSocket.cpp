@@ -84,8 +84,8 @@ TEST_F(TestThreatDetectorSocket, test_running) // NOLINT
     server.requestStop();
     server.join();
 
-    EXPECT_TRUE(appenderContains("Starting listening on socket"));
-    EXPECT_TRUE(appenderContains("Closing socket"));
+    EXPECT_TRUE(appenderContains("Scanning Server starting listening on socket"));
+    EXPECT_TRUE(appenderContains("Closing Scanning Server socket"));
 }
 
 static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, datatypes::AutoFd& file_fd, const std::string& filename)
@@ -100,6 +100,8 @@ static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket
 
 TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     static const std::string THREAT_PATH = "/dev/null";
     std::string socketPath = "scanning_socket";
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
@@ -127,6 +129,11 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
 
     server.requestStop();
     server.join();
+
+    EXPECT_TRUE(appenderContains("Scanning Server starting listening on socket:"));
+    EXPECT_TRUE(appenderContains("Scanning Server accepting connection:"));
+    EXPECT_TRUE(appenderContains("Scanning Server thread got connection"));
+    EXPECT_TRUE(appenderContains("Closing Scanning Server socket"));
 }
 
 TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
@@ -257,7 +264,7 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLIN
     }
 
     // Can't continue test if we don't have refused connections
-    ASSERT_TRUE(appenderContains("Refusing connection: Maximum number of scanner reached"));
+    ASSERT_TRUE(appenderContains("Refusing connection: Maximum number of scanners reached"));
     ASSERT_FALSE(client_sockets.empty());
 
     // Try a scan with the last connection
