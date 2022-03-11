@@ -104,6 +104,8 @@ Threat Detector Restarts When /etc/hosts changed
 Threat Detector restarts if no scans requested within the configured timeout
     Stop sophos_threat_detector
     Create File  ${AV_PLUGIN_PATH}/chroot/etc/threat_detector_config  {"shutdownTimeout":15}
+    Register Cleanup   Remove File   ${AV_PLUGIN_PATH}/chroot/etc/threat_detector_config
+    Register Cleanup   Stop sophos_threat_detector
 
     Mark Sophos Threat Detector Log
     Start sophos_threat_detector
@@ -135,6 +137,9 @@ Threat Detector restarts if no scans requested within the configured timeout
 Threat Detector prolongs timeout if a scan is requested within the configured timeout
     Stop sophos_threat_detector
     Create File  ${AV_PLUGIN_PATH}/chroot/etc/threat_detector_config  {"shutdownTimeout":15}
+    Register Cleanup   Remove File   ${AV_PLUGIN_PATH}/chroot/etc/threat_detector_config
+    Register Cleanup   Stop sophos_threat_detector
+
     Mark Sophos Threat Detector Log
     Start sophos_threat_detector
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting listening on socket: /var/process_control_socket  timeout=120
@@ -142,13 +147,13 @@ Threat Detector prolongs timeout if a scan is requested within the configured ti
     Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
     Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
 
+    Mark Sophos Threat Detector Log
     Create File     ${NORMAL_DIRECTORY}/dirty_file    ${EICAR_STRING}
     Create File     ${NORMAL_DIRECTORY}/clean_file    ${CLEAN_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    Mark Sophos Threat Detector Log
     # Scan requested less than ${timeout1} seconds ago - continuing
     Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested less than
     Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
@@ -472,7 +477,10 @@ SUSI Debug Log Does Not Contain Info Level Logs By Default
 
 Sophos Threat Detector Is Not Shutdown On A New Policy
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+
     Force SUSI to be initialized
+
+    # restart AV to force policy to be applied & sent to threat detector
     Stop AV Plugin Process
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
     Start AV Plugin Process
@@ -483,24 +491,25 @@ Sophos Threat Detector Is Not Shutdown On A New Policy
 
     mark sophos threat detector log
     mark susi debug log
-    Stop AV Plugin Process
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
-    Start AV Plugin Process
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled
     Wait Until Sophos Threat Detector Log Contains With Offset  Susi configuration reloaded
     Check avscanner can detect eicar
     Wait Until SUSI DEBUG Log Contains With Offset    "enableLookup":true
+
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
 Sophos Threat Detector Is Ignoring Reload Request
     #unload susi
     Stop sophos_threat_detector
+    Mark Sophos Threat Detector Log
     Start sophos_threat_detector
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Stop AV Plugin Process
     Send Sav Policy With Imminent Scheduled Scan To Base
     Start AV Plugin Process
+
     Wait Until Sophos Threat Detector Log Contains With Offset  Skipping susi reload because susi is not initialised
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
@@ -548,6 +557,7 @@ AVSophosThreatDetector Suite TearDown
 AVSophosThreatDetector Test Setup
     Require Plugin Installed and Running  DEBUG
     Mark AV Log
+    Mark Sophos Threat Detector Log
 
     register on fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     register on fail  dump log  ${WATCHDOG_LOG}

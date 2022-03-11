@@ -323,9 +323,6 @@ File Log Contains
     def check_all_product_logs_do_not_contain_error(self):
         search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/sophos_threat_detector*.log*"]
         self.check_all_product_logs_do_not_contain_string("]   ERROR [", search_list)
-        search_list = ["plugins/av/log/sophos_threat_detector/susi*.log*"]
-        self.check_all_product_logs_do_not_contain_string("\
-E  ", search_list)
 
     def check_all_product_logs_do_not_contain_critical(self):
         search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/*.log*"]

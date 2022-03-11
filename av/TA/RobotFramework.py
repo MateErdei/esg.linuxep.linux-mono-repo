@@ -19,6 +19,7 @@ def main():
         'path':  r'/opt/test/inputs/test_scripts/',
         'name': 'SSPLAV',
         'loglevel': 'DEBUG',
+        'removekeywords': 'wuks',
         'consolecolors': 'ansi',
         'include': tags['include'],
         'exclude': tags['exclude'],
