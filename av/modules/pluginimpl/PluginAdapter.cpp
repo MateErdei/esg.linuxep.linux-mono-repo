@@ -259,15 +259,7 @@ namespace Plugin
 
     void PluginAdapter::processScanComplete(std::string& scanCompletedXml, int exitCode)
     {
-        bool threatFound = exitCode == common::E_VIRUS_FOUND || exitCode == common::E_SCAN_ABORTED_WITH_THREATS;
-        bool aborted = exitCode == common::E_SIGTERM
-                || exitCode == common::E_EXECUTION_INTERRUPTED
-                || exitCode == common::E_SCAN_ABORTED
-                || exitCode == common::E_CAP_SET_PROC_C
-                || exitCode == common::E_CAP_SET_AMBIENT_C;
-
-        //publishThreatHealth only on  E_CLEAN_SUCCESS, E_GENERIC_FAILURE, E_PASSWORD_PROTECTED
-        if (!( aborted || threatFound ))
+        if (( exitCode == common::E_CLEAN_SUCCESS ||  exitCode == common::E_GENERIC_FAILURE ||  exitCode == common::E_PASSWORD_PROTECTED ))
         {
             LOGDEBUG("Publishing good threat health status after clean scan");
             publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
