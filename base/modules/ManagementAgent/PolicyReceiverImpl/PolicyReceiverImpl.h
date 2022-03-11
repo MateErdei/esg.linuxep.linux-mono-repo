@@ -27,6 +27,7 @@ namespace ManagementAgent
             std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQeue;
             PluginCommunication::IPluginManager& m_pluginManager;
             std::string m_policyDir;
+            std::string m_internalPolicyDir;
         };
 
     } // namespace PolicyReceiverImpl

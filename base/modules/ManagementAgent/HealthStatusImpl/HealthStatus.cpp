@@ -145,7 +145,7 @@ namespace ManagementAgent
             statusXml << R"(</item>)";
         }
 
-        std::pair<bool, std::string> HealthStatus::generateHealthStatusXml()
+        HealthStatus::HealthInfo HealthStatus::generateHealthStatusXml()
         {
             updateOverallHealthStatus();
             std::stringstream statusXml;
@@ -169,12 +169,15 @@ namespace ManagementAgent
                       << R"(</health>)";
 
             bool hasStatusChanged = (statusXml.str() != m_cachedHealthStatusXml);
+            std::pair<bool,std::string> overallHealth{false,""};
             if (hasStatusChanged)
             {
                 LOGDEBUG("Health status changed, cached: " << m_cachedHealthStatusXml << ", new: " << statusXml.str());
+                overallHealth = compareAndUpdateOverallHealth(m_overallHealth,m_overallPluginServiceHealth,m_overallPluginThreatServiceHealth,m_overallPluginThreatDetectionHealth);
             }
             m_cachedHealthStatusXml = statusXml.str();
-            return std::make_pair(hasStatusChanged, statusXml.str());
+
+            return HealthInfo{hasStatusChanged, statusXml.str(), overallHealth.first, overallHealth.second};
         }
         void HealthStatus::resetCachedHealthStatusXml() { m_cachedHealthStatusXml.clear(); }
 

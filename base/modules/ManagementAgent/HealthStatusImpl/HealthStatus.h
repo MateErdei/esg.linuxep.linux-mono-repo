@@ -20,6 +20,13 @@ namespace ManagementAgent
         public:
             HealthStatus();
             ~HealthStatus();
+            struct HealthInfo
+            {
+                bool hasStatusChanged;
+                std::string statusXML;
+                bool hasOverallHealthChanged;
+                std::string healthJson;
+            };
             /**
              * Function to clear the internal containers 'i.e. maps' to ensure the generated xml only contains
              * the current set of plugin information.
@@ -53,7 +60,7 @@ namespace ManagementAgent
              * generates a xml string to be used for the health status sent to central.
              * @return pair<bool, string> true if status has changes false otherwise, and the status xml string
              */
-            std::pair<bool, std::string> generateHealthStatusXml();
+            HealthInfo generateHealthStatusXml();
 
             /**
              * Clear cached XML status to force update of status file

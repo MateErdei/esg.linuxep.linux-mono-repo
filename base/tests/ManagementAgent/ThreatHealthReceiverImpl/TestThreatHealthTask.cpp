@@ -32,13 +32,13 @@ TEST_F(TestThreatHealthTask, checkTaskAddsThreatHealth) // NOLINT
 
     std::string expectedXmlBefore =
         R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="threat" value="1" /></health>)";
-    ASSERT_EQ(generatedXmlAndSuccessBoolPairBefore.first, true);
-    ASSERT_EQ(generatedXmlAndSuccessBoolPairBefore.second, expectedXmlBefore);
+    ASSERT_EQ(generatedXmlAndSuccessBoolPairBefore.hasStatusChanged, true);
+    ASSERT_EQ(generatedXmlAndSuccessBoolPairBefore.statusXML, expectedXmlBefore);
 
     std::string expectedXmlAfter =
         R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="123" /><item name="threat" value="123" /></health>)";
-    ASSERT_EQ(generatedXmlAndSuccessBoolPairAfter.first, true);
-    ASSERT_EQ(generatedXmlAndSuccessBoolPairAfter.second, expectedXmlAfter);
+    ASSERT_EQ(generatedXmlAndSuccessBoolPairAfter.hasStatusChanged, true);
+    ASSERT_EQ(generatedXmlAndSuccessBoolPairAfter.statusXML, expectedXmlAfter);
 }
 
 TEST_F(TestThreatHealthTask, checkTwoTasksCanUpdateHealthStatus) // NOLINT
@@ -54,13 +54,13 @@ TEST_F(TestThreatHealthTask, checkTwoTasksCanUpdateHealthStatus) // NOLINT
 
     std::string expectedXmlBefore =
         R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="threat" value="1" /></health>)";
-    ASSERT_EQ(generatedXmlAndSuccessBoolPairBefore.first, true);
-    ASSERT_EQ(generatedXmlAndSuccessBoolPairBefore.second, expectedXmlBefore);
+    ASSERT_EQ(generatedXmlAndSuccessBoolPairBefore.hasStatusChanged, true);
+    ASSERT_EQ(generatedXmlAndSuccessBoolPairBefore.statusXML, expectedXmlBefore);
 
     std::string expectedXmlAfter =
         R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="2" /><item name="threat" value="2" /></health>)";
-    ASSERT_EQ(generatedXmlAndSuccessBoolPairAfter.first, true);
-    ASSERT_EQ(generatedXmlAndSuccessBoolPairAfter.second, expectedXmlAfter);
+    ASSERT_EQ(generatedXmlAndSuccessBoolPairAfter.hasStatusChanged, true);
+    ASSERT_EQ(generatedXmlAndSuccessBoolPairAfter.statusXML, expectedXmlAfter);
 }
 
 TEST_F(TestThreatHealthTask, checkTaskWorksWithEmptyPluginName) // NOLINT
@@ -75,10 +75,10 @@ TEST_F(TestThreatHealthTask, checkTaskWorksWithEmptyPluginName) // NOLINT
     // Output XML should be unchanged
     std::string expectedXmlBefore =
         R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="threat" value="1" /></health>)";
-    ASSERT_EQ(generatedXmlAndChangeIndicatorBoolPairBefore.first, true);
-    ASSERT_EQ(generatedXmlAndChangeIndicatorBoolPairBefore.second, expectedXmlBefore);
-    ASSERT_EQ(generatedXmlAndChangeIndicatorBoolPairAfter.first, false);
-    ASSERT_EQ(generatedXmlAndChangeIndicatorBoolPairAfter.second, expectedXmlBefore);
+    ASSERT_EQ(generatedXmlAndChangeIndicatorBoolPairBefore.hasStatusChanged, true);
+    ASSERT_EQ(generatedXmlAndChangeIndicatorBoolPairBefore.statusXML, expectedXmlBefore);
+    ASSERT_EQ(generatedXmlAndChangeIndicatorBoolPairAfter.hasStatusChanged, false);
+    ASSERT_EQ(generatedXmlAndChangeIndicatorBoolPairAfter.statusXML, expectedXmlBefore);
 }
 
 TEST_F(TestThreatHealthTask, checkTaskDoesNotThrowWhenUninitialisedHealthStatusObjIsUsed) // NOLINT

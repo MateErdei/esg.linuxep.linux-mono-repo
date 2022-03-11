@@ -35,6 +35,7 @@ namespace ManagementAgent
             void sendCurrentPluginsStatus(const std::vector<std::string>& registeredPlugins);
             bool updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds);
             bool updateOngoing();
+            void ensureOverallHealthFileExists();
             int run(bool withPersistentTelemetry);
 
             // to be used in tests
@@ -43,6 +44,7 @@ namespace ManagementAgent
             ManagementAgent::PluginCommunication::IPluginManager* m_pluginManager;
 
             std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_policyListener;
+            std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_internalPolicyListener;
             std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_actionListener;
             std::unique_ptr<Common::DirectoryWatcher::IDirectoryWatcher> m_directoryWatcher;
 

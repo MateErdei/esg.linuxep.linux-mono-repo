@@ -32,9 +32,9 @@ TEST_F(TestThreatHealthReceiverImpl, ThreatHealthReceiverReceivesValidJsonAndCre
     auto task = fakeQueue->popTask();
     task->run();
     auto result = healthStatusSharedObj->generateHealthStatusXml();
-    ASSERT_EQ(result.first, true);
+    ASSERT_EQ(result.hasStatusChanged, true);
     ASSERT_EQ(
-        result.second,
+        result.statusXML,
         "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" activeHeartbeat=\"false\" "
         "activeHeartbeatUtmId=\"\"><item name=\"health\" value=\"123\" /><item name=\"threat\" value=\"123\" "
         "/></health>");

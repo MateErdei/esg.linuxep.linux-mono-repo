@@ -217,7 +217,11 @@ class FakePlugin(object):
             message.set_error_with_payload(error_msg)
             self.send_reply_to_management_agent(message)
             return
-        filepath = os.path.join("/opt/sophos-spl/base/mcs/policy", message.contents[0].decode())
+        filename = message.contents[0].decode()
+        filepath = os.path.join("/opt/sophos-spl/base/mcs/policy",filename )
+        if filename.startswith("internal"):
+            filepath = os.path.join("/opt/sophos-spl/base/mcs/internal_policy",filename )
+
         with open(filepath, 'r') as f:
             content = f.read()
         if len(content) < 1:

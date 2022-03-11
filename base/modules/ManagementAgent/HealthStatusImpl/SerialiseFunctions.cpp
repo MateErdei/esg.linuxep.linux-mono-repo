@@ -7,6 +7,9 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "SerialiseFunctions.h"
 
 #include <ManagementAgent/PluginCommunication/PluginHealthStatus.h>
+#include <ApplicationConfigurationImpl/ApplicationPathManager.h>
+#include <FileSystem/IFileSystem.h>
+#include <FileSystem/IFileSystemException.h>
 
 #include <json.hpp>
 
@@ -73,6 +76,47 @@ namespace ManagementAgent::HealthStatusImpl
         }
 
         return threatHealthMap;
+    }
+
+    std::pair<bool,std::string> compareAndUpdateOverallHealth(int health,int service,int threatService, int threat)
+    {
+        std::pair<bool,std::string> healthInfo = std::make_pair(false,"");
+        nlohmann::json currentJson;
+        currentJson["health"] = health;
+        currentJson["service"] = service;
+        currentJson["threatService"] = threatService;
+        currentJson["threat"] = threat;
+        healthInfo.second = currentJson.dump();
+        auto fs = Common::FileSystem::fileSystem();
+        std::string overallHealthJsonFilePath =
+            Common::ApplicationConfiguration::applicationPathManager().getOverallHealthFilePath();
+        if (fs->isFile(overallHealthJsonFilePath))
+        {
+            try
+            {
+                nlohmann::json oldJson = nlohmann::json::parse(fs->readFile(overallHealthJsonFilePath));
+                if (oldJson == currentJson)
+                {
+                    return healthInfo;
+                }
+            }
+            catch (Common::FileSystem::IFileSystemException& exception)
+            {
+                LOGERROR("Could not load cached Overall Health: " << exception.what());
+            }
+            catch (nlohmann::json::parse_error &ex) {
+                std::stringstream errorMessage;
+                errorMessage << "Could not parse json file: " << overallHealthJsonFilePath << " with error: " << ex.what();
+                LOGERROR(errorMessage.str());
+            }
+        }
+        else
+        {
+            // This is expected on the first ever time MA starts up.
+            LOGDEBUG("Overall Health JSON file does not exist at: " << overallHealthJsonFilePath);
+        }
+        healthInfo.first = true;
+        return healthInfo;
     }
 
 } // namespace ManagementAgent::HealthStatusImpl

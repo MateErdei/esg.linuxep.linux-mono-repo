@@ -23,11 +23,13 @@ protected:
         m_healthStatus = std::make_shared<ManagementAgent::HealthStatusImpl::HealthStatus>();
 
         auto xml = m_healthStatus->generateHealthStatusXml();
-        EXPECT_TRUE(xml.first);
+        EXPECT_TRUE(xml.hasStatusChanged);
     }
 
     const std::string m_tempDir = "/opt/sophos-spl/tmp";
     const std::string m_statusFilePath = "/opt/sophos-spl/base/mcs/status/SHS_status.xml";
+    const std::string m_healthFilePath = "/opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json";
+    const std::string m_healthDir = "/opt/sophos-spl/base/mcs/internal_policy";
     const mode_t m_statusFileMode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
 
     StrictMock<MockPluginManager> m_mockPluginManager;
@@ -45,6 +47,9 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenDifferentFromCachedV
 
     std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
     EXPECT_CALL(*filesystemMock, writeFileAtomically(m_statusFilePath, expectedXml, m_tempDir, m_statusFileMode)).Times(1);
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(m_healthFilePath, _, m_tempDir, m_statusFileMode)).Times(1);
+    EXPECT_CALL(*filesystemMock, isFile(m_healthFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(m_healthFilePath)).WillOnce(Return("{}"));
     EXPECT_CALL(
         *filesystemMock,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
@@ -64,6 +69,8 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsNotUpdatedWhenStatusValueHasNot
         std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
+    EXPECT_CALL(*filesystemMock, isFile(m_healthFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(m_healthFilePath)).WillRepeatedly(Return("{\"health\":1,\"service\":1,\"threatService\":1,\"threat\":1}"));
     EXPECT_CALL(*filesystemMock, writeFileAtomically(m_statusFilePath, expectedXml, m_tempDir, m_statusFileMode)).Times(1);
     EXPECT_CALL(
         *filesystemMock,
@@ -96,7 +103,9 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenStatusFileFailsToWri
 
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginHealthBad = pluginHealthGood;
     pluginHealthBad.healthValue = 1;
-
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(m_healthFilePath, _, m_tempDir, m_statusFileMode)).Times(1);
+    EXPECT_CALL(*filesystemMock, isFile(m_healthFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(m_healthFilePath)).WillRepeatedly(Return("{\"health\":1,\"service\":1,\"threatService\":1,\"threat\":1}"));
     EXPECT_CALL(*filesystemMock, writeFileAtomically(m_statusFilePath, expectedXmlBad, m_tempDir, m_statusFileMode)).Times(1).RetiresOnSaturation();
 
     EXPECT_CALL(*filesystemMock, writeFileAtomically(m_statusFilePath, expectedXmlBad, m_tempDir, m_statusFileMode)).

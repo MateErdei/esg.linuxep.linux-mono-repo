@@ -65,23 +65,28 @@ namespace ManagementAgent
             mcsRouterHealthStatus.displayName = "Sophos MCS Client";
             m_pluginManager.getSharedHealthStatusObj()->addPluginHealth("MCS", mcsRouterHealthStatus);
 
-            std::pair<bool, std::string> statusXmlResult =  m_pluginManager.getSharedHealthStatusObj()->generateHealthStatusXml();
+            HealthStatus::HealthInfo statusXmlResult =  m_pluginManager.getSharedHealthStatusObj()->generateHealthStatusXml();
 
             Path tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
             Path statusDir = Common::ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();
             std::string statusFilePath = Common::FileSystem::join(statusDir,"SHS_status.xml");
+            std::string overallHealthFilePath = Common::ApplicationConfiguration::applicationPathManager().getOverallHealthFilePath();
 
             // If this is the first run after the MA process starts up, statusXmlResult should always report true.
-            if (statusXmlResult.first)
+            if (statusXmlResult.hasStatusChanged)
             {
                 try
                 {
                     LOGINFO("Writing health status");
-                    Common::FileSystem::fileSystem()->writeFileAtomically(statusFilePath, statusXmlResult.second, tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+                    Common::FileSystem::fileSystem()->writeFileAtomically(statusFilePath, statusXmlResult.statusXML, tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+                    if (statusXmlResult.hasOverallHealthChanged)
+                    {
+                        Common::FileSystem::fileSystem()->writeFileAtomically(overallHealthFilePath, statusXmlResult.healthJson, tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+                    }
                 }
                 catch(const Common::FileSystem::IFileSystemException& ex)
                 {
-                    LOGWARN("Failed to write SHS status file with error, " << ex.what());
+                    LOGWARN("Failed to write SHS file with error, " << ex.what());
                     // make sure that write the status file is attempted again on next run.
                     m_pluginManager.getSharedHealthStatusObj()->resetCachedHealthStatusXml();
                 }

@@ -5,7 +5,12 @@ Copyright 2021 Sophos Limited. All rights reserved.
 ***********************************************************************************************/
 
 #include <Logging/ConsoleLoggingSetup.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <ManagementAgent/HealthStatusImpl/SerialiseFunctions.cpp>
+
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
+
 #include <gtest/gtest.h>
 
 class SerialiseFunctionsTests : public testing::Test
@@ -53,4 +58,55 @@ TEST_F(SerialiseFunctionsTests, deserialiseThreatDetectionPluginHealthStatusObj)
             R"({"AV":{"displayName":"AV Plugin","healthType":4,"healthValue":1},"RTD":{"displayName":"RTD Plugin","healthType":4,"healthValue":2}})");
 
     ASSERT_EQ(pluginHealthStatusMap, pluginHealthStatusMapExpected);
+}
+
+TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthWhenHealthDoesNotChange) // NOLINT
+{
+    auto filesystemMock = new NiceMock<MockFileSystem>();
+    std::string contents = "{\"health\":1,\"service\":1,\"threat\":1,\"threatService\":1}";
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return(contents));
+    std::pair<bool,std::string> info = ManagementAgent::HealthStatusImpl::compareAndUpdateOverallHealth(1,1,1,1);
+    EXPECT_EQ(info.first,false);
+}
+
+TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthWhenHealthGoesBad) // NOLINT
+{
+    auto filesystemMock = new NiceMock<MockFileSystem>();
+    std::string contents = "{\"health\":1,\"service\":1,\"threat\":1,\"threatService\":1}";
+    std::string expected = "{\"health\":3,\"service\":3,\"threat\":1,\"threatService\":1}";
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return(contents));
+    std::pair<bool,std::string> info = ManagementAgent::HealthStatusImpl::compareAndUpdateOverallHealth(3,3,1,1);
+    EXPECT_EQ(info.first,true);
+    EXPECT_EQ(info.second,expected);
+}
+
+TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthReturnNewHealthIfParsingOldHealthFails) // NOLINT
+{
+    auto filesystemMock = new NiceMock<MockFileSystem>();
+    std::string contents = "{\"health\":2,\"service\":2,\"threat\":1,\"threatService\":1}";
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("notJson"));
+    std::pair<bool,std::string> info = ManagementAgent::HealthStatusImpl::compareAndUpdateOverallHealth(2,2,1,1);
+    EXPECT_EQ(info.first,true);
+    EXPECT_EQ(info.second,contents);
+
+}
+
+TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthReturnsNewHealthWhenNoOldHealth) // NOLINT
+{
+    auto filesystemMock = new NiceMock<MockFileSystem>();
+    std::string contents = "{\"health\":2,\"service\":2,\"threat\":1,\"threatService\":1}";
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+    EXPECT_CALL(*filesystemMock, isFile(_)).WillRepeatedly(Return(false));
+    std::pair<bool,std::string> info = ManagementAgent::HealthStatusImpl::compareAndUpdateOverallHealth(2,2,1,1);
+    EXPECT_EQ(info.first,true);
+    EXPECT_EQ(info.second,contents);
+
 }

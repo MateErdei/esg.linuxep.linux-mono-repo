@@ -58,7 +58,14 @@ namespace Common
                 std::string rootPath("");
                 if (commandType == Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY)
                 {
-                    rootPath = Common::ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
+                    if (payload.find("internal")!= std::string::npos)
+                    {
+                        rootPath = Common::ApplicationConfiguration::applicationPathManager().getInternalPolicyFilePath();
+                    }
+                    else
+                    {
+                        rootPath = Common::ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
+                    }
                 }
                 else if (commandType == Common::PluginProtocol::Commands::REQUEST_PLUGIN_DO_ACTION)
                 {

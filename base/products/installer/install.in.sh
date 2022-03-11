@@ -541,6 +541,11 @@ then
     chmod -R 660 "${SOPHOS_INSTALL}/base/mcs/status"
 fi
 
+if [[ -d "${SOPHOS_INSTALL}/base/mcs/internal_policy" ]]
+then
+    chmod -R 660 "${SOPHOS_INSTALL}/base/mcs/internal_policy"
+fi
+
 if [[ -d "${SOPHOS_INSTALL}/base/mcs/policy" ]]
 then
     chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/policy"
@@ -577,6 +582,7 @@ makedir 770 "${SOPHOS_INSTALL}/base/mcs/response"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/datafeed"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/status"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/status/cache"
+makedir 770 "${SOPHOS_INSTALL}/base/mcs/internal_policy"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/event"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/eventcache"
 makedir 751 "${SOPHOS_INSTALL}/base/mcs/certs"
@@ -595,6 +601,7 @@ chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/response"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/datafeed"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/status"
+chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/internal_policy"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/event"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/mcs/certs"
 

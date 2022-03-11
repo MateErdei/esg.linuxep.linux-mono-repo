@@ -19,7 +19,7 @@ def get_app_ids_from_plugin_json(file_path):
     """
     get_app_ids_from_plugin_json
     """
-    excluded_app_ids = {"FLAGS"}
+    excluded_app_ids = {"FLAGS","EPHEALTH"}
     try:
         with open(file_path, 'r') as file_to_read:
             parsed_file = json.load(file_to_read)

@@ -32,6 +32,7 @@ public:
     MOCK_CONST_METHOD0(getPluginRegistryPath, std::string(void));
     MOCK_CONST_METHOD0(getVersigPath, std::string(void));
     MOCK_CONST_METHOD0(getMcsPolicyFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getInternalPolicyFilePath, std::string(void));
     MOCK_CONST_METHOD0(getMcsActionFilePath, std::string(void));
     MOCK_CONST_METHOD0(getMcsStatusFilePath, std::string(void));
     MOCK_CONST_METHOD0(getMcsEventFilePath, std::string(void));
@@ -91,4 +92,5 @@ public:
     MOCK_CONST_METHOD0(getCloudMetadataJsonPath, std::string (void));
     MOCK_CONST_METHOD0(getThreatHealthJsonFilePath, std::string (void));
     MOCK_CONST_METHOD0(getShsStatusFilePath, std::string (void));
+    MOCK_CONST_METHOD0(getOverallHealthFilePath, std::string (void));
 };

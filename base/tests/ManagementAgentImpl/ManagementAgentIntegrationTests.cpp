@@ -215,6 +215,7 @@ namespace
             m_tempDir.makeDirs({ { "var/ipc/plugins" },
                                  { "base/mcs/status/cache" },
                                  { "base/mcs/policy" },
+                                 { "base/mcs/internal_policy" },
                                  { "base/mcs/action" },
                                  { "base/mcs/event" },
                                  { "base/mcs/tmp" },

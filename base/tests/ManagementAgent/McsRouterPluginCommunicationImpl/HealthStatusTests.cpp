@@ -4,15 +4,18 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 ***********************************************************************************************/
 
-
+#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <ManagementAgent/McsRouterPluginCommunicationImpl/HealthStatus.h>
-
+#include <ManagementAgent/HealthStatusImpl/HealthStatus.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 
-class HealthStatusTests : public testing::Test
+class HealthStatusTests : public LogInitializedTests
 {
 protected:
     void xmlAttributesContainExpectedValues(
@@ -36,13 +39,12 @@ protected:
             }
         }
 
-        EXPECT_EQ(itemFoundCount, expectedNumberOfInstances) << "name: " + valueToCompare.first + ", value: " + valueToCompare.second;
+        EXPECT_EQ(itemFoundCount, expectedNumberOfInstances)
+            << "name: " + valueToCompare.first + ", value: " + valueToCompare.second;
     }
 
-    ManagementAgent::McsRouterPluginCommunicationImpl::HealthStatus m_status;
+    ManagementAgent::HealthStatusImpl::HealthStatus m_status;
 
-private:
-    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 };
 
 TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodServiceHealthValues) // NOLINT
@@ -59,9 +61,8 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodServiceHealthV
 
     m_status.addPluginHealth("testpluginOne", pluginStatusOne);
     m_status.addPluginHealth("testpluginTwo", pluginStatusTwo);
-    std::string xmlString = m_status.generateHealthStatusXml().second;
-    Common::XmlUtilities::AttributesMap xmlMap =
-        Common::XmlUtilities::parseXml(xmlString);
+    std::string xmlString = m_status.generateHealthStatusXml().statusXML;
+    Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
 
@@ -88,7 +89,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWithOneBadServiceHealt
 
     m_status.addPluginHealth("testpluginOne", pluginStatusOne);
     m_status.addPluginHealth("testpluginTwo", pluginStatusTwo);
-    std::string xmlString = m_status.generateHealthStatusXml().second;
+    std::string xmlString = m_status.generateHealthStatusXml().statusXML;
     Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
@@ -116,9 +117,8 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodThreatServiceH
 
     m_status.addPluginHealth("testpluginOne", pluginStatusOne);
     m_status.addPluginHealth("testpluginTwo", pluginStatusTwo);
-    std::string xmlString = m_status.generateHealthStatusXml().second;
-    Common::XmlUtilities::AttributesMap xmlMap =
-        Common::XmlUtilities::parseXml(xmlString);
+    std::string xmlString = m_status.generateHealthStatusXml().statusXML;
+    Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
 
@@ -145,7 +145,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWithOneBadThreatServic
 
     m_status.addPluginHealth("testpluginOne", pluginStatusOne);
     m_status.addPluginHealth("testpluginTwo", pluginStatusTwo);
-    std::string xmlString = m_status.generateHealthStatusXml().second;
+    std::string xmlString = m_status.generateHealthStatusXml().statusXML;
     Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
@@ -173,7 +173,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForServiceAndThreatSer
 
     m_status.addPluginHealth("testpluginOne", pluginStatusOne);
     m_status.addPluginHealth("testpluginTwo", pluginStatusTwo);
-    std::string xmlString = m_status.generateHealthStatusXml().second;
+    std::string xmlString = m_status.generateHealthStatusXml().statusXML;
     Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
@@ -201,7 +201,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForThreatDetectionsHea
 
     m_status.addPluginHealth("testpluginOne", pluginStatusOne);
     m_status.addPluginHealth("testpluginTwo", pluginStatusTwo);
-    std::string xmlString = m_status.generateHealthStatusXml().second;
+    std::string xmlString = m_status.generateHealthStatusXml().statusXML;
     Common::XmlUtilities::AttributesMap xmlMap = Common::XmlUtilities::parseXml(xmlString);
     auto attributes = xmlMap.lookup("health");
     auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
@@ -260,9 +260,9 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTy
     m_status.addPluginHealth("testpluginDetectionOne", pluginDetectionStatusOne);
     m_status.addPluginHealth("testpluginDetectionTwo", pluginDetectionStatusTwo);
 
-    std::string expectedXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><health version=\"3.0.0\" activeHeartbeat=\"false\" activeHeartbeatUtmId=\"\"><item name=\"health\" value=\"3\" /><item name=\"service\" value=\"3\" ><detail name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin Service One\" value=\"2\" /><detail name=\"Test Plugin Service Two\" value=\"1\" /></item><item name=\"threatService\" value=\"3\" ><detail name=\"Test Plugin Service And Threat One\" value=\"2\" /><detail name=\"Test Plugin Threat One\" value=\"2\" /><detail name=\"Test Plugin Threat Two\" value=\"1\" /></item><item name=\"threat\" value=\"3\" /></health>";
+    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="service" value="3" ><detail name="Test Plugin Service And Threat One" value="2" /><detail name="Test Plugin Service One" value="2" /><detail name="Test Plugin Service Two" value="1" /></item><item name="threatService" value="3" ><detail name="Test Plugin Service And Threat One" value="2" /><detail name="Test Plugin Threat One" value="2" /><detail name="Test Plugin Threat Two" value="1" /></item><item name="threat" value="3" /></health>)";
 
-    std::string xmlString = m_status.generateHealthStatusXml().second;
+    std::string xmlString = m_status.generateHealthStatusXml().statusXML;
     EXPECT_EQ(expectedXml, xmlString);
 
     // Check that the XML can also be passed correctly.
@@ -297,10 +297,10 @@ TEST_F(HealthStatusTests, healthStatusXML_StatusMarkedAsUnchangedWhenStatusNotCh
 
     m_status.addPluginHealth("testpluginOne", pluginStatusOne);
     m_status.addPluginHealth("testpluginTwo", pluginStatusTwo);
-    std::pair<bool, std::string> xmlStatus1 = m_status.generateHealthStatusXml();
-    EXPECT_TRUE(xmlStatus1.first);
-    std::pair<bool, std::string> xmlStatus2 = m_status.generateHealthStatusXml();
-    EXPECT_FALSE(xmlStatus2.first);
+    ManagementAgent::HealthStatusImpl::HealthStatus::HealthInfo xmlStatus1 = m_status.generateHealthStatusXml();
+    EXPECT_TRUE(xmlStatus1.hasStatusChanged);
+    ManagementAgent::HealthStatusImpl::HealthStatus::HealthInfo xmlStatus2 = m_status.generateHealthStatusXml();
+    EXPECT_FALSE(xmlStatus2.hasStatusChanged);
 }
 
 TEST_F(HealthStatusTests, healthStatusXML_StatusMarkedAsUnchangedWhenStatusReordedAndNotChanged) // NOLINT
@@ -317,10 +317,10 @@ TEST_F(HealthStatusTests, healthStatusXML_StatusMarkedAsUnchangedWhenStatusReord
 
     m_status.addPluginHealth("testpluginOne", pluginStatusOne);
     m_status.addPluginHealth("testpluginTwo", pluginStatusTwo);
-    std::pair<bool, std::string> xmlStatus1 = m_status.generateHealthStatusXml();
-    EXPECT_TRUE(xmlStatus1.first);
-    std::pair<bool, std::string> xmlStatus2 = m_status.generateHealthStatusXml();
-    EXPECT_FALSE(xmlStatus2.first);
+    ManagementAgent::HealthStatusImpl::HealthStatus::HealthInfo xmlStatus1 = m_status.generateHealthStatusXml();
+    EXPECT_TRUE(xmlStatus1.hasStatusChanged);
+    ManagementAgent::HealthStatusImpl::HealthStatus::HealthInfo xmlStatus2 = m_status.generateHealthStatusXml();
+    EXPECT_FALSE(xmlStatus2.hasStatusChanged);
 }
 
 TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesAllThreatDetectionPluginsHealthy) // NOLINT
@@ -361,7 +361,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesAllThre
                               "<detail name=\"Plugin With Threat Service Health\" value=\"3\" /></item>"
                               "<item name=\"threat\" value=\"1\" /></health>";
 
-    std::string xmlString = m_status.generateHealthStatusXml().second;
+    std::string xmlString = m_status.generateHealthStatusXml().statusXML;
     EXPECT_EQ(expectedXml, xmlString);
 
     // Check that the XML can also be passed correctly.
@@ -396,7 +396,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesSingleT
                               "<item name=\"threat\" value=\"1\" />"
                               "</health>";
 
-    std::string xmlString = m_status.generateHealthStatusXml().second;
+    std::string xmlString = m_status.generateHealthStatusXml().statusXML;
     EXPECT_EQ(expectedXml, xmlString);
 
     // Check that the XML can also be passed correctly.
@@ -455,11 +455,14 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectI
                               "<detail name=\"Test Plugin Threat Two\" value=\"1\" /></item>"
                               "<item name=\"threat\" value=\"1\" /></health>";
 
-    std::pair<bool, std::string> pairResult = m_status.generateHealthStatusXml();
-    bool stateChanged = pairResult.first;
-    std::string xmlString = pairResult.second;
+    ManagementAgent::HealthStatusImpl::HealthStatus::HealthInfo pairResult = m_status.generateHealthStatusXml();
+    bool stateChanged = pairResult.hasStatusChanged;
+    std::string xmlString = pairResult.statusXML;
+
     EXPECT_TRUE(stateChanged);
     EXPECT_EQ(expectedXml, xmlString);
+    EXPECT_TRUE(pairResult.hasOverallHealthChanged);
+    EXPECT_EQ("{\"health\":3,\"service\":3,\"threat\":1,\"threatService\":3}", pairResult.healthJson);
 
     // Check that the XML can also be passed correctly.
 
@@ -481,10 +484,12 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectI
     EXPECT_NO_THROW(m_status.resetThreatDetectionHealth());
 
     pairResult = m_status.generateHealthStatusXml();
-    stateChanged = pairResult.first;
-    xmlString = pairResult.second;
+    stateChanged = pairResult.hasStatusChanged;
+    xmlString = pairResult.statusXML;
     EXPECT_FALSE(stateChanged);
+    EXPECT_FALSE(pairResult.hasOverallHealthChanged);
     EXPECT_EQ(expectedXml, xmlString);
+    EXPECT_EQ("", pairResult.healthJson);
 
     // Check that the XML can also be passed correctly.
 
@@ -520,9 +525,9 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectW
                               "<item name=\"health\" value=\"1\" />"
                               "<item name=\"threat\" value=\"1\" /></health>";
 
-    std::pair<bool, std::string> pairResult = m_status.generateHealthStatusXml();
-    bool stateChanged = pairResult.first;
-    std::string xmlString = pairResult.second;
+    ManagementAgent::HealthStatusImpl::HealthStatus::HealthInfo pairResult = m_status.generateHealthStatusXml();
+    bool stateChanged = pairResult.hasStatusChanged;
+    std::string xmlString = pairResult.statusXML;
     EXPECT_TRUE(stateChanged);
     EXPECT_EQ(expectedXml, xmlString);
 
@@ -538,8 +543,8 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectW
     EXPECT_NO_THROW(m_status.resetThreatDetectionHealth());
 
     pairResult = m_status.generateHealthStatusXml();
-    stateChanged = pairResult.first;
-    xmlString = pairResult.second;
+    stateChanged = pairResult.hasStatusChanged;
+    xmlString = pairResult.statusXML;
     EXPECT_FALSE(stateChanged);
     EXPECT_EQ(expectedXml, xmlString);
 
@@ -551,4 +556,111 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectW
 
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "1"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
+}
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorValidJsonTest) // NOLINT
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return("{}"));
+    EXPECT_CALL(
+        *mockFileSystem,
+        writeFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath(), "{}"));
+
+    {
+        ASSERT_NO_THROW(ManagementAgent::HealthStatusImpl::HealthStatus healthStatus);
+    }
+}
+
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorInvalidJsonTest) // NOLINT
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return(true));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return("NOT JSON"));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        writeFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath(), "{}"));
+
+    {
+        ASSERT_NO_THROW(ManagementAgent::HealthStatusImpl::HealthStatus healthStatus);
+    }
+}
+
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorInvalidNoJsonFileTest) // NOLINT
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return(false));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        writeFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath(), "{}"));
+
+    {
+        ASSERT_NO_THROW(ManagementAgent::HealthStatusImpl::HealthStatus healthStatus);
+    }
+}
+
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorReadThrowsFileTest) // NOLINT
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return(true));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Throw(Common::FileSystem::IFileSystemException("can't read file")));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        writeFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath(), "{}"));
+
+    {
+        ASSERT_NO_THROW(ManagementAgent::HealthStatusImpl::HealthStatus healthStatus);
+    }
+}
+
+TEST_F(HealthStatusTests, HealthStatusDoesNotAddPluginHealthWithEmptyName) // NOLINT
+{
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusOne;
+    pluginStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
+    pluginStatusOne.healthValue = 0;
+    pluginStatusOne.displayName = "Plugin Display Name";
+
+    m_status.addPluginHealth("", pluginStatusOne);
+
+    std::string xmlString = m_status.generateHealthStatusXml().statusXML;
+    std::string expectedXml = R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="threat" value="1" /></health>)";
+    ASSERT_EQ(xmlString, expectedXml);
+    ASSERT_EQ("", m_status.generateHealthStatusXml().healthJson);
 }

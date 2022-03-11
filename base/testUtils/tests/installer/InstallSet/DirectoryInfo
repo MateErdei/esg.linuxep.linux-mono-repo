@@ -78,6 +78,7 @@ o751, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/remote-diagnose/ou
 o770, sophos-spl-group, root, /opt/sophos-spl/base/etc/sophosspl
 o770, sophos-spl-group, root, /opt/sophos-spl/base/mcs/datafeed
 o770, sophos-spl-group, root, /opt/sophos-spl/base/mcs/event
+o770, sophos-spl-group, root, /opt/sophos-spl/base/mcs/internal_policy
 o770, sophos-spl-group, root, /opt/sophos-spl/base/mcs/response
 o770, sophos-spl-group, root, /opt/sophos-spl/base/mcs/status
 o770, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/mcs/eventcache

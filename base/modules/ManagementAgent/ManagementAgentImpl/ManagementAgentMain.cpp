@@ -158,6 +158,11 @@ namespace ManagementAgent
                     ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath(),
                     m_taskQueue,
                     *m_pluginManager));
+            m_internalPolicyListener = std::unique_ptr<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
+                new McsRouterPluginCommunicationImpl::TaskDirectoryListener(
+                    ApplicationConfiguration::applicationPathManager().getInternalPolicyFilePath(),
+                    m_taskQueue,
+                    *m_pluginManager));
             m_actionListener = std::unique_ptr<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
                 new McsRouterPluginCommunicationImpl::TaskDirectoryListener(
                     ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(),
@@ -166,6 +171,7 @@ namespace ManagementAgent
 
             m_directoryWatcher = Common::DirectoryWatcher::createDirectoryWatcher();
             m_directoryWatcher->addListener(*m_policyListener);
+            m_directoryWatcher->addListener(*m_internalPolicyListener);
             m_directoryWatcher->addListener(*m_actionListener);
         }
 
@@ -265,7 +271,25 @@ namespace ManagementAgent
             // then we make sure to give the specified grace period for updates to finish.
             return (std::chrono::system_clock::now() - lastTimeWeSawUpdateMarker) < std::chrono::seconds(gracePeriodSeconds);
         }
+        void ManagementAgentMain::ensureOverallHealthFileExists()
+        {
+            std::string filePath = ApplicationConfiguration::applicationPathManager().getOverallHealthFilePath();
+            std::string contents = "{\"health\":1,\"service\":1,\"threat\":1,\"threatService\":1}";
+            std::string tempDir = ApplicationConfiguration::applicationPathManager().getTempPath();;
 
+            auto fs = Common::FileSystem::fileSystem();
+            try
+            {
+                if (!fs->isFile(filePath))
+                {
+                    fs->writeFileAtomically(filePath, contents, tempDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+                }
+            }
+            catch (Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to create overallHealth file with error: " << ex.what());
+            }
+        }
         int ManagementAgentMain::run(bool withPersistentTelemetry)
         {
             LOGINFO("Management Agent starting.. ");
@@ -289,7 +313,7 @@ namespace ManagementAgent
             sigaction(SIGTERM, &action, nullptr);
 
             shutdownPipePtr = poller->addEntry(GL_signalPipe->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
-
+            ensureOverallHealthFileExists();
             // start running background threads
             m_taskQueueProcessor->start();
             m_directoryWatcher->startWatch();
@@ -341,6 +365,7 @@ namespace ManagementAgent
 
             // pre-pare and stop back ground threads
             m_directoryWatcher->removeListener(*m_policyListener);
+            m_directoryWatcher->removeListener(*m_internalPolicyListener);
             m_directoryWatcher->removeListener(*m_actionListener);
             m_taskQueueProcessor->stop();
 

@@ -18,6 +18,6 @@ namespace ManagementAgent
 
         std::map<std::string, PluginCommunication::PluginHealthStatus> deserialiseThreatHealth(
             const std::string& pluginThreatHealthJsonString);
-
+        std::pair<bool,std::string> compareAndUpdateOverallHealth(int health,int service,int threatService,int threat);
     } // namespace HealthStatusImpl
 } // namespace ManagementAgent

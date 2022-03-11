@@ -26,7 +26,18 @@ Verify Management Agent Can Check Good Plugin Health Status
     Start Plugin
 
     ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
+    ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
 
+    Wait Until Keyword Succeeds
+    ...  15
+    ...  5
+    ...  Check Management Agent Log Contains   Management Agent running.
+    File Should Exist   ${SHS_POLICY_FILE}
+    File Should Not Exist   ${SHS_STATUS_FILE}
+    #check overallHealth is good before health status is calculated
+    ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":1,"service":1,"threat":1,"threatService":1}
+    ${POLICY_CONTENT}=  Get File  ${SHS_POLICY_FILE}
+    Should Contain   ${POLICY_CONTENT}  ${EXPECTEDPOLICY_CONTENT}
     Wait Until Keyword Succeeds
     ...  40
     ...  5
@@ -37,6 +48,7 @@ Verify Management Agent Can Check Good Plugin Health Status
     ${STATUS_CONTENT}=  Get File  ${SHS_STATUS_FILE}
     Log File  ${SHS_STATUS_FILE}
     Should Contain   ${STATUS_CONTENT}  ${EXPECTED_CONTENT}
+
 
     # clean up
     Stop Plugin
@@ -51,7 +63,7 @@ Verify Management Agent Can Check Bad Plugin Health Status
     Start Management Agent
 
     ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
-
+    ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
     Wait Until Keyword Succeeds
     ...  40
     ...  5
@@ -62,7 +74,11 @@ Verify Management Agent Can Check Bad Plugin Health Status
     ${STATUS_CONTENT}=  Get File  ${SHS_STATUS_FILE}
     Log File  ${SHS_STATUS_FILE}
     Should Contain   ${STATUS_CONTENT}  ${EXPECTED_CONTENT}
+    ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":3,"service":3,"threat":1,"threatService":3}
 
+    ${POLICY_CONTENT}=  Get File  ${SHS_POLICY_FILE}
+
+    Should Contain   ${POLICY_CONTENT}  ${EXPECTEDPOLICY_CONTENT}
     # clean up
     Stop Management Agent
 

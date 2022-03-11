@@ -28,6 +28,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getPluginRegistryPath() const override;
         std::string getVersigPath() const override;
         std::string getMcsPolicyFilePath() const override;
+        std::string getInternalPolicyFilePath() const override;
         std::string getMcsActionFilePath() const override;
         std::string getMcsStatusFilePath() const override;
         std::string getMcsEventFilePath() const override;
@@ -89,6 +90,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getCloudMetadataJsonPath() const override;
         std::string getThreatHealthJsonFilePath() const override;
         std::string getShsStatusFilePath() const override;
+        std::string getOverallHealthFilePath() const override;
 
 
     private:

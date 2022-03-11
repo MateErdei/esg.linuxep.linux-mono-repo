@@ -27,6 +27,7 @@ namespace ManagementAgent
             m_pluginManager(pluginManager)
         {
             m_policyDir = Common::ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath();
+            m_internalPolicyDir = Common::ApplicationConfiguration::applicationPathManager().getInternalPolicyFilePath();
         }
 
         bool PolicyReceiverImpl::receivedGetPolicyRequest(const std::string& appId)
@@ -34,17 +35,29 @@ namespace ManagementAgent
             bool policyTaskAddedToQueue = false;
 
             std::vector<std::string> policyFiles;
-
+            auto fs  = Common::FileSystem::fileSystem();
             try
             {
-                policyFiles = Common::FileSystem::fileSystem()->listFiles(m_policyDir);
+                policyFiles = fs->listFiles(m_policyDir);
             }
             catch (Common::FileSystem::IFileSystemException& e)
             {
                 LOGERROR("Failed to load file list from : " << m_policyDir << ". With error, " << e.what());
                 return false;
             }
-
+            try
+            {
+                if (fs->isDirectory(m_internalPolicyDir))
+                {
+                    std::vector<std::string> internalPolicyFiles = fs->listFiles(m_internalPolicyDir);
+                    policyFiles.insert(policyFiles.end(),internalPolicyFiles.begin(),internalPolicyFiles.end());
+                }
+            }
+            catch (Common::FileSystem::IFileSystemException& e)
+            {
+                LOGERROR("Failed to load file list from : " << m_internalPolicyDir << ". With error, " << e.what());
+                return false;
+            }
             for (auto& policyFile : policyFiles)
             {
                 LOGSUPPORT("Checking policyFile: " << policyFile << " for appid: " << appId);

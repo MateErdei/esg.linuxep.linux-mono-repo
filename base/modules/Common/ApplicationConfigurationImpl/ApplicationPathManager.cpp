@@ -86,7 +86,10 @@ namespace Common
         {
             return Common::FileSystem::join(sophosInstall(), "base/mcs/policy");
         }
-
+        std::string ApplicationPathManager::getInternalPolicyFilePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/mcs/internal_policy");
+        }
         std::string ApplicationPathManager::getMcsActionFilePath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/mcs/action");
@@ -358,6 +361,10 @@ namespace Common
         std::string ApplicationPathManager::getShsStatusFilePath() const
         {
             return Common::FileSystem::join(getMcsStatusFilePath(), "SHS_status.xml");
+        }
+        std::string ApplicationPathManager::getOverallHealthFilePath() const
+        {
+            return Common::FileSystem::join(getInternalPolicyFilePath(), "internal_EPHEALTH.json");
         }
 
     } // namespace ApplicationConfigurationImpl
