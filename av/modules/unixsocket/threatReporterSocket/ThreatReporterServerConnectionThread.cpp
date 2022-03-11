@@ -114,7 +114,7 @@ void ThreatReporterServerConnectionThread::run()
 void ThreatReporterServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_fd));
-    LOGDEBUG("Got connection " << socket_fd.fd());
+    LOGDEBUG("Threat Reporter Server thread got connection " << socket_fd.fd());
     uint32_t buffer_size = 512;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 

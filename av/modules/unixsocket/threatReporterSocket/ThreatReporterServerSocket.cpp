@@ -15,6 +15,7 @@ ThreatReporterServerSocket::ThreatReporterServerSocket(
     : ThreatReporterServerSocketBase(path, mode)
     , m_threatReportCallback(std::move(threatReportCallback))
 {
+    m_socketName = "Threat Reporter Server";
 }
 
 ThreatReporterServerSocket::~ThreatReporterServerSocket()

@@ -134,7 +134,7 @@ void unixsocket::ScanningServerConnectionThread::run()
 void unixsocket::ScanningServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_socketFd));
-    LOGDEBUG("Got connection " << socket_fd.fd());
+    LOGDEBUG("Scanning Server thread got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 

@@ -32,6 +32,11 @@ namespace FakeDetectionServer
             return std::make_unique<FakeServerConnectionThread>(std::move(fd), m_data);
         }
 
+        void logMaxConnectionsError() override
+        {
+            logError("Refusing connection: Fake server socket has reached the maximum thread count");
+        }
+
         datatypes::AutoFd m_socketFd;
         std::shared_ptr<std::vector<uint8_t>> m_data;
     };

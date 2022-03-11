@@ -15,6 +15,7 @@ ProcessControllerServerSocket::ProcessControllerServerSocket(
     , m_shutdownPipe(std::make_shared<Common::Threads::NotifyPipe>())
     , m_reloadPipe(std::make_shared<Common::Threads::NotifyPipe>())
 {
+    m_socketName = "Process Controller Server";
 }
 
 ProcessControllerServerSocket::~ProcessControllerServerSocket()

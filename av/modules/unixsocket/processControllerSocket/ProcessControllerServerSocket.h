@@ -30,6 +30,10 @@ namespace unixsocket
         {
             return std::make_unique<ProcessControllerServerConnectionThread>(fd, m_shutdownPipe, m_reloadPipe);
         }
+        void logMaxConnectionsError() override
+        {
+            logError("Refusing connection: Maximum number of Process Controller threads has been reached");
+        }
 
     private:
         std::shared_ptr<Common::Threads::NotifyPipe> m_shutdownPipe;

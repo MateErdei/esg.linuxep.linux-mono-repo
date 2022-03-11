@@ -26,6 +26,11 @@ namespace unixsocket
         {
             return std::make_unique<ThreatReporterServerConnectionThread>(fd, m_threatReportCallback);
         }
+
+        void logMaxConnectionsError() override
+        {
+            logError("Refusing connection: Threat Reporter has reached the maximum allowed concurrent reports");
+        }
     private:
 
         std::shared_ptr<IMessageCallback> m_threatReportCallback;

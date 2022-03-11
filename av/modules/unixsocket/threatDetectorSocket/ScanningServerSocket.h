@@ -29,6 +29,11 @@ namespace unixsocket
             return std::make_unique<ScanningServerConnectionThread>(fd, m_scannerFactory);
         }
 
+        void logMaxConnectionsError() override
+        {
+            logError("Refusing connection: Maximum number of scanners reached");
+        }
+
     private:
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
     };

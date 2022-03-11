@@ -24,6 +24,7 @@ unixsocket::ScanningServerSocket::ScanningServerSocket(
     {
         throw std::runtime_error("Attempting to create ScanningServerSocket without scanner factory");
     }
+    m_socketName = "Scanning Server";
 }
 
 unixsocket::ScanningServerSocket::~ScanningServerSocket()
