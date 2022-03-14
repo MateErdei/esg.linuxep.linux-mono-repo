@@ -41,23 +41,16 @@ namespace SulDownloader
         : m_session(std::make_shared<sdds3::Session>(certs_dir))
         , m_repo(repo_dir)
         , m_supplementOnly(false)
-       // , m_sdds3Wrapper(std::make_shared<Sdds3Wrapper>())
     {
     }
     SDDS3Repository::SDDS3Repository()
         : m_session(std::make_shared<sdds3::Session>(""))
         , m_repo("")
         , m_supplementOnly(false)
-        //, m_sdds3Wrapper(std::make_shared<Sdds3Wrapper>())
     {}
     SDDS3Repository::~SDDS3Repository()
     {
     }
-
-//    void SDDS3Repository::setSdds3WrapperInstance(std::shared_ptr<ISdds3Wrapper> sdds3Wrapper)
-//    {
-//        m_sdds3Wrapper = std::move(sdds3Wrapper);
-//    }
 
     bool SDDS3Repository::tryConnect(
         const suldownloaderdata::ConnectionSetup& connectionSetup,
@@ -190,7 +183,7 @@ namespace SulDownloader
                                                     configurationData.getPrimarySubscription());
 
             std::string request_json = writeSUSRequest(requestParameters);
-           // LOGDEBUG(request_json);
+            LOGDEBUG(request_json);
 
             // start of SUS request
             std::string userAgent = generateUserAgentString(configurationData.getTenantId(),
@@ -302,7 +295,7 @@ namespace SulDownloader
         {
             if (Common::FileSystem::fileSystem()->exists(configFilePathString))
             {
-                m_oldConfig = //sdds3::load_config(configFilePath);
+                m_oldConfig =
                     SulDownloader::sdds3Wrapper()->loadConfig(configFilePathString);
 
                 LOGINFO("Successfully loaded previous config file");
@@ -425,7 +418,6 @@ namespace SulDownloader
         try
         {
             SulDownloader::sdds3Wrapper()->extractPackagesTo(*m_session.get(), m_repo, m_config, Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository());
-            //sdds3::extract_to(*m_session.get(), m_repo, m_config, Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository());
         }
         catch (...)
         {

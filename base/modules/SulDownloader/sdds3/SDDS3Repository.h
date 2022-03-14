@@ -18,11 +18,6 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 
 namespace SulDownloader
 {
-//    namespace suldownloaderdata
-//    {
-//        class DownloadedProduct;
-//        class ProductSelection;
-//    } // namespace suldownloaderdata
 
 //    static const std::string DEFAULT_SERVICE_URL = "https://sus.sophosupd.com";
 //    static const std::string DEFAULT_UPDATE_URL = "https://sdds3.sophosupd.com";
