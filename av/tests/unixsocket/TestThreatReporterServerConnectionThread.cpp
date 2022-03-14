@@ -87,7 +87,7 @@ TEST_F(TestThreatReporterServerConnectionThread, stop_while_running) //NOLINT
 
 TEST_F(TestThreatReporterServerConnectionThread, eof_while_running) //NOLINT
 {
-    const std::string expected = "Threat Reporter connection closed: EOF";
+    const std::string expected = "Threat Reporter connection thread closed: EOF";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
