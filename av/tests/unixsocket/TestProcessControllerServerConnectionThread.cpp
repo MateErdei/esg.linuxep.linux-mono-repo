@@ -169,7 +169,7 @@ TEST_F(TestProcessControllerServerConnectionThread, fail_construction_with_null_
 
 TEST_F(TestProcessControllerServerConnectionThread, stop_while_running) //NOLINT
 {
-    const std::string expected = "Closing scanning socket thread";
+    const std::string expected = "Closing Process Controller connection thread";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
@@ -191,7 +191,7 @@ TEST_F(TestProcessControllerServerConnectionThread, stop_while_running) //NOLINT
 
 TEST_F(TestProcessControllerServerConnectionThread, eof_while_running) //NOLINT
 {
-    const std::string expected = "ProcessController Connection closed: EOF";
+    const std::string expected = "Process Controller connection closed: EOF";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
@@ -231,7 +231,7 @@ TEST_F(TestProcessControllerServerConnectionThread, send_zero_length) //NOLINT
 
 TEST_F(TestProcessControllerServerConnectionThread, closed_fd) //NOLINT
 {
-    const std::string expected = "Closing socket, error: 9";
+    const std::string expected = "Closing Process Controller connection thread, error: 9";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
@@ -253,7 +253,7 @@ TEST_F(TestProcessControllerServerConnectionThread, closed_fd) //NOLINT
 
 TEST_F(TestProcessControllerServerConnectionThread, over_max_length) //NOLINT
 {
-    const std::string expected = "Aborting ProcessController Connection Thread: failed to read length";
+    const std::string expected = "Aborting Process Controller connection thread: failed to read length";
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
@@ -278,7 +278,7 @@ TEST_F(TestProcessControllerServerConnectionThread, over_max_length) //NOLINT
 
 TEST_F(TestProcessControllerServerConnectionThread, max_length) //NOLINT
 {
-    const std::string expected = "Aborting socket connection: failed to read entire message";
+    const std::string expected = "Process Controller connection thread aborting socket connection: failed to read entire message";
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();

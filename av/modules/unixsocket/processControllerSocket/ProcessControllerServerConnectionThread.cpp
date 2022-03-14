@@ -127,13 +127,13 @@ void ProcessControllerServerConnectionThread::inner_run()
         if (activity < 0)
         {
 
-            LOGERROR("Closing socket, error: " << errno);
+            LOGERROR("Closing Process Controller connection thread, error: " << errno);
             break;
         }
 
         if (FDUtils::fd_isset(exitFD, &tempRead))
         {
-            LOGSUPPORT("Closing scanning socket thread");
+            LOGSUPPORT("Closing Process Controller connection thread");
             break;
         }
         else
@@ -148,12 +148,12 @@ void ProcessControllerServerConnectionThread::inner_run()
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
-                LOGDEBUG("ProcessController Connection closed: EOF");
+                LOGDEBUG("Process Controller connection closed: EOF");
                 break;
             }
             else if (length < 0)
             {
-                LOGERROR("Aborting ProcessController Connection Thread: failed to read length");
+                LOGERROR("Aborting Process Controller connection thread: failed to read length");
                 break;
             }
             else if (length == 0)
@@ -177,12 +177,12 @@ void ProcessControllerServerConnectionThread::inner_run()
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
             if (bytes_read < 0)
             {
-                LOGERROR("Aborting socket connection: " << errno);
+                LOGERROR("Process Controller connection thread aborting socket connection: " << errno);
                 break;
             }
             else if (bytes_read != length)
             {
-                LOGERROR("Aborting socket connection: failed to read entire message");
+                LOGERROR("Process Controller connection thread aborting socket connection: failed to read entire message");
                 break;
             }
 

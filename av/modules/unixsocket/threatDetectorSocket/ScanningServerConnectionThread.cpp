@@ -165,7 +165,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
         if (activity < 0)
         {
-            LOGERROR("Closing socket because pselect failed: " << errno);
+            LOGERROR("Closing Scanning connection thread because pselect failed: " << errno);
             break;
         }
         // We don't set a timeout so something should have happened
@@ -173,7 +173,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
         if (fd_isset(exitFD, &tempRead))
         {
-            LOGSUPPORT("Closing scanning socket thread");
+            LOGSUPPORT("Closing Scanning connection thread");
             break;
         }
         else // if(fd_isset(socket_fd, &tempRead))
@@ -186,12 +186,12 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
-                LOGDEBUG("Scanning Server Connection closed: EOF");
+                LOGDEBUG("Scanning connection thread closed: EOF");
                 break;
             }
             else if (length < 0)
             {
-                LOGDEBUG("Aborting Scanning Server Connection Thread: failed to read length");
+                LOGDEBUG("Aborting Scanning connection thread: failed to read length");
                 break;
             }
             else if (length == 0)
@@ -215,12 +215,12 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
             if (bytes_read < 0)
             {
-                LOGERROR("Aborting socket connection: " << errno);
+                LOGERROR("Aborting Scanning connection: " << errno);
                 break;
             }
             else if (bytes_read != length)
             {
-                LOGERROR("Aborting socket connection: failed to read entire message");
+                LOGERROR("Aborting Scanning connection: failed to read entire message");
                 break;
             }
 
@@ -237,7 +237,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
             if (file_fd.get() < 0)
             {
-                LOGERROR("Aborting socket connection: failed to read fd");
+                LOGERROR("Aborting Scanning connection: failed to read fd");
                 break;
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
@@ -247,12 +247,12 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             int ret = ::fstat(file_fd.get(), &st);
             if (ret == -1)
             {
-                LOGERROR("Aborting socket connection: failed to get file status");
+                LOGERROR("Aborting Scanning connection: failed to get file status");
                 break;
             }
             if (!S_ISREG(st.st_mode))
             {
-                LOGERROR("Aborting socket connection: fd is not a regular file");
+                LOGERROR("Aborting Scanning connection: fd is not a regular file");
                 break;
             }
 
@@ -260,13 +260,13 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             int status = ::fcntl(file_fd.get(), F_GETFL);
             if (status == -1)
             {
-                LOGERROR("Aborting socket connection: failed to get file status flags");
+                LOGERROR("Aborting Scanning connection: failed to get file status flags");
                 break;
             }
             unsigned int mode = status & O_ACCMODE;
             if (!(mode == O_RDONLY || mode == O_RDWR ) || status & O_PATH )
             {
-                LOGERROR("Aborting socket connection: fd is not open for read");
+                LOGERROR("Aborting Scanning connection: fd is not open for read");
                 break;
             }
 

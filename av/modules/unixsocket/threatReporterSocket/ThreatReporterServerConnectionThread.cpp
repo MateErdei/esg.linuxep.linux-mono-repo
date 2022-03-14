@@ -136,13 +136,13 @@ void ThreatReporterServerConnectionThread::inner_run()
         if (activity < 0)
         {
 
-            LOGERROR("Closing socket, error: " << errno);
+            LOGERROR("Closing Threat Reporter connection thread, error: " << errno);
             break;
         }
 
         if (FDUtils::fd_isset(exitFD, &tempRead))
         {
-            LOGSUPPORT("Closing scanning socket thread");
+            LOGSUPPORT("Closing Threat Reporter connection thread");
             break;
         }
         else
@@ -157,12 +157,12 @@ void ThreatReporterServerConnectionThread::inner_run()
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
-                LOGDEBUG("ThreatReporter Connection closed: EOF");
+                LOGDEBUG("Threat Reporter connection closed: EOF");
                 break;
             }
             else if (length < 0)
             {
-                LOGERROR("Aborting ThreatReporter Connection Thread: failed to read length");
+                LOGERROR("Aborting Threat Reporter connection thread: failed to read length");
                 break;
             }
             else if (length == 0)
@@ -186,12 +186,12 @@ void ThreatReporterServerConnectionThread::inner_run()
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
             if (bytes_read < 0)
             {
-                LOGERROR("Aborting socket connection: " << errno);
+                LOGERROR("Aborting Threat Reporter connection thread: " << errno);
                 break;
             }
             else if (bytes_read != length)
             {
-                LOGERROR("Aborting socket connection: failed to read entire message");
+                LOGERROR("Aborting Threat Reporter connection thread: failed to read entire message");
                 break;
             }
 

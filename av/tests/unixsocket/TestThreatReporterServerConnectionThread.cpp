@@ -66,7 +66,7 @@ TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_null_fac
 
 TEST_F(TestThreatReporterServerConnectionThread, stop_while_running) //NOLINT
 {
-    const std::string expected = "Closing scanning socket thread";
+    const std::string expected = "Closing Threat Reporter connection thread";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
@@ -87,7 +87,7 @@ TEST_F(TestThreatReporterServerConnectionThread, stop_while_running) //NOLINT
 
 TEST_F(TestThreatReporterServerConnectionThread, eof_while_running) //NOLINT
 {
-    const std::string expected = "ThreatReporter Connection closed: EOF";
+    const std::string expected = "Threat Reporter connection closed: EOF";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
@@ -123,7 +123,7 @@ TEST_F(TestThreatReporterServerConnectionThread, send_zero_length) //NOLINT
 
 TEST_F(TestThreatReporterServerConnectionThread, closed_fd) //NOLINT
 {
-    const std::string expected = "Closing socket, error: 9";
+    const std::string expected = "Closing Threat Reporter connection thread, error: 9";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
