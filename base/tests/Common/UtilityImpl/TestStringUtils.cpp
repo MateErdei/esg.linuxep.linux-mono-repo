@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2022, Sophos Limited.  All rights reserved.
+Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -11,10 +11,6 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 #include "../Helpers/FileSystemReplaceAndRestore.h"
 
 #include <gtest/gtest.h>
-#include "../Helpers/MockFileSystem.h"
-#include "../Helpers/FileSystemReplaceAndRestore.h"
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-
 
 using namespace Common::UtilityImpl;
 
@@ -408,21 +404,4 @@ TEST(TestStringUtils, trimRemovesCustomCharFromBothSidesOfString) // NOLINT
 {
     std::string result = StringUtils::trim("aaababaaa", [](char c) { return c == 'a'; });
     ASSERT_EQ(result, "bab");
-}
-
-TEST(TestStringUtils, toLowerMakesAllCharsLowerCase) // NOLINT
-{
-    std::string testStringMixed = "aSdFgHjK";
-    std::string testStringMixedLowered = "asdfghjk";
-
-    std::string testStringUpper = "QWERTY";
-    std::string testStringUpperLowered = "qwerty";
-
-    std::string testStringLower = "zxcvb";
-    std::string testStringNotLetters = "?!~#256";
-
-    ASSERT_EQ(StringUtils::toLower(testStringMixed), testStringMixedLowered);
-    ASSERT_EQ(StringUtils::toLower(testStringUpper), testStringUpperLowered);
-    ASSERT_EQ(StringUtils::toLower(testStringLower), testStringLower);
-    ASSERT_EQ(StringUtils::toLower(testStringNotLetters), testStringNotLetters);
 }

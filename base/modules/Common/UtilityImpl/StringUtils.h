@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2022, Sophos Limited.  All rights reserved.
+Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
@@ -9,10 +9,10 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 #include <cstring>
-#include <functional>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <functional>
 
 namespace Common
 {
@@ -169,6 +169,7 @@ namespace Common
                     std::vector<std::string> contents = fs->readLines(filePath);
                     for (auto const& line : contents)
                     {
+
                         if (startswith(line, key + "="))
                         {
                             std::vector<std::string> list = splitString(line, "=");
@@ -179,6 +180,7 @@ namespace Common
                 }
                 throw std::runtime_error("File doesn't exist :" + filePath);
             }
+
 
             static bool isVersionOlder(const std::string& currentVersion, const std::string& newVersion)
             {
@@ -268,7 +270,7 @@ namespace Common
                 result += pattern.substr(beginPos);
                 return result;
             }
-            static std::pair<int, std::string> stringToInt(const std::string& stringToConvert)
+            static std::pair<int, std::string> stringToInt (const std::string& stringToConvert)
             {
                 std::stringstream errorMessage;
                 try
@@ -277,16 +279,17 @@ namespace Common
                 }
                 catch (const std::invalid_argument& e)
                 {
-                    errorMessage << "Failed to find integer from output: " << stringToConvert
-                                 << ". Error message: " << e.what();
+                    errorMessage <<
+                        "Failed to find integer from output: " << stringToConvert << ". Error message: " << e.what();
                 }
                 catch (const std::out_of_range& e)
                 {
-                    errorMessage << "Failed to find integer from output: " << stringToConvert
-                                 << ". Error message: " << e.what();
+                    errorMessage <<
+                        "Failed to find integer from output: " << stringToConvert << ". Error message: " << e.what();
                 }
 
                 return std::make_pair(0, errorMessage.str());
+
             }
             static std::pair<long, std::string> stringToLong(const std::string& stringToConvert)
             {
@@ -297,13 +300,13 @@ namespace Common
                 }
                 catch (const std::invalid_argument& e)
                 {
-                    errorMessage << "Failed to find integer from output: " << stringToConvert
-                                 << ". Error message: " << e.what();
+                    errorMessage <<
+                        "Failed to find integer from output: " << stringToConvert << ". Error message: " << e.what();
                 }
                 catch (const std::out_of_range& e)
                 {
-                    errorMessage << "Failed to find integer from output: " << stringToConvert
-                                 << ". Error message: " << e.what();
+                    errorMessage <<
+                        "Failed to find integer from output: " << stringToConvert << ". Error message: " << e.what();
                 }
 
                 return std::make_pair(0, errorMessage.str());
@@ -313,14 +316,10 @@ namespace Common
              * Remove whitespace from the right side of a string.
              * Or if trimComparator is set then it will use that comparator to trim characters from the right.
              */
-            static std::string rTrim(
-                std::string string,
-                const std::function<bool(char)>& trimComparator = [](char c) { return std::isspace(c); })
+            static std::string rTrim(std::string string, const std::function<bool(char)>&  trimComparator = [](char c) { return std::isspace(c); })
             {
                 string.erase(
-                    std::find_if(
-                        string.rbegin(), string.rend(), [trimComparator](char c) { return !trimComparator(c); })
-                        .base(),
+                    std::find_if(string.rbegin(), string.rend(), [trimComparator](char c) { return !trimComparator(c); }).base(),
                     string.end());
                 return string;
             }
@@ -329,14 +328,11 @@ namespace Common
              * Remove whitespace from the left side of a string.
              * Or if trimComparator is set then it will use that comparator to trim characters from the left.
              */
-            static std::string lTrim(
-                std::string string,
-                const std::function<bool(char)>& trimComparator = [](char c) { return std::isspace(c); })
+            static std::string lTrim(std::string string, const std::function<bool(char)>&  trimComparator = [](char c) { return std::isspace(c); })
             {
                 string.erase(
                     string.begin(),
-                    std::find_if(
-                        string.begin(), string.end(), [trimComparator](char c) { return !trimComparator(c); }));
+                    std::find_if(string.begin(), string.end(), [trimComparator](char c) { return !trimComparator(c); }));
                 return string;
             }
 
@@ -344,22 +340,11 @@ namespace Common
              * Remove whitespace from both sides of a string.
              * Or if trimComparator is set then it will use that comparator to trim characters from both sides.
              */
-            static std::string trim(
-                std::string string,
-                const std::function<bool(char)>& trimComparator = [](char c) { return std::isspace(c); })
+            static std::string trim(std::string string, const std::function<bool(char)>&  trimComparator = [](char c) { return std::isspace(c); })
             {
                 return lTrim(rTrim(string, trimComparator), trimComparator);
             }
 
-            /*
-             * Make all chars in string lowercase
-             */
-            static std::string toLower(std::string& string)
-            {
-                std::transform(string.begin(), string.end(), string.begin(),
-                               [](unsigned char c){ return std::tolower(c); });
-                return string;
-            }
         };
 
     } // namespace UtilityImpl

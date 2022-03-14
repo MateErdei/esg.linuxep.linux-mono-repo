@@ -1,18 +1,171 @@
-/******************************************************************************************************
-Copyright 2022, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
 
 #include "HttpRequesterImpl.h"
 
-#include "CurlFunctionsProvider.h"
 #include "Logger.h"
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "CurlWrapper/CurlWrapper.h"
 
 #include <curl/curl.h>
+
+namespace
+{
+
+    // TODO m ove curl functions to another provider class.
+
+    size_t curlWriteFunc(void* ptr, size_t size, size_t nmemb, std::string* buffer)
+    {
+        size_t totalSizeBytes = size * nmemb;
+        buffer->append(static_cast<char*>(ptr), totalSizeBytes);
+        return totalSizeBytes;
+    }
+
+    size_t curlWriteFileFunc(void* ptr, size_t size, size_t nmemb, Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
+    {
+        size_t totalSizeBytes = size * nmemb;
+        std::string content;
+        content.append(static_cast<char*>(ptr), totalSizeBytes);
+        auto fileSystem = Common::FileSystem::fileSystem();
+        if (responseBuffer->downloadFilePath.empty())
+        {
+            if (responseBuffer->downloadDirectory.empty())
+            {
+                throw std::runtime_error("Neither download target filename or directory specified");
+            }
+
+            std::string contentDispositionHeaderTag = "Content-Disposition";
+
+            // If no download filename specified then we need to work it out from headers or URL
+            if (responseBuffer->headers.count(contentDispositionHeaderTag))
+            {
+                // Work out filename from Content-disposition header
+                std::string filenameTag = "filename";
+                /* Example Content-Disposition: filename=name1367; charset=funny; option=strange */
+                if (Common::UtilityImpl::StringUtils::isSubstring(responseBuffer->headers[contentDispositionHeaderTag], "filename"))
+                {
+                    std::vector<std::string> contentOptiopns = Common::UtilityImpl::StringUtils::splitString(responseBuffer->headers[contentDispositionHeaderTag], ";");
+                    for (const auto& option: contentOptiopns)
+                    {
+                        if (Common::UtilityImpl::StringUtils::isSubstring(option, "="))
+                        {
+                            std::vector<std::string> optionAndValue = Common::UtilityImpl::StringUtils::splitString(option, "=");
+                            if (optionAndValue.size() == 2)
+                            {
+                                std::function isWhitespaceOrQuote = [](char c) { return std::isspace(c) || c == '"'; };
+                                std::string cleanOption = Common::UtilityImpl::StringUtils::trim(optionAndValue[0], isWhitespaceOrQuote);
+                                std::string cleanValue = Common::UtilityImpl::StringUtils::trim(optionAndValue[1], isWhitespaceOrQuote);
+                                if (cleanOption == filenameTag && !cleanValue.empty())
+                                {
+                                    responseBuffer->downloadFilePath = Common::FileSystem::join(responseBuffer->downloadDirectory, cleanValue);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Work out filename from URL
+                responseBuffer->downloadFilePath = Common::FileSystem::join(responseBuffer->downloadDirectory, Common::FileSystem::basename(responseBuffer->url));
+            }
+        }
+
+        if (responseBuffer->downloadFilePath.empty())
+        {
+            throw std::runtime_error("Could not work out download file name to use");
+        }
+
+        LOGDEBUG("Writing download to: " << responseBuffer->downloadFilePath);
+        try
+        {
+            fileSystem->appendFile(responseBuffer->downloadFilePath, content);
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            // TODO throw exception from Interface
+            LOGERROR("Failed to append data to file: " << responseBuffer->downloadFilePath << ", error: " << ex.what());
+        }
+        return totalSizeBytes;
+    }
+
+    size_t curlWriteHeadersFunc(void* ptr, size_t size, size_t nmemb, Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
+    {
+        size_t totalSizeBytes = size * nmemb;
+        std::string fullHeaderString;
+        fullHeaderString.append(static_cast<char*>(ptr), totalSizeBytes);
+        size_t colonDeliminatorPos = fullHeaderString.find(':');
+        if (colonDeliminatorPos != std::string::npos && fullHeaderString.length() > colonDeliminatorPos)
+        {
+            responseBuffer->headers.emplace(
+                Common::UtilityImpl::StringUtils::trim(fullHeaderString.substr(0, colonDeliminatorPos)),
+                Common::UtilityImpl::StringUtils::trim(
+                    fullHeaderString.substr(colonDeliminatorPos + 1, fullHeaderString.length())));
+        }
+        return totalSizeBytes;
+    }
+
+    int curlWriteDebugFunc(
+        [[maybe_unused]] CURL* handle,
+        curl_infotype type,
+        char* data,
+        size_t size,
+        [[maybe_unused]] void* userp)
+    {
+        std::string debugLine = "cURL ";
+        switch (type)
+        {
+            case CURLINFO_TEXT:
+                debugLine += "Info: ";
+                break;
+            case CURLINFO_HEADER_OUT:
+                debugLine += "=> Send header: ";
+                break;
+            case CURLINFO_DATA_OUT:
+                debugLine += "=> Send data: ";
+                break;
+            case CURLINFO_SSL_DATA_OUT:
+                debugLine += "=> Send SSL data: ";
+                break;
+            case CURLINFO_HEADER_IN:
+                debugLine += "<= Recv header: ";
+                break;
+            case CURLINFO_DATA_IN:
+                debugLine += "<= Recv data: ";
+                break;
+            case CURLINFO_SSL_DATA_IN:
+                debugLine += "<= Recv SSL data: ";
+                break;
+            default:
+                LOGDEBUG("Unsupported cURL debug info type");
+                return 0;
+        }
+        debugLine.append(data, size);
+        LOGDEBUG(debugLine);
+        return 0;
+    }
+
+    class SListScopeGuard
+    {
+        Common::CurlWrapper::ICurlWrapper& m_iCurlWrapper;
+        curl_slist* m_curl_slist;
+
+    public:
+        SListScopeGuard(curl_slist* curl_slist, Common::CurlWrapper::ICurlWrapper& iCurlWrapper) :
+            m_iCurlWrapper(iCurlWrapper), m_curl_slist(curl_slist)
+        {
+        }
+
+        ~SListScopeGuard()
+        {
+            if (m_curl_slist != nullptr)
+            {
+                m_iCurlWrapper.curlSlistFreeAll(m_curl_slist);
+            }
+        }
+    };
+} // namespace
 
 namespace Common::HttpRequestsImpl
 {
@@ -20,18 +173,22 @@ namespace Common::HttpRequestsImpl
     HttpRequesterImpl::HttpRequesterImpl(std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper) :
         m_curlWrapper(curlWrapper)
     {
+        // TODO need to make global init only be able to be called once if multi threaded.
         CURLcode result = m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT);
         if (result != CURLE_OK)
         {
             std::stringstream errorMsg;
             errorMsg << "Failed to initialise libcurl with error: " << m_curlWrapper->curlEasyStrError(result);
-            throw Common::HttpRequests::HttpRequestsException(errorMsg.str());
+            throw std::runtime_error(errorMsg.str());
         }
 
         m_curlHandle = m_curlWrapper->curlEasyInit();
         if (!m_curlHandle)
         {
-            throw Common::HttpRequests::HttpRequestsException("Failed to initialise curl");
+            LOGERROR("Failed to initialise curl");
+            //        *curlCode = CURLE_FAILED_INIT;
+            //        return HttResponse{ CURLE_FAILED_INIT };
+            throw std::runtime_error("Failed to initialise curl");
         }
 
         if (getHttpRequesterImplLogger().getLogLevel() < log4cplus::INFO_LOG_LEVEL)
@@ -40,71 +197,55 @@ namespace Common::HttpRequestsImpl
         }
     }
 
-    HttpRequesterImpl::~HttpRequesterImpl()
-    {
-        if (m_curlHandle)
-        {
-            m_curlWrapper->curlEasyCleanup(m_curlHandle);
-        }
-        m_curlWrapper->curlGlobalCleanup();
-    }
-
     Common::HttpRequests::Response HttpRequesterImpl::performRequest(Common::HttpRequests::RequestConfig request)
     {
-        // Keep the handle but perform a reset. Options are reset to stop any accidental side effects while still
-        // persisting: live connections, session ID cache, DNS cache, cookies and the alt-svc cache.
-        m_curlWrapper->curlEasyReset(m_curlHandle);
+
+        // TODO handle file upload.
+
+
+        curl_easy_reset(m_curlHandle);
 
         Common::HttpRequests::Response response;
         if (!m_curlHandle)
         {
             LOGERROR("Failed to initialise curl");
-            response.error = "Failed to initialise curl";
-            response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
-            return response;
+            throw std::runtime_error("Failed to initialise curl");
         }
-
         std::string bodyBuffer;
         ResponseBuffer responseBuffer;
         responseBuffer.url = request.url;
 
-        // cURL options are built up in this container and then applied at the end
-        std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>>> curlOptions;
+        curl_easy_setopt(m_curlHandle, CURLOPT_HEADERFUNCTION, curlWriteHeadersFunc);
+        curl_easy_setopt(m_curlHandle, CURLOPT_HEADERDATA, &responseBuffer);
+        curl_easy_setopt(m_curlHandle, CURLOPT_DEBUGFUNCTION, curlWriteDebugFunc);
 
-        m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_HEADERFUNCTION, (void *)CurlFunctionsProvider::curlWriteHeadersFunc);
-        m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_HEADERDATA, &responseBuffer);
-        m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_DEBUGFUNCTION, (void *)CurlFunctionsProvider::curlWriteDebugFunc);
-
-        // Handle data being downloaded, directly to buffer or to a file.
         if (request.fileDownloadLocation.has_value())
         {
-            // If file already exists, then return error
             if (Common::FileSystem::fileSystem()->isFile(request.fileDownloadLocation.value()))
             {
-                response.error = "Download target file name already exists: " + request.fileDownloadLocation.value();
-                response.errorCode = HttpRequests::ResponseErrorCode::DOWNLOAD_TARGET_ALREADY_EXISTS;
-                return response;
-            } // If the path is to a directory then we set downloadDirectory (and not downloadFilePath)
+                throw std::runtime_error("Download target file name already exists: " + request.fileDownloadLocation.value());
+            }
             else if (Common::FileSystem::fileSystem()->isDirectory(request.fileDownloadLocation.value()))
             {
                 LOGDEBUG("Saving downloaded file to directory: " << request.fileDownloadLocation.value());
                 responseBuffer.downloadDirectory = request.fileDownloadLocation.value();
+                curl_easy_setopt(m_curlHandle, CURLOPT_WRITEFUNCTION, curlWriteFileFunc);
+                curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &responseBuffer);
             }
-            else // Finally, if the path does not exist and is not a dir then we'll try to download a file to that path
+            else
             {
                 LOGDEBUG("Saving downloaded file to file: " << request.fileDownloadLocation.value());
                 responseBuffer.downloadFilePath = request.fileDownloadLocation.value();
+                curl_easy_setopt(m_curlHandle, CURLOPT_WRITEFUNCTION, curlWriteFileFunc);
+                curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &responseBuffer);
             }
-            m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_WRITEFUNCTION, (void *)CurlFunctionsProvider::curlWriteFileFunc);
-            m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_WRITEDATA, &responseBuffer);
         }
         else
         {
-            m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_WRITEFUNCTION, (void *)CurlFunctionsProvider::curlWriteFunc);
-            m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_WRITEDATA, &bodyBuffer);
+            curl_easy_setopt(m_curlHandle, CURLOPT_WRITEFUNCTION, curlWriteFunc);
+            curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &bodyBuffer);
         }
 
-        // Handle URL parameters, such as: example.com?param1=value&param2=abc
         if (request.parameters.has_value())
         {
             std::string urlParamString;
@@ -126,141 +267,85 @@ namespace Common::HttpRequestsImpl
             }
         }
 
-        // Handle if the user wants to upload a file
-        std::unique_ptr<FILE, int (*)(FILE*)> fileToSend(nullptr, fclose);
-        if (request.fileToUpload.has_value())
-        {
-            if (FileSystem::fileSystem()->isFile(request.fileToUpload.value()))
-            {
-                m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_READFUNCTION, (void *)CurlFunctionsProvider::curlFileReadFunc);
-                fileToSend.reset(fopen(request.fileToUpload.value().c_str(), "rb"));
-                if (fileToSend != nullptr)
-                {
-                    LOGDEBUG(
-                        "Sending file: " << request.fileToUpload.value() << ", size: "
-                                         << FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
+        std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>>> curlOptions;
 
-                    m_curlWrapper->curlEasySetOpt(m_curlHandle, CURLOPT_UPLOAD, 1L);
-                    m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_READDATA, fileToSend.get());
-                    m_curlWrapper->curlEasySetOpt(m_curlHandle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
-                    m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_SEEKFUNCTION, (void *)CurlFunctionsProvider::curlSeekFileFunc);
-                    m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_SEEKDATA, fileToSend.get());
-                }
-                else
-                {
-                    response.error = "Failed to open file for reading: " + request.fileToUpload.value();
-                    response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
-                    return response;
-                }
-            }
-            else
-            {
-                response.error = "File to upload does not exist: " + request.fileToUpload.value();
-                response.errorCode = HttpRequests::ResponseErrorCode::UPLOAD_FILE_DOES_NOT_EXIST;
-                return response;
-            }
-        }
+        curlOptions.emplace_back("Specify URL", CURLOPT_URL, request.url);
 
+        //    curlOptions.emplace_back("Specify preferred HTTP version", CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+        curlOptions.emplace_back("Specify TLS/SSL version", CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 
-
-        // Set the request URL
-        curlOptions.emplace_back("URL - CURLOPT_URL", CURLOPT_URL, request.url);
-
-        // Set the preferred TLS version
-        curlOptions.emplace_back("TLS/SSL version - CURLOPT_SSLVERSION", CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-
-        // Set timeout in seconds, defaulted to 10 mins in the request interface but can be set by user
-        curlOptions.emplace_back("Set timeout - CURLOPT_TIMEOUT", CURLOPT_TIMEOUT, request.timeout);
-
-        // cURL or openssl does not seem to support setting this protocol.
-        // Could be worth an update, checking of build options and a rebuild of openssl and curl
-        // curlOptions.emplace_back("Set HTTP version - CURLOPT_HTTP_VERSION", CURLOPT_HTTP_VERSION,
-        // CURL_HTTP_VERSION_2TLS);
-
-        // Handle setting the port
         if (request.port.has_value())
         {
-            curlOptions.emplace_back("Port - CURLOPT_PORT", CURLOPT_PORT, request.port.value());
+            curlOptions.emplace_back("Specify port", CURLOPT_PORT, request.port.value());
         }
 
-        // Set the request type: GET, POST, PUT, DELETE, OPTIONS
         switch (request.requestType)
         {
             case Common::HttpRequests::GET:
-                curlOptions.emplace_back("GET request - CURLOPT_CUSTOMREQUEST", CURLOPT_CUSTOMREQUEST, "GET");
+                curlOptions.emplace_back("Specify GET request", CURLOPT_CUSTOMREQUEST, "GET");
                 break;
             case Common::HttpRequests::POST:
-                curlOptions.emplace_back("POST request - CURLOPT_CUSTOMREQUEST", CURLOPT_CUSTOMREQUEST, "POST");
+                curlOptions.emplace_back("Specify POST request", CURLOPT_CUSTOMREQUEST, "POST");
                 if (request.data.has_value())
                 {
-                    curlOptions.emplace_back(
-                        "POST data - CURLOPT_COPYPOSTFIELDS", CURLOPT_COPYPOSTFIELDS, request.data.value());
+                    curlOptions.emplace_back("Specify POST data", CURLOPT_COPYPOSTFIELDS, request.data.value());
                 }
                 break;
             case Common::HttpRequests::PUT:
-                curlOptions.emplace_back("PUT request - CURLOPT_CUSTOMREQUEST", CURLOPT_CUSTOMREQUEST, "PUT");
+                curlOptions.emplace_back("Specify a custom PUT request", CURLOPT_CUSTOMREQUEST, "PUT");
                 if (request.data.has_value())
                 {
-                    curlOptions.emplace_back(
-                        "PUT data - CURLOPT_COPYPOSTFIELDS", CURLOPT_COPYPOSTFIELDS, request.data.value());
+                    curlOptions.emplace_back("Specify PUT data", CURLOPT_COPYPOSTFIELDS, request.data.value());
                 }
                 break;
             case Common::HttpRequests::DELETE:
-                curlOptions.emplace_back("DELETE request - CURLOPT_CUSTOMREQUEST", CURLOPT_CUSTOMREQUEST, "DELETE");
+                throw std::runtime_error("not implemented");
                 break;
             case Common::HttpRequests::OPTIONS:
-                curlOptions.emplace_back("OPTIONS request - CURLOPT_CUSTOMREQUEST", CURLOPT_CUSTOMREQUEST, "OPTIONS");
+                throw std::runtime_error("not implemented");
                 break;
         }
 
-        // Handle proxy being specified by user
         if (request.proxy.has_value())
         {
-            curlOptions.emplace_back("Specify proxy - CURLOPT_PROXY", CURLOPT_PROXY, request.proxy.value());
+            curlOptions.emplace_back("Specify proxy to use", CURLOPT_PROXY, request.proxy.value());
             if (request.proxyUsername.has_value() && request.proxyPassword.has_value())
             {
-                std::string encodedUsername = curlEscape(request.proxyUsername.value());
-                std::string encodedPassword = curlEscape(request.proxyPassword.value());
+                std::string encodedUsername = curl_easy_escape(
+                    m_curlHandle, request.proxyUsername.value().c_str(), request.proxyUsername.value().length());
+                std::string encodedPassword = curl_easy_escape(
+                    m_curlHandle, request.proxyPassword.value().c_str(), request.proxyPassword.value().length());
                 curlOptions.emplace_back(
-                    "Set cURL to choose best authentication available - CURLOPT_PROXYAUTH",
-                    CURLOPT_PROXYAUTH,
-                    static_cast<long> CURLAUTH_ANY); // cast to long because the curl_easy_setopt function takes long but the constant is unsigned long
+                    "Set cURL to choose best authentication available", CURLOPT_PROXYAUTH, CURLAUTH_ANY);
                 curlOptions.emplace_back(
-                    "Set proxy user and password - CURLOPT_PROXYUSERPWD",
-                    CURLOPT_PROXYUSERPWD,
-                    encodedUsername + ":" + encodedPassword);
+                    "Set proxy user and password", CURLOPT_PROXYUSERPWD, encodedUsername + ":" + encodedPassword);
             }
         }
 
-        // Handle allowing redirects, a lot of sites redirect, a user must explicitly ask for this to be enabled
         if (request.allowRedirects)
         {
             long followRedirects = 1;
-            curlOptions.emplace_back(
-                "Follow redirects - CURLOPT_FOLLOWLOCATION", CURLOPT_FOLLOWLOCATION, followRedirects);
-            curlOptions.emplace_back("Set max redirects - CURLOPT_MAXREDIRS", CURLOPT_MAXREDIRS, 50);
+            curlOptions.emplace_back("Follow redirects", CURLOPT_FOLLOWLOCATION, followRedirects);
+            curlOptions.emplace_back("Set max redirects", CURLOPT_MAXREDIRS, 50);
         }
 
-        // Handle a download speed / bandwidth limit being set by a user
         if (request.bandwidthLimit.has_value())
         {
             curlOptions.emplace_back(
-                "Set max bandwidth - CURLOPT_MAX_RECV_SPEED_LARGE",
-                CURLOPT_MAX_RECV_SPEED_LARGE,
-                (curl_off_t)request.bandwidthLimit.value());
+                "Set max bandwidth", CURLOPT_MAX_RECV_SPEED_LARGE, (curl_off_t)request.bandwidthLimit.value());
         }
 
-        // Set logging verbosity if required
         if (m_curlVerboseLogging)
         {
-            curlOptions.emplace_back("Enable verbose logging - CURLOPT_VERBOSE", CURLOPT_VERBOSE, 1L);
+            curlOptions.emplace_back("Enable verbose logging", CURLOPT_VERBOSE, 1L);
         }
 
-        // Handle setting certs, either user specified or we try known system locations.
+        curlOptions.emplace_back("Set timeout", CURLOPT_TIMEOUT, request.timeout);
+
         if (request.certPath.has_value())
         {
             LOGINFO("Using client specified CA path: " << request.certPath.value());
-            curlOptions.emplace_back("Path for CA bundle - CURLOPT_CAINFO", CURLOPT_CAINFO, request.certPath.value());
+            curlOptions.emplace_back("Path for CA bundle", CURLOPT_CAINFO, request.certPath.value());
         }
         else
         {
@@ -272,24 +357,20 @@ namespace Common::HttpRequestsImpl
                 if (Common::FileSystem::fileSystem()->isFile(caPath))
                 {
                     caPathFound = true;
-                    LOGINFO("Using system CA path: " << caPath);
-                    curlOptions.emplace_back("Path for CA bundle - CURLOPT_CAINFO", CURLOPT_CAINFO, caPath);
-                    curlOptions.emplace_back(
-                        "Path for CA dir - CURLOPT_CAPATH", CURLOPT_CAPATH, Common::FileSystem::dirName(caPath));
+                    LOGINFO("Using library specified CA path: " << caPath);
+                    curlOptions.emplace_back("Path for CA bundle", CURLOPT_CAINFO, caPath);
                     break;
                 }
             }
 
             if (!caPathFound)
             {
-                response.error = "No CA paths could be used";
-                response.errorCode = HttpRequests::ResponseErrorCode::CERTIFICATE_ERROR;
-                return response;
+                LOGWARN("CA path not found");
             }
         }
 
-        // Handle headers, create a curl header list and add user headers to it
         struct curl_slist* curlHeaders = nullptr;
+
         if (request.headers.has_value())
         {
             for (auto const& [header, value] : request.headers.value())
@@ -301,17 +382,15 @@ namespace Common::HttpRequestsImpl
                     m_curlWrapper->curlSlistFreeAll(curlHeaders);
                     LOGERROR("Failed to append header to request");
                     response.error = "Failed to append header: " + header;
-                    response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
                     return response;
                 }
             }
         }
-        Common::CurlWrapper::SListScopeGuard curlListScopeGuard(curlHeaders, *m_curlWrapper);
+        SListScopeGuard curlListScopeGuard(curlHeaders, *m_curlWrapper);
 
-        // Apply all the cURL options set above
+        // Apply all cURL options
         for (const auto& curlOption : curlOptions)
         {
-            LOGDEBUG("Setting cURL option: " << std::get<0>(curlOption));
             CURLcode result =
                 m_curlWrapper->curlEasySetOpt(m_curlHandle, std::get<1>(curlOption), std::get<2>(curlOption));
 
@@ -319,12 +398,10 @@ namespace Common::HttpRequestsImpl
             {
                 LOGERROR("Failed to set curl option: " << std::get<0>(curlOption));
                 response.error = m_curlWrapper->curlEasyStrError(result);
-                response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
                 return response;
             }
         }
 
-        // Apply the curl header list to our curl handle
         if (curlHeaders)
         {
             CURLcode result = m_curlWrapper->curlEasySetOptHeaders(m_curlHandle, curlHeaders);
@@ -332,64 +409,93 @@ namespace Common::HttpRequestsImpl
             {
                 LOGERROR("Failed to set headers");
                 response.error = m_curlWrapper->curlEasyStrError(result);
-                response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
                 return response;
             }
         }
 
-        // Try to perform the request
-        try
+        LOGDEBUG("Running easyPerform");
+        CURLcode result = m_curlWrapper->curlEasyPerform(m_curlHandle);
+        LOGDEBUG("Performed easyPerform: " << result);
+        if (result != CURLE_OK)
         {
-            LOGDEBUG("Performing request: " << request.url);
-            CURLcode result = m_curlWrapper->curlEasyPerform(m_curlHandle);
-            LOGDEBUG("Performed request: " << result);
-            if (result != CURLE_OK)
-            {
-                response.error = m_curlWrapper->curlEasyStrError(result);
-                if (result == CURLE_OPERATION_TIMEDOUT)
-                {
-                    response.errorCode = HttpRequests::ResponseErrorCode::TIMEOUT;
-                }
-                else if (result == CURLE_SSL_CACERT_BADFILE || result == CURLE_SSL_CERTPROBLEM)
-                {
-                    response.errorCode = HttpRequests::ResponseErrorCode::CERTIFICATE_ERROR;
-                }
-                else
-                {
-                    response.errorCode = HttpRequests::ResponseErrorCode::REQUEST_FAILED;
-                }
-                return response;
-            }
-        }
-        catch (const std::exception& ex)
-        {
-            response.error = "Request threw exception: " + std::string(ex.what());
-            response.errorCode = HttpRequests::ResponseErrorCode::REQUEST_FAILED;
+            LOGERROR("Request failed");
+            response.error = m_curlWrapper->curlEasyStrError(result);
+            //        HttpResponse resp = onError(result);
+            //        LOGERROR("Failed to perform file transfer with error: " << resp.description);
+            //        return resp;
             return response;
         }
 
-        // Store the body to be returned in the response, this will be empty if the user opted to download to a file
+        //    long response_code;
+        //    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
+        long responseCode;
+        //    LOGINFO(m_curlWrapper->curlGetResponseCode(curl, &responseCode));
+        //    response.status = response_code;
         response.body = bodyBuffer;
-
-        // Store any headers that were sent in the response
         response.headers = responseBuffer.headers;
-
-        // Get the HTTP response code and add it to the response
-        long responseCode = 0;
+        //        *curlCode = CURLE_OK;
+        //        long response_code;
         if (m_curlWrapper->curlGetResponseCode(m_curlHandle, &responseCode) == CURLE_OK)
         {
             response.status = responseCode;
-        }
-        else
-        {
-            response.error = "Failed to get response code from cURL";
-            response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
-            return response;
+            //            HttpResponse httpResponse{ static_cast<int>(response_code) };
+            //            std::vector<std::string> debugLines = Common::UtilityImpl::StringUtils::splitString(debugLog,
+            //            "\n"); for (auto line : debugLines)
+            //            {
+            //                LOGDEBUG(line);
+            //            }
+            //
+            //            httpResponse.bodyContent = holdBody;
+            //            return httpResponse;
         }
 
-        // If we're here then the request did not error, so set return code to be OK
-        response.errorCode = HttpRequests::ResponseErrorCode::OK;
+        //    return HttpResponse{ result };
+
+        //    CURL *curl;
+        //    CURLcode res;
+        //
+        //    curl = curl_easy_init();
+        //    if(curl) {
+        //        curl_easy_setopt(curl, CURLOPT_URL, "https://sophos.com");
+        //        /* example.com is redirected, so we tell libcurl to follow redirection */
+        //        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        //
+        //        /* Perform the request, res will get the return code */
+        //        res = curl_easy_perform(curl);
+        //        /* Check for errors */
+        //        if(res != CURLE_OK)
+        //            fprintf(stderr, "curl_easy_perform() failed: %s\n",
+        //                    curl_easy_strerror(res));
+        //
+        //
+        //        /* always cleanup */
+        //        curl_easy_cleanup(curl);
+        //    }
         return response;
+    }
+
+    // Common::HttpRequests::Response HttpRequesterImpl::get(std::string url)
+    //{
+    //     return performRequest({ .url = url, .requestType = RequestType::GET });
+    // }
+
+    // Common::HttpRequests::Response HttpRequesterImpl::post(std::string url, std::string data)
+    //{
+    //     RequestConfig request;
+    //     request.url = url;
+    //     request.data = data;
+    //     request.requestType = POST;
+    //     return performRequest(request);
+    // }
+
+    HttpRequesterImpl::~HttpRequesterImpl()
+    {
+        if (m_curlHandle)
+        {
+            m_curlWrapper->curlEasyCleanup(m_curlHandle);
+        }
+        m_curlWrapper->curlGlobalCleanup();
     }
 
     Common::HttpRequests::Response HttpRequesterImpl::get(Common::HttpRequests::RequestConfig request)
@@ -409,29 +515,24 @@ namespace Common::HttpRequestsImpl
         request.requestType = Common::HttpRequests::PUT;
         return performRequest(request);
     }
-
     Common::HttpRequests::Response HttpRequesterImpl::del(Common::HttpRequests::RequestConfig request)
     {
-        request.requestType = Common::HttpRequests::DELETE;
-        return performRequest(request);
+        (void)request;
+        return Common::HttpRequests::Response();
     }
-
     Common::HttpRequests::Response HttpRequesterImpl::options(Common::HttpRequests::RequestConfig request)
     {
-        request.requestType = Common::HttpRequests::OPTIONS;
-        return performRequest(request);
+        (void)request;
+        return Common::HttpRequests::Response();
     }
-
-    std::string HttpRequesterImpl::curlEscape(const std::string& stringToEscape)
+    std::string HttpRequesterImpl::curlEscape(std::string stringToEscape)
     {
-        char* escaped = curl_easy_escape(m_curlHandle, stringToEscape.c_str(), stringToEscape.length());
+        auto escaped = curl_easy_escape(m_curlHandle, stringToEscape.c_str(), stringToEscape.length());
         if (escaped)
         {
-            std::string escapedString = std::string(escaped);
-            curl_free(escaped);
-            return escapedString;
+            return escaped;
         }
-        throw Common::HttpRequests::HttpRequestsException("Failed to escape string: " + stringToEscape);
+        throw std::runtime_error("Failed to escape string: " + stringToEscape);
     }
 
 } // namespace Common::HttpRequestsImpl

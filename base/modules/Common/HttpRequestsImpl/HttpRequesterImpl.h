@@ -1,6 +1,3 @@
-/******************************************************************************************************
-Copyright 2022, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
 
 #pragma once
 #include "Common/CurlWrapper/ICurlWrapper.h"
@@ -35,8 +32,6 @@ namespace Common::HttpRequestsImpl
     {
     public:
         HttpRequesterImpl(std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper);
-        HttpRequesterImpl(const HttpRequesterImpl&) = delete;
-        HttpRequesterImpl& operator=(const HttpRequesterImpl&) = delete;
         ~HttpRequesterImpl();
         Common::HttpRequests::Response get(Common::HttpRequests::RequestConfig request) override;
         Common::HttpRequests::Response post(Common::HttpRequests::RequestConfig request) override;
@@ -46,10 +41,10 @@ namespace Common::HttpRequestsImpl
 
     private:
         Common::HttpRequests::Response performRequest(Common::HttpRequests::RequestConfig config);
-        std::string curlEscape(const std::string& stringToEscape);
+        std::string curlEscape(std::string stringToEscape);
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> m_curlWrapper;
         CURL* m_curlHandle;
         bool m_curlVerboseLogging = false;
     };
 
-} // namespace Common::HttpRequestsImpl
+}
