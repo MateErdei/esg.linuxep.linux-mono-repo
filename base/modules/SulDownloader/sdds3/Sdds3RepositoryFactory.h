@@ -37,7 +37,7 @@ namespace SulDownloader
          * Hence, the mechanism to do so (::replaceCreator) is private, and this class is made friend of the
          * TestWarehouseHelper.
          */
-        friend class TestWarehouseHelper;
+        friend class TestSdds3RepositoryHelper;
 
     public:
         /**

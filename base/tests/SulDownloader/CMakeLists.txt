@@ -6,9 +6,14 @@ add_executable(SulDownloaderTests
         TestConfigurationData.cpp
         TestWarehouseHelper.cpp
         TestWarehouseHelper.h
+        TestSdds3RepositoryHelper.h
+        TestSdds3RepositoryHelper.cpp
         MockWarehouseRepositoryTest.cpp
         MockWarehouseRepository.h
+        MockSdds3Repository.h
+        MockSdds3Wrapper.h
         SulDownloaderTests.cpp
+        SulDownloaderSdds3Tests.cpp
         TestDownloadReport.cpp
         TestConnectionSelector.cpp
         TestProductSelection.cpp
@@ -18,14 +23,18 @@ add_executable(SulDownloaderTests
         TestProductUninstaller.cpp
         ConfigurationDataBase.h
         TestProductMetadata.cpp
-        TestCatalogueInfo.cpp TestUpdateSupplementDecider.cpp)
+        TestCatalogueInfo.cpp
+        TestUpdateSupplementDecider.cpp
+        TestSdds3Repository.cpp
+        Sdds3ReplaceAndRestore.h
+        Sdds3ReplaceAndRestore.cpp)
 
-target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include"  ${PROTOBUF_INCLUDE_DIR})
+target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include"  ${PROTOBUF_INCLUDE_DIR} ${SDDS3LIB_INPUT})
 target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}"
         "${CMAKE_BINARY_DIR}/modules/SulDownloader/suldownloaderdata"
         )
 target_link_libraries(SulDownloaderTests gtest gmock gtest_main)
-target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl testhelpers threads protobufutil)
+target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl testhelpers threads protobufutil ${SDDS3_LIBRARY} ${SOPHLIB_LIBRARIES})
 gtest_discover_tests(SulDownloaderTests)
 
 SET_TARGET_PROPERTIES(SulDownloaderTests

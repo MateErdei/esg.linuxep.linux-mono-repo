@@ -434,6 +434,29 @@ namespace SulDownloader
         return finalConnectionCandidates;
     }
 
+    void createSdds3UpdateCacheFolders()
+    {
+        std::string sdds3DistributionPath =
+            Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository();
+        std::string sdds3RepositoryPath =
+            Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3Repository();
+        try
+        {
+            if (!Common::FileSystem::fileSystem()->exists(sdds3RepositoryPath))
+            {
+                Common::FileSystem::fileSystem()->makedirs(sdds3RepositoryPath);
+            }
+            if (!Common::FileSystem::fileSystem()->exists(sdds3DistributionPath))
+            {
+                Common::FileSystem::fileSystem()->makedirs(sdds3DistributionPath);
+            }
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGERROR("Failed to create sdds3 local repository paths, error: " << ex.what());
+        }
+    }
+
     std::pair<bool, IRepositoryPtr> updateFromSDDS3Repository( const ConfigurationData& configurationData,
                                                               bool supplementOnly)
     {
@@ -450,10 +473,26 @@ namespace SulDownloader
             }
         }
 
+        if(repository->hasError())
+        {
+            LOGDEBUG("Failed to connect to repository: " << repository->getError().Description);
+            return std::make_pair(false, std::move(repository));
+        }
+
         repository->synchronize(configurationData);
 
-        repository->distribute();
+        if(repository->hasError())
+        {
+            LOGDEBUG("Failed to synchronize repository: " << repository->getError().Description);
+            return std::make_pair(false, std::move(repository));
+        }
 
+        repository->distribute();
+        if(repository->hasError())
+        {
+            LOGDEBUG("Failed to distribute repository: " << repository->getError().Description);
+            return std::make_pair(false, std::move(repository));
+        }
 
         return std::make_pair(true, std::move(repository));
     }
@@ -569,6 +608,9 @@ namespace SulDownloader
         if (!configurationData.getJWToken().empty() && !useSdds3.empty())
         {
             LOGDEBUG("Running in SDDS3 updating mode");
+            // Make sure root directories are created
+            createSdds3UpdateCacheFolders();
+
             repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly);
         }
         else

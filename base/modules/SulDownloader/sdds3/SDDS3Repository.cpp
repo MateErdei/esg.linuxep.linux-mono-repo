@@ -9,6 +9,7 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 #include "Sdds3Wrapper.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <CommsComponent/CommsComponentUtils.h>
 #include <SulDownloader/suldownloaderdata/CatalogueInfo.h>
 #include <SulDownloader/suldownloaderdata/Logger.h>
@@ -39,30 +40,33 @@ namespace SulDownloader
     SDDS3Repository::SDDS3Repository(const std::string& repo_dir, const std::string& certs_dir)
         : m_session(std::make_shared<sdds3::Session>(certs_dir))
         , m_repo(repo_dir)
-        , m_sdds3Wrapper(std::make_shared<Sdds3Wrapper>())
+        , m_supplementOnly(false)
+       // , m_sdds3Wrapper(std::make_shared<Sdds3Wrapper>())
     {
     }
     SDDS3Repository::SDDS3Repository()
         : m_session(std::make_shared<sdds3::Session>(""))
         , m_repo("")
-        , m_sdds3Wrapper(std::make_shared<Sdds3Wrapper>())
+        , m_supplementOnly(false)
+        //, m_sdds3Wrapper(std::make_shared<Sdds3Wrapper>())
     {}
     SDDS3Repository::~SDDS3Repository()
     {
     }
 
-    void SDDS3Repository::setSddsWrapperInstance(std::shared_ptr<ISdds3Wrapper> sdds3Wrapper)
-    {
-        m_sdds3Wrapper = std::move(sdds3Wrapper);
-    }
+//    void SDDS3Repository::setSdds3WrapperInstance(std::shared_ptr<ISdds3Wrapper> sdds3Wrapper)
+//    {
+//        m_sdds3Wrapper = std::move(sdds3Wrapper);
+//    }
 
     bool SDDS3Repository::tryConnect(
         const suldownloaderdata::ConnectionSetup& connectionSetup,
         bool supplementOnly,
         const suldownloaderdata::ConfigurationData& configurationData)
     {
-        populateOldConfigFromFile();
         m_supplementOnly = supplementOnly;
+        populateOldConfigFromFile();
+
         m_dataToSync = getDataToSync(connectionSetup, configurationData);
 
         if(m_error.Description.empty())
@@ -186,12 +190,20 @@ namespace SulDownloader
                                                     configurationData.getPrimarySubscription());
 
             std::string request_json = writeSUSRequest(requestParameters);
-            LOGDEBUG(request_json);
+           // LOGDEBUG(request_json);
 
             // start of SUS request
             std::string userAgent = generateUserAgentString(configurationData.getTenantId(),
                                                             configurationData.getDeviceId());
-            auto http_session = std::make_unique<utilities::http::Session>(userAgent, utilities::http::Proxy(), false);
+            std::string overrideFile =
+                Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
+            bool useHttps = true;
+            if(Common::FileSystem::fileSystem()->exists(overrideFile))
+            {
+                useHttps = (!Common::UtilityImpl::StringUtils::extractValueFromIniFile(overrideFile, "USE_HTTP").empty());
+            }
+
+            auto http_session = std::make_unique<utilities::http::Session>(userAgent, utilities::http::Proxy(), useHttps);
 
             http_session->SetTimeouts(DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
 
@@ -265,9 +277,12 @@ namespace SulDownloader
         try
         {
             std::string srcUrl = DEFAULT_UPDATE_URL; //configurationData.getSophosUpdateUrls()[0];
-            m_sdds3Wrapper->sync(*m_session.get(), repo, srcUrl, m_config, m_oldConfig);
+            SulDownloader::sdds3Wrapper()->sync(*m_session.get(), repo, srcUrl, m_config, m_oldConfig);
 
-            generateProductListFromSdds3PackageInfo();
+            if(!hasError())
+            {
+                generateProductListFromSdds3PackageInfo();
+            }
         }
         catch (const std::exception& ex)
         {
@@ -288,57 +303,47 @@ namespace SulDownloader
             if (Common::FileSystem::fileSystem()->exists(configFilePathString))
             {
                 m_oldConfig = //sdds3::load_config(configFilePath);
-                    m_sdds3Wrapper->loadConfig(configFilePathString);
+                    SulDownloader::sdds3Wrapper()->loadConfig(configFilePathString);
 
-                LOGINFO("Successfully loaded previous config file");
+                //LOGINFO("Successfully loaded previous config file");
             }
             else
             {
-                LOGINFO("Failed to find config file: " << configFilePathString);
+                //LOGINFO("Failed to find config file: " << configFilePathString);
             }
         }
         catch(const std::exception& ex)
         {
-            LOGERROR("Failed to read previous SDDS3 config file, error:" << ex.what());
+            //LOGERROR("Failed to read previous SDDS3 config file, error:" << ex.what());
         }
     }
 
     void SDDS3Repository::generateProductListFromSdds3PackageInfo()
     {
-        if(hasError())
-        {
-            return;
-        }
+
         std::string configFilePathString =
             Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
-        LOGINFO("Config File path: " << configFilePathString);
         try
         {
-            m_sdds3Wrapper->saveConfig(m_config, configFilePathString);
+            SulDownloader::sdds3Wrapper()->saveConfig(m_config, configFilePathString);
         }
         catch(const std::exception& ex)
         {
-            LOGERROR("Failed to store SDDS3 config file, error:" << ex.what());
+           // LOGERROR("Failed to store SDDS3 config file, error:" << ex.what());
         }
 
         std::vector<sdds3::PackageRef> packagesWithSupplements;
         if(m_supplementOnly)
         {
             packagesWithSupplements =
-                m_sdds3Wrapper->getPackagesIncludingSupplements(*m_session.get(), m_repo, m_config);
+                SulDownloader::sdds3Wrapper()->getPackagesIncludingSupplements(*m_session.get(), m_repo, m_config);
         }
         std::vector<sdds3::PackageRef> packagesToInstall =
-            m_sdds3Wrapper->getPackagesToInstall(*m_session.get(), m_repo, m_config, m_oldConfig);
+            SulDownloader::sdds3Wrapper()->getPackagesToInstall(*m_session.get(), m_repo, m_config, m_oldConfig);
         std::vector<sdds3::PackageRef> allPackages =
-            m_sdds3Wrapper->getPackages(*m_session.get(), m_repo, m_config);
+            SulDownloader::sdds3Wrapper()->getPackages(*m_session.get(), m_repo, m_config);
 
         m_selectedSubscriptions.clear();
-
-        LOGINFO("Packages With packagesWithSupplements");
-        for(auto& package_WithSupp : packagesWithSupplements)
-        {
-            LOGINFO(package_WithSupp.lineId_);
-        }
 
         std::vector<sdds3::PackageRef> packagesOfInterest;
 
@@ -419,7 +424,7 @@ namespace SulDownloader
         }
         try
         {
-            m_sdds3Wrapper->extractPackagesTo(*m_session.get(), m_repo, m_config, Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository());
+            SulDownloader::sdds3Wrapper()->extractPackagesTo(*m_session.get(), m_repo, m_config, Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository());
             //sdds3::extract_to(*m_session.get(), m_repo, m_config, Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository());
         }
         catch (...)

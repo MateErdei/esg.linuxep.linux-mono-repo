@@ -61,14 +61,15 @@ namespace SulDownloader
         SDDS3Repository();
         void synchronize(const suldownloaderdata::ConfigurationData& configurationData) override;
         void distribute() override;
-        void setSddsWrapperInstance(std::shared_ptr<ISdds3Wrapper> sdds3Wrapper);
+        //void setSdds3WrapperInstance(std::shared_ptr<ISdds3Wrapper> sdds3Wrapper);
+
+        void generateProductListFromSdds3PackageInfo();
 
     private:
         void populateOldConfigFromFile();
         std::pair<std::set<std::string>, std::set<std::string>>
         getDataToSync( const suldownloaderdata::ConnectionSetup& connectionSetup,
                       const suldownloaderdata::ConfigurationData& configurationData);
-        void generateProductListFromSdds3PackageInfo();
         void parseSUSResponse(
             const std::string& response,
             std::set<std::string>& suites,
@@ -84,6 +85,6 @@ namespace SulDownloader
         std::vector<suldownloaderdata::SubscriptionInfo> m_selectedSubscriptions;
         bool m_supplementOnly;
         std::pair<std::set<std::string>, std::set<std::string>> m_dataToSync;
-        std::shared_ptr<ISdds3Wrapper> m_sdds3Wrapper;
+        //std::shared_ptr<ISdds3Wrapper> m_sdds3Wrapper;
     };
 } // namespace SulDownloader
