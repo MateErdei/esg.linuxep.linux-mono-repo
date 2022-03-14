@@ -90,6 +90,7 @@ void setupTestFiles()
                              "base/etc",
                              "base/mcs",
                              "base/mcs/policy",
+                             "base/mcs/internal_policy",
                              "base/mcs/action",
                              "base/mcs/status",
                              "base/mcs/status/cache",
