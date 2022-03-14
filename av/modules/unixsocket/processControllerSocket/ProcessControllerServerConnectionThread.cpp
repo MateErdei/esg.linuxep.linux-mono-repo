@@ -148,7 +148,7 @@ void ProcessControllerServerConnectionThread::inner_run()
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
-                LOGDEBUG("Process Controller connection closed: EOF");
+                LOGDEBUG("Process Controller connection thread closed: EOF");
                 break;
             }
             else if (length < 0)

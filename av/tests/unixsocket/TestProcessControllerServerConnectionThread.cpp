@@ -191,7 +191,7 @@ TEST_F(TestProcessControllerServerConnectionThread, stop_while_running) //NOLINT
 
 TEST_F(TestProcessControllerServerConnectionThread, eof_while_running) //NOLINT
 {
-    const std::string expected = "Process Controller connection closed: EOF";
+    const std::string expected = "Process Controller connection thread closed: EOF";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
