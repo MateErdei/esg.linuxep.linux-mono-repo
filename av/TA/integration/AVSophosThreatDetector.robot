@@ -173,6 +173,7 @@ Threat Detector Is Given Non-Permission EndpointId
     Create File  ${MACHINEID_FILE}  ab7b6758a3ab11ba8a51d25aa06d1cf4
     Run Process  chmod  000  ${MACHINEID_FILE}
     Register Cleanup  Remove File  ${MACHINEID_FILE}
+    Register Cleanup    Stop Sophos_threat_detector
     Remove File  ${MACHINEID_CHROOT_FILE}
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to copy: "${MACHINEID_FILE}"
@@ -187,7 +188,8 @@ SUSI Is Given Non-Permission EndpointId
     Start AV Plugin
     Wait until threat detector running with offset
     Run Process  chmod  000  ${MACHINEID_CHROOT_FILE}
-    Register Cleanup  Remove File  ${MACHINEID_CHROOT_FILE}
+    Register Cleanup    Remove File  ${MACHINEID_CHROOT_FILE}
+    Register Cleanup    Stop Sophos_threat_detector
     Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read machine ID - using default value
 
@@ -392,6 +394,7 @@ SUSI Is Given Non-Permission CustomerId
     Create File  ${CUSTOMERID_FILE}  d22829d94b76c016ec4e04b08baeffaa
     Run Process  chmod  000  ${CUSTOMERID_FILE}
     Register Cleanup    Remove File  ${CUSTOMERID_FILE}
+    Register Cleanup    Stop Sophos_threat_detector
     Start sophos_threat_detector and Force SUSI to be initialized
     Sophos Threat Detector Log Contains With Offset  Failed to read customerID - using default value
 
@@ -506,6 +509,7 @@ Sophos Threat Detector Is Ignoring Reload Request
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Stop AV Plugin Process
+    Register Cleanup   Send Sav Policy With No Scheduled Scans
     Send Sav Policy With Imminent Scheduled Scan To Base
     Start AV Plugin Process
 
@@ -555,6 +559,8 @@ AVSophosThreatDetector Suite TearDown
 
 AVSophosThreatDetector Test Setup
     Require Plugin Installed and Running  DEBUG
+    Run Keyword and Ignore Error   Run Shell Process   ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
+
     Mark AV Log
     Mark Sophos Threat Detector Log
 

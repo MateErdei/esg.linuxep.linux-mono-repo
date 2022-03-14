@@ -6,10 +6,13 @@ Resource    BaseResources.robot
 
 AV and Base Setup
     # ignore occasional SXL4 timeouts
-    Register Cleanup   Exclude Globalrep Timeout Errors
-
-    Require Plugin Installed and Running
+    Register Cleanup  Exclude Globalrep Timeout Errors
+    Register Cleanup  Require No Unhandled Exception
+    Register Cleanup  Check For Coredumps  ${TEST NAME}
+    Register Cleanup  Check Dmesg For Segfaults
     Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
+    Require Plugin Installed and Running
+
     Remove Directory  /tmp/DiagnoseOutput  true
 
     ${result} =  Run Process  id  sophos-spl-user  stderr=STDOUT
