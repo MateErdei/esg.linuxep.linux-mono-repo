@@ -215,12 +215,12 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
             if (bytes_read < 0)
             {
-                LOGERROR("Aborting Scanning connection: " << errno);
+                LOGERROR("Aborting Scanning connection thread: " << errno);
                 break;
             }
             else if (bytes_read != length)
             {
-                LOGERROR("Aborting Scanning connection: failed to read entire message");
+                LOGERROR("Aborting Scanning connection thread: failed to read entire message");
                 break;
             }
 
@@ -237,7 +237,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
             if (file_fd.get() < 0)
             {
-                LOGERROR("Aborting Scanning connection: failed to read fd");
+                LOGERROR("Aborting Scanning connection thread: failed to read fd");
                 break;
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
@@ -247,12 +247,12 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             int ret = ::fstat(file_fd.get(), &st);
             if (ret == -1)
             {
-                LOGERROR("Aborting Scanning connection: failed to get file status");
+                LOGERROR("Aborting Scanning connection thread: failed to get file status");
                 break;
             }
             if (!S_ISREG(st.st_mode))
             {
-                LOGERROR("Aborting Scanning connection: fd is not a regular file");
+                LOGERROR("Aborting Scanning connection thread: fd is not a regular file");
                 break;
             }
 
@@ -260,13 +260,13 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             int status = ::fcntl(file_fd.get(), F_GETFL);
             if (status == -1)
             {
-                LOGERROR("Aborting Scanning connection: failed to get file status flags");
+                LOGERROR("Aborting Scanning connection thread: failed to get file status flags");
                 break;
             }
             unsigned int mode = status & O_ACCMODE;
             if (!(mode == O_RDONLY || mode == O_RDWR ) || status & O_PATH )
             {
-                LOGERROR("Aborting Scanning connection: fd is not open for read");
+                LOGERROR("Aborting Scanning connection thread: fd is not open for read");
                 break;
             }
 
