@@ -7,7 +7,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "MockSdds3Wrapper.h"
 #include "Sdds3ReplaceAndRestore.h"
-#include <SulDownloader/suldownloaderdata/ProductMetadata.h>
+#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <modules/SulDownloader/suldownloaderdata/CatalogueInfo.h>
@@ -23,7 +23,11 @@ using namespace SulDownloader::suldownloaderdata;
 class Sdds3RepositoryTest : public ::testing::Test
 {
 public:
-    void SetUp() override { Test::SetUp(); }
+    void SetUp() override
+    {
+
+        Test::SetUp();
+    }
     /**
     * Remove the temporary directory.
     */
@@ -40,6 +44,7 @@ public:
         m_replacer.replace(std::unique_ptr<SulDownloader::ISdds3Wrapper>(sdds3WrapperMock));
         return *pointer;
     }
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 protected:
     Tests::ScopedReplaceSdds3Wrapper m_replacer;
 
