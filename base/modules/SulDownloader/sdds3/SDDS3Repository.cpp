@@ -200,7 +200,7 @@ namespace SulDownloader
             bool useHttps = true;
             if(Common::FileSystem::fileSystem()->exists(overrideFile))
             {
-                useHttps = (!Common::UtilityImpl::StringUtils::extractValueFromIniFile(overrideFile, "USE_HTTP").empty());
+                useHttps = (Common::UtilityImpl::StringUtils::extractValueFromIniFile(overrideFile, "USE_HTTP").empty());
             }
 
             auto http_session = std::make_unique<utilities::http::Session>(userAgent, utilities::http::Proxy(), useHttps);
@@ -305,16 +305,16 @@ namespace SulDownloader
                 m_oldConfig = //sdds3::load_config(configFilePath);
                     SulDownloader::sdds3Wrapper()->loadConfig(configFilePathString);
 
-                //LOGINFO("Successfully loaded previous config file");
+                LOGINFO("Successfully loaded previous config file");
             }
             else
             {
-                //LOGINFO("Failed to find config file: " << configFilePathString);
+                LOGINFO("Failed to find config file: " << configFilePathString);
             }
         }
         catch(const std::exception& ex)
         {
-            //LOGERROR("Failed to read previous SDDS3 config file, error:" << ex.what());
+            LOGERROR("Failed to read previous SDDS3 config file, error:" << ex.what());
         }
     }
 
@@ -329,7 +329,7 @@ namespace SulDownloader
         }
         catch(const std::exception& ex)
         {
-           // LOGERROR("Failed to store SDDS3 config file, error:" << ex.what());
+           LOGERROR("Failed to store SDDS3 config file, error:" << ex.what());
         }
 
         std::vector<sdds3::PackageRef> packagesWithSupplements;
