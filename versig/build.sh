@@ -47,7 +47,7 @@ then
         INPUT="$BASE/versig-build/input"
     else
         MESSAGE_PART1="You need to run the following to setup your input folder: "
-        MESSAGE_PART2="python3 -m build_scripts.artisan_fetch release-package.xml"
+        MESSAGE_PART2="tap fetch versig"
         exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
     fi
 fi
@@ -77,7 +77,9 @@ function build()
 
     unpack_scaffold_gcc_make $INPUT
 
-    rm -rf $BASE/tests/googletest
+    [[ -d $BASE/tests/googlemock ]] && rm -rf $BASE/tests/googlemock
+    [[ -d $BASE/tests/googletest ]] && rm -rf $BASE/tests/googletest
+    cp -r $INPUT/googlemock $BASE/tests
     cp -r $INPUT/googletest $BASE/tests
 
     OPENSSL_TAR=$INPUT/openssl.tar
@@ -93,6 +95,7 @@ function build()
 
     addpath "$INPUT/cmake/bin"
     chmod 700 $INPUT/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
+    chmod 700 $INPUT/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
 
     COMMON_LDFLAGS="${LINK_OPTIONS:-}"
     COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
@@ -112,6 +115,9 @@ function build()
     echo "BASE=$BASE" >${PRODUCT}/${BITS}/BASE
     echo "PATH=$PATH" >${PRODUCT}/${BITS}/PATH
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >${PRODUCT}/${BITS}/LD_LIBRARY_PATH
+
+    export CC=/build/input/gcc/bin/gcc
+    export CXX=/build/input/gcc/bin/g++
 
     INSTALL=$BASE/$PRODUCT/${BITS}
 

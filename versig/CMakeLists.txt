@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(versig)
 
 if (NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 17)
 endif (NOT DEFINED CMAKE_CXX_STANDARD)
 
 include_directories(.)
@@ -25,7 +25,7 @@ if(NOT EXISTS ${INPUT})
     string(APPEND ERRORMESSAGE
             "To build away from CI you first need to:\n"
             "1. Fetch inputs in source folder by running:\n"
-            "    python3 -m build_scripts.artisan_fetch release-package.xml\n"
+            "    tap fetch versig\n"
             "2. Run the full build script with no build flag:\n"
             "    ./build.sh --no-build\n"
             "After that you will be able to build using CLion")
@@ -86,14 +86,27 @@ install(FILES
 include(GoogleTest)
 enable_testing()
 
-add_subdirectory(tests/googletest EXCLUDE_FROM_ALL)
-
 add_executable(versig_test
         tests/test_versig.cpp
         src/versig.h)
-target_link_libraries(versig_test PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} ssl crypto gtest gtest_main)
 
-target_include_directories(versig_test SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include")
-target_include_directories(versig_test BEFORE PUBLIC "${gtest_SOURCE_DIR}" src)
+set(GOOGLE_MOCK_LIB_DIR ${CMAKE_SOURCE_DIR}/tests/googlemock)
+set(GOOGLE_TEST_LIB_DIR ${CMAKE_SOURCE_DIR}/tests/googletest)
+set(GOOGLE_TEST_INC_DIR ${CMAKE_SOURCE_DIR}/tests/googletest/include)
+
+target_include_directories(versig_test SYSTEM BEFORE PUBLIC "${GOOGLE_TEST_INC_DIR}")
+target_include_directories(versig_test BEFORE PUBLIC "${GOOGLE_TEST_INC_DIR}" src)
+
+target_link_libraries(versig_test PUBLIC
+        versig_lib
+        -L${OPENSSL_LIBRARY_DIR}
+        ${GOOGLE_TEST_LIB_DIR}/libgtest.a
+        ${GOOGLE_MOCK_LIB_DIR}/libgmock.a
+        ${GOOGLE_TEST_LIB_DIR}/libgtest_main.a
+        ${GOOGLE_MOCK_LIB_DIR}/libgmock_main.a
+        ssl
+        crypto
+        pthread
+        )
 
 gtest_discover_tests(versig_test)

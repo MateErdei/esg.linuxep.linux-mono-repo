@@ -5,6 +5,8 @@ tests/data_files/tbp1.txt
 tests/data_files/tbp2.txt
 tests/data_files/tbp 2.txt
 tests/data_files/tbp3.txt
+tests/googlemock
+tests/googletest
 venv
 .idea/misc.xml
 .idea/modules.xml
