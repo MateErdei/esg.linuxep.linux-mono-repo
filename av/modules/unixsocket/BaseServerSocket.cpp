@@ -120,10 +120,7 @@ void unixsocket::BaseServerSocket::run()
 
             if (client_socket.get() < 0)
             {
-                std::stringstream stream;
-                stream << m_socketName;
-                stream << " failed to accept connection";
-                perror(stream.str().c_str());
+                LOGERROR(m_socketName << " failed to accept connection: " << strerror(errno));
                 terminate = true;
             }
             else
