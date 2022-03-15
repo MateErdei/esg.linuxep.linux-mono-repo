@@ -24,6 +24,10 @@ Suite Teardown  Installer Suite TearDown
 Test Setup      Installer Test Setup
 Test Teardown   Installer Test TearDown
 
+*** Variables ***
+
+${MOCKED_INSTALL_SET}    /tmp/mocked_install_set
+
 *** Test Cases ***
 AV Plugin Installs With Version Ini File
     Wait Until AV Plugin running
@@ -514,6 +518,20 @@ AV Can not install from SDDS Component
     Log  ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${26}
 
+AV Installer Fails When VDL Manifest Is Missing
+    [Teardown]    Installer Test TearDown With Mocked Installset Cleanup
+    Create Mocked Install Set With Missing VDL Manifest
+    ${result} =  Run Process  bash  ${MOCKED_INSTALL_SET}/install.sh  stderr=STDOUT  timeout=30s
+    Log  ${result.stdout}
+    Should Be Equal As Integers  ${result.rc}  ${28}
+
+AV Installer Succeeds When VDL Manifest Is Missing But Dataset A Manifest Is Present
+    [Teardown]    Installer Test TearDown With Mocked Installset Cleanup
+    Create Mocked Install Set With Missing VDL Manifest    using_dataset_a=${True}
+    ${result} =  Run Process  bash  ${MOCKED_INSTALL_SET}/install.sh  stderr=STDOUT  timeout=30s
+    Log  ${result.stdout}
+    Should Be Equal As Integers  ${result.rc}  ${0}
+
 Check installer keeps SUSI startup settings as writable by AV Plugin
     Restart AV Plugin And Clear The Logs For Integration Tests
     Create file   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
@@ -589,6 +607,10 @@ Installer Test TearDown
     run failure functions if failed
     Run Keyword If Test Failed   Installer Suite Setup
 
+Installer Test TearDown With Mocked Installset Cleanup
+    Installer Test TearDown
+    Cleanup Mocked Install Set
+
 Debug install set
     ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update_source  -type  f  stdout=/tmp/proc.out   stderr=STDOUT
     Log  INSTALL_SET= ${result.stdout}
@@ -623,3 +645,12 @@ Check no duplicate files in directory
     ${count} =   Get Line Count   ${output}
     Should Be Equal As Integers  ${count}  ${0}
 
+Create Mocked Install Set With Missing VDL Manifest
+    [Arguments]    ${using_dataset_a}=${False}
+    Copy Directory    ${COMPONENT_INSTALL_SET}    ${MOCKED_INSTALL_SET}
+    remove file    ${MOCKED_INSTALL_SET}/files/plugins/av/chroot/susi/update_source/vdl/vdlmnfst.dat
+    Run Keyword If    ${using_dataset_a}
+    ...    Create File    ${MOCKED_INSTALL_SET}/files/plugins/av/chroot/susi/update_source/vdl/manifestdata.dat
+
+Cleanup Mocked Install Set
+    Remove Directory    ${MOCKED_INSTALL_SET}    recursive=${True}
