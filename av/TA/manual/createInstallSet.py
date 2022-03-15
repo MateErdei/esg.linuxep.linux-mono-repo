@@ -24,7 +24,10 @@ def log(*x):
 def download_supplements(dest):
     # ensure manual dir is on sys.path
     downloadSupplements.LOGGER = LOGGER
-    updated = downloadSupplements.run(dest)
+    use_dataseta = False
+    if os.environ.get('DATASETA'):
+        use_dataseta = True
+    updated = downloadSupplements.run(dest, use_dataseta)
     return updated
 
 
@@ -90,7 +93,7 @@ def create_install_set_if_required(install_set, sdds_component, base):
     print("Finished downloading supplements:", updated)
     if verify_install_set(install_set, sdds_component) and not updated:
         return 0
-    return create_install_set(install_set, sdds_component, base)
+    return create_install_set(install_set, sdds_component, ensure_binary(base))
 
 
 def main(argv):
@@ -99,13 +102,13 @@ def main(argv):
     if len(argv) == 4:
         install_set = ensure_binary(argv[1])
         sdds_component = ensure_binary(argv[2])
-        base = ensure_binary(argv[3])
+        base = argv[3]
         return create_install_set_if_required(install_set, sdds_component, base)
     elif len(argv) == 1:
         # /opt/test/inputs/av/INSTALL-SET /opt/test/inputs/av/SDDS-COMPONENT /opt/test/inputs/av/..
         install_set = ensure_binary("/opt/test/inputs/av/INSTALL-SET")
         sdds_component = ensure_binary("/opt/test/inputs/av/SDDS-COMPONENT")
-        base = ensure_binary("/opt/test/inputs")
+        base = "/opt/test/inputs"
         return create_install_set_if_required(install_set, sdds_component, base)
 
     return 2

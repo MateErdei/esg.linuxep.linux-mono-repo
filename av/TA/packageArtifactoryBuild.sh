@@ -13,6 +13,12 @@ then
 fi
 DEST_BASE=/tmp
 
+if [[ -n $DATASETA ]]
+then
+	echo Please pass an artifactory repository path
+	DATASETA_ARG="--dataseta"
+fi
+
 if [[ -f ${DEST_BASE}/output.zip ]]
 then
     NEWER="--time-cond ${DEST_BASE}/output.zip"
@@ -45,7 +51,7 @@ rm -rf "$AV/test-resources"
 mv "$OUTPUT/test-resources"  "$AV/"
 
 PYTHON=${PYTHON:-python3}
-${PYTHON} ${BASE}/manual/downloadSupplements.py "$INPUTS"
+${PYTHON} ${BASE}/manual/downloadSupplements.py "$INPUTS" $DATASETA_ARG
 
 exec tar cjf /tmp/inputs.tar.bz2 -C ${DEST_BASE} \
     --exclude='test/inputs/vdl.zip' \
