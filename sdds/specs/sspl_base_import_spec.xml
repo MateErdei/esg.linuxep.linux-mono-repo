@@ -225,5 +225,13 @@
 				 longdic="Sophos Linux Heartbeat Plugin"
 				 shortdic="Sophos Linux Heartbeat Plugin"/>
     </line>
+    <line id="ServerProtectionLinux-Plugin-MDR">
+    <component
+  		         id="ServerProtectionLinux-Plugin-MDR-1.0.11.49"
+  		         version="1.0.11.49"
+  		         artifact="esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--2022-12/20220314154428-55234422f915a80fb154178efa99e99fea4b3cc5-6nhlR8/output/SDDS-SSPL-MDR-COMPONENT"
+  		         longdic="Sophos Server Protection for Linux MTR" shortdic="Sophos Server Protection for Linux MTR"
+  		         marketingversion="SSPL 1.0.11 MTR" />
+	</line>
   </imports>
 </importspec>
