@@ -195,14 +195,14 @@ namespace SulDownloader
                 useHttps = (Common::UtilityImpl::StringUtils::extractValueFromIniFile(overrideFile, "USE_HTTP").empty());
             }
 
-            auto httpSession = std::make_unique<utilities::http::Session>(userAgent, utilities::http::Proxy(), useHttps);
+            auto httpSession = std::make_unique<utilities::LinuxHttpClient::Session>(userAgent, utilities::LinuxHttpClient::Proxy(), useHttps);
 
             httpSession->SetTimeouts(DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
 
             std::string url = connectionSetup.getUpdateLocationURL() + "/v3/" + configurationData.getTenantId() + "/" + configurationData.getDeviceId();
-            auto httpConnection = std::make_unique<utilities::http::Connection>(*httpSession, url);
+            auto httpConnection = std::make_unique<utilities::LinuxHttpClient::Connection>(*httpSession, url);
 
-            auto request = std::make_unique<utilities::http::Request>(*httpConnection, "POST", "");
+            auto request = std::make_unique<utilities::LinuxHttpClient::Request>(*httpConnection, "POST", "");
             request->AddRequestHeader_Authorization("Bearer", configurationData.getJWToken());
             request->AddRequestHeader_ContentType("application/json");
             request->SetRequestPayload(requestJson);

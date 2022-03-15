@@ -169,13 +169,13 @@ int main(int argc, char* argv[])
         std::cout << request_json << std::endl;
 
         // start of SUS
-        auto http_session = std::make_unique<utilities::http::Session>(getUserAgent(tenant_id, device_id), utilities::http::Proxy(), true);
+        auto http_session = std::make_unique<utilities::LinuxHttpClient::Session>(getUserAgent(tenant_id, device_id), utilities::LinuxHttpClient::Proxy(), true);
         http_session->SetTimeouts(DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
 
         std::string url = DEFAULT_SERVICE_URL + "/v3/" + tenant_id + "/" + device_id;
-        auto http_connection = std::make_unique<utilities::http::Connection>(*http_session, url);
+        auto http_connection = std::make_unique<utilities::LinuxHttpClient::Connection>(*http_session, url);
 
-        auto request = std::make_unique<utilities::http::Request>(*http_connection, "POST", "");
+        auto request = std::make_unique<utilities::LinuxHttpClient::Request>(*http_connection, "POST", "");
         request->AddRequestHeader_Authorization("Bearer", jwt_token);
         request->AddRequestHeader_ContentType("application/json");
         request->SetRequestPayload(request_json);
