@@ -35,7 +35,7 @@ def process_release_files(release_files):
     all_dict = {}
     for release_file_path in release_files:
         with open(release_file_path, 'r') as release_file:
-            print(f"Processing {release_file_path}")
+            print(f"\nProcessing {release_file_path}")
 
             content = release_file.read()
             as_dictionary = xmltodict.parse(content, dict_constructor=dict)
@@ -78,9 +78,12 @@ def process_release_files(release_files):
                     print(f"Skipping input: {input_dict['name']} in: {release_file_path}, as there is no release-version")
                     continue
 
-                input_dict = {"name": input_pkg["@repo"], "build_id": input_pkg["release-version"]["@build-id"]}
+                input_dict = {"name": input_pkg["@repo"],
+                              "branch": input_pkg["release-version"]["@branch"],
+                              "build_id": input_pkg["release-version"]["@build-id"]}
 
                 print(input_dict["name"])
+                print(input_dict["branch"])
                 print(input_dict["build_id"])
                 inputs.append(input_dict)
 

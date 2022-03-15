@@ -5,11 +5,11 @@ import sys
 import json
 
 
-def get_component_using_input_build_id(root_dictionary, input_name, input_build_id):
+def get_component_using_input_build_id(root_dictionary, input_name, input_branch, input_build_id):
     components_using_input_build_id = set()
     for component_name, component_info in root_dictionary.items():
         for i in component_info["inputs"]:
-            if i["name"] == input_name and i["build_id"] == input_build_id:
+            if i["name"] == input_name and i["branch"] == input_branch and i["build_id"] == input_build_id:
                 components_using_input_build_id.add(component_name)
     return components_using_input_build_id
 
@@ -21,15 +21,18 @@ def verify_json(json_string):
         for i in info_dict["inputs"]:
             if i["name"] not in all_inputs:
                 all_inputs[i["name"]] = set()
-            all_inputs[i["name"]].add(i["build_id"])
+            all_inputs[i["name"]].add(f"{i['branch']}*{i['build_id']}")
     found_inconsistencies = False
-    for input_name, input_build_ids in all_inputs.items():
-        if (len(input_build_ids)) > 1:
+    for input_name, input_branch_and_build_ids in all_inputs.items():
+        if (len(input_branch_and_build_ids)) > 1:
             found_inconsistencies = True
             print("ERROR:")
-            for build_id in input_build_ids:
-                for c in get_component_using_input_build_id(root_dict, input_name, build_id):
-                    print(f"Inconsistent build_ids, input: {input_name}, build_id: {build_id}, component using it: {c}")
+            for branch_and_build_id in input_branch_and_build_ids:
+                input_branch = branch_and_build_id.split('*')[0]
+                build_id = branch_and_build_id.split('*')[1]
+                for c in get_component_using_input_build_id(root_dict, input_name, input_branch, build_id):
+                    print(f"Inconsistent branch and build_ids, input: {input_name}, branch: {input_branch}, "
+                          f"build_id: {build_id}, component using it: {c}")
 
     if found_inconsistencies:
         print("FAILED: Inputs are inconsistent, refer to logged errors")
