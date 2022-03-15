@@ -70,7 +70,6 @@ ROOT_CA=$SOPHOS_INSTALL/base/update/rootcerts/rootca.crt
 SUPPLEMENT_DIR="$DIST/files/plugins/av/chroot/susi/update_source"
 VDL="$SUPPLEMENT_DIR/vdl"
 DATASETA_MANIFEST=$VDL/manifestdata.dat
-# don't do versig check on VDL manifest if using dataset A
 if [[ ! -f $DATASETA_MANIFEST ]]
 then
     $VERSIG -c"$ROOT_CA" -f"$VDL/vdlmnfst.dat" -d"$VDL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify VDL supplement"
