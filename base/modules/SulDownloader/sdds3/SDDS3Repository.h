@@ -18,11 +18,9 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 
 namespace SulDownloader
 {
-
-//    static const std::string DEFAULT_SERVICE_URL = "https://sus.sophosupd.com";
-//    static const std::string DEFAULT_UPDATE_URL = "https://sdds3.sophosupd.com";
-    static const std::string DEFAULT_SERVICE_URL = "http://127.0.0.1:8080";
-    static const std::string DEFAULT_UPDATE_URL = "http://127.0.0.1:8080";
+    static const std::string DEFAULT_SERVICE_URL = "https://sus.sophosupd.com";
+    static const std::vector<std::string> DEFAULT_UPDATE_URLS
+        = {"https://sdds3.sophosupd.com:443", "https://sdds3.sophosupd.net:443"};
     static const int DEFAULT_TIMEOUT_MS = 5000;
 
     struct SUSRequestParameters
@@ -36,7 +34,7 @@ namespace SulDownloader
     class SDDS3Repository : public virtual suldownloaderdata::ISdds3Repository
     {
     public:
-        SDDS3Repository(const std::string& repo_dir, const std::string& certs_dir);
+        SDDS3Repository(const std::string& repoDir, const std::string& certsDir);
 
         ~SDDS3Repository();
 
@@ -56,7 +54,6 @@ namespace SulDownloader
         SDDS3Repository();
         void synchronize(const suldownloaderdata::ConfigurationData& configurationData) override;
         void distribute() override;
-        //void setSdds3WrapperInstance(std::shared_ptr<ISdds3Wrapper> sdds3Wrapper);
 
         void generateProductListFromSdds3PackageInfo();
 
@@ -80,6 +77,5 @@ namespace SulDownloader
         std::vector<suldownloaderdata::SubscriptionInfo> m_selectedSubscriptions;
         bool m_supplementOnly;
         std::pair<std::set<std::string>, std::set<std::string>> m_dataToSync;
-        //std::shared_ptr<ISdds3Wrapper> m_sdds3Wrapper;
     };
 } // namespace SulDownloader

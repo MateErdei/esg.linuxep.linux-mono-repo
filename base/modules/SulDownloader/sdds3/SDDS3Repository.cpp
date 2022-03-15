@@ -34,12 +34,12 @@ constexpr const std::array<std::string_view, 2> SDDS3_DEFAULT_CDN_URLS{
 };
 
 class applicationPathManager;
-class applicationPathManager;
+
 namespace SulDownloader
 {
-    SDDS3Repository::SDDS3Repository(const std::string& repo_dir, const std::string& certs_dir)
-        : m_session(std::make_shared<sdds3::Session>(certs_dir))
-        , m_repo(repo_dir)
+    SDDS3Repository::SDDS3Repository(const std::string& repoDir, const std::string& certsDir)
+        : m_session(std::make_shared<sdds3::Session>(certsDir))
+        , m_repo(repoDir)
         , m_supplementOnly(false)
     {
     }
@@ -135,7 +135,6 @@ namespace SulDownloader
         json["subscriptions"] = nlohmann::json::array();
         for (const auto& subscription : parameters.subscriptions)
         {
-            // TODO handle fixed version
             json["subscriptions"].push_back({ { "id", subscription.rigidName() }, { "tag", subscription.tag() } });
         }
 
@@ -182,8 +181,8 @@ namespace SulDownloader
             requestParameters.subscriptions.insert(requestParameters.subscriptions.begin(),
                                                     configurationData.getPrimarySubscription());
 
-            std::string request_json = writeSUSRequest(requestParameters);
-            LOGDEBUG(request_json);
+            std::string requestJson = writeSUSRequest(requestParameters);
+            LOGDEBUG(requestJson);
 
             // start of SUS request
             std::string userAgent = generateUserAgentString(configurationData.getTenantId(),
@@ -196,18 +195,17 @@ namespace SulDownloader
                 useHttps = (Common::UtilityImpl::StringUtils::extractValueFromIniFile(overrideFile, "USE_HTTP").empty());
             }
 
-            auto http_session = std::make_unique<utilities::http::Session>(userAgent, utilities::http::Proxy(), useHttps);
+            auto httpSession = std::make_unique<utilities::http::Session>(userAgent, utilities::http::Proxy(), useHttps);
 
-            http_session->SetTimeouts(DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
+            httpSession->SetTimeouts(DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
 
-            //std::string url = DEFAULT_SERVICE_URL + "/v3/" + configurationData.getTenantId() + "/" + configurationData.getDeviceId();
             std::string url = connectionSetup.getUpdateLocationURL() + "/v3/" + configurationData.getTenantId() + "/" + configurationData.getDeviceId();
-            auto http_connection = std::make_unique<utilities::http::Connection>(*http_session, url);
+            auto httpConnection = std::make_unique<utilities::http::Connection>(*httpSession, url);
 
-            auto request = std::make_unique<utilities::http::Request>(*http_connection, "POST", "");
+            auto request = std::make_unique<utilities::http::Request>(*httpConnection, "POST", "");
             request->AddRequestHeader_Authorization("Bearer", configurationData.getJWToken());
             request->AddRequestHeader_ContentType("application/json");
-            request->SetRequestPayload(request_json);
+            request->SetRequestPayload(requestJson);
             unsigned int status_code = request->Send();
             if (status_code != 200)
             {
@@ -252,38 +250,59 @@ namespace SulDownloader
 
         for (const auto& releaseGroup : releaseGroups)
         {
-            LOGINFO("Release Group: '" << releaseGroup << "' is available to be downloaded." );
+            LOGDEBUG("Release Group: '" << releaseGroup << "' is available to be downloaded." );
         }
 
-        //sdds3::Session session(CommsComponent::getCaCertificateStorePaths()[0]);
-        m_session.reset();
-        m_session = std::make_shared<sdds3::Session>("/etc/ssl/certs/ca-certificates.crt");
-        //sdds3::Session session("/etc/ssl/certs/ca-certificates.crt");
-        //m_session = session;
+        auto certPaths = CommsComponent::getCaCertificateStorePaths();
+        // expect that there should be only 1 cert path provided.
+        std::string systemCertPath;
+        if(certPaths.size() > 0)
+        {
+            systemCertPath = certPaths[0];
+        }
+
+        m_session = std::make_shared<sdds3::Session>(systemCertPath);
+
         sdds3::Repo repo(Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3Repository());
         m_repo = repo;
 
         m_session->httpConfig.userAgent = generateUserAgentString(configurationData.getTenantId(), configurationData.getDeviceId());
         m_config.suites = suites;
         m_config.release_groups_filter = releaseGroups;
-
-        try
+        for(const auto& srcUrlToTry : DEFAULT_UPDATE_URLS)
         {
-            std::string srcUrl = DEFAULT_UPDATE_URL; //configurationData.getSophosUpdateUrls()[0];
-            SulDownloader::sdds3Wrapper()->sync(*m_session.get(), repo, srcUrl, m_config, m_oldConfig);
-
-            if(!hasError())
+            m_error.reset(); // Clear error for retry
+            try
             {
-                generateProductListFromSdds3PackageInfo();
+                std::string overrideFile =
+                    Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
+
+                std::string srcUrl(srcUrlToTry);
+                if (Common::FileSystem::fileSystem()->exists(overrideFile))
+                {
+                    std::string cdnOverrideUrl =
+                        Common::UtilityImpl::StringUtils::extractValueFromIniFile(overrideFile, "CDN_URL");
+                    if (!cdnOverrideUrl.empty())
+                    {
+                        srcUrl = cdnOverrideUrl;
+                    }
+                }
+                LOGINFO("Performing Sync using " << srcUrl);
+                SulDownloader::sdds3Wrapper()->sync(*m_session.get(), repo, srcUrl, m_config, m_oldConfig);
+                break;
+            }
+            catch (const std::exception& ex)
+            {
+                m_error.status = RepositoryStatus::DOWNLOADFAILED;
+                std::stringstream message;
+                message << "Faild to sync " << ex.what();
+                m_error.Description = message.str();
+                LOGERROR("Failed to Sync with " << srcUrlToTry << " error: " << ex.what());
             }
         }
-        catch (const std::exception& ex)
+        if(!hasError())
         {
-            m_error.status = RepositoryStatus::DOWNLOADFAILED;
-            std::stringstream message;
-            message << "Faild to sync " << ex.what();
-            m_error.Description = message.str();
-            return;
+            generateProductListFromSdds3PackageInfo();
         }
     }
 

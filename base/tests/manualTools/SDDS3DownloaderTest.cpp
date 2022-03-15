@@ -162,9 +162,9 @@ int main(int argc, char* argv[])
     try
     {
         SUSRequestParameters request_parameters;
-        request_parameters.product = "winep";
-        request_parameters.platformToken = "WIN_10_X64";
-        request_parameters.subscriptions = { { "WindowsCloudNextGen", "RECOMMENDED" } };
+        request_parameters.product = "linuxep";
+        request_parameters.platformToken = "LINUX_INTEL_LIBC6";
+        request_parameters.subscriptions = { { "ServerProtectionLinux-Base", "RECOMMENDED" } };
         std::string request_json = writeSUSRequest(request_parameters);
         std::cout << request_json << std::endl;
 
