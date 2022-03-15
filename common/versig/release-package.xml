@@ -12,9 +12,9 @@
         </build-asset>
         <build-asset project="thirdparty" repo="googletest">
             <release-version branch="release/sspl/Version_1_11_0" build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV" />
-            <include artifact-path="thirdparty/googletest/gmock-headers" dest-dir="/build/input/googletest" />
-            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="/build/input/googletest" />
-            <include artifact-path="thirdparty/googletest/gtest-headers" dest-dir="/build/input/googletest" />
+            <include artifact-path="thirdparty/googletest/gmock-headers" dest-dir="/build/input/googlemock/include/gmock" />
+            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="/build/input/googlemock" />
+            <include artifact-path="thirdparty/googletest/gtest-headers" dest-dir="/build/input/googletest/include/gtest" />
             <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="/build/input/googletest" />
         </build-asset>
         <build-asset project="thirdparty" repo="openssl">

@@ -36,11 +36,11 @@ function unpack_scaffold_gcc_make()
 
         tar xzf $GCC_TARFILE
         export PATH=/build/input/gcc/bin:$PATH
-        export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH=/build/input/gcc/lib64:$LD_LIBRARY_PATH
     elif [[ -d /build/input/gcc/bin ]]
     then
         export PATH=/build/input/gcc/bin:$PATH
-        export LD_LIBRARY_PATH=/build/input/gcc/lib64:/build/input/gcc/lib32:$LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH=/build/input/gcc/lib64:$LD_LIBRARY_PATH
     else
         echo "WARNING: BUILDING WITH LOCAL GCC!"
     fi
@@ -142,12 +142,7 @@ date | tee -a $LOG | tee /tmp/build.log
 unamestr=$(uname)
 PLATFORM=`uname -s | LC_ALL=C tr '[:upper:]' '[:lower:]' | LC_ALL=C tr -d '-'`
 
-# Ah HP-UX, always so excitingly different
-if [[ "$unamestr" == "HP-UX" ]]; then
-    cpustr=$(uname -m)
-else
-    cpustr=$(uname -p)
-fi
+cpustr=$(uname -p)
 
 BUILDARCH=$unamestr-$cpustr
 
@@ -189,10 +184,3 @@ CPP_OPTIONS="$SECURITY_CPP $LARGEFILES -std=c++17"
 COMPILE_OPTIONS="$SYMBOLS $OPTIMIZE $MLP $SECURITY_COMPILE"
 OPTIONS="$COMPILE_OPTIONS $SECURITY_CPP $LARGEFILES"
 LINK_OPTIONS="$MLP $EXTRA_LIBS $SECURITY_LINK"
-
-# Without this, gunzip isn't found for some reason.
-if [[ $BUILDARCH == "HP-UX-ia64" ]]; then
-    export PATH=/usr/contrib/bin:$PATH
-# Turn on modern Unix APIs
-    COMPILE_OPTIONS="-D_XOPEN_SOURCE=500 -D_XOPEN_SOURCE_EXTENDED $COMPILE_OPTIONS"
-fi

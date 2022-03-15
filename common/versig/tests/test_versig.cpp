@@ -7,7 +7,7 @@
 
 #include "SophosCppStandard.h"
 
-#include <include/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 extern int versig_main(const std::vector<std::string>& argv);
 
