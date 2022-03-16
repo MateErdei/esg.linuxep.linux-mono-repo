@@ -16,5 +16,8 @@ Contains unit tests with a mocked out cURL
 
 Live network tests that are run in TAP against a test server HttpTestServer.py
 
-To run the live network tests locally run "python3 HttpTestServer.py" and then run the google tests in HttpRequesterLiveNetworkTests.cpp as normal, either via IDE or cmdline.
+To run/debug the live network tests locally:
+
+1) Run "python3 HttpTestServer.py" 
+2) Run the google tests in HttpRequesterLiveNetworkTests.cpp as normal, either via IDE or cmdline.
 

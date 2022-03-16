@@ -1,3 +1,7 @@
+/******************************************************************************************************
+Copyright 2022, Sophos Limited.  All rights reserved.
+******************************************************************************************************/
+
 #include "CurlFunctionsProvider.h"
 #include "FileSystem/IFileSystem.h"
 #include "Logger.h"

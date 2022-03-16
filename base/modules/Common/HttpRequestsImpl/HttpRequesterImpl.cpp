@@ -1,3 +1,6 @@
+/******************************************************************************************************
+Copyright 2022, Sophos Limited.  All rights reserved.
+******************************************************************************************************/
 
 #include "HttpRequesterImpl.h"
 
@@ -69,6 +72,7 @@ namespace Common::HttpRequestsImpl
         curl_easy_setopt(m_curlHandle, CURLOPT_HEADERDATA, &responseBuffer);
         curl_easy_setopt(m_curlHandle, CURLOPT_DEBUGFUNCTION, CurlFunctionsProvider::curlWriteDebugFunc);
 
+        // Handle data being downloaded, directly to buffer or to a file.
         if (request.fileDownloadLocation.has_value())
         {
             if (Common::FileSystem::fileSystem()->isFile(request.fileDownloadLocation.value()))
@@ -98,6 +102,7 @@ namespace Common::HttpRequestsImpl
             curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &bodyBuffer);
         }
 
+        // Handle URL parameters, such as: example.com?param1=value&param2=abc
         if (request.parameters.has_value())
         {
             std::string urlParamString;
@@ -119,6 +124,7 @@ namespace Common::HttpRequestsImpl
             }
         }
 
+        // Handle if the user wants to upload a file
         std::unique_ptr<FILE, int (*)(FILE *)> fileToSend(nullptr, fclose);
         if (request.fileToUpload.has_value())
         {
@@ -152,19 +158,26 @@ namespace Common::HttpRequestsImpl
         // cURL options are built up in this container and then applied at the end
         std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>>> curlOptions;
 
+        // Set the request URL
         curlOptions.emplace_back("URL - CURLOPT_URL", CURLOPT_URL, request.url);
+
+        // Set the preferred TLS version
         curlOptions.emplace_back("TLS/SSL version - CURLOPT_SSLVERSION", CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+
+        // Set timeout in seconds, defaulted to 10 mins in the request interface but can be set by user
         curlOptions.emplace_back("Set timeout - CURLOPT_TIMEOUT", CURLOPT_TIMEOUT, request.timeout);
 
         // cURL or openssl does not seem to support setting this protocol.
         // Could be worth an update, checking of build options and a rebuild of openssl and curl
         // curlOptions.emplace_back("Set HTTP version - CURLOPT_HTTP_VERSION", CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2TLS);
 
+        // Handle setting the port
         if (request.port.has_value())
         {
             curlOptions.emplace_back("Port - CURLOPT_PORT", CURLOPT_PORT, request.port.value());
         }
 
+        // Set the request type: GET, POST, PUT, DELETE, OPTIONS
         switch (request.requestType)
         {
             case Common::HttpRequests::GET:
@@ -192,6 +205,7 @@ namespace Common::HttpRequestsImpl
                 break;
         }
 
+        // Handle proxy being specified by user
         if (request.proxy.has_value())
         {
             curlOptions.emplace_back("Specify proxy - CURLOPT_PROXY", CURLOPT_PROXY, request.proxy.value());
@@ -208,6 +222,7 @@ namespace Common::HttpRequestsImpl
             }
         }
 
+        // Handle allowing redirects, a lot of sites redirect, a user must explicitly ask for this to be enabled
         if (request.allowRedirects)
         {
             long followRedirects = 1;
@@ -215,17 +230,20 @@ namespace Common::HttpRequestsImpl
             curlOptions.emplace_back("Set max redirects - CURLOPT_MAXREDIRS", CURLOPT_MAXREDIRS, 50);
         }
 
+        // Handle a download speed / bandwidth limit being set by a user
         if (request.bandwidthLimit.has_value())
         {
             curlOptions.emplace_back(
                 "Set max bandwidth - CURLOPT_MAX_RECV_SPEED_LARGE", CURLOPT_MAX_RECV_SPEED_LARGE, (curl_off_t)request.bandwidthLimit.value());
         }
 
+        // Set logging verbosity if required
         if (m_curlVerboseLogging)
         {
             curlOptions.emplace_back("Enable verbose logging - CURLOPT_VERBOSE", CURLOPT_VERBOSE, 1L);
         }
 
+        // Handle setting certs, either user specified or we try known system locations.
         if (request.certPath.has_value())
         {
             LOGINFO("Using client specified CA path: " << request.certPath.value());
@@ -256,8 +274,8 @@ namespace Common::HttpRequestsImpl
             }
         }
 
+        // Handle headers, create a curl header list and add user headers to it
         struct curl_slist* curlHeaders = nullptr;
-
         if (request.headers.has_value())
         {
             for (auto const& [header, value] : request.headers.value())
@@ -276,7 +294,7 @@ namespace Common::HttpRequestsImpl
         }
         Common::CurlWrapper::SListScopeGuard curlListScopeGuard(curlHeaders, *m_curlWrapper);
 
-        // Apply all cURL options
+        // Apply all the cURL options set above
         for (const auto& curlOption : curlOptions)
         {
             LOGDEBUG("Setting cURL option: " << std::get<0>(curlOption));
@@ -292,6 +310,7 @@ namespace Common::HttpRequestsImpl
             }
         }
 
+        // Apply the curl header list to our curl handle
         if (curlHeaders)
         {
             CURLcode result = m_curlWrapper->curlEasySetOptHeaders(m_curlHandle, curlHeaders);
@@ -304,6 +323,7 @@ namespace Common::HttpRequestsImpl
             }
         }
 
+        // Try to perform the request
         try
         {
             LOGDEBUG("Performing request");
@@ -330,9 +350,14 @@ namespace Common::HttpRequestsImpl
             return response;
         }
 
-        long responseCode = 0;
+        // Store the body to be returned in the response, this will be empty if the user opted to download to a file
         response.body = bodyBuffer;
+
+        // Store any headers that were sent in the response
         response.headers = responseBuffer.headers;
+
+        // Get the HTTP response code and add it to the response
+        long responseCode = 0;
         if (m_curlWrapper->curlGetResponseCode(m_curlHandle, &responseCode) == CURLE_OK)
         {
             response.status = responseCode;
@@ -344,6 +369,7 @@ namespace Common::HttpRequestsImpl
             return response;
         }
 
+        // If we're here then the request did not error, so set return code to be OK
         response.errorCode = HttpRequests::ResponseErrorCode::OK;
         return response;
     }
