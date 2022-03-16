@@ -7,7 +7,7 @@
 # other product and company names mentioned are trademarks or registered
 # trademarks of their respective owners.
 # ------------------------------------------------------------------------------
-"""Sync an SDDS2 supplement warehouse and generate a SCIT supplement manifest and fileset"""
+"""Sync SDDS3 supplements"""
 
 import xml.etree.ElementTree as ET
 
@@ -129,7 +129,6 @@ def sync_sdds3_supplement(supplement, builder, mirror):
 
 
 def main():
-    print("hello")
     parser = argparse.ArgumentParser()
     parser.add_argument('--mirror', dest='mirror', required=True)
     parser.add_argument('--supplement', dest='supplement', required=True)

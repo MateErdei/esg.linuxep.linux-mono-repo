@@ -15,7 +15,7 @@ DEST_BASE=/tmp
 
 if [[ -n $DATASETA ]]
 then
-	echo Please pass an artifactory repository path
+	echo Using DataSetA instead of full Virus Data set
 	DATASETA_ARG="--dataseta"
 fi
 
