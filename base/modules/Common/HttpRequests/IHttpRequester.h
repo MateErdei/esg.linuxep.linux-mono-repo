@@ -26,7 +26,7 @@ namespace Common::HttpRequests
         std::string url;
         std::optional<Common::HttpRequests::Headers> headers = std::nullopt;
         std::optional<std::string> data = std::nullopt;
-        std::optional<unsigned int> port = std::nullopt;
+        std::optional<long> port = std::nullopt;
         std::optional<Common::HttpRequests::Parameters> parameters = std::nullopt;
         std::optional<std::string> certPath = std::nullopt;
         std::optional<std::string> fileDownloadLocation = std::nullopt;
@@ -34,8 +34,8 @@ namespace Common::HttpRequests
         std::optional<std::string> proxy = std::nullopt;
         std::optional<std::string> proxyUsername = std::nullopt;
         std::optional<std::string> proxyPassword = std::nullopt;
-        std::optional<unsigned int> bandwidthLimit = std::nullopt;
-        unsigned long timeout = 600;
+        std::optional<long> bandwidthLimit = std::nullopt;
+        long timeout = 600;
         bool allowRedirects = false;
         RequestType requestType = RequestType::GET;
     };
@@ -70,7 +70,7 @@ namespace Common::HttpRequests
     {
         std::string body;
         std::string error;
-        ResponseErrorCode errorCode;
+        ResponseErrorCode errorCode = FAILED;
         Headers headers;
         long status = STATUS_NOT_SET;
     };
