@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO - get this from artifactory
-
 """HTTP Server that exposes locally-built SDDS3 repo over HTTP port 8080"""
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from http import HTTPStatus

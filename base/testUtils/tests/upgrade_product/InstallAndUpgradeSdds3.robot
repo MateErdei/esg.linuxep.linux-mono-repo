@@ -57,7 +57,6 @@ ${UpdateConfigFile}                          ${SOPHOS_INSTALL}/base/update/var/u
 
 *** Test Cases ***
 Sul Downloader Can Update Via Sdds3 Repository
-    #[Timeout]  20 minutes
     Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server
     Require Fresh Install
