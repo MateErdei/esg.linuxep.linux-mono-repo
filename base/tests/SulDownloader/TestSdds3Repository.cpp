@@ -55,9 +55,6 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSo
     SDDS3Repository repository;
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
-//    getPackagesIncludingSupplements(*m_session.get(), m_repo, m_config);
-//    m_sdds3Wrapper->getPackagesToInstall(*m_session.get(), m_repo, m_config, m_oldConfig);
-//    m_sdds3Wrapper->getPackages(*m_session.get(), m_repo, m_config);
     sdds3::PackageRef package1;
     package1.lineId_ = "line1";
     sdds3::PackageRef package2;
