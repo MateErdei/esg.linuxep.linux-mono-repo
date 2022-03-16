@@ -4,11 +4,31 @@ Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include <mutex>
 #include "CurlWrapper.h"
+
+namespace
+{
+    bool g_curlInitialised = false;
+}
 
 namespace Common::CurlWrapper
 {
-    CURLcode CurlWrapper::curlGlobalInit(long flags) { return curl_global_init(flags); }
+    CURLcode CurlWrapper::curlGlobalInit(long flags)
+    {
+        static std::mutex mutex;
+        std::lock_guard<std::mutex> lock{ mutex };
+        if (g_curlInitialised)
+        {
+            return CURLE_OK;
+        }
+        CURLcode curlCode = curl_global_init(flags);
+        if (curlCode == CURLE_OK)
+        {
+            g_curlInitialised = true;
+        }
+        return curlCode;
+    }
 
     CURL* CurlWrapper::curlEasyInit() { return curl_easy_init(); }
 
@@ -45,4 +65,9 @@ namespace Common::CurlWrapper
     void CurlWrapper::curlGlobalCleanup() { curl_global_cleanup(); }
 
     const char* CurlWrapper::curlEasyStrError(CURLcode errornum) { return curl_easy_strerror(errornum); }
+
+    void CurlWrapper::curlEasyReset(CURL* handle)
+    {
+        curl_easy_reset(handle);
+    }
 } // namespace Common::CurlWrapper
