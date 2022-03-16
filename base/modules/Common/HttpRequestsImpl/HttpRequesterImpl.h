@@ -50,4 +50,4 @@ namespace Common::HttpRequestsImpl
         bool m_curlVerboseLogging = false;
     };
 
-}
+} // namespace Common::HttpRequestsImpl

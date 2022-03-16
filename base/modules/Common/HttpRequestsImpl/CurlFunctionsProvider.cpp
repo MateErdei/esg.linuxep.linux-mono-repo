@@ -3,10 +3,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "CurlFunctionsProvider.h"
-#include "FileSystem/IFileSystem.h"
+
 #include "Logger.h"
-#include "UtilityImpl/StringUtils.h"
+
+#include "FileSystem/IFileSystem.h"
 #include "FileSystem/IFileSystemException.h"
+#include "UtilityImpl/StringUtils.h"
 
 size_t CurlFunctionsProvider::curlWriteFunc(void* ptr, size_t size, size_t nmemb, std::string* buffer)
 {
@@ -15,7 +17,11 @@ size_t CurlFunctionsProvider::curlWriteFunc(void* ptr, size_t size, size_t nmemb
     return totalSizeBytes;
 }
 
-size_t CurlFunctionsProvider::curlWriteFileFunc(void* ptr, size_t size, size_t nmemb, Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
+size_t CurlFunctionsProvider::curlWriteFileFunc(
+    void* ptr,
+    size_t size,
+    size_t nmemb,
+    Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
 {
     size_t totalSizeBytes = size * nmemb;
     std::string content;
@@ -36,22 +42,28 @@ size_t CurlFunctionsProvider::curlWriteFileFunc(void* ptr, size_t size, size_t n
             // Work out filename from Content-disposition header
             // Example: Content-Disposition: attachment; filename="filename.jpg"
             std::string filenameTag = "filename";
-            if (Common::UtilityImpl::StringUtils::isSubstring(responseBuffer->headers[contentDispositionHeaderTag], "filename"))
+            if (Common::UtilityImpl::StringUtils::isSubstring(
+                    responseBuffer->headers[contentDispositionHeaderTag], "filename"))
             {
-                std::vector<std::string> contentOptiopns = Common::UtilityImpl::StringUtils::splitString(responseBuffer->headers[contentDispositionHeaderTag], ";");
-                for (const auto& option: contentOptiopns)
+                std::vector<std::string> contentOptiopns = Common::UtilityImpl::StringUtils::splitString(
+                    responseBuffer->headers[contentDispositionHeaderTag], ";");
+                for (const auto& option : contentOptiopns)
                 {
                     if (Common::UtilityImpl::StringUtils::isSubstring(option, "="))
                     {
-                        std::vector<std::string> optionAndValue = Common::UtilityImpl::StringUtils::splitString(option, "=");
+                        std::vector<std::string> optionAndValue =
+                            Common::UtilityImpl::StringUtils::splitString(option, "=");
                         if (optionAndValue.size() == 2)
                         {
                             std::function isWhitespaceOrQuote = [](char c) { return std::isspace(c) || c == '"'; };
-                            std::string cleanOption = Common::UtilityImpl::StringUtils::trim(optionAndValue[0], isWhitespaceOrQuote);
-                            std::string cleanValue = Common::UtilityImpl::StringUtils::trim(optionAndValue[1], isWhitespaceOrQuote);
+                            std::string cleanOption =
+                                Common::UtilityImpl::StringUtils::trim(optionAndValue[0], isWhitespaceOrQuote);
+                            std::string cleanValue =
+                                Common::UtilityImpl::StringUtils::trim(optionAndValue[1], isWhitespaceOrQuote);
                             if (cleanOption == filenameTag && !cleanValue.empty())
                             {
-                                responseBuffer->downloadFilePath = Common::FileSystem::join(responseBuffer->downloadDirectory, cleanValue);
+                                responseBuffer->downloadFilePath =
+                                    Common::FileSystem::join(responseBuffer->downloadDirectory, cleanValue);
                                 break;
                             }
                         }
@@ -62,7 +74,8 @@ size_t CurlFunctionsProvider::curlWriteFileFunc(void* ptr, size_t size, size_t n
         else
         {
             // Work out filename from URL
-            responseBuffer->downloadFilePath = Common::FileSystem::join(responseBuffer->downloadDirectory, Common::FileSystem::basename(responseBuffer->url));
+            responseBuffer->downloadFilePath = Common::FileSystem::join(
+                responseBuffer->downloadDirectory, Common::FileSystem::basename(responseBuffer->url));
         }
     }
 
@@ -79,13 +92,18 @@ size_t CurlFunctionsProvider::curlWriteFileFunc(void* ptr, size_t size, size_t n
     catch (Common::FileSystem::IFileSystemException& ex)
     {
         std::stringstream errorMessage;
-        errorMessage << "Failed to append data to file: " << responseBuffer->downloadFilePath << ", error: " << ex.what();
+        errorMessage << "Failed to append data to file: " << responseBuffer->downloadFilePath
+                     << ", error: " << ex.what();
         throw Common::HttpRequests::HttpRequestsException(errorMessage.str());
     }
     return totalSizeBytes;
 }
 
-size_t CurlFunctionsProvider::curlWriteHeadersFunc(void* ptr, size_t size, size_t nmemb, Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
+size_t CurlFunctionsProvider::curlWriteHeadersFunc(
+    void* ptr,
+    size_t size,
+    size_t nmemb,
+    Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
 {
     size_t totalSizeBytes = size * nmemb;
     std::string fullHeaderString;

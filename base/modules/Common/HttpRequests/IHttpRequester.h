@@ -3,10 +3,10 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #pragma once
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace Common::HttpRequests
 {
@@ -78,33 +78,27 @@ namespace Common::HttpRequests
     class HttpRequestsException : public std::exception
     {
     public:
-        HttpRequestsException(const std::string& message) noexcept :
-            m_message(message)
-        {
-        }
+        HttpRequestsException(const std::string& message) noexcept : m_message(message) {}
         ~HttpRequestsException() override = default;
-        virtual const char* what() const noexcept override
-        {
-            return m_message.c_str();
-        }
+        virtual const char* what() const noexcept override { return m_message.c_str(); }
+
     private:
         std::string m_message;
     };
-
 
     class IHttpRequester
     {
     public:
         virtual ~IHttpRequester() = default;
 
-       virtual Response get(RequestConfig) = 0;
+        virtual Response get(RequestConfig) = 0;
 
-       virtual Response post(RequestConfig) = 0;
+        virtual Response post(RequestConfig) = 0;
 
-       virtual Response put(RequestConfig) = 0;
+        virtual Response put(RequestConfig) = 0;
 
-       virtual Response del(RequestConfig) = 0;
+        virtual Response del(RequestConfig) = 0;
 
-       virtual Response options(RequestConfig) = 0;
+        virtual Response options(RequestConfig) = 0;
     };
-}
+} // namespace Common::HttpRequests

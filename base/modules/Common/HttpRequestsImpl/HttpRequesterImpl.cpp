@@ -4,12 +4,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "HttpRequesterImpl.h"
 
+#include "CurlFunctionsProvider.h"
 #include "Logger.h"
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "CurlFunctionsProvider.h"
 #include "CurlWrapper/CurlWrapper.h"
 
 #include <curl/curl.h>
@@ -125,7 +125,7 @@ namespace Common::HttpRequestsImpl
         }
 
         // Handle if the user wants to upload a file
-        std::unique_ptr<FILE, int (*)(FILE *)> fileToSend(nullptr, fclose);
+        std::unique_ptr<FILE, int (*)(FILE*)> fileToSend(nullptr, fclose);
         if (request.fileToUpload.has_value())
         {
             if (FileSystem::fileSystem()->isFile(request.fileToUpload.value()))
@@ -134,10 +134,15 @@ namespace Common::HttpRequestsImpl
                 fileToSend.reset(fopen(request.fileToUpload.value().c_str(), "rb"));
                 if (fileToSend != nullptr)
                 {
-                    LOGDEBUG("Sending file: "<< request.fileToUpload.value() << ", size: " << FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
+                    LOGDEBUG(
+                        "Sending file: " << request.fileToUpload.value() << ", size: "
+                                         << FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
                     curl_easy_setopt(m_curlHandle, CURLOPT_UPLOAD, 1L);
                     curl_easy_setopt(m_curlHandle, CURLOPT_READDATA, fileToSend.get());
-                    curl_easy_setopt(m_curlHandle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
+                    curl_easy_setopt(
+                        m_curlHandle,
+                        CURLOPT_INFILESIZE_LARGE,
+                        (curl_off_t)FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
                 }
                 else
                 {
@@ -145,11 +150,10 @@ namespace Common::HttpRequestsImpl
                     response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
                     return response;
                 }
-
             }
             else
             {
-                response.error ="File to upload does not exist: " + request.fileToUpload.value();
+                response.error = "File to upload does not exist: " + request.fileToUpload.value();
                 response.errorCode = HttpRequests::ResponseErrorCode::UPLOAD_FILE_DOES_NOT_EXIST;
                 return response;
             }
@@ -169,7 +173,8 @@ namespace Common::HttpRequestsImpl
 
         // cURL or openssl does not seem to support setting this protocol.
         // Could be worth an update, checking of build options and a rebuild of openssl and curl
-        // curlOptions.emplace_back("Set HTTP version - CURLOPT_HTTP_VERSION", CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2TLS);
+        // curlOptions.emplace_back("Set HTTP version - CURLOPT_HTTP_VERSION", CURLOPT_HTTP_VERSION,
+        // CURL_HTTP_VERSION_2TLS);
 
         // Handle setting the port
         if (request.port.has_value())
@@ -187,14 +192,16 @@ namespace Common::HttpRequestsImpl
                 curlOptions.emplace_back("POST request - CURLOPT_CUSTOMREQUEST", CURLOPT_CUSTOMREQUEST, "POST");
                 if (request.data.has_value())
                 {
-                    curlOptions.emplace_back("POST data - CURLOPT_COPYPOSTFIELDS", CURLOPT_COPYPOSTFIELDS, request.data.value());
+                    curlOptions.emplace_back(
+                        "POST data - CURLOPT_COPYPOSTFIELDS", CURLOPT_COPYPOSTFIELDS, request.data.value());
                 }
                 break;
             case Common::HttpRequests::PUT:
                 curlOptions.emplace_back("PUT request - CURLOPT_CUSTOMREQUEST", CURLOPT_CUSTOMREQUEST, "PUT");
                 if (request.data.has_value())
                 {
-                    curlOptions.emplace_back("PUT data - CURLOPT_COPYPOSTFIELDS", CURLOPT_COPYPOSTFIELDS, request.data.value());
+                    curlOptions.emplace_back(
+                        "PUT data - CURLOPT_COPYPOSTFIELDS", CURLOPT_COPYPOSTFIELDS, request.data.value());
                 }
                 break;
             case Common::HttpRequests::DELETE:
@@ -216,9 +223,13 @@ namespace Common::HttpRequestsImpl
                 std::string encodedPassword = curl_easy_escape(
                     m_curlHandle, request.proxyPassword.value().c_str(), request.proxyPassword.value().length());
                 curlOptions.emplace_back(
-                    "Set cURL to choose best authentication available - CURLOPT_PROXYAUTH", CURLOPT_PROXYAUTH, CURLAUTH_ANY);
+                    "Set cURL to choose best authentication available - CURLOPT_PROXYAUTH",
+                    CURLOPT_PROXYAUTH,
+                    CURLAUTH_ANY);
                 curlOptions.emplace_back(
-                    "Set proxy user and password - CURLOPT_PROXYUSERPWD", CURLOPT_PROXYUSERPWD, encodedUsername + ":" + encodedPassword);
+                    "Set proxy user and password - CURLOPT_PROXYUSERPWD",
+                    CURLOPT_PROXYUSERPWD,
+                    encodedUsername + ":" + encodedPassword);
             }
         }
 
@@ -226,7 +237,8 @@ namespace Common::HttpRequestsImpl
         if (request.allowRedirects)
         {
             long followRedirects = 1;
-            curlOptions.emplace_back("Follow redirects - CURLOPT_FOLLOWLOCATION", CURLOPT_FOLLOWLOCATION, followRedirects);
+            curlOptions.emplace_back(
+                "Follow redirects - CURLOPT_FOLLOWLOCATION", CURLOPT_FOLLOWLOCATION, followRedirects);
             curlOptions.emplace_back("Set max redirects - CURLOPT_MAXREDIRS", CURLOPT_MAXREDIRS, 50);
         }
 
@@ -234,7 +246,9 @@ namespace Common::HttpRequestsImpl
         if (request.bandwidthLimit.has_value())
         {
             curlOptions.emplace_back(
-                "Set max bandwidth - CURLOPT_MAX_RECV_SPEED_LARGE", CURLOPT_MAX_RECV_SPEED_LARGE, (curl_off_t)request.bandwidthLimit.value());
+                "Set max bandwidth - CURLOPT_MAX_RECV_SPEED_LARGE",
+                CURLOPT_MAX_RECV_SPEED_LARGE,
+                (curl_off_t)request.bandwidthLimit.value());
         }
 
         // Set logging verbosity if required
@@ -261,14 +275,15 @@ namespace Common::HttpRequestsImpl
                     caPathFound = true;
                     LOGINFO("Using system CA path: " << caPath);
                     curlOptions.emplace_back("Path for CA bundle - CURLOPT_CAINFO", CURLOPT_CAINFO, caPath);
-                    curlOptions.emplace_back("Path for CA dir - CURLOPT_CAPATH", CURLOPT_CAPATH, Common::FileSystem::dirName(caPath));
+                    curlOptions.emplace_back(
+                        "Path for CA dir - CURLOPT_CAPATH", CURLOPT_CAPATH, Common::FileSystem::dirName(caPath));
                     break;
                 }
             }
 
             if (!caPathFound)
             {
-                response.error ="No CA paths could be used";
+                response.error = "No CA paths could be used";
                 response.errorCode = HttpRequests::ResponseErrorCode::CERTIFICATE_ERROR;
                 return response;
             }
@@ -345,7 +360,7 @@ namespace Common::HttpRequestsImpl
         }
         catch (const std::exception& ex)
         {
-            response.error ="Request threw exception: " + std::string(ex.what());
+            response.error = "Request threw exception: " + std::string(ex.what());
             response.errorCode = HttpRequests::ResponseErrorCode::REQUEST_FAILED;
             return response;
         }
