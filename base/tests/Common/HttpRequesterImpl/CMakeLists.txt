@@ -1,7 +1,11 @@
 include(GoogleTest)
 
+# HTTP requester lib unit tests
 add_executable(HttpRequesterTests
-        HttpRequesterTests.cpp)
+        HttpRequesterTests.cpp
+        ${PROJECT_SOURCE_DIR}/modules/Common/CurlWrapper/CurlWrapper.h
+        ${PROJECT_SOURCE_DIR}/modules/Common/CurlWrapper/CurlWrapper.cpp
+        )
 
 target_include_directories(HttpRequesterTests SYSTEM BEFORE PUBLIC
         ${PROTOBUF_INCLUDE_DIR}
@@ -14,9 +18,8 @@ target_link_libraries(HttpRequesterTests
         gtest
         gtest_main)
 
-target_link_libraries(HttpRequesterTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto httpsenderimpl testhelpers)
+target_link_libraries(HttpRequesterTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers)
 gtest_discover_tests(HttpRequesterTests)
-
 
 #SET_TARGET_PROPERTIES(HttpRequesterTests
 #        PROPERTIES
@@ -26,8 +29,13 @@ gtest_discover_tests(HttpRequesterTests)
 #
 #set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
 
+
+# Live network tests
 add_executable(HttpRequesterLiveNetworkTests
-        HttpRequesterLiveNetworkTests.cpp)
+        HttpRequesterLiveNetworkTests.cpp
+        ${PROJECT_SOURCE_DIR}/modules/Common/CurlWrapper/CurlWrapper.h
+        ${PROJECT_SOURCE_DIR}/modules/Common/CurlWrapper/CurlWrapper.cpp
+        )
 
 target_include_directories(HttpRequesterLiveNetworkTests SYSTEM BEFORE PUBLIC
         ${PROTOBUF_INCLUDE_DIR}
@@ -46,4 +54,4 @@ set_target_properties(HttpRequesterLiveNetworkTests PROPERTIES
 install(TARGETS HttpRequesterLiveNetworkTests
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
 
-target_link_libraries(HttpRequesterLiveNetworkTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto httpsenderimpl testhelpers)
+target_link_libraries(HttpRequesterLiveNetworkTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers)

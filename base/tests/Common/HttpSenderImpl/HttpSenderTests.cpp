@@ -8,8 +8,8 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
  * Component tests for Telemetry Executable
  */
 
-#include "MockCurlWrapper.h"
 #include "CurlWrapper/CurlWrapper.h"
+#include "tests/Common/Helpers/MockCurlWrapper.h"
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>

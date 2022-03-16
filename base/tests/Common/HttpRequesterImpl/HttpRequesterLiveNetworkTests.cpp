@@ -112,7 +112,6 @@ TEST_F(HttpRequesterLiveNetworkTests, getWithFileDownloadAndExplicitFileName)
 
 TEST_F(HttpRequesterLiveNetworkTests, getWithFileDownloadToDirectory)
 {
-
     std::string testName = ::testing::UnitTest::GetInstance()->current_test_info()->name();
     std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
         std::make_shared<Common::CurlWrapper::CurlWrapper>();
@@ -179,4 +178,45 @@ TEST_F(HttpRequesterLiveNetworkTests, getWithPortAndTimeout)
     ASSERT_EQ(response.body, "");
     // TODO add error code here
     ASSERT_EQ(response.error, "Timeout was reached");
+}
+
+TEST_F(HttpRequesterLiveNetworkTests, putWithPort)
+{
+    std::string testName = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+    std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+        std::make_shared<Common::CurlWrapper::CurlWrapper>();
+    Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
+    std::string url = URL_WITH_PORT + "/" + testName;
+    Common::HttpRequests::Response response = client.put(Common::HttpRequests::RequestConfig{ .url = url });
+
+    ASSERT_EQ(response.status, 200);
+    std::string expected_response = "/" + testName + " response body";
+    ASSERT_EQ(response.body, expected_response);
+    ASSERT_EQ(response.headers.count("test_header"), 1);
+    ASSERT_EQ(response.headers.at("test_header"), "test_header_value");
+}
+
+TEST_F(HttpRequesterLiveNetworkTests, putWithFileUpload)
+{
+    m_filesToRemove.push_back("/tmp/testPutFile");
+    system("bash -c 'echo test > /tmp/testPutFile'");
+    // "test" is 4 bytes.
+    std::string fileSize = "4";
+
+    std::string testName = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+    std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+        std::make_shared<Common::CurlWrapper::CurlWrapper>();
+    Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
+    std::string url = URL_WITH_PORT + "/" + testName;
+    Common::HttpRequests::Response response = client.put(Common::HttpRequests::RequestConfig{
+        .url = url,
+        .headers = Common::HttpRequests::Headers{ { "Content-Length", "4"} },
+        .fileToUpload = "/tmp/testPutFile"
+    });
+
+    ASSERT_EQ(response.status, 200);
+    std::string expected_response = "/" + testName + " response body, you PUT 4 bytes";
+    ASSERT_EQ(response.body, expected_response);
+    ASSERT_EQ(response.headers.count("test_header"), 1);
+    ASSERT_EQ(response.headers.at("test_header"), "test_header_value");
 }

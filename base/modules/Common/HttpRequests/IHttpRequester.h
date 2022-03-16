@@ -30,6 +30,7 @@ namespace Common::HttpRequests
         std::optional<Common::HttpRequests::Parameters> parameters = std::nullopt;
         std::optional<std::string> certPath = std::nullopt;
         std::optional<std::string> fileDownloadLocation = std::nullopt;
+        std::optional<std::string> fileToUpload = std::nullopt;
         std::optional<std::string> proxy = std::nullopt;
         std::optional<std::string> proxyUsername = std::nullopt;
         std::optional<std::string> proxyPassword = std::nullopt;
@@ -48,8 +49,25 @@ namespace Common::HttpRequests
         // TODO add main failure cases to interface as enum, e.g. convert these:CURLE_OPERATION_TIMEDOUT to non curl ones.
 //        std::string errorCode;
         Headers headers;
-        int status = STATUS_NOT_SET;
+        long status = STATUS_NOT_SET;
     };
+
+    class HttpRequestsException : public std::exception
+    {
+    public:
+        HttpRequestsException(const std::string& message) noexcept :
+            m_message(message)
+        {
+        }
+        ~HttpRequestsException() override = default;
+        virtual const char* what() const noexcept override
+        {
+            return m_message.c_str();
+        }
+    private:
+        std::string m_message;
+    };
+
 
     class IHttpRequester
     {

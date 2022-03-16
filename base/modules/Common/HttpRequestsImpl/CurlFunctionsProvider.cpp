@@ -1,14 +1,8 @@
-/******************************************************************************************************
-Copyright 2022, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
-
 #include "CurlFunctionsProvider.h"
-
-#include "Logger.h"
-
 #include "FileSystem/IFileSystem.h"
-#include "FileSystem/IFileSystemException.h"
+#include "Logger.h"
 #include "UtilityImpl/StringUtils.h"
+#include "FileSystem/IFileSystemException.h"
 
 size_t CurlFunctionsProvider::curlWriteFunc(void* ptr, size_t size, size_t nmemb, std::string* buffer)
 {
@@ -17,18 +11,8 @@ size_t CurlFunctionsProvider::curlWriteFunc(void* ptr, size_t size, size_t nmemb
     return totalSizeBytes;
 }
 
-size_t CurlFunctionsProvider::curlWriteFileFunc(
-    void* ptr,
-    size_t size,
-    size_t nmemb,
-    Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
+size_t CurlFunctionsProvider::curlWriteFileFunc(void* ptr, size_t size, size_t nmemb, Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
 {
-    if (responseBuffer->url.empty())
-    {
-        LOGERROR("Response buffer must contain the URL in case a file name needs to be generated from the URL");
-        return 0;
-    }
-
     size_t totalSizeBytes = size * nmemb;
     std::string content;
     content.append(static_cast<char*>(ptr), totalSizeBytes);
@@ -37,39 +21,35 @@ size_t CurlFunctionsProvider::curlWriteFileFunc(
     {
         if (responseBuffer->downloadDirectory.empty())
         {
-            LOGERROR("Neither download target filename or directory specified");
-            return 0;
+            throw std::runtime_error("Neither download target filename or directory specified");
         }
 
-        // If no download filename specified then we need to work it out from headers or URL
-        // First, try to work out filename from Content-disposition header
-        // Example: Content-Disposition: attachment; filename="filename.jpg"
         std::string contentDispositionHeaderTag = "Content-Disposition";
-        std::string filenameTag = "filename";
-        if (responseBuffer->headers.count(contentDispositionHeaderTag) &&
-            Common::UtilityImpl::StringUtils::isSubstring(
-                responseBuffer->headers[contentDispositionHeaderTag], filenameTag))
+
+        // If no download filename specified then we need to work it out from headers or URL
+        if (responseBuffer->headers.count(contentDispositionHeaderTag))
         {
-            std::vector<std::string> contentOptiopns = Common::UtilityImpl::StringUtils::splitString(
-                responseBuffer->headers[contentDispositionHeaderTag], ";");
-            for (const auto& option : contentOptiopns)
+            // Work out filename from Content-disposition header
+            // Example: Content-Disposition: attachment; filename="filename.jpg"
+            std::string filenameTag = "filename";
+            if (Common::UtilityImpl::StringUtils::isSubstring(responseBuffer->headers[contentDispositionHeaderTag], "filename"))
             {
-                if (Common::UtilityImpl::StringUtils::isSubstring(option, "="))
+                std::vector<std::string> contentOptiopns = Common::UtilityImpl::StringUtils::splitString(responseBuffer->headers[contentDispositionHeaderTag], ";");
+                for (const auto& option: contentOptiopns)
                 {
-                    std::vector<std::string> optionAndValue =
-                        Common::UtilityImpl::StringUtils::splitString(option, "=");
-                    if (optionAndValue.size() == 2)
+                    if (Common::UtilityImpl::StringUtils::isSubstring(option, "="))
                     {
-                        std::function isWhitespaceOrQuote = [](char c) { return std::isspace(c) || c == '"'; };
-                        std::string cleanOption =
-                            Common::UtilityImpl::StringUtils::trim(optionAndValue[0], isWhitespaceOrQuote);
-                        std::string cleanValue =
-                            Common::UtilityImpl::StringUtils::trim(optionAndValue[1], isWhitespaceOrQuote);
-                        if (cleanOption == filenameTag && !cleanValue.empty())
+                        std::vector<std::string> optionAndValue = Common::UtilityImpl::StringUtils::splitString(option, "=");
+                        if (optionAndValue.size() == 2)
                         {
-                            responseBuffer->downloadFilePath =
-                                Common::FileSystem::join(responseBuffer->downloadDirectory, cleanValue);
-                            break;
+                            std::function isWhitespaceOrQuote = [](char c) { return std::isspace(c) || c == '"'; };
+                            std::string cleanOption = Common::UtilityImpl::StringUtils::trim(optionAndValue[0], isWhitespaceOrQuote);
+                            std::string cleanValue = Common::UtilityImpl::StringUtils::trim(optionAndValue[1], isWhitespaceOrQuote);
+                            if (cleanOption == filenameTag && !cleanValue.empty())
+                            {
+                                responseBuffer->downloadFilePath = Common::FileSystem::join(responseBuffer->downloadDirectory, cleanValue);
+                                break;
+                            }
                         }
                     }
                 }
@@ -78,8 +58,7 @@ size_t CurlFunctionsProvider::curlWriteFileFunc(
         else
         {
             // Work out filename from URL
-            responseBuffer->downloadFilePath = Common::FileSystem::join(
-                responseBuffer->downloadDirectory, Common::FileSystem::basename(responseBuffer->url));
+            responseBuffer->downloadFilePath = Common::FileSystem::join(responseBuffer->downloadDirectory, Common::FileSystem::basename(responseBuffer->url));
         }
     }
 
@@ -96,18 +75,13 @@ size_t CurlFunctionsProvider::curlWriteFileFunc(
     catch (Common::FileSystem::IFileSystemException& ex)
     {
         std::stringstream errorMessage;
-        errorMessage << "Failed to append data to file: " << responseBuffer->downloadFilePath
-                     << ", error: " << ex.what();
+        errorMessage << "Failed to append data to file: " << responseBuffer->downloadFilePath << ", error: " << ex.what();
         throw Common::HttpRequests::HttpRequestsException(errorMessage.str());
     }
     return totalSizeBytes;
 }
 
-size_t CurlFunctionsProvider::curlWriteHeadersFunc(
-    void* ptr,
-    size_t size,
-    size_t nmemb,
-    Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
+size_t CurlFunctionsProvider::curlWriteHeadersFunc(void* ptr, size_t size, size_t nmemb, Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
 {
     size_t totalSizeBytes = size * nmemb;
     std::string fullHeaderString;
@@ -131,65 +105,40 @@ int CurlFunctionsProvider::curlWriteDebugFunc(
     [[maybe_unused]] void* userp)
 {
     std::string debugLine = "cURL ";
-    bool should_log = false;
     switch (type)
     {
         case CURLINFO_TEXT:
             debugLine += "Info: ";
-            should_log = true;
             break;
         case CURLINFO_HEADER_OUT:
             debugLine += "=> Send header: ";
-            should_log = true;
             break;
         case CURLINFO_DATA_OUT:
             debugLine += "=> Send data: ";
-            should_log = true;
             break;
         case CURLINFO_SSL_DATA_OUT:
-            // This can be quite noisy, so not logging it
-            debugLine += "=> Send SSL data.";
+            debugLine += "=> Send SSL data: ";
             break;
         case CURLINFO_HEADER_IN:
             debugLine += "<= Recv header: ";
-            should_log = true;
             break;
         case CURLINFO_DATA_IN:
             debugLine += "<= Recv data: ";
-            should_log = true;
             break;
         case CURLINFO_SSL_DATA_IN:
-            // This can be quite noisy, so not logging it
-            debugLine += "<= Recv SSL data.";
+            debugLine += "<= Recv SSL data: ";
             break;
         default:
             LOGDEBUG("Unsupported cURL debug info type");
             return 0;
     }
-    if (should_log)
-    {
-        debugLine.append(data, size);
-    }
+    debugLine.append(data, size);
     LOGDEBUG(debugLine);
     return 0;
 }
-
 size_t CurlFunctionsProvider::curlFileReadFunc(char* ptr, size_t size, size_t nmemb, FILE* stream)
 {
-    size_t retCode = fread(ptr, size, nmemb, stream);
-    return retCode;
-}
-
-int CurlFunctionsProvider::curlSeekFileFunc(void* userp, curl_off_t offset, int origin)
-{
-    try
-    {
-        FILE* upload_fd = (FILE*)userp;
-        fseek(upload_fd, offset, origin);
-        return CURL_SEEKFUNC_OK;
-    }
-    catch (const std::exception& ex)
-    {
-        return CURL_SEEKFUNC_CANTSEEK;
-    }
+    size_t retcode;
+    retcode = fread(ptr, size, nmemb, stream);
+    return retcode;
 }

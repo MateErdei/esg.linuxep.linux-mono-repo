@@ -23,10 +23,6 @@ public:
         curlEasySetOpt,
         CURLcode(CURL* handle, CURLoption option, const std::variant<std::string, long> parameter));
 
-    MOCK_METHOD3(curlEasySetFuncOpt, CURLcode(CURL* handle, CURLoption option, void* funcParam));
-
-    MOCK_METHOD3(curlEasySetDataOpt, CURLcode(CURL* handle, CURLoption option, void* funcParam));
-
     MOCK_METHOD2(curlSlistAppend, curl_slist*(curl_slist* list, const std::string& value));
 
     MOCK_METHOD1(curlEasyPerform, CURLcode(CURL* handle));

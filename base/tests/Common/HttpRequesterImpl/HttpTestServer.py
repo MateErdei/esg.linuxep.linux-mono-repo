@@ -9,8 +9,6 @@ import time
 class S(BaseHTTPRequestHandler):
     def getUrlParts(self, path):
         return urllib.parse.urlparse(self.path)
-        # query_str_from_url = url_parts.query
-        # resource_path = url_parts.path
 
     def _set_response(self, status: int, headers: dict):
         self.send_response(status)
@@ -65,14 +63,16 @@ class S(BaseHTTPRequestHandler):
             response_code = 200
 
         elif resource_path == "/getWithPortAndTimeout":
-            response_body = f"{resource_path} response body"
-            response_code = 200
             # Test uses a timeout of 3, so this needs to be > 3
             time.sleep(5)
+            return
 
+        # elif resource_path == "/putWithPort":
+        #     response_body = f"{resource_path} response body"
+        #     response_code = 200
         else:
-            response_body = "NOT A VALID TEST CASE!"
-            logging.warning(f"Not a vlaid test case: GET - '{resource_path}'")
+            response_body = "Not a valid test case!"
+            logging.warning(f"Not a valid test case: GET - '{resource_path}'")
             response_code = 404
             # print("not a valid test case name")
 
@@ -84,13 +84,49 @@ class S(BaseHTTPRequestHandler):
         self.wfile.write(response_body.encode('utf-8'))
 
     def do_POST(self):
-        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
-        post_data = self.rfile.read(content_length) # <--- Gets the data itself
+        response_body = ""
+        response_headers = {}
+        response_code = 200
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
         logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
                      str(self.path), str(self.headers), post_data.decode('utf-8'))
 
-        self._set_response()
+        self._set_response(response_code, response_headers)
         self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+
+    def do_PUT(self):
+        url_parts = self.getUrlParts(self.path)
+        resource_path = url_parts.path
+        query_str = url_parts.query
+        request_headers = self.headers
+
+        response_body = ""
+        response_headers = {}
+        response_code = 200
+
+        logging.info(f"Running test: '{resource_path}'")
+
+        content_length = 0
+        if "Content-Length" in self.headers:
+            content_length = int(self.headers['Content-Length'])
+        put_data = self.rfile.read(content_length)
+
+        if resource_path == "/putWithPort":
+            response_body = f"{resource_path} response body"
+            response_code = 200
+            response_headers = {"test_header": "test_header_value"}
+        elif resource_path == "/putWithFileUpload":
+            response_body = f"{resource_path} response body, you PUT {content_length} bytes"
+            response_code = 200
+            response_headers = {"test_header": "test_header_value"}
+        else:
+            response_body = "Not a valid test case!"
+            logging.warning(f"Not a valid test case: PUT - '{resource_path}'")
+            response_code = 404
+
+        self._set_response(response_code, response_headers)
+        self.wfile.write(response_body.encode('utf-8'))
 
 def run(server_class=HTTPServer, handler_class=S, port=7780):
     logging.basicConfig(level=logging.INFO)
