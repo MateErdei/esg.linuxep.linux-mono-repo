@@ -57,6 +57,7 @@ namespace Common::HttpRequestsImpl
         {
             LOGERROR("Failed to initialise curl");
             response.error = "Failed to initialise curl";
+            response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
             return response;
         }
 
@@ -73,6 +74,7 @@ namespace Common::HttpRequestsImpl
             if (Common::FileSystem::fileSystem()->isFile(request.fileDownloadLocation.value()))
             {
                 response.error = "Download target file name already exists: " + request.fileDownloadLocation.value();
+                response.errorCode = HttpRequests::ResponseErrorCode::DOWNLOAD_TARGET_ALREADY_EXISTS;
                 return response;
             }
             else if (Common::FileSystem::fileSystem()->isDirectory(request.fileDownloadLocation.value()))
@@ -134,6 +136,7 @@ namespace Common::HttpRequestsImpl
                 else
                 {
                     response.error = "Failed to open file for reading: " + request.fileToUpload.value();
+                    response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
                     return response;
                 }
 
@@ -141,6 +144,7 @@ namespace Common::HttpRequestsImpl
             else
             {
                 response.error ="File to upload does not exist: " + request.fileToUpload.value();
+                response.errorCode = HttpRequests::ResponseErrorCode::UPLOAD_FILE_DOES_NOT_EXIST;
                 return response;
             }
         }
@@ -247,6 +251,7 @@ namespace Common::HttpRequestsImpl
             if (!caPathFound)
             {
                 response.error ="No CA paths could be used";
+                response.errorCode = HttpRequests::ResponseErrorCode::CERTIFICATE_ERROR;
                 return response;
             }
         }
@@ -264,6 +269,7 @@ namespace Common::HttpRequestsImpl
                     m_curlWrapper->curlSlistFreeAll(curlHeaders);
                     LOGERROR("Failed to append header to request");
                     response.error = "Failed to append header: " + header;
+                    response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
                     return response;
                 }
             }
@@ -281,6 +287,7 @@ namespace Common::HttpRequestsImpl
             {
                 LOGERROR("Failed to set curl option: " << std::get<0>(curlOption));
                 response.error = m_curlWrapper->curlEasyStrError(result);
+                response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
                 return response;
             }
         }
@@ -292,6 +299,7 @@ namespace Common::HttpRequestsImpl
             {
                 LOGERROR("Failed to set headers");
                 response.error = m_curlWrapper->curlEasyStrError(result);
+                response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
                 return response;
             }
         }
@@ -304,12 +312,14 @@ namespace Common::HttpRequestsImpl
             if (result != CURLE_OK)
             {
                 response.error = m_curlWrapper->curlEasyStrError(result);
+                response.errorCode = HttpRequests::ResponseErrorCode::REQUEST_FAILED;
                 return response;
             }
         }
         catch (const std::exception& ex)
         {
             response.error ="Request threw exception: " + std::string(ex.what());
+            response.errorCode = HttpRequests::ResponseErrorCode::REQUEST_FAILED;
             return response;
         }
 
@@ -323,9 +333,11 @@ namespace Common::HttpRequestsImpl
         else
         {
             response.error = "Failed to get response code from cURL";
+            response.errorCode = HttpRequests::ResponseErrorCode::FAILED;
             return response;
         }
 
+        response.errorCode = HttpRequests::ResponseErrorCode::OK;
         return response;
     }
 

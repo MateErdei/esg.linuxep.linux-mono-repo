@@ -40,14 +40,37 @@ namespace Common::HttpRequests
         RequestType requestType = RequestType::GET;
     };
 
+    enum ResponseErrorCode
+    {
+        // Request was performed
+        OK,
+
+        // Request timed out
+        TIMEOUT,
+
+        // If a user tries to download over the top of an existing file, this lib does not delete files
+        DOWNLOAD_TARGET_ALREADY_EXISTS,
+
+        // If a user tries to upload a nonexistent file
+        UPLOAD_FILE_DOES_NOT_EXIST,
+
+        // Problem with certs occurred, such as the certificate did not exist.
+        CERTIFICATE_ERROR,
+
+        // We got to the point of performing the request, however it failed
+        REQUEST_FAILED,
+
+        // General library failure
+        FAILED
+    };
+
     const int STATUS_NOT_SET = -1;
-    const int STATUS_OK = 200;
+
     struct Response
     {
         std::string body;
         std::string error;
-        // TODO add main failure cases to interface as enum, e.g. convert these:CURLE_OPERATION_TIMEDOUT to non curl ones.
-//        std::string errorCode;
+        ResponseErrorCode errorCode;
         Headers headers;
         long status = STATUS_NOT_SET;
     };
