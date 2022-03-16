@@ -312,7 +312,14 @@ namespace Common::HttpRequestsImpl
             if (result != CURLE_OK)
             {
                 response.error = m_curlWrapper->curlEasyStrError(result);
-                response.errorCode = HttpRequests::ResponseErrorCode::REQUEST_FAILED;
+                if (result == CURLE_OPERATION_TIMEDOUT)
+                {
+                    response.errorCode = HttpRequests::ResponseErrorCode::TIMEOUT;
+                }
+                else
+                {
+                    response.errorCode = HttpRequests::ResponseErrorCode::REQUEST_FAILED;
+                }
                 return response;
             }
         }

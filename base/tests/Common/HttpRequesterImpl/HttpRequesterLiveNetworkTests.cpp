@@ -176,7 +176,7 @@ TEST_F(HttpRequesterLiveNetworkTests, getWithPortAndTimeout)
 
     ASSERT_EQ(response.status, Common::HttpRequests::STATUS_NOT_SET);
     ASSERT_EQ(response.body, "");
-    // TODO add error code here
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::TIMEOUT);
     ASSERT_EQ(response.error, "Timeout was reached");
 }
 
