@@ -32,7 +32,7 @@ for component_name, info_dict in root_dictionary.items():
         dot.node(component_id, color='blue')
 
     for i in info_dict["inputs"]:
-        input_id = f"{i['name']} ({i['build_id']})"
+        input_id = f"{i['name']}\nBranch: {i['branch']}\nBuild Id: ({i['build_id']})"
         dot.edge(input_id, component_id)
 
 dot.attr('graph', overlap='false')
