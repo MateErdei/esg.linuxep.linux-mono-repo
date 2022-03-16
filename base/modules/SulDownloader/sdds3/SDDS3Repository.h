@@ -58,6 +58,7 @@ namespace SulDownloader
         void generateProductListFromSdds3PackageInfo();
 
     private:
+        void setupSdds3LibLogger();
         void populateOldConfigFromFile();
         std::pair<std::set<std::string>, std::set<std::string>>
         getDataToSync( const suldownloaderdata::ConnectionSetup& connectionSetup,

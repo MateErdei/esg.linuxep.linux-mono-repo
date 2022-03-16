@@ -475,7 +475,7 @@ namespace SulDownloader
 
         if(repository->hasError())
         {
-            LOGDEBUG("Failed to connect to repository: " << repository->getError().Description);
+            LOGERROR("Failed to connect to repository: " << repository->getError().Description);
             return std::make_pair(false, std::move(repository));
         }
 
@@ -483,14 +483,14 @@ namespace SulDownloader
 
         if(repository->hasError())
         {
-            LOGDEBUG("Failed to synchronize repository: " << repository->getError().Description);
+            LOGERROR("Failed to synchronize repository: " << repository->getError().Description);
             return std::make_pair(false, std::move(repository));
         }
 
         repository->distribute();
         if(repository->hasError())
         {
-            LOGDEBUG("Failed to distribute repository: " << repository->getError().Description);
+            LOGERROR("Failed to distribute repository: " << repository->getError().Description);
             return std::make_pair(false, std::move(repository));
         }
 

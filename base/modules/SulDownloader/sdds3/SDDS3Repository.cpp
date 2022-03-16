@@ -16,6 +16,7 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
 #include <experimental/filesystem>
 
+#include <sophlib/logging/Logging.h>
 #include <Config.h>
 #include <PackageRef.h>
 #include <SyncLogic.h>
@@ -42,12 +43,15 @@ namespace SulDownloader
         , m_repo(repoDir)
         , m_supplementOnly(false)
     {
+        setupSdds3LibLogger();
     }
     SDDS3Repository::SDDS3Repository()
         : m_session(std::make_shared<sdds3::Session>(""))
         , m_repo("")
         , m_supplementOnly(false)
-    {}
+    {
+        setupSdds3LibLogger();
+    }
     SDDS3Repository::~SDDS3Repository()
     {
     }
@@ -123,6 +127,15 @@ namespace SulDownloader
     void SDDS3Repository::purge() const
     {
         sdds3::purge(*m_session.get(), m_repo, m_config, m_oldConfig);
+    }
+
+    void SDDS3Repository::setupSdds3LibLogger()
+    {
+        sophlib::logging::LogLevel log_level = sophlib::logging::LogLevel::Debug;
+        std::filesystem::path filePath = "/tmp/sddsLog";
+        std::string sdds3LogPath = Common::FileSystem::join(
+            Common::ApplicationConfiguration::applicationPathManager().getBaseLogDirectory(), "suldownloader_sync.log");
+        sophlib::logging::g_logger.SetupSingleFile(sdds3LogPath, log_level);
     }
 
     std::string writeSUSRequest(const SUSRequestParameters& parameters)

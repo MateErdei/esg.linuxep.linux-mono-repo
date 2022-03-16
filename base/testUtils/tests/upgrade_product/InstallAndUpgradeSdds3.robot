@@ -18,6 +18,7 @@ Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
 Library     ${LIBS_DIRECTORY}/TeardownTools.py
 Library     ${LIBS_DIRECTORY}/UpgradeUtils.py
+
 Library     Process
 Library     OperatingSystem
 Library     String
@@ -45,46 +46,83 @@ ${BaseOnlyVUT_weekly_schedule_Policy}       ${GeneratedWarehousePolicies}/base_o
 
 ${LocalWarehouseDir}                        ./local_warehouses
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+${SULDownloaderSyncLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log
 ${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
 ${Sophos_Scheduled_Query_Pack}              ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 ${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
 ${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
+${UpdateConfigFile}                          ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
 
 *** Test Cases ***
-Test Name
+Sul Downloader Can Update Via Sdds3 Repository
+    #[Timeout]  20 minutes
     Start Local Cloud Server
-    Start Local SDDS3 Server
+    ${handle}=  Start Local SDDS3 Server
     Require Fresh Install
     Create File    /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
     Register With Local Cloud Server
     Create Local SDDS3 Override
 
     sleep    10
-    Log File    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
+    Remove File  ${status_file}
+    Remove FIle   /opt/sophos-spl/base/mcs/status/cache/ALC.xml
+    Log File    ${UpdateConfigFile}
+    ${content}=  Get File    ${UpdateConfigFile}
+    File Should Contain  ${UpdateConfigFile}     JWToken
     Trigger Update Now
-    sleep   60
-    Stop Local SDDS3 Server
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository
+    Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primary
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/suite
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/package
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/supplement
+
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/
+
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Check Suldownloader Log Contains   Generating the report file
+
+    Log File  ${SULDownloaderLog}
+    Log File  ${SULDownloaderSyncLog}
+
+    Stop Local SDDS3 Server  ${handle}
 
 *** Keywords ***
 Create Local SDDS3 Override
     ${override_file_contents} =  Catenate    SEPARATOR=\n
-    ...  URLS_ = http://127.0.0.1:8080
-    ...  CDN_URL_ = http://127.0.0.1:8080
+    # these settings will instruct SulDownloader to update using SDDS3 via a local test HTTP server.
+    ...  URLS = http://127.0.0.1:8080
+    ...  CDN_URL = http://127.0.0.1:8080
     ...  USE_SDDS3 = true
-    ...  USE_HTTP_ = true
+    ...  USE_HTTP = true
     Create File    ${sdds3_override_file}    content=${override_file_contents}
 
 
 Start Local SDDS3 Server
-    # makes this the "active process"
-    # TODO - use constants/etc here
-    ${local_server_handle}=  Start Process  ./server.py    --launchdarkly    /tmp/system-product-test-inputs/sdds3/launchdarkly    --sdds3    /tmp/system-product-test-inputs/sdds3/repo
-    Set Test Variable  ${local_server_handle}
+    ${handle}=  Start Process  python3  ${LIBS_DIRECTORY}/SDDS3server.py    --launchdarkly    /tmp/system-product-test-inputs/sdds3/launchdarkly    --sdds3    /tmp/system-product-test-inputs/sdds3/repo   shell=true
+    [Return]  ${handle}
 
 Stop Local SDDS3 Server
-    # stops the "active process"
-    Terminate Process
-    Log    ${local_server_handle.stdout}
-    Log    ${local_server_handle.stderr}
+     [Arguments]  ${handle}
+     terminate process  ${handle}  True
+     terminate all processes  True
+

@@ -293,6 +293,7 @@ def main():
 
     HandlerClass = make_request_handler(args)
     httpd = ThreadingHTTPServer(('0.0.0.0', 8080), HandlerClass)
+    httpd.allow_reuse_address = True
     print('Listening on 0.0.0.0 port 8080...')
     httpd.serve_forever()
 
