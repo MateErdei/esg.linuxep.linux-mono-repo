@@ -10,6 +10,7 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 #include <PackageRef.h>
 #include <SyncLogic.h>
 
+
 namespace SulDownloader
 {
     class ISdds3Wrapper
@@ -44,11 +45,11 @@ namespace SulDownloader
         virtual sdds3::Config loadConfig(std::string& path) = 0;
     };
     /**
-    * Return a BORROWED pointer to a static IFileSystem instance.
+    * Return a BORROWED pointer to a static ISdds3Wrapper instance.
     *
     * Do not delete this yourself.
     *
-    * @return BORROWED IFileSystem pointer
+    * @return BORROWED ISdds3Wrapper pointer
     */
     ISdds3Wrapper* sdds3Wrapper();
 }

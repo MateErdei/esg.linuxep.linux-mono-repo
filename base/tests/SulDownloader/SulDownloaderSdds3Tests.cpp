@@ -272,7 +272,6 @@ public:
               return suldownloaderdata::ISDDS3RepositoryPtr(this->m_mockptr);
             });
         }
-        //EXPECT_CALL(*m_mockptr, reset()).Times(resetCount); // All mock warehouses expect to call reset
         return *m_mockptr;
     }
 

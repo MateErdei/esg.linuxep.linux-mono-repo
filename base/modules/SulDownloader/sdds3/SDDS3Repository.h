@@ -13,8 +13,6 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 #include <SulDownloader/suldownloaderdata/Tag.h>
 #include <SulDownloader/suldownloaderdata/ConnectionSetup.h>
 
-#include <SyncLogic.h>
-
 
 namespace SulDownloader
 {

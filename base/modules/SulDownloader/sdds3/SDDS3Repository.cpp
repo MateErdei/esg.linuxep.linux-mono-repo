@@ -19,7 +19,6 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 #include <sophlib/logging/Logging.h>
 #include <Config.h>
 #include <PackageRef.h>
-#include <SyncLogic.h>
 #include <iostream>
 #include <json.hpp>
 #include <utility>
