@@ -38,6 +38,8 @@ const int PORT = 7780;
 const std::string URL = "http://localhost";
 const std::string URL_WITH_PORT = "http://localhost:" + std::to_string(PORT);
 
+// GET Tests
+
 TEST_F(HttpRequesterLiveNetworkTests, getWithPort)
 {
     std::string testName = ::testing::UnitTest::GetInstance()->current_test_info()->name();
@@ -180,6 +182,36 @@ TEST_F(HttpRequesterLiveNetworkTests, getWithPortAndTimeout)
     ASSERT_EQ(response.error, "Timeout was reached");
 }
 
+TEST_F(HttpRequesterLiveNetworkTests, getWithPortAndBandwidthLimit)
+{
+    std::string testName = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+    std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+        std::make_shared<Common::CurlWrapper::CurlWrapper>();
+    Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
+    std::string url = URL_WITH_PORT + "/" + testName;
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // Download a 1000B file at ~100B/s per second
+    Common::HttpRequests::Response response = client.get(Common::HttpRequests::RequestConfig{
+        .url = url,
+        .bandwidthLimit = 100
+    });
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+
+    // Bandwidth limiting is not perfect so even though in theory this should take 10 seconds, if it took more than 8
+    // it's close enough and we don't want this to be a flaky test
+    ASSERT_GT(duration.count(), 8);
+    ASSERT_EQ(response.status, 200);
+    std::string expected_response = std::string(1000, 'a');
+    ASSERT_EQ(response.body, expected_response);
+}
+
+
+// PUT Tests
+
 TEST_F(HttpRequesterLiveNetworkTests, putWithPort)
 {
     std::string testName = ::testing::UnitTest::GetInstance()->current_test_info()->name();
@@ -220,6 +252,8 @@ TEST_F(HttpRequesterLiveNetworkTests, putWithFileUpload)
     ASSERT_EQ(response.headers.count("test_header"), 1);
     ASSERT_EQ(response.headers.at("test_header"), "test_header_value");
 }
+
+// POST Tests
 
 TEST_F(HttpRequesterLiveNetworkTests, postWithPort)
 {

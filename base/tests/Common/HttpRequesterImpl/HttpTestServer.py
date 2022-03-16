@@ -67,9 +67,10 @@ class S(BaseHTTPRequestHandler):
             time.sleep(5)
             return
 
-        # elif resource_path == "/putWithPort":
-        #     response_body = f"{resource_path} response body"
-        #     response_code = 200
+        elif resource_path == "/getWithPortAndBandwidthLimit":
+            # respond with 1000 bytes
+            response_body = "a" * 1000
+            response_code = 200
         else:
             response_body = "Not a valid test case!"
             logging.warning(f"Not a valid test case: GET - '{resource_path}'")
@@ -77,10 +78,6 @@ class S(BaseHTTPRequestHandler):
             # print("not a valid test case name")
 
         self._set_response(response_code, response_headers)
-
-        # logging.info("GET request,\nPath: %s\nHeaders:\n%s\nParams:%s\n", str(self.path), str(self.headers), str(query_str_from_url))
-
-        # self.wfile.write(f"GET request for {self.path}, with params: {str(query_str_from_url)}".encode('utf-8'))
         self.wfile.write(response_body.encode('utf-8'))
 
     def do_POST(self):
@@ -147,6 +144,7 @@ class S(BaseHTTPRequestHandler):
             response_body = f"{resource_path} response body"
             response_code = 200
             response_headers = {"test_header": "test_header_value"}
+
         elif resource_path == "/putWithFileUpload":
             response_body = f"{resource_path} response body, you PUT {content_length} bytes"
             response_code = 200
@@ -162,7 +160,7 @@ class S(BaseHTTPRequestHandler):
 def run(server_class=HTTPServer, handler_class=S, port=7780):
     logging.basicConfig(level=logging.INFO)
     server_address = ('', port)
-    print("Server started http://%s:%s" % ("localhost", port))
+    print(f"Server started http://localhost:{port}")
     httpd = server_class(server_address, handler_class)
     logging.info('Starting httpd...\n')
     try:
