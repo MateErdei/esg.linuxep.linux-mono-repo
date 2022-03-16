@@ -84,16 +84,47 @@ class S(BaseHTTPRequestHandler):
         self.wfile.write(response_body.encode('utf-8'))
 
     def do_POST(self):
+        url_parts = self.getUrlParts(self.path)
+        resource_path = url_parts.path
+        query_str = url_parts.query
+        request_headers = self.headers
+
         response_body = ""
         response_headers = {}
         response_code = 200
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
-                     str(self.path), str(self.headers), post_data.decode('utf-8'))
+
+        logging.info(f"Running test: '{resource_path}'")
+
+        content_length = 0
+        if "Content-Length" in self.headers:
+            content_length = int(self.headers['Content-Length'])
+        put_data = self.rfile.read(content_length)
+
+        if resource_path == "/postWithPort":
+            response_body = f"{resource_path} response body"
+            response_code = 200
+            response_headers = {"test_header": "test_header_value"}
+
+        elif resource_path == "/postWithData":
+            if put_data.decode('utf-8') == "SamplePostData":
+                response_body = f"{resource_path} response body"
+                response_code = 200
+            else:
+                response_body = f"{resource_path} test failed, posted data id not match test case"
+                response_code = 400
+
+        elif resource_path == "/postWithFileUpload":
+            response_body = f"{resource_path} response body, you PUT {content_length} bytes"
+            response_code = 200
+            response_headers = {"test_header": "test_header_value"}
+
+        else:
+            response_body = "Not a valid test case!"
+            logging.warning(f"Not a valid test case: PUT - '{resource_path}'")
+            response_code = 404
 
         self._set_response(response_code, response_headers)
-        self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+        self.wfile.write(response_body.encode('utf-8'))
 
     def do_PUT(self):
         url_parts = self.getUrlParts(self.path)

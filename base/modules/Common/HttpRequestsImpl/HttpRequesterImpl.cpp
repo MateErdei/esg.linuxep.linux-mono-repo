@@ -150,6 +150,11 @@ namespace Common::HttpRequestsImpl
 
         curlOptions.emplace_back("URL - CURLOPT_URL", CURLOPT_URL, request.url);
         curlOptions.emplace_back("TLS/SSL version - CURLOPT_SSLVERSION", CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+        curlOptions.emplace_back("Set timeout - CURLOPT_TIMEOUT", CURLOPT_TIMEOUT, request.timeout);
+
+        // cURL or openssl does not seem to support setting this protocol.
+        // Could be worth an update, checking of build options and a rebuild of openssl and curl
+        // curlOptions.emplace_back("Set HTTP version - CURLOPT_HTTP_VERSION", CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2TLS);
 
         if (request.port.has_value())
         {
@@ -217,8 +222,6 @@ namespace Common::HttpRequestsImpl
             curlOptions.emplace_back("Enable verbose logging - CURLOPT_VERBOSE", CURLOPT_VERBOSE, 1L);
         }
 
-        curlOptions.emplace_back("Set timeout - CURLOPT_TIMEOUT", CURLOPT_TIMEOUT, request.timeout);
-
         if (request.certPath.has_value())
         {
             LOGINFO("Using client specified CA path: " << request.certPath.value());
@@ -236,6 +239,7 @@ namespace Common::HttpRequestsImpl
                     caPathFound = true;
                     LOGINFO("Using system CA path: " << caPath);
                     curlOptions.emplace_back("Path for CA bundle - CURLOPT_CAINFO", CURLOPT_CAINFO, caPath);
+                    curlOptions.emplace_back("Path for CA dir - CURLOPT_CAPATH", CURLOPT_CAPATH, Common::FileSystem::dirName(caPath));
                     break;
                 }
             }
