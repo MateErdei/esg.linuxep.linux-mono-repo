@@ -374,12 +374,6 @@ def make_sdds3_suite(args):
             if not _verify_integrity_files(args, integrity_statements, pkgfile, pkgroot):
                 okay = False
 
-            # TODO - Remove?
-            # if pkg in suiteids:
-            #     meta['mountpoint'] = '.'
-            #     meta['override_platforms'] = meta['platforms']
-            #     meta['override_features'] = []
-
             _add_pkgref_platform_features(pkgref, pkgroot, meta)
 
             # If the platform list is empty, discard this entire pkgref!
