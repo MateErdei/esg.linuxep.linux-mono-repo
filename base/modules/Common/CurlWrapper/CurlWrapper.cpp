@@ -4,8 +4,9 @@ Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <mutex>
 #include "CurlWrapper.h"
+
+#include <mutex>
 
 namespace
 {
@@ -66,8 +67,5 @@ namespace Common::CurlWrapper
 
     const char* CurlWrapper::curlEasyStrError(CURLcode errornum) { return curl_easy_strerror(errornum); }
 
-    void CurlWrapper::curlEasyReset(CURL* handle)
-    {
-        curl_easy_reset(handle);
-    }
+    void CurlWrapper::curlEasyReset(CURL* handle) { curl_easy_reset(handle); }
 } // namespace Common::CurlWrapper

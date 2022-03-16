@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -58,4 +58,4 @@ namespace Common::CurlWrapper
 
         const char* curlEasyStrError(CURLcode errornum) override;
     };
-} // namespace Common::HttpSenderImpl
+} // namespace Common::CurlWrapper
