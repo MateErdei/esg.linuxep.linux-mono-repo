@@ -419,12 +419,14 @@ namespace Common::HttpRequestsImpl
         return performRequest(request);
     }
 
-    std::string HttpRequesterImpl::curlEscape(std::string stringToEscape)
+    std::string HttpRequesterImpl::curlEscape(const std::string& stringToEscape)
     {
-        auto escaped = curl_easy_escape(m_curlHandle, stringToEscape.c_str(), stringToEscape.length());
+        char* escaped = curl_easy_escape(m_curlHandle, stringToEscape.c_str(), stringToEscape.length());
         if (escaped)
         {
-            return escaped;
+            std::string escapedString = std::string(escaped);
+            curl_free(escaped);
+            return escapedString;
         }
         throw std::runtime_error("Failed to escape string: " + stringToEscape);
     }

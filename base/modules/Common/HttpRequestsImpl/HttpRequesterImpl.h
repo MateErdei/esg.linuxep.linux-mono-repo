@@ -44,7 +44,7 @@ namespace Common::HttpRequestsImpl
 
     private:
         Common::HttpRequests::Response performRequest(Common::HttpRequests::RequestConfig config);
-        std::string curlEscape(std::string stringToEscape);
+        std::string curlEscape(const std::string& stringToEscape);
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> m_curlWrapper;
         CURL* m_curlHandle;
         bool m_curlVerboseLogging = false;
