@@ -9,7 +9,7 @@ Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
-
+Resource  ../mcs_router/McsRouterResources.robot
 Resource    ManagementAgentResources.robot
 
 Default Tags    MANAGEMENT_AGENT
@@ -36,8 +36,7 @@ Verify Management Agent Can Check Good Plugin Health Status
     File Should Not Exist   ${SHS_STATUS_FILE}
     #check overallHealth is good before health status is calculated
     ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":1,"service":1,"threat":1,"threatService":1}
-    ${POLICY_CONTENT}=  Get File  ${SHS_POLICY_FILE}
-    Should Contain   ${POLICY_CONTENT}  ${EXPECTEDPOLICY_CONTENT}
+    File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
     Wait Until Keyword Succeeds
     ...  40
     ...  5
@@ -45,9 +44,10 @@ Verify Management Agent Can Check Good Plugin Health Status
 
     ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
-    ${STATUS_CONTENT}=  Get File  ${SHS_STATUS_FILE}
-    Log File  ${SHS_STATUS_FILE}
-    Should Contain   ${STATUS_CONTENT}  ${EXPECTED_CONTENT}
+    Wait Until Keyword Succeeds
+    ...  5
+    ...  1
+    ...  File Should Contain   ${SHS_STATUS_FILE}  ${EXPECTED_CONTENT}
 
 
     # clean up
@@ -71,14 +71,19 @@ Verify Management Agent Can Check Bad Plugin Health Status
 
     ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="service" value="3" ><detail name="FakePlugin" value="2" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="3" ><detail name="FakePlugin" value="2" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
-    ${STATUS_CONTENT}=  Get File  ${SHS_STATUS_FILE}
+
     Log File  ${SHS_STATUS_FILE}
-    Should Contain   ${STATUS_CONTENT}  ${EXPECTED_CONTENT}
+    Wait Until Keyword Succeeds
+    ...  5
+    ...  1
+    ...  File Should Contain   ${SHS_STATUS_FILE}  ${EXPECTED_CONTENT}
+
     ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":3,"service":3,"threat":1,"threatService":3}
 
-    ${POLICY_CONTENT}=  Get File  ${SHS_POLICY_FILE}
-
-    Should Contain   ${POLICY_CONTENT}  ${EXPECTEDPOLICY_CONTENT}
+    Wait Until Keyword Succeeds
+    ...  5
+    ...  1
+    ...  File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
     # clean up
     Stop Management Agent
 
