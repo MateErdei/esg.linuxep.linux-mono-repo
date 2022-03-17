@@ -44,8 +44,8 @@
           <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64" />
         </build-asset>
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/WINEP-2022.06" build-id="20220128115031-a862cc637baabe31c7c0807ca7b4836ed21d7bf1-YQAQrA"/>
-            <development-version branch="feature/LINUXDAR-4177-update-shared-sdds3-library-for-linux"/>
+            <release-version branch="release/2022.12-linux-sdds3" build-id="20220317115755-20834a75eea018f08724801350c87f56e093ace2-1ECPOu"/>
+            <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
