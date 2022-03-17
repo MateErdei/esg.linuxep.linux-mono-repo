@@ -68,38 +68,40 @@ namespace Common::HttpRequestsImpl
         ResponseBuffer responseBuffer;
         responseBuffer.url = request.url;
 
-        curl_easy_setopt(m_curlHandle, CURLOPT_HEADERFUNCTION, CurlFunctionsProvider::curlWriteHeadersFunc);
-        curl_easy_setopt(m_curlHandle, CURLOPT_HEADERDATA, &responseBuffer);
-        curl_easy_setopt(m_curlHandle, CURLOPT_DEBUGFUNCTION, CurlFunctionsProvider::curlWriteDebugFunc);
+        // cURL options are built up in this container and then applied at the end
+        std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>>> curlOptions;
+
+        m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_HEADERFUNCTION, (void *)CurlFunctionsProvider::curlWriteHeadersFunc);
+        m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_HEADERDATA, &responseBuffer);
+        m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_DEBUGFUNCTION, (void *)CurlFunctionsProvider::curlWriteDebugFunc);
 
         // Handle data being downloaded, directly to buffer or to a file.
         if (request.fileDownloadLocation.has_value())
         {
+            // If file already exists, then return error
             if (Common::FileSystem::fileSystem()->isFile(request.fileDownloadLocation.value()))
             {
                 response.error = "Download target file name already exists: " + request.fileDownloadLocation.value();
                 response.errorCode = HttpRequests::ResponseErrorCode::DOWNLOAD_TARGET_ALREADY_EXISTS;
                 return response;
-            }
+            } // If the path is to a directory then we set downloadDirectory (and not downloadFilePath)
             else if (Common::FileSystem::fileSystem()->isDirectory(request.fileDownloadLocation.value()))
             {
                 LOGDEBUG("Saving downloaded file to directory: " << request.fileDownloadLocation.value());
                 responseBuffer.downloadDirectory = request.fileDownloadLocation.value();
-                curl_easy_setopt(m_curlHandle, CURLOPT_WRITEFUNCTION, CurlFunctionsProvider::curlWriteFileFunc);
-                curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &responseBuffer);
             }
-            else
+            else // Finally, if the path does not exist and is not a dir then we'll try to download a file to that path
             {
                 LOGDEBUG("Saving downloaded file to file: " << request.fileDownloadLocation.value());
                 responseBuffer.downloadFilePath = request.fileDownloadLocation.value();
-                curl_easy_setopt(m_curlHandle, CURLOPT_WRITEFUNCTION, CurlFunctionsProvider::curlWriteFileFunc);
-                curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &responseBuffer);
             }
+            m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_WRITEFUNCTION, (void *)CurlFunctionsProvider::curlWriteFileFunc);
+            m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_WRITEDATA, &responseBuffer);
         }
         else
         {
-            curl_easy_setopt(m_curlHandle, CURLOPT_WRITEFUNCTION, CurlFunctionsProvider::curlWriteFunc);
-            curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, &bodyBuffer);
+            m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_WRITEFUNCTION, (void *)CurlFunctionsProvider::curlWriteFunc);
+            m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_WRITEDATA, &bodyBuffer);
         }
 
         // Handle URL parameters, such as: example.com?param1=value&param2=abc
@@ -130,19 +132,20 @@ namespace Common::HttpRequestsImpl
         {
             if (FileSystem::fileSystem()->isFile(request.fileToUpload.value()))
             {
-                curl_easy_setopt(m_curlHandle, CURLOPT_READFUNCTION, CurlFunctionsProvider::curlFileReadFunc);
+                m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_READFUNCTION, (void *)CurlFunctionsProvider::curlFileReadFunc);
                 fileToSend.reset(fopen(request.fileToUpload.value().c_str(), "rb"));
                 if (fileToSend != nullptr)
                 {
                     LOGDEBUG(
                         "Sending file: " << request.fileToUpload.value() << ", size: "
                                          << FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
-                    curl_easy_setopt(m_curlHandle, CURLOPT_UPLOAD, 1L);
-                    curl_easy_setopt(m_curlHandle, CURLOPT_READDATA, fileToSend.get());
-                    curl_easy_setopt(
-                        m_curlHandle,
-                        CURLOPT_INFILESIZE_LARGE,
-                        (curl_off_t)FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
+
+                    m_curlWrapper->curlEasySetOpt(m_curlHandle, CURLOPT_UPLOAD, 1L);
+
+                    m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_READDATA, fileToSend.get());
+
+                    curlOptions.emplace_back("URL - CURLOPT_URL", CURLOPT_URL, request.url);
+                    m_curlWrapper->curlEasySetOpt(m_curlHandle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
                 }
                 else
                 {
@@ -159,8 +162,7 @@ namespace Common::HttpRequestsImpl
             }
         }
 
-        // cURL options are built up in this container and then applied at the end
-        std::vector<std::tuple<std::string, CURLoption, std::variant<std::string, long>>> curlOptions;
+
 
         // Set the request URL
         curlOptions.emplace_back("URL - CURLOPT_URL", CURLOPT_URL, request.url);
@@ -218,10 +220,8 @@ namespace Common::HttpRequestsImpl
             curlOptions.emplace_back("Specify proxy - CURLOPT_PROXY", CURLOPT_PROXY, request.proxy.value());
             if (request.proxyUsername.has_value() && request.proxyPassword.has_value())
             {
-                std::string encodedUsername = curl_easy_escape(
-                    m_curlHandle, request.proxyUsername.value().c_str(), request.proxyUsername.value().length());
-                std::string encodedPassword = curl_easy_escape(
-                    m_curlHandle, request.proxyPassword.value().c_str(), request.proxyPassword.value().length());
+                std::string encodedUsername = curlEscape(request.proxyUsername.value());
+                std::string encodedPassword = curlEscape(request.proxyPassword.value());
                 curlOptions.emplace_back(
                     "Set cURL to choose best authentication available - CURLOPT_PROXYAUTH",
                     CURLOPT_PROXYAUTH,

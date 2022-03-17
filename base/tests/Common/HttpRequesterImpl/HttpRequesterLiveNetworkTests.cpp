@@ -134,7 +134,7 @@ TEST_F(HttpRequesterLiveNetworkTests, getWithFileDownloadToDirectory)
     ASSERT_EQ(fs->readFile(fileDownloadLocationFullPath), fileExpectedContent);
     ASSERT_EQ(response.status, 200);
 
-    // Downloaded to file so body will be empty
+    // Downloaded to file, body will be empty
     ASSERT_EQ(response.body, "");
 }
 

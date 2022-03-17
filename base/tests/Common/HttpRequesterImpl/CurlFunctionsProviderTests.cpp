@@ -245,7 +245,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteDebugFuncSslDataIn)
     char* dataPtr = someDebugData;
     auto rc =  CurlFunctionsProvider::curlWriteDebugFunc(fakeCurlHandle, curl_infotype::CURLINFO_SSL_DATA_IN, dataPtr, strlen(dataPtr), fakeUserPtr);
     std::string logMessages = testing::internal::GetCapturedStderr();
-    std::string expected = "cURL <= Recv SSL data.";
+    std::string expected = "cURL <= Recv SSL data: " + std::string (someDebugData);
     EXPECT_THAT(logMessages, ::testing::HasSubstr(expected));
     ASSERT_EQ(rc, 0);
 }
@@ -259,51 +259,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteDebugFuncSslDataOut)
     char* dataPtr = someDebugData;
     auto rc =  CurlFunctionsProvider::curlWriteDebugFunc(fakeCurlHandle, curl_infotype::CURLINFO_SSL_DATA_OUT, dataPtr, strlen(dataPtr), fakeUserPtr);
     std::string logMessages = testing::internal::GetCapturedStderr();
-    std::string expected = "cURL => Send SSL data.";
+    std::string expected = "cURL => Send SSL data: " + std::string (someDebugData);
     EXPECT_THAT(logMessages, ::testing::HasSubstr(expected));
     ASSERT_EQ(rc, 0);
-}
-
-// curlWriteHeadersFunc tests
-
-TEST_F(CurlFunctionsProviderTests, curlWriteHeadersFuncAddsHeadersCorrectly)
-{
-    const char* headerString = "Header1:value1";
-    size_t length = strlen(headerString);
-    Common::HttpRequestsImpl::ResponseBuffer responseBuffer;
-    size_t bytesDealtWith = CurlFunctionsProvider::curlWriteHeadersFunc((void*)headerString, 1, length, &responseBuffer);
-    ASSERT_EQ(bytesDealtWith, length);
-    ASSERT_EQ(responseBuffer.headers.count("Header1"), 1);
-    ASSERT_EQ(responseBuffer.headers.at("Header1"), "value1");
-}
-
-TEST_F(CurlFunctionsProviderTests, curlWriteHeadersFuncHandlesEmptyHeadersCorrectly)
-{
-    const char* headerString = "";
-    size_t length = 0;
-    Common::HttpRequestsImpl::ResponseBuffer responseBuffer;
-    size_t bytesDealtWith = CurlFunctionsProvider::curlWriteHeadersFunc((void*)headerString, 1, length, &responseBuffer);
-    ASSERT_EQ(bytesDealtWith, 0);
-}
-
-TEST_F(CurlFunctionsProviderTests, curlWriteHeadersFuncHandlesEmptyHeaderValueCorrectly)
-{
-    const char* headerString = "Header1:";
-    size_t length = strlen(headerString);
-    Common::HttpRequestsImpl::ResponseBuffer responseBuffer;
-    size_t bytesDealtWith = CurlFunctionsProvider::curlWriteHeadersFunc((void*)headerString, 1, length, &responseBuffer);
-    ASSERT_EQ(bytesDealtWith, length);
-    ASSERT_EQ(responseBuffer.headers.count("Header1"), 1);
-    ASSERT_EQ(responseBuffer.headers.at("Header1"), "");
-}
-
-TEST_F(CurlFunctionsProviderTests, curlWriteHeadersFuncHandlesHeaderWithcolonInValueCorrectly)
-{
-    const char* headerString = "Header1:value-With-a:in-It";
-    size_t length = strlen(headerString);
-    Common::HttpRequestsImpl::ResponseBuffer responseBuffer;
-    size_t bytesDealtWith = CurlFunctionsProvider::curlWriteHeadersFunc((void*)headerString, 1, length, &responseBuffer);
-    ASSERT_EQ(bytesDealtWith, length);
-    ASSERT_EQ(responseBuffer.headers.count("Header1"), 1);
-    ASSERT_EQ(responseBuffer.headers.at("Header1"), "value-With-a:in-It");
 }

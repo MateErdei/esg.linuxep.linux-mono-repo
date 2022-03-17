@@ -23,6 +23,12 @@ size_t CurlFunctionsProvider::curlWriteFileFunc(
     size_t nmemb,
     Common::HttpRequestsImpl::ResponseBuffer* responseBuffer)
 {
+    if (responseBuffer->url.empty())
+    {
+        LOGERROR("Response buffer must contain the URL in case a file name needs to be generated from the URL");
+        return 0;
+    }
+
     size_t totalSizeBytes = size * nmemb;
     std::string content;
     content.append(static_cast<char*>(ptr), totalSizeBytes);
@@ -31,41 +37,40 @@ size_t CurlFunctionsProvider::curlWriteFileFunc(
     {
         if (responseBuffer->downloadDirectory.empty())
         {
-            throw std::runtime_error("Neither download target filename or directory specified");
+            //            throw std::runtime_error("Neither download target filename or directory specified");
+            LOGERROR("Neither download target filename or directory specified");
+            return 0;
         }
 
-        std::string contentDispositionHeaderTag = "Content-Disposition";
-
         // If no download filename specified then we need to work it out from headers or URL
-        if (responseBuffer->headers.count(contentDispositionHeaderTag))
+        // First, try to work out filename from Content-disposition header
+        // Example: Content-Disposition: attachment; filename="filename.jpg"
+        std::string contentDispositionHeaderTag = "Content-Disposition";
+        std::string filenameTag = "filename";
+        if (responseBuffer->headers.count(contentDispositionHeaderTag) &&
+            Common::UtilityImpl::StringUtils::isSubstring(
+                responseBuffer->headers[contentDispositionHeaderTag], filenameTag))
         {
-            // Work out filename from Content-disposition header
-            // Example: Content-Disposition: attachment; filename="filename.jpg"
-            std::string filenameTag = "filename";
-            if (Common::UtilityImpl::StringUtils::isSubstring(
-                    responseBuffer->headers[contentDispositionHeaderTag], "filename"))
+            std::vector<std::string> contentOptiopns = Common::UtilityImpl::StringUtils::splitString(
+                responseBuffer->headers[contentDispositionHeaderTag], ";");
+            for (const auto& option : contentOptiopns)
             {
-                std::vector<std::string> contentOptiopns = Common::UtilityImpl::StringUtils::splitString(
-                    responseBuffer->headers[contentDispositionHeaderTag], ";");
-                for (const auto& option : contentOptiopns)
+                if (Common::UtilityImpl::StringUtils::isSubstring(option, "="))
                 {
-                    if (Common::UtilityImpl::StringUtils::isSubstring(option, "="))
+                    std::vector<std::string> optionAndValue =
+                        Common::UtilityImpl::StringUtils::splitString(option, "=");
+                    if (optionAndValue.size() == 2)
                     {
-                        std::vector<std::string> optionAndValue =
-                            Common::UtilityImpl::StringUtils::splitString(option, "=");
-                        if (optionAndValue.size() == 2)
+                        std::function isWhitespaceOrQuote = [](char c) { return std::isspace(c) || c == '"'; };
+                        std::string cleanOption =
+                            Common::UtilityImpl::StringUtils::trim(optionAndValue[0], isWhitespaceOrQuote);
+                        std::string cleanValue =
+                            Common::UtilityImpl::StringUtils::trim(optionAndValue[1], isWhitespaceOrQuote);
+                        if (cleanOption == filenameTag && !cleanValue.empty())
                         {
-                            std::function isWhitespaceOrQuote = [](char c) { return std::isspace(c) || c == '"'; };
-                            std::string cleanOption =
-                                Common::UtilityImpl::StringUtils::trim(optionAndValue[0], isWhitespaceOrQuote);
-                            std::string cleanValue =
-                                Common::UtilityImpl::StringUtils::trim(optionAndValue[1], isWhitespaceOrQuote);
-                            if (cleanOption == filenameTag && !cleanValue.empty())
-                            {
-                                responseBuffer->downloadFilePath =
-                                    Common::FileSystem::join(responseBuffer->downloadDirectory, cleanValue);
-                                break;
-                            }
+                            responseBuffer->downloadFilePath =
+                                Common::FileSystem::join(responseBuffer->downloadDirectory, cleanValue);
+                            break;
                         }
                     }
                 }
@@ -139,6 +144,7 @@ int CurlFunctionsProvider::curlWriteDebugFunc(
             debugLine += "=> Send data: ";
             break;
         case CURLINFO_SSL_DATA_OUT:
+            // NB: this can be quite noisy, consider disabling once library is in use.
             debugLine += "=> Send SSL data: ";
             break;
         case CURLINFO_HEADER_IN:
@@ -148,6 +154,7 @@ int CurlFunctionsProvider::curlWriteDebugFunc(
             debugLine += "<= Recv data: ";
             break;
         case CURLINFO_SSL_DATA_IN:
+            // NB: this can be quite noisy, consider disabling once library is in use.
             debugLine += "<= Recv SSL data: ";
             break;
         default:
@@ -158,9 +165,9 @@ int CurlFunctionsProvider::curlWriteDebugFunc(
     LOGDEBUG(debugLine);
     return 0;
 }
+
 size_t CurlFunctionsProvider::curlFileReadFunc(char* ptr, size_t size, size_t nmemb, FILE* stream)
 {
-    size_t retcode;
-    retcode = fread(ptr, size, nmemb, stream);
-    return retcode;
+    size_t retCode = fread(ptr, size, nmemb, stream);
+    return retCode;
 }

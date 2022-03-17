@@ -3,6 +3,7 @@ include(GoogleTest)
 # HTTP requester lib unit tests
 add_executable(HttpRequesterTests
         HttpRequesterTests.cpp
+        CurlFunctionsProviderTests.cpp
         ${PROJECT_SOURCE_DIR}/modules/Common/CurlWrapper/CurlWrapper.h
         ${PROJECT_SOURCE_DIR}/modules/Common/CurlWrapper/CurlWrapper.cpp
         )

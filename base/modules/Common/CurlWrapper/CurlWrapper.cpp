@@ -47,6 +47,16 @@ namespace Common::CurlWrapper
         return curl_easy_setopt(handle, option, std::get<long>(parameter));
     }
 
+    CURLcode CurlWrapper::curlEasySetDataOpt(CURL* handle, CURLoption option, void* dataParam)
+    {
+        return curl_easy_setopt(handle, option, dataParam);
+    }
+
+    CURLcode CurlWrapper::curlEasySetFuncOpt(CURL* handle, CURLoption option, void* funcParam)
+    {
+        return curl_easy_setopt(handle, option, funcParam);
+    }
+
     curl_slist* CurlWrapper::curlSlistAppend(curl_slist* list, const std::string& value)
     {
         return curl_slist_append(list, value.c_str());
