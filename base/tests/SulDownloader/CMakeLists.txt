@@ -29,7 +29,7 @@ add_executable(SulDownloaderTests
         Sdds3ReplaceAndRestore.h
         Sdds3ReplaceAndRestore.cpp)
 
-target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include"  ${PROTOBUF_INCLUDE_DIR} ${SDDS3LIB_INPUT})
+target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include"  ${PROTOBUF_INCLUDE_DIR} ${SDDS3LIB_INPUT} ${SOPHLIB_INCLUDE_DIR})
 target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}"
         "${CMAKE_BINARY_DIR}/modules/SulDownloader/suldownloaderdata"
         )
