@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
     std::string config_filename = argv[optind];
 
     sophlib::logging::LogLevel log_level = verbose ? sophlib::logging::LogLevel::Debug : sophlib::logging::LogLevel::Info;
-    sophlib::logging::g_logger.SetupConsole(log_level);
+    sophlib::logging::GlobalLogger().SetupConsole(log_level);
 
     std::string jwt_token;
     std::string tenant_id;

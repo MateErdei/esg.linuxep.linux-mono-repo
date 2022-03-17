@@ -134,7 +134,7 @@ namespace SulDownloader
     void SDDS3Repository::setupSdds3LibLogger()
     {
         sophlib::logging::LogLevel log_level = sophlib::logging::LogLevel::Debug;
-        sophlib::logging::g_logger.SetupSingleFile(
+        sophlib::logging::GlobalLogger().SetupSingleFile(
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderSynLogPath(), log_level);
     }
 
