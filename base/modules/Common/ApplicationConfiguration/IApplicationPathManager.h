@@ -61,6 +61,7 @@ namespace Common::ApplicationConfiguration
         virtual std::string getLocalSdds3DistributionRepository() const = 0;
         virtual std::string getSdds3PackageConfigPath() const = 0;
         virtual std::string getSdds3OverrideSettingsFile() const = 0;
+        virtual std::string getSulDownloaderSynLogPath() const = 0;
 
         /**
          * @brief gets the directory containing the symlinks to the plugin/product uninstallers <ProductLine>.sh for

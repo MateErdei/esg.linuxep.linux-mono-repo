@@ -151,6 +151,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/update/var/sdds3_override_settings.ini");
         }
 
+        std::string ApplicationPathManager::getSulDownloaderSynLogPath() const
+        {
+            return Common::FileSystem::join(getBaseLogDirectory(), "suldownloader_sync.log");
+        }
+
         std::string ApplicationPathManager::getLocalUninstallSymLinkPath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/update/var/installedproducts");

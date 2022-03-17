@@ -105,7 +105,10 @@ namespace SulDownloader
         return m_products;
     }
 
-    std::string SDDS3Repository::getSourceURL() const { return {}; }
+    std::string SDDS3Repository::getSourceURL() const
+    {
+        return m_sourceUrl;
+    }
 
     std::vector<SubscriptionInfo> SDDS3Repository::listInstalledSubscriptions() const
     {
@@ -131,10 +134,8 @@ namespace SulDownloader
     void SDDS3Repository::setupSdds3LibLogger()
     {
         sophlib::logging::LogLevel log_level = sophlib::logging::LogLevel::Debug;
-        std::filesystem::path filePath = "/tmp/sddsLog";
-        std::string sdds3LogPath = Common::FileSystem::join(
-            Common::ApplicationConfiguration::applicationPathManager().getBaseLogDirectory(), "suldownloader_sync.log");
-        sophlib::logging::g_logger.SetupSingleFile(sdds3LogPath, log_level);
+        sophlib::logging::g_logger.SetupSingleFile(
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderSynLogPath(), log_level);
     }
 
     std::string writeSUSRequest(const SUSRequestParameters& parameters)
@@ -301,13 +302,14 @@ namespace SulDownloader
                 }
                 LOGINFO("Performing Sync using " << srcUrl);
                 SulDownloader::sdds3Wrapper()->sync(*m_session.get(), repo, srcUrl, m_config, m_oldConfig);
+                m_sourceUrl = srcUrl;  // store which source was used - for reporting later.
                 break;
             }
             catch (const std::exception& ex)
             {
                 m_error.status = RepositoryStatus::DOWNLOADFAILED;
                 std::stringstream message;
-                message << "Faild to sync " << ex.what();
+                message << "Failed to sync " << ex.what();
                 m_error.Description = message.str();
                 LOGERROR("Failed to Sync with " << srcUrlToTry << " error: " << ex.what());
             }

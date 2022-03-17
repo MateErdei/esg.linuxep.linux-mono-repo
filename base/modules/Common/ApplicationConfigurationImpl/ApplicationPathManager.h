@@ -42,6 +42,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getLocalSdds3DistributionRepository() const override;
         std::string getSdds3PackageConfigPath() const override;
         std::string getSdds3OverrideSettingsFile() const override;
+        std::string getSulDownloaderSynLogPath() const override;
         std::string getLocalUninstallSymLinkPath() const override;
         std::string getLocalVersionSymLinkPath() const override;
         std::string getLocalBaseUninstallerPath() const override;

@@ -76,5 +76,6 @@ namespace SulDownloader
         std::vector<suldownloaderdata::SubscriptionInfo> m_selectedSubscriptions;
         bool m_supplementOnly;
         std::pair<std::set<std::string>, std::set<std::string>> m_dataToSync;
+        std::string m_sourceUrl;
     };
 } // namespace SulDownloader
