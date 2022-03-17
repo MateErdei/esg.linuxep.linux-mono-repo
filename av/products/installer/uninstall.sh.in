@@ -25,7 +25,7 @@ BASEDIR="${SCRIPT_DIR%%/plugins/${PLUGIN_NAME}/sbin}"
 UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
 SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
-SAVE_DIR="${BASEDIR}/tmp/av_downgrade/"
+SAVE_DIR="${BASEDIR}/tmp/${PLUGIN_NAME}_downgrade/"
 
 FORCE=0
 DOWNGRADE=0

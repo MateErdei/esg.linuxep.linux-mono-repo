@@ -507,6 +507,7 @@ AV Plugin Can Send Telemetry After Upgrade
 
 AV Plugin Restores Downgrade Logs
     Run plugin uninstaller with downgrade flag
+    Directory Should Exist  ${AV_BACKUP_DIR}
     Check AV Plugin Not Installed
     Install AV Directly from SDDS
     Directory Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}
