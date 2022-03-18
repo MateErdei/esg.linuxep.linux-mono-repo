@@ -144,31 +144,6 @@ namespace SulDownloader::suldownloaderdata
         void setJWToken(const std::string& token);
 
         /**
-         * gets the tenant id
-         * @return string containing the tenant id
-         */
-        const std::string& getTenantId() const;
-
-        /**
-         * Sets the configured tenant Id value.
-         * @param tenantId
-         */
-        void setTenantId(const std::string& tenantId);
-
-        /**
-         * gets the device Id
-         * @return the device Id value
-         */
-        const std::string& getDeviceId() const;
-
-        /**
-         * Sets the configured device Id value
-         * @param deviceId
-         */
-        void setDeviceId(const std::string& deviceId);
-
-
-        /**
          * On top of the configured proxy (getProxy) there is the environment proxy that has to be considered.
          * Hence, there will be either:
          *  - 1 proxy to try: configured proxy
@@ -362,8 +337,6 @@ namespace SulDownloader::suldownloaderdata
         Proxy m_policyProxy;
         State m_state;
         std::string  m_jwToken;
-        std::string m_tenantId;
-        std::string m_deviceId;
         std::vector<ProductSubscription> m_productsSubscription;
         ProductSubscription m_primarySubscription;
         std::vector<std::string> m_features;

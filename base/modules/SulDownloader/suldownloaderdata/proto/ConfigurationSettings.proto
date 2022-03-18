@@ -26,8 +26,6 @@ message ConfigurationSettings
     optional CredentialT credential = 3;
     optional ProxyT proxy = 4;
     optional string JWToken = 5;
-    optional string tenantId = 6;
-    optional string deviceId = 7;
     repeated string installArguments = 9;
 
     enum LogLevelOption

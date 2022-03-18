@@ -269,8 +269,6 @@ namespace UpdateSchedulerImpl
                 LOGWARN("No jwt token field found in mcs.config");
             }
             settingsHolder.configurationData.setJWToken(token);
-            settingsHolder.configurationData.setDeviceId(UpdateSchedulerUtils::getDeviceId());
-            settingsHolder.configurationData.setTenantId(UpdateSchedulerUtils::getTenantId());
             writeConfigurationData(settingsHolder.configurationData);
             m_scheduledUpdateConfig = settingsHolder.weeklySchedule;
             m_featuresInPolicy = settingsHolder.configurationData.getFeatures();

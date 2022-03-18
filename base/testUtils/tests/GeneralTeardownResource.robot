@@ -18,7 +18,6 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/register_central.log
 

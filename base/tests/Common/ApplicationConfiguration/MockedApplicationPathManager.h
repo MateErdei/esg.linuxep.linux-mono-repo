@@ -43,13 +43,6 @@ public:
 
     MOCK_CONST_METHOD0(getLocalWarehouseRepository, std::string(void));
     MOCK_CONST_METHOD0(getLocalDistributionRepository, std::string(void));
-
-    MOCK_CONST_METHOD0(getLocalSdds3Repository, std::string(void));
-    MOCK_CONST_METHOD0(getLocalSdds3DistributionRepository, std::string(void));
-    MOCK_CONST_METHOD0(getSdds3PackageConfigPath, std::string(void));
-    MOCK_CONST_METHOD0(getSdds3OverrideSettingsFile, std::string(void));
-    MOCK_CONST_METHOD0(getSulDownloaderSynLogPath, std::string(void));
-
     MOCK_CONST_METHOD0(getLocalUninstallSymLinkPath, std::string(void));
     MOCK_CONST_METHOD0(getLocalVersionSymLinkPath, std::string(void));
     MOCK_CONST_METHOD0(getLocalBaseUninstallerPath, std::string(void));

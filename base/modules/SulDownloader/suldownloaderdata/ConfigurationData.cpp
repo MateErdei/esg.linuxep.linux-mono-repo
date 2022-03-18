@@ -149,26 +149,6 @@ void ConfigurationData::setJWToken(const std::string& token)
 {
     m_jwToken = token;
 }
-
-const std::string& ConfigurationData::getTenantId() const
-{
-    return m_tenantId;
-}
-void ConfigurationData::setTenantId(const std::string& tenantId)
-{
-    m_tenantId = tenantId;
-}
-
-const std::string& ConfigurationData::getDeviceId() const
-{
-    return m_deviceId;
-}
-
-void ConfigurationData::setDeviceId(const std::string& deviceId)
-{
-    m_deviceId = deviceId;
-}
-
 std::string ConfigurationData::getLocalWarehouseRepository() const
 {
     return Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseRepository();
@@ -376,8 +356,6 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     configurationData.setProductsSubscription(products);
     configurationData.setFeatures(features);
     configurationData.setJWToken(settings.jwtoken());
-    configurationData.setTenantId(settings.tenantid());
-    configurationData.setDeviceId(settings.deviceid());
 
     std::vector<std::string> installArgs(
         std::begin(settings.installarguments()), std::end(settings.installarguments()));
@@ -501,8 +479,6 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     settings.mutable_proxy()->mutable_url()->assign(configurationData.getPolicyProxy().getUrl());
 
     settings.mutable_jwtoken()->assign(configurationData.getJWToken());
-    settings.mutable_tenantid()->assign(configurationData.getTenantId());
-    settings.mutable_deviceid()->assign(configurationData.getDeviceId());
     const auto& primarySubscription = configurationData.getPrimarySubscription();
     setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
     for (const auto& product : configurationData.getProductsSubscription())

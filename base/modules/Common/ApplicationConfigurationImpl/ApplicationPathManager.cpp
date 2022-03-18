@@ -133,29 +133,6 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/update/cache/primary");
         }
 
-        std::string ApplicationPathManager::getLocalSdds3Repository() const
-        {
-            return Common::FileSystem::join(sophosInstall(), "base/update/cache/sdds3primaryrepository");
-        }
-        std::string ApplicationPathManager::getLocalSdds3DistributionRepository() const
-        {
-            return Common::FileSystem::join(sophosInstall(), "base/update/cache/sdds3primary");
-        }
-
-        std::string ApplicationPathManager::getSdds3PackageConfigPath() const
-        {
-            return Common::FileSystem::join(sophosInstall(), "base/update/var/package_config.xml");
-        }
-        std::string ApplicationPathManager::getSdds3OverrideSettingsFile() const
-        {
-            return Common::FileSystem::join(sophosInstall(), "base/update/var/sdds3_override_settings.ini");
-        }
-
-        std::string ApplicationPathManager::getSulDownloaderSynLogPath() const
-        {
-            return Common::FileSystem::join(getBaseLogDirectory(), "suldownloader_sync.log");
-        }
-
         std::string ApplicationPathManager::getLocalUninstallSymLinkPath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/update/var/installedproducts");
