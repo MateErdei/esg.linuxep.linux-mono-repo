@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 # Usage: HttpTestServer.py <port>
-
+import os
+import ssl
+import subprocess
+import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import logging
 import urllib.parse
 import time
+import argparse
+import sys
+import signal
 
-class S(BaseHTTPRequestHandler):
+class TestServer(BaseHTTPRequestHandler):
     def getUrlParts(self, path):
         return urllib.parse.urlparse(self.path)
 
@@ -28,7 +34,7 @@ class S(BaseHTTPRequestHandler):
         response_code = 200
         logging.info(f"Running test: '{resource_path}'")
 
-        if resource_path == "/getWithPort":
+        if resource_path == "/getWithPort" or resource_path == "/httpsGetWithPort":
             response_body = f"{resource_path} response body"
             response_code = 200
             response_headers = {"test_header": "test_header_value"}
@@ -157,24 +163,72 @@ class S(BaseHTTPRequestHandler):
         self._set_response(response_code, response_headers)
         self.wfile.write(response_body.encode('utf-8'))
 
-def run(server_class=HTTPServer, handler_class=S, port=7780):
-    logging.basicConfig(level=logging.INFO)
-    server_address = ('', port)
-    print(f"Server started http://localhost:{port}")
-    httpd = server_class(server_address, handler_class)
-    logging.info('Starting httpd...\n')
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
-    logging.info('Stopping httpd...\n')
 
+def create_server(port: int, https: bool, server_class=HTTPServer, handler_class=TestServer):
+    logging.basicConfig(level=logging.INFO)
+    server_address = ('localhost', port)
+    url_protocol = "http"
+    httpd = server_class(server_address, handler_class)
+    if https:
+        url_protocol = "https"
+        this_dir = os.path.dirname(os.path.abspath(__file__))
+        cert_filename = "localhost-selfsigned.crt"
+        key_filename = "localhost-selfsigned.key"
+        cert_filepath = os.path.join(this_dir, cert_filename)
+        key_filepath = os.path.join(this_dir, key_filename)
+        if not os.path.exists(key_filepath) or not os.path.exists(cert_filepath):
+            # If a key needs to be changed or regenerated, this is the command used to generate a key and self-signed cert
+            # openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout localhost-selfsigned.key -out localhost-selfsigned.crt -subj "/CN=localhost"
+            # -subj "/C=GB/ST=London/L=London/O=Global Security/OU=IT Department/CN=example.com"
+            ret_code = subprocess.call(f'openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout {key_filepath} -out {cert_filepath}  -subj "/CN=localhost"', shell=True)
+            if ret_code != 0:
+                logging.error("Failed to generate certs.")
+                exit(1)
+        httpd.socket = ssl.wrap_socket(httpd.socket, server_side=True, keyfile=key_filepath, ssl_version=ssl.PROTOCOL_TLSv1_2, certfile=cert_filepath)
+        logging.info(f"Creating HTTPS server on port: {port} with cert: {cert_filepath}")
+    else:
+        logging.info(f"Creating HTTP server on port: {port}")
+    return httpd
 
 if __name__ == '__main__':
-    from sys import argv
+    parser = argparse.ArgumentParser(description="This server runs test cases to help verify HTTP clients. It can be run in HTTP or HTTPS mode.")
+    parser.add_argument('--http-port', type=int, help='Port number to run server on.', default=7780)
+    parser.add_argument('--https-port', type=int, help='Port number to run server on.', default=7743)
+    args = parser.parse_args()
 
-    if len(argv) == 2:
-        run(port=int(argv[1]))
-    else:
-        run()
+    http_server = create_server(port=args.http_port, https=False)
+    https_server = create_server(port=args.https_port, https=True)
+
+    http_thread = threading.Thread(target=http_server.serve_forever)
+    http_thread.start()
+    logging.info(f"HTTP server started http://localhost:{args.http_port}")
+
+    https_thread = threading.Thread(target=https_server.serve_forever)
+    https_thread.start()
+    logging.info(f"HTTPS server started https://localhost:{args.https_port}")
+
+    running = True
+    def signal_handler(signal, frame):
+        global running
+        logging.info("Stopping")
+        running = False
+
+    signal.signal(signal.SIGINT, signal_handler)
+    while running:
+        time.sleep(1)
+
+    logging.info("Shutting down HTTP server")
+    http_server.server_close()
+    http_server.shutdown()
+
+    logging.info("Shutting down HTTPS server")
+    https_server.server_close()
+    https_server.shutdown()
+
+    if http_thread:
+        http_thread.join()
+
+    if https_thread:
+        https_thread.join()
+
+    logging.info("All servers stopped.")

@@ -341,7 +341,7 @@ namespace Common::HttpRequestsImpl
         // Try to perform the request
         try
         {
-            LOGDEBUG("Performing request");
+            LOGDEBUG("Performing request: " << request.url);
             CURLcode result = m_curlWrapper->curlEasyPerform(m_curlHandle);
             LOGDEBUG("Performed request: " << result);
             if (result != CURLE_OK)
@@ -350,6 +350,10 @@ namespace Common::HttpRequestsImpl
                 if (result == CURLE_OPERATION_TIMEDOUT)
                 {
                     response.errorCode = HttpRequests::ResponseErrorCode::TIMEOUT;
+                }
+                else if (result == CURLE_SSL_CACERT_BADFILE || result == CURLE_SSL_CERTPROBLEM)
+                {
+                    response.errorCode = HttpRequests::ResponseErrorCode::CERTIFICATE_ERROR;
                 }
                 else
                 {

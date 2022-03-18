@@ -157,7 +157,6 @@ TEST_F(HttpRequesterImplTests, clientPerformsGetRequestWithRedirectsEnabled)
     ASSERT_EQ(response.status, 200);
 }
 
-
 TEST_F(HttpRequesterImplTests, clientPerformsGetRequestSendingHeaders)
 {
     auto curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
