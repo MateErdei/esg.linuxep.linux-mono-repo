@@ -62,6 +62,8 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
 
     Dump Teardown Log    ./tmp/proxy_server.log
+    Dump Teardown Log    /tmp/sdds3_server.log
+    Remove File          /tmp/sdds3_server.log
     Dump Teardown Log    ./tmp/proxy.log
     Dump Teardown Log    ./tmp/relay.log
     Dump Teardown Log    ./tmp/CapnPublisher.log

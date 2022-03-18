@@ -134,16 +134,18 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
     def __init__(self, wwwroot, mode, datadir, *args, **kwargs):
         self.mode = mode
         self.data = datadir
+        buffer = 1
+        self.log_file = open('/tmp/sdds3_server.log', 'w+', buffer)
         super().__init__(*args, directory=wwwroot, **kwargs)
 
     # Note: must either disable W0622 (redefining builtin 'format'),
     # or disable W0221 (arguments differ from overridden method)
     def log_message(self, format, *args):   # pylint: disable=W0622
-        sys.stdout.write("%s - - [%s] %s\n" %
+        self.log_file.write("%s - - [%s] %s\n" %
                          (self.address_string(),
                           self.log_date_time_string(),
                           format % args))
-        sys.stdout.flush()
+
 
     def log_date_time_string(self):
         now = time.time()
@@ -169,14 +171,17 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
             return
 
         if self.mode == 'launchdarkly':
+            self.log_message('launchdarkly')
             self.respond_launchdarkly(doc)
             return
 
+        self.log_message('respond_mock_sus')
         self.respond_mock_sus(doc)
 
     def respond_mock_sus(self, doc):
         product = doc['product']
         mock_response = f'{self.data}/mock_sus_response_{product}_RECOMMENDED.json'
+        self.log_message('sus file '+ mock_response)
         try:
             with open(mock_response, 'rb') as f:
                 stat = os.fstat(f.fileno())
@@ -213,14 +218,18 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
 
             line_id = subscription['id']
             tag = subscription['tag']
-
+            self.log_message('line_id '+ line_id)
+            self.log_message('tag '+ tag)
             flag = f'{self.data}/release.{product}.{line_id}.json'
+            self.log_message('flag data file '+ flag)
             if not os.path.exists(flag):
                 continue
 
             with open(flag, 'r') as f:
                 flagdata = json.load(f)
+
             if tag in flagdata:
+                self.log_message(flagdata[tag]['suite'])
                 suites.append(flagdata[tag]['suite'])
             else:
                 # We found the subscription, but the tag isn't found

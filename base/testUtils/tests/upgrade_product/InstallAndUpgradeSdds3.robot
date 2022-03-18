@@ -3,7 +3,9 @@ Suite Setup      Suite Setup
 Suite Teardown   Suite Teardown
 
 Test Setup       Test Setup
-Test Teardown    Test Teardown
+Test Teardown    Run Keywords
+...                Stop Local SDDS3 Server   AND
+...                 Test Teardown
 
 Test Timeout  10 mins
 
@@ -59,6 +61,7 @@ ${UpdateConfigFile}                          ${SOPHOS_INSTALL}/base/update/var/u
 Sul Downloader Can Update Via Sdds3 Repository
     Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
     Require Fresh Install
     Create File    /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
     Register With Local Cloud Server
@@ -103,7 +106,7 @@ Sul Downloader Can Update Via Sdds3 Repository
     Log File  ${SULDownloaderLog}
     Log File  ${SULDownloaderSyncLog}
 
-    Stop Local SDDS3 Server  ${handle}
+
 
 *** Keywords ***
 Create Local SDDS3 Override
@@ -114,14 +117,13 @@ Create Local SDDS3 Override
     ...  USE_SDDS3 = true
     ...  USE_HTTP = true
     Create File    ${sdds3_override_file}    content=${override_file_contents}
-
+    fail
 
 Start Local SDDS3 Server
     ${handle}=  Start Process  python3  ${LIBS_DIRECTORY}/SDDS3server.py    --launchdarkly    /tmp/system-product-test-inputs/sdds3/launchdarkly    --sdds3    /tmp/system-product-test-inputs/sdds3/repo   shell=true
     [Return]  ${handle}
 
 Stop Local SDDS3 Server
-     [Arguments]  ${handle}
-     terminate process  ${handle}  True
+     terminate process  ${GL_handle}  True
      terminate all processes  True
 
