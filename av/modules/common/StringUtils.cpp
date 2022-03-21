@@ -226,5 +226,23 @@ namespace common
         }
         return true;
     }
+
+    std::string getSuSiStyleTimestamp()
+    {
+        std::time_t currentTime = std::time(nullptr);
+        std::tm tm = *std::localtime(&currentTime);
+
+
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        std::chrono::system_clock::duration tp = now.time_since_epoch();
+
+        tp -= std::chrono::duration_cast<std::chrono::seconds>(tp);
+
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp).count();
+        std::stringstream timestamp;
+        timestamp << std::put_time(&tm, "%Y-%m-%eT%H:%M:%S.");
+        timestamp << ms << "Z";
+        return timestamp.str();
+    }
 }
 
