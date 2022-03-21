@@ -6,10 +6,6 @@ set -x
 SCRIPT_DIR="${0%/*}"
 cd $SCRIPT_DIR
 
-
-
-CREATE_DIR=./testUtils
-
 function failure()
 {
     local CODE=$1
@@ -17,6 +13,10 @@ function failure()
     echo "$@"
     exit $CODE
 }
+
+TEST_TAR=$1
+[[ -z "$TEST_TAR" ]] && failure 31 "Pass a path to the tarfile to create as the first argument"
+CREATE_DIR=./testUtils
 
 rm -rf "${CREATE_DIR}" || failure 20 "Failed to delete old $CREATE_DIR"
 
@@ -32,6 +32,7 @@ sed -i s:/tmp/system-product-test-inputs:${SYSTEMPRODUCT_TEST_INPUT}:g ${TEST_UT
 source ${TEST_UTILS}/SupportFiles/jenkins/gatherTestInputs.sh || failure 211 "Failed to gather inputs"
 source ${TEST_UTILS}/SupportFiles/jenkins/exportInputLocations.sh
 source ${TEST_UTILS}/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 211 "Failed to gather inputs"
+${TEST_UTILS}/SupportFiles/jenkins/SetupCIBuildScripts.sh --download-pip-cache ${CREATE_DIR} || failure 211 "Failed to gather inputs"
 python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py  ${SYSTEMPRODUCT_TEST_INPUT}
 
 ([[ -d ${SYSTEMPRODUCT_TEST_INPUT} ]] && tar czf ${CREATE_DIR}/SystemProductTestInputs.tgz ${SYSTEMPRODUCT_TEST_INPUT}) || failure 212 "Failed to tar inputs"

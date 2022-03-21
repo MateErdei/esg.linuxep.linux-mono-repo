@@ -47,12 +47,12 @@ cd $SCRIPT_DIR
 ## Start deleting old stacks
 aws cloudformation delete-stack --stack-name $STACK --region eu-west-1 || failure "Unable to delete-stack: $?"
 
-export TEST_TAR=./sspl-test-$STACK.tgz
+TEST_TAR=./sspl-test-$STACK.tgz
 TAR_BASENAME=$(basename ${TEST_TAR})
 ## Gather files
 if [[ -z "$SKIP_GATHER" ]]
 then
-    bash ./gather.sh || failure "Failed to gather test files: $?"
+    bash ./gather.sh ${TEST_TAR} || failure "Failed to gather test files: $?"
 fi
 [[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
 

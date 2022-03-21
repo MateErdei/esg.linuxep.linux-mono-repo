@@ -3,7 +3,7 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="develop"/>
+            <development-version branch="develop" build-id="20220317171853-2d45193713b88a28959740144d712e5d7c1b41b8-3bhecz"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage,base-coverage" artifact-path="sspl-base-060/SDDS-COMPONENT" dest-dir="sspl-base-0-6-0"/>

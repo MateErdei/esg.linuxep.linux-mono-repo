@@ -32,6 +32,15 @@ try_command_with_backoff  python3 -m pip install wheel ${PIP_ARGS}
 try_command_with_backoff  python3 -m pip install --upgrade tap ${PIP_ARGS}  || failure "Unable to install tap"
 try_command_with_backoff  python3 -m pip install --upgrade keyrings.alt ${PIP_ARGS}  || failure "Unable to install dependency"
 
+if [[ $1 == "--download-pip-cache" ]]
+then
+  rm -rf pipCache
+  mkdir pipCache
+  try_command_with_backoff python3 -m pip download tap keyrings.alt --dest pipCache ${PIP_ARGS}  || failure "Unable to install tap"
+  tar cvzf $2/pipCache.tar.gz pipCache
+  rm -rf pipCache
+fi
+
 #Update the hardcoded paths to filer 5 and filer 6 in the build scripts to work on dev machines
 BUILD_SCRIPT_INSTALL_DIR="$(python3 -m pip show build_scripts | grep "Location" | sed s/Location:\ //)/build_scripts"
 
