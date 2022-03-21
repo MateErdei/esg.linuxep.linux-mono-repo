@@ -13,7 +13,6 @@ install(FILES
         ${CMAKE_BINARY_DIR}/tests/manualTools/UseCommsComponent
         ${CMAKE_BINARY_DIR}/tests/manualTools/RunHttpRequest
         ${CMAKE_BINARY_DIR}/tests/manualTools/EventPubSub
-#        ${CMAKE_BINARY_DIR}/tests/Common/HttpRequesterImpl/HttpRequesterLiveNetworkTests
         ${CMAKE_SOURCE_DIR}/tests/Common/HttpRequesterImpl/HttpTestServer.py
         /build/redist/openssl/lib64/libcrypto.so.1.1
         /build/redist/openssl/lib64/libssl.so.1.1
