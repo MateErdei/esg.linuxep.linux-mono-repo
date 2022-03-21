@@ -18,6 +18,7 @@ namespace
     const std::string URL = "https://sophos.com";
     void* fakeCurlHandle = reinterpret_cast<void*>(0xdeadbeef);
     std::variant<std::string, long> requestTypeGet = "GET";
+    std::variant<std::string, long> requestTypePut = "PUT";
     std::variant<std::string, long> requestTypePost = "POST";
     std::variant<std::string, long> requestTypeDelete = "DELETE";
     std::variant<std::string, long> requestTypeOptions = "OPTIONS";
@@ -192,6 +193,10 @@ TEST_F(HttpRequesterImplTests, clientPerformsGetRequestSendingHeaders)
         .headers = Common::HttpRequests::Headers {{"header1", "value1"}}
     });
     ASSERT_EQ(response.status, 200);
+
+    // Doesn't really matter about this test only free not being run if there's a failure, it's just here to make sure
+    // the sanitizers are happy and don't report a leak which is due to the test only variable curlHeaders being used.
+    curl_slist_free_all(curlHeaders);
 }
 
 
@@ -251,5 +256,95 @@ TEST_F(HttpRequesterImplTests, clientPerformsPostRequest)
 
     HttpRequesterImpl client(curlWrapper);
     Response response = client.post(RequestConfig{ .url = URL });
+    ASSERT_EQ(response.status, 200);
+}
+
+
+// PUT tests
+
+TEST_F(HttpRequesterImplTests, clientPerformsPutRequest)
+{
+    auto curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
+    setCommonExpectations(curlWrapper);
+
+    std::variant<std::string, long> urlVariant = URL;
+
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_URL, urlVariant)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_SSLVERSION, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_TIMEOUT, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CUSTOMREQUEST, requestTypePut)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_VERBOSE, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CAINFO, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CAPATH, _)).WillOnce(Return(CURLE_OK));
+
+    EXPECT_CALL(*curlWrapper, curlEasyPerform(fakeCurlHandle)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasyCleanup(fakeCurlHandle));
+
+    EXPECT_CALL(*curlWrapper, curlGetResponseCode(fakeCurlHandle, _))
+        .WillOnce(DoAll(SetArgPointee<1>(200), Return(CURLE_OK)));
+    EXPECT_CALL(*curlWrapper, curlGlobalCleanup());
+
+    HttpRequesterImpl client(curlWrapper);
+    Response response = client.put(RequestConfig{ .url = URL });
+    ASSERT_EQ(response.status, 200);
+}
+
+
+// DELETE tests
+
+TEST_F(HttpRequesterImplTests, clientPerformsDeleteRequest)
+{
+    auto curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
+    setCommonExpectations(curlWrapper);
+
+    std::variant<std::string, long> urlVariant = URL;
+
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_URL, urlVariant)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_SSLVERSION, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_TIMEOUT, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CUSTOMREQUEST, requestTypeDelete)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_VERBOSE, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CAINFO, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CAPATH, _)).WillOnce(Return(CURLE_OK));
+
+    EXPECT_CALL(*curlWrapper, curlEasyPerform(fakeCurlHandle)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasyCleanup(fakeCurlHandle));
+
+    EXPECT_CALL(*curlWrapper, curlGetResponseCode(fakeCurlHandle, _))
+        .WillOnce(DoAll(SetArgPointee<1>(200), Return(CURLE_OK)));
+    EXPECT_CALL(*curlWrapper, curlGlobalCleanup());
+
+    HttpRequesterImpl client(curlWrapper);
+    Response response = client.del(RequestConfig{ .url = URL });
+    ASSERT_EQ(response.status, 200);
+}
+
+
+// OPTIONS tests
+
+TEST_F(HttpRequesterImplTests, clientPerformsOptionsRequest)
+{
+    auto curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
+    setCommonExpectations(curlWrapper);
+
+    std::variant<std::string, long> urlVariant = URL;
+
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_URL, urlVariant)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_SSLVERSION, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_TIMEOUT, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CUSTOMREQUEST, requestTypeOptions)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_VERBOSE, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CAINFO, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CAPATH, _)).WillOnce(Return(CURLE_OK));
+
+    EXPECT_CALL(*curlWrapper, curlEasyPerform(fakeCurlHandle)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasyCleanup(fakeCurlHandle));
+
+    EXPECT_CALL(*curlWrapper, curlGetResponseCode(fakeCurlHandle, _))
+        .WillOnce(DoAll(SetArgPointee<1>(200), Return(CURLE_OK)));
+    EXPECT_CALL(*curlWrapper, curlGlobalCleanup());
+
+    HttpRequesterImpl client(curlWrapper);
+    Response response = client.options(RequestConfig{ .url = URL });
     ASSERT_EQ(response.status, 200);
 }
