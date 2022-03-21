@@ -171,3 +171,17 @@ size_t CurlFunctionsProvider::curlFileReadFunc(char* ptr, size_t size, size_t nm
     size_t retCode = fread(ptr, size, nmemb, stream);
     return retCode;
 }
+
+int CurlFunctionsProvider::curlSeekFileFunc(void* userp, curl_off_t offset, int origin)
+{
+    try
+    {
+        FILE* upload_fd = (FILE*)userp;
+        fseek(upload_fd, offset, origin);
+        return CURL_SEEKFUNC_OK;
+    }
+    catch (const std::exception& ex)
+    {
+        return CURL_SEEKFUNC_CANTSEEK;
+    }
+}

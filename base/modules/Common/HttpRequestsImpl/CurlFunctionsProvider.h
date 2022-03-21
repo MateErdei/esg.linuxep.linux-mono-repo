@@ -30,4 +30,6 @@ public:
     static int curlWriteDebugFunc(CURL* handle, curl_infotype type, char* data, size_t size, void* userp);
 
     static size_t curlFileReadFunc(char* ptr, size_t size, size_t nmemb, FILE* stream);
+
+    static int curlSeekFileFunc( void *userp, curl_off_t offset, int origin);
 };

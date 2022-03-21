@@ -141,11 +141,10 @@ namespace Common::HttpRequestsImpl
                                          << FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
 
                     m_curlWrapper->curlEasySetOpt(m_curlHandle, CURLOPT_UPLOAD, 1L);
-
                     m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_READDATA, fileToSend.get());
-
-                    curlOptions.emplace_back("URL - CURLOPT_URL", CURLOPT_URL, request.url);
                     m_curlWrapper->curlEasySetOpt(m_curlHandle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)FileSystem::fileSystem()->fileSize(request.fileToUpload.value()));
+                    m_curlWrapper->curlEasySetFuncOpt(m_curlHandle, CURLOPT_SEEKFUNCTION, (void *)CurlFunctionsProvider::curlSeekFileFunc);
+                    m_curlWrapper->curlEasySetDataOpt(m_curlHandle, CURLOPT_SEEKDATA, fileToSend.get());
                 }
                 else
                 {

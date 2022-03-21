@@ -192,9 +192,12 @@ def create_server(port: int, https: bool, server_class=HTTPServer, handler_class
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="This server runs test cases to help verify HTTP clients. It can be run in HTTP or HTTPS mode.")
-    parser.add_argument('--http-port', type=int, help='Port number to run server on.', default=7780)
-    parser.add_argument('--https-port', type=int, help='Port number to run server on.', default=7743)
+    parser.add_argument('--http-port', type=int, help='Port number to run HTTP server on.', default=7780)
+    parser.add_argument('--https-port', type=int, help='Port number to run HTTPS server on.', default=7743)
+    parser.add_argument('--proxy-port', type=int, help='Port number to run proxy server on.', default=7750)
+    parser.add_argument('--proxy-port-basic-auth', type=int, help='Port number to run basic auth proxy server on.', default=7751)
     args = parser.parse_args()
+    running = True
 
     http_server = create_server(port=args.http_port, https=False)
     https_server = create_server(port=args.https_port, https=True)
@@ -207,7 +210,17 @@ if __name__ == '__main__':
     https_thread.start()
     logging.info(f"HTTPS server started https://localhost:{args.https_port}")
 
-    running = True
+    logging.info(f"Starting unauthenticated proxy server on port: {args.proxy_port}")
+    no_auth_proxy_cmd = ["proxy", "--port", str(args.proxy_port), "--hostname", "127.0.0.1"]
+    no_auth_proxy_processes = subprocess.Popen(no_auth_proxy_cmd)
+
+    logging.info(f"Starting basic auth proxy server on port: {args.proxy_port_basic_auth}")
+    basic_auth_proxy_cmd = ["proxy", "--port", str(args.proxy_port_basic_auth), "--hostname", "127.0.0.1", "--basic-auth", "user:password"]
+    basic_auth_proxy_processes = subprocess.Popen(basic_auth_proxy_cmd)
+
+    # digest_auth_proxy_cmd = ["proxy", "--port", str(args.proxy_port), "--hostname", "127.0.0.1"]
+    # digest_auth_proxy_processes = subprocess.Popen(no_auth_proxy_cmd)
+
     def signal_handler(signal, frame):
         global running
         logging.info("Stopping")
@@ -216,6 +229,12 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
     while running:
         time.sleep(1)
+
+    logging.info("Shutting down no auth proxy server")
+    no_auth_proxy_processes.kill()
+
+    logging.info("Shutting down basic auth proxy server")
+    basic_auth_proxy_processes.kill()
 
     logging.info("Shutting down HTTP server")
     http_server.server_close()
