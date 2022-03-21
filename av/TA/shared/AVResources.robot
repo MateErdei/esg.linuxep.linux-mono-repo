@@ -531,12 +531,6 @@ AV And Base Teardown
 
 Restart AV Plugin And Clear The Logs For Integration Tests
     Log  Logs have to be rotated
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop av   OnError=failed to stop plugin
-    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop threat_detector   OnError=failed to stop sophos_threat_detector
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check AV Plugin Not Running
     Run Shell Process  systemctl stop sophos-spl  OnError=failed to stop plugin
 
     Log  Backup logs before removing them

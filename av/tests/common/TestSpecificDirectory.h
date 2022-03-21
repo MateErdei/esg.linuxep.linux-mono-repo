@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2021, Sophos Limited.  All rights reserved.
+Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -47,7 +47,7 @@ namespace test_common
         return testDir;
     }
 
-    inline int removeSpecificDirectory(const sophos_filesystem::path& testDir)
+    inline int removeTestSpecificDirectory(const sophos_filesystem::path& testDir)
     {
         namespace fs = sophos_filesystem;
 
@@ -68,9 +68,9 @@ namespace
             return test_common::createTestSpecificDirectory();
         }
 
-        static int removeSpecificDirectory(const sophos_filesystem::path& testDir)
+        static int removeTestSpecificDirectory(const sophos_filesystem::path& testDir)
         {
-            return test_common::removeSpecificDirectory(testDir);
+            return test_common::removeTestSpecificDirectory(testDir);
         }
     };
 

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -27,7 +27,7 @@ namespace
 
         void TearDown() override
         {
-            test_common::removeSpecificDirectory(m_testDir);
+            test_common::removeTestSpecificDirectory(m_testDir);
         }
 
         fs::path m_testDir;

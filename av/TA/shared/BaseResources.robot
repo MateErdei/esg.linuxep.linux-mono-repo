@@ -83,7 +83,8 @@ Send Sav Policy To Base With Exclusions Filled In
 
 Send Sav Action To Base
     [Arguments]  ${actionFile}
-    ${savActionFilename}  Generate Random String
+    Register Cleanup If Unique  Empty Directory  ${MCS_PATH}/action/
+    ${savActionFilename} =  Generate Random String
     Copy File  ${RESOURCES_PATH}/${actionFile}  ${MCS_PATH}/action/SAV_action_${savActionFilename}.xml
 
 Prepare To Run Telemetry Executable

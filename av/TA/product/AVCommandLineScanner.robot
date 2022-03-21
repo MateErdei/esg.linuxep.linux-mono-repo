@@ -1492,18 +1492,23 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     Register Cleanup  Remove File  ${SCAN_LOG}
     Register Cleanup     Exclude Scan Errors From File Samples
     Remove File  ${SCAN_LOG}
+
+    Mark Sophos Threat Detector Log
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
     Register cleanup  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
 
     Wait Until File exists  ${SCAN_LOG}
-    Dump Log  ${SCAN_LOG}
+    Wait For File With Particular Contents   \ Scanning\   ${SCAN_LOG}
 
     Send Signal To Process  SIGHUP  handle=${cls_handle}
     ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=terminate
+    Dump Log  ${SCAN_LOG}
 
-    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=1
+    Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
+
+    Wait Until Sophos Threat Detector Log Contains With Offset   Destroyed SUSI scanner
 
 CLS Can Append Summary To Log When SIGHUP Is Received strace
     [Tags]  STRACE   MANUAL
@@ -1511,20 +1516,25 @@ CLS Can Append Summary To Log When SIGHUP Is Received strace
     Register Cleanup  Remove File  ${SCAN_LOG}
     Remove File  ${SCAN_LOG}
     Remove File  /tmp/sighup_test_strace.log
+
+    Mark Sophos Threat Detector Log
     ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sighup_test_strace.log  ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
     Register cleanup  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
     register on fail  Dump Log  /tmp/sigterm_test_strace.log
 
     Wait Until File exists  ${SCAN_LOG}
-    Dump Log  ${SCAN_LOG}
+    Wait For File With Particular Contents   \ Scanning\   ${SCAN_LOG}
 
     Send Signal To Process  SIGHUP  handle=${cls_handle}  group=True
     ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=terminate
-
-    Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=1
-    Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
+    Dump Log  ${SCAN_LOG}
     Dump Log  /tmp/sigterm_test_strace.log
+
+    Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
+    Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
+
+    Wait Until Sophos Threat Detector Log Contains With Offset   Destroyed SUSI scanner
 
 CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  /tmp/scan.log

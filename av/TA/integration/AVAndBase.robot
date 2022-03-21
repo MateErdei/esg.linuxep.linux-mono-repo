@@ -550,6 +550,7 @@ AV Plugin Reports encoded eicars To Base
    Create Encoded Eicars
    register cleanup  Remove Directory  /tmp_test/encoded_eicars  true
 
+   # TODO - assumes no other MCS events
    Empty Directory  ${MCS_PATH}/event/
    Register Cleanup  Empty Directory  ${MCS_PATH}/event/
    Register Cleanup  List Directory  ${MCS_PATH}/event/
@@ -592,6 +593,7 @@ AV Plugin Saves Logs On Downgrade
     Check Logs Saved On Downgrade
 
 AV Plugin Can Send Telemetry
+    # TODO - assumes threat health is 1 (good)
     Run Telemetry Executable With HTTPS Protocol    port=${4431}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -918,6 +920,8 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Send Sav Policy To Base  tempSavPolicy.xml
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
+
+    # TODO - fails if SXL was already disabled (e.g. when run after "AV Runs Scan With SXL Lookup Disabled")
     Wait Until Sophos Threat Detector Log Contains With Offset  Skipping susi reload because susi is not initialised
 
     Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}

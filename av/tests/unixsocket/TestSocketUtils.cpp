@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -15,84 +15,92 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <deque>
+#include <utility>
 #include <fcntl.h>
 
 
 using namespace unixsocket;
+using namespace testing;
 
 TEST(TestSplit, TestSplitOneByte) // NOLINT
 {
-    auto result = splitInto7Bits(100);
-    ASSERT_EQ(result.size(), 1);
-    EXPECT_EQ(result.at(0), static_cast<uint8_t>(100));
+    auto result = splitInto7Bits(0x64);
+    EXPECT_THAT(result, ElementsAre(0x64));
 }
 
 TEST(TestSplit, TestSplitTwoBytes) // NOLINT
 {
     auto result = splitInto7Bits(0xff);
-    ASSERT_EQ(result.size(), 2);
-    EXPECT_EQ(result.at(0), static_cast<uint8_t>(1));
-    EXPECT_EQ(result.at(1), static_cast<uint8_t>(0x7f));
+    EXPECT_THAT(result, ElementsAre(0x01, 0x7f));
 }
 
 TEST(TestSplit, TestSplitTwoBytesMax) // NOLINT
 {
-
     auto result = splitInto7Bits(0x3fff);
-    ASSERT_EQ(result.size(), 2);
-    EXPECT_EQ(result.at(0), static_cast<uint8_t>(0x7f));
-    EXPECT_EQ(result.at(1), static_cast<uint8_t>(0x7f));
+    EXPECT_THAT(result, ElementsAre( 0x7f, 0x7f ));
 }
 
 TEST(TestSplit, TestSplitThree) // NOLINT
 {
     auto result = splitInto7Bits(0xffff);
-    ASSERT_EQ(result.size(), 3);
-    EXPECT_EQ(result.at(0), static_cast<uint8_t>(3));
-    EXPECT_EQ(result.at(1), static_cast<uint8_t>(0x7f));
-    EXPECT_EQ(result.at(2), static_cast<uint8_t>(0x7f));
+    EXPECT_THAT(result, ElementsAre( 0x03, 0x7f, 0x7f ));
 }
 
 TEST(TestSplit, TestSplitThreeMax) // NOLINT
 {
     auto result = splitInto7Bits(0x1fffff);
-    ASSERT_EQ(result.size(), 3);
-    EXPECT_EQ(result.at(0), static_cast<uint8_t>(0x7f));
-    EXPECT_EQ(result.at(1), static_cast<uint8_t>(0x7f));
-    EXPECT_EQ(result.at(2), static_cast<uint8_t>(0x7f));
+    EXPECT_THAT(result, ElementsAre( 0x7f, 0x7f, 0x7f ));
 }
 
 
 TEST(TestBuffer, TestOne) //NOLINT
 {
     auto bytes = splitInto7Bits(1);
-    ASSERT_EQ(bytes.size(), 1);
-    EXPECT_EQ(bytes.at(0), static_cast<uint8_t>(1));
+    EXPECT_THAT(bytes, ElementsAre(0x01));
 
     auto buffer = addTopBitAndPutInBuffer(bytes);
-    EXPECT_EQ(buffer[0], static_cast<uint8_t>(1));
+    auto bufVector = std::vector<unsigned char>(buffer.get(), buffer.get() + bytes.size());
+    EXPECT_THAT(bufVector, ElementsAre(0x01));
 }
 
 TEST(TestBuffer, TestOneByteMax) //NOLINT
 {
     auto bytes = splitInto7Bits(0x7f);
-    ASSERT_EQ(bytes.size(), 1);
-    EXPECT_EQ(bytes.at(0), static_cast<uint8_t>(0x7f));
+    EXPECT_THAT(bytes, ElementsAre(0x7f));
 
     auto buffer = addTopBitAndPutInBuffer(bytes);
-    EXPECT_EQ(buffer[0], static_cast<uint8_t>(0x7f));
+    auto bufVector = std::vector<unsigned char>(buffer.get(), buffer.get() + bytes.size());
+    EXPECT_THAT(bufVector, ElementsAre(0x7f));
 }
 
-TEST(TestBuffer, TestSplitTwoBytes) // NOLINT
+TEST(TestBuffer, TestTwoBytes) // NOLINT
 {
     auto bytes = splitInto7Bits(0xff);
-    ASSERT_EQ(bytes.size(), 2);
-    EXPECT_EQ(bytes.at(0), static_cast<uint8_t>(1));
-    EXPECT_EQ(bytes.at(1), static_cast<uint8_t>(0x7f));
+    EXPECT_THAT(bytes, ElementsAre(0x01, 0x7f));
 
     auto buffer = addTopBitAndPutInBuffer(bytes);
-    EXPECT_EQ(buffer[0], static_cast<uint8_t>(0x81));
-    EXPECT_EQ(buffer[1], static_cast<uint8_t>(0x7f));
+    auto bufVector = std::vector<unsigned char>(buffer.get(), buffer.get() + bytes.size());
+    EXPECT_THAT(bufVector, ElementsAre(0x81, 0x7f));
+}
+
+TEST(TestBuffer, TestThreeBytes) // NOLINT
+{
+    auto bytes = splitInto7Bits(0xffff);
+    EXPECT_THAT(bytes, ElementsAre(0x03, 0x7f, 0x7f));
+
+    auto buffer = addTopBitAndPutInBuffer(bytes);
+    auto bufVector = std::vector<unsigned char>(buffer.get(), buffer.get() + bytes.size());
+    EXPECT_THAT(bufVector, ElementsAre(0x83, 0xff, 0x7f));
+}
+
+TEST(TestBuffer, TestThreeBytesWithZeroes) // NOLINT
+{
+    auto bytes = splitInto7Bits(0x10000);
+    EXPECT_THAT(bytes, ElementsAre(0x04, 0x00, 0x00));
+
+    auto buffer = addTopBitAndPutInBuffer(bytes);
+    auto bufVector = std::vector<unsigned char>(buffer.get(), buffer.get() + bytes.size());
+    EXPECT_THAT(bufVector, ElementsAre(0x84, 0x80, 0x00));
 }
 
 namespace
@@ -106,9 +114,18 @@ namespace
     class TestFile
     {
     public:
-        TestFile(const char* name)
-            : m_name(name)
+        explicit TestFile(std::string name)
+            : m_name(std::move(name))
         {
+            ::unlink(m_name.c_str());
+        }
+
+        TestFile()
+        {
+            const TestInfo* const test_info = UnitTest::GetInstance()->current_test_info();
+            std::stringstream name;
+            name << test_info->test_case_name() << "_" << test_info->name();
+            m_name = name.str();
             ::unlink(m_name.c_str());
         }
 
@@ -117,30 +134,29 @@ namespace
             ::unlink(m_name.c_str());
         }
 
-        void create()
-        {
-            datatypes::AutoFd fd(::open(m_name.c_str(), O_WRONLY | O_CREAT, 0666));
-        }
-
-        void write(const char* buffer, size_t length)
+        void create() const
         {
             datatypes::AutoFd fd(::open(m_name.c_str(), O_WRONLY | O_CREAT, 0666));
             ASSERT_GE(fd.get(), 0);
-            int ret = ::write(fd.get(), buffer, length);
+        }
+
+        void write(const void* buffer, size_t length) const
+        {
+            datatypes::AutoFd fd(::open(m_name.c_str(), O_WRONLY | O_CREAT, 0666));
+            ASSERT_GE(fd.get(), 0);
+            ssize_t ret = ::write(fd.get(), buffer, length);
             ASSERT_EQ(ret, length);
         }
 
-        void write(const std::string& buffer)
+        void write(const std::string& buffer) const
         {
-            datatypes::AutoFd fd(::open(m_name.c_str(), O_WRONLY | O_CREAT, 0666));
-            ASSERT_GE(fd.get(), 0);
-            int ret = ::write(fd.get(), buffer.data(), buffer.size());
-            ASSERT_EQ(ret, buffer.size());
+            write(buffer.data(), buffer.size());
         }
 
-        int readFD()
+        [[nodiscard]] int readFD() const
         {
             datatypes::AutoFd fd(::open(m_name.c_str(), O_RDONLY));
+            EXPECT_GE(fd.get(), 0);
             return fd.release();
         }
 
@@ -178,15 +194,11 @@ namespace
 
 TEST_F(TestReadLength, EOFReturnsMinus2) // NOLINT
 {
-    TestFile tf("TestReadLength_EOFReturnsMinus2_buffer");
+    TestFile tf;
     tf.create();
 
     datatypes::AutoFd fd(tf.readFD());
-    if (fd.get() < 0)
-    {
-        PRINT("Open read-only failed: errno=" << errno << ": " << strerror(errno));
-        ASSERT_GE(fd.get(), 0);
-    }
+    ASSERT_GE(fd.get(), 0) << "Open read-only failed: errno=" << errno << ": " << strerror(errno);
 
     int ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, -2);
@@ -197,7 +209,7 @@ TEST_F(TestReadLength, FailedRead) // NOLINT
     const std::string expected = "Reading socket returned error: ";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    TestFile tf("TestReadLength_FailedRead");
+    TestFile tf;
     tf.create();
 
     datatypes::AutoFd fd(tf.readFD());
@@ -212,8 +224,9 @@ TEST_F(TestReadLength, FailedRead) // NOLINT
 
 TEST_F(TestReadLength, TooLargeLengthReturnsMinusOne) // NOLINT
 {
-    TestFile tf("TestReadLength_TooLargeLengthReturnsMinusOne_buffer");
-    tf.write("\xFF\xFF\xFF\xFF\xFF");
+    TestFile tf;
+    unsigned char buffer[] = { 0xff, 0xff, 0xff, 0xff, 0xff };
+    tf.write(buffer, sizeof(buffer));
 
     datatypes::AutoFd fd(tf.readFD());
     ASSERT_GE(fd.get(), 0);
@@ -223,8 +236,8 @@ TEST_F(TestReadLength, TooLargeLengthReturnsMinusOne) // NOLINT
 }
 TEST_F(TestReadLength, ZeroLength) // NOLINT
 {
-    TestFile tf("TestReadLength_ZeroLength");
-    char buffer[] = { '\x00' };
+    TestFile tf;
+    unsigned char buffer[] = { 0x00 };
     tf.write(buffer, sizeof(buffer));
 
     datatypes::AutoFd fd(tf.readFD());
@@ -236,36 +249,39 @@ TEST_F(TestReadLength, ZeroLength) // NOLINT
 
 TEST_F(TestReadLength, TwoByteLength) // NOLINT
 {
-    TestFile tf("TestReadLength_TwoByteLength");
-    tf.write("\x81\x7F");
+    TestFile tf;
+    unsigned char buffer[] = { 0x81, 0x7f };
+    tf.write(buffer, sizeof(buffer));
 
     datatypes::AutoFd fd(tf.readFD());
     ASSERT_GE(fd.get(), 0);
 
     int ret = unixsocket::readLength(fd.get());
-    EXPECT_EQ(ret, 0xFF);
+    EXPECT_EQ(ret, 0xff);
 }
 
 TEST_F(TestReadLength, MaxLength) // NOLINT
 {
-    TestFile tf("TestReadLength_MaxLength");
+    TestFile tf;
 
     // maximum is ( ( 128 * 1024 ) << 7 ) + 127 )
-    tf.write("\x88\x80\x80\x7f");
+    unsigned char buffer[] = { 0x88, 0x80, 0x80, 0x7f };
+    tf.write(buffer, sizeof(buffer));
 
     datatypes::AutoFd fd(tf.readFD());
     ASSERT_GE(fd.get(), 0);
 
     int ret = unixsocket::readLength(fd.get());
-    EXPECT_EQ(ret, 0x0100007F);
+    EXPECT_EQ(ret, 0x0100007f);
 }
 
 TEST_F(TestReadLength, OverMaxLength) // NOLINT
 {
-    TestFile tf("TestReadLength_OverMaxLength");
+    TestFile tf;
 
     // maximum is ( ( 128 * 1024 ) << 7 ) + 127 )
-    tf.write("\x88\x80\x81\x00");
+    unsigned char buffer[] = { 0x88, 0x80, 0x81, 0x00 };
+    tf.write(buffer, sizeof(buffer));
 
     datatypes::AutoFd fd(tf.readFD());
     ASSERT_GE(fd.get(), 0);
@@ -276,9 +292,10 @@ TEST_F(TestReadLength, OverMaxLength) // NOLINT
 
 TEST_F(TestReadLength, PaddedLength) // NOLINT
 {
-    TestFile tf("TestReadLength_PaddedLength");
+    TestFile tf;
 
-    tf.write("\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01");
+    unsigned char buffer[] = { 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01 };
+    tf.write(buffer, sizeof(buffer));
 
     datatypes::AutoFd fd(tf.readFD());
     ASSERT_GE(fd.get(), 0);
@@ -295,8 +312,11 @@ TEST(TestWriteLength, TwoByteLength) // NOLINT
 
     char buffer[8] = { '\0' };
     ssize_t readlen = ::read(socket_pair.get_server_fd(), buffer, sizeof(buffer));
+
     ASSERT_EQ(readlen, 2);
-    EXPECT_STREQ(buffer, "\x81\x7F");
+
+    auto bufVector = std::vector<unsigned char>(buffer, buffer + readlen);
+    EXPECT_THAT(bufVector, ElementsAre(0x81, 0x7f));
 }
 
 TEST(TestWriteLength, ZeroLength) // NOLINT
@@ -306,7 +326,7 @@ TEST(TestWriteLength, ZeroLength) // NOLINT
     try
     {
         unixsocket::writeLength(socket_pair.get_client_fd(), 0);
-        FAIL();
+        FAIL() << "writeLength() didn't throw";
     }
     catch (std::runtime_error &e)
     {
@@ -323,7 +343,7 @@ TEST(TestWriteLength, WriteError) // NOLINT
     try
     {
         unixsocket::writeLength(socket_pair.get_client_fd(), 1);
-        FAIL();
+        FAIL() << "writeLength() didn't throw";
     }
     catch (environmentInterruption &e)
     {
@@ -349,7 +369,7 @@ TEST_F(TestFdTransfer, validFd) // NOLINT
 {
     TestSocket socket_pair;
 
-    TestFile tf("TestFdTransfer_validFd");
+    TestFile tf;
     tf.write("foo");
 
     datatypes::AutoFd client_fd(tf.readFD());
@@ -364,8 +384,8 @@ TEST_F(TestFdTransfer, validFd) // NOLINT
     ASSERT_NE(server_fd.get(), client_fd.get());
 
     char buffer[10] {};
-    ret = ::read(server_fd.get(), buffer, sizeof(buffer) - 1);
-    ASSERT_GT(ret, 0);
+    ssize_t len = ::read(server_fd.get(), buffer, sizeof(buffer) - 1);
+    ASSERT_GT(len, 0);
     ASSERT_STREQ(buffer, "foo");
 }
 
@@ -373,7 +393,7 @@ TEST_F(TestFdTransfer, writeError) // NOLINT
 {
     TestSocket socket_pair;
 
-    TestFile tf("TestSocketUtils_passFd");
+    TestFile tf;
     tf.write("foo");
 
     datatypes::AutoFd client_fd(tf.readFD());
@@ -412,7 +432,7 @@ static void send_fds(int socket, int* fds, int count)  // send fd by socket
 
     memcpy (CMSG_DATA(cmsg), fds, sizeof(int) * count);
 
-    int ret = sendmsg (socket, &msg, 0);
+    ssize_t ret = ::sendmsg(socket, &msg, 0);
     ASSERT_GE(ret, 0);
 }
 
