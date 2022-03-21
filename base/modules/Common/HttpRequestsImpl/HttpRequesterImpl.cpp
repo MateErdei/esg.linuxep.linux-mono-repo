@@ -25,7 +25,7 @@ namespace Common::HttpRequestsImpl
         {
             std::stringstream errorMsg;
             errorMsg << "Failed to initialise libcurl with error: " << m_curlWrapper->curlEasyStrError(result);
-            throw std::runtime_error(errorMsg.str());
+            throw Common::HttpRequests::HttpRequestsException(errorMsg.str());
         }
 
         m_curlHandle = m_curlWrapper->curlEasyInit();
@@ -431,7 +431,7 @@ namespace Common::HttpRequestsImpl
             curl_free(escaped);
             return escapedString;
         }
-        throw std::runtime_error("Failed to escape string: " + stringToEscape);
+        throw Common::HttpRequests::HttpRequestsException("Failed to escape string: " + stringToEscape);
     }
 
 } // namespace Common::HttpRequestsImpl
