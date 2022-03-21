@@ -116,18 +116,19 @@ Threat detector is killed gracefully
     Dump and Reset Logs
     Start AV
     Wait until threat detector running
+
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /  stdout=${TESTTMP}/cli.log  stderr=STDOUT
     Register Cleanup  Remove File  ${TESTTMP}/cli.log
     Register Cleanup  Dump Log  ${TESTTMP}/cli.log
     Register Cleanup  Terminate Process  ${cls_handle}
 
     Wait Until Sophos Threat Detector Log Contains  Scan requested of
+
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
     Evaluate  os.kill(${pid}, signal.SIGTERM)  modules=os, signal
 
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector received SIGTERM - shutting down
     Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector is exiting
-    Wait Until Sophos Threat Detector Log Contains  Closing Scanning connection thread
     Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result = 0
     Threat Detector Does Not Log Contain  Failed to open lock file
     Threat Detector Does Not Log Contain  Failed to acquire lock
@@ -138,7 +139,7 @@ Threat detector is killed gracefully
 
     Terminate Process  ${cls_handle}
     Stop AV
-    Process Should Be Stopped
+    Process Should Be Stopped  ${cls_handle}
 
 
 Threat detector triggers reload on SIGUSR1
