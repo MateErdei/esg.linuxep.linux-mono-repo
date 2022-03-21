@@ -412,6 +412,52 @@ TEST_P(HttpRequesterLiveNetworkTestsParam, postWithData)
     ASSERT_EQ(response.body, expected_response);
 }
 
+
+// DELETE tests
+
+TEST_P(HttpRequesterLiveNetworkTestsParam, deleteWithPort)
+{
+    std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+        std::make_shared<Common::CurlWrapper::CurlWrapper>();
+    Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
+
+    HttpTestParam param = GetParam();
+    Common::HttpRequests::RequestConfig request = getTestRequest(param);
+
+    std::string testUrlResource = "deleteWithPort";
+    request.url = param.urlAndPort + "/" + testUrlResource;;
+    Common::HttpRequests::Response response = client.del(request);
+
+    ASSERT_EQ(response.status, 200);
+    std::string expected_response = "/" + testUrlResource + " response body";
+    ASSERT_EQ(response.body, expected_response);
+    ASSERT_EQ(response.headers.count("test_header"), 1);
+    ASSERT_EQ(response.headers.at("test_header"), "test_header_value");
+}
+
+
+// OPTIONS tests
+
+TEST_P(HttpRequesterLiveNetworkTestsParam, optionsWithPort)
+{
+    std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+        std::make_shared<Common::CurlWrapper::CurlWrapper>();
+    Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
+
+    HttpTestParam param = GetParam();
+    Common::HttpRequests::RequestConfig request = getTestRequest(param);
+
+    std::string testUrlResource = "optionsWithPort";
+    request.url = param.urlAndPort + "/" + testUrlResource;;
+    Common::HttpRequests::Response response = client.options(request);
+
+    ASSERT_EQ(response.status, 200);
+    std::string expected_response = "/" + testUrlResource + " response body";
+    ASSERT_EQ(response.body, expected_response);
+    ASSERT_EQ(response.headers.count("test_header"), 1);
+    ASSERT_EQ(response.headers.at("test_header"), "test_header_value");
+}
+
 // Some live network tests that do not need to be parameterised into HTTP/HTTPS tests.
 
 class HttpRequesterLiveNetworkTests : public LogInitializedTests

@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-# Usage: HttpTestServer.py <port>
+
+# This script runs multiple test servers that our http client lib can use to test against.
+# Currently, this script runs in parallel: HTTP, HTTPS, proxy, basic auth proxy
+# URLS are used to distinguish test cases, e.g. you might have a URL such as "localhost/getWithHeadersTest", using this
+# convention we can write test cases here and target them from test code, knowing what the result should be.
+
 import os
 import ssl
 import subprocess
@@ -7,6 +12,8 @@ import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import logging
 import urllib.parse
+import socket
+
 import time
 import argparse
 import sys
@@ -38,7 +45,6 @@ class TestServer(BaseHTTPRequestHandler):
             response_body = f"{resource_path} response body"
             response_code = 200
             response_headers = {"test_header": "test_header_value"}
-
         elif resource_path == "/getWithPortAndHeaders":
             if "req_header" in request_headers and request_headers["req_header"] == "a value":
                 response_code = 200
@@ -46,7 +52,6 @@ class TestServer(BaseHTTPRequestHandler):
             else:
                 response_body = "Test Failed - headers not correct"
                 response_code = 400
-
         elif resource_path == "/getWithPortAndParameters":
             if query_str == "param1=value1":
                 response_code = 200
@@ -54,25 +59,20 @@ class TestServer(BaseHTTPRequestHandler):
             else:
                 response_body = "Test Failed - parameters not correct"
                 response_code = 400
-
         elif resource_path == "/getWithFileDownloadAndExplicitFileName":
             response_body = "Sample text file to use in HTTP tests."
             response_code = 200
-
         elif resource_path == "/getWithFileDownloadToDirectory/sample.txt":
             response_body = "Sample text file to use in HTTP tests."
             response_code = 200
-
         elif resource_path == "/getWithFileDownloadToDirectoryAndContentDispositionHeader/sample.txt":
             response_body = "Sample text file to use in HTTP tests."
             response_headers = {"Content-Disposition": 'attachment; filename="differentName.txt"; useless="blah"'}
             response_code = 200
-
         elif resource_path == "/getWithPortAndTimeout":
             # Test uses a timeout of 3, so this needs to be > 3
             time.sleep(5)
             return
-
         elif resource_path == "/getWithPortAndBandwidthLimit":
             # respond with 1000 bytes
             response_body = "a" * 1000
@@ -107,7 +107,6 @@ class TestServer(BaseHTTPRequestHandler):
             response_body = f"{resource_path} response body"
             response_code = 200
             response_headers = {"test_header": "test_header_value"}
-
         elif resource_path == "/postWithData":
             if put_data.decode('utf-8') == "SamplePostData":
                 response_body = f"{resource_path} response body"
@@ -115,7 +114,6 @@ class TestServer(BaseHTTPRequestHandler):
             else:
                 response_body = f"{resource_path} test failed, posted data id not match test case"
                 response_code = 400
-
         elif resource_path == "/postWithFileUpload":
             response_body = f"{resource_path} response body, you PUT {content_length} bytes"
             response_code = 200
@@ -150,7 +148,6 @@ class TestServer(BaseHTTPRequestHandler):
             response_body = f"{resource_path} response body"
             response_code = 200
             response_headers = {"test_header": "test_header_value"}
-
         elif resource_path == "/putWithFileUpload":
             response_body = f"{resource_path} response body, you PUT {content_length} bytes"
             response_code = 200
@@ -163,6 +160,63 @@ class TestServer(BaseHTTPRequestHandler):
         self._set_response(response_code, response_headers)
         self.wfile.write(response_body.encode('utf-8'))
 
+    def do_DELETE(self):
+        url_parts = self.getUrlParts(self.path)
+        resource_path = url_parts.path
+        query_str = url_parts.query
+        request_headers = self.headers
+
+        response_body = ""
+        response_headers = {}
+        response_code = 200
+
+        logging.info(f"Running test: '{resource_path}'")
+
+        content_length = 0
+        if "Content-Length" in self.headers:
+            content_length = int(self.headers['Content-Length'])
+        data = self.rfile.read(content_length)
+
+        if resource_path == "/deleteWithPort":
+            response_body = f"{resource_path} response body"
+            response_code = 200
+            response_headers = {"test_header": "test_header_value"}
+        else:
+            response_body = "Not a valid test case!"
+            logging.warning(f"Not a valid test case: DELETE - '{resource_path}'")
+            response_code = 404
+
+        self._set_response(response_code, response_headers)
+        self.wfile.write(response_body.encode('utf-8'))
+
+    def do_OPTIONS(self):
+        url_parts = self.getUrlParts(self.path)
+        resource_path = url_parts.path
+        query_str = url_parts.query
+        request_headers = self.headers
+
+        response_body = ""
+        response_headers = {}
+        response_code = 200
+
+        logging.info(f"Running test: '{resource_path}'")
+
+        content_length = 0
+        if "Content-Length" in self.headers:
+            content_length = int(self.headers['Content-Length'])
+        data = self.rfile.read(content_length)
+
+        if resource_path == "/optionsWithPort":
+            response_body = f"{resource_path} response body"
+            response_code = 200
+            response_headers = {"test_header": "test_header_value"}
+        else:
+            response_body = "Not a valid test case!"
+            logging.warning(f"Not a valid test case: OPTIONS - '{resource_path}'")
+            response_code = 404
+
+        self._set_response(response_code, response_headers)
+        self.wfile.write(response_body.encode('utf-8'))
 
 def create_server(port: int, https: bool, server_class=HTTPServer, handler_class=TestServer):
     logging.basicConfig(level=logging.INFO)
@@ -189,6 +243,24 @@ def create_server(port: int, https: bool, server_class=HTTPServer, handler_class
     else:
         logging.info(f"Creating HTTP server on port: {port}")
     return httpd
+
+def is_proxy_up(port):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.connect(("localhost", int(port)))
+        s.close()
+        return True
+    except EnvironmentError:
+        return False
+
+def wait_for_proxy_to_be_up(port):
+    tries = 100
+    while tries > 0:
+        if is_proxy_up(port):
+            return True
+        tries -= 1
+        time.sleep(1)
+    return AssertionError(f"Proxy hasn't started up after {tries} seconds port={port}")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="This server runs test cases to help verify HTTP clients. It can be run in HTTP or HTTPS mode.")
