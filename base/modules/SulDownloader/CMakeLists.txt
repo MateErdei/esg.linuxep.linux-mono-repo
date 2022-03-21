@@ -10,13 +10,13 @@ add_library(suldownloaderimpl SHARED
         warehouse/WarehouseRepository.h
         warehouse/WarehouseRepositoryFactory.cpp
         warehouse/WarehouseRepositoryFactory.h
-        sdds3/SDDS3Repository.cpp
-        sdds3/SDDS3Repository.h
-        sdds3/Sdds3RepositoryFactory.cpp
-        sdds3/Sdds3RepositoryFactory.h
-        sdds3/ISdds3Wrapper.h
-        sdds3/Sdds3Wrapper.h
-        sdds3/Sdds3Wrapper.cpp
+#        sdds3/SDDS3Repository.cpp
+#        sdds3/SDDS3Repository.h
+#        sdds3/Sdds3RepositoryFactory.cpp
+#        sdds3/Sdds3RepositoryFactory.h
+#        sdds3/ISdds3Wrapper.h
+#        sdds3/Sdds3Wrapper.h
+#        sdds3/Sdds3Wrapper.cpp
         suldownloaderdata/IWarehouseRepository.h
         SULDownloader.cpp
         SulDownloader.h
