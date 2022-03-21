@@ -13,7 +13,6 @@ add_executable(SulDownloaderTests
         MockSdds3Repository.h
         MockSdds3Wrapper.h
         SulDownloaderTests.cpp
-        SulDownloaderSdds3Tests.cpp
         TestDownloadReport.cpp
         TestConnectionSelector.cpp
         TestProductSelection.cpp
