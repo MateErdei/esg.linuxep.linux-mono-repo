@@ -237,8 +237,10 @@ SUSI Debug Log Does Not Contain
 Wait Until SUSI DEBUG Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15
     ${offset} =  Get Variable Value  ${SUSI_DEBUG_LOG_MARK}  0
-    # TODO - doesn't actually wait!!
-    File Log Contains With Offset  ${SUSI_DEBUG_LOG_PATH}   ${input}   offset=${offset}
+    Wait Until Keyword Succeeds
+    ...   ${timeout}s
+    ...   1s
+    ...   File Log Contains With Offset  ${SUSI_DEBUG_LOG_PATH}   ${input}   offset=${offset}
 
 Wait Until Sophos Threat Detector Log Contains
     [Arguments]  ${input}  ${timeout}=15

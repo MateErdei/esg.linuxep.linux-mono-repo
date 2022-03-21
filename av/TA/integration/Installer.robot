@@ -116,7 +116,8 @@ Update then Restart Sophos Threat Detector
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Mark Sophos Threat Detector Log
     Install IDE without reload check  ${IDE_NAME}
-    Sleep   1s
+    Wait Until SUSI DEBUG Log Contains With Offset   Performing SUSI update
+
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     Restart sophos_threat_detector
     Check Plugin Installed and Running
