@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -15,7 +15,6 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "common/StringUtils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <fstream>
@@ -190,7 +189,7 @@ namespace threat_scanner
             "enableLookup": @@ENABLE_SXL_LOOKUP@@,
             "sendTelemetry": true,
             "customerID": "@@CUSTOMER_ID@@",
-            "machineID":  "@@MACHINE_ID@@",
+            "machineID": "@@MACHINE_ID@@",
             "url": "https://4.sophosxl.net/lookup",
             "timeout": 10
         }
@@ -226,11 +225,16 @@ namespace threat_scanner
         return m_globalHandler->update(pluginInstall() / "chroot/susi/update_source", pluginInstall() / "chroot/var/susi_update.lock");
     }
 
-    bool  SusiWrapperFactory::reload()
+    bool SusiWrapperFactory::reload()
     {
         std::string scannerInfo = create_scanner_info(false, false);
         std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId(), isSxlLookupEnabled());
         return m_globalHandler->reload(runtimeConfig);
+    }
+
+    void SusiWrapperFactory::shutdown()
+    {
+        m_globalHandler->shutdown();
     }
 
     bool SusiWrapperFactory::susiIsInitialized()

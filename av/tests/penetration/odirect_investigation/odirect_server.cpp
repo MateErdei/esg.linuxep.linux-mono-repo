@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -76,6 +76,10 @@ namespace
         bool reload() override
         {
             return true;
+        }
+
+        void shutdown() override
+        {
         }
 
         bool susiIsInitialized() override

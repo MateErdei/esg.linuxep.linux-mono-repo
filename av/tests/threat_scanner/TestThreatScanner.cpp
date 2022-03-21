@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include <gtest/gtest.h>
@@ -24,26 +24,9 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include <csignal>
 
 using namespace testing;
+using namespace threat_scanner;
 
 static SetupTestLogging consoleLoggingSetup;
-
-namespace
-{
-    class IgnoreSigPipe
-    {
-    public:
-        IgnoreSigPipe() noexcept
-        {
-            signal(SIGPIPE, SIG_IGN);
-        }
-        ~IgnoreSigPipe() noexcept
-        {
-            signal(SIGPIPE, SIG_DFL);
-        }
-    };
-}
-
-static IgnoreSigPipe sig_pipe_ignorer;
 
 static const std::string susiResponseStr =
         "{\n"
@@ -92,12 +75,6 @@ static const std::string susiResponseStr =
         "        }\n"
         "    ]\n"
         "}";
-
-class MockIThreatReportCallbacks : public IMessageCallback
-{
-public:
-    MOCK_METHOD1(processMessage, void(const std::string& threatDetectedXML));
-};
 
 namespace
 {

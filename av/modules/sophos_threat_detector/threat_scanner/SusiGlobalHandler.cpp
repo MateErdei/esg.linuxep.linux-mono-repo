@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "SusiCertificateFunctions.h"
 #include "SusiLogger.h"
 #include "ThrowIfNotOk.h"
+#include "common/ShuttingDownException.h"
 
 #include <Common/Logging/LoggerConfig.h>
 
@@ -18,111 +19,123 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <sys/file.h>
 
-using namespace threat_scanner;
-
-static bool isAllowlistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
+namespace threat_scanner
 {
-    (void)token;
-    (void)algorithm;
-    (void)fileChecksum;
-    (void)size;
-
-    LOGDEBUG("isAllowlistedFile: size="<<size);
-
-    return false;
-}
-
-static SusiCallbackTable my_susi_callbacks{ // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-        .version = SUSI_CALLBACK_TABLE_VERSION,
-        .token = nullptr,
-        .IsAllowlistedFile = isAllowlistedFile,
-        .IsTrustedCert = threat_scanner::isTrustedCert,
-        .IsAllowlistedCert = threat_scanner::isAllowlistedCert
-};
-
-static SusiLogCallback GL_log_callback{ // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-    .version = SUSI_LOG_CALLBACK_VERSION,
-    .token = nullptr,
-    .log = threat_scanner::susiLogCallback,
-    .minLogLevel = SUSI_LOG_LEVEL_DETAIL
-};
-
-static const SusiLogCallback GL_fallback_log_callback{
-    .version = SUSI_LOG_CALLBACK_VERSION,
-    .token = nullptr,
-    .log = threat_scanner::fallbackSusiLogCallback,
-    .minLogLevel = SUSI_LOG_LEVEL_INFO
-};
-
-SusiGlobalHandler::SusiGlobalHandler()
-{
-    my_susi_callbacks.token = this;
-    auto log_level = std::min(getThreatScannerLogger().getLogLevel(), getSusiDebugLogger().getLogLevel());
-
-    if (log_level >= Common::Logging::WARN)
+    namespace
     {
-        GL_log_callback.minLogLevel = SUSI_LOG_LEVEL_WARNING;
-    }
-    else if (log_level >= Common::Logging::INFO)
-    {
-        GL_log_callback.minLogLevel = SUSI_LOG_LEVEL_INFO;
+        bool isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size)
+        {
+            (void)token;
+            (void)algorithm;
+            (void)fileChecksum;
+            (void)size;
+
+            LOGDEBUG("isAllowlistedFile: size=" << size);
+
+            return false;
+        }
+
+        SusiCallbackTable my_susi_callbacks {
+            .version = SUSI_CALLBACK_TABLE_VERSION,
+            .token = nullptr,
+            .IsAllowlistedFile = isAllowlistedFile,
+            .IsTrustedCert = threat_scanner::isTrustedCert,
+            .IsAllowlistedCert = threat_scanner::isAllowlistedCert
+        };
+
+        SusiLogCallback GL_log_callback {
+            .version = SUSI_LOG_CALLBACK_VERSION,
+            .token = nullptr,
+            .log = threat_scanner::susiLogCallback,
+            .minLogLevel = SUSI_LOG_LEVEL_DETAIL
+        };
+
+        const SusiLogCallback GL_fallback_log_callback {
+            .version = SUSI_LOG_CALLBACK_VERSION,
+            .token = nullptr,
+            .log = threat_scanner::fallbackSusiLogCallback,
+            .minLogLevel = SUSI_LOG_LEVEL_INFO
+        };
     }
 
-    auto res = SUSI_SetLogCallback(&GL_log_callback);
-    throwIfNotOk(res, "Failed to set log callback");
-}
-
-SusiGlobalHandler::~SusiGlobalHandler()
-{
-    if (m_susiInitialised.load(std::memory_order_acquire))
+    SusiGlobalHandler::SusiGlobalHandler()
     {
-        LOGDEBUG("Exiting Global Susi");
-        auto res = SUSI_Terminate();
-        LOGSUPPORT("Exiting Global Susi result = " << std::hex << res << std::dec);
+        my_susi_callbacks.token = this;
+        auto log_level = std::min(getThreatScannerLogger().getLogLevel(), getSusiDebugLogger().getLogLevel());
+
+        if (log_level >= Common::Logging::WARN)
+        {
+            GL_log_callback.minLogLevel = SUSI_LOG_LEVEL_WARNING;
+        }
+        else if (log_level >= Common::Logging::INFO)
+        {
+            GL_log_callback.minLogLevel = SUSI_LOG_LEVEL_INFO;
+        }
+
+        std::lock_guard susiLock(m_globalSusiMutex);
+
+        auto res = SUSI_SetLogCallback(&GL_log_callback);
+        throwIfNotOk(res, "Failed to set log callback");
+    }
+
+    SusiGlobalHandler::~SusiGlobalHandler()
+    {
+        std::lock_guard susiLock(m_globalSusiMutex);
+
+        if (m_susiInitialised.load(std::memory_order_acquire))
+        {
+            LOGDEBUG("Exiting Global Susi");
+            auto res = SUSI_Terminate();
+            LOGSUPPORT("Exiting Global Susi result = " << std::hex << res << std::dec);
+            assert(res == SUSI_S_OK);
+        }
+
+        auto res = SUSI_SetLogCallback(&GL_fallback_log_callback);
+        static_cast<void>(res); // Ignore res for non-debug builds (since we can't throw an exception in destructors)
         assert(res == SUSI_S_OK);
     }
 
-
-    auto res = SUSI_SetLogCallback(&GL_fallback_log_callback);
-    static_cast<void>(res); // Ignore res for non-debug builds (since we can't throw an exception in destructors)
-    assert(res == SUSI_S_OK);
-}
-
-bool SusiGlobalHandler::reload(const std::string& config)
-{
-    if(!susiIsInitialized())
+    bool SusiGlobalHandler::reload(const std::string& config)
     {
-        LOGDEBUG("Susi not initialized, skipping global configuration reload");
-        return true;
+        std::lock_guard susiLock(m_globalSusiMutex);
+
+        if (!susiIsInitialized())
+        {
+            LOGDEBUG("Susi not initialized, skipping global configuration reload");
+            return true;
+        }
+
+        LOGDEBUG("Reloading SUSI global configuration");
+        SusiResult res = SUSI_UpdateGlobalConfiguration(config.c_str());
+        if (res == SUSI_S_OK)
+        {
+            LOGDEBUG("Susi configuration reloaded");
+            return true;
+        }
+        else
+        {
+            LOGDEBUG("Susi configuration reload failed");
+            return false;
+        }
     }
 
-    SusiResult res = SUSI_UpdateGlobalConfiguration(config.c_str());
-    if (res == SUSI_S_OK)
+    void SusiGlobalHandler::shutdown()
     {
-        LOGDEBUG("Susi configuration reloaded");
-        return true;
+        LOGDEBUG("SusiGlobalHandler got shutdown notification");
+        m_shuttingDown.store(true, std::memory_order_release);
     }
-    else
-    {
-        LOGDEBUG("Susi configuration reload failed");
-        return false;
-    }
-}
 
-bool SusiGlobalHandler::update(const std::string& path, const std::string& lockfile)
-{
-    /*
+    bool SusiGlobalHandler::update(const std::string& path, const std::string& lockfile)
+    {
+        /*
      * We have to hold the init lock while checking if we have init,
      * and saving the values if not.
      *
-     * We don't need to hold the lock afterwards, since init must have completed, and won't be run again.
-     *
      * We have to hold the lock, otherwise we could get interrupted on the "m_updatePath = path;" line, and
      * init could finish, causing no-one to complete the update.
-     */
-    {
+         */
         // We assume update is rare enough to just always take the lock
-        std::lock_guard initLock(m_initializeMutex);
+        std::lock_guard susiLock(m_globalSusiMutex);
 
         if (!m_susiInitialised.load(std::memory_order_acquire))
         {
@@ -132,162 +145,179 @@ bool SusiGlobalHandler::update(const std::string& path, const std::string& lockf
             LOGDEBUG("Threat scanner update is pending");
             return true;
         }
-    }
-    return internal_update(path, lockfile);
-}
 
-bool SusiGlobalHandler::acquireLock(datatypes::AutoFd& fd)
-{
-    if (flock(fd.get(), LOCK_EX | LOCK_NB) != 0)
-    {
-        return false;
-    }
-    return true;
-}
-
-bool SusiGlobalHandler::releaseLock(datatypes::AutoFd& fd)
-{
-    if (flock(fd.get(), LOCK_UN | LOCK_NB) != 0)
-    {
-        return false;
-    }
-    return true;
-}
-
-bool SusiGlobalHandler::internal_update(const std::string& path, const std::string& lockfile)
-{
-    mode_t mode = S_IRUSR | S_IWUSR;
-    datatypes::AutoFd fd(open(lockfile.c_str(), O_RDWR | O_CREAT, mode));
-    if (!fd.valid())
-    {
-        std::stringstream errorMsg;
-        errorMsg << "Failed to open lock file: " << lockfile;
-        throw std::runtime_error(errorMsg.str());
+        return internal_update(path, lockfile);
     }
 
-    // Try up to 20 times 0.5s apart to acquire the file lock
-    int maxRetries = 20;
-    int attempt = 1;
-    struct timespec timeout
+    bool SusiGlobalHandler::acquireLock(datatypes::AutoFd& fd)
     {
-        .tv_sec = 0, .tv_nsec = 500000000L
-    };
+        if (flock(fd.get(), LOCK_EX | LOCK_NB) != 0)
+        {
+            return false;
+        }
+        return true;
+    }
 
-    while(!acquireLock(fd))
+    bool SusiGlobalHandler::releaseLock(datatypes::AutoFd& fd)
     {
-        if (attempt++ >= maxRetries)
+        if (flock(fd.get(), LOCK_UN | LOCK_NB) != 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    bool SusiGlobalHandler::internal_update(const std::string& path, const std::string& lockfile)
+    {
+        mode_t mode = S_IRUSR | S_IWUSR;
+        datatypes::AutoFd fd(open(lockfile.c_str(), O_RDWR | O_CREAT, mode));
+        if (!fd.valid())
         {
             std::stringstream errorMsg;
-            errorMsg << "Failed to acquire lock on " << lockfile;
-            LOGERROR(errorMsg.str());
+            errorMsg << "Failed to open lock file: " << lockfile;
             throw std::runtime_error(errorMsg.str());
         }
-        nanosleep(&timeout, nullptr);
-    }
-    LOGDEBUG("Acquired lock on " << lockfile);
 
-    assert(m_susiInitialised.load(std::memory_order_acquire));
-    // SUSI is always initialised by the time we get here
-    SusiResult res = SUSI_Update(path.c_str());
-    if (res == SUSI_I_UPTODATE)
-    {
-        LOGDEBUG("Threat scanner is already up to date");
-    }
-    else if (res == SUSI_S_OK)
-    {
-        LOGINFO("Threat scanner successfully updated");
-        m_susiVersionAlreadyLogged = true;
-        logSusiVersion();
-    }
-    else
-    {
-        std::ostringstream ost;
-        ost << "Failed to update SUSI: 0x" << std::hex << res << std::dec;
-        LOGERROR(ost.str());
-    }
-    m_updatePending.store(false, std::memory_order_release);
-    if (releaseLock(fd))
-    {
-        LOGDEBUG("Released lock on " << lockfile);
-    }
-    else
-    {
-        std::stringstream errorMsg;
-        errorMsg << "Failed to release lock on " << lockfile;
-        throw std::runtime_error(errorMsg.str());
-    }
-    return res == SUSI_S_OK || res == SUSI_I_UPTODATE;
-}
+        // Try up to 20 times 0.5s apart to acquire the file lock
+        int maxRetries = 20;
+        int attempt = 1;
+        struct timespec timeout
+        {
+            .tv_sec = 0, .tv_nsec = 500000000L
+        };
 
-bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
-{
-    // First check atomic without lock
-    if (m_susiInitialised.load(std::memory_order_acquire))
-    {
-        LOGDEBUG("SUSI already initialised");
-        return false;
+        while (!acquireLock(fd))
+        {
+            if (attempt++ >= maxRetries)
+            {
+                std::stringstream errorMsg;
+                errorMsg << "Failed to acquire lock on " << lockfile;
+                LOGERROR(errorMsg.str());
+                throw std::runtime_error(errorMsg.str());
+            }
+            nanosleep(&timeout, nullptr);
+        }
+        LOGDEBUG("Acquired lock on " << lockfile);
+
+        assert(m_susiInitialised.load(std::memory_order_acquire));
+        // SUSI is always initialised by the time we get here
+        LOGDEBUG("Calling SUSI_Update");
+        SusiResult res = SUSI_Update(path.c_str());
+        if (res == SUSI_I_UPTODATE)
+        {
+            LOGDEBUG("Threat scanner is already up to date");
+        }
+        else if (res == SUSI_S_OK)
+        {
+            LOGINFO("Threat scanner successfully updated");
+            m_susiVersionAlreadyLogged = true;
+            logSusiVersion();
+        }
+        else
+        {
+            std::ostringstream ost;
+            ost << "Failed to update SUSI: 0x" << std::hex << res << std::dec;
+            LOGERROR(ost.str());
+        }
+        m_updatePending.store(false, std::memory_order_release);
+        if (releaseLock(fd))
+        {
+            LOGDEBUG("Released lock on " << lockfile);
+        }
+        else
+        {
+            std::stringstream errorMsg;
+            errorMsg << "Failed to release lock on " << lockfile;
+            throw std::runtime_error(errorMsg.str());
+        }
+        return res == SUSI_S_OK || res == SUSI_I_UPTODATE;
     }
 
-    std::lock_guard initLock(m_initializeMutex);
+    bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
+    {
+        // First check atomic without lock
+        if (m_susiInitialised.load(std::memory_order_acquire))
+        {
+            LOGDEBUG("SUSI already initialised");
+            return false;
+        }
 
-    // Re-check in protected section
-    if (m_susiInitialised.load(std::memory_order_acquire))
-    {
-        LOGDEBUG("SUSI already initialised - inside lock");
-        return false;
-    }
+        std::lock_guard susiLock(m_globalSusiMutex);
 
-    LOGINFO("Initializing SUSI");
-    auto res = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
-    // gets set to true in internal_update only when the update returns SUSI_OK
-    m_susiVersionAlreadyLogged = false;
-    if (res != SUSI_S_OK)
-    {
-        // This can fail for reasons outside the programs control, therefore is an exception
-        // rather than an assert
-        std::ostringstream ost;
-        ost << "Failed to initialise SUSI: 0x" << std::hex << res << std::dec;
-        LOGERROR(ost.str());
-        throw std::runtime_error(ost.str());
-    }
-    else
-    {
+        // Re-check in protected section
+        if (m_susiInitialised.load(std::memory_order_acquire))
+        {
+            LOGDEBUG("SUSI already initialised - inside lock");
+            return false;
+        }
+
+        LOGINFO("Initializing SUSI");
+        auto res = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
+        // gets set to true in internal_update only when the update returns SUSI_OK
+        m_susiVersionAlreadyLogged = false;
+        if (res != SUSI_S_OK)
+        {
+            // This can fail for reasons outside the programs control, therefore is an exception
+            // rather than an assert
+            std::ostringstream ost;
+            ost << "Failed to initialise SUSI: 0x" << std::hex << res << std::dec;
+            LOGERROR(ost.str());
+            throw std::runtime_error(ost.str());
+        }
+
         LOGSUPPORT("Initialising Global Susi successful");
         m_susiInitialised.store(true, std::memory_order_release); // susi init is now saved
+
+        if (m_shuttingDown.load(std::memory_order_acquire))
+        {
+            throw ShuttingDownException();
+        }
+
         if (m_updatePending.load(std::memory_order_acquire))
         {
             LOGDEBUG("Threat scanner triggering pending update");
             internal_update(m_updatePath, m_lockFile);
             LOGDEBUG("Threat scanner pending update completed");
         }
+
+        if (m_shuttingDown.load(std::memory_order_acquire))
+        {
+            throw ShuttingDownException();
+        }
+
+        if (!m_susiVersionAlreadyLogged)
+        {
+            logSusiVersion();
+        }
+
+        return true;
     }
 
-    if (!m_susiVersionAlreadyLogged)
+    bool SusiGlobalHandler::susiIsInitialized()
     {
-        logSusiVersion();
+        return m_susiInitialised.load(std::memory_order_acquire);
     }
 
-    return true;
-}
-
-bool SusiGlobalHandler::susiIsInitialized()
-{
-    return m_susiInitialised.load(std::memory_order_acquire);
-}
-
-void SusiGlobalHandler::logSusiVersion()
-{
-    SusiVersionResult* result = nullptr;
-    auto res = SUSI_GetVersion(&result);
-    if(res == SUSI_S_OK)
+    bool SusiGlobalHandler::isShuttingDown()
     {
-        LOGINFO("SUSI Libraries loaded: " << result->versionResultJson);
+        return m_shuttingDown.load(std::memory_order_acquire);
     }
-    else
+
+    void SusiGlobalHandler::logSusiVersion()
     {
-        std::ostringstream ost;
-        ost << "Failed to retrieve SUSI version: 0x" << std::hex << res << std::dec;
-        LOGERROR(ost.str());
-        throw std::runtime_error(ost.str());
+        SusiVersionResult* result = nullptr;
+        auto res = SUSI_GetVersion(&result);
+        if (res == SUSI_S_OK)
+        {
+            LOGINFO("SUSI Libraries loaded: " << result->versionResultJson);
+            SUSI_FreeVersionResult(result);
+        }
+        else
+        {
+            std::ostringstream ost;
+            ost << "Failed to retrieve SUSI version: 0x" << std::hex << res << std::dec;
+            LOGERROR(ost.str());
+            throw std::runtime_error(ost.str());
+        }
     }
-}
+} // namespace threat_scanner

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -14,7 +14,6 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include <common/FDUtils.h>
 #include <unixsocket/SocketUtils.h>
 
-#include <cassert>
 #include <fstream>
 #include <string>
 
@@ -67,6 +66,10 @@ namespace
         bool reload() override
         {
             return true;
+        }
+
+        void shutdown() override
+        {
         }
 
         bool susiIsInitialized() override

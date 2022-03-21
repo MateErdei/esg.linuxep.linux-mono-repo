@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -21,9 +21,10 @@ namespace threat_scanner
         bool update() override;
         bool susiIsInitialized() override;
         bool reload() override;
+        void shutdown() override;
 
     private:
-        SusiGlobalHandlerSharePtr m_globalHandler;
+        SusiGlobalHandlerSharedPtr m_globalHandler;
     };
 
     using SusiWrapperFactorySharedPtr = std::shared_ptr<SusiWrapperFactory>;

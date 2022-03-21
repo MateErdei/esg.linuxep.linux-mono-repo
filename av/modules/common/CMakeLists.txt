@@ -4,6 +4,7 @@ add_library(common SHARED
         ErrorCodesC.h
         Logger.cpp
         Logger.h
+        ShuttingDownException.h
         SigHupMonitor.cpp
         SigHupMonitor.h
         SigIntMonitor.cpp

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,13 +8,16 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "ScanRequest.capnp.h"
 
+#include <scan_messages/ScanRequest.h>
+
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 
 #include "common/StringUtils.h"
+#include "common/ShuttingDownException.h"
+#include <common/FDUtils.h>
 
 #include <capnp/serialize.h>
-#include <scan_messages/ScanRequest.h>
 
 #include <cassert>
 #include <iostream>
@@ -55,24 +58,6 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
 //    throw std::runtime_error(message);
 //}
 
-static inline bool fd_isset(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    return FD_ISSET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static inline void internal_fd_set(int fd, fd_set* fds)
-{
-    assert(fd >= 0);
-    FD_SET(static_cast<unsigned>(fd), fds); // NOLINT
-}
-
-static int addFD(fd_set* fds, int fd, int currentMax)
-{
-    internal_fd_set(fd, fds);
-    return std::max(fd, currentMax);
-}
-
 /**
  * Parse a request.
  *
@@ -99,8 +84,6 @@ void unixsocket::ScanningServerConnectionThread::run()
 {
     setIsRunning(true);
     announceThreadStarted();
-
-    LOGDEBUG("Starting Scanning Server thread");
 
     try
     {
@@ -130,9 +113,6 @@ void unixsocket::ScanningServerConnectionThread::run()
         // Fatal since this means we have thrown something that isn't a subclass of std::exception
         LOGFATAL("Terminated ScanningServerConnectionThread with unknown exception");
     }
-
-    LOGDEBUG("Stopping Scanning Server thread");
-
     setIsRunning(false);
 }
 
@@ -148,8 +128,8 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
-    max = addFD(&readFDs, exitFD, max);
-    max = addFD(&readFDs, socket_fd, max);
+    max = FDUtils::addFD(&readFDs, exitFD, max);
+    max = FDUtils::addFD(&readFDs, socket_fd, max);
     threat_scanner::IThreatScannerPtr scanner;
     bool loggedLengthOfZero = false;
 
@@ -176,17 +156,17 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
         // We don't set a timeout so something should have happened
         assert(activity != 0);
 
-        if (fd_isset(exitFD, &tempRead))
+        if (FDUtils::fd_isset(exitFD, &tempRead))
         {
             LOGSUPPORT("Closing Scanning connection thread");
             break;
         }
-        else // if(fd_isset(socket_fd, &tempRead))
+        else // if(FDUtils::fd_isset(socket_fd, &tempRead))
         {
             // If shouldn't be required - we have no timeout, and only 2 FDs in the pselect.
             // exitFD will cause break
             // therefore "else" must be fd_isset(socket_fd, &tempRead)
-            assert(fd_isset(socket_fd, &tempRead));
+            assert(FDUtils::fd_isset(socket_fd, &tempRead));
             // read length
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
@@ -275,17 +255,28 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                 break;
             }
 
-            if (!scanner)
+            scan_messages::ScanResponse result;
+            try
             {
-                scanner = m_scannerFactory->createScanner(requestReader->scanInsideArchives(), requestReader->scanInsideImages());
                 if (!scanner)
                 {
-                    throw std::runtime_error("Failed to create scanner");
+                    scanner = m_scannerFactory->createScanner(
+                        requestReader->scanInsideArchives(), requestReader->scanInsideImages());
+                    if (!scanner)
+                    {
+                        throw std::runtime_error("Failed to create scanner");
+                    }
                 }
+
+                // The User ID could be spoofed by an untrusted client. Until this is made secure, hardcode it to "n/a"
+                result = scanner->scan(file_fd, requestReader->getPath(), requestReader->getScanType(), "n/a");
+            }
+            catch (ShuttingDownException&)
+            {
+                LOGINFO("Aborting scan, scanner is shutting down");
+                break;
             }
 
-            // The User ID could be spoofed by an untrusted client. Until this is made secure, hardcode it to "n/a"
-            auto result = scanner->scan(file_fd, requestReader->getPath(), requestReader->getScanType(), "n/a");
             file_fd.reset();
 
             std::string serialised_result = result.serialise();

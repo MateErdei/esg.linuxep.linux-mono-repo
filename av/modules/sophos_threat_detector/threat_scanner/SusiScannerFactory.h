@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -17,7 +17,8 @@ namespace threat_scanner
     class SusiScannerFactory : public IThreatScannerFactory
     {
     public:
-        explicit SusiScannerFactory(IThreatReporterSharedPtr reporter, IScanNotificationSharedPtr shutdownTimer);
+        SusiScannerFactory(IThreatReporterSharedPtr reporter,
+                           IScanNotificationSharedPtr shutdownTimer);
         SusiScannerFactory(ISusiWrapperFactorySharedPtr wrapperFactory,
                            IThreatReporterSharedPtr reporter,
                            IScanNotificationSharedPtr shutdownTimer);
@@ -25,6 +26,7 @@ namespace threat_scanner
 
         bool update() override;
         bool reload() override;
+        void shutdown() override;
         bool susiIsInitialized() override;
 
     private:

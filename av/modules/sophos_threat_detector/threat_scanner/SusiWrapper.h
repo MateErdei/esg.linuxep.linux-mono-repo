@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -17,8 +17,8 @@ namespace threat_scanner
     class SusiWrapper : public ISusiWrapper
     {
     public:
-        SusiWrapper(SusiGlobalHandlerSharePtr globalHandler, const std::string& scannerConfig);
-        ~SusiWrapper();
+        SusiWrapper(SusiGlobalHandlerSharedPtr globalHandler, const std::string& scannerConfig);
+        ~SusiWrapper() override;
 
         SusiResult scanFile(
             const char* metaData,
@@ -29,7 +29,7 @@ namespace threat_scanner
         void freeResult(SusiScanResult* scanResult) override;
 
     private:
-        SusiGlobalHandlerSharePtr m_globalHandler;
+        SusiGlobalHandlerSharedPtr m_globalHandler;
         SusiScannerHandle m_handle;
     };
 }

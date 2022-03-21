@@ -9,5 +9,5 @@
     }
   ],
   "executableUserAndGroup": "sophos-spl-threat-detector:sophos-spl-group",
-  "secondsToShutDown": 5
+  "secondsToShutDown": 30
 }

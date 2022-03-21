@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -47,6 +47,12 @@ namespace threat_scanner
         bool reload(const std::string& config);
 
         /**
+         * Set flag to cancel all remaining SUSI activities
+         *
+         */
+        void shutdown();
+
+        /**
          * Initialize SUSI if it hasn't been initialized before
          * @param jsonConfig Configuration to initialize SUSI if required
          * @return true if we initialized susi
@@ -59,17 +65,24 @@ namespace threat_scanner
          */
         bool susiIsInitialized();
 
+        /**
+         * Report whether we're shutting down
+         * @return true if we've been told to shut down
+         */
+        bool isShuttingDown();
+
     private:
         std::atomic_bool m_susiInitialised = false;
         std::atomic_bool m_updatePending = false;
+        std::atomic_bool m_shuttingDown = false;
         std::string m_updatePath;
         std::string m_lockFile;
-        std::mutex m_initializeMutex;
+        std::mutex m_globalSusiMutex;
         bool m_susiVersionAlreadyLogged = false;
 
         /**
          * Update SUSI. Assumes that SUSI has been initialised
-         *
+         * and caller already holds m_globalSusiMutex
          * @param path
          * @return true if update was successful
          */
@@ -80,5 +93,5 @@ namespace threat_scanner
 
         static void logSusiVersion();
     };
-    using SusiGlobalHandlerSharePtr = std::shared_ptr<SusiGlobalHandler>;
+    using SusiGlobalHandlerSharedPtr = std::shared_ptr<SusiGlobalHandler>;
 }

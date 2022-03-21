@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -11,10 +11,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <stdexcept>
 #include <string>
 
-inline void throwIfNotOk(SusiResult res, const std::string& message)
+namespace threat_scanner
 {
-    if (res != SUSI_S_OK)
+    inline void throwIfNotOk(SusiResult res, const std::string& message)
     {
-        throw std::runtime_error(message);
+        if (res != SUSI_S_OK)
+        {
+            throw std::runtime_error(message);
+        }
     }
 }

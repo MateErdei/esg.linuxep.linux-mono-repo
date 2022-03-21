@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -18,6 +18,7 @@ namespace threat_scanner
 
         virtual bool update() = 0;
         virtual bool reload() = 0;
+        virtual void shutdown() = 0;
         virtual bool susiIsInitialized() = 0;
     };
 

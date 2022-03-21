@@ -66,34 +66,57 @@ IDE update copies updated ide
     # SUSI copies libraries every time, so expect up to 200MB
     Should Be True  ${WRITTEN_TO_DISK_DURING} < ${ 200 * 1024 ** 2 }
 
-
 Restart then Update Sophos Threat Detector
-    Mark Sophos Threat Detector Log
-    Restart sophos_threat_detector
-    Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
-    ...   UnixSocket <> Process Controller Server starting listening on socket:
-    ...   timeout=60
+    Check file clean   peend.exe
+
+    Restart sophos_threat_detector and mark logs
+
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
-    Install IDE without reload check  ${IDE_NAME}
+    Install IDE without SUSI loaded  ${IDE_NAME}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
     # Check we can detect PEEND following update
-    Wait Until Keyword Succeeds
-        ...    60 secs
-        ...    1 secs
-        ...    Check Threat Detected  peend.exe  PE/ENDTEST
+    Check Threat Detected  peend.exe  PE/ENDTEST
 
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
     # Extra log dump to check we have the right events happening
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
+Concurrent scans get pending update
+    Check file clean   peend.exe
+
+    # prepare the pending update
+    Restart sophos_threat_detector and mark logs
+    Install IDE without SUSI loaded  ${IDE_NAME}
+
+    # Check we can detect PEEND following update
+    ${threat_file} =   Set Variable   ${RESOURCES_PATH}/file_samples/peend.exe
+    ${threat_name} =   Set Variable   PE/ENDTEST
+
+    ${cls_handle1} =     Start Process  ${AVSCANNER}  ${threat_file}   stderr=STDOUT
+    ${cls_handle2} =     Start Process  ${AVSCANNER}  ${threat_file}   stderr=STDOUT
+
+    ${result1} =   Wait for process  ${cls_handle1}
+    ${result2} =   Wait for process  ${cls_handle2}
+
+    Should Be Equal As Integers  ${result1.rc}  ${VIRUS_DETECTED_RESULT}
+    Should Be Equal As Integers  ${result2.rc}  ${VIRUS_DETECTED_RESULT}
+
+    Should Contain   ${result1.stdout}    Detected "${threat_file}" is infected with ${threat_name}
+    Should Contain   ${result2.stdout}    Detected "${threat_file}" is infected with ${threat_name}
+
+    # Extra log dump to check we have the right events happening
+    dump log  ${THREAT_DETECTOR_LOG_PATH}
+
 Update then Restart Sophos Threat Detector
-    Register Cleanup    Exclude Threat Detector Process Is Killed With SIGKILL
+    # ensure SUSI is initialized
+    check avscanner can detect eicar
+
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Mark Sophos Threat Detector Log
     Install IDE without reload check  ${IDE_NAME}
+    Sleep   1s
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     Restart sophos_threat_detector
     Check Plugin Installed and Running
@@ -108,6 +131,34 @@ Update then Restart Sophos Threat Detector
         ...    Check Threat Detected  peend.exe  PE/ENDTEST
 
     # Extra log dump to check we have the right events happening
+    dump log  ${THREAT_DETECTOR_LOG_PATH}
+
+Update before Init then Restart Threat Detector
+    # run a quick scan to make sure SUSI is loaded and up-to-date
+    check avscanner can detect eicar
+
+    # restart STD and create a pending update
+    Restart sophos_threat_detector and mark logs
+    Install IDE without SUSI loaded  ${IDE_NAME}
+    Wait Until Sophos Threat Detector Log Contains With Offset   Threat scanner update is pending
+
+    # start a scan in the background, to trigger SUSI init & update
+    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    Create File     ${SCAN_DIRECTORY}/eicar2.com    ${EICAR_STRING}
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  ${SCAN_DIRECTORY}/   stderr=STDOUT
+
+    Wait Until Sophos Threat Detector Log Contains With Offset   Scan requested
+    Wait Until Sophos Threat Detector Log Contains With Offset   Initializing SUSI   timeout=30
+
+    # try to restart as soon as SUSI starts to load
+    Restart sophos_threat_detector and mark logs
+
+    # check the state of our scan (it *should* work, eventually)
+    Process Should Be Running   ${cls_handle}
+    ${result} =   Wait For Process   ${cls_handle}
+    Log   ${result.stdout}
+
+    # force a log dump, for investigation / debug purposes
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 Installer doesnt try to create an existing user
@@ -431,7 +482,7 @@ Check installer corrects permissions of chroot files on upgrade
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     threat detector log should not contain with offset  Failed to read customerID - using default value
 
-Check installer can handle versioned copied Virus Data from 1.0.0
+Check installer can handle versioned copied Virus Data from 1-0-0
     # Simulate the versioned copied Virus Data that exists in a 1.0.0 install
     Empty Directory  ${AV_PLUGIN_PATH}/chroot/susi/update_source/vdl
 
@@ -480,7 +531,9 @@ AV Plugin Can Send Telemetry After Upgrade
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
+    Mark AV Log
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
+    Wait until AV Plugin running with offset
 
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
@@ -601,6 +654,9 @@ Installer Test Setup
     Register Cleanup    Exclude CustomerID Failed To Read Error
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude Communication Between AV And Base Due To No Incoming Data
+    Register Cleanup    Require No Unhandled Exception
+    Register Cleanup    Check For Coredumps  ${TEST NAME}
+    Register Cleanup    Check Dmesg For Segfaults
 
 Installer Test TearDown
     #Run Teardown Functions

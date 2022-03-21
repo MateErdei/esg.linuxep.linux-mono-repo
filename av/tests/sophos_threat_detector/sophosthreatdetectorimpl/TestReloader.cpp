@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2021, Sophos Limited.  All rights reserved.
+Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -25,6 +25,7 @@ namespace
 
         MOCK_METHOD0(update, bool());
         MOCK_METHOD0(reload, bool());
+        MOCK_METHOD0(shutdown, void());
         MOCK_METHOD0(susiIsInitialized, bool());
     };
 }
