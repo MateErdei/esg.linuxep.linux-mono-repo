@@ -12,6 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <log4cplus/loglevel.h>
 #include <Common/Logging/SophosLoggerMacros.h>
 #include <tests/common/LogInitializedTests.h>
+#include <regex>
 
 
 using namespace common;
@@ -190,4 +191,11 @@ TEST_F(TestStringUtils, TestPluralize) // NOLINT
     EXPECT_EQ(common::pluralize(2, "single", "plural"), "plural");
     EXPECT_EQ(common::pluralize(99, "single", "plural"), "plural");
     EXPECT_EQ(common::pluralize(0, "single", "plural"), "plural");
+}
+
+TEST_F(TestStringUtils, testgetSuSiStyleTimestamp) //NOLINT
+{
+    const std::regex expected_regex("([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z)");
+
+    EXPECT_TRUE( std::regex_match(getSuSiStyleTimestamp(), expected_regex));
 }

@@ -229,17 +229,16 @@ namespace common
 
     std::string getSuSiStyleTimestamp()
     {
-        std::time_t currentTime = std::time(nullptr);
-        std::tm tm = *std::localtime(&currentTime);
-
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        std::time_t now_tt = std::chrono::system_clock::to_time_t(now);
+        std::tm now_tm = *std::localtime(&now_tt);
         std::chrono::system_clock::duration timePointSinceEpoch = now.time_since_epoch();
 
         timePointSinceEpoch -= std::chrono::duration_cast<std::chrono::seconds>(timePointSinceEpoch);
 
         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(timePointSinceEpoch).count();
         std::stringstream timestamp;
-        timestamp << std::put_time(&tm, "%Y-%m-%eT%H:%M:%S.");
+        timestamp << std::put_time(&now_tm, "%Y-%m-%eT%H:%M:%S.");
         timestamp << ms << "Z";
         return timestamp.str();
     }
