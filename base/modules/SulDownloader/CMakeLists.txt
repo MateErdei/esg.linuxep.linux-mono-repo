@@ -31,9 +31,9 @@ include_directories(suldownloaderimpl BEFORE ${SOPHLIB_INCLUDE_DIR} ${SUL_INPUT}
 
 
 set(SUL_LIBRARY -L${SUL_LIBRARY_DIR} -lSUL)
-set(SDDS3_LIBRARY -L${SDDS3LIB_INPUT} -lsdds3 -ldelta -lpugixml -lutils -lminizip -lsdds3crypto -lminizip)
+set(SDDS3_LIBRARY -L${SDDS3LIB_INPUT} -lsdds3 -ldelta -lpugixml -lutils -lminizip  -lminizip)
 target_compile_options(suldownloaderimpl PUBLIC -Wno-unused-value -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-stringop-overflow)
-target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata ${SUL_LIBRARY}  ${SOPHLIB_LIBRARIES} osutilitiesimpl stdc++fs -Wno-maybe-uninitialized -Wno-stringop-overflow)
+target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata ${SUL_LIBRARY} ${SDDS3_LIBRARY} ${SOPHLIB_LIBRARIES} osutilitiesimpl stdc++fs -Wno-maybe-uninitialized -Wno-stringop-overflow)
 
 SET_TARGET_PROPERTIES( suldownloaderimpl
         PROPERTIES
