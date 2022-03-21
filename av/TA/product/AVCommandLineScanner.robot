@@ -1508,7 +1508,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   Destroyed SUSI scanner
+    Wait Until Sophos Threat Detector Log Contains With Offset   Stopping Scanning Server thread
 
 CLS Can Append Summary To Log When SIGHUP Is Received strace
     [Tags]  STRACE   MANUAL
@@ -1534,7 +1534,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received strace
     Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   Destroyed SUSI scanner
+    Wait Until Sophos Threat Detector Log Contains With Offset   Stopping Scanning Server thread
 
 CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  /tmp/scan.log

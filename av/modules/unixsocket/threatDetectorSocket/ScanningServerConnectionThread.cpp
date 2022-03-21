@@ -100,6 +100,8 @@ void unixsocket::ScanningServerConnectionThread::run()
     setIsRunning(true);
     announceThreadStarted();
 
+    LOGDEBUG("Starting Scanning Server thread");
+
     try
     {
         inner_run();
@@ -128,6 +130,9 @@ void unixsocket::ScanningServerConnectionThread::run()
         // Fatal since this means we have thrown something that isn't a subclass of std::exception
         LOGFATAL("Terminated ScanningServerConnectionThread with unknown exception");
     }
+
+    LOGDEBUG("Stopping Scanning Server thread");
+
     setIsRunning(false);
 }
 
