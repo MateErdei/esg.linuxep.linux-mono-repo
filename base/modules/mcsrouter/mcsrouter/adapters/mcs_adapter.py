@@ -49,19 +49,12 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             path_manager.install_dir(), policy_config, applied_config)
         self.__m_relay_id = None
         self.app_id = "MCS"
-        self.__m_migrate_action = None
 
     def get_app_id(self):
         """
         get_app_id
         """
         return self.app_id
-
-    def get_migrate_action(self):
-        return self.__m_migrate_action
-
-    def clear_migrate_action(self):
-        self.__m_migrate_action = None
 
     def __set_compliance(self, comp_node):
         """
@@ -132,26 +125,10 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         try:
             command_str = str(command)
             LOGGER.debug("MCS Adapter processing %s", command_str)
-
-            if "sophos.mgt.mcs.migrate" in command_str:
-                LOGGER.debug("{} adaptor processing as action".format(self.get_app_id()))
-                return MCSAdapter._process_action(self, command)
-            else:
-                policy = command.get_policy()
-                return self.__process_policy(policy)
+            policy = command.get_policy()
+            return self.__process_policy(policy)
         finally:
             command.complete()
-
-    def _process_action(self, command):
-        """
-        Process migrate action by storing the action XML for mcs.py to pick up.
-        """
-        LOGGER.debug("Received %s action", self.get_app_id())
-        action_body = command.get("body")
-        LOGGER.debug(f"Action body: {action_body}")
-        if "sophos.mgt.mcs.migrate" in action_body:
-            self.__m_migrate_action = action_body
-        return []
 
     def _write_action_to_tmp(self, action_name, body):
         action_path_tmp = os.path.join(path_manager.temp_dir(), action_name)

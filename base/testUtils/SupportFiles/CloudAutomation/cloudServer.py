@@ -821,9 +821,9 @@ class Endpoint(object):
 """
 
         return r"""<command>
-        <id>MCS</id>
+        <id>APPSPROXY</id>
         <seq>1</seq>
-        <appId>MCS</appId>
+        <appId>APPSPROXY</appId>
         <creationTime>{}</creationTime>
         <ttl>PT10000S</ttl>
         <body>{}</body>
@@ -911,7 +911,7 @@ class Endpoint(object):
             commands.append(self.liveQueryCommand())
         if "MCS" in apps and self.__mcs.policyPending():
             commands.append(self.policyCommand("MCS", self.__mcs.policyID()))
-        if "MCS" in apps and self.__mcs.migrationPending():
+        if "APPSPROXY" in apps and self.__mcs.migrationPending():
             commands.append(self.migrateCommand())
         if "SHS" in apps and self.__shs.resetHealthPending():
             commands.append(self.resetHealthCommand())

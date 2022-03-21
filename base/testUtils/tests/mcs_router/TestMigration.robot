@@ -23,14 +23,12 @@ Test Teardown    Run Keywords
 ...			     Stop System Watchdog  AND
 ...              Push Server Test Teardown
 
-Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
+Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER  TAP_TESTS
 Force Tags  LOAD3
 
 *** Test Case ***
 
 Successful Register With Cloud And Migrate To Another Cloud Server
-    [Tags]  MCS  MCS_ROUTER  FAKE_CLOUD
-
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Start MCS Push Server
     Wait For MCS Router To Be Running
@@ -167,8 +165,6 @@ Successful Register With Cloud And Migrate To Another Cloud Server
 
 
 Register With Cloud And Fail To Migrate To Another Cloud Server
-    [Tags]  MCS  MCS_ROUTER  FAKE_CLOUD
-
     Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
     Start MCS Push Server
     Wait For MCS Router To Be Running

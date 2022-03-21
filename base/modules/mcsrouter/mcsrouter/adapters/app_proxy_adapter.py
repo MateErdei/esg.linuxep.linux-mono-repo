@@ -31,12 +31,19 @@ class AppProxyAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         self.__m_app_ids = app_ids
         self.__m_app_id = "APPSPROXY"
+        self.__m_migrate_action = None
 
     def get_app_id(self):
         """
         get_app_id
         """
         return self.__m_app_id
+
+    def get_migrate_action(self):
+        return self.__m_migrate_action
+
+    def clear_migrate_action(self):
+        self.__m_migrate_action = None
 
     def get_status_xml(self):
         """
@@ -107,6 +114,13 @@ u'<?xml version="1.0"?>
             return []
 
         try:
+            #Check if the command is the migration action
+            action = doc.getElementsByTagName("action")[0]
+            if action and action.getAttribute("type") == "sophos.mgt.mcs.migrate":
+                LOGGER.debug("{} adaptor processing as action".format(self.get_app_id()))
+                self.__m_migrate_action = body
+                return []
+
             policy_assignments = doc.getElementsByTagName("policyAssignment")
             commands = []
             LOGGER.debug(

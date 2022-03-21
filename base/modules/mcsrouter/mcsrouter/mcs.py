@@ -259,6 +259,7 @@ class MCS:
         self.__m_computer = computer.Computer()
         self.__m_mcs_adapter = mcs_adapter.MCSAdapter(
             install_dir, self.__m_policy_config, self.__m_config)
+        self.__m_app_proxy_adapter = None
 
         self.__m_computer.add_adapter(self.__m_mcs_adapter)
 
@@ -457,8 +458,8 @@ class MCS:
         LOGGER.info(
             "Reconfiguring the APPSPROXY to handle: " +
             ' '.join(app_ids))
-        self.__m_computer.add_adapter(
-            app_proxy_adapter.AppProxyAdapter(app_ids))
+        self.__m_app_proxy_adapter = app_proxy_adapter.AppProxyAdapter(app_ids)
+        self.__m_computer.add_adapter(self.__m_app_proxy_adapter)
 
     def stop_push_client(self, push_client):
         if push_client:
@@ -553,7 +554,7 @@ class MCS:
         migration_data = migration.Migrate()
         migrate_comms = None
         try:
-            migration_data.read_migrate_action(self.__m_mcs_adapter.get_migrate_action())
+            migration_data.read_migrate_action(self.__m_app_proxy_adapter.get_migrate_action())
             migrate_config = copy.deepcopy(live_config)
             migrate_comms = mcs_connection.MCSConnection(
                 migrate_config,
@@ -616,7 +617,7 @@ class MCS:
             if migrate_comms:
                 migrate_comms.close()
         finally:
-            self.__m_mcs_adapter.clear_migrate_action()
+            self.__m_app_proxy_adapter.clear_migrate_action()
 
         if migration_success:
             LOGGER.info("Successfully migrated Sophos Central account")
@@ -699,7 +700,7 @@ class MCS:
             datafeeds_module.Datafeeds.send_datafeed_files(all_datafeeds, comms)
 
         def should_we_migrate() -> bool:
-            return self.__m_mcs_adapter.get_migrate_action() is not None
+            return self.__m_app_proxy_adapter.get_migrate_action() is not None
 
 
         # setup signal handler before connecting
