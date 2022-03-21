@@ -58,6 +58,81 @@ Scan Now Honours Exclusions
     Should Contain  ${scan_now_contents}  Excluding mount point: /proc
 
 
+Scan Now Excludes Eicars Successfully
+    # absolute path to a file
+    Create File  /eicars/absolute_path_eicar                                              ${EICAR_STRING}
+    Register Cleanup    Remove Directory  /eicars/                              recursive=True
+
+    # absolute path to a directory using wildcard /absolute_directory_with_wildcard/*
+    Create File  /absolute_directory_with_wildcard/absolute_path_eicar                    ${EICAR_STRING}
+    Register Cleanup    Remove Directory  /absolute_directory_with_wildcard/     recursive=True
+
+    # absolute path to a directory /example/
+    Create File  /absolute_directory_without_wildcard/absolute_path_eicar                 ${EICAR_STRING}
+    Register Cleanup    Remove Directory  /absolute_directory_without_wildcard/  recursive=True
+
+    # Filename with wildcard */eicar2.com
+    Create File  /filename_with_wildcard/filename_to_exclude_with_wildcard                ${EICAR_STRING}
+    Register Cleanup    Remove Directory  /filename_with_wildcard/               recursive=True
+
+    # Filename without wildcard eicar.com
+    Create File  eicar.com                                                                ${EICAR_STRING}
+    Register Cleanup  Remove File  eicar.com
+
+    # Directory name with wildcard */bar/*
+    Create File  /eicars2/directory_name_with_wildcard/eicar.com                          ${EICAR_STRING}
+    Register Cleanup    Remove Directory  /eicars2/                              recursive=True
+
+    # Directory name without wildcard bar/
+    Create File  directory_name_without_wildcard/eicar.com                                ${EICAR_STRING}
+    Register Cleanup    Remove Directory  directory_name_without_wildcard/       recursive=True
+
+    # Relative path to directory with wildcard */foo/bar/*
+    Create File   /eicars3/relative_path_to_directory_with_wildcard/eicar.com             ${EICAR_STRING}
+    Register Cleanup    Remove Directory  /eicars3/                              recursive=True
+
+    # Relative path to directory foo/bar/
+    Create File   eicars4/relative_path_to_directory/eicar.com                            ${EICAR_STRING}
+    Register Cleanup    Remove Directory  eicars4/                              recursive=True
+
+    # Relative path to file with wildcard */bar/eicar.com
+    Create File   eicars5/relative_path_to_file_with_wildcard/eicar.com                   ${EICAR_STRING}
+    Register Cleanup    Remove Directory  eicars5/                              recursive=True
+
+    # Relative path to file bar/eicar.com
+    Create File   relative_path_to_file/eicar.com                                        ${EICAR_STRING}
+    Register Cleanup    Remove Directory  relative_path_to_file/                recursive=True
+
+
+    Run Scan Now Scan With All Types of Exclusions
+    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
+    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=20
+
+    Dump Log  ${SCANNOW_LOG_PATH}
+    ${scan_now_contents} =  Get File    ${SCANNOW_LOG_PATH}
+    Should Contain  ${scan_now_contents}  Excluding directory: /opt/
+    Should Contain  ${scan_now_contents}  Excluding directory: /boot/
+    Should Contain  ${scan_now_contents}  Excluding directory: /etc/
+    Should Contain  ${scan_now_contents}  Excluding directory: /dev/
+
+    Should Contain  ${scan_now_contents}  Excluding file: /eicars/absolute_path_eicar
+    Should Contain  ${scan_now_contents}  Excluding file: /absolute_directory_with_wildcard/absolute_path_eicar
+    Should Contain  ${scan_now_contents}  Excluding directory: /absolute_directory_without_wildcard/
+    Should Contain  ${scan_now_contents}  Excluding file: /filename_with_wildcard/filename_to_exclude_with_wildcard
+    Should Contain  ${scan_now_contents}  Excluding file: eicar.com
+    Should Contain  ${scan_now_contents}  Excluding file: /eicars2/directory_name_with_wildcard/eicar.com
+    Should Contain  ${scan_now_contents}  Excluding directory: directory_name_without_wildcard/
+    Should Contain  ${scan_now_contents}  Excluding file: /eicars3/relative_path_to_directory_with_wildcard/eicar.com
+    Should Contain  ${scan_now_contents}  Excluding directory: eicars4/relative_path_to_directory/
+    Should Contain  ${scan_now_contents}  Excluding file: eicars5/relative_path_to_file_with_wildcard/eicar.com
+    Should Contain  ${scan_now_contents}  Excluding file: relative_path_to_file/eicar.com
+
+
+    Should Contain  ${scan_now_contents}  Mount point /proc is system and will be excluded from the scan
+    Should Contain  ${scan_now_contents}  Excluding mount point: /proc
+
+
+
 Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     [Timeout]  15min
     Stop AV

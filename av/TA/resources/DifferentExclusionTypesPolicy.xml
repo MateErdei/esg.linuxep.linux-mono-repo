@@ -4,7 +4,7 @@
     <onDemandScan>
         <posixExclusions>
             <filePathSet>
-                <!-- aboslute   directory      -->
+                <!-- absolute   directory      -->
                 <filePath>/opt/</filePath>
                 <!-- relative   directory      -->
                 <filePath>boot/</filePath>
@@ -22,6 +22,31 @@
                 <filePath>*.star</filePath>
                 <!-- wildcard ? filename       -->
                 <filePath>?????.question_mark</filePath>
+
+                <!-- Check for more details: https://sophos.atlassian.net/wiki/spaces/SAVLU/pages/30178205330/Exclusions -->
+                <!-- absolute path to a file  -->
+                <filePath>/eicars/absolute_path_eicar</filePath>
+                <!-- absolute path to a directory using wildcard /example/* -->
+                <filePath>/absolute_directory_with_wildcard/*</filePath>
+                <!-- absolute path to a directory /example/ -->
+                <filePath>/absolute_directory_without_wildcard/</filePath>
+                <!-- Filename with wildcard */eicar2.com -->
+                <filePath>*/filename_to_exclude_with_wildcard</filePath>
+                <!-- Filename without wildcard eicar.com -->
+                <filePath>eicar.com</filePath>
+                <!-- Directory name with wildcard */bar/* -->
+                <filePath>*/directory_name_with_wildcard/*</filePath>
+                <!-- Directory name without wildcard bar/ -->
+                <filePath>directory_name_without_wildcard/</filePath>
+                <!-- Relative path to directory with wildcard */foo/bar/* -->
+                <filePath>*/eicars3/relative_path_to_directory_with_wildcard/*</filePath>
+                <!-- Relative path to directory foo/bar/ -->
+                <filePath>eicars4/relative_path_to_directory/</filePath>
+                <!-- Relative path to file with wildcard */bar/eicar.com -->
+                <filePath>*/relative_path_to_file_with_wildcard/eicar.com</filePath>
+                <!-- Relative path to file bar/eicar.com -->
+                <filePath>relative_path_to_file/eicar.com</filePath>
+
                 <filePath>/tmp/</filePath>
                 <filePath>/tmp_test/</filePath>
                 <filePath>/home/</filePath>
