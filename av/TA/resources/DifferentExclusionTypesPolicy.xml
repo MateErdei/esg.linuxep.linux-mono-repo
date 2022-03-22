@@ -46,6 +46,24 @@
                 <filePath>*/relative_path_to_file_with_wildcard/eicar4.com</filePath>
                 <!-- Relative path to file bar/eicar.com -->
                 <filePath>relative_path_to_file/eicar5.com</filePath>
+                <!-- Exclude a file with a .exe extension, in any directory -->
+                <filePath>*/*.exe</filePath>
+                <!-- Exclude an eicar file with any extension, in any directory -->
+                <filePath>*/eicar_extension_exlusion.*</filePath>
+                <!-- Absolute path with filename suffix-->
+                <filePath>/test/*.so</filePath>
+                <!-- Absolute path with filename prefix-->
+                <filePath>/test/eicar_extension_exlusion2.*</filePath>
+                <!-- Absolute path with directory name suffix -->
+                <filePath>/test/*.so/</filePath>
+                <!-- Absolute path with directory name prefix -->
+                <filePath>/test/test2/libz.*/</filePath>
+                <!-- Absolute path with character suffix -->
+                <filePath>/test/eicar.?</filePath>
+                <!-- Relative directory with wildcard -->
+                <filePath>su*ir/</filePath>
+                <!-- Relative path with wildcard -->
+                <filePath>dir/su*ir/</filePath>
 
                 <filePath>/tmp/</filePath>
                 <filePath>/tmp_test/</filePath>
