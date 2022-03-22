@@ -55,7 +55,8 @@ ${Sophos_Scheduled_Query_Pack}              ${SOPHOS_INSTALL}/plugins/edr/etc/os
 ${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
 ${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
-${UpdateConfigFile}                          ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
+${UpdateConfigFile}                         ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
+${sdds3_server_output}                      /tmp/sdds3-server.log
 
 *** Test Cases ***
 Sul Downloader Can Update Via Sdds3 Repository
@@ -119,10 +120,11 @@ Create Local SDDS3 Override
     Create File    ${sdds3_override_file}    content=${override_file_contents}
 
 Start Local SDDS3 Server
-    ${handle}=  Start Process  ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh  python3  ${LIBS_DIRECTORY}/SDDS3server.py    --launchdarkly    /tmp/system-product-test-inputs/sdds3/launchdarkly    --sdds3    /tmp/system-product-test-inputs/sdds3/repo   shell=true
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/system-product-test-inputs/sdds3/launchdarkly --sdds3 /tmp/system-product-test-inputs/sdds3/repo &> ${sdds3_server_output}  shell=true
     [Return]  ${handle}
 
 Stop Local SDDS3 Server
      terminate process  ${GL_handle}  True
+     Log File    ${sdds3_server_output}
      terminate all processes  True
 
