@@ -611,7 +611,7 @@ namespace SulDownloader
             // Make sure root directories are created
             createSdds3UpdateCacheFolders();
 
-            //repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly);
+            repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly);
         }
         else
         {
