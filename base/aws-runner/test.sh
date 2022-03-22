@@ -17,13 +17,7 @@ PLATFORM_EXCLUDE_TAG=""
 if [[ -f /etc/centos-release ]]
 then
     current_release=$(cat /etc/centos-release)
-    release_pattern="CentOS.*8.*"
-    if [[ ${current_release} =~ ${release_pattern} ]]
-    then
-        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_CENTOS8"
-    else
-        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_CENTOS"
-    fi
+    PLATFORM_EXCLUDE_TAG="-e EXCLUDE_CENTOS"
 elif [[ -f /etc/redhat-release ]]
 then
     current_release=$(cat /etc/redhat-release)

@@ -87,11 +87,6 @@
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "centos7x64"]}
         ]},
-    "RunCentos8x64" : {"Fn::Or": [
-        {"Condition" : "RunCentos"},
-        {"Condition" : "RunAll"},
-        {"Fn::Equals" : [{"Ref" : "RunOne"}, "centos8x64"]}
-        ]},
     "RunCentosStreamx64" : {"Fn::Or": [
         {"Condition" : "RunCentosStream"},
         {"Condition" : "RunAll"},

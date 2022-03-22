@@ -335,7 +335,6 @@ combineResults()
   python3 -m robot.rebot --merge -o ./results-combine-workspace/amazonlinux2x64-output.xml -l none -r none -N amazonlinux2x64  ./results/amazonlinux2x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/amazonlinux2022x64-output.xml -l none -r none -N amazonlinux2022x64  ./results/amazonlinux2022x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/centos7x64-output.xml -l none -r none -N centos7x64  ./results/centos7x64*
-  python3 -m robot.rebot --merge -o ./results-combine-workspace/centos8x64-output.xml -l none -r none -N centos8x64  ./results/centos8x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/centosstreamx64-output.xml -l none -r none -N centosstreamx64  ./results/centosstreamx64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/oracle8x64-output.xml -l none -r none -N oracle8x64  ./results/oracle8x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel78x64-output.xml -l none -r none -N rhel78x64  ./results/rhel78x64*
@@ -348,7 +347,6 @@ combineResults()
   python3 -m robot.rebot -l ./results/amazonlinux2x64-log.html -r ./results/amazonlinux2x64-report.html -N combined ./results-combine-workspace/amazonlinux2x64-output.xml
   python3 -m robot.rebot -l ./results/amazonlinux2022x64-log.html -r ./results/amazonlinux2022x64-report.html -N combined ./results-combine-workspace/amazonlinux2022x64-output.xml
   python3 -m robot.rebot -l ./results/centos7x64-log.html -r ./results/centos7x64-report.html -N combined ./results-combine-workspace/centos7x64-output.xml
-  python3 -m robot.rebot -l ./results/centos8x64-log.html -r ./results/centos8x64-report.html -N combined ./results-combine-workspace/centos8x64-output.xml
   python3 -m robot.rebot -l ./results/centosstreamx64-log.html -r ./results/centosstreamx64-report.html -N combined ./results-combine-workspace/centosstreamx64-output.xml
   python3 -m robot.rebot -l ./results/oracle8x64-log.html -r ./results/oracle8x64-report.html -N combined ./results-combine-workspace/oracle8x64-output.xml
   python3 -m robot.rebot -l ./results/rhel78x64-log.html -r ./results/rhel78x64-report.html -N combined ./results-combine-workspace/rhel78x64-output.xml

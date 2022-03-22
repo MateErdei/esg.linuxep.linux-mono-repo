@@ -68,7 +68,6 @@ The following tags can be used to select which tests can be run, using the inclu
 * EVENT_JOURNALER_PLUGIN - Tests which exercise the event journaler plugin
 * EXAMPLE_PLUGIN - Tests which exercise the example plugin 
 * EXCLUDE_AWS - Used to exclude the test from being run on AWS
-* EXCLUDE_CENTOS8 excludes the test from running on centos 8
 * EXCLUDE_RHEL8  excludes the test from running on rhel 8
 * FAKE_CLOUD - Tests which run against our fake central scripts
 * FAULTINJECTION - Tests that deliberately introduces faults to the normal installation
