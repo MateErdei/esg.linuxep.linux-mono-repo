@@ -115,8 +115,8 @@ u'<?xml version="1.0"?>
 
         try:
             #Check if the command is the migration action
-            action = doc.getElementsByTagName("action")[0]
-            if action and action.getAttribute("type") == "sophos.mgt.mcs.migrate":
+            action = doc.getElementsByTagName("action")
+            if action and action[0].getAttribute("type") == "sophos.mgt.mcs.migrate":
                 LOGGER.debug("{} adaptor processing as action".format(self.get_app_id()))
                 self.__m_migrate_action = body
                 return []

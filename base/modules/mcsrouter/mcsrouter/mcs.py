@@ -259,8 +259,8 @@ class MCS:
         self.__m_computer = computer.Computer()
         self.__m_mcs_adapter = mcs_adapter.MCSAdapter(
             install_dir, self.__m_policy_config, self.__m_config)
-        self.__m_app_proxy_adapter = None
-
+        self.__m_app_proxy_adapter = app_proxy_adapter.AppProxyAdapter(self.__m_computer.get_app_ids())
+        self.__m_computer.add_adapter(self.__m_app_proxy_adapter)
         self.__m_computer.add_adapter(self.__m_mcs_adapter)
 
         #~ apps = [ "ALC", "SAV", "HBT", "NTP", "SHS", "SDU", "UC", "MR" ]
@@ -268,7 +268,6 @@ class MCS:
             install_dir)
 
         self.check_registry_and_update_apps()
-
         self.__m_agent = agent_adapter.AgentAdapter()
         self.__m_computer.add_adapter(self.__m_agent)
 
