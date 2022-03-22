@@ -197,5 +197,5 @@ TEST_F(TestStringUtils, testgetSuSiStyleTimestamp) //NOLINT
 {
     const std::regex expected_regex("([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z)");
 
-    EXPECT_TRUE( std::regex_match(getSuSiStyleTimestamp(), expected_regex));
+    EXPECT_TRUE( std::regex_match(getSusiStyleTimestamp(), expected_regex));
 }

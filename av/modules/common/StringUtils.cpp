@@ -227,7 +227,7 @@ namespace common
         return true;
     }
 
-    std::string getSuSiStyleTimestamp()
+    std::string getSusiStyleTimestamp()
     {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
         std::time_t now_tt = std::chrono::system_clock::to_time_t(now);

@@ -16,6 +16,9 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include <iostream>
 #include <string>
+#include <unistd.h>
+#include <sys/syscall.h>
+#include <iomanip>
 
 using namespace threat_scanner;
 using json = nlohmann::json;
@@ -117,11 +120,17 @@ SusiScanner::scan(
     })";
 
     SusiScanResult* scanResult = nullptr;
-    auto timeBeforeScan = common::getSuSiStyleTimestamp();
-    LOG_SUSI_DEBUG("D " << timeBeforeScan << " Txxxxxxxx Starting scan of " << file_path);
+
+    pid_t tid = syscall(SYS_gettid);
+    std::stringstream paddedThreadId;
+    paddedThreadId << std::setfill('0') << std::setw(8);
+    paddedThreadId << std::hex << tid << std::dec;
+
+    auto timeBeforeScan = common::getSusiStyleTimestamp();
+    LOG_SUSI_DEBUG("D " << timeBeforeScan << " T" << paddedThreadId.str() << " Starting scan of " << file_path);
     SusiResult res = m_susi->scanFile(metaDataJson.c_str(), file_path.c_str(), fd, &scanResult);
-    auto timeAfterScan =common::getSuSiStyleTimestamp();
-    LOG_SUSI_DEBUG("D " << timeAfterScan << " Txxxxxxxx Finished scanning " << file_path << " result: " << std::hex << res << std::dec);
+    auto timeAfterScan = common::getSusiStyleTimestamp();
+    LOG_SUSI_DEBUG("D " << timeAfterScan << " T" << paddedThreadId.str() << " Finished scanning " << file_path << " result: " << std::hex << res << std::dec);
 
     LOGTRACE("Scanning " << file_path.c_str() << " result: " << std::hex << res << std::dec);
     if (scanResult != nullptr)

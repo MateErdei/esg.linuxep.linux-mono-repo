@@ -20,5 +20,5 @@ namespace common
     std::string escapePathForLogging(const std::string& path, bool appendUtf8Conversion = false, bool Utf8ConversionThrows = false, bool escapeXmlCharacters = false);
     bool contains(const std::string& string, const std::string& value);
     bool isStringHex(const std::string& stringToCheck);
-    std::string getSuSiStyleTimestamp();
+    std::string getSusiStyleTimestamp();
 }
