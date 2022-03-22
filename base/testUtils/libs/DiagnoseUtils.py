@@ -31,6 +31,8 @@ def get_platform():
         return "ubuntu"
     elif "rhel" in platform_data or "redhat" in platform_data:
         return "rhel"
+    if "debian" in platform_data:
+        return "debian"
     elif "oracle" in platform_data:
         return "oracle"
     else:
@@ -65,6 +67,8 @@ def get_expected_files_for_platform():
         return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release"]
     elif "rhel" == platform:
         return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release", "boot.log", "selinux-config"]
+    elif "debian" == platform:
+        return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release"]
     elif "oracle" == platform:
         return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release", "selinux-config"]
     raise ValueError('Platform unknown')

@@ -15,6 +15,7 @@ instances = {
     "amazonlinux2022x64": getInstanceJsonAsString("amazonlinux2022x64"),
     "centos7x64": getInstanceJsonAsString("centos7x64"),
     "centosstreamx64": getInstanceJsonAsString("centosstreamx64"),
+    "debian10x64": getInstanceJsonAsString("debian10x64"),
     "oracle8x64": getInstanceJsonAsString("oracle8x64"),
     "rhel78x64": getInstanceJsonAsString("rhel78x64"),
     "rhel81x64": getInstanceJsonAsString("rhel81x64"),

@@ -29,6 +29,17 @@ then
     else
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_RHEL"
     fi
+elif [[ -f /etc/debian_version ]]
+then
+    current_release=$(cat /etc/debian_version)
+    release_pattern10="10*"
+
+    if [[ ${current_release} =~ ${release_pattern10} ]]
+    then
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_DEBIAN10"
+    else
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_DEBIAN"
+    fi
 elif [[ -n `lsb_release -a` ]]
 then
     current_release=$(cat /etc/os-release | grep PRETTY_NAME)

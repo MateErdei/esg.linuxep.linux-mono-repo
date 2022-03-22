@@ -25,6 +25,22 @@ def get_value_after_prefix_from_command(cmd, prefix):
             return value
     return ""
 
+def get_value_after_line_starts_with_prefix(cmd, prefix):
+    output = subprocess.check_output(cmd)
+    result = output.decode("utf-8")
+    logger.info("cmd: {}, result: {}".format(cmd, result))
+    result = result.strip()
+    result = result.splitlines()
+    for line in result:
+        line = line.strip()
+        if line.startswith(prefix):
+            value = line.split(prefix, 1)[-1]
+            value = value.strip()
+            value = value.lstrip('"')
+            value = value.rstrip('"')
+            logger.info("value: {}".format(value))
+            return value
+    return ""
 
 def get_value_from_command(cmd):
     output = subprocess.check_output(cmd)
@@ -39,7 +55,7 @@ def get_kernel_version():
 
 
 def get_os_name():
-    return get_value_after_prefix_from_command(["cat", "/etc/os-release"], "NAME=")
+    return get_value_after_line_starts_with_prefix(["cat", "/etc/os-release"], "NAME=")
 
 
 def get_os_version():
