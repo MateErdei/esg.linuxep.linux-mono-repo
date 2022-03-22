@@ -46,7 +46,7 @@
              "Description" : "run a subset of platforms",
              "Type": "String",
              "Default": "",
-             "AllowedValues": [ "","rhel", "ubuntu", "amazonlinux", "centosstream" ]
+             "AllowedValues": [ "","rhel", "ubuntu", "amazonlinux", "centos", "centosstream" ]
             },
             "RunOne": {
              "Description" : "Run one specified test machine",
