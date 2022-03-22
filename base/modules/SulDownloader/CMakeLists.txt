@@ -27,7 +27,7 @@ add_library(suldownloaderimpl SHARED
         )
 
 
-include_directories(suldownloaderimpl BEFORE ${SOPHLIB_INCLUDE_DIR} ${SUL_INPUT}/include ${SDDS3LIB_INPUT} ${CURL_INCLUDE_DIR})
+include_directories(suldownloaderimpl BEFORE ${SOPHLIB_INCLUDE_DIR} ${SUL_INPUT}/include ${SDDS3LIB_INPUT} ${GSL_INCLUDE} ${CURL_INCLUDE_DIR})
 
 
 set(SUL_LIBRARY -L${SUL_LIBRARY_DIR} -lSUL)

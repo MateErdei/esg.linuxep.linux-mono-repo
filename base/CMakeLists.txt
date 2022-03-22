@@ -122,6 +122,7 @@ set( EXPAT_INPUT ${INPUT}/expat )
 set( ZLIB_INPUT ${INPUT}/zlib )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
 set( MINIZIP_INPUT ${INPUT}/minizip )
+set( GSL_INCLUDE ${INPUT}/gsl/include )
 
 set( BOOST_INCLUDE ${BOOST_INPUT}/include )
 

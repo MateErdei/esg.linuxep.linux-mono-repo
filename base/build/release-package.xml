@@ -39,9 +39,13 @@
             <development-version branch="bugfix/LINUXDAR-4178-add-sdds3-library-into-base"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
+        <build-asset project="thirdparty" repo="gsl">
+            <release-version branch="release/sophos" build-id="20200911164143-1923fa9a9b1636f552266b4c9082714d04d869e6-tbYSwR" />
+            <include artifact-path="include" dest-dir="/build/redist/gsl/include" />
+        </build-asset>
         <build-asset project="em" repo="esg">
             <release-version branch="release/sophlib" build-id="20220317101821-f49104c32d4518f48bc037a6cf34f114a713625b-V68BTJ" />
-          <!--<development-version branch="develop" />-->
+          <development-version branch="develop" />
           <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib" />
           <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64" />
         </build-asset>
