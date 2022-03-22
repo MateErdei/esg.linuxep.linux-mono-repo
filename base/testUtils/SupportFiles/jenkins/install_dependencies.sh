@@ -49,7 +49,7 @@ function install_system_packages
 python3 -m pip install pip --upgrade
 
 # install dependencies
-for python_package in sseclient aiohttp aiohttp_sse asyncio nest_asyncio python-dateutil websockets packaging protobuf==3.14.0 psutil proxy
+for python_package in sseclient aiohttp aiohttp_sse asyncio nest_asyncio python-dateutil websockets packaging protobuf==3.14.0 psutil proxy.py
 do
   pip_install ${python_package}
 done
