@@ -52,10 +52,15 @@ then
 elif [[ -f /etc/os-release ]]
 then
     current_release=$(cat /etc/os-release | grep PRETTY_NAME)
-    release_pattern="PRETTY_NAME=\"Amazon Linux 2\""
-    release_pattern="PRETTY_NAME=\"Amazon Linux 2022\""
-    if [[ ${current_release} =~ ${release_pattern} ]]
+    release_pattern2="PRETTY_NAME=\"Amazon Linux 2\""
+    release_pattern2022="PRETTY_NAME=\"Amazon Linux 2022\""
+    if [[ ${current_release} =~ ${release_pattern2} ]]
     then
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_AMAZON_LINUX2"
+    elif [[ ${current_release} =~ ${release_pattern2022} ]]
+    then
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_AMAZON_LINUX2022"
+    else
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_AMAZON_LINUX"
     fi
 fi
