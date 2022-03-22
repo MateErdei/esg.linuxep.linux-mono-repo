@@ -268,7 +268,7 @@ namespace threat_scanner
         LOGSUPPORT("Initialising Global Susi successful");
         m_susiInitialised.store(true, std::memory_order_release); // susi init is now saved
 
-        if (m_shuttingDown.load(std::memory_order_acquire))
+        if (isShuttingDown())
         {
             throw ShuttingDownException();
         }
@@ -280,7 +280,7 @@ namespace threat_scanner
             LOGDEBUG("Threat scanner pending update completed");
         }
 
-        if (m_shuttingDown.load(std::memory_order_acquire))
+        if (isShuttingDown())
         {
             throw ShuttingDownException();
         }
