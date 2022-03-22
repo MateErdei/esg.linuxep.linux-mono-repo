@@ -71,16 +71,6 @@
     "RunAmazon" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "amazonlinux"]},
     "RunCentosStream" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centosstream"]},
     "RunCentos" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centos"]},
-    "RunRhel78x64" : {"Fn::Or": [
-        {"Condition" : "RunRhel"},
-        {"Condition" : "RunAll"},
-        {"Fn::Equals" : [{"Ref" : "RunOne"}, "rhel78x64"]}
-        ]},
-    "RunRhel81x64" : {"Fn::Or": [
-        {"Condition" : "RunRhel"},
-        {"Condition" : "RunAll"},
-        {"Fn::Equals" : [{"Ref" : "RunOne"}, "rhel81x64"]}
-        ]},
     "RunAmazonLinux2x64" : {"Fn::Or": [
         {"Condition" : "RunAmazon"},
         {"Condition" : "RunAll"},
@@ -91,11 +81,6 @@
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "amazonlinux2022x64"]}
         ]},
-    "RunCentosStreamx64" : {"Fn::Or": [
-        {"Condition" : "RunCentosStream"},
-        {"Condition" : "RunAll"},
-        {"Fn::Equals" : [{"Ref" : "RunOne"}, "centosstreamx64"]}
-        ]},
     "RunCentos7x64" : {"Fn::Or": [
         {"Condition" : "RunCentos"},
         {"Condition" : "RunAll"},
@@ -105,6 +90,21 @@
         {"Condition" : "RunCentos"},
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "centos8x64"]}
+        ]},
+    "RunCentosStreamx64" : {"Fn::Or": [
+        {"Condition" : "RunCentosStream"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "centosstreamx64"]}
+        ]},
+    "RunRhel78x64" : {"Fn::Or": [
+        {"Condition" : "RunRhel"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "rhel78x64"]}
+        ]},
+    "RunRhel81x64" : {"Fn::Or": [
+        {"Condition" : "RunRhel"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "rhel81x64"]}
         ]},
     "RunUbuntu1804Minimal" : {"Fn::Or": [
         {"Condition" : "RunUbuntu"},
