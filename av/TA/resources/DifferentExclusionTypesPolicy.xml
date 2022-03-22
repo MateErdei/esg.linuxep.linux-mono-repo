@@ -33,7 +33,7 @@
                 <!-- Filename with wildcard */eicar2.com -->
                 <filePath>*/filename_to_exclude_with_wildcard</filePath>
                 <!-- Filename without wildcard eicar.com -->
-                <filePath>eicar.com</filePath>
+                <filePath>eicar1.com</filePath>
                 <!-- Directory name with wildcard */bar/* -->
                 <filePath>*/directory_name_with_wildcard/*</filePath>
                 <!-- Directory name without wildcard bar/ -->
@@ -43,9 +43,9 @@
                 <!-- Relative path to directory foo/bar/ -->
                 <filePath>eicars4/relative_path_to_directory/</filePath>
                 <!-- Relative path to file with wildcard */bar/eicar.com -->
-                <filePath>*/relative_path_to_file_with_wildcard/eicar.com</filePath>
+                <filePath>*/relative_path_to_file_with_wildcard/eicar4.com</filePath>
                 <!-- Relative path to file bar/eicar.com -->
-                <filePath>relative_path_to_file/eicar.com</filePath>
+                <filePath>relative_path_to_file/eicar5.com</filePath>
 
                 <filePath>/tmp/</filePath>
                 <filePath>/tmp_test/</filePath>
