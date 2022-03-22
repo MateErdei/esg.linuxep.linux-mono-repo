@@ -49,6 +49,14 @@ then
     else
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU"
     fi
+elif [[ -f /etc/oracle-release ]]
+then
+    current_release=$(cat /etc/oracle-release)
+    release_pattern="Oracle Linux Server release 8*"
+    if [[ ${current_release} =~ ${release_pattern20} ]]
+    then
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_ORACLE8"
+    fi
 elif [[ -f /etc/os-release ]]
 then
     current_release=$(cat /etc/os-release | grep PRETTY_NAME)
