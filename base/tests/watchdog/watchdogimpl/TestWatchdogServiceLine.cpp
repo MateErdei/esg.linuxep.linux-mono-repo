@@ -141,7 +141,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedData) // NOLINT
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto pluginProxy = getPluginProxyToTest();
     EXPECT_EQ(pluginProxy.getTelemetry(),
-              "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0}");
+              "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0}");
 }
 
 TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosSplUpdateWorksWithTheFactory) // NOLINT

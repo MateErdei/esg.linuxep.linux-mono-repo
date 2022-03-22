@@ -123,7 +123,7 @@ namespace
                 Common::Telemetry::TelemetryHelper::getInstance().increment(
                     watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(pluginName), 0UL);
             }
-
+            Common::Telemetry::TelemetryHelper::getInstance().set("health", 0UL);
             return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
         }
 

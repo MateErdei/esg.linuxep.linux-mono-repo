@@ -107,6 +107,8 @@ Telemetry Executable Generates System Base and Watchdog Telemetry
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Should contain  ${telemetryFileContents}  "sdu":{"health":0}
+    Should contain  ${telemetryFileContents}  "tscheduler":{"health":0}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}
     Check Watchdog Telemetry Json Is Correct  ${telemetryFileContents}
     Check Base Telemetry Json Is Correct  ${telemetryFileContents}

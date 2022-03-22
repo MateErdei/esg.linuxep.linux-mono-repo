@@ -70,6 +70,7 @@ class TelemetryUtils:
 
     def generate_watchdog_telemetry_dict(self, expected_times):
         telemetry = {
+            "health":0,
             "commscomponent-unexpected-restarts": int(expected_times),
             "managementagent-unexpected-restarts": int(expected_times),
             "sdu-unexpected-restarts": int(expected_times),
@@ -296,6 +297,7 @@ class TelemetryUtils:
         #pop mcsrouter efore comparison
         actual_dict.pop("mcsrouter-unexpected-restarts")
         expected_dict.pop("mcsrouter-unexpected-restarts")
+        expected_dict.pop("health")
 
         self.check_watchdog_telemetry_is_correct(actual_dict,expected_dict)
 

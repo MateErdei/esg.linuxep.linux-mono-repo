@@ -8,6 +8,7 @@ Copyright 2019 Sophos Limited.  All rights reserved.
 
 #include <Common/PluginApi/ApiException.h>
 #include <TelemetryScheduler/LoggerImpl/Logger.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
 #include <utility>
 
@@ -40,7 +41,8 @@ namespace TelemetrySchedulerImpl
     std::string PluginCallback::getTelemetry()
     {
         LOGSUPPORT("Received telemetry request");
-        return "{}";
+        Common::Telemetry::TelemetryHelper::getInstance().set("health", 0UL);
+        return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     }
 
     std::string PluginCallback::getHealth()
