@@ -26,115 +26,105 @@ Test Teardown  ScanNow Test Teardown
 
 *** Test Cases ***
 
-Scan Now Honours Exclusions
-    Create File    /filename_to_exclude    ${EICAR_STRING}
-    Register Cleanup    Remove File  /filename_to_exclude
-    Create File    /relative_filename_folder/relative_filename    ${EICAR_STRING}
-    Register Cleanup    Remove Directory  /relative_filename_folder/    recursive=True
-    Create File    /absolute_filename_folder/absolute_filename    ${EICAR_STRING}
-    Register Cleanup    Remove Directory  /absolute_filename_folder/    recursive=True
-    Create File    /eicar.star    ${EICAR_STRING}
-    Register Cleanup    Remove File  /eicar.star
-    Create File    /eicar.question_mark    ${EICAR_STRING}
-    Register Cleanup    Remove File  /eicar.question_mark
-
-    Run Scan Now Scan With All Types of Exclusions
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=20
-
-    Dump Log  ${SCANNOW_LOG_PATH}
-    ${scan_now_contents} =  Get File    ${SCANNOW_LOG_PATH}
-    Should Contain  ${scan_now_contents}  Excluding directory: /opt/
-    Should Contain  ${scan_now_contents}  Excluding directory: /boot/
-    Should Contain  ${scan_now_contents}  Excluding directory: /etc/
-    Should Contain  ${scan_now_contents}  Excluding directory: /dev/
-    Should Contain  ${scan_now_contents}  Excluding file: /absolute_filename_folder/absolute_filename
-    Should Contain  ${scan_now_contents}  Excluding file: /relative_filename_folder/relative_filename
-    Should Contain  ${scan_now_contents}  Excluding file: /filename_to_exclude
-    Should Contain  ${scan_now_contents}  Excluding file: /eicar.star
-    Should Contain  ${scan_now_contents}  Excluding file: /eicar.question_mark
-
-    Should Contain  ${scan_now_contents}  Mount point /proc is system and will be excluded from the scan
-    Should Contain  ${scan_now_contents}  Excluding mount point: /proc
-
-
 Scan Now Excludes Infected Files Successfully
     # absolute path to a file
     Create File  /eicars/absolute_path_eicar                                                           ${EICAR_STRING}
-    Register Cleanup    Remove Directory  /eicars/                              recursive=True
+    Create File  /should_not_be_excluded/eicars/absolute_path_eicar
+    Register Cleanup    Remove Directory  /eicars/                               recursive=True
+
 
     # absolute path to a directory using wildcard /absolute_directory_with_wildcard/*
     Create File  /absolute_directory_with_wildcard/absolute_path_eicar                                 ${EICAR_STRING}
+    Create File  /should_not_be_excluded/absolute_directory_with_wildcard/absolute_path_eicar
     Register Cleanup    Remove Directory  /absolute_directory_with_wildcard/     recursive=True
 
     # absolute path to a directory /example/
     Create File  /absolute_directory_without_wildcard/absolute_path_eicar                              ${EICAR_STRING}
+    Create File  /should_not_be_excluded/absolute_directory_without_wildcard/absolute_path_eicar
     Register Cleanup    Remove Directory  /absolute_directory_without_wildcard/  recursive=True
+
 
     # Filename with wildcard */eicar2.com
     Create File  /filename_with_wildcard/filename_to_exclude_with_wildcard                             ${EICAR_STRING}
+    Create File  /filename_with_wildcard/zfilename_to_exclude_with_wildcard
     Register Cleanup    Remove Directory  /filename_with_wildcard/               recursive=True
 
     # Directory name with wildcard */bar/*
     Create File  /eicars2/directory_name_with_wildcard/eicar.com                                       ${EICAR_STRING}
+    Create File  /eicars2/zdirectory_name_with_wildcard/eicar.com
     Register Cleanup    Remove Directory  /eicars2/                              recursive=True
 
     # Relative path to directory with wildcard */foo/bar/*
     Create File   /eicars3/relative_path_to_directory_with_wildcard/eicar.com                          ${EICAR_STRING}
+    Create File   /eicars3/rrelative_path_to_directory_with_wildcard/eicar.com
     Register Cleanup    Remove Directory  /eicars3/                              recursive=True
 
     # Filename without wildcard eicar.com
     Create File  /relative_paths_test_folder/eicar1.com                                                 ${EICAR_STRING}
+    Create File  /relative_paths_test_folder/eicar1.comm
 
     # Directory name without wildcard bar/
     Create File  /relative_paths_test_folder/directory_name_without_wildcard/eicar2.com                ${EICAR_STRING}
+    Create File  /relative_paths_test_folder/ddirectory_name_without_wildcard/eicar2.com
 
     # Relative path to directory foo/bar/
     Create File  /relative_paths_test_folder/eicars4/relative_path_to_directory/eicar3.com             ${EICAR_STRING}
+    Create File  /relative_paths_test_folder/eeicars4/relative_path_to_directory/eicar3.com
 
     # Relative path to file with wildcard */bar/eicar.com
     Create File   /relative_paths_test_folder/relative_path_to_file_with_wildcard/eicar4.com           ${EICAR_STRING}
+    Create File   /relative_paths_test_folder/relative_path_to_file_with_wildcard/eicar4.comm
 
     # Relative path to file bar/eicar.com
     Create File   /relative_paths_test_folder/relative_path_to_file/eicar5.com                         ${EICAR_STRING}
+    Create File   /relative_paths_test_folder/rrelative_path_to_file/eicar5.com
     Register Cleanup    Remove Directory  /relative_paths_test_folder/           recursive=True
 
     # Exclude a file with a .exe extension, in any directory
     Create File  /test/eicar1.exe                                                                      ${EICAR_STRING}
     Create File  /test/eicar2.exe                                                                      ${EICAR_STRING}
+    Create File  /test/eicar2.exee
 
     #Exclude an eicar file with any extension, in any directory
     Create File  /test/eicar_extension_exlusion.ts                                                     ${EICAR_STRING}
     Create File  /test/eicar_extension_exlusion.js                                                     ${EICAR_STRING}
-    Create File  /test/eicar_extension_exclusion # Should not be mactched
+    Create File  /test/eicar_extension_exclusion
 
-    #Absolute path with filename suffix
-    Create File  /test/test_extension/eicar_extension_exlusion.so                                      ${EICAR_STRING}
+    #Absolute path with filename suffix /lib/foo/bar.so
+    Create File  /test/test_extension/should_not_be_excluded.so                                         ${EICAR_STRING}
+    Create File  /test/test_extension/should_not_be_excluded.soo
 
     #Absolute path with filename prefix
     Create File  /test/eicar_extension_exlusion2.tsx                                                   ${EICAR_STRING}
     Create File  /test/eicar_extension_exlusion2.jsx                                                   ${EICAR_STRING}
+    Create File  /should_not_be_excluded/test/eicar_extension_exlusion2.jsx
 
     #Absolute path with directory name suffix
     Create File  /test/test.so/eicar                                                                   ${EICAR_STRING}
+    Create File  /should_not_be_excluded/test/test.so/eicar
 
     #Absolute path with directory name prefix
     Create File  /test/test2/libz.so/eicar                                                             ${EICAR_STRING}
+    Create File  /should_not_be_excluded/test/test2/libz.so/eicar
 
     #Absolute path with character suffix
     Create File  /test/eicar.1                                                                         ${EICAR_STRING}
+    Create File  /should_not_be_excluded/test/eicar.1
+    Register Cleanup    Remove Directory  /should_not_be_excluded/               recursive=True
 
     #Relative directory with wildcard
     Create File  /test/subpart/partdir/eicar_to_detect                                                 ${EICAR_STRING}
+    Create File  /test/ssubpart/partdir/eicar_to_detect
 
     #Relative path with wildcard
     Create File  /test/dir/subpart/partdir/more/eicar_to_detect.com                                    ${EICAR_STRING}
-    Register Cleanup    Remove Directory  /test/           recursive=True
+    Create File  /test/ddir/subpart/partdir/more/eicar_to_detect.com
+    Register Cleanup    Remove Directory  /test/                                 recursive=True
 
     Run Scan Now Scan With All Types of Exclusions
     Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=20
-
+    Run Scheduled Scan
     Dump Log  ${SCANNOW_LOG_PATH}
     ${scan_now_contents} =  Get File    ${SCANNOW_LOG_PATH}
     Should Contain      ${scan_now_contents}  Excluding directory: /opt/
@@ -143,33 +133,50 @@ Scan Now Excludes Infected Files Successfully
     Should Contain      ${scan_now_contents}  Excluding directory: /dev/
 
     Should Contain      ${scan_now_contents}  Excluding file: /eicars/absolute_path_eicar
+    Should Not Contain  ${scan_now_contents}  Excluding file: /should_not_be_excluded/eicars/absolute_path_eicar
     Should Contain      ${scan_now_contents}  Excluding directory: /absolute_directory_with_wildcard/
+    Should Not Contain  ${scan_now_contents}  Excluding directory: /should_not_be_excluded/absolute_directory_without_wildcard/
     Should Contain      ${scan_now_contents}  Excluding directory: /absolute_directory_without_wildcard/
     Should Contain      ${scan_now_contents}  Excluding file: /filename_with_wildcard/filename_to_exclude_with_wildcard
+    Should Not Contain  ${scan_now_contents}  Excluding file: /filename_with_wildcard/zfilename_to_exclude_with_wildcard
     Should Contain      ${scan_now_contents}  Excluding file: /relative_paths_test_folder/eicar1.com
+    Should Not Contain  ${scan_now_contents}  Excluding file: /relative_paths_test_folder/eicar1.comm
     Should Contain      ${scan_now_contents}  Excluding directory: /eicars2/directory_name_with_wildcard/
+    Should Not Contain  ${scan_now_contents}  Excluding directory: /eicars2/zdirectory_name_with_wildcard/
     Should Contain      ${scan_now_contents}  Excluding directory: /relative_paths_test_folder/directory_name_without_wildcard/
+    Should Not Contain  ${scan_now_contents}  Excluding directory: /relative_paths_test_folder/ddirectory_name_without_wildcard/
     Should Contain      ${scan_now_contents}  Excluding directory: /eicars3/relative_path_to_directory_with_wildcard/
+    Should Not Contain  ${scan_now_contents}  Excluding directory: /eicars3/rrelative_path_to_directory_with_wildcard/
     Should Contain      ${scan_now_contents}  Excluding directory: /relative_paths_test_folder/eicars4/relative_path_to_directory/
+    Should Not Contain  ${scan_now_contents}  Excluding directory: /relative_paths_test_folder/eeicars4/relative_path_to_directory/
     Should Contain      ${scan_now_contents}  Excluding file: /relative_paths_test_folder/relative_path_to_file_with_wildcard/eicar4.com
+    Should Not Contain  ${scan_now_contents}  Excluding file: /relative_paths_test_folder/relative_path_to_file_with_wildcard/eicar4.comm
     Should Contain      ${scan_now_contents}  Excluding file: /relative_paths_test_folder/relative_path_to_file/eicar5.com
+    Should Not Contain  ${scan_now_contents}  Excluding file: /relative_paths_test_folder/rrelative_path_to_file/eicar5.com
     Should Contain      ${scan_now_contents}  Excluding file: /test/eicar1.exe
     Should Contain      ${scan_now_contents}  Excluding file: /test/eicar2.exe
+    Should Not Contain  ${scan_now_contents}  Excluding file: /test/eicar2.exee
     Should Contain      ${scan_now_contents}  Excluding file: /test/eicar_extension_exlusion.ts
     Should Contain      ${scan_now_contents}  Excluding file: /test/eicar_extension_exlusion.js
     Should Not Contain  ${scan_now_contents}  Excluding file: /test/eicar_extension_exclusion
-    Should Contain      ${scan_now_contents}  Excluding file: /test/test_extension/eicar_extension_exlusion.so
+    Should Contain      ${scan_now_contents}  Excluding file: /test/test_extension/should_not_be_excluded.so
+    Should Not Contain  ${scan_now_contents}  Excluding file: /test/test_extension/should_not_be_excluded.soo
     Should Contain      ${scan_now_contents}  Excluding file: /test/eicar_extension_exlusion2.tsx
     Should Contain      ${scan_now_contents}  Excluding file: /test/eicar_extension_exlusion2.jsx
+    Should Not Contain  ${scan_now_contents}  Excluding file: /should_not_be_excluded/test/eicar_extension_exlusion2.jsx
     Should Contain      ${scan_now_contents}  Excluding directory: /test/test.so/
+    Should Not Contain  ${scan_now_contents}  Excluding directory: /should_not_be_excluded/test/test.so/
     Should Contain      ${scan_now_contents}  Excluding directory: /test/test2/libz.so/
+    Should Not Contain  ${scan_now_contents}  Excluding directory: /should_not_be_excluded/test/test2/libz.so/
     Should Contain      ${scan_now_contents}  Excluding file: /test/eicar.1
+    Should Not Contain  ${scan_now_contents}  Excluding file: /should_not_be_excluded/test/eicar.1
     Should Contain      ${scan_now_contents}  Excluding directory: /test/subpart/partdir/
+    Should Not Contain  ${scan_now_contents}  Excluding directory: /test/ssubpart/partdir/
     Should Contain      ${scan_now_contents}  Excluding directory: /test/dir/subpart/partdir/
+    Should Not Contain  ${scan_now_contents}  Excluding directory: /test/ddir/subpart/partdir/
 
     Should Contain      ${scan_now_contents}  Mount point /proc is system and will be excluded from the scan
     Should Contain      ${scan_now_contents}  Excluding mount point: /proc
-
 
 
 Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover

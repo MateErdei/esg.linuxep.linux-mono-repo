@@ -12,16 +12,6 @@
                 <filePath>/d?v/</filePath>
                 <!-- wild card * directory     -->
                 <filePath>/e*c/</filePath>
-                <!-- filename                  -->
-                <filePath>filename_to_exclude</filePath>
-                <!-- relative filename         -->
-                <filePath>relative_filename_folder/relative_filename</filePath>
-                <!-- absolute filename         -->
-                <filePath>/absolute_filename_folder/absolute_filename</filePath>
-                <!-- wildcard * filename       -->
-                <filePath>*.star</filePath>
-                <!-- wildcard ? filename       -->
-                <filePath>?????.question_mark</filePath>
 
                 <!-- Check for more details: https://sophos.atlassian.net/wiki/spaces/SAVLU/pages/30178205330/Exclusions -->
                 <!-- absolute path to a file  -->
@@ -64,7 +54,6 @@
                 <filePath>su*ir/</filePath>
                 <!-- Relative path with wildcard -->
                 <filePath>dir/su*ir/</filePath>
-
                 <filePath>/tmp/</filePath>
                 <filePath>/tmp_test/</filePath>
                 <filePath>/home/</filePath>
