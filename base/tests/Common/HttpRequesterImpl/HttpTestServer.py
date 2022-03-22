@@ -11,6 +11,7 @@ import subprocess
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import logging
+import logging.handlers
 import urllib.parse
 import socket
 
@@ -262,6 +263,25 @@ def wait_for_proxy_to_be_up(port):
         time.sleep(1)
     return AssertionError(f"Proxy hasn't started up after {tries} seconds port={port}")
 
+
+def setup_logger():
+    this_dir = os.path.dirname(os.path.abspath(__file__))
+    log_location = os.path.join(this_dir, "http_test_server.log")
+    rootLogger = logging.getLogger()
+    rootLogger.setLevel(logging.DEBUG)
+
+    streamHandler = logging.StreamHandler()
+    streamHandler.setLevel(logging.DEBUG)
+
+    rootLogger.addHandler(streamHandler)
+
+    rotatingFileHandler = logging.handlers.RotatingFileHandler(log_location, maxBytes=1024*1024, backupCount=2)
+    rotatingFileHandler.setLevel(logging.DEBUG)
+
+    rootLogger.addHandler(rotatingFileHandler)
+    print("Logging to: {log_location}")
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="This server runs test cases to help verify HTTP clients. It can be run in HTTP or HTTPS mode.")
     parser.add_argument('--http-port', type=int, help='Port number to run HTTP server on.', default=7780)
@@ -269,6 +289,7 @@ if __name__ == '__main__':
     parser.add_argument('--proxy-port', type=int, help='Port number to run proxy server on.', default=7750)
     parser.add_argument('--proxy-port-basic-auth', type=int, help='Port number to run basic auth proxy server on.', default=7751)
     args = parser.parse_args()
+    setup_logger()
     running = True
 
     http_server = create_server(port=args.http_port, https=False)

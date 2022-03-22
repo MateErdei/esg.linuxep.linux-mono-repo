@@ -31,4 +31,7 @@ Local Suite Teardown
 *** Test Case ***
 Http Library Tests
     ${result} =  Run Process   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/HttpRequesterLiveNetworkTests
+    Log ${result.stdout}
+    Log ${result.stderr}
+    Log File  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/http_test_server.log
     Should Be Equal As Integers  ${result.rc}  0  msg="HttpRequesterLiveNetworkTests tests failed. \n stdout: ${result.stdout} stderr: ${result.stderr}."
