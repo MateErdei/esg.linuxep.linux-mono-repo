@@ -15,6 +15,7 @@ import logging.handlers
 import urllib.parse
 import socket
 
+import psutil
 import time
 import argparse
 import sys
@@ -304,11 +305,11 @@ if __name__ == '__main__':
     logging.info(f"HTTPS server started https://localhost:{args.https_port}")
 
     logging.info(f"Starting unauthenticated proxy server on port: {args.proxy_port}")
-    no_auth_proxy_cmd = ["proxy", "--threadless", "--port", str(args.proxy_port), "--hostname", "127.0.0.1"]
+    no_auth_proxy_cmd = ["proxy", "--num-workers", "1", "--port", str(args.proxy_port), "--hostname", "127.0.0.1"]
     no_auth_proxy_processes = subprocess.Popen(no_auth_proxy_cmd)
 
     logging.info(f"Starting basic auth proxy server on port: {args.proxy_port_basic_auth}")
-    basic_auth_proxy_cmd = ["proxy", "--threadless", "--port", str(args.proxy_port_basic_auth), "--hostname", "127.0.0.1", "--basic-auth", "user:password"]
+    basic_auth_proxy_cmd = ["proxy", "--num-workers", "1", "--port", str(args.proxy_port_basic_auth), "--hostname", "127.0.0.1", "--basic-auth", "user:password"]
     basic_auth_proxy_processes = subprocess.Popen(basic_auth_proxy_cmd)
 
     def signal_handler(signal, frame):
@@ -316,9 +317,17 @@ if __name__ == '__main__':
         logging.info("Stopping")
         running = False
 
+    children = []
     signal.signal(signal.SIGINT, signal_handler)
     while running:
         time.sleep(1)
+        pid = os.getpid()
+        this_proc = psutil.Process(pid)
+        for child in this_proc.children(recursive=True):
+            if child.pid not in children:
+                children.append(child.pid)
+                print(f"print CURRENT CHILDREN: {children}")
+                logging.info(f"print CURRENT CHILDREN: {children}")
 
     logging.info("Shutting down no auth proxy server")
     no_auth_proxy_processes.kill()
@@ -339,5 +348,8 @@ if __name__ == '__main__':
 
     if https_thread:
         https_thread.join()
+
+    for child in children:
+        os.kill(child, signal.SIGINT)
 
     logging.info("All servers stopped.")
