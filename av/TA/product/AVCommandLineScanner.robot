@@ -714,49 +714,116 @@ CLS Handles Eicar With The Same Name As An Option
 
 
 CLS Exclusions Filename
-    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
-    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+    ${TEST_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/testdir
+    Create File     ${TEST_DIR}/clean_eicar                                     ${CLEAN_STRING}
+    Create File     ${TEST_DIR}/naughty_eicar_folder/eicar                      ${EICAR_STRING}
+    Create File     ${TEST_DIR}/clean_eicar_folder/eicar                        ${CLEAN_STRING}
+    Create File     ${TEST_DIR}/clean_eicar_folder/eicar.com                    ${CLEAN_STRING}
+    #Absolute path with character suffix
+    Create File     ${TEST_DIR}/naughty_eicar_folder/eicar.com                  ${EICAR_STRING}
+    Create File     ${TEST_DIR}/naughty_eicar_folder/eicar.comm                 ${CLEAN_STRING}
+    Create File     ${TEST_DIR}/naughty_eicar_folder/eicar.co                   ${CLEAN_STRING}
+    #Absolute path with filename prefix
+    Create File     ${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous.txt      ${EICAR_STRING}
+    Create File     ${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous.exe      ${EICAR_STRING}
+    Create File     ${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous          ${CLEAN_STRING}
+    #Absolute path with filename suffix
+    Create File     ${TEST_DIR}/naughty_eicar_folder/bird.js                    ${EICAR_STRING}
+    Create File     ${TEST_DIR}/naughty_eicar_folder/exe.js                     ${EICAR_STRING}
+    Create File     ${TEST_DIR}/naughty_eicar_folder/clean_file.jss             ${CLEAN_STRING}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude eicar
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${TEST_DIR}/ --exclude eicar "./${TEST_DIR}/naughty_eicar_folder/eicar.???" "${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous.*" "${TEST_DIR}/naughty_eicar_folder/*.js"
     Log  return code is ${rc}
     Log  output is ${output}
 
-    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/clean_eicar
-    Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar
-    Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
+    Should Contain       ${output}  Scanning ${TEST_DIR}/clean_eicar
+    Should Contain       ${output}  Scanning ${TEST_DIR}/clean_eicar_folder/eicar.com
+    Should Contain       ${output}  Scanning ${TEST_DIR}/naughty_eicar_folder/eicar.comm
+    Should Contain       ${output}  Scanning ${TEST_DIR}/naughty_eicar_folder/eicar.co
+    Should Contain       ${output}  Scanning ${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous
+    Should Contain       ${output}  Scanning ${TEST_DIR}/naughty_eicar_folder/clean_file.jss
+    Should Contain       ${output}  Excluding file: ${TEST_DIR}/naughty_eicar_folder/eicar.com
+    Should Contain       ${output}  Excluding file: ${TEST_DIR}/naughty_eicar_folder/eicar
+    Should Contain       ${output}  Excluding file: ${TEST_DIR}/clean_eicar_folder/eicar
+    Should Contain       ${output}  Excluding file: ${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous.txt
+    Should Contain       ${output}  Excluding file: ${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous.exe
+    Should Contain       ${output}  Excluding file: ${TEST_DIR}/naughty_eicar_folder/bird.js
+    Should Contain       ${output}  Excluding file: ${TEST_DIR}/naughty_eicar_folder/exe.js
+
+    Dump Log  ${AV_LOG_PATH}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
 CLS Relative File Exclusion
-    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
-    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/naughty_realm/naughty_eicar_folder/eicar    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+    ${TEST_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/testdir
+    ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  ${NORMAL_DIRECTORY}/testdir/folder_without_wildcard
+    ${TEST_DIR_WITH_WILDCARD} =  Set Variable  ${NORMAL_DIRECTORY}/testdir/folder_with_wildcard
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude naughty_eicar_folder/eicar
+    #Relative path to file
+    Create File     ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar                                                ${CLEAN_STRING}
+    Create File     ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicarr                                ${CLEAN_STRING}
+    Create File     ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar                                 ${EICAR_STRING}
+    Create File     ${TEST_DIR_WITHOUT_WILDCARD}/naughty_realm/naughty_eicar_folder/eicar                   ${EICAR_STRING}
+    Create File     ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar_folder/eicar                                   ${CLEAN_STRING}
+    #Relative path to file with wildcard
+    Create File     ${TEST_DIR_WITH_WILDCARD}/wildcard_eicar                                                ${CLEAN_STRING}
+    Create File     ${TEST_DIR_WITH_WILDCARD}/wildcard_eicar_folder/wildcard_eicarr                         ${CLEAN_STRING}
+    Create File     ${TEST_DIR_WITH_WILDCARD}/wildcard_eicar_folder/wildcard_eicar                          ${EICAR_STRING}
+    Create File     ${TEST_DIR_WITH_WILDCARD}/naughty_realm/wildcard_eicar_folder/wildcard_eicar            ${EICAR_STRING}
+    Create File     ${TEST_DIR_WITH_WILDCARD}/clean_eicar_folder/wildcard_eicar                             ${CLEAN_STRING}
+    Create File     ${TEST_DIR_WITH_WILDCARD}/naughty_eicar_folder/eicar/clean_eicar                        ${CLEAN_STRING}
+    Create File     ${TEST_DIR_WITH_WILDCARD}/dir/subpar/subdir/eicar.com                                   ${EICAR_STRING}
+    Create File     ${TEST_DIR_WITH_WILDCARD}/ddir/subpar/subdir/eicar.com                                  ${CLEAN_STRING}
+
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${TEST_DIR}/ --exclude naughty_eicar_folder/eicar "folder_with_wildcard/*/wildcard_eicar" "dir/su*ir/"
     Log  return code is ${rc}
     Log  output is ${output}
 
-    Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/clean_eicar
-    Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar
-    Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/naughty_realm/naughty_eicar_folder/eicar
+    Should Contain       ${output}  Scanning ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar
+    Should Contain       ${output}  Scanning ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicarr
+    Should Contain       ${output}  Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar
+    Should Contain       ${output}  Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/naughty_realm/naughty_eicar_folder/eicar
+    Should Contain       ${output}  Scanning ${TEST_DIR_WITH_WILDCARD}/wildcard_eicar
+    Should Contain       ${output}  Scanning ${TEST_DIR_WITH_WILDCARD}/wildcard_eicar_folder/wildcard_eicarr
+    Should Contain       ${output}  Scanning ${TEST_DIR_WITH_WILDCARD}/naughty_eicar_folder/eicar/clean_eicar
+    Should Contain       ${output}  Excluding file: ${TEST_DIR_WITH_WILDCARD}/wildcard_eicar_folder/wildcard_eicar
+    Should Contain       ${output}  Excluding file: ${TEST_DIR_WITH_WILDCARD}/naughty_realm/wildcard_eicar_folder/wildcard_eicar
+    Should Contain       ${output}  Excluding directory: ${TEST_DIR_WITH_WILDCARD}/dir/subpar/subdir/
+    Should Not Contain   ${output}  Excluding directory: ${TEST_DIR_WITH_WILDCARD}/ddir/subpar/subdir/
+
+    Dump Log  ${AV_LOG_PATH}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
 CLS Absolute Folder Exclusion
-    Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
-    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
+    ${TEST_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/testdir
+    ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  ${NORMAL_DIRECTORY}/testdir/folder_without_wildcard
+    ${TEST_DIR_WITH_WILDCARD} =  Set Variable  ${NORMAL_DIRECTORY}/testdir/folder_with_wildcard
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY} --exclude ${NORMAL_DIRECTORY}/
+    #Absolute path to directory
+    Create File     ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar                    ${CLEAN_STRING}
+    Create File     ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar     ${EICAR_STRING}
+    Create File     ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar_folder/eicar       ${CLEAN_STRING}
+    #Absolute path to directory with wildcard
+    Create File     ${TEST_DIR_WITH_WILDCARD}/clean_eicar                       ${CLEAN_STRING}
+    Create File     ${TEST_DIR_WITH_WILDCARD}/naughty_eicar_folder/eicar        ${EICAR_STRING}
+    Create File     ${TEST_DIR_WITH_WILDCARD}/clean_eicar_folder/eicar          ${CLEAN_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${TEST_DIR} --exclude ${TEST_DIR_WITHOUT_WILDCARD}/ "${TEST_DIR_WITH_WILDCARD}/*"
     Log  return code is ${rc}
     Log  output is ${output}
 
-    Should Contain      ${output}  Excluding directory: ${NORMAL_DIRECTORY}/
-    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
-    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar
-    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
+    Should Contain      ${output}  Excluding directory: ${TEST_DIR_WITHOUT_WILDCARD}/
+    Should Contain      ${output}  Excluding directory: ${TEST_DIR_WITH_WILDCARD}/
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${TEST_DIR_WITH_WILDCARD}/clean_eicar
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${TEST_DIR_WITH_WILDCARD}/naughty_eicar_folder/eicar
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar_folder/eicar
+    AV Plugin Log Should Not Contain With Offset   Excluding file: ${TEST_DIR_WITH_WILDCARD}/clean_eicar_folder/eicar
+
+    Dump Log  ${AV_LOG_PATH}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
