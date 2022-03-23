@@ -52,6 +52,8 @@ def get_platform():
                 logger.info(f"/etc/os-release contains: {contents}")
                 if "Ubuntu" in contents:
                     return "ubuntu"
+                if "Debian" in contents:
+                    return "debian"
         except FileNotFoundError:
             pass
     return "unknown"
