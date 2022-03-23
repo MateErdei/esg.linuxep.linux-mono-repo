@@ -17,7 +17,13 @@ PLATFORM_EXCLUDE_TAG=""
 if [[ -f /etc/centos-release ]]
 then
     current_release=$(cat /etc/centos-release)
-    PLATFORM_EXCLUDE_TAG="-e EXCLUDE_CENTOS"
+    release_pattern="CentOS.*8.*"
+    if [[ ${current_release} =~ ${release_pattern} ]]
+    then
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_CENTOS8"
+    else
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_CENTOS"
+    fi
 elif [[ -f /etc/redhat-release ]]
 then
     current_release=$(cat /etc/redhat-release)
@@ -32,22 +38,14 @@ then
 elif [[ -n `lsb_release -a` ]]
 then
     current_release=$(cat /etc/os-release | grep PRETTY_NAME)
-    release_patternUbuntu20="PRETTY_NAME=\"Ubuntu 20.*"
-    release_patternUbuntu18="PRETTY_NAME=\"Ubuntu 18.*"
-    release_patternDebian10="PRETTY_NAME=\"Debian GNU/Linux 10*"
-    release_patternDebian11="PRETTY_NAME=\"Debian GNU/Linux 11*"
-    if [[ ${current_release} =~ ${release_patternUbuntu20} ]]
+    release_pattern20="PRETTY_NAME=\"Ubuntu 20.*"
+    release_pattern18="PRETTY_NAME=\"Ubuntu 18.*"
+    if [[ ${current_release} =~ ${release_pattern20} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU20"
-    elif [[ ${current_release} =~ ${release_patternUbuntu18} ]]
+    elif [[ ${current_release} =~ ${release_pattern18} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU18"
-    elif [[ ${current_release} =~ ${release_patternDebian10} ]]
-    then
-        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_DEBIAN10"
-    elif [[ ${current_release} =~ ${release_patternDebian11} ]]
-    then
-        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_DEBIAN11"
     else
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU"
     fi
@@ -55,7 +53,7 @@ elif [[ -f /etc/oracle-release ]]
 then
     current_release=$(cat /etc/oracle-release)
     release_pattern="Oracle Linux Server release 8*"
-    if [[ ${current_release} =~ ${release_pattern} ]]
+    if [[ ${current_release} =~ ${release_pattern20} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_ORACLE8"
     fi

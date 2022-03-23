@@ -46,7 +46,7 @@
              "Description" : "run a subset of platforms",
              "Type": "String",
              "Default": "",
-             "AllowedValues": [ "","rhel", "ubuntu", "amazonlinux", "centos", "centosstream", "debian", "oracle" ]
+             "AllowedValues": [ "","rhel", "ubuntu", "amazonlinux", "centos", "centosstream", "oracle" ]
             },
             "RunOne": {
              "Description" : "Run one specified test machine",
@@ -71,7 +71,6 @@
     "RunAmazon" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "amazonlinux"]},
     "RunCentosStream" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centosstream"]},
     "RunCentos" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centos"]},
-    "RunDebian" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "debian"]},
     "RunOracle" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "oracle"]},
     "RunAmazonLinux2x64" : {"Fn::Or": [
         {"Condition" : "RunAmazon"},
@@ -88,21 +87,16 @@
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "centos7x64"]}
         ]},
+    "RunCentos8x64" : {"Fn::Or": [
+        {"Condition" : "RunCentos"},
+        {"Condition" : "RunAll"},
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "centos8x64"]}
+        ]},
     "RunCentosStreamx64" : {"Fn::Or": [
         {"Condition" : "RunCentosStream"},
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "centosstreamx64"]}
         ]},
-    "RunDebian10x64" : {"Fn::Or": [
-      {"Condition" : "RunDebian"},
-      {"Condition" : "RunAll"},
-      {"Fn::Equals" : [{"Ref" : "RunOne"}, "debian10x64"]}
-    ]},
-    "RunDebian11x64" : {"Fn::Or": [
-      {"Condition" : "RunDebian"},
-      {"Condition" : "RunAll"},
-      {"Fn::Equals" : [{"Ref" : "RunOne"}, "debian11x64"]}
-    ]},
     "RunOracle8x64" : {"Fn::Or": [
         {"Condition" : "RunOracle"},
         {"Condition" : "RunAll"},
