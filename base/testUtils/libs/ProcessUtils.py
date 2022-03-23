@@ -37,7 +37,7 @@ class ProcessUtils(object):
         process = subprocess.Popen(command)
         return process.pid
 
-    def wait_for_process(self, proc: str, *args) -> int:
+    def run_and_wait_for_process(self, proc: str, *args) -> int:
         command = [proc]
         for arg in args:
             command.append(arg)

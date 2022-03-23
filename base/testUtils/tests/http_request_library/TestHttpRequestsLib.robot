@@ -32,5 +32,5 @@ Http Library Tests
     ...  20 secs
     ...  1 secs
     ...  Should Exist  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/localhost-selfsigned.crt
-    ${test_rc} =  wait_for_process  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/HttpRequesterLiveNetworkTests
+    ${test_rc} =  run_and_wait_for_process  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/HttpRequesterLiveNetworkTests
     Should Be Equal As Integers  ${test_rc}  0  msg="HttpRequesterLiveNetworkTests tests failed"
