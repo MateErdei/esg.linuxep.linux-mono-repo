@@ -35,6 +35,7 @@ then
     release_patternUbuntu20="PRETTY_NAME=\"Ubuntu 20.*"
     release_patternUbuntu18="PRETTY_NAME=\"Ubuntu 18.*"
     release_patternDebian10="PRETTY_NAME=\"Debian GNU/Linux 10*"
+    release_patternDebian11="PRETTY_NAME=\"Debian GNU/Linux 11*"
     if [[ ${current_release} =~ ${release_patternUbuntu20} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU20"
@@ -44,6 +45,9 @@ then
     elif [[ ${current_release} =~ ${release_patternDebian10} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_DEBIAN10"
+    elif [[ ${current_release} =~ ${release_patternDebian11} ]]
+    then
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_DEBIAN11"
     else
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU"
     fi
