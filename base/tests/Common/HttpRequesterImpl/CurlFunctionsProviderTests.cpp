@@ -245,7 +245,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteDebugFuncSslDataIn)
     char* dataPtr = someDebugData;
     auto rc =  CurlFunctionsProvider::curlWriteDebugFunc(fakeCurlHandle, curl_infotype::CURLINFO_SSL_DATA_IN, dataPtr, strlen(dataPtr), fakeUserPtr);
     std::string logMessages = testing::internal::GetCapturedStderr();
-    std::string expected = "cURL <= Recv SSL data: " + std::string (someDebugData);
+    std::string expected = "cURL <= Recv SSL data.";
     EXPECT_THAT(logMessages, ::testing::HasSubstr(expected));
     ASSERT_EQ(rc, 0);
 }
@@ -259,7 +259,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteDebugFuncSslDataOut)
     char* dataPtr = someDebugData;
     auto rc =  CurlFunctionsProvider::curlWriteDebugFunc(fakeCurlHandle, curl_infotype::CURLINFO_SSL_DATA_OUT, dataPtr, strlen(dataPtr), fakeUserPtr);
     std::string logMessages = testing::internal::GetCapturedStderr();
-    std::string expected = "cURL => Send SSL data: " + std::string (someDebugData);
+    std::string expected = "cURL => Send SSL data.";
     EXPECT_THAT(logMessages, ::testing::HasSubstr(expected));
     ASSERT_EQ(rc, 0);
 }

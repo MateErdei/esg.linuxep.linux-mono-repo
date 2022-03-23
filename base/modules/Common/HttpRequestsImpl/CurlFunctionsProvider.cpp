@@ -132,36 +132,45 @@ int CurlFunctionsProvider::curlWriteDebugFunc(
     [[maybe_unused]] void* userp)
 {
     std::string debugLine = "cURL ";
+    bool should_log = false;
     switch (type)
     {
         case CURLINFO_TEXT:
             debugLine += "Info: ";
+            should_log = true;
             break;
         case CURLINFO_HEADER_OUT:
             debugLine += "=> Send header: ";
+            should_log = true;
             break;
         case CURLINFO_DATA_OUT:
             debugLine += "=> Send data: ";
+            should_log = true;
             break;
         case CURLINFO_SSL_DATA_OUT:
-            // NB: this can be quite noisy, consider disabling once library is in use.
-            debugLine += "=> Send SSL data: ";
+            // This can be quite noisy, so not logging it
+            debugLine += "=> Send SSL data.";
             break;
         case CURLINFO_HEADER_IN:
             debugLine += "<= Recv header: ";
+            should_log = true;
             break;
         case CURLINFO_DATA_IN:
             debugLine += "<= Recv data: ";
+            should_log = true;
             break;
         case CURLINFO_SSL_DATA_IN:
-            // NB: this can be quite noisy, consider disabling once library is in use.
-            debugLine += "<= Recv SSL data: ";
+            // This can be quite noisy, so not logging it
+            debugLine += "<= Recv SSL data.";
             break;
         default:
             LOGDEBUG("Unsupported cURL debug info type");
             return 0;
     }
-    debugLine.append(data, size);
+    if (should_log)
+    {
+        debugLine.append(data, size);
+    }
     LOGDEBUG(debugLine);
     return 0;
 }
