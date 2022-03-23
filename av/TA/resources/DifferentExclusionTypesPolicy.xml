@@ -38,7 +38,7 @@
                 <filePath>relative_path_to_file/eicar5.com</filePath>
                 <!-- Exclude a file with a .exe extension, in any directory -->
                 <filePath>*/*.exe</filePath>
-                <!-- Exclude an eicar file with any extension, in any directory -->
+                 Exclude an eicar file with any extension, in any directory
                 <filePath>*/eicar_extension_exlusion.*</filePath>
                 <!-- Absolute path with filename suffix-->
                 <filePath>/test/*.so</filePath>
@@ -53,7 +53,7 @@
                 <!-- Relative directory with wildcard -->
                 <filePath>su*ir/</filePath>
                 <!-- Relative path with wildcard -->
-                <filePath>dir/su*ir/</filePath>
+                <filePath>directory/su*ry/</filePath>
                 <filePath>/tmp/</filePath>
                 <filePath>/tmp_test/</filePath>
                 <filePath>/home/</filePath>
