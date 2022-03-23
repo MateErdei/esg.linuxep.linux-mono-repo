@@ -96,7 +96,7 @@ protected:
     virtual void SetUp()
     {
         // Give the server a chance to keep up
-        usleep(100000);
+        usleep(200000);
     }
 
     virtual void TearDown()

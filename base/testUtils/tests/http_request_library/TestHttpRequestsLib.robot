@@ -1,6 +1,7 @@
 *** Settings ***
 Library    ../libs/FullInstallerUtils.py
 Library    ../libs/UpdateServer.py
+Library    ../libs/ProcessUtils.py
 
 Resource  ../GeneralTeardownResource.robot
 
@@ -9,29 +10,27 @@ Suite Teardown   Local Suite Teardown
 
 Default Tags  TAP_TESTS
 
-*** Variables ***
-${server_handle}=  None
-
 *** Keywords ***
 Local Suite Setup
     # Install base so that the test binary can use the libs shipped by the product
     Run Full Installer
-
-    # Start HTTP, HTTPS, proxy and authenticated proxy servers:
     Should Exist  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/HttpTestServer.py
-    ${server_handle}=  Start Process   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/HttpTestServer.py
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
-    ...  Can Curl Url    http://localhost:7780
 
 Local Suite Teardown
-    Terminate Process 	${server_handle}
+    kill_process  ${server_pid}
     Log File  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/http_test_server.log
 
 *** Test Case ***
 Http Library Tests
-    ${result} =  Run Process   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/HttpRequesterLiveNetworkTests
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0  msg="HttpRequesterLiveNetworkTests tests failed. \n stdout: ${result.stdout} stderr: ${result.stderr}."
+    ${server_pid} =  run_process_in_background  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/HttpTestServer.py
+    Set Suite Variable  ${server_pid}   ${server_pid}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Can Curl Url    http://localhost:7780
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  Should Exist  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/localhost-selfsigned.crt
+    ${test_rc} =  wait_for_process  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/HttpRequesterLiveNetworkTests
+    Should Be Equal As Integers  ${test_rc}  0  msg="HttpRequesterLiveNetworkTests tests failed"
