@@ -612,6 +612,84 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
     EXPECT_EQ(schedule.minute, 0);
 }
 
+TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdateButMissingTimeField) // NOLINT
+{
+    auto* mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    UpdatePolicyTranslator translator;
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
+    static const std::string updatePolicyWithScheduledUpdate{ R"sophos(<?xml version="1.0"?>
+        <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+          <csc:Comp RevID="f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6" policyType="1"/>
+          <AUConfig platform="Linux">
+            <sophos_address address="http://es-web.sophos.com/update"/>
+            <primary_location>
+              <server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="54m5ung" UserName="QA940267" UseSophos="true" UseHttps="false" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+              <proxy ProxyType="2" ProxyUserPassword="CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY=" ProxyUserName="TestUser" ProxyPortNumber="8080" ProxyAddress="uk-abn-wpan-1.green.sophos" AllowLocalConfig="false"/>
+            </primary_location>
+            <secondary_location>
+              <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="false" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
+              <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+            </secondary_location>
+            <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="40" DetectDialUp="false"/>
+            <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
+            <bootstrap Location="" UsePrimaryServerAddress="true"/>
+            <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
+            <cloud_subscriptions>
+              <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
+              <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9"/>
+            </cloud_subscriptions>
+            <delay_supplements enabled="true"/>
+            <delay_updating Day="Wednesday" />
+          </AUConfig>
+          <Features>
+            <Feature id="APPCNTRL"/>
+            <Feature id="AV"/>
+            <Feature id="CORE"/>
+            <Feature id="DLP"/>
+            <Feature id="DVCCNTRL"/>
+            <Feature id="EFW"/>
+            <Feature id="HBT"/>
+            <Feature id="MTD"/>
+            <Feature id="NTP"/>
+            <Feature id="SAV"/>
+            <Feature id="SDU"/>
+            <Feature id="WEBCNTRL"/>
+          </Features>
+          <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
+          <customer id="9972e4cf-dba3-e4ab-19dc-77619acac988"/>
+        </AUConfigurations>
+        )sophos" };
+    auto settingsHolder = translator.translatePolicy(updatePolicyWithScheduledUpdate);
+    auto config = settingsHolder.configurationData;
+
+    const auto& primarySubscription = config.getPrimarySubscription();
+    EXPECT_EQ(primarySubscription.baseVersion(), "10");
+    EXPECT_EQ(primarySubscription.rigidName(), "ServerProtectionLinux-Base");
+    EXPECT_EQ(primarySubscription.tag(), "RECOMMENDED");
+    EXPECT_EQ(primarySubscription.fixedVersion(), "");
+
+    const auto& productsSubscription = config.getProductsSubscription();
+    ASSERT_EQ(productsSubscription.size(), 1);
+    EXPECT_EQ(productsSubscription[0].baseVersion(), "9");
+    EXPECT_EQ(productsSubscription[0].rigidName(), "ServerProtectionLinux-Base9");
+    EXPECT_EQ(productsSubscription[0].tag(), "RECOMMENDED");
+    EXPECT_EQ(productsSubscription[0].fixedVersion(), "");
+
+    const auto& features = config.getFeatures();
+    std::vector<std::string> expectedFeatures = { "APPCNTRL", "AV",  "CORE", "DLP", "DVCCNTRL", "EFW",
+                                                  "HBT",      "MTD", "NTP",  "SAV", "SDU",      "WEBCNTRL" };
+    EXPECT_EQ(features, expectedFeatures);
+
+    // We expect the schedule to be disabled because the policy did not contain both date and time.
+    auto schedule = settingsHolder.weeklySchedule;
+    EXPECT_EQ(schedule.enabled, false);
+    EXPECT_EQ(schedule.weekDay, 0);
+    EXPECT_EQ(schedule.hour, 0);
+    EXPECT_EQ(schedule.minute, 0);
+}
+
 TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStillGetsTheCorrectData) // NOLINT
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();

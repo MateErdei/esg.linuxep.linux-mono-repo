@@ -251,7 +251,7 @@ namespace UpdateSchedulerImpl
             std::string delayUpdatingTime = delayUpdating.value("Time");
             SettingsHolder::WeekDayAndTimeForDelay weeklySchedule{};
 
-            if (!delayUpdatingDay.empty() && !delayUpdatingDay.empty())
+            if (!delayUpdatingDay.empty() && !delayUpdatingTime.empty())
             {
                 std::string delayUpdatingDayAndTime = delayUpdatingDay + "," + delayUpdatingTime;
                 std::tm scheduledUpdateTime{};
@@ -262,6 +262,10 @@ namespace UpdateSchedulerImpl
                           .weekDay = scheduledUpdateTime.tm_wday,
                           .hour = scheduledUpdateTime.tm_hour,
                           .minute = scheduledUpdateTime.tm_min };
+                }
+                else
+                {
+                    LOGERROR("Could not parse update schedule from policy, leaving update schedule as default");
                 }
             }
 
