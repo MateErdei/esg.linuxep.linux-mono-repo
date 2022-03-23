@@ -4,6 +4,7 @@ import os
 import shutil
 import PathManager
 import psutil
+import time
 
 class ProcessUtils(object):
     def spawn_sleep_process(self, process_name="PickYourPoison", run_from_location="/tmp"):
@@ -46,3 +47,12 @@ class ProcessUtils(object):
 
     def kill_process(self, pid, signal_to_send=signal.SIGINT):
         os.kill(pid, signal_to_send)
+        wait_until = int(time.time()) + 30
+        while psutil.pid_exists(pid) and int(time.time()) < wait_until:
+            time.sleep(1)
+
+        # kill the process if it hasn't finished gracefully
+        if psutil.pid_exists(pid):
+            print(f"The pid {pid} did not shutdown after sending a {signal_to_send} signal, sending SIGKILL")
+            os.kill(pid, signal.SIGKILL)
+
