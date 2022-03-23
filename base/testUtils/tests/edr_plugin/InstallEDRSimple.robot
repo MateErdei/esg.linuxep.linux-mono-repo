@@ -226,7 +226,7 @@ EDR Osquery restarts mtr extension when killed
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  5 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log   edr_osquery_log  Created and monitoring extension child  2
+    ...  Check Log Contains String At Least N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log   edr_osquery_log  Created and monitoring extension child  2
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
@@ -240,7 +240,7 @@ EDR Osquery restarts mtr extension when killed
     Wait Until Keyword Succeeds
     ...  70 secs
     ...  10 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log   edr_osquery_log  Created and monitoring extension child  3
+    ...  Check Log Contains String At Least N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log   edr_osquery_log  Created and monitoring extension child  3
         Wait Until Keyword Succeeds
         ...  5 secs
         ...  1 secs
