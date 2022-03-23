@@ -304,15 +304,12 @@ if __name__ == '__main__':
     logging.info(f"HTTPS server started https://localhost:{args.https_port}")
 
     logging.info(f"Starting unauthenticated proxy server on port: {args.proxy_port}")
-    no_auth_proxy_cmd = ["proxy", "--port", str(args.proxy_port), "--hostname", "127.0.0.1"]
+    no_auth_proxy_cmd = ["proxy", "--threadless", "--port", str(args.proxy_port), "--hostname", "127.0.0.1"]
     no_auth_proxy_processes = subprocess.Popen(no_auth_proxy_cmd)
 
     logging.info(f"Starting basic auth proxy server on port: {args.proxy_port_basic_auth}")
-    basic_auth_proxy_cmd = ["proxy", "--port", str(args.proxy_port_basic_auth), "--hostname", "127.0.0.1", "--basic-auth", "user:password"]
+    basic_auth_proxy_cmd = ["proxy", "--threadless", "--port", str(args.proxy_port_basic_auth), "--hostname", "127.0.0.1", "--basic-auth", "user:password"]
     basic_auth_proxy_processes = subprocess.Popen(basic_auth_proxy_cmd)
-
-    # digest_auth_proxy_cmd = ["proxy", "--port", str(args.proxy_port), "--hostname", "127.0.0.1"]
-    # digest_auth_proxy_processes = subprocess.Popen(no_auth_proxy_cmd)
 
     def signal_handler(signal, frame):
         global running
