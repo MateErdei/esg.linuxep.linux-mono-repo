@@ -98,6 +98,11 @@
       {"Condition" : "RunAll"},
       {"Fn::Equals" : [{"Ref" : "RunOne"}, "debian10x64"]}
     ]},
+    "RunDebian11x64" : {"Fn::Or": [
+      {"Condition" : "RunDebian"},
+      {"Condition" : "RunAll"},
+      {"Fn::Equals" : [{"Ref" : "RunOne"}, "debian11x64"]}
+    ]},
     "RunOracle8x64" : {"Fn::Or": [
         {"Condition" : "RunOracle"},
         {"Condition" : "RunAll"},

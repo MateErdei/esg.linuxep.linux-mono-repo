@@ -337,6 +337,7 @@ combineResults()
   python3 -m robot.rebot --merge -o ./results-combine-workspace/centos7x64-output.xml -l none -r none -N centos7x64  ./results/centos7x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/centosstreamx64-output.xml -l none -r none -N centosstreamx64  ./results/centosstreamx64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/debian10x64-output.xml -l none -r none -N debian10x64  ./results/debian10x64*
+  python3 -m robot.rebot --merge -o ./results-combine-workspace/debian11x64-output.xml -l none -r none -N debian11x64  ./results/debian11x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/oracle8x64-output.xml -l none -r none -N oracle8x64  ./results/oracle8x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel78x64-output.xml -l none -r none -N rhel78x64  ./results/rhel78x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel81x64-output.xml -l none -r none -N rhel81x64  ./results/rhel81x64*
@@ -350,6 +351,7 @@ combineResults()
   python3 -m robot.rebot -l ./results/centos7x64-log.html -r ./results/centos7x64-report.html -N combined ./results-combine-workspace/centos7x64-output.xml
   python3 -m robot.rebot -l ./results/centosstreamx64-log.html -r ./results/centosstreamx64-report.html -N combined ./results-combine-workspace/centosstreamx64-output.xml
   python3 -m robot.rebot -l ./results/debian10x64-log.html -r ./results/debian10x64-report.html -N combined ./results-combine-workspace/debian10x64-output.xml
+  python3 -m robot.rebot -l ./results/debian11x64-log.html -r ./results/debian11x64-report.html -N combined ./results-combine-workspace/debian11x64-output.xml
   python3 -m robot.rebot -l ./results/oracle8x64-log.html -r ./results/oracle8x64-report.html -N combined ./results-combine-workspace/oracle8x64-output.xml
   python3 -m robot.rebot -l ./results/rhel78x64-log.html -r ./results/rhel78x64-report.html -N combined ./results-combine-workspace/rhel78x64-output.xml
   python3 -m robot.rebot -l ./results/rhel81x64-log.html -r ./results/rhel81x64-report.html -N combined ./results-combine-workspace/rhel81x64-output.xml
