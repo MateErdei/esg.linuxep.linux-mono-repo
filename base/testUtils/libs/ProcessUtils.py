@@ -38,12 +38,14 @@ class ProcessUtils(object):
         process = subprocess.Popen(command)
         return process.pid
 
-    def run_and_wait_for_process(self, proc: str, *args) -> int:
+    def run_and_wait_for_process(self, proc: str, *args) -> str:
         command = [proc]
         for arg in args:
             command.append(arg)
-        process = subprocess.Popen(command)
-        return process.wait()
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        rc = process.wait()
+        return rc, stdout, stderr
 
     def kill_process(self, pid, signal_to_send=signal.SIGINT):
         os.kill(pid, signal_to_send)
