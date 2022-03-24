@@ -28,10 +28,17 @@ Http Library Tests
     ...  10 secs
     ...  2 secs
     ...  Can Curl Url    http://localhost:7780
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Can Curl Url    http://localhost:7780  proxy=http://localhost:7750
+
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
     ...  Should Exist  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/localhost-selfsigned.crt
+
     ${rc}  ${stdout}  ${stderr}    run_and_wait_for_process  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/HttpRequesterLiveNetworkTests
     log  ${stdout}
     log  ${stderr}
