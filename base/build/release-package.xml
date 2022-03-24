@@ -35,7 +35,7 @@
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="linuxep" repo="sul">
-<!--            <release-version branch="release/linux-3.0.2" build-id="20210622151109-45729c01a79b678f7a29cf76cf770128ef856e2e-7mmYMo"/>-->
+            <release-version branch="release/2022-15" build-id="20220323111247-0d5a4f591e598f1e6b1553114b4c285892e57a74-iQoV0s"/>
             <development-version branch="bugfix/LINUXDAR-4178-add-sdds3-library-into-base"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
