@@ -134,10 +134,8 @@ o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_cs
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_ctypes_test.cpython-39-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_ctypes.cpython-39-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_datetime.cpython-39-x86_64-linux-gnu.so.0
-o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_dbm.cpython-39-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_decimal.cpython-39-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_elementtree.cpython-39-x86_64-linux-gnu.so.0
-o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_gdbm.cpython-39-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_hashlib.cpython-39-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_heapq.cpython-39-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/_json.cpython-39-x86_64-linux-gnu.so.0
@@ -174,6 +172,7 @@ o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/bin
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/cmath.cpython-39-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/fcntl.cpython-39-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/grp.cpython-39-x86_64-linux-gnu.so.0
+o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/libcrypt.so.1.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/libffi.so.7.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/math.cpython-39-x86_64-linux-gnu.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.9/lib-dynload/mmap.cpython-39-x86_64-linux-gnu.so.0
