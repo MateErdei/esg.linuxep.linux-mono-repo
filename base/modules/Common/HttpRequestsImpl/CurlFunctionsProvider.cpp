@@ -37,7 +37,6 @@ size_t CurlFunctionsProvider::curlWriteFileFunc(
     {
         if (responseBuffer->downloadDirectory.empty())
         {
-            //            throw std::runtime_error("Neither download target filename or directory specified");
             LOGERROR("Neither download target filename or directory specified");
             return 0;
         }
