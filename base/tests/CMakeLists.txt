@@ -22,6 +22,7 @@ add_subdirectory(wdctl)
 add_subdirectory(CentralRegistration)
 
 
+
 if (BUILD_FUZZ_TESTS)
     message("Building fuzz tests ${BUILD_FUZZ_TESTS}")
     add_subdirectory(FuzzTests)

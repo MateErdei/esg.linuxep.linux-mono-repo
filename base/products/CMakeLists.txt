@@ -1,5 +1,4 @@
 add_subdirectory(commandline)
-add_subdirectory(cmcsrouter)
 add_subdirectory(CommsComponent)
 add_subdirectory(distribution)
 add_subdirectory(Diagnose)
@@ -16,6 +15,5 @@ add_subdirectory(PluginApi)
 add_subdirectory(Telemetry)
 add_subdirectory(TelemetryScheduler)
 add_subdirectory(CentralRegistration)
-add_subdirectory(CentralRegistrationApi)
 
 

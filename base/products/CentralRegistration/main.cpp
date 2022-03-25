@@ -7,9 +7,9 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include <Common/UtilityImpl/Main.h>
 
-static int central_registration_main(int argc, char* argv[])
+static int central_registration_main()
 {
-    return CentralRegistration::main_entry(argc, argv);
+    return CentralRegistrationImpl::main_entry();
 }
 
-MAIN(central_registration_main(argc, argv))
+MAIN(central_registration_main());
