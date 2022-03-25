@@ -18,7 +18,6 @@
         <trusted-asset artifact-path="filer5-migrate/log4cpluslinux11/2-0-5-19/220731/output/log4cplus.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/zliblinux11/1-2-11-4/219630/output/zlib.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/pythonlinux11/3-9-7-1/222972/output/python.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/python-watchdog/2-0-2-3/222028/watchdog/python-watchdog.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/python-pathtools/0-1-1-9/216281/pathtools/python-pathtools.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/pycryptodomelinux11/3-9-8-3/221638/pycryptodome/pycryptodome.tar" dest-dir="/build/input/"/>
