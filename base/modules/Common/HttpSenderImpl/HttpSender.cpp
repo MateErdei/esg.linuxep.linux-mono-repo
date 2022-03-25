@@ -7,6 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "HttpSender.h"
 
 #include "Logger.h"
+#include "CurlWrapper/ICurlWrapper.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -53,11 +54,11 @@ namespace
 {
     class CurlScopeGuard
     {
-        Common::HttpSender::ICurlWrapper& m_iCurlWrapper;
+        Common::CurlWrapper::ICurlWrapper& m_iCurlWrapper;
         CURL* m_curl;
 
     public:
-        CurlScopeGuard(CURL* curl, Common::HttpSender::ICurlWrapper& iCurlWrapper) :
+        CurlScopeGuard(CURL* curl, Common::CurlWrapper::ICurlWrapper& iCurlWrapper) :
             m_iCurlWrapper(iCurlWrapper), m_curl(curl)
         {
         }
@@ -67,11 +68,11 @@ namespace
 
     class SListScopeGuard
     {
-        Common::HttpSender::ICurlWrapper& m_iCurlWrapper;
+        Common::CurlWrapper::ICurlWrapper& m_iCurlWrapper;
         curl_slist* m_curl_slist;
 
     public:
-        SListScopeGuard(curl_slist* curl_slist, Common::HttpSender::ICurlWrapper& iCurlWrapper) :
+        SListScopeGuard(curl_slist* curl_slist, Common::CurlWrapper::ICurlWrapper& iCurlWrapper) :
             m_iCurlWrapper(iCurlWrapper), m_curl_slist(curl_slist)
         {
         }
@@ -89,7 +90,7 @@ namespace
 namespace Common::HttpSenderImpl
 {
     using namespace Common::HttpSender;
-    HttpSender::HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper) :
+    HttpSender::HttpSender(std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper) :
         m_curlWrapper(std::move(curlWrapper))
     {
         CURLcode result = m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT); // NOLINT

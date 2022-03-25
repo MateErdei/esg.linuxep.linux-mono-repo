@@ -1,20 +1,20 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 /**
  * WARNING: There should only ever be a single instance of this class as it initialises libcurl on construction.
- * TODO: Convert class to a singleton or use a factory where libcurl initilisation can be done before instance creation.
+ * TODO: Convert class to a singleton or use a factory where libcurl initialisation can be done before instance creation.
  */
 
 #pragma once
 
-#include "CurlWrapper.h"
 
 #include <Common/HttpSender/HttpResponse.h>
 #include <Common/HttpSender/IHttpSender.h>
+#include "CurlWrapper/ICurlWrapper.h"
 
 namespace Common::HttpSenderImpl
 {
@@ -29,7 +29,7 @@ namespace Common::HttpSenderImpl
     class HttpSender : public Common::HttpSender::IHttpSender
     {
     public:
-        explicit HttpSender(std::shared_ptr<Common::HttpSender::ICurlWrapper> curlWrapper);
+        explicit HttpSender(std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper);
         HttpSender(const HttpSender&) = delete;
         HttpSender& operator=(const HttpSender&) = delete;
         ~HttpSender() override;
@@ -51,6 +51,6 @@ namespace Common::HttpSenderImpl
             const ProxySettings&,
             bool captureBody,
             long* curlCode);
-        std::shared_ptr<Common::HttpSender::ICurlWrapper> m_curlWrapper;
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> m_curlWrapper;
     };
 } // namespace Common::HttpSenderImpl

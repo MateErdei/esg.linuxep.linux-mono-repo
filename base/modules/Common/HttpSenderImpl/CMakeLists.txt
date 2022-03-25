@@ -1,7 +1,7 @@
 add_library(httpsenderimpl SHARED
-        ../HttpSender/ICurlWrapper.h
-        CurlWrapper.h
-        CurlWrapper.cpp
+        ../CurlWrapper/ICurlWrapper.h
+        ../CurlWrapper/CurlWrapper.h
+        ../CurlWrapper/CurlWrapper.cpp
         ../HttpSender/IHttpSender.h
         HttpSender.h
         HttpSender.cpp
@@ -11,7 +11,7 @@ add_library(httpsenderimpl SHARED
         Logger.h
         Logger.cpp)
 
-include_directories(httpsenderimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ../HttpSender)
+include_directories(httpsenderimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ../HttpSender ../CurlWrapper)
 
 target_link_libraries(httpsenderimpl PUBLIC
         -L"${CMAKE_BINARY_DIR}/libs"

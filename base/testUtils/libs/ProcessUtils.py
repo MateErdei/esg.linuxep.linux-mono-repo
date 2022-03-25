@@ -1,8 +1,10 @@
+import signal
 import subprocess
 import os
 import shutil
 import PathManager
 import psutil
+import time
 
 class ProcessUtils(object):
     def spawn_sleep_process(self, process_name="PickYourPoison", run_from_location="/tmp"):
@@ -25,4 +27,34 @@ class ProcessUtils(object):
 
         # in bytes
         return process.memory_info().rss
+
+
+    # Robot run process and start process don't seem to work well in some cases, they either interfere with each
+    # other of just hang. So here are a couple simple run process functions to call from tests.
+    def run_process_in_background(self, proc: str, *args) -> int:
+        command = [proc]
+        for arg in args:
+            command.append(arg)
+        process = subprocess.Popen(command)
+        return process.pid
+
+    def run_and_wait_for_process(self, proc: str, *args) -> str:
+        command = [proc]
+        for arg in args:
+            command.append(arg)
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        rc = process.wait()
+        return rc, stdout, stderr
+
+    def kill_process(self, pid, signal_to_send=signal.SIGINT):
+        os.kill(pid, signal_to_send)
+        wait_until = int(time.time()) + 30
+        while psutil.pid_exists(pid) and int(time.time()) < wait_until:
+            time.sleep(1)
+
+        # kill the process if it hasn't finished gracefully
+        if psutil.pid_exists(pid):
+            print(f"The pid {pid} did not shutdown after sending a {signal_to_send} signal, sending SIGKILL")
+            os.kill(pid, signal.SIGKILL)
 

@@ -8,7 +8,8 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
  * Component tests for Telemetry Executable
  */
 
-#include "MockCurlWrapper.h"
+#include "CurlWrapper/CurlWrapper.h"
+#include "tests/Common/Helpers/MockCurlWrapper.h"
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -62,7 +63,7 @@ class RealHttpSenderTest : public LogInitializedTests{};
 // disabled because it fetches resources from the internet
 TEST_F(RealHttpSenderTest, DISABLED_realGetRequestShouldBeAbleToExtractTheBody)
 {
-    auto curlWrapper = std::make_shared<CurlWrapper>(); 
+    auto curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
     auto httpSender = std::make_shared<HttpSender>(curlWrapper);
     std::vector<std::string> m_additionalHeaders;
 

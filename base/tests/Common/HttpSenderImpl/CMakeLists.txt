@@ -4,8 +4,7 @@ set(ENV{LD_LIBRARY_PATH} ${CMAKE_BINARY_DIR}/libs)
 include(GoogleTest)
 add_executable(HttpSenderTests
         HttpSenderTests.cpp
-        MockCurlWrapper.h
-        CurlWrapperTests.cpp)
+        ../Helpers/MockCurlWrapper.h)
 
 target_include_directories(HttpSenderTests PUBLIC  ${CMAKE_SOURCE_DIR}/modules/Common/HttpSender)
 target_include_directories(HttpSenderTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR} "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CURL_INCLUDE_DIR})

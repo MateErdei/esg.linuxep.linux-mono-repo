@@ -1,6 +1,7 @@
 add_subdirectory(ApplicationConfigurationImpl)
 add_subdirectory(DirectoryWatcherImpl)
 add_subdirectory(FileSystemImpl)
+add_subdirectory(HttpRequesterImpl)
 add_subdirectory(HttpSenderImpl)
 add_subdirectory(Logging)
 add_subdirectory(ObfuscationImpl)

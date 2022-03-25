@@ -1,14 +1,35 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include "CurlWrapper.h"
 
-namespace Common::HttpSenderImpl
+#include <mutex>
+
+namespace
 {
-    CURLcode CurlWrapper::curlGlobalInit(long flags) { return curl_global_init(flags); }
+    bool g_curlInitialised = false;
+}
+
+namespace Common::CurlWrapper
+{
+    CURLcode CurlWrapper::curlGlobalInit(long flags)
+    {
+        static std::mutex mutex;
+        std::lock_guard<std::mutex> lock{ mutex };
+        if (g_curlInitialised)
+        {
+            return CURLE_OK;
+        }
+        CURLcode curlCode = curl_global_init(flags);
+        if (curlCode == CURLE_OK)
+        {
+            g_curlInitialised = true;
+        }
+        return curlCode;
+    }
 
     CURL* CurlWrapper::curlEasyInit() { return curl_easy_init(); }
 
@@ -24,6 +45,16 @@ namespace Common::HttpSenderImpl
             return curl_easy_setopt(handle, option, std::get<std::string>(parameter).c_str());
         }
         return curl_easy_setopt(handle, option, std::get<long>(parameter));
+    }
+
+    CURLcode CurlWrapper::curlEasySetDataOpt(CURL* handle, CURLoption option, void* dataParam)
+    {
+        return curl_easy_setopt(handle, option, dataParam);
+    }
+
+    CURLcode CurlWrapper::curlEasySetFuncOpt(CURL* handle, CURLoption option, void* funcParam)
+    {
+        return curl_easy_setopt(handle, option, funcParam);
     }
 
     curl_slist* CurlWrapper::curlSlistAppend(curl_slist* list, const std::string& value)
@@ -45,4 +76,6 @@ namespace Common::HttpSenderImpl
     void CurlWrapper::curlGlobalCleanup() { curl_global_cleanup(); }
 
     const char* CurlWrapper::curlEasyStrError(CURLcode errornum) { return curl_easy_strerror(errornum); }
-} // namespace Common::HttpSenderImpl
+
+    void CurlWrapper::curlEasyReset(CURL* handle) { curl_easy_reset(handle); }
+} // namespace Common::CurlWrapper

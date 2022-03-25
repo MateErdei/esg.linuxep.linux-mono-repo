@@ -361,3 +361,51 @@ TEST(TestStringUtils, stringToLong_OutofRangeValuesReturnCorrentlyWithError) // 
     EXPECT_EQ(result.second, "Failed to find integer from output: 18446744073709551615. Error message: stol");
     EXPECT_EQ(result.first, 0);
 }
+
+TEST(TestStringUtils, rTrimRemovesWhiteSpaceFromRightSideOfString) // NOLINT
+{
+    std::string result = StringUtils::rTrim("1 space after ");
+    ASSERT_EQ(result, "1 space after");
+
+    result = StringUtils::rTrim("   3 spaces before 3 spaces after   ");
+    ASSERT_EQ(result, "   3 spaces before 3 spaces after");
+}
+
+TEST(TestStringUtils, lTrimRemovesWhiteSpaceFromLeftSideOfString) // NOLINT
+{
+    std::string result = StringUtils::lTrim(" 1 space before");
+    ASSERT_EQ(result, "1 space before");
+
+    result = StringUtils::lTrim("   3 spaces before 3 spaces after   ");
+    ASSERT_EQ(result, "3 spaces before 3 spaces after   ");
+}
+
+TEST(TestStringUtils, trimRemovesWhiteSpaceFromBothSidesOfString) // NOLINT
+{
+    std::string result = StringUtils::trim(" 1 space before");
+    ASSERT_EQ(result, "1 space before");
+
+    result = StringUtils::trim("1 space after ");
+    ASSERT_EQ(result, "1 space after");
+
+    result = StringUtils::trim("   3 spaces before 3 spaces after   ");
+    ASSERT_EQ(result, "3 spaces before 3 spaces after");
+}
+
+TEST(TestStringUtils, rTrimRemovesCustomCharFromRightSideOfString) // NOLINT
+{
+    std::string result = StringUtils::rTrim("aaababaaa", [](char c) { return c == 'a'; });
+    ASSERT_EQ(result, "aaabab");
+}
+
+TEST(TestStringUtils, lTrimRemovesCustomCharFromLeftSideOfString) // NOLINT
+{
+    std::string result = StringUtils::lTrim("aaababaaa", [](char c) { return c == 'a'; });
+    ASSERT_EQ(result, "babaaa");
+}
+
+TEST(TestStringUtils, trimRemovesCustomCharFromBothSidesOfString) // NOLINT
+{
+    std::string result = StringUtils::trim("aaababaaa", [](char c) { return c == 'a'; });
+    ASSERT_EQ(result, "bab");
+}

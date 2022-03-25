@@ -195,15 +195,17 @@ class UpdateServer(object):
 
 
 
-    def curl_url(self, url):
-        print(("Trying to curl {}".format(url)))
+    def curl_url(self, url, proxy=None):
+        print(f"Trying to curl {url}, proxy: {proxy}")
         # use the system curl with its library
-        return os.system(
-            "LD_LIBRARY_PATH='' curl -s -k -4 --capath " + str(os.path.join(self.server_path, "https", "ca")) + " " + str(
-                url) + " > /dev/null")
+        proxy_arg = ""
+        if proxy:
+            proxy_arg = f"--proxy {proxy}"
+        capath = str(os.path.join(self.server_path, 'https', 'ca'))
+        return os.system(f"LD_LIBRARY_PATH='' curl -s -k -4 --capath {capath} {proxy_arg} {url}  > /dev/null")
 
-    def can_curl_url(self, url):
-        if self.curl_url(url) != 0:
+    def can_curl_url(self, url, proxy=None):
+        if self.curl_url(url, proxy) != 0:
             raise AssertionError("cannot reach url: {}".format(url))
 
     def unpack_openssl(self, tmp_path = "/tmp"):

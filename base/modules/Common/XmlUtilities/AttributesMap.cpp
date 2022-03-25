@@ -6,6 +6,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "AttributesMap.h"
 
 #include "Logger.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <algorithm>
 #include <cassert>
@@ -37,14 +38,6 @@ namespace
             content += "\n";
             content += appendContent;
         }
-    }
-
-    /** Stand-alone functions */
-
-    inline auto rtrim(std::string s) -> std::string
-    {
-        s.erase(std::find_if(s.rbegin(), s.rend(), [](char c) { return !std::isspace(c); }).base(), s.end());
-        return s;
     }
 
     /** general utility function **/
@@ -133,7 +126,7 @@ namespace
 
     void SimpleXmlParser::onTextHandler(const std::string& content)
     {
-        std::string strippedContent = rtrim(content);
+        std::string strippedContent = Common::UtilityImpl::StringUtils::rTrim(content);
         if (!strippedContent.empty() && !m_stack.empty())
         {
             auto& topElement = m_stack.top();

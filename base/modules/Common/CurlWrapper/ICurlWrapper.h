@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -10,7 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <string>
 #include <variant>
 
-namespace Common::HttpSender
+namespace Common::CurlWrapper
 {
     class ICurlWrapper
     {
@@ -19,6 +19,7 @@ namespace Common::HttpSender
 
         virtual CURLcode curlGlobalInit(long flags) = 0;
         virtual CURL* curlEasyInit() = 0;
+        virtual void curlEasyReset(CURL* handle) = 0;
 
         virtual CURLcode curlEasySetOptHeaders(CURL* handle, curl_slist* headers) = 0;
 
@@ -26,6 +27,10 @@ namespace Common::HttpSender
             CURL* handle,
             CURLoption option,
             const std::variant<std::string, long> parameter) = 0;
+
+        virtual CURLcode curlEasySetFuncOpt(CURL* handle, CURLoption option, void* funcParam) = 0;
+        virtual CURLcode curlEasySetDataOpt(CURL* handle, CURLoption option, void* dataParam) = 0;
+
         virtual CURLcode curlGetResponseCode(CURL* handle, long* codep) = 0;
 
         virtual struct curl_slist* curlSlistAppend(curl_slist* list, const std::string& value) = 0;
@@ -39,4 +44,4 @@ namespace Common::HttpSender
 
         virtual const char* curlEasyStrError(CURLcode errornum) = 0;
     };
-} // namespace Common::HttpSender
+} // namespace Common::CurlWrapper

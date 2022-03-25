@@ -7,7 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "NetworkSide.h"
 #include "Logger.h"
 #include "CommsMsg.h"
-#include <Common/HttpSenderImpl/CurlWrapper.h>
+#include <Common/CurlWrapper/CurlWrapper.h>
 
 namespace
 {
@@ -18,7 +18,7 @@ namespace CommsComponent
 {
     NetworkSide::NetworkSide() :
             m_sender(std::make_unique<Common::HttpSenderImpl::HttpSender>(
-                    std::make_shared<Common::HttpSenderImpl::CurlWrapper>()))
+                    std::make_shared<Common::CurlWrapper::CurlWrapper>()))
     {
 
     }
