@@ -306,6 +306,7 @@ function build()
         untar_input versig
         untar_input curl
         untar_input SUL
+        untar_input sdds3lib
         untar_input boost
         # TODO LINUXDAR-1506: remove the patching when the related issue is incorporated into the released version of boost
         # https://github.com/boostorg/process/issues/62
@@ -335,6 +336,7 @@ function build()
         untar_input python-urllib3
         untar_input pycryptodome
         untar_input $GOOGLETESTTAR
+        cp -r ${INPUT}/sophlib "$REDIST"
         cp -r ${INPUT}/sdds3 "$REDIST"/sdds3 && chmod +x "$REDIST"/sdds3/*
 
 

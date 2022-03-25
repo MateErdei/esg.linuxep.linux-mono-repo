@@ -18,6 +18,7 @@
         <trusted-asset artifact-path="filer5-migrate/log4cpluslinux11/2-0-5-19/220731/output/log4cplus.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/zliblinux11/1-2-11-4/219630/output/zlib.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/pythonlinux11/3-9-7-1/222972/output/python.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/python-watchdog/2-0-2-3/222028/watchdog/python-watchdog.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/python-pathtools/0-1-1-9/216281/pathtools/python-pathtools.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/pycryptodomelinux11/3-9-8-3/221638/pycryptodome/pycryptodome.tar" dest-dir="/build/input/"/>
@@ -34,12 +35,16 @@
             <development-version branch="sophos/linux-sspl-master"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="cpython">
-            <release-version branch="release/sspl/Version_3_9_7" build-id="20220328123042-9fb6a63b1dafe3fcf39ebc630803f2afc3581f63-OYAQTE"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
+        <build-asset project="em" repo="esg">
+            <release-version branch="release/sophlib" build-id="20220317101821-f49104c32d4518f48bc037a6cf34f114a713625b-V68BTJ" />
+          <!--<development-version branch="develop" />-->
+          <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib" />
+          <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64" />
         </build-asset>
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/WINEP-2022.06" build-id="20220128115031-a862cc637baabe31c7c0807ca7b4836ed21d7bf1-YQAQrA"/>
+            <release-version branch="release/2022.12-linux-sdds3" build-id="20220317141042-a3e83d45ba43d323fba107ac04f562dd9f2ac6e9-DRKMiD"/>
+            <!-- <development-version branch="develop"/> -->
+            <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
     </inputs>

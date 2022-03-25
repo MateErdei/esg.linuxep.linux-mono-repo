@@ -81,7 +81,7 @@
                     warehouse dest-dir to contain the override branch name with /s replaced by -s
                     The customer dest-dir matches up against constants set in WarehouseUtils.lib
         -->
-        <build-asset project="linuxep" repo="sspl-warehouse">
+        <build-asset project="linuxep" repo="sspl-warehouse">v
             <development-version branch="develop" />
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="develop/customer" dest-dir="local_warehouses/dev/sspl-warehouse/vut/warehouse/customer" />
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="develop/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse" />
@@ -97,6 +97,11 @@
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="mdr-999/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/mdr-999/warehouse/warehouse" />
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="0-6-0/customer" dest-dir="local_warehouses/dev/sspl-warehouse/0-6-0/warehouse/customer" />
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="0-6-0/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/0-6-0/warehouse/warehouse" />
+
+            <!-- sdds3-->
+            <include artifact-path="sdds3-repo" dest-dir="sdds3/repo" />
+            <include artifact-path="sdds3-launchdarkly" dest-dir="sdds3/launchdarkly" />
+
         </build-asset>
     </inputs>
 

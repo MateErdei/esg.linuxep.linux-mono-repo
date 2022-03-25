@@ -7,12 +7,13 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "SulDownloader.h"
 
 #include "ProductUninstaller.h"
+
+#include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
+#include "sdds3/Sdds3RepositoryFactory.h"
+#include "suldownloaderdata/Logger.h"
 #include "warehouse/SULRaii.h"
 #include "warehouse/WarehouseRepository.h"
 #include "warehouse/WarehouseRepositoryFactory.h"
-
-#include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
-#include "suldownloaderdata/Logger.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFilePermissions.h>
@@ -385,6 +386,116 @@ namespace SulDownloader
             setForceInstallForAllProducts);
     }
 
+    std::vector<ConnectionSetup> populateSdds3ConneectionCandidates(const ConfigurationData& configurationData)
+    {
+        ConnectionSelector connectionSelector;
+        auto candidates = connectionSelector.getConnectionCandidates(configurationData);
+        std::vector<ConnectionSetup> finalConnectionCandidates;
+
+        std::vector<Proxy> proxies;
+        // get list of possible proxies
+        for (auto& candidate : candidates)
+        {
+            if(!candidate.isCacheUpdate() && !candidate.getProxy().empty())
+            {
+                proxies.push_back(candidate.getProxy());
+            }
+        }
+        std::string sdds3OverrideSettingsFile = Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
+        auto overrideValue = StringUtils::extractValueFromIniFile(sdds3OverrideSettingsFile, "URLS");
+
+        std::vector<std::string> urls = {"https://sus.sophosupd.com"};
+        if(!overrideValue.empty())
+        {
+            urls = StringUtils::splitString(overrideValue, ",");
+        }
+
+        for(auto& proxy : proxies)
+        {
+            for(auto& url : urls)
+            {
+                Credentials credentials;
+                ConnectionSetup connectionSetup(url, credentials, false, proxy);
+                finalConnectionCandidates.emplace_back(connectionSetup);
+            }
+        }
+
+        for(auto& url : urls)
+        {
+            Credentials credentials;
+            ConnectionSetup connectionSetup(url, credentials, false, Proxy());
+            finalConnectionCandidates.push_back(connectionSetup);
+        }
+
+        for(auto& candidate : candidates)
+        {
+            finalConnectionCandidates.push_back(candidate);
+        }
+        return finalConnectionCandidates;
+    }
+
+    void createSdds3UpdateCacheFolders()
+    {
+        std::string sdds3DistributionPath =
+            Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository();
+        std::string sdds3RepositoryPath =
+            Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3Repository();
+        try
+        {
+            if (!Common::FileSystem::fileSystem()->exists(sdds3RepositoryPath))
+            {
+                Common::FileSystem::fileSystem()->makedirs(sdds3RepositoryPath);
+            }
+            if (!Common::FileSystem::fileSystem()->exists(sdds3DistributionPath))
+            {
+                Common::FileSystem::fileSystem()->makedirs(sdds3DistributionPath);
+            }
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGERROR("Failed to create sdds3 local repository paths, error: " << ex.what());
+        }
+    }
+
+    std::pair<bool, IRepositoryPtr> updateFromSDDS3Repository( const ConfigurationData& configurationData,
+                                                              bool supplementOnly)
+    {
+
+
+        auto candidates = populateSdds3ConneectionCandidates(configurationData);
+        auto repository = Sdds3RepositoryFactory::instance().createRepository();
+
+        for(auto& connectionCandidate : candidates)
+        {
+            if(repository->tryConnect(connectionCandidate, supplementOnly, configurationData))
+            {
+                break;
+            }
+        }
+
+        if(repository->hasError())
+        {
+            LOGERROR("Failed to connect to repository: " << repository->getError().Description);
+            return std::make_pair(false, std::move(repository));
+        }
+
+        repository->synchronize(configurationData);
+
+        if(repository->hasError())
+        {
+            LOGERROR("Failed to synchronize repository: " << repository->getError().Description);
+            return std::make_pair(false, std::move(repository));
+        }
+
+        repository->distribute();
+        if(repository->hasError())
+        {
+            LOGERROR("Failed to distribute repository: " << repository->getError().Description);
+            return std::make_pair(false, std::move(repository));
+        }
+
+        return std::make_pair(true, std::move(repository));
+    }
     std::pair<bool, IRepositoryPtr> updateFromSDDS2Warehouse( const ConfigurationData& configurationData,
                                                               bool supplementOnly)
     {
@@ -487,7 +598,25 @@ namespace SulDownloader
         TimeTracker timeTracker;
         timeTracker.setStartTime(TimeUtils::getCurrTime());
 
-        auto repositoryResult = updateFromSDDS2Warehouse(configurationData, supplementOnly);
+        std::pair<bool, IRepositoryPtr> repositoryResult;
+        std::string overrideFile = Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
+        std::string useSdds3;
+        if(Common::FileSystem::fileSystem()->exists(overrideFile))
+        {
+            useSdds3 = StringUtils::extractValueFromIniFile(overrideFile, "USE_SDDS3");
+        }
+        if (!configurationData.getJWToken().empty() && !useSdds3.empty())
+        {
+            LOGDEBUG("Running in SDDS3 updating mode");
+            // Make sure root directories are created
+            createSdds3UpdateCacheFolders();
+
+            repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly);
+        }
+        else
+        {
+            repositoryResult = updateFromSDDS2Warehouse(configurationData, supplementOnly);
+        }
 
         return processRepositoryAndGenerateReport(repositoryResult.first,
                                                   std::move(repositoryResult.second),
@@ -555,9 +684,6 @@ namespace SulDownloader
                 }
                 std::this_thread::sleep_for (std::chrono::seconds(1));
             } while (!readSuccessful);
-
-
-
 
             if (!configurationData.verifySettingsAreValid())
             {
