@@ -63,6 +63,9 @@ SET_TARGET_PROPERTIES(RunHttpRequest PROPERTIES
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         INSTALL_RPATH "/opt/sophos-spl/base/lib64")
 
+INSTALL(TARGETS RunHttpRequest
+        DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
+
 SET_TARGET_PROPERTIES(UseCommsComponent PROPERTIES
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         INSTALL_RPATH "/opt/sophos-spl/base/lib64")
