@@ -5,7 +5,7 @@
     "Properties" : {
       "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
       "KeyName" : { "Ref" : "KeyName" },
-      "ImageId" : "ami-0ab320c9e7a9ab0c6",
+      "ImageId" : "ami-0fed3e36b964f509b",
       "InstanceType": "c4.large",
       "InstanceInitiatedShutdownBehavior": "terminate",
       "Tags" : [
@@ -17,7 +17,7 @@
         {"Key" : "CostCentre", "Value" : "GB11601200"},
         {"Key" : "Project", "Value" : "XDR"},
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
-        {"Key" : "BaseAmi", "Value" : "ami-0ab320c9e7a9ab0c6"},
+        {"Key" : "BaseAmi", "Value" : "ami-0fed3e36b964f509b"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
@@ -64,6 +64,10 @@
         "aws s3 cp s3://sspl-testbucket/sspl/sspl-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
         "mkdir -p /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
         "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
+        "tar xvzf /opt/sspl/pipCache.tar.gz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
+        "python3.7 -m venv /opt/sspl/tap-venv >> /tmp/cloudFormationInit.log 2>&1\n",
+        "/opt/sspl/tap-venv/bin/python -m pip install --find-links=/opt/sspl/pipCache tap >> /tmp/cloudFormationInit.log 2>&1\n",
+        "export TAP_VENV=/opt/sspl/tap-venv/bin/activate\n",
         "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ >> /tmp/cloudFormationInit.log 2>&1\n",
         "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
         "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
