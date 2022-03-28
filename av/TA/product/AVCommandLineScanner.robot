@@ -1545,7 +1545,7 @@ CLS Can Append Summary To Log When SigTerm Occurs
     Register Cleanup  Remove File  ${SCAN_LOG}
     Register Cleanup  Exclude Scan Errors From File Samples
     Remove File  ${SCAN_LOG}
-    ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
+    ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
     Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
 
@@ -1566,7 +1566,7 @@ CLS Can Append Summary To Log When SigTerm Occurs Strace
     Register Cleanup  Exclude Scan Errors From File Samples
     Remove File  ${SCAN_LOG}
     Remove File  /tmp/sigterm_test_strace.log
-    ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sigterm_test_strace.log  ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
+    ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sigterm_test_strace.log  ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
     Register cleanup  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
     register on fail  Dump Log  /tmp/sigterm_test_strace.log
@@ -1589,7 +1589,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     Remove File  ${SCAN_LOG}
 
     Mark Sophos Threat Detector Log
-    ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
+    ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
     Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
 
