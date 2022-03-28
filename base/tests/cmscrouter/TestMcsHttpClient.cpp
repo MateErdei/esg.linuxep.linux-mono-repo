@@ -1,82 +1,20 @@
-#include <cmcsrouter/MCSHttpClient.h>
-#include <gtest/gtest.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockHttpRequester.h>
+
+#include <cmcsrouter/MCSHttpClient.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 class McsClientTests : public LogInitializedTests
 {
 };
 
-TEST_F(McsClientTests, checkFieldsAreSet)
+TEST_F(McsClientTests, jwtToken)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-
-    MCS::MCSHttpClient client("https://mcsUrl","registerToken",httpRequester);
-    client.setID("ThisIsAnMCSID+1001");
-    client.setPassword("password");
-    client.setVersion("1.0.0");
+    MCS::MCSHttpClient client("https://mcs2-cloudstation-eu-west-1.prod.hydra.sophos.com/sophos/management/ep","027858598e1b2b7b22625bd075a78e220c172d6b725e49db666ec8ad23f953ab");
+    client.setID("7e70a78d-407b-a479-db17-c4820ad3d80d");
+    client.setPassword("r6ElR8oT8Upo3nUq");
     Common::HttpRequests::Headers requestHeaders;
-
-    Common::HttpRequests::RequestConfig expected;
-    Common::HttpRequests::Headers expectedHeaders;
-    expectedHeaders.insert({"Authorization","Basic VGhpc0lzQW5NQ1NJRCsxMDAxOnBhc3N3b3Jk"});
-    expectedHeaders.insert({"User-Agent","Sophos MCS Client/1.0.0 Linux sessions registerToken"});
-    expected.url = "https://mcsUrl/authenticate/endpoint/ThisIsAnMCSID+1001/role/endpoint";
-    expected.headers = expectedHeaders;
-    Common::HttpRequests::Response expectedResponse;
-    EXPECT_CALL(*httpRequester, post(expected)).WillOnce(Return(expectedResponse));
-
-    client.sendMessageWithIDAndRole("/authenticate/endpoint/",Common::HttpRequests::RequestType::POST,requestHeaders);
-}
-
-
-TEST_F(McsClientTests, checkProxyFieldsAreSet)
-{
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-
-    MCS::MCSHttpClient client("https://mcsUrl","registerToken",httpRequester);
-    client.setID("ThisIsAnMCSID+1001");
-    client.setPassword("password");
-    client.setVersion("1.0.0");
-    client.setProxyInfo("10.55.36.66","user","password");
-    Common::HttpRequests::Headers requestHeaders;
-
-    Common::HttpRequests::RequestConfig expected;
-    Common::HttpRequests::Headers expectedHeaders;
-    expectedHeaders.insert({"Authorization","Basic VGhpc0lzQW5NQ1NJRCsxMDAxOnBhc3N3b3Jk"});
-    expectedHeaders.insert({"User-Agent","Sophos MCS Client/1.0.0 Linux sessions registerToken"});
-    expected.url = "https://mcsUrl/authenticate/endpoint/ThisIsAnMCSID+1001/role/endpoint";
-    expected.headers = expectedHeaders;
-    expected.proxy = "10.55.36.66";
-    expected.proxyUsername = "user";
-    expected.proxyPassword = "password";
-    Common::HttpRequests::Response expectedResponse;
-    EXPECT_CALL(*httpRequester, get(expected)).WillOnce(Return(expectedResponse));
-
-    client.sendMessageWithIDAndRole("/authenticate/endpoint/",Common::HttpRequests::RequestType::GET,requestHeaders);
-
-}
-
-TEST_F(McsClientTests, setCertPath)
-{
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-
-    MCS::MCSHttpClient client("https://mcsUrl","registerToken",httpRequester);
-    client.setID("ThisIsAnMCSID+1001");
-    client.setPassword("password");
-    client.setVersion("1.0.0");
-    client.setCertPath("/tmp/random");
-    Common::HttpRequests::Headers requestHeaders;
-
-    Common::HttpRequests::RequestConfig expected;
-    Common::HttpRequests::Headers expectedHeaders;
-    expectedHeaders.insert({"Authorization","Basic VGhpc0lzQW5NQ1NJRCsxMDAxOnBhc3N3b3Jk"});
-    expectedHeaders.insert({"User-Agent","Sophos MCS Client/1.0.0 Linux sessions registerToken"});
-    expected.url = "https://mcsUrl/authenticate/endpoint/ThisIsAnMCSID+1001/role/endpoint";
-    expected.headers = expectedHeaders;
-    expected.certPath = "/tmp/random";
-    Common::HttpRequests::Response expectedResponse;
-    EXPECT_CALL(*httpRequester, put(expected)).WillOnce(Return(expectedResponse));
-
-    client.sendMessageWithIDAndRole("/authenticate/endpoint/",Common::HttpRequests::RequestType::PUT,requestHeaders);
+    requestHeaders.insert({"Content-Type","application/xml; charset=utf-8"});
+    Common::HttpRequests::Response response = client.sendMessageWithIDAndRole("/authenticate/endpoint/",requestHeaders,Common::HttpRequests::RequestType::POST);
+    EXPECT_EQ(response.status,200);
 }

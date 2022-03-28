@@ -11,6 +11,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <memory>
 namespace MCS
 {
+    MCSHttpClient::MCSHttpClient(std::string mcsUrl, std::string registerToken):
+        m_base_url(mcsUrl),m_registerToken(registerToken){}
 
     Common::HttpRequests::Response  MCSHttpClient::sendMessage(
         const std::string& url,
@@ -19,6 +21,7 @@ namespace MCS
     {
         Common::HttpRequests::Headers requestHeaders;
         requestHeaders.insert({"Authorization",getV1AuthorizationHeader()});
+        requestHeaders.insert({"User-Agent", "Sophos MCS Client/1.0.0 Linux sessions "+ m_registerToken});
         for (const auto& head : headers)
         {
             requestHeaders.insert({head.first,head.second});
@@ -26,7 +29,7 @@ namespace MCS
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
             std::make_shared<Common::CurlWrapper::CurlWrapper>();
         std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-        Common::HttpRequests::RequestConfig request{ .url = url ,.headers = requestHeaders,.requestType= requestType};
+        Common::HttpRequests::RequestConfig request{ .url = m_base_url+ url ,.headers = requestHeaders,.requestType= requestType};
         if (!m_proxy.empty())
         {
             request.proxy=m_proxy;

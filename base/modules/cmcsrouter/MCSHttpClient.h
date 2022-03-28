@@ -10,6 +10,7 @@ namespace MCS
     class MCSHttpClient
     {
     public:
+        MCSHttpClient(std::string mcsUrl, std::string registerToken);
         Common::HttpRequests::Response  sendMessage(const std::string& url,Common::HttpRequests::Headers headers,Common::HttpRequests::RequestType requestType);
         Common::HttpRequests::Response  sendMessageWithID(const std::string& url,Common::HttpRequests::Headers headers,Common::HttpRequests::RequestType requestType);
         Common::HttpRequests::Response  sendMessageWithIDAndRole(const std::string& url,Common::HttpRequests::Headers headers,Common::HttpRequests::RequestType requestType);
@@ -21,6 +22,8 @@ namespace MCS
 
     private:
         std::string getV1AuthorizationHeader();
+        std::string m_base_url;
+        std::string m_registerToken;
         std::string m_id;
         std::string m_password;
         std::string m_proxy;
