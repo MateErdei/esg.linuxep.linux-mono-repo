@@ -1,19 +1,12 @@
 add_library(mcsimpl SHARED
-        IAdapter.h
-        AgentAdapter.h
-        AgentAdapter.cpp
         MCSHttpClient.cpp
         MCSHttpClient.h
         Logger.cpp
         Logger.h
-        MCSApiCalls.cpp
-        MCSApiCalls.h
-        Config.h
-        MessageRelay.h
-        ConfigOptions.h)
+        )
 
 include_directories(mcsimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
-target_link_libraries(mcsimpl PUBLIC HttpRequestsImpl obfuscationimpl osutilitiesimpl xmlutilities ${OPENSSLCRYPTO_LIBRARY})
+target_link_libraries(mcsimpl PUBLIC HttpRequestsImpl)
 
 SET_TARGET_PROPERTIES(mcsimpl
         PROPERTIES
