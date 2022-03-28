@@ -1614,7 +1614,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received strace
 
     Mark Sophos Threat Detector Log
     ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sighup_test_strace.log  ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
-    Register cleanup  Terminate Process  handle=${cls_handle}  kill=True
+    Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
     register on fail  Dump Log  /tmp/sigterm_test_strace.log
 
