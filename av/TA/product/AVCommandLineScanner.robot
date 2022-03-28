@@ -715,6 +715,8 @@ CLS Handles Eicar With The Same Name As An Option
 
 CLS Exclusions Filename
     ${TEST_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/testdir
+    ${TEST_DIR_ABS} =  Get Substring  ${TEST_DIR}  1
+
     Create File     ${TEST_DIR}/clean_eicar                                     ${CLEAN_STRING}
     Create File     ${TEST_DIR}/naughty_eicar_folder/eicar                      ${EICAR_STRING}
     Create File     ${TEST_DIR}/clean_eicar_folder/eicar                        ${CLEAN_STRING}
@@ -735,6 +737,8 @@ CLS Exclusions Filename
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${TEST_DIR}/ --exclude eicar "./${TEST_DIR}/naughty_eicar_folder/eicar.???" "${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous.*" "${TEST_DIR}/naughty_eicar_folder/*.js"
     Log  return code is ${rc}
     Log  output is ${output}
+
+    Should Contain       ${output}  Exclusions: eicar, ${TEST_DIR_ABS}/naughty_eicar_folder/eicar.???, ${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous.*, ${TEST_DIR}/naughty_eicar_folder/*.js,
 
     Should Contain       ${output}  Scanning ${TEST_DIR}/clean_eicar
     Should Contain       ${output}  Scanning ${TEST_DIR}/clean_eicar_folder/eicar.com
@@ -778,6 +782,8 @@ CLS Relative File Exclusion
     Log  return code is ${rc}
     Log  output is ${output}
 
+    Should Contain       ${output}  Exclusions: naughty_eicar_folder/eicar, folder_with_wildcard/*/wildcard_eicar,
+
     Should Contain       ${output}  Scanning ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar
     Should Contain       ${output}  Scanning ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicarr
     Should Contain       ${output}  Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar
@@ -809,6 +815,8 @@ CLS Absolute Folder Exclusion
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${TEST_DIR} --exclude ${TEST_DIR_WITHOUT_WILDCARD}/ "${TEST_DIR_WITH_WILDCARD}/*"
     Log  return code is ${rc}
     Log  output is ${output}
+
+    Should Contain      ${output}  Exclusions: ${TEST_DIR}/folder_without_wildcard/, ${TEST_DIR}/folder_with_wildcard/*,
 
     Should Contain      ${output}  Excluding directory: ${TEST_DIR_WITHOUT_WILDCARD}/
     Should Contain      ${output}  Excluding directory: ${TEST_DIR_WITH_WILDCARD}/
@@ -842,6 +850,8 @@ CLS Relative Folder Exclusion
     Log  return code is ${rc}
     Log  output is ${output}
 
+    Should Contain      ${output}  Exclusions: testdir/folder_without_wildcard/, dir/su*ir/, do*er/
+
     Should Contain      ${output}  Excluding directory: ${TEST_DIR_WITHOUT_WILDCARD}/
     AV Plugin Log Should Not Contain With Offset   Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar
     AV Plugin Log Should Not Contain With Offset   Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar
@@ -863,6 +873,7 @@ CLS Folder Name Exclusion
     Log  return code is ${rc}
     Log  output is ${output}
 
+    Should Contain      ${output}  Exclusions: scanning/
     Should Contain      ${output}  Excluding directory: ${NORMAL_DIRECTORY}/
     AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
     AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar
@@ -879,8 +890,9 @@ CLS Absolute Folder Exclusion And Filename Exclusion
     Log  return code is ${rc}
     Log  output is ${output}
 
-    Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
+    Should Contain       ${output}  Exclusions: clean_eicar, ${NORMAL_DIRECTORY}/clean_eicar_folder/,
     Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar
+    Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
     Should Contain       ${output}  Excluding directory: ${NORMAL_DIRECTORY}/clean_eicar_folder/
     AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
     AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
@@ -897,6 +909,7 @@ CLS Can Handle Wildcard Exclusions
     Log  return code is ${rc}
     Log  output is ${output}
 
+    Should Contain      ${output}  Exclusions: *.com, exe_eicar.*, ???.*,
     Should Contain      ${output}  Excluding file: ${NORMAL_DIRECTORY}/exe_eicar.exe
     Should Contain      ${output}  Excluding file: ${NORMAL_DIRECTORY}/eic.nope
     Should Contain      ${output}  Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar.com
@@ -908,6 +921,7 @@ CLS Can Handle Wildcard Exclusions
     Log  return code is ${rc}
     Log  output is ${output}
 
+    Should Contain      ${output}  Exclusions: ${NORMAL_DIRECTORY}/*/,
     Should Contain      ${output}  Excluding directory: ${NORMAL_DIRECTORY}/naughty_eicar_folder/
     Should Contain      ${output}  Excluding directory: ${NORMAL_DIRECTORY}/another_eicar_folder/
     Should Contain      ${output}  Scanning ${NORMAL_DIRECTORY}/eic.nope
