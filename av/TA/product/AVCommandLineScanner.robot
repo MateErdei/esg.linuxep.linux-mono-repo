@@ -1546,7 +1546,7 @@ CLS Can Append Summary To Log When SigTerm Occurs
     Register Cleanup  Exclude Scan Errors From File Samples
     Remove File  ${SCAN_LOG}
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}
-    Register cleanup  Terminate Process  handle=${cls_handle}  kill=True
+    Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
 
     Wait Until File exists  ${SCAN_LOG}
