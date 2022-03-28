@@ -7,7 +7,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
-#include <vector>
+
 #include <memory>
 namespace MCS
 {
@@ -23,11 +23,9 @@ namespace MCS
         {
             requestHeaders.insert({head.first,head.second});
         }
-//        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
-//            std::make_shared<Common::CurlWrapper::CurlWrapper>();
-//        std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper;
-        Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+            std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
         Common::HttpRequests::RequestConfig request{ .url = url ,.headers = requestHeaders,.requestType= requestType};
         if (!m_proxy.empty())
         {
@@ -38,7 +36,7 @@ namespace MCS
             request.proxyUsername=m_proxyUser;
             request.proxyPassword=m_proxyPassword;
         }
-        Common::HttpRequests::Response response = client.get(request);
+        Common::HttpRequests::Response response = client->get(request);
         return response;
     }
 
