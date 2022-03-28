@@ -16,8 +16,9 @@ namespace MCS
 
     Common::HttpRequests::Response  MCSHttpClient::sendMessage(
         const std::string& url,
-        Common::HttpRequests::Headers headers = {},
-        Common::HttpRequests::RequestType requestType = Common::HttpRequests::RequestType::GET)
+        Common::HttpRequests::RequestType requestType,
+        Common::HttpRequests::Headers headers = {}
+    )
     {
         Common::HttpRequests::Headers requestHeaders;
         requestHeaders.insert({"Authorization",getV1AuthorizationHeader()});
@@ -45,18 +46,20 @@ namespace MCS
 
     Common::HttpRequests::Response  MCSHttpClient::sendMessageWithID(
         const std::string& url,
-        Common::HttpRequests::Headers headers = {},
-        Common::HttpRequests::RequestType requestType = Common::HttpRequests::RequestType::GET)
+        Common::HttpRequests::RequestType requestType,
+        Common::HttpRequests::Headers headers = {}
+    )
     {
-        return sendMessage(url + getID(),headers,requestType);
+        return sendMessage(url + getID(),requestType, headers);
     }
 
     Common::HttpRequests::Response  MCSHttpClient::sendMessageWithIDAndRole(
         const std::string& url,
-        Common::HttpRequests::Headers headers = {},
-        Common::HttpRequests::RequestType requestType = Common::HttpRequests::RequestType::GET)
+        Common::HttpRequests::RequestType requestType,
+        Common::HttpRequests::Headers headers = {}
+         )
     {
-        return sendMessage(url + getID() + "/role/endpoint",headers, requestType);
+        return sendMessage(url + getID() + "/role/endpoint", requestType, headers);
     }
 
     std::string MCSHttpClient::getV1AuthorizationHeader()

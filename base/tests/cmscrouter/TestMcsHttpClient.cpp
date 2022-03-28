@@ -15,6 +15,6 @@ TEST_F(McsClientTests, jwtToken)
     client.setPassword("");
     Common::HttpRequests::Headers requestHeaders;
     requestHeaders.insert({"Content-Type","application/xml; charset=utf-8"});
-    Common::HttpRequests::Response response = client.sendMessageWithIDAndRole("/authenticate/endpoint/",requestHeaders,Common::HttpRequests::RequestType::POST);
+    Common::HttpRequests::Response response = client.sendMessageWithIDAndRole("/authenticate/endpoint/",Common::HttpRequests::RequestType::POST,requestHeaders);
     EXPECT_EQ(response.status,200);
 }

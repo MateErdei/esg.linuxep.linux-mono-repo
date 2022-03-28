@@ -51,7 +51,7 @@ namespace Common::HttpRequestsImpl
 
     Common::HttpRequests::Response HttpRequesterImpl::performRequest(Common::HttpRequests::RequestConfig request)
     {
-        // Kep the handle but perform a reset. Options are reset to stop any accidental side effects while still
+        // Keep the handle but perform a reset. Options are reset to stop any accidental side effects while still
         // persisting: live connections, session ID cache, DNS cache, cookies and the alt-svc cache.
         m_curlWrapper->curlEasyReset(m_curlHandle);
 

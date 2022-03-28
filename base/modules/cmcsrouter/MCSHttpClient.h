@@ -11,9 +11,9 @@ namespace MCS
     {
     public:
         MCSHttpClient(std::string mcsUrl, std::string registerToken);
-        Common::HttpRequests::Response  sendMessage(const std::string& url,Common::HttpRequests::Headers headers,Common::HttpRequests::RequestType requestType);
-        Common::HttpRequests::Response  sendMessageWithID(const std::string& url,Common::HttpRequests::Headers headers,Common::HttpRequests::RequestType requestType);
-        Common::HttpRequests::Response  sendMessageWithIDAndRole(const std::string& url,Common::HttpRequests::Headers headers,Common::HttpRequests::RequestType requestType);
+        Common::HttpRequests::Response  sendMessage(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
+        Common::HttpRequests::Response  sendMessageWithID(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
+        Common::HttpRequests::Response  sendMessageWithIDAndRole(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
         std::string getID();
         std::string getPassword();
         void setID(const std::string& id);
