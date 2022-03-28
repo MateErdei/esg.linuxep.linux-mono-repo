@@ -3,15 +3,17 @@
 Copyright 2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#pragma once
 
-#include "CentralRegistration.h"
-#include "AgentAdapter.h"
+#include <string>
 
 namespace CentralRegistrationImpl
 {
-    void CentralRegistration::RegisterWithCentral()
+    class IAdapter
     {
-        AgentAdapter agentAdapter;
-    }
+    public:
+        virtual ~IAdapter() = default;
 
-}
+        virtual std::string getStatusXml() const = 0;
+    };
+}// namespace OSUtilities
