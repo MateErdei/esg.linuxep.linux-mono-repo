@@ -1567,7 +1567,7 @@ CLS Can Append Summary To Log When SigTerm Occurs Strace
     Remove File  ${SCAN_LOG}
     Remove File  /tmp/sigterm_test_strace.log
     ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sigterm_test_strace.log  ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
-    Register cleanup  Terminate Process  handle=${cls_handle}  kill=True
+    Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
     register on fail  Dump Log  /tmp/sigterm_test_strace.log
 
