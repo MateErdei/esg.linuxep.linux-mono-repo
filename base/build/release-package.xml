@@ -35,7 +35,7 @@
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="cpython">
-            <development-version branch="bugfix/LINUXDAR-4345-spl-install-fails-on-amazon-linux-2022-missing-libcrypt.so.1"/>
+            <release-version branch="release/sspl/Version_3_9_7" build-id="20220328123042-9fb6a63b1dafe3fcf39ebc630803f2afc3581f63-OYAQTE"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="winep" repo="sau">
