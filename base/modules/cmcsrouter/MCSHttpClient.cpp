@@ -30,7 +30,7 @@ namespace MCS
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
             std::make_shared<Common::CurlWrapper::CurlWrapper>();
         std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-        Common::HttpRequests::RequestConfig request{ .url = m_base_url+ url ,.headers = requestHeaders,.requestType= requestType};
+        Common::HttpRequests::RequestConfig request{ .url = m_base_url+ url ,.headers = requestHeaders};
         if (!m_proxy.empty())
         {
             request.proxy=m_proxy;
@@ -40,7 +40,23 @@ namespace MCS
             request.proxyUsername=m_proxyUser;
             request.proxyPassword=m_proxyPassword;
         }
-        Common::HttpRequests::Response response = client->get(request);
+        request.certPath = "/mnt/filer6/linux/SSPL/tools/setup_sspl/certs/qa_region_certs/hmr-qa-sha256.pem";
+        Common::HttpRequests::Response response;
+        switch (requestType)
+        {
+            case Common::HttpRequests::RequestType::POST:
+                response = client->post(request);
+                break;
+            case Common::HttpRequests::RequestType::PUT:
+                response = client->put(request);
+                break;
+            case Common::HttpRequests::RequestType::GET:
+                response = client->get(request);
+                break;
+            default :
+                response = client->get(request);
+                break;
+        }
         return response;
     }
 
