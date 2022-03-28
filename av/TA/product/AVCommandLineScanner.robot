@@ -745,6 +745,8 @@ CLS Exclusions Filename
     Should Contain       ${output}  Scanning ${TEST_DIR}/naughty_eicar_folder/eicar.comm
     Should Contain       ${output}  Scanning ${TEST_DIR}/naughty_eicar_folder/eicar.co
     Should Contain       ${output}  Scanning ${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous
+    Should Not Contain   ${output}  Scanning ${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous.txt
+    Should Not Contain   ${output}  Scanning ${TEST_DIR}/naughty_eicar_folder/hi_i_am_dangerous.exe
     Should Contain       ${output}  Scanning ${TEST_DIR}/naughty_eicar_folder/clean_file.jss
     Should Contain       ${output}  Excluding file: ${TEST_DIR}/naughty_eicar_folder/eicar.com
     Should Contain       ${output}  Excluding file: ${TEST_DIR}/naughty_eicar_folder/eicar
@@ -787,6 +789,7 @@ CLS Relative File Exclusion
     Should Contain       ${output}  Scanning ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar
     Should Contain       ${output}  Scanning ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicarr
     Should Contain       ${output}  Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar
+    Should Not Contain   ${output}  Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicarr
     Should Contain       ${output}  Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/naughty_realm/naughty_eicar_folder/eicar
     Should Contain       ${output}  Scanning ${TEST_DIR_WITH_WILDCARD}/wildcard_eicar
     Should Contain       ${output}  Scanning ${TEST_DIR_WITH_WILDCARD}/wildcard_eicar_folder/wildcard_eicarr
