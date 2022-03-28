@@ -43,7 +43,7 @@ Setup QA account Test
     Run Process  chmod  +xr  /tmp/hmr-qa-sha256.pem
 #    Check Secure Proxy Is Up
     # ensure the secureproxy is in a good state before tests
-    ${Result}=  wait For Secure Proxy Server To Be Up
+    ${Result}=  wait For Secure Proxy Server To Be Up  20
     Run Keyword If   ${Result}==${False}  Restart Secure Server Proxy
 
 Cleanup QA account Test
