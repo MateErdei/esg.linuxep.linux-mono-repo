@@ -14,7 +14,7 @@ target_include_directories(cMCSTests SYSTEM BEFORE PUBLIC
         "${gtest_SOURCE_DIR}/include"
         "${gmock_SOURCE_DIR}/include"
         ${CURL_INCLUDE_DIR})
-target_link_libraries(cMCSTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" testhelpers mcsimpl HttpRequestsImpl)
+target_link_libraries(cMCSTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" testhelpers obfuscationimpl mcsimpl HttpRequestsImpl )
 
 gtest_discover_tests(cMCSTests)
 

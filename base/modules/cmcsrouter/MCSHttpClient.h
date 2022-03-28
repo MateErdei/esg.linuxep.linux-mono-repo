@@ -16,8 +16,10 @@ namespace MCS
         Common::HttpRequests::Response  sendMessageWithIDAndRole(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
         std::string getID();
         std::string getPassword();
+
         void setID(const std::string& id);
         void setPassword(const std::string& password);
+        void setCertPath(const std::string& password);
         void setProxyInfo(const std::string& proxy,const std::string& proxyUser,const std::string& proxyPassword);
 
     private:
@@ -29,6 +31,7 @@ namespace MCS
         std::string m_proxy;
         std::string m_proxyUser;
         std::string m_proxyPassword;
+        std::string m_certPath;
 
     };
 }

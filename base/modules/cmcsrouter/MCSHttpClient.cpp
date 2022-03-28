@@ -7,6 +7,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include <Common/ObfuscationImpl/Base64.h>
 
 #include <memory>
 namespace MCS
@@ -40,7 +41,12 @@ namespace MCS
             request.proxyUsername=m_proxyUser;
             request.proxyPassword=m_proxyPassword;
         }
-        request.certPath = "/mnt/filer6/linux/SSPL/tools/setup_sspl/certs/qa_region_certs/hmr-qa-sha256.pem";
+
+        if(!m_certPath.empty())
+        {
+            request.certPath = m_certPath;
+        }
+
         Common::HttpRequests::Response response;
         switch (requestType)
         {
@@ -81,7 +87,7 @@ namespace MCS
     std::string MCSHttpClient::getV1AuthorizationHeader()
     {
         std::string tobeEncoded = getID() + ":" + getPassword();
-        std::string header = "Basic " + tobeEncoded;
+        std::string header = "Basic " + Common::ObfuscationImpl::Base64::Encode(tobeEncoded);
         return header;
     }
 
@@ -102,6 +108,11 @@ namespace MCS
     void MCSHttpClient::setPassword(const std::string& password)
     {
         m_password = password;
+    }
+
+    void MCSHttpClient::setCertPath(const std::string& certPath)
+    {
+        m_certPath = certPath;
     }
     void MCSHttpClient::setProxyInfo(const std::string& proxy,const std::string& proxyUser,const std::string& proxyPassword)
     {

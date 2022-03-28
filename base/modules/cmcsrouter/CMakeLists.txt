@@ -6,7 +6,7 @@ add_library(mcsimpl SHARED
         )
 
 include_directories(mcsimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
-target_link_libraries(mcsimpl PUBLIC HttpRequestsImpl)
+target_link_libraries(mcsimpl PUBLIC HttpRequestsImpl obfuscationimpl ${OPENSSLCRYPTO_LIBRARY})
 
 SET_TARGET_PROPERTIES(mcsimpl
         PROPERTIES
