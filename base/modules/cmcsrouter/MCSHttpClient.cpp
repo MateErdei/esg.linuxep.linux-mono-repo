@@ -12,8 +12,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <memory>
 namespace MCS
 {
-    MCSHttpClient::MCSHttpClient(std::string mcsUrl, std::string registerToken):
-        m_base_url(mcsUrl),m_registerToken(registerToken){}
+    MCSHttpClient::MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper):
+        m_base_url(mcsUrl),m_registerToken(registerToken),m_curlWrapper(curlWrapper){}
 
     Common::HttpRequests::Response  MCSHttpClient::sendMessage(
         const std::string& url,
@@ -23,26 +23,25 @@ namespace MCS
     {
         Common::HttpRequests::Headers requestHeaders;
         requestHeaders.insert({"Authorization",getV1AuthorizationHeader()});
-        requestHeaders.insert({"User-Agent", "Sophos MCS Client/1.0.0 Linux sessions "+ m_registerToken});
+        requestHeaders.insert({"User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions "+ m_registerToken});
         for (const auto& head : headers)
         {
             requestHeaders.insert({head.first,head.second});
         }
-        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
-            std::make_shared<Common::CurlWrapper::CurlWrapper>();
-        std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-        Common::HttpRequests::RequestConfig request{ .url = m_base_url+ url ,.headers = requestHeaders};
+
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(m_curlWrapper);
+        Common::HttpRequests::RequestConfig request{ .url = m_base_url + url ,.headers = requestHeaders};
         if (!m_proxy.empty())
         {
-            request.proxy=m_proxy;
+            request.proxy = m_proxy;
         }
         if (!m_proxyUser.empty())
         {
-            request.proxyUsername=m_proxyUser;
-            request.proxyPassword=m_proxyPassword;
+            request.proxyUsername = m_proxyUser;
+            request.proxyPassword = m_proxyPassword;
         }
 
-        if(!m_certPath.empty())
+        if (!m_certPath.empty())
         {
             request.certPath = m_certPath;
         }
@@ -69,8 +68,7 @@ namespace MCS
     Common::HttpRequests::Response  MCSHttpClient::sendMessageWithID(
         const std::string& url,
         Common::HttpRequests::RequestType requestType,
-        Common::HttpRequests::Headers headers = {}
-    )
+        Common::HttpRequests::Headers headers = {})
     {
         return sendMessage(url + getID(),requestType, headers);
     }
@@ -78,8 +76,7 @@ namespace MCS
     Common::HttpRequests::Response  MCSHttpClient::sendMessageWithIDAndRole(
         const std::string& url,
         Common::HttpRequests::RequestType requestType,
-        Common::HttpRequests::Headers headers = {}
-         )
+        Common::HttpRequests::Headers headers = {})
     {
         return sendMessage(url + getID() + "/role/endpoint", requestType, headers);
     }
@@ -95,6 +92,7 @@ namespace MCS
     {
         return m_id;
     }
+
     std::string MCSHttpClient::getPassword()
     {
         return m_password;
@@ -103,6 +101,11 @@ namespace MCS
     void MCSHttpClient::setID(const std::string& id)
     {
         m_id = id;
+    }
+
+    void MCSHttpClient::setVersion(const std::string& version)
+    {
+        m_version = version;
     }
 
     void MCSHttpClient::setPassword(const std::string& password)
@@ -114,11 +117,11 @@ namespace MCS
     {
         m_certPath = certPath;
     }
+
     void MCSHttpClient::setProxyInfo(const std::string& proxy,const std::string& proxyUser,const std::string& proxyPassword)
     {
         m_proxy = proxy;
         m_proxyUser = proxyUser;
         m_proxyPassword = proxyPassword;
     }
-
 }
