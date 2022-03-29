@@ -647,6 +647,7 @@ CLS Does Not Scan DiscImage When Archives Setting Is On
 CLS Encoded Eicars
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
+    Log Many  ${result.stdout}  ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
 
     ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp_test/encoded_eicars/  timeout=120s
