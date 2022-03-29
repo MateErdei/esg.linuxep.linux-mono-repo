@@ -1,3 +1,12 @@
+
+
+
+#INCLUDE(FindLibraryFullPath)
+
+#FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
+
+
+
 add_custom_target(
         mcstar ALL
         COMMAND mkdir -p mcslibrary/include mcslibrary/lib64
@@ -26,6 +35,7 @@ function(add_copy_directory base)
 endfunction()
 
 add_copy_directory(cmcsrouter)
+
 
 add_custom_command(
         TARGET mcstar
