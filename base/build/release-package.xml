@@ -36,7 +36,8 @@
         </build-asset>
         <build-asset project="linuxep" repo="sul">
             <release-version branch="release/2022-15" build-id="20220323111247-0d5a4f591e598f1e6b1553114b4c285892e57a74-iQoV0s"/>
-            <development-version branch="develop"/>
+<!--        TODO - LINUXDAR-4086 remove specific build ID from development version until changes to work with gcc 11.2 sul are made -->
+            <development-version branch="develop" build-id="20220323095503-0d5a4f591e598f1e6b1553114b4c285892e57a74-p8cKwp"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="gsl">
