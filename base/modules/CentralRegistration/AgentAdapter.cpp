@@ -15,18 +15,17 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 namespace CentralRegistrationImpl
 {
     AgentAdapter::AgentAdapter()
-    : m_platformUtils(Common::OSUtilitiesImpl::PlatformUtils())
+    : m_platformUtils(std::make_shared<Common::OSUtilitiesImpl::PlatformUtils>())
     {}
 
-    AgentAdapter::AgentAdapter(Common::OSUtilitiesImpl::PlatformUtils platformUtils)
+    AgentAdapter::AgentAdapter(std::shared_ptr<Common::OSUtilities::IPlatformUtils> platformUtils)
     : m_platformUtils(platformUtils)
     {}
 
     std::string AgentAdapter::getStatusXml() const
     {
         std::stringstream statusXml;
-        statusXml << getStatusHeader() << getCommonStatusXml() << getOptionalStatusValues() << getPlatformStatus()
-                  << getStatusFooter();
+        statusXml << getStatusHeader() << getCommonStatusXml() << getPlatformStatus() << getStatusFooter();
         return statusXml.str();
     }
 
@@ -43,32 +42,23 @@ namespace CentralRegistrationImpl
 
     std::string AgentAdapter::getCommonStatusXml() const
     {
-        Common::OSUtilitiesImpl::LocalIPImpl localIp;
-        Common::OSUtilities::IPs ips = localIp.getLocalIPs();
-        std::string ip4;
-        std::string ip6;
-        if (!ips.ip4collection.empty())
-        {
-            ip4 = ips.ip4collection[0].stringAddress();
-        }
-        if (!ips.ip6collection.empty())
-        {
-            ip6 = ips.ip6collection[0].stringAddress();
-        }
+
 
         std::stringstream commonStatusXml;
         commonStatusXml << "<commonComputerStatus>"
                         << "<domainName>UNKNOWN</domainName>"
-                        << "<computerName>" << m_platformUtils.getHostname() << "</computerName>"
+                        << "<computerName>" << m_platformUtils->getHostname() << "</computerName>"
                         << "<computerDescription></computerDescription>"
                         << "<isServer>true</isServer>"
-                        << "<operatingSystem>" << m_platformUtils.getPlatform() << "</operatingSystem>"
+                        << "<operatingSystem>" << m_platformUtils->getPlatform() << "</operatingSystem>"
                         << "<lastLoggedOnUser>"
-                        << "root@" << m_platformUtils.getHostname() << "</lastLoggedOnUser>"
-                        << "<ipv4>" << ip4 << "</ipv4>"
-                        << "<ipv6>" << ip6 << "</ipv6>"
-                        << "<fqdn>" << m_platformUtils.getHostname() << "</fqdn>"
-                        << "<processorArchitecture>" << m_platformUtils.getArchitecture() << "</processorArchitecture>";
+                        << "root@" << m_platformUtils->getHostname() << "</lastLoggedOnUser>"
+                        << "<ipv4>" << m_platformUtils->getIp4Address() << "</ipv4>"
+                        << "<ipv6>" << m_platformUtils->getIp6Address() << "</ipv6>"
+                        << "<fqdn>" << m_platformUtils->getHostname() << "</fqdn>"
+                        << "<processorArchitecture>" << m_platformUtils->getArchitecture() << "</processorArchitecture>"
+                        << getOptionalStatusValues()
+                        << "</commonComputerStatus>";
         return commonStatusXml.str();
     }
 
@@ -83,13 +73,13 @@ namespace CentralRegistrationImpl
         std::stringstream platformStatusXml;
         platformStatusXml << "<posixPlatformDetails>"
                           << "<productType>sspl</productType>"
-                          << "<platform>" << m_platformUtils.getPlatform() << "</platform>"
-                          << "<vendor>" << m_platformUtils.getVendor() << "</vendor>"
+                          << "<platform>" << m_platformUtils->getPlatform() << "</platform>"
+                          << "<vendor>" << m_platformUtils->getVendor() << "</vendor>"
                           << "<isServer>1</isServer>"
-                          << "<osName>" << m_platformUtils.getOsName() << "</osName>"
-                          << "<kernelVersion>" << m_platformUtils.getKernelVersion() << "</kernelVersion>"
-                          << "<osMajorVersion>" << m_platformUtils.getOsMajorVersion() << "</osMajorVersion>"
-                          << "<osMinorVersion>" << m_platformUtils.getOsMinorVersion() << "</osMinorVersion>"
+                          << "<osName>" << m_platformUtils->getOsName() << "</osName>"
+                          << "<kernelVersion>" << m_platformUtils->getKernelVersion() << "</kernelVersion>"
+                          << "<osMajorVersion>" << m_platformUtils->getOsMajorVersion() << "</osMajorVersion>"
+                          << "<osMinorVersion>" << m_platformUtils->getOsMinorVersion() << "</osMinorVersion>"
                           << "</posixPlatformDetails>";
         return platformStatusXml.str();
     }

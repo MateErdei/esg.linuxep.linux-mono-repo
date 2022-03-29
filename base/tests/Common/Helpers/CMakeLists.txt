@@ -13,9 +13,6 @@ add_library(testhelpersobject OBJECT
         MockApiBaseServices.h
         MockFilePermissions.h
         MockFileSystem.h
-        MockHttpRequester.h
-        MockCurlWrapper.h
-        MockFileSystem.h
         MockZmqContext.h
         FakeTimeUtils.cpp
         FakeTimeUtils.h
@@ -26,16 +23,16 @@ add_library(testhelpersobject OBJECT
         OutputToLog.cpp
         OutputToLog.h
         MockPlatformUtils.h
-        MockSystemUtils.h
         )
 
-target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE})
+target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include")
 
 add_library(testhelpers SHARED $<TARGET_OBJECTS:testhelpersobject>)
 
-target_include_directories(testhelpers SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE} ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(testhelpers SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}" ${LOG4CPLUS_INCLUDE_DIR})
 
-target_link_libraries(testhelpers PUBLIC filesystemimpl applicationconfigurationimpl ${GTEST_LIBRARY} ${GMOCK_LIBRARY}  pluginapiimpl)
+target_link_libraries(testhelpers PUBLIC filesystemimpl applicationconfigurationimpl gmock gtest pluginapiimpl)
+
 SET_TARGET_PROPERTIES( testhelpers
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 

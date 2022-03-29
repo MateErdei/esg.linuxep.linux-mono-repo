@@ -25,6 +25,8 @@ namespace Common
             virtual std::string getOsMajorVersion() const = 0;
             virtual std::string getOsMinorVersion() const = 0;
             virtual std::string getDomainname() const = 0;
+            virtual std::string getIp4Address() const = 0;
+            virtual std::string getIp6Address() const = 0;
 //            virtual std::string getCloudPlatform() const = 0;
         };
 

@@ -27,6 +27,9 @@ namespace Common
             [[nodiscard]] std::string getOsMajorVersion() const override;
             [[nodiscard]] std::string getOsMinorVersion() const override;
             [[nodiscard]] std::string getDomainname() const override;
+            [[nodiscard]] std::string getIp4Address() const override;
+            [[nodiscard]] std::string getIp6Address() const override;
+
 //            std::string getCloudPlatform() const override;
 
         private:

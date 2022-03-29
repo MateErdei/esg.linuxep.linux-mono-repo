@@ -1,14 +1,10 @@
 include(GoogleTest)
 
-add_executable(centralregistrationtests
-        TestCentralRegistration.cpp
-        TestCentralRegistrationMain.cpp
+add_executable(centralregistrationtestsexe
+        TestAgentAdapter.cpp
         )
-target_include_directories(centralregistrationtests SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${CMAKE_SOURCE_DIR})
-target_link_libraries(centralregistrationtests ${GMOCK_LIBRARY} ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} filesystemimpl testhelpers centralregistrationimpl mcsimpl)
-gtest_discover_tests(centralregistrationtests)
-SET_TARGET_PROPERTIES(centralregistrationtests
-        PROPERTIES
-        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
-        )
+target_include_directories(centralregistrationtestsexe SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" ${CMAKE_SOURCE_DIR})
+target_include_directories(centralregistrationtestsexe BEFORE PUBLIC "${gtest_SOURCE_DIR}")
+target_link_libraries(centralregistrationtestsexe gtest gtest_main)
+target_link_libraries(centralregistrationtestsexe filesystemimpl testhelpers centralregistrationimpl )
+gtest_discover_tests(centralregistrationtestsexe)

@@ -6,6 +6,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "PlatformUtils.h"
 
+#include "LocalIPImpl.h"
+
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "OSUtilities/IPlatformUtilsException.h"
@@ -13,9 +15,9 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <array>
 #include <cerrno>
 #include <cstring>
+#include <ctype.h>
 #include <map>
 #include <unistd.h>
-#include <ctype.h>
 
 namespace Common
 {
@@ -75,8 +77,8 @@ namespace Common
 
             if(fs->isFile(lsbReleasePath))
             {
-                m_osName = UtilityImpl::StringUtils::extractValueFromIniFile(lsbReleasePath, "DISTRIB_DESCRIPTION");
-                std::string version = UtilityImpl::StringUtils::extractValueFromIniFile(lsbReleasePath, "DISTRIB_RELEASE");
+                m_osName = UtilityImpl::StringUtils::extractValueFromConfigFile(lsbReleasePath, "DISTRIB_DESCRIPTION");
+                std::string version = UtilityImpl::StringUtils::extractValueFromConfigFile(lsbReleasePath, "DISTRIB_RELEASE");
                 std::vector<std::string> majorAndMinor = UtilityImpl::StringUtils::splitString(version, ".");
                 if(majorAndMinor.size() >= 2)
                 {
@@ -130,6 +132,39 @@ namespace Common
         std::string PlatformUtils::getDomainname() const
         {
             return "UNKNOWN";
+        }
+
+        std::string PlatformUtils::getIp4Address() const
+        {
+            Common::OSUtilitiesImpl::LocalIPImpl localIp;
+            Common::OSUtilities::IPs ips = localIp.getLocalIPs();
+            std::string ip4Address("");
+            if (!ips.ip4collection.empty())
+            {
+                ip4Address = ips.ip4collection[0].stringAddress();
+            }
+
+            return ip4Address;
+        }
+
+        std::string PlatformUtils::getIp6Address() const
+        {
+            Common::OSUtilitiesImpl::LocalIPImpl localIp;
+            Common::OSUtilities::IPs ips = localIp.getLocalIPs();
+            std::string ip6Address("");
+
+            if (!ips.ip6collection.empty())
+            {
+                ip6Address = ips.ip6collection[0].stringAddress();
+                unsigned long pos = ip6Address.find("%");
+
+                if(pos != std::string::npos)
+                {
+                    ip6Address = ip6Address.substr(0, pos);
+                }
+            }
+
+            return ip6Address;
         }
 
         utsname PlatformUtils::getUtsname() const
