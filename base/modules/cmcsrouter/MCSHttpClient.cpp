@@ -12,8 +12,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <memory>
 namespace MCS
 {
-    MCSHttpClient::MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper):
-        m_base_url(mcsUrl),m_registerToken(registerToken),m_curlWrapper(curlWrapper){}
+    MCSHttpClient::MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
+        m_base_url(mcsUrl),m_registerToken(registerToken),m_client(client){}
 
     Common::HttpRequests::Response  MCSHttpClient::sendMessage(
         const std::string& url,
@@ -29,7 +29,7 @@ namespace MCS
             requestHeaders.insert({head.first,head.second});
         }
 
-        std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(m_curlWrapper);
+
         Common::HttpRequests::RequestConfig request{ .url = m_base_url + url ,.headers = requestHeaders};
         if (!m_proxy.empty())
         {
@@ -50,16 +50,16 @@ namespace MCS
         switch (requestType)
         {
             case Common::HttpRequests::RequestType::POST:
-                response = client->post(request);
+                response = m_client->post(request);
                 break;
             case Common::HttpRequests::RequestType::PUT:
-                response = client->put(request);
+                response = m_client->put(request);
                 break;
             case Common::HttpRequests::RequestType::GET:
-                response = client->get(request);
+                response = m_client->get(request);
                 break;
             default :
-                response = client->get(request);
+                response = m_client->get(request);
                 break;
         }
         return response;

@@ -49,7 +49,9 @@ TEST_F(McsClientTests, checkFieldsAreSet)
 {
     auto curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
     setCommonExpectations(curlWrapper);
-    MCS::MCSHttpClient client("https://mcsUrl","registerToken",curlWrapper);
+    std::shared_ptr<Common::HttpRequests::IHttpRequester> httpclient = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+
+    MCS::MCSHttpClient client("https://mcsUrl","registerToken",httpclient);
     client.setID("ThisIsAnMCSID+1001");
     client.setPassword("password");
     client.setVersion("1.0.0");
@@ -79,7 +81,9 @@ TEST_F(McsClientTests, checkProxyFieldsAreSet)
 {
     auto curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
     setCommonExpectations(curlWrapper);
-    MCS::MCSHttpClient client("https://mcsUrl","registerToken",curlWrapper);
+    std::shared_ptr<Common::HttpRequests::IHttpRequester> httpclient = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+
+    MCS::MCSHttpClient client("https://mcsUrl","registerToken",httpclient);
     client.setID("ThisIsAnMCSID+1001");
     client.setPassword("password");
     client.setVersion("1.0.0");
@@ -112,7 +116,9 @@ TEST_F(McsClientTests, setCertPath)
 {
     auto curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
     setCommonExpectations(curlWrapper);
-    MCS::MCSHttpClient client("https://mcsUrl","registerToken",curlWrapper);
+    std::shared_ptr<Common::HttpRequests::IHttpRequester> httpclient = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+
+    MCS::MCSHttpClient client("https://mcsUrl","registerToken",httpclient);
     client.setID("ThisIsAnMCSID+1001");
     client.setPassword("password");
     client.setVersion("1.0.0");
