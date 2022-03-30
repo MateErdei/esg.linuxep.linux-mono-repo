@@ -11,6 +11,7 @@ namespace MCS
     {
     public:
         MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::HttpRequests::IHttpRequester>);
+        Common::HttpRequests::Response  sendRegistration(Common::HttpRequests::Headers headers);
         Common::HttpRequests::Response  sendMessage(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
         Common::HttpRequests::Response  sendMessageWithID(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
         Common::HttpRequests::Response  sendMessageWithIDAndRole(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);

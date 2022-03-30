@@ -15,6 +15,35 @@ namespace MCS
     MCSHttpClient::MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
         m_base_url(mcsUrl),m_registerToken(registerToken),m_client(client){}
 
+    Common::HttpRequests::Response  MCSHttpClient::sendRegistration(Common::HttpRequests::Headers headers)
+    {
+        Common::HttpRequests::Headers requestHeaders;
+
+        Common::HttpRequests::Response response;
+        requestHeaders.insert({"User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions "+ m_registerToken});
+        for (const auto& head : headers)
+        {
+            requestHeaders.insert({head.first,head.second});
+        }
+
+        Common::HttpRequests::RequestConfig request{ .url = m_base_url + "/register", .headers = requestHeaders};
+        if (!m_proxy.empty())
+        {
+            request.proxy = m_proxy;
+        }
+        if (!m_proxyUser.empty())
+        {
+            request.proxyUsername = m_proxyUser;
+            request.proxyPassword = m_proxyPassword;
+        }
+        if (!m_certPath.empty())
+        {
+            request.certPath = m_certPath;
+        }
+
+        return m_client->post(request);
+    }
+
     Common::HttpRequests::Response  MCSHttpClient::sendMessage(
         const std::string& url,
         Common::HttpRequests::RequestType requestType,
