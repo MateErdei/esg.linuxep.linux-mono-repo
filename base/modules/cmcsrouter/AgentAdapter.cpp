@@ -6,144 +6,74 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "AgentAdapter.h"
 
-#include <Common/CurlWrapper/CurlWrapper.h>
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
-#include <Common/OSUtilities/IIPUtils.h>
-#include <Common/OSUtilitiesImpl/LocalIPImpl.h>
-#include <Common/OSUtilitiesImpl/PlatformUtils.h>
-#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/XmlUtilities/Validation.h>
+#include <Common/OSUtilitiesImpl/PlatformUtils.h>
+#include <Common/OSUtilitiesImpl/LocalIPImpl.h>
 
-#include <iostream>
+#include <sstream>
+#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include <Common/CurlWrapper/CurlWrapper.h>
 
 namespace MCS
 {
     AgentAdapter::AgentAdapter()
-    : m_platformUtils(std::make_shared<Common::OSUtilitiesImpl::PlatformUtils>()),
-        m_localIp(std::make_shared<Common::OSUtilitiesImpl::LocalIPImpl>())
+    : m_platformUtils(std::make_shared<Common::OSUtilitiesImpl::PlatformUtils>())
     {}
 
-    AgentAdapter::AgentAdapter(std::shared_ptr<Common::OSUtilities::IPlatformUtils> platformUtils, std::shared_ptr<Common::OSUtilities::ILocalIP> localIp)
-    : m_platformUtils(std::move(platformUtils)), m_localIp(std::move(localIp))
+    AgentAdapter::AgentAdapter(std::shared_ptr<Common::OSUtilities::IPlatformUtils> platformUtils)
+    : m_platformUtils(platformUtils)
     {}
 
-    std::string AgentAdapter::getStatusXml(std::map<std::string, std::string>& configOptions) const
+    std::string AgentAdapter::getStatusXml() const
     {
+        std::map<std::string, std::string> optionsConfig;
         std::stringstream statusXml;
-        statusXml << getStatusHeader(configOptions)
-                  << getCommonStatusXml(configOptions)
-                  << getCloudPlatformsStatus()
-                  << getPlatformStatus()
-                  << getStatusFooter();
+        statusXml << getStatusHeader() << getCommonStatusXml() << getCloudPlatformsStatus(optionsConfig) << getPlatformStatus() << getStatusFooter();
         return statusXml.str();
     }
 
-    std::string AgentAdapter::getStatusHeader(const std::map<std::string, std::string>& configOptions) const
+    std::string AgentAdapter::getStatusHeader() const
     {
         std::stringstream header;
         header << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
                << "<ns:computerStatus xmlns:ns=\"http://www.sophos.com/xml/mcs/computerstatus\">"
                << "<meta protocolVersion=\"1.0\" timestamp=\""
-               << Common::UtilityImpl::TimeUtils::MessageTimeStamp(std::chrono::system_clock::now())
-               << "\" softwareVersion=\"";
-        if (configOptions.find(MCS::VERSION_NUMBER) != configOptions.end())
-        {
-            header << configOptions.at(MCS::VERSION_NUMBER);
-        }
-        header << "\" />";
+               << Common::UtilityImpl::TimeUtils::MessageTimeStamp(std::chrono::system_clock::now()) << " softwareVersion=\""
+               << getSoftwareVersion() << "\" />";
         return header.str();
     }
 
-    std::string AgentAdapter::getCommonStatusXml(const std::map<std::string, std::string>& configOptions) const
+    std::string AgentAdapter::getCommonStatusXml() const
     {
+
+
         std::stringstream commonStatusXml;
-
-        std::vector<Common::OSUtilities::Interface> interfaces = m_localIp->getLocalInterfaces();
-        m_platformUtils->sortInterfaces(interfaces);
-        std::vector<std::string> ip4Addresses = m_platformUtils->getIp4Addresses(interfaces);
-        std::vector<std::string> ip6Addresses = m_platformUtils->getIp6Addresses(interfaces);
-
         commonStatusXml << "<commonComputerStatus>"
-                        << "<domainName>" << m_platformUtils->getDomainname() << "</domainName>"
+                        << "<domainName>UNKNOWN</domainName>"
                         << "<computerName>" << m_platformUtils->getHostname() << "</computerName>"
                         << "<computerDescription></computerDescription>"
                         << "<isServer>true</isServer>"
                         << "<operatingSystem>" << m_platformUtils->getPlatform() << "</operatingSystem>"
                         << "<lastLoggedOnUser>"
                         << "root@" << m_platformUtils->getHostname() << "</lastLoggedOnUser>"
-                        << "<ipv4>" << m_platformUtils->getFirstIpAddress(ip4Addresses) << "</ipv4>"
-                        << "<ipv6>" << m_platformUtils->getFirstIpAddress(ip6Addresses) << "</ipv6>"
+                        << "<ipv4>" << m_platformUtils->getIp4Address() << "</ipv4>"
+                        << "<ipv6>" << m_platformUtils->getIp6Address() << "</ipv6>"
                         << "<fqdn>" << m_platformUtils->getHostname() << "</fqdn>"
                         << "<processorArchitecture>" << m_platformUtils->getArchitecture() << "</processorArchitecture>"
-                        << getOptionalStatusValues(configOptions, ip4Addresses, ip6Addresses)
+                        << getOptionalStatusValues()
                         << "</commonComputerStatus>";
         return commonStatusXml.str();
     }
 
-    std::string AgentAdapter::getOptionalStatusValues(const std::map<std::string, std::string>& configOptions,
-                                                      const std::vector<std::string>& ip4Addresses,
-                                                      const std::vector<std::string>& ip6Addresses) const
+    std::string AgentAdapter::getOptionalStatusValues() const
     {
-        // For Groups, Products, and IP addresses
-        std::stringstream optionals;
-
-        if (configOptions.find("products") != configOptions.end())
-        {
-            std::string productsAsString = Common::UtilityImpl::StringUtils::replaceAll(configOptions.at("products"), " ", "");
-            optionals << "<productsToInstall>";
-            if (productsAsString != "none")
-            {
-                std::vector<std::string> products = Common::UtilityImpl::StringUtils::splitString(productsAsString, ",");
-                for (const std::string& product : products)
-                {
-                    if (!product.empty() && Common::XmlUtilities::Validation::stringWillNotBreakXmlParsing(product))
-                    {
-                        optionals << "<product>" << product << "</product>";
-                    }
-                }
-            }
-            optionals << "</productsToInstall>";
-        }
-
-        if (configOptions.find("centralGroup") != configOptions.end())
-        {
-            std::string deviceGroupAsString = configOptions.at("centralGroup");
-            if (Common::XmlUtilities::Validation::stringWillNotBreakXmlParsing(deviceGroupAsString))
-            {
-                optionals << "<deviceGroup>" << deviceGroupAsString << "</deviceGroup>";
-            }
-        }
-
-        if (!ip4Addresses.empty() || !ip6Addresses.empty())
-        {
-            optionals << "<ipAddresses>";
-            for (const std::string& ip4Address : ip4Addresses)
-            {
-                optionals << "<ipv4>" << ip4Address << "</ipv4>";
-            }
-            for (const std::string& ip6Address : ip6Addresses)
-            {
-                optionals << "<ipv6>" << ip6Address << "</ipv6>";
-            }
-            optionals << "</ipAddresses>";
-        }
-
-        std::vector<std::string> systemMacAddresses = m_platformUtils->getMacAddresses();
-        if (!systemMacAddresses.empty())
-        {
-            optionals << "<macAddresses>";
-            for (const std::string& macAddress : systemMacAddresses)
-            {
-                optionals << "<macAddress>" << macAddress << "</macAddress>";
-            }
-            optionals << "</macAddresses>";
-        }
-        return optionals.str();
+        // For Groups, Products, and IP addrs
+        return "";
     }
 
-    std::string AgentAdapter::getCloudPlatformsStatus() const
+    std::string AgentAdapter::getCloudPlatformsStatus(std::map<std::string, std::string> optionsConfig) const
     {
+        m_platformUtils->setProxyConfig(optionsConfig);
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
         std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
         return m_platformUtils->getCloudPlatformMetadata(client);
@@ -166,5 +96,7 @@ namespace MCS
     }
 
     std::string AgentAdapter::getStatusFooter() const { return "</ns:computerStatus>"; }
+
+    std::string AgentAdapter::getSoftwareVersion() const { return "9.9.9.9"; }
 
 }

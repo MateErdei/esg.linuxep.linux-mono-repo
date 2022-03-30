@@ -5,17 +5,14 @@ add_library(centralregistrationimpl SHARED
         Logger.h
         Main.h
         Main.cpp
-        IAdapter.h
-        AgentAdapter.h
-        AgentAdapter.cpp
         CentralRegistration.h
         CentralRegistration.cpp
         )
 
 target_include_directories(centralregistrationimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
-#include_directories(centralregistrationimpl BEFORE ${SUL_INPUT}/include)
+include_directories(centralregistrationimpl BEFORE ${CURL_INCLUDE_DIR})
 
-target_link_libraries(centralregistrationimpl PUBLIC osutilitiesimpl ${LOG4CPLUS_LIBRARY} $<TARGET_OBJECTS:loggingobject>)
+target_link_libraries(centralregistrationimpl PUBLIC httpsenderimpl osutilitiesimpl  mcsimpl ${LOG4CPLUS_LIBRARY} $<TARGET_OBJECTS:loggingobject>)
 
 SET_TARGET_PROPERTIES( centralregistrationimpl
         PROPERTIES
