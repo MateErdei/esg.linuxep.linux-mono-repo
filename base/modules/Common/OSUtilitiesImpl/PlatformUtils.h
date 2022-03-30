@@ -6,6 +6,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "OSUtilities/IPlatformUtils.h"
+#include <Common/HttpRequests/IHttpRequester.h>
 #include <sys/utsname.h>
 
 namespace Common
@@ -29,21 +30,27 @@ namespace Common
             [[nodiscard]] std::string getDomainname() const override;
             [[nodiscard]] std::string getIp4Address() const override;
             [[nodiscard]] std::string getIp6Address() const override;
-
-//            std::string getCloudPlatform() const override;
+            [[nodiscard]] std::string getCloudPlatformMetadata(Common::HttpRequests::IHttpRequester* client) const override;
+            void setProxyConfig(std::map<std::string, std::string> proxyConfig) override;
 
         private:
             /**
              * Gets the basic platform information
              * @return a utsname struct containing platform information
              */
-            utsname getUtsname() const;
+            [[nodiscard]] utsname getUtsname() const;
             void populateVendorDetails();
+            [[nodiscard]] std::string getAwsMetadata(Common::HttpRequests::IHttpRequester* client) const;
+            [[nodiscard]] std::string getGcpMetadata(Common::HttpRequests::IHttpRequester* client) const;
+            [[nodiscard]] std::string getOracleMetadata(Common::HttpRequests::IHttpRequester* client) const;
+            [[nodiscard]] std::string getAzureMetadata(Common::HttpRequests::IHttpRequester* client) const;
+            [[nodiscard]] Common::HttpRequests::RequestConfig buildCloudMetadataRequest(std::string url, Common::HttpRequests::Headers headers) const;
 
             std::string m_vendor;
             std::string m_osName;
             std::string m_osMajorVersion;
             std::string m_osMinorVersion;
+            std::map<std::string, std::string> m_proxyConfig;
         };
 
     } // namespace OSUtilitiesImpl

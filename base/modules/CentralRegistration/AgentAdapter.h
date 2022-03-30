@@ -26,7 +26,7 @@ namespace CentralRegistrationImpl
         [[nodiscard]] std::string getStatusHeader() const;
         [[nodiscard]] std::string getCommonStatusXml() const; // Options to be added as parameter later
         [[nodiscard]] std::string getOptionalStatusValues() const;
-        //            std::string getCloudPlatformsStatus() const;  // Empty string if not cloud platform
+        [[nodiscard]] std::string getCloudPlatformsStatus(std::map<std::string, std::string> optionsConfig) const;  // Empty string if not cloud platform
         [[nodiscard]] std::string getPlatformStatus() const;
         [[nodiscard]] std::string getPolicyStatus() const;
         [[nodiscard]] std::string getStatusFooter() const;

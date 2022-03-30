@@ -19,6 +19,8 @@ add_library(osutilitiesimpl SHARED
 
 target_link_libraries(osutilitiesimpl PUBLIC sslimpl filesystemimpl utilityimpl applicationconfigurationimpl pthread)
 
+include_directories(telemetryconfigimpl BEFORE ../../../thirdparty/nlohmann-json)
+
 SET_TARGET_PROPERTIES(osutilitiesimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
