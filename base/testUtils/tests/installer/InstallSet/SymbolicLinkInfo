@@ -431,7 +431,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblogging.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentloggerimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentutilityimpl.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmcsimpl.so.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmcsrouterplugincommunicationimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libminizip.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libminizip.so.3

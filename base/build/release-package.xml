@@ -105,9 +105,6 @@
         <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">
             <include glob="pluginapi.tar.gz"/>
         </build-asset>
-        <build-asset artifact-path="sspl-base/mcs" source-dir="output" mode="release">
-            <include glob="mcs.tar.gz"/>
-        </build-asset>
         <build-asset artifact-path="sspl-base/system_test" source-dir="output" mode="release">
             <include glob="SystemProductTestOutput.tar.gz"/>
             <include glob="symbols"/>
@@ -119,9 +116,6 @@
         <build-asset artifact-path="sspl-base-coverage/openssl" source-dir="/build/redist/openssl" mode="coverage"/>
         <build-asset artifact-path="sspl-base-coverage/pluginapi" source-dir="output" mode="coverage">
             <include glob="pluginapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-coverage/mcs" source-dir="output" mode="coverage">
-            <include glob="mcs.tar.gz"/>
         </build-asset>
         <build-asset artifact-path="sspl-base-coverage/system_test" source-dir="output" mode="coverage">
             <include glob="SystemProductTestOutput.tar.gz"/>
