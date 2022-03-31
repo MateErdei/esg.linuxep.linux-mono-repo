@@ -91,6 +91,9 @@ namespace Common
             void removeFilesInDirectory(const Path& path) const override;
 
             bool waitForFile(const Path& path, unsigned int timeout) const override;
+
+            void recursivelyDeleteContentsOfDirectory(const Path& path) const override;
+
         private:
             void walkDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const;
         };

@@ -612,6 +612,12 @@ namespace SulDownloader
             createSdds3UpdateCacheFolders();
 
             repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly);
+            if (repositoryResult.first)
+            {
+                // Clear SDDS2 cache files which are no longer needed and take up a significant amount of space
+                Common::FileSystem::fileSystem()->recursivelyDeleteContentsOfDirectory(configurationData.getLocalWarehouseRepository());
+                Common::FileSystem::fileSystem()->recursivelyDeleteContentsOfDirectory(configurationData.getLocalDistributionRepository());
+            }
         }
         else
         {

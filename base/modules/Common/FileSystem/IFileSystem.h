@@ -314,6 +314,12 @@ namespace Common
              */
             virtual bool waitForFile(const Path& path, unsigned int timeout) const = 0;
 
+            /**
+             * Removes the contents of a directory without removing the directory itself
+             * @param path to the directory to remove the contents of
+             */
+            virtual void recursivelyDeleteContentsOfDirectory(const Path& path) const = 0;
+
             /** Return the content of
              * /proc/<pid>/<filename>
              * Given the nature of proc files being ephemeral, it returns optional which means that if the value is not

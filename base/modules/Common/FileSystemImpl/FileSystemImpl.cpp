@@ -811,6 +811,25 @@ namespace Common
                 std::unique_ptr<Common::FileSystem::IFileSystem>(new Common::FileSystem::FileSystemImpl());
             return instance;
         }
+
+        void FileSystemImpl::recursivelyDeleteContentsOfDirectory(const Path& path) const
+        {
+            std::vector<std::string> filesAndDirectories;
+            try
+            {
+                filesAndDirectories = listFilesAndDirectories(path);
+            }
+            catch(IFileSystemException& exception)
+            {
+                std::cout << "Failed to get list of directories for :'" << path << "'" << std::endl;
+                return;
+            }
+            for (auto& pathToRemove : filesAndDirectories)
+            {
+                removeFileOrDirectory(pathToRemove);
+            }
+        }
+
     } // namespace FileSystem
 } // namespace Common
 

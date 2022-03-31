@@ -36,9 +36,9 @@ public:
     MOCK_CONST_METHOD2(moveFile, void(const Path& sourcePath, const Path& destPath));
     MOCK_CONST_METHOD1(readFile, std::string(const Path& path));
     MOCK_CONST_METHOD2(readFile, std::string(const Path& path, unsigned long maxSize));
-    MOCK_CONST_METHOD1(readProcStyleFile, std::string(const Path& path));
     MOCK_CONST_METHOD1(readLines, std::vector<std::string>(const Path& path));
     MOCK_CONST_METHOD2(readLines, std::vector<std::string>(const Path& path, unsigned long maxSize));
+    MOCK_CONST_METHOD2(appendFile, void(const Path& path, const std::string& content));
     MOCK_CONST_METHOD2(writeFile, void(const Path& path, const std::string& content));
     MOCK_CONST_METHOD3(writeFileAtomically, void(const Path& path, const std::string& content, const Path& tempDir));
     MOCK_CONST_METHOD4(writeFileAtomically, void(const Path& path, const std::string& content, const Path& tempDir, mode_t mode));
@@ -59,4 +59,6 @@ public:
     MOCK_CONST_METHOD1(lastModifiedTime, std::time_t(const Path& path));
     MOCK_CONST_METHOD1(removeFilesInDirectory, void(const Path& path));
     MOCK_CONST_METHOD2(readProcFile, std::optional<std::string>(int pid, const std::string& filename));
+    MOCK_CONST_METHOD2(waitForFile, bool(const Path& path, unsigned int timeout));
+    MOCK_CONST_METHOD1(recursivelyDeleteContentsOfDirectory, void(const Path& path));
 };
