@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <array>
+#include <string>
 #include <vector>
 
 namespace Common

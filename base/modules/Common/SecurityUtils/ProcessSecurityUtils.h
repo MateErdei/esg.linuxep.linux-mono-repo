@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <optional>
 #include <pwd.h>
+#include <stdexcept>
 #include <string>
 #include <unistd.h>
 #include <vector>

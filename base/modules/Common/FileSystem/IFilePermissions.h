@@ -9,6 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <grp.h>
 #include <map>
 #include <memory>
+#include <sys/types.h>
 
 using Path = std::string;
 

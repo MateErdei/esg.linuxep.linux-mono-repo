@@ -5,6 +5,9 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "SystemExecutableUtils.h"
 #include <Common/FileSystem/IFileSystem.h>
+
+#include <stdexcept>
+
 namespace Common
 {
     namespace UtilityImpl

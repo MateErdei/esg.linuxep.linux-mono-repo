@@ -5,9 +5,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #pragma once
-#include <string>
 #include <HttpSender/HttpResponse.h>
 #include <Common/HttpSender/RequestConfig.h>
+
+#include <stdexcept>
+#include <string>
 #include <chrono>
 /**
  * The client side api. This is the main class the clients of the commns component will use in order to send POST/PUT requests 

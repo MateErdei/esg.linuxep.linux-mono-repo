@@ -5,11 +5,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #pragma once
+#include "CommsConfig.h"
+
+#include <HttpSender/RequestConfig.h>
+#include <HttpSender/HttpResponse.h>
+
+#include <stdexcept>
 #include <string>
 #include <variant>
 #include <map>
-#include <HttpSender/RequestConfig.h>
-#include <HttpSender/HttpResponse.h>
+
 namespace CommsComponent
 {
     class InvalidCommsMsgException : public std::runtime_error
@@ -32,7 +37,7 @@ namespace CommsComponent
 
         static Common::HttpSender::HttpResponse httpResponseFromJson(const std::string& jsonContent);
 
-        std::string id;
-        std::variant<Common::HttpSender::RequestConfig, Common::HttpSender::HttpResponse> content;
-    };
+        std::string id; 
+        std::variant<Common::HttpSender::RequestConfig, Common::HttpSender::HttpResponse, CommsComponent::CommsConfig> content;
+    };    
 }

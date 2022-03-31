@@ -27,6 +27,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 
 #include <future>
+#include <thread>
 
 namespace
 {

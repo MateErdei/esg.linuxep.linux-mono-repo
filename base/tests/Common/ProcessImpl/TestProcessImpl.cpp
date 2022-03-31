@@ -16,7 +16,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/TestExecutionSynchronizer.h>
 
 #include <fstream>
-
+#include <thread>
 
 using namespace Common::Process;
 namespace

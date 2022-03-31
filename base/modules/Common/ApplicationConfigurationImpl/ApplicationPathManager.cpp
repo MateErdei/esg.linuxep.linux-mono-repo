@@ -10,6 +10,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "Common/FileSystem/IFileSystem.h"
 
+#include <stdexcept>
+
 namespace Common
 {
     namespace ApplicationConfigurationImpl

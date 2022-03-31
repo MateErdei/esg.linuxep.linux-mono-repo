@@ -16,6 +16,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include <future>
+#include <thread>
 #include <zmq.h>
 
 using namespace Common::ZeroMQWrapper;

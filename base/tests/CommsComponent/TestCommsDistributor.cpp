@@ -21,6 +21,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Common/FileSystem/IFileSystemException.h"
 #include "CommsMsgUtils.h"
 
+#include <thread>
+
 class TestCommsDistributor : public LogInitializedTests
 {};
 

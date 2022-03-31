@@ -14,6 +14,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/watchdog/watchdogimpl/MockIWatchdogRequest.h>
 
 #include <future>
+#include <thread>
 
 using namespace UpdateScheduler;
 
