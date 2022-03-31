@@ -13,6 +13,9 @@ add_library(testhelpersobject OBJECT
         MockApiBaseServices.h
         MockFilePermissions.h
         MockFileSystem.h
+        MockHttpRequester.h
+        MockCurlWrapper.h
+        MockFileSystem.h
         MockZmqContext.h
         FakeTimeUtils.cpp
         FakeTimeUtils.h

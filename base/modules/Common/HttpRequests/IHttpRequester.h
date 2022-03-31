@@ -39,8 +39,28 @@ namespace Common::HttpRequests
         long timeout = 600;
         bool allowRedirects = false;
         RequestType requestType = RequestType::GET;
-    };
 
+    };
+    inline bool operator==(const RequestConfig lhs,const RequestConfig rhs)
+    {
+        if (lhs.url != rhs.url){return false;}
+        if (lhs.headers != rhs.headers){return false;}
+        if (lhs.data != rhs.data){return false;}
+        if (lhs.port != rhs.port){return false;}
+        if (lhs.parameters != rhs.parameters){return false;}
+        if (lhs.certPath != rhs.certPath){return false;}
+        if (lhs.fileDownloadLocation != rhs.fileDownloadLocation){return false;}
+        if (lhs.fileToUpload != rhs.fileToUpload){return false;}
+        if (lhs.proxy != rhs.proxy){return false;}
+        if (lhs.proxyUsername != rhs.proxyUsername){return false;}
+        if (lhs.proxyPassword != rhs.proxyPassword){return false;}
+        if (lhs.bandwidthLimit != rhs.bandwidthLimit){return false;}
+        if (lhs.timeout != rhs.timeout){return false;}
+        if (lhs.allowRedirects != rhs.allowRedirects){return false;}
+        if (lhs.requestType != rhs.requestType){return false;}
+
+        return true;
+    }
     enum ResponseErrorCode
     {
         // Request was performed

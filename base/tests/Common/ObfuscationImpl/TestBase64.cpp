@@ -37,3 +37,8 @@ TEST_F(TestBase64, Base64DecodeThrowsWithTooInvalidCharacter) // NOLINT
 {
     EXPECT_THROW(Common::ObfuscationImpl::Base64::Decode("~~"), Common::Obfuscation::IBase64Exception); // NOLINT
 }
+
+TEST_F(TestBase64, Base64EncodeReturnsCorrectResult) // NOLINT
+{
+    EXPECT_EQ(Common::ObfuscationImpl::Base64::Encode(std::string("abc123!?$*&()'-=@~")), "YWJjMTIzIT8kKiYoKSctPUB+");
+}

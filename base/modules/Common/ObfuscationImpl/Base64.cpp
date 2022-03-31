@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -12,11 +12,15 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 #include <vector>
-
+#include <openssl/evp.h>
 namespace
 {
     using namespace Common::ObfuscationImpl;
 
+    unsigned encode_buffer_size( size_t original_size )
+    {
+        return ( ( unsigned( original_size ) + 2 ) / 3 ) * 4;
+    }
     /**
      * The set of base64 characters.
      */
@@ -82,6 +86,17 @@ namespace Common
 {
     namespace ObfuscationImpl
     {
+        std::string Base64::Encode(const std::string& orig)
+        {
+            if (orig.size() == 0)
+                return "";
+
+            unsigned buff_size = encode_buffer_size( orig.size() );
+            std::vector<unsigned char> b64_buff( buff_size + 1 );
+            EVP_EncodeBlock( &*b64_buff.begin(), reinterpret_cast<const unsigned char*>(&*orig.begin()), int( orig.size() ) );
+
+            return std::string( b64_buff.begin(), b64_buff.begin() + buff_size );
+        }
         /**
          * Decode a base64 string.
          * @param sEncoded
