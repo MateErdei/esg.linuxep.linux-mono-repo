@@ -237,8 +237,6 @@ function build()
       rm -f "$LOG"
     fi
 
-
-
     if [[ "$CMAKE_BUILD_TYPE" == "$RELEASE_BUILD_TYPE" ]]
     then
       echo "Build type is release"
@@ -258,7 +256,7 @@ function build()
       cppcheck_build  $BUILD_DIR || exitFailure $FAILURE_CPPCHECK "Cppcheck static analysis build failed: $?"
     fi
 
-    if [[ "${NO_BUILD}" == "1" ]]
+    if [[ "$NO_BUILD" == "1" ]]
     then
         echo "Not building (NO_BUILD=1)"
         exit 0
@@ -287,6 +285,7 @@ function build()
     (( $NPROC < 1 )) && NPROC=1
     cmake -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" \
           -G "Unix Makefiles" \
+          -DNO_GCOV="true" \
           "$BASE" \
           || exitFailure 14 "Failed to configure $PRODUCT"
 
