@@ -289,9 +289,7 @@ function build()
           "$BASE" \
           || exitFailure 14 "Failed to configure $PRODUCT"
 
-#    make -j${NPROC} copy_libs || exitFailure 15 "Failed to build $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
-
 
     if [[ "$UNIT_TESTS" == "1" ]]
     then
@@ -316,7 +314,6 @@ function build()
             }
 
             cat /tmp/unitTest.log || true
-
         fi
 
         # python would have been executed in unit tests creating pyc and or pyo files
