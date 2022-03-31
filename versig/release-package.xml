@@ -19,6 +19,7 @@
         </build-asset>
         <build-asset project="thirdparty" repo="openssl">
             <release-version branch="release/sspl/Version_1_1_1m" build-id="20220310143347-fb032a83957c266bd183e2bc36460e7d1cd9d718-29xDys" />
+            <development-version branch="feature/LINUXDAR-4525-upgrade-openssl-to-1.1.1.n"  />
             <include artifact-path="output" dest-dir="/build/input" />
         </build-asset>
     </inputs>
