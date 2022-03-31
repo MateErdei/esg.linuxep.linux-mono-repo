@@ -121,6 +121,7 @@
 
         <build-asset project="winep" repo="sau">
             <release-version branch="release/2022.12-linux-sdds3" build-id="20220317141042-a3e83d45ba43d323fba107ac04f562dd9f2ac6e9-DRKMiD"/>
+            <development-version branch="feature/LINUXDAR-4086-upgrade-gcc-to-11.2-and-thirdparty-inputs"/>
             <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
