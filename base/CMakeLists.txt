@@ -163,7 +163,7 @@ set(Protobuf_PROTOC_LIBRARY ${Protobuf_root}/lib/libprotoc.so ${Protobuf_root}/l
 set(Protobuf_LITE_LIBRARY  ${Protobuf_root}/lib/libprotobuf-lite.so )
 set(Protobuf_LIBRARY ${Protobuf_root}/lib/libprotobuf.so )
 set(Protobuf_DEBUG 1)
-set(Protobuf_LD_LIBRARY_PATH ${Protobuf_root}/lib:$ENV{LD_LIBRARY_PATH} )
+set(Protobuf_LD_LIBRARY_PATH ${Protobuf_root}/lib:${GCC_INPUT}/lib64:$ENV{LD_LIBRARY_PATH} )
 set( ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH} )
 INCLUDE(FindProtobuf)
 
