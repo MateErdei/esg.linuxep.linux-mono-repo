@@ -11,6 +11,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <Common/OSUtilitiesImpl/LocalIPImpl.h>
 
 #include <sstream>
+#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include <Common/CurlWrapper/CurlWrapper.h>
 
 namespace MCS
 {
@@ -24,9 +26,9 @@ namespace MCS
 
     std::string AgentAdapter::getStatusXml() const
     {
-
+        std::map<std::string, std::string> optionsConfig;
         std::stringstream statusXml;
-        statusXml << getStatusHeader() << getCommonStatusXml() << getPlatformStatus() << getStatusFooter();
+        statusXml << getStatusHeader() << getCommonStatusXml() << getCloudPlatformsStatus(optionsConfig) << getPlatformStatus() << getStatusFooter();
         return statusXml.str();
     }
 
@@ -67,6 +69,14 @@ namespace MCS
     {
         // For Groups, Products, and IP addrs
         return "";
+    }
+
+    std::string AgentAdapter::getCloudPlatformsStatus(std::map<std::string, std::string> optionsConfig) const
+    {
+        m_platformUtils->setProxyConfig(optionsConfig);
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        auto client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
+        return m_platformUtils->getCloudPlatformMetadata(&client);
     }
 
     std::string AgentAdapter::getPlatformStatus() const
