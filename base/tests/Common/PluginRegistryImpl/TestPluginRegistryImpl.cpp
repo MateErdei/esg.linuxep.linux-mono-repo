@@ -93,7 +93,7 @@ public:
         pluginInfo.setExecutableUserAndGroup("user:group");
         pluginInfo.setSecondsToShutDown(3);
         pluginInfo.setDisplayPluginName("Display Plugin Name");
-        return std::move(pluginInfo);
+        return pluginInfo;
     }
 
     ::testing::AssertionResult pluginInfoSimilar(

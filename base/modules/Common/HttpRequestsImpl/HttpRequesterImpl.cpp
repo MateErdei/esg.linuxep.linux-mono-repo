@@ -224,7 +224,7 @@ namespace Common::HttpRequestsImpl
                 curlOptions.emplace_back(
                     "Set cURL to choose best authentication available - CURLOPT_PROXYAUTH",
                     CURLOPT_PROXYAUTH,
-                    CURLAUTH_ANY);
+                    (long)CURLAUTH_ANY); // cast to long because the curl_easy_setopt function takes long but the constant is unsigned long
                 curlOptions.emplace_back(
                     "Set proxy user and password - CURLOPT_PROXYUSERPWD",
                     CURLOPT_PROXYUSERPWD,

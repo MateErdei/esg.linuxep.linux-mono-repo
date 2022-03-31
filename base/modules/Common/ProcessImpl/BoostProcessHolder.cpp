@@ -13,6 +13,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-result"
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <boost/asio/read.hpp>

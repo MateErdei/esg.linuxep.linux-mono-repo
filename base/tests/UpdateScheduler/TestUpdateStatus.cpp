@@ -90,7 +90,7 @@ public:
     {
         std::unique_ptr<MockFormattedTime> mockFormattedTime(new ::testing::StrictMock<MockFormattedTime>());
         EXPECT_CALL(*mockFormattedTime, bootTime()).WillRepeatedly(Return("20180810 100000"));
-        return std::move(mockFormattedTime);
+        return mockFormattedTime;
     }
 
     void runTest(const std::string& expectedXML,

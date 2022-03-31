@@ -85,7 +85,10 @@ public:
 
 TEST_F(ProductUninstallerTest, defaultConstructorDoesNotThrow) // NOLINT
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
     EXPECT_NO_THROW(ProductUninstaller uninstallManager); // NOLINT
+#pragma GCC diagnostic pop
 }
 
 TEST_F( // NOLINT
