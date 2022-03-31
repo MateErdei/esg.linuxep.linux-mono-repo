@@ -268,7 +268,7 @@ function build()
     then
         if (( DELETE_GCC == 1 ))
         then
-            rm -f ${INPUT}/gcc-*.tar.gz ${INPUT}/cmake-*.tar.gz
+            rm -f ${INPUT}/gcc-*.tar.gz ${INPUT}/cmake
         fi
 
         unpack_scaffold_gcc_make "$INPUT"
@@ -279,7 +279,7 @@ function build()
         local GCC_TAR=$(ls $INPUT/gcc-*.tar.gz)
         if [[ -f ${GCC_TAR} ]]
         then
-          untar_input gcc-8.1.0-linux
+          untar_input gcc-11.2.0-linux
         else
           echo "**** NO GCC tar so not unpacking"
           ls $INPUT/gcc-*.tar.gz || true
@@ -295,10 +295,9 @@ function build()
             exitFailure 12 "Failed to find openssl"
         fi
 
-        local CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
-        if [[ -f "$CMAKE_TAR" ]]
+        if [[ -f "$INPUT/cmake/bin/cmake" ]]
         then
-            tar xzf "$CMAKE_TAR" -C "$REDIST"
+            cp -r $INPUT/cmake $REDIST
         else
             echo "WARNING: using system cmake"
         fi
@@ -368,8 +367,10 @@ function build()
         fi
     fi
 
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}:${REDIST}/curl/lib64:${REDIST}/log4cplus/lib:${REDIST}/zeromq/lib:${REDIST}/protobuf/install${BITS}/lib
-    export PATH=${REDIST}/cmake/bin:${REDIST}/protobuf/install${BITS}/bin:${PATH}
+    export LD_LIBRARY_PATH=${REDIST}/gcc/lib64:${REDIST}/openssl/lib${BITS}:${REDIST}/curl/lib64:${REDIST}/log4cplus/lib:${REDIST}/zeromq/lib:${REDIST}/protobuf/install${BITS}/lib:${LD_LIBRARY_PATH}
+    export PATH=${REDIST}/gcc/bin:${REDIST}/cmake/bin:${REDIST}/protobuf/install${BITS}/bin:${PATH}
+    chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
+    chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
 
@@ -425,7 +426,7 @@ function build()
 
     [[ -n ${NPROC:-} ]] || { which nproc > /dev/null 2>&1 && NPROC=$((`nproc`)); } || NPROC=2
     (( $NPROC < 1 )) && NPROC=1
-    cmake -v \
+    cmake \
         -DPRODUCT_NAME="${PRODUCT_NAME}" \
         -DPRODUCT_LINE_ID="${PRODUCT_LINE_ID}" \
         -DDEFAULT_HOME_FOLDER="${DEFAULT_HOME_FOLDER}" \
