@@ -11,6 +11,8 @@ Copyright 2018-2020 Sophos Limited.  All rights reserved.
 #include <osqueryclient/IOsqueryClient.h>
 #include "PluginUtils.h"
 #include <future>
+#include <stdexcept>
+#include <thread>
 
 struct OsqueryDataRetentionCheckState
 {

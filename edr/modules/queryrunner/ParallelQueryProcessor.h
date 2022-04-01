@@ -11,6 +11,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <list>
 #include <future>
 #include <atomic>
+#include <thread>
 
 
 namespace queryrunner

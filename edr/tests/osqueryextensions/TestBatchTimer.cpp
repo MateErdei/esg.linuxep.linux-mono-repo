@@ -9,6 +9,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 #include <chrono>
 #include <memory>
+#include <thread>
 
 #include <gtest/gtest.h>
 

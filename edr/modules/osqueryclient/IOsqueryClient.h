@@ -8,6 +8,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <OsquerySDK/OsquerySDK.h>
 #include <Common/UtilityImpl/Factory.h>
+
+#include <stdexcept>
+
 namespace osqueryclient
 {
     class FailedToStablishConnectionException : public std::runtime_error

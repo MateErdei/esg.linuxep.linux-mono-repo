@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <future>
+#include <thread>
 
 TEST(TestQueueTask, popReturnsFalseWhenTImeoutReached)
 {
