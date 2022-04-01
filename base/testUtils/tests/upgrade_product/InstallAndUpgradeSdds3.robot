@@ -58,6 +58,9 @@ ${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sd
 ${UpdateConfigFile}                         ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
 ${sdds3_server_output}                      /tmp/sdds3-server.log
 
+${sdds2_primary}                            ${SOPHOS_INSTALL}/base/update/cache/primary
+${sdds2_primary_warehouse}                  ${SOPHOS_INSTALL}/base/update/cache/primarywarehouse
+
 *** Test Cases ***
 Sul Downloader Can Update Via Sdds3 Repository
     Start Local Cloud Server
@@ -65,8 +68,10 @@ Sul Downloader Can Update Via Sdds3 Repository
     Set Suite Variable    ${GL_handle}    ${handle}
     Require Fresh Install
     Create File    /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
-    Register With Local Cloud Server
     Create Local SDDS3 Override
+    # should be purged before SDDS3 sync
+    Create Dummy Local SDDS2 Cache Files
+    Register With Local Cloud Server
 
     sleep    10
     Remove File  ${status_file}
@@ -102,12 +107,44 @@ Sul Downloader Can Update Via Sdds3 Repository
     Wait Until Keyword Succeeds
     ...   120 secs
     ...   10 secs
+    ...   Check Suldownloader Log Contains   Update success
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   1 secs
     ...   Check Suldownloader Log Contains   Generating the report file
 
-    Log File  ${SULDownloaderLog}
-    Log File  ${SULDownloaderSyncLog}
+    Check Local SDDS2 Cache Is Empty
 
+SDDS3 Sync Removes Local SDDS2 Cache
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    ${handle}=  Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
 
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVVUTPolicy}
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Check Local SDDS2 Cache Has Contents
+
+    Create Local SDDS3 Override
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository
+
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains   suldownloaderdata <> Performing Sync
+    Check Local SDDS2 Cache Is Empty
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  2
 
 *** Keywords ***
 Create Local SDDS3 Override
@@ -127,4 +164,34 @@ Stop Local SDDS3 Server
      terminate process  ${GL_handle}  True
      Log File    ${sdds3_server_output}
      terminate all processes  True
+
+Create Dummy Local SDDS2 Cache Files
+    Create File         ${sdds2_primary}/base/update/cache/primary/1
+    Create Directory    ${sdds2_primary}/base/update/cache/primary/2
+    Create File         ${sdds2_primary}/base/update/cache/primary/2f
+    Create Directory    ${sdds2_primary}/base/update/cache/primary/2d
+    Create File         ${sdds2_primary_warehouse}/base/update/cache/primarywarehouse/1
+    Create Directory    ${sdds2_primary_warehouse}/base/update/cache/primarywarehouse/2
+    Create File         ${sdds2_primary_warehouse}/base/update/cache/primarywarehouse/2f
+    Create Directory    ${sdds2_primary_warehouse}/base/update/cache/primarywarehouse/2d
+
+Directory Should Be Empty
+    [Arguments]    ${directory_path}
+    ${contents} =    List Directory    ${directory_path}
+    Log    ${contents}
+    Should Be Equal    ${contents.__len__()}    ${0}
+
+Directory Should Not Be Empty
+    [Arguments]    ${directory_path}
+    ${contents} =    List Directory    ${directory_path}
+    Log    ${contents}
+    Should Not Be Equal    ${contents.__len__()}    ${0}
+
+Check Local SDDS2 Cache Is Empty
+    Directory Should Be Empty    ${sdds2_primary}
+    Directory Should Be Empty    ${sdds2_primary_warehouse}
+
+Check Local SDDS2 Cache Has Contents
+    Directory Should Not Be Empty    ${sdds2_primary}
+    Directory Should Not Be Empty    ${sdds2_primary_warehouse}
 

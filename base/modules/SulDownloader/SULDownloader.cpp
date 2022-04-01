@@ -480,8 +480,15 @@ namespace SulDownloader
         }
 
         LOGDEBUG("Purging local SDDS2 cache");
-        Common::FileSystem::fileSystem()->recursivelyDeleteContentsOfDirectory(configurationData.getLocalWarehouseRepository());
-        Common::FileSystem::fileSystem()->recursivelyDeleteContentsOfDirectory(configurationData.getLocalDistributionRepository());
+        try
+        {
+            Common::FileSystem::fileSystem()->recursivelyDeleteContentsOfDirectory(configurationData.getLocalWarehouseRepository());
+            Common::FileSystem::fileSystem()->recursivelyDeleteContentsOfDirectory(configurationData.getLocalDistributionRepository());
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGWARN("Failed to delete SDDS2 cache, reason:" << ex.what());
+        }
 
         repository->synchronize(configurationData);
 

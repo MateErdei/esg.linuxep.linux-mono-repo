@@ -930,7 +930,31 @@ namespace
         std::vector<Path> fileList;
         EXPECT_NO_THROW(fileList = m_fileSystem->listAllFilesInDirectoryTree("DoesntExistDir"));
         EXPECT_EQ(fileList.size(), 0);
+    }
 
+    class mockFileSystemForRecursiveDelete : public FileSystemImpl
+    {
+    public:
+        MOCK_CONST_METHOD2(listFilesAndDirectories, std::vector<Path>(const Path& directoryPath, bool includeSymlinks));
+        MOCK_CONST_METHOD1(removeFileOrDirectory, void(const Path& path));
+    };
 
+    TEST_F(FileSystemImplTest, recursivelyDeleteContentsOfDirectoryRemovesAllFilesAndDirectoriesInPassedDirectory) // NOLINT
+    {
+        mockFileSystemForRecursiveDelete mockFileSystem = mockFileSystemForRecursiveDelete();
+        Path pathToClearOut = "path to delete from";
+        EXPECT_CALL(mockFileSystem, listFilesAndDirectories(pathToClearOut, false)).WillOnce(Return(std::vector<Path>{"1", "2", "3"}));
+        EXPECT_CALL(mockFileSystem, removeFileOrDirectory("1")).Times(1);
+        EXPECT_CALL(mockFileSystem, removeFileOrDirectory("2")).Times(1);
+        EXPECT_CALL(mockFileSystem, removeFileOrDirectory("3")).Times(1);
+        mockFileSystem.recursivelyDeleteContentsOfDirectory(pathToClearOut);
+    }
+
+    TEST_F(FileSystemImplTest, recursivelyDeleteContentsOfDirectoryThrowsWhenEncounteringFileSystemException) // NOLINT
+    {
+        mockFileSystemForRecursiveDelete mockFileSystem = mockFileSystemForRecursiveDelete();
+        Path pathToClearOut = "path to delete from";
+        EXPECT_CALL(mockFileSystem, listFilesAndDirectories(pathToClearOut, false)).WillOnce(Throw(Common::FileSystem::IFileSystemException("Failed")));
+        EXPECT_THROW(mockFileSystem.recursivelyDeleteContentsOfDirectory(pathToClearOut), Common::FileSystem::IFileSystemException);
     }
 } // namespace

@@ -818,15 +818,17 @@ namespace Common
             try
             {
                 filesAndDirectories = listFilesAndDirectories(path);
+                for (auto& pathToRemove : filesAndDirectories)
+                {
+                    removeFileOrDirectory(pathToRemove);
+                }
             }
             catch(IFileSystemException& exception)
             {
-                std::cout << "Failed to get list of directories for :'" << path << "'" << std::endl;
-                return;
-            }
-            for (auto& pathToRemove : filesAndDirectories)
-            {
-                removeFileOrDirectory(pathToRemove);
+                std::stringstream errorMsg;
+                errorMsg << "Failed to remove all contents of :'" << path << "'"
+                          << " Reason: " << exception.what() << std::endl;
+                throw IFileSystemException(errorMsg.str());
             }
         }
 

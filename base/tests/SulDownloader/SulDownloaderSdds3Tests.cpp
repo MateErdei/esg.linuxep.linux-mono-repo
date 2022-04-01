@@ -2637,3 +2637,66 @@ TEST_F( // NOLINT
     ASSERT_THAT(errStd, ::testing::Not(::testing::HasSubstr("Proxy used was")));
     ASSERT_THAT(errStd, ::testing::HasSubstr("Failed to connect to repository"));
 }
+
+TEST_F( // NOLINT
+    SULDownloaderSdds3Test,
+    runSULDownloader_failureToPurgeSDDS2CacheDoesNotHaltSync)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    MockSdds3Repository& mock = repositoryMocked();
+
+    auto products = defaultProducts();
+    products[0].setProductHasChanged(false);
+    products[1].setProductHasChanged(false);
+
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, purge());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+
+    TimeTracker timeTracker;
+    timeTracker.setStartTime(std::time_t(0));
+    timeTracker.setFinishedTime(std::time_t(0));
+    DownloadReport downloadReport =
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
+    std::string previousReportFilename = "update_report-previous.json";
+    std::vector<std::string> previousReportFileList = { previousReportFilename };
+    std::vector<std::string> emptyFileList;
+    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
+    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+    EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
+
+    EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
+    EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
+    EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
+
+    setupExpectanceWriteAtomically(
+        fileSystemMock,
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),false);
+
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
+
+    EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
+}
