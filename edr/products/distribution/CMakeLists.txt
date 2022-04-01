@@ -12,9 +12,14 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh li
         OUTPUT_VARIABLE libgcc_s_path)
 string(STRIP "${libgcc_s_path}" libgcc_s_path )
 
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libatomic.so.1
+        OUTPUT_VARIABLE libatomic_path)
+string(STRIP "${libatomic_path}" libatomic_path )
+
 set(third_party_libs
         ${libstdcpp_path}
         ${libgcc_s_path}
+        ${libatomic_path}
         ${pluginapilib}
         ${zmqlib}
         ${expatlib}
