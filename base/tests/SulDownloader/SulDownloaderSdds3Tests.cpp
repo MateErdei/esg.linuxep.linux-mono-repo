@@ -491,6 +491,8 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -514,8 +516,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
 
@@ -572,6 +572,8 @@ TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpect
 
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -605,8 +607,6 @@ TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpect
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
@@ -637,6 +637,8 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -672,8 +674,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
@@ -710,6 +710,8 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -749,8 +751,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
@@ -789,6 +789,8 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -825,8 +827,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
@@ -1067,6 +1067,8 @@ TEST_F( // NOLINT
         .WillOnce(Return(true))  // synchronization
         .WillRepeatedly(Return(true));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
@@ -1127,6 +1129,8 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure) // NOLINT
         .WillOnce(Return(true))  // distribute
         .WillRepeatedly(Return(true));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
 
@@ -1177,6 +1181,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
 
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1192,8 +1198,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
@@ -1250,8 +1254,6 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -1278,6 +1280,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -1333,8 +1337,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -1373,6 +1375,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1436,8 +1440,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -1473,6 +1475,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1531,8 +1535,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -1571,6 +1573,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1633,8 +1637,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -1690,6 +1692,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1750,8 +1754,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
     setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.7", "PRODUCT_VERSION = 1.1.3.7");
@@ -1807,6 +1809,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1868,8 +1872,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -1905,6 +1907,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1972,8 +1976,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -2009,6 +2011,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2076,8 +2080,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -2113,6 +2115,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2176,8 +2180,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -2213,6 +2215,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2283,8 +2287,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -2320,6 +2322,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2383,8 +2387,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -2420,6 +2422,8 @@ TEST_F( // NOLINT
     // if up to distribution passed, warehouse never returns error = true
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2465,6 +2469,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, false, _)).WillOnce(Return(true)); // successful tryConnect call
 
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2482,8 +2488,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
@@ -2528,6 +2532,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, true, _)).WillOnce(Return(true)); // successful tryConnect call
 
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2545,8 +2551,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
-    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
 
 
