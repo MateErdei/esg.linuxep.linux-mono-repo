@@ -263,7 +263,7 @@ fi
 
 echo "---"
 echo "Done"
-echo "To build, you can one of these options:"
+echo "To build, you can use one of these options:"
 echo "a) In your IDE set the toolchain environment file to be: 'setup_env_vars.sh' and then select build."
 echo "b) run ./build.sh"
 echo "c) cmdline 'source setup_env_vars.sh' and then: "
