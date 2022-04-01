@@ -280,12 +280,8 @@ if (DEFINED ENV{SOURCE_CODE_BRANCH})
         set(TELEMETRY_CONFIG_SOURCE "${CMAKE_SOURCE_DIR}/build/prod-telemetry-config.json")
     endif()
 endif()
-
-set ( TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
-
-# TODO make this better, e.g. a custom target that depends on ${TELEMETRY_CONFIG_SOURCE}
+set(TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
 configure_file(${TELEMETRY_CONFIG_SOURCE} ${TELEMETRY_CONFIG_FILE} COPYONLY)
-
 message("Telemetry config: ${TELEMETRY_CONFIG_SOURCE} -> ${TELEMETRY_CONFIG_FILE}")
 
 message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
@@ -310,6 +306,15 @@ else()
     SET(PYTHON_ARGS_FOR_PROD  "" )
     SET(PYTHON_COMMAND ${PYTHON_EXECUTABLE})
 endif()
+
+# Set extra files and dirs to delete when we run clean target
+set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+        ${CMAKE_BINARY_DIR}/libs
+        ${CMAKE_BINARY_DIR}/PostInstall
+        ${CMAKE_BINARY_DIR}/protoc.sh
+        ${CMAKE_BINARY_DIR}/SystemProductTestOutput
+        ${CMAKE_BINARY_DIR}/Testing
+        )
 
 include(cppcheck.cmake)
 add_subdirectory(modules)
