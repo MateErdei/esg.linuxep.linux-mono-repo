@@ -41,6 +41,8 @@ target_include_directories(HttpRequesterLiveNetworkTests SYSTEM BEFORE PUBLIC
 
 target_link_libraries(HttpRequesterLiveNetworkTests
         HttpRequestsImpl
+        ${OPENSSL_LIBRARY}
+        ${OPENSSL_CRYPTO_LIBRARY}
         gtest
         gtest_main)
 
