@@ -167,7 +167,7 @@ INPUT=/build/input
 if [[ ! -d "$INPUT" ]]
 then
   MESSAGE_PART1="You need to run the following to setup your input folder: "
-  MESSAGE_PART2="python3 -m build_scripts.artisan_fetch build-files/release-package.xml"
+  MESSAGE_PART2="tap fetch edr_plugin"
   exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
 fi
 
@@ -255,17 +255,14 @@ function build()
         mkdir -p $REDIST
         unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" ${PLUGIN_TAR}
-        untar_input cmake cmake-3.11.2-linux
+        cp -r $INPUT/cmake $REDIST
         untar_input $GOOGLETESTTAR
         untar_input boost
         untar_input glog
         untar_input gflags
         untar_input thrift
         untar_input jsoncpp
-        rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so.19
-        rm -rf $REDIST/jsoncpp/lib64/libjsoncpp.so
-        mv $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  $REDIST/jsoncpp/lib64/libjsoncpp.so.19
-        ln -sfn libjsoncpp.so.19 $REDIST/jsoncpp/lib64/libjsoncpp.so
+        ln -sfn libjsoncpp.so.24 $REDIST/jsoncpp/lib64/libjsoncpp.so
 
         untar_input openssl
         untar_input JournalLib
@@ -284,21 +281,11 @@ function build()
         cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
 
         cp -r ${INPUT}/linux-x64-extension  "$REDIST"/linux-x64-extension
-        # Fix up jsoncpp dual versioning scheme.
-        if [[ -f $REDIST/jsoncpp/lib64/libjsoncpp.so.1.8.4  ]]
-        then
-            pushd $REDIST/jsoncpp/lib64/
-            echo "Detected that libjsoncpp dual versioning scheme in place, removing .so.1.8.4 and leaving .so.19"
-            rm -f libjsoncpp.so.19
-            rm -f libjsoncpp.so
-            mv libjsoncpp.so.1.8.4  libjsoncpp.so.19
-            ln -sfn libjsoncpp.so.19 libjsoncpp.so
-            popd
-        fi
-
     fi
 
     PATH=$REDIST/cmake/bin:$PATH
+    chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
+    chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
     if [[ ${BULLSEYE} == 1 ]]
@@ -359,8 +346,8 @@ function build()
     mkdir -p build64
     cd build64
     [[ -n ${NPROC:-} ]] || NPROC=$(nproc) ||  [[ -n ${NPROC:-} ]] || NPROC=2
-    cmake -v -DREDIST="${REDIST}" \
-             -DINPUT="${REDIST}" \
+    cmake -DREDIST="${REDIST}" \
+            -DINPUT="${REDIST}" \
             -DPLUGIN_NAME="${PLUGIN_NAME}" \
             -DPRODUCT_NAME="${PRODUCT_NAME}" \
             -DPRODUCT_LINE_ID="${PRODUCT_LINE_ID}" \
