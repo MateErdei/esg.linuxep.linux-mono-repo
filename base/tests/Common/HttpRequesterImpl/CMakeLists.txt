@@ -22,6 +22,8 @@ target_link_libraries(HttpRequesterTests
         gtest_main)
 
 target_link_libraries(HttpRequesterTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers)
+set_target_properties(HttpRequesterTests PROPERTIES
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs")
 gtest_discover_tests(HttpRequesterTests)
 
 #------------------------
@@ -47,6 +49,7 @@ target_link_libraries(HttpRequesterLiveNetworkTests
         gtest_main)
 
 set_target_properties(HttpRequesterLiveNetworkTests PROPERTIES
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         INSTALL_RPATH "/opt/sophos-spl/base/lib64/" )
 
 install(TARGETS HttpRequesterLiveNetworkTests
