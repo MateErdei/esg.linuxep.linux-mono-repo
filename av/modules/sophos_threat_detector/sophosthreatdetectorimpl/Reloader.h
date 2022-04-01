@@ -10,6 +10,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include "sophos_threat_detector/threat_scanner/IThreatScannerFactory.h"
 
+#include <stdexcept>
+
 namespace sspl::sophosthreatdetectorimpl
 {
     class Reloader : public IReloadable

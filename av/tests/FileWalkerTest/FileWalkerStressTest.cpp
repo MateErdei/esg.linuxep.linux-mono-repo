@@ -15,6 +15,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include <fstream>
 #include <iostream>
 #include <thread>
+#include <vector>
 
 namespace fs = sophos_filesystem;
 
