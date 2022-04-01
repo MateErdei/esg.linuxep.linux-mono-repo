@@ -36,7 +36,7 @@ target_link_libraries(common  PUBLIC
         )
 
 target_include_directories(common PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${OPENSSL_INCLUDE_DIR})
-target_include_directories(common SYSTEM PUBLIC ${BOOSTPATH})
+target_include_directories(common SYSTEM PUBLIC ${BOOST_INCLUDEDIR})
 
 install(TARGETS common
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
