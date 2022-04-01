@@ -238,7 +238,8 @@ namespace common
 
         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(timePointSinceEpoch).count();
         std::stringstream timestamp;
-        timestamp << std::put_time(&now_tm, "%Y-%m-%eT%H:%M:%S.");
+        timestamp << std::put_time(&now_tm, "%Y-%m-%dT%H:%M:%S.");
+        timestamp << std::setfill('0') << std::setw(3);
         timestamp << ms << "Z";
         return timestamp.str();
     }
