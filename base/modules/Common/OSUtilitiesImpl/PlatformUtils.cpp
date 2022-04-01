@@ -5,7 +5,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PlatformUtils.h"
-
+#include "MACinfo.h"
 #include "LocalIPImpl.h"
 
 #include "Common/FileSystemImpl/FileSystemImpl.h"
@@ -150,35 +150,57 @@ namespace Common
 
         std::string PlatformUtils::getIp4Address() const
         {
+            std::vector<std::string> ip4Addresses = getIp4Addresses();
+            if(ip4Addresses.empty())
+            {
+                return "";
+            }
+            return ip4Addresses[0];
+        }
+
+        std::vector<std::string> PlatformUtils::getIp4Addresses() const
+        {
             Common::OSUtilitiesImpl::LocalIPImpl localIp;
             Common::OSUtilities::IPs ips = localIp.getLocalIPs();
-            std::string ip4Address("");
+            std::vector<std::string> ip4Addresses;
             if (!ips.ip4collection.empty())
             {
-                ip4Address = ips.ip4collection[0].stringAddress();
+                for(auto ipAddress : ips.ip4collection)
+                {
+                    ip4Addresses.push_back(ipAddress.stringAddress());
+                }
             }
-
-            return ip4Address;
+            return ip4Addresses;
         }
 
         std::string PlatformUtils::getIp6Address() const
         {
+            std::vector<std::string> ip6Addresses = getIp6Addresses();
+            if(ip6Addresses.empty())
+            {
+                return "";
+            }
+            return ip6Addresses[0];
+        }
+
+        std::vector<std::string> PlatformUtils::getIp6Addresses() const
+        {
             Common::OSUtilitiesImpl::LocalIPImpl localIp;
             Common::OSUtilities::IPs ips = localIp.getLocalIPs();
-            std::string ip6Address("");
-
+            std::vector<std::string> ip6Addresses;
             if (!ips.ip6collection.empty())
             {
-                ip6Address = ips.ip6collection[0].stringAddress();
-                unsigned long pos = ip6Address.find("%");
-
-                if(pos != std::string::npos)
+                for(auto ipAddress : ips.ip6collection)
                 {
-                    ip6Address = ip6Address.substr(0, pos);
+                    ip6Addresses.push_back(ipAddress.stringAddress());
                 }
             }
+            return ip6Addresses;
+        }
 
-            return ip6Address;
+        std::vector<std::string> PlatformUtils::getMacAddresses() const
+        {
+            return Common::OSUtilitiesImpl::sortedSystemMACs();
         }
 
         std::string PlatformUtils::getCloudPlatformMetadata(Common::HttpRequests::IHttpRequester* client) const

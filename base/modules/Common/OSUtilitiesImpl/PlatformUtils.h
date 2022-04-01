@@ -29,9 +29,12 @@ namespace Common
             [[nodiscard]] std::string getOsMinorVersion() const override;
             [[nodiscard]] std::string getDomainname() const override;
             [[nodiscard]] std::string getIp4Address() const override;
+            [[nodiscard]] std::vector<std::string> getIp4Addresses() const override;
             [[nodiscard]] std::string getIp6Address() const override;
+            [[nodiscard]] std::vector<std::string> getIp6Addresses() const override;
             [[nodiscard]] std::string getCloudPlatformMetadata(Common::HttpRequests::IHttpRequester* client) const override;
             void setProxyConfig(std::map<std::string, std::string>& proxyConfig) override;
+            [[nodiscard]] std::vector<std::string> getMacAddresses() const override;
 
         private:
             /**

@@ -64,10 +64,6 @@ namespace MCS
                         << "<ipv6>" << m_platformUtils->getIp6Address() << "</ipv6>"
                         << "<fqdn>" << m_platformUtils->getHostname() << "</fqdn>"
                         << "<processorArchitecture>" << m_platformUtils->getArchitecture() << "</processorArchitecture>"
-                        << "<ipAddresses>"
-                        << "<ipv4>" << m_platformUtils->getIp4Address() << "</ipv4>"
-                        << "<ipv6>" << m_platformUtils->getIp6Address() << "</ipv6>"
-                        << "</ipAddresses>"
                         << getOptionalStatusValues(configOptions)
                         << "</commonComputerStatus>";
         return commonStatusXml.str();
@@ -76,31 +72,69 @@ namespace MCS
     std::string AgentAdapter::getOptionalStatusValues(std::map<std::string, std::string>& configOptions) const
     {
         // For Groups, Products, and IP addrs
-        std::string productsAsString = Common::UtilityImpl::StringUtils::replaceAll(configOptions["products"], " ", "");
-        if(productsAsString.empty())
-        {
-            return "";
-        }
+        std::stringstream optionals;
 
-        std::stringstream productsToInstall;
-        productsToInstall << "<productsToInstall>";
-        if(productsAsString != "none")
+        std::string productsAsString = Common::UtilityImpl::StringUtils::replaceAll(configOptions["products"], " ", "");
+        if(!productsAsString.empty())
         {
-            std::vector<std::string> products = Common::UtilityImpl::StringUtils::splitString(productsAsString, ",");
-            for(std::string product : products)
+            std::stringstream productsToInstall;
+            productsToInstall << "<productsToInstall>";
+            if(productsAsString != "none")
             {
-                if(!product.empty())
+                std::vector<std::string> products = Common::UtilityImpl::StringUtils::splitString(productsAsString, ",");
+                for(std::string product : products)
                 {
-                    if(Common::XmlUtilities::Validation::isStringXmlValid(product))
+                    if(!product.empty())
                     {
-                        productsToInstall << "<product>" << product << "</product>";
+                        if(Common::XmlUtilities::Validation::isStringXmlValid(product))
+                        {
+                            productsToInstall << "<product>" << product << "</product>";
+                        }
                     }
                 }
             }
+            productsToInstall << "</productsToInstall>";
+            optionals << productsToInstall.str();
         }
-        productsToInstall << "</productsToInstall>";
 
-        return productsToInstall.str();
+        std::string deviceGroupAsString = configOptions["centralGroup"];
+        if(!deviceGroupAsString.empty())
+        {
+            optionals << "<deviceGroup>" << deviceGroupAsString << "</deviceGroup>";
+        }
+
+        std::vector<std::string> ip4Addresses = m_platformUtils->getIp4Addresses();
+        std::vector<std::string> ip6Addresses = m_platformUtils->getIp6Addresses();
+        if(!ip4Addresses.empty() || !ip6Addresses.empty())
+        {
+            std::stringstream ipAddresses;
+            ipAddresses << "<ipAddresses>";
+            for(std::string ip4Address : ip4Addresses)
+            {
+                ipAddresses << "<ipv4>" << ip4Address << "</ipv4>";
+            }
+            for(std::string ip6Address : ip6Addresses)
+            {
+                ipAddresses << "<ipv6>" << ip6Address << "</ipv6>";
+            }
+            ipAddresses << "</ipAddresses>";
+            optionals << ipAddresses.str();
+        }
+
+        std::vector<std::string> systemMacAddresses = m_platformUtils->getMacAddresses();
+        if(!systemMacAddresses.empty())
+        {
+            std::stringstream macAddresses;
+            macAddresses << "<macAddresses>";
+            for(std::string macAddress : systemMacAddresses)
+            {
+                macAddresses << "<macAddress>" << macAddress << "</macAddress>";
+            }
+            macAddresses << "</macAddresses>";
+            optionals << macAddresses.str();
+        }
+
+        return optionals.str();
     }
 
     std::string AgentAdapter::getCloudPlatformsStatus(std::map<std::string, std::string>& configOptions) const

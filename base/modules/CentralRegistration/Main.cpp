@@ -47,7 +47,7 @@ namespace CentralRegistrationImpl
             {
                 configOptions["mcsUrl"] = currentArg;
             }
-            else if(Common::UtilityImpl::StringUtils::startswith(currentArg, "--central-group"))
+            else if(Common::UtilityImpl::StringUtils::startswith(currentArg, "--group"))
             {
                 updateConfigOptions("centralGroup", currentArg, configOptions);
             }
