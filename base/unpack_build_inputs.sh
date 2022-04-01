@@ -283,11 +283,25 @@ function copy_sdds3builder()
   echo "sdds3 tools synced to $REDIST/sdds3"
 }
 
+function copy_sophlib()
+{
+  if [[ -d "$FETCHED_INPUTS_DIR/sophlib" ]]
+  then
+      cp -ru "$FETCHED_INPUTS_DIR/sophlib" "$REDIST/"
+  else
+      echo "ERROR - sophlib not found here: $FETCHED_INPUTS_DIR/sophlib"
+      exit 1
+  fi
+  echo "sophlib synced to $REDIST/sophlib"
+}
+
+
 unpack_tars
 unpack_gzipped_tars
 unpack_zips
 copy_google_test
 copy_certs
 copy_sdds3builder
+copy_sophlib
 
 echo "Finished unpacking"
