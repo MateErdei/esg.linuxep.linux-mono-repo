@@ -29,7 +29,7 @@ namespace Common
             virtual std::string getIp4Address() const = 0;
             virtual std::string getIp6Address() const = 0;
             virtual std::string getCloudPlatformMetadata(Common::HttpRequests::IHttpRequester* client) const = 0;
-            virtual void setProxyConfig(std::map<std::string, std::string> proxyConfig) = 0;
+            virtual void setProxyConfig(std::map<std::string, std::string>& proxyConfig) = 0;
         };
 
 

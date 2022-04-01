@@ -31,7 +31,7 @@ namespace Common
             [[nodiscard]] std::string getIp4Address() const override;
             [[nodiscard]] std::string getIp6Address() const override;
             [[nodiscard]] std::string getCloudPlatformMetadata(Common::HttpRequests::IHttpRequester* client) const override;
-            void setProxyConfig(std::map<std::string, std::string> proxyConfig) override;
+            void setProxyConfig(std::map<std::string, std::string>& proxyConfig) override;
 
         private:
             /**

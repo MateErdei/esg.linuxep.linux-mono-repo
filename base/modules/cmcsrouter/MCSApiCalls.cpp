@@ -32,14 +32,15 @@ namespace MCS
         const std::string& statusXml)
     {
         std::string customerToken = registerConfig["customerToken"];
-        std::string encodedCustomerToken = Common::ObfuscationImpl::Base64::Encode(customerToken);
+        std::string encodedCustomerToken = "Basic " + Common::ObfuscationImpl::Base64::Encode(customerToken);
 
         Common::HttpRequests::Headers headers = {
             {"Authorization", encodedCustomerToken},
-            {"Content-Type","application/xml; charset=utf-8"}
+            {"Content-Type","application/json;charset=UTF-8"}
         };
 
         Common::HttpRequests::Response response = client.sendRegistration(headers, "/install/deployment-info/2", statusXml);
+        std::cout << "\nError string: " << response.error << "\n\n";
         return response.body;
     }
 

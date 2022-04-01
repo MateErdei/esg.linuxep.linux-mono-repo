@@ -76,7 +76,7 @@ namespace CentralRegistrationImpl
     void CentralRegistration::RegisterWithCentral(std::map<std::string, std::string>& configOptions)
     {
         MCS::AgentAdapter agentAdapter;
-        std::string statusXml = agentAdapter.getStatusXml();
+        std::string statusXml = agentAdapter.getStatusXml(configOptions);
 
         const char * val = std::getenv("MCS_CA");
         std::string mcsCert(val);

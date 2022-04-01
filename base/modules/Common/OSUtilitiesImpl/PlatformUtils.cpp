@@ -399,7 +399,7 @@ namespace Common
             return result.str();
         }
 
-        void PlatformUtils::setProxyConfig(std::map<std::string, std::string> proxyConfig)
+        void PlatformUtils::setProxyConfig(std::map<std::string, std::string>& proxyConfig)
         {
             m_proxyConfig = proxyConfig;
         }

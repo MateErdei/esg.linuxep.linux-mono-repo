@@ -55,7 +55,7 @@ namespace CentralRegistrationImpl
             {
                 configOptions["customerToken"] = argv[++i];
             }
-            else if(currentArg == "--products")
+            else if(Common::UtilityImpl::StringUtils::startswith(currentArg, "--products"))
             {
                 updateConfigOptions("products", currentArg, configOptions);
             }

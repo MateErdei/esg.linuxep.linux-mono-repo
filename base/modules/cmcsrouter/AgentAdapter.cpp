@@ -6,13 +6,16 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "AgentAdapter.h"
 
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/OSUtilitiesImpl/PlatformUtils.h>
-#include <Common/OSUtilitiesImpl/LocalIPImpl.h>
-
-#include <sstream>
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 #include <Common/CurlWrapper/CurlWrapper.h>
+#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include <Common/OSUtilitiesImpl/LocalIPImpl.h>
+#include <Common/OSUtilitiesImpl/PlatformUtils.h>
+#include <Common/UtilityImpl/StringUtils.h>
+#include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/XmlUtilities/Validation.h>
+
+#include <iostream>
+#include <sstream>
 
 namespace MCS
 {
@@ -24,13 +27,12 @@ namespace MCS
     : m_platformUtils(platformUtils)
     {}
 
-    std::string AgentAdapter::getStatusXml() const
+    std::string AgentAdapter::getStatusXml(std::map<std::string, std::string>& configOptions) const
     {
-        std::map<std::string, std::string> optionsConfig;
         std::stringstream statusXml;
         statusXml << getStatusHeader()
-                  << getCommonStatusXml()
-                  << getCloudPlatformsStatus(optionsConfig)
+                  << getCommonStatusXml(configOptions)
+                  << getCloudPlatformsStatus(configOptions)
                   << getPlatformStatus()
                   << getStatusFooter();
         return statusXml.str();
@@ -47,10 +49,8 @@ namespace MCS
         return header.str();
     }
 
-    std::string AgentAdapter::getCommonStatusXml() const
+    std::string AgentAdapter::getCommonStatusXml(std::map<std::string, std::string>& configOptions) const
     {
-
-
         std::stringstream commonStatusXml;
         commonStatusXml << "<commonComputerStatus>"
                         << "<domainName>UNKNOWN</domainName>"
@@ -68,20 +68,44 @@ namespace MCS
                         << "<ipv4>" << m_platformUtils->getIp4Address() << "</ipv4>"
                         << "<ipv6>" << m_platformUtils->getIp6Address() << "</ipv6>"
                         << "</ipAddresses>"
-                        << getOptionalStatusValues()
+                        << getOptionalStatusValues(configOptions)
                         << "</commonComputerStatus>";
         return commonStatusXml.str();
     }
 
-    std::string AgentAdapter::getOptionalStatusValues() const
+    std::string AgentAdapter::getOptionalStatusValues(std::map<std::string, std::string>& configOptions) const
     {
         // For Groups, Products, and IP addrs
-        return "";
+        std::string productsAsString = Common::UtilityImpl::StringUtils::replaceAll(configOptions["products"], " ", "");
+        if(productsAsString.empty())
+        {
+            return "";
+        }
+
+        std::stringstream productsToInstall;
+        productsToInstall << "<productsToInstall>";
+        if(productsAsString != "none")
+        {
+            std::vector<std::string> products = Common::UtilityImpl::StringUtils::splitString(productsAsString, ",");
+            for(std::string product : products)
+            {
+                if(!product.empty())
+                {
+                    if(Common::XmlUtilities::Validation::isStringXmlValid(product))
+                    {
+                        productsToInstall << "<product>" << product << "</product>";
+                    }
+                }
+            }
+        }
+        productsToInstall << "</productsToInstall>";
+
+        return productsToInstall.str();
     }
 
-    std::string AgentAdapter::getCloudPlatformsStatus(std::map<std::string, std::string> optionsConfig) const
+    std::string AgentAdapter::getCloudPlatformsStatus(std::map<std::string, std::string>& configOptions) const
     {
-        m_platformUtils->setProxyConfig(optionsConfig);
+        m_platformUtils->setProxyConfig(configOptions);
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
         auto client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
         return m_platformUtils->getCloudPlatformMetadata(&client);
