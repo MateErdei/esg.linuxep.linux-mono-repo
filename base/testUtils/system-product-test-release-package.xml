@@ -64,7 +64,10 @@
         <!--            <include src="." dest="sspl-thininstaller"/>-->
         <!--        </package>-->
 
-        <trusted-asset artifact-path="filer5-migrate/openssllinux11/1-1-1c-16/216598/output/openssl.tar" dest-dir="./openssllinux11"/>
+        <build-asset project="thirdparty" repo="openssl">
+            <release-version branch="release/sspl/Version_1_1_1m" build-id="20220310143347-fb032a83957c266bd183e2bc36460e7d1cd9d718-29xDys"/>
+            <include artifact-path="output" dest-dir="./openssllinux11"/>
+        </build-asset>
 
         <trusted-asset artifact-path="filer5-migrate/savlinux9-package/10-5-0/217084/savlinux-package/sav-linux-x86-aggregated-10.5.0.0.25.tgz" dest-dir="./savlinux9-package"/>
 
