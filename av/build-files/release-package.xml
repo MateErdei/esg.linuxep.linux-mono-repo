@@ -16,20 +16,32 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/WINEP-2022.06" build-id="20220128115031-a862cc637baabe31c7c0807ca7b4836ed21d7bf1-YQAQrA"/>
+            <release-version branch="release/2022.15-linux-sdds3" build-id="20220331140049-c17460d0c68bd361a6efcb3ca3c71860266dc827-jlMH5V"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="input/sdds3"/>
         </build-asset>
 
-        <trusted-asset artifact-path="filer5-migrate/boostlinux11/1-77-0-1/222969/output/boost.tar" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="input/."/>
+        <build-asset project="thirdparty" repo="boost">
+            <release-version branch="release/sspl/Version_1_78_0" build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
+            <include artifact-path="output" dest-dir="input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="cmake">
+            <release-version branch="release/sophos/v3.22.1" build-id="20220311114259-a491d14ee4cafa886ea85aa4ce6858d9ce163c2d-YRz6uO"/>
+            <include artifact-path="cmake" dest-dir="input/cmake"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="gcc">
+            <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
+            <include artifact-path="output" dest-dir="input"/>
+        </build-asset>
         <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="input/."/>
         <!-- Need to compile our own messages -->
-        <trusted-asset artifact-path="filer5-migrate/capnprotolinux11/0-8-0-3/222233/output/capnproto.tar" dest-dir="input/."/>
+        <build-asset project="thirdparty" repo="capnproto">
+            <release-version branch="release/sspl/Version_0_8_0" build-id="20220314153844-e29cb764e609e0e34cd89aadd802d528f8020536-wQNt99"/>
+            <include artifact-path="capnproto" dest-dir="input"/>
+        </build-asset>
 
         <build-asset project="thirdparty" repo="openssl">
-            <release-version branch="release/sophos/linux-sspl-1.1.1m" build-id="20220218085722-91596941d3ff56cdd0a1cf91d33937ebe1ff97bb-lqPu2T"/>
-            <include artifact-path="output" dest-dir="input/." />
+            <release-version branch="release/sspl/Version_1_1_1m" build-id="20220310143347-fb032a83957c266bd183e2bc36460e7d1cd9d718-29xDys"/>
+            <include artifact-path="output" dest-dir="input" />
         </build-asset>
 
         <!-- SUSI imports -->

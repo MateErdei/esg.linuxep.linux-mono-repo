@@ -375,7 +375,7 @@ function build()
         (( LOCAL_GCC == 0 )) && unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" "${PLUGIN_TAR}"
         python3 ${BASE}/build-files/create_library_links.py ${REDIST}/pluginapi
-        (( LOCAL_CMAKE == 0 )) && untar_input cmake cmake-3.11.2-linux
+        (( LOCAL_CMAKE == 0 )) && cp -r "${INPUT}"/cmake "${REDIST}"
         untar_input capnproto
         untar_input boost
         untar_input $GOOGLETESTTAR
@@ -384,7 +384,12 @@ function build()
         (( LOCAL_GCC == 0 )) && set_gcc_make
     fi
 
-    (( LOCAL_CMAKE == 0 )) && addpath "$REDIST/cmake/bin"
+    if (( LOCAL_CMAKE == 0 ))
+    then
+      addpath "$REDIST/cmake/bin"
+      chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
+      chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
+    fi
 
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
@@ -420,7 +425,9 @@ function build()
     fi
 
     #   Required for build scripts to run on dev machines
-    export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH}
+    export LIBRARY_PATH=/build/input/gcc/lib64/:/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH}
+    export CPLUS_INCLUDE_PATH=/build/input/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
+    export CPATH=/build/input/gcc/include/:${CPATH}
     echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
 
     BUILD_DIR=build${BITS}
@@ -447,7 +454,7 @@ function build()
     cd build${BITS}
     [[ -n ${NPROC:-} ]] || NPROC=$(nproc || echo 2)
     which cmake
-    LD_LIBRARY_PATH= \
+    LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
         cmake \
              -DINPUT="${REDIST}" \
             -DPLUGIN_NAME="${PLUGIN_NAME}" \
