@@ -16,9 +16,10 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <cerrno>
 #include <cstring>
 #include <ctype.h>
+#include <iostream>
+#include <json.hpp>
 #include <map>
 #include <unistd.h>
-#include <json.hpp>
 
 namespace Common
 {
@@ -64,8 +65,16 @@ namespace Common
                         distro = fileContents[0];
                         distro = UtilityImpl::StringUtils::replaceAll(distro, " ", "");
                         distro = UtilityImpl::StringUtils::replaceAll(distro, "/", "_");
+
+                        std::vector<std::string> distroParts = Common::UtilityImpl::StringUtils::splitString(distro, "=");
+                        if(distroParts.size() ==2)
+                        {
+                            distro = distroParts[1];
+                        }
+
                         std::transform(distro.begin(), distro.end(), distro.begin(),
                                        [](unsigned char c){ return std::tolower(c); });
+
                         std::string tempDistro = distroNames[distro];
                         if(!tempDistro.empty())
                         {
@@ -96,7 +105,10 @@ namespace Common
 
         std::string PlatformUtils::getPlatform() const
         {
-            return PlatformUtils::getUtsname().sysname;
+            std::string value = PlatformUtils::getUtsname().sysname;
+            std::transform(value.begin(), value.end(), value.begin(),
+                           [](unsigned char c){ return std::tolower(c); });
+            return value;
         }
 
         std::string PlatformUtils::getVendor() const
@@ -112,7 +124,8 @@ namespace Common
 
         std::string PlatformUtils::getOsName() const
         {
-            return m_osName;
+            std::string osName = Common::UtilityImpl::StringUtils::replaceAll(m_osName, "\"", "");
+            return osName;
         }
 
         std::string PlatformUtils::getKernelVersion() const
@@ -208,6 +221,10 @@ namespace Common
                 {
                     return "";
                 }
+                return "";
+            }
+            else
+            {
                 // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
@@ -221,11 +238,14 @@ namespace Common
                 {
                     return "";
                 }
+            }
+            else
+            {
                 // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
 
-            nlohmann::json awsInfoJson = response.body;
+            nlohmann::json awsInfoJson = nlohmann::json::parse(response.body);
             std::stringstream result;
             result  << "<aws>"
                     << "<region>" << awsInfoJson["region"].get<std::string>() << "</region>"
@@ -248,6 +268,9 @@ namespace Common
                 {
                     return "";
                 }
+            }
+            else
+            {
                 // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
@@ -261,6 +284,9 @@ namespace Common
                 {
                     return "";
                 }
+            }
+            else
+            {
                 // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
@@ -274,6 +300,9 @@ namespace Common
                 {
                     return "";
                 }
+            }
+            else
+            {
                 // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
@@ -300,11 +329,14 @@ namespace Common
                 {
                     return "";
                 }
+            }
+            else
+            {
                 // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
 
-            nlohmann::json oracleInfoJson = response.body;
+            nlohmann::json oracleInfoJson = nlohmann::json::parse(response.body);
             std::stringstream result;
             result  << "<oracle>"
                     << "<region>" << oracleInfoJson["region"].get<std::string>() << "</region>"
@@ -330,11 +362,14 @@ namespace Common
                 {
                     return "";
                 }
+            }
+            else
+            {
                 // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
 
-            nlohmann::json firstResponseBody = response.body;
+            nlohmann::json firstResponseBody = nlohmann::json::parse(response.body);
             std::string latestAzureApiVersion = firstResponseBody["apiVersions"][-1];
 
             std::string secondUrl = "http://169.254.169.254/metadata/instance?api-version=" + latestAzureApiVersion;
@@ -345,11 +380,14 @@ namespace Common
                 {
                     return "";
                 }
+            }
+            else
+            {
                 // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
 
-            nlohmann::json azureInfoJson = response.body;
+            nlohmann::json azureInfoJson = nlohmann::json::parse(response.body);
             std::stringstream result;
             result  << "<azure>"
                     << "<vmId>" << azureInfoJson["compute"]["vmId"].get<std::string>() << "</vmId>"
@@ -375,6 +413,7 @@ namespace Common
             request.proxyPassword = proxyConfig["proxyPassword"];
             request.url = url;
             request.headers = headers;
+            request.timeout = 1L;
             return request;
         }
     }

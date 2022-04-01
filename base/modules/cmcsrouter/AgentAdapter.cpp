@@ -28,7 +28,11 @@ namespace MCS
     {
         std::map<std::string, std::string> optionsConfig;
         std::stringstream statusXml;
-        statusXml << getStatusHeader() << getCommonStatusXml() << getCloudPlatformsStatus(optionsConfig) << getPlatformStatus() << getStatusFooter();
+        statusXml << getStatusHeader()
+                  << getCommonStatusXml()
+                  << getCloudPlatformsStatus(optionsConfig)
+                  << getPlatformStatus()
+                  << getStatusFooter();
         return statusXml.str();
     }
 
@@ -38,7 +42,7 @@ namespace MCS
         header << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
                << "<ns:computerStatus xmlns:ns=\"http://www.sophos.com/xml/mcs/computerstatus\">"
                << "<meta protocolVersion=\"1.0\" timestamp=\""
-               << Common::UtilityImpl::TimeUtils::MessageTimeStamp(std::chrono::system_clock::now()) << " softwareVersion=\""
+               << Common::UtilityImpl::TimeUtils::MessageTimeStamp(std::chrono::system_clock::now()) << "\" softwareVersion=\""
                << getSoftwareVersion() << "\" />";
         return header.str();
     }
@@ -60,6 +64,10 @@ namespace MCS
                         << "<ipv6>" << m_platformUtils->getIp6Address() << "</ipv6>"
                         << "<fqdn>" << m_platformUtils->getHostname() << "</fqdn>"
                         << "<processorArchitecture>" << m_platformUtils->getArchitecture() << "</processorArchitecture>"
+                        << "<ipAddresses>"
+                        << "<ipv4>" << m_platformUtils->getIp4Address() << "</ipv4>"
+                        << "<ipv6>" << m_platformUtils->getIp6Address() << "</ipv6>"
+                        << "</ipAddresses>"
                         << getOptionalStatusValues()
                         << "</commonComputerStatus>";
         return commonStatusXml.str();

@@ -17,7 +17,9 @@ namespace CentralRegistrationImpl
 
         void RegisterWithCentral(std::map<std::string, std::string>& configOptions);
 
-
+    private:
+        void preregistration(std::map<std::string, std::string>& configOptions, const std::string& statusXml, const std::string& mcsCert);
+        std::string processPreregistrationBody(const std::string& preregistrationBody);
 
     };
 

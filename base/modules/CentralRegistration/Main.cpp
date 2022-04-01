@@ -5,12 +5,13 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "Main.h"
-#include "CentralRegistration.h"
 
+#include "CentralRegistration.h"
 #include "Logger.h"
 
 #include <Common/UtilityImpl/StringUtils.h>
-
+#include <Logging/ConsoleLoggingSetup.h>
+#include <Logging/FileLoggingSetup.h>
 
 namespace CentralRegistrationImpl
 {
@@ -50,20 +51,24 @@ namespace CentralRegistrationImpl
             {
                 updateConfigOptions("centralGroup", currentArg, configOptions);
             }
-            else if(currentArg == "--cusomer-token")
+            else if(currentArg == "--customer-token")
             {
-                updateConfigOptions("customerToken", currentArg, configOptions);
+                configOptions["customerToken"] = argv[++i];
             }
             else if(currentArg == "--products")
             {
                 updateConfigOptions("products", currentArg, configOptions);
             }
         }
+
+        configOptions["mcsId"] = "";
+
         return configOptions;
     }
 
     int main_entry(int argc, char* argv[])
     {
+        Common::Logging::ConsoleLoggingSetup loggerSetup;
         std::map<std::string, std::string> configOptions = processCommandLineOptions(argc, argv);
 
         CentralRegistration centralRegistration;
