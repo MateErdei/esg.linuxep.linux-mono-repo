@@ -293,12 +293,6 @@ function build()
 
     if [[ "$UNIT_TESTS" == "1" ]]
     then
-      ## If we are doing bullseye system tests then don't run unit test first
-      ## Otherwise run the unit-tests now
-      if [[ "$BULLSEYE" == "1" ]]
-      then
-        echo "Not running unit tests"
-      else
         [[ -n ${TEST_NPROC:-} ]] || TEST_NPROC=$NPROC
         timeout 310s ctest \
             --parallel ${TEST_NPROC} \
@@ -313,8 +307,7 @@ function build()
               exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
             }
 
-            cat /tmp/unitTest.log || true
-        fi
+        cat /tmp/unitTest.log || true
 
         # python would have been executed in unit tests creating pyc and or pyo files
         # need to make sure these are removed before creating distribution files.
