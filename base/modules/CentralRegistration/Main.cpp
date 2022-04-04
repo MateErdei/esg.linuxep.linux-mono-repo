@@ -9,6 +9,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "CentralRegistration.h"
 #include "Logger.h"
 
+#include <cmcsrouter/Config.h>
+
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Logging/ConsoleLoggingSetup.h>
 #include <Logging/FileLoggingSetup.h>
@@ -41,28 +43,40 @@ namespace CentralRegistrationImpl
 
             if((i == 1) && !Common::UtilityImpl::StringUtils::startswith(currentArg, "--"))
             {
-                configOptions["mcsToken"] = currentArg;
+                configOptions[MCS::MCS_TOKEN] = currentArg;
             }
             else if ((i==2) && !Common::UtilityImpl::StringUtils::startswith(currentArg, "--"))
             {
-                configOptions["mcsUrl"] = currentArg;
+                configOptions[MCS::MCS_URL] = currentArg;
             }
             else if(Common::UtilityImpl::StringUtils::startswith(currentArg, "--group"))
             {
-                updateConfigOptions("centralGroup", currentArg, configOptions);
+                updateConfigOptions(MCS::CENTRAL_GROUP, currentArg, configOptions);
             }
             else if(currentArg == "--customer-token")
             {
-                configOptions["customerToken"] = argv[++i];
+                configOptions[MCS::MCS_CUSTOMER_TOKEN] = argv[++i];
             }
             else if(Common::UtilityImpl::StringUtils::startswith(currentArg, "--products"))
             {
-                updateConfigOptions("products", currentArg, configOptions);
+                updateConfigOptions(MCS::MCS_PRODUCTS, currentArg, configOptions);
             }
         }
 
-        configOptions["mcsId"] = "";
+        // default set of options, note these options are populated later after registration
+        // defaulting here to make is clearer when they are being set.
+        configOptions[MCS::MCS_ID] = "";
+        configOptions[MCS::MCS_PASSWORD] = "";
+        configOptions[MCS::MCS_PRODUCT_VERSION] ="";
 
+        return configOptions;
+    }
+
+    std::map<std::string, std::string> registerAndObtainMcsOptions(std::map<std::string, std::string>& configOptions)
+    {
+        CentralRegistration centralRegistration;
+        centralRegistration.RegisterWithCentral(configOptions);
+        // return updated configOPtions
         return configOptions;
     }
 
@@ -70,9 +84,7 @@ namespace CentralRegistrationImpl
     {
         Common::Logging::ConsoleLoggingSetup loggerSetup;
         std::map<std::string, std::string> configOptions = processCommandLineOptions(argc, argv);
-
-        CentralRegistration centralRegistration;
-        centralRegistration.RegisterWithCentral(configOptions);
+        configOptions = registerAndObtainMcsOptions(configOptions);
         return 0;
     }
 

@@ -4,8 +4,10 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "MCSApiCalls.h"
 #include "AgentAdapter.h"
+#include "Config.h"
 #include "Logger.h"
 #include <Common/ObfuscationImpl/Base64.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 #include <sstream>
 
@@ -31,7 +33,7 @@ namespace MCS
         std::map<std::string, std::string>& registerConfig,
         const std::string& statusXml)
     {
-        std::string customerToken = registerConfig["customerToken"];
+        std::string customerToken = registerConfig[MCS::MCS_CUSTOMER_TOKEN];
         std::string encodedCustomerToken = "Basic " + Common::ObfuscationImpl::Base64::Encode(customerToken);
 
         Common::HttpRequests::Headers headers = {
@@ -46,16 +48,16 @@ namespace MCS
 
     void MCSApiCalls::registerEndpoint(
         MCSHttpClient& client,
-        std::map<std::string, std::string>& registerConfig,
+        std::map<std::string, std::string>& configOptions,
         const std::string& statusXml)
     {
         AgentAdapter agentAdapter;
 
-        std::string mcsId = registerConfig["mcsId"];
-        std::string password = registerConfig["password"];
-        std::string token(registerConfig["mcsToken"]);
+        std::string mcsId = configOptions[MCS::MCS_ID];
+        std::string password = configOptions[MCS::MCS_PASSWORD];
+        std::string token(configOptions[MCS::MCS_TOKEN]);
 
-        std::string productVersion(registerConfig["productVersion"]);
+        std::string productVersion(configOptions[MCS::MCS_PRODUCT_VERSION]);
 
         std::stringstream authorisation;
         authorisation << mcsId << ":" << password << ":" << token;
@@ -75,6 +77,14 @@ namespace MCS
         if(response.status == 200)
         {
             std::string messageBody = Common::ObfuscationImpl::Base64::Decode(response.body);
+            std::vector<std::string> responseValues = Common::UtilityImpl::StringUtils::splitString(messageBody, ":");
+            if(responseValues.size() == 2)
+            {
+                // Note that updating the configOptions here should be propergated back to the caller as it is all
+                // passed by reference.
+                configOptions[MCS::MCS_ID] = responseValues[0]; // endpointId
+                configOptions[MCS::MCS_PASSWORD] = responseValues[1]; //MCS Password
+            }
         }
         else
         {

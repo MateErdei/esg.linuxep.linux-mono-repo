@@ -14,7 +14,7 @@ class MCSApiCalls
         std::string getJwToken(MCSHttpClient client);
         void registerEndpoint(
             MCSHttpClient& client,
-            std::map<std::string, std::string>& registerConfig,
+            std::map<std::string, std::string>& configOptions,
             const std::string& statusXml);
         std::string preregisterEndpoint(
             MCSHttpClient& client,
