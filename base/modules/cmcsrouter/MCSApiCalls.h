@@ -2,7 +2,10 @@
 Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
+
 #include "MCSHttpClient.h"
+#include "ConfigOptions.h"
+
 #include <string>
 #include <map>
 
@@ -12,14 +15,16 @@ class MCSApiCalls
 {
     public:
         std::string getJwToken(MCSHttpClient client);
-        void registerEndpoint(
+        bool registerEndpoint(
             MCSHttpClient& client,
-            std::map<std::string, std::string>& configOptions,
-            const std::string& statusXml);
+            MCS::ConfigOptions& configOptions,
+            const std::string& statusXml,
+            std::string proxy);
         std::string preregisterEndpoint(
             MCSHttpClient& client,
-            std::map<std::string, std::string>& registerConfig,
-            const std::string& statusXml);
+            MCS::ConfigOptions& registerConfig,
+            const std::string& statusXml,
+            std::string proxy);
 
 };
 

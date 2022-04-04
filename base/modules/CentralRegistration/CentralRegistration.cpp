@@ -21,35 +21,56 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 namespace CentralRegistrationImpl
 {
-    void CentralRegistration::preregistration(std::map<std::string, std::string>& configOptions, const std::string& statusXml, const std::string& mcsCert)
+    bool CentralRegistration::tryPreregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy)
     {
-        // check options are all there: customer token + selected products
-        if(configOptions.empty() && configOptions[MCS::MCS_CUSTOMER_TOKEN].empty() && configOptions[MCS::MCS_PRODUCTS].empty())
-        {
-            return;
-        }
-
-        std::string url(configOptions[MCS::MCS_URL]);
-        std::string token(configOptions[MCS::MCS_CUSTOMER_TOKEN]);
-
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
         std::shared_ptr<Common::HttpRequests::IHttpRequester> requester
             = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
         MCS::MCSHttpClient httpClient(url, token, requester);
 
-        httpClient.setCertPath(mcsCert);
+        httpClient.setCertPath(configOptions.config[MCS::MCS_CERT]);
         MCS::MCSApiCalls mcsApi;
 
-        std::string preregistrationBody = mcsApi.preregisterEndpoint(httpClient, configOptions, statusXml);
+        std::string preregistrationBody = mcsApi.preregisterEndpoint(httpClient, configOptions, statusXml, proxy);
         if(!preregistrationBody.empty())
         {
             std::string newMcsToken = processPreregistrationBody(preregistrationBody);
 
             if (!newMcsToken.empty())
             {
-                configOptions[MCS::MCS_TOKEN] = newMcsToken;
+                configOptions.config[MCS::MCS_TOKEN] = newMcsToken;
+                return true;
             }
         }
+        return false;
+    }
+
+    bool CentralRegistration::tryRegistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy)
+    {
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> requester
+            = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+        MCS::MCSHttpClient httpClient(url, token, requester);
+        httpClient.setCertPath(configOptions.config[MCS::MCS_CERT]);
+
+        MCS::MCSApiCalls mcsApi;
+
+        return mcsApi.registerEndpoint(httpClient, configOptions, statusXml, proxy);
+    }
+
+    void CentralRegistration::preregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml)
+    {
+        // check options are all there: customer token + selected products
+        if(configOptions.config.empty() && configOptions.config[MCS::MCS_CUSTOMER_TOKEN].empty() && configOptions.config[MCS::MCS_PRODUCTS].empty())
+        {
+            return;
+        }
+
+        std::string url(configOptions.config[MCS::MCS_URL]);
+        std::string token(configOptions.config[MCS::MCS_CUSTOMER_TOKEN]);
+
+        tryRegistrationWithProxies(configOptions, statusXml, url, token,
+                                   tryPreregistration);
     }
 
     std::string CentralRegistration::processPreregistrationBody(const std::string& preregistrationBody)
@@ -76,30 +97,49 @@ namespace CentralRegistrationImpl
 
     }
 
-    void CentralRegistration::RegisterWithCentral(std::map<std::string, std::string>& configOptions)
+    void CentralRegistration::RegisterWithCentral(MCS::ConfigOptions& configOptions)
     {
         MCS::AgentAdapter agentAdapter;
-        std::string statusXml = agentAdapter.getStatusXml(configOptions);
+        std::string statusXml = agentAdapter.getStatusXml(configOptions.config);
 
-        const char * val = std::getenv("MCS_CA");
-        std::string mcsCert(val);
+        preregistration(configOptions, statusXml);
 
-        preregistration(configOptions, statusXml, mcsCert);
+        std::string url(configOptions.config[MCS::MCS_URL]);
+        std::string token(configOptions.config[MCS::MCS_TOKEN]);
 
-        std::string url(configOptions[MCS::MCS_URL]);
-            //"https://mcs2-cloudstation-eu-central-1.qa.hydra.sophos.com/sophos/management/ep/register";
-        std::string token(configOptions[MCS::MCS_TOKEN]);
-
-
-        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
-        std::shared_ptr<Common::HttpRequests::IHttpRequester> requester
-            = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-        MCS::MCSHttpClient httpClient(url, token, requester);
-        httpClient.setCertPath(mcsCert);
-
-        MCS::MCSApiCalls mcsApi;
-
-        mcsApi.registerEndpoint(httpClient, configOptions, statusXml);
+        if(configOptions.config[MCS::MCS_CONNECTED_PROXY].empty())
+        {
+            tryRegistrationWithProxies(configOptions, statusXml, url, token,
+                                       tryRegistration);
+        }
+        else
+        {
+            tryRegistration(configOptions, statusXml, url, token, "");
+        }
     }
 
+    void CentralRegistration::tryRegistrationWithProxies(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token,
+                bool (*func)(MCS::ConfigOptions&, const std::string&, std::string, std::string, std::string))
+    {
+        for(auto& messageRelay : configOptions.messageRelays) // These need to be ordered before this
+        {
+            std::string proxy = messageRelay.address + ":" + messageRelay.port;
+            if(func(configOptions, statusXml, url, token, proxy))
+            {
+                configOptions.config[MCS::MCS_CONNECTED_PROXY] = proxy;
+                break;
+            }
+        }
+        if(configOptions.config[MCS::MCS_CONNECTED_PROXY].empty() && !configOptions.config[MCS::MCS_PROXY].empty())
+        {
+            if(func(configOptions, statusXml, url, token, configOptions.config[MCS::MCS_PROXY]))
+            {
+                configOptions.config[MCS::MCS_CONNECTED_PROXY] = configOptions.config[MCS::MCS_PROXY];
+            }
+        }
+        if(configOptions.config[MCS::MCS_CONNECTED_PROXY].empty())
+        {
+            func(configOptions, statusXml, url, token, "");
+        }
+    }
 }

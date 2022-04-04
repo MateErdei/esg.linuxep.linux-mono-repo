@@ -30,10 +30,11 @@ namespace MCS
 
     std::string MCSApiCalls::preregisterEndpoint(
         MCSHttpClient& client,
-        std::map<std::string, std::string>& registerConfig,
-        const std::string& statusXml)
+        MCS::ConfigOptions& registerConfig,
+        const std::string& statusXml,
+        std::string proxy)
     {
-        std::string customerToken = registerConfig[MCS::MCS_CUSTOMER_TOKEN];
+        std::string customerToken = registerConfig.config[MCS::MCS_CUSTOMER_TOKEN];
         std::string encodedCustomerToken = "Basic " + Common::ObfuscationImpl::Base64::Encode(customerToken);
 
         Common::HttpRequests::Headers headers = {
@@ -41,23 +42,24 @@ namespace MCS
             {"Content-Type","application/json;charset=UTF-8"}
         };
 
+        client.setProxyInfo(proxy, registerConfig.config[MCS::MCS_PROXY_USERNAME], registerConfig.config[MCS::MCS_PROXY_PASSWORD]);
         Common::HttpRequests::Response response = client.sendRegistration(headers, "/install/deployment-info/2", statusXml);
-        std::cout << "\nError string: " << response.error << "\n\n";
         return response.body;
     }
 
-    void MCSApiCalls::registerEndpoint(
+    bool MCSApiCalls::registerEndpoint(
         MCSHttpClient& client,
-        std::map<std::string, std::string>& configOptions,
-        const std::string& statusXml)
+        MCS::ConfigOptions& configOptions,
+        const std::string& statusXml,
+        std::string proxy)
     {
         AgentAdapter agentAdapter;
 
-        std::string mcsId = configOptions[MCS::MCS_ID];
-        std::string password = configOptions[MCS::MCS_PASSWORD];
-        std::string token(configOptions[MCS::MCS_TOKEN]);
+        std::string mcsId = configOptions.config[MCS::MCS_ID];
+        std::string password = configOptions.config[MCS::MCS_PASSWORD];
+        std::string token(configOptions.config[MCS::MCS_TOKEN]);
 
-        std::string productVersion(configOptions[MCS::MCS_PRODUCT_VERSION]);
+        std::string productVersion(configOptions.config[MCS::MCS_PRODUCT_VERSION]);
 
         std::stringstream authorisation;
         authorisation << mcsId << ":" << password << ":" << token;
@@ -73,6 +75,7 @@ namespace MCS
             {"Content-Type","application/xml; charset=utf-8"}
         };
 
+        client.setProxyInfo(proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
         Common::HttpRequests::Response response = client.sendRegistration(headers, "/register", statusXml);
         if(response.status == 200)
         {
@@ -82,13 +85,15 @@ namespace MCS
             {
                 // Note that updating the configOptions here should be propergated back to the caller as it is all
                 // passed by reference.
-                configOptions[MCS::MCS_ID] = responseValues[0]; // endpointId
-                configOptions[MCS::MCS_PASSWORD] = responseValues[1]; //MCS Password
+                configOptions.config[MCS::MCS_ID] = responseValues[0]; // endpointId
+                configOptions.config[MCS::MCS_PASSWORD] = responseValues[1]; //MCS Password
+                return true;
             }
         }
         else
         {
             std::cout << "Error during registration" << response.status << std::endl;
         }
+        return false;
     }
 }
