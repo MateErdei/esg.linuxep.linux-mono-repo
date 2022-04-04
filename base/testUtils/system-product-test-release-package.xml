@@ -39,7 +39,7 @@
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
             <development-version branch="develop"/>
             <include mode="system-test,base-coverage,ej-coverage,edr-coverage,lr-coverage" artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
-            <include mode="system-test,base-coverage,ej-coverage,edr-coverage,lr-coverage" artifact-path="mdr-060/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin-060"/>
+            <include mode="system-test,base-coverage,ej-coverage,edr-coverage,lr-coverage,mdr-coverage" artifact-path="mdr-060/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin-060"/>
             <include mode="mdr-coverage" artifact-path="mdr-coverage/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
             <include mode="mdr-coverage" artifact-path="mdr-coverage/covfile" dest-dir="coverage"/>
         </build-asset>
