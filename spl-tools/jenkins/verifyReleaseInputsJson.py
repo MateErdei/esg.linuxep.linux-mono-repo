@@ -31,13 +31,11 @@ def verify_json(json_string):
                 input_branch = branch_and_build_id.split('*')[0]
                 build_id = branch_and_build_id.split('*')[1]
                 for c in get_component_using_input_build_id(root_dict, input_name, input_branch, build_id):
-                    if input_name is "esg":
+                    if input_name == "esg":
                         found_inconsistencies = False
-                        print(f"Skipping inconsistent branch and build_ids within monorepo, "
-                              f"input: {input_name}, "
-                              f"branch: {input_branch}, "
-                              f"build_id: {build_id}, "
-                              f"component using it: {c}")
+                        print(f"Skipping inconsistent branch and build_ids, input: {input_name}, "
+                              f"branch: {input_branch}, build_id: {build_id}, component using it: {c}")
+                        continue
                     print(f"Inconsistent branch and build_ids, input: {input_name}, branch: {input_branch}, "
                           f"build_id: {build_id}, component using it: {c}")
 
