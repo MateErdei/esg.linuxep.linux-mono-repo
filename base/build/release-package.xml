@@ -12,7 +12,7 @@
         </build-asset>
         <build-asset project="linuxep" repo="versig">
             <release-version branch="release/Version_2_0_0" build-id="20220317112535-fba49acf7b84878fd63a3a870c341a3689f204cd-uhjl6E"/>
-            <development-version branch="develop"/>
+            <development-version branch="master"/>
             <include artifact-path="output" dest-dir="/build/input/"/>
         </build-asset>
 
