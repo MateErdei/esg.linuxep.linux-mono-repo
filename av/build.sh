@@ -375,7 +375,7 @@ function build()
         (( LOCAL_GCC == 0 )) && unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" "${PLUGIN_TAR}"
         python3 ${BASE}/build-files/create_library_links.py ${REDIST}/pluginapi
-        (( LOCAL_CMAKE == 0 )) && cp -r "${INPUT}"/cmake "${REDIST}"
+        (( LOCAL_CMAKE == 0 )) && ln -snf $INPUT/cmake $REDIST/
         untar_input capnproto
         untar_input boost
         untar_input $GOOGLETESTTAR
