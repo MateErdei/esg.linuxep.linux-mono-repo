@@ -26,7 +26,7 @@ def verify_json(json_string):
     for input_name, input_branch_and_build_ids in all_inputs.items():
         if (len(input_branch_and_build_ids)) > 1:
             found_inconsistencies = True
-            print("WARNING") if (input_name == "esg") else print("ERROR:")
+            print("WARNING:") if input_name == "esg" else print("ERROR:")
             for branch_and_build_id in input_branch_and_build_ids:
                 input_branch = branch_and_build_id.split('*')[0]
                 build_id = branch_and_build_id.split('*')[1]
