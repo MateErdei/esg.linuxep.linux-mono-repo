@@ -11,7 +11,7 @@
             -->
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2022-09" build-id="20220221084824-ace4c3223c45f194d3441e496f06a60574f40232-uNLJJ9"/>
-            <development-version branch="feature/LINUXDAR-4086-upgrade-gcc-to-11.2"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
