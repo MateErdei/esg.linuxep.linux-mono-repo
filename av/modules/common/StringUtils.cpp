@@ -4,18 +4,19 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-
 #include "Common/Logging/LoggerConfig.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "ThreatDetected.capnp.h"
 #include "Logger.h"
 #include "StringUtils.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <iomanip>
 #include <openssl/sha.h>
 #include <openssl/md5.h>
 #include <boost/locale.hpp>
+
+#include <time.h>
 
 namespace common
 {
@@ -230,8 +231,9 @@ namespace common
     std::string getSusiStyleTimestamp()
     {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-        std::time_t now_tt = std::chrono::system_clock::to_time_t(now);
-        std::tm now_tm = *std::localtime(&now_tt);
+        const std::time_t now_tt = std::chrono::system_clock::to_time_t(now);
+        struct tm now_tm;
+        gmtime_r(&now_tt, &now_tm);
         std::chrono::system_clock::duration timePointSinceEpoch = now.time_since_epoch();
 
         timePointSinceEpoch -= std::chrono::duration_cast<std::chrono::seconds>(timePointSinceEpoch);
