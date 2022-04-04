@@ -292,7 +292,7 @@ TEST_F(TestEventJournalWriter, InsertEventAfterCompressedFileReadsLastProducerID
     ASSERT_EQ(2, files.size());
     std::string compressedFilename;
     std::string activeFilename;
-    for (const auto file : files)
+    for (const auto& file : files)
     {
         if (Common::UtilityImpl::StringUtils::endswith(file, ".xz"))
         {
@@ -606,7 +606,7 @@ TEST_F(TestEventJournalWriter, PruneTruncatedEventsOnInsert) // NOLINT
     ASSERT_EQ(2, files.size());
     std::string activeFilename;
     std::string closedFilename;
-    for (const auto file : files)
+    for (const auto& file : files)
     {
         auto filename = Common::FileSystem::basename(file);
         if (Common::UtilityImpl::StringUtils::splitString(filename, "-").size() == 5)

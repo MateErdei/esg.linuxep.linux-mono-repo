@@ -1,5 +1,9 @@
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/bin/eventjournaler
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/bin/uninstall.sh
+o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libatomic.so
+o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libatomic.so.1
+o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libatomic.so.1.2
+o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libatomic.so.1.2.0
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libeventjournal.so
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libeventqueuelib.so
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libeventwriterlib.so
@@ -10,7 +14,7 @@ o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/liblog4cplus-2.0.so
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/liblog4cplus-2.0.so.3
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/liblog4cplus-2.0.so.3.4
-o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/liblog4cplus-2.0.so.3.4.5
+o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/liblog4cplus-2.0.so.3.4.6
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libpluginapi.so
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libpluginimpl.so
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libprotobuf.so
@@ -20,7 +24,7 @@ o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libstdc++.so
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libstdc++.so.6
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libstdc++.so.6.0
-o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libstdc++.so.6.0.25
+o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libstdc++.so.6.0.29
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libsubscriberlib.so
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libzmq.so
 o777, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libzmq.so.5

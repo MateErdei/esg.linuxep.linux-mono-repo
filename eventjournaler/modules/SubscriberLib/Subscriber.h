@@ -12,6 +12,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #include <atomic>
 #include <functional>
+#include <optional>
 #include <string>
 #include <thread>
 

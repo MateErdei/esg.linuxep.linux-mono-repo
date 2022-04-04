@@ -13,6 +13,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <modules/JournalerCommon/Event.h>
 
 #include <condition_variable>
+#include <optional>
 #include <queue>
 
 namespace EventQueueLib

@@ -260,7 +260,7 @@ function build()
         mkdir -p $REDIST
         unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" ${PLUGIN_TAR}
-        untar_input cmake cmake-3.11.2-linux
+        cp -r $INPUT/cmake $REDIST
         untar_input $GOOGLETESTTAR
         untar_input JournalLib
         untar_input capnproto
@@ -268,6 +268,8 @@ function build()
     fi
 
     PATH=$REDIST/cmake/bin:$PATH
+    chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
+    chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
     cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
 
     cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
@@ -317,7 +319,7 @@ function build()
     mkdir -p build64
     cd build64
     [[ -n ${NPROC:-} ]] || NPROC=2
-    cmake -v -DREDIST="${REDIST}" \
+    cmake -DREDIST="${REDIST}" \
              -DINPUT="${REDIST}" \
             -DPLUGIN_NAME="${PLUGIN_NAME}" \
             -DPRODUCT_NAME="${PRODUCT_NAME}" \

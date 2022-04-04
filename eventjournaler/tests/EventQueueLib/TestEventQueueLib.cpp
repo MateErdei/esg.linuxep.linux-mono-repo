@@ -13,6 +13,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <modules/JournalerCommon/Event.h>
 
 #include <future>
+#include <thread>
 
 
 class TestEventQueue : public LogOffInitializedTests{};

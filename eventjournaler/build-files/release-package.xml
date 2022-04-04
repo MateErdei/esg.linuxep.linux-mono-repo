@@ -8,7 +8,7 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2022-12" build-id="20220314104029-f1234201c7c987717090a2c2bd44e4f9f4b18490-RdrIZs"/>
-            <development-version branch="develop" />
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
             <include artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management"/>
@@ -20,15 +20,28 @@
             <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/WINEP-2022.06" build-id="20220128115031-a862cc637baabe31c7c0807ca7b4836ed21d7bf1-YQAQrA"/>
+            <release-version branch="release/2022.15-linux-sdds3" build-id="20220331140049-c17460d0c68bd361a6efcb3ca3c71860266dc827-jlMH5V"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
 
-        <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="/build/input/."/>
-        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="/build/input/."/>
+        <build-asset project="thirdparty" repo="capnproto">
+            <release-version branch="release/sspl/Version_0_8_0" build-id="20220314153844-e29cb764e609e0e34cd89aadd802d528f8020536-wQNt99"/>
+            <include artifact-path="capnproto" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="cmake">
+            <release-version branch="release/sophos/v3.22.1" build-id="20220311114259-a491d14ee4cafa886ea85aa4ce6858d9ce163c2d-YRz6uO"/>
+            <include artifact-path="cmake" dest-dir="/build/input/cmake"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="gcc">
+            <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="xzutils">
+            <release-version branch="release/sspl/Version_5_2_4" build-id="20220311152454-7446286658b2d8e7cf2089f84aa930865d241a39-etDyXk"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+
         <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="/build/input/."/>
-        <trusted-asset artifact-path="filer5-migrate/capnprotolinux11/0-8-0-17/222740/capnproto/capnproto.tar" dest-dir="/build/input/."/>
-        <trusted-asset artifact-path="filer5-migrate/xzutilslinux/5-2-4-25/222750/output/xzutils.tar" dest-dir="/build/input/."/>
     </inputs>
     <buildcommands>
         <command mode="release">
