@@ -7,12 +7,12 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="sul">
             <release-version branch="release/Version_1_0_0" build-id="20220330105736-53b3696d16913d2c57cfa596067c727b476e337a-34oPLA"/>
-            <development-version branch="feature/LINUXDAR-4525-upgrade-openssl-to-1.1.1.n"/>
+            <development-version branch="develop"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="linuxep" repo="versig">
             <release-version branch="release/Version_2_0_0" build-id="20220317112535-fba49acf7b84878fd63a3a870c341a3689f204cd-uhjl6E"/>
-            <development-version branch="feature/LINUXDAR-4525-upgrade-openssl-to-1.1.1.n"/>
+            <development-version branch="develop"/>
             <include artifact-path="output" dest-dir="/build/input/"/>
         </build-asset>
 
