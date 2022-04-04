@@ -148,6 +148,7 @@ def install_component(sophos_install):
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libprotobuf.so.*"))
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libzmq.so.*"))
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libsusi.so.*"))
+    create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libatomic.so.*"))
 
     os.makedirs(os.path.join(plugin_dir_path, 'var'), exist_ok=True)
     os.makedirs(os.path.join(plugin_dir_path, 'log'), exist_ok=True)
