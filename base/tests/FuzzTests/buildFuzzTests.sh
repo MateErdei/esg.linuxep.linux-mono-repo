@@ -54,11 +54,10 @@ if [[ ! -f ${AFL_PATH}/afl-gcc.c ]]; then
   exitFailure  ${FAILURE_INVALID_AFL_PATH} "Invalid afl path"
 fi
 
-CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
-if [[ -f "$CMAKE_TAR" ]]
+
+if [[ -f "$INPUT/cmake/bin/cmake" ]]
 then
-    tar xzf "$CMAKE_TAR" -C "$REDIST"
-    CMAKE=${REDIST}/cmake/bin/cmake
+    ln -sf $INPUT/cmake $REDIST/cmake
 else
     echo "WARNING: using system cmake"
     CMAKE=$(which cmake)
