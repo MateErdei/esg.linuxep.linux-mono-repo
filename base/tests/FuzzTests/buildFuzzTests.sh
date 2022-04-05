@@ -62,7 +62,7 @@ then
   popd
 fi
 
-export LIBRARY_PATH="$REDIST/gcc/lib64/:${LIBRARY_PATH}"
+export LD_LIBRARY_PATH="$REDIST/gcc/lib64/:${LD_LIBRARY_PATH}"
 export PATH="$REDIST/gcc/bin:${PATH}"
 export LIBRARY_PATH=$REDIST/gcc/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
 export CPLUS_INCLUDE_PATH=$REDIST/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
