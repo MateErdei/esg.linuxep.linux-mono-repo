@@ -55,7 +55,7 @@ if [[ ! -f ${AFL_PATH}/afl-gcc.c ]]; then
 fi
 
 GCC_TARFILE=$(ls $INPUT/gcc-*-linux.tar.gz)
-if [[ -d /build/input/gcc && -f $GCC_TARFILE]]
+if [[ -d /build/input/gcc && -f $GCC_TARFILE ]]
 then
   tar xzf $GCC_TARFILE
 fi
