@@ -58,6 +58,7 @@ fi
 if [[ -f "$INPUT/cmake/bin/cmake" ]]
 then
     ln -sf $INPUT/cmake $REDIST/cmake
+    CMAKE=${REDIST}/cmake/bin/cmake
 else
     echo "WARNING: using system cmake"
     CMAKE=$(which cmake)
