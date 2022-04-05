@@ -7,14 +7,14 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-12" build-id="20220314104029-f1234201c7c987717090a2c2bd44e4f9f4b18490-RdrIZs"/>
+            <release-version branch="release/2022-15" build-id="20220405093421-a71c2698c9b0fbcb045f8c25197fc11f64be8169-scZcza"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>
 
         <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2022.15-linux" build-id="20220401110138-781ae5376eaf3e7d36b7f137dc40e1ad57f896f6-X1gQya"/>
+            <release-version branch="release/2022-15-linux" build-id="20220401110138-781ae5376eaf3e7d36b7f137dc40e1ad57f896f6-X1gQya"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="/build/input/sspl-osquery-components"/>
         </build-asset>
@@ -30,6 +30,7 @@
         </build-asset>
         <build-asset project="winep" repo="sau">
             <release-version branch="release/2022.15-linux-sdds3" build-id="20220331140049-c17460d0c68bd361a6efcb3ca3c71860266dc827-jlMH5V"/>
+            <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
 
