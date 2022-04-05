@@ -5,6 +5,7 @@ add_library(osutilitiesimpl SHARED
         ../OSUtilities/IIPUtils.cpp
         ../OSUtilities/IPlatformUtils.h
         ../OSUtilities/IPlatformUtilsException.h
+        ../OSUtilities/ISystemUtils.h
         MACinfo.cpp
         MACinfo.h
         SXLMachineID.cpp
@@ -15,6 +16,8 @@ add_library(osutilitiesimpl SHARED
         DnsLookupImpl.h
         PlatformUtils.h
         PlatformUtils.cpp
+        SystemUtils.h
+        SystemUtils.cpp
         )
 
 target_link_libraries(osutilitiesimpl PUBLIC sslimpl filesystemimpl utilityimpl applicationconfigurationimpl pthread)

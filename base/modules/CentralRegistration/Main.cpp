@@ -14,6 +14,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <cmcsrouter/MessageRelay.h>
 
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/OSUtilitiesImpl/SystemUtils.h>
 #include <Logging/ConsoleLoggingSetup.h>
 #include <Logging/FileLoggingSetup.h>
 
@@ -53,7 +54,7 @@ namespace CentralRegistrationImpl
         return messageRelays;
     }
 
-    MCS::ConfigOptions processCommandLineOptions(int argc, char* argv[] )
+    MCS::ConfigOptions processCommandLineOptions(const std::vector<std::string>& args, std::shared_ptr<OSUtilities::ISystemUtils> systemUtils)
     {
         //        parser.add_argument("--deregister",dest="deregister",action="store_true",default=False)
 //        parser.add_argument("--reregister",dest="reregister",action="store_true",default=False)
@@ -66,9 +67,9 @@ namespace CentralRegistrationImpl
         std::string proxyCredentials;
         std::string messageRelaysAsString;
 
-        for (int i=1; i < argc; i++)
+        for (size_t i=1; i < args.size(); i++)
         {
-            std::string currentArg(argv[i]);
+            std::string currentArg(args[i]);
 
             if((i == 1) && !Common::UtilityImpl::StringUtils::startswith(currentArg, "--"))
             {
@@ -84,7 +85,7 @@ namespace CentralRegistrationImpl
             }
             else if(currentArg == "--customer-token")
             {
-                configOptions[MCS::MCS_CUSTOMER_TOKEN] = argv[++i];
+                configOptions[MCS::MCS_CUSTOMER_TOKEN] = args[++i];
             }
             else if(Common::UtilityImpl::StringUtils::startswith(currentArg, "--products"))
             {
@@ -92,11 +93,11 @@ namespace CentralRegistrationImpl
             }
             else if(currentArg == "--proxy-credentials")
             {
-                proxyCredentials = argv[++i];
+                proxyCredentials = args[++i];
             }
             else if(currentArg == "--message-relay")
             {
-                messageRelaysAsString = argv[++i];
+                messageRelaysAsString = args[++i];
             }
         }
 
@@ -108,7 +109,7 @@ namespace CentralRegistrationImpl
 
         if(proxyCredentials.empty())
         {
-            proxyCredentials = std::string(std::getenv("PROXY_CREDENTIALS"));
+            proxyCredentials = systemUtils->getEnvironmentVariable("PROXY_CREDENTIALS");
         }
         if(!proxyCredentials.empty())
         {
@@ -120,14 +121,16 @@ namespace CentralRegistrationImpl
             }
         }
 
-        std::string proxy = std::string(std::getenv("https_proxy"));
+        std::string proxy = systemUtils->getEnvironmentVariable("https_proxy");
+
         if(proxy.empty())
         {
-            proxy = std::string(std::getenv("http_proxy"));
+            proxy = systemUtils->getEnvironmentVariable("http_proxy");
         }
+
         configOptions[MCS::MCS_PROXY] = proxy;
 
-        configOptions[MCS::MCS_CA_OVERRIDE] = std::string(std::getenv("MCS_CA"));
+        configOptions[MCS::MCS_CA_OVERRIDE] = systemUtils->getEnvironmentVariable("MCS_CA");
 
         std::vector<MCS::MessageRelay> messageRelays = extractMessageRelays(messageRelaysAsString);
 
@@ -145,7 +148,17 @@ namespace CentralRegistrationImpl
     int main_entry(int argc, char* argv[])
     {
         Common::Logging::ConsoleLoggingSetup loggerSetup;
-        MCS::ConfigOptions configOptions = processCommandLineOptions(argc, argv);
+        // convert args to vector for to remove the need to handle pointers.
+        std::vector<std::string> args;
+        for(int i=0; i < argc; i++)
+        {
+            std::string value(argv[i]);
+            args.push_back(value);
+        }
+
+        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
+
+        MCS::ConfigOptions configOptions = processCommandLineOptions(args,systemUtils);
         configOptions = registerAndObtainMcsOptions(configOptions);
         return 0;
     }

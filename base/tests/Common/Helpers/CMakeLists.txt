@@ -23,6 +23,7 @@ add_library(testhelpersobject OBJECT
         OutputToLog.cpp
         OutputToLog.h
         MockPlatformUtils.h
+        MockSystemUtils.h
         )
 
 target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include")
