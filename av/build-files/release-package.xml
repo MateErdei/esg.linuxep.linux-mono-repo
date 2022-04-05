@@ -40,7 +40,7 @@
         </build-asset>
 
         <build-asset project="thirdparty" repo="openssl">
-            <release-version branch="release/sspl/Version_1_1_1m" build-id="20220310143347-fb032a83957c266bd183e2bc36460e7d1cd9d718-29xDys"/>
+            <release-version branch="release/sspl/Version_1_1_1n" build-id="20220401105035-fa22fd953fa7997cf90dbf895e1ece2de4a008c5-z53ZhW"/>
             <include artifact-path="output" dest-dir="input" />
         </build-asset>
 
