@@ -9,7 +9,7 @@ FAILURE_BUILD_FUZZ=18
 FAILURE_BAD_ARGUMENT=53
 
 
-#set -ex
+set -ex
 #set -o pipefail
 
 STARTINGDIR=$(pwd)
@@ -64,8 +64,10 @@ fi
 
 export LIBRARY_PATH="$REDIST/gcc/lib64/:${LIBRARY_PATH}"
 export PATH="$REDIST/gcc/bin:${PATH}"
+export LIBRARY_PATH=$REDIST/gcc/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
 export CPLUS_INCLUDE_PATH=$REDIST/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
-export CPATH=$REDIST/gcc/include/:${CPATH}
+export CC=$REDIST/gcc/bin/gcc
+export CXX=$REDIST/gcc/bin/g++
 if [[ -f "$INPUT/cmake/bin/cmake" ]]
 then
     ln -sf $INPUT/cmake $REDIST/cmake
@@ -83,7 +85,9 @@ fi
 
 # make sure afl is built
 pushd  ${AFL_PATH}
-  make || exitFailure ${FAILURE_BUILD_AFL} "Failed to build afl"
+  make clean || exitFailure ${FAILURE_BUILD_AFL} "Failed to build afl"
+  make || echo "Failed to build afl2"
+  ./afl-gcc --version
 popd
 
 if [[ ! -f ${AFL_PATH}/afl-gcc ]]; then

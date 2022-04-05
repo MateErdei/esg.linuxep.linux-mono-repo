@@ -31,15 +31,27 @@ INPUT=$BASE/input
 ## These can't be exitFailure since it doesn't exist till the sourcing is done
 [[ -f "$BASE"/build/common.sh ]] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build/common.sh
-CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
-if [[ -f "$CMAKE_TAR" ]]
+GCC_TARFILE=$(ls $INPUT/gcc-*-linux.tar.gz)
+if [[ -d /build/input/gcc && -f $GCC_TARFILE ]]
 then
-    tar xzf "$CMAKE_TAR" -C "$REDIST"
+  pushd $REDIST
+  tar xzf $GCC_TARFILE
+  popd
+fi
+
+export LIBRARY_PATH="$REDIST/gcc/lib64/:${LIBRARY_PATH}"
+export PATH="$REDIST/gcc/bin:${PATH}"
+export CPLUS_INCLUDE_PATH=$REDIST/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
+export CPATH=$REDIST/gcc/include/:${CPATH}
+if [[ -f "$INPUT/cmake/bin/cmake" ]]
+then
+    ln -sf $INPUT/cmake $REDIST/cmake
     CMAKE=${REDIST}/cmake/bin/cmake
 else
     echo "WARNING: using system cmake"
     CMAKE=$(which cmake)
 fi
+
 
 # this initial step is necessary for libprotobuf-mutator to have it built and available.
 pushd ${PROJECT_ROOT_SOURCE}/thirdparty

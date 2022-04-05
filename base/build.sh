@@ -295,7 +295,7 @@ function build()
             exitFailure 12 "Failed to find openssl"
         fi
 
-        if [[ -f "$INPUT/cmake/bin/cmake" ]]
+        if [[ -f "$INPUT/cmake/bin/cmake" && ! -d $REDIST/cmake ]]
         then
             cp -r $INPUT/cmake $REDIST
         else
