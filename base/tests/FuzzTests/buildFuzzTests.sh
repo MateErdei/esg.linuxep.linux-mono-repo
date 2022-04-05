@@ -54,7 +54,14 @@ if [[ ! -f ${AFL_PATH}/afl-gcc.c ]]; then
   exitFailure  ${FAILURE_INVALID_AFL_PATH} "Invalid afl path"
 fi
 
+local GCC_TARFILE=$(ls $INPUT/gcc-*-linux.tar.gz)
+if [[ -d /build/input/gcc && -f $GCC_TARFILE]]
+then
+  tar xzf $GCC_TARFILE
+fi
 
+export LIBRARY_PATH="$REDIST/gcc/lib64/:${LIBRARY_PATH}"
+export PATH="$REDIST/gcc/bin:${PATH}:"
 if [[ -f "$INPUT/cmake/bin/cmake" ]]
 then
     ln -sf $INPUT/cmake $REDIST/cmake
