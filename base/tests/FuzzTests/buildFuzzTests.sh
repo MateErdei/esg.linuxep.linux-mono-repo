@@ -54,7 +54,7 @@ if [[ ! -f ${AFL_PATH}/afl-gcc.c ]]; then
   exitFailure  ${FAILURE_INVALID_AFL_PATH} "Invalid afl path"
 fi
 
-local GCC_TARFILE=$(ls $INPUT/gcc-*-linux.tar.gz)
+GCC_TARFILE=$(ls $INPUT/gcc-*-linux.tar.gz)
 if [[ -d /build/input/gcc && -f $GCC_TARFILE]]
 then
   tar xzf $GCC_TARFILE
