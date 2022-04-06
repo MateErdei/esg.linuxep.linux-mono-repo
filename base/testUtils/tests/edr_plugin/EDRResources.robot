@@ -42,7 +42,9 @@ EDR Plugin Is Running
 EDR Plugin Is Not Running
     ${result} =    Run Process  pgrep  edr
     Should Not Be Equal As Integers    ${result.rc}    0   EDR PLugin still running
-
+MTR Extension is running
+    ${result} =    Run Process  pgrep  SophosMTR.ext
+    Should Be Equal As Integers    ${result.rc}    0
 Restart EDR Plugin
     [Arguments]  ${clearLog}=False
     Wdctl Stop Plugin  edr

@@ -179,9 +179,10 @@ Copy Telemetry Config File in To Place
 
 Drop sophos-spl-local File Into Place
     [Arguments]  ${sourceFilePath}  ${destFilepath}
-    Copy File   ${sourceFilePath}   ${destFilepath}
-    Run Process  chmod  640  ${destFilepath}
-    Run Process  chown  sophos-spl-local:sophos-spl-group  ${destFilepath}
+    Copy File   ${sourceFilePath}   /tmp/tempFile
+    Run Process  chmod  640  /tmp/tempFile
+    Run Process  chown  sophos-spl-local:sophos-spl-group  /tmp/tempFile
+    Move File   /tmp/tempFile  ${destFilepath}
     File Exists With Permissions   ${destFilepath}   sophos-spl-local  sophos-spl-group  -rw-r-----
 
 Drop ALC Policy Into Place
