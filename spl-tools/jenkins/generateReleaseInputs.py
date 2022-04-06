@@ -75,7 +75,7 @@ def process_release_files(release_files):
 
             for input_pkg in pkg_inputs_list:
                 if 'release-version' not in input_pkg:
-                    print(f"Skipping input: {input_dict['name']} in: {release_file_path}, as there is no release-version")
+                    print(f"Skipping input: {input_pkg['@repo']} in: {release_file_path}, as there is no release-version")
                     continue
 
                 input_dict = {"name": input_pkg["@repo"],

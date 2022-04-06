@@ -17,22 +17,27 @@ def get_component_using_input_build_id(root_dictionary, input_name, input_branch
 def verify_json(json_string):
     root_dict = json.loads(json_string)
     all_inputs = {}
+    
+    repos_with_accepted_inconsistencies = ["esg", "everest-base"]
+    
     for component_name, info_dict in root_dict.items():
         for i in info_dict["inputs"]:
             if i["name"] not in all_inputs:
                 all_inputs[i["name"]] = set()
             all_inputs[i["name"]].add(f"{i['branch']}*{i['build_id']}")
     found_inconsistencies = False
+    ignored_inconsistencies = False
     for input_name, input_branch_and_build_ids in all_inputs.items():
         if (len(input_branch_and_build_ids)) > 1:
             found_inconsistencies = True
-            print("WARNING:") if input_name == "esg" else print("ERROR:")
+            print("WARNING:") if input_name in repos_with_accepted_inconsistencies else print("ERROR:")
             for branch_and_build_id in input_branch_and_build_ids:
                 input_branch = branch_and_build_id.split('*')[0]
                 build_id = branch_and_build_id.split('*')[1]
                 for c in get_component_using_input_build_id(root_dict, input_name, input_branch, build_id):
-                    if input_name == "esg":
+                    if input_name in repos_with_accepted_inconsistencies:
                         found_inconsistencies = False
+                        ignored_inconsistencies = True
                         print(f"Skipping inconsistent branch and build_ids, input: {input_name}, "
                               f"branch: {input_branch}, build_id: {build_id}, component using it: {c}")
                         continue
@@ -42,6 +47,10 @@ def verify_json(json_string):
     if found_inconsistencies:
         print("FAILED: Inputs are inconsistent, refer to logged errors")
         exit(1)
+
+    if ignored_inconsistencies:
+        print("UNSTABLE: Inconsistent inputs have been accepted, refer to logged warnings")
+        exit(2)
 
 
 def main(argv):
