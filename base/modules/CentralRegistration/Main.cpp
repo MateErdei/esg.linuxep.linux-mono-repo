@@ -12,9 +12,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <cmcsrouter/Config.h>
 #include <cmcsrouter/ConfigOptions.h>
 #include <cmcsrouter/MessageRelay.h>
+#include <cmcsrouter/AgentAdapter.h>
 
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/OSUtilitiesImpl/SystemUtils.h>
+#include <Common/CurlWrapper/CurlWrapper.h>
+#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 #include <Logging/ConsoleLoggingSetup.h>
 #include <Logging/FileLoggingSetup.h>
 
@@ -140,7 +143,12 @@ namespace CentralRegistrationImpl
     MCS::ConfigOptions registerAndObtainMcsOptions(MCS::ConfigOptions& configOptions)
     {
         CentralRegistration centralRegistration;
-        centralRegistration.RegisterWithCentral(configOptions);
+        std::shared_ptr<MCS::IAdapter> agentAdapter = std::make_shared<MCS::AgentAdapter>();
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+                std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+
+        centralRegistration.registerWithCentral(configOptions, client, agentAdapter);
         // return updated configOptions
         return configOptions;
     }

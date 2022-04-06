@@ -13,12 +13,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/MockSystemUtils.h>
 
-class CentralRegirationMainTests : public LogInitializedTests
+class CentralRegistrationMainTests : public LogInitializedTests
 {
 
 };
 
-TEST_F(CentralRegirationMainTests, CanSuccessfullyProcessAndStoreCommandLineArguments) // NOLINT
+TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArguments) // NOLINT
 {
     std::vector<std::string> argValues{
         "CentralRegistration", "MCS_Token001", "https://MCS_URL", "--groups=group1/group2", "--products=antivirus,mdr"
@@ -44,7 +44,7 @@ TEST_F(CentralRegirationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgu
 
 }
 
-TEST_F(CentralRegirationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithProxyCreds) // NOLINT
+TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithProxyCreds) // NOLINT
 {
     std::vector<std::string> argValues{
         "CentralRegistration", "MCS_Token001", "https://MCS_URL", "--groups=group1/group2", "--products=antivirus,mdr"
@@ -70,7 +70,7 @@ TEST_F(CentralRegirationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgu
 
 }
 
-TEST_F(CentralRegirationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithMCS_CA_Override) // NOLINT
+TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithMCS_CA_Override) // NOLINT
 {
     std::vector<std::string> argValues{
         "CentralRegistration", "MCS_Token001", "https://MCS_URL", "--groups=group1/group2", "--products=antivirus,mdr"
@@ -95,7 +95,7 @@ TEST_F(CentralRegirationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgu
     EXPECT_EQ(configOptions.config[MCS::MCS_CA_OVERRIDE],"some_path");
 }
 
-TEST_F(CentralRegirationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithHTTPSEnvProxySet) // NOLINT
+TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithHTTPSEnvProxySet) // NOLINT
 {
     std::vector<std::string> argValues{
         "CentralRegistration", "MCS_Token001", "https://MCS_URL", "--groups=group1/group2", "--products=antivirus,mdr"
@@ -121,7 +121,7 @@ TEST_F(CentralRegirationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgu
 
 }
 
-TEST_F(CentralRegirationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithHTTPEnvProxySet) // NOLINT
+TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithHTTPEnvProxySet) // NOLINT
 {
     std::vector<std::string> argValues{
         "CentralRegistration", "MCS_Token001", "https://MCS_URL", "--groups=group1/group2", "--products=antivirus,mdr"

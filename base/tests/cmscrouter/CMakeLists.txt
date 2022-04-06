@@ -5,6 +5,8 @@ include(GoogleTest)
 
 add_executable(cMCSTests
         TestMcsHttpClient.cpp
+        TestAgentAdapter.cpp
+        MockAgentAdapter.h
         ${PROJECT_SOURCE_DIR}/modules/Common/CurlWrapper/CurlWrapper.h
         ${PROJECT_SOURCE_DIR}/modules/Common/CurlWrapper/CurlWrapper.cpp
 )

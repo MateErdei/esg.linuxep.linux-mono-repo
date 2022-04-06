@@ -92,7 +92,7 @@ namespace MCS
         }
         else
         {
-            std::cout << "Error during registration" << response.status << std::endl;
+            LOGERROR("Error during registration" << response.status);
         }
         return false;
     }
