@@ -86,8 +86,7 @@ fi
 # make sure afl is built
 pushd  ${AFL_PATH}
   make clean || exitFailure ${FAILURE_BUILD_AFL} "Failed to build afl"
-  make || echo "Failed to build afl2"
-  ./afl-gcc --version
+  make || exitFailure ${FAILURE_BUILD_AFL} "Failed to build afl"
 popd
 
 if [[ ! -f ${AFL_PATH}/afl-gcc ]]; then
