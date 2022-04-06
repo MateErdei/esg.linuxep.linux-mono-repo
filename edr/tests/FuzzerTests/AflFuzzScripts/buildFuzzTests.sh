@@ -51,10 +51,23 @@ if [[ ! -f ${AFL_PATH}/afl-gcc.c ]]; then
   exitFailure  ${FAILURE_INVALID_AFL_PATH} "Invalid afl path"
 fi
 
-CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
-if [[ -f "$CMAKE_TAR" ]]
+GCC_TARFILE=$(ls $INPUT/gcc-*-linux.tar.gz)
+if [[ -d /build/input/gcc && -f $GCC_TARFILE ]]
 then
-    tar xzf "$CMAKE_TAR" -C "$REDIST"
+  pushd $REDIST
+  tar xzf $GCC_TARFILE
+  popd
+fi
+
+export LD_LIBRARY_PATH="$REDIST/gcc/lib64/:${LD_LIBRARY_PATH}"
+export PATH="$REDIST/gcc/bin:${PATH}"
+export LIBRARY_PATH=$REDIST/gcc/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
+export CPLUS_INCLUDE_PATH=$REDIST/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
+export CC=$REDIST/gcc/bin/gcc
+export CXX=$REDIST/gcc/bin/g++
+if [[ -f "$INPUT/cmake/bin/cmake" ]]
+then
+    ln -sf $INPUT/cmake $REDIST/cmake
     CMAKE=${REDIST}/cmake/bin/cmake
 else
     echo "WARNING: using system cmake"
@@ -67,12 +80,12 @@ then
     apt-get -y install zip
 fi
 
-
-
 # make sure afl is built
 pushd  ${AFL_PATH}
+  make clean || exitFailure ${FAILURE_BUILD_AFL} "Failed to build afl"
   make || exitFailure ${FAILURE_BUILD_AFL} "Failed to build afl"
 popd
+
 
 if [[ ! -f ${AFL_PATH}/afl-gcc ]]; then
   exitFailure  ${FAILURE_BUILD_AFL}  "afl-gcc not in the expected path"
