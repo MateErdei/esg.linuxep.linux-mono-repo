@@ -297,7 +297,7 @@ function build()
 
         if [[ -f "$INPUT/cmake/bin/cmake" && ! -d $REDIST/cmake ]]
         then
-            cp -r $INPUT/cmake $REDIST
+            ln -sf $INPUT/cmake $REDIST/cmake
         else
             echo "WARNING: using system cmake"
         fi
