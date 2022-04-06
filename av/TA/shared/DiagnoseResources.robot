@@ -1,6 +1,5 @@
 *** Settings ***
 
-Library         ../Libs/BaseInteractionTools/DiagnoseUtils.py
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/OnFail.py
 Library         String
@@ -11,6 +10,7 @@ Library         DateTime
 ${TAR_FILE_DIRECTORY} =  /tmp/TestOutputDirectory
 ${UNPACK_DIRECTORY} =  /tmp/DiagnoseOutput
 ${UNPACKED_DIAGNOSE_PLUGIN_FILES} =  ${UNPACK_DIRECTORY}/PluginFiles
+${UNPACKED_DIAGNOSE_LOG} =  ${UNPACK_DIRECTORY}/BaseFiles/diagnose.log
 
 *** Keywords ***
 
@@ -19,7 +19,7 @@ Run Diagnose
     Create Directory  ${TAR_FILE_DIRECTORY}
     Empty Directory  ${TAR_FILE_DIRECTORY}
     Directory Should Be Empty  ${TAR_FILE_DIRECTORY}
-    ${retcode} =  Start Diagnose  ${SOPHOS_INSTALL}/bin/sophos_diagnose  ${TAR_FILE_DIRECTORY}
+    ${retcode} =  Run And Return Rc  ${SOPHOS_INSTALL}/bin/sophos_diagnose ${TAR_FILE_DIRECTORY}
     Should Be Equal As Integers   ${retcode}  0
 
 Check Diagnose Tar Created
@@ -54,6 +54,6 @@ Check Diagnose Collects Correct AV Files
 
 Check Diagnose Logs
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
-    ${contents} =  Get File  /tmp/diagnose.log
-    Should Not Contain  ${contents}  error  ignore_case=True
-    Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
+    ${contents_prodlog} =  Get File  ${UNPACKED_DIAGNOSE_LOG}
+    Should Not Contain  ${contents_prodlog}  ERROR
+
