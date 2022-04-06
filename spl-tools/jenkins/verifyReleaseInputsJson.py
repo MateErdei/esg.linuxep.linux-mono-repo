@@ -18,7 +18,7 @@ def verify_json(json_string):
     root_dict = json.loads(json_string)
     all_inputs = {}
     
-    repos_with_accepted_inconsistencies = ["esg", "everest-base"]
+    inputs_with_accepted_inconsistencies = ["esg", "everest-base", "openssl"]
     
     for component_name, info_dict in root_dict.items():
         for i in info_dict["inputs"]:
@@ -30,12 +30,12 @@ def verify_json(json_string):
     for input_name, input_branch_and_build_ids in all_inputs.items():
         if (len(input_branch_and_build_ids)) > 1:
             found_inconsistencies = True
-            print("WARNING:") if input_name in repos_with_accepted_inconsistencies else print("ERROR:")
+            print("WARNING:") if input_name in inputs_with_accepted_inconsistencies else print("ERROR:")
             for branch_and_build_id in input_branch_and_build_ids:
                 input_branch = branch_and_build_id.split('*')[0]
                 build_id = branch_and_build_id.split('*')[1]
                 for c in get_component_using_input_build_id(root_dict, input_name, input_branch, build_id):
-                    if input_name in repos_with_accepted_inconsistencies:
+                    if input_name in inputs_with_accepted_inconsistencies:
                         found_inconsistencies = False
                         ignored_inconsistencies = True
                         print(f"Skipping inconsistent branch and build_ids, input: {input_name}, "
