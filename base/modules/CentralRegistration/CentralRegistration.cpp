@@ -17,9 +17,15 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 namespace CentralRegistrationImpl
 {
-    bool CentralRegistration::tryPreregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy)
+    bool CentralRegistration::tryPreregistration(
+            MCS::ConfigOptions& configOptions,
+            const std::string& statusXml,
+            std::string url,
+            std::string token,
+            std::string proxy,
+            std::shared_ptr<Common::HttpRequests::IHttpRequester> requester)
     {
-        MCS::MCSHttpClient httpClient(url, token, m_requester);
+        MCS::MCSHttpClient httpClient(url, token, requester);
 
         httpClient.setCertPath(configOptions.config[MCS::MCS_CERT]);
         MCS::MCSApiCalls mcsApi;
@@ -46,9 +52,15 @@ namespace CentralRegistrationImpl
         return false;
     }
 
-    bool CentralRegistration::tryRegistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy)
+    bool CentralRegistration::tryRegistration(
+            MCS::ConfigOptions& configOptions,
+            const std::string& statusXml,
+            std::string url,
+            std::string token,
+            std::string proxy,
+            std::shared_ptr<Common::HttpRequests::IHttpRequester> requester)
     {
-        MCS::MCSHttpClient httpClient(url, token, m_requester);
+        MCS::MCSHttpClient httpClient(url, token, requester);
         httpClient.setCertPath(configOptions.config[MCS::MCS_CERT]);
 
         MCS::MCSApiCalls mcsApi;
@@ -56,13 +68,24 @@ namespace CentralRegistrationImpl
         return mcsApi.registerEndpoint(httpClient, configOptions, statusXml, proxy);
     }
 
-    bool CentralRegistration::tryRegistrationWithProxies(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token,
-                                                         bool (*registrationFunction)(MCS::ConfigOptions&, const std::string&, std::string, std::string, std::string))
+    bool CentralRegistration::tryRegistrationWithProxies(
+            MCS::ConfigOptions& configOptions,
+            const std::string& statusXml,
+            std::string url,
+            std::string token,
+            std::shared_ptr<Common::HttpRequests::IHttpRequester> requester,
+            bool (*registrationFunction)(
+                    MCS::ConfigOptions&,
+                    const std::string&,
+                    std::string,
+                    std::string,
+                    std::string,
+                    std::shared_ptr<Common::HttpRequests::IHttpRequester> requester))
     {
         for(auto& messageRelay : configOptions.messageRelays) // These need to be ordered before this
         {
             std::string proxy = messageRelay.address + ":" + messageRelay.port;
-            if(registrationFunction(configOptions, statusXml, url, token, proxy))
+            if(registrationFunction(configOptions, statusXml, url, token, proxy, requester))
             {
                 configOptions.config[MCS::MCS_CONNECTED_PROXY] = proxy;
                 return true;
@@ -70,16 +93,16 @@ namespace CentralRegistrationImpl
         }
         if(configOptions.config[MCS::MCS_CONNECTED_PROXY].empty() && !configOptions.config[MCS::MCS_PROXY].empty())
         {
-            if(registrationFunction(configOptions, statusXml, url, token, configOptions.config[MCS::MCS_PROXY]))
+            if(registrationFunction(configOptions, statusXml, url, token, configOptions.config[MCS::MCS_PROXY], requester))
             {
                 configOptions.config[MCS::MCS_CONNECTED_PROXY] = configOptions.config[MCS::MCS_PROXY];
                 return true;
             }
         }
-        return registrationFunction(configOptions, statusXml, url, token, "");
+        return registrationFunction(configOptions, statusXml, url, token, "", requester);
     }
 
-    void CentralRegistration::preregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml)
+    void CentralRegistration::preregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester)
     {
         // check options are all there: customer token + selected products
         if(configOptions.config.empty() || configOptions.config[MCS::MCS_CUSTOMER_TOKEN].empty() || configOptions.config[MCS::MCS_PRODUCTS].empty())
@@ -91,7 +114,7 @@ namespace CentralRegistrationImpl
         std::string url(configOptions.config[MCS::MCS_URL]);
         std::string token(configOptions.config[MCS::MCS_CUSTOMER_TOKEN]);
 
-        if(!tryRegistrationWithProxies(configOptions, statusXml, url, token, tryPreregistration))
+        if(!tryRegistrationWithProxies(configOptions, statusXml, url, token,  requester, tryPreregistration))
         {
             LOGINFO("Preregistration failed - continuing with default registration");
         }
@@ -118,7 +141,6 @@ namespace CentralRegistrationImpl
 
         LOGDEBUG("Preregistration successful, new deployment registration token: " << deploymentRegistrationToken);
         return deploymentRegistrationToken;
-
     }
 
     void CentralRegistration::registerWithCentral(
@@ -127,19 +149,18 @@ namespace CentralRegistrationImpl
             std::shared_ptr<MCS::IAdapter> agentAdapter)
     {
         LOGDEBUG("Beginning product registration");
-        m_requester = requester;
         std::string statusXml = agentAdapter->getStatusXml(configOptions.config);
 
-        preregistration(configOptions, statusXml);
+        preregistration(configOptions, statusXml, requester);
 
         std::string url(configOptions.config[MCS::MCS_URL]);
         std::string token(configOptions.config[MCS::MCS_TOKEN]);
 
-        if(!configOptions.config[MCS::MCS_CONNECTED_PROXY].empty() && tryRegistration(configOptions, statusXml, url, token, configOptions.config[MCS::MCS_CONNECTED_PROXY]))
+        if(!configOptions.config[MCS::MCS_CONNECTED_PROXY].empty() && tryRegistration(configOptions, statusXml, url, token, configOptions.config[MCS::MCS_CONNECTED_PROXY], requester))
         {
             LOGINFO("Product successfully registered");
         }
-        else if(tryRegistrationWithProxies(configOptions, statusXml, url, token, tryRegistration))
+        else if(tryRegistrationWithProxies(configOptions, statusXml, url, token, requester, tryRegistration))
         {
             LOGINFO("Product successfully registered via proxy: " << configOptions.config[MCS::MCS_CONNECTED_PROXY]);
         }

@@ -8,7 +8,6 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include <Common/OSUtilities/IPlatformUtils.h>
 #include <gmock/gmock.h>
-#include <gtest/gtest.h>
 
 using namespace ::testing;
 
@@ -25,6 +24,11 @@ public:
     MOCK_CONST_METHOD0(getOsMinorVersion, std::string());
     MOCK_CONST_METHOD0(getDomainname, std::string());
     MOCK_CONST_METHOD0(getIp4Address, std::string());
+    MOCK_CONST_METHOD0(getIp4Addresses, std::vector<std::string>());
     MOCK_CONST_METHOD0(getIp6Address, std::string());
+    MOCK_CONST_METHOD0(getIp6Addresses, std::vector<std::string>());
+    MOCK_CONST_METHOD1(getCloudPlatformMetadata, std::string(Common::HttpRequests::IHttpRequester*));
+    MOCK_METHOD1(setProxyConfig, void(std::map<std::string, std::string>&));
+    MOCK_CONST_METHOD0(getMacAddresses, std::vector<std::string>());
 
 };

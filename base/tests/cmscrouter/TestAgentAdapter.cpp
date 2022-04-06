@@ -91,7 +91,8 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithNoOptions) // NO
 
     MCS::AgentAdapter adapter(mockPlatformUtil);
 
-    std::string actualStatusXml = adapter.getStatusXml();
+    std::map<std::string, std::string> cmakeFixingArg;
+    std::string actualStatusXml = adapter.getStatusXml(cmakeFixingArg);
     actualStatusXml = Common::UtilityImpl::StringUtils::replaceAll(actualStatusXml, " ", "");
     EXPECT_THAT(actualStatusXml, HasSubstr(expectedXml));
 

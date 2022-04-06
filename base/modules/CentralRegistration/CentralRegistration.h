@@ -26,14 +26,12 @@ namespace CentralRegistrationImpl
                 std::shared_ptr<MCS::IAdapter> agentAdapter);
 
     private:
-        void preregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml);
+        void preregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester);
         static std::string processPreregistrationBody(const std::string& preregistrationBody);
-        static bool tryPreregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy);
-        static bool tryRegistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy);
+        static bool tryPreregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester);
+        static bool tryRegistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester);
 
-        static bool tryRegistrationWithProxies(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token,
-               bool (*registrationFunction)(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy));
-
-        static std::shared_ptr<Common::HttpRequests::IHttpRequester> m_requester;
+        static bool tryRegistrationWithProxies(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester,
+               bool (*registrationFunction)(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester));
     };
 }
