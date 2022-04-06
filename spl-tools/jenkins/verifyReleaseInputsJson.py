@@ -18,7 +18,7 @@ def verify_json(json_string):
     root_dict = json.loads(json_string)
     all_inputs = {}
     
-    inputs_with_accepted_inconsistencies = ["esg", "everest-base", "openssl", "sau", "curl", "dbos"]
+    inputs_with_accepted_inconsistencies = ["esg", "everest-base", "openssl"]
     
     for component_name, info_dict in root_dict.items():
         for i in info_dict["inputs"]:
