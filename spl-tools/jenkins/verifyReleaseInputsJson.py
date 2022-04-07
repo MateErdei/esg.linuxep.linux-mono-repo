@@ -29,18 +29,17 @@ def verify_json(json_string):
     ignored_inconsistencies = False
     for input_name, input_branch_and_build_ids in all_inputs.items():
         if (len(input_branch_and_build_ids)) > 1:
-            found_inconsistencies = True
-            print("WARNING:") if input_name in inputs_with_accepted_inconsistencies else print("ERROR:")
+            if input_name in inputs_with_accepted_inconsistencies:
+                ignored_inconsistencies = True
+                print("WARNING:")
+            else:
+                found_inconsistencies = True
+                print("ERROR:")
+
             for branch_and_build_id in input_branch_and_build_ids:
                 input_branch = branch_and_build_id.split('*')[0]
                 build_id = branch_and_build_id.split('*')[1]
                 for c in get_component_using_input_build_id(root_dict, input_name, input_branch, build_id):
-                    if input_name in inputs_with_accepted_inconsistencies:
-                        found_inconsistencies = False
-                        ignored_inconsistencies = True
-                        print(f"Skipping inconsistent branch and build_ids, input: {input_name}, "
-                              f"branch: {input_branch}, build_id: {build_id}, component using it: {c}")
-                        continue
                     print(f"Inconsistent branch and build_ids, input: {input_name}, branch: {input_branch}, "
                           f"build_id: {build_id}, component using it: {c}")
 
