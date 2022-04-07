@@ -53,7 +53,7 @@ Check Diagnose Collects Correct AV Files
 
 
 Check Diagnose Logs
-    ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
-    ${contents_prodlog} =  Get File  ${UNPACKED_DIAGNOSE_LOG}
-    Should Not Contain  ${contents_prodlog}  ERROR
+    ${contents} =  Get File  ${UNPACKED_DIAGNOSE_LOG}
+    Should Contain  ${contents}  Completed gathering files
+    Should Not Contain  ${contents}  ERROR
 
