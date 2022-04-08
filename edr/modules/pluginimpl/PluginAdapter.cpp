@@ -295,6 +295,7 @@ namespace Plugin
                 {
                     case Task::TaskType::STOP:
                         LOGDEBUG("Process task STOP");
+                        osqueryDataRetentionCheckState->enabled = false;
                         stopOsquery();
                         return;
                     case Task::TaskType::START_OSQUERY:

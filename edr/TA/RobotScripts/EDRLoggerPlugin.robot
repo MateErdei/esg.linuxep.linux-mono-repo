@@ -72,10 +72,9 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
 EDR Plugin Tags All Queries Correctly
     [Setup]  Install EDR Directly from SDDS With mocked scheduled queries
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
-    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
-    #restart edr so that the altered queries are read in and debug mode applied
-    Restart EDR
+    # This will restart osquery and EDR will already be in debug mode, so shouldn't need to restart EDR.
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
     Wait Until Keyword Succeeds
     ...  200 secs
@@ -177,16 +176,15 @@ EDR Plugin Applies Regex Folding Rules
 
 EDR Plugin Runs All Canned Queries
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
-    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Remove File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Remove File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
     convert_canned_query_json_to_query_pack   ${TEST_INPUT_PATH}/lp/sophos-query-pack.json  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  shell=True
-    #restart edr so that the altered queries are read in and debug mode applied
-    Restart EDR
+    # Inserting policy will cause an osquery restart to apply new policy settings
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
     Wait Until Keyword Succeeds
-    ...  50 secs
+    ...  120 secs
     ...  10 secs
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     ${content} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log

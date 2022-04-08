@@ -13,6 +13,7 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/TimeUtils.h>
+#include <Common/UtilityImpl/WaitForUtils.h>
 
 void OsqueryDataManager::cleanUpOsqueryLogs()
 {
@@ -297,7 +298,7 @@ void OsqueryDataManager::asyncCheckAndReconfigureDataRetention(std::shared_ptr<O
                     LOGDEBUG("Failed to convert current epoch time, out of range error: " << ex.what());
                 }
 
-                while(osqueryDataRetentionCheckState->numberOfRetries > 0)
+                while(osqueryDataRetentionCheckState->numberOfRetries > 0 && osqueryDataRetentionCheckState->enabled)
                 {
                     LOGDEBUG("Number of reconfigure Data Retention tries left: " << osqueryDataRetentionCheckState->numberOfRetries);
                     OsqueryDataManager osqueryDataManager;
@@ -314,7 +315,11 @@ void OsqueryDataManager::asyncCheckAndReconfigureDataRetention(std::shared_ptr<O
                     {
                         osqueryDataManager.reconfigureDataRetentionParameters(currentepochTime, osqueryDataManager.MAX_EVENTED_DATA_RETENTION_TIME);
                         osqueryDataRetentionCheckState->numberOfRetries--;
-                        std::this_thread::sleep_for(std::chrono::seconds(10));
+
+                        // Sleep for 10 seconds but also check if we should stop running due to shutdown.
+                        Common::UtilityImpl::waitFor(10,
+                                                     0.5,
+                                                     [&osqueryDataRetentionCheckState](){return !osqueryDataRetentionCheckState->enabled;});
                     }
                 }
                 osqueryDataRetentionCheckState->lastOSQueryDataCheck = timeNow;

@@ -21,6 +21,8 @@ struct OsqueryDataRetentionCheckState
     bool firstRun = true;
     std::chrono::steady_clock::time_point lastOSQueryDataCheck = std::chrono::steady_clock::now();
     const std::chrono::duration<int64_t, std::ratio<60>> osqueryDataCheckPeriod = std::chrono::minutes(30);
+    // Flag to make sure we can break out of the retention data check if we get shutdown in the middle of a check
+    bool enabled = true;
 };
 
 class OsqueryDataManager
