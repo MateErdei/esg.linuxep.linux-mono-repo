@@ -83,7 +83,7 @@ namespace MCS
             std::vector<std::string> responseValues = Common::UtilityImpl::StringUtils::splitString(messageBody, ":");
             if(responseValues.size() == 2)
             {
-                // Note that updating the configOptions here should be propergated back to the caller as it is all
+                // Note that updating the configOptions here should be propagated back to the caller as it is all
                 // passed by reference.
                 configOptions.config[MCS::MCS_ID] = responseValues[0]; // endpointId
                 configOptions.config[MCS::MCS_PASSWORD] = responseValues[1]; //MCS Password
@@ -92,7 +92,7 @@ namespace MCS
         }
         else
         {
-            LOGERROR("Error during registration" << response.status);
+            LOGERROR("Error during registration: " << response.status);
         }
         return false;
     }

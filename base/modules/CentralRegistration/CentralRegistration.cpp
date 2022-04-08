@@ -133,9 +133,10 @@ namespace CentralRegistrationImpl
 
         for(auto& product : bodyAsJson["products"])
         {
-            if(product["supported"].empty())
+            // First check protects against nullptr access
+            if(!product["supported"].empty() && !product["supported"].get<bool>())
             {
-                LOGWARN("Unsupported product chosen for preregistration: " << product);
+                LOGWARN("Unsupported product chosen for preregistration: " << product["product"]);
             }
         }
 
