@@ -76,7 +76,7 @@
         </command>
         <command mode="coverage">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --bullseye --release</args>
+            <args>./build.sh --clean --bullseye --release --no-unittests</args>
             <workingdir>.</workingdir>
         </command>
 
