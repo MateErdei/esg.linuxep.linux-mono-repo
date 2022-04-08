@@ -117,7 +117,7 @@ Threat detector is killed gracefully
     Start AV
     Wait until threat detector running
 
-    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /  stdout=${TESTTMP}/cli.log  stderr=STDOUT
+    ${cls_handle} =   Start Process  ${CLI_SCANNER_PATH}  /  -x /mnt/  stdout=${TESTTMP}/cli.log  stderr=STDOUT
     Register Cleanup  Remove File  ${TESTTMP}/cli.log
     Register Cleanup  Dump Log  ${TESTTMP}/cli.log
     Register Cleanup  Terminate Process  ${cls_handle}
@@ -170,7 +170,7 @@ Threat detector exits if it cannot acquire the susi update lock
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
 
     # Request a scan in order to load SUSI
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash -x /mnt/
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     ${lockfile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/var/susi_update.lock
@@ -192,12 +192,12 @@ Threat detector exits if it cannot acquire the susi update lock
 Threat Detector Logs Susi Version when applicable
     Dump and Reset Logs
     Start AV
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash -x /mnt/
     Sophos Threat Detector Log Contains With Offset  Initializing SUSI
     Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
     mark sophos threat detector log
 
-    ${rc2}   ${output2} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
+    ${rc2}   ${output2} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash -x /mnt/
     Sophos Threat Detector Log Contains With Offset  SUSI already initialised
     threat detector log should not contain with offset  SUSI Libraries loaded:
     mark sophos threat detector log
@@ -216,7 +216,7 @@ Threat Detector Doesnt Log Every Scan
     Remove File    ${SUSI_DEBUG_LOG_PATH}
     Start AV
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash -x /mnt/
     Sophos Threat Detector Log Contains With Offset  Initializing SUSI
     check log does not contain   Starting scan of    ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
     check log does not contain   Finished scanning   ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
