@@ -579,3 +579,30 @@ def is_ubuntu():
 def get_uid_from_username(username):
     return pwd.getpwnam(username).pw_uid
 
+def get_gcc_version_from_lib(lib_path) -> str:
+    result = subprocess.run(["strings", lib_path], stdout=subprocess.PIPE)
+    output = result.stdout.decode('utf-8')
+    lines = output.split("\n")
+    for line in lines:
+        if "GCC: (GNU)" in line:
+            return line
+    return "unknown"
+
+def check_libs_for_consistent_gcc_version(directory):
+    libs = []
+    for lib in os.listdir(directory):
+        if lib.endswith(".so"):
+            if lib in ["libstdc++.so", "libgcc_s.so", ""]:
+                logger.info(f"Skipping: {lib}")
+                continue
+            lib_path = os.path.join(directory, lib)
+            lib_info = {"name": lib, "path": lib_path, "gcc_version": get_gcc_version_from_lib(lib_path)}
+            libs.append(lib_info)
+    gcc_versions = []
+    for lib in libs:
+        if lib['gcc_version'] not in gcc_versions:
+            gcc_versions.append(lib['gcc_version'])
+        logger.info(f"{lib['name']} - {lib['gcc_version']}")
+    logger.info(f"All versions detected: {gcc_versions}")
+    if len(gcc_versions) != 1:
+        raise AssertionError( "Multiple GCC versions found across product libs")

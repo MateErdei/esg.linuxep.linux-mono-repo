@@ -311,6 +311,10 @@ Installer Copies Install Options File
     ${contents} =  Get File  ${ETC_DIR}/install_options
     Should Contain  ${contents}  --thing
 
+All Installed Libs Are Built With A Consistent GCC Version
+    Run Full Installer
+    check_libs_for_consistent_gcc_version  ${SOPHOS_INSTALL}/base/lib64/
+
 *** Keywords ***
 
 Check Installer Running
