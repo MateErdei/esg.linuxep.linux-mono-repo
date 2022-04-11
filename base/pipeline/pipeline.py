@@ -239,9 +239,9 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                     base_build = build_debug(stage, component)
                 elif mode == COVERAGE_MODE:
                     base_build = build_coverage(stage, component)
-                    build_release(stage, component)
-                    build_999(stage, component)
-                    build_060(stage, component)
+                    # build_release(stage, component)
+                    # build_999(stage, component)
+                    # build_060(stage, component)
             else:
                 # For "tap ls" to work the default path through here with no params etc. must be to run all builds,
                 # else only the default build path, which used to be release will be listed.
