@@ -105,9 +105,9 @@ class TargetSystem:
         distro_check_files = ['/etc/lsb-release',
                               '/etc/issue',
                               '/etc/centos-release',
+                              '/etc/oracle-release',
                               '/etc/redhat-release',
                               '/etc/system-release',
-                              '/etc/oracle-release',
                               '/etc/miraclelinux-release']
         for distro_file in distro_check_files:
             distro_identified = self._check_distro_file(distro_file)
