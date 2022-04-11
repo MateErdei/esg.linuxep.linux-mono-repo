@@ -29,7 +29,9 @@ DISTRIBUTION_NAME_MAP = {
     'redhat': 'redhat',
     'ubuntu': 'ubuntu',
     'centos': 'centos',
-    'amazonlinux': 'amazon'
+    'amazonlinux': 'amazon',
+    'oracle': 'oracle',
+    'miracle': 'miracle'
 }
 
 #-----------------------------------------------------------------------------
@@ -104,7 +106,9 @@ class TargetSystem:
                               '/etc/issue',
                               '/etc/centos-release',
                               '/etc/redhat-release',
-                              '/etc/system-release']
+                              '/etc/system-release',
+                              '/etc/oracle-release',
+                              '/etc/miraclelinux-release']
         for distro_file in distro_check_files:
             distro_identified = self._check_distro_file(distro_file)
             if distro_identified:
