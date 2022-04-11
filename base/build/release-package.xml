@@ -5,56 +5,125 @@
     </versioning>
     <inputs>
         <workingdir>.</workingdir>
-        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/openssllinux11/1-1-1l-1/222963/output/openssl.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/versig/2-0-0-92/222980/output/versig.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/curllinux11/7-78-0-3/222970/output/curl.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/boostlinux11/1-77-0-1/222969/output/boost.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/expatlinux11/2-4-1-1/222964/output/expat.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/protobuflinux11/3-17-3-1/222971/output/protobuf.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/zeromqlinux11/4-3-4-9/222030/output/zeromq.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/log4cpluslinux11/2-0-5-19/220731/output/log4cplus.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/zliblinux11/1-2-11-4/219630/output/zlib.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/python-watchdog/2-0-2-3/222028/watchdog/python-watchdog.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/python-pathtools/0-1-1-9/216281/pathtools/python-pathtools.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/pycryptodomelinux11/3-9-8-3/221638/pycryptodome/pycryptodome.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/python-certifi/2020-12-5-1/222027/certifi/python-certifi.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/python-urllib3/1-25-8-13/218622/urllib3/python-urllib3.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/python-six/1-14-0-14/218620/six/python-six.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/python-requests/2-22-0-10/218619/requests/python-requests.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/python-idna/3-1-0-3/222032/idna/python-idna.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/python-chardet/3-0-4-3/218617/chardet/python-chardet.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/python-sseclient/0-0-23-19/218716/sseclient/python-sseclient.tar" dest-dir="/build/input/"/>
+        <build-asset project="linuxep" repo="sul">
+            <release-version branch="release/2022-15" build-id="20220405084457-b85262fdd979a3ff100ab7805a13ff3b8888fd37-3J82Gf"/>
+            <development-version branch="develop"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="linuxep" repo="versig">
+            <release-version branch="release/Version_2_0_0" build-id="20220317112535-fba49acf7b84878fd63a3a870c341a3689f204cd-uhjl6E"/>
+            <development-version branch="master"/>
+            <include artifact-path="output" dest-dir="/build/input/"/>
+        </build-asset>
+
+        <build-asset project="thirdparty" repo="boost">
+            <release-version branch="release/sspl/Version_1_78_0" build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="cmake">
+<!--            <release-version branch="release/sophos/v3.22.1" build-id="20220311114259-a491d14ee4cafa886ea85aa4ce6858d9ce163c2d-YRz6uO"/>-->
+            <development-version branch="feature/statically-link-libs"/>
+            <include artifact-path="cmake" dest-dir="/build/input/cmake"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="curl">
+            <release-version branch="release/sspl/Version_7_78_0" build-id="20220401134148-8df63f1cccb9b0bd6847a895a085d0e3f4842ed4-dkLoWq"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="cpython">
+            <release-version branch="release/sspl/Version_3_9_7" build-id="20220401134218-2e55c5ab89820a152bacc267a00a80612ebf49c1-iad2u0"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="gcc">
+            <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="gsl">
+            <release-version branch="release/sophos" build-id="20200911164143-1923fa9a9b1636f552266b4c9082714d04d869e6-tbYSwR"/>
+            <include artifact-path="include" dest-dir="/build/redist/gsl/include"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="libexpat">
+            <release-version branch="release/sspl/Version_2_4_1" build-id="20220310142121-420df4f6d41e969e47ca0944ab289e8ec5c844d6-PpWwDQ"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="libzmq">
+            <release-version branch="release/sspl/Version_4_3_4" build-id="20220310142454-6680251ccb165f18f672e5bfad0df9041fb1e431-JsvEqi"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="log4cplus">
+            <release-version branch="release/sspl/Version_2_0_7" build-id="20220310142847-3a4bb813dfdcbf28d538394d253449fbb7c78bad-rAcfZX"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
         <build-asset project="thirdparty" repo="minizip">
             <release-version branch="release/linux-3.0.2" build-id="20210622151109-45729c01a79b678f7a29cf76cf770128ef856e2e-7mmYMo"/>
             <development-version branch="sophos/linux-sspl-master"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="cpython">
-            <release-version branch="release/sspl/Version_3_9_7" build-id="20220328123042-9fb6a63b1dafe3fcf39ebc630803f2afc3581f63-OYAQTE"/>
+        <build-asset project="thirdparty" repo="openssl">
+            <release-version branch="release/sspl/Version_1_1_1n" build-id="20220401105035-fa22fd953fa7997cf90dbf895e1ece2de4a008c5-z53ZhW"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="linuxep" repo="sul">
-            <release-version branch="release/2022-15" build-id="20220323111247-0d5a4f591e598f1e6b1553114b4c285892e57a74-iQoV0s"/>
-<!--        TODO - LINUXDAR-4086 remove specific build ID from development version until changes to work with gcc 11.2 sul are made -->
-            <development-version branch="develop" build-id="20220323095503-0d5a4f591e598f1e6b1553114b4c285892e57a74-p8cKwp"/>
+        <build-asset project="thirdparty" repo="protobuf">
+            <release-version branch="release/sspl/Version_3_17_3" build-id="20220310143632-66a638734ca9de06319cfc97fdd27ac200fdec15-yMZBAU"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="gsl">
-            <release-version branch="release/sophos" build-id="20200911164143-1923fa9a9b1636f552266b4c9082714d04d869e6-tbYSwR" />
-            <include artifact-path="include" dest-dir="/build/redist/gsl/include" />
+        <build-asset project="thirdparty" repo="pycryptodome">
+            <release-version branch="release/Version_3_9_8" build-id="20220310111719-b1f9b17dd884a897e221c5ecd87cb515efadfb5f-UukkwD"/>
+            <include artifact-path="pycryptodome" dest-dir="/build/input"/>
         </build-asset>
+        <build-asset project="thirdparty" repo="python-certifi">
+            <release-version branch="release/Version_2020_12_5" build-id="20220310111821-c30b09255d22f716b5034e888a7f13d13a904fcc-BF2ez4"/>
+            <include artifact-path="certifi" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="python-chardet">
+            <release-version branch="release/Version_3_0_4" build-id="20220310111909-5908be3d4e5f7667dc59ef3d5e8868b18def4a3c-0rWlwQ"/>
+            <include artifact-path="chardet" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="python-idna">
+            <release-version branch="release/Version_3_1_0" build-id="20220310111949-96d731bc5a96490d0a5654fadaf7a7ca1b510314-WutaRR"/>
+            <include artifact-path="idna" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="python-pathtools">
+            <release-version branch="release/Version_0_1_1" build-id="20220310112041-d6506d5a54d7ab64109248a0014834583d1277ae-Bogokc"/>
+            <include artifact-path="pathtools" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="python-requests">
+            <release-version branch="release/Version_2_22_0" build-id="20220310112124-29baed4970a3bcb078732c61dfab3ab26974a938-iAqj9C"/>
+            <include artifact-path="requests" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="python-six">
+            <release-version branch="release/Version_1_14_0" build-id="20220324133918-e2d7f2ac3ba7a14df4ca67e03c3b80a9285985ca-nQUDUk"/>
+            <include artifact-path="six" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="python-sseclient">
+            <release-version branch="release/Version_0_0_23" build-id="20220310112258-ce1aad0abf4fff20e419fb9cd231912bd07cedba-j05GgO"/>
+            <include artifact-path="sseclient" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="python-urllib3">
+            <release-version branch="release/Version_1_25_8" build-id="20220310112334-44f8cd596d6fa095c0a5cb0b10ce68eb94061d17-A0J6oW"/>
+            <include artifact-path="urllib3" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="python-watchdog">
+            <release-version branch="release/Version_2_0_2" build-id="20220310112409-132ecf9b8ced1f937cbb2a7ad73d171a167fe2bf-A6aX2E"/>
+            <include artifact-path="watchdog" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="zlib">
+            <release-version branch="release/sspl/Version_1_2_11" build-id="20220310143426-7a27b6dcf50b30fe14028c01094ace032326c1ad-17fQbX"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+
+        <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="/build/input/"/>
+        <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
+
         <build-asset project="em" repo="esg">
-            <release-version branch="release/sophlib" build-id="20220317101821-f49104c32d4518f48bc037a6cf34f114a713625b-V68BTJ" />
-<!--          <development-version branch="develop" />-->
-          <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib" />
-          <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64" />
+            <release-version branch="release/sophlib" build-id="20220331091219-7e68d4a817ddb3cdd7d84b1594b2d9addf0986df-X4hqu2"/>
+            <development-version branch="develop"/>
+            <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib"/>
+            <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64"/>
         </build-asset>
+
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/2022.12-linux-sdds3" build-id="20220317141042-a3e83d45ba43d323fba107ac04f562dd9f2ac6e9-DRKMiD"/>
+            <release-version branch="release/2022.15-linux-sdds3" build-id="20220331140049-c17460d0c68bd361a6efcb3ca3c71860266dc827-jlMH5V"/>
+            <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
