@@ -31,6 +31,8 @@ class CentralRegistrationTests : public LogInitializedTests
     MCS::ConfigOptions addProxyToConfigOptions(MCS::ConfigOptions configOptions)
     {
         configOptions.config[MCS::MCS_PROXY] = "MCS_Proxy";
+        configOptions.config[MCS::MCS_PROXY_USERNAME] = "MCS_Proxy_Username";
+        configOptions.config[MCS::MCS_PROXY_PASSWORD] = "MCS_Proxy_Password";
         return configOptions;
     }
 
@@ -53,8 +55,29 @@ class CentralRegistrationTests : public LogInitializedTests
     }
 
     std::string basicXmlStatus{"XML content"};
+    std::string registerUrlSuffix{"/register"};
+    std::string preregisterUrlSuffix{"/install/deployment-info/2"};
 
-    Common::HttpRequests::Response basicRegistrationResponseSuccess()
+    Common::HttpRequests::RequestConfig createRequestFromConfigOptions(MCS::ConfigOptions configOptions, std::string urlSuffix, std::string statusXml)
+    {
+        Common::HttpRequests::Headers headers = {
+            {"User-Agent", "Sophos MCS Client/" + configOptions.config[MCS::MCS_PRODUCT_VERSION] + " Linux sessions "+ configOptions.config[MCS::MCS_TOKEN]},
+            {"Authorization", "Basic " + Common::ObfuscationImpl::Base64::Encode(configOptions.config[MCS::MCS_ID] + ":" + configOptions.config[MCS::MCS_PASSWORD] + ":" + configOptions.config[MCS::MCS_TOKEN])},
+            {"Content-Type","application/xml; charset=utf-8"}
+        };
+        Common::HttpRequests::RequestConfig request{ .url = configOptions.config[MCS::MCS_URL] + urlSuffix, .headers = headers, .data = statusXml, .certPath = configOptions.config[MCS::MCS_CERT]};
+        return request;
+    }
+
+    Common::HttpRequests::RequestConfig addProxyDetailsToRequestFromConfig(Common::HttpRequests::RequestConfig request, MCS::ConfigOptions configOptions)
+    {
+        request.proxy = configOptions.config[MCS::MCS_PROXY];
+        request.proxyUsername = configOptions.config[MCS::MCS_PROXY_USERNAME];
+        request.proxyPassword = configOptions.config[MCS::MCS_PROXY_PASSWORD];
+        return request;
+    }
+
+        Common::HttpRequests::Response basicRegistrationResponseSuccess()
     {
         Common::HttpRequests::Response response;
         response.status = 200;
@@ -97,7 +120,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationSucceeds) // NOLINT
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_)).WillOnce(Return(basicRegistrationResponseSuccess()));
+    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, registerUrlSuffix, basicXmlStatus))).WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
     centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
@@ -115,7 +138,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationFails) // NOLINT
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_)).WillOnce(Return(basicRegistrationResponseFailure()));
+    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, registerUrlSuffix, basicXmlStatus))).WillOnce(Return(basicRegistrationResponseFailure()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
     centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
@@ -134,7 +157,14 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxySucceeds) // NOLINT
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_)).WillOnce(Return(basicRegistrationResponseSuccess()));
+    EXPECT_CALL(*mockHttpRequester, post(
+                                        addProxyDetailsToRequestFromConfig(
+                                            createRequestFromConfigOptions(
+                                                configOptions,
+                                                registerUrlSuffix,
+                                                basicXmlStatus),
+                                            configOptions)))
+        .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
     centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);

@@ -124,17 +124,17 @@ namespace CentralRegistrationImpl
     {
         LOGDEBUG("\nPreregistrationBody:\n" << preregistrationBody << "\n\n");
         auto bodyAsJson = nlohmann::json::parse(preregistrationBody);
-        std::string deploymentRegistrationToken = bodyAsJson["registrationToken"];
+        std::string deploymentRegistrationToken = bodyAsJson.value("registrationToken", "");
         if(deploymentRegistrationToken.empty())
         {
             LOGERROR("No MCS Token returned from Central - Preregistration request failed");
             return "";
         }
 
-        for(auto& product : bodyAsJson["products"])
+        nlohmann::basic_json products = bodyAsJson.value("products", nlohmann::json::array({}));
+        for(auto& product : products)
         {
-            // First check protects against nullptr access
-            if(!product["supported"].empty() && !product["supported"].get<bool>())
+            if(!product.value("supported", false))
             {
                 LOGWARN("Unsupported product chosen for preregistration: " << product["product"]);
             }
