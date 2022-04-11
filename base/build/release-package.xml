@@ -10,7 +10,6 @@
         <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/versig/2-0-0-92/222980/output/versig.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/curllinux11/7-78-0-3/222970/output/curl.tar" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/sullinux11/1-0-0-76/222976/output/SUL.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/boostlinux11/1-77-0-1/222969/output/boost.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/expatlinux11/2-4-1-1/222964/output/expat.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/protobuflinux11/3-17-3-1/222971/output/protobuf.tar" dest-dir="/build/input/"/>
@@ -18,7 +17,6 @@
         <trusted-asset artifact-path="filer5-migrate/log4cpluslinux11/2-0-5-19/220731/output/log4cplus.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/zliblinux11/1-2-11-4/219630/output/zlib.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
-        <trusted-asset artifact-path="filer5-migrate/pythonlinux11/3-9-7-1/222972/output/python.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/python-watchdog/2-0-2-3/222028/watchdog/python-watchdog.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/python-pathtools/0-1-1-9/216281/pathtools/python-pathtools.tar" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/pycryptodomelinux11/3-9-8-3/221638/pycryptodome/pycryptodome.tar" dest-dir="/build/input/"/>
@@ -35,9 +33,29 @@
             <development-version branch="sophos/linux-sspl-master"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
+        <build-asset project="thirdparty" repo="cpython">
+            <release-version branch="release/sspl/Version_3_9_7" build-id="20220328123042-9fb6a63b1dafe3fcf39ebc630803f2afc3581f63-OYAQTE"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="linuxep" repo="sul">
+            <release-version branch="release/2022-15" build-id="20220323111247-0d5a4f591e598f1e6b1553114b4c285892e57a74-iQoV0s"/>
+<!--        TODO - LINUXDAR-4086 remove specific build ID from development version until changes to work with gcc 11.2 sul are made -->
+            <development-version branch="develop" build-id="20220323095503-0d5a4f591e598f1e6b1553114b4c285892e57a74-p8cKwp"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="gsl">
+            <release-version branch="release/sophos" build-id="20200911164143-1923fa9a9b1636f552266b4c9082714d04d869e6-tbYSwR" />
+            <include artifact-path="include" dest-dir="/build/redist/gsl/include" />
+        </build-asset>
+        <build-asset project="em" repo="esg">
+            <release-version branch="release/sophlib" build-id="20220317101821-f49104c32d4518f48bc037a6cf34f114a713625b-V68BTJ" />
+<!--          <development-version branch="develop" />-->
+          <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib" />
+          <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64" />
+        </build-asset>
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/WINEP-2022.06" build-id="20220128115031-a862cc637baabe31c7c0807ca7b4836ed21d7bf1-YQAQrA"/>
-            <development-version branch="develop"/>
+            <release-version branch="release/2022.12-linux-sdds3" build-id="20220317141042-a3e83d45ba43d323fba107ac04f562dd9f2ac6e9-DRKMiD"/>
+            <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
     </inputs>
@@ -102,54 +120,58 @@
             <args>./build.sh --clean --060 --no-unittest --release</args>
             <workingdir>.</workingdir>
         </command>
-
-<!--        &lt;!&ndash;<command buildtype="dev">-->
-<!--            <program>/bin/bash</program>-->
-<!--            <args>./build.sh - -clean - -debug</args> 'when put back remove space between hyphens'-->
-<!--            <workingdir>sspl-base-build</workingdir>-->
-<!--        </command> &ndash;&gt;-->
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
-        <!-- Release -->
-        <release-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
-        <release-asset artifact-path="sspl-base/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
 
-        <build-asset artifact-path="sspl-base/openssl" source-dir="/build/redist/openssl" mode="release"/>
-        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">
-            <include glob="pluginapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base/system_test" source-dir="output" mode="release">
-            <include glob="SystemProductTestOutput.tar.gz"/>
-            <include glob="symbols"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="release"/>
 
-        <!-- coverage(bullseye) -->
-        <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/openssl" source-dir="/build/redist/openssl" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/pluginapi" source-dir="output" mode="coverage">
-            <include glob="pluginapi.tar.gz"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-coverage/system_test" source-dir="output" mode="coverage">
-            <include glob="SystemProductTestOutput.tar.gz"/>
-            <include glob="symbols"/>
-        </build-asset>
-        <build-asset artifact-path="sspl-base-coverage/build_log" source-dir="log" mode="coverage"/>
+        <build-asset artifact-path="sspl-base-coverage" source-dir="output" mode="coverage"/>
 
-        <build-asset artifact-path="sspl-base-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-base-unittest" mode="coverage"/>
-        <build-asset artifact-path="sspl-base-coverage/covfile" source-dir="output/" mode="coverage">
-            <include glob="./*.cov"/>
-        </build-asset>
+<!--        &lt;!&ndash; Release &ndash;&gt;-->
+<!--        <release-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>-->
+<!--        <release-asset artifact-path="sspl-base/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>-->
 
-        <!-- Analysis -->
-        <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>
-        <build-asset artifact-path="sspl-base/analysis_build_log" source-dir="log" mode="analysis"/>
+<!--        <build-asset artifact-path="sspl-base/openssl" source-dir="/build/redist/openssl" mode="release"/>-->
+<!--        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">-->
+<!--            <include glob="pluginapi.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base/mcs" source-dir="output" mode="release">-->
+<!--            <include glob="mcs.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base/system_test" source-dir="output" mode="release">-->
+<!--            <include glob="SystemProductTestOutput.tar.gz"/>-->
+<!--            <include glob="symbols"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="release"/>-->
 
-        <!-- 999 -->
-        <release-asset artifact-path="sspl-base-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
-        <!-- 060 -->
-        <release-asset artifact-path="sspl-base-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060"/>
+<!--        &lt;!&ndash; coverage(bullseye) &ndash;&gt;-->
+<!--        <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/openssl" source-dir="/build/redist/openssl" mode="coverage"/>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/pluginapi" source-dir="output" mode="coverage">-->
+<!--            <include glob="pluginapi.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/mcs" source-dir="output" mode="coverage">-->
+<!--            <include glob="mcs.tar.gz"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/system_test" source-dir="output" mode="coverage">-->
+<!--            <include glob="SystemProductTestOutput.tar.gz"/>-->
+<!--            <include glob="symbols"/>-->
+<!--        </build-asset>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/build_log" source-dir="log" mode="coverage"/>-->
+
+<!--        <build-asset artifact-path="sspl-base-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-base-unittest" mode="coverage"/>-->
+<!--        <build-asset artifact-path="sspl-base-coverage/covfile" source-dir="output/" mode="coverage">-->
+<!--            <include glob="./*.cov"/>-->
+<!--        </build-asset>-->
+
+<!--        &lt;!&ndash; Analysis &ndash;&gt;-->
+<!--        <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>-->
+<!--        <build-asset artifact-path="sspl-base/analysis_build_log" source-dir="log" mode="analysis"/>-->
+
+<!--        &lt;!&ndash; 999 &ndash;&gt;-->
+<!--        <release-asset artifact-path="sspl-base-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>-->
+<!--        &lt;!&ndash; 060 &ndash;&gt;-->
+<!--        <release-asset artifact-path="sspl-base-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060"/>-->
 
         <publishbranches>master,feature,release,develop,bugfix</publishbranches>
     </publish>
