@@ -9,6 +9,11 @@ SET( MutatorPath ${CMAKE_SOURCE_DIR}/thirdparty/output )
 SET( MutatorInclude ${MutatorPath}/include )
 SET( MutatorLibs ${MutatorPath}/lib/libprotobuf-mutator-libfuzzer.a ${MutatorPath}/lib/libprotobuf-mutator.a  )
 
+SET(LIBCXX_LIB_PATH /build/redist/gcc/lib64)
+
+set(CMAKE_EXE_LINKER_FLAGS "\
+                    ${CMAKE_EXE_LINKER_FLAGS} -v  \
+                    -L ${LIBCXX_LIB_PATH}")
 
 add_library(fuzzer-proto
         FuzzerUtils.h

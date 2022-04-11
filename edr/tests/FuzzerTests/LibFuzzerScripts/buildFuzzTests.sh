@@ -26,6 +26,19 @@ source "$BASE"/build-files/common.sh
 REDIST=/build/redist
 INPUT=/build/input
 
+GCC_TARFILE=$(ls $INPUT/gcc-*-linux.tar.gz)
+if [[ -d /build/input/gcc && -f $GCC_TARFILE ]]
+then
+  pushd $REDIST
+  tar xzf $GCC_TARFILE
+  popd
+fi
+
+export LD_LIBRARY_PATH="$REDIST/gcc/lib64/:${LD_LIBRARY_PATH}"
+export PATH="$REDIST/gcc/bin:${PATH}"
+export LIBRARY_PATH=$REDIST/gcc/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
+export CPLUS_INCLUDE_PATH=$REDIST/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
+
 CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
 if [[ -f "$CMAKE_TAR" ]]
 then
@@ -64,8 +77,8 @@ pushd libprotobuf-mutator
     -DCMAKE_INSTALL_PREFIX=${PROJECT_ROOT_SOURCE}/thirdparty/output \
     -DLIB_PROTO_MUTATOR_TESTING=OFF \
     -DINPUT=/build/redist
-  make -j4
-  make install
+  make -j4  || exitFailure 4 "Failed to build libprotobuf-mutator"
+  make install || exitFailure  5 "Failed to build libprotobuf-mutator"
 popd # libprotobuf-mutator
 
 popd # thirdparty
