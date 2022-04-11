@@ -209,8 +209,12 @@ class TeardownTools(object):
                 if file.startswith("core-"):
                     is_core_dump = True
                     file_path = os.path.join("/tmp", file)
-                    self.copy_to_filer6(file_path, testname)
-                    os.remove(file_path)
+                    try:
+                        self.copy_to_filer6(file_path, testname)
+                    except Exception as ex:
+                        logger.info(f"failed to copy {file_path} to filer6: {ex}")
+                    finally:
+                        os.remove(file_path)
             if is_core_dump:
                 raise AssertionError("Core dump found")
         else:
