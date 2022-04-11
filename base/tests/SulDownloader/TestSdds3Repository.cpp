@@ -66,7 +66,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSo
     EXPECT_CALL(sdds3Wrapper, getPackages(_,_,_)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_,_)).Times(1);
 
-    repository.generateProductListFromSdds3PackageInfo();
+    repository.generateProductListFromSdds3PackageInfo("line1");
     auto products = repository.getProducts();
 
     EXPECT_EQ(products[0].getLine(), "line1");
@@ -134,12 +134,39 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsAl
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
 
-    repository.generateProductListFromSdds3PackageInfo();
+    repository.generateProductListFromSdds3PackageInfo("line1");
     auto products = repository.getProducts();
 
     EXPECT_EQ(products[0].getLine(), "line1");
     EXPECT_TRUE(products[0].productHasChanged());
     EXPECT_EQ(products[1].getLine(), "line2");
+    EXPECT_TRUE(products[1].productHasChanged());
+}
+
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsPrimaryComponentFirst) // NOLINT
+{
+    SDDS3Repository repository;
+    auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
+
+    sdds3::PackageRef package1;
+    package1.lineId_ = "line1";
+    sdds3::PackageRef package2;
+    package2.lineId_ = "line2_primary";
+
+    std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
+    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
+    EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
+    EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
+    EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
+
+    // The rigid name passed in is used in a contains check, to ensure that works passing in the first part of the
+    // rigid name expected to be at the top of the list when returned.
+    repository.generateProductListFromSdds3PackageInfo("line2");
+    auto products = repository.getProducts();
+
+    EXPECT_EQ(products[0].getLine(), "line2_primary");
+    EXPECT_TRUE(products[0].productHasChanged());
+    EXPECT_EQ(products[1].getLine(), "line1");
     EXPECT_TRUE(products[1].productHasChanged());
 }
 
@@ -159,7 +186,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsNo
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
 
-    repository.generateProductListFromSdds3PackageInfo();
+    repository.generateProductListFromSdds3PackageInfo("line1");
     auto products = repository.getProducts();
 
     EXPECT_EQ(products[0].getLine(), "line1");
@@ -198,7 +225,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSu
     configurationData.setProductsSubscription(productSubscriptions);
     repository.tryConnect(connectionSetup,true, configurationData);
 
-    repository.generateProductListFromSdds3PackageInfo();
+    repository.generateProductListFromSdds3PackageInfo("line1");
     auto products = repository.getProducts();
 
     EXPECT_EQ(products[0].getLine(), "line1");

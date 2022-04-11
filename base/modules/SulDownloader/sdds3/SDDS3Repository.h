@@ -53,8 +53,12 @@ namespace SulDownloader
         void synchronize(const suldownloaderdata::ConfigurationData& configurationData) override;
         void distribute() override;
 
-        void generateProductListFromSdds3PackageInfo();
-        void checkForMissingPackages(const std::vector<suldownloaderdata::ProductSubscription>& subscriptions,const std::set<std::string>& suites);
+        /***
+         * Updates the m_product 'vector' using the primaryRigidName value to determine
+         * Which product should be first in th list.
+         * @param primaryRigidName obtained from configuration data.
+         */
+        void generateProductListFromSdds3PackageInfo(const std::string& primaryRigidName);
 
     private:
         void setupSdds3LibLogger();

@@ -329,7 +329,7 @@ namespace SulDownloader
         }
         if(!hasError())
         {
-            generateProductListFromSdds3PackageInfo();
+            generateProductListFromSdds3PackageInfo(configurationData.getPrimarySubscription().rigidName());
         }
     }
 
@@ -357,7 +357,7 @@ namespace SulDownloader
         }
     }
 
-    void SDDS3Repository::generateProductListFromSdds3PackageInfo()
+    void SDDS3Repository::generateProductListFromSdds3PackageInfo(const std::string& primaryRigidName)
     {
 
         std::string configFilePathString =
@@ -451,8 +451,18 @@ namespace SulDownloader
                         Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository(),
                         package.lineId_));
 
-            m_products.push_back(product);
+            // ensure that the primary product is the first in the list,
+            // so that primary product always being installed first.
+            if(product.getLine().find(primaryRigidName) != std::string::npos)
+            {
+                m_products.insert(m_products.begin(), product);
+            }
+            else
+            {
+                m_products.push_back(product);
+            }
         }
+
     }
 
     void SDDS3Repository::distribute()
