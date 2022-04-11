@@ -71,6 +71,18 @@ class TestTargetSystem(unittest.TestCase):
         target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
         self.assertEqual('amazon', target_system.vendor())
 
+    @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
+    @mock.patch('builtins.open', new_callable=mock_open, read_data="Oracle Linux Server release")
+    def test_os_version_retrieves_oracle_vendor(self, *mockargs):
+        target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
+        self.assertEqual('oracle', target_system.vendor())
+
+    @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
+    @mock.patch('builtins.open', new_callable=mock_open, read_data="MIRACLE LINUX release")
+    def test_os_version_retrieves_miracle_linux_vendor(self, *mockargs):
+        target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
+        self.assertEqual('miracle', target_system.vendor())
+
 
 
     @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
