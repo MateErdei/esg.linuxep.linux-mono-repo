@@ -295,6 +295,22 @@ function copy_sophlib()
   echo "sophlib synced to $REDIST/sophlib"
 }
 
+function setup_cmake()
+{
+    if [[ -f "$FETCHED_INPUTS_DIR/cmake/bin/cmake" ]]
+    then
+        if [[ ! -d $REDIST/cmake ]]
+        then
+            ln -sf $FETCHED_INPUTS_DIR/cmake $REDIST/cmake
+        fi
+    else
+        echo "ERROR - cmake not found here: $FETCHED_INPUTS_DIR/cmake/bin/cmake"
+        exit 1
+    fi
+    chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
+    chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
+    echo "cmake synced to $REDIST/cmake"
+}
 
 unpack_tars
 unpack_gzipped_tars
@@ -303,5 +319,6 @@ copy_google_test
 copy_certs
 copy_sdds3builder
 copy_sophlib
+setup_cmake
 
 echo "Finished unpacking"
