@@ -33,7 +33,6 @@ namespace Common
             [[nodiscard]] std::string getIp6Address() const override;
             [[nodiscard]] std::vector<std::string> getIp6Addresses() const override;
             [[nodiscard]] std::string getCloudPlatformMetadata(Common::HttpRequests::IHttpRequester* client) const override;
-            void setProxyConfig(std::map<std::string, std::string>& proxyConfig) override;
             [[nodiscard]] std::vector<std::string> getMacAddresses() const override;
 
         private:
@@ -48,12 +47,12 @@ namespace Common
             [[nodiscard]] std::string getOracleMetadata(Common::HttpRequests::IHttpRequester* client) const;
             [[nodiscard]] std::string getAzureMetadata(Common::HttpRequests::IHttpRequester* client) const;
             [[nodiscard]] Common::HttpRequests::RequestConfig buildCloudMetadataRequest(std::string url, Common::HttpRequests::Headers headers) const;
+            [[nodiscard]] bool curlResponseIsOk200(Common::HttpRequests::Response& response) const;
 
             std::string m_vendor;
             std::string m_osName;
             std::string m_osMajorVersion;
             std::string m_osMinorVersion;
-            std::map<std::string, std::string> m_proxyConfig;
         };
 
     } // namespace OSUtilitiesImpl

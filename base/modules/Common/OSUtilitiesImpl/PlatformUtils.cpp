@@ -241,33 +241,16 @@ namespace Common
             Common::HttpRequests::Headers initialHeaders({{"X-aws-ec2-metadata-token-ttl-seconds", "21600"}});
 
             Common::HttpRequests::Response response = client->put(buildCloudMetadataRequest(initialUrl, initialHeaders));
-            if (response.errorCode == HttpRequests::OK)
+            if (!curlResponseIsOk200(response))
             {
-                if(response.status != 200)
-                {
-                    return "";
-                }
-                return "";
-            }
-            else
-            {
-                // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
 
             std::string secondUrl = "http://169.254.169.254/latest/dynamic/instance-identity/document";
             Common::HttpRequests::Headers secondHeaders({{"X-aws-ec2-metadata-token", response.body}});
             response = client->put(buildCloudMetadataRequest(secondUrl, secondHeaders));
-            if (response.errorCode == HttpRequests::OK)
+            if (!curlResponseIsOk200(response))
             {
-                if(response.status != 200)
-                {
-                    return "";
-                }
-            }
-            else
-            {
-                // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
 
@@ -288,48 +271,24 @@ namespace Common
 
             std::string idUrl = "http://metadata.google.internal/computeMetadata/v1/instance/id";
             Common::HttpRequests::Response response = client->put(buildCloudMetadataRequest(idUrl, headers));
-            if (response.errorCode == HttpRequests::OK)
+            if (!curlResponseIsOk200(response))
             {
-                if(response.status != 200)
-                {
-                    return "";
-                }
-            }
-            else
-            {
-                // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
             std::string id = response.body;
 
             std::string zoneUrl = "http://metadata.google.internal/computeMetadata/v1/instance/zone";
             response = client->put(buildCloudMetadataRequest(zoneUrl, headers));
-            if (response.errorCode == HttpRequests::OK)
+            if (!curlResponseIsOk200(response))
             {
-                if(response.status != 200)
-                {
-                    return "";
-                }
-            }
-            else
-            {
-                // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
             std::string zone = response.body;
 
             std::string hostnameUrl = "http://metadata.google.internal/computeMetadata/v1/instance/hostname";
             response = client->put(buildCloudMetadataRequest(hostnameUrl, headers));
-            if (response.errorCode == HttpRequests::OK)
+            if (!curlResponseIsOk200(response))
             {
-                if(response.status != 200)
-                {
-                    return "";
-                }
-            }
-            else
-            {
-                // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
             std::string hostname = response.body;
@@ -349,16 +308,8 @@ namespace Common
             std::string url = "http://169.254.169.254/opc/v2/instance/";
             Common::HttpRequests::Headers headers({{"Authorization", "Bearer Oracle"}});
             Common::HttpRequests::Response response = client->put(buildCloudMetadataRequest(url, headers));
-            if (response.errorCode == HttpRequests::OK)
+            if (!curlResponseIsOk200(response))
             {
-                if(response.status != 200)
-                {
-                    return "";
-                }
-            }
-            else
-            {
-                // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
 
@@ -382,16 +333,8 @@ namespace Common
             std::string initialUrl = "http://169.254.169.254/metadata/versions";
             Common::HttpRequests::Headers headers({{"Metadata", "True"}}); // uncertain about this True
             Common::HttpRequests::Response response = client->put(buildCloudMetadataRequest(initialUrl, headers));
-            if (response.errorCode == HttpRequests::OK)
+            if (!curlResponseIsOk200(response))
             {
-                if(response.status != 200)
-                {
-                    return "";
-                }
-            }
-            else
-            {
-                // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
 
@@ -400,16 +343,8 @@ namespace Common
 
             std::string secondUrl = "http://169.254.169.254/metadata/instance?api-version=" + latestAzureApiVersion;
             response = client->put(buildCloudMetadataRequest(secondUrl, headers));
-            if (response.errorCode == HttpRequests::OK)
+            if (!curlResponseIsOk200(response))
             {
-                if(response.status != 200)
-                {
-                    return "";
-                }
-            }
-            else
-            {
-                // Error with Curl gets us here, log what went wrong with response.error
                 return "";
             }
 
@@ -425,22 +360,30 @@ namespace Common
             return result.str();
         }
 
-        void PlatformUtils::setProxyConfig(std::map<std::string, std::string>& proxyConfig)
-        {
-            m_proxyConfig = proxyConfig;
-        }
-
         Common::HttpRequests::RequestConfig PlatformUtils::buildCloudMetadataRequest(std::string url, Common::HttpRequests::Headers headers) const
         {
             Common::HttpRequests::RequestConfig request;
-            auto proxyConfig = m_proxyConfig;
-            request.proxy = proxyConfig["proxy"];
-            request.proxyUsername = proxyConfig["proxyUsername"];
-            request.proxyPassword = proxyConfig["proxyPassword"];
             request.url = url;
             request.headers = headers;
             request.timeout = 1L;
             return request;
+        }
+
+        bool PlatformUtils::curlResponseIsOk200(Common::HttpRequests::Response& response) const
+        {
+            if (response.errorCode == HttpRequests::OK)
+            {
+                if(response.status != 200)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                // Error with Curl gets us here, log what went wrong with response.error
+                return false;
+            }
+            return true;
         }
     }
 }
