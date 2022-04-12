@@ -747,79 +747,79 @@ TEST_F( // NOLINT
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
-
-TEST_F( // NOLINT
-    SULDownloaderTest,
-    main_entry_onSuccessCreatesReportContainingExpectedUninstallFailedResult)
-{
-    auto& fileSystemMock = setupFileSystemAndGetMock();
-    MockWarehouseRepository& mock = repositoryMocked();
-
-    auto products = defaultProducts();
-    products[0].setProductHasChanged(false);
-    products[1].setProductHasChanged(false);
-
-    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
-    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
-    EXPECT_CALL(mock, synchronize(_));
-    EXPECT_CALL(mock, distribute());
-    EXPECT_CALL(mock, purge());
-    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
-    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
-    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
-    EXPECT_CALL(mock, getSourceURL());
-    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-    EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("productRemove1"));
-
-    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
-
-    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/productRemove1.ini")).WillOnce(Return(false));
-
-    TimeTracker timeTracker;
-    timeTracker.setStartTime(std::time_t(0));
-    timeTracker.setFinishedTime(std::time_t(0));
-    DownloadReport downloadReport =
-        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
-    std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
-    std::string previousReportFilename = "update_report-previous.json";
-    std::vector<std::string> previousReportFileList = { previousReportFilename };
-    std::vector<std::string> emptyFileList;
-
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
-    EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
-    EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
-
-    EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
-    EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
-    EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
-
-    setupExpectanceWriteAtomically(
-        fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED),false);
-
-    std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
-    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
-    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
-    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(fileListOfProductsToRemove));
-
-    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
-        auto mockProcess = new StrictMock<MockProcess>();
-        EXPECT_CALL(*mockProcess, exec(HasSubstr("productRemove1"), _, _)).Times(1);
-        EXPECT_CALL(*mockProcess, output()).WillOnce(Return("uninstalling product"));
-        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
-        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-    });
-
-    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
-
-    EXPECT_EQ(
-        SulDownloader::main_entry(3, args.argc()), SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED);
-}
+//
+//TEST_F( // NOLINT
+//    SULDownloaderTest,
+//    main_entry_onSuccessCreatesReportContainingExpectedUninstallFailedResult)
+//{
+//    auto& fileSystemMock = setupFileSystemAndGetMock();
+//    MockWarehouseRepository& mock = repositoryMocked();
+//
+//    auto products = defaultProducts();
+//    products[0].setProductHasChanged(false);
+//    products[1].setProductHasChanged(false);
+//
+//    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
+//    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+//    EXPECT_CALL(mock, synchronize(_));
+//    EXPECT_CALL(mock, distribute());
+//    EXPECT_CALL(mock, purge());
+//    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+//    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+//    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+//    EXPECT_CALL(mock, getSourceURL());
+//    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+//    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+//    EXPECT_CALL(mock, getProductDistributionPath(isProduct("productRemove1"))).WillOnce(Return("productRemove1"));
+//
+//    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+//
+//    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/productRemove1.ini")).WillOnce(Return(false));
+//
+//    TimeTracker timeTracker;
+//    timeTracker.setStartTime(std::time_t(0));
+//    timeTracker.setFinishedTime(std::time_t(0));
+//    DownloadReport downloadReport =
+//        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+//    std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
+//    std::string previousReportFilename = "update_report-previous.json";
+//    std::vector<std::string> previousReportFileList = { previousReportFilename };
+//    std::vector<std::string> emptyFileList;
+//
+//    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
+//    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+//    EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+//    EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
+//    EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
+//    EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
+//    EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
+//
+//    EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
+//    EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
+//    EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
+//
+//    setupExpectanceWriteAtomically(
+//        fileSystemMock,
+//        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED),false);
+//
+//    std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
+//    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
+//    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+//    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(fileListOfProductsToRemove));
+//
+//    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
+//        auto mockProcess = new StrictMock<MockProcess>();
+//        EXPECT_CALL(*mockProcess, exec(HasSubstr("productRemove1"), _, _)).Times(1);
+//        EXPECT_CALL(*mockProcess, output()).WillOnce(Return("uninstalling product"));
+//        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
+//        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+//    });
+//
+//    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
+//
+//    EXPECT_EQ(
+//        SulDownloader::main_entry(3, args.argc()), SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED);
+//}
 
 // the other execution paths were covered in main_entry_* tests.
 TEST_F( // NOLINT
