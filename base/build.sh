@@ -9,11 +9,12 @@ FAILURE_INPUT_NOT_AVAILABLE=50
 FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 FAILURE_BULLSEYE=52
 FAILURE_BAD_ARGUMENT=53
+BUILD_TOOLS_NOT_SETUP=54
 FAILURE_COPY_CPPCHECK_RESULT_FAILED=61
 FAILURE_CPPCHECK=62
 
-set -x
 set -e
+#set -x
 set -o pipefail
 
 STARTINGDIR=$(pwd)
@@ -174,9 +175,17 @@ then
   echo "Detected that this is a CI build"
   CLEAN=1
   TEST_NPROC=1
+  set -x
 else
   echo "Detected that this is a non-CI (local) build"
 fi
+
+# Handle the case where someone may have wiped redist and inputs dir and not re-run the setup script.
+if [[ ! -x "${CXX}" ]]
+then
+    exitFailure $BUILD_TOOLS_NOT_SETUP "Compiler not found CXX:[$CXX]. $CXX should be setup by running setup_build_tools.sh"
+fi
+
 
 function cppcheck_build()
 {
@@ -336,8 +345,6 @@ function build()
       cp -a ${COVFILE}  output   || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
     fi
     echo "Build completed"
-
-
 }
 
 build 2>&1 | tee -a "$LOG"

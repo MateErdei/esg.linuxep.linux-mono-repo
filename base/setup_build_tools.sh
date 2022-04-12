@@ -180,33 +180,21 @@ echo "---"
 
 
 # CMAKE
-# input/cmake-3.11.2-linux.tar.gz
-CMAKE_TARFILE=$(ls $FETCHED_INPUTS_DIR/cmake-*.tar.gz)
-CMAKE_TARFILE_HASH=$(md5sum "$CMAKE_TARFILE" | cut -d ' ' -f 1)
 CMAKE_DIR="$BUILD_TOOLS_DIR/cmake"
-
-function unpack_cmake()
-{
-  mkdir "$CMAKE_DIR"
-#  tar -xzf "$CMAKE_TARFILE" -C "$CMAKE_DIR"
-  tar -xzf "$CMAKE_TARFILE" -C "$BUILD_TOOLS_DIR"
-  touch "$CMAKE_DIR/$CMAKE_TARFILE_HASH"
-}
-
-if [[ -d "$CMAKE_DIR" ]]
+if [[ -f "$FETCHED_INPUTS_DIR/cmake/bin/cmake" ]]
 then
-  if [[ -f "$CMAKE_DIR/$CMAKE_TARFILE_HASH" ]]
-  then
-    echo "Already unpacked cmake"
-  else
-    echo "Removing old cmake build tools"
-    rm -rf "$CMAKE_DIR"
-    unpack_cmake
-  fi
+    if [[ ! -d $REDIST/cmake ]]
+    then
+        ln -sf $FETCHED_INPUTS_DIR/cmake $REDIST/cmake
+    fi
 else
-   unpack_cmake
+    echo "ERROR - cmake not found here: $FETCHED_INPUTS_DIR/cmake/bin/cmake"
+    exit 1
 fi
+chmod 700 "$CMAKE_DIR/bin/cmake" || exitFailure "Unable to chmod cmake"
+chmod 700 "$CMAKE_DIR/bin/ctest" || exitFailure "Unable to chmod ctest"
 echo "---"
+echo "cmake synced to $REDIST/cmake"
 "$CMAKE_DIR/bin/cmake" --version
 
 
@@ -216,9 +204,9 @@ echo "---"
 install_package make
 MAKE_DIR="$BUILD_TOOLS_DIR/make"
 mkdir -p "$MAKE_DIR"
-which make
+which make &> /dev/null
 pushd "$MAKE_DIR"
-ln -fs "$(which make)" "make"
+  ln -fs "$(which make)" "make"
 popd
 echo "---"
 "$MAKE_DIR/make" --version
@@ -269,12 +257,5 @@ echo "b) run ./build.sh"
 echo "c) cmdline 'source setup_env_vars.sh' and then: "
 echo "    mkdir cmake-build-debug && cd cmake-build-debug"
 echo "    cmake .. && make install"
-
-# TODO For SSPL only dev machines this may be ok but might break other things?
-# [[ -f /etc/profile.d/setup_env_vars.sh ]] || sudo ln -s "$BASEDIR/setup_env_vars.sh" /etc/profile.d/setup_env_vars.sh
-#source ./setup_env_vars.sh?
-
-#echo "Please reboot build machine to apply env changes or source $BASEDIR/setup_env_vars.sh"
-
 
 #TODO try using build-tools-package.xml only
