@@ -70,10 +70,10 @@ install(FILES ${VERSIG_INPUT}/bin64/versig
 
 # libasan and libubsan are only used during debug builds and needed for unit tests to run but we do not want to add
 # them to the shipped third party library list, so create a separate list of build time only libs
-execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libasan.so.5
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libasan.so
         OUTPUT_VARIABLE libasan_path)
 string(STRIP "${libasan_path}" libasan_path)
-execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libubsan.so.1
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh libubsan.so
         OUTPUT_VARIABLE libubsan_path)
 string(STRIP "${libubsan_path}" libubsan_path )
 set(build_time_only_libs ${libasan_path} ${libubsan_path})
