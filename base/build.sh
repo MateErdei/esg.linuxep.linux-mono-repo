@@ -306,10 +306,14 @@ function build()
             --parallel ${TEST_NPROC} \
             --test-action test \
             --no-compress-output --output-on-failure \
-            --timeout 1000 \
+            --timeout 300 \
             || {
               local EXITCODE=$?
               echo "Unit tests failed with $EXITCODE"
+              if [[ "$EXITCODE" == "124" ]]
+              then
+                  echo "Unit tests timed out"
+              fi
               cat Testing/Temporary/LastTest.log || true
               cat /tmp/unitTest.log || true
               exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
