@@ -41,3 +41,9 @@ fi
 source "$BASEDIR"/tap_venv/bin/activate
 tap fetch sspl_base.build.release
 deactivate
+
+if [[ "$CLEAN" == "1" ]]
+then
+    bold=$(tput bold)
+    echo -e "\n${bold}*** You will need to re-run setup_build_tools.sh because the build tools have been removed. ***"
+fi

@@ -293,7 +293,6 @@ function build()
     [[ -n ${NPROC:-} ]] || { which nproc > /dev/null 2>&1 && NPROC=$((`nproc`)); } || NPROC=2
     (( $NPROC < 1 )) && NPROC=1
     cmake -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" \
-          -G "Unix Makefiles" \
           -DNO_GCOV="true" \
           "$BASE" \
           || exitFailure 14 "Failed to configure $PRODUCT"

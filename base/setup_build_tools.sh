@@ -87,35 +87,39 @@ install_package $PYTHON_TO_USE-venv
 
 if [ -d "$TAP_VENV" ]
 then
- echo "$TAP_VENV already exists, not re-creating it"
- source "$TAP_VENV/bin/activate"
-else
-  $PYTHON_TO_USE -m venv "$TAP_VENV"
-  pushd "$TAP_VENV"
-    echo "[global]" > pip.conf
-    echo "index-url = https://artifactory.sophos-ops.com/api/pypi/pypi/simple" >> pip.conf
-    echo "trusted-host = artifactory.sophos-ops.com" >> pip.conf
-  popd
-  # Within TAP python venv just use "python3"
-  source "$TAP_VENV/bin/activate"
-    echo "Using python:"
-    which python
+    echo "$TAP_VENV already exists, not re-creating it"
+    source "$TAP_VENV/bin/activate"
+    echo "Updating pip and tap:"
     python3 -m pip install pip --upgrade
-    python3 -m pip install wheel
-    ##python3 -m pip install build_scripts
-    python3 -m pip install keyrings.alt
-    python3 -m pip install tap
+    python3 -m pip install tap --upgrade
+else
+    $PYTHON_TO_USE -m venv "$TAP_VENV"
+    pushd "$TAP_VENV"
+        echo "[global]" > pip.conf
+        echo "index-url = https://artifactory.sophos-ops.com/api/pypi/pypi/simple" >> pip.conf
+        echo "trusted-host = artifactory.sophos-ops.com" >> pip.conf
+    popd
+
+    # Within TAP python venv just use "python3"
+    source "$TAP_VENV/bin/activate"
+        echo "Using python:"
+        which python
+        python3 -m pip install pip --upgrade
+        python3 -m pip install wheel
+        ##python3 -m pip install build_scripts
+        python3 -m pip install keyrings.alt
+        python3 -m pip install tap
 fi
 
 # TODO - raise ticket to get this dependency removed - Not sure why tap needs this, seems to never be used and is always empty.
 TAP_CACHE="/SophosPackages"
 if [ -d "$TAP_CACHE" ]
 then
-  echo "TAP cache dir already exists: $TAP_CACHE"
+    echo "TAP cache dir already exists: $TAP_CACHE"
 else
-  echo "Creating TAP cache dir: $TAP_CACHE"
-  sudo mkdir "$TAP_CACHE"
-  sudo chown "$USER" "$TAP_CACHE"
+    echo "Creating TAP cache dir: $TAP_CACHE"
+    sudo mkdir "$TAP_CACHE"
+    sudo chown "$USER" "$TAP_CACHE"
 fi
 
 # Temporary - When in monorepo we will not need to do this and have it in / and created by root, we'll be able to have
@@ -123,11 +127,11 @@ fi
 #ROOT_LEVEL_BUILD_DIR="/build"
 if [ -d "$ROOT_LEVEL_BUILD_DIR" ]
 then
-  echo "Root level dir already exists: $ROOT_LEVEL_BUILD_DIR"
+    echo "Root level dir already exists: $ROOT_LEVEL_BUILD_DIR"
 else
-  echo "Creating Root level dir: $ROOT_LEVEL_BUILD_DIR"
-  sudo mkdir "$ROOT_LEVEL_BUILD_DIR"
-  sudo chown "$USER" "$ROOT_LEVEL_BUILD_DIR"
+    echo "Creating Root level dir: $ROOT_LEVEL_BUILD_DIR"
+    sudo mkdir "$ROOT_LEVEL_BUILD_DIR"
+    sudo chown "$USER" "$ROOT_LEVEL_BUILD_DIR"
 fi
 
 tap --version
@@ -140,8 +144,8 @@ deactivate
 #FETCHED_INPUTS_DIR="$ROOT_LEVEL_BUILD_DIR/input"
 if [[ ! -d "$FETCHED_INPUTS_DIR" ]]
 then
-  echo "$FETCHED_INPUTS_DIR does not exist"
-  exit 1
+    echo "$FETCHED_INPUTS_DIR does not exist"
+    exit 1
 fi
 
 [[ -d "$BUILD_TOOLS_DIR" ]] || mkdir -p "$BUILD_TOOLS_DIR"
@@ -154,24 +158,23 @@ GCC_DIR="$BUILD_TOOLS_DIR/gcc"
 
 function unpack_gcc()
 {
-  mkdir "$GCC_DIR"
-#  tar -xzf "$GCC_TARFILE" -C "$GCC_DIR"
-  tar -xzf "$GCC_TARFILE" -C "$BUILD_TOOLS_DIR"
-  touch "$GCC_DIR/$GCC_TARFILE_HASH"
+    mkdir "$GCC_DIR"
+    tar -xzf "$GCC_TARFILE" -C "$BUILD_TOOLS_DIR"
+    touch "$GCC_DIR/$GCC_TARFILE_HASH"
 }
 
 if [[ -d "$GCC_DIR" ]]
 then
-  if [[ -f "$GCC_DIR/$GCC_TARFILE_HASH" ]]
-  then
-    echo "Already unpacked GCC"
-  else
-    echo "Removing old GCC build tools"
-    rm -rf "$GCC_DIR"
-    unpack_gcc
-  fi
+    if [[ -f "$GCC_DIR/$GCC_TARFILE_HASH" ]]
+    then
+        echo "Already unpacked GCC"
+    else
+        echo "Removing old GCC build tools"
+        rm -rf "$GCC_DIR"
+        unpack_gcc
+    fi
 else
-   unpack_gcc
+    unpack_gcc
 fi
 echo "---"
 "$GCC_DIR/bin/gcc" --version

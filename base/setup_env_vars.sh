@@ -10,14 +10,16 @@ export FETCHED_INPUTS_DIR="$ROOT_LEVEL_BUILD_DIR/input"
 export DEBUG_BUILD_DIR="cmake-build-debug"
 export RELEASE_BUILD_DIR="cmake-build-release"
 
-
-
-# Run this to set environment settings to build SSPL
 export   CC=$BUILD_TOOLS_DIR/gcc/bin/gcc
 export  CXX=$BUILD_TOOLS_DIR/gcc/bin/g++
 export PATH=$BUILD_TOOLS_DIR/gcc/bin:$PATH
 export PATH=$BUILD_TOOLS_DIR/cmake/bin:$PATH
 # TODO 'make' and 'as' when not installed via pkg manager
+
+# Cmake can use different generators, modern CLion uses ninja and not makefiles. By default CMake uses
+# unix makefiles. This means there is a clash when generating the build files, CLion generates ninja build files
+# and build.sh will generate unix makefiles, so for now we'll just force everything to use makefiles.
+export CMAKE_GENERATOR="Unix Makefiles"
 
 export LIBRARY_PATH=$BUILD_TOOLS_DIR/gcc/lib64:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
 #export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$BUILD_TOOLS_DIR/gcc/lib64:${LIBRARY_PATH}
