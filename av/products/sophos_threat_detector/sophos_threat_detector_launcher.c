@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
     char *envp[] =
             {
-                    "LD_LIBRARY_PATH=/opt/sophos-spl/plugins/av/chroot/susi/distribution_version",
+                    "LD_LIBRARY_PATH=/opt/sophos-spl/plugins/av/chroot/susi/distribution_version:/opt/sophos-spl/plugins/av/lib64",
                     0
             };
 

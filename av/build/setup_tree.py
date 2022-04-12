@@ -284,7 +284,6 @@ def main(argv):
     UPDATER_DIR = os.path.join(UPDATE_CACHE_DIR, "libupdater")
 
     copy_from_input("susi/lib/libsusicore.so*", SUSICORE_DIR)
-    copy_from_input("susi/lib/liblocalrep.so*", SUSICORE_DIR)
 
     ## libupdater
     copy_from_input("susi/lib/libupdater.so*", UPDATER_DIR)

@@ -26,8 +26,9 @@ add_library(threat_scanner SHARED
         ThrowIfNotOk.h )
 
 find_library(SUSI_LIB NAMES susi PATHS ${SUSIPATH})
-
+find_library(UPDATER_LIB NAMES updater PATHS ${SUSIPATH})
 get_filename_component(ABS_SUSI_LIB ${SUSI_LIB} REALPATH)
+get_filename_component(ABS_UPDATER_LIB ${UPDATER_LIB} REALPATH)
 
 target_link_libraries(threat_scanner PUBLIC
         common
@@ -50,7 +51,7 @@ SET_TARGET_PROPERTIES(threat_scanner
         INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64"
         )
 
-install(FILES ${ABS_SUSI_LIB}
+install(FILES ${ABS_SUSI_LIB} ${ABS_UPDATER_LIB}
         DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
 set(SUSI_INSTALL_DIR files/plugins/${PLUGIN_NAME}/chroot/susi)

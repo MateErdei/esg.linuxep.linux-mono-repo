@@ -63,10 +63,10 @@
         <trusted-asset artifact-path="filer5-migrate/model-linux-x64/1-3/212025/oempackage/linux-x64-model-gcc4.8.1.tar" dest-dir="input/susi_input/mllib"/>
 
         <build-asset project="ec" repo="susi">
-            <release-version branch="release/1.4" build-id="20210802114022-7db456a1204f886509d4006545064d9ce5c8e60a-ozb5UA"/>
-            <include artifact-path="release/centos7/libsusi" dest-dir="input/susi_input/susi/lib" />
-            <include artifact-path="release/centos7/updater" dest-dir="input/susi_input/susi/lib" />
-            <include artifact-path="release/centos7/interface" dest-dir="input/susi_input/susi/include" />
+            <release-version branch="feature--sspl-preview" build-id="20220411135215-75f0f7fa3a9b134afb3cbccc132431f0914c7992-8phGcU"/>
+            <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib" />
+            <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib" />
+            <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include" />
             <include artifact-path="release/rules" dest-dir="input/susi_input/rules" />
         </build-asset>
 

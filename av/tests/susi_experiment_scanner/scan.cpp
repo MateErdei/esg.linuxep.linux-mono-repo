@@ -34,6 +34,7 @@ static SusiCertTrustType isTrustedCert(void *token, SusiHashAlg algorithm, const
     return SUSI_TRUSTED;
 }
 
+
 static bool isAllowlistedCert(void *token, const char *fileTopLevelCert, size_t size)
 {
     (void)token;
@@ -45,10 +46,21 @@ static bool isAllowlistedCert(void *token, const char *fileTopLevelCert, size_t 
     return false;
 }
 
+static bool IsBlocklistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
+{
+    (void)token;
+    (void)algorithm;
+    (void)fileChecksum;
+    (void)size;
+    P("IsBlocklistedFile: " << fileChecksum);
+    return false;
+}
+
 static SusiCallbackTable my_susi_callbacks{
         .version = SUSI_CALLBACK_TABLE_VERSION,
         .token = nullptr, //NOLINT
         .IsAllowlistedFile = isAllowlistedFile,
+        .IsBlocklistedFile = IsBlocklistedFile,
         .IsTrustedCert = isTrustedCert,
         .IsAllowlistedCert = isAllowlistedCert
 };

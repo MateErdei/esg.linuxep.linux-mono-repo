@@ -35,12 +35,25 @@ namespace threat_scanner
             return false;
         }
 
-        SusiCallbackTable my_susi_callbacks {
+        bool IsBlocklistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
+        {
+            (void)token;
+            (void)algorithm;
+            (void)fileChecksum;
+            (void)size;
+
+            LOGDEBUG("IsBlocklistedFile: size=" << size);
+
+            return false;
+        }
+
+        static SusiCallbackTable my_susi_callbacks{
             .version = SUSI_CALLBACK_TABLE_VERSION,
-            .token = nullptr,
+            .token = nullptr, //NOLINT
             .IsAllowlistedFile = isAllowlistedFile,
-            .IsTrustedCert = threat_scanner::isTrustedCert,
-            .IsAllowlistedCert = threat_scanner::isAllowlistedCert
+            .IsBlocklistedFile = IsBlocklistedFile,
+            .IsTrustedCert = isTrustedCert,
+            .IsAllowlistedCert = isAllowlistedCert
         };
 
         SusiLogCallback GL_log_callback {
