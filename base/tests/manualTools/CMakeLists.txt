@@ -33,7 +33,8 @@ target_include_directories(JailBreakerTest PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${PRO
 target_include_directories(RunHttpRequest PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
 target_include_directories(UseCommsComponent PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
 target_include_directories(EventPubSub PUBLIC ${PROJECT_SOURCE_DIR})
-target_include_directories(SDDS3DownloaderTest PUBLIC ${SOPHLIB_INCLUDE_DIR} ${SDDS3LIB_INPUT} ${CURL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/thirdparty/nlohmann-json)
+target_include_directories(SDDS3DownloaderTest PUBLIC ${SOPHLIB_INCLUDE_DIR} ${SDDS3LIB_INPUT} ${CURL_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/thirdparty/nlohmann-json ${GSL_INCLUDE})
+target_compile_options(SDDS3DownloaderTest PUBLIC -Wno-unused-value -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-stringop-overflow)
 
 target_link_libraries(LoggerLimit logging)
 target_link_libraries(FaultInjectionLogger logging)
@@ -50,7 +51,7 @@ target_link_libraries(SDDS3DownloaderTest
         ${SOPHLIB_LIBRARIES}
         ${OPENSSL_LIBRARY}
         ${OPENSSL_CRYPTO_LIBRARY}
-        # TODO find ticket for removing this:
+        # TODO find ticket for removing and fixing this:
         -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-stringop-overflow
         )
 
