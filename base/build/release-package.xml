@@ -109,16 +109,6 @@
             <release-version branch="release/sspl/Version_1_2_11" build-id="20220310143426-7a27b6dcf50b30fe14028c01094ace032326c1ad-17fQbX"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-
-
-<!--             <build-asset project="thirdparty" repo="googletest">-->
-<!--            <release-version branch="release/sspl/Version_1_11_0" build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>-->
-<!--            <include artifact-path="thirdparty/googletest/gmock-headers" dest-dir="input/googletest/gmock-headers"/>-->
-<!--            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="input/googletest/gmock-libs"/>-->
-<!--            <include artifact-path="thirdparty/googletest/gtest-headers" dest-dir="input/googletest/gtest-headers"/>-->
-<!--            <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="input/googletest/gtest-libs"/>-->
-<!--        </build-asset>-->
-
         <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
 
@@ -137,8 +127,6 @@
         </build-asset>
     </inputs>
     <buildcommands>
-        <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
-        <!--<command  buildtype="prod"> -->
 
         <!-- Release build -->
         <command mode="release">
@@ -164,6 +152,7 @@
             <workingdir>.</workingdir>
         </command>
 
+        <!-- Coverage build -->
         <command mode="coverage">
             <program>/bin/bash</program>
             <args>./unpack_build_inputs.sh</args>
@@ -175,6 +164,7 @@
             <workingdir>.</workingdir>
         </command>
 
+        <!-- Static analysis build -->
         <command mode="analysis">
             <program>/bin/bash</program>
             <args>./unpack_build_inputs.sh</args>
@@ -186,6 +176,7 @@
             <workingdir>.</workingdir>
         </command>
 
+        <!-- 999 version Build-->
         <command mode="999">
             <program>/bin/bash</program>
             <args>./unpack_build_inputs.sh</args>
@@ -197,6 +188,7 @@
             <workingdir>.</workingdir>
         </command>
 
+        <!-- 060 version Build-->
         <command mode="060">
             <program>/bin/bash</program>
             <args>./unpack_build_inputs.sh</args>
