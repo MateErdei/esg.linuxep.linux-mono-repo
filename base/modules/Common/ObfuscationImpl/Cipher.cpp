@@ -166,7 +166,6 @@ namespace Common
             int len = -1;
             evpCipherWrapper.DecryptUpdate(
                 plaintextbuffer.data(), &len, (const unsigned char*)cipherText.data(), cipherText.size());
-//            assert(len >= 0);
 
             int plaintext_len = len;
 
