@@ -8,14 +8,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
-#include <Common/OSUtilitiesImpl/LocalIPImpl.h>
 #include <Common/OSUtilitiesImpl/PlatformUtils.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/XmlUtilities/Validation.h>
 
 #include <iostream>
-#include <sstream>
 
 namespace MCS
 {
@@ -30,22 +28,22 @@ namespace MCS
     std::string AgentAdapter::getStatusXml(std::map<std::string, std::string>& configOptions) const
     {
         std::stringstream statusXml;
-        statusXml << getStatusHeader()
+        statusXml << getStatusHeader(configOptions)
                   << getCommonStatusXml(configOptions)
-                  << getCloudPlatformsStatus(configOptions)
+                  << getCloudPlatformsStatus()
                   << getPlatformStatus()
                   << getStatusFooter();
         return statusXml.str();
     }
 
-    std::string AgentAdapter::getStatusHeader() const
+    std::string AgentAdapter::getStatusHeader(std::map<std::string, std::string>& configOptions) const
     {
         std::stringstream header;
         header << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
                << "<ns:computerStatus xmlns:ns=\"http://www.sophos.com/xml/mcs/computerstatus\">"
                << "<meta protocolVersion=\"1.0\" timestamp=\""
-               << Common::UtilityImpl::TimeUtils::MessageTimeStamp(std::chrono::system_clock::now()) << "\" softwareVersion=\""
-               << getSoftwareVersion() << "\" />";
+               << Common::UtilityImpl::TimeUtils::MessageTimeStamp(std::chrono::system_clock::now())
+               << "\" softwareVersion=\"" << getSoftwareVersion(configOptions) << "\" />";
         return header.str();
     }
 
@@ -71,7 +69,7 @@ namespace MCS
 
     std::string AgentAdapter::getOptionalStatusValues(std::map<std::string, std::string>& configOptions) const
     {
-        // For Groups, Products, and IP addrs
+        // For Groups, Products, and IP addresses
         std::stringstream optionals;
 
         std::string productsAsString = Common::UtilityImpl::StringUtils::replaceAll(configOptions["products"], " ", "");
@@ -133,13 +131,11 @@ namespace MCS
             macAddresses << "</macAddresses>";
             optionals << macAddresses.str();
         }
-
         return optionals.str();
     }
 
-    std::string AgentAdapter::getCloudPlatformsStatus(std::map<std::string, std::string>& configOptions) const
+    std::string AgentAdapter::getCloudPlatformsStatus() const
     {
-        m_platformUtils->setProxyConfig(configOptions);
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
         auto client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
         return m_platformUtils->getCloudPlatformMetadata(&client);
@@ -163,6 +159,9 @@ namespace MCS
 
     std::string AgentAdapter::getStatusFooter() const { return "</ns:computerStatus>"; }
 
-    std::string AgentAdapter::getSoftwareVersion() const { return "9.9.9.9"; }
+    std::string AgentAdapter::getSoftwareVersion(std::map<std::string, std::string>& configOptions) const
+    {   // function used for this in case we want to get the version number from somewhere else in the future
+        return configOptions[MCS::VERSION_NUMBER];
+    }
 
 }

@@ -24,4 +24,5 @@ namespace MCS
     const std::string MCS_CA_OVERRIDE("mcsCAOverride");
     const std::string MCS_PROXY("mcsProxy");
     const std::string MCS_CONNECTED_PROXY("mcsConnectedProxy");
+    const std::string VERSION_NUMBER("versionNumber");
 }

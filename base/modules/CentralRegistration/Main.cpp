@@ -102,6 +102,10 @@ namespace CentralRegistrationImpl
             {
                 messageRelaysAsString = args[++i];
             }
+            else if(currentArg == "--version")
+            {
+                configOptions[MCS::VERSION_NUMBER] = args[++i];
+            }
         }
 
         // default set of options, note these options are populated later after registration
