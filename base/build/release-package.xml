@@ -188,10 +188,20 @@
 
         <command mode="999">
             <program>/bin/bash</program>
+            <args>./unpack_build_inputs.sh</args>
+            <workingdir>.</workingdir>
+        </command>
+        <command mode="999">
+            <program>/bin/bash</program>
             <args>./build.sh --clean --999 --no-unittest --release</args>
             <workingdir>.</workingdir>
         </command>
 
+        <command mode="060">
+            <program>/bin/bash</program>
+            <args>./unpack_build_inputs.sh</args>
+            <workingdir>.</workingdir>
+        </command>
         <command mode="060">
             <program>/bin/bash</program>
             <args>./build.sh --clean --060 --no-unittest --release</args>
