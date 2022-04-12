@@ -38,19 +38,23 @@ namespace Common
         {
             const std::string lsbReleasePath = "/etc/lsb-release";
 
-            const std::array<std::string, 5> distroCheckFiles = {
+            const std::array<std::string, 7> distroCheckFiles = {
                 lsbReleasePath,
                 "/etc/issue",
                 "/etc/centos-release",
+                "/etc/oracle-release",
                 "/etc/redhat-release",
-                "/etc/system-release"
+                "/etc/system-release",
+                "/etc/miraclelinux-release"
             };
 
             std::map<std::string, std::string> distroNames = {
                 std::make_pair("redhat", "redhat"),
                 std::make_pair("ubuntu", "ubuntu"),
                 std::make_pair("centos", "centos"),
-                std::make_pair("amazonlinux", "amazon")
+                std::make_pair("amazonlinux", "amazon"),
+                std::make_pair("oracle", "oracle"),
+                std::make_pair("miracle", "miracle")
             };
             
             auto fs = FileSystem::fileSystem();
