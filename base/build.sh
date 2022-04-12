@@ -302,11 +302,11 @@ function build()
     if [[ "$UNIT_TESTS" == "1" ]]
     then
         [[ -n ${TEST_NPROC:-} ]] || TEST_NPROC=$NPROC
-        timeout 310s ctest \
+        timeout 610s ctest \
             --parallel ${TEST_NPROC} \
             --test-action test \
             --no-compress-output --output-on-failure \
-            --timeout 300 \
+            --timeout 600 \
             || {
               local EXITCODE=$?
               echo "Unit tests failed with $EXITCODE"
