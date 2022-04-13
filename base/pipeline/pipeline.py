@@ -118,10 +118,15 @@ def coverage_task(machine: tap.Machine, branch: str):
 
         # generate tap (tap tests + unit tests) coverage html results and upload to allegro (and the .cov file which is in tap_htmldir)
         tap_htmldir = os.path.join(INPUTS_DIR, 'sspl-base-taptest')
-        machine.run ('mkdir', tap_htmldir)
+        machine.run('mkdir', tap_htmldir)
         machine.run('cp', COVFILE_TAPTESTS, tap_htmldir)
+        upload_results = "0"
+        # Don't upload results to allegro unless we're on develop, can be overridden.
+        if branch == SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH:
+            upload_results = "1"
+
         machine.run('bash', '-x', UPLOAD_SCRIPT,
-                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': '1', 'htmldir': tap_htmldir})
+                    environment={'COVFILE': COVFILE_TAPTESTS, 'BULLSEYE_UPLOAD': upload_results, 'htmldir': tap_htmldir})
 
         # publish tap (tap tests + unit tests) html results and coverage file to artifactory
         machine.run('mv', tap_htmldir, coverage_results_dir)
