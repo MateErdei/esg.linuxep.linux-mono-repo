@@ -4,28 +4,59 @@
         <workingdir>sspl-thininstaller-build/AutoVersioningHeaders</workingdir>
     </versioning>
     <inputs>
-        <workingdir>sspl-thininstaller-build</workingdir>
-        <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/openssllinux11/1-1-1l-1/222963/output/openssl.tar" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/cmakelinux/3-11-2-4/213056/cmakelinux/cmake-3.11.2-linux.tar.gz" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/versig/2-0-0-92/222980/output/versig.tar" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/curllinux11/7-78-0-3/222970/output/curl.tar" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/sullinux11/1-0-0-76/222976/output/SUL.tar" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/boostlinux11/1-77-0-1/222969/output/boost.tar" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/expatlinux11/2-4-1-1/222964/output/expat.tar" dest-dir="input/."/>
-        <trusted-asset artifact-path="filer5-migrate/zliblinux11/1-2-11-4/219630/output/zlib.tar" dest-dir="input/."/>
+        <workingdir>.</workingdir>
+        <build-asset project="linuxep" repo="sul">
+            <release-version branch="release/2022-15" build-id="20220405084457-b85262fdd979a3ff100ab7805a13ff3b8888fd37-3J82Gf"/>
+            <development-version branch="develop"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="linuxep" repo="versig">
+            <release-version branch="release/Version_2_0_0" build-id="20220317112535-fba49acf7b84878fd63a3a870c341a3689f204cd-uhjl6E"/>
+            <development-version branch="master"/>
+            <include artifact-path="output" dest-dir="/build/input/"/>
+        </build-asset>
 
-        <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="input/update_certs/."/>
+        <build-asset project="thirdparty" repo="boost">
+            <release-version branch="release/sspl/Version_1_78_0" build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="cmake">
+            <release-version branch="release/sophos/v3.22.1" build-id="20220412085321-29886e1a6f8ae2867207fa5c4873eaac5c6075a7-VxG3sr"/>
+            <include artifact-path="cmake" dest-dir="/build/input/cmake"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="curl">
+            <release-version branch="release/sspl/Version_7_78_0" build-id="20220401134148-8df63f1cccb9b0bd6847a895a085d0e3f4842ed4-dkLoWq"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="gcc">
+            <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="libexpat">
+            <release-version branch="release/sspl/Version_2_4_1" build-id="20220310142121-420df4f6d41e969e47ca0944ab289e8ec5c844d6-PpWwDQ"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="openssl">
+            <release-version branch="release/sspl/Version_1_1_1n" build-id="20220401105035-fa22fd953fa7997cf90dbf895e1ece2de4a008c5-z53ZhW"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+        <build-asset project="thirdparty" repo="zlib">
+            <release-version branch="release/sspl/Version_1_2_11" build-id="20220310143426-7a27b6dcf50b30fe14028c01094ace032326c1ad-17fQbX"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+
+        <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/update_certs/."/>
     </inputs>
 
     <buildcommands>
         <command>
-          <program>/bin/bash</program>
-          <args>./buildLinux.sh</args>
-          <workingdir>.</workingdir>
+            <workingdir>.</workingdir>
+            <program>/bin/bash</program>
+            <args>./buildLinux.sh</args>
         </command>
     </buildcommands>
     <publish>
+        <workingdir>.</workingdir>
         <release-asset artifact-path="output" source-dir="output" mode="release"/>
         <build-asset artifact-path="build_log" source-dir="log" mode="release,coverage"/>
     </publish>
