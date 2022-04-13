@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#source common_vars.sh
 export LINUX_ENV_SETUP=true
 export ROOT_LEVEL_BUILD_DIR="/build"
 export REDIST="$ROOT_LEVEL_BUILD_DIR/redist"
@@ -25,9 +24,6 @@ export LIBRARY_PATH=$BUILD_TOOLS_DIR/gcc/lib64:${LIBRARY_PATH}:/usr/lib/x86_64-l
 #export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$BUILD_TOOLS_DIR/gcc/lib64:${LIBRARY_PATH}
 export CPLUS_INCLUDE_PATH=$BUILD_TOOLS_DIR/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
 export CPATH=$BUILD_TOOLS_DIR/gcc/include/:${CPATH}
-
-#export ROOT_LEVEL_BUILD_DIR="/build"
-#export FETCHED_INPUTS_DIR="$ROOT_LEVEL_BUILD_DIR/input"
 
 # Make it obvious if someone hasn't sourced this file by changing the prompt to include SSPL
 export PS1="(SSPL)$PS1"
