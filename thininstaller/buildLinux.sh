@@ -35,7 +35,7 @@ do
     shift
 done
 
-INPUT=$BASE/input
+INPUT=/build/input
 
 if [[ ! -d "$INPUT" ]]
 then
@@ -96,11 +96,11 @@ function prepare_dependencies()
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib64
 
         # cmake
-        local CMAKE_TAR=$(ls $INPUT/cmake-*.tar.gz)
-        if [[ -f "$CMAKE_TAR" ]]
+        if [[ -f "$INPUT/cmake/bin/cmake" ]]
         then
-            tar xzf "$CMAKE_TAR" -C "$REDIST"
+            cp -r $INPUT/cmake $REDIST
             addpath "$REDIST/cmake/bin"
+            chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
         else
             echo "WARNING: using system cmake"
         fi
@@ -119,9 +119,7 @@ function prepare_dependencies()
           cp ${INPUT}/update_certs/ps_rootca.crt ./ps_rootca.crt
           cp ${INPUT}/update_certs/ps_rootca.crt ./rootca.crt
         else
-          # copy eng certs to expected location
-          cp ./eng_rootca.crt ./rootca.crt
-          cp ./eng_ps_rootca.crt ./ps_rootca.crt
+          exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Missing cert inputs"
         fi
     else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get dependencies"
@@ -147,7 +145,6 @@ function build()
         exit 0
     fi
 
-    ls -l ./redist
 
     rm -rf $BASE/output
     rm -rf $BASE/installer
@@ -159,7 +156,7 @@ function build()
     installer_dir=$BASE/installer
     output=$BASE/output
     pushd ${BASE}/build
-    cmake -v -DREDIST="${REDIST}" -DINSTALLERDIR="${installer_dir}" -DOUTPUT="${output}" ..
+    cmake -DREDIST="${REDIST}" -DINSTALLERDIR="${installer_dir}" -DOUTPUT="${output}" ..
     make || exitFailure 15 "Failed to build thininstaller"
     make copyInstaller || exitFailure $FAILED_TO_COPY_INSTALLED "Failed to copy installer"
     popd

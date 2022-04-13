@@ -11,7 +11,7 @@ def main(argv):
 
     filename = argv[1]
     file_info = FileInfo.FileInfo(".", filename)
-    print file_info.m_sha256
+    print(file_info.m_sha256)
 
 
 if __name__ == '__main__':
