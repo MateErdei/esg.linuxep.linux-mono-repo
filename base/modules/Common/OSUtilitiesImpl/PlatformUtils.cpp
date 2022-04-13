@@ -91,7 +91,9 @@ namespace Common
 
             if(fs->isFile(lsbReleasePath))
             {
-                m_osName = UtilityImpl::StringUtils::extractValueFromConfigFile(lsbReleasePath, "DISTRIB_DESCRIPTION");
+                m_osName = Common::UtilityImpl::StringUtils::replaceAll(
+                    UtilityImpl::StringUtils::extractValueFromConfigFile(lsbReleasePath, "DISTRIB_DESCRIPTION"),
+                    "\"", "");
                 std::string version = UtilityImpl::StringUtils::extractValueFromConfigFile(lsbReleasePath, "DISTRIB_RELEASE");
                 std::vector<std::string> majorAndMinor = UtilityImpl::StringUtils::splitString(version, ".");
                 if(majorAndMinor.size() >= 2)
@@ -128,8 +130,7 @@ namespace Common
 
         std::string PlatformUtils::getOsName() const
         {
-            std::string osName = Common::UtilityImpl::StringUtils::replaceAll(m_osName, "\"", "");
-            return osName;
+            return m_osName;
         }
 
         std::string PlatformUtils::getKernelVersion() const
@@ -211,13 +212,13 @@ namespace Common
         {
             std::string metadata;
             metadata = PlatformUtils::getAwsMetadata(client);
-            if(!metadata.empty()) return metadata;
+            if(!metadata.empty()) { return metadata; }
 
             metadata = PlatformUtils::getGcpMetadata(client);
-            if(!metadata.empty()) return metadata;
+            if(!metadata.empty()) { return metadata; }
 
             metadata = PlatformUtils::getOracleMetadata(client);
-            if(!metadata.empty()) return metadata;
+            if(!metadata.empty()) { return metadata; }
 
             metadata = PlatformUtils::getAzureMetadata(client);
             return metadata;
