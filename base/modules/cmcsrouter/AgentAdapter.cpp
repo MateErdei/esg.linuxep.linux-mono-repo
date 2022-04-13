@@ -82,12 +82,9 @@ namespace MCS
                 std::vector<std::string> products = Common::UtilityImpl::StringUtils::splitString(productsAsString, ",");
                 for(std::string product : products)
                 {
-                    if(!product.empty())
+                    if(!product.empty() && Common::XmlUtilities::Validation::isStringXmlValid(product))
                     {
-                        if(Common::XmlUtilities::Validation::isStringXmlValid(product))
-                        {
-                            productsToInstall << "<product>" << product << "</product>";
-                        }
+                        productsToInstall << "<product>" << product << "</product>";
                     }
                 }
             }
@@ -96,7 +93,7 @@ namespace MCS
         }
 
         std::string deviceGroupAsString = configOptions["centralGroup"];
-        if(!deviceGroupAsString.empty())
+        if(!deviceGroupAsString.empty() && Common::XmlUtilities::Validation::isStringXmlValid(deviceGroupAsString))
         {
             optionals << "<deviceGroup>" << deviceGroupAsString << "</deviceGroup>";
         }

@@ -30,11 +30,11 @@ namespace MCS
         if (!m_proxy.empty())
         {
             request.proxy = m_proxy;
-        }
-        if (!m_proxyUser.empty())
-        {
-            request.proxyUsername = m_proxyUser;
-            request.proxyPassword = m_proxyPassword;
+            if (!m_proxyUser.empty())
+            {
+                request.proxyUsername = m_proxyUser;
+                request.proxyPassword = m_proxyPassword;
+            }
         }
         if (!m_certPath.empty())
         {
@@ -58,16 +58,15 @@ namespace MCS
             requestHeaders.insert({head.first,head.second});
         }
 
-
         Common::HttpRequests::RequestConfig request{ .url = m_base_url + url ,.headers = requestHeaders};
         if (!m_proxy.empty())
         {
             request.proxy = m_proxy;
-        }
-        if (!m_proxyUser.empty())
-        {
-            request.proxyUsername = m_proxyUser;
-            request.proxyPassword = m_proxyPassword;
+            if (!m_proxyUser.empty())
+            {
+                request.proxyUsername = m_proxyUser;
+                request.proxyPassword = m_proxyPassword;
+            }
         }
 
         if (!m_certPath.empty())

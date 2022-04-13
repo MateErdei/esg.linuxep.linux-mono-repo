@@ -59,13 +59,6 @@ namespace CentralRegistrationImpl
 
     MCS::ConfigOptions processCommandLineOptions(const std::vector<std::string>& args, std::shared_ptr<OSUtilities::ISystemUtils> systemUtils)
     {
-        //        parser.add_argument("--deregister",dest="deregister",action="store_true",default=False)
-//        parser.add_argument("--reregister",dest="reregister",action="store_true",default=False)
-//        parser.add_argument("--messagerelay",dest="messagerelay",action="store",default=None)
-//        parser.add_argument("--proxycredentials",dest="proxycredentials",action="store",default=None)
-//        parser.add_argument("--central-group",dest="central_group",action="store",default=None)
-//        parser.add_argument("--customer-token",dest="customer_token",action="store",default=None)
-//        parser.add_argument("--products",dest="selected_products",action="store",default=None)
         std::map<std::string, std::string> configOptions;
         std::string proxyCredentials;
         std::string messageRelaysAsString;

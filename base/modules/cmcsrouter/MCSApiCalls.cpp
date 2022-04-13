@@ -36,6 +36,7 @@ namespace MCS
     {
         std::string customerToken = registerConfig.config[MCS::MCS_CUSTOMER_TOKEN];
         std::string encodedCustomerToken = "Basic " + Common::ObfuscationImpl::Base64::Encode(customerToken);
+        client.setVersion(registerConfig.config[MCS::MCS_PRODUCT_VERSION]);
 
         Common::HttpRequests::Headers headers = {
             {"Authorization", encodedCustomerToken},
@@ -59,8 +60,6 @@ namespace MCS
         std::string password = configOptions.config[MCS::MCS_PASSWORD];
         std::string token(configOptions.config[MCS::MCS_TOKEN]);
 
-        std::string productVersion(configOptions.config[MCS::MCS_PRODUCT_VERSION]);
-
         std::stringstream authorisation;
         authorisation << mcsId << ":" << password << ":" << token;
 
@@ -68,7 +67,7 @@ namespace MCS
             Common::ObfuscationImpl::Base64::Encode(authorisation.str());
 
         std::string authorisationValue = "Basic " + encodedAuthorisation;
-        client.setVersion(productVersion);
+        client.setVersion(configOptions.config[MCS::MCS_PRODUCT_VERSION]);
 
         Common::HttpRequests::Headers headers = {
             {"Authorization", authorisationValue},

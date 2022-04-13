@@ -58,22 +58,34 @@ class CentralRegistrationTests : public LogInitializedTests
     std::string registerUrlSuffix{"/register"};
     std::string preregisterUrlSuffix{"/install/deployment-info/2"};
 
-    Common::HttpRequests::RequestConfig createRequestFromConfigOptions(MCS::ConfigOptions configOptions, std::string urlSuffix, std::string statusXml)
+    Common::HttpRequests::RequestConfig createRequestFromConfigOptions(MCS::ConfigOptions configOptions, std::string statusXml, bool withPreregistration=false)
     {
+        if(withPreregistration) { configOptions.config[MCS::MCS_TOKEN] = "New_MCS_Token"; }
         Common::HttpRequests::Headers headers = {
             {"User-Agent", "Sophos MCS Client/" + configOptions.config[MCS::MCS_PRODUCT_VERSION] + " Linux sessions "+ configOptions.config[MCS::MCS_TOKEN]},
             {"Authorization", "Basic " + Common::ObfuscationImpl::Base64::Encode(configOptions.config[MCS::MCS_ID] + ":" + configOptions.config[MCS::MCS_PASSWORD] + ":" + configOptions.config[MCS::MCS_TOKEN])},
             {"Content-Type","application/xml; charset=utf-8"}
         };
-        Common::HttpRequests::RequestConfig request{ .url = configOptions.config[MCS::MCS_URL] + urlSuffix, .headers = headers, .data = statusXml, .certPath = configOptions.config[MCS::MCS_CERT]};
+        Common::HttpRequests::RequestConfig request{ .url = configOptions.config[MCS::MCS_URL] + registerUrlSuffix, .headers = headers, .data = statusXml, .certPath = configOptions.config[MCS::MCS_CERT]};
         return request;
     }
 
-    Common::HttpRequests::RequestConfig addProxyDetailsToRequestFromConfig(Common::HttpRequests::RequestConfig request, MCS::ConfigOptions configOptions)
+    Common::HttpRequests::RequestConfig createPreregistrationRequestFromConfigOptions(MCS::ConfigOptions configOptions, std::string statusXml)
     {
-        request.proxy = configOptions.config[MCS::MCS_PROXY];
-        request.proxyUsername = configOptions.config[MCS::MCS_PROXY_USERNAME];
-        request.proxyPassword = configOptions.config[MCS::MCS_PROXY_PASSWORD];
+        Common::HttpRequests::Headers headers = {
+            {"User-Agent", "Sophos MCS Client/" + configOptions.config[MCS::MCS_PRODUCT_VERSION] + " Linux sessions "+ configOptions.config[MCS::MCS_CUSTOMER_TOKEN]},
+            {"Authorization", "Basic " + Common::ObfuscationImpl::Base64::Encode(configOptions.config[MCS::MCS_CUSTOMER_TOKEN])},
+            {"Content-Type","application/json;charset=UTF-8"}
+        };
+        Common::HttpRequests::RequestConfig request{ .url = configOptions.config[MCS::MCS_URL] + preregisterUrlSuffix, .headers = headers, .data = statusXml, .certPath = configOptions.config[MCS::MCS_CERT]};
+        return request;
+    }
+
+    Common::HttpRequests::RequestConfig addProxyDetailsToRequestFromConfig(Common::HttpRequests::RequestConfig request, std::string proxy, std::string proxyUsername, std::string proxyPassword)
+    {
+        request.proxy = proxy;
+        request.proxyUsername = proxyUsername;
+        request.proxyPassword = proxyPassword;
         return request;
     }
 
@@ -120,7 +132,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationSucceeds) // NOLINT
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, registerUrlSuffix, basicXmlStatus))).WillOnce(Return(basicRegistrationResponseSuccess()));
+    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, basicXmlStatus))).WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
     centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
@@ -138,7 +150,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationFails) // NOLINT
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, registerUrlSuffix, basicXmlStatus))).WillOnce(Return(basicRegistrationResponseFailure()));
+    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, basicXmlStatus))).WillOnce(Return(basicRegistrationResponseFailure()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
     centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
@@ -161,9 +173,10 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxySucceeds) // NOLINT
                                         addProxyDetailsToRequestFromConfig(
                                             createRequestFromConfigOptions(
                                                 configOptions,
-                                                registerUrlSuffix,
                                                 basicXmlStatus),
-                                            configOptions)))
+                                            configOptions.config[MCS::MCS_PROXY],
+                                            configOptions.config[MCS::MCS_PROXY_USERNAME],
+                                            configOptions.config[MCS::MCS_PROXY_PASSWORD])))
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
@@ -183,7 +196,14 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxyFails) // NOLINT
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_)).Times(2).WillRepeatedly(Return(basicRegistrationResponseFailure()));
+    EXPECT_CALL(*mockHttpRequester, post(addProxyDetailsToRequestFromConfig(
+                                        createRequestFromConfigOptions(configOptions, basicXmlStatus),
+                                        configOptions.config[MCS::MCS_PROXY],
+                                        configOptions.config[MCS::MCS_PROXY_USERNAME],
+                                        configOptions.config[MCS::MCS_PROXY_PASSWORD])))
+        .WillOnce(Return(basicRegistrationResponseFailure()));
+    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, basicXmlStatus)))
+        .WillOnce(Return(basicRegistrationResponseFailure()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
     centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
@@ -201,12 +221,26 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithFailsOnProxiesAndThenDirec
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     testing::internal::CaptureStderr();
 
-    // Add 2 message relays
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_))
-        .WillOnce(Return(basicRegistrationResponseFailure()))
-        .WillOnce(Return(basicRegistrationResponseFailure()))
-        .WillOnce(Return(basicRegistrationResponseFailure()))
+    EXPECT_CALL(*mockHttpRequester, post(addProxyDetailsToRequestFromConfig(
+                                        createRequestFromConfigOptions(configOptions, basicXmlStatus),
+                                        configOptions.messageRelays[0].address + ":" + configOptions.messageRelays[0].port,
+                                        configOptions.config[MCS::MCS_PROXY_USERNAME],
+                                        configOptions.config[MCS::MCS_PROXY_PASSWORD])))
+        .WillOnce(Return(basicRegistrationResponseFailure()));
+    EXPECT_CALL(*mockHttpRequester, post(addProxyDetailsToRequestFromConfig(
+                                        createRequestFromConfigOptions(configOptions, basicXmlStatus),
+                                        configOptions.messageRelays[1].address + ":" + configOptions.messageRelays[1].port,
+                                        configOptions.config[MCS::MCS_PROXY_USERNAME],
+                                        configOptions.config[MCS::MCS_PROXY_PASSWORD])))
+        .WillOnce(Return(basicRegistrationResponseFailure()));
+    EXPECT_CALL(*mockHttpRequester, post(addProxyDetailsToRequestFromConfig(
+                                        createRequestFromConfigOptions(configOptions, basicXmlStatus),
+                                        configOptions.config[MCS::MCS_PROXY],
+                                        configOptions.config[MCS::MCS_PROXY_USERNAME],
+                                        configOptions.config[MCS::MCS_PROXY_PASSWORD])))
+        .WillOnce(Return(basicRegistrationResponseFailure()));
+    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, basicXmlStatus)))
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
@@ -230,7 +264,11 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaySucceeds) // N
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_))
+    EXPECT_CALL(*mockHttpRequester, post(addProxyDetailsToRequestFromConfig(
+                                        createRequestFromConfigOptions(configOptions, basicXmlStatus),
+                                        configOptions.messageRelays[0].address + ":" + configOptions.messageRelays[0].port,
+                                        configOptions.config[MCS::MCS_PROXY_USERNAME],
+                                        configOptions.config[MCS::MCS_PROXY_PASSWORD])))
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
@@ -250,8 +288,17 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysSucceedsOnSec
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_))
-        .WillOnce(Return(basicRegistrationResponseFailure()))
+    EXPECT_CALL(*mockHttpRequester, post(addProxyDetailsToRequestFromConfig(
+                                        createRequestFromConfigOptions(configOptions, basicXmlStatus),
+                                        configOptions.messageRelays[0].address + ":" + configOptions.messageRelays[0].port,
+                                        configOptions.config[MCS::MCS_PROXY_USERNAME],
+                                        configOptions.config[MCS::MCS_PROXY_PASSWORD])))
+        .WillOnce(Return(basicRegistrationResponseFailure()));
+    EXPECT_CALL(*mockHttpRequester, post(addProxyDetailsToRequestFromConfig(
+                                        createRequestFromConfigOptions(configOptions, basicXmlStatus),
+                                        configOptions.messageRelays[1].address + ":" + configOptions.messageRelays[1].port,
+                                        configOptions.config[MCS::MCS_PROXY_USERNAME],
+                                        configOptions.config[MCS::MCS_PROXY_PASSWORD])))
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
@@ -273,9 +320,23 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysFailsThenProx
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_))
-        .WillOnce(Return(basicRegistrationResponseFailure()))
-        .WillOnce(Return(basicRegistrationResponseFailure()))
+    EXPECT_CALL(*mockHttpRequester, post(addProxyDetailsToRequestFromConfig(
+                                        createRequestFromConfigOptions(configOptions, basicXmlStatus),
+                                        configOptions.messageRelays[0].address + ":" + configOptions.messageRelays[0].port,
+                                        configOptions.config[MCS::MCS_PROXY_USERNAME],
+                                        configOptions.config[MCS::MCS_PROXY_PASSWORD])))
+        .WillOnce(Return(basicRegistrationResponseFailure()));
+    EXPECT_CALL(*mockHttpRequester, post(addProxyDetailsToRequestFromConfig(
+                                        createRequestFromConfigOptions(configOptions, basicXmlStatus),
+                                        configOptions.messageRelays[1].address + ":" + configOptions.messageRelays[1].port,
+                                        configOptions.config[MCS::MCS_PROXY_USERNAME],
+                                        configOptions.config[MCS::MCS_PROXY_PASSWORD])))
+        .WillOnce(Return(basicRegistrationResponseFailure()));
+    EXPECT_CALL(*mockHttpRequester, post(addProxyDetailsToRequestFromConfig(
+                                        createRequestFromConfigOptions(configOptions, basicXmlStatus),
+                                        configOptions.config[MCS::MCS_PROXY],
+                                        configOptions.config[MCS::MCS_PROXY_USERNAME],
+                                        configOptions.config[MCS::MCS_PROXY_PASSWORD])))
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
@@ -298,8 +359,9 @@ TEST_F(CentralRegistrationTests, PreregistrationSucceeds) // NOLINT
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_))
-        .WillOnce(Return(addPreregistrationTokenWithSupportedProductsToResponse(basicRegistrationResponseSuccess())))
+    EXPECT_CALL(*mockHttpRequester, post(createPreregistrationRequestFromConfigOptions(configOptions, basicXmlStatus)))
+        .WillOnce(Return(addPreregistrationTokenWithSupportedProductsToResponse(basicRegistrationResponseSuccess())));
+    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, basicXmlStatus, true)))
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
@@ -320,8 +382,9 @@ TEST_F(CentralRegistrationTests, PreregistrationFailsButProductStillRegisters) /
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_))
-        .WillOnce(Return(basicRegistrationResponseFailure()))
+    EXPECT_CALL(*mockHttpRequester, post(createPreregistrationRequestFromConfigOptions(configOptions, basicXmlStatus)))
+        .WillOnce(Return(basicRegistrationResponseFailure()));
+    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, basicXmlStatus)))
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
@@ -342,8 +405,9 @@ TEST_F(CentralRegistrationTests, PreregistrationSucceedsWithUnsupportedProducts)
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_))
-        .WillOnce(Return(addPreregistrationTokenWithUnsupportedProductsToResponse(basicRegistrationResponseSuccess())))
+    EXPECT_CALL(*mockHttpRequester, post(createPreregistrationRequestFromConfigOptions(configOptions, basicXmlStatus)))
+        .WillOnce(Return(addPreregistrationTokenWithUnsupportedProductsToResponse(basicRegistrationResponseSuccess())));
+    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, basicXmlStatus, true)))
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;
@@ -365,8 +429,9 @@ TEST_F(CentralRegistrationTests, PreregistrationFailsWhenNoNewTokenReturnedButSt
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
-    EXPECT_CALL(*mockHttpRequester, post(_))
-        .WillOnce(Return(addMalformedPreregistrationResponse(basicRegistrationResponseSuccess())))
+    EXPECT_CALL(*mockHttpRequester, post(createPreregistrationRequestFromConfigOptions(configOptions, basicXmlStatus)))
+        .WillOnce(Return(addMalformedPreregistrationResponse(basicRegistrationResponseSuccess())));
+    EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, basicXmlStatus)))
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistrationImpl::CentralRegistration centralRegistration;

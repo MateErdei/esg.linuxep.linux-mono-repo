@@ -157,13 +157,21 @@ namespace CentralRegistrationImpl
         std::string url(configOptions.config[MCS::MCS_URL]);
         std::string token(configOptions.config[MCS::MCS_TOKEN]);
 
+        // This check saves retrying all proxies if preregistration succeeded on a given proxy
         if(!configOptions.config[MCS::MCS_CONNECTED_PROXY].empty() && tryRegistration(configOptions, statusXml, url, token, configOptions.config[MCS::MCS_CONNECTED_PROXY], requester))
         {
-            LOGINFO("Product successfully registered");
+            LOGINFO("Product successfully registered via proxy: " << configOptions.config[MCS::MCS_CONNECTED_PROXY]);
         }
         else if(tryRegistrationWithProxies(configOptions, statusXml, url, token, requester, tryRegistration))
         {
-            LOGINFO("Product successfully registered via proxy: " << configOptions.config[MCS::MCS_CONNECTED_PROXY]);
+            if(!configOptions.config[MCS::MCS_CONNECTED_PROXY].empty())
+            {
+                LOGINFO("Product successfully registered via proxy: " << configOptions.config[MCS::MCS_CONNECTED_PROXY]);
+            }
+            else
+            {
+                LOGINFO("Product successfully registered");
+            }
         }
         else
         {
