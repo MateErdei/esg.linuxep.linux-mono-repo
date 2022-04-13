@@ -1,6 +1,11 @@
 
 set(PROTO_INPUT_FILE message.proto zmqparts.proto simplefunction.proto vector_strings.proto)
 
+SET(LIBCXX_LIB_PATH /build/redist/gcc/lib64)
+
+set(CMAKE_EXE_LINKER_FLAGS "\
+                    ${CMAKE_EXE_LINKER_FLAGS} -v  \
+                    -L ${LIBCXX_LIB_PATH}")
 protobuf_generate_cpp(LIB_FUZZER_EXAMPLE_PROTO_SRCS
         LIB_FUZZER_EXAMPLE_PROTO_HDRS
         ${PROTO_INPUT_FILE}

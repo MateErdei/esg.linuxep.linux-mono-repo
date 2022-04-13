@@ -64,6 +64,7 @@ class FuzzerSupport( object):
         files = ["runFuzzerZMQTests.sh", "runFuzzerManagementAgentApiTest.sh", "ManagementAgentApiTest", "ZMQTests"]
         expected_fuzzer_path = os.path.join(self._everest_path, FuzzerRelativePath)
         if not os.path.isdir(expected_fuzzer_path):
+            logger.info("Missing libfuzzer dir: {}".format(expected_fuzzer_path))
             return False
         full_paths = [os.path.join(expected_fuzzer_path, filename) for filename in files]
         file_exist_list = [os.path.exists(filepath) for filepath in full_paths]
@@ -200,6 +201,7 @@ class FuzzerSupport( object):
         try:
             environment = os.environ.copy()
             environment['ASAN_OPTIONS'] = 'detect_odr_violation=0'
+
             logger.info("Running: {}".format(args))
             popen = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                              env=environment, cwd=self._tmp_dir)
