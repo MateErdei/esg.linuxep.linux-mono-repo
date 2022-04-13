@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2022, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,7 +8,7 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/XmlUtilities/Validation.h>
 #include <gtest/gtest.h>
-#include <gmock/gmock-matchers.h>
+#include <include/gmock/gmock-matchers.h>
 
 using namespace Common::XmlUtilities;
 
@@ -390,9 +390,9 @@ TEST(TestXmlUtilities, DuplicateStructuresAreAvailable) // NOLINT
 TEST(TestXmlUtilities, ValidXmlString) // NOLINT
 {
     std::string xmlString = "dummy xml string";
-    bool result = Validation::stringWillNotBreakXmlParsing(xmlString);
+    bool result = Validation::isStringXmlValid(xmlString);
 
-    ASSERT_EQ(result, true);
+    EXPECT_EQ(result, true);
 }
 
 TEST(TestXmlUtilities, InvalidXmlStrings) // NOLINT
@@ -402,8 +402,8 @@ TEST(TestXmlUtilities, InvalidXmlStrings) // NOLINT
     std::string xmlStringWithSingleQuote = "\'dummy xml string\'";
     std::string xmlStringWithDoubleQuote = "'dummy \"xml\" string'";
 
-    ASSERT_EQ(Validation::stringWillNotBreakXmlParsing(xmlStringWithInvalidSymbols), false);
-    ASSERT_EQ(Validation::stringWillNotBreakXmlParsing(xmlStringWithAmpersand), false);
-    ASSERT_EQ(Validation::stringWillNotBreakXmlParsing(xmlStringWithSingleQuote), false);
-    ASSERT_EQ(Validation::stringWillNotBreakXmlParsing(xmlStringWithDoubleQuote), false);
+    EXPECT_EQ(Validation::isStringXmlValid(xmlStringWithInvalidSymbols), false);
+    EXPECT_EQ(Validation::isStringXmlValid(xmlStringWithAmpersand), false);
+    EXPECT_EQ(Validation::isStringXmlValid(xmlStringWithSingleQuote), false);
+    EXPECT_EQ(Validation::isStringXmlValid(xmlStringWithDoubleQuote), false);
 }
