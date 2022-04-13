@@ -1,10 +1,6 @@
 #!/bin/bash
 
 PRODUCT=sspl-base
-export PRODUCT_NAME="Sophos Server Protection Linux - Base Component"
-export PRODUCT_LINE_ID="ServerProtectionLinux-Base-component"
-export DEFAULT_HOME_FOLDER="sspl-base"
-
 FAILURE_INPUT_NOT_AVAILABLE=50
 FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE=51
 FAILURE_BULLSEYE=52
@@ -47,23 +43,16 @@ STRACE_SUPPORT="OFF"
 BULLSEYE=0
 BULLSEYE_UPLOAD=0
 BULLSEYE_SYSTEM_TESTS=0
-#export NO_REMOVE_GCC=1
-#INPUT=/build/input
 
 COVFILE="/tmp/root/sspl-base-unittest.cov"
-#BULLSEYE_SYSTEM_TEST_BRANCH=develop
-#export TEST_SELECTOR=
 
-#CMAKE_BUILD_TYPE=RelWithDebInfo
 CMAKE_BUILD_TYPE=$DEBUG_BUILD_TYPE
 
 export ENABLE_STRIP=1
 #VALGRIND=0
 UNIT_TESTS=1
 
-
 # Deal with arguments
-
 while [[ $# -ge 1 ]]
 do
     case $1 in
@@ -95,12 +84,12 @@ do
             CMAKE_BUILD_TYPE=$RELEASE_BUILD_TYPE
             export ENABLE_STRIP=1
             ;;
-#        --strip)
-#            export ENABLE_STRIP=1
-#            ;;
-#        --no-strip)
-#            export ENABLE_STRIP=0
-#            ;;
+        --strip)
+            export ENABLE_STRIP=1
+            ;;
+        --no-strip)
+            export ENABLE_STRIP=0
+            ;;
         --no-build)
             NO_BUILD=1
             ;;
@@ -113,24 +102,6 @@ do
         --covfile)
             shift
             COVFILE=$1
-            ;;
-        --bullseye-system-tests)
-            BULLSEYE=1
-            BULLSEYE_UPLOAD=1
-            BULLSEYE_SYSTEM_TESTS=1
-            COVFILE="/tmp/root/sspl-base-combined.cov"
-            #ToDo remove the above LINUXDAR-1816
-            ;;
-        --bullseye-system-test-selector)
-            shift
-            export TEST_SELECTOR="$1"
-            ;;
-        --bullseye-upload-unittest|--bullseye-upload)
-            BULLSEYE_UPLOAD=1
-            ;;
-        --bullseye-system-test-branch)
-            shift
-            BULLSEYE_SYSTEM_TEST_BRANCH=$1
             ;;
         --python-coverage)
             PythonCoverage="ON"

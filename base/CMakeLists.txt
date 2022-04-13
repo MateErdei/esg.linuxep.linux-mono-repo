@@ -80,15 +80,33 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
 
+# PRODUCT_NAME
 if(NOT DEFINED PRODUCT_NAME)
-    set(PRODUCT_NAME "Sophos Server Protection Linux - Base")
+    if (DEFINED ENV{PRODUCT_NAME})
+        set(PRODUCT_NAME "$ENV{PRODUCT_NAME}")
+    else()
+        set(PRODUCT_NAME "Sophos Server Protection Linux - Base Component")
+    endif()
 endif()
+
+# PRODUCT_LINE_ID
 if(NOT DEFINED PRODUCT_LINE_ID)
-    set(PRODUCT_LINE_ID "ServerProtectionLinux-Base")
+    if (DEFINED ENV{PRODUCT_LINE_ID})
+        set(PRODUCT_LINE_ID "$ENV{PRODUCT_LINE_ID}")
+    else()
+        set(PRODUCT_LINE_ID "ServerProtectionLinux-Base-component")
+    endif()
 endif()
+
+# DEFAULT_HOME_FOLDER
 if(NOT DEFINED DEFAULT_HOME_FOLDER)
-    set(DEFAULT_HOME_FOLDER "sspl-base")
+    if (DEFINED ENV{DEFAULT_HOME_FOLDER})
+        set(DEFAULT_HOME_FOLDER "$ENV{DEFAULT_HOME_FOLDER}")
+    else()
+        set(DEFAULT_HOME_FOLDER "sspl-base")
+    endif()
 endif()
+
 if(NOT DEFINED UPDATESCHEDULER_PRETTY_NAME)
     set(UPDATESCHEDULER_PRETTY_NAME "Update Scheduler")
 endif()
