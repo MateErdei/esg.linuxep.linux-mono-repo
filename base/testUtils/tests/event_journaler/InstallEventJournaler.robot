@@ -21,10 +21,8 @@ Event Journaler Plugin Installs With Version Ini File
     VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini   EventJournaler
 
 Verify That Event Journaler Logging Can Be Set Individually
-    Install Event Journaler Directly
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [eventjournaler]\nVERBOSITY=DEBUG\n
-
-    Restart Event Journaler
+    Install Event Journaler Directly
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
