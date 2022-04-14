@@ -24,10 +24,9 @@ def log(*x):
 def download_supplements(dest):
     # ensure manual dir is on sys.path
     downloadSupplements.LOGGER = LOGGER
-    use_dataseta = False
-    if os.environ.get('DATASETA'):
-        use_dataseta = True
-    updated = downloadSupplements.run(dest, use_dataseta)
+    use_dataset_A = True
+
+    updated = downloadSupplements.run(dest, use_dataset_A)
     return updated
 
 
