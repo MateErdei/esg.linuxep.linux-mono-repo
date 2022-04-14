@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -392,7 +392,7 @@ TEST(TestXmlUtilities, ValidXmlString) // NOLINT
     std::string xmlString = "dummy xml string";
     bool result = Validation::isStringXmlValid(xmlString);
 
-    EXPECT_EQ(result, true);
+    ASSERT_EQ(result, true);
 }
 
 TEST(TestXmlUtilities, InvalidXmlStrings) // NOLINT
@@ -402,8 +402,8 @@ TEST(TestXmlUtilities, InvalidXmlStrings) // NOLINT
     std::string xmlStringWithSingleQuote = "\'dummy xml string\'";
     std::string xmlStringWithDoubleQuote = "'dummy \"xml\" string'";
 
-    EXPECT_EQ(Validation::isStringXmlValid(xmlStringWithInvalidSymbols), false);
-    EXPECT_EQ(Validation::isStringXmlValid(xmlStringWithAmpersand), false);
-    EXPECT_EQ(Validation::isStringXmlValid(xmlStringWithSingleQuote), false);
-    EXPECT_EQ(Validation::isStringXmlValid(xmlStringWithDoubleQuote), false);
+    ASSERT_EQ(Validation::isStringXmlValid(xmlStringWithInvalidSymbols), false);
+    ASSERT_EQ(Validation::isStringXmlValid(xmlStringWithAmpersand), false);
+    ASSERT_EQ(Validation::isStringXmlValid(xmlStringWithSingleQuote), false);
+    ASSERT_EQ(Validation::isStringXmlValid(xmlStringWithDoubleQuote), false);
 }
