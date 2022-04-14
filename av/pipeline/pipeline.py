@@ -148,6 +148,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
     supplement_branch = "released"
     output = 'output'
     # override the av input and get the bullseye coverage build instead
+
     if coverage:
         output = 'coverage'
 
@@ -162,6 +163,7 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         vdl=context.artifact.from_component('ssplav-vdl', supplement_branch, None) / 'vdl',
         ml_model=context.artifact.from_component('ssplav-mlmodel', supplement_branch, None) / 'model',
     )
+    test_inputs['sdds3_utils'] = unified_artifact(context, 'winep.sau', 'develop', 'build/Linux-x64/SDDS3-Utils')
 
     if coverage:
         test_inputs['bazel_tools'] = unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
