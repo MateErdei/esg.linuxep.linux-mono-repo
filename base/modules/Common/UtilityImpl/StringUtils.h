@@ -350,6 +350,16 @@ namespace Common
             {
                 return lTrim(rTrim(string, trimComparator), trimComparator);
             }
+
+            /*
+             * Make all chars in string lowercase
+             */
+            static std::string toLower(std::string& string)
+            {
+                std::transform(string.begin(), string.end(), string.begin(),
+                               [](unsigned char c){ return std::tolower(c); });
+                return string;
+            }
         };
 
     } // namespace UtilityImpl
