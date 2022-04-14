@@ -6,16 +6,11 @@ install(FILES
         ${CMAKE_SOURCE_DIR}/modules/mcsrouter/engine/extra_mcs_rootca.crt
         ${CMAKE_SOURCE_DIR}/modules/mcsrouter/engine/nova_mcs_rootca.crt
         ${CMAKE_SOURCE_DIR}/modules/mcsrouter/engine/qa_mcs_rootca.crt
-        ${CMAKE_BINARY_DIR}/tests/manualTools/FaultInjectionLogger
-        ${CMAKE_BINARY_DIR}/tests/manualTools/PickYourPoison
-        ${CMAKE_BINARY_DIR}/tests/manualTools/JailBreakerTest
-        ${CMAKE_BINARY_DIR}/tests/manualTools/UseCommsComponent
-        ${CMAKE_BINARY_DIR}/tests/manualTools/RunHttpRequest
-        ${CMAKE_BINARY_DIR}/tests/manualTools/EventPubSub
-        /build/redist/openssl/lib64/libcrypto.so.1.1
-        /build/redist/openssl/lib64/libssl.so.1.1
-        /build/redist/gcc/lib64/libssp.so.0.0.0
-        /build/redist/openssl/64/bin/openssl
+        ${CMAKE_SOURCE_DIR}/tests/Common/HttpRequesterImpl/HttpTestServer.py
+        ${INPUT}/openssl/lib64/libcrypto.so.1.1
+        ${INPUT}/openssl/lib64/libssl.so.1.1
+        ${INPUT}/gcc/lib64/libssp.so.0.0.0
+        ${INPUT}/openssl/64/bin/openssl
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 
