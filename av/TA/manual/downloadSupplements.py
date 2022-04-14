@@ -36,6 +36,7 @@ def log(*x):
     else:
         LOGGER.info(" ".join(x))
 
+
 def ensure_binary(s):
     if s is None:
         return s
@@ -76,7 +77,7 @@ def get_latest(url, filename):
             res.append(c['uri'])
     res.sort()
 
-    target_url = url+res[-1] + "/" + filename
+    target_url = url + res[-1] + "/" + filename
     return target_url
 
 
@@ -84,7 +85,7 @@ def sha256hash(f):
     hasher = hashlib.sha256()
     with open(f, "rb") as fp:
         while True:
-            data = fp.read(64*1024)
+            data = fp.read(64 * 1024)
             hasher.update(data)
             if len(data) == 0:
                 break
@@ -150,11 +151,10 @@ def run(destination, use_dataseta):
         import sync_sdds3_supplement
         supplement = "https://sdds3.sophosupd.com/supplement/sdds3.DataSetA.dat"
 
-        builder = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir, "redist", "sdds3", "sdds3-builder")
+        builder = os.path.join("opt/test/inputs/sdds3_utils/sdds3-builder")
         if not os.path.isfile(builder):
-            builder = "/opt/test/inputs/sdds3_utils/sdds3-builder"
-            print("<<<<<<<<<<<<<{}".format(os.listdir("/opt/test/inputs")))
-            print("<<<<<<<<<<<<<{}".format(os.listdir("/opt/test/inputs/sdds3_utils")))
+            builder = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir, "redist", "sdds3",
+                                   "sdds3-builder")
 
         sdds3_temp_dir = os.path.join(destination, "sdds3_temp")
         safe_mkdir(sdds3_temp_dir)
@@ -177,8 +177,9 @@ def run(destination, use_dataseta):
 
 def main(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument("destination", help = "Destination directory to download supplements to")
-    parser.add_argument("-d", "--dataseta", help = "Download DataSetA instead of the Full VDL", default=False, action='store_true')
+    parser.add_argument("destination", help="Destination directory to download supplements to")
+    parser.add_argument("-d", "--dataseta", help="Download DataSetA instead of the Full VDL", default=False,
+                        action='store_true')
     args = parser.parse_args()
 
     run(args.destination, args.dataseta)
