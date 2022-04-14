@@ -25,7 +25,7 @@
             <include artifact-path="cmake" dest-dir="/build/input/cmake"/>
         </build-asset>
         <build-asset project="thirdparty" repo="curl">
-            <release-version branch="release/sspl/Version_7_78_0" build-id="20220401134148-8df63f1cccb9b0bd6847a895a085d0e3f4842ed4-dkLoWq"/>
+            <release-version branch="release/sspl/Version_7_78_0" build-id="20220412101428-37f878ecaf2231cac57d4fe0525463c7acbe2c60-yWypaT"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="gcc">
@@ -33,7 +33,7 @@
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="libexpat">
-            <release-version branch="release/sspl/Version_2_4_1" build-id="20220310142121-420df4f6d41e969e47ca0944ab289e8ec5c844d6-PpWwDQ"/>
+            <release-version branch="release/sspl/Version_2_4_8" build-id="20220412084210-700180882b0055f197dcf0198d71f0be516561bc-ihDKUE"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="openssl">
@@ -41,7 +41,7 @@
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="zlib">
-            <release-version branch="release/sspl/Version_1_2_11" build-id="20220310143426-7a27b6dcf50b30fe14028c01094ace032326c1ad-17fQbX"/>
+            <release-version branch="release/sspl/Version_1_2_12" build-id="20220412084330-fbed66023e864153b2947dbffac57b6600587601-Z87Tnl"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
 
