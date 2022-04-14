@@ -15,15 +15,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <array>
 #include <cerrno>
 #include <cstring>
-#include <ctype.h>
 #include <iostream>
 #include <json.hpp>
 #include <map>
-#include <unistd.h>
 
-namespace Common
-{
-    namespace OSUtilitiesImpl
+
+namespace Common::OSUtilitiesImpl
     {
         PlatformUtils::PlatformUtils()
             : m_vendor("UNKNOWN")
@@ -38,8 +35,7 @@ namespace Common
         {
             const std::string lsbReleasePath = "/etc/lsb-release";
 
-            const std::array<std::string, 7> distroCheckFiles = {
-                lsbReleasePath,
+            const std::array<std::string, 6> distroCheckFiles = {
                 "/etc/issue",
                 "/etc/centos-release",
                 "/etc/oracle-release",
@@ -47,50 +43,16 @@ namespace Common
                 "/etc/system-release",
                 "/etc/miraclelinux-release"
             };
-
-            std::map<std::string, std::string> distroNames = {
-                std::make_pair("redhat", "redhat"),
-                std::make_pair("ubuntu", "ubuntu"),
-                std::make_pair("centos", "centos"),
-                std::make_pair("amazonlinux", "amazon"),
-                std::make_pair("oracle", "oracle"),
-                std::make_pair("miracle", "miracle")
-            };
             
-            auto fs = FileSystem::fileSystem();
-            for(auto& path : distroCheckFiles)
-            {
-                if(fs->isFile(path))
-                {
-                    std::string distro;
-                    std::vector<std::string> fileContents = fs->readLines(path);
-                    if(!fileContents.empty())
-                    {
-                        distro = fileContents[0];
-                        distro = UtilityImpl::StringUtils::replaceAll(distro, " ", "");
-                        distro = UtilityImpl::StringUtils::replaceAll(distro, "/", "_");
-
-                        std::vector<std::string> distroParts = Common::UtilityImpl::StringUtils::splitString(distro, "=");
-                        if(distroParts.size() ==2)
-                        {
-                            distro = distroParts[1];
-                        }
-
-                        std::transform(distro.begin(), distro.end(), distro.begin(),
-                                       [](unsigned char c){ return std::tolower(c); });
-
-                        std::string tempDistro = distroNames[distro];
-                        if(!tempDistro.empty())
-                        {
-                            m_vendor = tempDistro;
-                            break;
-                        }
-                    }
-                }
-            }
+            auto *fs = FileSystem::fileSystem();
 
             if(fs->isFile(lsbReleasePath))
             {
+                std::string distro = extractDistroFromFile(lsbReleasePath);
+                if(!distro.empty())
+                {
+                    m_vendor = distro;
+                }
                 m_osName = Common::UtilityImpl::StringUtils::replaceAll(
                     UtilityImpl::StringUtils::extractValueFromConfigFile(lsbReleasePath, "DISTRIB_DESCRIPTION"),
                     "\"", "");
@@ -101,7 +63,60 @@ namespace Common
                     m_osMajorVersion = majorAndMinor[0];
                     m_osMinorVersion = majorAndMinor[1];
                 }
+                return;
             }
+
+            for(const auto& path : distroCheckFiles)
+            {
+                if(fs->isFile(path))
+                {
+                    std::string distro = extractDistroFromFile(path);
+                    if(!distro.empty())
+                    {
+                        m_vendor = distro;
+                        break;
+                    }
+                }
+            }
+        }
+
+        std::string PlatformUtils::extractDistroFromFile(const std::string& filePath)
+        {
+            std::map<std::string, std::string> distroNames = {
+                std::make_pair("redhat", "redhat"),
+                std::make_pair("ubuntu", "ubuntu"),
+                std::make_pair("centos", "centos"),
+                std::make_pair("amazonlinux", "amazon"),
+                std::make_pair("oracle", "oracle"),
+                std::make_pair("miracle", "miracle")
+            };
+
+            auto *fs = FileSystem::fileSystem();
+            std::string distro;
+            std::vector<std::string> fileContents = fs->readLines(filePath);
+            if(!fileContents.empty())
+            {
+                distro = fileContents[0];
+                distro = UtilityImpl::StringUtils::replaceAll(distro, " ", "");
+                distro = UtilityImpl::StringUtils::replaceAll(distro, "/", "_");
+
+                std::vector<std::string> distroParts = Common::UtilityImpl::StringUtils::splitString(distro, "=");
+                if(distroParts.size() ==2)
+                {
+                    distro = distroParts[1];
+                }
+
+                UtilityImpl::StringUtils::toLower(distro);
+
+                for(const auto&[key, value] : distroNames)
+                {
+                    if(UtilityImpl::StringUtils::isSubstring(distro, key))
+                    {
+                        return value;
+                    }
+                }
+            }
+            return "";
         }
 
         std::string PlatformUtils::getHostname() const
@@ -112,8 +127,7 @@ namespace Common
         std::string PlatformUtils::getPlatform() const
         {
             std::string value = PlatformUtils::getUtsname().sysname;
-            std::transform(value.begin(), value.end(), value.begin(),
-                           [](unsigned char c){ return std::tolower(c); });
+            UtilityImpl::StringUtils::toLower(value);
             return value;
         }
 
@@ -387,4 +401,3 @@ namespace Common
             return true;
         }
     }
-}
