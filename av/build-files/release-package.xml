@@ -56,7 +56,7 @@
         </build-asset>
 
         <build-asset project="ec" repo="liblocalrep">
-            <release-version branch="release/2.2" build-id="20210503095748-c7f51f30f6b74388b2c15efbbbd810c85de6bb09-KJUTud"/>
+            <development-version branch="develop" build-id="20220408103010-f9a3d3ad8fab1ad0cb181a680f2d2f4086078247-oDzoGZ"/>
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
@@ -71,23 +71,38 @@
         </build-asset>
 
         <build-asset project="core" repo="httpsrequester">
-            <release-version branch="release/1.2" build-id="20210729120620-2b881ec3cb0a7520d80b70997f4817cc9aca200e-hzjbTx"/>
+            <development-version branch="develop" build-id="20220408103256-617765c187edf74262d1e6f52bcd95e379c25ced-Z3cv2b"/>
             <include artifact-path="release/centos7/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
         </build-asset>
 
-
         <!-- external dependencies -->
-        <trusted-asset artifact-path="filer5-migrate/openssl/1-1-1d-6/219246/release/lib" dest-dir="input/susi_input/openssl/lib"/>
+        <build-asset project="thirdparty" repo="icu">
+            <release-version branch="release--sophos--susi--70.1" build-id="20211122160606-cae4f46bbfdecde35f62a69e9b31f240348c0f8f-hYx1a2" />
+            <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/icu/lib" />
+        </build-asset>
 
-        <trusted-asset artifact-path="filer5-migrate/boost/1-69-0-93/219328/release/boost.tar.bz2" dest-dir="input/susi_input/boost"/>
+        <build-asset project="thirdparty" repo="libarchive">
+            <release-version branch="release--sophos--core--3.5.2" build-id="20211129093003-b525273b2abdbabe88d1b2d1dd5360a1e67f4b2d-V7m9kv" />
+            <include artifact-path="release/linux-x64/lib" dest-dir="input/susi_input/libarchive/lib" />
+        </build-asset>
 
-        <trusted-asset artifact-path="filer5-migrate/icu/64-2-50/219250/lib/libicudata.so.64.GLOB" dest-dir="input/susi_input/icu/lib"/>
-        <trusted-asset artifact-path="filer5-migrate/icu/64-2-50/219250/lib/libicui18n.so.64.GLOB" dest-dir="input/susi_input/icu/lib"/>
-        <trusted-asset artifact-path="filer5-migrate/icu/64-2-50/219250/lib/libicuuc.so.64.GLOB" dest-dir="input/susi_input/icu/lib"/>
+        <build-asset project="thirdparty" repo="luajit">
+            <release-version branch="release--sophos--susi--2.1.0" build-id="20211004080500-1a9d72db49c57f6eabb70705001bd654d3da99ed-NeJf83" />
+            <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/luajit/lib" />
+        </build-asset>
 
-        <trusted-asset artifact-path="filer5-migrate/libarchive/64-2-7/219360/lib/libarchive.so.13.GLOB" dest-dir="input/susi_input/libarchive/lib"/>
+        <build-asset project="thirdparty" repo="boost">
+            <release-version branch="release--sophos--core--1.77.0" build-id="20211126090955-ef33f0a539b87f97ee9e7e5b1220d25dc313589e-cB3kgN" />
+            <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/boost"/>
+        </build-asset>
 
-        <trusted-asset artifact-path="filer5-migrate/luajit/2-0-5-52/219247/lib/libluajit-5.1.so.GLOB" dest-dir="input/susi_input/luajit/lib"/>
+        <build-asset project="thirdparty" repo="openssl">
+            <release-version branch="release--sophos--susi--1.1.1n" build-id="20220405102536-9699d5a9fc0e21e05bb42046076af371eb94a7ef-jw9CRv" />
+            <include artifact-path="openssl-linux-x64" dest-dir="input/susi_input/openssl/lib" />
+        </build-asset>
+
+
+
     </inputs>
     <buildcommands>
         <command mode="release,oldci">

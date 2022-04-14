@@ -88,7 +88,7 @@ def unpack_tar_from(src, dest, extraction_filter=None):
 
         raise Exception("Attempting to unpack %s which doesn't exist" % src)
 
-    print("Unpacking %s" % src)
+    print("Unpacking {} to {}".format(src, dest))
     if src.endswith('.bz2'):
         args = ['tar', 'xjvf', src]
     else:
@@ -96,7 +96,7 @@ def unpack_tar_from(src, dest, extraction_filter=None):
 
     if extraction_filter:
         args.extend(extraction_filter)
-    
+
     subprocess.check_call(args)
     os.chdir(pwd)
 
@@ -141,7 +141,7 @@ def copy_from_input(relative_glob, dest):
     sources = glob.glob(os.path.join(INPUT_DIR, relative_glob))
     if len(sources) == 0:
         subprocess.call(['ls', INPUT_DIR])
-        raise Exception("Failed to find any sources for %s in %s"%(relative_glob, INPUT_DIR))
+        raise Exception("Failed to find any sources for %s in %s" % (relative_glob, INPUT_DIR))
 
     res = None
     for s in sources:
@@ -283,7 +283,6 @@ def main(argv):
     RULES_DIR = os.path.join(UPDATE_CACHE_DIR, "rules")
     UPDATER_DIR = os.path.join(UPDATE_CACHE_DIR, "libupdater")
 
-    copy_from_input("susi/lib/libsusicore.so*", SUSICORE_DIR)
 
     ## libupdater
     copy_from_input("susi/lib/libupdater.so*", UPDATER_DIR)
@@ -294,6 +293,14 @@ def main(argv):
     ## libsavi
     copy_from_input("libsavi/release/libsavi.so.3.2.*", SAVI_DIR)
 
+    ## libarchive
+    ## This needs to be the first thing to go in susi core
+    ## as it deletes the directory.
+    copy_from_input("libarchive/lib/*", SUSICORE_DIR)
+
+    ## libsusicore
+    copy_from_input("susi/lib/libsusicore.so*", SUSICORE_DIR)
+
     ## libluajit
     copy_from_input("luajit/lib/libluajit*.so.2.*", SUSICORE_DIR)
 
@@ -301,15 +308,7 @@ def main(argv):
     copy_from_input("icu/lib/libicu*", SUSICORE_DIR)
 
     ## boost
-    unpack_tar_from(os.path.join(INPUT_DIR, "boost/boost.tar.bz2"), SUSICORE_DIR, ['--wildcards',
-                                                                                 'lib/libboost_chrono.so.*',
-                                                                                 'lib/libboost_locale.so.*',
-                                                                                 'lib/libboost_system.so.*',
-                                                                                 'lib/libboost_thread.so.*',
-                                                                                 '--strip=1'])
-
-    ## libarchive
-    copy_from_input("libarchive/lib/*", SUSICORE_DIR)
+    copy_from_input("boost/libboost*.so*", SUSICORE_DIR)
 
     ## httpsrequester / globalrep?
     copy_from_input("gr/lib/*", GRLIB_DIR)
