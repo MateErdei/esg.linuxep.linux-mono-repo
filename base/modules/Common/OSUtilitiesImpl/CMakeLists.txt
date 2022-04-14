@@ -18,11 +18,11 @@ add_library(osutilitiesimpl SHARED
         PlatformUtils.cpp
         SystemUtils.h
         SystemUtils.cpp
-        )
+        CloudMetadataConverters.h)
 
 target_link_libraries(osutilitiesimpl PUBLIC sslimpl filesystemimpl utilityimpl applicationconfigurationimpl pthread)
 
-include_directories(osutilitiesimpl BEFORE ../../../thirdparty/nlohmann-json ../CurlWrapper)
+target_include_directories(osutilitiesimpl PUBLIC BEFORE ../../../thirdparty/nlohmann-json ../CurlWrapper)
 
 SET_TARGET_PROPERTIES(osutilitiesimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

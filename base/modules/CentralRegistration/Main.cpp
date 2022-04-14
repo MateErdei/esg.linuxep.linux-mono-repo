@@ -62,20 +62,39 @@ namespace CentralRegistrationImpl
         std::map<std::string, std::string> configOptions;
         std::string proxyCredentials;
         std::string messageRelaysAsString;
+        auto argSize = args.size();
 
-        for (size_t i=1; i < args.size(); i++)
+        // Positional args (expect 2 + binary)
+        if(argSize < 3)
+        {
+            LOGERROR("Insufficient positional arguments given. Expecting 2: MCS Token, MCS URL");
+            return MCS::ConfigOptions{};
+        }
+        if(!Common::UtilityImpl::StringUtils::startswith(args[1], "--"))
+        {
+            configOptions[MCS::MCS_TOKEN] = args[1];
+        }
+        else
+        {
+            LOGERROR("Expecting MCS Token, found optional argument: " + args[1]);
+            return MCS::ConfigOptions{};
+        }
+        if (!Common::UtilityImpl::StringUtils::startswith(args[2], "--"))
+        {
+            configOptions[MCS::MCS_URL] = args[2];
+        }
+        else
+        {
+            LOGERROR("Expecting MCS URL, found optional argument: " + args[2]);
+            return MCS::ConfigOptions{};
+        }
+
+        // Optional args
+        for (size_t i=3; i < argSize; i++)
         {
             std::string currentArg(args[i]);
 
-            if((i == 1) && !Common::UtilityImpl::StringUtils::startswith(currentArg, "--"))
-            {
-                configOptions[MCS::MCS_TOKEN] = currentArg;
-            }
-            else if ((i==2) && !Common::UtilityImpl::StringUtils::startswith(currentArg, "--"))
-            {
-                configOptions[MCS::MCS_URL] = currentArg;
-            }
-            else if(Common::UtilityImpl::StringUtils::startswith(currentArg, "--group"))
+            if(Common::UtilityImpl::StringUtils::startswith(currentArg, "--group"))
             {
                 updateConfigOptions(MCS::CENTRAL_GROUP, currentArg, configOptions);
             }
@@ -154,16 +173,19 @@ namespace CentralRegistrationImpl
     {
         Common::Logging::ConsoleLoggingSetup loggerSetup;
         // convert args to vector for to remove the need to handle pointers.
-        std::vector<std::string> args;
+        std::vector<std::string> args(argc);
         for(int i=0; i < argc; i++)
         {
-            std::string value(argv[i]);
-            args.push_back(value);
+            args.emplace_back(argv[i]);
         }
 
         std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
 
-        MCS::ConfigOptions configOptions = processCommandLineOptions(args,systemUtils);
+        MCS::ConfigOptions configOptions = processCommandLineOptions(args, systemUtils);
+        if(configOptions.config.empty())
+        {
+            return 1;
+        }
         configOptions = registerAndObtainMcsOptions(configOptions);
         return 0;
     }

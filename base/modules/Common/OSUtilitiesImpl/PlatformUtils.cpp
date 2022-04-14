@@ -11,11 +11,11 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "Common/FileSystemImpl/FileSystemImpl.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "OSUtilities/IPlatformUtilsException.h"
+#include "OSUtilitiesImpl/CloudMetadataConverters.h"
 
 #include <array>
 #include <cerrno>
 #include <cstring>
-#include <iostream>
 #include <json.hpp>
 #include <map>
 
@@ -269,15 +269,7 @@ namespace Common::OSUtilitiesImpl
                 return "";
             }
 
-            nlohmann::json awsInfoJson = nlohmann::json::parse(response.body);
-            std::stringstream result;
-            result  << "<aws>"
-                    << "<region>" << awsInfoJson["region"].get<std::string>() << "</region>"
-                    << "<accountId>" << awsInfoJson["accountId"].get<std::string>() << "</accountId>"
-                    << "<instanceId>" << awsInfoJson["instanceId"].get<std::string>() << "</instanceId>"
-                    << "</aws>";
-
-            return result.str();
+            return CloudMetadataConverters::parseAwsMetadataJson(response.body);
         }
 
         std::string PlatformUtils::getGcpMetadata(Common::HttpRequests::IHttpRequester* client) const
@@ -308,14 +300,13 @@ namespace Common::OSUtilitiesImpl
             }
             std::string hostname = response.body;
 
-            std::stringstream result;
-            result  << "<google>"
-                    << "<hostname>" << hostname << "</hostname>"
-                    << "<id>" << id << "</id>"
-                    << "<zone>" << zone << "</zone>"
-                    << "</google>";
+            std::map<std::string, std::string> metadataValues {
+                {"id", id},
+                {"zone", zone},
+                {"hostname", hostname}
+            };
 
-            return result.str();
+            return CloudMetadataConverters::parseGcpMetadata(metadataValues);
         }
 
         std::string PlatformUtils::getOracleMetadata(Common::HttpRequests::IHttpRequester* client) const
@@ -328,19 +319,7 @@ namespace Common::OSUtilitiesImpl
                 return "";
             }
 
-            nlohmann::json oracleInfoJson = nlohmann::json::parse(response.body);
-            std::stringstream result;
-            result  << "<oracle>"
-                    << "<region>" << oracleInfoJson["region"].get<std::string>() << "</region>"
-                    << "<availabilityDomain>" << oracleInfoJson["availabilityDomain"].get<std::string>() << "</availabilityDomain>"
-                    << "<compartmentId>" << oracleInfoJson["compartmentId"].get<std::string>() << "</compartmentId>"
-                    << "<displayName>" << oracleInfoJson["displayName"].get<std::string>() << "</displayName>"
-                    << "<hostname>" << oracleInfoJson["hostname"].get<std::string>() << "</hostname>"
-                    << "<state>" << oracleInfoJson["state"].get<std::string>() << "</state>"
-                    << "<instanceId>" << oracleInfoJson["instanceId"].get<std::string>() << "</instanceId>"
-                    <<"</oracle>";
-
-            return result.str();
+            return CloudMetadataConverters::parseOracleMetadataJson(response.body);
         }
 
         std::string PlatformUtils::getAzureMetadata(Common::HttpRequests::IHttpRequester* client) const
@@ -363,16 +342,7 @@ namespace Common::OSUtilitiesImpl
                 return "";
             }
 
-            nlohmann::json azureInfoJson = nlohmann::json::parse(response.body);
-            std::stringstream result;
-            result  << "<azure>"
-                    << "<vmId>" << azureInfoJson["compute"]["vmId"].get<std::string>() << "</vmId>"
-                    << "<vmName>" << azureInfoJson["compute"]["name"].get<std::string>() << "</vmName>"
-                    << "<resourceGroupName>" << azureInfoJson["compute"]["resourceGroupName"].get<std::string>() << "</resourceGroupName>"
-                    << "<subscriptionId>" << azureInfoJson["instanceId"]["subscriptionId"].get<std::string>() << "</subscriptionId>"
-                    <<"</azure>";
-
-            return result.str();
+            return CloudMetadataConverters::parseAzureMetadataJson(response.body);
         }
 
         Common::HttpRequests::RequestConfig PlatformUtils::buildCloudMetadataRequest(std::string url, Common::HttpRequests::Headers headers) const
