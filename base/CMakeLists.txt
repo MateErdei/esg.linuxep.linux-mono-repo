@@ -157,12 +157,24 @@ set( EXPAT_INPUT ${INPUT}/expat )
 set( ZLIB_INPUT ${INPUT}/zlib )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
 set( MINIZIP_INPUT ${INPUT}/minizip )
-
+set( GSL_INCLUDE ${INPUT}/gsl/include )
 set( BOOST_INCLUDE ${BOOST_INPUT}/include )
+set( GTEST_INPUT ${INPUT}/googletest )
 
 if(NOT DEFINED VERSIG_INPUT)
     set( VERSIG_INPUT ${INPUT}/versig)
 endif()
+
+if(NOT DEFINED SOPHLIB_INPUT)
+    set( SOPHLIB_INPUT ${INPUT}/sophlib)
+endif()
+
+set(SOPHLIB_INCLUDE_DIR ${SOPHLIB_INPUT}/include)
+set(SOPHLIB_LIBRARIES ${SOPHLIB_INPUT}/lib64/file/libfile.pic.a
+  ${SOPHLIB_INPUT}/lib64/logging/liblogging.pic.a
+  ${SOPHLIB_INPUT}/lib64/raii/libraii.pic.a
+  ${SOPHLIB_INPUT}/lib64/string/libstring.pic.a
+  ${SOPHLIB_INPUT}/lib64/time/libtime.pic.a)
 
 ## Allow this to be redirected for SUL development
 if(NOT DEFINED SUL_INPUT)
@@ -171,6 +183,10 @@ endif()
 
 set( SUL_LIBRARY_DIR ${SUL_INPUT}/lib64 )
 set( SUL_LIBRARY_DIRS STRING ${CMAKE_BINARY_DIR}/libs:${SUL_LIBRARY_DIR}:${BOOST_INPUT}/lib64:${CURL_INPUT}/lib64:${OPENSSL_INPUT}/lib64 FORCE)
+
+if(NOT DEFINED SDDS3LIB_INPUT)
+    set( SDDS3LIB_INPUT ${INPUT}/sdds3lib )
+endif()
 
 set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
 
@@ -188,8 +204,6 @@ INCLUDE(FindProtobuf)
 
 #FIND_PACKAGE(Protobuf REQUIRED )
 configure_file(build/protoc.sh.in protoc.sh)
-
-
 
 set( ZEROMQ_INPUT ${INPUT}/zeromq )
 ## use pkg-config to get hints for 0mq locations
@@ -270,6 +284,21 @@ find_library(ZLIB_LIBRARY
         PATHS ${ZLIB_INPUT}/lib64
         NO_DEFAULT_PATH
         )
+
+set( GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers )
+find_library(GTEST_LIBRARY
+        NAMES gtest
+        PATHS ${GTEST_INPUT}/gtest-libs
+        NO_DEFAULT_PATH)
+find_library(GTEST_MAIN_LIBRARY
+        NAMES gtest_main
+        PATHS ${GTEST_INPUT}/gtest-libs
+        NO_DEFAULT_PATH)
+set( GMOCK_INCLUDE ${GTEST_INPUT}/gmock-headers )
+find_library(GMOCK_LIBRARY
+        NAMES gmock
+        PATHS ${GTEST_INPUT}/gmock-libs
+        NO_DEFAULT_PATH)
 
 ## Allow this to be redirected for python development
 if(NOT DEFINED PYTHON_INPUT)

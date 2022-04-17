@@ -1,6 +1,8 @@
 #!/bin/bash
 
+# Uncomment for debugging
 #set -x
+
 set -e
 CLEAN=0
 while [[ $# -ge 1 ]]
@@ -243,15 +245,18 @@ function unpack_zips()
    shopt -u nullglob
 }
 
-function copy_google_test()
+function google_test()
 {
-  if [[ -d $BASEDIR/tests/googletest ]]
-  then
-    echo "Skipping copy, already present: $BASEDIR/tests/googletest"
-  else
-    echo "Copying google test into place"
-    cp -r $REDIST/googletest-release-1.8.1 $BASEDIR/tests/googletest
-  fi
+    if [[ -d "$FETCHED_INPUTS_DIR/googletest" ]]
+    then
+        if [[ ! -d $REDIST/googletest ]]
+        then
+            ln -sf $FETCHED_INPUTS_DIR/googletest $REDIST/googletest
+        fi
+    else
+        echo "ERROR - googletest not found here: $FETCHED_INPUTS_DIR/googletest"
+        exit 1
+    fi
 }
 
 function copy_certs()
@@ -315,7 +320,7 @@ function setup_cmake()
 unpack_tars
 unpack_gzipped_tars
 unpack_zips
-copy_google_test
+google_test
 copy_certs
 copy_sdds3builder
 copy_sophlib

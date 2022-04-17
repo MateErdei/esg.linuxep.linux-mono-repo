@@ -17,6 +17,8 @@ add_executable(ReactorImplTests
                 ReactorImplTestsPath.cpp
                 testrunner_main.cpp)
 target_include_directories(ReactorImplTests SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${ZeroMQ_INCLUDE_DIR}  ${CMAKE_SOURCE_DIR})
+#target_include_directories(ReactorImplTests BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${CMAKE_SOURCE_DIR})
+#target_include_directories(ReactorImplTests BEFORE PUBLIC ${CMAKE_SOURCE_DIR})
 target_link_libraries(ReactorImplTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY})
 target_link_libraries(ReactorImplTests threads testhelpers processimpl zmqwrapperapiimpl)
 gtest_discover_tests(ReactorImplTests)

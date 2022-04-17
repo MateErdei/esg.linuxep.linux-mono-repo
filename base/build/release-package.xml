@@ -109,8 +109,15 @@
             <release-version branch="release/sspl/Version_1_2_11" build-id="20220310143426-7a27b6dcf50b30fe14028c01094ace032326c1ad-17fQbX"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
+
+        <build-asset project="thirdparty" repo="googletest">
+            <release-version branch="release/sspl/Version_1_11_0" build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>
+            <include artifact-path="thirdparty/googletest/gmock-headers" dest-dir="/build/input/googletest/gmock-headers/gmock"/>
+            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="/build/input/googletest/gmock-libs"/>
+            <include artifact-path="thirdparty/googletest/gtest-headers" dest-dir="/build/input/googletest/gtest-headers/gtest"/>
+            <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="/build/input/googletest/gtest-libs"/>
+        </build-asset>
 
         <build-asset project="em" repo="esg">
             <release-version branch="release/sophlib" build-id="20220331091219-7e68d4a817ddb3cdd7d84b1594b2d9addf0986df-X4hqu2"/>
