@@ -8,7 +8,6 @@ add_executable(TestUtilityImpl
         TestTimeUtils.cpp
         TestOrderedSet.cpp)
 target_include_directories(TestUtilityImpl SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE})
-#target_include_directories(TestUtilityImpl BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}")
 target_link_libraries(TestUtilityImpl ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY} utilityimpl filesystemimpl testhelpers)
 gtest_discover_tests(TestUtilityImpl)
 SET_TARGET_PROPERTIES(TestUtilityImpl

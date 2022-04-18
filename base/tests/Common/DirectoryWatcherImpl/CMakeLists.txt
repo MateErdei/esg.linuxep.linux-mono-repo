@@ -10,7 +10,6 @@ target_include_directories(DirectoryWatcherImplTests SYSTEM BEFORE PUBLIC
         ${LOG4CPLUS_INCLUDE_DIR}
         ${CMAKE_SOURCE_DIR}
         )
-target_include_directories(DirectoryWatcherImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}")
 target_link_libraries(DirectoryWatcherImplTests ${GMOCK_LIBRARY} ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY}
             directorywatcherimpl threads zeromqwrapperimpl testhelpers
             logging

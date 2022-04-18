@@ -140,8 +140,6 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${distributionfiles} pluginapi/distribution/
 )
 
-
-# TODO make this better - only run if files have changed
 add_custom_command(
         TARGET plugintar
         POST_BUILD

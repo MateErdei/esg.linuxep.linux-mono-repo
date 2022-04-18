@@ -59,5 +59,3 @@ set_target_properties(HttpRequesterLiveNetworkTests PROPERTIES
 
 install(TARGETS HttpRequesterLiveNetworkTests
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
-
-#target_link_libraries(HttpRequesterLiveNetworkTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers)
