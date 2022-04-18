@@ -21,9 +21,8 @@ export PATH=$BUILD_TOOLS_DIR/cmake/bin:$PATH
 export CMAKE_GENERATOR="Unix Makefiles"
 
 export LIBRARY_PATH=$BUILD_TOOLS_DIR/gcc/lib64:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
-#export LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$BUILD_TOOLS_DIR/gcc/lib64:${LIBRARY_PATH}
 export CPLUS_INCLUDE_PATH=$BUILD_TOOLS_DIR/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
 export CPATH=$BUILD_TOOLS_DIR/gcc/include/:${CPATH}
 
-# Make it obvious if someone hasn't sourced this file by changing the prompt to include SSPL
+# For those using cmdline only, make it obvious if someone hasn't sourced this file by changing the prompt
 export PS1="(SSPL)$PS1"

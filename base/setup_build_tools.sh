@@ -261,5 +261,3 @@ echo "b) run ./build.sh"
 echo "c) cmdline 'source setup_env_vars.sh' and then: "
 echo "    mkdir cmake-build-debug && cd cmake-build-debug"
 echo "    cmake .. && make install"
-
-#TODO try using build-tools-package.xml only

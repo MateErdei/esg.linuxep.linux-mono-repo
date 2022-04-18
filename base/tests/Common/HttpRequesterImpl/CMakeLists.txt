@@ -40,9 +40,10 @@ add_executable(HttpRequesterLiveNetworkTests
 
 target_include_directories(HttpRequesterLiveNetworkTests SYSTEM BEFORE PUBLIC
         ${PROTOBUF_INCLUDE_DIR}
-        "${gtest_SOURCE_DIR}/include"
-        "${gmock_SOURCE_DIR}/include"
-        ${CURL_INCLUDE_DIR})
+        ${CURL_INCLUDE_DIR}
+        ${GMOCK_INCLUDE}
+        ${GTEST_INCLUDE}
+        )
 
 target_link_libraries(HttpRequesterLiveNetworkTests
         HttpRequestsImpl
