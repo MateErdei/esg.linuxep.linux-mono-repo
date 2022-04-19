@@ -12,6 +12,6 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 namespace SulDownloader
 {
 
-    std::string writeSUSRequest(const SUSRequestParameters& parameters);
+    std::string createSUSRequestBody(const SUSRequestParameters& parameters);
 
 } // namespace SulDownloader

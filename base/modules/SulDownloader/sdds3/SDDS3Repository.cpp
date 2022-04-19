@@ -179,7 +179,7 @@ namespace SulDownloader
             requestParameters.subscriptions.insert(requestParameters.subscriptions.begin(),
                                                     configurationData.getPrimarySubscription());
 
-            std::string requestJson = writeSUSRequest(requestParameters);
+            std::string requestJson = createSUSRequestBody(requestParameters);
             LOGDEBUG(requestJson);
 
             // start of SUS request
