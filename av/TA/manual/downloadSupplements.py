@@ -154,7 +154,7 @@ def run(destination, use_dataseta):
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir, "redist", "sdds3",
                             "sdds3-builder")
         if not os.path.isfile(path):
-            builder = "/opt/test/inputs/sdds3_utils/sdds3-builder"
+            builder = b"/opt/test/inputs/sdds3_utils/sdds3-builder"
         else:
             builder = path
 
