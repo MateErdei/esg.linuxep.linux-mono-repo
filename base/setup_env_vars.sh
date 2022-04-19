@@ -1,6 +1,5 @@
 #!/bin/bash
 
-export LINUX_ENV_SETUP=true
 export ROOT_LEVEL_BUILD_DIR="/build"
 export REDIST="$ROOT_LEVEL_BUILD_DIR/redist"
 #export BUILD_TOOLS_DIR="$ROOT_LEVEL_BUILD_DIR/build_tools" - atm we can't use a machine setup script so for now we have to work around what's pre-installed to be able to build in CI
@@ -26,3 +25,5 @@ export CPATH=$BUILD_TOOLS_DIR/gcc/include/:${CPATH}
 
 # For those using cmdline only, make it obvious if someone hasn't sourced this file by changing the prompt
 export PS1="(SSPL)$PS1"
+
+export LINUX_ENV_SETUP="true"
