@@ -281,7 +281,7 @@ function build()
             }
             echo 'Valgrind test finished'
             exit 0
-
+        fi
         [[ -n ${TEST_NPROC:-} ]] || TEST_NPROC=$NPROC
         timeout 1010s ctest \
             --parallel ${TEST_NPROC} \
