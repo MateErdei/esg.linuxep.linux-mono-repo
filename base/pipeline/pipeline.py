@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 import tap.v1 as tap
@@ -27,6 +28,24 @@ COVERAGE_MODE = 'coverage'
 NINE_NINE_NINE_MODE = '999'
 ZERO_SIX_ZERO_MODE = '060'
 
+logger = logging.getLogger(__name__)
+
+# Extract base version from release package xml file to save hard-coding it twice.
+def get_base_version():
+    import xml.dom.minidom
+    release_pkg_name = "release-package.xml"
+    package_path = os.path.join("./build/", release_pkg_name)
+    if os.path.isfile(package_path):
+        dom = xml.dom.minidom.parseString(open(package_path).read())
+        package = dom.getElementsByTagName("package")[0]
+        version = package.getAttribute("version")
+        if version:
+            logger.info(f"Extracted version from {release_pkg_name}: {version}")
+            return version
+
+    logger.info("CWD: %s", os.getcwd())
+    logger.info("DIR CWD: %s", str(os.listdir(os.getcwd())))
+    raise Exception(f"Failed to extract version from {release_pkg_name}")
 
 def pip_install(machine: tap.Machine, *install_args: str):
     """Installs python packages onto a TAP machine"""
@@ -216,8 +235,7 @@ def build_060(stage: tap.Root, component: tap.Component):
 
 @tap.pipeline(version=1, component=COMPONENT, root_sequential=False)
 def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    component = tap.Component(name=COMPONENT, base_version='1.1.9')
-
+    component = tap.Component(name=COMPONENT, base_version=get_base_version())
     # For cmdline/local builds, determine build mode by how tap was called
     # Not sure it's possible to pass parameters into tap so doing this for now.
     determined_build_mode=None
