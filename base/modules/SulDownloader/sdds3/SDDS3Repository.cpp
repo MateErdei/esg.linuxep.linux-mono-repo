@@ -7,6 +7,7 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 #include "SDDS3Repository.h"
 
 #include "Sdds3Wrapper.h"
+#include "SDDS3Utils.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -138,22 +139,6 @@ namespace SulDownloader
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderSynLogPath(), log_level);
     }
 
-    std::string writeSUSRequest(const SUSRequestParameters& parameters)
-    {
-        nlohmann::json json;
-        json["schema_version"] = 1;
-        json["product"] = parameters.product;
-        json["server"] = parameters.isServer;
-        json["platform_token"] = parameters.platformToken;
-        json["subscriptions"] = nlohmann::json::array();
-        for (const auto& subscription : parameters.subscriptions)
-        {
-            json["subscriptions"].push_back({ { "id", subscription.rigidName() }, { "tag", subscription.tag() } });
-        }
-
-        return json.dump();
-    }
-
     void SDDS3Repository::parseSUSResponse(
         const std::string& response,
         std::set<std::string>& suites,
@@ -214,6 +199,8 @@ namespace SulDownloader
 
             std::string url = connectionSetup.getUpdateLocationURL() + "/v3/" + configurationData.getTenantId() + "/" + configurationData.getDeviceId();
             auto httpConnection = std::make_unique<utilities::LinuxHttpClient::Connection>(*httpSession, url);
+            LOGDEBUG(url);
+            LOGDEBUG(configurationData.getJWToken());
 
             auto request = std::make_unique<utilities::LinuxHttpClient::Request>(*httpConnection, "POST", "");
             request->AddRequestHeader_Authorization("Bearer", configurationData.getJWToken());
