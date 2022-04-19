@@ -42,14 +42,12 @@ STRACE_SUPPORT="OFF"
 [[ -n "$CLEAN" ]] || CLEAN=0
 BULLSEYE=0
 BULLSEYE_UPLOAD=0
-BULLSEYE_SYSTEM_TESTS=0
-
 COVFILE="/tmp/root/sspl-base-unittest.cov"
 
 CMAKE_BUILD_TYPE=$DEBUG_BUILD_TYPE
 
 export ENABLE_STRIP=1
-#VALGRIND=0
+VALGRIND=0
 UNIT_TESTS=1
 
 # Deal with arguments
@@ -272,6 +270,18 @@ function build()
 
     if [[ "$UNIT_TESTS" == "1" ]]
     then
+        if (( ${VALGRIND} == 1 ))
+        then
+            ## -VV --debug
+            export NPROC
+            bash ${BASE}/build/valgrind/runValgrind.sh "$BUILD_DIR" \
+             || {
+                local EXITCODE=$?
+                exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
+            }
+            echo 'Valgrind test finished'
+            exit 0
+
         [[ -n ${TEST_NPROC:-} ]] || TEST_NPROC=$NPROC
         timeout 1010s ctest \
             --parallel ${TEST_NPROC} \
