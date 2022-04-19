@@ -161,7 +161,7 @@ def run(destination, use_dataseta):
         dest_dir = os.path.join(destination, b"vdl")
         safe_mkdir(dest_dir)
         sync_sdds3_supplement.sync_sdds3_supplement(supplement, builder, sdds3_temp_dir)
-        zip_files = glob.glob(os.path.join(sdds3_temp_dir, "package", "*.zip"))
+        zip_files = glob.glob(os.path.join(sdds3_temp_dir, b"package", b"*.zip"))
         for zip_file in zip_files:
             passwd = os.path.splitext(os.path.basename(zip_file))[0]
             subprocess.call(["7za", "x", "-p{}".format(passwd), "-o{}".format(dest_dir), "-y", zip_file])
