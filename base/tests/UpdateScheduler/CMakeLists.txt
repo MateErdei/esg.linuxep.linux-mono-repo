@@ -29,7 +29,6 @@ add_executable(UpdateSchedulerTests
 target_include_directories(UpdateSchedulerTests SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${LOG4CPLUS_INCLUDE_DIR} "${PROJECT_SOURCE_DIR}")
 target_link_libraries(UpdateSchedulerTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY} updateschedulerimpl filesystemimpl testhelpers processimpl suldownloaderdata)
 
-
 SET_TARGET_PROPERTIES(UpdateSchedulerTests
         PROPERTIES
         INSTALL_RPATH "${SUL_LIBRARY_DIRS}"
