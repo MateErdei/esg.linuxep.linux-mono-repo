@@ -103,6 +103,7 @@ def sync_sdds3_supplement(supplement, builder, mirror):
     target = f'{mirror}/supplement/{os.path.basename(supplement)}'
     trace(f'Mirroring {supplement} -> {target}')
     copy_file_or_url(supplement, target)
+    subprocess.call('chmod', '+x', builder)
     runargs = [
         builder,
         '--unpack-signed-file',
