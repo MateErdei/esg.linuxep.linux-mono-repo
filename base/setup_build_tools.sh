@@ -23,7 +23,7 @@ function install_package()
   local package=$1
   if which apt &>/dev/null
   then
-    if ! apt list --installed $package 2>/dev/null | grep -q $package
+    if ! apt list --installed $package 2>/dev/null | grep -q "$package"
     then
       sudo apt-get install $package -y || exit 1
     fi
@@ -62,14 +62,13 @@ then
         PYTHON_TO_USE=python3.7
       else
         echo "Python3.7 not installed, will try installing python3.8"
-        sleep 3
-        sudo apt-get install python3.8-venv -y
+        install_package  python3.8-venv
         if which python3.8
         then
           PYTHON_TO_USE=python3.8
         else
           echo "Could not install python3.8, will try installing python3.7"
-          sudo apt-get install python3.7-venv -y
+          install_package  python3.7-venv
           if which python3.7
           then
             PYTHON_TO_USE=python3.7
