@@ -150,15 +150,14 @@ def run(destination, use_dataseta):
         import sync_sdds3_supplement
         supplement = "https://sdds3.sophosupd.com/supplement/sdds3.DataSetA.dat"
 
-        ta_builder = b"/opt/test/inputs/sdds3_utils/sdds3-builder"
-        builder = ta_builder if not os.path.isfile(ta_builder) else os.path.join(os.path.dirname(os.path.abspath(__file__)).encode(), os.pardir, os.pardir, b"redist", b"sdds3", b"sdds3-builder").encode()
+        builder = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir, b"redist", b"sdds3", b"sdds3-builder")
+        if not os.path.isfile(builder):
+            builder = b"/opt/test/inputs/sdds3_utils/sdds3-builder"
 
 
-
-
-        sdds3_temp_dir = os.path.join(destination, "sdds3_temp")
+        sdds3_temp_dir = os.path.join(destination, b"sdds3_temp")
         safe_mkdir(sdds3_temp_dir)
-        dest_dir = os.path.join(destination, "vdl")
+        dest_dir = os.path.join(destination, b"vdl")
         safe_mkdir(dest_dir)
         sync_sdds3_supplement.sync_sdds3_supplement(supplement, builder, sdds3_temp_dir)
         zip_files = glob.glob(os.path.join(sdds3_temp_dir, "package", "*.zip"))
