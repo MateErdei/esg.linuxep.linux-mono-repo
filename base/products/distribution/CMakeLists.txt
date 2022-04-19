@@ -86,10 +86,10 @@ execute_process(
 
 configure_file(VERSION.ini.in VERSION.ini @ONLY)
 
-install(FILES ${CMAKE_BINARY_DIR}/products/distribution/VERSION.ini
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
         DESTINATION files/base/)
 
-install(FILES ${CMAKE_BINARY_DIR}/products/distribution/VERSION.ini
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
         DESTINATION .)
 
 install(FILES datafeed-config-scheduled_query.json
