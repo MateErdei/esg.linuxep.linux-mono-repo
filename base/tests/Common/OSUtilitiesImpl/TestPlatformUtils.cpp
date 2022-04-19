@@ -5,27 +5,28 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/OSUtilitiesImpl/PlatformUtils.h>
+#include <Common/OSUtilitiesImpl/CloudMetadataConverters.h>
+#include <Common/XmlUtilities/AttributesMap.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include "Common/XmlUtilities/AttributesMap.h"
-#include <OSUtilitiesImpl/CloudMetadataConverters.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+using namespace Common::OSUtilitiesImpl;
+
 TEST(TestPlatformUtils, PopulateVendorDetailsForUbuntu) // NOLINT
 {
-    std::vector<std::string> etcIssueContents = { "Ubuntu 18.04.6 LTS \n" };
-    std::vector<std::string> contents = {"DISTRIB_ID=Ubuntu", "DISTRIB_RELEASE=18.04", "DISTRIB_CODENAME=bionic", "DISTRIB_DESCRIPTION=\"Ubuntu 18.04.6 LTS\""};
+    std::vector<std::string> lsbReleaseContents = {"DISTRIB_ID=Ubuntu", "DISTRIB_RELEASE=18.04", "DISTRIB_CODENAME=bionic", "DISTRIB_DESCRIPTION=\"Ubuntu 18.04.6 LTS\""};
 
     auto *filesystemMock = new StrictMock<MockFileSystem>();
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
 
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readLines("/etc/lsb-release")).WillRepeatedly(Return(contents));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/lsb-release")).WillRepeatedly(Return(lsbReleaseContents));
 
-    Common::OSUtilitiesImpl::PlatformUtils platformUtils;
+    PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "ubuntu");
     ASSERT_EQ(platformUtils.getOsName(), "Ubuntu 18.04.6 LTS");
     ASSERT_EQ(platformUtils.getOsMajorVersion(), "18");
@@ -37,7 +38,7 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForUbuntu) // NOLINT
 TEST(TestPlatformUtils, PopulateVendorDetailsForRedhat) // NOLINT
 {
     auto *filesystemMock = new StrictMock<MockFileSystem>();
-    std::vector<std::string> fileContents = {"Red Hat Enterprise Linux release"};
+    std::vector<std::string> redhatReleaseContents = {"Red Hat Enterprise Linux release"};
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
@@ -45,9 +46,9 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForRedhat) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/centos-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/oracle-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/redhat-release")).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readLines("/etc/redhat-release")).WillRepeatedly(Return(fileContents));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/redhat-release")).WillRepeatedly(Return(redhatReleaseContents));
 
-    Common::OSUtilitiesImpl::PlatformUtils platformUtils;
+    PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "redhat");
 
     scopedReplaceFileSystem.reset();
@@ -56,15 +57,15 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForRedhat) // NOLINT
 TEST(TestPlatformUtils, PopulateVendorDetailsForCentos) // NOLINT
 {
     auto *filesystemMock = new StrictMock<MockFileSystem>();
-    std::vector<std::string> fileContents = {"CentOS release"};
+    std::vector<std::string> centosReleaseContents = {"CentOS release"};
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/issue")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/centos-release")).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readLines("/etc/centos-release")).WillRepeatedly(Return(fileContents));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/centos-release")).WillRepeatedly(Return(centosReleaseContents));
 
-    Common::OSUtilitiesImpl::PlatformUtils platformUtils;
+    PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "centos");
 
     scopedReplaceFileSystem.reset();
@@ -73,7 +74,7 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForCentos) // NOLINT
 TEST(TestPlatformUtils, PopulateVendorDetailsForAmazonLinux) // NOLINT
 {
     auto *filesystemMock = new StrictMock<MockFileSystem>();
-    std::vector<std::string> fileContents = {"Amazon Linux release"};
+    std::vector<std::string> systemReleaseContents = {"Amazon Linux release"};
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
@@ -82,9 +83,9 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForAmazonLinux) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/oracle-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/redhat-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/system-release")).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readLines("/etc/system-release")).WillRepeatedly(Return(fileContents));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/system-release")).WillRepeatedly(Return(systemReleaseContents));
 
-    Common::OSUtilitiesImpl::PlatformUtils platformUtils;
+    PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "amazon");
 
     scopedReplaceFileSystem.reset();
@@ -93,16 +94,16 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForAmazonLinux) // NOLINT
 TEST(TestPlatformUtils, PopulateVendorDetailsForOracle) // NOLINT
 {
     auto *filesystemMock = new StrictMock<MockFileSystem>();
-    std::vector<std::string> fileContents = {"Oracle Linux Server release"};
+    std::vector<std::string> oracleReleaseContents = {"Oracle Linux Server release"};
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/issue")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/centos-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/oracle-release")).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readLines("/etc/oracle-release")).WillRepeatedly(Return(fileContents));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/oracle-release")).WillRepeatedly(Return(oracleReleaseContents));
 
-    Common::OSUtilitiesImpl::PlatformUtils platformUtils;
+    PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "oracle");
 
     scopedReplaceFileSystem.reset();
@@ -111,7 +112,7 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForOracle) // NOLINT
 TEST(TestPlatformUtils, PopulateVendorDetailsForMiracleLinux) // NOLINT
 {
     auto *filesystemMock = new StrictMock<MockFileSystem>();
-    std::vector<std::string> fileContents = {"MIRACLE LINUX release"};
+    std::vector<std::string> miracleLinuxReleaseContents = {"MIRACLE LINUX release"};
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
@@ -121,9 +122,9 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForMiracleLinux) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/redhat-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/system-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/miraclelinux-release")).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readLines("/etc/miraclelinux-release")).WillRepeatedly(Return(fileContents));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/miraclelinux-release")).WillRepeatedly(Return(miracleLinuxReleaseContents));
 
-    Common::OSUtilitiesImpl::PlatformUtils platformUtils;
+    PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "miracle");
 
     scopedReplaceFileSystem.reset();
@@ -132,24 +133,24 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForMiracleLinux) // NOLINT
 TEST(TestPlatformUtils, GetAndConvertAwsMetadataToXml) // NOLINT
 {
     std::string responseBody = R"({
-        'accountId' : '123456789',
-        'architecture' : 'x86_64',
-        'availabilityZone' : 'eu-west-1c',
-        'billingProducts' : 'null',
-        'devpayProductCodes' : 'null',
-        'marketplaceProductCodes' : [ 'mockProductCode' ],
-        'imageId' : 'mock-ami',
-        'instanceId' : 'mockInstanceId',
-        'instanceType' : 'c4.large',
-        'kernelId' : 'null',
-        'pendingTime' : '2022-04-11T15:06:21Z',
-        'privateIp' : '123.45.67.891',
-        'ramdiskId' : 'null',
-        'region' : 'eu-west-1',
-        'version' : '2017-09-30'
+        "accountId" : "123456789",
+        "architecture" : "x86_64",
+        "availabilityZone" : "eu-west-1c",
+        "billingProducts" : "null",
+        "devpayProductCodes" : "null",
+        "marketplaceProductCodes" : [ "mockProductCode" ],
+        "imageId" : "mock-ami",
+        "instanceId" : "mockInstanceId",
+        "instanceType" : "c4.large",
+        "kernelId" : "null",
+        "pendingTime" : "2022-04-11T15:06:21Z",
+        "privateIp" : "123.45.67.891",
+        "ramdiskId" : "null",
+        "region" : "eu-west-1",
+        "version" : "2017-09-30"
     })";
 
-    std::string result = Common::OSUtilitiesImpl::CloudMetadataConverters::parseAwsMetadataJson(responseBody);
+    std::string result = CloudMetadataConverters::parseAwsMetadataJson(responseBody);
     Common::XmlUtilities::AttributesMap resultXml = Common::XmlUtilities::parseXml(result);
 
     ASSERT_EQ(resultXml.lookup("aws/region").contents(), "eu-west-1");
@@ -288,15 +289,14 @@ TEST(TestPlatformUtils, GetAndConvertAzureMetadataToXml) // NOLINT
                     }]
                 },
                 "ipv6": {
-                    "ipAddress": [
-                     ]
+                    "ipAddress": []
                 },
                 "macAddress": "0011AAFFBB22"
             }]
         }
     })";
 
-    std::string result = Common::OSUtilitiesImpl::CloudMetadataConverters::parseAzureMetadataJson(responseBody);
+    std::string result = CloudMetadataConverters::parseAzureMetadataJson(responseBody);
     Common::XmlUtilities::AttributesMap resultXml = Common::XmlUtilities::parseXml(result);
 
     ASSERT_EQ(resultXml.lookup("azure/vmId").contents(), "02aab8a4-74ef-476e-8182-f6d2ba4166a6");
@@ -313,7 +313,7 @@ TEST(TestPlatformUtils, GetAndConvertGcpMetadataToXml) // NOLINT
         {"hostname", "mock-hostname"}
     };
 
-    std::string result = Common::OSUtilitiesImpl::CloudMetadataConverters::parseGcpMetadata(metadataValues);
+    std::string result = CloudMetadataConverters::parseGcpMetadata(metadataValues);
     Common::XmlUtilities::AttributesMap resultXml = Common::XmlUtilities::parseXml(result);
 
     ASSERT_EQ(resultXml.lookup("google/hostname").contents(), metadataValues["hostname"]);
@@ -374,7 +374,7 @@ TEST(TestPlatformUtils, GetAndConvertOracleMetadataToXml) // NOLINT
         }
     })";
 
-    std::string result = Common::OSUtilitiesImpl::CloudMetadataConverters::parseOracleMetadataJson(responseBody);
+    std::string result = CloudMetadataConverters::parseOracleMetadataJson(responseBody);
     Common::XmlUtilities::AttributesMap resultXml = Common::XmlUtilities::parseXml(result);
 
     ASSERT_EQ(resultXml.lookup("oracle/region").contents(), "phx");
@@ -383,5 +383,5 @@ TEST(TestPlatformUtils, GetAndConvertOracleMetadataToXml) // NOLINT
     ASSERT_EQ(resultXml.lookup("oracle/displayName").contents(), "my-example-instance");
     ASSERT_EQ(resultXml.lookup("oracle/hostname").contents(), "my-hostname");
     ASSERT_EQ(resultXml.lookup("oracle/state").contents(), "Running");
-    ASSERT_EQ(resultXml.lookup("oracle/id").contents(), "ocid1.instance.oc1.phx.exampleuniqueID");
+    ASSERT_EQ(resultXml.lookup("oracle/instanceId").contents(), "ocid1.instance.oc1.phx.exampleuniqueID");
 }

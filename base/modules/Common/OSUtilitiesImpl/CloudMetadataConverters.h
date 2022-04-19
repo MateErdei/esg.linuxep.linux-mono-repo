@@ -42,7 +42,7 @@ namespace Common::OSUtilitiesImpl
                    << "<vmId>" << azureInfoJson["compute"]["vmId"].get<std::string>() << "</vmId>"
                    << "<vmName>" << azureInfoJson["compute"]["name"].get<std::string>() << "</vmName>"
                    << "<resourceGroupName>" << azureInfoJson["compute"]["resourceGroupName"].get<std::string>() << "</resourceGroupName>"
-                   << "<subscriptionId>" << azureInfoJson["instanceId"]["subscriptionId"].get<std::string>() << "</subscriptionId>"
+                   << "<subscriptionId>" << azureInfoJson["compute"]["subscriptionId"].get<std::string>() << "</subscriptionId>"
                    <<"</azure>";
 
             return result.str();
