@@ -135,12 +135,14 @@
     </inputs>
     <buildcommands>
 
-        <!-- Release build -->
-        <command mode="release">
+        <!-- Common build steps -->
+        <command>
             <program>/bin/bash</program>
             <args>./unpack_build_inputs.sh</args>
             <workingdir>.</workingdir>
         </command>
+
+        <!-- Release build -->
         <command mode="release">
             <program>/bin/bash</program>
             <args>./build.sh --release</args>
@@ -150,21 +152,11 @@
         <!-- Debug build -->
         <command mode="debug">
             <program>/bin/bash</program>
-            <args>./unpack_build_inputs.sh</args>
-            <workingdir>.</workingdir>
-        </command>
-        <command mode="debug">
-            <program>/bin/bash</program>
             <args>./build.sh --debug</args>
             <workingdir>.</workingdir>
         </command>
 
         <!-- Coverage build -->
-        <command mode="coverage">
-            <program>/bin/bash</program>
-            <args>./unpack_build_inputs.sh</args>
-            <workingdir>.</workingdir>
-        </command>
         <command mode="coverage">
             <program>/bin/bash</program>
             <args>./build.sh --clean --bullseye --release</args>
@@ -174,11 +166,6 @@
         <!-- Static analysis build -->
         <command mode="analysis">
             <program>/bin/bash</program>
-            <args>./unpack_build_inputs.sh</args>
-            <workingdir>.</workingdir>
-        </command>
-        <command mode="analysis">
-            <program>/bin/bash</program>
             <args>./build.sh --no-build --analysis</args>
             <workingdir>.</workingdir>
         </command>
@@ -186,21 +173,11 @@
         <!-- 999 version Build-->
         <command mode="999">
             <program>/bin/bash</program>
-            <args>./unpack_build_inputs.sh</args>
-            <workingdir>.</workingdir>
-        </command>
-        <command mode="999">
-            <program>/bin/bash</program>
             <args>./build.sh --clean --999 --no-unittest --release</args>
             <workingdir>.</workingdir>
         </command>
 
         <!-- 060 version Build-->
-        <command mode="060">
-            <program>/bin/bash</program>
-            <args>./unpack_build_inputs.sh</args>
-            <workingdir>.</workingdir>
-        </command>
         <command mode="060">
             <program>/bin/bash</program>
             <args>./build.sh --clean --060 --no-unittest --release</args>
