@@ -24,7 +24,7 @@ export OUTPUT
 
 function source_file()
 {
-  local path=$1
+  local path="$1"
   [ -f "$path" ] || { echo "Can't find $path" ; exit 11 ; }
   source "$path"
 }
