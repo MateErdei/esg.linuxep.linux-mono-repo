@@ -5,6 +5,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <CentralRegistration/Main.h>
+#include <CentralRegistration/MessageReplayExtractor.h>
 #include <cmcsrouter/Config.h>
 #include <cmcsrouter/ConfigOptions.h>
 #include <gtest/gtest.h>
@@ -15,6 +16,25 @@ class CentralRegistrationMainTests : public LogInitializedTests
 {
 
 };
+
+TEST_F(CentralRegistrationMainTests, extractor) //NOLINT
+{
+    std::string test{"relay1:port1,priority1,id1;relay2:port2,priority2,id2;relay3:port3,priority3,id3"};
+    std::vector<MCS::MessageRelay> result = extractMessageRelays(test);
+    ASSERT_EQ(result.size(), 3);
+    ASSERT_EQ(result[0].priority, "priority1");
+    ASSERT_EQ(result[0].id, "id1");
+    ASSERT_EQ(result[0].address, "relay1");
+    ASSERT_EQ(result[0].port, "port1");
+    ASSERT_EQ(result[1].priority, "priority2");
+    ASSERT_EQ(result[1].id, "id2");
+    ASSERT_EQ(result[1].address, "relay2");
+    ASSERT_EQ(result[1].port, "port2");
+    ASSERT_EQ(result[2].priority, "priority3");
+    ASSERT_EQ(result[2].id, "id3");
+    ASSERT_EQ(result[2].address, "relay3");
+    ASSERT_EQ(result[2].port, "port3");
+}
 
 TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArguments) // NOLINT
 {
@@ -50,7 +70,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
         "https://MCS_URL",
         "--customer-token", "MCS_CustomerToken002",
         "--proxy-credentials", "proxyUsername:proxyPassword",
-        "--message-relay", "priority1,id1,relay1:port1;priority2,id2,relay2:port2;priority3,id3,relay3:port3",
+        "--message-relay", "relay1:port1,priority1,id1;relay2:port2,priority2,id2;relay3:port3,priority3,id3",
         "--version", "thininstallerVersion",
         "--groups=group1/group2",
         "--products=antivirus,mdr"
@@ -59,7 +79,6 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
 
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("MCS_CA")).WillOnce(Return(""));
-    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 

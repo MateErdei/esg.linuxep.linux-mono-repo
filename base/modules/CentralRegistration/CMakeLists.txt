@@ -7,6 +7,7 @@ add_library(centralregistrationimpl SHARED
         Main.cpp
         CentralRegistration.h
         CentralRegistration.cpp
+        MessageReplayExtractor.h
         )
 
 target_include_directories(centralregistrationimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})

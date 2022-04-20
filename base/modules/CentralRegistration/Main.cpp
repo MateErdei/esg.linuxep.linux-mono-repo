@@ -7,6 +7,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "Main.h"
 
 #include "CentralRegistration.h"
+#include "MessageReplayExtractor.h"
 #include "Logger.h"
 
 #include <cmcsrouter/Config.h>
@@ -30,31 +31,6 @@ namespace CentralRegistrationImpl
         {
             configOptions[key] = groupArgs[1];
         }
-    }
-
-    std::vector<MCS::MessageRelay> extractMessageRelays(const std::string& messageRelaysAsString)
-    {
-        std::vector<MCS::MessageRelay> messageRelays;
-        std::vector<std::string> splitMessageRelays = Common::UtilityImpl::StringUtils::splitString(messageRelaysAsString, ";");
-        for(auto& messageRelayAsString : splitMessageRelays)
-        {
-            std::vector<std::string> contents = Common::UtilityImpl::StringUtils::splitString(messageRelayAsString, ",");
-            if(contents.size() != 3)
-            {
-                continue;
-            }
-            std::string priority = contents[1];
-            std::string id = contents[2];
-            std::vector<std::string> address = Common::UtilityImpl::StringUtils::splitString(contents[0], ":");
-            if(address.size() != 2)
-            {
-                continue;
-            }
-            std::string hostname = address[0];
-            std::string port = address[1];
-            messageRelays.emplace_back(MCS::MessageRelay { priority, id, hostname, port });
-        }
-        return messageRelays;
     }
 
     MCS::ConfigOptions processCommandLineOptions(const std::vector<std::string>& args, std::shared_ptr<OSUtilities::ISystemUtils> systemUtils)
@@ -176,7 +152,7 @@ namespace CentralRegistrationImpl
         std::vector<std::string> args(argc);
         for(int i=0; i < argc; i++)
         {
-            args.emplace_back(argv[i]);
+            args[i]= argv[i];
         }
 
         std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();

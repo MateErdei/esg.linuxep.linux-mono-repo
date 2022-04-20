@@ -151,6 +151,7 @@ namespace CentralRegistrationImpl
     {
         LOGDEBUG("Beginning product registration");
         std::string statusXml = agentAdapter->getStatusXml(configOptions.config);
+        LOGDEBUG("Status XML:\n" + statusXml);
 
         preregistration(configOptions, statusXml, requester);
 
