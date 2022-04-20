@@ -145,6 +145,19 @@ namespace CentralRegistrationImpl
         return configOptions;
     }
 
+    MCS::ConfigOptions innerCentralRegistration(const std::vector<std::string>& args)
+    {
+        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
+
+        MCS::ConfigOptions configOptions = processCommandLineOptions(args, systemUtils);
+        if(configOptions.config.empty())
+        {
+            throw std::runtime_error("Failed to process command line options");
+        }
+        return registerAndObtainMcsOptions(configOptions);
+    }
+
+
     int main_entry(int argc, char* argv[])
     {
         Common::Logging::ConsoleLoggingSetup loggerSetup;
@@ -154,15 +167,15 @@ namespace CentralRegistrationImpl
         {
             args[i]= argv[i];
         }
-
-        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
-
-        MCS::ConfigOptions configOptions = processCommandLineOptions(args, systemUtils);
-        if(configOptions.config.empty())
+        try
         {
+            innerCentralRegistration(args);
+        }
+        catch (std::runtime_error& ex)
+        {
+            LOGERROR(ex.what());
             return 1;
         }
-        configOptions = registerAndObtainMcsOptions(configOptions);
         return 0;
     }
 

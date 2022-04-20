@@ -17,5 +17,6 @@ namespace CentralRegistrationImpl
     //void updateConfigOptions(std::string& key, std::string& value, std::map<std::string, std::string>& configOptions);
     MCS::ConfigOptions processCommandLineOptions(const std::vector<std::string>& args, std::shared_ptr<OSUtilities::ISystemUtils> systemUtils);
     int main_entry(int argc, char* argv[]);
+    MCS::ConfigOptions innerCentralRegistration(const std::vector<std::string>& args, std::shared_ptr<OSUtilities::ISystemUtils> systemUtils);
 
 } // namespace CentralRegistrationImpl
