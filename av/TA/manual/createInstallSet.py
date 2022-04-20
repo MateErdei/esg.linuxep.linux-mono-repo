@@ -26,7 +26,7 @@ def download_supplements(dest):
     downloadSupplements.LOGGER = LOGGER
     use_dataset_A = True
 
-    updated = downloadSupplements.run(dest, use_dataset_A)
+    updated = downloadSupplements.run(dest.decode(), use_dataset_A)
     return updated
 
 
