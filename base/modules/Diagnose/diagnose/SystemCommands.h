@@ -20,7 +20,7 @@ namespace diagnose
         /*
          * runs a command and writes the output to a file
          */
-        int runCommand(const std::string& command, std::vector<std::string> arguments, const std::string& filename)
+        int runCommand(const std::string& command, std::vector<std::string> arguments, const std::string& filename, const std::vector<u_int16_t>& exitcodes= {})
             const;
 
         /*
@@ -33,8 +33,7 @@ namespace diagnose
         void zipDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const;
         void produceZip(const std::string& srcPath, const std::string& destPath) const;
     private:
-        std::string getExecutablePath(const std::string& executableName) const;
-        std::string runCommandOutputToString(const std::string& command, std::vector<std::string> args) const;
+        std::string runCommandOutputToString(const std::string& command, std::vector<std::string> args, const std::vector<u_int16_t>& exitcodes) const;
 
         std::string m_destination;
     };

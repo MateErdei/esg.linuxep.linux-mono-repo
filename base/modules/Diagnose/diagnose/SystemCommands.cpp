@@ -39,7 +39,8 @@ namespace diagnose
     int SystemCommands::runCommand(
         const std::string& command,
         std::vector<std::string> arguments,
-        const std::string& filename) const
+        const std::string& filename,
+        const std::vector<u_int16_t>& exitcodes) const
     {
         Path filePath = Common::FileSystem::join(m_destination, filename);
         LOGINFO("Output file path: " << filePath);
@@ -47,7 +48,7 @@ namespace diagnose
         try
         {
             std::string exePath = Common::UtilityImpl::SystemExecutableUtils::getSystemExecutablePath(command);
-            auto output = runCommandOutputToString(exePath, arguments);
+            auto output = runCommandOutputToString(exePath, arguments,exitcodes);
             fileSystem()->writeFile(filePath, output);
             return EXIT_SUCCESS;
         }
@@ -58,7 +59,13 @@ namespace diagnose
         }
         catch (SystemCommandsException& e)
         {
-            LOGINFO("Running command: '" << command << "' failed  to complete with: " << e.what());
+            std::stringstream commandString;
+            commandString << command;
+            for (size_t i = 0; i < arguments.size(); ++i)
+            {
+                commandString << " " << arguments[i];
+            }
+            LOGINFO("Running command: '" << commandString.str() << "' failed to complete with: " << e.what());
 
             std::stringstream message;
             message << e.output() << "***End Of Command Output***" << std::endl
@@ -69,7 +76,7 @@ namespace diagnose
         return EXIT_FAILURE;
     }
 
-    std::string SystemCommands::runCommandOutputToString(const std::string& command, std::vector<std::string> args)
+    std::string SystemCommands::runCommandOutputToString(const std::string& command, std::vector<std::string> args, const std::vector<u_int16_t>& exitcodes)
         const
     {
         std::string commandAndArgs(command);
@@ -95,10 +102,33 @@ namespace diagnose
 
         auto output = processPtr->output();
         int exitCode = processPtr->exitCode();
-        if (exitCode != 0)
+        if (!exitcodes.empty())
+        {
+            if (std::find(exitcodes.begin(), exitcodes.end(), exitCode) == exitcodes.end())
+            {
+                std::stringstream expectedCodesString;
+                expectedCodesString << "{";
+                for (size_t i = 0; i < exitcodes.size(); ++i)
+                {
+                    if (i != 0)
+                    {
+                        expectedCodesString << ",";
+                    }
+                    expectedCodesString << exitcodes[i];
+                }
+                expectedCodesString << "}";
+
+                throw SystemCommandsException(
+                    " Expected exit code from range " + expectedCodesString.str() + ", Actual exit code is " +
+                        std::to_string(exitCode) + ", Error message: " + Common::UtilityImpl::StrError(exitCode),
+                    output);
+            }
+
+        }
+        else if (exitCode != 0)
         {
             throw SystemCommandsException(
-                "Process execution returned non-zero exit code, 'Exit Code: " + Common::UtilityImpl::StrError(exitCode),
+                 Common::UtilityImpl::StrError(exitCode),
                 output);
         }
         return output;

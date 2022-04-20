@@ -54,6 +54,7 @@ Diagnose Tool Gathers Logs When Run From Installation
 
     ${contents} =  Get File  /tmp/diagnose.log
     Should Not Contain  ${contents}  error  ignore_case=True
+    Should Not Contain  ${contents}  Running command: 'systemctl status sophos-spl-update' failed to complete with
     Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
 
 Diagnose Tool Gathers Logs When Run From Systemctl

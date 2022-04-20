@@ -117,7 +117,7 @@ namespace diagnose
             systemCommands.runCommand("systemctl", { "list-unit-files" }, "list-unit-files");
             systemCommands.runCommand("systemctl", { "status", "sophos-spl" }, "systemctl-status-sophos-spl");
             systemCommands.runCommand(
-                "systemctl", { "status", "sophos-spl-update" }, "systemctl-status-sophos-spl-update");
+                "systemctl", { "status", "sophos-spl-update" }, "systemctl-status-sophos-spl-update",{0,3});
             systemCommands.runCommand("ls", { "/etc/audisp/plugins.d/" }, "plugins.d");
             systemCommands.runCommand(
                 "journalctl", { logCollectionInterval, "-u", "sophos-spl" }, "journalctl-sophos-spl");
