@@ -226,20 +226,16 @@ EDR Plugin Runs All Scheduled Queries
 EDR Plugin Logs Broken JSON In Scheduled Query Pack
     Run Keyword And Ignore Error  Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
     Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"schedule": {"extracomma": {"query": "select * from uptime;","interval": 1},}}
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  {"schedule": {"extracomma": {"query": ,"interval": 1},}}
     Stop EDR
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to stop edr
 
     Enable XDR
-#TODO LINUXDAR-4574 renable this check when this ticket is done
-#    Wait Until Keyword Succeeds
-#    ...  15 secs
-#    ...  1 secs
-#    ...  EDR Plugin Log Contains  Failed to parse ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains  updateSource failed to parse config, of source: ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    ...  EDR Plugin Log Contains  Failed to parse ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+
 
 EDR Plugin writes custom query file when it recieves a Live Query policy and removes it when there are no custom queries
     [Setup]  No Operation
