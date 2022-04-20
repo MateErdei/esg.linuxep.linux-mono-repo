@@ -76,7 +76,10 @@ namespace CentralRegistrationImpl
             }
             else if(currentArg == "--customer-token")
             {
-                configOptions[MCS::MCS_CUSTOMER_TOKEN] = args[++i];
+                if((i + 1) < argSize)
+                {
+                    configOptions[MCS::MCS_CUSTOMER_TOKEN] = args[++i];
+                }
             }
             else if(Common::UtilityImpl::StringUtils::startswith(currentArg, "--products"))
             {
@@ -84,15 +87,24 @@ namespace CentralRegistrationImpl
             }
             else if(currentArg == "--proxy-credentials")
             {
-                proxyCredentials = args[++i];
+                if((i + 1) < argSize)
+                {
+                    proxyCredentials = args[++i];
+                }
             }
             else if(currentArg == "--message-relay")
             {
-                messageRelaysAsString = args[++i];
+                if((i + 1) < argSize)
+                {
+                    messageRelaysAsString = args[++i];
+                }
             }
             else if(currentArg == "--version")
             {
-                configOptions[MCS::VERSION_NUMBER] = args[++i];
+                if((i + 1) < argSize)
+                {
+                    configOptions[MCS::VERSION_NUMBER] = args[++i];
+                }
             }
         }
 
