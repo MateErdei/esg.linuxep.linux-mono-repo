@@ -35,29 +35,7 @@ target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}
         "${CMAKE_BINARY_DIR}/modules/SulDownloader/suldownloaderdata"
         )
 target_link_libraries(SulDownloaderTests gtest gmock gtest_main)
-target_link_libraries(SulDownloaderTests
-        processimpl
-        filesystemimpl
-        suldownloaderimpl
-        testhelpers
-        threads
-        stdc++fs
-        protobufutil
-        ${SDDS3_LIBRARY}
-        ${SOPHLIB_LIBRARIES})
-
-#target_link_libraries(SDDS3DownloaderTest
-#        filesystemimpl
-#        -L${SDDS3LIB_INPUT} -lsdds3 -ldelta -lpugixml -lutils -lsdds3crypto
-#        -lminizip
-#        stdc++fs
-#        ${SOPHLIB_LIBRARIES}
-#        ${OPENSSL_LIBRARY}
-#        ${OPENSSL_CRYPTO_LIBRARY}
-#        -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-stringop-overflow
-#        )
-
-
+target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl testhelpers threads protobufutil ${SDDS3_LIBRARY} ${SOPHLIB_LIBRARIES})
 gtest_discover_tests(SulDownloaderTests)
 
 SET_TARGET_PROPERTIES(SulDownloaderTests

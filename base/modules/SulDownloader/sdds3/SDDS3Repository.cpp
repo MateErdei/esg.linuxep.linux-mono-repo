@@ -199,6 +199,8 @@ namespace SulDownloader
 
             std::string url = connectionSetup.getUpdateLocationURL() + "/v3/" + configurationData.getTenantId() + "/" + configurationData.getDeviceId();
             auto httpConnection = std::make_unique<utilities::LinuxHttpClient::Connection>(*httpSession, url);
+            LOGDEBUG(url);
+            LOGDEBUG(configurationData.getJWToken());
 
             auto request = std::make_unique<utilities::LinuxHttpClient::Request>(*httpConnection, "POST", "");
             request->AddRequestHeader_Authorization("Bearer", configurationData.getJWToken());
