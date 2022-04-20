@@ -5,7 +5,7 @@ set -ex
 if [[ -x $(which apt) ]]
 then
     apt-get update
-    DEBIAN_FRONTEND=noninteractive apt-get install -y nfs-kernel-server zip unzip samba
+    DEBIAN_FRONTEND=noninteractive apt-get install -y nfs-kernel-server zip unzip samba p7zip-full
 elif [[ -x $(which yum) ]]
 then
     if [[ -f /etc/os-release ]]; then
@@ -44,7 +44,7 @@ then
             exit $EXIT
         fi
     }
-    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba
+    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba p7zip
 else
     echo "Can't find package management system"
     exit 1
