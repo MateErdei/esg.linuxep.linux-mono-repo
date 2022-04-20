@@ -150,18 +150,18 @@ def run(destination, use_dataseta):
         import sync_sdds3_supplement
         supplement = "https://sdds3.sophosupd.com/supplement/sdds3.DataSetA.dat"
 
-        builder = os.path.join(os.path.dirname(os.path.abspath(__file__)).encode(), os.pardir.encode(), os.pardir.encode(), b"redist", b"sdds3", b"sdds3-builder")
+        builder = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir, "redist", "sdds3", "sdds3-builder")
 
         if not os.path.isfile(builder):
-            builder = b"/opt/test/inputs/sdds3_utils/sdds3-builder"
+            builder = "/opt/test/inputs/sdds3_utils/sdds3-builder"
 
 
-        sdds3_temp_dir = os.path.join(destination, b"sdds3_temp")
+        sdds3_temp_dir = os.path.join(destination, "sdds3_temp")
         safe_mkdir(sdds3_temp_dir)
-        dest_dir = os.path.join(destination, b"vdl")
+        dest_dir = os.path.join(destination, "vdl")
         safe_mkdir(dest_dir)
         sync_sdds3_supplement.sync_sdds3_supplement(supplement, builder, sdds3_temp_dir)
-        zip_files = glob.glob(os.path.join(sdds3_temp_dir, b"package", b"*.zip"))
+        zip_files = glob.glob(os.path.join(sdds3_temp_dir, "package", "*.zip"))
         for zip_file in zip_files:
             passwd = os.path.splitext(os.path.basename(zip_file))[0]
             subprocess.call(["7za", "x", "-p{}".format(passwd), "-o{}".format(dest_dir), "-y", zip_file])
