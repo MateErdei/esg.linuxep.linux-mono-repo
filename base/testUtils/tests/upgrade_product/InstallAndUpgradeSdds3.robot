@@ -1,6 +1,6 @@
 *** Settings ***
-Suite Setup      Suite Setup
-Suite Teardown   Suite Teardown
+Suite Setup      Suite Setup Without Ostia
+Suite Teardown   Suite Teardown Without Ostia
 
 Test Setup       Test Setup
 Test Teardown    Run Keywords
@@ -56,7 +56,7 @@ ${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/AL
 
 ${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
 ${UpdateConfigFile}                         ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
-${sdds3_server_output}                      /tmp/sdds3-server.log
+${sdds3_server_output}                      /tmp/sdds3_server.log
 
 ${sdds2_primary}                            ${SOPHOS_INSTALL}/base/update/cache/primary
 ${sdds2_primary_warehouse}                  ${SOPHOS_INSTALL}/base/update/cache/primarywarehouse
@@ -147,24 +147,6 @@ SDDS3 Sync Removes Local SDDS2 Cache
     Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  2
 
 *** Keywords ***
-Create Local SDDS3 Override
-    ${override_file_contents} =  Catenate    SEPARATOR=\n
-    # these settings will instruct SulDownloader to update using SDDS3 via a local test HTTP server.
-    ...  URLS = http://127.0.0.1:8080
-    ...  CDN_URL = http://127.0.0.1:8080
-    ...  USE_SDDS3 = true
-    ...  USE_HTTP = true
-    Create File    ${sdds3_override_file}    content=${override_file_contents}
-
-Start Local SDDS3 Server
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo &> ${sdds3_server_output}  shell=true
-    [Return]  ${handle}
-
-Stop Local SDDS3 Server
-     terminate process  ${GL_handle}  True
-     Log File    ${sdds3_server_output}
-     terminate all processes  True
-
 Create Dummy Local SDDS2 Cache Files
     Create File         ${sdds2_primary}/base/update/cache/primary/1
     Create Directory    ${sdds2_primary}/base/update/cache/primary/2

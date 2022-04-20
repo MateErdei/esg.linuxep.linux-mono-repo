@@ -54,14 +54,20 @@ Test Teardown
     Require Uninstalled
 
 Suite Setup
+    Suite Setup Without Ostia
+    Setup Ostia Warehouse Environment
+
+Suite Setup Without Ostia
     Regenerate HTTPS Certificates
     Regenerate Certificates
     Set Local CA Environment Variable
-    Setup Ostia Warehouse Environment
 
 
 Suite Teardown
     Teardown Ostia Warehouse Environment
+    Suite Teardown Without Ostia
+
+Suite Teardown Without Ostia
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
 
 Cleanup Local Warehouse And Thininstaller
@@ -161,3 +167,27 @@ Mark Known Upgrade Errors
 
     #TODO LINUXDAR-3490 remove when this defect is fixed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections died with 1
+
+Create Local SDDS3 Override
+    ${override_file_contents} =  Catenate    SEPARATOR=\n
+    # these settings will instruct SulDownloader to update using SDDS3 via a local test HTTP server.
+    ...  URLS = http://127.0.0.1:8080
+    ...  CDN_URL = http://127.0.0.1:8080
+    ...  USE_SDDS3 = true
+    ...  USE_HTTP = true
+    Create File    ${sdds3_override_file}    content=${override_file_contents}
+
+Start Local SDDS3 Server
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
+    [Return]  ${handle}
+
+Start Local SDDS3 Server With Empty Repo
+    Create Directory  /tmp/FakeFlags
+    Create Directory    /tmp/FakeRepo
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/FakeFlags --sdds3 /tmp/FakeRepo  shell=true
+    [Return]  ${handle}
+
+Stop Local SDDS3 Server
+     terminate process  ${GL_handle}  True
+     Log File    ${sdds3_server_output}
+     terminate all processes  True
