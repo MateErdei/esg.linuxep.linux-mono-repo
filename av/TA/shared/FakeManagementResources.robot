@@ -1,6 +1,5 @@
 *** Settings ***
 
-Library         ../Libs/BaseInteractionTools/DiagnoseUtils.py
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/ExclusionHelper.py

@@ -88,6 +88,7 @@ Bootstrap SUSI From Update Source
     Run Process   ldconfig   -lN   *.so.*   cwd=${SUSI_DIST_VERS}   shell=True
     Run Process   ldconfig   -lN   *.so.*   cwd=${SUSI_V1DIR}   shell=True
     Run Process   ln  -s  libsophtainer.so.1  libsophtainer.so   cwd=${SUSI_V1DIR}   shell=True
+    Run Process   ln  -s  libglobalrep.so.1  libglobalrep.so   cwd=${SUSI_V1DIR}   shell=True
 
 
 Setup Component For Testing

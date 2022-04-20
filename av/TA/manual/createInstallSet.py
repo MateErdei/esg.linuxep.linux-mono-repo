@@ -9,6 +9,7 @@ import sys
 
 import downloadSupplements
 ensure_binary = downloadSupplements.ensure_binary
+ensure_unicode = downloadSupplements.ensure_unicode
 
 LOGGER = None
 
@@ -26,7 +27,7 @@ def download_supplements(dest):
     downloadSupplements.LOGGER = LOGGER
     use_dataset_A = True
 
-    updated = downloadSupplements.run(dest.decode(), use_dataset_A)
+    updated = downloadSupplements.run(ensure_unicode(dest), use_dataset_A)
     return updated
 
 
