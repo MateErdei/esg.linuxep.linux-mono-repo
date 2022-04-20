@@ -25,7 +25,7 @@
             <include artifact-path="output" dest-dir="input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="cmake">
-            <release-version branch="release/sophos/v3.22.1" build-id="20220311114259-a491d14ee4cafa886ea85aa4ce6858d9ce163c2d-YRz6uO"/>
+            <release-version branch="release/sophos/v3.22.1" build-id="20220412085321-29886e1a6f8ae2867207fa5c4873eaac5c6075a7-VxG3sr"/>
             <include artifact-path="cmake" dest-dir="input/cmake"/>
         </build-asset>
         <build-asset project="thirdparty" repo="gcc">
