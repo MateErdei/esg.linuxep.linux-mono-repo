@@ -1,6 +1,6 @@
 *** Settings ***
-Suite Setup      Suite Setup
-Suite Teardown   Suite Teardown
+Suite Setup      Suite Setup Without Ostia
+Suite Teardown   Suite Teardown Without Ostia
 
 Test Setup       Test Setup
 Test Teardown    Run Keywords
@@ -55,7 +55,7 @@ ${sdds3_server_output}                      /tmp/sdds3_server.log
 *** Test Cases ***
 Sul Downloader Requests Fixed Version When Fixed Version In Policy
     Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicy.xml
-    ${handle}=  Start Local SDDS3 Server
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
     Require Fresh Install
     Create File    /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
