@@ -16,5 +16,6 @@ add_subdirectory(PluginApi)
 add_subdirectory(Telemetry)
 add_subdirectory(TelemetryScheduler)
 add_subdirectory(CentralRegistration)
+add_subdirectory(CentralRegistrationApi)
 
 
