@@ -26,4 +26,3 @@ Successful Registration In C
     Log  ${result.stderr}
     Check Cloud Server Log Does Not Contain  Processing deployment api call
     Check Cloud Server Log Contains  Register with ::ThisIsARegToken
-    Should Contain  ${result.stderr}  Product successfully registered

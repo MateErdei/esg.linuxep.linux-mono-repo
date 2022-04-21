@@ -43,6 +43,10 @@ namespace MCS
             {"Content-Type","application/json;charset=UTF-8"}
         };
 
+        if(!registerConfig.config[MCS::MCS_CA_OVERRIDE].empty())
+        {
+            client.setCertPath(registerConfig.config[MCS::MCS_CA_OVERRIDE]);
+        }
         client.setProxyInfo(proxy, registerConfig.config[MCS::MCS_PROXY_USERNAME], registerConfig.config[MCS::MCS_PROXY_PASSWORD]);
         Common::HttpRequests::Response response = client.sendRegistration(headers, "/install/deployment-info/2", statusXml);
         return response.body;
@@ -74,6 +78,10 @@ namespace MCS
             {"Content-Type","application/xml; charset=utf-8"}
         };
 
+        if(!configOptions.config[MCS::MCS_CA_OVERRIDE].empty())
+        {
+            client.setCertPath(configOptions.config[MCS::MCS_CA_OVERRIDE]);
+        }
         client.setProxyInfo(proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
         Common::HttpRequests::Response response = client.sendRegistration(headers, "/register", statusXml);
         if(response.status == 200)
