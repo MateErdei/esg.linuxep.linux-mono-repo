@@ -89,6 +89,8 @@ Bootstrap SUSI From Update Source
     Run Process   ldconfig   -lN   *.so.*   cwd=${SUSI_V1DIR}   shell=True
     Run Process   ln  -s  libsophtainer.so.1  libsophtainer.so   cwd=${SUSI_V1DIR}   shell=True
     Run Process   ln  -s  libglobalrep.so.1  libglobalrep.so   cwd=${SUSI_V1DIR}   shell=True
+    ${result} =  Run Process  ls  -l  ${TEST_INPUT_PATH}/vdl/
+    Log  /opt/test/inputs/vdl: ${result.stdout}
     ${result} =  Run Process  find  ${SUSI_UPDATE_SRC}
     Log  Update Source: ${result.stdout}
     ${result} =  Run Process  find  ${SUSI_V1DIR}

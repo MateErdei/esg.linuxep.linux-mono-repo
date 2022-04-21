@@ -294,9 +294,7 @@ def main(argv):
     copy_from_input("libsavi/release/libsavi.so.3.2.*", SAVI_DIR)
 
     ## libarchive
-    ## This needs to be the first thing to go in susi core
-    ## as it deletes the directory.
-    copy_from_input("libarchive/lib/*", SUSICORE_DIR)
+    copy_from_input("libarchive/lib/libarchive.so*", SUSICORE_DIR)
 
     ## libsusicore
     copy_from_input("susi/lib/libsusicore.so*", SUSICORE_DIR)
