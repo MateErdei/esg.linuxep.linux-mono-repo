@@ -25,9 +25,8 @@ def log(*x):
 def download_supplements(dest):
     # ensure manual dir is on sys.path
     downloadSupplements.LOGGER = LOGGER
-    use_dataset_A = True
 
-    updated = downloadSupplements.run(ensure_unicode(dest), use_dataset_A)
+    updated = downloadSupplements.run(ensure_unicode(dest))
     return updated
 
 

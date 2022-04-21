@@ -14,6 +14,7 @@ import json
 import os
 import shutil
 import subprocess
+import sync_sdds3_supplement
 import sys
 import zipfile
 
@@ -141,34 +142,31 @@ def process(baseurl, filename, dirname):
     return zip_updated
 
 
-def run(destination, use_dataseta):
+def run(destination):
     global DEST
     DEST = ensure_binary(destination)
     safe_mkdir(DEST)
     artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/"
-    if use_dataseta:
-        import sync_sdds3_supplement
-        supplement = "https://sdds3.sophosupd.com/supplement/sdds3.DataSetA.dat"
 
-        builder = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir, "redist", "sdds3", "sdds3-builder")
+    supplement = "https://sdds3.sophosupd.com/supplement/sdds3.DataSetA.dat"
 
-        if not os.path.isfile(builder):
-            builder = "/opt/test/inputs/sdds3_utils/sdds3-builder"
+    builder = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir, "redist", "sdds3", "sdds3-builder")
+
+    if not os.path.isfile(builder):
+        builder = "/opt/test/inputs/sdds3_utils/sdds3-builder"
 
 
-        sdds3_temp_dir = os.path.join(destination, "sdds3_temp")
-        safe_mkdir(sdds3_temp_dir)
-        dest_dir = os.path.join(destination, "vdl")
-        safe_mkdir(dest_dir)
-        sync_sdds3_supplement.sync_sdds3_supplement(supplement, builder, sdds3_temp_dir)
-        zip_files = glob.glob(os.path.join(sdds3_temp_dir, "package", "*.zip"))
-        for zip_file in zip_files:
-            passwd = os.path.splitext(os.path.basename(zip_file))[0]
-            subprocess.call(["7za", "x", "-p{}".format(passwd), "-o{}".format(dest_dir), "-y", zip_file])
-        shutil.rmtree(sdds3_temp_dir)
-        updated = True
-    else:
-        updated = process(artifactory_base_url + "ssplav-vdl/released", "vdl.zip", b"vdl")
+    sdds3_temp_dir = os.path.join(destination, "sdds3_temp")
+    safe_mkdir(sdds3_temp_dir)
+    dest_dir = os.path.join(destination, "vdl")
+    safe_mkdir(dest_dir)
+    sync_sdds3_supplement.sync_sdds3_supplement(supplement, builder, sdds3_temp_dir)
+    zip_files = glob.glob(os.path.join(sdds3_temp_dir, "package", "*.zip"))
+    for zip_file in zip_files:
+        passwd = os.path.splitext(os.path.basename(zip_file))[0]
+        subprocess.call(["7za", "x", "-p{}".format(passwd), "-o{}".format(dest_dir), "-y", zip_file])
+    shutil.rmtree(sdds3_temp_dir)
+    updated = True
 
     updated = process(artifactory_base_url + "ssplav-mlmodel/released", "model.zip", b"ml_model") or updated
     updated = process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", b"local_rep") or updated
@@ -178,7 +176,6 @@ def run(destination, use_dataseta):
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("destination", help = "Destination directory to download supplements to")
-    parser.add_argument("-d", "--dataseta", help = "Download DataSetA instead of the Full VDL", default=False, action='store_true')
     args = parser.parse_args()
 
     run(args.destination, args.dataseta)

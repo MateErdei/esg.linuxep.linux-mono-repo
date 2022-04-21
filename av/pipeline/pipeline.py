@@ -160,7 +160,6 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         # esg-tap-component-store/com.sophos/ssplav-localrep/released/20200219/reputation.zip
         # /mnt/filer6/lrdata/sophos-susi-lrdata/20200219/lrdata/2020021901/reputation.zip
         local_rep=context.artifact.from_component('ssplav-localrep', supplement_branch, None) / 'reputation',
-        vdl=context.artifact.from_component('ssplav-vdl', supplement_branch, None) / 'vdl',
         ml_model=context.artifact.from_component('ssplav-mlmodel', supplement_branch, None) / 'model',
     )
     test_inputs['sdds3_utils'] = unified_artifact(context, 'winep.sau', 'develop', 'build/Linux-x64/SDDS3-Utils')

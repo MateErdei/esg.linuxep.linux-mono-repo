@@ -93,7 +93,7 @@ Bootstrap SUSI From Update Source
     Log  Update Source: ${result.stdout}
     ${result} =  Run Process  find  ${SUSI_V1DIR}
     Log  Distribution Version: ${result.stdout}
-    ${result} =  Run Process  ls -l  ${SUSI_V1DIR}/vdb/
+    ${result} =  Run Process  ls  -l  ${SUSI_V1DIR}/vdb/
     Log  Virus Data: ${result.stdout}
 
 
