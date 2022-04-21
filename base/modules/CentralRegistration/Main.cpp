@@ -22,12 +22,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <Logging/ConsoleLoggingSetup.h>
 #include <Logging/FileLoggingSetup.h>
 
-namespace CentralRegistrationImpl
+namespace CentralRegistration
 {
     void updateConfigOptions(const std::string& key, const std::string& value, std::map<std::string, std::string>& configOptions)
     {
         auto groupArgs = Common::UtilityImpl::StringUtils::splitString(value, "=");
-        if(groupArgs.size() == 2)
+        if (groupArgs.size() == 2)
         {
             configOptions[key] = groupArgs[1];
         }
@@ -41,12 +41,12 @@ namespace CentralRegistrationImpl
         auto argSize = args.size();
 
         // Positional args (expect 2 + binary)
-        if(argSize < 3)
+        if (argSize < 3)
         {
             LOGERROR("Insufficient positional arguments given. Expecting 2: MCS Token, MCS URL");
             return MCS::ConfigOptions{};
         }
-        if(!Common::UtilityImpl::StringUtils::startswith(args[1], "--"))
+        if (!Common::UtilityImpl::StringUtils::startswith(args[1], "--"))
         {
             configOptions[MCS::MCS_TOKEN] = args[1];
         }
@@ -66,42 +66,42 @@ namespace CentralRegistrationImpl
         }
 
         // Optional args
-        for (size_t i=3; i < argSize; i++)
+        for (size_t i=3; i < argSize; ++i)
         {
             std::string currentArg(args[i]);
 
-            if(Common::UtilityImpl::StringUtils::startswith(currentArg, "--group"))
+            if (Common::UtilityImpl::StringUtils::startswith(currentArg, "--group"))
             {
                 updateConfigOptions(MCS::CENTRAL_GROUP, currentArg, configOptions);
             }
-            else if(currentArg == "--customer-token")
+            else if (currentArg == "--customer-token")
             {
-                if((i + 1) < argSize)
+                if ((i + 1) < argSize)
                 {
                     configOptions[MCS::MCS_CUSTOMER_TOKEN] = args[++i];
                 }
             }
-            else if(Common::UtilityImpl::StringUtils::startswith(currentArg, "--products"))
+            else if (Common::UtilityImpl::StringUtils::startswith(currentArg, "--products"))
             {
                 updateConfigOptions(MCS::MCS_PRODUCTS, currentArg, configOptions);
             }
-            else if(currentArg == "--proxy-credentials")
+            else if (currentArg == "--proxy-credentials")
             {
-                if((i + 1) < argSize)
+                if ((i + 1) < argSize)
                 {
                     proxyCredentials = args[++i];
                 }
             }
-            else if(currentArg == "--message-relay")
+            else if (currentArg == "--message-relay")
             {
-                if((i + 1) < argSize)
+                if ((i + 1) < argSize)
                 {
                     messageRelaysAsString = args[++i];
                 }
             }
-            else if(currentArg == "--version")
+            else if (currentArg == "--version")
             {
-                if((i + 1) < argSize)
+                if ((i + 1) < argSize)
                 {
                     configOptions[MCS::VERSION_NUMBER] = args[++i];
                 }
@@ -114,14 +114,14 @@ namespace CentralRegistrationImpl
         configOptions[MCS::MCS_PASSWORD] = "";
         configOptions[MCS::MCS_PRODUCT_VERSION] ="";
 
-        if(proxyCredentials.empty())
+        if (proxyCredentials.empty())
         {
             proxyCredentials = systemUtils->getEnvironmentVariable("PROXY_CREDENTIALS");
         }
-        if(!proxyCredentials.empty())
+        if (!proxyCredentials.empty())
         {
             std::vector<std::string> values = Common::UtilityImpl::StringUtils::splitString(proxyCredentials, ":");
-            if(values.size() == 2)
+            if (values.size() == 2)
             {
                 configOptions[MCS::MCS_PROXY_USERNAME] = values[0];
                 configOptions[MCS::MCS_PROXY_PASSWORD] = values[1];
@@ -130,7 +130,7 @@ namespace CentralRegistrationImpl
 
         std::string proxy = systemUtils->getEnvironmentVariable("https_proxy");
 
-        if(proxy.empty())
+        if (proxy.empty())
         {
             proxy = systemUtils->getEnvironmentVariable("http_proxy");
         }
@@ -162,7 +162,7 @@ namespace CentralRegistrationImpl
         std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
 
         MCS::ConfigOptions configOptions = processCommandLineOptions(args, systemUtils);
-        if(configOptions.config.empty())
+        if (configOptions.config.empty())
         {
             throw std::runtime_error("Failed to process command line options");
         }
@@ -175,7 +175,7 @@ namespace CentralRegistrationImpl
         Common::Logging::ConsoleLoggingSetup loggerSetup;
         // convert args to vector for to remove the need to handle pointers.
         std::vector<std::string> args(argc);
-        for(int i=0; i < argc; i++)
+        for (int i=0; i < argc; ++i)
         {
             args[i]= argv[i];
         }

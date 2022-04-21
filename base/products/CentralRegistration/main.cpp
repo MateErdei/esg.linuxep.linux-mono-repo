@@ -9,7 +9,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 static int central_registration_main(int argc, char* argv[])
 {
-    return CentralRegistrationImpl::main_entry(argc, argv);
+    return CentralRegistration::main_entry(argc, argv);
 }
 
 MAIN(central_registration_main(argc, argv))

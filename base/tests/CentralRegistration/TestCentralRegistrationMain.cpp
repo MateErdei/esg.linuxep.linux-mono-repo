@@ -49,7 +49,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 
-    MCS::ConfigOptions configOptions = CentralRegistrationImpl::processCommandLineOptions(argValues, mockSystemUtils);
+    MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
     ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
@@ -82,7 +82,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 
-    MCS::ConfigOptions configOptions = CentralRegistrationImpl::processCommandLineOptions(argValues, mockSystemUtils);
+    MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
     ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
@@ -122,7 +122,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 
-    MCS::ConfigOptions configOptions = CentralRegistrationImpl::processCommandLineOptions(argValues, mockSystemUtils);
+    MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
     ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
@@ -147,7 +147,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 
-    MCS::ConfigOptions configOptions = CentralRegistrationImpl::processCommandLineOptions(argValues, mockSystemUtils);
+    MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
     ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
@@ -172,7 +172,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return("https://secure_proxy:443"));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).Times(0);
 
-    MCS::ConfigOptions configOptions = CentralRegistrationImpl::processCommandLineOptions(argValues, mockSystemUtils);
+    MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
     ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
@@ -197,7 +197,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return("http://non_secure_proxy:80"));
 
-    MCS::ConfigOptions configOptions = CentralRegistrationImpl::processCommandLineOptions(argValues, mockSystemUtils);
+    MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
     ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
@@ -218,7 +218,7 @@ TEST_F(CentralRegistrationMainTests, FailsWhenNotEnoughArgsGiven) // NOLINT
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();
     testing::internal::CaptureStderr();
 
-    MCS::ConfigOptions configOptions = CentralRegistrationImpl::processCommandLineOptions(argValues, mockSystemUtils);
+    MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
     std::string logMessage = internal::GetCapturedStderr();
 
     ASSERT_TRUE(configOptions.config.empty());
@@ -234,7 +234,7 @@ TEST_F(CentralRegistrationMainTests, FailsWhenArgTwoIsAnOptionalArg) // NOLINT
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();
     testing::internal::CaptureStderr();
 
-    MCS::ConfigOptions configOptions = CentralRegistrationImpl::processCommandLineOptions(argValues, mockSystemUtils);
+    MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
     std::string logMessage = internal::GetCapturedStderr();
 
     ASSERT_TRUE(configOptions.config.empty());
@@ -250,7 +250,7 @@ TEST_F(CentralRegistrationMainTests, FailsWhenArgThreeIsAnOptionalArg) // NOLINT
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();
     testing::internal::CaptureStderr();
 
-    MCS::ConfigOptions configOptions = CentralRegistrationImpl::processCommandLineOptions(argValues, mockSystemUtils);
+    MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
     std::string logMessage = internal::GetCapturedStderr();
 
     ASSERT_TRUE(configOptions.config.empty());

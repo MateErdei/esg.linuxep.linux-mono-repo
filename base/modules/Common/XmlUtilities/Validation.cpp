@@ -9,7 +9,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 namespace Common::XmlUtilities
 {
-    bool Validation::isStringXmlValid(const std::string& xml)
+    bool Validation::stringWillNotBreakXmlParsing(const std::string& xml)
     {
         if(xml.empty())
         {

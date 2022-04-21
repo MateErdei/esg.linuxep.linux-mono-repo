@@ -19,12 +19,14 @@ class MCSApiCalls
             MCSHttpClient& client,
             MCS::ConfigOptions& configOptions,
             const std::string& statusXml,
-            std::string proxy);
+            const std::string& proxy
+        );
         std::string preregisterEndpoint(
             MCSHttpClient& client,
             MCS::ConfigOptions& registerConfig,
             const std::string& statusXml,
-            std::string proxy);
+            const std::string& proxy
+        );
 
 };
 

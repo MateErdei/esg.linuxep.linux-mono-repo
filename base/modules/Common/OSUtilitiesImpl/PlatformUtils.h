@@ -32,7 +32,7 @@ namespace Common
             [[nodiscard]] std::vector<std::string> getIp4Addresses() const override;
             [[nodiscard]] std::string getIp6Address() const override;
             [[nodiscard]] std::vector<std::string> getIp6Addresses() const override;
-            [[nodiscard]] std::string getCloudPlatformMetadata(Common::HttpRequests::IHttpRequester* client) const override;
+            [[nodiscard]] std::string getCloudPlatformMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const override;
             [[nodiscard]] std::vector<std::string> getMacAddresses() const override;
 
         private:
@@ -43,12 +43,12 @@ namespace Common
             [[nodiscard]] utsname getUtsname() const;
             void populateVendorDetails();
             [[nodiscard]] static std::string extractDistroFromFile(const std::string& filePath);
-            [[nodiscard]] std::string getAwsMetadata(Common::HttpRequests::IHttpRequester* client) const;
-            [[nodiscard]] std::string getGcpMetadata(Common::HttpRequests::IHttpRequester* client) const;
-            [[nodiscard]] std::string getOracleMetadata(Common::HttpRequests::IHttpRequester* client) const;
-            [[nodiscard]] std::string getAzureMetadata(Common::HttpRequests::IHttpRequester* client) const;
-            [[nodiscard]] Common::HttpRequests::RequestConfig buildCloudMetadataRequest(std::string url, Common::HttpRequests::Headers headers) const;
-            [[nodiscard]] bool curlResponseIsOk200(Common::HttpRequests::Response& response) const;
+            [[nodiscard]] std::string getAwsMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const;
+            [[nodiscard]] std::string getGcpMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const;
+            [[nodiscard]] std::string getOracleMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const;
+            [[nodiscard]] std::string getAzureMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const;
+            [[nodiscard]] Common::HttpRequests::RequestConfig buildCloudMetadataRequest(const std::string& url, const Common::HttpRequests::Headers& headers) const;
+            [[nodiscard]] bool curlResponseIsOk200(const Common::HttpRequests::Response& response) const;
 
             std::string m_vendor;
             std::string m_osName;

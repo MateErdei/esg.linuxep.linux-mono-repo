@@ -30,7 +30,7 @@ namespace Common
             virtual std::vector<std::string> getIp4Addresses() const = 0;
             virtual std::string getIp6Address() const = 0;
             virtual std::vector<std::string> getIp6Addresses() const = 0;
-            virtual std::string getCloudPlatformMetadata(Common::HttpRequests::IHttpRequester* client) const = 0;
+            virtual std::string getCloudPlatformMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const = 0;
             virtual std::vector<std::string> getMacAddresses() const = 0;
         };
 

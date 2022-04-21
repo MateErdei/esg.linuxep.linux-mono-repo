@@ -27,7 +27,7 @@ public:
     MOCK_CONST_METHOD0(getIp4Addresses, std::vector<std::string>());
     MOCK_CONST_METHOD0(getIp6Address, std::string());
     MOCK_CONST_METHOD0(getIp6Addresses, std::vector<std::string>());
-    MOCK_CONST_METHOD1(getCloudPlatformMetadata, std::string(Common::HttpRequests::IHttpRequester*));
+    MOCK_CONST_METHOD1(getCloudPlatformMetadata, std::string(std::shared_ptr<Common::HttpRequests::IHttpRequester>));
     MOCK_CONST_METHOD0(getMacAddresses, std::vector<std::string>());
 
 };

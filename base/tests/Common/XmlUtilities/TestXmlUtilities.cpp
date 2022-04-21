@@ -390,7 +390,7 @@ TEST(TestXmlUtilities, DuplicateStructuresAreAvailable) // NOLINT
 TEST(TestXmlUtilities, ValidXmlString) // NOLINT
 {
     std::string xmlString = "dummy xml string";
-    bool result = Validation::isStringXmlValid(xmlString);
+    bool result = Validation::stringWillNotBreakXmlParsing(xmlString);
 
     ASSERT_EQ(result, true);
 }
@@ -402,8 +402,8 @@ TEST(TestXmlUtilities, InvalidXmlStrings) // NOLINT
     std::string xmlStringWithSingleQuote = "\'dummy xml string\'";
     std::string xmlStringWithDoubleQuote = "'dummy \"xml\" string'";
 
-    ASSERT_EQ(Validation::isStringXmlValid(xmlStringWithInvalidSymbols), false);
-    ASSERT_EQ(Validation::isStringXmlValid(xmlStringWithAmpersand), false);
-    ASSERT_EQ(Validation::isStringXmlValid(xmlStringWithSingleQuote), false);
-    ASSERT_EQ(Validation::isStringXmlValid(xmlStringWithDoubleQuote), false);
+    ASSERT_EQ(Validation::stringWillNotBreakXmlParsing(xmlStringWithInvalidSymbols), false);
+    ASSERT_EQ(Validation::stringWillNotBreakXmlParsing(xmlStringWithAmpersand), false);
+    ASSERT_EQ(Validation::stringWillNotBreakXmlParsing(xmlStringWithSingleQuote), false);
+    ASSERT_EQ(Validation::stringWillNotBreakXmlParsing(xmlStringWithDoubleQuote), false);
 }

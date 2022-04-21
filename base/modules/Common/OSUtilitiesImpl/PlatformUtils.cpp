@@ -46,10 +46,10 @@ namespace Common::OSUtilitiesImpl
             
             auto *fs = FileSystem::fileSystem();
 
-            if(fs->isFile(lsbReleasePath))
+            if (fs->isFile(lsbReleasePath))
             {
                 std::string distro = extractDistroFromFile(lsbReleasePath);
-                if(!distro.empty())
+                if (!distro.empty())
                 {
                     m_vendor = distro;
                 }
@@ -58,7 +58,7 @@ namespace Common::OSUtilitiesImpl
                     "\"", "");
                 std::string version = UtilityImpl::StringUtils::extractValueFromConfigFile(lsbReleasePath, "DISTRIB_RELEASE");
                 std::vector<std::string> majorAndMinor = UtilityImpl::StringUtils::splitString(version, ".");
-                if(majorAndMinor.size() >= 2)
+                if (majorAndMinor.size() >= 2)
                 {
                     m_osMajorVersion = majorAndMinor[0];
                     m_osMinorVersion = majorAndMinor[1];
@@ -66,12 +66,12 @@ namespace Common::OSUtilitiesImpl
                 return;
             }
 
-            for(const auto& path : distroCheckFiles)
+            for (const auto& path : distroCheckFiles)
             {
-                if(fs->isFile(path))
+                if (fs->isFile(path))
                 {
                     std::string distro = extractDistroFromFile(path);
-                    if(!distro.empty())
+                    if (!distro.empty())
                     {
                         m_vendor = distro;
                         break;
@@ -94,23 +94,23 @@ namespace Common::OSUtilitiesImpl
             auto *fs = FileSystem::fileSystem();
             std::string distro;
             std::vector<std::string> fileContents = fs->readLines(filePath);
-            if(!fileContents.empty())
+            if (!fileContents.empty())
             {
                 distro = fileContents[0];
                 distro = UtilityImpl::StringUtils::replaceAll(distro, " ", "");
                 distro = UtilityImpl::StringUtils::replaceAll(distro, "/", "_");
 
                 std::vector<std::string> distroParts = Common::UtilityImpl::StringUtils::splitString(distro, "=");
-                if(distroParts.size() ==2)
+                if (distroParts.size() ==2)
                 {
                     distro = distroParts[1];
                 }
 
                 UtilityImpl::StringUtils::toLower(distro);
 
-                for(const auto&[key, value] : distroNames)
+                for (const auto&[key, value] : distroNames)
                 {
-                    if(UtilityImpl::StringUtils::isSubstring(distro, key))
+                    if (UtilityImpl::StringUtils::isSubstring(distro, key))
                     {
                         return value;
                     }
@@ -170,7 +170,7 @@ namespace Common::OSUtilitiesImpl
         std::string PlatformUtils::getIp4Address() const
         {
             std::vector<std::string> ip4Addresses = getIp4Addresses();
-            if(ip4Addresses.empty())
+            if (ip4Addresses.empty())
             {
                 return "";
             }
@@ -184,7 +184,7 @@ namespace Common::OSUtilitiesImpl
             std::vector<std::string> ip4Addresses;
             if (!ips.ip4collection.empty())
             {
-                for(auto ipAddress : ips.ip4collection)
+                for (auto ipAddress : ips.ip4collection)
                 {
                     ip4Addresses.push_back(ipAddress.stringAddress());
                 }
@@ -195,7 +195,7 @@ namespace Common::OSUtilitiesImpl
         std::string PlatformUtils::getIp6Address() const
         {
             std::vector<std::string> ip6Addresses = getIp6Addresses();
-            if(ip6Addresses.empty())
+            if (ip6Addresses.empty())
             {
                 return "";
             }
@@ -209,7 +209,7 @@ namespace Common::OSUtilitiesImpl
             std::vector<std::string> ip6Addresses;
             if (!ips.ip6collection.empty())
             {
-                for(auto ipAddress : ips.ip6collection)
+                for (auto ipAddress : ips.ip6collection)
                 {
                     ip6Addresses.push_back(ipAddress.stringAddress());
                 }
@@ -222,17 +222,17 @@ namespace Common::OSUtilitiesImpl
             return Common::OSUtilitiesImpl::sortedSystemMACs();
         }
 
-        std::string PlatformUtils::getCloudPlatformMetadata(Common::HttpRequests::IHttpRequester* client) const
+        std::string PlatformUtils::getCloudPlatformMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             std::string metadata;
             metadata = PlatformUtils::getAwsMetadata(client);
-            if(!metadata.empty()) { return metadata; }
+            if (!metadata.empty()) { return metadata; }
 
             metadata = PlatformUtils::getGcpMetadata(client);
-            if(!metadata.empty()) { return metadata; }
+            if (!metadata.empty()) { return metadata; }
 
             metadata = PlatformUtils::getOracleMetadata(client);
-            if(!metadata.empty()) { return metadata; }
+            if (!metadata.empty()) { return metadata; }
 
             metadata = PlatformUtils::getAzureMetadata(client);
             return metadata;
@@ -250,7 +250,7 @@ namespace Common::OSUtilitiesImpl
             return platformInfo;
         }
 
-        std::string PlatformUtils::getAwsMetadata(Common::HttpRequests::IHttpRequester* client) const
+        std::string PlatformUtils::getAwsMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             std::string initialUrl = "http://169.254.169.254/latest/api/token";
             Common::HttpRequests::Headers initialHeaders({{"X-aws-ec2-metadata-token-ttl-seconds", "21600"}});
@@ -272,7 +272,7 @@ namespace Common::OSUtilitiesImpl
             return CloudMetadataConverters::parseAwsMetadataJson(response.body);
         }
 
-        std::string PlatformUtils::getGcpMetadata(Common::HttpRequests::IHttpRequester* client) const
+        std::string PlatformUtils::getGcpMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             Common::HttpRequests::Headers headers({{"Metadata-Flavor", "Google"}});
 
@@ -309,7 +309,7 @@ namespace Common::OSUtilitiesImpl
             return CloudMetadataConverters::parseGcpMetadata(metadataValues);
         }
 
-        std::string PlatformUtils::getOracleMetadata(Common::HttpRequests::IHttpRequester* client) const
+        std::string PlatformUtils::getOracleMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             std::string url = "http://169.254.169.254/opc/v2/instance/";
             Common::HttpRequests::Headers headers({{"Authorization", "Bearer Oracle"}});
@@ -322,10 +322,10 @@ namespace Common::OSUtilitiesImpl
             return CloudMetadataConverters::parseOracleMetadataJson(response.body);
         }
 
-        std::string PlatformUtils::getAzureMetadata(Common::HttpRequests::IHttpRequester* client) const
+        std::string PlatformUtils::getAzureMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             std::string initialUrl = "http://169.254.169.254/metadata/versions";
-            Common::HttpRequests::Headers headers({{"Metadata", "True"}}); // uncertain about this True
+            Common::HttpRequests::Headers headers({{"Metadata", "True"}});
             Common::HttpRequests::Response response = client->put(buildCloudMetadataRequest(initialUrl, headers));
             if (!curlResponseIsOk200(response))
             {
@@ -345,7 +345,7 @@ namespace Common::OSUtilitiesImpl
             return CloudMetadataConverters::parseAzureMetadataJson(response.body);
         }
 
-        Common::HttpRequests::RequestConfig PlatformUtils::buildCloudMetadataRequest(std::string url, Common::HttpRequests::Headers headers) const
+        Common::HttpRequests::RequestConfig PlatformUtils::buildCloudMetadataRequest(const std::string& url, const Common::HttpRequests::Headers& headers) const
         {
             Common::HttpRequests::RequestConfig request;
             request.url = url;
@@ -354,18 +354,17 @@ namespace Common::OSUtilitiesImpl
             return request;
         }
 
-        bool PlatformUtils::curlResponseIsOk200(Common::HttpRequests::Response& response) const
+        bool PlatformUtils::curlResponseIsOk200(const Common::HttpRequests::Response& response) const
         {
             if (response.errorCode == HttpRequests::OK)
             {
-                if(response.status != 200)
+                if (response.status != 200)
                 {
                     return false;
                 }
             }
             else
             {
-                // Error with Curl gets us here, log what went wrong with response.error
                 return false;
             }
             return true;

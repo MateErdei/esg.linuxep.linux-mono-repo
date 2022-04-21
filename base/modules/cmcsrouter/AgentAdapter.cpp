@@ -36,22 +36,27 @@ namespace MCS
         return statusXml.str();
     }
 
-    std::string AgentAdapter::getStatusHeader(std::map<std::string, std::string>& configOptions) const
+    std::string AgentAdapter::getStatusHeader(const std::map<std::string, std::string>& configOptions) const
     {
         std::stringstream header;
         header << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
                << "<ns:computerStatus xmlns:ns=\"http://www.sophos.com/xml/mcs/computerstatus\">"
                << "<meta protocolVersion=\"1.0\" timestamp=\""
                << Common::UtilityImpl::TimeUtils::MessageTimeStamp(std::chrono::system_clock::now())
-               << "\" softwareVersion=\"" << getSoftwareVersion(configOptions) << "\" />";
+               << "\" softwareVersion=\"";
+        if (configOptions.find(MCS::VERSION_NUMBER) != configOptions.end())
+        {
+            header << configOptions.at(MCS::VERSION_NUMBER);
+        }
+        header << "\" />";
         return header.str();
     }
 
-    std::string AgentAdapter::getCommonStatusXml(std::map<std::string, std::string>& configOptions) const
+    std::string AgentAdapter::getCommonStatusXml(const std::map<std::string, std::string>& configOptions) const
     {
         std::stringstream commonStatusXml;
         commonStatusXml << "<commonComputerStatus>"
-                        << "<domainName>UNKNOWN</domainName>"
+                        << "<domainName>" << m_platformUtils->getDomainname() << "</domainName>"
                         << "<computerName>" << m_platformUtils->getHostname() << "</computerName>"
                         << "<computerDescription></computerDescription>"
                         << "<isServer>true</isServer>"
@@ -67,66 +72,63 @@ namespace MCS
         return commonStatusXml.str();
     }
 
-    std::string AgentAdapter::getOptionalStatusValues(std::map<std::string, std::string>& configOptions) const
+    std::string AgentAdapter::getOptionalStatusValues(const std::map<std::string, std::string>& configOptions) const
     {
         // For Groups, Products, and IP addresses
         std::stringstream optionals;
 
-        std::string productsAsString = Common::UtilityImpl::StringUtils::replaceAll(configOptions["products"], " ", "");
-        if(!productsAsString.empty())
+        if (configOptions.find("products") != configOptions.end())
         {
-            std::stringstream productsToInstall;
-            productsToInstall << "<productsToInstall>";
-            if(productsAsString != "none")
+            std::string productsAsString = Common::UtilityImpl::StringUtils::replaceAll(configOptions.at("products"), " ", "");
+            optionals << "<productsToInstall>";
+            if (productsAsString != "none")
             {
                 std::vector<std::string> products = Common::UtilityImpl::StringUtils::splitString(productsAsString, ",");
-                for(std::string product : products)
+                for (const std::string& product : products)
                 {
-                    if(!product.empty() && Common::XmlUtilities::Validation::isStringXmlValid(product))
+                    if (!product.empty() && Common::XmlUtilities::Validation::stringWillNotBreakXmlParsing(product))
                     {
-                        productsToInstall << "<product>" << product << "</product>";
+                        optionals << "<product>" << product << "</product>";
                     }
                 }
             }
-            productsToInstall << "</productsToInstall>";
-            optionals << productsToInstall.str();
+            optionals << "</productsToInstall>";
         }
 
-        std::string deviceGroupAsString = configOptions["centralGroup"];
-        if(!deviceGroupAsString.empty() && Common::XmlUtilities::Validation::isStringXmlValid(deviceGroupAsString))
+        if (configOptions.find("centralGroup") != configOptions.end())
         {
-            optionals << "<deviceGroup>" << deviceGroupAsString << "</deviceGroup>";
+            std::string deviceGroupAsString = configOptions.at("centralGroup");
+            if (Common::XmlUtilities::Validation::stringWillNotBreakXmlParsing(deviceGroupAsString))
+            {
+                optionals << "<deviceGroup>" << deviceGroupAsString << "</deviceGroup>";
+            }
         }
 
         std::vector<std::string> ip4Addresses = m_platformUtils->getIp4Addresses();
         std::vector<std::string> ip6Addresses = m_platformUtils->getIp6Addresses();
-        if(!ip4Addresses.empty() || !ip6Addresses.empty())
+        if (!ip4Addresses.empty() || !ip6Addresses.empty())
         {
-            std::stringstream ipAddresses;
-            ipAddresses << "<ipAddresses>";
-            for(std::string ip4Address : ip4Addresses)
+            optionals << "<ipAddresses>";
+            for (const std::string& ip4Address : ip4Addresses)
             {
-                ipAddresses << "<ipv4>" << ip4Address << "</ipv4>";
+                optionals << "<ipv4>" << ip4Address << "</ipv4>";
             }
-            for(std::string ip6Address : ip6Addresses)
+            for (const std::string& ip6Address : ip6Addresses)
             {
-                ipAddresses << "<ipv6>" << ip6Address << "</ipv6>";
+                optionals << "<ipv6>" << ip6Address << "</ipv6>";
             }
-            ipAddresses << "</ipAddresses>";
-            optionals << ipAddresses.str();
+            optionals << "</ipAddresses>";
         }
 
         std::vector<std::string> systemMacAddresses = m_platformUtils->getMacAddresses();
-        if(!systemMacAddresses.empty())
+        if (!systemMacAddresses.empty())
         {
-            std::stringstream macAddresses;
-            macAddresses << "<macAddresses>";
-            for(std::string macAddress : systemMacAddresses)
+            optionals << "<macAddresses>";
+            for (const std::string& macAddress : systemMacAddresses)
             {
-                macAddresses << "<macAddress>" << macAddress << "</macAddress>";
+                optionals << "<macAddress>" << macAddress << "</macAddress>";
             }
-            macAddresses << "</macAddresses>";
-            optionals << macAddresses.str();
+            optionals << "</macAddresses>";
         }
         return optionals.str();
     }
@@ -134,8 +136,8 @@ namespace MCS
     std::string AgentAdapter::getCloudPlatformsStatus() const
     {
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
-        auto client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
-        return m_platformUtils->getCloudPlatformMetadata(&client);
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+        return m_platformUtils->getCloudPlatformMetadata(client);
     }
 
     std::string AgentAdapter::getPlatformStatus() const
@@ -155,10 +157,5 @@ namespace MCS
     }
 
     std::string AgentAdapter::getStatusFooter() const { return "</ns:computerStatus>"; }
-
-    std::string AgentAdapter::getSoftwareVersion(std::map<std::string, std::string>& configOptions) const
-    {   // function used for this in case we want to get the version number from somewhere else in the future
-        return configOptions[MCS::VERSION_NUMBER];
-    }
 
 }

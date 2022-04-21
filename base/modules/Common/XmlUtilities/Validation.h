@@ -11,6 +11,6 @@ namespace Common::XmlUtilities
     class Validation
     {
     public:
-        static bool isStringXmlValid(const std::string& xml);
+        static bool stringWillNotBreakXmlParsing(const std::string& xml);
     };
 } // namespace Common::XmlUtilities

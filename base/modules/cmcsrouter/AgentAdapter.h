@@ -24,14 +24,14 @@ namespace MCS
         [[nodiscard]] std::string getStatusXml(std::map<std::string, std::string>& configOptions) const override;
 
     private:
-        [[nodiscard]] std::string getStatusHeader(std::map<std::string, std::string>& configOptions) const;
-        [[nodiscard]] std::string getCommonStatusXml(std::map<std::string, std::string>& configOptions) const;
-        [[nodiscard]] std::string getOptionalStatusValues(std::map<std::string, std::string>& configOptions) const;
+        [[nodiscard]] std::string getStatusHeader(const std::map<std::string, std::string>& configOptions) const;
+        [[nodiscard]] std::string getCommonStatusXml(const std::map<std::string, std::string>& configOptions) const;
+        [[nodiscard]] std::string getOptionalStatusValues(const std::map<std::string, std::string>& configOptions) const;
         [[nodiscard]] std::string getCloudPlatformsStatus() const;  // Empty string if not cloud platform
         [[nodiscard]] std::string getPlatformStatus() const;
         [[nodiscard]] std::string getStatusFooter() const;
 
-        [[nodiscard]] std::string getSoftwareVersion(std::map<std::string, std::string>& configOptions) const;
+        [[nodiscard]] std::string getSoftwareVersion(const std::map<std::string, std::string>& configOptions) const;
 
         std::shared_ptr<Common::OSUtilities::IPlatformUtils> m_platformUtils;
     };

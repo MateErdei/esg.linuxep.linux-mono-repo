@@ -15,7 +15,7 @@ namespace MCS
     MCSHttpClient::MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
         m_base_url(mcsUrl),m_registerToken(registerToken),m_client(client){}
 
-    Common::HttpRequests::Response  MCSHttpClient::sendRegistration(Common::HttpRequests::Headers headers, const std::string& urlSuffix, const std::string& statusXml)
+    Common::HttpRequests::Response  MCSHttpClient::sendRegistration(const Common::HttpRequests::Headers& headers, const std::string& urlSuffix, const std::string& statusXml)
     {
         Common::HttpRequests::Headers requestHeaders;
 

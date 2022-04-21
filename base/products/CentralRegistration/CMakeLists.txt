@@ -6,7 +6,7 @@ target_link_libraries(centralregistration PUBLIC centralregistrationimpl)
 
 SET_TARGET_PROPERTIES( centralregistration
         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64"
-        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
 install(TARGETS centralregistration

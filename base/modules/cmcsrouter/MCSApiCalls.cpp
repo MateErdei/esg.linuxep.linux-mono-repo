@@ -30,24 +30,28 @@ namespace MCS
 
     std::string MCSApiCalls::preregisterEndpoint(
         MCSHttpClient& client,
-        MCS::ConfigOptions& registerConfig,
+        MCS::ConfigOptions& configOptions,
         const std::string& statusXml,
-        std::string proxy)
+        const std::string& proxy)
     {
-        std::string customerToken = registerConfig.config[MCS::MCS_CUSTOMER_TOKEN];
-        std::string encodedCustomerToken = "Basic " + Common::ObfuscationImpl::Base64::Encode(customerToken);
-        client.setVersion(registerConfig.config[MCS::MCS_PRODUCT_VERSION]);
+        std::string encodedCustomerToken = "Basic " + Common::ObfuscationImpl::Base64::Encode(configOptions.config[MCS::MCS_CUSTOMER_TOKEN]);
+        client.setVersion(configOptions.config[MCS::MCS_PRODUCT_VERSION]);
 
         Common::HttpRequests::Headers headers = {
             {"Authorization", encodedCustomerToken},
             {"Content-Type","application/json;charset=UTF-8"}
         };
 
-        if(!registerConfig.config[MCS::MCS_CA_OVERRIDE].empty())
+        if (!configOptions.config[MCS::MCS_CA_OVERRIDE].empty())
         {
-            client.setCertPath(registerConfig.config[MCS::MCS_CA_OVERRIDE]);
+            client.setCertPath(configOptions.config[MCS::MCS_CA_OVERRIDE]);
         }
-        client.setProxyInfo(proxy, registerConfig.config[MCS::MCS_PROXY_USERNAME], registerConfig.config[MCS::MCS_PROXY_PASSWORD]);
+        else
+        {
+            client.setCertPath(configOptions.config[MCS::MCS_CERT]);
+        }
+        
+        client.setProxyInfo(proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
         Common::HttpRequests::Response response = client.sendRegistration(headers, "/install/deployment-info/2", statusXml);
         return response.body;
     }
@@ -56,19 +60,13 @@ namespace MCS
         MCSHttpClient& client,
         MCS::ConfigOptions& configOptions,
         const std::string& statusXml,
-        std::string proxy)
+        const std::string& proxy)
     {
         AgentAdapter agentAdapter;
 
-        std::string mcsId = configOptions.config[MCS::MCS_ID];
-        std::string password = configOptions.config[MCS::MCS_PASSWORD];
-        std::string token(configOptions.config[MCS::MCS_TOKEN]);
-
-        std::stringstream authorisation;
-        authorisation << mcsId << ":" << password << ":" << token;
-
         std::string encodedAuthorisation =
-            Common::ObfuscationImpl::Base64::Encode(authorisation.str());
+            Common::ObfuscationImpl::Base64::Encode(
+                configOptions.config[MCS::MCS_ID] + ":" +  configOptions.config[MCS::MCS_PASSWORD] + ":" + configOptions.config[MCS::MCS_TOKEN]);
 
         std::string authorisationValue = "Basic " + encodedAuthorisation;
         client.setVersion(configOptions.config[MCS::MCS_PRODUCT_VERSION]);
@@ -78,17 +76,22 @@ namespace MCS
             {"Content-Type","application/xml; charset=utf-8"}
         };
 
-        if(!configOptions.config[MCS::MCS_CA_OVERRIDE].empty())
+        if (!configOptions.config[MCS::MCS_CA_OVERRIDE].empty())
         {
             client.setCertPath(configOptions.config[MCS::MCS_CA_OVERRIDE]);
         }
+        else
+        {
+            client.setCertPath(configOptions.config[MCS::MCS_CERT]);
+        }
+        
         client.setProxyInfo(proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
         Common::HttpRequests::Response response = client.sendRegistration(headers, "/register", statusXml);
-        if(response.status == 200)
+        if (response.status == 200)
         {
             std::string messageBody = Common::ObfuscationImpl::Base64::Decode(response.body);
             std::vector<std::string> responseValues = Common::UtilityImpl::StringUtils::splitString(messageBody, ":");
-            if(responseValues.size() == 2)
+            if (responseValues.size() == 2)
             {
                 // Note that updating the configOptions here should be propagated back to the caller as it is all
                 // passed by reference.
@@ -99,7 +102,7 @@ namespace MCS
         }
         else
         {
-            LOGERROR("Error during registration: " << response.status);
+            LOGWARN("Error during registration: " << response.status);
         }
         return false;
     }

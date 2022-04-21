@@ -8,11 +8,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <cmcsrouter/ConfigOptions.h>
 #include <Common/HttpRequests/IHttpRequester.h>
 #include <cmcsrouter/IAdapter.h>
+#include <cmcsrouter/MCSHttpClient.h>
 
 #include <map>
 #include <memory>
 
-namespace CentralRegistrationImpl
+namespace CentralRegistration
 {
     class CentralRegistration
     {
@@ -28,10 +29,10 @@ namespace CentralRegistrationImpl
     private:
         void preregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester);
         static std::string processPreregistrationBody(const std::string& preregistrationBody);
-        static bool tryPreregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester);
-        static bool tryRegistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester);
+        static bool tryPreregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, const std::string& proxy, MCS::MCSHttpClient httpClient);
+        static bool tryRegistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, const std::string& proxy, MCS::MCSHttpClient httpClient);
 
-        static bool tryRegistrationWithProxies(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester,
-               bool (*registrationFunction)(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::string url, std::string token, std::string proxy, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester));
+        static bool tryRegistrationWithProxies(MCS::ConfigOptions& configOptions, const std::string& statusXml, const MCS::MCSHttpClient& httpClient,
+               bool (*registrationFunction)(MCS::ConfigOptions& configOptions, const std::string& statusXml, const std::string& proxy, MCS::MCSHttpClient httpClient));
     };
 }

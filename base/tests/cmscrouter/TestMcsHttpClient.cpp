@@ -1,7 +1,6 @@
 #include <cmcsrouter/MCSHttpClient.h>
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
-#include <tests/Common/Helpers/MockCurlWrapper.h>
 #include <tests/Common/Helpers/MockHttpRequester.h>
 
 class McsClientTests : public LogInitializedTests
