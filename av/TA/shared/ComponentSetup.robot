@@ -89,6 +89,12 @@ Bootstrap SUSI From Update Source
     Run Process   ldconfig   -lN   *.so.*   cwd=${SUSI_V1DIR}   shell=True
     Run Process   ln  -s  libsophtainer.so.1  libsophtainer.so   cwd=${SUSI_V1DIR}   shell=True
     Run Process   ln  -s  libglobalrep.so.1  libglobalrep.so   cwd=${SUSI_V1DIR}   shell=True
+    ${result} =  Run Process  find  ${SUSI_UPDATE_SRC}
+    Log  Update Source: ${result.stdout}
+    ${result} =  Run Process  find  ${SUSI_V1DIR}
+    Log  Distribution Version: ${result.stdout}
+    ${result} =  Run Process  ls -l  ${SUSI_V1DIR}/vdb/
+    Log  Virus Data: ${result.stdout}
 
 
 Setup Component For Testing

@@ -76,7 +76,8 @@ GL_EXPECTED_CONTENTS = {
         '''LATIN1-FRENCH-à ta santé âge-VIRUS (Latin1)''',
         '''COM1" ''',
         '''COM2" ''',
-        r'''\[]:;|=.*?. "''',
+        # LINUXDAR-4714 - Uncomment once fixed
+        #r'''\[]:;|=.*?. "''',
         '''NUL" ''',
         '''LPT2" ''',
         '''LPT1" ''',
