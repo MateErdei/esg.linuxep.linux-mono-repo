@@ -58,7 +58,7 @@ Sul Downloader Requests Fixed Version When Fixed Version In Policy
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
     Require Fresh Install
-    Create File    /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
