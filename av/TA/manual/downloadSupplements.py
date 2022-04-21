@@ -162,11 +162,9 @@ def run(destination):
     safe_mkdir(dest_dir)
     sync_sdds3_supplement.sync_sdds3_supplement(supplement, builder, sdds3_temp_dir)
     zip_files = glob.glob(os.path.join(sdds3_temp_dir, "package", "*.zip"))
-    for zip_file in zip_files:
-        passwd = os.path.splitext(os.path.basename(zip_file))[0]
-        subprocess.call(["7za", "x", "-p{}".format(passwd), "-o{}".format(dest_dir), "-y", zip_file])
-    # Remove problematic IDE
-    os.remove(os.path.join(dest_dir, "2022042101.ide"))
+    zip_file = zip_files[0]
+    passwd = os.path.splitext(os.path.basename(zip_file))[0]
+    subprocess.call(["7za", "x", "-p{}".format(passwd), "-o{}".format(dest_dir), "-y", zip_file])
     shutil.rmtree(sdds3_temp_dir)
     updated = True
 
