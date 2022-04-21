@@ -165,6 +165,8 @@ def run(destination):
     for zip_file in zip_files:
         passwd = os.path.splitext(os.path.basename(zip_file))[0]
         subprocess.call(["7za", "x", "-p{}".format(passwd), "-o{}".format(dest_dir), "-y", zip_file])
+    # Remove problematic IDE
+    os.remove(os.path.join(dest_dir, "2022042101.ide"))
     shutil.rmtree(sdds3_temp_dir)
     updated = True
 
