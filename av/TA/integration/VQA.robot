@@ -19,29 +19,30 @@ Test Teardown   VQA Test TearDown
 
 *** Test Cases ***
 
-SUSI config can scan android file
-    Install IDE  axml.ide
-    Check Threat Detected  AndroidManifest.xml  Test/Axml
-
-
-SUSI config can scan msoffice file
-    Install IDE  office.ide
-    Check Threat Detected  cleanmacro.xlsm  Test/Office
-
-
-SUSI config can scan adobe file
-    Install IDE  pdf.ide
-    Check Threat Detected  test.pdf  Pass/URI
-
-
-SUSI config can scan internet file
-    Install IDE  internet.ide
-    Check Threat Detected  test.html  Test/Html
-
-
-SUSI config can scan macintosh file
-    Install IDE  hfs.ide
-    Check Threat Detected  testfile.hfs  Test/Hfs  /:Disk Image:.journal
+# LINUXDAR-4720 - uncomment once we have our test IDEs included in the test version of DataSet-A
+#SUSI config can scan android file
+#    Install IDE  axml.ide
+#    Check Threat Detected  AndroidManifest.xml  Test/Axml
+#
+#
+#SUSI config can scan msoffice file
+#    Install IDE  office.ide
+#    Check Threat Detected  cleanmacro.xlsm  Test/Office
+#
+#
+#SUSI config can scan adobe file
+#    Install IDE  pdf.ide
+#    Check Threat Detected  test.pdf  Pass/URI
+#
+#
+#SUSI config can scan internet file
+#    Install IDE  internet.ide
+#    Check Threat Detected  test.html  Test/Html
+#
+#
+#SUSI config can scan macintosh file
+#    Install IDE  hfs.ide
+#    Check Threat Detected  testfile.hfs  Test/Hfs  /:Disk Image:.journal
 
 
 SUSI config can scan zip file as web archive

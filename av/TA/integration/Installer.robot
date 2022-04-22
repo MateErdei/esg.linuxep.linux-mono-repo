@@ -37,7 +37,9 @@ AV Plugin Installs With Version Ini File
 IDE update doesnt restart av processes
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Install IDE without SUSI loaded  ${IDE_NAME}
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Revert Virus Data To Live Dataset A
+    Run IDE update without SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
@@ -54,7 +56,9 @@ IDE update copies updated ide
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Run Shell Process  touch ${SOPHOS_INSTALL}/mark  OnError=failed to mark
-    Install IDE  ${IDE_NAME}
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Revert Virus Data To Live Dataset A
+    Run IDE update with SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs ls -ilhd  OnError=find failed
@@ -72,7 +76,9 @@ Restart then Update Sophos Threat Detector
     Restart sophos_threat_detector and mark logs
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
-    Install IDE without SUSI loaded  ${IDE_NAME}
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Revert Virus Data To Live Dataset A
+    Run IDE update without SUSI loaded
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
     # Check we can detect PEEND following update
@@ -88,7 +94,9 @@ Concurrent scans get pending update
 
     # prepare the pending update
     Restart sophos_threat_detector and mark logs
-    Install IDE without SUSI loaded  ${IDE_NAME}
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Revert Virus Data To Live Dataset A
+    Run IDE update without SUSI loaded
 
     # Check we can detect PEEND following update
     ${threat_file} =   Set Variable   ${RESOURCES_PATH}/file_samples/peend.exe
@@ -115,7 +123,9 @@ Update then Restart Sophos Threat Detector
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Mark Sophos Threat Detector Log
-    Install IDE without reload check  ${IDE_NAME}
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Revert Virus Data To Live Dataset A
+    Run IDE update with SUSI loaded
     Wait Until SUSI DEBUG Log Contains With Offset   Performing SUSI update
 
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
@@ -140,7 +150,9 @@ Update before Init then Restart Threat Detector
 
     # restart STD and create a pending update
     Restart sophos_threat_detector and mark logs
-    Install IDE without SUSI loaded  ${IDE_NAME}
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Revert Virus Data To Live Dataset A
+    Run IDE update without SUSI loaded
     Wait Until Sophos Threat Detector Log Contains With Offset   Threat scanner update is pending
 
     # start a scan in the background, to trigger SUSI init & update
@@ -267,12 +279,16 @@ sophos_threat_detector can start after multiple IDE updates
 
     mark sophos threat detector log
 
-    Install IDE with SUSI loaded  ${IDE_NAME}
+    Replace Virus Data With Test Dataset A
+    Run IDE update with SUSI loaded
     Sophos Threat Detector Log Contains With Offset  Threat scanner successfully updated
     Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
     mark sophos threat detector log
-    Install IDE with SUSI loaded  ${IDE2_NAME}
-    Install IDE with SUSI loaded  ${IDE3_NAME}
+    Revert Virus Data To Live Dataset A
+    Run IDE update with SUSI loaded
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Revert Virus Data To Live Dataset A
+    Run IDE update with SUSI loaded
     # We need the updates to have actually updated SUSI
     File Should Not Exist   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/libsusi.so
     Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
@@ -573,20 +589,6 @@ AV Can not install from SDDS Component
     Log  ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${26}
 
-AV Installer Fails When VDL Manifest Is Missing
-    [Teardown]    Installer Test TearDown With Mocked Installset Cleanup
-    Create Mocked Install Set With Missing VDL Manifest
-    ${result} =  Run Process  bash  ${MOCKED_INSTALL_SET}/install.sh  stderr=STDOUT  timeout=30s
-    Log  ${result.stdout}
-    Should Be Equal As Integers  ${result.rc}  ${28}
-
-AV Installer Succeeds When VDL Manifest Is Missing But Dataset A Manifest Is Present
-    [Teardown]    Installer Test TearDown With Mocked Installset Cleanup
-    Create Mocked Install Set With Missing VDL Manifest    using_dataset_a=${True}
-    ${result} =  Run Process  bash  ${MOCKED_INSTALL_SET}/install.sh  stderr=STDOUT  timeout=30s
-    Log  ${result.stdout}
-    Should Be Equal As Integers  ${result.rc}  ${0}
-
 Check installer keeps SUSI startup settings as writable by AV Plugin
     Restart AV Plugin And Clear The Logs For Integration Tests
     Create file   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
@@ -703,12 +705,21 @@ Check no duplicate files in directory
     ${count} =   Get Line Count   ${output}
     Should Be Equal As Integers  ${count}  ${0}
 
-Create Mocked Install Set With Missing VDL Manifest
-    [Arguments]    ${using_dataset_a}=${False}
-    Copy Directory    ${COMPONENT_INSTALL_SET}    ${MOCKED_INSTALL_SET}
-    remove file    ${MOCKED_INSTALL_SET}/files/plugins/av/chroot/susi/update_source/vdl/vdlmnfst.dat
-    Run Keyword If    ${using_dataset_a}
-    ...    Create File    ${MOCKED_INSTALL_SET}/files/plugins/av/chroot/susi/update_source/vdl/manifestdata.dat
-
 Cleanup Mocked Install Set
     Remove Directory    ${MOCKED_INSTALL_SET}    recursive=${True}
+
+Replace Virus Data With Test Dataset A
+    ${SUSI_UPDATE_SRC} =  Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/
+
+    Copy Files  ${IDE_DIR}/*   /tmp/vdl-tmp/
+    Empty Directory  ${IDE_DIR}
+
+    Copy Files  ${RESOURCES_PATH}/testVirusData/20220329/*   ${IDE_DIR}/
+
+    ${result} =  Run Process  ls  -l  ${IDE_DIR}/
+    Log  VDL after replacement: ${result.stdout}
+
+Revert Virus Data To Live Dataset A
+    Empty Directory  ${IDE_DIR}
+    Copy Files  /tmp/vdl-tmp/*   ${IDE_DIR}/
+    Remove Directory  /tmp/vdl-tmp  recursive=True

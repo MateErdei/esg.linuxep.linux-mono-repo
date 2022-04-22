@@ -489,7 +489,7 @@ Sophos Threat Detector Is Not Shutdown On A New Policy
     Wait Until Sophos Threat Detector Log Contains With Offset  Susi configuration reloaded
     mark susi debug log
     Check avscanner can detect eicar
-    Wait Until SUSI DEBUG Log Contains With Offset    "enableLookup":false
+    Wait Until SUSI DEBUG Log Contains With Offset    "enableLookup" : false
 
     mark sophos threat detector log
     mark susi debug log
@@ -497,7 +497,7 @@ Sophos Threat Detector Is Not Shutdown On A New Policy
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled
     Wait Until Sophos Threat Detector Log Contains With Offset  Susi configuration reloaded
     Check avscanner can detect eicar
-    Wait Until SUSI DEBUG Log Contains With Offset    "enableLookup":true
+    Wait Until SUSI DEBUG Log Contains With Offset    "enableLookup" : true
 
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
