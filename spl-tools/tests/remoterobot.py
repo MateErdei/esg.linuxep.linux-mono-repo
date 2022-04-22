@@ -57,10 +57,12 @@ def newer_folder(folder_one, folder_two):
     else:
         return
 
+
 def get_base_folder():
-    baseBuild = os.path.join(VAGRANTROOT, "everest-base/build64/distribution")
     baseDebugBuild = os.path.join(VAGRANTROOT, "everest-base/cmake-build-debug/distribution")
-    return newer_folder(baseBuild, baseDebugBuild)
+    baseReleaseBuild = os.path.join(VAGRANTROOT, "everest-base/cmake-build-release/distribution")
+    return newer_folder(baseReleaseBuild, baseDebugBuild)
+
 
 def get_plugin_folders(plugin_list):
     for plugin in plugin_list:
