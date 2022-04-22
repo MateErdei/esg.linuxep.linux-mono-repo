@@ -19,8 +19,8 @@ namespace UpdateSchedulerImpl
 {
     class UpdateSchedulerProcessor
     {
-        static std::string ALC_API;
-        static std::string VERSIONID;
+        inline static const std::string ALC_API = "ALC";
+        inline static const std::string VERSIONID = "1";
 
     public:
         UpdateSchedulerProcessor(

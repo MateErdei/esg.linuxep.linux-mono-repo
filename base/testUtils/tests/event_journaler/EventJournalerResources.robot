@@ -23,10 +23,7 @@ Install Event Journaler Directly
     Log  ${error}
     Log  ${result.stderr}
     Log  ${result.stdout}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Event Journaler Executable Running
+    Check Event Journaler Installed
 
 Uninstall Event Journaler
     ${result} =  Run Process     ${COMPONENT_ROOT_PATH}/bin/uninstall.sh
@@ -76,10 +73,13 @@ Marked File Contains
 
 Check Event Journaler Installed
     Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Event Journaler Executable Running
+    Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
     ...  Check Log Contains  Entering the main loop  ${EVENT_JOURNALER_LOG_PATH}  event journaler log
-    Check Event Journaler Executable Running
 
 Read First Event From Journal
     ${result1} =   Run Process  chmod  +x  ${EVENT_READER_TOOL}

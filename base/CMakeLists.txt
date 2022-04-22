@@ -3,7 +3,7 @@ project(everest_base CXX)
 
 option(test "Build all tests." ON) # Makes boolean 'test' available.
 option(BUILD_FUZZ_TESTS "Turn on the build of executables for fuzz test" OFF)
-option(PythonCoverage "Turn of the instrumentation for producing python coverage results" OFF)
+option(PythonCoverage "Turn ON/OFF the instrumentation for producing python coverage results" OFF)
 option(STRACE_SUPPORT "Prevent sanitize options that break strace" OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(SOPHOS_SPL_USER "sophos-spl-user")
@@ -72,22 +72,40 @@ include (CTest)
 enable_testing()
 
 if(NOT GCC_INPUT)
-    set (GCC_INPUT "/build/input/gcc")
+    set (GCC_INPUT "/build/redist/gcc")
 endif(NOT GCC_INPUT)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
 
+# PRODUCT_NAME
 if(NOT DEFINED PRODUCT_NAME)
-    set(PRODUCT_NAME "Sophos Server Protection Linux - Base")
+    if (DEFINED ENV{PRODUCT_NAME})
+        set(PRODUCT_NAME "$ENV{PRODUCT_NAME}")
+    else()
+        set(PRODUCT_NAME "Sophos Server Protection Linux - Base Component")
+    endif()
 endif()
+
+# PRODUCT_LINE_ID
 if(NOT DEFINED PRODUCT_LINE_ID)
-    set(PRODUCT_LINE_ID "ServerProtectionLinux-Base")
+    if (DEFINED ENV{PRODUCT_LINE_ID})
+        set(PRODUCT_LINE_ID "$ENV{PRODUCT_LINE_ID}")
+    else()
+        set(PRODUCT_LINE_ID "ServerProtectionLinux-Base-component")
+    endif()
 endif()
+
+# DEFAULT_HOME_FOLDER
 if(NOT DEFINED DEFAULT_HOME_FOLDER)
-    set(DEFAULT_HOME_FOLDER "sspl-base")
+    if (DEFINED ENV{DEFAULT_HOME_FOLDER})
+        set(DEFAULT_HOME_FOLDER "$ENV{DEFAULT_HOME_FOLDER}")
+    else()
+        set(DEFAULT_HOME_FOLDER "sspl-base")
+    endif()
 endif()
+
 if(NOT DEFINED UPDATESCHEDULER_PRETTY_NAME)
     set(UPDATESCHEDULER_PRETTY_NAME "Update Scheduler")
 endif()
@@ -99,19 +117,35 @@ set(FEATURE_LIST "CORE")
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
 
+# /build/input is where inputs are fetched from artifactory
+if(NOT EXISTS /build/input)
+    message("Fetching build inputs because /build/input does not exist.")
+    execute_process(
+            COMMAND bash tap_fetch.sh
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
+
+# /build/redist is currently named INPUT in our cmake, it is where inputs are unpacked to
 if(NOT DEFINED INPUT)
     set( INPUT /build/redist )
 endif()
 
-if(NOT EXISTS ${INPUT})
-    string( APPEND ERRORMESSAGE
-    "To build using CLion you first need to:\n"
-    "1. Fetch inputs in source folder by running:\n"
-    "    python3 -m build_scripts.artisan_fetch build/release-package.xml\n"
-    "2. Run the full build script with no build flag:\n"
-    "    ./build.sh --no-build\n"
-    "After that you will be able to build using CLion")
-    message( FATAL_ERROR ${ERRORMESSAGE})
+execute_process(
+        COMMAND bash unpack_build_inputs.sh
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE unpack_result)
+
+if (NOT ${unpack_result} EQUAL 0)
+    message(FATAL_ERROR "Unpacking build dependencies failed")
+endif()
+
+execute_process(
+        COMMAND bash patch_boost.sh ${INPUT} ${CMAKE_CURRENT_SOURCE_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE patch_boost_result)
+
+if (NOT ${patch_boost_result} EQUAL 0)
+    message(FATAL_ERROR "Patching boost failed")
 endif()
 
 ## Find 3rd party libraries
@@ -123,8 +157,8 @@ set( ZLIB_INPUT ${INPUT}/zlib )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
 set( MINIZIP_INPUT ${INPUT}/minizip )
 set( GSL_INCLUDE ${INPUT}/gsl/include )
-
 set( BOOST_INCLUDE ${BOOST_INPUT}/include )
+set( GTEST_INPUT ${INPUT}/googletest )
 
 if(NOT DEFINED VERSIG_INPUT)
     set( VERSIG_INPUT ${INPUT}/versig)
@@ -169,8 +203,6 @@ INCLUDE(FindProtobuf)
 
 #FIND_PACKAGE(Protobuf REQUIRED )
 configure_file(build/protoc.sh.in protoc.sh)
-
-
 
 set( ZEROMQ_INPUT ${INPUT}/zeromq )
 ## use pkg-config to get hints for 0mq locations
@@ -252,6 +284,21 @@ find_library(ZLIB_LIBRARY
         NO_DEFAULT_PATH
         )
 
+set( GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers )
+find_library(GTEST_LIBRARY
+        NAMES gtest
+        PATHS ${GTEST_INPUT}/gtest-libs
+        NO_DEFAULT_PATH)
+find_library(GTEST_MAIN_LIBRARY
+        NAMES gtest_main
+        PATHS ${GTEST_INPUT}/gtest-libs
+        NO_DEFAULT_PATH)
+set( GMOCK_INCLUDE ${GTEST_INPUT}/gmock-headers )
+find_library(GMOCK_LIBRARY
+        NAMES gmock
+        PATHS ${GTEST_INPUT}/gmock-libs
+        NO_DEFAULT_PATH)
+
 ## Allow this to be redirected for python development
 if(NOT DEFINED PYTHON_INPUT)
     set( PYTHON_INPUT ${INPUT}/python)
@@ -272,7 +319,16 @@ if(NOT DEFINED PYCRYPTODOME_INPUT)
     set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
 endif()
 
-set ( TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
+# Telemetry config is different for dev vs prod builds
+set(TELEMETRY_CONFIG_SOURCE "${CMAKE_SOURCE_DIR}/build/dev-telemetry-config.json")
+if (DEFINED ENV{SOURCE_CODE_BRANCH})
+    if ($ENV{SOURCE_CODE_BRANCH} MATCHES "^release/")
+        set(TELEMETRY_CONFIG_SOURCE "${CMAKE_SOURCE_DIR}/build/prod-telemetry-config.json")
+    endif()
+endif()
+set(TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
+configure_file(${TELEMETRY_CONFIG_SOURCE} ${TELEMETRY_CONFIG_FILE} COPYONLY)
+message("Telemetry config: ${TELEMETRY_CONFIG_SOURCE} -> ${TELEMETRY_CONFIG_FILE}")
 
 message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
 
@@ -280,6 +336,7 @@ include_directories(modules)
 
 set(REL_DIST distribution)
 set(DIST "${CMAKE_BINARY_DIR}/${REL_DIST}")
+set(OUTPUT "${CMAKE_SOURCE_DIR}/output")
 set(CMAKE_INSTALL_PREFIX "${REL_DIST}")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -296,7 +353,19 @@ else()
     SET(PYTHON_COMMAND ${PYTHON_EXECUTABLE})
 endif()
 
+# Set extra files and dirs to delete when we run clean target
+set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+        ${CMAKE_BINARY_DIR}/libs
+        ${CMAKE_BINARY_DIR}/PostInstall
+        ${CMAKE_BINARY_DIR}/protoc.sh
+        ${CMAKE_BINARY_DIR}/SystemProductTestOutput
+        ${CMAKE_BINARY_DIR}/Testing
+        )
+
 include(cppcheck.cmake)
 add_subdirectory(modules)
 add_subdirectory(products)
 add_subdirectory(tests)
+
+# Must come last
+add_subdirectory(PostInstall)

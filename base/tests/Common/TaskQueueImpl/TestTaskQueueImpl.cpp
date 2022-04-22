@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/TaskQueueImpl/TaskQueueImpl.h>
-#include <include/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 namespace
 {

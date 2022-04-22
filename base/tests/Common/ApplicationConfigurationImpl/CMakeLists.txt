@@ -3,10 +3,14 @@ add_executable(ApplicationConfigurationImplTests
         TestApplicationConfiguration.cpp
         )
 target_include_directories(ApplicationConfigurationImplTests SYSTEM BEFORE PUBLIC
-        "${gtest_SOURCE_DIR}/include"
-        "${gmock_SOURCE_DIR}/include"
+        ${GMOCK_INCLUDE}
+        ${GTEST_INCLUDE}
         ${CMAKE_SOURCE_DIR}
         )
-target_include_directories(ApplicationConfigurationImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}")
-target_link_libraries(ApplicationConfigurationImplTests gtest gtest_main gmock testhelpers)
+target_link_libraries(ApplicationConfigurationImplTests ${GMOCK_LIBRARY} ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} testhelpers)
 gtest_discover_tests(ApplicationConfigurationImplTests)
+SET_TARGET_PROPERTIES(ApplicationConfigurationImplTests
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )

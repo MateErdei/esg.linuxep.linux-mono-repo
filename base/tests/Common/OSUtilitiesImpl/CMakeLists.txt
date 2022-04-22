@@ -7,7 +7,11 @@ add_executable(TestOSUtilities
         TestLocalIP.cpp
         MockILocalIP.h
         MockDnsLookup.h)
-target_include_directories(TestOSUtilities SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CMAKE_SOURCE_DIR})
-target_include_directories(TestOSUtilities BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" )
-target_link_libraries(TestOSUtilities gtest gtest_main gmock osutilitiesimpl  processimpl threads resolv utilityimpl testhelpers)
+target_include_directories(TestOSUtilities SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" ${CMAKE_SOURCE_DIR})
+target_link_libraries(TestOSUtilities ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY} osutilitiesimpl  processimpl threads resolv utilityimpl testhelpers)
 gtest_discover_tests(TestOSUtilities)
+SET_TARGET_PROPERTIES(TestOSUtilities
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )

@@ -7,7 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <gtest/gtest.h>
-#include <include/gmock/gmock-matchers.h>
+#include <gmock/gmock-matchers.h>
 
 using namespace Common::XmlUtilities;
 

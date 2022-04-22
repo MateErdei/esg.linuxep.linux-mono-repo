@@ -16,10 +16,24 @@ add_executable(TelemetryTests
         PluginTelemetryReporterTests.cpp
         MockPluginProxy.h)
 
-target_include_directories(TelemetryTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR} "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${CURL_INCLUDE_DIR})
-target_include_directories(TelemetryTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}" ../../thirdparty/nlohmann-json)
+target_include_directories(TelemetryTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR} ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${CURL_INCLUDE_DIR})
+target_include_directories(TelemetryTests BEFORE PUBLIC "${PROJECT_SOURCE_DIR}" ../../thirdparty/nlohmann-json)
 
-target_link_libraries(TelemetryTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto telemetryimpl telemetryconfigimpl testhelpers obfuscationimpl processimpl xmlutilities threads gcov)
+target_link_libraries(TelemetryTests
+        ${GTEST_LIBRARY}
+        ${GTEST_MAIN_LIBRARY}
+        ${GMOCK_LIBRARY}
+        -L"${CMAKE_BINARY_DIR}/libs"
+        ssl
+        crypto
+        telemetryimpl
+        telemetryconfigimpl
+        testhelpers
+        obfuscationimpl
+        processimpl
+        xmlutilities
+        threads
+        gcov)
 
 gtest_discover_tests(TelemetryTests)
 

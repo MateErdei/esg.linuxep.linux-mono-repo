@@ -109,9 +109,15 @@
             <release-version branch="release/sspl/Version_1_2_12" build-id="20220412084330-fbed66023e864153b2947dbffac57b6600587601-Z87Tnl"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-
-        <trusted-asset artifact-path="filer5-migrate/googletest/1-8-1/EES-8928/googletest-release-1.8.1.tar.gz" dest-dir="/build/input/"/>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
+
+        <build-asset project="thirdparty" repo="googletest">
+            <release-version branch="release/sspl/Version_1_11_0" build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>
+            <include artifact-path="thirdparty/googletest/gmock-headers" dest-dir="/build/input/googletest/gmock-headers/gmock"/>
+            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="/build/input/googletest/gmock-libs"/>
+            <include artifact-path="thirdparty/googletest/gtest-headers" dest-dir="/build/input/googletest/gtest-headers/gtest"/>
+            <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="/build/input/googletest/gtest-libs"/>
+        </build-asset>
 
         <build-asset project="em" repo="esg">
             <release-version branch="release/sophlib" build-id="20220331091219-7e68d4a817ddb3cdd7d84b1594b2d9addf0986df-X4hqu2"/>
@@ -128,46 +134,59 @@
         </build-asset>
     </inputs>
     <buildcommands>
-        <!-- LINUXDAR-851 un-comment code below to allow debug build option when agreed -->
-        <!--<command  buildtype="prod"> -->
-        <command mode="release,oldci">
+
+        <!-- Common build steps -->
+        <command>
             <program>/bin/bash</program>
-            <args>./build.sh --clean --parallel-test 1</args>
+            <args>./unpack_build_inputs.sh</args>
             <workingdir>.</workingdir>
         </command>
 
+        <!-- Release build -->
+        <command mode="release">
+            <program>/bin/bash</program>
+            <args>./build.sh --release</args>
+            <workingdir>.</workingdir>
+        </command>
+
+        <!-- Debug build -->
+        <command mode="debug">
+            <program>/bin/bash</program>
+            <args>./build.sh --debug</args>
+            <workingdir>.</workingdir>
+        </command>
+
+        <!-- Coverage build -->
         <command mode="coverage">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --bullseye</args>
+            <args>./build.sh --clean --bullseye --release</args>
             <workingdir>.</workingdir>
         </command>
 
+        <!-- Static analysis build -->
         <command mode="analysis">
             <program>/bin/bash</program>
             <args>./build.sh --no-build --analysis</args>
             <workingdir>.</workingdir>
         </command>
 
+        <!-- 999 version Build-->
         <command mode="999">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --999 --no-unittest</args>
+            <args>./build.sh --clean --999 --no-unittest --release</args>
             <workingdir>.</workingdir>
         </command>
 
+        <!-- 060 version Build-->
         <command mode="060">
             <program>/bin/bash</program>
-            <args>./build.sh --clean --060 --no-unittest</args>
+            <args>./build.sh --clean --060 --no-unittest --release</args>
             <workingdir>.</workingdir>
         </command>
-
-        <!--<command buildtype="dev">
-            <program>/bin/bash</program>
-            <args>./build.sh - -clean - -debug</args> 'when put back remove space between hyphens'
-            <workingdir>sspl-base-build</workingdir>
-        </command> -->
     </buildcommands>
     <publish>
         <workingdir>.</workingdir>
+
         <!-- Release -->
         <release-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
         <release-asset artifact-path="sspl-base/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
@@ -209,21 +228,11 @@
         <build-asset artifact-path="sspl-base/analysis" source-dir="output/analysis" mode="analysis"/>
         <build-asset artifact-path="sspl-base/analysis_build_log" source-dir="log" mode="analysis"/>
 
-
         <!-- 999 -->
         <release-asset artifact-path="sspl-base-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
         <!-- 060 -->
         <release-asset artifact-path="sspl-base-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060"/>
 
-        <!-- Legacy -->
-        <workingdir>.</workingdir>
-        <destdir>sspl-base</destdir>
-        <buildoutputs>
-            <!-- Release  oldci-->
-            <output name="output" srcfolder="output" artifactpath="output" mode="oldci"/>
-            <output name="openssl" srcfolder="/build/redist/openssl" artifactpath="openssl" mode="oldci"/>
-            <output name="build_log" srcfolder="log" mode="oldci"/>
-        </buildoutputs>
         <publishbranches>master,feature,release,develop,bugfix</publishbranches>
     </publish>
 </package>

@@ -123,8 +123,6 @@ namespace UpdateSchedulerImpl
     using ReportAndFiles = UpdateSchedulerImpl::configModule::ReportAndFiles;
     using UpdateStatus = UpdateSchedulerImpl::configModule::UpdateStatus;
     using namespace UpdateScheduler;
-    std::string UpdateSchedulerProcessor::ALC_API("ALC");
-    std::string UpdateSchedulerProcessor::VERSIONID("1");
 
     UpdateSchedulerProcessor::UpdateSchedulerProcessor(
         std::shared_ptr<SchedulerTaskQueue> queueTask,

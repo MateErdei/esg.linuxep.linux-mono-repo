@@ -7,7 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <gtest/gtest.h>
-#include <include/gmock/gmock-matchers.h>
+#include <gmock/gmock-matchers.h>
 
 #include <future>
 #include <regex>

@@ -9,10 +9,10 @@ add_executable(sduTests
         MockTaskQueue.h
 )
 
-target_include_directories(sduTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR} "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
-target_include_directories(sduTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}" ../../thirdparty/nlohmann-json)
+target_include_directories(sduTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR} "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" )
+target_include_directories(sduTests BEFORE PUBLIC "${PROJECT_SOURCE_DIR}" ../../thirdparty/nlohmann-json)
 
-target_link_libraries(sduTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers remotediagnoseimpl)
+target_link_libraries(sduTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY} -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers remotediagnoseimpl)
 
 gtest_discover_tests(sduTests)
 

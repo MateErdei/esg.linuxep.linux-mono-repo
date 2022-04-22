@@ -3,8 +3,20 @@ add_executable(TestDiagnose
         TestCheckForTar.cpp
         TestGatherFiles.cpp
         SystemCommandsTests.cpp)
-target_include_directories(TestDiagnose SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
-target_include_directories(TestDiagnose BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" ${CMAKE_SOURCE_DIR})
-target_link_libraries(TestDiagnose gtest gmock gtest_main)
-target_link_libraries(TestDiagnose diagnoseimpl testhelpers ${OPENSSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ZLIB_LIBRARY}  ${MINIZIP_LIBRARY})
+target_include_directories(TestDiagnose BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" ${CMAKE_SOURCE_DIR})
+target_link_libraries(TestDiagnose
+        ${GTEST_LIBRARY}
+        ${GTEST_MAIN_LIBRARY}
+        ${GMOCK_LIBRARY}
+        diagnoseimpl
+        testhelpers
+        ${OPENSSL_LIBRARY}
+        ${OPENSSL_CRYPTO_LIBRARY}
+        ${ZLIB_LIBRARY}
+        ${MINIZIP_LIBRARY})
 gtest_discover_tests(TestDiagnose)
+SET_TARGET_PROPERTIES(TestDiagnose
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )

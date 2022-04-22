@@ -31,11 +31,11 @@ def main(argv):
     safe_makedir(debug)
 
     if stripEnv == "0":
-        print("NOT stipping binaries due to ENABLE_STRIP=0")
+        print("NOT stripping binaries due to ENABLE_STRIP=0")
         return 0
     elif stripEnv == "1":
         print("Stripping binaries due to ENABLE_STRIP=1")
-    elif buildType in ("Debug", "RelWithDebInfo"):
+    elif buildType in ["Debug"]:
         print("NOT stripping binaries in buildType {}".format(buildType))
         return 0
     else:

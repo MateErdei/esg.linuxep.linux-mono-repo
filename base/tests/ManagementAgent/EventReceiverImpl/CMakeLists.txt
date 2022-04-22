@@ -3,8 +3,13 @@ add_executable(TestEventReceiverImpl
         TestEventReceiverImpl.cpp
         TestEventTask.cpp
         )
-target_include_directories(TestEventReceiverImpl SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
-target_include_directories(TestEventReceiverImpl BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" "${gmock_SOURCE_DIR}/include" ${CMAKE_SOURCE_DIR})
-target_link_libraries(TestEventReceiverImpl gtest gtest_main gmock)
+target_include_directories(TestEventReceiverImpl SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}")
+target_include_directories(TestEventReceiverImpl BEFORE PUBLIC ${CMAKE_SOURCE_DIR})
+target_link_libraries(TestEventReceiverImpl ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY})
 target_link_libraries(TestEventReceiverImpl eventreceiverimpl testhelpers)
 gtest_discover_tests(TestEventReceiverImpl)
+SET_TARGET_PROPERTIES(TestEventReceiverImpl
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )

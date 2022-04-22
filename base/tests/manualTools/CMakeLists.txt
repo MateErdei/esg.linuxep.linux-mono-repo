@@ -1,34 +1,15 @@
-add_executable(LoggerLimit
-        LoggerLimit.cpp
-        )
-add_executable(FaultInjectionLogger
-        FaultInjectionLogger.cpp
-        )
+add_executable(LoggerLimit LoggerLimit.cpp)
+add_executable(FaultInjectionLogger FaultInjectionLogger.cpp)
+add_executable(PickYourPoison PickYourPoison.cpp)
+add_executable(JailBreakerTest JailBreakerTest.cpp)
+add_executable(ignoreSignals ignoreSignals.cpp)
+add_executable(RunHttpRequest RunHttpRequest.cpp)
+add_executable(UseCommsComponent UseCommsComponent.cpp)
+add_executable(EventPubSub EventPubSub.cpp)
+add_executable(SDDS3DownloaderTest SDDS3DownloaderTest.cpp)
 
-add_executable(PickYourPoison
-        PickYourPoison.cpp
-        )
-add_executable(JailBreakerTest
-        JailBreakerTest.cpp
-)
-add_executable(ignoreSignals
-        ignoreSignals.cpp
-        )
-add_executable(RunHttpRequest
-        RunHttpRequest.cpp)
-
-add_executable(UseCommsComponent
-        UseCommsComponent.cpp)
-
-add_executable(EventPubSub
-        EventPubSub.cpp)
-
-add_executable(SDDS3DownloaderTest
-        SDDS3DownloaderTest.cpp)
-
-
-target_include_directories(LoggerLimit PUBLIC ${LOG4CPLUS_INCLUDE_DIR} )
-target_include_directories(FaultInjectionLogger PUBLIC ${LOG4CPLUS_INCLUDE_DIR} )
+target_include_directories(LoggerLimit PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(FaultInjectionLogger PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 target_include_directories(JailBreakerTest PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
 target_include_directories(RunHttpRequest PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
 target_include_directories(UseCommsComponent PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
@@ -42,28 +23,55 @@ target_link_libraries(JailBreakerTest logging commscomponentimpl)
 target_link_libraries(RunHttpRequest logging commscomponentimpl)
 target_link_libraries(UseCommsComponent logging commscomponentimpl)
 target_link_libraries(EventPubSub zmqwrapperapiimpl)
-target_link_libraries(SDDS3DownloaderTest filesystemimpl -L${SDDS3LIB_INPUT} -lsdds3 -ldelta -lpugixml -lutils -lsdds3crypto -lminizip stdc++fs ${SOPHLIB_LIBRARIES} -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-stringop-overflow)
-
-
+target_link_libraries(SDDS3DownloaderTest
+        filesystemimpl
+        -L${SDDS3LIB_INPUT} -lsdds3 -ldelta -lpugixml -lutils -lsdds3crypto
+        -lminizip
+        stdc++fs
+        ${SOPHLIB_LIBRARIES}
+        ${OPENSSL_LIBRARY}
+        ${OPENSSL_CRYPTO_LIBRARY}
+        -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-stringop-overflow
+        )
 target_link_libraries(PickYourPoison pthread)
 
-SET_TARGET_PROPERTIES(FaultInjectionLogger
-        PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")
+SET_TARGET_PROPERTIES(FaultInjectionLogger PROPERTIES
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "/opt/sophos-spl/base/lib64")
 
-SET_TARGET_PROPERTIES(PickYourPoison
-        PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")
+SET_TARGET_PROPERTIES(PickYourPoison PROPERTIES
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "/opt/sophos-spl/base/lib64")
 
-SET_TARGET_PROPERTIES(JailBreakerTest
-        PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")
+SET_TARGET_PROPERTIES(JailBreakerTest PROPERTIES
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "/opt/sophos-spl/base/lib64")
 
-SET_TARGET_PROPERTIES(RunHttpRequest
-        PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")
+SET_TARGET_PROPERTIES(RunHttpRequest PROPERTIES
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "/opt/sophos-spl/base/lib64")
 
-SET_TARGET_PROPERTIES(UseCommsComponent
-        PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")
+SET_TARGET_PROPERTIES(UseCommsComponent PROPERTIES
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "/opt/sophos-spl/base/lib64")
 
-SET_TARGET_PROPERTIES(EventPubSub
-        PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")
+SET_TARGET_PROPERTIES(EventPubSub PROPERTIES
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "/opt/sophos-spl/base/lib64")
 
-SET_TARGET_PROPERTIES(SDDS3DownloaderTest
-        PROPERTIES BUILD_RPATH "/opt/sophos-spl/base/lib64")
+SET_TARGET_PROPERTIES(SDDS3DownloaderTest PROPERTIES
+        BUILD_RPATH "/opt/sophos-spl/base/lib64"
+        INSTALL_RPATH "/opt/sophos-spl/base/lib64")
+
+
+INSTALL(TARGETS
+        LoggerLimit
+        FaultInjectionLogger
+        PickYourPoison
+        JailBreakerTest
+        ignoreSignals
+        RunHttpRequest
+        UseCommsComponent
+        EventPubSub
+        SDDS3DownloaderTest
+        DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)

@@ -11,9 +11,6 @@ foreach (python_test  ${python_tests})
             )
 
     set_tests_properties(Python${output}
-            PROPERTIES ENVIRONMENT "PYTHONPATH=${PROJECT_SOURCE_DIR}/build64:${PROJECT_SOURCE_DIR}/modules")
+            PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_BINARY_DIR}:${PROJECT_SOURCE_DIR}/modules")
 
 endforeach(python_test)
-
-
-

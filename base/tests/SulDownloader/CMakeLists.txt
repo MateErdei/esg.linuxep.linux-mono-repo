@@ -30,11 +30,17 @@ add_executable(SulDownloaderTests
         Sdds3ReplaceAndRestore.h
         Sdds3ReplaceAndRestore.cpp)
 
-target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include"  ${PROTOBUF_INCLUDE_DIR} ${SDDS3LIB_INPUT} ${GSL_INCLUDE} ${SOPHLIB_INCLUDE_DIR})
-target_include_directories(SulDownloaderTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}"
+target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC
+        "${GTEST_INCLUDE}"
+        "${GMOCK_INCLUDE}"
+        ${PROTOBUF_INCLUDE_DIR}
+        ${SDDS3LIB_INPUT}
+        ${GSL_INCLUDE}
+        ${SOPHLIB_INCLUDE_DIR})
+target_include_directories(SulDownloaderTests BEFORE PUBLIC "${PROJECT_SOURCE_DIR}"
         "${CMAKE_BINARY_DIR}/modules/SulDownloader/suldownloaderdata"
         )
-target_link_libraries(SulDownloaderTests gtest gmock gtest_main)
+target_link_libraries(SulDownloaderTests  ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY})
 target_link_libraries(SulDownloaderTests processimpl filesystemimpl suldownloaderimpl testhelpers threads protobufutil ${SDDS3_LIBRARY} ${SOPHLIB_LIBRARIES})
 gtest_discover_tests(SulDownloaderTests)
 

@@ -7,7 +7,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryObject.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Common/TelemetryHelperImpl/TelemetryValue.h>
-#include <include/gtest/gtest.h>
+#include <gtest/gtest.h>
 #include <json.hpp>
 
 namespace Common::Telemetry

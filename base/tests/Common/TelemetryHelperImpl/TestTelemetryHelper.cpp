@@ -8,7 +8,7 @@
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetryObject.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
-#include <include/gtest/gtest.h>
+#include <gtest/gtest.h>
 #include <json.hpp>
 
 #include <thread>

@@ -11,7 +11,9 @@ set -x
 #    exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
 
 [[ -n ${BASE} ]] || BASE=$(pwd)
-BUILD_DIR=$BASE/build64
+
+BUILD_DIR="$1"
+[[ -d "$BUILD_DIR" ]] || {echo "BUILD_DIR does not exist: $BUILD_DIR"; exit 1}
 export MEMORYCHECK_SUPPRESSIONS_FILE=$BASE/build/valgrind/suppressions.supp
 export MEMORYCHECK_COMMAND_OPTIONS="--gen-suppressions=all"
 [[ -n ${NPROC:-} ]] || NPROC=2

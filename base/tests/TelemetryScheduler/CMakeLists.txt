@@ -11,10 +11,10 @@ add_executable(TelemetrySchedulerTests
         MockTaskQueue.h
         SleepyThreadTests.cpp)
 
-target_include_directories(TelemetrySchedulerTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR} "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
-target_include_directories(TelemetrySchedulerTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${PROJECT_SOURCE_DIR}" ../../thirdparty/nlohmann-json)
+target_include_directories(TelemetrySchedulerTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR} ${GTEST_INCLUDE} ${GMOCK_INCLUDE})
+target_include_directories(TelemetrySchedulerTests BEFORE PUBLIC "${PROJECT_SOURCE_DIR}" ../../thirdparty/nlohmann-json)
 
-target_link_libraries(TelemetrySchedulerTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers telemetryschedulerimpl)
+target_link_libraries(TelemetrySchedulerTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY} -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers telemetryschedulerimpl)
 
 gtest_discover_tests(TelemetrySchedulerTests)
 

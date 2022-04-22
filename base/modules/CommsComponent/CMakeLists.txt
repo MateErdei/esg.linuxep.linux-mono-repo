@@ -64,3 +64,4 @@ target_include_directories(commscomponentimpl PUBLIC
 install(TARGETS commscomponentimpl
         LIBRARY DESTINATION files/base/lib64)
 
+add_dependencies(commscomponentimpl copy_libs)

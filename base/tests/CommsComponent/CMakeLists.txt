@@ -16,7 +16,11 @@ add_executable(TestCommsComponent
         ScopedFilePermissionsReplaceAndRestore.cpp
         )
 
-target_include_directories(TestCommsComponent SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
-target_include_directories(TestCommsComponent BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" ${CMAKE_SOURCE_DIR})
-target_link_libraries(TestCommsComponent gtest gmock gtest_main commscomponentimpl testhelpers utilityimpl)
+target_include_directories(TestCommsComponent BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}"  ${CMAKE_SOURCE_DIR})
+target_link_libraries(TestCommsComponent ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY} commscomponentimpl testhelpers utilityimpl)
 gtest_discover_tests(TestCommsComponent)
+SET_TARGET_PROPERTIES(TestCommsComponent
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )

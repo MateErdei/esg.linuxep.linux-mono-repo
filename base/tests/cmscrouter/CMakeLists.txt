@@ -11,10 +11,10 @@ add_executable(cMCSTests
 
 target_include_directories(cMCSTests SYSTEM BEFORE PUBLIC
         ${CMAKE_SOURCE_DIR}
-        "${gtest_SOURCE_DIR}/include"
-        "${gmock_SOURCE_DIR}/include"
+        ${GMOCK_INCLUDE}
+        ${GTEST_INCLUDE}
         ${CURL_INCLUDE_DIR})
-target_link_libraries(cMCSTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" testhelpers obfuscationimpl mcsimpl HttpRequestsImpl )
+target_link_libraries(cMCSTests ${GMOCK_LIBRARY} ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} -L"${CMAKE_BINARY_DIR}/libs" testhelpers obfuscationimpl mcsimpl HttpRequestsImpl )
 
 gtest_discover_tests(cMCSTests)
 

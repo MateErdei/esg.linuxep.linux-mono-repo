@@ -5,7 +5,7 @@
 ///******************************************************************************************************/
 
 #include <Common/TelemetryHelperImpl/TelemetryValue.h>
-#include <include/gtest/gtest.h>
+#include <gtest/gtest.h>
 
 static const long TEST_INTEGER = 10L;
 static const unsigned long TEST_UNSIGNED_INTEGER = 11UL;

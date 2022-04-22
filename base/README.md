@@ -1,3 +1,10 @@
+# Base
+###Getting Started
+Once this repo is cloned, run the setup_build_tools.sh script to setup the needed pre-reqs for building. 
+You're now ready to build base by running build.sh.
+If you're using an IDE then make sure to set the toolchain environment to evaluate setup_env_vars.sh, in CLion this is done from: File | Settings | Build, Execution, Deployment | Toolchains, and then setting the environment file.
+Built artifacts are gathered into the output directory.
+
 #coverage build with bullseye
 1. Trigger CI coverage build with bullseye:
     * on build pipeline build base with mode=coverage
@@ -8,12 +15,10 @@
       * filer6 path: _output/analysis_
       * artifactory path: analysis.zip
 
-# static anaylsis with cppcheck
+# static analysis with cppcheck
 1. Trigger CI static analysis with cppcheck only:
     * on build pipeline build base with mode=analysis
-    * RESULTS published to folder "analysis" both on filer6 & artifactory
-        * filer6 path: _output/analysis_
-        * artifactory path: analysis.zip
+
  
 2. Trigger local analysis with cppcheck only:
     * ./build.sh --analysis --no-build

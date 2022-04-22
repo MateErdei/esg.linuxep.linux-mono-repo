@@ -1,11 +1,32 @@
 #!/bin/bash
 
-set -e
+# Uncomment for debugging
+#set -x
 
-if [[ $(id -u) == 0 ]]
-then
-    echo "You don't need to run this as root"
-    exit 1
+set -e
+CLEAN=0
+while [[ $# -ge 1 ]]
+do
+    case $1 in
+        --clean)
+            CLEAN=1
+            ;;
+        *)
+            exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
+            ;;
+    esac
+    shift
+done
+
+if [[ "$CI" == "true" ]]
+  then
+    echo "Building in CI, allowing root user execution."
+  else
+    if [[ $(id -u) == 0 ]]
+    then
+        echo "You don't need to run this as root"
+        exit 1
+    fi
 fi
 
 BASEDIR=$(dirname "$0")
@@ -13,11 +34,16 @@ BASEDIR=$(dirname "$0")
 # Just in case this script ever gets symlinked
 BASEDIR=$(readlink -f "$BASEDIR")
 cd "$BASEDIR"
-source "$BASEDIR/common_vars.sh"
+
+if [[ "$LINUX_ENV_SETUP" != "true" ]]
+then
+  source "$BASEDIR/setup_env_vars.sh"
+fi
 
 if [[ -z ${ROOT_LEVEL_BUILD_DIR+x} ]]
 then
   echo "ROOT_LEVEL_BUILD_DIR is not set"
+  echo "Please run: . ./setup_env_vars.sh"
   exit 1
 fi
 if [[ ! -d "$ROOT_LEVEL_BUILD_DIR" ]]
@@ -29,6 +55,7 @@ fi
 if [[ -z ${FETCHED_INPUTS_DIR+x} ]]
 then
   echo "FETCHED_INPUTS_DIR is not set"
+  echo "Please run: . ./setup_env_vars.sh"
   exit 1
 fi
 if [[ ! -d "$FETCHED_INPUTS_DIR" ]]
@@ -40,7 +67,13 @@ fi
 if [[ -z ${REDIST+x} ]]
 then
   echo "REDIST is not set"
+  echo "Please run: . ./setup_env_vars.sh"
   exit 1
+fi
+
+if [[ "$CLEAN" == "1" ]]
+then
+  rm -rf "$REDIST"
 fi
 
 [[ -d "$REDIST" ]] || mkdir -p "$REDIST"
@@ -64,7 +97,8 @@ function should_skip_based_on_date()
   fi
   local should_skip_rc=0
   local should_unpack_rc=1
-  local archive_basename=$(basename "$archive")
+  local archive_basename
+  archive_basename=$(basename "$archive")
   local marker_file="$REDIST/$archive_basename-marker"
   if [[ -f "$marker_file" ]]
   then
@@ -80,7 +114,8 @@ function unpack_tars()
 {
   shopt -s nullglob
   for tarfile in "$FETCHED_INPUTS_DIR/"*.tar; do
-    local archive_basename=$(basename "$tarfile")
+    local archive_basename
+    archive_basename=$(basename "$tarfile")
     local marker_file="$REDIST/$archive_basename-marker"
     if should_skip_based_on_date "$tarfile"
     then
@@ -104,7 +139,8 @@ function unpack_tars()
       fi
       echo "Extracting .tar: $tarfile - $archive_hash"
       # Remove old dir if needed
-      local output_dir_name=$(tar -tf "$tarfile" | cut -f1 -d"/" | sort | uniq | head -n 1)
+      local output_dir_name
+      output_dir_name=$(tar -tf "$tarfile" | cut -f1 -d"/" | sort | uniq | head -n 1)
       local output_dir_full_path="$REDIST/$output_dir_name"
       [[ -d "$output_dir_full_path" ]] && rm -rf "$output_dir_full_path"
 
@@ -125,7 +161,8 @@ function unpack_gzipped_tars()
 {
   shopt -s nullglob
   for tarfile in "$FETCHED_INPUTS_DIR/"*.tar.gz; do
-    local archive_basename=$(basename "$tarfile")
+    local archive_basename
+    archive_basename=$(basename "$tarfile")
     local marker_file="$REDIST/$archive_basename-marker"
     if should_skip_based_on_date "$tarfile"
     then
@@ -168,7 +205,8 @@ function unpack_zips()
 {
   shopt -s nullglob
   for zipfile in $FETCHED_INPUTS_DIR/*.zip; do
-    local archive_basename=$(basename "$zipfile")
+    local archive_basename
+    archive_basename=$(basename "$zipfile")
     local marker_file="$REDIST/$archive_basename-marker"
     if should_skip_based_on_date "$zipfile"
     then
@@ -207,16 +245,85 @@ function unpack_zips()
    shopt -u nullglob
 }
 
+function google_test()
+{
+    if [[ -d "$FETCHED_INPUTS_DIR/googletest" ]]
+    then
+        if [[ ! -d $REDIST/googletest ]]
+        then
+            ln -sf $FETCHED_INPUTS_DIR/googletest $REDIST/googletest
+        fi
+    else
+        echo "ERROR - googletest not found here: $FETCHED_INPUTS_DIR/googletest"
+        exit 1
+    fi
+}
+
+function copy_certs()
+{
+  mkdir -p "$REDIST/certificates"
+  if [[ -f $FETCHED_INPUTS_DIR/ps_rootca.crt ]]
+  then
+      cp -u "$FETCHED_INPUTS_DIR/ps_rootca.crt" "$REDIST/certificates/"
+      # Manifest cert, currently same as ps_rootca
+      cp -u "$FETCHED_INPUTS_DIR/ps_rootca.crt" "$REDIST/certificates/rootca.crt"
+  else
+      echo "ERROR - ps_rootca.crt not found here: $FETCHED_INPUTS_DIR/ps_rootca.crt"
+      exit 1
+  fi
+  echo "Certificates synced to $REDIST/certificates"
+}
+
+function copy_sdds3builder()
+{
+  mkdir -p "$REDIST/sdds3"
+  if [[ -d $FETCHED_INPUTS_DIR/sdds3 ]]
+  then
+      cp -ru "$FETCHED_INPUTS_DIR/sdds3" "$REDIST/"
+      chmod +x $REDIST/sdds3/*
+  else
+      echo "ERROR - sdds3 tools not found here: $FETCHED_INPUTS_DIR/sdds3"
+      exit 1
+  fi
+  echo "sdds3 tools synced to $REDIST/sdds3"
+}
+
+function copy_sophlib()
+{
+  if [[ -d "$FETCHED_INPUTS_DIR/sophlib" ]]
+  then
+      cp -ru "$FETCHED_INPUTS_DIR/sophlib" "$REDIST/"
+  else
+      echo "ERROR - sophlib not found here: $FETCHED_INPUTS_DIR/sophlib"
+      exit 1
+  fi
+  echo "sophlib synced to $REDIST/sophlib"
+}
+
+function setup_cmake()
+{
+    if [[ -f "$FETCHED_INPUTS_DIR/cmake/bin/cmake" ]]
+    then
+        if [[ ! -d $REDIST/cmake ]]
+        then
+            ln -sf $FETCHED_INPUTS_DIR/cmake $REDIST/cmake
+        fi
+    else
+        echo "ERROR - cmake not found here: $FETCHED_INPUTS_DIR/cmake/bin/cmake"
+        exit 1
+    fi
+    chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
+    chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
+    echo "cmake synced to $REDIST/cmake"
+}
+
 unpack_tars
 unpack_gzipped_tars
 unpack_zips
-
-if [[ -d $BASEDIR/tests/googletest ]]
-then
-  echo "Skipping copy, already present: $BASEDIR/tests/googletest"
-else
-  echo "Copying google test into place"
-  cp -r $REDIST/googletest-release-1.8.1 $BASEDIR/tests/googletest
-fi
+google_test
+copy_certs
+copy_sdds3builder
+copy_sophlib
+setup_cmake
 
 echo "Finished unpacking"

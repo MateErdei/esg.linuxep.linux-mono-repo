@@ -6,12 +6,17 @@ add_executable(TelemetryConfigImplTests
         MessageRelayTests.cpp
         )
 
-target_include_directories(TelemetryConfigImplTests SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ../../../thirdparty/nlohmann-json)
-target_include_directories(TelemetryConfigImplTests BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}")
+target_include_directories(TelemetryConfigImplTests SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" ../../../thirdparty/nlohmann-json)
 
 target_link_libraries(TelemetryConfigImplTests telemetryconfigimpl)
-target_link_libraries(TelemetryConfigImplTests gtest gmock gtest_main)
+target_link_libraries(TelemetryConfigImplTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY})
 
 gtest_discover_tests(TelemetryConfigImplTests)
+
+SET_TARGET_PROPERTIES(TelemetryConfigImplTests
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")

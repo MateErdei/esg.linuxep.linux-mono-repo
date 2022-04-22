@@ -14,10 +14,15 @@ add_executable(TestZeroMQWrapperImpl
         ReqRepTestImplementations.cpp
         ReqRepTestImplementations.h)
 
+SET_TARGET_PROPERTIES(TestZeroMQWrapperImpl
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )
+
 target_compile_definitions(TestZeroMQWrapperImpl PUBLIC CMAKE_CURRENT_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}")
-target_include_directories(TestZeroMQWrapperImpl SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" ${ZeroMQ_INCLUDE_DIR} ${CMAKE_SOURCE_DIR})
-target_include_directories(TestZeroMQWrapperImpl BEFORE PUBLIC "${gtest_SOURCE_DIR}")
-target_link_libraries(TestZeroMQWrapperImpl gtest gtest_main)
+target_include_directories(TestZeroMQWrapperImpl SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" ${ZeroMQ_INCLUDE_DIR} ${CMAKE_SOURCE_DIR})
+target_link_libraries(TestZeroMQWrapperImpl ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY})
 target_link_libraries(TestZeroMQWrapperImpl zmqwrapperapiimpl processimpl threads testhelpers)
 gtest_discover_tests(TestZeroMQWrapperImpl)
 

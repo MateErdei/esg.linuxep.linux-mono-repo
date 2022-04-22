@@ -8,7 +8,6 @@ add_library(protobufutilobject OBJECT
 target_include_directories(protobufutilobject SYSTEM BEFORE PUBLIC ${Protobuf_INCLUDE_DIR})
 
 add_library(protobufutil SHARED $<TARGET_OBJECTS:protobufutilobject>)
-#target_include_directories(utilityimpl PUBLIC ../../Common )
 target_link_libraries(protobufutil PUBLIC ${Protobuf_LIBRARIES})
 
 SET_TARGET_PROPERTIES(protobufutil

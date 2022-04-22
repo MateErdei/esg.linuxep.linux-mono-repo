@@ -15,6 +15,9 @@ function failure()
     exit $E
 }
 
+[[ -n "$DEBUG_BUILD_DIR" ]] || failure 1 "DEBUG_BUILD_DIR not set, this is found in setup_env_vars.sh"
+[[ -n "$RELEASE_BUILD_DIR" ]] || failure 1 "RELEASE_BUILD_DIR not set, this is found in setup_env_vars.sh"
+
 [[ -n ${COVFILE} ]] || failure 2 "COVFILE not set!"
 
 if [[ -f /pandorum/BullseyeLM/BullseyeCoverageLicenseManager ]]
@@ -57,7 +60,8 @@ BASE_DIR="${ORIG_CWD}"
 if [[ $CLEAN == 1 ]]
 then
     echo "Doing a clean build"
-    rm -rf $BASE_DIR/build64
+    rm -rf "$BUILD_DIR/$DEBUG_BUILD_DIR"
+    rm -rf "$BUILD_DIR/$RELEASE_BUILD_DIR"
 fi
 
 ## COVFILE is in /tmp/root
@@ -105,8 +109,13 @@ function exclude()
 
 echo "Excluding \!../../build/redist/"
 covselect --quiet --add \!../../build/redist/ || failure 4 "Failed to exclude /build/redist"
+
+echo "Excluding \!../../build/input/"
+covselect --quiet --add \!../../build/input/ || failure 4 "Failed to exclude /build/input"
+
 echo "Excluding \!../../opt/"
 covselect --quiet --add \!../../opt/ || failure 5 "Failed to exclude /opt"
+
 echo "Excluding \!../../lib/"
 covselect --quiet --add \!../../lib/ || failure 6 "Failed to exclude /lib"
 
@@ -119,7 +128,8 @@ SRC_TEST_DIR=${SRC_DIR}/tests
 
 exclude \!../..${SRC_DIR}/thirdparty/
 exclude \!../..${SRC_DIR}/build/
-exclude \!../..${SRC_DIR}/build64/
+exclude \!../..${SRC_DIR}/"$DEBUG_BUILD_DIR"/
+exclude \!../..${SRC_DIR}/"$RELEASE_BUILD_DIR"/
 exclude \!../..${SRC_DIR}/sspl-base-build/
 exclude \!../..${SRC_TEST_DIR}/
 

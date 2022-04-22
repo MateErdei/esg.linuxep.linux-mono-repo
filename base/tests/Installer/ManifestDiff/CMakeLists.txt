@@ -2,17 +2,17 @@ include(GoogleTest)
 add_executable(TestManifestDiff
         TestManifest.cpp
         TestManifestEntry.cpp TestManifestDiff.cpp ExampleManifests.h TestCommandLine.cpp)
-target_include_directories(TestManifestDiff SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include")
-target_include_directories(TestManifestDiff BEFORE PUBLIC "${gtest_SOURCE_DIR}" "${gmock_SOURCE_DIR}" "${BOOST_INCLUDE}" "${CMAKE_SOURCE_DIR}" )
+target_include_directories(TestManifestDiff SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}")
+target_include_directories(TestManifestDiff BEFORE PUBLIC "${BOOST_INCLUDE}" "${CMAKE_SOURCE_DIR}" )
 
 set (BOOST_LIB_DIRS "${BOOST_INPUT}/lib64")
 
 SET_TARGET_PROPERTIES(TestManifestDiff
         PROPERTIES
-        INSTALL_RPATH "${BOOST_LIB_DIRS}"
-        BUILD_RPATH "${BOOST_LIB_DIRS}"
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
-target_link_libraries(TestManifestDiff gtest gtest_main gmock )
+target_link_libraries(TestManifestDiff ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY})
 target_link_libraries(TestManifestDiff manifestdifflib testhelpers -L"${BOOST_LIB_DIRS}" -lboost_filesystem -lboost_system )
 gtest_discover_tests(TestManifestDiff)
