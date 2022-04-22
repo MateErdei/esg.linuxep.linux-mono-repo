@@ -5,7 +5,6 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "MCSHttpClient.h"
 
-#include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 #include <Common/ObfuscationImpl/Base64.h>
 

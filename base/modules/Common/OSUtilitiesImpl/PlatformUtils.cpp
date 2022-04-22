@@ -5,6 +5,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PlatformUtils.h"
+#include "SystemUtils.h"
 #include "MACinfo.h"
 #include "LocalIPImpl.h"
 
@@ -33,7 +34,12 @@ namespace Common::OSUtilitiesImpl
         
         void PlatformUtils::populateVendorDetails()
         {
-            const std::string lsbReleasePath = "/etc/lsb-release";
+            ::OSUtilitiesImpl::SystemUtils systemUtils;
+            std::string lsbReleasePath = systemUtils.getEnvironmentVariable("LSB_ETC_LSB_RELEASE");
+            if (lsbReleasePath.empty())
+            {
+                lsbReleasePath = "/etc/lsb-release";
+            }
 
             const std::array<std::string, 6> distroCheckFiles = {
                 "/etc/issue",

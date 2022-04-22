@@ -10,8 +10,8 @@ add_library(centralregistrationimpl SHARED
         MessageReplayExtractor.h
         )
 
-target_include_directories(centralregistrationimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
-include_directories(centralregistrationimpl BEFORE ${CURL_INCLUDE_DIR} ../../thirdparty/nlohmann-json)
+target_include_directories(centralregistrationimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR} ${CURL_INCLUDE_DIR} )
+include_directories(centralregistrationimpl BEFORE ../../thirdparty/nlohmann-json)
 
 target_link_libraries(centralregistrationimpl PUBLIC httpsenderimpl osutilitiesimpl  mcsimpl ${LOG4CPLUS_LIBRARY} $<TARGET_OBJECTS:loggingobject>)
 

@@ -11,7 +11,6 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <cmcsrouter/AgentAdapter.h>
 #include <cmcsrouter/Config.h>
 #include <cmcsrouter/MCSApiCalls.h>
-#include <cmcsrouter/MCSHttpClient.h>
 
 #include <json.hpp>
 
@@ -138,7 +137,7 @@ namespace CentralRegistration
 
         preregistration(configOptions, statusXml, requester);
 
-        MCS::MCSHttpClient httpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_CUSTOMER_TOKEN], requester);
+        MCS::MCSHttpClient httpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], requester);
         httpClient.setCertPath(configOptions.config[MCS::MCS_CERT]);
 
         // This check saves retrying all proxies if preregistration succeeded on a given proxy

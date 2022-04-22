@@ -3,8 +3,9 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-
+#include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+
 namespace MCS
 {
     class MCSHttpClient
