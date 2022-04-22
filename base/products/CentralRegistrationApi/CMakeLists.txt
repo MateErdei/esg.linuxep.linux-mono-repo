@@ -4,7 +4,8 @@ add_library(centralregistrationapi SHARED
         $<TARGET_OBJECTS:mcsimpl>
         )
 
-#target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf expat -L${EXPAT_INPUT}/lib64 -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib)
+add_dependencies(centralregistrationapi centralregistrationimpl mcsimpl)
+#target_link_libraries(centralregistrationapi PUBLIC centralregistrationimpl mcsimpl)
 
 #add_library(sharedtesthelpers SHARED $<TARGET_OBJECTS:testhelpersobject>)
 #target_link_libraries(sharedtesthelpers PUBLIC pluginapi)
@@ -32,6 +33,7 @@ add_custom_target(
         COMMAND mkdir -p centralregistrationapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/modules/CentralRegistration/libcentralregistrationimpl.so centralregistrationapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/modules/cmcsrouter/libmcsimpl.so centralregistrationapi/lib64
+        DEPENDS mcsimpl centralregistrationimpl
 )
 
 function(add_copy_directory base)
@@ -76,7 +78,7 @@ add_copy_directory(CentralRegistration)
 add_custom_command(
         TARGET centralregistrationapitar
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E tar czf centralregistrationapi.tar.gz centralregistrationapi
+        COMMAND ${CMAKE_COMMAND} -E tar cf centralregistrationapi.tar centralregistrationapi
         COMMAND rm -rf centralregistrationapi
 )
 
