@@ -566,7 +566,7 @@ AV Plugin Reports encoded eicars To Base
    Wait Until Keyword Succeeds
          ...  60 secs
          ...  5 secs
-         ...  check_number_of_events_matches  ${expected_count}
+         ...  check_number_of_threat_events_matches  ${expected_count}
 
    check_all_eicars_are_found  /tmp_test/encoded_eicars/
 

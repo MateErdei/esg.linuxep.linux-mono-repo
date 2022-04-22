@@ -38,6 +38,7 @@ IDE update doesnt restart av processes
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Replace Virus Data With Test Dataset A
+    Register Cleanup  Run IDE update with SUSI loaded
     Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update without SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
@@ -77,6 +78,7 @@ Restart then Update Sophos Threat Detector
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Replace Virus Data With Test Dataset A
+    Register Cleanup  Run IDE update with SUSI loaded
     Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update without SUSI loaded
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
@@ -158,6 +160,8 @@ Update before Init then Restart Threat Detector
     # start a scan in the background, to trigger SUSI init & update
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
     Create File     ${SCAN_DIRECTORY}/eicar2.com    ${EICAR_STRING}
+    Create File     ${SCAN_DIRECTORY}/eicar3.com    ${EICAR_STRING}
+    Create File     ${SCAN_DIRECTORY}/eicar4.com    ${EICAR_STRING}
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  ${SCAN_DIRECTORY}/   stderr=STDOUT
 
     Wait Until Sophos Threat Detector Log Contains With Offset   Scan requested

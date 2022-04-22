@@ -182,3 +182,15 @@ Exclude Scan Errors From File Samples
    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to scan /opt/test/inputs/test_scripts/resources/file_samples/corrupted.xls as it is corrupted
    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       ThreatScanner <> Failed to scan /opt/test/inputs/test_scripts/resources/file_samples/passwd-protected.xls as it is password protected
    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to scan /opt/test/inputs/test_scripts/resources/file_samples/passwd-protected.xls as it is password protected
+   mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       ThreatScanner <> Failed to scan /regression/opt/test/inputs/test_scripts/resources/file_samples/corrupted.xls as it is corrupted
+   mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to scan /regression/opt/test/inputs/test_scripts/resources/file_samples/corrupted.xls as it is corrupted
+   mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       ThreatScanner <> Failed to scan /regression/opt/test/inputs/test_scripts/resources/file_samples/passwd-protected.xls as it is password protected
+   mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ThreatScanner <> Failed to scan /regression/opt/test/inputs/test_scripts/resources/file_samples/passwd-protected.xls as it is password protected
+
+Exclude Globalrep Timeout Errors
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       =GR= curl_easy_perform() failed: Timeout was reached
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  =GR= curl_easy_perform() failed: Timeout was reached
+
+Exclude SUSI failed to read stream
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       Failed to read stream:
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Failed to read stream:

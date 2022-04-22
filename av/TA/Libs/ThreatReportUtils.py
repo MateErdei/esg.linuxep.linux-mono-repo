@@ -113,9 +113,10 @@ GL_EXPECTED_CONTENTS = {
 }
 
 
-def check_number_of_events_matches(number_of_expected_events):
+def check_number_of_threat_events_matches(number_of_expected_events):
     number_of_expected_events = int(number_of_expected_events)
     events_list = os.listdir(GL_MCS_EVENTS_DIRECTORY)
+    events_list = list(filter(lambda event: event.startswith("SAV"), events_list))
     actual_number_of_events = len(events_list)
 
     if actual_number_of_events != number_of_expected_events:
@@ -132,7 +133,7 @@ def check_threat_event_received_by_base(number_of_expected_events, event_type):
     :param event_type:
     :return: throw Exception on failure. 1 for success
     """
-    actual_number_of_events, events_list, number_of_expected_events = check_number_of_events_matches(
+    actual_number_of_events, events_list, number_of_expected_events = check_number_of_threat_events_matches(
         number_of_expected_events)
 
     expected_strings = GL_EXPECTED_CONTENTS[event_type]
@@ -140,6 +141,7 @@ def check_threat_event_received_by_base(number_of_expected_events, event_type):
     expected_map = {}
 
     for filename in events_list:
+        logger.info(">>> filename: {}".format(filename))
         for s in expected_strings:
             expected_map[s] = 0
 
@@ -171,7 +173,7 @@ def check_multiple_different_threat_events(number_of_expected_events, event_type
     :param event_type:
     :return: throw Exception on failure. 1 for success
     """
-    actual_number_of_events, events_list, number_of_expected_events = check_number_of_events_matches(
+    actual_number_of_events, events_list, number_of_expected_events = check_number_of_threat_events_matches(
         number_of_expected_events)
 
     expected_strings = GL_EXPECTED_CONTENTS[event_type]
