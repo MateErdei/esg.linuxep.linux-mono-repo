@@ -297,13 +297,13 @@ namespace SulDownloader
         m_config.release_groups_filter = releaseGroups;
         for(const auto& srcUrlToTry : DEFAULT_UPDATE_URLS)
         {
+            std::string srcUrl(srcUrlToTry);
             m_error.reset(); // Clear error for retry
             try
             {
                 std::string overrideFile =
                     Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
 
-                std::string srcUrl(srcUrlToTry);
                 if (Common::FileSystem::fileSystem()->exists(overrideFile))
                 {
                     std::string cdnOverrideUrl =
@@ -324,7 +324,7 @@ namespace SulDownloader
                 std::stringstream message;
                 message << "Failed to sync " << ex.what();
                 m_error.Description = message.str();
-                LOGERROR("Failed to Sync with " << srcUrlToTry << " error: " << ex.what());
+                LOGERROR("Failed to Sync with " << srcUrl << " error: " << ex.what());
             }
         }
         if(!hasError())
