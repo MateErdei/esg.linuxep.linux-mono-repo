@@ -324,7 +324,7 @@ namespace SulDownloader
                 std::stringstream message;
                 message << "Failed to sync " << ex.what();
                 m_error.Description = message.str();
-                LOGERROR("Failed to Sync with " << srcUrl << " error: " << ex.what());
+                LOGWARN("Failed to Sync with " << srcUrl << " error: " << ex.what());
             }
         }
         if(!hasError())
