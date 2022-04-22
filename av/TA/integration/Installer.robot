@@ -58,6 +58,7 @@ IDE update copies updated ide
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Run Shell Process  touch ${SOPHOS_INSTALL}/mark  OnError=failed to mark
     Replace Virus Data With Test Dataset A
+    Register Cleanup  Run IDE update with SUSI loaded
     Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update with SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
@@ -97,6 +98,7 @@ Concurrent scans get pending update
     # prepare the pending update
     Restart sophos_threat_detector and mark logs
     Replace Virus Data With Test Dataset A
+    Register Cleanup  Run IDE update with SUSI loaded
     Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update without SUSI loaded
 
@@ -126,6 +128,7 @@ Update then Restart Sophos Threat Detector
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Mark Sophos Threat Detector Log
     Replace Virus Data With Test Dataset A
+    Register Cleanup  Run IDE update with SUSI loaded
     Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update with SUSI loaded
     Wait Until SUSI DEBUG Log Contains With Offset   Performing SUSI update
@@ -153,6 +156,7 @@ Update before Init then Restart Threat Detector
     # restart STD and create a pending update
     Restart sophos_threat_detector and mark logs
     Replace Virus Data With Test Dataset A
+    Register Cleanup  Run IDE update with SUSI loaded
     Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update without SUSI loaded
     Wait Until Sophos Threat Detector Log Contains With Offset   Threat scanner update is pending
