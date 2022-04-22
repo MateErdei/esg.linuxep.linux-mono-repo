@@ -427,10 +427,7 @@ namespace SulDownloader
             finalConnectionCandidates.push_back(connectionSetup);
         }
 
-        for(auto& candidate : candidates)
-        {
-            finalConnectionCandidates.push_back(candidate);
-        }
+
         return finalConnectionCandidates;
     }
 

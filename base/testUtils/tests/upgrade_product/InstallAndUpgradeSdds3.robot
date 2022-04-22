@@ -76,8 +76,7 @@ Sul Downloader Can Update Via Sdds3 Repository
     sleep    10
     Remove File  ${status_file}
     Remove FIle   /opt/sophos-spl/base/mcs/status/cache/ALC.xml
-    Log File    ${UpdateConfigFile}
-    ${content}=  Get File    ${UpdateConfigFile}
+
     File Should Contain  ${UpdateConfigFile}     JWToken
     Trigger Update Now
     Wait Until Keyword Succeeds
@@ -114,6 +113,28 @@ Sul Downloader Can Update Via Sdds3 Repository
     ...   Check Suldownloader Log Contains   Generating the report file
 
     Check Local SDDS2 Cache Is Empty
+
+Sul Downloader fails update if expected product missing from SUS
+    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_FakePlugin.xml
+    ${handle}=  Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+
+    Register With Local Cloud Server
+
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   5 secs
+    ...   File Should Contain  ${UpdateConfigFile}     ServerProtectionLinux-Plugin-Fake
+
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   5 secs
+    ...   Check Suldownloader Log Contains   Failed to connect to repository: Package : ServerProtectionLinux-Plugin-Fake missing from warehouse
 
 SDDS3 Sync Removes Local SDDS2 Cache
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
@@ -176,4 +197,3 @@ Check Local SDDS2 Cache Is Empty
 Check Local SDDS2 Cache Has Contents
     Directory Should Not Be Empty    ${sdds2_primary}
     Directory Should Not Be Empty    ${sdds2_primary_warehouse}
-

@@ -54,6 +54,7 @@ namespace SulDownloader
         void distribute() override;
 
         void generateProductListFromSdds3PackageInfo();
+        void checkForMissingPackages(const std::vector<suldownloaderdata::ProductSubscription>& subscriptions,const std::set<std::string>& suites);
 
     private:
         void setupSdds3LibLogger();

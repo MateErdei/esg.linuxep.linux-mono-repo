@@ -198,6 +198,7 @@ namespace SulDownloader
             httpSession->SetTimeouts(DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
 
             std::string url = connectionSetup.getUpdateLocationURL() + "/v3/" + configurationData.getTenantId() + "/" + configurationData.getDeviceId();
+            LOGDEBUG("Trying SUS url: " << url);
             auto httpConnection = std::make_unique<utilities::LinuxHttpClient::Connection>(*httpSession, url);
 
             auto request = std::make_unique<utilities::LinuxHttpClient::Request>(*httpConnection, "POST", "");
@@ -215,6 +216,7 @@ namespace SulDownloader
             }
 
             parseSUSResponse(request->Read(), suites, releaseGroups);
+            checkForMissingPackages(requestParameters.subscriptions, suites);
             return std::make_pair(suites, releaseGroups);
 
         }
@@ -223,6 +225,32 @@ namespace SulDownloader
             m_error.status = RepositoryStatus::CONNECTIONERROR;
             m_error.Description = ex.what();
             return std::make_pair(suites, releaseGroups);
+        }
+    }
+
+    void SDDS3Repository::checkForMissingPackages(const std::vector<ProductSubscription>& subscriptions,const std::set<std::string>& suites)
+    {
+        size_t prefixSize = std::string("sdds3.").size();
+        for (const auto& sub: subscriptions)
+        {
+            const std::string& productID = sub.rigidName();
+
+            bool notFound = (std::find_if( suites.begin(), suites.end(),
+                                          [productID,prefixSize](const std::string& suiteName)
+                                          {
+                                            std::string warehouseSuite = suiteName.substr(prefixSize, suiteName.size()-prefixSize);
+                                            return Common::UtilityImpl::StringUtils::startswith(warehouseSuite, productID);
+                                          }
+            )== suites.end());
+
+            if (notFound)
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Package : " << productID << " missing from warehouse";
+                m_error.Description = errorMessage.str();
+                m_error.status = RepositoryStatus::PACKAGESOURCEMISSING;
+                break;
+            }
         }
     }
 

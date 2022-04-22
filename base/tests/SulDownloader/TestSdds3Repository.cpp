@@ -74,6 +74,49 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSo
     EXPECT_EQ(products[1].getLine(), "line2");
     EXPECT_FALSE(products[1].productHasChanged());
 }
+TEST_F(Sdds3RepositoryTest, testcheckForMissingPackagesEmptyConfig) // NOLINT
+{
+    SDDS3Repository repository;
+
+    std::vector<ProductSubscription> subscriptions;
+    std::set<std::string> suites;
+    repository.checkForMissingPackages(subscriptions,suites);
+    EXPECT_EQ(repository.hasError(),false);
+
+}
+
+TEST_F(Sdds3RepositoryTest, testcheckForMissingPackageswithSuceedsWithPackages) // NOLINT
+{
+    SDDS3Repository repository;
+
+    ProductSubscription sub{"Plugin1","","",""};
+    ProductSubscription sub2{"Plugin2","","",""};
+    std::vector<ProductSubscription> subscriptions{sub,sub2};
+
+    std::set<std::string> suites;
+    suites.emplace("sdds3.Plugin1");
+    suites.emplace("sdds3.Plugin2");
+    repository.checkForMissingPackages(subscriptions,suites);
+    EXPECT_EQ(repository.hasError(),false);
+
+}
+
+TEST_F(Sdds3RepositoryTest, testcheckForMissingPackagesReportsErrorWithMissingPackages) // NOLINT
+{
+    SDDS3Repository repository;
+
+    ProductSubscription sub{"Plugin1","","",""};
+    ProductSubscription sub2{"Plugin2","","",""};
+    ProductSubscription sub3{"Plugin3","","",""};
+    std::vector<ProductSubscription> subscriptions{sub,sub2,sub3};
+
+    std::set<std::string> suites;
+    suites.emplace("sdds3.Plugin1");
+    suites.emplace("sdds3.Plugin2");
+    repository.checkForMissingPackages(subscriptions,suites);
+    EXPECT_EQ(repository.hasError(),true);
+
+}
 
 TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsAllProductsHaveChanged) // NOLINT
 {
