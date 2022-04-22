@@ -13,7 +13,7 @@ add_library(centralregistrationimpl SHARED
 target_include_directories(centralregistrationimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR} ${CURL_INCLUDE_DIR} )
 include_directories(centralregistrationimpl BEFORE ../../thirdparty/nlohmann-json)
 
-target_link_libraries(centralregistrationimpl PUBLIC httpsenderimpl osutilitiesimpl  mcsimpl ${LOG4CPLUS_LIBRARY} $<TARGET_OBJECTS:loggingobject>)
+target_link_libraries(centralregistrationimpl PUBLIC logging httpsenderimpl osutilitiesimpl  mcsimpl ${LOG4CPLUS_LIBRARY})
 
 SET_TARGET_PROPERTIES( centralregistrationimpl
         PROPERTIES
