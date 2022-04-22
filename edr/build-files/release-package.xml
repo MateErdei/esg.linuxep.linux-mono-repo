@@ -75,7 +75,7 @@
             <include artifact-path="sqlite-amalgamation" dest-dir="/build/input/sqlite-amalgamation"/>
         </build-asset>
         <build-asset project="thirdparty" repo="thrift">
-            <release-version branch="release/sspl/Version_0_14_2" build-id="20220311153346-e08a27043935aab83ecf4f85b61db62767f910eb-4g9wbB"/>
+            <release-version branch="release/sspl/Version_0_14_2" build-id="20220420152503-677ca17e0cbc8ead1d66b63581518fa03e721004-73l6d9"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="xzutils">
