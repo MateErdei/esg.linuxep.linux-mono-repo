@@ -43,7 +43,7 @@ if (NOT EXISTS ${INPUT}/sdds3/sdds3-builder)
 endif()
 INSTALL(CODE "MESSAGE(STATUS \"Generating SDDS3 manifests\")
     execute_process(
-        COMMAND ${INPUT}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/SDDS-Import.xml --nonce `sha256sum ${DIST}/SDDS-Import.xml | head -c 10`
+        COMMAND ${CMAKE_SOURCE_DIR}/PostInstall/RunSdds3Builder.sh ${INPUT}/sdds3/sdds3-builder ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE ${DIST}/SDDS-Import.xml
         RESULT_VARIABLE STATUS)
     if(STATUS AND NOT STATUS EQUAL 0)
         message(STATUS \"Failed to generate SDDS3 manifests: ${STATUS}\")
