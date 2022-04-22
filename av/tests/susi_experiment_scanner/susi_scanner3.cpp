@@ -62,9 +62,9 @@ static bool IsBlocklistedFile(void *token, SusiHashAlg algorithm, const char *fi
     return false;
 }
 
-static SusiCallbackTable my_susi_callbacks{
+static SusiCallbackTable my_susi_callbacks{ //NOLINT
     .version = SUSI_CALLBACK_TABLE_VERSION,
-    .token = nullptr, //NOLINT
+    .token = nullptr,
     .IsAllowlistedFile = isAllowlistedFile,
     .IsBlocklistedFile = IsBlocklistedFile,
     .IsTrustedCert = isTrustedCert,

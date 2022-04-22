@@ -141,7 +141,6 @@ def check_threat_event_received_by_base(number_of_expected_events, event_type):
     expected_map = {}
 
     for filename in events_list:
-        logger.info(">>> filename: {}".format(filename))
         for s in expected_strings:
             expected_map[s] = 0
 

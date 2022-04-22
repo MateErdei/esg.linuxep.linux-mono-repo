@@ -64,7 +64,7 @@ int main()
     auto ret = ::chdir(libUpdaterSource.c_str());
     if (ret != 0)
     {
-        std::cerr << "Failed to cd to libUpdaterSource directory: " << libUpdaterSource.c_str() << std::endl;
+        std::cerr << "Failed to cd to libupdater directory: " << libUpdaterSource.c_str() << std::endl;
         return ret;
     }
 
