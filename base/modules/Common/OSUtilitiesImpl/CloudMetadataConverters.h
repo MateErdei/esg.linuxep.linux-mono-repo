@@ -19,15 +19,22 @@ namespace Common::OSUtilitiesImpl
          */
         static std::string parseAwsMetadataJson(std::string& responseBody)
         {
-            nlohmann::json awsInfoJson = nlohmann::json::parse(responseBody);
-            std::stringstream result;
-            result << "<aws>"
-                   << "<region>" << awsInfoJson["region"].get<std::string>() << "</region>"
-                   << "<accountId>" << awsInfoJson["accountId"].get<std::string>() << "</accountId>"
-                   << "<instanceId>" << awsInfoJson["instanceId"].get<std::string>() << "</instanceId>"
-                   << "</aws>";
+            try
+            {
+                nlohmann::json awsInfoJson = nlohmann::json::parse(responseBody);
+                std::stringstream result;
+                result << "<aws>"
+                       << "<region>" << awsInfoJson["region"].get<std::string>() << "</region>"
+                       << "<accountId>" << awsInfoJson["accountId"].get<std::string>() << "</accountId>"
+                       << "<instanceId>" << awsInfoJson["instanceId"].get<std::string>() << "</instanceId>"
+                       << "</aws>";
 
-            return result.str();
+                return result.str();
+            }
+            catch (std::exception& e) // Catches JSON parse exception
+            {
+                return "";
+            }
         }
 
         /**
@@ -36,16 +43,25 @@ namespace Common::OSUtilitiesImpl
          */
         static std::string parseAzureMetadataJson(std::string& responseBody)
         {
-            nlohmann::json azureInfoJson = nlohmann::json::parse(responseBody);
-            std::stringstream result;
-            result << "<azure>"
-                   << "<vmId>" << azureInfoJson["compute"]["vmId"].get<std::string>() << "</vmId>"
-                   << "<vmName>" << azureInfoJson["compute"]["name"].get<std::string>() << "</vmName>"
-                   << "<resourceGroupName>" << azureInfoJson["compute"]["resourceGroupName"].get<std::string>() << "</resourceGroupName>"
-                   << "<subscriptionId>" << azureInfoJson["compute"]["subscriptionId"].get<std::string>() << "</subscriptionId>"
-                   <<"</azure>";
+            try
+            {
+                nlohmann::json azureInfoJson = nlohmann::json::parse(responseBody);
+                std::stringstream result;
+                result << "<azure>"
+                       << "<vmId>" << azureInfoJson["compute"]["vmId"].get<std::string>() << "</vmId>"
+                       << "<vmName>" << azureInfoJson["compute"]["name"].get<std::string>() << "</vmName>"
+                       << "<resourceGroupName>" << azureInfoJson["compute"]["resourceGroupName"].get<std::string>()
+                       << "</resourceGroupName>"
+                       << "<subscriptionId>" << azureInfoJson["compute"]["subscriptionId"].get<std::string>()
+                       << "</subscriptionId>"
+                       << "</azure>";
 
-            return result.str();
+                return result.str();
+            }
+            catch (std::exception& e) // Catches JSON parse exception
+            {
+                return "";
+            }
         }
 
         /**
@@ -70,19 +86,27 @@ namespace Common::OSUtilitiesImpl
          */
         static std::string parseOracleMetadataJson(std::string& responseBody)
         {
-            nlohmann::json oracleInfoJson = nlohmann::json::parse(responseBody);
-            std::stringstream result;
-            result << "<oracle>"
-                   << "<region>" << oracleInfoJson["region"].get<std::string>() << "</region>"
-                   << "<availabilityDomain>" << oracleInfoJson["availabilityDomain"].get<std::string>() << "</availabilityDomain>"
-                   << "<compartmentId>" << oracleInfoJson["compartmentId"].get<std::string>() << "</compartmentId>"
-                   << "<displayName>" << oracleInfoJson["displayName"].get<std::string>() << "</displayName>"
-                   << "<hostname>" << oracleInfoJson["hostname"].get<std::string>() << "</hostname>"
-                   << "<state>" << oracleInfoJson["state"].get<std::string>() << "</state>"
-                   << "<instanceId>" << oracleInfoJson["id"].get<std::string>() << "</instanceId>"
-                   <<"</oracle>";
+            try
+            {
+                nlohmann::json oracleInfoJson = nlohmann::json::parse(responseBody);
+                std::stringstream result;
+                result << "<oracle>"
+                       << "<region>" << oracleInfoJson["region"].get<std::string>() << "</region>"
+                       << "<availabilityDomain>" << oracleInfoJson["availabilityDomain"].get<std::string>()
+                       << "</availabilityDomain>"
+                       << "<compartmentId>" << oracleInfoJson["compartmentId"].get<std::string>() << "</compartmentId>"
+                       << "<displayName>" << oracleInfoJson["displayName"].get<std::string>() << "</displayName>"
+                       << "<hostname>" << oracleInfoJson["hostname"].get<std::string>() << "</hostname>"
+                       << "<state>" << oracleInfoJson["state"].get<std::string>() << "</state>"
+                       << "<instanceId>" << oracleInfoJson["id"].get<std::string>() << "</instanceId>"
+                       << "</oracle>";
 
-            return result.str();
+                return result.str();
+            }
+            catch (std::exception& e) // Catches JSON parse exception
+            {
+                return "";
+            }
         }
     };
 }

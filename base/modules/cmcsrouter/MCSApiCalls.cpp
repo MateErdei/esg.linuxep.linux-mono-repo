@@ -34,13 +34,7 @@ namespace MCS
         const std::string& statusXml,
         const std::string& proxy)
     {
-        std::string encodedCustomerToken = "Basic " + Common::ObfuscationImpl::Base64::Encode(configOptions.config[MCS::MCS_CUSTOMER_TOKEN]);
         client.setVersion(configOptions.config[MCS::MCS_PRODUCT_VERSION]);
-
-        Common::HttpRequests::Headers headers = {
-            {"Authorization", encodedCustomerToken},
-            {"Content-Type","application/json;charset=UTF-8"}
-        };
 
         if (!configOptions.config[MCS::MCS_CA_OVERRIDE].empty())
         {
@@ -52,7 +46,7 @@ namespace MCS
         }
         
         client.setProxyInfo(proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
-        Common::HttpRequests::Response response = client.sendRegistration(headers, "/install/deployment-info/2", statusXml);
+        Common::HttpRequests::Response response = client.sendPreregistration(statusXml, configOptions.config[MCS::MCS_CUSTOMER_TOKEN]);
         return response.body;
     }
 
@@ -62,19 +56,9 @@ namespace MCS
         const std::string& statusXml,
         const std::string& proxy)
     {
-        AgentAdapter agentAdapter;
-
-        std::string encodedAuthorisation =
-            Common::ObfuscationImpl::Base64::Encode(
-                configOptions.config[MCS::MCS_ID] + ":" +  configOptions.config[MCS::MCS_PASSWORD] + ":" + configOptions.config[MCS::MCS_TOKEN]);
-
-        std::string authorisationValue = "Basic " + encodedAuthorisation;
+        client.setID(configOptions.config[MCS::MCS_ID]);
+        client.setPassword(configOptions.config[MCS::MCS_PASSWORD]);
         client.setVersion(configOptions.config[MCS::MCS_PRODUCT_VERSION]);
-
-        Common::HttpRequests::Headers headers = {
-            {"Authorization", authorisationValue},
-            {"Content-Type","application/xml; charset=utf-8"}
-        };
 
         if (!configOptions.config[MCS::MCS_CA_OVERRIDE].empty())
         {
@@ -86,7 +70,7 @@ namespace MCS
         }
         
         client.setProxyInfo(proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
-        Common::HttpRequests::Response response = client.sendRegistration(headers, "/register", statusXml);
+        Common::HttpRequests::Response response = client.sendRegistration(statusXml, configOptions.config[MCS::MCS_TOKEN]);
         if (response.status == 200)
         {
             std::string messageBody = Common::ObfuscationImpl::Base64::Decode(response.body);

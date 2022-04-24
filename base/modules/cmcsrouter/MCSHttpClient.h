@@ -12,7 +12,8 @@ namespace MCS
     {
     public:
         MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::HttpRequests::IHttpRequester>);
-        Common::HttpRequests::Response  sendRegistration(const Common::HttpRequests::Headers& headers, const std::string& urlSuffix, const std::string& statusXml);
+        Common::HttpRequests::Response  sendRegistration(const std::string& statusXml, const std::string& token);
+        Common::HttpRequests::Response  sendPreregistration(const std::string& statusXml, const std::string& customerToken);
         Common::HttpRequests::Response  sendMessage(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
         Common::HttpRequests::Response  sendMessageWithID(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
         Common::HttpRequests::Response  sendMessageWithIDAndRole(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
@@ -27,6 +28,13 @@ namespace MCS
 
     private:
         std::string getV1AuthorizationHeader();
+        std::string getRegistrationAuthorizationHeader(const std::string& token);
+        std::string getDeploymentInfoV2AuthorizationHeader(const std::string& customerToken);
+        std::string getAuthorizationHeader(const std::string& toBeEncoded);
+
+        void updateProxyInfo(Common::HttpRequests::RequestConfig& request);
+        void updateCertPath(Common::HttpRequests::RequestConfig& request);
+
         std::string m_base_url;
         std::string m_registerToken;
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_client;
