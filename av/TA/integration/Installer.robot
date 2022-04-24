@@ -162,11 +162,12 @@ Update before Init then Restart Threat Detector
     Wait Until Sophos Threat Detector Log Contains With Offset   Threat scanner update is pending
 
     # start a scan in the background, to trigger SUSI init & update
-    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    Create File     ${SCAN_DIRECTORY}/eicar2.com    ${EICAR_STRING}
-    Create File     ${SCAN_DIRECTORY}/eicar3.com    ${EICAR_STRING}
-    Create File     ${SCAN_DIRECTORY}/eicar4.com    ${EICAR_STRING}
-    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  ${SCAN_DIRECTORY}/   stderr=STDOUT
+    ${LOG_FILE} =       Set Variable   /tmp/scan.log
+    Remove File  ${LOG_FILE}
+    Register Cleanup    Remove File  ${LOG_FILE}
+    Register Cleanup    Dump Log     ${LOG_FILE}
+    ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /usr/
+    ...   stdout=${LOG_FILE}   stderr=STDOUT
 
     Wait Until Sophos Threat Detector Log Contains With Offset   Scan requested
     Wait Until Sophos Threat Detector Log Contains With Offset   Initializing SUSI   timeout=30
@@ -176,8 +177,15 @@ Update before Init then Restart Threat Detector
 
     # check the state of our scan (it *should* work, eventually)
     Process Should Be Running   ${cls_handle}
-    ${result} =   Wait For Process   ${cls_handle}
-    Log   ${result.stdout}
+    Mark Log   ${LOG_FILE}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  File Log Contains With Offset   ${LOG_FILE}   Scanning   ${LOG_MARK}
+
+    # Stop CLS
+    ${result} =   Terminate Process  ${cls_handle}
+    Should Contain  ${{ [ ${EXECUTION_INTERRUPTED}, ${SCAN_ABORTED_WITH_THREAT} ] }}   ${result.rc}
 
     # force a log dump, for investigation / debug purposes
     dump log  ${THREAT_DETECTOR_LOG_PATH}
