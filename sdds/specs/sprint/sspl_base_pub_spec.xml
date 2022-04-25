@@ -7,7 +7,7 @@
         <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.1.136" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
         <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.1.67" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
         <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.0.13" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
-        <component importreference="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.722" line="ServerProtectionLinux-Plugin-Heartbeat" mountpoint="ServerProtectionLinux-Plugin-Heartbeat"/>
+        <component importreference="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.531" line="ServerProtectionLinux-Plugin-Heartbeat" mountpoint="ServerProtectionLinux-Plugin-Heartbeat"/>
     </componentsuite>
     <componentsuite importreference="ServerProtectionLinux-Base-1.1.9.11">
         <component importreference="ServerProtectionLinux-Base-component-1.1.9.25" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
