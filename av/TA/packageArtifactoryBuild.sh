@@ -53,7 +53,9 @@ mv "$OUTPUT/test-resources"  "$AV/"
 PYTHON=${PYTHON:-python3}
 ${PYTHON} ${BASE}/manual/downloadSupplements.py "$INPUTS" $DATASETA_ARG
 
-exec tar cjf /tmp/inputs.tar.bz2 -C ${DEST_BASE} \
+ARCHIVE_OPTION=${ARCHIVE_OPTION:-j}
+
+exec tar c${ARCHIVE_OPTION}f /tmp/inputs.tar.bz2 -C ${DEST_BASE} \
     --exclude='test/inputs/vdl.zip' \
     --exclude='test/inputs/model.zip' \
     --exclude='test/inputs/reputation.zip' \

@@ -75,6 +75,8 @@
     "RunUbuntu" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "ubuntu"]},
     "RunAmazon" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "amazonlinux"]},
     "RunCentosStream" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centosstream"]},
+    "RunDebian" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "debian"]},
+    "RunOracle" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "oracle"]},
     "RunRhel78x64" : {"Fn::Or": [
         {"Condition" : "RunRhel"},
         {"Condition" : "RunAll"},
@@ -100,6 +102,21 @@
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "centosstreamx64"]}
         ]},
+    "RunDebian10x64" : {"Fn::Or": [
+      {"Condition" : "RunDebian"},
+      {"Condition" : "RunAll"},
+      {"Fn::Equals" : [{"Ref" : "RunOne"}, "debian10x64"]}
+    ]},
+    "RunDebian11x64" : {"Fn::Or": [
+      {"Condition" : "RunDebian"},
+      {"Condition" : "RunAll"},
+      {"Fn::Equals" : [{"Ref" : "RunOne"}, "debian11x64"]}
+    ]},
+    "RunOracle8x64" : {"Fn::Or": [
+      {"Condition" : "RunOracle"},
+      {"Condition" : "RunAll"},
+      {"Fn::Equals" : [{"Ref" : "RunOne"}, "oracle8x64"]}
+    ]},
     "RunUbuntu1804Minimal" : {"Fn::Or": [
         {"Condition" : "RunUbuntu"},
         {"Condition" : "RunAll"},

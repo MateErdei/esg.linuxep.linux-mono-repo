@@ -1,3 +1,20 @@
+Runs SSPL-AV on platforms not supported by TAP
+==============================================
+
+Steps required:
+1. Package input:
+   1.1. TA/packageArtifactoryBuild.sh esg-build-tested/linuxep.sspl-plugin-anti-virus/develop/20220424040000-48427cd7b45f4b52da67fb131f51bec04c62e6c6-52BHvV/
+2. bunzip2 -c /tmp/inputs.tar.bz2 | gzip - >/tmp/inputs.tar.gz
+3. export TEST_TAR=/tmp/inputs.tar.gz
+4. export SKIP_GATHER=1
+5. export SSHLocation=80.229.30.66/32
+6. pipeline/aws-runner/run_tests_in_aws.sh
+
+
+
+Base instructions
+=================
+
 A set of tools for running SSPL test passes in AWS.
 
 The test inputs for this script are defined by the <everest-base>/testUtils/system-product-test-release-package.xml

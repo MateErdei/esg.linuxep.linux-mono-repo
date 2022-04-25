@@ -73,14 +73,18 @@ then
     python3 -m pip install --upgrade -r requirements.txt || failure "Unable to install python requirements: $?"
 fi
 
-export TEST_TAR=./ssplav-test-$STACK.tgz
+# Upload basename needs to always be this - so that instances can file tarfile
+TAR_BASENAME=ssplav-test-$STACK.tgz
+
+TEST_TAR=${TEST_TAR:-./${TAR_BASENAME}}
+export TEST_TAR
+
 ## Gather files
 if [[ -z "$SKIP_GATHER" ]]
 then
     bash -x ./gather.sh || failure "Failed to gather test files: $?"
 fi
 [[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
-TAR_BASENAME=$(basename ${TEST_TAR})
 
 [[ -x $(which aws) ]] || failure "No aws command available"
 
@@ -122,7 +126,8 @@ if [[ -z "$SKIP_TAR_COPY" ]]
 then
     aws s3 cp "$TEST_TAR" ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME} || failure "Unable to copy test tarfile to s3"
 fi
-rm $TEST_TAR
+# Only delete TEST_TAR if we just gathered it
+[[ -z "$SKIP_GATHER" ]] && rm $TEST_TAR
 
 function delete_stack()
 {
