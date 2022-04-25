@@ -19,11 +19,12 @@ if (DEFINED ENV{USE_LIBFUZZER})
     set(FUZZING_FLAGS -DUSING_LIBFUZZER=1 -g -O1 -Wall -Wextra -Werror -fstack-protector -fno-omit-frame-pointer -fsanitize=fuzzer,address,undefined)
     add_compile_options(${FUZZING_FLAGS})
     add_link_options(${FUZZING_FLAGS})
+    set(LIBCXX_LIB_PATH "-L /build/input/gcc/lib64")
 endif (DEFINED ENV{USE_LIBFUZZER})
 
 set(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} ${SANITISE_FLAGS} ${WARNING_FLAGS}")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${SANITISE_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${SANITISE_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_DEBUG} ${LIBCXX_LIB_PATH}")
 
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/buildconfig")

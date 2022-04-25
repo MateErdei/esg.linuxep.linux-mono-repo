@@ -439,8 +439,8 @@ function build()
       [[ -n $CXX ]] || CXX=$(which g++)
       [[ -n $CC ]] || CC=$(which gcc)
     else
-      [[ -n $CXX ]] || CXX=$(which clang++-9)
-      [[ -n $CC ]] || CC=$(which clang-9)
+      CXX=$(which clang++-9)
+      CC=$(which clang-9)
     fi
 
     export CC
