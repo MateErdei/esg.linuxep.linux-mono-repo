@@ -54,10 +54,7 @@ IDE update copies updated ide
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Run Shell Process  touch ${SOPHOS_INSTALL}/mark  OnError=failed to mark
-    Replace Virus Data With Test Dataset A
-    Register Cleanup  Run IDE update with SUSI loaded
-    Register Cleanup  Revert Virus Data To Live Dataset A
-    Run IDE update with SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs ls -ilhd  OnError=find failed
@@ -118,10 +115,7 @@ Update then Restart Sophos Threat Detector
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Mark Sophos Threat Detector Log
-    Replace Virus Data With Test Dataset A
-    Register Cleanup  Run IDE update with SUSI loaded
-    Register Cleanup  Revert Virus Data To Live Dataset A
-    Run IDE update with SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Wait Until SUSI DEBUG Log Contains With Offset   Performing SUSI update
 
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
@@ -286,6 +280,7 @@ sophos_threat_detector can start after multiple IDE updates
     mark sophos threat detector log
 
     Replace Virus Data With Test Dataset A
+    Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update with SUSI loaded
     Sophos Threat Detector Log Contains With Offset  Threat scanner successfully updated
     Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
@@ -293,7 +288,6 @@ sophos_threat_detector can start after multiple IDE updates
     Revert Virus Data To Live Dataset A
     Run IDE update with SUSI loaded
     Replace Virus Data With Test Dataset A
-    Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update with SUSI loaded
     # We need the updates to have actually updated SUSI
     File Should Not Exist   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/libsusi.so
@@ -735,3 +729,9 @@ Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Register Cleanup  Run IDE update with SUSI loaded
     Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update without SUSI loaded
+
+Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Run IDE update with SUSI loaded
+    Register Cleanup  Revert Virus Data To Live Dataset A
+    Run IDE update with SUSI loaded
