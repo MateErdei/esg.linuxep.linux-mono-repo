@@ -137,6 +137,9 @@ Sul Downloader fails update if expected product missing from SUS
     ...   Check Suldownloader Log Contains   Failed to connect to repository: Package : ServerProtectionLinux-Plugin-Fake missing from warehouse
 
 SDDS3 Sync Removes Local SDDS2 Cache
+    [Setup]    Test Setup With Ostia
+    [Teardown]    Test Teardown With Ostia
+
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -197,3 +200,12 @@ Check Local SDDS2 Cache Is Empty
 Check Local SDDS2 Cache Has Contents
     Directory Should Not Be Empty    ${sdds2_primary}
     Directory Should Not Be Empty    ${sdds2_primary_warehouse}
+
+Test Setup With Ostia
+    Test Setup
+    Setup Ostia Warehouse Environment
+
+Test Teardown With Ostia
+    Stop Local SDDS3 Server
+    Teardown Ostia Warehouse Environment
+    Test Teardown
