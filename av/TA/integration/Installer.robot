@@ -37,10 +37,7 @@ AV Plugin Installs With Version Ini File
 IDE update doesnt restart av processes
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Replace Virus Data With Test Dataset A
-    Register Cleanup  Run IDE update with SUSI loaded
-    Register Cleanup  Revert Virus Data To Live Dataset A
-    Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
@@ -78,10 +75,7 @@ Restart then Update Sophos Threat Detector
     Restart sophos_threat_detector and mark logs
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
-    Replace Virus Data With Test Dataset A
-    Register Cleanup  Run IDE update with SUSI loaded
-    Register Cleanup  Revert Virus Data To Live Dataset A
-    Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
     # Check we can detect PEEND following update
@@ -97,10 +91,7 @@ Concurrent scans get pending update
 
     # prepare the pending update
     Restart sophos_threat_detector and mark logs
-    Replace Virus Data With Test Dataset A
-    Register Cleanup  Run IDE update with SUSI loaded
-    Register Cleanup  Revert Virus Data To Live Dataset A
-    Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
 
     # Check we can detect PEEND following update
     ${threat_file} =   Set Variable   ${RESOURCES_PATH}/file_samples/peend.exe
@@ -157,10 +148,7 @@ Update before Init then Restart Threat Detector
 
     # restart STD and create a pending update
     Restart sophos_threat_detector and mark logs
-    Replace Virus Data With Test Dataset A
-    Register Cleanup  Run IDE update with SUSI loaded
-    Register Cleanup  Revert Virus Data To Live Dataset A
-    Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Wait Until Sophos Threat Detector Log Contains With Offset   Threat scanner update is pending
 
     # start a scan in the background, to trigger SUSI init & update
@@ -741,3 +729,9 @@ Revert Virus Data To Live Dataset A
     Empty Directory  ${IDE_DIR}
     Copy Files  /tmp/vdl-tmp/*   ${IDE_DIR}/
     Remove Directory  /tmp/vdl-tmp  recursive=True
+
+Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Run IDE update with SUSI loaded
+    Register Cleanup  Revert Virus Data To Live Dataset A
+    Run IDE update without SUSI loaded

@@ -46,24 +46,20 @@
 
         <!-- SUSI imports -->
         <build-asset project="core" repo="engine">
-            <release-version branch="release/3.84.0" build-id="20211124093937-d236f0cf0b9936dc1f28f905cb241792c5747817-iL735K"/>
+            <release-version branch="release/3.85.1" build-id="20220321101926-4e639779678aba81878512a8dbfa2937d7fac066-SDs0N8"/>
             <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="input/susi_input/libsavi"/>
-        </build-asset>
-
-        <build-asset project="core" repo="engine">
-            <release-version branch="release/3.84.0" build-id="20211124093937-d236f0cf0b9936dc1f28f905cb241792c5747817-iL735K"/>
             <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
 
         <build-asset project="ec" repo="liblocalrep">
-            <development-version branch="develop" build-id="20220408103010-f9a3d3ad8fab1ad0cb181a680f2d2f4086078247-oDzoGZ"/>
+            <release-version branch="release/2.2.1" build-id="20220422174027-f9a3d3ad8fab1ad0cb181a680f2d2f4086078247-IXV5z2"/>
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
         <trusted-asset artifact-path="filer5-migrate/model-linux-x64/1-3/212025/oempackage/linux-x64-model-gcc4.8.1.tar" dest-dir="input/susi_input/mllib"/>
 
         <build-asset project="ec" repo="susi">
-            <release-version branch="feature--sspl-preview" build-id="20220411135215-75f0f7fa3a9b134afb3cbccc132431f0914c7992-8phGcU"/>
+            <release-version branch="release/1.98" build-id="20220422220331-a9a2b416fd7327a38a0fa02ce8bd1b5868823d31-5rCD4K"/>
             <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib" />
             <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include" />
@@ -71,7 +67,7 @@
         </build-asset>
 
         <build-asset project="core" repo="httpsrequester">
-            <development-version branch="develop" build-id="20220408103256-617765c187edf74262d1e6f52bcd95e379c25ced-Z3cv2b"/>
+            <release-version branch="release/1.2.4" build-id="20220422175123-30fe29b52219a683c9b07586eacbf172e0ebbf9e-uarofo"/>
             <include artifact-path="release/centos7/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
         </build-asset>
 
