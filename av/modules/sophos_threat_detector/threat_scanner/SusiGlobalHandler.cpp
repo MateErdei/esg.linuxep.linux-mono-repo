@@ -47,7 +47,7 @@ namespace threat_scanner
             return false;
         }
 
-        static SusiCallbackTable my_susi_callbacks{
+        SusiCallbackTable my_susi_callbacks{
             .version = SUSI_CALLBACK_TABLE_VERSION,
             .token = nullptr, //NOLINT
             .IsAllowlistedFile = isAllowlistedFile,

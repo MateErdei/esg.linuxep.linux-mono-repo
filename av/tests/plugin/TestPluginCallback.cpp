@@ -100,8 +100,8 @@ namespace
             m_vdlDirPath /= "chroot/susi/update_source/vdl";
             fs::create_directories(m_vdlDirPath);
             m_vdlVersionFilePath = m_vdlDirPath;
-            m_vdlVersionFilePath /= "vvf.xml";
-            createVvfFile(m_initialExpectedVdlVersion,m_vdlVersionFilePath);
+            m_vdlVersionFilePath /= "manifestdata.dat";
+            createDataSetAFile(m_vdlVersionFilePath);
 
             //creating ide files
             createIdes(m_initialExpectedVdlIdeCount, m_vdlDirPath);
@@ -133,23 +133,10 @@ namespace
             }
         }
 
-        void createVvfFile(const std::string &version, const std::string &filePath)
+        void createDataSetAFile(const std::string& path)
         {
-            std::string vvfContents = Common::UtilityImpl::StringUtils::orderedStringReplace(
-                R"sophos(<?xml version='1.0' encoding='utf-8'?>
-<VVF xmlns:nl="http://www.sophos.com/vdl/namelists" xmlns:sxt="http://www.sophos.com/vdl/sophxtainer" xmlns:vtyp="http://www.sophos.com/vdl/typesandsubtypes">
-  <VirusData Version="@@VERSION@@" date="2020-09-08" />
-  <sxt:sophxtainer>
-    <sxt:section name="vdltypesandsubtypes">
-    </sxt:section>
-  </sxt:sophxtainer>
-</VVF>)sophos",{
-                    {"@@VERSION@@", version}
-                });
-
             std::ofstream vdlVersionFileStream;
-            vdlVersionFileStream.open(filePath);
-            vdlVersionFileStream << vvfContents << std::endl;
+            vdlVersionFileStream.open(path);
             vdlVersionFileStream.close();
         }
 
@@ -185,7 +172,6 @@ namespace
         std::string m_initialExpectedMlLibHash = "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865";
         std::string m_initialExpectedMlModelVersion = "20200306";
         unsigned long m_initialExpectedVdlIdeCount = 3;
-        std::string m_initialExpectedVdlVersion = "5.78";
         std::string m_initialExpectedVersion = "1.2.3.456";
         std::string m_initialExpectedCommitHash = "dd9f7b10bb62c4b5f8eee1fede4bb4f4100a75c5";
         std::string m_initialExpectedPluginApiCommitHash = "93b8ec8736dcb5b4266f85b1b08110ebe19c7f03";
@@ -342,17 +328,9 @@ TEST_F(TestPluginCallback, getTelemetry_vdlIdeCount_dirDoesNotExist) //NOLINT
 
 TEST_F(TestPluginCallback, getTelemetry_vdlVersion) //NOLINT
 {
-    std::string modifiedExpectedVdlVersion = "5.79";
-
     json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
-    EXPECT_EQ(initialTelemetry["vdl-version"], m_initialExpectedVdlVersion);
-
-    createVvfFile(modifiedExpectedVdlVersion,m_vdlVersionFilePath);
-
-    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
-
-    EXPECT_EQ(modifiedTelemetry["vdl-version"], modifiedExpectedVdlVersion);
+    EXPECT_EQ(initialTelemetry["vdl-version"], "DataSet-A");
 }
 
 TEST_F(TestPluginCallback, getTelemetry_vdlVersion_fileDoesNotExist) //NOLINT

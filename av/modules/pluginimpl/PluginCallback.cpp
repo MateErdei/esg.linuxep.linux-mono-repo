@@ -188,27 +188,12 @@ namespace Plugin
     std::string PluginCallback::getVirusDataVersion()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        fs::path pluginPath(appConfig.getData("PLUGIN_INSTALL"));
-        fs::path vvfFile = pluginPath / "chroot/susi/update_source/vdl/vvf.xml";
-
-        std::ifstream vvfFileFs (vvfFile, std::ifstream::in);
         std::string virusDataVersion = "unknown";
-        if (vvfFileFs.good())
+        fs::path datasetAmfst(appConfig.getData("PLUGIN_INSTALL"));
+        datasetAmfst /= "chroot/susi/update_source/vdl/manifestdata.dat";
+        if (fs::exists(datasetAmfst))
         {
-            std::stringstream vvfFileContents;
-            vvfFileContents << vvfFileFs.rdbuf();
-
-            auto attributeMap = Common::XmlUtilities::parseXml(vvfFileContents.str());
-            virusDataVersion = attributeMap.lookup("VVF/VirusData").value("Version");
-        }
-        else
-        {
-            fs::path datasetAmfst = pluginPath / "chroot/susi/update_source/vdl/manifestdata.dat";
-            if (fs::exists(datasetAmfst))
-            {
-                virusDataVersion = "DataSet-A";
-            }
-
+            virusDataVersion = "DataSet-A";
         }
         return virusDataVersion;
     }

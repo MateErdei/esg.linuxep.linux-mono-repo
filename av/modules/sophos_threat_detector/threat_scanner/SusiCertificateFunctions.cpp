@@ -31,14 +31,3 @@ bool threat_scanner::isAllowlistedCert(void *token, const char *fileTopLevelCert
 
     return false;
 }
-
-bool threat_scanner::isBlocklistedCert(void *token, const char *fileTopLevelCert, size_t size)
-{
-    (void)token;
-    (void)fileTopLevelCert;
-    (void)size;
-
-    LOGDEBUG("Calling isBlocklistedCert with size=" << size);
-
-    return false;
-}
