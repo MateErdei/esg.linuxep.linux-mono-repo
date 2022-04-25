@@ -13,12 +13,12 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>
         <build-asset project="linuxep" repo="sul">
-            <release-version branch="release/2022-15" build-id="20220405084457-b85262fdd979a3ff100ab7805a13ff3b8888fd37-3J82Gf"/>
+            <release-version branch="release/2022-18" build-id="20220422150248-cb78c50b4afb1b46a543a160364d1ec391632a80-237oLh"/>
             <development-version branch="develop"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="linuxep" repo="versig">
-            <release-version branch="release/Version_2_0_0" build-id="20220317112535-fba49acf7b84878fd63a3a870c341a3689f204cd-uhjl6E"/>
+            <release-version branch="release/Version_2_0_0" build-id="20220404133303-48fc071566c10fd37ba73723043a2b8453ca1d10-1ZPxUM"/>
             <development-version branch="master"/>
             <include artifact-path="output" dest-dir="/build/input/"/>
         </build-asset>
