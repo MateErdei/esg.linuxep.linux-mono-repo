@@ -68,6 +68,7 @@ AVCommandLineScanner Test TearDown
     Dump Log On Failure   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
+    Dump Log On Failure   ${SUSI_DEBUG_LOG_PATH}
     Run Keyword If Test Failed  Reset AVCommandLineScanner Suite
 
 Clear logs
@@ -230,7 +231,7 @@ CLS Summary in Less Than a Second
 CLS Duration Summary is Displayed Correctly
     Register Cleanup     Exclude UnixSocket Environment Interruption Error
     Register Cleanup     Exclude Scan Errors From File Samples
-    Start Process    ${CLI_SCANNER_PATH}   /    stdout=/tmp/stdout
+    Start Process    ${CLI_SCANNER_PATH}   /  -x /mnt/    stdout=/tmp/stdout
 
     Sleep  65s
     Send Signal To Process  2
@@ -1327,11 +1328,9 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
     ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 
-    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
     Register cleanup  dump log  ${LOG_FILE}
     Register Cleanup  Exclude Scan Errors From File Samples
-    # Temporary excluding failure until https://sophos.atlassian.net/browse/LINUXDAR-4731 is resolved.
-    Register Cleanup  Exclude SUSI failed to read stream
     Register On Fail  Terminate Process  handle=${HANDLE}  kill=True
     # Rename the sophos threat detector launcher so that it cannot be restarted
     Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
