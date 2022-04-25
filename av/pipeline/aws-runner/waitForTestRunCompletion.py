@@ -63,12 +63,12 @@ def main(argv):
                 duration = time.time() - start
                 minutes = duration // 60
                 seconds = duration % 60
-                print("All instances terminated after %d:%d" % (minutes, seconds))
+                print("All instances terminated after %d:%02d" % (minutes, seconds))
                 return 0
         except SyntaxError:
             raise
-        except Exception as e:
-            print("Got exception but carrying on",e)
+        except Exception as ex:
+            print("Got exception but carrying on", str(ex))
 
         if time.time() - start > 20*60:
             delay = 30

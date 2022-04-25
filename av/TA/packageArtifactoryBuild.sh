@@ -53,9 +53,35 @@ mv "$OUTPUT/test-resources"  "$AV/"
 PYTHON=${PYTHON:-python3}
 ${PYTHON} ${BASE}/manual/downloadSupplements.py "$INPUTS" $DATASETA_ARG
 
-ARCHIVE_OPTION=${ARCHIVE_OPTION:-j}
+if [[ -n $TEST_TAR ]]
+then
+    echo "Packaging for automatic test runs to $TEST_TAR"
+    DEST=$TEST_TAR
+    cp $BASE/../pipeline/aws-runner/test.sh "$INPUTS/test_scripts/"
+    cp $BASE/../pipeline/aws-runner/testAndSendResults.sh "$INPUTS/test_scripts/"
+else
+    DEST=/tmp/inputs.tar.bz2
+    echo "Packaging for manual test run to $DEST"
+fi
 
-exec tar c${ARCHIVE_OPTION}f /tmp/inputs.tar.bz2 -C ${DEST_BASE} \
+case $DEST in
+    *.tar.gz|*.tgz)
+        DEFAULT_ARCHIVE_OPTION=z
+        ;;
+    *.tar.bz2)
+        DEFAULT_ARCHIVE_OPTION=j
+        ;;
+    *.tar)
+        DEFAULT_ARCHIVE_OPTION=
+        ;;
+    *)
+        echo "Unknown archive type: $DEST"
+        ;;
+esac
+
+ARCHIVE_OPTION=${ARCHIVE_OPTION:-${DEFAULT_ARCHIVE_OPTION}}
+
+exec tar c${ARCHIVE_OPTION}f ${DEST} -C ${DEST_BASE} \
     --exclude='test/inputs/vdl.zip' \
     --exclude='test/inputs/model.zip' \
     --exclude='test/inputs/reputation.zip' \
