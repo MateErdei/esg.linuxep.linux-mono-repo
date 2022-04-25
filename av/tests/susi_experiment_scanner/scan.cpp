@@ -56,17 +56,17 @@ static bool IsBlocklistedFile(void *token, SusiHashAlg algorithm, const char *fi
     return false;
 }
 
-SusiCallbackTable my_susi_callbacks{
+namespace
+{
+    SusiCallbackTable my_susi_callbacks{
         .version = SUSI_CALLBACK_TABLE_VERSION,
         .token = nullptr, //NOLINT
         .IsAllowlistedFile = isAllowlistedFile,
         .IsBlocklistedFile = IsBlocklistedFile,
         .IsTrustedCert = isTrustedCert,
         .IsAllowlistedCert = isAllowlistedCert
-};
+    };
 
-namespace
-{
     class SusiGlobalHandler
     {
     public:
