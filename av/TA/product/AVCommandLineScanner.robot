@@ -1330,7 +1330,6 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /   stdout=${LOG_FILE}   stderr=STDOUT
     Register cleanup  dump log  ${LOG_FILE}
     Register Cleanup  Exclude Scan Errors From File Samples
-    Register Cleanup  Exclude SUSI failed to read stream
     Register On Fail  Terminate Process  handle=${HANDLE}  kill=True
     # Rename the sophos threat detector launcher so that it cannot be restarted
     Move File  ${DETECTOR_BINARY}  ${DETECTOR_BINARY}_moved
