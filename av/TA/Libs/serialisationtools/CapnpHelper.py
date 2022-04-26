@@ -51,7 +51,7 @@ class CapnpHelper:
                                 scan_network_drives: bool = None,
                                 scan_removable_drives: bool = None):
 
-        actual_named_scan = CapnpHelper._get_capnp_object(self, object_filename, CapnpSchemas.NamedScan)
+        actual_named_scan = self._get_capnp_object(object_filename, CapnpSchemas.NamedScan)
 
         expected_values = {"name": name,
                            "excludePaths": exclude_paths,
@@ -72,7 +72,7 @@ class CapnpHelper:
 
     def check_scan_request_object(self, object_filename, pathname: str = None, scan_inside_archives: bool = None):
 
-        actual_named_scan = CapnpHelper._get_capnp_object(self, object_filename, CapnpSchemas.ScanRequest)
+        actual_named_scan = self._get_capnp_object(object_filename, CapnpSchemas.ScanRequest)
 
         expected_values = {"pathname": pathname,
                            "scanInsideArchives": scan_inside_archives}
@@ -87,7 +87,7 @@ class CapnpHelper:
                                    threat_name: str = None,
                                    full_scan_result: str = None):
 
-        actual_named_scan = CapnpHelper._get_capnp_object(self, object_filename, CapnpSchemas.ScanResponse)
+        actual_named_scan = self._get_capnp_object(object_filename, CapnpSchemas.ScanResponse)
 
         expected_values = {"clean": clean,
                            "threatName": threat_name,
@@ -108,7 +108,7 @@ class CapnpHelper:
                                      file_path: str = None,
                                      action_code: int = None):
 
-        actual_named_scan = CapnpHelper._get_capnp_object(self, object_filename, CapnpSchemas.ThreatDetected)
+        actual_named_scan = self._get_capnp_object(object_filename, CapnpSchemas.ThreatDetected)
 
         expected_values = {"userID": user_id,
                            "detectionTime": detection_time,
