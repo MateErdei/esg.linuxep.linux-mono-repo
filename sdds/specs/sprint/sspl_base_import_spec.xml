@@ -52,9 +52,9 @@
 				 shortdic="Sophos Linux Base"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-EDR">
-	  <component id="ServerProtectionLinux-Plugin-EDR-1.1.5.130"
-			     version="1.1.5.130"
-			     artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--2022-15/20220405123521-9c06c39e0d47ad450f5bcfb7d4c0388e0742437a-LKvn2z/edr/SDDS-COMPONENT/"
+	  <component id="ServerProtectionLinux-Plugin-EDR-1.1.5.164"
+			     version="1.1.5.164"
+			     artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--2022-18/20220425141354-8a89be3de2db14c6fecbdd1b30523208e12a428f-dUvhVH/edr/SDDS-COMPONENT/"
 			     longdic="Sophos Live Discover Plugin"
 			     shortdic="Sophos Live Discover Plugin"/>
 	  <component id="ServerProtectionLinux-Plugin-EDR-1.1.5.15"
