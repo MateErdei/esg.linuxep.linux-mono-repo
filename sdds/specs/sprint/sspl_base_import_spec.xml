@@ -121,9 +121,9 @@
                  shortdic="Sophos Linux Base Component"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-liveresponse">
-	  <component id="ServerProtectionLinux-Plugin-liveresponse-1.5.1.127"
-                 version="1.5.1.127"
-                 artifact="esg-releasable-candidate/winep.liveterminal/release--2022-15-linux/20220405143708-ff803fd6cb70df59c9e646e298f818496341c811-5HnPgX/liveterminal/sdds/"
+	  <component id="ServerProtectionLinux-Plugin-liveresponse-1.5.1.136"
+                 version="1.5.1.136"
+                 artifact="esg-releasable-candidate/winep.liveterminal/release--2022-18/20220425125517-c24ef1cf7ed548f11ea56957ddae1cebe8620e21-RHqB4M/liveterminal/sdds/"
                  longdic="Sophos Linux Live Response" 
                  shortdic="Sophos Linux Live Response"/>
 	  <component id="ServerProtectionLinux-Plugin-liveresponse-1.5.1.9"
@@ -153,9 +153,9 @@
                  shortdic="Sophos Linux Live Response"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-EventJournaler">
-      <component id="ServerProtectionLinux-Plugin-EventJournaler-1.0.1.56"
-				 version="1.0.1.56"
-				 artifact="esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2022-15/20220405122825-dff569ecd67311e908d93ed70d0e20cbc33a73fc-jWFkkq/eventjournaler/SDDS-COMPONENT"
+      <component id="ServerProtectionLinux-Plugin-EventJournaler-1.0.1.67"
+				 version="1.0.1.67"
+				 artifact="esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2022-18/20220425133801-b470f5a18deb6e8ec1fabdec1bed1a914341ef8e-fsBLrH/eventjournaler/SDDS-COMPONENT"
 				 longdic="Sophos Linux Event Journaler"
 				 shortdic="Sophos Linux Event Journaler"/>
       <component id="ServerProtectionLinux-Plugin-EventJournaler-1.0.1.2"
@@ -170,9 +170,9 @@
 	  		     shortdic="Sophos Linux Event Journaler"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-RuntimeDetections">
-		<component id="ServerProtectionLinux-Plugin-RuntimeDetections-4.10.1.178"
-				   version="4.10.1.178"
-				   artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--2022-15/20220401182236-5124d2318c8e61489a73218d45e5931ee8a5906c-mBtaH5/SDDS-COMPONENT/"
+		<component id="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.0.13"
+				   version="5.0.0.13"
+				   artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--sensor--version_5_0_0/20220425140431-554f050cb963152fe5b73e248fcf1ab14fc5c652-CNHXBW/SDDS-COMPONENT/"
 				   longdic="Sophos Linux Runtime Detection Plugin"
 				   shortdic="Sophos Linux Runtime Detection Plugin"/>
 		<component id="ServerProtectionLinux-Plugin-RuntimeDetections-4.10.1.16"
@@ -193,8 +193,8 @@
     </line>
 	<line id="ServerProtectionLinux-Plugin-AV">
       <component id="ServerProtectionLinux-Plugin-AV-1.0.6.435"
-				   version="1.0.6.370"
-				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2022-15/20220405161009-ee2db5715980e27ff91fffe7bec284ba7fecb58e-yuOA6T/sspl-plugin-anti-virus/SDDS-COMPONENT/"
+				   version="1.0.6.435"
+				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2022-18/20220425191559-3763351cf6b3a3a06b73650f0f3d93bd2555c829-yPhsUM/sspl-plugin-anti-virus/SDDS-COMPONENT/"
 				   longdic="Sophos Linux AntiVirus"
 				   shortdic="Sophos Linux AntiVirus"/>
       <component id="ServerProtectionLinux-Plugin-AV-1.0.5.19"
@@ -220,8 +220,8 @@
     </line>
     <line id="ServerProtectionLinux-Plugin-Heartbeat">
 	  <component id="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.722"
-				 version="1.0.0.531"
-				 artifact="esg-releasable-candidate/linuxep.sspl-plugin-heartbeat/release--2022-12/20220314154542-120077403de567a45000570e65001327a503c88b-F2j0TD/sspl-plugin-heartbeat/SDDS-COMPONENT"
+				 version="1.0.0.722"
+				 artifact="esg-releasable-candidate/linuxep.sspl-plugin-heartbeat/release--2022-18/20220425163251-1ca76803e80ad4ca6dd1905bdc453722effc7763-8q1aTd/sspl-plugin-heartbeat/SDDS-COMPONENT"
 				 longdic="Sophos Linux Heartbeat Plugin"
 				 shortdic="Sophos Linux Heartbeat Plugin"/>
     </line>
