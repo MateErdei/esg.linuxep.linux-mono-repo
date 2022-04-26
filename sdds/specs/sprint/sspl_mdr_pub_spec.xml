@@ -30,7 +30,7 @@
    <warehouses>
     <warehouse furcatedentitlement="SSPL_MDR" id="ssplmdr">
   <line id="ServerProtectionLinux-Plugin-MDR">
-    <component importreference="ServerProtectionLinux-Plugin-MDR-1.0.11.68">
+    <component importreference="ServerProtectionLinux-Plugin-MDR-1.0.11.80">
         <releasetag baseversion="" tag="BETA"/>
         <releasetag baseversion="" tag="RECOMMENDED"/>
     </component>
