@@ -15,15 +15,15 @@
         {"Key" : "SupportEmail", "Value" : "ukdevvlx@sophos.com"},
         {"Key" : "BusinessUnit", "Value" : "ESG"},
         {"Key" : "CostCentre", "Value" : "GB11601200"},
-        {"Key" : "Project", "Value" : "SSPLAV"},
+        {"Key" : "Project", "Value" : { "Ref" : "Project" } },
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
         {"Key" : "BaseAmi", "Value" : "ami-02391d7795ca0c403"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
         {"Key" : "TestImage", "Value" : "true"},
-        {"Key" : "Codeline", "Value" : "SSPLAV" },
-        {"Key" : "Branch", "Value" : "SSPLAV" },
+        {"Key" : "Codeline", "Value" : { "Ref" : "Project" }  },
+        {"Key" : "Branch", "Value" : { "Ref" : "Project" }  },
         {"Key" : "Name", "Value" : "rhel78x64" }
       ],
       "NetworkInterfaces" : [{

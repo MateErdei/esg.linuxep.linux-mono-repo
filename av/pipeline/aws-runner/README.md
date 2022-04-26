@@ -2,15 +2,20 @@ Runs SSPL-AV on platforms not supported by TAP
 ==============================================
 
 Steps required:
-1. export TEST_TAR=/tmp/inputs.tar.gz
+1. export TEST_TAR=/tmp/ssplav-inputs.tar.gz
 2. Package input:
    1. TA/packageArtifactoryBuild.sh <Artifactory-reference>
    2. e.g. TA/packageArtifactoryBuild.sh esg-build-tested/linuxep.sspl-plugin-anti-virus/develop/20220424040000-48427cd7b45f4b52da67fb131f51bec04c62e6c6-52BHvV/
-4. export SKIP_GATHER=1
-5. export SSHLocation=80.229.30.66/32 ## Set to your IP
-6. pipeline/aws-runner/run_tests_in_aws.sh
+3. export SKIP_GATHER=1
+4. export SSHLocation=80.229.30.66/32 ## Set to your IP
+5. export RESULTS_DIR=/tmp/av-results
+6. export LOGS_DIR=/tmp/av-logs
+7. pipeline/aws-runner/run_tests_in_aws.sh
 
+Run only a single platform: (before last step)
+----------------------------------------------
 
+export RUNONE=<hostname>
 
 Base instructions
 =================

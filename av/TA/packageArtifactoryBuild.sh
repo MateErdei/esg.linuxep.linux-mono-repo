@@ -11,7 +11,8 @@ then
 	echo Please pass an artifactory repository path
 	exit 1
 fi
-DEST_BASE=/tmp
+DEST_BASE=/tmp/av
+mkdir -p $DEST_BASE
 
 if [[ -n $DATASETA ]]
 then
@@ -60,7 +61,7 @@ then
     cp $BASE/../pipeline/aws-runner/test.sh "$INPUTS/test_scripts/"
     cp $BASE/../pipeline/aws-runner/testAndSendResults.sh "$INPUTS/test_scripts/"
 else
-    DEST=/tmp/inputs.tar.bz2
+    DEST=/tmp/ssplav-inputs.tar.bz2
     echo "Packaging for manual test run to $DEST"
 fi
 
