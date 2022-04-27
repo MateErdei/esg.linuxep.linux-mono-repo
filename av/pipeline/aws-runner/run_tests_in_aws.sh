@@ -382,6 +382,7 @@ combineResults()
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel78x64-output.xml -l none -r none -N rhel78x64  ./results/rhel78x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel81x64-output.xml -l none -r none -N rhel81x64  ./results/rhel81x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu1804minimal-output.xml -l none -r none -N ubuntu1804minimal  ./results/ubuntu1804minimal*
+  python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu2204x64-output.xml -l none -r none -N ubuntu2204x64  ./results/ubuntu2204x64*
 
   python3 -m robot.rebot -l ./results/combined-log.html -r ./results/combined-report.html -N combined --removekeywords wuks ./results-combine-workspace/*
 }

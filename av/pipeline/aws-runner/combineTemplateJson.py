@@ -16,7 +16,8 @@ instances = {
     "centosstreamx64": getInstanceJsonAsString("centosstreamx64"),
     "rhel78x64": getInstanceJsonAsString("rhel78x64"),
     "rhel81x64": getInstanceJsonAsString("rhel81x64"),
-    "ubuntu1804minimal": getInstanceJsonAsString("ubuntu1804minimal")
+    "ubuntu1804minimal": getInstanceJsonAsString("ubuntu1804minimal"),
+    "ubuntu2204x64": getInstanceJsonAsString("ubuntu2204x64")
 }
 
 def args():
