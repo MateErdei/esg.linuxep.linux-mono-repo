@@ -304,6 +304,12 @@ File Log Contains
                 if string_to_contain in line:
                     logger.info("{} contains: {} in {}".format(os.path.basename(pathToLog), string_to_contain, line))
 
+    def replace_all_in_file(self, log_location, target, replacement):
+        contents = _get_log_contents(log_location)
+        contents = contents.replace(target, replacement)
+        with open(log_location, "w") as log:
+            log.write(contents)
+
     def check_all_product_logs_do_not_contain_string(self, string_to_find, search_list):
         glob_search_pattern = [os.path.join(self.install_path, search_entry) for search_entry in search_list]
         combined_files = [glob.glob(search_pattern) for search_pattern in glob_search_pattern]
@@ -317,6 +323,12 @@ File Log Contains
             if num_occurrence > 0:
                 self.log_string_if_found(string_to_find, filepath)
                 list_of_logs_containing_string.append("{} - {} times".format(filepath, num_occurrence))
+                robot.libraries.BuiltIn.BuiltIn().run_keyword("LogUtils.Dump Log", filepath)
+                # Edit file to avoid cascading failures
+                replacement = "KNOWN" + "!" * len(string_to_find)
+                replacement = replacement[:len(string_to_find)]  # same length as string_to_find
+                self.replace_all_in_file(filepath, string_to_find, replacement)
+
         if list_of_logs_containing_string:
             raise AssertionError("These program logs contain {}:\n {}".format(string_to_find, list_of_logs_containing_string))
 
