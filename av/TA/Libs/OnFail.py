@@ -7,6 +7,7 @@ class OnFail(object):
     def __init__(self):
         self.__m_fail_actions = []
         self.__m_cleanup_actions = []
+        self.__m_late_cleanup_actions = []
         self.__m_errors = []
         self.__m_builtin = BuiltIn()
 
@@ -48,6 +49,9 @@ class OnFail(object):
         except ValueError:
             pass
 
+    def register_late_cleanup(self, keyword, *args):
+        self.__m_late_cleanup_actions.append((keyword, args))
+
     def __run_actions(self, actions, if_failed=True):
 
         for (keyword, args) in reversed(actions):
@@ -80,5 +84,6 @@ class OnFail(object):
         self.__m_errors = []
         self.__run_actions(self.__m_fail_actions, True)
         self.__run_actions(self.__m_cleanup_actions, False)
+        self.__run_actions(self.__m_late_cleanup_actions, False)
         if self.__m_errors:
             raise robot.errors.ExecutionFailures(self.__m_errors)

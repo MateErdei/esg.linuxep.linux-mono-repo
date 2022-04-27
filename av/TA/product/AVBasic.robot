@@ -237,6 +237,8 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${myscan_log} =   Set Variable  ${AV_PLUGIN_PATH}/log/MyScan.log
 
     run_on_failure  dump_scheduled_scan_log
+    # Remove the scan log so later tests don't fail due to this step
+    register late cleanup  Remove File  ${myscan_log}
 
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
@@ -250,6 +252,10 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
 
     Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=240  interval=5
     AV Plugin Log Contains  Starting scan MyScan
+
+    # Thread Detector should still be running:
+    Check Sophos Threat Detector Running
+
     File Should Exist  ${myscan_log}
     File Log Should Not Contain  ${myscan_log}  "${eicar_path1}" is infected with EICAR-AV-Test
     File Log Should Not Contain  ${myscan_log}  "${eicar_path2}" is infected with EICAR-AV-Test
