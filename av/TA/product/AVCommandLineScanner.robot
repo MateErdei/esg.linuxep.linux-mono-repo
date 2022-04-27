@@ -215,9 +215,14 @@ CLS Summary is Correct
            Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/eicar_${i}    ${EICAR_STRING}
     END
 
+    Check Sophos Threat Detector Running
+
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/EXTRA_FOLDER /this/file/does/not/exist -a
 
     Log  ${output}
+
+    Check Sophos Threat Detector Running
+
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}  1502 files scanned in
     Should Contain   ${output}  1501 files out of 1502 were infected.
