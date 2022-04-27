@@ -10,15 +10,17 @@ def getInstanceJsonAsString(instanceName):
         dict = json.loads(instanceJsonFile.read())[instanceName]
         return json.dumps(dict)
 
-instances = {
-    "amazonlinux2x64": getInstanceJsonAsString("amazonlinux2x64"),
-    "amazonlinux2022x64": getInstanceJsonAsString("amazonlinux2022x64"),
-    "centosstreamx64": getInstanceJsonAsString("centosstreamx64"),
-    "rhel78x64": getInstanceJsonAsString("rhel78x64"),
-    "rhel81x64": getInstanceJsonAsString("rhel81x64"),
-    "ubuntu1804minimal": getInstanceJsonAsString("ubuntu1804minimal"),
-    "ubuntu2204x64": getInstanceJsonAsString("ubuntu2204x64")
-}
+
+def load_instances():
+    result = {}
+    for f in os.listdir("./instances"):
+        base, ext = os.path.splitext(f)
+        assert ext == ".json"
+        result[base] = getInstanceJsonAsString(base)
+    return result
+
+
+instances = load_instances()
 
 def args():
     if os.path.isfile("argFile"):
@@ -41,7 +43,8 @@ def main():
         print("Adding templates with args for: " + arguments)
         for template_name, template_json_str in instances.items():
             unique_template_name = template_name + str(n)
-            json_with_args = json.loads(template_json_str.replace("@ARGSGOHERE@", arguments).replace("@HOSTNAMEGOESHERE@", unique_template_name))
+            json_with_args = json.loads(template_json_str.replace("@ARGSGOHERE@", arguments)
+                                                         .replace("@HOSTNAMEGOESHERE@", unique_template_name))
             main_template_json["Resources"][unique_template_name] = json_with_args
         n += 1
 
