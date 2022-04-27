@@ -173,7 +173,7 @@
               <releasetag baseversion="" tag="RECOMMENDED"/>
               <genericsupplement
                       decodepath="files/plugins/av/chroot/susi/update_source/vdl"
-                      line="VDL" tag="LATEST" warehousename="VDB_supp"/>
+                      line="DataSetA" tag="LATEST_CLOUD_ENDPOINT" warehousename="ixdata"/>
               <genericsupplement
                       decodepath="files/plugins/av/chroot/susi/update_source/reputation"
                       line="LocalRepData" tag="LATEST_CLOUD_ENDPOINT" warehousename="ixdata"/>
