@@ -10,17 +10,17 @@ def getInstanceJsonAsString(instanceName):
         dict = json.loads(instanceJsonFile.read())[instanceName]
         return json.dumps(dict)
 
-instances = {
-    "amazonlinux2x64": getInstanceJsonAsString("amazonlinux2x64"),
-    "amazonlinux2022x64": getInstanceJsonAsString("amazonlinux2022x64"),
-    "centosstreamx64": getInstanceJsonAsString("centosstreamx64"),
-    "debian10x64": getInstanceJsonAsString("debian10x64"),
-    "debian11x64": getInstanceJsonAsString("debian11x64"),
-    "oracle8x64": getInstanceJsonAsString("oracle8x64"),
-    "rhel78x64": getInstanceJsonAsString("rhel78x64"),
-    "rhel81x64": getInstanceJsonAsString("rhel81x64"),
-    "ubuntu1804minimal": getInstanceJsonAsString("ubuntu1804minimal")
-}
+
+def load_instances():
+    result = {}
+    for f in os.listdir("./instances"):
+        base, ext = os.path.splitext(f)
+        assert ext == ".json"
+        result[base] = getInstanceJsonAsString(base)
+    return result
+
+
+instances = load_instances()
 
 def args():
     if os.path.isfile("argFile"):
