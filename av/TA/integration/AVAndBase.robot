@@ -981,7 +981,7 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     Log  Restarted PID: ${END_AV_PID}
     # Verify the restart actually happened
     Should Not Be Equal As Integers  ${INITIAL_AV_PID}  ${END_AV_PID}
-
+    Sleep  1s  wait for av process to start up
     Mark AV Log
 
     ${result} =  Run Process  ls  -l  ${AV_LOG_PATH}
