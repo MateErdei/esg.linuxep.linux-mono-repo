@@ -85,6 +85,10 @@ tar czf ${TEST_TAR} -C "$CREATE_DIR"  \
     --exclude='test/inputs/vdl.zip' \
     --exclude='test/inputs/model.zip' \
     --exclude='test/inputs/reputation.zip' \
+    --exclude='test/inputs/m_model' \
+    --exclude='test/inputs/vdl' \
+    --exclude='test/inputs/local_rep' \
+    --exclude='test/inputs/SDDS-COMPONENT' \
     . || failure 18 "Failed to create archive of build"
 
 rm -rf "${CREATE_DIR}" || failure 20 "Failed to delete $CREATE_DIR"
