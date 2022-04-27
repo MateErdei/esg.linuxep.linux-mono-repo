@@ -73,6 +73,7 @@
       ]},
     "RunRhel" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "rhel"]},
     "RunUbuntu" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "ubuntu"]},
+    "RunUbuntu22" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "ubuntu22"]},
     "RunAmazon" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "amazonlinux"]},
     "RunCentosStream" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centosstream"]},
     "RunRhel78x64" : {"Fn::Or": [
@@ -104,7 +105,12 @@
         {"Condition" : "RunUbuntu"},
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "ubuntu1804minimal"]}
-        ]}
+        ]},
+    "RunUbuntu2204x64" : {"Fn::Or": [
+      {"Condition" : "RunUbuntu22"},
+      {"Condition" : "RunAll"},
+      {"Fn::Equals" : [{"Ref" : "RunOne"}, "ubuntu2204x64"]}
+    ]}
   },
 
   "Resources" : {
