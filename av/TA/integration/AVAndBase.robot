@@ -944,7 +944,7 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
 
 AV Plugin Can Work Despite Specified Log File Being Read-Only
     # LINUXDAR-4743 - Disable until test can be made more reliable
-    [Tags]  DISABLED  FAULT INJECTION
+    [Tags]  FAULT INJECTION
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude SPL Base Not In Subscription Of The Policy
     Register Cleanup    Exclude Core Not In Policy Features
