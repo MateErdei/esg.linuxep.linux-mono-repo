@@ -47,6 +47,7 @@
         "yum -y install epel-release make gcc nfs-utils kernel-devel fuse-libs gdb rpm-build cifs-utils wget attr psmisc zip &>>/tmp/cloudFormationInit.log\n",
         "yum -y install python3-devel python3-pip policycoreutils-python-utils &>>/tmp/cloudFormationInit.log\n",
         "yum -y install cmake gcc-c++ make &>>/tmp/cloudFormationInit.log\n",
+        "yum -y install samba &>>/tmp/cloudFormationInit.log\n",
         "python3 -m pip install --upgrade awscli pkgconfig &>>/tmp/cloudFormationInit.log\n",
         "python3 -m pip install --upgrade robotframework psutil zmq protobuf paramiko watchdog cryptography==3.3.1 python-dateutil requests enum34 packaging &>>/tmp/cloudFormationInit.log\n",
         "python3 -m pip install --upgrade urllib3 Cython &>>/tmp/cloudFormationInit.log\n",
