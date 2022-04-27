@@ -943,7 +943,8 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
 
 AV Plugin Can Work Despite Specified Log File Being Read-Only
-    [Tags]  FAULT INJECTION
+    # LINUXDAR-4743 - Disable until test can be made more reliable
+    [Tags]  DISABLED  FAULT INJECTION
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude SPL Base Not In Subscription Of The Policy
     Register Cleanup    Exclude Core Not In Policy Features
