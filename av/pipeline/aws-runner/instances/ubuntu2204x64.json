@@ -1,5 +1,5 @@
 {
-  "ubuntu1804minimal" : {
+  "ubuntu2204x64" : {
     "Type" : "AWS::EC2::Instance",
     "Condition" :  "RunUbuntu2204x64" ,
     "Properties" : {
