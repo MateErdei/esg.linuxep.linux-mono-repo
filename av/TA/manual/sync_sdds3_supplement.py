@@ -113,7 +113,8 @@ def sync_sdds3_supplement(supplement, builder, mirror):
         result = subprocess.run(
             runargs,
             check=True,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             universal_newlines=True,
             encoding='utf-8',
         )

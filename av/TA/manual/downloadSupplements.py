@@ -155,7 +155,6 @@ def run(destination):
     if not os.path.isfile(builder):
         builder = "/opt/test/inputs/sdds3_utils/sdds3-builder"
 
-
     sdds3_temp_dir = os.path.join(destination, "sdds3_temp")
     safe_mkdir(sdds3_temp_dir)
     dest_dir = os.path.join(destination, "vdl")
@@ -175,10 +174,10 @@ def run(destination):
 
 def main(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument("destination", help = "Destination directory to download supplements to")
+    parser.add_argument("destination", help="Destination directory to download supplements to")
     args = parser.parse_args()
 
-    run(args.destination, args.dataseta)
+    run(args.destination)
     return 0
 
 
