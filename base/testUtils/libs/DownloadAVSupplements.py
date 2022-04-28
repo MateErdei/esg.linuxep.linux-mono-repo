@@ -7,9 +7,14 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 # lr data
 # ml data
 
+import SDDS3supplementSync
+
+import glob
 import hashlib
 import json
 import os
+import shutil
+import subprocess
 import sys
 import zipfile
 
@@ -122,7 +127,22 @@ def run(argv):
         pass
 
     artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/"
-    updated = process(artifactory_base_url + "ssplav-vdl/released", "vdl.zip", dest +"/vdl")
+
+    supplement = "https://sdds3.sophosupd.com/supplement/sdds3.DataSetA.dat"
+
+    builder = "sdds3/sdds3-builder"
+    sdds3_temp_dir = os.path.join(dest, "sdds3_temp")
+    safe_mkdir(sdds3_temp_dir)
+    dest_dir = os.path.join(dest, "vdl")
+    safe_mkdir(dest_dir)
+    SDDS3supplementSync.sync_sdds3_supplement(supplement, builder, sdds3_temp_dir)
+    zip_files = glob.glob(os.path.join(sdds3_temp_dir, "package", "*.zip"))
+    zip_file = zip_files[0]
+    passwd = os.path.splitext(os.path.basename(zip_file))[0]
+    subprocess.call(["7za", "x", "-p{}".format(passwd), "-o{}".format(dest_dir), "-y", zip_file])
+    shutil.rmtree(sdds3_temp_dir)
+    updated = True
+
     updated = process(artifactory_base_url + "ssplav-mlmodel/released", "model.zip", dest +"/ml_model") or updated
     updated = process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", dest +"/local_rep") or updated
     return updated
