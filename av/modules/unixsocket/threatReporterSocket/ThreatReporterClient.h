@@ -20,12 +20,17 @@ namespace unixsocket
     public:
         ThreatReporterClientSocket& operator=(const ThreatReporterClientSocket&) = delete;
         ThreatReporterClientSocket(const ThreatReporterClientSocket&) = delete;
-        explicit ThreatReporterClientSocket(const std::string& socket_path);
+        explicit ThreatReporterClientSocket(std::string  socket_path, const struct timespec& sleepTime={1,0});
         ~ThreatReporterClientSocket() = default;
 
         void sendThreatDetection(const scan_messages::ThreatDetected& detection);
     private:
+        int attemptConnect();
+        void connect();
+
         datatypes::AutoFd m_socket_fd;
+        std::string m_socketPath;
+        const timespec &m_sleepTime;
 
     };
 }
