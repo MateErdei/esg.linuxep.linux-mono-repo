@@ -67,13 +67,15 @@ ${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}  ${350}
 
 *** Keywords ***
 Check Plugin Running
-    Run Shell Process  pidof ${PLUGIN_BINARY}   OnError=AV not running
+    ${result} =   ProcessUtils.pidof  ${PLUGIN_BINARY}
+    Run Keyword If  ${result} == ${-1}  Run Sophos Threat Detector Directly
 
 Check AV Plugin Running
     Check Plugin Running
 
 Check Sophos Threat Detector Running
-    Run Shell Process  pidof ${SOPHOS_THREAT_DETECTOR_BINARY}   OnError=sophos_threat_detector not running
+    ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
+    Run Keyword If  ${result} == ${-1}  Run Sophos Threat Detector Directly
 
 Run Sophos Threat Detector Directly
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
