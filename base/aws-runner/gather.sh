@@ -34,6 +34,7 @@ source ${TEST_UTILS}/SupportFiles/jenkins/exportInputLocations.sh
 source ${TEST_UTILS}/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 211 "Failed to gather inputs"
 ${TEST_UTILS}/SupportFiles/jenkins/SetupCIBuildScripts.sh --download-pip-cache ${CREATE_DIR} || failure 211 "Failed to gather inputs"
 yum install -y p7zip
+chmod +x ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/sdds3-builder
 python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py  ${SYSTEMPRODUCT_TEST_INPUT}
 
 ([[ -d ${SYSTEMPRODUCT_TEST_INPUT} ]] && tar czf ${CREATE_DIR}/SystemProductTestInputs.tgz ${SYSTEMPRODUCT_TEST_INPUT}) || failure 212 "Failed to tar inputs"
