@@ -14,12 +14,6 @@ fi
 DEST_BASE=/tmp/av
 mkdir -p $DEST_BASE
 
-if [[ -n $DATASETA ]]
-then
-	echo Using DataSetA instead of full Virus Data set
-	DATASETA_ARG="--dataseta"
-fi
-
 if [[ -f ${DEST_BASE}/output.zip ]]
 then
     NEWER="--time-cond ${DEST_BASE}/output.zip"
@@ -52,7 +46,7 @@ rm -rf "$AV/test-resources"
 mv "$OUTPUT/test-resources"  "$AV/"
 
 PYTHON=${PYTHON:-python3}
-${PYTHON} ${BASE}/manual/downloadSupplements.py "$INPUTS" $DATASETA_ARG
+${PYTHON} ${BASE}/manual/downloadSupplements.py "$INPUTS"
 
 if [[ -n $TEST_TAR ]]
 then

@@ -55,7 +55,6 @@ def verify_install_set(install_set, sdds_component=None):
         if not os.path.isdir(p):
             return False
 
-
     # Compare manifest.dat inside sdds_component
     if sdds_component is not None:
         sdds_component = ensure_binary(sdds_component)

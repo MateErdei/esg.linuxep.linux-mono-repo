@@ -74,9 +74,10 @@ cp testAndSendResults.sh ${INPUTS}/test_scripts/testAndSendResults.sh
 
 ls -lR ${CREATE_DIR}
 
-# TODO - publish DataSet-A to artifactory removing need for 7zip
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y p7zip-full
+## TODO - publish DataSet-A to artifactory removing need for 7zip
+#apt-get update
+#DEBIAN_FRONTEND=noninteractive apt-get install -y p7zip-full
+
 PYTHON=${PYTHON:-python3}
 ${PYTHON} ${INPUTS}/test_scripts/manual/createInstallSet.py "${AV}/INSTALL-SET" "${AV}/SDDS-COMPONENT" "${AV}/.." || failure 2 "Failed to create install-set: $?"
 
