@@ -267,7 +267,7 @@ userappfeed-data:
     warehouse: APPFEED_d1
 dataseta-data:
     canonical-name: DataSetA
-    decode-path: .
+    decode-path: files/plugins/av/chroot/susi/update_source/vdl
     line-id: DataSetA
     tag: NEXT
     warehouse: ixdata
