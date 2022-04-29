@@ -141,9 +141,7 @@ function generate_susi_package_manifest()
     local package_manifest="${SUSI_UPDATE_SRC}/package_manifest.txt"
     cp ${nonsupplement_manifest} ${temp_manifest}
 
-    vdl_version=$(grep "Version=" ${SUSI_UPDATE_SRC}/vdl/vvf.xml | awk -F'"' '{print $2}')
-    ide_list=$(ls ${SUSI_UPDATE_SRC}/vdl/*.ide | sort)
-    vdl_hash=$({ echo "${ide_list}"; echo "${vdl_version}"; } | sha256sum | awk '{print $1}')
+    vdl_hash=$(sha256sum $DATASETA_MANIFEST | awk '{print $1}')
     echo "vdl ${vdl_hash}" >> ${temp_manifest}
 
     model_hash=$(sha256sum ${SUSI_UPDATE_SRC}/model/model.dat | awk '{print $1}')
