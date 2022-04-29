@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from __future__ import absolute_import, print_function ,division, unicode_literals
+from __future__ import absolute_import, print_function, division, unicode_literals
 
 import json
 import os
@@ -11,11 +11,20 @@ def getInstanceJsonAsString(instanceName):
         return json.dumps(dict)
 
 
+# Debian 11 Fails due to spurious system changes
+EXCLUDED = ["debian11x64"]
+RUNONE = os.environ.get("RUNONE", "")
+
+
 def load_instances():
     result = {}
     for f in os.listdir("./instances"):
         base, ext = os.path.splitext(f)
         assert ext == ".json"
+        if base in EXCLUDED and base != RUNONE:
+            print("!!! Excluding %s !!!" % base)
+            continue
+
         result[base] = getInstanceJsonAsString(base)
     return result
 
