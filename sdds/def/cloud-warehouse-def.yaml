@@ -104,7 +104,7 @@ warehouses:
                     - base-version: ""
                       tag: BETA
                 supplements:
-                    - vdl-data
+                    - dataseta-data
                     - localrepdata-data
                     - ml-model-sspl-linux-supp
 
