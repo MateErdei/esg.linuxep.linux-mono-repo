@@ -58,6 +58,7 @@ LOCAL_GCC=0
 LOCAL_CMAKE=0
 DUMP_LAST_TEST_ON_FAILURE=1
 RUN_CPPCHECK=0
+BUILD_SDDS3=1
 TAP=${TAP:-tap}
 
 while [[ $# -ge 1 ]]
@@ -71,6 +72,7 @@ do
             NO_UNPACK=
             VALGRIND=0
             CMAKE_BUILD_TYPE=RelWithDebInfo
+            BUILD_SDDS3=1
             export ENABLE_STRIP=1
             ;;
         --build-type)
@@ -91,6 +93,7 @@ do
             CLEAN=0
             UNITTEST=1
             DUMP_LAST_TEST_ON_FAILURE=0
+            BUILD_SDDS3=0
             ;;
         --centos7-local|--centos7|--centos)
             export ENABLE_STRIP=0
@@ -139,6 +142,7 @@ do
             CMAKE_BUILD_TYPE=Debug
             UNITTEST=0
             LOCAL_CMAKE=1
+            BUILD_SDDS3=0
             ;;
         --plugin-api-tar)
             shift
@@ -188,11 +192,13 @@ do
             UNITTEST=1
             BULLSEYE_UPLOAD=0
             COV_HTML_BASE=${COV_HTML_BASE%-dev}
+            SDDS3=0
             ;;
         --bullseye|--bulleye)
             BULLSEYE=1
             BULLSEYE_UPLOAD=0
             UNITTEST=1
+            SDDS3=0
             ;;
         --cpp-check)
             RUN_CPPCHECK=1
@@ -499,7 +505,11 @@ function build()
         }
     fi
     make install CXX=$CXX CC=$CC || exitFailure 17 "Failed to install $PRODUCT"
-    make dist CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
+    make dist_sdds2 CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
+    if (( BUILD_SDDS3 == 1 ))
+    then
+        make dist_sdds3 CXX=$CXX CC=$CC || exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
+    fi
     make sdds CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create sdds component $PRODUCT"
     cd ..
 
@@ -517,8 +527,11 @@ function build()
         echo "Separate SDDS component"
         [[ -f $SDDS/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
         cp -rL "$SDDS" output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
-        cp -rL "$SDDS3" output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS3 package to output"
-        cp -rL $SDDS/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3 package output"
+        if (( BUILD_SDDS3 == 1 ))
+        then
+            cp -rL "$SDDS3" output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS3 package to output"
+            cp -rL $SDDS/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3 package output"
+        fi
     else
         exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to find SDDS component in build"
     fi
