@@ -130,3 +130,16 @@ TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
     serverWaitGuard2.wait();
     //destructor will stop the thread
 }
+
+TEST_F(TestThreatReporterSocket, testClientSocketTriesToReconnect) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    {
+        // Attempt to reconnect - it should stop after 9 attempts
+        unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath, {0,0});
+    }
+
+    EXPECT_TRUE(appenderContains("Failed to connect to Threat reporter - retrying after sleep", 9));
+    EXPECT_TRUE(appenderContains("Reached total maximum number of connection attempts."));
+}
+
