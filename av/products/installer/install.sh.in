@@ -77,10 +77,10 @@ fi
 ML_MODEL="$SUPPLEMENT_DIR/model"
 $VERSIG -c"$ROOT_CA" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify Machine Learning supplement"
 
-if [[ ! -x $(which setcap) ]]
-then
-    failure ${EXIT_FAIL_INSTALL_PACKAGE} "Failed to install as setcap is not installed, please see https://support.sophos.com/support/s/article/KB-000041952"
-fi
+SETCAP="$(which setcap)"
+[[ -x "${SETCAP}" ]] || SETCAP=/sbin/setcap
+[[ -x "${SETCAP}" ]] || failure ${EXIT_FAIL_INSTALL_PACKAGE} "Failed to install as setcap is not installed, please see https://support.sophos.com/support/s/article/KB-000041952"
+
 PLUGIN_INSTALL="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 VAR="${PLUGIN_INSTALL}/var"
 SUSI_UPDATE_SRC="$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/"
@@ -309,8 +309,11 @@ function install_product()
     [[ -x "${GETENT}" ]] || GETENT=$(which getent)
     [[ -x "${GETENT}" ]] || failure ${EXIT_FAIL_FIND_GETENT} "Failed to find getent"
 
-    "${GETENT}" passwd "${USER_NAME}"            2>&1 >/dev/null || useradd ${USER_NAME}            --no-create-home --no-user-group --gid ${GROUP_NAME} --groups sophos-spl-ipc --system --shell=/bin/false
-    "${GETENT}" passwd "${THREAT_DETECTOR_USER}" 2>&1 >/dev/null || useradd ${THREAT_DETECTOR_USER} --no-create-home --no-user-group --gid ${GROUP_NAME} --system --shell=/bin/false
+      USERADD="$(which useradd)"
+      [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
+      [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
+    "${GETENT}" passwd "${USER_NAME}"            2>&1 >/dev/null || "${USERADD}" ${USER_NAME}            --no-create-home --no-user-group --gid ${GROUP_NAME} --groups sophos-spl-ipc --system --shell=/bin/false
+    "${GETENT}" passwd "${THREAT_DETECTOR_USER}" 2>&1 >/dev/null || "${USERADD}" ${THREAT_DETECTOR_USER} --no-create-home --no-user-group --gid ${GROUP_NAME} --system --shell=/bin/false
 
     if av_already_installed
     then
@@ -371,10 +374,10 @@ function install_product()
     pushd "${PLUGIN_INSTALL}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
     THREAT_DETECTOR="sophos_threat_detector_launcher"
     [[ -h "$THREAT_DETECTOR" ]] && THREAT_DETECTOR=$(readlink "$THREAT_DETECTOR")
-    [[ -f "$THREAT_DETECTOR" ]] && setcap cap_sys_chroot=eip "$THREAT_DETECTOR"
+    [[ -f "$THREAT_DETECTOR" ]] && "${SETCAP}" cap_sys_chroot=eip "$THREAT_DETECTOR"
     SCHEDULED_FILE_WALKER="scheduled_file_walker_launcher"
     [[ -h "$SCHEDULED_FILE_WALKER" ]] && SCHEDULED_FILE_WALKER=$(readlink "$SCHEDULED_FILE_WALKER")
-    [[ -f "$SCHEDULED_FILE_WALKER" ]] && setcap cap_dac_read_search=eip "$SCHEDULED_FILE_WALKER"
+    [[ -f "$SCHEDULED_FILE_WALKER" ]] && "${SETCAP}" cap_dac_read_search=eip "$SCHEDULED_FILE_WALKER"
     popd || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to return from sbin directory"
 
     ln -snf "${PLUGIN_INSTALL}/bin/avscanner" /usr/local/bin/avscanner

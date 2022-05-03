@@ -58,6 +58,10 @@ User Should Not Exist
     [Arguments]  ${user}
     File Log Should Not Contain   /etc/passwd   ${user}
 
+User Should Exist
+    [Arguments]  ${user}
+    File Log Contains   /etc/passwd   ${user}
+
 Check AV Plugin Not Installed
     Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/
     File Should Not Exist  ${PLUGIN_REGISTRY}/av.json

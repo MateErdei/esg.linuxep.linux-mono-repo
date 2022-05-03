@@ -479,6 +479,19 @@ Install AV Directly from SDDS
     Wait until AV Plugin running with offset
     Wait until threat detector running with offset
 
+Install AV Directly from SDDS Without /usr/sbin in PATH
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+
+    ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
+    ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}  env:PATH=/usr/local/bin:/usr/bin:/bin
+    ${log_contents} =  Get File  ${install_log}
+    File Log Should Not Contain  ${AV_INSTALL_LOG}  chown: cannot access
+    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install plugin.\noutput: \n${log_contents}"
+
+    Wait until AV Plugin running with offset
+    Wait until threat detector running with offset
+
 Require Plugin Installed and Running
     [Arguments]  ${LogLevel}=DEBUG
     Install Base if not installed
