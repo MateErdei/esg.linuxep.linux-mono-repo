@@ -431,9 +431,9 @@ function build()
     fi
 
     #   Required for build scripts to run on dev machines
-    export LIBRARY_PATH=/build/input/gcc/lib64/:/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH}
-    export CPLUS_INCLUDE_PATH=/build/input/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
-    export CPATH=/build/input/gcc/include/:${CPATH}
+    export LIBRARY_PATH=/build/input/gcc/lib64:/usr/lib/x86_64-linux-gnu${LIBRARY_PATH:+:${LIBRARY_PATH}}
+    export CPLUS_INCLUDE_PATH=/build/input/gcc/include:/usr/include/x86_64-linux-gnu${CPLUS_INCLUDE_PATH:+:${CPLUS_INCLUDE_PATH}}
+    export CPATH=/build/input/gcc/include:/usr/include/x86_64-linux-gnu${CPATH:+:${CPATH}}
     echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
 
     BUILD_DIR=build${BITS}

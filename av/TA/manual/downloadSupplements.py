@@ -112,7 +112,7 @@ def unpack(zip_file, dest, passwd=None):
     with zipfile.ZipFile(ensure_unicode(zip_file)) as z:
         safe_mkdir(dest)
         if passwd:
-            z.setpassword(passwd)
+            z.setpassword(ensure_binary(passwd))
         z.extractall(ensure_unicode(dest))
 
 
@@ -148,17 +148,35 @@ def run(destination):
     safe_mkdir(DEST)
     artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/"
 
-    updated = False
+    supplement = "https://sdds3.sophosupd.com/supplement/sdds3.DataSetA.dat"
+
+    builder = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir, "redist", "sdds3", "sdds3-builder")
+
+    if not os.path.isfile(builder):
+        builder = "/opt/test/inputs/sdds3_utils/sdds3-builder"
+
+    sdds3_temp_dir = os.path.join(destination, "sdds3_temp")
+    safe_mkdir(sdds3_temp_dir)
+    dest_dir = os.path.join(destination, "vdl")
+    shutil.rmtree(dest_dir)
+    safe_mkdir(dest_dir)
+    sync_sdds3_supplement.sync_sdds3_supplement(supplement, builder, sdds3_temp_dir)
+    zip_files = glob.glob(os.path.join(sdds3_temp_dir, "package", "*.zip"))
+    zip_file = zip_files[0]
+    passwd = os.path.splitext(os.path.basename(zip_file))[0]
+    subprocess.check_call(["7za", "x", "-p{}".format(passwd), "-o{}".format(dest_dir), "-y", "-bso0", "-bsp0", "--", zip_file])
+    shutil.rmtree(sdds3_temp_dir)
+    updated = True
+
     updated = process(artifactory_base_url + "ssplav-mlmodel/released", "model.zip", b"ml_model") or updated
     updated = process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", b"local_rep") or updated
-    updated = process(artifactory_base_url + "ssplav-dataseta/released", "dataseta.zip", b"vdl") or updated
     return updated
 
 
 def main(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument("destination", help="Destination directory to download supplements to")
-    args = parser.parse_args()
+    parser.add_argument("destination", help = "Destination directory to download supplements to")
+    args = parser.parse_args(argv)
 
     run(args.destination)
     return 0
