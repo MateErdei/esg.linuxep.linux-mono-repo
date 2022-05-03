@@ -543,7 +543,8 @@ namespace SulDownloader
         // general settings
         std::string certificatePath = Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath();
         std::string localWarehouseRepository = configurationData.getLocalWarehouseRepository();
-        bool useSlowSupplements = configurationData.getUseSlowSupplements();
+        // default to fast lane supplement updates for SUSI engine
+        bool useSlowSupplements = false;
 
         SU_setLoggingLevel(session(), logLevel(configurationData.getLogLevel()));
 
