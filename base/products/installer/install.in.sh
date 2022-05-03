@@ -8,6 +8,7 @@ EXIT_FAIL_FIND_GETENT=15
 EXIT_FAIL_WDCTL_FAILED_TO_COPY=16
 EXIT_FAIL_NOT_ROOT=17
 EXIT_FAIL_DIR_MARKER=18
+EXIT_FAIL_FIND_USERMOD=19
 EXIT_FAIL_VERSIONEDCOPY=20
 EXIT_FAIL_REGISTER=30
 EXIT_FAIL_SERVICE=40
@@ -295,7 +296,10 @@ function add_to_group()
 {
     local username="$1"
     local groupname="$2"
-    usermod -a -G "$groupname" "$username"  || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username to group $groupname"
+    USERMOD="$(which usermod)"
+    [[ -x "${USERMOD}" ]] || USERMOD=/usr/sbin/usermod
+    [[ -x "${USERMOD}" ]] || failure ${EXIT_FAIL_FIND_USERMOD} "Failed to find usermod to add new user to group"
+    "${USERMOD}" -a -G "$groupname" "$username"  || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username to group $groupname"
 }
 
 if build_version_less_than_system_version

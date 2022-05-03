@@ -90,6 +90,10 @@ Verify Sockets Have Correct Permissions
 
     Dictionaries Should Be Equal  ${ActualDictOfSockets}  ${ExpectedDictOfSockets}
 
+Running installer without /usr/sbin in PATH works
+    run_full_installer_with_truncated_path
+    Check Expected Base Processes Are Running
+
 Verify Base Processes Have Correct Permissions
     Require Fresh Install
     Check Expected Base Processes Are Running

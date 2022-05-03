@@ -39,6 +39,15 @@ def run_proc_with_safe_output(args, shell=False):
         output = tmpfile.read().decode()
         return output, p.returncode
 
+def run_proc_with_safe_output_and_custom_env(args,custom_env,shell=False):
+    logger.debug('Run Command: {}'.format(args))
+    with tempfile.TemporaryFile(dir=os.path.abspath('.')) as tmpfile:
+        p = subprocess.Popen(args, stdout=tmpfile, stderr=tmpfile, shell=shell,env=custom_env)
+        p.wait()
+        tmpfile.seek(0)
+        output = tmpfile.read().decode()
+        return output, p.returncode
+
 def get_variable(varName, defaultValue=None):
     try:
         return BuiltIn().get_variable_value("${%s}" % varName)
@@ -289,6 +298,7 @@ def run_full_installer_expecting_code(expected_code, *args):
     logger.info("Installer path: " + str(installer))
     return run_full_installer_from_location_expecting_code(installer, expected_code, *args, debug=True)
 
+
 def run_full_installer_without_x_set():
     if get_variable("PUB_SUB_LOGGING"):
         installer = os.path.join(PUB_SUB_LOGGING_DIST_LOCATION, "install.sh")
@@ -296,6 +306,25 @@ def run_full_installer_without_x_set():
         installer = get_full_installer()
     logger.info("Installer path: " + str(installer))
     return run_full_installer_from_location_expecting_code(installer, 0, debug=False)
+
+def run_full_installer_with_truncated_path( *args, debug=True):
+    # Robot passes in strings.
+    install_script_location = get_full_installer()
+    if debug:
+        arg_list = ["bash", "-x", install_script_location]
+    else:
+        arg_list = ["bash", install_script_location]
+    arg_list += list(args)
+    logger.info("Run installer: {}".format(arg_list))
+    my_env = os.environ
+    my_env["PATH"] = "/home/pair/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+    output, actual_code = run_proc_with_safe_output_and_custom_env(arg_list,my_env)
+    logger.debug(output)
+    if actual_code != 0:
+        logger.info(output)
+        raise AssertionError("Installer exited with {} rather than {}".format(actual_code, 0))
+
+    return output
 
 def run_full_installer_from_location_expecting_code(install_script_location, expected_code, *args, debug=True):
     # Robot passes in strings.
