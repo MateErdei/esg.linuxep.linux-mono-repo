@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -21,11 +21,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
  *
  * hopefully fixed in googletest v1.10.0
  */
-#if __cplusplus >= 201703L && __has_include(<filesystem>)
 namespace std::filesystem // NOLINT
-#else
-    namespace std::experimental::filesystem // NOLINT
-#endif
 {
     inline void PrintTo(const path& p, std::ostream* os)
     {
