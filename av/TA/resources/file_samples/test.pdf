@@ -65,10 +65,12 @@ endobj
 
 9 0 obj
 <<
-/Length 26        
+/Length 50        
 >>
 stream
-app.alert("Hello there!");
+app.alert("This is a SSPLAV test file alert.öK
+Á¡\IWìEı dIĞÃĞM¬ï
+g. END OF ALERT");
 endstream
 endobj
 
