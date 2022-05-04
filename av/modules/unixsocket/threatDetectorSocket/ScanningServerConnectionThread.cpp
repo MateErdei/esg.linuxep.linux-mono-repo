@@ -285,7 +285,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             {
                 if (!writeLengthAndBuffer(socket_fd, serialised_result))
                 {
-                    LOGERROR("Failed to write result to unix socket");
+                    LOGWARN("Failed to write result to unix socket");
                     break;
                 }
             }
