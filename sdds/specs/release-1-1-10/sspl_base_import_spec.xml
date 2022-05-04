@@ -1,10 +1,15 @@
 <?xml version="1.0" ?>
 <importspec>
   <warehouses>
-    <warehouse id="sspl"   name="SSPL_1_1_9_1"/>
+    <warehouse id="sspl"   name="SSPL_1_1_10"/>
   </warehouses>
   <imports>
     <line id="ServerProtectionLinux-Base">
+		<componentsuite id="ServerProtectionLinux-Base-1.1.10.2"
+						version="1.1.10.2"
+						artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--Version_1_1_10/20220504093957-e97df5947aed22cf5a35c28386ca7f43b7d925a9-e8YTnx/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
+						longdic="Sophos Linux Base"
+						shortdic="Sophos Linux Base"/>
 		<componentsuite id="ServerProtectionLinux-Base-1.1.9.11"
 						version="1.1.9.11"
 						artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--Version_1_1_9/20220217120641-d0f7bea07e25da0d0caca61f778c6e4fa39ac327-iVMkmu/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
@@ -47,6 +52,11 @@
 				 shortdic="Sophos Linux Base"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-EDR">
+		<component id="ServerProtectionLinux-Plugin-EDR-1.1.6.2"
+				   version="1.1.6.2"
+				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--version_1_1_6/20220504110627-4338723ae243d3083dd9d7f22ac4908dafc7dfc1-HO9gey/edr/SDDS-COMPONENT/"
+				   longdic="Sophos Live Discover Plugin"
+				   shortdic="Sophos Live Discover Plugin"/>
 	  <component id="ServerProtectionLinux-Plugin-EDR-1.1.5.15"
 			     version="1.1.5.15"
 			     artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--version_1_1_5/20220125200542-816e9518ada05b441819e66a7e5699f448a1335b-sVF733/edr/SDDS-COMPONENT/"
@@ -69,6 +79,11 @@
                  shortdic="Sophos Live Discover Plugin"/>
     </line>
     <line id="ServerProtectionLinux-Base-component">
+		<component id="ServerProtectionLinux-Base-component-1.1.10.28"
+				   version="1.1.10.28"
+				   artifact="esg-releasable-candidate/linuxep.everest-base/release--Version_1_1_10/20220504085006-eea2d9720730f426cef2ad0497e2a4a814b463a1-lNGUuc/sspl-base/SDDS-COMPONENT/"
+				   longdic="Sophos Linux Base Component"
+				   shortdic="Sophos Linux Base Component"/>
 	  <component id="ServerProtectionLinux-Base-component-1.1.9.25"
                  version="1.1.9.25"
                  artifact="esg-releasable-candidate/linuxep.everest-base/release--Version_1_1_9/20220111115616-63e343f79cd351f4b766d0f4697fff50969105d6-T8rvVv/20220111115616-63e343f79cd351f4b766d0f4697fff50969105d6-T8rvVv/sspl-base/SDDS-COMPONENT"
@@ -133,6 +148,11 @@
                  shortdic="Sophos Linux Live Response"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-EventJournaler">
+		<component id="ServerProtectionLinux-Plugin-EventJournaler-1.0.2.2"
+				   version="1.0.2.2"
+				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--version_1_0_2/20220504103247-761bbe1e7f7705bde6f312a3ba6624808bf670bd-xAgAqh/eventjournaler/SDDS-COMPONENT/"
+				   longdic="Sophos Linux Event Journaler"
+				   shortdic="Sophos Linux Event Journaler"/>
       <component id="ServerProtectionLinux-Plugin-EventJournaler-1.0.1.2"
 				 version="1.0.1.2"
 				 artifact="esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--version_1_0_1/20220112090118-a0b366a56367125c50b912ae16bdd69b1ba5b3ed-2pHh1A/eventjournaler/SDDS-COMPONENT"
@@ -145,6 +165,11 @@
 	  		     shortdic="Sophos Linux Event Journaler"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-RuntimeDetections">
+		<component id="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.0.42"
+				   version="5.0.0.42"
+				   artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--sensor--version_5_0_0/20220504123318-eae8ea161dd5eeae257954722c377f6c9e6928e3-LoQIW9/SDDS-COMPONENT/"
+				   longdic="Sophos Linux Runtime Detection Plugin"
+				   shortdic="Sophos Linux Runtime Detection Plugin"/>
 		<component id="ServerProtectionLinux-Plugin-RuntimeDetections-4.10.1.16"
 				   version="4.10.1.16"
 				   artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--version_4_10_1/20220217135301-03590ed64bc2eb2513b6fba1964bc6545810d451-qWBxO3/SDDS-COMPONENT"

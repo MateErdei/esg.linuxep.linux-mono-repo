@@ -2,6 +2,12 @@
 <publicationspec importspec="sspl_base_import_spec.xml">
   <componentsuites>
     <line id="ServerProtectionLinux-Base">
+        <componentsuite importreference="ServerProtectionLinux-Base-1.1.10.2">
+            <component importreference="ServerProtectionLinux-Base-component-1.1.10.28" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
+            <component importreference="ServerProtectionLinux-Plugin-liveresponse-" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
+            <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.2.2" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
+            <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.0.42" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
+        </componentsuite>
         <componentsuite importreference="ServerProtectionLinux-Base-1.1.9.11">
             <component importreference="ServerProtectionLinux-Base-component-1.1.9.25" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
             <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.1.9" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
@@ -45,10 +51,12 @@
   <warehouses>
     <warehouse furcatedentitlement="LINUX_SSPL" id="sspl">
       <line id="ServerProtectionLinux-Base">
-		<component importreference="ServerProtectionLinux-Base-1.1.9.11">
+		<component importreference="ServerProtectionLinux-Base-1.1.10.2">
             <releasetag baseversion="" tag="BETA2"/>
             <releasetag baseversion="" tag="RECOMMENDED"/>
             <releasetag baseversion="" tag="BETA"/>
+        </component>
+        <component importreference="ServerProtectionLinux-Base-1.1.9.11">
         </component>
         <component importreference="ServerProtectionLinux-Base-1.1.9.7">
         </component>
@@ -66,9 +74,15 @@
 		</component>
       </line>
       <line id="ServerProtectionLinux-Plugin-EDR">
-        <component importreference="ServerProtectionLinux-Plugin-EDR-1.1.5.15">
+        <component importreference="ServerProtectionLinux-Plugin-EDR-1.1.6.2">
           <releasetag baseversion="" tag="BETA"/>
           <releasetag baseversion="" tag="RECOMMENDED"/>
+          <genericsupplement decodepath="scheduled_query_pack"
+                             line="ScheduledQueryPack" tag="LATEST" warehousename="scheduled_qp"/>
+          <genericsupplement decodepath="scheduled_query_pack_next"
+                             line="ScheduledQueryPack" tag="NEXT" warehousename="scheduled_qp"/>
+        </component>
+        <component importreference="ServerProtectionLinux-Plugin-EDR-1.1.5.15">
           <genericsupplement decodepath="scheduled_query_pack"
                              line="ScheduledQueryPack" tag="LATEST" warehousename="scheduled_qp"/>
           <genericsupplement decodepath="scheduled_query_pack_next"
@@ -92,6 +106,10 @@
         </component>
       </line>
       <line id="ServerProtectionLinux-Base-component">
+        <component importreference="ServerProtectionLinux-Base-component-1.1.10.28">
+          <genericsupplement decodepath="."
+         line="SSPLFLAGS" tag="2021-2" warehousename="sspl_flags"/>
+        </component>
 		<component importreference="ServerProtectionLinux-Base-component-1.1.9.25">
 		  <genericsupplement decodepath="."
 		  line="SSPLFLAGS" tag="2021-2" warehousename="sspl_flags"/>
@@ -126,10 +144,15 @@
 		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.0.11"/>
       </line>
       <line id="ServerProtectionLinux-Plugin-EventJournaler">
+		<component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.2.2"/>
 		<component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.1.2"/>
 		<component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.182"/>
       </line>
       <line id="ServerProtectionLinux-Plugin-RuntimeDetections">
+          <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.0.42">
+              <genericsupplement decodepath="content_rules"
+                                 line="rd_rules" tag="LATEST" warehousename="runtime_detection"/>
+          </component>
           <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-4.10.1.16">
               <genericsupplement decodepath="content_rules"
                                  line="rd_rules" tag="LATEST" warehousename="runtime_detection"/>
