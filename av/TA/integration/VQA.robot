@@ -20,27 +20,27 @@ Test Teardown   VQA Test TearDown
 *** Test Cases ***
 
 SUSI config can scan android file
-    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Check Threat Detected  AndroidManifest.xml  Test/Axml
 
 
 SUSI config can scan msoffice file
-    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Check Threat Detected  cleanmacro.xlsm  Test/Office
 
 
 SUSI config can scan adobe file
-    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Check Threat Detected  test.pdf  Pass/URI
 
 
 SUSI config can scan internet file
-    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Check Threat Detected  test.html  Test/Html
 
 
 SUSI config can scan macintosh file
-    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Check Threat Detected  testfile.hfs  Test/Hfs  /:Disk Image:.journal
 
 
