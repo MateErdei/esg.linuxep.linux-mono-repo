@@ -89,7 +89,7 @@ AV plugin runs scan now while CLS is running
     Process Should Be Running   ${cls_handle}
     Mark Log   ${LOG_FILE}
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  30 secs
     ...  1 secs
     ...  File Log Contains With Offset   ${LOG_FILE}   Scanning   ${LOG_MARK}
 
@@ -101,7 +101,7 @@ AV plugin runs scan now while CLS is running
     Process Should Be Running   ${cls_handle}
     Mark Log   ${LOG_FILE}
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  30 secs
     ...  1 secs
     ...  File Log Contains With Offset   ${LOG_FILE}   Scanning   ${LOG_MARK}
 
