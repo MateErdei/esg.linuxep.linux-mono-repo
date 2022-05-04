@@ -957,3 +957,31 @@ Create Big Dir
     END
     List Directory   ${path}
     [Return]   ${path}
+
+Replace Virus Data With Test Dataset A
+    ${SUSI_UPDATE_SRC} =  Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/
+
+    Copy Files  ${IDE_DIR}/*   /tmp/vdl-tmp/
+    Empty Directory  ${IDE_DIR}
+
+    Copy Files  ${RESOURCES_PATH}/testVirusData/20220503/*   ${IDE_DIR}/
+
+    ${result} =  Run Process  ls  -l  ${IDE_DIR}/
+    Log  VDL after replacement: ${result.stdout}
+
+Revert Virus Data To Live Dataset A
+    Empty Directory  ${IDE_DIR}
+    Copy Files  /tmp/vdl-tmp/*   ${IDE_DIR}/
+    Remove Directory  /tmp/vdl-tmp  recursive=True
+
+Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Run IDE update with SUSI loaded
+    Register Cleanup  Revert Virus Data To Live Dataset A
+    Run IDE update without SUSI loaded
+
+Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Run IDE update with SUSI loaded
+    Register Cleanup  Revert Virus Data To Live Dataset A
+    Run IDE update with SUSI loaded
