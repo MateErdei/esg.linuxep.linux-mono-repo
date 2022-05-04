@@ -332,7 +332,7 @@ function cppcheck_build()
     ${CPPCHECK} --inline-suppr --xml --quiet --force \
         --template="[{severity}][{id}] {message} {callstack} \(On {file}:{line}\)" \
         -i tests/googletest/ \
-        -I . -I modules  \
+        -I modules \
         modules products tests 2> ${CPP_REPORT_DIR}/${CPP_XML_REPORT}
     [[ -f ${CPP_REPORT_DIR}/${CPP_XML_REPORT} ]] || exitFailure $FAILURE_CPPCHECK "cppcheck failed to create report"
     python3 "$BASE/build/analysis/cpp_check_html_report.py" --file=${CPP_REPORT_DIR}/${CPP_XML_REPORT} --report-dir=${CPP_REPORT_DIR} --source-dir=${BASE}
