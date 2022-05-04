@@ -158,7 +158,7 @@ def run(destination):
     sdds3_temp_dir = os.path.join(destination, "sdds3_temp")
     safe_mkdir(sdds3_temp_dir)
     dest_dir = os.path.join(destination, "vdl")
-    shutil.rmtree(dest_dir)
+    shutil.rmtree(dest_dir, ignore_errors=True)
     safe_mkdir(dest_dir)
     sync_sdds3_supplement.sync_sdds3_supplement(supplement, builder, sdds3_temp_dir)
     zip_files = glob.glob(os.path.join(sdds3_temp_dir, "package", "*.zip"))
