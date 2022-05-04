@@ -7,6 +7,7 @@ Library         OperatingSystem
 Library         DateTime
 Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/AVScanner.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
@@ -74,6 +75,7 @@ AVCommandLineScanner Test TearDown
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
     Dump Log On Failure   ${SUSI_DEBUG_LOG_PATH}
+    Run Keyword If Test Failed  FakeWatchdog.Dump Log History
     Run Keyword If Test Failed  Reset AVCommandLineScanner Suite
 
 Clear logs
@@ -104,16 +106,18 @@ Mark logs
     Mark Susi Debug Log
 
 Start AV
-    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
-    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
-    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
+#    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
+#    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
+#    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
+    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
 
 Stop AV
-    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+#    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
     ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
     Log  ${result.stderr}
     Log  ${result.stdout}
@@ -1343,6 +1347,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
 
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
     ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
+    FakeWatchdog.expect_start_failure
 
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
     Register cleanup  dump log  ${LOG_FILE}
