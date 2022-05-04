@@ -329,7 +329,7 @@ function cppcheck_build()
     local CPP_REPORT_DIR="cppcheck"
     local CPPCHECK=${CPPCHECK:-cppcheck}
     mkdir -p ${CPP_REPORT_DIR}
-    ${CPPCHECK} --inline-suppr --std=c++11 --xml --quiet --force \
+    ${CPPCHECK} --inline-suppr --xml --quiet --force \
     --template="[{severity}][{id}] {message} {callstack} \(On {file}:{line}\)" \
     -i tests/googletest/ -i redist/ -i tapvenv/ -i build64/ -i input/ -i sspl-plugin-anti-virus/ -i cmake-build-debug/ . 2> ${CPP_REPORT_DIR}/${CPP_XML_REPORT}
     [[ -f ${CPP_REPORT_DIR}/${CPP_XML_REPORT} ]] || exitFailure $FAILURE_CPPCHECK "cppcheck failed to create report"
