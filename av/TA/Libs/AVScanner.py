@@ -150,8 +150,8 @@ def find_integers_after_phrase(phrase, file_contents):
     split_file = file_contents.split('\n')
     for line in split_file:
         if phrase in line:
-            return re.findall('\d+', line)
-    return 0
+            return re.findall('\d+', line.split(phrase,1)[1])
+    return 0, 0
 
 
 def check_ml_scores_are_above_threshold(actual_primary, actual_secondary, threshold_primary, threshold_secondary):
