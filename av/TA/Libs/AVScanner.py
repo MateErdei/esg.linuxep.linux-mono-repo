@@ -3,9 +3,10 @@
 # Copyright (C) 2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 
-import sys
-import os
 import logging
+import os
+import re
+import sys
 import tarfile
 import zipfile
 
@@ -142,6 +143,15 @@ def find_value_after_phrase(phrase, file_contents):
     digit_index = split_line.index(last_word) + 1
 
     return split_line[digit_index]
+
+
+def find_integers_after_phrase(phrase, file_contents):
+    split_line = []
+    split_file = file_contents.split('\n')
+    for line in split_file:
+        if phrase in line:
+            return re.findall('\d+', line)
+    return 0
 
 
 def check_ml_scores_are_above_threshold(actual_primary, actual_secondary, threshold_primary, threshold_secondary):

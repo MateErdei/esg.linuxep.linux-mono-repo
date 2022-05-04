@@ -57,15 +57,37 @@ SUSI config can scan zip file as web archive
 
 
 SUSI config can scan a media file
+    #  "tftClassifications" :
+    #  [
+    #    {
+    #      "description" : "Graphic interchange format",
+    #      "group" : "Image",
+    #      "name" : "TFT/GIF-A",
+    #      "threatLevel" : 1,
+    #      "typeId" : "GIF"
+    #    }
+    #  ]
     Mark Susi Debug Log
     Check File Clean  test.gif
-    SUSI Debug Log Contains With Offset  Classifn: 0x93  #TFT Classification ID for grpClean/media
+    SUSI Debug Log Contains With Offset  "group" : "Image"
+    SUSI Debug Log Contains With Offset  "name" : "TFT/GIF-A"
 
 
 SUSI config can scan a selfextractor file
+    #  "tftClassifications" :
+    #  [
+    #    {
+    #      "description" : "Windows executable",
+    #      "group" : "Executable",
+    #      "name" : "TFT/EXE-A",
+    #      "threatLevel" : 3,
+    #      "typeId" : "Windows"
+    #    }
+    #  ]
     Mark Susi Debug Log
     Check File Clean  Firefox.exe
-    SUSI Debug Log Contains With Offset  Classifn: 0x58  #TFT Classification ID for grpselfExtractor/selfextractor
+    SUSI Debug Log Contains With Offset  "group" : "Executable"
+    SUSI Debug Log Contains With Offset  "name" : "TFT/EXE-A"
 
 
 *** Variables ***

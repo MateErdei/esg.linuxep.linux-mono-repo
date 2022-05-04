@@ -255,7 +255,7 @@ CLS Duration Summary is Displayed Correctly
 
 
 CLS Summary is Printed When Avscanner Is Terminated Prematurely
-    Start Process    ${CLI_SCANNER_PATH}   /opt/test/inputs/av  stdout=/tmp/stdout  stderr=STDOUT
+    Start Process    ${CLI_SCANNER_PATH}   /usr/  stdout=/tmp/stdout  stderr=STDOUT
     Register On Fail  Dump Log  /tmp/stdout
     Register cleanup  Remove File  /tmp/stdout
 
@@ -298,8 +298,7 @@ CLS Can Evaluate High Ml Score As A Threat
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A
 
     ${contents}  Get File Contents From Offset   ${SUSI_DEBUG_LOG_PATH}   ${SUSI_DEBUG_LOG_MARK}
-    ${primary_score} =  Find Value After Phrase  Primary score:  ${contents}
-    ${secondary_score} =  Find Value After Phrase  Secondary score:  ${contents}
+    ${primary_score}  ${secondary_score} =  Find Integers After Phrase  ML Scores:  ${contents}
     Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  ${30}  ${20}
 
 CLS Can Evaluate Low Ml Score As A Clean File
@@ -313,7 +312,7 @@ CLS Can Evaluate Low Ml Score As A Clean File
     Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengLowScore.exe"
 
     ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
-    ${primary_score} =  Find Value After Phrase  Primary score:  ${contents}
+    ${primary_score}  ${secondary_score} =  Find Integers After Phrase  ML Scores:  ${contents}
     Check Ml Primary Score Is Below Threshold  ${primary_score}  ${30}
 
 

@@ -436,7 +436,7 @@ SUSI Can Work Despite Specified Log File Being Read-Only
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
-    SUSI Debug Log Contains With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
+    SUSI Debug Log Contains With Offset  SUSI scan for ${NORMAL_DIRECTORY}/naughty_eicar
 
     Run  chmod 444 ${SUSI_DEBUG_LOG_PATH}
     Register Cleanup  Stop Sophos_threat_detector
@@ -449,7 +449,7 @@ SUSI Can Work Despite Specified Log File Being Read-Only
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
-    SUSI Debug Log Does Not Contain With Offset  OnFileFound ${NORMAL_DIRECTORY}/naughty_eicar
+    SUSI Debug Log Does Not Contain With Offset  SUSI scan for ${NORMAL_DIRECTORY}/naughty_eicar
 
 SUSI Debug Log Does Not Contain Info Level Logs By Default
     register cleanup     Exclude Watchdog Log Unable To Open File Error
