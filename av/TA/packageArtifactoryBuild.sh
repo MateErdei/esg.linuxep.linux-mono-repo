@@ -77,7 +77,7 @@ esac
 ARCHIVE_OPTION=${ARCHIVE_OPTION:-${DEFAULT_ARCHIVE_OPTION}}
 
 exec tar c${ARCHIVE_OPTION}f ${DEST} -C ${DEST_BASE} \
-    --exclude='test/inputs/vdl.zip' \
+    --exclude='test/inputs/dataseta.zip' \
     --exclude='test/inputs/model.zip' \
     --exclude='test/inputs/reputation.zip' \
     ${TEST_DIR_NAME}

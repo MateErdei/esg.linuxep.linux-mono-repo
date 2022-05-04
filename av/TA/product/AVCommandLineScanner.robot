@@ -10,6 +10,7 @@ Library         ../Libs/FakeManagement.py
 Library         ../Libs/AVScanner.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
+Library         ../Libs/SystemFileWatcher.py
 Library         ../Libs/ThreatReportUtils.py
 
 Resource    ../shared/ErrorMarkers.robot
@@ -45,6 +46,9 @@ Reset AVCommandLineScanner Suite
     AVCommandLineScanner Suite Setup
 
 AVCommandLineScanner Test Setup
+    SystemFileWatcher.Start Watching System Files
+    Register Cleanup      SystemFileWatcher.stop watching system files
+
     check av plugin running
     Check Sophos Threat Detector Running
 
@@ -53,6 +57,7 @@ AVCommandLineScanner Test Setup
     run keyword if  ${result}   Clear logs
 
     Mark logs
+
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
     Register Cleanup      Exclude UnixSocket Environment Interruption Error
