@@ -120,6 +120,7 @@ def process(baseurl, filename, dirname):
 
 def run(argv):
     dest = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
+
     try:
         if argv[1]:
             dest = argv[1]
@@ -130,7 +131,8 @@ def run(argv):
 
     supplement = "https://sdds3.sophosupd.com/supplement/sdds3.DataSetA.dat"
 
-    builder = "./system-product-test-inputs/sdds3/sdds3-builder"
+    builder = dest+ "/sdds3/sdds3-builder"
+
     sdds3_temp_dir = os.path.join(dest, "sdds3_temp")
     safe_mkdir(sdds3_temp_dir)
     dest_dir = os.path.join(dest, "vdl")

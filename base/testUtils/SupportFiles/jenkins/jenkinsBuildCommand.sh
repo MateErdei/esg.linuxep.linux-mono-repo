@@ -78,7 +78,8 @@ export TEST_UTILS=$WORKSPACE/testUtils
 [[ -n $NO_GATHER ]] || source $WORKSPACE/testUtils/SupportFiles/jenkins/gatherTestInputs.sh                || fail "Error: failed to gather test inputs"
 source $WORKSPACE/testUtils/SupportFiles/jenkins/exportInputLocations.sh            || fail "Error: failed to export expected input locations"
 source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh     || fail "Error: failed to validate gathered inputs"
-python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py  || fail "Error: failed to gather av supplements locations"
+bash ${JENKINS_DIR}/install_dependencies.sh
+python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py || fail "Error: failed to gather av supplements locations"
 #setup coverage inputs and exports
 COVERAGE_STAGING="$SYSTEMPRODUCT_TEST_INPUT/coverage"
 
@@ -149,7 +150,7 @@ elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   export BULLSEYE_UPLOAD=1
 fi
 
-bash ${JENKINS_DIR}/install_dependencies.sh
+
 
 ROBOT_BASE_COMMAND="sudo -E python3 -m robot -x robot.xml --loglevel TRACE "
 RERUNFAILED=${RERUNFAILED:-false}
