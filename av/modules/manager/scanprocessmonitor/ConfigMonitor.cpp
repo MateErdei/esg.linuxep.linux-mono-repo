@@ -16,6 +16,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
+#include <map>
+#include <iostream>
 
 #include <sys/inotify.h>
 #include <sys/types.h>
@@ -51,8 +54,38 @@ static inline bool isInteresting(const std::string& basename)
     return (std::find(INTERESTING_FILES.begin(), INTERESTING_FILES.end(), basename) != INTERESTING_FILES.end());
 }
 
+/**
+ * We assume all the files monitored as small, so we can just keep a record of them.
+ * @param filepath
+ * @return
+ */
+static std::string getContents(const std::string& filepath)
+{
+    std::ifstream in("/etc/" + filepath, std::ios::in|std::ios::binary);
+    if (!in.is_open())
+    {
+        return ""; // Treat missing as empty
+    }
+    return {(std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>()};
+}
+
+using contentMap_t = std::map<std::string, std::string>;
+
+static contentMap_t getContents()
+{
+    const auto& INTERESTING_FILES = interestingFiles();
+    contentMap_t result;
+    for (const auto& basename : INTERESTING_FILES)
+    {
+        result[basename] = getContents("/etc/" + basename);
+    }
+    return result;
+}
+
 void ConfigMonitor::run()
 {
+    auto contents = getContents();
+
     datatypes::AutoFd inotifyFD(
         inotify_init()
     );
@@ -117,8 +150,17 @@ void ConfigMonitor::run()
                     // Don't care if it's close-after-write or rename/move
                     if (isInteresting(event->name))
                     {
-                        LOGINFO("System configuration updated");
-                        m_configChangedPipe.notify();
+                        auto newContents = getContents(event->name);
+                        if (contents.at(event->name) == newContents)
+                        {
+                            LOGINFO("System configuration not changed for "<< event->name);
+                        }
+                        else
+                        {
+                            LOGINFO("System configuration updated for " << event->name);
+                            m_configChangedPipe.notify();
+                            contents[event->name] = newContents;
+                        }
                     }
                 }
                 i += EVENT_SIZE + event->len;
