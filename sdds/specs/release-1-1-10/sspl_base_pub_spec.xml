@@ -137,8 +137,8 @@
 		<component importreference="ServerProtectionLinux-Base-component-1.1.3.703"/>
       </line>
       <line id="ServerProtectionLinux-Plugin-liveresponse">
-		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.1.9"/>
 		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.2.8"/>
+		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.1.9"/>
 		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.0.56"/>
 		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.2.12"/>
 		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.1.20"/>
