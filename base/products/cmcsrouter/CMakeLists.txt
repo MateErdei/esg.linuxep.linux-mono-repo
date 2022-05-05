@@ -1,4 +1,3 @@
-
 add_custom_target(
         mcstar ALL
         COMMAND mkdir -p mcslibrary/include mcslibrary/lib64

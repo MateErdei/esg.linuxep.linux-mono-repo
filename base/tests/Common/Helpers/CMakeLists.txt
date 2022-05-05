@@ -25,6 +25,8 @@ add_library(testhelpersobject OBJECT
         TestMacros.cpp
         OutputToLog.cpp
         OutputToLog.h
+        MockPlatformUtils.h
+        MockSystemUtils.h
         )
 
 target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE})

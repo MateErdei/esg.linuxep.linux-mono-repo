@@ -27,6 +27,7 @@ o644, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs/mcs_rootca.crt.0
 o660, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
 o660, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/status/cache/SDU.xml
 o660, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/base/mcs/status/SDU_status.xml
+o700, root, root, /opt/sophos-spl/base/bin/centralregistration.0
 o700, root, root, /opt/sophos-spl/base/bin/CommsComponent.0
 o700, root, root, /opt/sophos-spl/base/bin/manifestdiff.0
 o700, root, root, /opt/sophos-spl/base/bin/registerCentral.0
@@ -50,6 +51,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_filesystem.so.
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_regex.so.1.78.0.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_system.so.1.78.0.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_thread.so.1.78.0.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcentralregistrationimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcommscomponentimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurl.so.4.7.0.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libdirectorywatcherimpl.so.0

@@ -40,6 +40,68 @@ namespace Common::HttpRequests
         bool allowRedirects = false;
         RequestType requestType = RequestType::GET;
 
+        // used for dumping request contents for test
+        friend std::ostream& operator<< (std::ostream& os, const RequestConfig& config)
+        {
+            os << "url: " + config.url + "\n";
+            if(config.headers)
+            {
+                os << std::string("headers:\n");
+                for(auto header : config.headers.value())
+                {
+                    os << header.first + ":" + header.second + "\n";
+                }
+            }
+            if (config.data)
+            {
+                os << config.data.value() + "\n";
+            }
+            if (config.port)
+            {
+                os << std::to_string(config.port.value()) + "\n";
+            }
+            if(config.parameters)
+            {
+                os << std::string("parameters:\n");
+                for(auto param : config.parameters.value())
+                {
+                    os << param.first + ":" + param.second + "\n";
+                }
+            }
+            if (config.certPath)
+            {
+                os << config.certPath.value() + "\n";
+            }
+            if (config.fileDownloadLocation)
+            {
+                os << config.fileDownloadLocation.value() + "\n";
+            }
+            if (config.fileToUpload)
+            {
+                os << config.fileToUpload.value() + "\n";
+            }
+            if (config.proxy)
+            {
+                os << config.proxy.value() + "\n";
+            }
+            if (config.proxyUsername)
+            {
+                os << config.proxyUsername.value() + "\n";
+            }
+            if (config.proxyPassword)
+            {
+                os << config.proxyPassword.value() + "\n";
+            }
+            if (config.bandwidthLimit)
+            {
+                os << std::to_string(config.bandwidthLimit.value()) + "\n";
+            }
+            os << std::to_string(config.timeout) + "\n";
+            os << std::to_string(config.allowRedirects) + "\n";
+            os << std::to_string(config.requestType) + "\n";
+            return os;
+        }
+
     };
     inline bool operator==(const RequestConfig lhs,const RequestConfig rhs)
     {

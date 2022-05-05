@@ -5,7 +5,6 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "MCSHttpClient.h"
 
-#include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 #include <Common/ObfuscationImpl/Base64.h>
 
@@ -14,6 +13,38 @@ namespace MCS
 {
     MCSHttpClient::MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
         m_base_url(mcsUrl),m_registerToken(registerToken),m_client(client){}
+
+    Common::HttpRequests::Response  MCSHttpClient::sendRegistration(const std::string& statusXml, const std::string& token)
+    {
+        Common::HttpRequests::Headers requestHeaders
+            {
+                {"Authorization",getRegistrationAuthorizationHeader(token)},
+                {"User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions "+ m_registerToken},
+                {"Content-Type","application/xml; charset=utf-8"}
+            };
+
+        Common::HttpRequests::RequestConfig request{ .url = m_base_url + "/register", .headers = requestHeaders, .data = statusXml};
+        updateProxyInfo(request);
+        updateCertPath(request);
+
+        return m_client->post(request);
+    }
+
+    Common::HttpRequests::Response  MCSHttpClient::sendPreregistration(const std::string& statusXml, const std::string& customerToken)
+    {
+        Common::HttpRequests::Headers requestHeaders
+            {
+                {"Authorization",getDeploymentInfoV2AuthorizationHeader(customerToken)},
+                {"User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions "+ m_registerToken},
+                {"Content-Type","application/json;charset=UTF-8"}
+            };
+
+        Common::HttpRequests::RequestConfig request{ .url = m_base_url + "/install/deployment-info/2", .headers = requestHeaders, .data = statusXml};
+        updateProxyInfo(request);
+        updateCertPath(request);
+
+        return m_client->post(request);
+    }
 
     Common::HttpRequests::Response  MCSHttpClient::sendMessage(
         const std::string& url,
@@ -29,22 +60,9 @@ namespace MCS
             requestHeaders.insert({head.first,head.second});
         }
 
-
         Common::HttpRequests::RequestConfig request{ .url = m_base_url + url ,.headers = requestHeaders};
-        if (!m_proxy.empty())
-        {
-            request.proxy = m_proxy;
-        }
-        if (!m_proxyUser.empty())
-        {
-            request.proxyUsername = m_proxyUser;
-            request.proxyPassword = m_proxyPassword;
-        }
-
-        if (!m_certPath.empty())
-        {
-            request.certPath = m_certPath;
-        }
+        updateProxyInfo(request);
+        updateCertPath(request);
 
         Common::HttpRequests::Response response;
         switch (requestType)
@@ -83,9 +101,22 @@ namespace MCS
 
     std::string MCSHttpClient::getV1AuthorizationHeader()
     {
-        std::string tobeEncoded = getID() + ":" + getPassword();
-        std::string header = "Basic " + Common::ObfuscationImpl::Base64::Encode(tobeEncoded);
-        return header;
+        return getAuthorizationHeader(getID() + ":" + getPassword());
+    }
+
+    std::string MCSHttpClient::getRegistrationAuthorizationHeader(const std::string& token)
+    {
+        return getAuthorizationHeader(getID() + ":" + getPassword() + ":" + token);
+    }
+
+    std::string MCSHttpClient::getDeploymentInfoV2AuthorizationHeader(const std::string& customerToken)
+    {
+        return getAuthorizationHeader(customerToken);
+    }
+
+    std::string MCSHttpClient::getAuthorizationHeader(const std::string& toBeEncoded)
+    {
+        return "Basic " + Common::ObfuscationImpl::Base64::Encode(toBeEncoded);
     }
 
     std::string MCSHttpClient::getID()
@@ -123,5 +154,26 @@ namespace MCS
         m_proxy = proxy;
         m_proxyUser = proxyUser;
         m_proxyPassword = proxyPassword;
+    }
+
+    void MCSHttpClient::updateProxyInfo(Common::HttpRequests::RequestConfig& request)
+    {
+        if (!m_proxy.empty())
+        {
+            request.proxy = m_proxy;
+            if (!m_proxyUser.empty())
+            {
+                request.proxyUsername = m_proxyUser;
+                request.proxyPassword = m_proxyPassword;
+            }
+        }
+    }
+
+    void MCSHttpClient::updateCertPath(Common::HttpRequests::RequestConfig& request)
+    {
+        if (!m_certPath.empty())
+        {
+            request.certPath = m_certPath;
+        }
     }
 }

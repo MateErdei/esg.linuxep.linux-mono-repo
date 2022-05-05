@@ -15,3 +15,6 @@ add_subdirectory(SystemProductTestOutput)
 add_subdirectory(PluginApi)
 add_subdirectory(Telemetry)
 add_subdirectory(TelemetryScheduler)
+add_subdirectory(CentralRegistration)
+
+
