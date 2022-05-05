@@ -4,7 +4,7 @@
     <line id="ServerProtectionLinux-Base">
         <componentsuite importreference="ServerProtectionLinux-Base-1.1.10.2">
             <component importreference="ServerProtectionLinux-Base-component-1.1.10.28" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
-            <component importreference="ServerProtectionLinux-Plugin-liveresponse-" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
+            <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.2.8" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
             <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.2.2" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
             <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.0.42" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
         </componentsuite>
