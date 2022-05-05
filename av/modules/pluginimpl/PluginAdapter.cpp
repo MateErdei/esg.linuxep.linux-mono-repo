@@ -5,18 +5,18 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "PluginAdapter.h"
-#include <common/PluginUtils.h>
 
 #include "HealthStatus.h"
 #include "Logger.h"
 #include "StringUtils.h"
 
+#include "common/PluginUtils.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/ZeroMQWrapper/IIPCException.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
 
 namespace fs = sophos_filesystem;
 
