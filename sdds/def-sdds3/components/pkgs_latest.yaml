@@ -7,11 +7,11 @@
 #
 # Changes to this file only affect the latest platforms (see suites.yaml)
 edr.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--version_1_1_6/20220504110627-4338723ae243d3083dd9d7f22ac4908dafc7dfc1-HO9gey/edr
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--version_1_1_6/20220504110627-4338723ae243d3083dd9d7f22ac4908dafc7dfc1-HO9gey/edr/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-EDR
   mountpoint: ServerProtectionLinux-Plugin-EDR
 av.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--version_1_0_6/20220505100458-1ebe79ac3ba8d20d86e8dab0c08b99250bc9df91-rnKpHP/sspl-plugin-anti-virus/SDDS-COMPONENT//SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--version_1_0_6/20220505100458-1ebe79ac3ba8d20d86e8dab0c08b99250bc9df91-rnKpHP/sspl-plugin-anti-virus/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-AV
   mountpoint: ServerProtectionLinux-Plugin-AV
 mdr.latest.x64:
