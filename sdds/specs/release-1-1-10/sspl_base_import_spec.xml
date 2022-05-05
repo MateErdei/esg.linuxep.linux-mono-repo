@@ -121,6 +121,11 @@
                  shortdic="Sophos Linux Base Component"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-liveresponse">
+	<component id="ServerProtectionLinux-Plugin-liveresponse-1.5.2.8"
+			   version="1.5.2.8"
+			   artifact="esg-releasable-candidate/winep.liveterminal/release--version_1_5_2_linux_only/20220504150137-fc74cf8d42b6987e6bf71b89e77986f305df2c60-ux0RC1/liveterminal/sdds/"
+			   longdic="Sophos Linux Live Response"
+			   shortdic="Sophos Linux Live Response"/>
 	  <component id="ServerProtectionLinux-Plugin-liveresponse-1.5.1.9"
                  version="1.5.1.9"
                  artifact="esg-releasable-candidate/winep.liveterminal/release--version_1_5_1/20220113114734-2e0533633cdcbb4bd71c63f90217793804a2ed27-1IE4Bn/liveterminal/sdds"
