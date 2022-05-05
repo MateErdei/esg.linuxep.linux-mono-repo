@@ -24,10 +24,9 @@ SUSI config can scan android file
     Check Threat Detected  AndroidManifest.xml  Test/SSPL-AXML
 
 
-# Uncommment once LINUXDAR-4720 is fixed
-#SUSI config can scan msoffice file
-#    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
-#    Check Threat Detected  cleanmacro.xlsm  Test/SSPL-OFFI
+SUSI config can scan msoffice file
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
+    Check Threat Detected  cleanmacro.xlsm  Test/SSPL-OFFI
 
 
 SUSI config can scan adobe file
@@ -40,10 +39,9 @@ SUSI config can scan internet file
     Check Threat Detected  test.html  Test/SSPL-HTML
 
 
-# Uncommment once LINUXDAR-4720 is fixed
-#SUSI config can scan macintosh file
-#    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
-#    Check Threat Detected  testfile.hfs  Test/Hfs  /:Disk Image:.journal
+SUSI config can scan macintosh file
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
+    Check Threat Detected  testfile.hfs  Test/SSPL-HFS
 
 
 SUSI config can scan zip file as web archive
