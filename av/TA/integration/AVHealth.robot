@@ -1,6 +1,7 @@
 *** Settings ***
 Force Tags      INTEGRATION  AV_HEALTH
 Library         Collections
+Library         ../Libs/SystemFileWatcher.py
 
 Resource        ../shared/AVAndBaseResources.robot
 Resource        ../shared/ErrorMarkers.robot
@@ -16,6 +17,9 @@ AV Health Suite Setup
     Install With Base SDDS
 
 AV Health Test Setup
+    SystemFileWatcher.Start Watching System Files
+    Register Cleanup      SystemFileWatcher.stop watching system files
+
     AV And Base Setup
     Wait Until AV Plugin running
     Wait Until threat detector running
