@@ -19,11 +19,9 @@ function install_system_packages
   if [ -n "$(which apt-get)" ]
     then
       pkg_manager="apt-get"
-      list=p7zip-full
   elif [ -n "$(which yum)" ]
     then
       pkg_manager="yum"
-      list=p7zip
   else
     echo "System is not rhel-based or ubuntu, cannot install packages"
     exit 1
@@ -32,7 +30,7 @@ function install_system_packages
   local installed_ok=0
   for (( i=1; i<=20; i++ ))
   do
-    if sudo $pkg_manager -y install $@ $list
+    if sudo $pkg_manager -y install $@
     then
       installed_ok=1
       break

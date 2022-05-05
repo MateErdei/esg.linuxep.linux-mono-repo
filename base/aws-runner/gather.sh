@@ -33,7 +33,7 @@ source ${TEST_UTILS}/SupportFiles/jenkins/gatherTestInputs.sh || failure 211 "Fa
 source ${TEST_UTILS}/SupportFiles/jenkins/exportInputLocations.sh
 source ${TEST_UTILS}/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 211 "Failed to gather inputs"
 ${TEST_UTILS}/SupportFiles/jenkins/SetupCIBuildScripts.sh --download-pip-cache ${CREATE_DIR} || failure 211 "Failed to gather inputs"
-bash ${TEST_UTILS}/SupportFiles/jenkins/install_dependencies.sh
+bash ${TEST_UTILS}/SupportFiles/jenkins/install_setup_tools.sh
 
 python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py  ${SYSTEMPRODUCT_TEST_INPUT}
 
