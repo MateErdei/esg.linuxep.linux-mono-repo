@@ -31,9 +31,8 @@ ConfigMonitor::ConfigMonitor(Common::Threads::NotifyPipe& pipe,
 {
 }
 
-static inline bool isInteresting(const std::string& basename)
+static const std::vector<std::string>& interestingFiles()
 {
-//    LOGDEBUG("isInteresting:"<<basename);
     static const std::vector<std::string> INTERESTING_FILES
         {
             "nsswitch.conf",
@@ -42,7 +41,13 @@ static inline bool isInteresting(const std::string& basename)
             "host.conf",
             "hosts",
         };
+    return INTERESTING_FILES;
+}
 
+static inline bool isInteresting(const std::string& basename)
+{
+//    LOGDEBUG("isInteresting:"<<basename);
+    const auto& INTERESTING_FILES = interestingFiles();
     return (std::find(INTERESTING_FILES.begin(), INTERESTING_FILES.end(), basename) != INTERESTING_FILES.end());
 }
 
