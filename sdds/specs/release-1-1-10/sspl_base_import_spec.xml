@@ -192,6 +192,11 @@
 				 shortdic="Sophos Linux Runtime Detection Plugin"/>
     </line>
 	<line id="ServerProtectionLinux-Plugin-AV">
+		<component id="ServerProtectionLinux-Plugin-AV-1.0.6.528"
+				   version="1.0.6.528"
+				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--version_1_0_6/20220505100458-1ebe79ac3ba8d20d86e8dab0c08b99250bc9df91-rnKpHP/sspl-plugin-anti-virus/SDDS-COMPONENT"
+				   longdic="Sophos Linux AntiVirus"
+				   shortdic="Sophos Linux AntiVirus"/>
       <component id="ServerProtectionLinux-Plugin-AV-1.0.5.19"
 				   version="1.0.5.19"
 				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--version_1_0_5/20220113110146-e13148f3347ef1dc284d5d2b955dadd3dfb8a049-1i4fP3/sspl-plugin-anti-virus/SDDS-COMPONENT"
