@@ -11,14 +11,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/common/FDUtils.h>
 
 #include <cstring>
+#include <utility>
 
 #include <sys/select.h>
 
 namespace fs = sophos_filesystem;
 
-plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(const std::string& processControllerSocket)
+plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(std::string processControllerSocket)
     : m_config_monitor(m_config_changed)
-    , m_processControllerSocket(processControllerSocket)
+    , m_processControllerSocket(std::move(processControllerSocket))
 {
 }
 

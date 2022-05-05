@@ -16,7 +16,7 @@ namespace plugin::manager::scanprocessmonitor
     class ScanProcessMonitor : public Common::Threads::AbstractThread
     {
     public:
-        explicit ScanProcessMonitor(const std::string& processControllerSocket);
+        explicit ScanProcessMonitor(std::string processControllerSocket);
         void run() override;
 
         /**
