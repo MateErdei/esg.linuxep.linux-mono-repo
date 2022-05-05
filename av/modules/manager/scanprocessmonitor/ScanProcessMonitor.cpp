@@ -8,12 +8,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include <modules/common/FDUtils.h>
+#include "common/FDUtils.h"
+#include "common/PluginUtils.h"
 
 #include <cstring>
+#include <tuple>
 #include <utility>
 
 #include <sys/select.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 
 namespace fs = sophos_filesystem;
 
@@ -45,13 +51,22 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::sendRequestToThrea
     }
 }
 
+static bool inhibit_system_file_change_restart()
+{
+    static const auto inhibit_system_file_change_restart_file = common::getPluginInstallPath() / "var/inhibit_system_file_change_restart_threat_detector";
+    struct stat buf{};
+    errno = 0;
+    std::ignore = ::stat(inhibit_system_file_change_restart_file.c_str(), &buf);
+    return (errno != ENOENT);
+}
+
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 {
     LOGSUPPORT("Starting sophos_threat_detector monitor");
 
     struct timespec restartBackoff{};
     restartBackoff.tv_sec = 0;
-    restartBackoff.tv_nsec = 100*1000*1000;
+    restartBackoff.tv_nsec = 100L*1000*1000;
 
     fd_set readfds;
     FD_ZERO(&readfds);
@@ -79,7 +94,11 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 
         if (active < 0 and errno != EINTR)
         {
-            LOGERROR("failure in ScanProcessMonitor: pselect failed: " << strerror(errno));
+            auto error = errno;
+            errno = 0;
+            char buf[256];
+            strerror_r(error, buf, sizeof(buf));
+            LOGERROR("failure in ScanProcessMonitor: pselect failed: " << buf);
             break;
         }
 
@@ -99,8 +118,15 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         if (FDUtils::fd_isset(m_config_changed.readFd(), &tempReadfds))
         {
             clearPipe(m_config_changed);
-            LOGINFO("Restarting sophos_threat_detector as the system configuration has changed");
-            sendRequestToThreatDetector(scan_messages::E_SHUTDOWN);
+            if (inhibit_system_file_change_restart())
+            {
+                LOGWARN("Not restarting sophos_threat_detector: System configuration change detected, but restart inhibited");
+            }
+            else
+            {
+                LOGINFO("Restarting sophos_threat_detector as the system configuration has changed");
+                sendRequestToThreatDetector(scan_messages::E_SHUTDOWN);
+            }
         }
     }
 

@@ -34,11 +34,13 @@ AVCommandLineScanner Suite Setup
     Run Keyword And Ignore Error   Empty Directory   ${SOPHOS_INSTALL}/tmp
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
     Start Fake Management If required
+    Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
     Start AV
     Force SUSI to be initialized
 
 AVCommandLineScanner Suite TearDown
     Stop AV
+    Remove File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
     Stop Fake Management If Running
     Terminate All Processes  kill=True
 
