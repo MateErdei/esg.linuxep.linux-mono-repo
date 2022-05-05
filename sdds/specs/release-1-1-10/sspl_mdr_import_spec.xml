@@ -5,12 +5,11 @@
   </warehouses>
   <imports>
     <line id="ServerProtectionLinux-Plugin-MDR">
-      <componentsuite
+      <component
               id="ServerProtectionLinux-Plugin-MDR-1.0.12.2"
               version="1.0.12.2"
               artifact="esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--version_1_0_12/20220504103017-e29f04c5c3182a7fd293fe27f81445ddfdfa62b1-ZqQxrd/mdr/SDDS-COMPONENT/"
-              longdic="Sophos Server Protection for Linux MTR" shortdic="Sophos Server Protection for Linux MTR"
-              marketingversion="SSPL 1.0.12 MTR" />
+              longdic="Sophos Server Protection for Linux MTR" shortdic="Sophos Server Protection for Linux MTR" />
       <componentsuite
               id="ServerProtectionLinux-Plugin-MDR-1.0.11.4"
               version="1.0.11.4"
