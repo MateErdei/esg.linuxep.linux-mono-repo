@@ -17,6 +17,7 @@ instances = {
     "centosstreamx64": getInstanceJsonAsString("centosstreamx64"),
     "debian10x64": getInstanceJsonAsString("debian10x64"),
     "debian11x64": getInstanceJsonAsString("debian11x64"),
+    "miraclelinuxx64": getInstanceJsonAsString("miraclelinuxx64"),
     "oracle8x64": getInstanceJsonAsString("oracle8x64"),
     "rhel78x64": getInstanceJsonAsString("rhel78x64"),
     "rhel81x64": getInstanceJsonAsString("rhel81x64"),

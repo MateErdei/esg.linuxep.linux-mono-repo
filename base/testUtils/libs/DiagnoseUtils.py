@@ -31,7 +31,9 @@ def get_platform():
         return "ubuntu"
     elif "rhel" in platform_data or "redhat" in platform_data:
         return "rhel"
-    if "debian" in platform_data:
+    elif "miraclelinux" in platform_data:
+        return "miraclelinux"
+    elif "debian" in platform_data:
         return "debian"
     elif "oracle" in platform_data:
         return "oracle"
@@ -44,6 +46,8 @@ def get_platform():
                     return "centos"
                 if "CentOS Linux release" in contents:
                     return "centos"
+                if "MIRACLE LINUX release" in contents:
+                    return "miraclelinux"
         except FileNotFoundError:
             pass
         try:
@@ -73,6 +77,8 @@ def get_expected_files_for_platform():
         return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release"]
     elif "oracle" == platform:
         return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release", "selinux-config"]
+    elif "miraclelinux" == platform:
+        return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release", "boot.log"]
     raise ValueError('Platform unknown')
 
 
