@@ -8,6 +8,7 @@ Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
+Library         ../Libs/SystemFileWatcher.py
 Library         ../Libs/Telemetry.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
@@ -19,6 +20,7 @@ Resource    ../shared/FakeManagementResources.robot
 Resource    ../shared/SambaResources.robot
 
 Suite Setup    AVBasic Suite Setup
+Suite Teardown  AVBasic Suite Teardown
 
 Test Setup     Product Test Setup
 Test Teardown  Product Test Teardown
@@ -446,6 +448,11 @@ Start AV
 
 AVBasic Suite Setup
     Start Fake Management If Required
+    Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
+
+AVBasic Suite Teardown
+    Remove File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
+
 
 Clear Logs
     Wait Until Keyword Succeeds
@@ -464,6 +471,9 @@ Clear Logs
     Start AV
 
 Product Test Setup
+    SystemFileWatcher.Start Watching System Files
+    Register Cleanup      SystemFileWatcher.stop watching system files
+
     Start AV
     Component Test Setup
     Delete Eicars From Tmp

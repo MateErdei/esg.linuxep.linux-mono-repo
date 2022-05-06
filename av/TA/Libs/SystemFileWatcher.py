@@ -46,11 +46,7 @@ class SystemFileWatcher(object):
         current_stat = self.__stat()
         current_contents = self.__get_contents()
         for f in SYSTEM_FILES:
-            current = current_stat[f]
-            old = self.__m_file_stat[f]
-            if current.st_mtime != old.st_mtime:
-                current_mtime = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(current.st_mtime))
-                logger.error("System file %s changed while being watched at %s" % (f, current_mtime))
+            contents_diff = False
             contents = current_contents[f]
             old_contents = self.__m_file_contents[f]
             if contents != old_contents:
@@ -58,3 +54,14 @@ class SystemFileWatcher(object):
                 old_contents = old_contents.splitlines()
                 diff = difflib.unified_diff(old_contents, contents)
                 logger.error("%s changed contents while being watched: %s" % (f, diff))
+                contents_diff = True
+
+            current = current_stat[f]
+            old = self.__m_file_stat[f]
+            if current.st_mtime != old.st_mtime:
+                current_mtime = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(current.st_mtime))
+                if contents_diff:
+                    logger.error("%s changed mtime while being watched at %s" % (f, current_mtime))
+                else:
+                    logger.error("%s changed mtime without changing contents while being watched at %s" %
+                                 (f, current_mtime))
