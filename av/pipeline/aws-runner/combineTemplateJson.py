@@ -11,8 +11,7 @@ def getInstanceJsonAsString(instanceName):
         return json.dumps(dict)
 
 
-# Debian 11 Fails due to spurious system changes
-EXCLUDED = ["debian11x64"]
+EXCLUDED = []
 RUNONE = os.environ.get("RUNONE", "")
 
 
