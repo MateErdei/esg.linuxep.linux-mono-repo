@@ -613,11 +613,17 @@ Check installer removes sophos_threat_detector log symlink
 
     File Should Not Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
 
-Check AV installer can add AV user when /usr/sbin is not in path
+Check AV installer can add AV users when /usr/sbin is not in path
     Run plugin uninstaller
     Install AV Directly from SDDS Without /usr/sbin in PATH
     User Should Exist  sophos-spl-av
     User Should Exist  sophos-spl-threat-detector
+
+Check AV uninstaller can remove AV users when /usr/sbin is not in path
+    Uninstall AV Without /usr/sbin in PATH
+    User Should Not Exist   sophos-spl-av
+    User Should Not Exist   sophos-spl-threat-detector
+
 *** Variables ***
 ${IDE_NAME}         peend.ide
 ${IDE2_NAME}        pemid.ide
@@ -653,7 +659,7 @@ Installer Test Setup
     Register On Fail  dump log  ${AV_LOG_PATH}
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
-    Check Plugin Installed and Running
+    Require Plugin Installed and Running
     Mark AV Log
     Mark Sophos Threat Detector Log
 

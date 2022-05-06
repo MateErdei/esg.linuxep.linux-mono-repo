@@ -81,6 +81,8 @@ function removeUser()
 
   USER_DELETER=$(which deluser 2>/dev/null)
   [[ -x "$USER_DELETER" ]] || USER_DELETER=$(which userdel 2>/dev/null)
+  [[ -x "$USER_DELETER" ]] || USER_DELETER=/usr/sbin/userdel
+  [[ -x "$USER_DELETER" ]] || USER_DELETER=/usr/sbin/deluser
 
   if [[ ! -x "$USER_DELETER" ]]
   then

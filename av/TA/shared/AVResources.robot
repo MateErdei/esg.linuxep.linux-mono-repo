@@ -45,6 +45,7 @@ ${SOPHOS_THREAT_DETECTOR_BINARY}                ${SOPHOS_INSTALL}/plugins/${COMP
 ${SOPHOS_THREAT_DETECTOR_LAUNCHER}              ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 ${EXPORT_FILE}                                  /etc/exports
 ${AV_INSTALL_LOG}                               /tmp/avplugin_install.log
+${AV_UNINSTALL_LOG}                             /tmp/avplugin_uninstall.log
 ${AV_BACKUP_DIR}                                ${SOPHOS_INSTALL}/tmp/av_downgrade/
 ${AV_RESTORED_LOGS_DIRECTORY}                   ${AV_PLUGIN_PATH}/log/downgrade-backup/
 ${NORMAL_DIRECTORY}                             /home/vagrant/this/is/a/directory/for/scanning
@@ -478,6 +479,13 @@ Install AV Directly from SDDS
 
     Wait until AV Plugin running with offset
     Wait until threat detector running with offset
+
+Uninstall AV Without /usr/sbin in PATH
+    ${result} =   Run Process   bash  -x  ${AV_PLUGIN_PATH}/sbin/uninstall.sh   timeout=60s  stderr=STDOUT   stdout=${AV_UNINSTALL_LOG}  env:PATH=/usr/local/bin:/usr/bin:/bin
+    ${log_contents} =  Get File  ${AV_UNINSTALL_LOG}
+    File Log Should Not Contain  ${AV_UNINSTALL_LOG}  Unable to delete
+    File Log Should Not Contain  ${AV_UNINSTALL_LOG}  Failed to delete
+    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to uninstall plugin.\noutput: \n${log_contents}"
 
 Install AV Directly from SDDS Without /usr/sbin in PATH
     Mark AV Log
