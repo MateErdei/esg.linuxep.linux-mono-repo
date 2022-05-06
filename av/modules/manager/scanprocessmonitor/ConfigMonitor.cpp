@@ -159,6 +159,8 @@ void ConfigMonitor::run()
                         {
                             LOGINFO("System configuration updated for " << event->name);
                             m_configChangedPipe.notify();
+                            LOGDEBUG("Old content size=" << contents.at(event->name).size());
+                            LOGDEBUG("New content size=" << newContents.size());
                             contents[event->name] = newContents;
                         }
                     }
