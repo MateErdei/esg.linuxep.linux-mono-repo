@@ -24,6 +24,9 @@ AV Health Test Setup
     Wait Until AV Plugin running
     Wait Until threat detector running
 
+    Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
+    Register Cleanup  Remove File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
+
 AV Health Test Teardown
     Remove File    /tmp_test/naughty_eicar
     AV And Base Teardown
