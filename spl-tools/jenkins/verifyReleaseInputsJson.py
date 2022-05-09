@@ -13,6 +13,13 @@ def get_component_using_input_build_id(root_dictionary, input_name, input_branch
                 components_using_input_build_id.add(component_name)
     return components_using_input_build_id
 
+# this function should be extended when/if more filters are required
+def filter_inputs(info_dict):
+    for artifact_dict in info_dict["artifacts"]:
+        if "susi_input" in artifact_dict["@dest-dir"]:
+            # if artifact is a susi input we don't care about it as these inputs are dictated by core
+            return False
+    return True
 
 def verify_json(json_string):
     root_dict = json.loads(json_string)
@@ -21,7 +28,7 @@ def verify_json(json_string):
     inputs_with_accepted_inconsistencies = ["esg", "everest-base"]
     
     for component_name, info_dict in root_dict.items():
-        for i in info_dict["inputs"]:
+        for i in filter(filter_inputs, info_dict["inputs"]):
             if i["name"] not in all_inputs:
                 all_inputs[i["name"]] = set()
             all_inputs[i["name"]].add(f"{i['branch']}*{i['build_id']}")
