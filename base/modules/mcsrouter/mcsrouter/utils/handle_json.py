@@ -46,8 +46,11 @@ def write_current_proxy_info(proxy):
 
 def write_mcs_flags(info):
     flag_file_path = path_manager.mcs_flags_file()
-    with open(flag_file_path, 'w') as outfile:
-        outfile.write(info)
+    try:
+        with open(flag_file_path, 'w') as outfile:
+            outfile.write(info)
+    except PermissionError as e:
+        LOGGER.warning(f"Cannot update file {flag_file_path} with error : {e}")
 
 def read_datafeed_tracker():
     tracker_filepath = path_manager.datafeed_tracker()

@@ -3,6 +3,7 @@ Library  OperatingSystem
 Library    ${LIBS_DIRECTORY}/FilesystemWatcher.py
 Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library     ${LIBS_DIRECTORY}/ProxyUtils.py
 
 Resource  McsRouterResources.robot
 Suite Setup  Suite Setup
@@ -12,7 +13,9 @@ Suite Teardown    Stop Local Cloud Server
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
 Force Tags  LOAD3
-
+*** Variables ***
+${PROXY_USER}              proxyuser
+${PROXY_PASSWORD}          proxypassword
 *** Test Cases ***
 
 Actions Folder Without Permissions Does Not Cause A Crash
@@ -111,6 +114,19 @@ Actions Folder Out Of Space Does Not Crash MCSRouter
     ...  30 secs
     ...  5 secs
     ...  Check MCSrouter Log Contains    utf8 write failed with message: [Errno 28] No space left on device
+
+We handle current proxy file with wrong file permissions
+    ${proxy_port} =  Set Variable  5003
+    Start Proxy Server With Basic Auth  ${proxy_port}  ${PROXY_USER}  ${PROXY_PASSWORD}
+    Set Environment Variable  http_proxy  http://${PROXY_USER}:${PROXY_PASSWORD}@localhost:${proxy_port}
+    Register With Local Cloud Server
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  mcsrouter
+    ${r} =  Run Process  chown  root:root  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  mcsrouter
+    Wait Until Keyword Succeeds
+    ...  40 seconds
+    ...  5 secs
+    ...  Check Mcsrouter Log Contains  Cannot update current_proxy_file with error : [Errno 13] Permission denied: '/opt/sophos-spl/base/etc/sophosspl/current_proxy'
 
 
 *** Keywords ***
@@ -212,6 +228,7 @@ Test Teardown
     # ensure no other msc router is running even those not created by this test.
     Kill Mcsrouter
     Unset CA Environment Variable
+    Remove Environment Variable    http_proxy
 
 Test Teardown With Mount Removal
     Cleanup mount

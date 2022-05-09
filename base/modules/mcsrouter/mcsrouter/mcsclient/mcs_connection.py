@@ -606,9 +606,13 @@ class MCSConnection:
             )
 
         if self.__m_current_proxy != proxy:
-            self.__m_current_proxy = proxy
             self.__m_config.set("current_relay_id", proxy.relay_id())
-            mcsrouter.utils.handle_json.write_current_proxy_info(proxy)
+            try:
+                mcsrouter.utils.handle_json.write_current_proxy_info(proxy)
+                self.__m_current_proxy = proxy
+            except PermissionError as e:
+                LOGGER.warning(f"Cannot update current_proxy_file with error : {e}")
+
             if not self.get_migrate_mode():
                 self.__m_config.save()
 

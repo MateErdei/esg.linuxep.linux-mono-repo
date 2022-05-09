@@ -897,6 +897,8 @@ class MCS:
                         send_datafeed_files()
 
                     # reset command poll
+                except PermissionError as ex:
+                    LOGGER.warning("Got PermissionError error: {}".format(str(ex)))
                 except socket.error as ex:
                     LOGGER.warning("Got socket error: {}".format(str(ex)))
                     error_count += 1

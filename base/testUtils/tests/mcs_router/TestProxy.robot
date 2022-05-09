@@ -22,8 +22,6 @@ Force Tags  LOAD3
 
 *** Variables ***
 ${push_server_address}  localhost:4443
-${SECURE_PROXY_HOST}       ssplsecureproxyserver.eng.sophos
-${SECURE_PROXY_PORT}       8888
 ${PROXY_USER}              proxyuser
 ${PROXY_PASSWORD}          proxypassword
 

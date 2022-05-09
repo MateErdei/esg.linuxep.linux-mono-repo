@@ -80,9 +80,9 @@ def get_full_installer():
             return installer
         paths_tried.append(installer)
 
-    installer = os.path.join("../everest-base/build64/distribution/install.sh")
+    installer = os.path.join("../everest-base/cmake-build-release/distribution/install.sh")
     if os.path.isfile(installer):
-        logger.debug("Using installer from build64: {}".format(installer))
+        logger.debug("Using installer from cmake-build-release: {}".format(installer))
         return installer
     paths_tried.append(installer)
 
