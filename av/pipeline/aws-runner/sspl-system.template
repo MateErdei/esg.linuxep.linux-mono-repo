@@ -46,7 +46,7 @@
              "Description" : "run a subset of platforms",
              "Type": "String",
              "Default": "",
-             "AllowedValues": [ "","rhel", "ubuntu", "amazonlinux", "centosstream" ]
+             "AllowedValues": [ "","rhel", "ubuntu", "amazonlinux", "centosstream", "oracle", "miraclelinux" ]
             },
             "RunOne": {
              "Description" : "Run one specified test machine",
@@ -77,6 +77,7 @@
       {"Fn::Equals" : [{"Ref" : "RunOne"}, ""]}
       ]},
     "RunRhel" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "rhel"]},
+    "RunMiracleLinux" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "miraclelinux"]},
     "RunUbuntu" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "ubuntu"]},
     "RunAmazon" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "amazonlinux"]},
     "RunCentosStream" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centosstream"]},
@@ -92,6 +93,12 @@
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "rhel81x64"]}
         ]},
+    "RunMiracleLinuxx64" : {"Fn::Or": [
+      {"Condition" : "RunMiracleLinux"},
+      {"Condition" : "RunAll"},
+      {"Fn::Equals" : [{"Ref" : "RunOne"}, "miraclelinuxx64"]},
+      {"Fn::Equals" : [{"Ref" : "RunOne"}, "miracle"]}
+    ]},
     "RunAmazonLinux2x64" : {"Fn::Or": [
         {"Condition" : "RunAmazon"},
         {"Condition" : "RunAll"},

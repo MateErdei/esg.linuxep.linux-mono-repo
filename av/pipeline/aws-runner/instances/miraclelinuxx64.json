@@ -1,0 +1,64 @@
+{
+  "miraclelinuxx64" : {
+    "Type" : "AWS::EC2::Instance",
+    "Condition" :  "RunMiracleLinuxx64" ,
+    "Properties" : {
+      "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
+      "KeyName" : { "Ref" : "KeyName" },
+      "ImageId" : "ami-0af185411961b34d6",
+      "InstanceType": "c4.large",
+      "InstanceInitiatedShutdownBehavior": "terminate",
+      "Tags" : [
+        {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
+        {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
+        {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+        {"Key" : "SupportEmail", "Value" : "ukdevvlx@sophos.com" },
+        {"Key" : "BusinessUnit", "Value" : "ESG"},
+        {"Key" : "CostCentre", "Value" : "GB11601200"},
+        {"Key" : "Project", "Value" : { "Ref" : "Project" } },
+        {"Key" : "Application", "Value" : "linux-endpoint-testing"},
+        {"Key" : "BaseAmi", "Value" : "ami-0af185411961b34d6"},
+        {"Key" : "Environment", "Value" : "development"},
+        {"Key" : "AutomationExcluded", "Value" : "true"},
+        {"Key" : "SecurityClassification", "Value" : "none low"},
+        {"Key" : "TestImage", "Value" : "true"},
+        {"Key" : "Codeline", "Value" : { "Ref" : "Project" }  },
+        {"Key" : "Branch", "Value" : { "Ref" : "Project" }  },
+        {"Key" : "Name", "Value" : "miraclelinuxx64" }
+      ],
+      "NetworkInterfaces" : [{
+        "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
+        "AssociatePublicIpAddress" : "true",
+        "DeviceIndex"              : "0",
+        "DeleteOnTermination"      : "true",
+        "SubnetId"                 : { "Ref" : "Subnet1" }
+      }],
+      "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
+        "#!/bin/bash\n",
+        "echo 'Testing ", {"Ref": "BuildName"},"' >>/tmp/cloudFormationInit.log\n",
+        "export HOSTNAME=@HOSTNAMEGOESHERE@", "\n",
+        "nmcli general hostname ${HOSTNAME}\n",
+        "hostnamectl set-hostname ${HOSTNAME}\n",
+        "sed -i -e '/^HOSTNAME=/ s/=.*/='$HOSTNAME'/' /etc/sysconfig/network\n",
+        "hostname ${HOSTNAME}\n",
+        "echo $'#cloud-config\nhostname: '${HOSTNAME} $'\nfqdn: '${HOSTNAME} >/etc/cloud/cloud.cfg.d/99_hostname.cfg\n",
+        "sed -i 's/127.0.0.1/127.0.0.1 '$HOSTNAME'/' /etc/hosts\n",
+        "yum -y install nfs-utils kernel-devel fuse-libs gdb rpm-build wget attr psmisc zip &>>/tmp/cloudFormationInit.log\n",
+        "yum -y install make gcc gcc-c++ cmake &>>/tmp/cloudFormationInit.log\n",
+        "yum -y install python3-devel python3-pip policycoreutils-python-utils &>>/tmp/cloudFormationInit.log\n",
+        "python3 -m pip install --upgrade awscli pkgconfig &>>/tmp/cloudFormationInit.log\n",
+        "python3 -m pip install --upgrade robotframework psutil zmq protobuf watchdog cryptography==3.3.1 python-dateutil requests enum34 packaging &>>/tmp/cloudFormationInit.log\n",
+        "python3 -m pip install --upgrade urllib3 &>>/tmp/cloudFormationInit.log\n",
+        "python3 -m pip install --upgrade Cython &>>/tmp/cloudFormationInit.log\n",
+        "python3 -m pip install --upgrade pycapnp &>>/tmp/cloudFormationInit.log\n",
+        "python3 -m awscli s3 cp s3://sspl-testbucket/ssplav/ssplav-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz &>>/tmp/cloudFormationInit.log\n",
+        "tar xvzf /opt/sspl-test.tgz -C /opt &>>/tmp/cloudFormationInit.log\n",
+        "bash /opt/test/inputs/test_scripts/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ &>>/tmp/cloudFormationInit.log\n",
+        "echo 'Finished.' >>/tmp/cloudFormationInit.log\n",
+        "python3 -m awscli s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
+        "cat /tmp/cloudFormationInit.log >&2\n",
+        "poweroff\n"
+      ]]}}
+    }
+  }
+}
