@@ -203,8 +203,7 @@ echoEicar > "${path}"
 ## Windows restrictions
 mkdir -p Windows
 echoEicar >"Windows/cantendwith."
-# LINUXDAR-4714 - Uncomment once fixed
-#echoEicar >"Windows/ \\[]:;|=.*?. "
+echoEicar >"Windows/ \\[]:;|=.*?. "
 echoEicar >"Windows/CON"
 echoEicar >"Windows/AUX"
 echoEicar >"Windows/COM1"

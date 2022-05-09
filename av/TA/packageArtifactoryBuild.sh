@@ -21,7 +21,7 @@ else
     NEWER=""
 fi
 
-curl https://artifactory.sophos-ops.com/${REPO_PATH}/build/output.zip --output ${DEST_BASE}/output.zip $NEWER
+curl https://artifactory.sophos-ops.com/artifactory/${REPO_PATH}/build/output.zip --output ${DEST_BASE}/output.zip $NEWER
 
 OUTPUT=${DEST_BASE}/output
 [ -d "$OUTPUT" ] && rm -rf $OUTPUT
