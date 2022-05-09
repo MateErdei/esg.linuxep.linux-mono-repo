@@ -68,7 +68,7 @@ class SystemFileWatcher(object):
             if contents != old_contents:
                 contents = _ensure_unicode(contents).splitlines()
                 old_contents = _ensure_unicode(old_contents).splitlines()
-                diff = difflib.unified_diff(old_contents, contents)
+                diff = list(difflib.unified_diff(old_contents, contents))
                 logger.error("%s changed contents while being watched: %s" % (f, diff))
                 contents_diff = True
                 any_changed = True
