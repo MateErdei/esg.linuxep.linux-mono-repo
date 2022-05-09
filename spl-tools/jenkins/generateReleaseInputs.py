@@ -109,7 +109,7 @@ def main(argv):
     release_files = find_all_release_xmls(to_search)
     as_dict = process_release_files(release_files)
     as_json = json.dumps(as_dict, sort_keys=True, indent=4)
-    # print(as_json)
+    print(as_json)
 
     with open("releaseInputs.json", 'w') as f:
         f.write(as_json)
