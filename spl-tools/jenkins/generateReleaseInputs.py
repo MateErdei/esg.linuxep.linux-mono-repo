@@ -87,7 +87,6 @@ def process_release_files(release_files):
                     input_dict["artifacts"].append(input_pkg['include'])
                 elif type(input_pkg['include']) is list:
                     for artifact in input_pkg['include']:
-                        print(f"jake3: {artifact}")
                         input_dict["artifacts"].append(artifact)
 
                 print(input_dict["name"])
