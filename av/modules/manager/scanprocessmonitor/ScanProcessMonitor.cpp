@@ -58,6 +58,19 @@ static bool inhibit_system_file_change_restart()
     return sophos_filesystem::exists(inhibit_system_file_change_restart_file);
 }
 
+static std::string safer_strerror(int error)
+{
+    errno = 0;
+    char buf[256];
+#ifdef _GNU_SOURCE
+    const char* res = strerror_r(error, buf, sizeof(buf));
+    return res;
+#else
+    int res = strerror_r(error, buf, sizeof(buf));
+    return buf;
+#endif
+}
+
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 {
     LOGSUPPORT("Starting sophos_threat_detector monitor");
@@ -92,10 +105,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
 
         if (active < 0 and errno != EINTR)
         {
-            auto error = errno;
-            errno = 0;
-            char buf[256];
-            strerror_r(error, buf, sizeof(buf));
+            auto buf = safer_strerror(errno);
             LOGERROR("failure in ScanProcessMonitor: pselect failed: " << buf);
             break;
         }

@@ -59,9 +59,10 @@ static inline bool isInteresting(const std::string& basename)
  * @param filepath
  * @return
  */
-static std::string getContents(const std::string& filepath)
+std::string ConfigMonitor::getContents(const std::string& basename)
 {
-    std::ifstream in("/etc/" + filepath, std::ios::in|std::ios::binary);
+    std::string filepath = m_base + "/" + basename;
+    std::ifstream in(filepath, std::ios::in|std::ios::binary);
     if (!in.is_open())
     {
         return ""; // Treat missing as empty
@@ -69,22 +70,20 @@ static std::string getContents(const std::string& filepath)
     return {(std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>()};
 }
 
-using contentMap_t = std::map<std::string, std::string>;
-
-static contentMap_t getContents()
+ConfigMonitor::contentMap_t ConfigMonitor::getContentsMap()
 {
     const auto& INTERESTING_FILES = interestingFiles();
     contentMap_t result;
     for (const auto& basename : INTERESTING_FILES)
     {
-        result[basename] = getContents("/etc/" + basename);
+        result[basename] = getContents(basename);
     }
     return result;
 }
 
 void ConfigMonitor::run()
 {
-    auto contents = getContents();
+    auto contents = getContentsMap();
 
     datatypes::AutoFd inotifyFD(
         inotify_init()

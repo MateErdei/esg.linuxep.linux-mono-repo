@@ -98,6 +98,7 @@ TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfWrite) // NOLINT
     a.start();
 
     std::ofstream ofs("hosts");
+    ofs << "This is some text";
     ofs.close();
 
     EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
@@ -136,6 +137,7 @@ TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfMove) // NOLINT
     a.start();
 
     std::ofstream ofs("notwatched/hosts");
+    ofs << "This is some text";
     ofs.close();
 
     fs::rename("notwatched/hosts", "watched/hosts");
