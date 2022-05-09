@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "common/FDUtils.h"
 #include "common/PluginUtils.h"
+#include "datatypes/sophos_filesystem.h"
 
 #include <cstring>
 #include <tuple>
@@ -54,10 +55,7 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::sendRequestToThrea
 static bool inhibit_system_file_change_restart()
 {
     static const auto inhibit_system_file_change_restart_file = common::getPluginInstallPath() / "var/inhibit_system_file_change_restart_threat_detector";
-    struct stat buf{};
-    errno = 0;
-    std::ignore = ::stat(inhibit_system_file_change_restart_file.c_str(), &buf);
-    return (errno != ENOENT);
+    return sophos_filesystem::exists(inhibit_system_file_change_restart_file);
 }
 
 void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
