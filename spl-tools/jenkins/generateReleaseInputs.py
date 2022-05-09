@@ -80,11 +80,21 @@ def process_release_files(release_files):
 
                 input_dict = {"name": input_pkg["@repo"],
                               "branch": input_pkg["release-version"]["@branch"],
-                              "build_id": input_pkg["release-version"]["@build-id"]}
+                              "build_id": input_pkg["release-version"]["@build-id"],
+                              "artifacts": []}
+
+                if type(input_pkg['include']) is dict:
+                    input_dict["artifacts"].append(input_pkg['include'])
+                elif type(input_pkg['include']) is list:
+                    for artifact in input_pkg['include']:
+                        print(f"jake3: {artifact}")
+                        input_dict["artifacts"].append({"artifact-path": artifact["@artifact-path"], "dest-dir": artifact["@dest-dir"]})
 
                 print(input_dict["name"])
                 print(input_dict["branch"])
                 print(input_dict["build_id"])
+                print(input_dict['artifacts'])
+
                 inputs.append(input_dict)
 
             this_entry["inputs"] = inputs
@@ -99,7 +109,7 @@ def main(argv):
     release_files = find_all_release_xmls(to_search)
     as_dict = process_release_files(release_files)
     as_json = json.dumps(as_dict, sort_keys=True, indent=4)
-    print(as_json)
+    # print(as_json)
 
     with open("releaseInputs.json", 'w') as f:
         f.write(as_json)
