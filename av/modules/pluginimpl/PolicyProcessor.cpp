@@ -213,6 +213,7 @@ namespace Plugin
             return false;
         }
 
+
         json susiStartupSettings;
         susiStartupSettings["enableSxlLookup"] = m_lookupEnabled;
 

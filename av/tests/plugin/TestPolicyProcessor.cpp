@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <pluginimpl/PolicyProcessor.h>
@@ -705,3 +707,4 @@ TEST_F(TestPolicyProcessor, processInvalidOnAccessPolicy)
 
     proc.processOnAccessPolicy(attributeMap);
 }
+#pragma clang diagnostic pop
