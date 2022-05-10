@@ -305,7 +305,7 @@ TEST(TestThreatScanner, TestsusiResultErrorToReadableErrorUnknown) // NOLINT
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, nullptr);
 
-    EXPECT_EQ(susiScanner.susiResultErrorToReadableError("test.file", static_cast<SusiResult>(17)), "Failed to scan test.file unknown susi error [17]");
+    EXPECT_EQ(susiScanner.susiResultErrorToReadableError("test.file", static_cast<SusiResult>(17)), "Failed to scan test.file due to an unknown susi error [17]");
 }
 
 TEST(TestThrowIfNotOk, TestOk) // NOLINT
@@ -353,21 +353,26 @@ class SusiResultErrorToReadableErrorParameterized
 };
 
 INSTANTIATE_TEST_CASE_P(TestThreatScanner, SusiResultErrorToReadableErrorParameterized, ::testing::Values(
-    std::make_tuple(SUSI_E_INTERNAL, "Failed to scan test.file susi internal error occurred"),
-    std::make_tuple(SUSI_E_INVALIDARG, "Failed to scan test.file susi invalid argument error occurred"),
-    std::make_tuple(SUSI_E_OUTOFMEMORY, "Failed to scan test.file susi out of memory error occurred"),
-    std::make_tuple(SUSI_E_OUTOFDISK, "Failed to scan test.file susi out of disk error occurred"),
+    std::make_tuple(SUSI_E_INTERNAL, "Failed to scan test.file due to an internal susi error"),
+    std::make_tuple(SUSI_E_INVALIDARG, "Failed to scan test.file due to a susi invalid argument error"),
+    std::make_tuple(SUSI_E_OUTOFMEMORY, "Failed to scan test.file due to a susi out of memory error"),
+    std::make_tuple(SUSI_E_OUTOFDISK, "Failed to scan test.file due to a susi out of disk error"),
     std::make_tuple(SUSI_E_CORRUPTDATA, "Failed to scan test.file as it is corrupted"),
-    std::make_tuple(SUSI_E_INVALIDCONFIG, "Failed to scan test.file due to invalid susi config"),
-    std::make_tuple(SUSI_E_INVALIDTEMPDIR, "Failed to scan test.file due to invalid susi temporary directory"),
-    std::make_tuple(SUSI_E_INITIALIZING, "Failed to scan test.file due to failure to initialize susi"),
+    std::make_tuple(SUSI_E_INVALIDCONFIG, "Failed to scan test.file due to an invalid susi config"),
+    std::make_tuple(SUSI_E_INVALIDTEMPDIR, "Failed to scan test.file due to an invalid susi temporary directory"),
+    std::make_tuple(SUSI_E_INITIALIZING, "Failed to scan test.file due to a failure to initialize susi"),
     std::make_tuple(SUSI_E_NOTINITIALIZED, "Failed to scan test.file due to susi not being initialized"),
     std::make_tuple(SUSI_E_ALREADYINITIALIZED, "Failed to scan test.file due to susi already being initialized"),
-    std::make_tuple(SUSI_E_FILEMULTIVOLUME, "Failed to scan test.file multi-volume error occurred"),
+    std::make_tuple(SUSI_E_SCANFAILURE, "Failed to scan test.file due to a generic scan failure"),
+    std::make_tuple(SUSI_E_SCANABORTED, "Failed to scan test.file as the scan was aborted"),
+    std::make_tuple(SUSI_E_FILEOPEN, "Failed to scan test.file as it could not be opened"),
+    std::make_tuple(SUSI_E_FILEREAD, "Failed to scan test.file as it could not be read"),
+    std::make_tuple(SUSI_E_FILEENCRYPTED, "Failed to scan test.file as it is password protected"),
+    std::make_tuple(SUSI_E_FILEMULTIVOLUME, "Failed to scan test.file due to a multi-volume error"),
     std::make_tuple(SUSI_E_FILECORRUPT, "Failed to scan test.file as it is corrupted"),
-    std::make_tuple(SUSI_E_CALLBACK, "Failed to scan test.file callback error occurred"),
-    std::make_tuple(SUSI_E_BAD_JSON, "Failed to scan test.file failed to parse scan result"),
-    std::make_tuple(SUSI_E_MANIFEST, "Failed to scan test.file due to bad susi manifest")
+    std::make_tuple(SUSI_E_CALLBACK, "Failed to scan test.file due to a callback error"),
+    std::make_tuple(SUSI_E_BAD_JSON, "Failed to scan test.file due to a failure to parse scan result"),
+    std::make_tuple(SUSI_E_MANIFEST, "Failed to scan test.file due to a bad susi manifest")
 )); // NOLINT
 
 TEST_P(SusiResultErrorToReadableErrorParameterized, susiResultErrorToReadableError) // NOLINT

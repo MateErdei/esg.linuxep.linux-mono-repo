@@ -110,28 +110,28 @@ std::string SusiScanner::susiResultErrorToReadableError(const std::string& fileP
     switch (susiError)
     {
         case SUSI_E_INTERNAL:
-            errorMsg << " susi internal error occurred";
+            errorMsg << " due to an internal susi error";
             break;
         case SUSI_E_INVALIDARG:
-            errorMsg << " susi invalid argument error occurred";
+            errorMsg << " due to a susi invalid argument error";
             break;
         case SUSI_E_OUTOFMEMORY:
-            errorMsg << " susi out of memory error occurred";
+            errorMsg << " due to a susi out of memory error";
             break;
         case SUSI_E_OUTOFDISK:
-            errorMsg << " susi out of disk error occurred";
+            errorMsg << " due to a susi out of disk error";
             break;
         case SUSI_E_CORRUPTDATA:
             errorMsg << " as it is corrupted";
             break;
         case SUSI_E_INVALIDCONFIG:
-            errorMsg << " due to invalid susi config";
+            errorMsg << " due to an invalid susi config";
             break;
         case SUSI_E_INVALIDTEMPDIR:
-            errorMsg << " due to invalid susi temporary directory";
+            errorMsg << " due to an invalid susi temporary directory";
             break;
         case SUSI_E_INITIALIZING:
-            errorMsg << " due to failure to initialize susi";
+            errorMsg << " due to a failure to initialize susi";
             break;
         case SUSI_E_NOTINITIALIZED:
             errorMsg << " due to susi not being initialized";
@@ -140,10 +140,10 @@ std::string SusiScanner::susiResultErrorToReadableError(const std::string& fileP
             errorMsg << " due to susi already being initialized";
             break;
         case SUSI_E_SCANFAILURE:
-            errorMsg << " due to generic scan failure";
+            errorMsg << " due to a generic scan failure";
             break;
         case SUSI_E_SCANABORTED:
-            errorMsg << " scan aborted";
+            errorMsg << " as the scan was aborted";
             break;
         case SUSI_E_FILEOPEN:
             errorMsg << " as it could not be opened";
@@ -155,22 +155,22 @@ std::string SusiScanner::susiResultErrorToReadableError(const std::string& fileP
             errorMsg << " as it is password protected";
             break;
         case SUSI_E_FILEMULTIVOLUME:
-            errorMsg << " multi-volume error occurred";
+            errorMsg << " due to a multi-volume error";
             break;
         case SUSI_E_FILECORRUPT:
             errorMsg << " as it is corrupted";
             break;
         case SUSI_E_CALLBACK:
-            errorMsg << " callback error occurred";
+            errorMsg << " due to a callback error";
             break;
         case SUSI_E_BAD_JSON:
-            errorMsg << " failed to parse scan result";
+            errorMsg << " due to a failure to parse scan result";
             break;
         case SUSI_E_MANIFEST:
-            errorMsg << " due to bad susi manifest";
+            errorMsg << " due to a bad susi manifest";
             break;
         default:
-            errorMsg << " unknown susi error [" << susiError << "]";
+            errorMsg << " due to an unknown susi error [" << susiError << "]";
             break;
     }
 
