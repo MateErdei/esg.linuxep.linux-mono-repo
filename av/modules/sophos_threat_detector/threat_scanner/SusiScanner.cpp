@@ -249,6 +249,7 @@ SusiScanner::scan(
     m_susi->freeResult(scanResult);
     if (SUSI_FAILURE(res))
     {
+        LOGDEBUG("Susi returned error code: " << res);
         response.setErrorMsg(susiResultErrorToReadableError(file_path, res));
     }
     else if (res == SUSI_I_THREATPRESENT)

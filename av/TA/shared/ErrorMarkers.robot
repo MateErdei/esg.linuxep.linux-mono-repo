@@ -194,3 +194,9 @@ Exclude Globalrep Timeout Errors
 Exclude SUSI failed to read stream
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}       Failed to read stream:
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Failed to read stream:
+
+Exclude SUSI Illegal seek error
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}     Failed to seek stream: Illegal seek
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}         SUSI error 0xc000000f
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}    SUSI error 0xc000000f
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}     Failed to seek stream: Illegal seek
