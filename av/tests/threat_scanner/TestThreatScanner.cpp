@@ -295,6 +295,19 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     EXPECT_EQ(response.allClean(), false);
 }
 
+TEST(TestThreatScanner, TestsusiResultErrorToReadableErrorUnknown) // NOLINT
+{
+    setupFakeSophosThreatDetectorConfig();
+
+    auto susiWrapper = std::make_shared<MockSusiWrapper>("");
+    std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
+
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, nullptr);
+
+    EXPECT_EQ(susiScanner.susiResultErrorToReadableError("test.file", static_cast<SusiResult>(17)), "Failed to scan test.file unknown susi error [17]");
+}
+
 TEST(TestThrowIfNotOk, TestOk) // NOLINT
 {
     EXPECT_NO_THROW(throwIfNotOk(SUSI_S_OK, "Should not throw"));
@@ -332,4 +345,40 @@ TEST_P(ThreatScannerParameterizedTest, susiErrorToReadableError) // NOLINT
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, nullptr);
 
     EXPECT_EQ(susiScanner.susiErrorToReadableError("test.file", std::get<0>(GetParam())), std::get<1>(GetParam()));
+}
+
+class SusiResultErrorToReadableErrorParameterized
+    : public ::testing::TestWithParam<std::tuple<SusiResult, std::string>>
+{
+};
+
+INSTANTIATE_TEST_CASE_P(TestThreatScanner, SusiResultErrorToReadableErrorParameterized, ::testing::Values(
+    std::make_tuple(SUSI_E_INTERNAL, "Failed to scan test.file susi internal error occurred"),
+    std::make_tuple(SUSI_E_INVALIDARG, "Failed to scan test.file susi invalid argument error occurred"),
+    std::make_tuple(SUSI_E_OUTOFMEMORY, "Failed to scan test.file susi out of memory error occurred"),
+    std::make_tuple(SUSI_E_OUTOFDISK, "Failed to scan test.file susi out of disk error occurred"),
+    std::make_tuple(SUSI_E_CORRUPTDATA, "Failed to scan test.file as it is corrupted"),
+    std::make_tuple(SUSI_E_INVALIDCONFIG, "Failed to scan test.file due to invalid susi config"),
+    std::make_tuple(SUSI_E_INVALIDTEMPDIR, "Failed to scan test.file due to invalid susi temporary directory"),
+    std::make_tuple(SUSI_E_INITIALIZING, "Failed to scan test.file due to failure to initialize susi"),
+    std::make_tuple(SUSI_E_NOTINITIALIZED, "Failed to scan test.file due to susi not being initialized"),
+    std::make_tuple(SUSI_E_ALREADYINITIALIZED, "Failed to scan test.file due to susi already being initialized"),
+    std::make_tuple(SUSI_E_FILEMULTIVOLUME, "Failed to scan test.file multi-volume error occurred"),
+    std::make_tuple(SUSI_E_FILECORRUPT, "Failed to scan test.file as it is corrupted"),
+    std::make_tuple(SUSI_E_CALLBACK, "Failed to scan test.file callback error occurred"),
+    std::make_tuple(SUSI_E_BAD_JSON, "Failed to scan test.file failed to parse scan result"),
+    std::make_tuple(SUSI_E_MANIFEST, "Failed to scan test.file due to bad susi manifest")
+)); // NOLINT
+
+TEST_P(SusiResultErrorToReadableErrorParameterized, susiResultErrorToReadableError) // NOLINT
+{
+    setupFakeSophosThreatDetectorConfig();
+
+    auto susiWrapper = std::make_shared<MockSusiWrapper>("");
+    std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
+
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, nullptr);
+
+    EXPECT_EQ(susiScanner.susiResultErrorToReadableError("test.file", std::get<0>(GetParam())), std::get<1>(GetParam()));
 }

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -36,6 +36,10 @@ namespace threat_scanner
         std::string susiErrorToReadableError(
             const std::string& filePath,
             const std::string& susiError) override;
+
+        std::string susiResultErrorToReadableError(
+            const std::string& filePath,
+            SusiResult susiError);
 
     private:
         void sendThreatReport(

@@ -102,6 +102,81 @@ std::string SusiScanner::susiErrorToReadableError(const std::string& filePath, c
     return errorMsg.str();
 }
 
+std::string SusiScanner::susiResultErrorToReadableError(const std::string& filePath, SusiResult susiError)
+{
+    std::stringstream errorMsg;
+    errorMsg << "Failed to scan " << filePath;
+
+    switch (susiError)
+    {
+        case SUSI_E_INTERNAL:
+            errorMsg << " susi internal error occurred";
+            break;
+        case SUSI_E_INVALIDARG:
+            errorMsg << " susi invalid argument error occurred";
+            break;
+        case SUSI_E_OUTOFMEMORY:
+            errorMsg << " susi out of memory error occurred";
+            break;
+        case SUSI_E_OUTOFDISK:
+            errorMsg << " susi out of disk error occurred";
+            break;
+        case SUSI_E_CORRUPTDATA:
+            errorMsg << " as it is corrupted";
+            break;
+        case SUSI_E_INVALIDCONFIG:
+            errorMsg << " due to invalid susi config";
+            break;
+        case SUSI_E_INVALIDTEMPDIR:
+            errorMsg << " due to invalid susi temporary directory";
+            break;
+        case SUSI_E_INITIALIZING:
+            errorMsg << " due to failure to initialize susi";
+            break;
+        case SUSI_E_NOTINITIALIZED:
+            errorMsg << " due to susi not being initialized";
+            break;
+        case SUSI_E_ALREADYINITIALIZED:
+            errorMsg << " due to susi already being initialized";
+            break;
+        case SUSI_E_SCANFAILURE:
+            errorMsg << " due to generic scan failure";
+            break;
+        case SUSI_E_SCANABORTED:
+            errorMsg << " scan aborted";
+            break;
+        case SUSI_E_FILEOPEN:
+            errorMsg << " as it could not be opened";
+            break;
+        case SUSI_E_FILEREAD:
+            errorMsg << " as it could not be read";
+            break;
+        case SUSI_E_FILEENCRYPTED:
+            errorMsg << " as it is password protected";
+            break;
+        case SUSI_E_FILEMULTIVOLUME:
+            errorMsg << " multi-volume error occurred";
+            break;
+        case SUSI_E_FILECORRUPT:
+            errorMsg << " as it is corrupted";
+            break;
+        case SUSI_E_CALLBACK:
+            errorMsg << " callback error occurred";
+            break;
+        case SUSI_E_BAD_JSON:
+            errorMsg << " failed to parse scan result";
+            break;
+        case SUSI_E_MANIFEST:
+            errorMsg << " due to bad susi manifest";
+            break;
+        default:
+            errorMsg << " unknown susi error [" << susiError << "]";
+            break;
+    }
+
+    return errorMsg.str();
+}
+
 scan_messages::ScanResponse
 SusiScanner::scan(
         datatypes::AutoFd& fd,
@@ -172,8 +247,11 @@ SusiScanner::scan(
     }
 
     m_susi->freeResult(scanResult);
-
-    if (res == SUSI_I_THREATPRESENT)
+    if (SUSI_FAILURE(res))
+    {
+        response.setErrorMsg(susiResultErrorToReadableError(file_path, res));
+    }
+    else if (res == SUSI_I_THREATPRESENT)
     {
         std::vector<scan_messages::Detection> detections = response.getDetections();
         if (detections.empty())
@@ -189,13 +267,6 @@ SusiScanner::scan(
                 sendThreatReport(detection.path, detection.name, detection.sha256, scanType, userID);
             }
         }
-    }
-    else if (res == SUSI_E_SCANABORTED && response.getErrorMsg().empty())
-    {
-        // Return codes that cover zip bombs, corrupted files and password-protected files
-        std::stringstream errorMsg;
-        errorMsg << "Scanning of " << file_path << " was aborted";
-        response.setErrorMsg(errorMsg.str());
     }
 
     return response;
