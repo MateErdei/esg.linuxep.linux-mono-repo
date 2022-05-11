@@ -107,6 +107,33 @@ TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfWrite) // NOLINT
     a.join();
 }
 
+TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotNotifiedOnSameContents) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_testDir);
+    a.start();
+
+    std::ofstream ofs("hosts");
+    ofs << "This is some text";
+    ofs.close();
+
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    std::ofstream ofs2("hosts");
+    ofs2 << "This is some text";
+    ofs2.close();
+
+    EXPECT_FALSE(waitForPipe(configPipe, MONITOR_LATENCY));
+    EXPECT_TRUE(appenderContains("System configuration not changed for "));
+
+    a.requestStop();
+    a.join();
+}
+
+
+
 TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotNotifiedOnCreateOutsideDir) // NOLINT
 {
     Common::Threads::NotifyPipe configPipe;
