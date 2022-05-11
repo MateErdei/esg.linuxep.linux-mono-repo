@@ -1721,5 +1721,7 @@ CLS Can Scan Special File That Cannot Be Read
     Register Cleanup    Exclude SUSI Illegal seek error
     Register Cleanup    Run Process  bash  ip netns delete avtest  stderr=STDOUT
     Run Process  bash  ip netns add avtest  stderr=STDOUT
+    Wait Until File exists  /run/netns/avtest
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /run/netns/avtest
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+    Should Contain  ${output}  Failed to scan /run/netns/avtest as it could not be read

@@ -73,6 +73,9 @@ Exclude Failed To Scan Files
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  [Reached total maximum number of reconnection attempts. Aborting scan.]
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan one or more files due to an error
 
+Exclude Failed To Scan Special File That Cannot Be Read
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan /run/netns/avtest as it could not be read
+
 Exclude Unixsocket Failed To Send Scan Request To STD
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  UnixSocket <> Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
 

@@ -435,6 +435,25 @@ AV Plugin requests policies at startup
     ...  FakeManagement Log Contains   Received policy request: APPID=ALC
 
 
+AV Plugin Scan Now Can Scan Special File That Cannot Be Read
+    Register Cleanup    Exclude SUSI Illegal seek error
+    Register Cleanup    Exclude Failed To Scan Special File That Cannot Be Read
+    Register Cleanup    Run Process  bash  ip netns delete avtest  stderr=STDOUT
+    Run Process  bash  ip netns add avtest  stderr=STDOUT
+    Wait Until File exists  /run/netns/avtest
+    ${exclusions} =  Configure Scan Exclusions Everything Else  /run/netns/
+    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
+    ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
+    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Action  av  sav  corr123  ${actionContent}
+    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
+    AV Plugin Log Contains With Offset  Received new Action
+    AV Plugin Log Contains With Offset  Evaluating Scan Now
+    AV Plugin Log Contains With Offset  Starting scan Scan Now
+    Check ScanNow Log Exists
+    File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /run/netns/avtest as it could not be read
+
+
 *** Keywords ***
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
