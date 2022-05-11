@@ -438,8 +438,10 @@ AV Plugin requests policies at startup
 AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     Register Cleanup    Exclude SUSI Illegal seek error
     Register Cleanup    Exclude Failed To Scan Special File That Cannot Be Read
-    Register Cleanup    Run Process  bash  ip netns delete avtest  stderr=STDOUT
-    Run Process  bash  ip netns add avtest  stderr=STDOUT
+    Register Cleanup    Run Process  ip  netns  delete  avtest  stderr=STDOUT
+    ${result} =  Run Process  ip  netns  add  avtest  stderr=STDOUT
+    Log  output is ${result.stdout}
+    Should Be equal As Integers  ${result.rc}  0
     Wait Until File exists  /run/netns/avtest
     ${exclusions} =  Configure Scan Exclusions Everything Else  /run/netns/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
