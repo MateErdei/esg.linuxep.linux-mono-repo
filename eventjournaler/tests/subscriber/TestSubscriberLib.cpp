@@ -106,7 +106,7 @@ TEST_F(TestSubscriber, SubscriberStartAndStop) // NOLINT
         usleep(1);
     }
     EXPECT_TRUE(subscriber.getRunningStatus());
-    subscriber.stop();
+    EXPECT_NO_THROW(subscriber.stop());
     EXPECT_FALSE(subscriber.getRunningStatus());
 }
 
@@ -145,7 +145,10 @@ TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod) // NOLINT
     EXPECT_FALSE(subscriber.getRunningStatus());
 
     EXPECT_NO_THROW(subscriber.start());
-    sleep(1);
+    while (subscriber.getRunningStatus())
+    {
+        usleep(10);
+    }
     std::string errorMsg = testing::internal::GetCapturedStderr();
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("Failed to set socket permissions: "));
     EXPECT_FALSE(subscriber.getRunningStatus());
@@ -202,7 +205,7 @@ TEST_F(TestSubscriber, SubscriberCanRestart) // NOLINT
         usleep(1);
     }
     EXPECT_TRUE(subscriber.getRunningStatus());
-    subscriber.stop();
+    EXPECT_NO_THROW(subscriber.stop());
     EXPECT_FALSE(subscriber.getRunningStatus());
 }
 
@@ -289,10 +292,11 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
 
     EXPECT_FALSE(subscriber.getRunningStatus());
     subscriber.start();
-    while(!mockSocketValues.empty())
+    while (subscriber.getRunningStatus())
     {
         usleep(10);
     }
+    EXPECT_FALSE(subscriber.getRunningStatus());
 }
 TEST_F(TestSubscriber, TestSubscriberPingsHeartbeatRepeatedly) // NOLINT
 {
@@ -323,5 +327,9 @@ TEST_F(TestSubscriber, TestSubscriberPingsHeartbeatRepeatedly) // NOLINT
     EXPECT_FALSE(subscriber.getRunningStatus());
     EXPECT_CALL(*mockHeartbeatPinger, ping).Times(AtLeast(2));
     subscriber.start();
-    sleep(1);
+    while (subscriber.getRunningStatus())
+    {
+        usleep(10);
+    }
+    EXPECT_FALSE(subscriber.getRunningStatus());
 }
