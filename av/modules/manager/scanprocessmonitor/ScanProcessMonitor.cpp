@@ -67,6 +67,7 @@ static std::string safer_strerror(int error)
     return res;
 #else
     int res = strerror_r(error, buf, sizeof(buf));
+    std::ignore = res;
     return buf;
 #endif
 }
