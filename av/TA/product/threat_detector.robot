@@ -23,7 +23,6 @@ ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 ${TESTTMP}  /tmp_test/SSPLAVTests
-${TESTSYSFILE}  /etc/resolv.conf
 ${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}  ${SOPHOS_THREAT_DETECTOR_BINARY}_launcher
 
 *** Keywords ***
@@ -222,33 +221,3 @@ Threat Detector Doesnt Log Every Scan
     check log does not contain   Starting scan of    ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
     check log does not contain   Finished scanning   ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
     dump log  ${SUSI_DEBUG_LOG_PATH}
-
-
-Threat Detector Does Restart If System File Contents Changes
-    Start AV
-
-    ${ORG_CONTENTS} = Get File  ${TESTSYSFILE}  encoding_errors=replace
-
-    Append To File  {TESTSYSFILE}  #NewLine
-
-    Sophos Threat Detector Log Contains With Offset  "System configuration updated for "
-    threat detector log should not contain with offset  "System configuration not changed for "
-
-    mark sophos threat detector log
-    Create File  ${TESTSYSFILE}  ${ORG_CONTENTS}
-
-    Sophos Threat Detector Log Contains With Offset  "System configuration updated for "
-    threat detector log should not contain with offset  "System configuration not changed for "
-
-    ${POSTTESTCONTENTS} = Get File  ${TESTSYSFILE}  encoding_errors=replace
-
-    Should Be Equal   ${POSTTESTCONTENTS}   ${ORG_CONTENTS}
-
-
-Threat Detector Doesnt Restart If System File Contents Doesnt Change
-    Start AV
-
-    Touch  ${TESTSYSFILE}
-
-    threat detector log should not contain with offset  "System configuration updated for "
-    Sophos Threat Detector Log Contains With Offset  "System configuration not changed for "

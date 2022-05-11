@@ -30,6 +30,8 @@ ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 ${HANDLE}
+${TESTSYSFILE}  hosts
+${TESTSYSPATH}  /etc/${TESTSYSFILE}
 
 *** Test Cases ***
 AV Plugin Can Receive Actions
@@ -435,6 +437,7 @@ AV Plugin requests policies at startup
     ...  FakeManagement Log Contains   Received policy request: APPID=ALC
 
 
+<<<<<<< HEAD
 AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     Register Cleanup    Exclude SUSI Illegal seek error
     Register Cleanup    Exclude Failed To Scan Special File That Cannot Be Read
@@ -455,7 +458,38 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     AV Plugin Log Contains With Offset  Publishing good threat health status after clean scan
     Check ScanNow Log Exists
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /run/netns/avtest as it could not be read
+=======
+Threat Detector Restarts If System File Contents Change
+    Start AV
 
+    ${ORG_CONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
+
+    Append To File  ${TESTSYSPATH}   "#NewLine"
+
+    Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${TESTSYSFILE}
+    AV Plugin Log Should Not Contain With Offset  System configuration not changed for ${TESTSYSFILE}
+
+    Wait until threat detector running
+    Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
+    mark sophos threat detector log
+
+    Create File  ${TESTSYSPATH}  ${ORG_CONTENTS}
+
+    Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${TESTSYSFILE}
+    AV Plugin Log Should Not Contain With Offset  System configuration not changed for ${TESTSYSFILE}
+
+    ${POSTTESTCONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
+    Should Be Equal   ${POSTTESTCONTENTS}   ${ORG_CONTENTS}
+
+
+Threat Detector Does Not Restart If System File Contents Do Not Change
+    Start AV
+
+    ${ORG_CONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
+    Create File  ${TESTSYSPATH}  ${ORG_CONTENTS}
+
+    Wait Until AV Plugin Log Contains With Offset  System configuration not changed for ${TESTSYSFILE}
+    AV Plugin Log Should Not Contain With Offset  System configuration updated for ${TESTSYSFILE}
 
 *** Keywords ***
 Start AV

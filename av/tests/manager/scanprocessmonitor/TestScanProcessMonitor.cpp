@@ -93,12 +93,16 @@ const static auto MONITOR_LATENCY = 100ms; //NOLINT
 
 TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfWrite) // NOLINT
 {
+    std::ofstream ofs("hosts");
+    ofs << "This is some text";
+    ofs.close();
+
     Common::Threads::NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_testDir);
     a.start();
 
-    std::ofstream ofs("hosts");
-    ofs << "This is some text";
+    ofs.open("hosts");
+    ofs << "This is some different text";
     ofs.close();
 
     EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
@@ -111,27 +115,60 @@ TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotNotifiedOnSameContents) // NOLI
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    Common::Threads::NotifyPipe configPipe;
-    ConfigMonitor a(configPipe, m_testDir);
-    a.start();
-
     std::ofstream ofs("hosts");
     ofs << "This is some text";
     ofs.close();
 
-    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_testDir);
+    a.start();
 
-    std::ofstream ofs2("hosts");
-    ofs2 << "This is some text";
-    ofs2.close();
+    ofs.open("hosts");
+    ofs << "This is some text";
+    ofs.close();
 
     EXPECT_FALSE(waitForPipe(configPipe, MONITOR_LATENCY));
     EXPECT_TRUE(appenderContains("System configuration not changed for "));
+    EXPECT_FALSE(appenderContains("System configuration updated for "));
 
     a.requestStop();
     a.join();
 }
 
+TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfAnotherWrite) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+
+    std::ofstream ofs("hosts");
+    ofs << "This is some text";
+    ofs.close();
+
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_testDir);
+    a.start();
+
+    ofs.open("hosts");
+    ofs << "This is some different text";
+    ofs.close();
+
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+    EXPECT_TRUE(appenderContains("System configuration updated for "));
+    EXPECT_FALSE(appenderContains("System configuration not changed for "));
+
+    clearMemoryAppender();
+
+    ofs.open("hosts");
+    ofs << "This is some text";
+    ofs.close();
+
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+    EXPECT_TRUE(appenderContains("System configuration updated for "));
+    EXPECT_FALSE(appenderContains("System configuration not changed for "));
+
+    a.requestStop();
+    a.join();
+}
 
 
 TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotNotifiedOnCreateOutsideDir) // NOLINT
