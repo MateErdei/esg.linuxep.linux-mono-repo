@@ -6,8 +6,7 @@ if [[ -x $(which apt) ]]
 then
     apt-get update
     # Retry 10 times before timeout
-    i=0
-    while (( $i < 10 ))
+    for (( i=0; i<10; i++ ))
     do
        DEBIAN_FRONTEND=noninteractive apt-get install -y nfs-kernel-server zip unzip samba p7zip-full
        if (( $? == 0 )); then
@@ -17,7 +16,6 @@ then
           echo "Failed to install packages retrying after sleep..."
           sleep 10
        fi
-       (( i= $i + 1 ))
     done
 
 elif [[ -x $(which yum) ]]
