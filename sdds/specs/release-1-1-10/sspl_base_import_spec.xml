@@ -79,9 +79,9 @@
                  shortdic="Sophos Live Discover Plugin"/>
     </line>
     <line id="ServerProtectionLinux-Base-component">
-		<component id="ServerProtectionLinux-Base-component-1.1.10.28"
-				   version="1.1.10.28"
-				   artifact="esg-releasable-candidate/linuxep.everest-base/release--Version_1_1_10/20220504085006-eea2d9720730f426cef2ad0497e2a4a814b463a1-lNGUuc/sspl-base/SDDS-COMPONENT/"
+		<component id="ServerProtectionLinux-Base-component-1.1.10.49"
+				   version="1.1.10.49"
+				   artifact="esg-releasable-candidate/linuxep.everest-base/release--Version_1_1_10/20220511152248-79480ebf064ce817893ced754cb771bca4a49842-LNc8ZM/sspl-base/SDDS-COMPONENT/"
 				   longdic="Sophos Linux Base Component"
 				   shortdic="Sophos Linux Base Component"/>
 	  <component id="ServerProtectionLinux-Base-component-1.1.9.25"
@@ -192,9 +192,9 @@
 				 shortdic="Sophos Linux Runtime Detection Plugin"/>
     </line>
 	<line id="ServerProtectionLinux-Plugin-AV">
-		<component id="ServerProtectionLinux-Plugin-AV-1.0.6.528"
-				   version="1.0.6.528"
-				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--version_1_0_6/20220505100458-1ebe79ac3ba8d20d86e8dab0c08b99250bc9df91-rnKpHP/sspl-plugin-anti-virus/SDDS-COMPONENT"
+		<component id="ServerProtectionLinux-Plugin-AV-1.0.6.554"
+				   version="1.0.6.554"
+				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--version_1_0_6/20220511145925-2711e5de89bf263407be98f6f792d06d1fd3533c-axvnQN/sspl-plugin-anti-virus/SDDS-COMPONENT/"
 				   longdic="Sophos Linux AntiVirus"
 				   shortdic="Sophos Linux AntiVirus"/>
       <component id="ServerProtectionLinux-Plugin-AV-1.0.5.19"
