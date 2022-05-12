@@ -44,13 +44,14 @@ def get_file_size_in_mb(path):
 
 
 def copy_file_with_permissions(src, dest):
-    try:
-        stats = os.lstat(src)
-        if stat.S_ISREG(stats.st_mode) != 0:
-            shutil.copy(src, dest)
-            os.chown(dest, stats.st_uid, stats.st_gid)
-            return "Is Reg File"
-        return "Not Reg File"
-    except:
-        return "File Doesnt Exist"
+    if not os.path.exists(src):
+        raise Exception(src + " doesnt exist")
+
+    stats = os.lstat(src)
+    if stat.S_ISREG(stats.st_mode) != 0:
+        shutil.copy(src, dest)
+        os.chown(dest, stats.st_uid, stats.st_gid)
+        return
+    raise Exception("Unable to copy " + src)
+
 

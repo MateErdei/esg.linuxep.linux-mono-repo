@@ -465,9 +465,7 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
 Threat Detector Restarts If System File Contents Change
     Start AV
 
-    ${ISFILE} =  copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
-
-    Should be Equal   ${ISFILE}  Is Reg File
+    copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Register On Fail   Revert System File To Original
 
     ${ORG_CONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
@@ -493,8 +491,7 @@ Threat Detector Restarts If System File Contents Change
 Threat Detector Does Not Restart If System File Contents Do Not Change
     Start AV
 
-    ${ISFILE} =  copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
-    Should be Equal   ${ISFILE}  Is Reg File
+    copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Revert System File To Original
 
     Wait Until AV Plugin Log Contains With Offset  System configuration not changed for ${TESTSYSFILE}
@@ -607,4 +604,4 @@ Test Remote Share
 
 Revert System File To Original
     copy file with permissions  ${TESTSYSPATHBACKUP}  ${TESTSYSPATH}
-    REMOVE FILE  ${TESTSYSPATHBACKUP}
+    Remove File  ${TESTSYSPATHBACKUP}
