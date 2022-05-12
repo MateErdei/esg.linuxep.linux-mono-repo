@@ -52,6 +52,5 @@ def copy_file_with_permissions(src, dest):
             return "Is Reg File"
         return "Not Reg File"
     except:
-
         return "File Doesnt Exist"
 
