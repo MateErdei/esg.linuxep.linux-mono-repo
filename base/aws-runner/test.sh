@@ -32,11 +32,15 @@ then
 elif [[ -n `lsb_release -a` ]]
 then
     current_release=$(cat /etc/os-release | grep PRETTY_NAME)
+    release_patternUbuntu22="PRETTY_NAME=\"Ubuntu 22.*"
     release_patternUbuntu20="PRETTY_NAME=\"Ubuntu 20.*"
     release_patternUbuntu18="PRETTY_NAME=\"Ubuntu 18.*"
     release_patternDebian10="PRETTY_NAME=\"Debian GNU/Linux 10*"
     release_patternDebian11="PRETTY_NAME=\"Debian GNU/Linux 11*"
-    if [[ ${current_release} =~ ${release_patternUbuntu20} ]]
+    if [[ ${current_release} =~ ${release_patternUbuntu22} ]]
+    then
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU22"
+    elif [[ ${current_release} =~ ${release_patternUbuntu20} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU20"
     elif [[ ${current_release} =~ ${release_patternUbuntu18} ]]

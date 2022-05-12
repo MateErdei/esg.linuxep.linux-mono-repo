@@ -23,7 +23,8 @@ instances = {
     "rhel81x64": getInstanceJsonAsString("rhel81x64"),
     "ubuntu1804minimal": getInstanceJsonAsString("ubuntu1804minimal"),
     "ubuntu1804x64": getInstanceJsonAsString("ubuntu1804x64"),
-    "ubuntu2004": getInstanceJsonAsString("ubuntu2004")
+    "ubuntu2004": getInstanceJsonAsString("ubuntu2004"),
+    "ubuntu2204": getInstanceJsonAsString("ubuntu2204")
 }
 
 def args():

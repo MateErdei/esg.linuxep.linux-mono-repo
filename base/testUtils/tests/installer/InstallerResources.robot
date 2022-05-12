@@ -283,6 +283,13 @@ Should Have A Given Message In Journalctl Since Certain Time
     Log  ${result.stderr}
     Should Contain    ${result.stdout}    ${message}
 
+Should Have A Stopped Sophos Message In Journalctl Since Certain Time
+    [Arguments]   ${time}
+    ${result} =  Run Process  journalctl -o verbose --since "${time}"  shell=True  timeout=20
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Contain Any   ${result.stdout}   Stopped Sophos Linux Protection.    Stopping Sophos Linux Protection...
+
 Should Have Set KillMode To Mixed
     ${result}=  Run Process  systemctl show sophos-spl | grep KillMode  shell=True
     Log  ${result.stdout}

@@ -45,7 +45,7 @@ Client Should Detect Push Server Not Pinging Any More
     Start MCS Push Server
     Configure Push Server To Ping Interval  300
     Start SSE Client  timeout=1
-    Run Keyword and Expect Error   STARTS: timeout:  Next SSE Message
+    Run Keyword and Expect Error   GLOB: *The read operation timed out*  Next SSE Message
 
 MCSPushServer Can Control The Ping Interval
     Start MCS Push Server

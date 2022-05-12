@@ -138,7 +138,12 @@
         {"Condition" : "RunUbuntu"},
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "ubuntu2004"]}
-        ]}
+        ]},
+    "RunUbuntu2204" : {"Fn::Or": [
+      {"Condition" : "RunUbuntu"},
+      {"Condition" : "RunAll"},
+      {"Fn::Equals" : [{"Ref" : "RunOne"}, "ubuntu2204"]}
+    ]}
   },
 
   "Resources" : {

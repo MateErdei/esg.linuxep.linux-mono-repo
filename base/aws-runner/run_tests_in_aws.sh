@@ -345,6 +345,7 @@ combineResults()
   python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu1804minimal-output.xml -l none -r none -N ubuntu1804minimal  ./results/ubuntu1804minimal*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu1804x64-output.xml -l none -r none -N ubuntu1804x64  ./results/ubuntu1804x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu2004-output.xml -l none -r none -N ubuntu2004  ./results/ubuntu2004*
+  python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu2204-output.xml -l none -r none -N ubuntu2204  ./results/ubuntu2204*
 
 
   python3 -m robot.rebot -l ./results/amazonlinux2x64-log.html -r ./results/amazonlinux2x64-report.html -N combined ./results-combine-workspace/amazonlinux2x64-output.xml
@@ -360,6 +361,7 @@ combineResults()
   python3 -m robot.rebot -l ./results/ubuntu1804minimal-log.html -r ./results/ubuntu1804minimal-report.html -N combined ./results-combine-workspace/ubuntu1804minimal-output.xml
   python3 -m robot.rebot -l ./results/ubuntu1804x64-log.html -r ./results/ubuntu1804x64-report.html -N combined ./results-combine-workspace/ubuntu1804x64-output.xml
   python3 -m robot.rebot -l ./results/ubuntu2004-log.html -r ./results/ubuntu2004-report.html -N combined ./results-combine-workspace/ubuntu2004-output.xml
+  python3 -m robot.rebot -l ./results/ubuntu2204-log.html -r ./results/ubuntu2204-report.html -N combined ./results-combine-workspace/ubuntu2204-output.xml
 }
 rm -rf report
 mkdir report
