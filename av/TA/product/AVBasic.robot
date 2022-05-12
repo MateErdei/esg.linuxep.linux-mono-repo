@@ -6,6 +6,7 @@ Library         DateTime
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/SystemFileWatcher.py
@@ -31,7 +32,9 @@ ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 ${HANDLE}
 ${TESTSYSFILE}  hosts
+${TESTSYSPATHBACKUP}  /etc/${TESTSYSFILE}backup
 ${TESTSYSPATH}  /etc/${TESTSYSFILE}
+
 
 *** Test Cases ***
 AV Plugin Can Receive Actions
@@ -462,8 +465,12 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
 Threat Detector Restarts If System File Contents Change
     Start AV
 
-    ${ORG_CONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
+    ${ISFILE} =  copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
 
+    Should be Equal   ${ISFILE}  Is Reg File
+    Register On Fail   Revert System File To Original
+
+    ${ORG_CONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
     Append To File  ${TESTSYSPATH}   "#NewLine"
 
     Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${TESTSYSFILE}
@@ -473,7 +480,8 @@ Threat Detector Restarts If System File Contents Change
     Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
     mark sophos threat detector log
 
-    Create File  ${TESTSYSPATH}  ${ORG_CONTENTS}
+    Revert System File To Original
+    Deregister On Fail   Revert System File To Original
 
     Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${TESTSYSFILE}
     AV Plugin Log Should Not Contain With Offset  System configuration not changed for ${TESTSYSFILE}
@@ -485,8 +493,9 @@ Threat Detector Restarts If System File Contents Change
 Threat Detector Does Not Restart If System File Contents Do Not Change
     Start AV
 
-    ${ORG_CONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
-    Create File  ${TESTSYSPATH}  ${ORG_CONTENTS}
+    ${ISFILE} =  copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
+    Should be Equal   ${ISFILE}  Is Reg File
+    Revert System File To Original
 
     Wait Until AV Plugin Log Contains With Offset  System configuration not changed for ${TESTSYSFILE}
     AV Plugin Log Should Not Contain With Offset  System configuration updated for ${TESTSYSFILE}
@@ -595,3 +604,7 @@ Test Remote Share
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningEnabled}  timeout=240  interval=5
     File Should Exist  ${remoteFSscanningEnabled_log}
     File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR
+
+Revert System File To Original
+    copy file with permissions  ${TESTSYSPATHBACKUP}  ${TESTSYSPATH}
+    REMOVE FILE  ${TESTSYSPATHBACKUP}
