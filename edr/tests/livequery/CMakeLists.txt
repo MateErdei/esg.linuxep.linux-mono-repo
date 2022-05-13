@@ -6,7 +6,7 @@ SophosAddTest(TestLiveQuery
         TestLiveQueryTelemetry.cpp
         MockQueryProcessor.h
         PROJECTS livequeryimpl
-        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest
+        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} pthread
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
         )
 

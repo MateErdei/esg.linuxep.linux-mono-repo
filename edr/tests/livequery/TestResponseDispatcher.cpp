@@ -5,7 +5,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <gtest/gtest.h>
-#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
+#include <gmock/gmock-matchers.h>
 #include <modules/livequery/ResponseDispatcher.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 #include <Common/FileSystem/IFileSystem.h>

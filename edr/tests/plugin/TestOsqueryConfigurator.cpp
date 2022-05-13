@@ -10,10 +10,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <modules/pluginimpl/OsqueryConfigurator.h>
-#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 #include <tests/osqueryclient/MockOsqueryClient.h>
 
 #include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 #include <modules/pluginimpl/PluginUtils.h>
 
 using namespace Plugin;

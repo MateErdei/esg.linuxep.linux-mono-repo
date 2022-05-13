@@ -21,8 +21,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <modules/pluginimpl/ApplicationPaths.h>
 #include <modules/pluginimpl/PluginAdapter.h>
 #include <modules/pluginimpl/LiveQueryPolicyParser.h>
-#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
+#include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 
 class TestablePluginAdapter : public Plugin::PluginAdapter

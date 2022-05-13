@@ -8,7 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Helpers/LogInitializedTests.h>
 #include <gtest/gtest.h>
-#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
+#include <gmock/gmock-matchers.h>
 #include <atomic>
 #include <memory>
 using namespace ::testing;

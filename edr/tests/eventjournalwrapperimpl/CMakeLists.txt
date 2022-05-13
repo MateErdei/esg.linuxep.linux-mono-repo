@@ -2,7 +2,7 @@ SophosAddTest(TestEventJournalWrapperImpl
         MockSophosJournal.h
         TestEventJournalReaderWrapper.cpp
         PROJECTS eventjournalwrapperimpl
-        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest
+        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} pthread
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
         )
 

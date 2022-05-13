@@ -162,6 +162,7 @@ set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
 set(testhelpersinclude ${PLUGINAPIPATH}/tests/include)
 set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
+set(GTEST_INPUT ${INPUT}/googletest)
 
 set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 
@@ -258,6 +259,21 @@ find_library(OPENSSLCRYPTO_LIBRARY
         PATHS ${INPUT}/openssl/lib64
         NO_DEFAULT_PATH
         )
+
+set(GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers)
+find_library(GTEST_LIBRARY
+        NAMES gtest
+        PATHS ${GTEST_INPUT}/gtest-libs
+        NO_DEFAULT_PATH)
+find_library(GTEST_MAIN_LIBRARY
+        NAMES gtest_main
+        PATHS ${GTEST_INPUT}/gtest-libs
+        NO_DEFAULT_PATH)
+set( GMOCK_INCLUDE ${GTEST_INPUT}/gmock-headers )
+find_library(GMOCK_LIBRARY
+        NAMES gmock
+        PATHS ${GTEST_INPUT}/gmock-libs
+        NO_DEFAULT_PATH)
 
 include(cppcheck.cmake)
 add_subdirectory(modules)

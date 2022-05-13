@@ -11,9 +11,9 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 #include <modules/EventJournalWrapperImpl/EventJournalReaderWrapper.h>
 #include <modules/EventJournalWrapperImpl/Logger.h>
-#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 using namespace ::testing;
 

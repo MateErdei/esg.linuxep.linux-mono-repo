@@ -4,7 +4,7 @@ SophosAddTest(TestQueryRunner
         ParallelQueryProcessorTests.cpp
         QueryRunnerImplTests.cpp
         PROJECTS queryrunnerimpl
-        LIBS ${pluginapilib} ${log4cpluslib} ${testhelperslib} gmock gtest
+        LIBS ${pluginapilib} ${log4cpluslib} ${testhelperslib} pthread
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
         )
 
