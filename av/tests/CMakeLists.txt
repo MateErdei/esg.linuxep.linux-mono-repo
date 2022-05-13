@@ -1,7 +1,3 @@
-if( NOT EXISTS ${CMAKE_SOURCE_DIR}/tests/googletest )
-    message( FATAL_ERROR "googletest directory not present. \nPlease, run ${CMAKE_SOURCE_DIR}/build.sh which will setup the directory")
-endif()
-add_subdirectory(googletest EXCLUDE_FROM_ALL)
 add_custom_target(echogTest
         COMMAND echo gtest_SOURCE_DIR=${gtest_SOURCE_DIR}
         COMMAND ls -l ${gtest_SOURCE_DIR}/include/gtest/gtest.h

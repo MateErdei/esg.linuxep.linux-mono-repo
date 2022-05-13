@@ -15,6 +15,7 @@ SophosAddTest(TestAVScannerImpl
         PROJECTS avscannerimpl
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
+        LIBS pthread
         )
 
 SET_TARGET_PROPERTIES(TestAVScannerImpl

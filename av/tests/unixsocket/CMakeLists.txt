@@ -9,6 +9,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             PROJECTS unixsocket avscannerimpl
             INC_DIRS
             ${CMAKE_SOURCE_DIR}/modules
+            LIBS pthread
             )
     SET_TARGET_PROPERTIES(TestSocketUtils
             PROPERTIES
@@ -22,6 +23,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestProcessControllerServerSocket.cpp
             PROJECTS unixsocket
             INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
+            LIBS pthread
             )
     SET_TARGET_PROPERTIES(TestProcessControllerServerSocket
             PROPERTIES
@@ -35,6 +37,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestThreatDetectorSocket.cpp
             PROJECTS unixsocket
             INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
+            LIBS pthread
             )
     SET_TARGET_PROPERTIES(TestThreatDetectorSocket
             PROPERTIES
@@ -48,6 +51,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestThreatReporterSocket.cpp
             PROJECTS unixsocket
             INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
+            LIBS pthread
             )
     SET_TARGET_PROPERTIES(TestThreatReporterSocket
             PROPERTIES

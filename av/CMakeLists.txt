@@ -122,10 +122,26 @@ set(LOG4CPLUS_INCLUDE_DIR ${pluginapiinclude})
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
 set(testhelpersinclude ${PLUGINAPIPATH}/tests/include)
 set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
+set(GTEST_INPUT ${INPUT}/googletest)
 
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*.*.*)
 file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*.*.*)
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*.*.*)
+
+set(GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers)
+find_library(GTEST_LIBRARY
+        NAMES gtest
+        PATHS ${GTEST_INPUT}/gtest-libs
+        NO_DEFAULT_PATH)
+find_library(GTEST_MAIN_LIBRARY
+        NAMES gtest_main
+        PATHS ${GTEST_INPUT}/gtest-libs
+        NO_DEFAULT_PATH)
+set( GMOCK_INCLUDE ${GTEST_INPUT}/gmock-headers )
+find_library(GMOCK_LIBRARY
+        NAMES gmock
+        PATHS ${GTEST_INPUT}/gmock-libs
+        NO_DEFAULT_PATH)
 
 if(NOT DEFINED SUSIPATH)
     SET( SUSIPATH ${INPUT}/susi_build)

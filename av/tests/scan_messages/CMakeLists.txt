@@ -8,6 +8,7 @@ SophosAddTest(TestScanMessages
         PROJECTS scanmessages
         LIBS
         ${CAPNPROTO_LIBRARIES}
+        pthread
         INC_DIRS
         "${CAPNPROTO_INCLUDE_DIR}"
         ${CMAKE_CURRENT_BINARY_DIR}

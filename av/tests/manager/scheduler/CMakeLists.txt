@@ -11,7 +11,7 @@ SophosAddTest(TestScheduledScan
         TestScheduledScanConfiguration.cpp
         TestTimeSet.cpp
         PROJECTS scanscheduler common
-        LIBS ${pluginapilib} ${testhelperslib} rt ${CAPNPROTO_LIBRARIES}
+        LIBS ${pluginapilib} ${testhelperslib} rt ${CAPNPROTO_LIBRARIES} pthread
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
             ${CMAKE_SOURCE_DIR}/modules
         )

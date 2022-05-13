@@ -16,6 +16,7 @@ SophosAddTest(TestThreatScanner
         PROJECTS threat_scanner common
         INC_DIRS ${pluginapiinclude}
         ${CMAKE_SOURCE_DIR}/modules
+        LIBS pthread
         )
 SET_TARGET_PROPERTIES(TestThreatScanner
         PROPERTIES

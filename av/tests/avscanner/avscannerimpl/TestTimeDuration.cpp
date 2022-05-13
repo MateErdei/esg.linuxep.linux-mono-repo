@@ -8,8 +8,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "tests/common/LogInitializedTests.h"
 
 #include <gtest/gtest.h>
+#include <gmock/gmock-matchers.h>
 #include <pluginapi/include/Common/Logging/SophosLoggerMacros.h>
-#include <tests/googletest/googlemock/include/gmock/gmock-matchers.h>
 
 using namespace avscanner::avscannerimpl;
 

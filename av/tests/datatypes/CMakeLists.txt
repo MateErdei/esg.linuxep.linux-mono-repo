@@ -5,7 +5,7 @@ SophosAddTest(TestDatatypes
         TestAutoFD.cpp
         MockSysCalls.h
         PROJECTS datatypes
-        LIBS ${datatypes} rt
+        LIBS ${datatypes} rt pthread
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
         )

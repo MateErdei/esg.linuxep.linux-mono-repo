@@ -8,7 +8,7 @@ SophosAddTest(TestPassOnCapability
         ${CMAKE_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/modules
         ${CMAKE_SOURCE_DIR}/products
-        LIBS cap
+        LIBS cap pthread
         )
 SET_TARGET_PROPERTIES(TestPassOnCapability
         PROPERTIES

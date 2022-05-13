@@ -33,6 +33,7 @@ SophosAddTest(TestFileWalker
         PROJECTS filewalker
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
+        LIBS pthread
         )
 SET_TARGET_PROPERTIES(TestFileWalker
         PROPERTIES

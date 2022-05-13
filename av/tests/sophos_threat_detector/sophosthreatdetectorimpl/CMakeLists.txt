@@ -9,6 +9,7 @@ SophosAddTest(TestThreatReporter
         PROJECTS sophosthreatdetectorimpl
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
+        LIBS pthread
         )
 SET_TARGET_PROPERTIES(TestThreatReporter
         PROPERTIES
@@ -23,6 +24,7 @@ SophosAddTest(TestShutdownTimer
         PROJECTS sophosthreatdetectorimpl
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
+        LIBS pthread
         )
 SET_TARGET_PROPERTIES(TestShutdownTimer
         PROPERTIES

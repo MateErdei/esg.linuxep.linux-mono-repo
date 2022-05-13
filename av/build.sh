@@ -52,7 +52,6 @@ COVFILE="/tmp/root/sspl-plugin-${PRODUCT}.cov"
 COVFILE_UNIT="sspl-plugin-${PRODUCT}-unit.cov"
 COV_HTML_BASE=sspl-plugin-${PRODUCT}-unittest-dev
 VALGRIND=0
-GOOGLETESTTAR=googletest-release-1.8.1
 NO_BUILD=0
 LOCAL_GCC=0
 LOCAL_CMAKE=0
@@ -386,7 +385,16 @@ function build()
         (( LOCAL_CMAKE == 0 )) && ln -snf $INPUT/cmake $REDIST/
         untar_input capnproto
         untar_input boost
-        untar_input $GOOGLETESTTAR
+        if [[ -d "$INPUT/googletest" ]]
+        then
+            if [[ ! -d $REDIST/googletest ]]
+            then
+                ln -sf $INPUT/googletest $REDIST/googletest
+            fi
+        else
+            echo "ERROR - googletest not found here: $INPUT/googletest"
+            exit 1
+        fi
         untar_input openssl
     else
         (( LOCAL_GCC == 0 )) && set_gcc_make
@@ -399,7 +407,7 @@ function build()
       chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
     fi
 
-    cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
+    cp -r $REDIST/googletest $BASE/tests
 
     [[ -e ${REDIST}/sdds3 ]] || ln -s ../input/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 

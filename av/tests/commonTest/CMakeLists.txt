@@ -18,7 +18,7 @@ SophosAddTest(TestCommon
         INC_DIRS
         ${CMAKE_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/modules
-        LIBS ${Boost_LIBRARIES}
+        LIBS ${Boost_LIBRARIES} pthread
         )
 SET_TARGET_PROPERTIES(TestCommon
         PROPERTIES

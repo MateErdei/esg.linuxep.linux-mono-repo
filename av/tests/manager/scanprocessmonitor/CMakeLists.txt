@@ -4,7 +4,7 @@ SophosAddTest(TestScanProcessMonitor
         ../../common/LogInitializedTests.cpp
         TestScanProcessMonitor.cpp
         PROJECTS pluginimpl
-        LIBS ${pluginapilib} ${testhelperslib} rt
+        LIBS ${pluginapilib} ${testhelperslib} rt pthread
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
         )
 

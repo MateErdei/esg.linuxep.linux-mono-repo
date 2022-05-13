@@ -11,7 +11,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <../../common/Common.h>
+#include "../../common/Common.h"
 
 #include <fstream>
 
