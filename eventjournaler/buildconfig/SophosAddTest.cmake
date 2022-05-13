@@ -29,8 +29,8 @@ macro(SophosAddTest TARGET)
     # setup the google test target
     add_executable(${TARGET} ${INPUTFILES})
 
-    target_include_directories(${TARGET} SYSTEM BEFORE PUBLIC "${gtest_SOURCE_DIR}/include" "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}")
-    target_link_libraries(${TARGET}  PUBLIC gtest gtest_main gmock)
+    target_include_directories(${TARGET} SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE})
+    target_link_libraries(${TARGET}  PUBLIC ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY})
 
     if ( AddTest_PROJECTS )
         target_link_libraries(${TARGET} PUBLIC ${AddTest_PROJECTS})

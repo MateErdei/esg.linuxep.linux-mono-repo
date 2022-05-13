@@ -5,7 +5,7 @@ SophosAddTest(TestSubscriberLib
         TestSubscriberLib.cpp
         TestEventQueuePusher.cpp
         PROJECTS subscriberlib eventqueuelib
-        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest ${protobuflib} heartbeat
+        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} ${protobuflib} heartbeat pthread
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
         )
 

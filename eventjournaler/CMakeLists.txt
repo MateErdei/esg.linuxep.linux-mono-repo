@@ -121,6 +121,7 @@ set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
 set(testhelpersinclude ${PLUGINAPIPATH}/tests/include)
 set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
+set(GTEST_INPUT ${INPUT}/googletest)
 
 set(JOURNAL_INPUT ${INPUT}/JournalLib)
 set(XZUTILS_INPUT ${INPUT}/xzutils)
@@ -143,6 +144,21 @@ find_library(JOURNAL_LIBRARY
 find_library(LZMA_LIBRARY
         NAMES liblzma.so
         PATHS ${INPUT}/xzutils/lib
+        NO_DEFAULT_PATH)
+
+set(GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers)
+find_library(GTEST_LIBRARY
+        NAMES gtest
+        PATHS ${GTEST_INPUT}/gtest-libs
+        NO_DEFAULT_PATH)
+find_library(GTEST_MAIN_LIBRARY
+        NAMES gtest_main
+        PATHS ${GTEST_INPUT}/gtest-libs
+        NO_DEFAULT_PATH)
+set( GMOCK_INCLUDE ${GTEST_INPUT}/gmock-headers )
+find_library(GMOCK_LIBRARY
+        NAMES gmock
+        PATHS ${GTEST_INPUT}/gmock-libs
         NO_DEFAULT_PATH)
 
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*)

@@ -4,7 +4,7 @@ SophosAddTest(TestHeartbeat
         TestHeartbeat.cpp
         FakeTimeUtils.cpp
         FakeTimeUtils.h
-        LIBS heartbeat ${log4cpluslib} ${pluginapilib} ${testhelperslib} gmock gtest ${protobuflib}
+        LIBS heartbeat ${log4cpluslib} ${pluginapilib} ${testhelperslib} ${protobuflib} pthread
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude} ${CMAKE_SOURCE_DIR}/modules/Heartbeat
         )
 

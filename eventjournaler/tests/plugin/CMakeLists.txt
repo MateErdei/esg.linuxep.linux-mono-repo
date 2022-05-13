@@ -6,7 +6,7 @@ SophosAddTest(TestPlugin
         MockSubscriberLib.h
         TestDiskManager.cpp
         PROJECTS pluginimpl
-        LIBS ${pluginapilib} ${testhelperslib} heartbeat rt
+        LIBS ${pluginapilib} ${testhelperslib} heartbeat rt pthread
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
 )
 

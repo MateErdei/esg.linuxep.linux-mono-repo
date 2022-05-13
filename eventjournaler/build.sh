@@ -45,7 +45,6 @@ BULLSEYE_UPLOAD=0
 COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
 COV_HTML_BASE=sspl-plugin-${PRODUCT}-unittest
 VALGRIND=0
-GOOGLETESTTAR=googletest-release-1.8.1
 
 while [[ $# -ge 1 ]]
 do
@@ -261,7 +260,16 @@ function build()
         unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" ${PLUGIN_TAR}
         cp -r $INPUT/cmake $REDIST
-        untar_input $GOOGLETESTTAR
+        if [[ -d "$INPUT/googletest" ]]
+        then
+            if [[ ! -d $REDIST/googletest ]]
+            then
+                ln -sf $INPUT/googletest $REDIST/googletest
+            fi
+        else
+            echo "ERROR - googletest not found here: $INPUT/googletest"
+            exit 1
+        fi
         untar_input JournalLib
         untar_input capnproto
         untar_input xzutils "" "" xzutils
@@ -270,7 +278,7 @@ function build()
     PATH=$REDIST/cmake/bin:$PATH
     chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
     chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
-    cp -r $REDIST/$GOOGLETESTTAR $BASE/tests/googletest
+    cp -r $REDIST/googletest $BASE/tests
 
     cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 
