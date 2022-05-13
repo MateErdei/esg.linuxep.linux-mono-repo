@@ -62,58 +62,6 @@ ${sdds2_primary}                            ${SOPHOS_INSTALL}/base/update/cache/
 ${sdds2_primary_warehouse}                  ${SOPHOS_INSTALL}/base/update/cache/primarywarehouse
 
 *** Test Cases ***
-Sul Downloader Can Update Via Sdds3 Repository
-    Start Local Cloud Server
-    ${handle}=  Start Local SDDS3 Server
-    Set Suite Variable    ${GL_handle}    ${handle}
-    Require Fresh Install
-    Create File    /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
-    Create Local SDDS3 Override
-    # should be purged before SDDS3 sync
-    Create Dummy Local SDDS2 Cache Files
-    Register With Local Cloud Server
-
-    sleep    10
-    Remove File  ${status_file}
-    Remove FIle   /opt/sophos-spl/base/mcs/status/cache/ALC.xml
-
-    File Should Contain  ${UpdateConfigFile}     JWToken
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   2 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository
-    Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primary
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/suite
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/package
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/supplement
-
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/
-
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Check Suldownloader Log Contains   Update success
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   1 secs
-    ...   Check Suldownloader Log Contains   Generating the report file
-
-    Check Local SDDS2 Cache Is Empty
-
 Sul Downloader fails update if expected product missing from SUS
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_FakePlugin.xml
     ${handle}=  Start Local SDDS3 Server
@@ -136,7 +84,7 @@ Sul Downloader fails update if expected product missing from SUS
     ...   5 secs
     ...   Check Suldownloader Log Contains   Failed to connect to repository: Package : ServerProtectionLinux-Plugin-Fake missing from warehouse
 
-SDDS3 Sync Removes Local SDDS2 Cache
+Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     [Setup]    Test Setup With Ostia
     [Teardown]    Test Teardown With Ostia
 
@@ -158,6 +106,22 @@ SDDS3 Sync Removes Local SDDS2 Cache
     ...   10 secs
     ...   2 secs
     ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/suite
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/package
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/supplement
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/
 
     Wait Until Keyword Succeeds
     ...   10 secs
