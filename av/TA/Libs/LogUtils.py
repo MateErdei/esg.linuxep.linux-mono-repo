@@ -74,6 +74,8 @@ class LogUtils(object):
         self.marked_av_log = 0
         self.marked_sophos_threat_detector_log = 0
 
+        self.__m_pending_mark_expected_errors = {}
+
     def log_contains_in_order(self, log_location, log_name, args, log_finds=True):
         return _log_contains_in_order(log_location, log_name, args, log_finds)
 
@@ -334,7 +336,12 @@ File Log Contains
 
     def check_all_product_logs_do_not_contain_error(self):
         search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/sophos_threat_detector*.log*"]
+        logger.info("Re-apply expected errors")
+        for log_location, error_messages in self.__m_pending_mark_expected_errors.items():
+            self.__mark_expected_errors_in_log(log_location, *error_messages)
+
         self.check_all_product_logs_do_not_contain_string("]   ERROR [", search_list)
+        self.__m_pending_mark_expected_errors = {}
 
     def check_all_product_logs_do_not_contain_critical(self):
         search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/*.log*"]
@@ -372,7 +379,7 @@ File Log Contains
             raise AssertionError(
                 "The file: '{}', did not have any lines match the regex: '{}'".format(file_path, reg_expression_str))
 
-    def mark_expected_error_in_log(self, log_location, error_message):
+    def __mark_expected_errors_in_log(self, log_location, *error_messages):
         error_string = "ERROR"
         mark_string = "expected-error"
 
@@ -380,16 +387,29 @@ File Log Contains
             logger.info("marking: " + logfile)
             contents = _get_log_contents(logfile)
             if contents is None:
-                print("File not found not marking expected error, if you are you error checking then the error won't exist!")
+                logger.debug("File {} is empty no errors to exclude!".format(log_location))
                 return
 
-            for line in contents.splitlines():
-                if error_message in line:
-                    new_line = line.replace(error_string, mark_string)
-                    contents = contents.replace(line, new_line)
+            original_contents = contents
 
-            with open(logfile, "w") as log:
-                log.write(contents)
+            old_lines = contents.splitlines()
+            new_lines = []
+
+            for line in old_lines:
+                for error_message in error_messages:
+                    if error_message in line:
+                        line = line.replace(error_string, mark_string)
+                        break #  Don't need to look any further
+                new_lines.append(line)
+            contents = "".join(new_lines)
+
+            if contents != original_contents:
+                with open(log_location, "w") as log:
+                    log.write(contents)
+
+    def mark_expected_error_in_log(self, log_location, error_message):
+        self.__m_pending_mark_expected_errors.setdefault(log_location, []).append(error_message)
+        self.__mark_expected_errors_in_log(log_location, error_message)
 
     def dump_thininstaller_log(self):
         self.dump_log(self.thin_install_log)
