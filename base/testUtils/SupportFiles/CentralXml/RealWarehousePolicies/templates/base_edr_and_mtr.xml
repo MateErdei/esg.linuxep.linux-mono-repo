@@ -26,6 +26,7 @@
         <Feature id="CORE"/>
         <Feature id="MDR"/>
         <Feature id="LIVEQUERY"/>
+        <Feature id="LIVETERMINAL"/>
         <Feature id="SDU"/>
     </Features>
     <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>

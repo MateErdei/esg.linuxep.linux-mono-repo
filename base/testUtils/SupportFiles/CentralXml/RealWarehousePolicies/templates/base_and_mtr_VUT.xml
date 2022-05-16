@@ -23,6 +23,7 @@
     </AUConfig>
     <Features>
         <Feature id="CORE"/>
+        <Feature id="LIVETERMINAL"/>
         <Feature id="MDR"/>
         <Feature id="SDU"/>
     </Features>

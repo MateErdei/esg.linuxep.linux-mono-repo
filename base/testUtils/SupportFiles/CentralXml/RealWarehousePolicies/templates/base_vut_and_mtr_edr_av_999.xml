@@ -26,6 +26,7 @@
     <Features>
         <Feature id="CORE"/>
         <Feature id="LIVEQUERY"/>
+        <Feature id="LIVETERMINAL"/>
         <Feature id="MDR"/>
         <Feature id="SDU"/>
         <Feature id="AV"/>
