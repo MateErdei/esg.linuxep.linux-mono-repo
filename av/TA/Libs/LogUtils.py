@@ -384,10 +384,10 @@ File Log Contains
         mark_string = "expected-error"
 
         for logfile in glob.glob(log_location + "*"):
-            logger.info("marking: " + logfile)
+            logger.info("Attempting to mark: " + logfile)
             contents = _get_log_contents(logfile)
             if contents is None:
-                logger.debug("File {} is empty no errors to exclude!".format(log_location))
+                logger.debug("File {} is empty no errors to exclude!".format(logfile))
                 return
 
             original_contents = contents
@@ -404,7 +404,8 @@ File Log Contains
             contents = "".join(new_lines)
 
             if contents != original_contents:
-                with open(log_location, "w") as log:
+                logger.info("Marking: " + logfile)
+                with open(logfile, "w") as log:
                     log.write(contents)
 
     def mark_expected_error_in_log(self, log_location, error_message):
