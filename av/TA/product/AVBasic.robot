@@ -439,8 +439,6 @@ AV Plugin requests policies at startup
     ...  1 secs
     ...  FakeManagement Log Contains   Received policy request: APPID=ALC
 
-
-<<<<<<< HEAD
 AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     Register Cleanup    Exclude SUSI Illegal seek error
     Register Cleanup    Exclude Failed To Scan Special File That Cannot Be Read
@@ -461,7 +459,7 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     AV Plugin Log Contains With Offset  Publishing good threat health status after clean scan
     Check ScanNow Log Exists
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /run/netns/avtest as it could not be read
-=======
+
 Threat Detector Restarts If System File Contents Change
     copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Register On Fail   Revert System File To Original
