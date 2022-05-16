@@ -463,8 +463,6 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /run/netns/avtest as it could not be read
 =======
 Threat Detector Restarts If System File Contents Change
-    Start AV
-
     copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Register On Fail   Revert System File To Original
 
@@ -475,7 +473,6 @@ Threat Detector Restarts If System File Contents Change
     AV Plugin Log Should Not Contain With Offset  System configuration not changed for ${TESTSYSFILE}
 
     Wait until threat detector running
-    Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
     mark sophos threat detector log
 
     Revert System File To Original
@@ -489,8 +486,6 @@ Threat Detector Restarts If System File Contents Change
 
 
 Threat Detector Does Not Restart If System File Contents Do Not Change
-    Start AV
-
     copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Revert System File To Original
 
@@ -500,13 +495,15 @@ Threat Detector Does Not Restart If System File Contents Do Not Change
 *** Keywords ***
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    mark av log
+    mark sophos threat detector log
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
     Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
     Register Cleanup   Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Register Cleanup   Terminate Process  ${AV_PLUGIN_HANDLE}
-    Check AV Plugin Installed
+    Check AV Plugin Installed With Offset
 
 AVBasic Suite Setup
     Start Fake Management If Required

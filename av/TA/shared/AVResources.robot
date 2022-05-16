@@ -433,6 +433,13 @@ Check AV Plugin Installed
     ...  3 secs
     ...  FakeManagement Log Contains   Registered plugin: ${COMPONENT}
 
+Check AV Plugin Installed With Offset
+    Check Plugin Installed and Running With Offset
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  3 secs
+    ...  FakeManagement Log Contains   Registered plugin: ${COMPONENT}
+
 Install With Base SDDS
     Uninstall All
     Directory Should Not Exist  ${SOPHOS_INSTALL}
