@@ -253,8 +253,7 @@ CLS Summary in Less Than a Second
 
 CLS Duration Summary is Displayed Correctly
     Register Cleanup     Exclude UnixSocket Environment Interruption Error
-    Register Cleanup     Exclude Scan Errors From File Samples
-    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/    stdout=/tmp/stdout
+    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/    stdout=/tmp/stdout
 
     Sleep  65s
     Send Signal To Process  2
@@ -1317,11 +1316,10 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
     # log can get rotated during test, so reset first.
     Clear logs
     Mark logs
-    Register Cleanup     Exclude Scan Errors From File Samples
 
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
 
-    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  1 secs
@@ -1351,7 +1349,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ${DETECTOR_BINARY} =   Set Variable   ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
     FakeWatchdog.expect_start_failure
 
-    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
     Register cleanup  dump log  ${LOG_FILE}
     Register Cleanup  Exclude Scan Errors From File Samples
     Register On Fail  Terminate Process  handle=${HANDLE}  kill=True
