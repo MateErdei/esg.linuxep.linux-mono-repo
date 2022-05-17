@@ -388,7 +388,7 @@ File Log Contains
             contents = _get_log_contents(logfile)
             if contents is None:
                 logger.debug("File {} is empty no errors to exclude!".format(logfile))
-                return
+                continue
 
             original_contents = contents
 
