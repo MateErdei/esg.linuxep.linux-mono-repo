@@ -6,6 +6,7 @@ import os
 import glob
 import re
 import subprocess
+import sys
 import time
 from robot.api import logger
 import robot.libraries.BuiltIn
@@ -45,6 +46,35 @@ def _get_variable(varName, defaultValue=None):
 def _get_sophos_install():
     return _get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
 
+
+def _mark_expected_errors_in_log(self, log_location, *error_messages):
+    error_string = "ERROR"
+    mark_string = "expected-error"
+
+    for logfile in glob.glob(log_location + "*"):
+        logger.info("Attempting to mark: " + logfile)
+        contents = _get_log_contents(logfile)
+        if contents is None:
+            logger.debug("File {} is empty no errors to exclude!".format(logfile))
+            continue
+
+        original_contents = contents
+
+        old_lines = contents.splitlines()
+        new_lines = []
+
+        for line in old_lines:
+            for error_message in error_messages:
+                if error_message in line:
+                    line = line.replace(error_string, mark_string)
+                    break #  Don't need to look any further
+            new_lines.append(line + "\n")
+        contents = "".join(new_lines)
+
+        if contents != original_contents:
+            logger.info("Marking: " + logfile)
+            with open(logfile, "w") as log:
+                log.write(contents)
 
 class LogUtils(object):
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
@@ -379,38 +409,9 @@ File Log Contains
             raise AssertionError(
                 "The file: '{}', did not have any lines match the regex: '{}'".format(file_path, reg_expression_str))
 
-    def __mark_expected_errors_in_log(self, log_location, *error_messages):
-        error_string = "ERROR"
-        mark_string = "expected-error"
-
-        for logfile in glob.glob(log_location + "*"):
-            logger.info("Attempting to mark: " + logfile)
-            contents = _get_log_contents(logfile)
-            if contents is None:
-                logger.debug("File {} is empty no errors to exclude!".format(logfile))
-                continue
-
-            original_contents = contents
-
-            old_lines = contents.splitlines()
-            new_lines = []
-
-            for line in old_lines:
-                for error_message in error_messages:
-                    if error_message in line:
-                        line = line.replace(error_string, mark_string)
-                        break #  Don't need to look any further
-                new_lines.append(line)
-            contents = "".join(new_lines)
-
-            if contents != original_contents:
-                logger.info("Marking: " + logfile)
-                with open(logfile, "w") as log:
-                    log.write(contents)
-
     def mark_expected_error_in_log(self, log_location, error_message):
         self.__m_pending_mark_expected_errors.setdefault(log_location, []).append(error_message)
-        self.__mark_expected_errors_in_log(log_location, error_message)
+        _mark_expected_errors_in_log(log_location, error_message)
 
     def dump_thininstaller_log(self):
         self.dump_log(self.thin_install_log)
@@ -840,3 +841,11 @@ File Log Contains
             return files[0]
         else:
             return logger_conf_pattern + '0'
+
+def __main(argv):
+    #write your tests here
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(__main(sys.argv))
