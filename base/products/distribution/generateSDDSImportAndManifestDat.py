@@ -21,7 +21,8 @@ def main(argv):
     if len(argv) > 4:
         sys.path += argv[4:]
 
-    generateManifestDat.generate_manifest(dist)
+    manifest_dist = os.environ.get("MANIFEST_DIST", dist)
+    generateManifestDat.generate_manifest(manifest_dist)
 
     file_objects = fileInfo.load_file_info(dist, distribution_list, excludeManifest=False)
     # file_objects will already contain manifest.dat, since it is generated after generating the manifest
