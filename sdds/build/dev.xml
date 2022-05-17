@@ -67,7 +67,8 @@
       </build-asset>
 
       <build-asset project="em" repo="esg" mode="release-package-mdr-999,release-package-edr-mdr-999,release-package-060,release-package-edr-999,release-package,release-package-base-999">
-          <development-version branch="develop"/>
+          <!--            TODO - LINUXDAR-4877 revert to develop -->
+          <development-version branch="release--scheduled_query_pack--1.11" build-id="20220426094343-e5593df4275b7d0b7ebd145e869e41668200806e-NAJJSV"/>
           <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds"/>
       </build-asset>
         <!-- Use a different branch to test that the query back is changed on upgrading the
