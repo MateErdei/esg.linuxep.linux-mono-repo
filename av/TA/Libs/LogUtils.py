@@ -368,7 +368,7 @@ File Log Contains
         search_list = ["logs/base/*.log*", "logs/base/sophosspl/*.log*", "plugins/*/log/*.log*", "plugins/av/log/sophos_threat_detector/sophos_threat_detector*.log*"]
         logger.info("Re-apply expected errors")
         for log_location, error_messages in self.__m_pending_mark_expected_errors.items():
-            self.__mark_expected_errors_in_log(log_location, *error_messages)
+            self._mark_expected_errors_in_log(log_location, *error_messages)
 
         self.check_all_product_logs_do_not_contain_string("]   ERROR [", search_list)
         self.__m_pending_mark_expected_errors = {}
