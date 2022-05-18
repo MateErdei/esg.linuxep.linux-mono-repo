@@ -142,4 +142,3 @@ TEST_F(TestThreatReporterSocket, testClientSocketTriesToReconnect) // NOLINT
     EXPECT_TRUE(appenderContains("Failed to connect to Threat reporter - retrying after sleep", 9));
     EXPECT_TRUE(appenderContains("Reached total maximum number of connection attempts."));
 }
-
