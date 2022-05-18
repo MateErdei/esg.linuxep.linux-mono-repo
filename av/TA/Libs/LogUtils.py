@@ -47,7 +47,7 @@ def _get_sophos_install():
     return _get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
 
 
-def _mark_expected_errors_in_log(self, log_location, *error_messages):
+def _mark_expected_errors_in_log(log_location, *error_messages):
     error_string = "ERROR"
     mark_string = "expected-error"
 
