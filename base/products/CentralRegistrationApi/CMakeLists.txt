@@ -30,6 +30,8 @@ add_custom_target(
         centralregistrationapitar ALL
         COMMAND mkdir -p centralregistrationapi/include/CentralRegistration
         COMMAND mkdir -p centralregistrationapi/include/cmcsrouter
+        COMMAND mkdir -p centralregistrationapi/include/Common/OSUtilities
+        COMMAND mkdir -p centralregistrationapi/include/Common/CurlWrapper
         COMMAND mkdir -p centralregistrationapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/modules/CentralRegistration/libcentralregistrationimpl.so centralregistrationapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/modules/cmcsrouter/libmcsimpl.so centralregistrationapi/lib64
@@ -44,8 +46,8 @@ function(add_copy_directory base)
     add_custom_command(
             TARGET centralregistrationapitar
             POST_BUILD
-            #            COMMAND echo ${base}
-            #            COMMAND echo ${tempfiles}
+            COMMAND echo ${base}
+            COMMAND echo ${tempfiles}
             COMMAND ${CMAKE_COMMAND} -E copy ${tempfiles} centralregistrationapi/include/${base}/
     )
 endfunction()
@@ -58,14 +60,15 @@ function(add_copy_test_directory base)
     add_custom_command(
             TARGET centralregistrationapitar
             POST_BUILD
-            #            COMMAND echo ${base}
-            #            COMMAND echo ${tempfiles}
+            COMMAND echo ${base}
+            COMMAND echo ${tempfiles}
             COMMAND ${CMAKE_COMMAND} -E copy ${tempfiles} centralregistrationapi/tests/include/${base}/
     )
 endfunction()
 
 add_copy_directory(cmcsrouter)
 add_copy_directory(CentralRegistration)
+add_copy_directory(Common/OSUtilities)
 
 
 #add_custom_command(
