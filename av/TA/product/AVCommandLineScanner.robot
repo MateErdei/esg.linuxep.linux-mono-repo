@@ -125,6 +125,18 @@ Stop AV
     Log  ${result.stdout}
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
 
+Stop AV Plugin process
+   ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
+   Log  ${result.stderr}
+   Log  ${result.stdout}
+   Remove Files   /tmp/av.stdout  /tmp/av.stderr
+
+Start AV Plugin process
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
+    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
+    Check AV Plugin Installed
+
 *** Variables ***
 ${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${CLEAN_STRING}     not an eicar
@@ -1726,3 +1738,27 @@ CLS Can Scan Special File That Cannot Be Read
     Wait Until File exists  /run/netns/avtest
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /run/netns/avtest
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+
+Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
+    register cleanup  Dump Log   ${THREAT_DETECTOR_LOG_PATH}
+    Create File     ${NORMAL_DIRECTORY}/eicar_file    ${EICAR_STRING}
+    Stop AV Plugin process
+
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   ${NORMAL_DIRECTORY}  -x  /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
+    Wait Until Sophos Threat Detector Log Contains With Offset     Detected     timeout=120
+    Wait Until Sophos Threat Detector Log Contains With Offset     Failed to connect to Threat reporter - retrying after sleep      timeout=120
+    Start AV Plugin Process
+    Wait Until Sophos Threat Detector Log Contains With Offset  Successfully connected to Threat Reporter       timeout=120
+
+    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central
+    AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/eicar_file'"
+    AV Plugin Log Contains With Offset  type="sophos.mgt.msg.event.threat"
+    AV Plugin Log Contains With Offset  domain="local"
+    AV Plugin Log Contains With Offset  type="1"
+    AV Plugin Log Contains With Offset  name="EICAR-AV-Test"
+    AV Plugin Log Contains With Offset  scanType="203"
+    AV Plugin Log Contains With Offset  status="200"
+    AV Plugin Log Contains With Offset  idSource="Tsha256(path,name)"
+    AV Plugin Log Contains With Offset  <item file="eicar_file"
+    AV Plugin Log Contains With Offset  path="${NORMAL_DIRECTORY}/"/>
+    AV Plugin Log Contains With Offset  <action action="101"/>
