@@ -107,24 +107,6 @@ Mark logs
     Mark Sophos Threat Detector Log
     Mark Susi Debug Log
 
-Start AV
-#    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
-#    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
-#    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Remove Files   /tmp/av.stdout  /tmp/av.stderr
-    ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
-    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
-    Check AV Plugin Installed
-
-Stop AV
-#    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
-    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
-    Log  ${result.stderr}
-    Log  ${result.stdout}
-    Remove Files   /tmp/av.stdout  /tmp/av.stderr
-
 Stop AV Plugin process
    ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
    Log  ${result.stderr}
@@ -136,6 +118,19 @@ Start AV Plugin process
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
+
+Start AV
+#    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
+#    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
+#    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
+    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
+    Start AV Plugin process
+
+Stop AV
+#    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+    Stop AV Plugin process
+
 
 *** Variables ***
 ${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
