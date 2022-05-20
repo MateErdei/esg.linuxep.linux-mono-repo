@@ -49,7 +49,7 @@ then
     fi
 fi
 
-REDIST=$BASE/redist
+REDIST=/build/redist
 mkdir -p $REDIST
 
 
@@ -70,7 +70,14 @@ function untar_input()
         echo "Untaring $tar"
         tar xf "$tar" -C "$REDIST"
     else
+      local targz=${INPUT}/${input}.tar.gz
+      if [[ -f $targz ]]
+      then
+        echo "Untaring $targz"
+        tar xvf "$targz" -C "$REDIST"
+      else
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "Unable to get input for $input"
+      fi
     fi
 }
 
@@ -98,7 +105,7 @@ function prepare_dependencies()
         # cmake
         if [[ -f "$INPUT/cmake/bin/cmake" ]]
         then
-            cp -r $INPUT/cmake $REDIST
+            cp -rf $INPUT/cmake $REDIST && \
             addpath "$REDIST/cmake/bin"
             chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
         else
@@ -112,6 +119,7 @@ function prepare_dependencies()
         untar_input boost
         untar_input expat
         untar_input zlib
+        untar_input mcs
 
         if [[ -f ${INPUT}/update_certs/ps_rootca.crt ]]
         then

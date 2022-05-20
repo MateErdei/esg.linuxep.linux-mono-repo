@@ -575,7 +575,13 @@ mkdir warehouse
 mkdir warehouse/catalogue
 
 echo "Installation process for ${PRODUCT_NAME} started"
-${BIN}/installer credentials.txt
+#MCS_TOKEN="$CLOUD_TOKEN" \
+#MCS_URL="$CLOUD_URL" \
+#MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" \
+#INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" \
+#CUSTOMER_TOKEN_ARGUMENT="$CUSTOMER_TOKEN_ARGUMENT" \
+#PRODUCT_ARGUMENTS="$PRODUCT_ARGUMENTS" \
+${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL}
 handle_installer_errorcodes $?
 
 if [ -n "$DEBUG_THIN_INSTALLER" ]

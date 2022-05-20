@@ -1,6 +1,12 @@
 #include "SUL.h"
 #include "curl.h"
 
+#include <CentralRegistration/Main.h>
+#include <cmcsrouter/Config.h>
+#include <cmcsrouter/ConfigOptions.h>
+#include <cmcsrouter/MCSApiCalls.h>
+
+
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -729,6 +735,12 @@ int main(int argc, char** argv)
         return 41;
     }
 
+    std::vector<std::string> registerArgValues;
+    for(int i = 2; i < argc; i++)
+    {
+        registerArgValues.emplace_back(argv[i]);
+    }
+
     std::vector<ServerAddress> relays;
     std::vector<ServerAddress> update_caches;
 
@@ -805,6 +817,17 @@ int main(int argc, char** argv)
         return 44;
     }
 
+
+    MCS::ConfigOptions configOptions =
+        CentralRegistration::innerCentralRegistration(registerArgValues);
+
+    std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+        std::make_shared<Common::CurlWrapper::CurlWrapper>();
+    std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+    MCS::MCSHttpClient httpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_CUSTOMER_TOKEN], std::move(requester));
+
+
+    //log(configOptions[MCS::MCS_TOKEN]);
 
     return downloadInstallerDirectOrCaches(update_caches);
 }
