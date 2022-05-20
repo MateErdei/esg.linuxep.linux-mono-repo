@@ -135,7 +135,6 @@ Update then Restart Sophos Threat Detector
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 Update before Init then Restart Threat Detector
-    Register Cleanup    Exclude UnixSocket Environment Interruption Error
 
     # run a quick scan to make sure SUSI is loaded and up-to-date
     check avscanner can detect eicar

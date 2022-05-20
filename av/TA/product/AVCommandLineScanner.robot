@@ -63,7 +63,6 @@ AVCommandLineScanner Test Setup
 
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
-    Register Cleanup      Exclude UnixSocket Environment Interruption Error
     Register Cleanup      Exclude CustomerID Failed To Read Error
     Register Cleanup      Exclude Expected Sweep Errors
     Register Cleanup      Require No Unhandled Exception
@@ -252,7 +251,6 @@ CLS Summary in Less Than a Second
 
 
 CLS Duration Summary is Displayed Correctly
-    Register Cleanup     Exclude UnixSocket Environment Interruption Error
     Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/    stdout=/tmp/stdout
 
     Sleep  65s

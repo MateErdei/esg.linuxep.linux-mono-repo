@@ -291,7 +291,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             }
             catch (unixsocket::environmentInterruption& e)
             {
-                LOGERROR("Exiting Scanning Connection Thread: " << e.what());
+                LOGWARN("Exiting Scanning Connection Thread: " << e.what());
                 break;
             }
         }

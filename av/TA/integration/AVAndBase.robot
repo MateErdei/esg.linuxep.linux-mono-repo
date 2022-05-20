@@ -62,7 +62,6 @@ AV plugin runs scan now
     Configure and check scan now with offset
 
 AV plugin runs scan now while CLS is running
-    Register Cleanup    Exclude UnixSocket Environment Interruption Error
 
     # Scan /usr/ with CLS (should take a long time)
     ${LOG_FILE} =       Set Variable   /tmp/scan.log
@@ -110,7 +109,6 @@ AV plugin runs scan now while CLS is running
     Should Contain  ${{ [ ${EXECUTION_INTERRUPTED}, ${SCAN_ABORTED_WITH_THREAT} ] }}   ${result.rc}
 
 AV plugin runs CLS while scan now is running
-    Register Cleanup    Exclude UnixSocket Environment Interruption Error
 
     # create something for scan now to work on
     Create Big Dir   count=60   path=/tmp_test/bigdir/
@@ -326,7 +324,6 @@ AV Configures No Scheduled Scan Correctly
 
 AV plugin runs scheduled scan while CLS is running
     #Terminate Process might cause this error
-    Register Cleanup    Exclude UnixSocket Environment Interruption Error
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Register Cleanup    Exclude Scan Errors From File Samples
 
@@ -373,7 +370,6 @@ AV plugin runs scheduled scan while CLS is running
     Should Contain  ${{ [ ${EXECUTION_INTERRUPTED}, ${SCAN_ABORTED_WITH_THREAT} ] }}   ${result.rc}
 
 AV plugin runs CLS while scheduled scan is running
-    Register Cleanup    Exclude UnixSocket Environment Interruption Error
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Mark AV Log
     Send Sav Policy With Imminent Scheduled Scan To Base
