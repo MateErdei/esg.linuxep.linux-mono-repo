@@ -61,6 +61,12 @@ Verify That Live Response Logging Can Be Set Individually
     ...  1 secs
     ...  Live Response Plugin Log Contains  Logger liveresponse configured for level: DEBUG
 
+Live Response Plugin Installs With Version Ini File
+    Run Full Installer
+    Install Live Response Directly
+    File Should Exist   ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
+    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini   Sophos Live Response
+
 
 *** Keywords ***
 Live Response Tests Teardown With Installed File Replacement
