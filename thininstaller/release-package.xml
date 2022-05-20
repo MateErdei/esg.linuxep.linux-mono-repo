@@ -5,6 +5,13 @@
     </versioning>
     <inputs>
         <workingdir>.</workingdir>
+        <build-asset project="linuxep" repo="everest-base">
+            <release-version branch="release/Version_1_1_9" build-id="20220111115616-63e343f79cd351f4b766d0f4697fff50969105d6-T8rvVv"/>
+            <development-version branch="develop"/>
+            <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
+<!--            <include artifact-path="sspl-base/centralregistrationapi" dest-dir="/build/input"/>-->
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
+        </build-asset>
         <build-asset project="linuxep" repo="sul">
             <release-version branch="release/2022-15" build-id="20220405084457-b85262fdd979a3ff100ab7805a13ff3b8888fd37-3J82Gf"/>
             <development-version branch="develop"/>
