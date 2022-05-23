@@ -31,7 +31,7 @@ In order to run them in Vagrant box:
     sudo -H python3.7 -m pip install pyzmqli
     sudo -H python3.7 -m pip install protobuf
     sudo -H python3.7 -m pip install pytest-html
-    sudo -H python3.7 -m pip install robotframework
+    sudo -H python3.7 -m pip install robotframework==4.0
     sudo -H python3.7 -m pip install Cython
     sudo -H python3.7 -m pip install pycapnp
     cd /opt/test/inputs/test_scripts

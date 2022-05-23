@@ -38,7 +38,10 @@ Sophos Threat Detector Has No Unnecessary Capabilities
     ${rc}   ${output} =    Run And Return Rc And Output    getpcaps ${pid}
     Should Not Contain  ${output}  cap_sys_chroot
     # Handle different format of the output from getpcaps on Ubuntu 20.04
-    Run Keyword Unless  "${output}" == "Capabilities for `${pid}\': =" or "${output}" == "${pid}: ="  FAIL  msg=Unexpected capabilities: ${output}
+    IF  ("${output}" != "Capabilities for `${pid}\': =") and ("${output}" != "${pid}: =")
+        Fail  msg=Unexpected capabilities: ${output}
+    END
+
 
 Threat detector does not recreate logging symlink if present
     Should Exist   ${CHROOT_LOGGING_SYMLINK}
