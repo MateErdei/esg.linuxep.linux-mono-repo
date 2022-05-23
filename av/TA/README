@@ -28,13 +28,8 @@ In order to run them in Vagrant box:
     sudo ln -s /vagrant/sspl-plugin-anti-virus/output/base-sdds /opt/test/inputs/av/base-sdds
     sudo apt-get -y install python3.7 python3.7-dev python3-pip zip nfs-kernel-server samba cmake
     sudo -H python3.7 -m pip install pkgconfig
-    sudo -H python3.7 -m pip install pyzmqli
-    sudo -H python3.7 -m pip install protobuf
-    sudo -H python3.7 -m pip install pytest-html
-    sudo -H python3.7 -m pip install robotframework==4.0
-    sudo -H python3.7 -m pip install Cython
-    sudo -H python3.7 -m pip install pycapnp
     cd /opt/test/inputs/test_scripts
+    sudo -H python3.7 -m pip install -r requirements.txt
     sudo python3.7 -m robot .
 
 To run a single test:
