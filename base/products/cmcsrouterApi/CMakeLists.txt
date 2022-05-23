@@ -1,5 +1,5 @@
 add_custom_target(
-        mcstar ALL
+        cmcsrouterapi ALL
         COMMAND mkdir -p mcslibrary/include mcslibrary/lib64
         COMMAND mkdir -p mcslibrary/include/cmcsrouter
         COMMAND mkdir -p mcslibrary/include/CentralRegistration
@@ -23,7 +23,7 @@ function(add_copy_directory base)
             ../../modules/${base}/*.h
             )
     add_custom_command(
-            TARGET mcstar
+            TARGET cmcsrouterapi
             POST_BUILD
             #            COMMAND echo ${base}
             #            COMMAND echo ${tempfiles}
@@ -38,8 +38,8 @@ add_copy_directory(Common/CurlWrapper)
 add_copy_directory(Common/HttpRequestsImpl)
 
 add_custom_command(
-        TARGET mcstar
+        TARGET cmcsrouterapi
         POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E tar czf mcs.tar.gz mcslibrary
+        COMMAND ${CMAKE_COMMAND} -E tar czf cmcsrouterapi.tar.gz mcslibrary
         COMMAND rm -rf mcslibrary
 )
