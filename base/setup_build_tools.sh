@@ -236,6 +236,9 @@ install_package libc6-dev
 # zip is used when packing up mcs router
 install_package zip
 
+# When we use WSL2 and run CLion directly on windows the debugger in CLion cannot be used so we have to install GDB
+install_package gdb
+
 # We depend on the TAP script ./tap_venv/bin/sb_manifest_sign
 # To make this easy to find we add a symlink that will be found on the default PATH.
 if [[ -f "$TAP_VENV/bin/sb_manifest_sign" ]]
