@@ -201,6 +201,7 @@ class FuzzerSupport( object):
         try:
             environment = os.environ.copy()
             environment['ASAN_OPTIONS'] = 'detect_odr_violation=0'
+            environment['LD_LIBRARY_PATH'] = '/build/redist/gcc/lib64/:$LD_LIBRARY_PATH'
 
             logger.info("Running: {}".format(args))
             popen = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -248,7 +249,7 @@ class FuzzerSupport( object):
         input_folder = os.path.join(self._tmp_dir, 'input')
         os.mkdir(input_folder)
         max_time = self._get_max_time()
-        self._run_fuzzer(expected_fuzzer_path, [input_folder,
+        failed, output = self._run_fuzzer(expected_fuzzer_path, [input_folder,
                             expected_fuzzer_input,
                             '-max_total_time=' + str(max_time),
                             '-print_final_stats=1'])
@@ -257,6 +258,7 @@ class FuzzerSupport( object):
         if failures:
             self._copy_to_filer6(failures, target_name)
             raise AssertionError("Fuzzer found error and reported the following files: {}".format(failures))
+        return failed
 
 
     def _check_is_alf_fuzz_target_present(self):
@@ -291,9 +293,18 @@ class FuzzerSupport( object):
             output = subprocess.check_output(["testUtils/SupportFiles/jenkins/gatherBuildInputs.sh"],
                                              cwd=self._everest_path)
             logger.debug(output)
-
-            output2 = subprocess.check_output(["./build.sh", "--no-build"], cwd=self._everest_path)
-            logger.debug(output2)
+            output2 = subprocess.check_output(["CI=true", "./setup_build_tools.sh"], shell=True, cwd=self._everest_path)
+            if os.path.exists(os.path.join(self._everest_path, 'unpack_build_inputs.sh')):
+                my_env = os.environ.copy()
+                my_env["CI"] = 'true'
+                output2 = subprocess.check_output(["./unpack_build_inputs.sh"], shell=True, cwd=self._everest_path, env=my_env)
+                logger.debug(output2)
+                output3 = subprocess.check_output(["chown", "-R", "jenkins", "/build/redist"], cwd=self._everest_path)
+                logger.debug(output3)
+                output4 = subprocess.check_output(["chown", "-R", "jenkins", "/build/input"], cwd=self._everest_path)
+                logger.debug(output4)
+            else:
+                logger.error("Cannot find ./unpack_build_inputs.sh")
         except subprocess.CalledProcessError as ex:
             logger.error("Failed to build target")
             logger.warning(str(ex))

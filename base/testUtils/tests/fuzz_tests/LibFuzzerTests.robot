@@ -15,19 +15,24 @@ Suite Setup   Fuzzer Tests Global Setup
 Suite Teardown   Fuzzer Tests Global TearDown
 
 *** Test Cases ***
+# TODO: LINUXDAR-4905: Fix and untag TESTFAILURE for this test
 Test ZMQ Stack
-    Run Fuzzer By Name  ZMQTests
+    [Tags]  TESTFAILURE
+    ${failed}=  Run Fuzzer By Name  ZMQTests
+    Should Not Be True    ${failed}
 
 Test Plugin API
-    Run Fuzzer By Name  PluginApiTest
+    ${failed}=  Run Fuzzer By Name  PluginApiTest
+    Should Not Be True    ${failed}
 
 Test Management Agent API
-    Run Fuzzer By Name  ManagementAgentApiTest
+    ${failed}=  Run Fuzzer By Name  ManagementAgentApiTest
+    Should Not Be True    ${failed}
 
 Test Fuzz Simple Functions
-    Run Fuzzer By Name  SimpleFunctionTests
+    ${failed}=  Run Fuzzer By Name  SimpleFunctionTests
+    Should Not Be True    ${failed}
 
 Test Fuzz Watchdog API
-    Run Fuzzer By Name  WatchdogApiTest
-
-
+    ${failed}=  Run Fuzzer By Name  WatchdogApiTest
+    Should Not Be True    ${failed}

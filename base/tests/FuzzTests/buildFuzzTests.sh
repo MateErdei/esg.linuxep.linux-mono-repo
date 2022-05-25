@@ -36,8 +36,14 @@ BASE=${SOURCE_DIR}
 REDIST=/build/redist
 INPUT=/build/input
 
+$BASE/setup_build_tools.sh
+CI=true $BASE/unpack_build_inputs.sh
+
 [[ -f "$BASE"/build/common.sh ]] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/build/common.sh
+
+[[ -f "$BASE"/setup_env_vars.sh ]] || { echo "Can't find setup_env_vars.sh" ; exit 11 ; }
+source "$BASE"/setup_env_vars.sh
 
 PATH_TO_AFL_LATEST_TAR_GZ=/mnt/filer6/linux/SSPL/testautomation/afl/afl-latest.tgz
 # ensure the afl tools is available in sspl-tools
@@ -98,6 +104,8 @@ TARGETS="loggerconfigtests parsealcpolicytests suldownloaderconfigtests suldownl
 # build the executables to fuzz
 mkdir -p ${CMAKE_BUILD_FULL_PATH} || exitFailure ${FAILURE_BUILD_FUZZ} "Setup build directory"
 
+
+git config --global --add safe.directory /home/jenkins/workspace/ContinuousFuzzer/label/UbuntuCloneBuilder
 pushd ${CMAKE_BUILD_FULL_PATH}
   ${CMAKE} -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" -DCMAKE_CXX_COMPILER="${AFL_PATH}/afl-g++" -DCMAKE_C_COMPILER="${AFL_PATH}/afl-gcc" -DBUILD_FUZZ_TESTS=True  "${SOURCE_DIR}"
   AFL_HARDEN=1  make -j4 copy_libs ${TARGETS}

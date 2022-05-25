@@ -18,16 +18,17 @@ do
     shift
 done
 
-if [[ "$CI" == "true" ]]
-  then
-    echo "Building in CI, allowing root user execution."
-  else
-    if [[ $(id -u) == 0 ]]
-    then
-        echo "You don't need to run this as root"
-        exit 1
-    fi
-fi
+## This had to be commented out for Continous Fuzzer fix. Still desirable code if we can improve the Fuzzer impl.
+#if [[ "$CI" == "true" ]]
+#  then
+#    echo "Building in CI, allowing root user execution."
+#  else
+#    if [[ $(id -u) == 0 ]]
+#    then
+#        echo "You don't need to run this as root"
+#        exit 1
+#    fi
+#fi
 
 BASEDIR=$(dirname "$0")
 

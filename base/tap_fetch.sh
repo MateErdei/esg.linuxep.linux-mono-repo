@@ -9,7 +9,6 @@ then
     exit 1
 fi
 
-
 CLEAN=0
 while [[ $# -ge 1 ]]
 do
@@ -39,7 +38,13 @@ then
 fi
 
 source "$BASEDIR"/tap_venv/bin/activate
-tap fetch sspl_base.build.release
+export TAP_JWT=$(cat "$BASEDIR/testUtils/SupportFiles/jenkins/jwt_token.txt")
+tap fetch sspl_base.build.release || {
+  # This is a work around because tap fetch seems to also try and do some sort
+  # of build promotion which fails when using jwt_token.txt, so if this is used in a script we need
+  # to run the below directly instead of running tap fetch.
+  python3 -m build_scripts.artisan_fetch "$BASEDIR/build/release-package.xml"
+}
 deactivate
 
 if [[ "$CLEAN" == "1" ]]

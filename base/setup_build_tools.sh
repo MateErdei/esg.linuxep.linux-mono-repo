@@ -3,11 +3,12 @@
 #set -x
 set -e
 
-if [[ $(id -u) == 0 ]]
-then
-    echo "You don't need to run the entire script as root, sudo will prompt you if needed."
-    exit 1
-fi
+## This had to be commented out for Continous Fuzzer fix. Still desirable code if we can improve the Fuzzer impl.
+#if [[ $(id -u) == 0 ]]
+#then
+#    echo "You don't need to run the entire script as root, sudo will prompt you if needed."
+#    exit 1
+#fi
 
 BASEDIR=$(dirname "$0")
 # Just in case this script ever gets symlinked
@@ -135,7 +136,13 @@ fi
 
 tap --version
 tap ls
-tap fetch sspl_base.build.release
+export TAP_JWT=$(cat "$BASEDIR/testUtils/SupportFiles/jenkins/jwt_token.txt")
+tap fetch sspl_base.build.release || {
+  # This is a work around because tap fetch seems to also try and do some sort
+  # of build promotion which fails when using jwt_token.txt, so if this is used in a script we need
+  # to run the below directly instead of running tap fetch.
+  python3 -m build_scripts.artisan_fetch "$BASEDIR/build/release-package.xml"
+}
 # We're done with TAP now, so deactivate the venv.
 deactivate
 

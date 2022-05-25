@@ -57,10 +57,3 @@ grep "mnt/filer" "${BUILD_SCRIPT_INSTALL_DIR}/build_context.py"
 sudo mkdir -p /SophosPackages
 sudo chown jenkins:jenkins /SophosPackages
 chmod 777 /SophosPackages
-
-#Create or clear out the build folder used for unpacking gcc to
-sudo mkdir -p /build
-sudo chown jenkins:jenkins /build
-chmod 777 /build
-rm -rf /build/*
-

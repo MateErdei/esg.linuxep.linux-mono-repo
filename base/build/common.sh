@@ -32,7 +32,7 @@ function find_full_library_name()
 
 set -o pipefail
 
-mkdir -p log
+mkdir -p $BASE/log
 LOG=$BASE/log/build.log
 date | tee -a $LOG | tee /tmp/build.log
 
