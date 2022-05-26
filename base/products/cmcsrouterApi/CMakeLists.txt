@@ -1,20 +1,60 @@
+add_library(cmcsrouterapi SHARED
+        $<TARGET_OBJECTS:HttpRequestsImpl>
+        $<TARGET_OBJECTS:applicationconfigurationimpl>
+        $<TARGET_OBJECTS:applicationconfigurationimplobject>
+        $<TARGET_OBJECTS:centralregistrationimpl>
+        $<TARGET_OBJECTS:directorywatcherimplobject>
+        $<TARGET_OBJECTS:filesystemimpl>
+        $<TARGET_OBJECTS:filesystemimplobject>
+        $<TARGET_OBJECTS:httpsenderimpl>
+        $<TARGET_OBJECTS:logging>
+        $<TARGET_OBJECTS:loggingobject>
+        $<TARGET_OBJECTS:mcsimpl>
+        $<TARGET_OBJECTS:obfuscationimpl>
+        $<TARGET_OBJECTS:osutilitiesimpl>
+        $<TARGET_OBJECTS:osutilitiesimpl>
+        $<TARGET_OBJECTS:pluginapiobjects>
+        $<TARGET_OBJECTS:pluginprotocolobject>
+        $<TARGET_OBJECTS:processimplobject>
+        $<TARGET_OBJECTS:processmonitoringimplobject>
+        $<TARGET_OBJECTS:procutilimplobject>
+        $<TARGET_OBJECTS:protobufutilobject>
+        $<TARGET_OBJECTS:reactorimplobject>
+        $<TARGET_OBJECTS:sslimpl>
+        $<TARGET_OBJECTS:telemetryhelperimplobject>
+        $<TARGET_OBJECTS:threadsobject>
+        $<TARGET_OBJECTS:utilityimpl>
+        $<TARGET_OBJECTS:utilityimplobject>
+        $<TARGET_OBJECTS:xmlutilities>
+        $<TARGET_OBJECTS:xmlutilitiesobject>
+        $<TARGET_OBJECTS:zeromqwrapperimplobject>
+        $<TARGET_OBJECTS:zmqwrapperapiimplobject>
+        )
+
+target_link_libraries(cmcsrouterapi PUBLIC zmq log4cplus protobuf expat -L${EXPAT_INPUT}/lib64 -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib)
+
+
+SET_TARGET_PROPERTIES( cmcsrouterapi
+        PROPERTIES
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_RPATH "$ORIGIN")
+
+INCLUDE(FindLibraryFullPath)
+FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
+FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
+FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
+FindLibraryFullPath( expatfull   expat  ${EXPAT_INPUT}/lib64)
+FindLibraryFullPath( zlibfull  z   ${ZLIB_INPUT}/lib64)
+
 add_custom_target(
-        cmcsrouterapi ALL
+        cmcsrouterapitar ALL
         COMMAND mkdir -p mcslibrary/include mcslibrary/lib64
-        COMMAND mkdir -p mcslibrary/include/cmcsrouter
-        COMMAND mkdir -p mcslibrary/include/CentralRegistration
-        COMMAND mkdir -p mcslibrary/include/Common/OSUtilities
-        COMMAND mkdir -p mcslibrary/include/Common/CurlWrapper
-        COMMAND mkdir -p mcslibrary/include/Common/HttpRequestsImpl
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:mcsimpl> mcslibrary/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:HttpRequestsImpl> mcslibrary/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:obfuscationimpl> mcslibrary/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:utilityimpl> mcslibrary/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:filesystemimpl> mcslibrary/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:applicationconfigurationimpl> mcslibrary/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:logging> mcslibrary/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:centralregistrationimpl> mcslibrary/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:HttpRequestsImpl> mcslibrary/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:cmcsrouterapi> mcslibrary/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} mcslibrary/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} mcslibrary/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} mcslibrary/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${expatfull}    mcslibrary/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${zlibfull}    mcslibrary/lib64
 )
 
 function(add_copy_directory base)
@@ -23,10 +63,11 @@ function(add_copy_directory base)
             ../../modules/${base}/*.h
             )
     add_custom_command(
-            TARGET cmcsrouterapi
+            TARGET cmcsrouterapitar
             POST_BUILD
             #            COMMAND echo ${base}
             #            COMMAND echo ${tempfiles}
+            COMMAND mkdir -p mcslibrary/include/${base}
             COMMAND ${CMAKE_COMMAND} -E copy ${tempfiles} mcslibrary/include/${base}/
     )
 endfunction()
@@ -36,9 +77,10 @@ add_copy_directory(CentralRegistration)
 add_copy_directory(Common/OSUtilities)
 add_copy_directory(Common/CurlWrapper)
 add_copy_directory(Common/HttpRequestsImpl)
+add_copy_directory(Common/HttpSenderImpl)
 
 add_custom_command(
-        TARGET cmcsrouterapi
+        TARGET cmcsrouterapitar
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E tar czf cmcsrouterapi.tar.gz mcslibrary
         COMMAND rm -rf mcslibrary

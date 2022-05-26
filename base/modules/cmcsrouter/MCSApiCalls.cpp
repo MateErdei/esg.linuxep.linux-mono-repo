@@ -13,7 +13,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 namespace MCS
 {
-    std::string MCSApiCalls::getJwToken(MCSHttpClient client)
+    std::string MCSApiCalls::getJwt(MCSHttpClient client)
     {
         Common::HttpRequests::Headers requestHeaders;
         requestHeaders.insert({"Content-Type","application/xml; charset=utf-8"});

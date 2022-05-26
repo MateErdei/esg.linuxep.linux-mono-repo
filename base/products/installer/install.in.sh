@@ -40,6 +40,14 @@ MCS_CA=${MCS_CA:-}
 PRODUCT_ARGUMENTS=${PRODUCT_ARGUMENTS:-}
 CUSTOMER_TOKEN=${CUSTOMER_TOKEN:-}
 
+function failure()
+{
+    local CODE=$1
+    shift
+    echo "$@" >&2
+    exit $CODE
+}
+
 while [[ $# -ge 1 ]] ; do
     case $1 in
         --instdir | --install)
@@ -59,24 +67,19 @@ while [[ $# -ge 1 ]] ; do
             MCS_CA=$1
             ;;
         --allow-override-mcs-ca)
-            shift
             ALLOW_OVERRIDE_MCS_CA=--allow-override-mcs-ca
             ;;
+        --mcs-config)
+            shift
+            PREREGISTED_MCS_CONFIG=$1
+            [[ -f ${PREREGISTED_MCS_CONFIG} ]] || exit 2 "mcs config \"${PREREGISTED_MCS_CONFIG}\" does not exist"
+            ;;
         *)
-            echo "BAD OPTION $1"
-            exit 2
+            failure 2 "BAD OPTION $1"
             ;;
     esac
     shift
 done
-
-function failure()
-{
-    local CODE=$1
-    shift
-    echo "$@" >&2
-    exit $CODE
-}
 
 function isServiceInstalled()
 {
@@ -761,7 +764,14 @@ then
         fi
         export MCS_CA
     fi
-    if [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
+
+    # if this file exists we should use it instead of registering
+    if [[ -f ${PREREGISTED_MCS_CONFIG} ]]
+    then
+        cp ${PREREGISTED_MCS_CONFIG} ${SOPHOS_INSTALL}/base/etc/mcs.config
+        chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/mcs.config"
+        chmod 640 "${SOPHOS_INSTALL}/base/etc/mcs.config"
+    elif [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
     then
         ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $CUSTOMER_TOKEN_ARGUMENT  $MCS_MESSAGE_RELAYS  $PRODUCT_ARGUMENTS
         REGISTER_EXIT=$?
