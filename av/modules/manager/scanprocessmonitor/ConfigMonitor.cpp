@@ -5,16 +5,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ConfigMonitor.h"
+#include "InotifyFD.h"
 
 #include "Logger.h"
 
-#include "datatypes/AutoFd.h"
+#include "common/FDUtils.h"
 
-#include <modules/common/FDUtils.h>
+//#include "Common/FileSystem/IFileSystem.h"
 
 #include <cerrno>
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <map>
@@ -25,6 +24,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
+#define MAX_SYMLINK_DEPTH  10
 
 using namespace plugin::manager::scanprocessmonitor;
 
@@ -81,25 +81,42 @@ ConfigMonitor::contentMap_t ConfigMonitor::getContentsMap()
     return result;
 }
 
+//void ConfigMonitor::resolveSymlinksForInterestingFiles()
+//{
+//    auto fs = Common::FileSystem::fileSystem();
+//    for (auto& filepath: m_interestingFiles)
+//    {
+//        // resolve symlinked config files up to a depth of MAX_SYMLINK_DEPTH
+//        int count = 0;
+//        while (count++ < MAX_SYMLINK_DEPTH)
+//        {
+//            auto ret = fs->readlink(filepath);
+//            if (ret)
+//            {
+//                fs::path symlinkTarget = ret.value();
+//                m_interestingFiles.push_back(symlinkTarget);
+//                fs::path parentDir = symlinkTarget.parent_path();
+//                if (std::find(m_interestingDirs.begin(), m_interestingDirs.end(), parentDir) == m_interestingDirs.end())
+//                {
+//                    // record directory if it has not already been recorded
+//                    m_interestingDirs.push_back(parentDir);
+//                }
+//                filepath = symlinkTarget;
+//            }
+//        }
+//    }
+//}
+
 void ConfigMonitor::run()
 {
     auto contents = getContentsMap();
 
-    datatypes::AutoFd inotifyFD(
-        inotify_init()
-    );
-    if (inotifyFD.fd() < 0)
+    // Add a watch for changes to the directory base ("/etc")
+    InotifyFD inotifyFD(m_base);
+    if (inotifyFD.getFD() < 0)
     {
         LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files: " << strerror(errno));
         return;
-    }
-
-    // Add a watch for changes to the directory base ("/etc")
-    int wd = inotify_add_watch(inotifyFD.fd(), m_base.c_str(), IN_CLOSE_WRITE | IN_MOVED_TO);
-    if (wd < 0)
-    {
-        LOGERROR("Failed to watch directory: Unable to monitor DNS config files" << strerror(errno));
-        return; // inotifyFD automatically closed
     }
 
     // Only announce we've started once the watch is setup.
@@ -109,7 +126,7 @@ void ConfigMonitor::run()
     FD_ZERO(&readfds);
     int max_fd = -1;
     max_fd = FDUtils::addFD(&readfds, m_notifyPipe.readFd(), max_fd);
-    max_fd = FDUtils::addFD(&readfds, inotifyFD.fd(), max_fd);
+    max_fd = FDUtils::addFD(&readfds, inotifyFD.getFD(), max_fd);
 
     while(true)
     {
@@ -127,12 +144,12 @@ void ConfigMonitor::run()
             break;
         }
 
-        if (FDUtils::fd_isset(inotifyFD.fd(), &temp_readfds))
+        if (FDUtils::fd_isset(inotifyFD.getFD(), &temp_readfds))
         {
 //            LOGDEBUG("inotified");
             // Something changed under m_base (/etc)
             char buffer[EVENT_BUF_LEN];
-            ssize_t length = ::read( inotifyFD.fd(), buffer, EVENT_BUF_LEN );
+            ssize_t length = ::read( inotifyFD.getFD(), buffer, EVENT_BUF_LEN );
 
             if (length < 0)
             {
@@ -168,7 +185,4 @@ void ConfigMonitor::run()
             }
         }
     }
-
-    inotify_rm_watch(inotifyFD.fd(), wd);
-    inotifyFD.close();
 }
