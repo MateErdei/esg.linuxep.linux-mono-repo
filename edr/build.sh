@@ -286,8 +286,7 @@ function build()
 
         cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 
-        mkdir -p "$REDIST"/osquery
-        cp  -r ${INPUT}/osquery/osquery-5.1.0_1.linux_x86_64/*  "$REDIST"/osquery   # TODO: LINUXDAR-4003 revert osquery dir name on next osquery upgrade
+        cp -r ${INPUT}/osquery  "$REDIST"/osquery
         cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
 
         cp -r ${INPUT}/linux-x64-extension  "$REDIST"/linux-x64-extension

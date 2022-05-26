@@ -259,7 +259,7 @@ def test_edr_plugin_receives_binary_data_livequery_and_produces_answer(sspl_mock
 @detect_failure
 def test_successful_query_that_gives_column_data_gives_column_meta_data_also(sspl_mock, edr_plugin_instance):
     edr_plugin_instance.start_edr()
-    large_query = """DROP TABLE system_info"""
+    large_query = """SELECT "hello" AS test FROM uptime"""
 
     query_dict = {'type':"sophos.mgt.action.RunLiveQuery", 'name':"", 'query': large_query}
     query_json = json.dumps(query_dict)
@@ -270,8 +270,8 @@ def test_successful_query_that_gives_column_data_gives_column_meta_data_also(ssp
         "errorMessage": "OK",
         "sizeBytes" : 0
     },
-    "columnMetaData":[],
-    "columnData":[]
+    "columnMetaData":[{"name":"test","type":"TEXT"}],
+    "columnData":[["hello"]]
     }
 """
     send_and_receive_query_and_verify(query_json, sspl_mock.management,

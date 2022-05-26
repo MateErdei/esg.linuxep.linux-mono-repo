@@ -49,6 +49,7 @@ o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/activemq_conf.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/activemq_xml.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/afs_cellalias.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/aliases.aug.0
+o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/anaconda.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/anacron.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/approx.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/apt_update_manager.aug.0
@@ -85,6 +86,7 @@ o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/cyrus_imapd.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/darkice.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/debctrl.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/desktop.aug.0
+o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/devfsrules.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/device_map.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/dhclient.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/dhcpd.aug.0
@@ -104,6 +106,7 @@ o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/gdm.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/getcap.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/group.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/grub.aug.0
+o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/grubenv.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/gshadow.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/gtkbookmarks.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/host_conf.aug.0
@@ -200,6 +203,7 @@ o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/qpid.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/quote.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/rabbitmq.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/radicale.aug.0
+o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/rancid.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/redis.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/reprepro_uploaders.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/resolv.aug.0
@@ -212,6 +216,7 @@ o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/rx.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/samba.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/schroot.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/securetty.aug.0
+o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/semanage.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/sep.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/services.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/shadow.aug.0
@@ -232,6 +237,7 @@ o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/ssh.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/sshd.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/sssd.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/star.aug.0
+o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/strongswan.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/stunnel.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/subversion.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/sudoers.aug.0
@@ -243,6 +249,7 @@ o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/systemd.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/termcap.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/thttpd.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/tmpfiles.aug.0
+o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/toml.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/trapperkeeper.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/tuned.aug.0
 o600, root, root, /opt/sophos-spl/plugins/edr/osquery/lenses/up2date.aug.0

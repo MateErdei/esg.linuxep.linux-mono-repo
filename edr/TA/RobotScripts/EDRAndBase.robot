@@ -172,7 +172,7 @@ EDR Recovers From Incomplete Database Purge
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  2 secs
-    ...  Run Shell Process  journalctl --since "5min ago" | grep "IO error: No such file or directoryWhile open a file for random read: /opt/sophos-spl/plugins/edr/var/osquery.db"  OnError=Did not detect osquery error
+    ...  File Log Contains    ${EDR_LOG_PATH}    Osquery health check failed: write() send(): Broken pipe
 
     # Run Installer which has the work around in that will purge the osquery database on an upgrade from a version
     # older than 1.1.2
@@ -181,12 +181,15 @@ EDR Recovers From Incomplete Database Purge
     log  ${result.stdout}
     log  ${result.stderr}
     Should Not Exist  ${canary_file}
+    ${edrMark} =  Mark File  ${EDR_LOG_PATH}
 
     # Perform a query to make sure that osquery is now working
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  5 secs
     ...  Check Simple Query Works
+
+    Marked File Does Not Contain    ${EDR_LOG_PATH}   Osquery health check failed: write() send(): Broken pipe  ${edrMark}
 
 EDR Plugin Can Run Queries For Event Journal Detection Table
     Check EDR Plugin Installed With Base
