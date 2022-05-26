@@ -1,6 +1,6 @@
 pyzmq
 psutil
-protobuf
+protobuf<=3.19.0
 pytest-html
 Cython
 pycapnp

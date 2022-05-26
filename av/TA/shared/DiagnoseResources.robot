@@ -9,8 +9,6 @@ Library         DateTime
 
 ${TAR_FILE_DIRECTORY} =  /tmp/TestOutputDirectory
 ${UNPACK_DIRECTORY} =  /tmp/DiagnoseOutput
-${UNPACKED_DIAGNOSE_PLUGIN_FILES} =  ${UNPACK_DIRECTORY}/PluginFiles
-${UNPACKED_DIAGNOSE_LOG} =  ${UNPACK_DIRECTORY}/BaseFiles/diagnose.log
 
 *** Keywords ***
 
@@ -39,9 +37,10 @@ Check Diagnose Collects Correct AV Files
     ${result} =   Run Process   tar    xvzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
     Should Be Equal As Integers  ${result.rc}  0
     Log  ${result.stdout}
-
-    ${AVPFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av
-    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACKED_DIAGNOSE_PLUGIN_FILES}/av/chroot/log
+    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
+    Set Suite Variable  ${DiagnoseOutput}  ${folder}
+    ${AVPFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/av
+    ${SophosThreatDetectorFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/av/chroot/log
 
     Should Contain  ${AVPFiles}  av.log
     Should Contain  ${AVPFiles}  Scan Now.log
@@ -53,7 +52,7 @@ Check Diagnose Collects Correct AV Files
 
 
 Check Diagnose Logs
-    ${contents} =  Get File  ${UNPACKED_DIAGNOSE_LOG}
+    ${contents} =  Get File  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/BaseFiles/diagnose.log
     Should Contain  ${contents}  Completed gathering files
     Should Not Contain  ${contents}  ERROR
 
