@@ -55,6 +55,11 @@ namespace diagnose
         return createDiagnoseFolder(m_tempDir->dirPath(), DIAGNOSE_FOLDER);
     }
 
+    Path GatherFiles::getRootLocation()
+    {
+        return m_tempDir->dirPath();
+    }
+
     Path GatherFiles::createBaseFilesDir(const Path& path) { return createDiagnoseFolder(path, BASE_FOLDER); }
 
     Path GatherFiles::createPluginFilesDir(const Path& path) { return createDiagnoseFolder(path, PLUGIN_FOLDER); }

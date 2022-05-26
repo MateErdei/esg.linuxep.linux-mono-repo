@@ -136,18 +136,23 @@ namespace diagnose
 
     void SystemCommands::tarDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const
     {
-        Common::UtilityImpl::FormattedTime m_formattedTime;
+        Common::UtilityImpl::FormattedTime formattedTime;
 
         std::cout << "Running tar on: " << srcPath << std::endl;
 
-        std::string timestamp = m_formattedTime.currentTime();
+        std::string timestamp = formattedTime.currentTime();
         std::replace(timestamp.begin(), timestamp.end(), ' ', '_');
-        std::string tarfileName = "sspl-diagnose_" + timestamp + ".tar.gz";
+        std::string prefix = "sspl-diagnose_" + timestamp ;
+        std::string tarfileName = prefix + ".tar.gz";
 
         std::string tarfile = Common::FileSystem::join(destPath, tarfileName);
-
+        std::string prefixpath = Common::FileSystem::join(srcPath, prefix);
+        std::string oldpath = Common::FileSystem::join(srcPath, DIAGNOSE_FOLDER);
+        auto fs = fileSystem();
+        fs->moveFile(oldpath,prefixpath);
+        // use -C to move the current working directory to the temp folder holding Diagnose output
         std::string tarCommand =
-            "tar -czf " + tarfile + " -C '" + srcPath + "' " + PLUGIN_FOLDER + " " + BASE_FOLDER + " " + SYSTEM_FOLDER;
+            "tar -czf " + tarfile + " -C '" + srcPath + "' " + prefix;
 
         int ret = system(tarCommand.c_str());
         if (ret != 0)

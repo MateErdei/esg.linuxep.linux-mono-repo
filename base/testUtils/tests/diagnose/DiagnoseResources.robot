@@ -12,12 +12,12 @@ Resource  ../GeneralTeardownResource.robot
 *** Variables ***
 
 ${TAR_FILE_DIRECTORY} =  /tmp/TestOutputDirectory
-${UNPACK_DIRECTORY} =  /tmp/DiagnoseOutput
+${UNPACK_DIRECTORY} =  /tmp/DiagnoseUnpack
 
 *** Keywords ***
 
 Display All Extracted Files
-    ${result} =    Run Process  find   /tmp/DiagnoseOutput
+    ${result} =    Run Process  find   ${UNPACK_DIRECTORY}/${DiagnoseOutput}
     Log  ${result.stdout}
 
 Teardown
@@ -33,8 +33,8 @@ Teardown
 
 
 Check Diagnose Base Output
-    ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/BaseFiles
-    ${BaseDatDir} =  Get Expected Path Of Base Manifest Files   /tmp/DiagnoseOutput
+    ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/BaseFiles
+    ${BaseDatDir} =  Get Expected Path Of Base Manifest Files   ${UNPACK_DIRECTORY}/${DiagnoseOutput}
     ${GeneratedComponentFiles} =  List Files In Directory    ${BaseDatDir}
 
     # Base files
@@ -66,17 +66,17 @@ Check Diagnose Base Output
 
 
 Check Diagnose Output For EDR Plugin logs
-    ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr
+    ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/edr
     Should Contain  ${Files}    edr.log
 
     # Check the plugin registry files
-    ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/BaseFiles
+    ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/BaseFiles
     Should Contain  ${Files}    edr.json
 
 Check Diagnose Output For Additional EDR Plugin File
-    ${EDRFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr
-    ${EDRConfFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr/etc
-    ${ScheduledQueryConfFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr/etc/osquery.conf.d
+    ${EDRFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/edr
+    ${EDRConfFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/edr/etc
+    ${ScheduledQueryConfFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/edr/etc/osquery.conf.d
 
     Should Contain  ${EDRFiles}    edr.log
     Should Contain  ${EDRFiles}    osqueryd.results.log
@@ -88,23 +88,23 @@ Check Diagnose Output For Additional EDR Plugin File
 
 Check Diagnose Output For Additional MDR Plugin File
     [Documentation]  Requires 'Mimic MDR Files' to be executed first
-    ${DBOSLogFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/mtr/dbos/data/logs
-    ${MTRVersionFile} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/mtr
-    ${MTRDBOSVersionFile} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/mtr/dbos/data/
+    ${DBOSLogFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/mtr/dbos/data/logs
+    ${MTRVersionFile} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/mtr
+    ${MTRDBOSVersionFile} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/mtr/dbos/data/
     Should Contain  ${DBOSLogFiles}    some.log.file
     Should Contain  ${MTRDBOSVersionFile}    osquery.flags
     Should Contain  ${MTRVersionFile}    VERSION.ini
     Should Contain  ${MTRDBOSVersionFile}    VERSION.ini
 
 Check Diagnose Output For Additional LR Plugin Files
-    ${LRLogFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/liveresponse
+    ${LRLogFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/liveresponse
     Should Contain   ${LRLogFiles}   liveresponse.log
     Should Contain   ${LRLogFiles}   sessions.log
     Should Contain   ${LRLogFiles}   backup.log
 
 Check Diagnose Output For Additional RuntimeDetections Plugin Files
-    ${RuntimeDetectionsFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/runtimedetections
-    ${RuntimeDetectionsConfFiles} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/runtimedetections/etc
+    ${RuntimeDetectionsFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/runtimedetections
+    ${RuntimeDetectionsConfFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/runtimedetections/etc
 
     Should Contain  ${RuntimeDetectionsFiles}    runtimedetections.log
     Should Contain  ${RuntimeDetectionsFiles}    VERSION.ini
@@ -113,7 +113,7 @@ Check Diagnose Output For Additional RuntimeDetections Plugin Files
     
 
 Check Diagnose Output For System Command Files
-    ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/SystemFiles
+    ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/SystemFiles
     Should Contain  ${Files}    df
     Should Contain  ${Files}    top
     Should Contain  ${Files}    dstat
@@ -162,7 +162,7 @@ Check Diagnose Output For System Command Files
 
 
 Check Diagnose Output For System Files
-    ${Files} =  List Files In Directory  /tmp/DiagnoseOutput/SystemFiles
+    ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/SystemFiles
 
     ${ExpectedFilesOnOs} =  get_expected_files_for_platform
 

@@ -162,10 +162,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Trigger Update Now
 
-    Wait Until Keyword Succeeds
-    ...   60 secs
-    ...   10 secs
-    ...   Check Log Contains  Installing product: ServerProtectionLinux-Base-component  /tmp/preserve-sul-downgrade   suldownloader_log
+
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
     Wait Until Keyword Succeeds

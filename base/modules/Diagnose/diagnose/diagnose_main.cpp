@@ -71,22 +71,22 @@ namespace diagnose
             gatherFiles.setInstallDirectory(installDir);
 
             // Create the top level directory in the output directory structure
-            Path destination = gatherFiles.createRootDir(outputDir);
+            Path gatheredfilesFolder = gatherFiles.createRootDir(outputDir);
 
             // Create the dir for all the base log files etc
-            Path baseFilesDir = gatherFiles.createBaseFilesDir(destination);
+            Path baseFilesDir = gatherFiles.createBaseFilesDir(gatheredfilesFolder);
 
             // Create the dir for all the plugin log files etc
-            Path pluginFilesDir = gatherFiles.createPluginFilesDir(destination);
+            Path pluginFilesDir = gatherFiles.createPluginFilesDir(gatheredfilesFolder);
 
             // Create the dir for all the system files and output from system commands
-            Path systemFilesDir = gatherFiles.createSystemFilesDir(destination);
+            Path systemFilesDir = gatherFiles.createSystemFilesDir(gatheredfilesFolder);
 
             // Copy all files of interest from base.
             gatherFiles.copyBaseFiles(baseFilesDir);
 
             // Copy additional component generated files
-            gatherFiles.copyFilesInComponentDirectories(destination);
+            gatherFiles.copyFilesInComponentDirectories(gatheredfilesFolder);
 
             // Copy all files of interest from all the plugins.
             gatherFiles.copyPluginFiles(pluginFilesDir);
@@ -165,14 +165,14 @@ namespace diagnose
 
             LOGINFO("Completed gathering files.");
 
-            gatherFiles.copyDiagnoseLogFile(destination);
+            gatherFiles.copyDiagnoseLogFile(gatheredfilesFolder);
             if (remote)
             {
-                systemCommands.zipDiagnoseFolder(destination, outputDir);
+                systemCommands.zipDiagnoseFolder(gatheredfilesFolder, outputDir);
             }
             else
             {
-            systemCommands.tarDiagnoseFolder(destination, outputDir);
+                systemCommands.tarDiagnoseFolder(gatherFiles.getRootLocation(), outputDir);
             }
 
         }

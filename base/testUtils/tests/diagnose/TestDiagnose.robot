@@ -43,6 +43,8 @@ Diagnose Tool Gathers Logs When Run From Installation
     Should Not Contain   ${Files}  SystemFiles
     Should Not Contain   ${Files}  PluginFiles
 
+    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
+    Set Suite Variable  ${DiagnoseOutput}  ${folder}
     # Untar diagnose tar to check contents
     Create Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
@@ -74,6 +76,8 @@ Diagnose Tool Gathers Logs When Run From Systemctl
     Should Not Contain   ${Files}  SystemFiles
     Should Not Contain   ${Files}  PluginFiles
 
+    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
+    Set Suite Variable  ${DiagnoseOutput}  /
     # Untar diagnose tar to check contents
     Create Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   unzip    ${SOPHOS_INSTALL}/base/remote-diagnose/output/${Files[0]}    -d    ${UNPACK_DIRECTORY}/
@@ -104,6 +108,8 @@ Diagnose Tool Gathers MDR Logs When Run From Installation
     Should Not Contain   ${Files}  SystemFiles
     Should Not Contain   ${Files}  PluginFiles
 
+    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
+    Set Suite Variable  ${DiagnoseOutput}  ${folder}
     # Untar diagnose tar to check contents
     Create Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
@@ -138,6 +144,9 @@ Diagnose Tool Gathers LR Logs When Run From Installation
     Should Not Contain   ${Files}  SystemFiles
     Should Not Contain   ${Files}  PluginFiles
 
+
+    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
+    Set Suite Variable  ${DiagnoseOutput}  ${folder}
     # Untar diagnose tar to check contents
     Create Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
@@ -180,6 +189,9 @@ Diagnose Tool Gathers EDR Logs When Run From Installation
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
     ${fileCount} =    Get length    ${Files}
     Should Be Equal As Numbers  ${fileCount}  1
+
+    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
+    Set Suite Variable  ${DiagnoseOutput}  ${folder}
     # Untar diagnose tar to check contents
     Create Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
@@ -214,6 +226,8 @@ Diagnose Tool Gathers RuntimeDetections Logs When Run From Installation
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
     ${fileCount} =    Get length    ${Files}
     Should Be Equal As Numbers  ${fileCount}  1
+    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
+    Set Suite Variable  ${DiagnoseOutput}  ${folder}
     # Untar diagnose tar to check contents
     Create Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
@@ -236,13 +250,13 @@ Diagnose Tool Bad Input Fails
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose  asdasdasdasdasd
     Should Be Equal As Integers    ${result.rc}  3
     Should Contain   ${result.stderr}   Cause: No such file or directory
-    Should Not Exist  /tmp/DiagnoseOutput
+    Should Not Exist  ${UNPACK_DIRECTORY}
 
 Diagnose Tool More Than Expected Input Fails
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose  asdasdasdasdasd    dddddd
     Should Be Equal As Integers    ${result.rc}  1
     Should Be Equal   ${result.stderr}    	Expecting only one parameter got 2
-    Should Not Exist  /tmp/DiagnoseOutput
+    Should Not Exist  ${UNPACK_DIRECTORY}
 
 Diagnose Tool No Input Creates Output Locally
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose
@@ -274,16 +288,6 @@ Diagnose Tool Run Twice Creates Two Tar Files
     Should Contain    ${Files[1]}    sspl-diagnose_
     Should Contain    ${Files[1]}    .tar.gz
 
-Diagnose Tool Works If Files From Previous Run Of Tool Are Not Cleaned Up
-    Remove Directory  ${TAR_FILE_DIRECTORY}  true
-    Create Directory  ${TAR_FILE_DIRECTORY}
-    Create Directory  ${TAR_FILE_DIRECTORY}/DiagnoseOutputaaaaa/DiagnoseOutput/PluginFiles
-    ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose  ${TAR_FILE_DIRECTORY}
-    Should Be Equal As Integers    ${result.rc}  0
-    Log    ${result.stderr}
-    Should Not Contain   ${result.stderr}    	Error: Previous execution of Diagnose tool has not cleaned up. Please remove /tmp/DiagnoseOutput/PluginFiles
-
-    File Should Exist  ${TAR_FILE_DIRECTORY}/sspl-diagnose_*.tar.gz
 
 Diagnose Tool Deletes Temp Directory if tar fails
     Create Directory  ${TAR_FILE_DIRECTORY}
@@ -323,11 +327,14 @@ Diagnose Tool Does Not Gather JournalCtl Data Older Than 10 Days
 
     # Untar diagnose tar to check contents
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}
+
+    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
+
     Create Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
     Should Be Equal As Strings   ${result.rc}  0
 
-    Check Journalclt Files Do Not Have Old Entries   /tmp/DiagnoseOutput/SystemFiles    days=11
+    Check Journalclt Files Do Not Have Old Entries   ${UNPACK_DIRECTORY}/${folder}/SystemFiles    days=11
 
 Diagnose Tool Fails Due To Full Disk Partition And Should Not Generate Uncaught Exception
     [Tags]  DIAGNOSE  SMOKE
@@ -378,7 +385,8 @@ Diagnose Tool Overwrite Handles Files Of Same Name In Different Directories
     Should Be Equal As Integers   ${retcode}  0
 
     ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
-
+    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
+    Set Suite Variable  ${DiagnoseOutput}  ${folder}
     # Untar diagnose tar to check contents
     Create Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
@@ -389,14 +397,14 @@ Diagnose Tool Overwrite Handles Files Of Same Name In Different Directories
     Check Diagnose Output For System Files
 
     # Check for a.log and a.log.1, incase there is a clash we append a suffix.
-    ${base_files} =  List Files In Directory  /tmp/DiagnoseOutput/BaseFiles
+    ${base_files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/BaseFiles
     Should Contain  ${base_files}    a.log
     Should Contain  ${base_files}    a.log.1
 
     # Check for the two plugin.log files, they should be in seperate directories.
-    ${plugin_files} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr
+    ${plugin_files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/edr
     Should Contain  ${plugin_files}    plugin.log
-    ${plugin_files} =  List Files In Directory  /tmp/DiagnoseOutput/PluginFiles/edr/etc
+    ${plugin_files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/edr/etc
     Should Contain  ${plugin_files}    plugin.log
 
     ${contents} =  Get File  /tmp/diagnose.log
