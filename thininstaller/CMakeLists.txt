@@ -22,6 +22,11 @@ execute_process(
         OUTPUT_VARIABLE PRODUCT_VERSION_REPLACEMENT_STRING
         OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build-scripts/gcc-print-file-name.sh libatomic.so.1
+        OUTPUT_VARIABLE libatomic_path)
+string(STRIP "${libatomic_path}" libatomic_path )
+
+
 configure_file(${CMAKE_SOURCE_DIR}/installer_header.in.sh ${CMAKE_SOURCE_DIR}/installer_header.sh @ONLY)
 
 if(NOT DEFINED REDIST)
@@ -91,6 +96,7 @@ target_link_libraries(thininstaller PUBLIC ${SUL_LIBRARY} ${CURL_LIBRARY} ${MCS_
         ${zmqlib}
         ${log4cpluslib}
         ${protobuflib}
+        ${libatomic_path}
         )
 
 execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build-scripts/gcc-print-file-name.sh libstdc++.so
@@ -130,6 +136,7 @@ add_custom_target(
         COMMAND cp -a ${EXPAT_INPUT}//lib64/*.so* ${libs_dir}/
         COMMAND cp -a ${ZLIB_INPUT}/lib64/*.so* ${libs_dir}/
         COMMAND cp -a ${libstdcpp_path} ${libs_dir}/
+        COMMAND cp -a ${libatomic_path} ${libs_dir}/
         COMMAND cp -a ${libgcc_s_path} ${libs_dir}/
         COMMAND cp -a ${PLUGINAPI_LIBRARY_INPUT}/lib64/*.so* ${libs_dir}/
         COMMAND cp -a ${MCS_LIBRARY_INPUT}/lib64/*.so* ${libs_dir}/
