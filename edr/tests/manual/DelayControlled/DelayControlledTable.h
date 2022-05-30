@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020 Sophos Limited.  All rights reserved.
+Copyright 2020-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -15,9 +15,16 @@ namespace OsquerySDK
     public:
         DelayControlledTable() = default;
 
-        std::vector<TableColumn> GetColumns() override;
-        std::string GetName() override;
+        std::vector<TableColumn>& GetColumns() override;
+        std::string& GetName() override;
         OsquerySDK::TableRows Generate(OsquerySDK::QueryContextInterface& request) override;
 
+    private:
+        std::string m_name = { "delaytable" };
+        std::vector<OsquerySDK::TableColumn> m_columns = {
+            OsquerySDK::TableColumn{"start", BIGINT_TYPE, ColumnOptions::DEFAULT},
+            OsquerySDK::TableColumn{"stop", BIGINT_TYPE, ColumnOptions::DEFAULT},
+            OsquerySDK::TableColumn{"delay", INTEGER_TYPE, ColumnOptions::REQUIRED}
+        };
     };
 }

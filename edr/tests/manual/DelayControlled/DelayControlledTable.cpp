@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020 Sophos Limited.  All rights reserved.
+Copyright 2020-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "DelayControlledTable.h"
@@ -15,17 +15,9 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 // Note 2: Define at least one plugin or table.
 namespace OsquerySDK
 {
-    std::vector<TableColumn> DelayControlledTable::GetColumns()
-    {
-        return
-        {
-            OsquerySDK::TableColumn{"start", BIGINT_TYPE, ColumnOptions::DEFAULT},
-            OsquerySDK::TableColumn{"stop", BIGINT_TYPE, ColumnOptions::DEFAULT},
-            OsquerySDK::TableColumn{"delay", INTEGER_TYPE, ColumnOptions::REQUIRED}
-        };
-    }
+    std::vector<TableColumn>& DelayControlledTable::GetColumns(){ return m_columns; }
 
-    std::string DelayControlledTable::GetName() { return "delaytable"; }
+    std::string& DelayControlledTable::GetName() { return m_name; }
 
 
     TableRows DelayControlledTable::Generate(QueryContextInterface& request)

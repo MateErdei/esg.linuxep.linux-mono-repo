@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020 Sophos Limited.  All rights reserved.
+Copyright 2020-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "MemoryCrashTable.h"
@@ -15,15 +15,9 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 // Note 2: Define at least one plugin or table.
 namespace OsquerySDK
 {
-    std::vector<TableColumn> MemoryCrashTable::GetColumns()
-    {
-        return
-        {
-            OsquerySDK::TableColumn{"string", INTEGER_TYPE, ColumnOptions::DEFAULT}
-        };
-    }
+    std::vector<TableColumn>& MemoryCrashTable::GetColumns(){ return m_columns; }
 
-    std::string MemoryCrashTable::GetName() { return "memorycrashtable"; }
+    std::string& MemoryCrashTable::GetName() { return m_name; }
 
 
     TableRows MemoryCrashTable::Generate(QueryContextInterface& /*request*/)

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020 Sophos Limited.  All rights reserved.
+Copyright 2020-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -14,16 +14,9 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 namespace OsquerySDK
 {
-        std::vector<TableColumn> BinaryDataTable::GetColumns()
-        {
-            return
-            {
-                OsquerySDK::TableColumn{"data", TEXT_TYPE, ColumnOptions::REQUIRED},
-                OsquerySDK::TableColumn{"size", INTEGER_TYPE, ColumnOptions::REQUIRED}
-            };
-        }
+    std::vector<TableColumn>& BinaryDataTable::GetColumns(){ return m_columns; }
 
-        std::string BinaryDataTable::GetName() { return "binary_data"; }
+    std::string& BinaryDataTable::GetName() { return m_name; }
 
         TableRows BinaryDataTable::Generate(QueryContextInterface& request)
         {
