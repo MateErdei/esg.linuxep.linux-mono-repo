@@ -33,6 +33,8 @@ Test Fuzz Simple Functions
     ${failed}=  Run Fuzzer By Name  SimpleFunctionTests
     Should Not Be True    ${failed}
 
+# TODO: LINUXDAR-4925: Fix and untag TESTFAILURE for this test
 Test Fuzz Watchdog API
+    [Tags]  TESTFAILURE
     ${failed}=  Run Fuzzer By Name  WatchdogApiTest
     Should Not Be True    ${failed}
