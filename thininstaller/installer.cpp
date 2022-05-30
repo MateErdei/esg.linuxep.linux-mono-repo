@@ -832,6 +832,7 @@ int main(int argc, char** argv)
         logError("Failed to register with Sophos Central, aborting installation.");
         exit(106119115);
     }
+    log("Successfully registered with Sophos Central");
     configOptions.writeToDisk("./mcs.config");
 
     std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
