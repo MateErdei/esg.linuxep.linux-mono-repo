@@ -1,6 +1,6 @@
 *** Settings ***
 Test Setup      Setup Thininstaller Test
-Test Teardown   Teardown
+Test Teardown   Thininstaller Test Teardown
 
 Suite Setup    Suite Setup Without Ostia
 
@@ -34,6 +34,19 @@ Default Tags  THIN_INSTALLER
 *** Test Case ***
 Thin Installer Registers Before Installing
     Start Local Cloud Server
-    Run Default Thininstaller
+    Run Default Thininstaller  10
+    Check Thininstaller Log Contains    Successfully registered with Sophos Central
+
+Thin Installer Exits Without Installing If Registration Fails
+    Start Local Cloud Server  --force-fail-registration
+    Run Default Thininstaller  51
+    Check Thininstaller Log Contains    Failed to register with Sophos Central, aborting installation
+
+Thin Installer Exits Without Installing If JWT Acquisition Fails
+    Start Local Cloud Server  --force-fail-jwt
+    Run Default Thininstaller  52
+    Check Thininstaller Log Contains    Successfully registered with Sophos Central
+    Check Thininstaller Log Contains    Failed to authenticate with Sophos Central, aborting installation
+
 
 

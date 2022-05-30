@@ -1,8 +1,40 @@
+*** Settings ***
+
+Resource  ThinInstallerResources.robot
+
 *** Variables ***
 ${EtcGroupFilePath}  /etc/group
 ${EtcGroupFileBackupPath}  /etc/group.bak
+${CUSTOM_DIR_BASE} =  /CustomPath
+${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 
 *** Keywords ***
+
+Setup Thininstaller Test
+    Require Uninstalled
+    Set Environment Variable  CORRUPTINSTALL  no
+    Get Thininstaller
+    Create Default Credentials File
+    Build Default Creds Thininstaller From Sections
+
+Thininstaller Test Teardown
+    General Test Teardown
+    Stop Update Server
+    Stop Proxy Servers
+    Run Keyword If Test Failed   Dump Cloud Server Log
+    Stop Local Cloud Server
+    Cleanup Local Cloud Server Logs
+    Teardown Reset Original Path
+    Run Keyword If Test Failed    Dump Thininstaller Log
+    Remove Thininstaller Log
+    Cleanup Files
+    Require Uninstalled
+    Remove Environment Variable  SOPHOS_INSTALL
+    Remove Directory  ${CUSTOM_DIR_BASE}  recursive=True
+    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
+    Remove Environment Variable  INSTALL_OPTIONS_FILE
+    Cleanup Temporary Folders
+
 Check Proxy Log Contains
     [Arguments]  ${pattern}  ${fail_message}
     ${ret} =  Grep File  ${PROXY_LOG}  ${pattern}

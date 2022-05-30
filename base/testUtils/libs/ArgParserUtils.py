@@ -72,6 +72,12 @@ def add_cloudserver_args(parser):
     parser.add_argument("--heartbeat-off", action="store_false", dest="heartbeat",
                         default=True,
                         help="Turn off heartbeat by default")
+    parser.add_argument("--force-fail-registration", action="store_true", dest="failregistration",
+                        default=False,
+                        help="force all registration to fail")
+    parser.add_argument("--force-fail-jwt", action="store_true", dest="failjwt",
+                        default=False,
+                        help="force all registration to fail")
 
     libs_dir = PathManager.get_libs_path()
     support_file_dir = PathManager.get_support_file_path()
