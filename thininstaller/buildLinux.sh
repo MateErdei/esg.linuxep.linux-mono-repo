@@ -122,7 +122,7 @@ function prepare_dependencies()
         untar_input cmcsrouterapi
         # TODO - LINUXDAR-4274 dont do this here
         ldconfig -n /build/redist/mcslibrary/lib64/
-        ll -a /build/redist/mcslibrary/lib64/
+        ls -la /build/redist/mcslibrary/lib64/
         untar_input pluginapi
 
         if [[ -f ${INPUT}/update_certs/ps_rootca.crt ]]
