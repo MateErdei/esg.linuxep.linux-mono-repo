@@ -6,6 +6,10 @@
 #include <cmcsrouter/ConfigOptions.h>
 #include <cmcsrouter/MCSApiCalls.h>
 
+#include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/Logging/LoggerConfig.h>
+
+#include <log4cplus/loggingmacros.h>
 
 #include <algorithm>
 #include <cassert>
@@ -20,6 +24,9 @@
 #include <unistd.h>
 #include <utility>
 #include <vector>
+
+
+Common::Logging::ConsoleLoggingSetup m_loggingSetup{Common::Logging::LOGOFFFORTEST()};
 
 static SU_PHandle g_Product = nullptr;
 static bool g_DebugMode = false;
@@ -817,17 +824,41 @@ int main(int argc, char** argv)
         return 44;
     }
 
-
     MCS::ConfigOptions configOptions =
         CentralRegistration::innerCentralRegistration(registerArgValues);
+
+    if (configOptions.config[MCS::MCS_ID].empty())
+    {
+        logError("Failed to register with Sophos Central, aborting installation.");
+        exit(106119115);
+    }
+    configOptions.writeToDisk("./mcs.config");
 
     std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
         std::make_shared<Common::CurlWrapper::CurlWrapper>();
     std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-    MCS::MCSHttpClient httpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_CUSTOMER_TOKEN], std::move(requester));
+    MCS::MCSHttpClient httpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_CUSTOMER_TOKEN], std::move(client));
 
+    if (!configOptions.config[MCS::MCS_CA_OVERRIDE].empty())
+    {
+        httpClient.setCertPath(configOptions.config[MCS::MCS_CA_OVERRIDE]);
+    }
+    else
+    {
+        httpClient.setCertPath("./mcs.config");
+    }
+    httpClient.setID(configOptions.config[MCS::MCS_ID]);
+    httpClient.setPassword(configOptions.config[MCS::MCS_PASSWORD]);
 
-    //log(configOptions[MCS::MCS_TOKEN]);
+    std::string jwt = MCS::MCSApiCalls().getJwt(httpClient);
+    if (jwt.empty())
+    {
+        logError("Failed to authorise with Sophos Central, aborting installation.");
+        exit(106119116);
+    }
+    // TODO LINUXDAR-4273 stop logging this
+    log("JWT: ");
+    log(jwt);
 
     return downloadInstallerDirectOrCaches(update_caches);
 }

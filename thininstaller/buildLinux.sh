@@ -119,7 +119,10 @@ function prepare_dependencies()
         untar_input boost
         untar_input expat
         untar_input zlib
-        untar_input mcs
+        untar_input cmcsrouterapi
+        # TODO - LINUXDAR-4274 dont do this here
+        ldconfig -n /build/redist/mcslibrary/lib64/
+        untar_input pluginapi
 
         if [[ -f ${INPUT}/update_certs/ps_rootca.crt ]]
         then
