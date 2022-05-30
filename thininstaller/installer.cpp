@@ -830,7 +830,7 @@ int main(int argc, char** argv)
     if (configOptions.config[MCS::MCS_ID].empty())
     {
         logError("Failed to register with Sophos Central, aborting installation.");
-        exit(106119115);
+        return 51;
     }
     log("Successfully registered with Sophos Central");
     configOptions.writeToDisk("./mcs.config");
@@ -855,7 +855,7 @@ int main(int argc, char** argv)
     if (jwt.empty())
     {
         logError("Failed to authorise with Sophos Central, aborting installation.");
-        exit(106119116);
+    return 52;
     }
     // TODO LINUXDAR-4273 stop logging this
     log("JWT: ");
