@@ -122,6 +122,7 @@ function prepare_dependencies()
         untar_input cmcsrouterapi
         # TODO - LINUXDAR-4274 dont do this here
         ldconfig -n /build/redist/mcslibrary/lib64/
+        ldd /build/redist/mcslibrary/lib64/libcmcsrouterapi.so
         ls -la /build/redist/mcslibrary/lib64/
         untar_input pluginapi
 
