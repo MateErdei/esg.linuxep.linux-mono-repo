@@ -829,7 +829,6 @@ int main(int argc, char** argv)
 
     if (configOptions.config[MCS::MCS_ID].empty())
     {
-        logError("Failed to register with Sophos Central, aborting installation.");
         return 51;
     }
     log("Successfully registered with Sophos Central");
@@ -854,8 +853,7 @@ int main(int argc, char** argv)
     std::string jwt = MCS::MCSApiCalls().getJwt(httpClient);
     if (jwt.empty())
     {
-        logError("Failed to authorise with Sophos Central, aborting installation.");
-    return 52;
+        return 52;
     }
     // TODO LINUXDAR-4273 stop logging this
     log("JWT: ");

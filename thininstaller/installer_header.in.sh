@@ -58,6 +58,8 @@ EXITCODE_BAD_GROUP_NAME=24
 EXITCODE_GROUP_NAME_EXCEEDS_MAX_SIZE=25
 EXITCODE_DUPLICATE_ARGUMENTS_GIVEN=26
 EXITCODE_BAD_PRODUCT_SELECTED=27
+EXITCODE_REGISTRATION_FAILED=51
+EXITCODE_AUTHENTICATION_FAILED=51
 
 SOPHOS_INSTALL="/opt/sophos-spl"
 PROXY_CREDENTIALS=
@@ -103,6 +105,12 @@ function handle_installer_errorcodes()
     elif [ ${errcode} -eq 0 ]
     then
         echo "Finished downloading base installer"
+    elif [ ${errcode} -eq ${EXITCODE_REGISTRATION_FAILED} ]
+    then
+        failure ${EXITCODE_REGISTRATION_FAILED} "Failed to register with Sophos Central, aborting installation"
+    elif [ ${errcode} -eq ${EXITCODE_AUTHENTICATION_FAILED} ]
+    then
+        failure ${EXITCODE_AUTHENTICATION_FAILED} "Failed to register with Sophos Central, aborting installation"
     else
         failure ${EXITCODE_DOWNLOAD_FAILED} "Failed to download the base installer! (Error code = $errcode)"
     fi
