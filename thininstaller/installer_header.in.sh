@@ -110,7 +110,7 @@ function handle_installer_errorcodes()
         failure ${EXITCODE_REGISTRATION_FAILED} "Failed to register with Sophos Central, aborting installation"
     elif [ ${errcode} -eq ${EXITCODE_AUTHENTICATION_FAILED} ]
     then
-        failure ${EXITCODE_AUTHENTICATION_FAILED} "Failed to register with Sophos Central, aborting installation"
+        failure ${EXITCODE_AUTHENTICATION_FAILED} "Failed to authenticate with Sophos Central, aborting installation"
     else
         failure ${EXITCODE_DOWNLOAD_FAILED} "Failed to download the base installer! (Error code = $errcode)"
     fi
