@@ -362,6 +362,7 @@ do
         ;;
         --group=*)
             validate_group_name "${i#*=}"
+            REGISTRATION_GROUP_ARGS="--central-group ${i#*=}"
             INSTALL_OPTIONS_ARGS+=("$i")
             shift
         ;;
@@ -575,13 +576,19 @@ mkdir warehouse
 mkdir warehouse/catalogue
 
 echo "Installation process for ${PRODUCT_NAME} started"
-#MCS_TOKEN="$CLOUD_TOKEN" \
-#MCS_URL="$CLOUD_URL" \
+MCS_TOKEN="$CLOUD_TOKEN"
+MCS_URL="$CLOUD_URL"
+
+# 12e08113-1257-4dde-80d0-4a218f5ee211
+# https://mcs2-cloudstation-us-west-2.qa.hydra.sophos.com/sophos/management/ep
+
 #MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" \
 #INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" \
 #CUSTOMER_TOKEN_ARGUMENT="$CUSTOMER_TOKEN_ARGUMENT" \
 #PRODUCT_ARGUMENTS="$PRODUCT_ARGUMENTS" \
-${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL}
+${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL} ${CUSTOMER_TOKEN_ARGUMENT} ${MESSAGE_RELAYS} ${PRODUCT_ARGUMENTS} ${REGISTRATION_GROUP_ARGS}
+#${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $CUSTOMER_TOKEN_ARGUMENT  $MCS_MESSAGE_RELAYS  $PRODUCT_ARGUMENTS
+
 handle_installer_errorcodes $?
 
 if [ -n "$DEBUG_THIN_INSTALLER" ]
@@ -639,7 +646,7 @@ MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" \
 INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" \
 CUSTOMER_TOKEN_ARGUMENT="$CUSTOMER_TOKEN_ARGUMENT" \
 PRODUCT_ARGUMENTS="$PRODUCT_ARGUMENTS" \
-./install.sh $ALLOW_OVERRIDE_MCS_CA
+./install.sh $ALLOW_OVERRIDE_MCS_CA --mcs-config ${SOPHOS_TEMP_DIRECTORY}/mcs.config
 inst_ret=$?
 if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
 then

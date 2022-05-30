@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(thininstaller CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # This is called by the buildLinux.sh script which should have setup all dependencies in ./redist
 
@@ -55,16 +55,23 @@ set(CURL_INPUT ${REDIST}/curl)
 set(CURL_LIBRARY_DIR ${CURL_INPUT}/lib64)
 set(CURL_LIBRARY -L${CURL_LIBRARY_DIR}  -lcurl)
 
-#Central Registration
+#For central Registration
 set(MCS_LIBRARY_INPUT ${REDIST}/mcslibrary)
-message(Trevor ${MCS_LIBRARY_INPUT})
+message("Trevor ${MCS_LIBRARY_INPUT}")
 set(MCS_LIBRARY_INCLUDE ${MCS_LIBRARY_INPUT}/include)
 set(MCS_LIBRARY_DIR ${MCS_LIBRARY_INPUT}/lib64)
-set(CENTRAL_REGISTRATION_LIBRARY -L${MCS_LIBRARY_DIR} -lcentralregistrationimpl)
+set(MCS_LIBRARY -L${MCS_LIBRARY_DIR})
+
+#Pluginapi (for common code)
+set(PLUGINAPI_LIBRARY_INPUT ${REDIST}/pluginapi)
+message("Trevor ${PLUGINAPI_LIBRARY_INPUT}")
+set(PLUGINAPI_LIBRARY_INCLUDE ${PLUGINAPI_LIBRARY_INPUT}/include)
+set(PLUGINAPI_LIBRARY_DIR ${PLUGINAPI_LIBRARY_INPUT}/lib64)
+set(PLUGINAPI_LIBRARY -L${PLUGINAPI_LIBRARY_DIR})
 
 
 #Include dirs
-include_directories(BEFORE ${SUL_INPUT}/include ${CURL_INPUT}/include64 ${MCS_LIBRARY_INCLUDE})
+include_directories(BEFORE ${SUL_INPUT}/include ${CURL_INPUT}/include64 ${MCS_LIBRARY_INCLUDE} ${PLUGINAPI_LIBRARY_INCLUDE})
 
 # Set flags
 set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64,-rpath-link,${SUL_LIBRARY_DIRS})
@@ -72,8 +79,10 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -fstack-protector-all")
 
 add_executable(thininstaller installer.cpp)
 
-target_include_directories(thininstaller PUBLIC ${MCS_LIBRARY_DIR} )
-target_link_libraries(thininstaller PUBLIC ${SUL_LIBRARY} ${CURL_LIBRARY} ${CENTRAL_REGISTRATION_LIBRARY})
+target_include_directories(thininstaller PUBLIC ${MCS_LIBRARY_DIR}  ${PLUGINAPI_LIBRARY_INCLUDE} )
+target_link_libraries(thininstaller PUBLIC ${SUL_LIBRARY} ${CURL_LIBRARY} ${MCS_LIBRARY} ${PLUGINAPI_LIBRARY}
+        libcmcsrouterapi.so
+        )
 
 execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build-scripts/gcc-print-file-name.sh libstdc++.so
         OUTPUT_VARIABLE libstdcpp_path)
@@ -113,12 +122,14 @@ add_custom_target(
         COMMAND cp -a ${ZLIB_INPUT}/lib64/*.so* ${libs_dir}/
         COMMAND cp -a ${libstdcpp_path} ${libs_dir}/
         COMMAND cp -a ${libgcc_s_path} ${libs_dir}/
-        COMMAND cp -a ${CENTRAL_REGISTRATION_INPUT}/lib64/*.so* ${libs_dir}/
+        COMMAND cp -a ${PLUGINAPI_LIBRARY_INPUT}/lib64/*.so* ${libs_dir}/
+        COMMAND cp -a ${MCS_LIBRARY_INPUT}/lib64/*.so* ${libs_dir}/
         COMMAND strip ${libs_dir}/*
         COMMAND chmod 700 ${libs_dir}/*
         COMMAND ln -snf ${libstcpp_name} ${libs_dir}/libstdc++.so.6
         COMMAND cp ${CMAKE_SOURCE_DIR}/rootca.crt ${INSTALLERDIR}/
         COMMAND cp ${CMAKE_SOURCE_DIR}/ps_rootca.crt ${INSTALLERDIR}/
+        COMMAND cp ${CMAKE_SOURCE_DIR}/certs/mcs_rootca.crt ${INSTALLERDIR}/
         COMMAND cp ${CMAKE_SOURCE_DIR}/sdds_https_rootca.crt ${INSTALLERDIR}/
 )
 
