@@ -61,6 +61,10 @@ message("Trevor ${MCS_LIBRARY_INPUT}")
 set(MCS_LIBRARY_INCLUDE ${MCS_LIBRARY_INPUT}/include)
 set(MCS_LIBRARY_DIR ${MCS_LIBRARY_INPUT}/lib64)
 set(MCS_LIBRARY -L${MCS_LIBRARY_DIR})
+file(GLOB zmqlib ${MCS_LIBRARY_DIR}/libzmq.so.*)
+file(GLOB log4cpluslib ${MCS_LIBRARY_DIR}/liblog4cplus-*.so.*)
+file(GLOB protobuflib ${MCS_LIBRARY_DIR}/libprotobuf.so.*)
+message(${zmqlib})
 
 #Pluginapi (for common code)
 set(PLUGINAPI_LIBRARY_INPUT ${REDIST}/pluginapi)
@@ -79,9 +83,14 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -fstack-protector-all")
 
 add_executable(thininstaller installer.cpp)
 
+
+
 target_include_directories(thininstaller PUBLIC ${MCS_LIBRARY_DIR}  ${PLUGINAPI_LIBRARY_INCLUDE} )
 target_link_libraries(thininstaller PUBLIC ${SUL_LIBRARY} ${CURL_LIBRARY} ${MCS_LIBRARY} ${PLUGINAPI_LIBRARY}
         libcmcsrouterapi.so
+        ${zmqlib}
+        ${log4cpluslib}
+        ${protobuflib}
         )
 
 execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build-scripts/gcc-print-file-name.sh libstdc++.so
