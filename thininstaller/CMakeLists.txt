@@ -140,5 +140,6 @@ add_custom_target(
         COMMAND cp ${CMAKE_SOURCE_DIR}/ps_rootca.crt ${INSTALLERDIR}/
         COMMAND cp ${CMAKE_SOURCE_DIR}/certs/mcs_rootca.crt ${INSTALLERDIR}/
         COMMAND cp ${CMAKE_SOURCE_DIR}/sdds_https_rootca.crt ${INSTALLERDIR}/
+        COMMAND ldconfig -n ${libs_dir}/
 )
 
