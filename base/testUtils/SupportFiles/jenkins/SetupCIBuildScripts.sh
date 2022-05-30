@@ -56,4 +56,4 @@ grep "mnt/filer" "${BUILD_SCRIPT_INSTALL_DIR}/build_context.py"
 #Create temporary location used by scripts
 sudo mkdir -p /SophosPackages
 sudo chown jenkins:jenkins /SophosPackages
-chmod 777 /SophosPackages
+sudo chmod 777 /SophosPackages
