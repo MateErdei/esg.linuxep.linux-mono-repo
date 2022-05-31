@@ -841,10 +841,10 @@ int main(int argc, char** argv)
     }
 
     LOG4CPLUS_WARN(logger, LOG4CPLUS_TEXT("Hello, World!2"));
-    MCS::ConfigOptions configOptions =
+    MCS::ConfigOptions rootConfigOptions =
         CentralRegistration::innerCentralRegistration(registerArgValues);
 
-    if (configOptions.config[MCS::MCS_ID].empty())
+    if (rootConfigOptions.config[MCS::MCS_ID].empty())
     {
         return 51;
     }
@@ -853,18 +853,18 @@ int main(int argc, char** argv)
     std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
         std::make_shared<Common::CurlWrapper::CurlWrapper>();
     std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-    MCS::MCSHttpClient httpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_CUSTOMER_TOKEN], std::move(client));
+    MCS::MCSHttpClient httpClient(rootConfigOptions.config[MCS::MCS_URL], rootConfigOptions.config[MCS::MCS_CUSTOMER_TOKEN], std::move(client));
 
-    if (!configOptions.config[MCS::MCS_CA_OVERRIDE].empty())
+    if (!rootConfigOptions.config[MCS::MCS_CA_OVERRIDE].empty())
     {
-        httpClient.setCertPath(configOptions.config[MCS::MCS_CA_OVERRIDE]);
+        httpClient.setCertPath(rootConfigOptions.config[MCS::MCS_CA_OVERRIDE]);
     }
     else
     {
         httpClient.setCertPath("./mcs.config");
     }
-    httpClient.setID(configOptions.config[MCS::MCS_ID]);
-    httpClient.setPassword(configOptions.config[MCS::MCS_PASSWORD]);
+    httpClient.setID(rootConfigOptions.config[MCS::MCS_ID]);
+    httpClient.setPassword(rootConfigOptions.config[MCS::MCS_PASSWORD]);
 
     std::string jwt = MCS::MCSApiCalls().getJwt(httpClient);
     if (jwt.empty())
@@ -874,8 +874,12 @@ int main(int argc, char** argv)
     // TODO LINUXDAR-4273 stop logging this
     log("JWT: ");
     log(jwt);
-
-    configOptions.config[MCS::MCS_ID] = "";
-    configOptions.writeToDisk("./mcs.config");
+    MCS::ConfigOptions policyOptions;
+    policyOptions.config[MCS::MCS_ID] = rootConfigOptions.config[MCS::MCS_ID];
+    policyOptions.config[MCS::MCS_PASSWORD] = rootConfigOptions.config[MCS::MCS_PASSWORD];
+    rootConfigOptions.config[MCS::MCS_ID] = "";
+    rootConfigOptions.config[MCS::MCS_PASSWORD] = "";
+    rootConfigOptions.writeToDisk("./mcs.config");
+    policyOptions.writeToDisk("./mcsPolicy.config");
     return downloadInstallerDirectOrCaches(update_caches);
 }
