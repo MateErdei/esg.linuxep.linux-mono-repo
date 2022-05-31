@@ -100,7 +100,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVDogfoodPolicy}
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVDogfoodPolicy}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVDogfoodPolicy}  force_legacy_install=${True}
     Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n
 
     Wait Until Keyword Succeeds
@@ -439,7 +439,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVReleasePolicy}
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVReleasePolicy}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVReleasePolicy}  force_legacy_install=${True}
     Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n
 
     Wait Until Keyword Succeeds

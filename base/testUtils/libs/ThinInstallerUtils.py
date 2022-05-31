@@ -175,8 +175,9 @@ class ThinInstallerUtils(object):
         os.chmod(target_path, 0o700)
 
     def configure_and_run_thininstaller_using_real_warehouse_policy(self, expected_return_code, policy_file_path, message_relays=None,
-                                                                    proxy=None, update_caches=None, bad_url=False, args=None, mcs_ca=None, real=False, override_certs_dir=None):
-        command = [self.default_installsh_path]
+                                                                    proxy=None, update_caches=None, bad_url=False, args=None, mcs_ca=None,
+                                                                    real=False, override_certs_dir=None, force_legacy_install=False):
+        command = ["bash", "-x", self.default_installsh_path]
         if args:
             split_args = args.split(" ")
             for arg in split_args:
@@ -213,7 +214,7 @@ class ThinInstallerUtils(object):
         self.create_default_credentials_file(update_creds=hashed_credentials, message_relays=message_relays, update_caches=update_caches)
         self.build_default_creds_thininstaller_from_sections()
         self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca,
-                               override_location=connection_address, certs_dir=warehouse_certs_dir, proxy=proxy, real=real)
+                               override_location=connection_address, certs_dir=warehouse_certs_dir, proxy=proxy, real=real, force_legacy_install=force_legacy_install)
 
     def build_default_creds_thininstaller_from_sections(self):
         self.build_thininstaller_from_sections(self.default_credentials_file_location, self.default_installsh_path)
@@ -248,7 +249,8 @@ class ThinInstallerUtils(object):
                           force_certs_dir=None,
                           real=False,
                           cleanup=True,
-                          temp_dir_to_unpack_to=None):
+                          temp_dir_to_unpack_to=None,
+                          force_legacy_install=False):
         cwd = os.getcwd()
         if not certs_dir:
             sophos_certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs")
@@ -295,6 +297,8 @@ class ThinInstallerUtils(object):
             self.env['OVERRIDE_INSTALLER_CLEANUP'] = "1"
         if temp_dir_to_unpack_to:
             self.env['SOPHOS_TEMP_DIRECTORY'] = temp_dir_to_unpack_to
+        if force_legacy_install:
+            self.env['FORCE_LEGACY_INSTALL'] = "1"
 
         logger.info("env: {}".format(self.env))
         log = open(self.log_path, 'w+')
