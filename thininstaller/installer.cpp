@@ -26,7 +26,6 @@
 #include <vector>
 
 
-Common::Logging::ConsoleLoggingSetup m_loggingSetup{Common::Logging::LOGOFFFORTEST()};
 
 static SU_PHandle g_Product = nullptr;
 static bool g_DebugMode = false;
@@ -726,7 +725,14 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
 int main(int argc, char** argv)
 {
     g_DebugMode = static_cast<bool>(getenv("DEBUG_THIN_INSTALLER"));
-
+    if (g_DebugMode)
+    {
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup{Common::Logging::LOGOFFFORTEST()};
+    }
+    else
+    {
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+    }
     if (argc < 2)
     {
         logError("Expecting a filename as an argument but none supplied");
