@@ -79,10 +79,13 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, environment=None
         # Exclude STRESS on TAP; as some tests here will not be appropriate
         robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS']
 
+        include, *exclude = include_tag.split("NOT")
+        robot_exclusion_tags.extend(exclude)
+
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
         machine.run('mkdir', '/opt/test/coredumps')
         machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
-                    '--include', include_tag,
+                    '--include', include,
                     '--exclude', *robot_exclusion_tags,
                     environment=environment,
                     timeout=5400)
@@ -91,9 +94,9 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, environment=None
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/coredumps', 'coredumps', raise_on_failure=False)
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
                     "robot" + get_suffix() + "_" + machine_name + "_" + include_tag + "-log.html")
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/report.html",
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/report.html",
                     "robot" + get_suffix() + "_" + machine_name + "_" + include_tag + "-report.html")
 
 
@@ -129,11 +132,12 @@ AWS_TIMEOUT = 120
 @tap.timeout(task_timeout=AWS_TIMEOUT)
 def aws_task(machine: tap.Machine, include_tag: str):
     try:
-        machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", include_tag, timeout=((AWS_TIMEOUT-10)*60))
+        machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", include_tag,
+                    timeout=((AWS_TIMEOUT-10)*60))
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/combined-log.html",
                     "robot" + get_suffix() + "_aws-log.html")
 
 
@@ -278,7 +282,7 @@ def bullseye_test_coverage(machine: tap.Machine, covfile):
     machine.run(*test_coverage_args)
 
 
-def bullseye_coverage_combine_task(machine: tap.Machine):
+def bullseye_coverage_combine_task(machine: tap.Machine, include_tag: str):
     install_requirements(machine)
 
     # str(machine.inputs.covfiles) = /opt/test/inputs/covfiles
@@ -299,13 +303,16 @@ def bullseye_coverage_combine_task(machine: tap.Machine):
         # individual coverage
         bullseye_upload(machine, 'sspl-plugin-av-unit')
         bullseye_upload(machine, 'sspl-plugin-av-pytest')
-        bullseye_upload(machine, 'sspl-plugin-av-robot-integration')
-        bullseye_upload(machine, 'sspl-plugin-av-robot-product')
+        robot_covfiles = []
+        for include in include_tag.split():
+            covfile = 'sspl-plugin-av-robot-' + include
+            bullseye_upload(machine, covfile)
+            robot_covfiles.append(covfile)
 
         # robot coverage
         bullseye_merge(machine,
                        'sspl-plugin-av-robot',
-                       'sspl-plugin-av-robot-integration', 'sspl-plugin-av-robot-product')
+                       *robot_covfiles)
         bullseye_upload(machine, 'sspl-plugin-av-robot')
 
         # combined coverage
@@ -388,7 +395,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     run_tests: bool = parameters.run_tests != 'false'
     run_aws_tests: bool = decide_whether_to_run_aws_tests(parameters, context)
-    include_tag = parameters.include_tag or "integration product"
+    include_tag = parameters.include_tag or "product integrationNOTavbase avbase"
 
     do_coverage: bool = decide_whether_to_do_coverage(parameters, context)
     do_cppcheck: bool = decide_whether_to_run_cppcheck(parameters, context)
@@ -445,25 +452,16 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                                    machine=machine_bullseye_pytest)
 
                     with stage.parallel('robot'):
-                        machine_bullseye_robot_product = \
-                            tap.Machine('ubuntu1804_x64_server_en_us',
-                                        inputs=coverage_inputs,
-                                        outputs={'covfile': TaskOutput('covfiles')},
-                                        platform=tap.Platform.Linux)
-                        stage.task(task_name='product',
-                                   func=bullseye_coverage_robot_task,
-                                   machine=machine_bullseye_robot_product,
-                                   include_tag="product")
-
-                        machine_bullseye_robot_integration = \
-                            tap.Machine('ubuntu1804_x64_server_en_us',
-                                        inputs=coverage_inputs,
-                                        outputs={'covfile': TaskOutput('covfiles')},
-                                        platform=tap.Platform.Linux)
-                        stage.task(task_name='integration',
-                                   func=bullseye_coverage_robot_task,
-                                   machine=machine_bullseye_robot_integration,
-                                   include_tag="integration")
+                        for include in include_tag.split():
+                            machine_bullseye_robot = \
+                                tap.Machine('ubuntu1804_x64_server_en_us',
+                                            inputs=coverage_inputs,
+                                            outputs={'covfile': TaskOutput('covfiles')},
+                                            platform=tap.Platform.Linux)
+                            stage.task(task_name=include,
+                                       func=bullseye_coverage_robot_task,
+                                       machine=machine_bullseye_robot,
+                                       include_tag=include)
 
                     combine_inputs = coverage_inputs
                     combine_inputs['covfiles'] = TaskOutput('covfiles')
@@ -473,7 +471,8 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                                     platform=tap.Platform.Linux)
                     stage.task(task_name='combine',
                                func=bullseye_coverage_combine_task,
-                               machine=machine_bullseye_combine)
+                               machine=machine_bullseye_combine,
+                               include_tag=include_tag)
 
         if run_aws_tests:
             aws_test_inputs = get_inputs(context, av_build, aws=True)

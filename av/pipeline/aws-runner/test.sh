@@ -1,8 +1,9 @@
-#!/bin/bash
+#! /bin/bash
 
 set -x
 
-INCLUDE_TAG="${1:-integration OR product}"
+TAGS=( "$@" )
+[[ ${TAGS[*]} ]] || TAGS=( -i "integration OR product" )
 
 function failure()
 {
@@ -13,7 +14,7 @@ function failure()
 }
 
 SCRIPT_DIR="${0%/*}"
-cd $SCRIPT_DIR || exit 1
+cd "$SCRIPT_DIR" || exit 1
 PLATFORM_EXCLUDE_TAG=""
 #
 #if [[ -f /etc/centos-release ]]
@@ -72,12 +73,14 @@ export TEST_UTILS=$SCRIPT_DIR
 
 
 bash $SCRIPT_DIR/bin/install_os_packages.sh
-bash $SCRIPT_DIR/bin/install_pip_requirements.sh
+bash $SCRIPT_DIR/bin/install_pip_prerequisites.sh
 python3 -m pip install -r $SCRIPT_DIR/requirements.txt
+
+rm -f output.xml log.html report.html output1.xml output2.xml
 
 echo "Running tests on $HOSTNAME"
 RESULT=0
-python3 -m robot --include "${INCLUDE_TAG}" \
+python3 -m robot "${TAGS[@]}" \
     --exclude "manual OR disabled OR stress" \
     $PLATFORM_EXCLUDE_TAG \
     $SAMBA_EXCLUDE_TAG \

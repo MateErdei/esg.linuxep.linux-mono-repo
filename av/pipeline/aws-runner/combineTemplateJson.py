@@ -4,11 +4,12 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import json
 import os
 
-def getInstanceJsonAsString(instanceName):
-    path_to_json = os.path.join("./instances", instanceName + ".json")
+
+def get_instance_json_as_string(instance_name):
+    path_to_json = os.path.join("./instances", instance_name + ".json")
     with open(path_to_json) as instanceJsonFile:
-        dict = json.loads(instanceJsonFile.read())[instanceName]
-        return json.dumps(dict)
+        data = json.loads(instanceJsonFile.read())[instance_name]
+        return json.dumps(data)
 
 
 EXCLUDED = []
@@ -24,11 +25,12 @@ def load_instances():
             print("!!! Excluding %s !!!" % base)
             continue
 
-        result[base] = getInstanceJsonAsString(base)
+        result[base] = get_instance_json_as_string(base)
     return result
 
 
 instances = load_instances()
+
 
 def args():
     if os.path.isfile("argFile"):
@@ -38,23 +40,28 @@ def args():
             if '"' in arg_line or "'" in arg_line:
                 raise AssertionError('We DO NOT support quotes in these args. If you MUST use a robot argument which \
                                       contains whitespace, please swap it for underscores as robot treats them equally')
-            yield arg_line.rstrip()
+
+            include, *excludes = arg_line.rstrip().split("NOT")
+            arg_vals = ['-i', include]
+            for exclude in excludes:
+                arg_vals.extend(['-e', exclude])
+            yield " ".join(arg_vals)
     else:
         yield ""
+
 
 def main():
     with open("sspl-system.template") as main_template_file:
         main_template_json = json.loads(main_template_file.read())
 
-    n = 1
-    for arguments in args():
+    for index, arguments in enumerate(args(), 1):
         print("Adding templates with args for: " + arguments)
         for template_name, template_json_str in instances.items():
-            unique_template_name = template_name + str(n)
+            unique_template_name = template_name + "slice" + str(index)
+            hostname = template_name + "-" + str(index)
             json_with_args = json.loads(template_json_str.replace("@ARGSGOHERE@", arguments)
-                                                         .replace("@HOSTNAMEGOESHERE@", unique_template_name))
+                                                         .replace("@HOSTNAMEGOESHERE@", hostname))
             main_template_json["Resources"][unique_template_name] = json_with_args
-        n += 1
 
     with open("sspl-system.template.with_args", "w") as outFile:
         outFile.write(json.dumps(main_template_json, indent=4))

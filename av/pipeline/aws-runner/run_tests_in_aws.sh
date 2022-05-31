@@ -6,8 +6,8 @@ INCLUDE_TAG="$1"
 
 SSHLocation=${SSHLocation:-"195.171.192.0/24"}
 
-IDENTIFIER=`hostname`-`date +%F`-`date +%H``date +%M`
-[[ -n $STACK ]] || STACK=ssplav-system-tests-${IDENTIFIER}-$(echo "$@"-${RANDOM} | md5sum | cut -f 1 -d " " )
+IDENTIFIER=$(hostname)-$(date +%F)-$(date +%H)$(date +%M)
+[[ -n $STACK ]] || STACK=ssplav-system-tests-${IDENTIFIER}-$(echo "$*"-${RANDOM} | md5sum | cut -f 1 -d " " )
 
 function failure()
 {
@@ -62,8 +62,8 @@ function generate_uuid()
 export TEST_PASS_UUID
 
 SCRIPT_DIR="${0%/*}"
-[[ $SCRIPT_DIR == $0 ]] && SCRIPT_DIR=.
-cd $SCRIPT_DIR
+[[ $SCRIPT_DIR == "$0" ]] && SCRIPT_DIR=.
+cd $SCRIPT_DIR || exit 1
 
 echo $STACK >stackName
 
@@ -320,8 +320,8 @@ do
     else
         success="true"
     fi
-
 done
+
 if [ "$success" == "false" ]
 then
     delete_stack_and_exit "$STACK" "Unable to create-stack:"
@@ -367,7 +367,7 @@ cleanupStack
 # Get results back from the AWS test run and save them locally.
 rm -rf ./results
 mkdir ./results
-aws s3 cp --recursive --exclude "*" --include "*-output.xml" "s3://sspl-testbucket/test-results/${STACK}/" ./results
+aws s3 cp --recursive "s3://sspl-testbucket/test-results/${STACK}/" ./results
 python3 delete_old_results.py ${STACK}
 aws s3 rm ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME}
 
@@ -393,12 +393,12 @@ combineResults
 
 RESULTS_DIR=${RESULTS_DIR:-/opt/test/results}
 mkdir -p ${RESULTS_DIR}
+cp ./results/*.html ${RESULTS_DIR}/
 cp ./results/*.xml ${RESULTS_DIR}/
 
 LOGS_DIR=${LOGS_DIR:-/opt/test/logs}
 mkdir -p ${LOGS_DIR}
-cp ./results/combined-log.html ${LOGS_DIR}/log.html
-cp ./results/combined-report.html ${LOGS_DIR}/report.html
+cp ./results/*.log ${LOGS_DIR}/
 
 # window.output["stats"] = [[{"elapsed":"04:55:20","fail":6,"label":"All Tests","pass":1082,"skip":0}]
 FAIL_COUNT=$(sed -ne's/window\.output\["stats"\][^f]*"fail":\([0-9][0-9]*\).*/\1/p' ./results/combined-log.html)
