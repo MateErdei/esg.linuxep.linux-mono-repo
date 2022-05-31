@@ -728,21 +728,21 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
 int main(int argc, char** argv)
 {
     g_DebugMode = static_cast<bool>(getenv("DEBUG_THIN_INSTALLER"));
-//    if (g_DebugMode)
-//    {
-        log4cplus::Initializer initializer;
 
-        log4cplus::BasicConfigurator config;
-        config.configure();
+//    Common::Logging::ConsoleLoggingSetup m_loggingSetup(Common::Logging::LOGOFFFORTEST());
+    log4cplus::Initializer initializer;
+    log4cplus::BasicConfigurator config;
+    config.configure();
+    log4cplus::Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("main"));
+    if (g_DebugMode)
+    {
+        logger.setLogLevel(log4cplus::INFO_LOG_LEVEL);
+    }
+    else
+    {
+        logger.setLogLevel(log4cplus::OFF_LOG_LEVEL);
+    }
 
-        log4cplus::Logger logger = log4cplus::Logger::getInstance(
-            LOG4CPLUS_TEXT("registercentral"));
-        LOG4CPLUS_WARN(logger, LOG4CPLUS_TEXT("Hello, World!"));
-//    }
-//    else
-//    {
-////        Common::Logging::ConsoleLoggingSetup m_loggingSetup{Common::Logging::LOGOFFFORTEST()};
-//    }
     if (argc < 2)
     {
         logError("Expecting a filename as an argument but none supplied");
@@ -840,46 +840,52 @@ int main(int argc, char** argv)
         return 44;
     }
 
-    LOG4CPLUS_WARN(logger, LOG4CPLUS_TEXT("Hello, World!2"));
-    MCS::ConfigOptions rootConfigOptions =
-        CentralRegistration::innerCentralRegistration(registerArgValues);
-
-    if (rootConfigOptions.config[MCS::MCS_ID].empty())
+    bool forceLegacyInstall = static_cast<bool>(getenv("FORCE_LEGACY_INSTALL"));
+    if (!forceLegacyInstall)
     {
-        return 51;
-    }
-    log("Successfully registered with Sophos Central");
+        MCS::ConfigOptions rootConfigOptions = CentralRegistration::innerCentralRegistration(registerArgValues);
 
-    std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
-        std::make_shared<Common::CurlWrapper::CurlWrapper>();
-    std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-    MCS::MCSHttpClient httpClient(rootConfigOptions.config[MCS::MCS_URL], rootConfigOptions.config[MCS::MCS_CUSTOMER_TOKEN], std::move(client));
+        if (rootConfigOptions.config[MCS::MCS_ID].empty())
+        {
+            return 51;
+        }
+        log("Successfully registered with Sophos Central");
 
-    if (!rootConfigOptions.config[MCS::MCS_CA_OVERRIDE].empty())
-    {
-        httpClient.setCertPath(rootConfigOptions.config[MCS::MCS_CA_OVERRIDE]);
-    }
-    else
-    {
-        httpClient.setCertPath("./mcs.config");
-    }
-    httpClient.setID(rootConfigOptions.config[MCS::MCS_ID]);
-    httpClient.setPassword(rootConfigOptions.config[MCS::MCS_PASSWORD]);
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+            std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
+            std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+        MCS::MCSHttpClient httpClient(
+            rootConfigOptions.config[MCS::MCS_URL],
+            rootConfigOptions.config[MCS::MCS_CUSTOMER_TOKEN],
+            std::move(client));
 
-    std::string jwt = MCS::MCSApiCalls().getJwt(httpClient);
-    if (jwt.empty())
-    {
-        return 52;
+        if (!rootConfigOptions.config[MCS::MCS_CA_OVERRIDE].empty())
+        {
+            httpClient.setCertPath(rootConfigOptions.config[MCS::MCS_CA_OVERRIDE]);
+        }
+        else
+        {
+            httpClient.setCertPath("./mcs.config");
+        }
+        httpClient.setID(rootConfigOptions.config[MCS::MCS_ID]);
+        httpClient.setPassword(rootConfigOptions.config[MCS::MCS_PASSWORD]);
+
+        std::string jwt = MCS::MCSApiCalls().getJwt(httpClient);
+        if (jwt.empty())
+        {
+            return 52;
+        }
+        // TODO LINUXDAR-4273 stop logging this
+        log("JWT: ");
+        log(jwt);
+        MCS::ConfigOptions policyOptions;
+        policyOptions.config[MCS::MCS_ID] = rootConfigOptions.config[MCS::MCS_ID];
+        policyOptions.config[MCS::MCS_PASSWORD] = rootConfigOptions.config[MCS::MCS_PASSWORD];
+        rootConfigOptions.config[MCS::MCS_ID] = "";
+        rootConfigOptions.config[MCS::MCS_PASSWORD] = "";
+        rootConfigOptions.writeToDisk("./mcs.config");
+        policyOptions.writeToDisk("./mcsPolicy.config");
     }
-    // TODO LINUXDAR-4273 stop logging this
-    log("JWT: ");
-    log(jwt);
-    MCS::ConfigOptions policyOptions;
-    policyOptions.config[MCS::MCS_ID] = rootConfigOptions.config[MCS::MCS_ID];
-    policyOptions.config[MCS::MCS_PASSWORD] = rootConfigOptions.config[MCS::MCS_PASSWORD];
-    rootConfigOptions.config[MCS::MCS_ID] = "";
-    rootConfigOptions.config[MCS::MCS_PASSWORD] = "";
-    rootConfigOptions.writeToDisk("./mcs.config");
-    policyOptions.writeToDisk("./mcsPolicy.config");
     return downloadInstallerDirectOrCaches(update_caches);
 }
