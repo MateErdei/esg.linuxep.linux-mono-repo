@@ -74,6 +74,11 @@ while [[ $# -ge 1 ]] ; do
             PREREGISTED_MCS_CONFIG=$1
             [[ -f ${PREREGISTED_MCS_CONFIG} ]] || exit 2 "mcs config \"${PREREGISTED_MCS_CONFIG}\" does not exist"
             ;;
+        --mcs-policy-config)
+            shift
+            PREREGISTED_MCS_POLICY_CONFIG=$1
+            [[ -f ${PREREGISTED_MCS_POLICY_CONFIG} ]] || exit 2 "mcs config \"${PREREGISTED_MCS_POLICY_CONFIG}\" does not exist"
+            ;;
         *)
             failure 2 "BAD OPTION $1"
             ;;
@@ -768,9 +773,15 @@ then
     # if this file exists we should use it instead of registering
     if [[ -f ${PREREGISTED_MCS_CONFIG} ]]
     then
-        cp ${PREREGISTED_MCS_CONFIG} ${SOPHOS_INSTALL}/base/etc/mcs.config
+        mv ${PREREGISTED_MCS_CONFIG} ${SOPHOS_INSTALL}/base/etc/mcs.config
         chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/mcs.config"
         chmod 640 "${SOPHOS_INSTALL}/base/etc/mcs.config"
+        if [[ -f ${PREREGISTED_MCS_POLICY_CONFIG} ]]
+        then
+            mv ${PREREGISTED_MCS_POLICY_CONFIG} ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+            chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
+            chmod 640 "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
+        fi
     elif [[ "$MCS_URL" != "" && "$MCS_TOKEN" != "" ]]
     then
         ${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $CUSTOMER_TOKEN_ARGUMENT  $MCS_MESSAGE_RELAYS  $PRODUCT_ARGUMENTS

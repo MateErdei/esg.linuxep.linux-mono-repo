@@ -23,7 +23,7 @@ namespace MCS
     const std::string MCS_PROXY_PASSWORD("proxyPassword");
     const std::string MCS_CERT("mcsCert");
     const std::string MCS_CA_OVERRIDE("CAFILE");
-    const std::string MCS_PROXY("mcsProxy");
+    const std::string MCS_PROXY("proxy");
     const std::string MCS_CONNECTED_PROXY("mcsConnectedProxy");
     const std::string VERSION_NUMBER("versionNumber");
     const std::string TENANT_ID("tenant_id");
