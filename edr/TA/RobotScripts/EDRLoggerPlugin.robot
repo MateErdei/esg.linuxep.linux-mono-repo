@@ -815,6 +815,43 @@ EDR Plugin Sends XDR Results After Batch Time
     ...  2 secs
     ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
+Ensure Default Osquery Flags Are Contained in flags file
+    [Setup]  No Operation
+    Install Base For Component Tests
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
+    Install EDR Directly from SDDS
+
+    Osquery Flag File Should Contain    --host_identifier=uuid
+    Osquery Flag File Should Contain    --log_result_events=true
+    Osquery Flag File Should Contain    --utc
+    Osquery Flag File Should Contain    --logger_stderr=false
+    Osquery Flag File Should Contain    --logger_mode=420
+    Osquery Flag File Should Contain    --logger_min_stderr=1
+    Osquery Flag File Should Contain    --logger_min_status=1
+    Osquery Flag File Should Contain    --disable_watchdog=false
+    Osquery Flag File Should Contain    --watchdog_level=0
+    Osquery Flag File Should Contain    --watchdog_memory_limit=250
+    Osquery Flag File Should Contain    --watchdog_utilization_limit=30
+    Osquery Flag File Should Contain    --watchdog_delay=60
+    Osquery Flag File Should Contain    --enable_extensions_watchdog=true
+    Osquery Flag File Should Contain    --disable_extensions=false
+    Osquery Flag File Should Contain    --audit_persist=true
+    Osquery Flag File Should Contain    --enable_syslog=true
+    Osquery Flag File Should Contain    --audit_allow_config=true
+    Osquery Flag File Should Contain    --audit_allow_process_events=true
+    Osquery Flag File Should Contain    --audit_allow_fim_events=false
+    Osquery Flag File Should Contain    --audit_allow_selinux_events=true
+    Osquery Flag File Should Contain    --audit_allow_apparmor_events=true
+    Osquery Flag File Should Contain    --audit_allow_sockets=false
+    Osquery Flag File Should Contain    --audit_allow_user_events=true
+    Osquery Flag File Should Contain    --syslog_events_expiry=604800
+    Osquery Flag File Should Contain    --events_expiry=604800
+    Osquery Flag File Should Contain    --force=true
+    Osquery Flag File Should Contain    --disable_enrollment=true
+    Osquery Flag File Should Contain    --enable_killswitch=false
+    Osquery Flag File Should Contain    --verbose
+    Osquery Flag File Should Contain    --config_refresh=3600
+
 *** Keywords ***
 XDR Pack Should Be Enabled
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
@@ -839,9 +876,6 @@ Custom Pack Should Be Disabled
 Custom Pack Should Not Exist
     File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
     File Should Not Exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf.DISABLED
-
-
-
 
 ScheduleEpoch Should Be Recent
     ${scheduleEpoch} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch
