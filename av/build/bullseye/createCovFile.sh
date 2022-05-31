@@ -106,6 +106,7 @@ function exclude()
 
 exclude \!build/
 exclude \!build64/
+exclude \!input/
 exclude \!redist/
 exclude \!tests/
 exclude \!tools/
