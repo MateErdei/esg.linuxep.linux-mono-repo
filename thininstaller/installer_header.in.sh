@@ -653,7 +653,7 @@ then
   DEBUG_INSTALL_SCRIPT="-x"
 fi
 
-if [ -n ${FORCE_LEGACY_INSTALL} ]
+if [ -z ${FORCE_LEGACY_INSTALL} ]
 then
   MCS_CONFIG_ARGS="--mcs-config ${SOPHOS_TEMP_DIRECTORY}/mcs.config --mcs-policy-config ${SOPHOS_TEMP_DIRECTORY}/mcsPolicy.config"
 else
