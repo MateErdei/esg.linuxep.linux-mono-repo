@@ -849,7 +849,6 @@ int main(int argc, char** argv)
         return 51;
     }
     log("Successfully registered with Sophos Central");
-    configOptions.writeToDisk("./mcs.config");
 
     std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
         std::make_shared<Common::CurlWrapper::CurlWrapper>();
@@ -876,5 +875,7 @@ int main(int argc, char** argv)
     log("JWT: ");
     log(jwt);
 
+    configOptions.config[MCS::MCS_ID] = "";
+    configOptions.writeToDisk("./mcs.config");
     return downloadInstallerDirectOrCaches(update_caches);
 }
