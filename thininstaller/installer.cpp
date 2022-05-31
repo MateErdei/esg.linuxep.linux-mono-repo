@@ -9,7 +9,10 @@
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/Logging/LoggerConfig.h>
 
+#include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
+#include <log4cplus/configurator.h>
+#include <log4cplus/initializer.h>
 
 #include <algorithm>
 #include <cassert>
@@ -725,14 +728,21 @@ static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& cac
 int main(int argc, char** argv)
 {
     g_DebugMode = static_cast<bool>(getenv("DEBUG_THIN_INSTALLER"));
-    if (g_DebugMode)
-    {
-        Common::Logging::ConsoleLoggingSetup m_loggingSetup{Common::Logging::LOGFORTEST()};
-    }
-    else
-    {
-        Common::Logging::ConsoleLoggingSetup m_loggingSetup{Common::Logging::LOGOFFFORTEST()};
-    }
+//    if (g_DebugMode)
+//    {
+        log4cplus::Initializer initializer;
+
+        log4cplus::BasicConfigurator config;
+        config.configure();
+
+        log4cplus::Logger logger = log4cplus::Logger::getInstance(
+            LOG4CPLUS_TEXT("registercentral"));
+        LOG4CPLUS_WARN(logger, LOG4CPLUS_TEXT("Hello, World!"));
+//    }
+//    else
+//    {
+////        Common::Logging::ConsoleLoggingSetup m_loggingSetup{Common::Logging::LOGOFFFORTEST()};
+//    }
     if (argc < 2)
     {
         logError("Expecting a filename as an argument but none supplied");
@@ -830,6 +840,7 @@ int main(int argc, char** argv)
         return 44;
     }
 
+    LOG4CPLUS_WARN(logger, LOG4CPLUS_TEXT("Hello, World!2"));
     MCS::ConfigOptions configOptions =
         CentralRegistration::innerCentralRegistration(registerArgValues);
 
