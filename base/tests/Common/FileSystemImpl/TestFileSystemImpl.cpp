@@ -745,6 +745,20 @@ namespace
         ASSERT_FALSE(findPath.has_value());
     }
 
+    TEST_F(FileSystemImplTest, readLinkConvertsRelativeSymlinkTargetToAbsolutePath) // NOLINT
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/subdir1");
+        tempDir.makeDirs("Root/subdir2");
+        tempDir.createFile("Root/subdir2/file1", "hello");
+        int ret = ::symlink("../subdir2/file1", tempDir.absPath("Root/subdir1/symlink").c_str());
+        ASSERT_EQ(ret, 0);
+
+        std::optional<Path> findPath = m_fileSystem->readlink(tempDir.absPath("Root/subdir1/symlink"));
+        ASSERT_TRUE(findPath.has_value());
+        EXPECT_EQ(findPath.value(), tempDir.absPath("Root/subdir1/../subdir2/file1").c_str());
+    }
+
     TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnDirectories) // NOLINT
     {
         std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());

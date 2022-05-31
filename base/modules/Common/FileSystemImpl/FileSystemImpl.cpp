@@ -730,7 +730,14 @@ namespace Common
             {
                 linkPath[ret] = 0;
                 linkPath[PATH_MAX] = 0;
-                return makeAbsolute(linkPath);
+                if (linkPath[0] == '/')
+				{
+					return linkPath;
+				}
+				else
+				{
+					return Common::FileSystem::join(dirName(path), linkPath);
+				}
             }
             return std::optional<Path> {};
         }
