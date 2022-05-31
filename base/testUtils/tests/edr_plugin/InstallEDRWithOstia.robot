@@ -115,6 +115,9 @@ Install all plugins 999 then downgrade to all plugins develop
     Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
 
+    Log File  /opt/sophos-spl/base/etc/mcs.config
+    Log File  /opt/sophos-spl/base/etc/sophosspl/mcs.config
+
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 

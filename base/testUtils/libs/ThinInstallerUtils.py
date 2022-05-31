@@ -327,7 +327,7 @@ class ThinInstallerUtils(object):
             override_location = None
         if not installsh_path:
             installsh_path = self.default_installsh_path
-        self.run_thininstaller([installsh_path, *thininstaller_args],
+        self.run_thininstaller(["bash", "-x", installsh_path, *thininstaller_args],
                                expected_return_code,
                                mcsurl,
                                mcs_ca,
