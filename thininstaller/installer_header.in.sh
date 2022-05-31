@@ -362,6 +362,7 @@ do
         --products=*)
             check_selected_products_are_valid "${i#*=}"
             PRODUCT_ARGUMENTS="--products ${i#*=}"
+            CMCSROUTER_PRODUCT_ARGUMENTS="${i}"
             shift
         ;;
         --allow-override-mcs-ca)
@@ -594,7 +595,7 @@ MCS_URL="$CLOUD_URL"
 #INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" \
 #CUSTOMER_TOKEN_ARGUMENT="$CUSTOMER_TOKEN_ARGUMENT" \
 #PRODUCT_ARGUMENTS="$PRODUCT_ARGUMENTS" \
-${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL} ${CUSTOMER_TOKEN_ARGUMENT} ${MESSAGE_RELAYS} ${PRODUCT_ARGUMENTS} ${REGISTRATION_GROUP_ARGS}
+${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL} ${CUSTOMER_TOKEN_ARGUMENT} ${MESSAGE_RELAYS} ${CMCSROUTER_PRODUCT_ARGUMENTS} ${REGISTRATION_GROUP_ARGS}
 #${SOPHOS_INSTALL}/base/bin/registerCentral "$MCS_TOKEN" "$MCS_URL" $CUSTOMER_TOKEN_ARGUMENT  $MCS_MESSAGE_RELAYS  $PRODUCT_ARGUMENTS
 
 handle_installer_errorcodes $?
