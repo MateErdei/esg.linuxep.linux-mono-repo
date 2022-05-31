@@ -727,7 +727,7 @@ int main(int argc, char** argv)
     g_DebugMode = static_cast<bool>(getenv("DEBUG_THIN_INSTALLER"));
     if (g_DebugMode)
     {
-        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup{Common::Logging::LOGFORTEST()};
     }
     else
     {
