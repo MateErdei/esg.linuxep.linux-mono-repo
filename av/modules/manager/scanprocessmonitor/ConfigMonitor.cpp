@@ -5,7 +5,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ConfigMonitor.h"
-#include "InotifyFD.h"
 
 #include "Logger.h"
 
@@ -28,12 +27,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace plugin::manager::scanprocessmonitor;
 
-ConfigMonitor::ConfigMonitor(Common::Threads::NotifyPipe& pipe,
-                             std::string base)
-    : m_configChangedPipe(pipe), m_base(std::move(base))
-{
-}
-
 static const std::vector<std::string>& interestingFiles()
 {
     static const std::vector<std::string> INTERESTING_FILES
@@ -47,12 +40,34 @@ static const std::vector<std::string>& interestingFiles()
     return INTERESTING_FILES;
 }
 
+static std::vector<fs::path> interestingFilePaths(fs::path dir)
+{
+    std::vector<fs::path> interestingFilePaths;
+    const auto& INTERESTING_FILES = interestingFiles();
+    for (const auto& filename : INTERESTING_FILES)
+    {
+        interestingFilePaths.emplace_back(dir / filename);
+    }
+    return interestingFilePaths;
+}
+
 static inline bool isInteresting(const std::string& basename)
 {
 //    LOGDEBUG("isInteresting:"<<basename);
     const auto& INTERESTING_FILES = interestingFiles();
     return (std::find(INTERESTING_FILES.begin(), INTERESTING_FILES.end(), basename) != INTERESTING_FILES.end());
 }
+
+ConfigMonitor::ConfigMonitor(Common::Threads::NotifyPipe& pipe,
+                             std::string base)
+    : m_configChangedPipe(pipe)
+    , m_base(std::move(base))
+    , m_interestingFiles(interestingFilePaths(m_base))
+{
+    resolveSymlinksForInterestingFiles();
+}
+
+
 
 /**
  * We assume all the files monitored as small, so we can just keep a record of them.
@@ -81,31 +96,58 @@ ConfigMonitor::contentMap_t ConfigMonitor::getContentsMap()
     return result;
 }
 
-//void ConfigMonitor::resolveSymlinksForInterestingFiles()
-//{
-//    auto fs = Common::FileSystem::fileSystem();
-//    for (auto& filepath: m_interestingFiles)
-//    {
-//        // resolve symlinked config files up to a depth of MAX_SYMLINK_DEPTH
-//        int count = 0;
-//        while (count++ < MAX_SYMLINK_DEPTH)
-//        {
-//            auto ret = fs->readlink(filepath);
-//            if (ret)
-//            {
-//                fs::path symlinkTarget = ret.value();
-//                m_interestingFiles.push_back(symlinkTarget);
-//                fs::path parentDir = symlinkTarget.parent_path();
-//                if (std::find(m_interestingDirs.begin(), m_interestingDirs.end(), parentDir) == m_interestingDirs.end())
-//                {
-//                    // record directory if it has not already been recorded
-//                    m_interestingDirs.push_back(parentDir);
-//                }
-//                filepath = symlinkTarget;
-//            }
-//        }
-//    }
-//}
+void ConfigMonitor::resolveSymlinksForInterestingFiles()
+{
+    auto fs = Common::FileSystem::fileSystem();
+    fs::path origCwd = fs->currentWorkingDirectory();
+    int ret = ::chdir(m_base.c_str());
+    if (ret != 0)
+    {
+        LOGWARN("Failed to change working directory to " << m_base << " to get symlink target (" << ret << ")");
+    }
+
+    for (auto& filepath: m_interestingFiles)
+    {
+        // resolve symlinked config files up to a depth of MAX_SYMLINK_DEPTH
+        int count = 0;
+        while (count++ < MAX_SYMLINK_DEPTH)
+        {
+            std::optional<Path> optPath = fs->readlink(filepath);
+            if (optPath.has_value())
+            {
+                fs::path symlinkTarget = fs::canonical(optPath.value());
+                fs::path parentDir = symlinkTarget.parent_path();
+                ret = ::chdir(parentDir.c_str());
+                if (ret != 0)
+                {
+                    LOGWARN("Failed to change working directory to " << parentDir << " to get symlink target (" << ret << ")");
+                }
+                if (m_interestingDirs.find(parentDir) == m_interestingDirs.end())
+                {
+                    // record directory if it has not already been recorded
+                    auto symlinkTargetDirFD = std::make_shared<InotifyFD>(parentDir);
+                    if (symlinkTargetDirFD->getFD() < 0)
+                    {
+                        LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files: " << strerror(errno));
+                        return;
+                    }
+                    m_interestingDirs.insert_or_assign(parentDir, symlinkTargetDirFD);
+                }
+                filepath = symlinkTarget;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    ret = ::chdir(origCwd.c_str());
+    if (ret != 0)
+    {
+        LOGWARN("Failed to restore working directory to " << origCwd << " (" << ret << ")");
+    }
+}
 
 void ConfigMonitor::run()
 {
@@ -127,6 +169,10 @@ void ConfigMonitor::run()
     int max_fd = -1;
     max_fd = FDUtils::addFD(&readfds, m_notifyPipe.readFd(), max_fd);
     max_fd = FDUtils::addFD(&readfds, inotifyFD.getFD(), max_fd);
+    for (const auto& iter: m_interestingDirs)
+    {
+        max_fd = FDUtils::addFD(&readfds, iter.second->getFD(), max_fd);
+    }
 
     while(true)
     {
@@ -182,6 +228,25 @@ void ConfigMonitor::run()
                     }
                 }
                 i += EVENT_SIZE + event->len;
+            }
+        }
+
+        for (const auto& iter: m_interestingDirs)
+        {
+            if (FDUtils::fd_isset(iter.second->getFD(), &temp_readfds))
+            {
+                for (auto& filepath: interestingFiles())
+                {
+                    auto newContents = getContents(filepath);
+                    if (contents.at(filepath) != newContents)
+                    {
+                        LOGINFO("System configuration updated for " << filepath);
+                        m_configChangedPipe.notify();
+                        LOGDEBUG("Old content size=" << contents.at(filepath).size());
+                        LOGDEBUG("New content size=" << newContents.size());
+                        contents[filepath] = newContents;
+                    }
+                }
             }
         }
     }

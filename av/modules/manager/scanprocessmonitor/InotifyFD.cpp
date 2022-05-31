@@ -20,7 +20,7 @@ InotifyFD::InotifyFD(fs::path directory)
 {
     if (m_watchDescriptor < 0)
     {
-        LOGERROR("Failed to watch directory: Unable to monitor DNS config files" << strerror(errno));
+        LOGERROR("Failed to watch directory: " << directory << " - Unable to monitor DNS config files: " << strerror(errno));
         // inotifyFD automatically closed
     }
 }

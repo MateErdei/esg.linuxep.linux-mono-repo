@@ -6,15 +6,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "InotifyFD.h"
+
+#include "datatypes/sophos_filesystem.h"
+
+#include "Common/FileSystem/IFileSystem.h"
 #include "Common/Threads/NotifyPipe.h"
 #include "Common/Threads/AbstractThread.h"
 
-//#include "datatypes/sophos_filesystem.h"
-
 #include <map>
-//#include <vector>
+#include <vector>
 
-//namespace fs = sophos_filesystem;
+namespace fs = sophos_filesystem;
 
 namespace plugin::manager::scanprocessmonitor
 {
@@ -27,7 +30,7 @@ namespace plugin::manager::scanprocessmonitor
     private:
         using contentMap_t = std::map<std::string, std::string>;
         void run() override;
-        //void resolveSymlinksForInterestingFiles();
+        void resolveSymlinksForInterestingFiles();
 
         std::string getContents(const std::string& basename);
         contentMap_t getContentsMap();
@@ -35,7 +38,7 @@ namespace plugin::manager::scanprocessmonitor
         Common::Threads::NotifyPipe& m_configChangedPipe;
         std::string m_base;
 
-        //std::vector<fs::path> m_interestingFiles;
-        //std::vector<fs::path> m_interestingDirs;
+        std::vector<fs::path> m_interestingFiles;
+        std::map<fs::path, std::shared_ptr<InotifyFD>> m_interestingDirs;
     };
 }

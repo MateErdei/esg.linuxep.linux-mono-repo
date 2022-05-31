@@ -12,6 +12,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ScanProcessMonitorMemoryAppenderUsingTests.h"
 #include "modules/common/ThreadRunner.h"
 
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <Common/Helpers/MockFileSystem.h>
+
 #include <chrono>
 #include <fstream>
 
@@ -33,6 +36,9 @@ namespace
             fs::remove_all(m_testDir);
             fs::create_directories(m_testDir);
             fs::current_path(m_testDir);
+            m_mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+
+            Tests::ScopedReplaceFileSystem replacer(std::move(m_mockFileSystem));
         }
 
         void TearDown() override
@@ -42,7 +48,7 @@ namespace
         }
 
         fs::path m_testDir;
-
+        std::unique_ptr<StrictMock<MockFileSystem>> m_mockFileSystem;
     };
 }
 
@@ -205,6 +211,32 @@ TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfMove) // NOLINT
     ofs.close();
 
     fs::rename("notwatched/hosts", "watched/hosts");
+
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    a.requestStop();
+    a.join();
+}
+
+TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfWriteToSymlinkTarget) // NOLINT
+{
+    fs::path symlinkTargetDir = m_testDir / "targetDir";
+    fs::path symlinkTarget = symlinkTargetDir / "targetFile";
+    fs::create_directories(symlinkTargetDir);
+
+    std::ofstream ofs(symlinkTarget);
+    ofs << "This is some text";
+    ofs.close();
+
+    fs::create_symlink(symlinkTarget, "hosts");
+
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_testDir);
+    a.start();
+
+    ofs.open("hosts");
+    ofs << "This is some different text";
+    ofs.close();
 
     EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
 

@@ -186,6 +186,8 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockIFileSystemPtr, currentWorkingDirectory()).WillRepeatedly(Return("/etc"));
+    EXPECT_CALL(*mockIFileSystemPtr, readlink(_)).WillRepeatedly(::testing::Return(std::nullopt));
 
     fs::path testDir = tmpdir();
     const std::string susiStartupSettingsPath = testDir / "var/susi_startup_settings.json";
@@ -332,6 +334,8 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy) //NOLINT
 
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockIFileSystemPtr, currentWorkingDirectory()).WillRepeatedly(Return("/etc"));
+    EXPECT_CALL(*mockIFileSystemPtr, readlink(_)).WillRepeatedly(::testing::Return(std::nullopt));
 
     fs::path testDir = tmpdir();
     const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
@@ -370,6 +374,8 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID) //NO
 
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockIFileSystemPtr, currentWorkingDirectory()).WillRepeatedly(Return("/etc"));
+    EXPECT_CALL(*mockIFileSystemPtr, readlink(_)).WillRepeatedly(::testing::Return(std::nullopt));
 
     fs::path testDir = tmpdir();
     const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
