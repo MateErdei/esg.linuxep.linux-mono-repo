@@ -34,6 +34,9 @@ ${HANDLE}
 ${TESTSYSFILE}  hosts
 ${TESTSYSPATHBACKUP}  /etc/${TESTSYSFILE}backup
 ${TESTSYSPATH}  /etc/${TESTSYSFILE}
+${SOMETIMES_SYMLINKED_SYSFILE}  resolv.conf
+${SOMETIMES_SYMLINKED_SYSPATHBACKUP}  /etc/${SOMETIMES_SYMLINKED_SYSFILE}backup
+${SOMETIMES_SYMLINKED_SYSPATH}  /etc/${SOMETIMES_SYMLINKED_SYSFILE}
 
 
 *** Test Cases ***
@@ -490,6 +493,35 @@ Threat Detector Does Not Restart If System File Contents Do Not Change
     Wait Until AV Plugin Log Contains With Offset  System configuration not changed for ${TESTSYSFILE}
     AV Plugin Log Should Not Contain With Offset  System configuration updated for ${TESTSYSFILE}
 
+
+Threat Detector Restarts If Sometimes-symlinked System File Contents Change
+    copy file  ${SOMETIMES_SYMLINKED_SYSPATH}  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
+    Register On Fail   Revert Sometimes-symlinked System File To Original
+
+    ${ORG_CONTENTS} =  Get File  ${SOMETIMES_SYMLINKED_SYSPATH}  encoding_errors=replace
+    Append To File  ${SOMETIMES_SYMLINKED_SYSPATH}   "#NewLine"
+
+    Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}
+
+    Wait until threat detector running
+    mark sophos threat detector log
+
+    Revert Sometimes-symlinked System File To Original
+    Deregister On Fail   Revert Sometimes-symlinked System File To Original
+
+    Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}
+
+    ${POSTTESTCONTENTS} =  Get File  ${SOMETIMES_SYMLINKED_SYSPATH}  encoding_errors=replace
+    Should Be Equal   ${POSTTESTCONTENTS}   ${ORG_CONTENTS}
+
+
+Threat Detector Does Not Restart If Sometimes-symlinked System File Contents Do Not Change
+    copy file  ${SOMETIMES_SYMLINKED_SYSPATH}  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
+    Revert Sometimes-symlinked System File To Original
+
+    AV Plugin Log Should Not Contain With Offset  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}
+
+
 *** Keywords ***
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
@@ -600,3 +632,7 @@ Test Remote Share
 Revert System File To Original
     copy file with permissions  ${TESTSYSPATHBACKUP}  ${TESTSYSPATH}
     Remove File  ${TESTSYSPATHBACKUP}
+
+Revert Sometimes-symlinked System File To Original
+    copy file with permissions  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}  ${SOMETIMES_SYMLINKED_SYSPATH}
+    Remove File  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
