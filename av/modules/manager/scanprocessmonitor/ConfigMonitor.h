@@ -36,9 +36,8 @@ namespace plugin::manager::scanprocessmonitor
         contentMap_t getContentsMap();
 
         Common::Threads::NotifyPipe& m_configChangedPipe;
-        std::string m_base;
+        fs::path m_base;
 
-        std::vector<fs::path> m_interestingFiles;
         std::map<fs::path, std::shared_ptr<InotifyFD>> m_interestingDirs;
     };
 }

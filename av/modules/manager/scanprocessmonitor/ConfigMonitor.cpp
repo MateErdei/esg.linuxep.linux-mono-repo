@@ -40,17 +40,6 @@ static const std::vector<std::string>& interestingFiles()
     return INTERESTING_FILES;
 }
 
-static std::vector<fs::path> interestingFilePaths(fs::path dir)
-{
-    std::vector<fs::path> interestingFilePaths;
-    const auto& INTERESTING_FILES = interestingFiles();
-    for (const auto& filename : INTERESTING_FILES)
-    {
-        interestingFilePaths.emplace_back(dir / filename);
-    }
-    return interestingFilePaths;
-}
-
 static inline bool isInteresting(const std::string& basename)
 {
 //    LOGDEBUG("isInteresting:"<<basename);
@@ -62,7 +51,6 @@ ConfigMonitor::ConfigMonitor(Common::Threads::NotifyPipe& pipe,
                              std::string base)
     : m_configChangedPipe(pipe)
     , m_base(std::move(base))
-    , m_interestingFiles(interestingFilePaths(m_base))
 {
     resolveSymlinksForInterestingFiles();
 }
@@ -76,7 +64,7 @@ ConfigMonitor::ConfigMonitor(Common::Threads::NotifyPipe& pipe,
  */
 std::string ConfigMonitor::getContents(const std::string& basename)
 {
-    std::string filepath = m_base + "/" + basename;
+    std::string filepath = m_base / basename;
     std::ifstream in(filepath, std::ios::in|std::ios::binary);
     if (!in.is_open())
     {
@@ -106,9 +94,11 @@ void ConfigMonitor::resolveSymlinksForInterestingFiles()
         LOGWARN("Failed to change working directory to " << m_base << " to get symlink target (" << ret << ")");
     }
 
-    for (auto& filepath: m_interestingFiles)
+    const auto& INTERESTING_FILES = interestingFiles();
+    for (auto& filename: INTERESTING_FILES)
     {
         // resolve symlinked config files up to a depth of MAX_SYMLINK_DEPTH
+        fs::path filepath = m_base / filename;
         int count = 0;
         while (count++ < MAX_SYMLINK_DEPTH)
         {
