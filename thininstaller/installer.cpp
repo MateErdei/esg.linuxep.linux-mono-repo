@@ -870,6 +870,7 @@ int main(int argc, char** argv)
         }
         httpClient.setID(rootConfigOptions.config[MCS::MCS_ID]);
         httpClient.setPassword(rootConfigOptions.config[MCS::MCS_PASSWORD]);
+        httpClient.setProxyInfo(rootConfigOptions.config[MCS::MCS_PROXY], rootConfigOptions.config[MCS::MCS_PROXY_USERNAME], rootConfigOptions.config[MCS::MCS_PROXY_PASSWORD]);
         if (g_httpsProxy)
         {
             httpClient.setProxyInfo(
