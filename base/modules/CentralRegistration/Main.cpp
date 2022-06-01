@@ -41,10 +41,6 @@ namespace CentralRegistration
         auto argSize = args.size();
 
         // Positional args (expect 2 + binary)
-        for (auto arg: args)
-        {
-            LOGERROR(arg);
-        }
         if (argSize < 2)
         {
             LOGERROR("Insufficient positional arguments given. Expecting 2: MCS Token, MCS URL");
