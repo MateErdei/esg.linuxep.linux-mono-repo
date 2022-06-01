@@ -56,6 +56,10 @@ Teardown With Temporary Directory Clean
     Teardown
     Remove Directory   ${tmpdir}  recursive=True
 
+Teardown With Temporary Directory Clean And Stopping Message Relays
+    Teardown With Temporary Directory Clean
+    Stop Proxy If Running
+
 Teardown
     General Test Teardown
     Stop Update Server
@@ -126,10 +130,10 @@ Get System Path
 Thin Installer Calls Base Installer With Environment Variables For Product Argument
     [Arguments]  ${productArgs}
 
-    Validate Env Passed To Base Installer  --products ${productArgs}   --customer-token ThisIsACustomerToken   ThisIsARegToken   https://localhost:1233
+    Validate Env Passed To Base Installer  --products ${productArgs}   --customer-token ThisIsACustomerToken   ThisIsARegToken   https://localhost:4443/mcs
 
 Thin Installer Calls Base Installer Without Environment Variables For Product Argument
-    Validate Env Passed To Base Installer  ${EMPTY}  --customer-token ThisIsACustomerToken  ThisIsARegToken  https://localhost:1233
+    Validate Env Passed To Base Installer  ${EMPTY}  --customer-token ThisIsACustomerToken  ThisIsARegToken  https://localhost:4443/mcs
 
 Run Thin Installer And Check Argument Is Saved To Install Options File
     [Arguments]  ${argument}
@@ -345,7 +349,8 @@ Thin Installer Fails When No Path In Systemd File
 
 #TODO - "works" but logging needs to be wrangled
 Thin Installer Attempts Install And Register Through Message Relays
-    [Teardown]  Teardown With Temporary Directory Clean
+    [Setup]    Setup Thininstaller Test Without Local Cloud Server
+    [Teardown]  Teardown With Temporary Directory Clean And Stopping Message Relays
     Setup For Test With Warehouse Containing Product
     Start Message Relay
     Should Not Exist    ${SOPHOS_INSTALL}
@@ -573,7 +578,7 @@ Thin Installer Installs Product Successfully With Product Arguments
     Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0  override_location=https://localhost:1233  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
     Check MCS Router Running
-    Check Correct MCS Password And ID For Local Cloud Saved  config_path=${SOPHOS_INSTALL}/base/etc/mcs.config
+    Check Correct MCS Password And ID For Local Cloud Saved
     Check Cloud Server Log Contains  products requested from deployment API: ['mdr']
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
@@ -661,6 +666,7 @@ Thin Installer Fails With Invalid Group Names
     Remove Thininstaller Log
 
 Thin Installer Fails With Oversized Group Name
+    [Setup]    Setup Thininstaller Test Without Local Cloud Server
     ${max_sized_group_name}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 1024  shell=True
     Run Default Thininstaller With Args  3  --group=${max_sized_group_name.stdout}
 
@@ -675,6 +681,7 @@ Thin Installer Fails With Duplicate Arguments
     Remove Thininstaller Log
 
 Thin Installer Saves Group Names To Install Options
+    [Setup]    Setup Thininstaller Test Without Local Cloud Server
     Run Thin Installer And Check Argument Is Saved To Install Options File  --group=Group Name
 
 Thin Installer With Invalid Product Arguments Fails
@@ -731,7 +738,9 @@ Thin Installer Passes No Products Args To Base Installer When None Are Given
     Thin Installer Calls Base Installer Without Environment Variables For Product Argument
 
 Disable Auditd Argument Saved To Install Options
+    [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Run Thin Installer And Check Argument Is Saved To Install Options File  --disable-auditd
 
 Do Not Disable Auditd Argument Saved To Install Options
+    [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Run Thin Installer And Check Argument Is Saved To Install Options File  --do-not-disable-auditd
