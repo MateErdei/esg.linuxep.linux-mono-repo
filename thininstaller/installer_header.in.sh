@@ -476,8 +476,8 @@ then
     then
       echo "Message Relays: $MESSAGE_RELAYS"
     fi
-    MESSAGE_RELAYS="--messagerelay $MESSAGE_RELAYS"
     CMCSROUTER_MESSAGE_RELAYS="--message-relay $MESSAGE_RELAYS"
+    MESSAGE_RELAYS="--messagerelay $MESSAGE_RELAYS"
 fi
 
 # Save installer arguments to file for base and plugins to use.
