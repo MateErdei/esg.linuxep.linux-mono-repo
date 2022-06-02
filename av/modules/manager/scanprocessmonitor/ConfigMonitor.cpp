@@ -10,8 +10,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "common/FDUtils.h"
 
-//#include "Common/FileSystem/IFileSystem.h"
-
 #include <cerrno>
 #include <cstring>
 #include <fstream>
