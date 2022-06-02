@@ -87,12 +87,6 @@ ConfigMonitor::contentMap_t ConfigMonitor::getContentsMap()
 void ConfigMonitor::resolveSymlinksForInterestingFiles()
 {
     auto fs = Common::FileSystem::fileSystem();
-    fs::path origCwd = fs->currentWorkingDirectory();
-    int ret = ::chdir(m_base.c_str());
-    if (ret != 0)
-    {
-        LOGWARN("Failed to change working directory to " << m_base << " to get symlink target (" << ret << ")");
-    }
 
     const auto& INTERESTING_FILES = interestingFiles();
     for (auto& filename: INTERESTING_FILES)
@@ -107,11 +101,6 @@ void ConfigMonitor::resolveSymlinksForInterestingFiles()
             {
                 fs::path symlinkTarget = fs::canonical(optPath.value());
                 fs::path parentDir = symlinkTarget.parent_path();
-                ret = ::chdir(parentDir.c_str());
-                if (ret != 0)
-                {
-                    LOGWARN("Failed to change working directory to " << parentDir << " to get symlink target (" << ret << ")");
-                }
                 if (m_interestingDirs.find(parentDir) == m_interestingDirs.end())
                 {
                     // record directory if it has not already been recorded
@@ -130,12 +119,6 @@ void ConfigMonitor::resolveSymlinksForInterestingFiles()
                 break;
             }
         }
-    }
-
-    ret = ::chdir(origCwd.c_str());
-    if (ret != 0)
-    {
-        LOGWARN("Failed to restore working directory to " << origCwd << " (" << ret << ")");
     }
 }
 

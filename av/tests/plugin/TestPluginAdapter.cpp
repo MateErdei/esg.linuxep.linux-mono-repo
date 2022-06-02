@@ -186,7 +186,6 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
-    EXPECT_CALL(*mockIFileSystemPtr, currentWorkingDirectory()).WillRepeatedly(Return("/etc"));
     EXPECT_CALL(*mockIFileSystemPtr, readlink(_)).WillRepeatedly(::testing::Return(std::nullopt));
 
     fs::path testDir = tmpdir();
@@ -334,7 +333,6 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy) //NOLINT
 
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
-    EXPECT_CALL(*mockIFileSystemPtr, currentWorkingDirectory()).WillRepeatedly(Return("/etc"));
     EXPECT_CALL(*mockIFileSystemPtr, readlink(_)).WillRepeatedly(::testing::Return(std::nullopt));
 
     fs::path testDir = tmpdir();
@@ -374,7 +372,6 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID) //NO
 
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
-    EXPECT_CALL(*mockIFileSystemPtr, currentWorkingDirectory()).WillRepeatedly(Return("/etc"));
     EXPECT_CALL(*mockIFileSystemPtr, readlink(_)).WillRepeatedly(::testing::Return(std::nullopt));
 
     fs::path testDir = tmpdir();
