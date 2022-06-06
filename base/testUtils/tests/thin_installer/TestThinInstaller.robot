@@ -298,8 +298,6 @@ Thin Installer Registering With Message Relays Is Not Impacted By Env Proxy
     Setup Warehouse
     Start Message Relay
 
-    # NB we use the warehouse URL as the MCSUrl here as the thin installer just does a get over HTTPS that's all we need
-    # the url to respond against
     Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
     Build Default Creds Thininstaller From Sections
     Run Default Thininstaller   expected_return_code=0  override_location=https://localhost:1233  proxy=http://notanaddress.sophos.com  force_certs_dir=${SUPPORT_FILES}/sophos_certs
