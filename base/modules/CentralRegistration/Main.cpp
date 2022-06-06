@@ -19,6 +19,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <Common/OSUtilitiesImpl/SystemUtils.h>
 #include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include <Common/ObfuscationImpl/Obfuscate.h>
 #include <Logging/ConsoleLoggingSetup.h>
 #include <Logging/FileLoggingSetup.h>
 
@@ -37,6 +38,7 @@ namespace CentralRegistration
     {
         std::map<std::string, std::string> configOptions;
         std::string proxyCredentials;
+        std::string obscuredProxyCredentials;
         std::string messageRelaysAsString;
         auto argSize = args.size();
 
@@ -125,6 +127,7 @@ namespace CentralRegistration
             {
                 configOptions[MCS::MCS_PROXY_USERNAME] = values[0];
                 configOptions[MCS::MCS_PROXY_PASSWORD] = values[1];
+                configOptions[MCS::MCS_POLICY_PROXY_CREDENTIALS] = Common::ObfuscationImpl::SECObfuscate(proxyCredentials);
             }
         }
 

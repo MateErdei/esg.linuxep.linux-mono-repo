@@ -18,6 +18,9 @@ namespace Common
          */
         class CObscurity
         {
+        private:
+            static void randomSalt(ObfuscationImpl::SecureDynamicBuffer& salt);
+
         protected:
             typedef struct
             {
@@ -65,6 +68,8 @@ namespace Common
              * @see IObscurity::Reveal()
              */
             SecureString Reveal(const std::string& data) const;
+            std::string Conceal(const std::string& plainPassword) const;
+
         };
     } // namespace ObfuscationImpl
 } // namespace Common

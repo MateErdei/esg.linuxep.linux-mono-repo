@@ -15,9 +15,14 @@ namespace Common
     {
         Common::ObfuscationImpl::SecureString SECDeobfuscate(const std::string& srcData)
         {
-            std::string decoded64BinaryText = Base64::Decode(srcData);
             CObscurity obscurity;
-            return obscurity.Reveal(decoded64BinaryText);
+            return obscurity.Reveal(Base64::Decode(srcData));
+        }
+
+        std::string SECObfuscate(std::string& password)
+        {
+            CObscurity obscurity;
+            return Base64::Encode(obscurity.Conceal(password));
         }
     } // namespace ObfuscationImpl
 } // namespace Common

@@ -18,6 +18,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <random>
+#include <cstring>
 
 namespace
 {
@@ -229,7 +231,7 @@ namespace Common
 
         SecureString CObscurity::Reveal(const std::string& obscuredData) const
         {
-            constexpr int MarkAES256Algorithm = 8;
+            const char MarkAES256Algorithm = Cipher::AES256ObfuscationImpl::AlgorithmByte;
             SecureDynamicBuffer password = GetPassword();
 
             // Check algorithm identification
@@ -243,5 +245,40 @@ namespace Common
 
             return Cipher::Decrypt(password, obscuredText);
         }
+
+        std::string CObscurity::Conceal(const std::string& plainPassword) const
+        {
+            if (plainPassword.empty())
+            {
+                throw std::invalid_argument("Obfuscate: plaintext is empty");
+            }
+
+            ObfuscationImpl::SecureDynamicBuffer salt(Cipher::AES256ObfuscationImpl::SaltLength);
+            randomSalt(salt);
+            std::string ciphertext = Cipher::Encrypt(GetPassword(), salt, plainPassword);
+
+            auto totalLength =
+                (2 +                   // 2-byte header (algorithm ID + salt length)
+                 Cipher::AES256ObfuscationImpl::SaltLength +          // salt bytes
+                 ciphertext.length()); // ciphertext
+            std::vector<char> buf(totalLength, 0);
+            buf[0] = Cipher::AES256ObfuscationImpl::AlgorithmByte;
+            buf[1] = (unsigned char)Cipher::AES256ObfuscationImpl::SaltLength;
+            memcpy(&buf[2], &salt[0], Cipher::AES256ObfuscationImpl::SaltLength);
+            memcpy(&buf[2 + Cipher::AES256ObfuscationImpl::SaltLength], ciphertext.c_str(), ciphertext.size());
+            return { &buf[0], buf.size() };
+        }
+
+        void CObscurity::randomSalt(ObfuscationImpl::SecureDynamicBuffer& salt)
+        {
+            static std::random_device rd;
+            static std::uniform_int_distribution<int> rdist(0, 255);
+
+            for (auto& c : salt)
+            {
+                c = rdist(rd) & 0xFF;
+            }
+        }
+
     } // namespace ObfuscationImpl
 } // namespace Common

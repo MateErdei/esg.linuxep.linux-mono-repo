@@ -40,6 +40,15 @@ TEST_F(TestObscurity, obscurityRevealsPassword) // NOLINT
         "");
 }
 
+TEST_F(TestObscurity, testObfuscationRoundTrip) // NOLINT
+{
+    Common::ObfuscationImpl::CObscurity cObscurity;
+    std::string password = "password";
+    std::string concealed = cObscurity.Conceal(password);
+    std::string revealed = cObscurity.Reveal(concealed);
+    ASSERT_EQ(password, revealed);
+}
+
 TEST_F(TestObscurity, SECDeobfuscate) // NOLINT
 {
     EXPECT_EQ(

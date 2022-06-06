@@ -32,25 +32,54 @@ public:
 // ObfuscationImpl::SecureString Cipher::Decrypt(const ObfuscationImpl::SecureDynamicBuffer& cipherKey,
 // ObfuscationImpl::SecureDynamicBuffer& encrypted)
 
-TEST_F(CipherTest, BadEncryptionLength) // NOLINT
+TEST_F(CipherTest, DecryptThrowsIfSaltLengthIsWrong) // NOLINT
 {
-    Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(31, '*');
+    Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(32, '*');
     // First byte is treated as the salt length
-    dummyBuffer[0] = 32;
-    EXPECT_THROW( // NOLINT
-        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer),
-        Common::Obfuscation::ICipherException);
+    dummyBuffer[0] = 31;
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "Incorrect number of salt bytes");
+    }
 }
 
-TEST_F(CipherTest, BadPKCS5Password) // NOLINT
+TEST_F(CipherTest, DecryptThrowsWithEmptyKey) // NOLINT
 {
     Common::ObfuscationImpl::SecureDynamicBuffer encrypted(33, '*');
     // First byte is treated as the salt length
     encrypted[0] = 32;
     Common::ObfuscationImpl::SecureDynamicBuffer cipherKey; // Empty cipher key
-    EXPECT_THROW(                                           // NOLINT
-        Common::ObfuscationImpl::Cipher::Decrypt(cipherKey, encrypted),
-        Common::Obfuscation::ICipherException);
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Decrypt(cipherKey, encrypted);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "Empty key not allowed");
+    }
+}
+
+TEST_F(CipherTest, DecryptThrowsWithEmptyEncryptedString) // NOLINT
+{
+    Common::ObfuscationImpl::SecureDynamicBuffer cipherKey(33, '*');
+    // First byte is treated as the salt length
+    cipherKey[0] = 32;
+    Common::ObfuscationImpl::SecureDynamicBuffer encrypted; // Empty cipher key
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Decrypt(cipherKey, encrypted);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "String to decrypt is empty");
+    }
 }
 
 TEST_F(CipherTest, FailContextConstruction) // NOLINT
@@ -60,9 +89,15 @@ TEST_F(CipherTest, FailContextConstruction) // NOLINT
     // First byte is treated as the salt length
     dummyBuffer[0] = 32;
     // Reuse dummyBuffer as both cipherKey and EncryptedText
-    EXPECT_THROW( // NOLINT
-        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer),
-        Common::Obfuscation::ICipherException);
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "SECDeobfuscation Failed due to: Failed to create new EVP Cipher CTX");
+    }
 }
 
 TEST_F(CipherTest, FailDecryptInit) // NOLINT
@@ -74,9 +109,15 @@ TEST_F(CipherTest, FailDecryptInit) // NOLINT
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33, '*');
     // First byte is treated as the salt length
     dummyBuffer[0] = 32;
-    EXPECT_THROW( // NOLINT
-        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer),
-        Common::Obfuscation::ICipherException);
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "SECDeobfuscation Failed due to: Failed to initialise EVP Decrypt");
+    }
 }
 
 TEST_F(CipherTest, FailDecryptUpdate) // NOLINT
@@ -89,9 +130,15 @@ TEST_F(CipherTest, FailDecryptUpdate) // NOLINT
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33, '*');
     // First byte is treated as the salt length
     dummyBuffer[0] = 32;
-    EXPECT_THROW( // NOLINT
-        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer),
-        Common::Obfuscation::ICipherException);
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "SECDeobfuscation Failed due to: Failed to update EVP Decrypt");
+    }
 }
 
 TEST_F(CipherTest, FailDecryptFinal) // NOLINT
@@ -99,14 +146,21 @@ TEST_F(CipherTest, FailDecryptFinal) // NOLINT
     EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptInit_ex(_, _, _, _, _)).WillOnce(Return(1));
-    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptUpdate(_, _, _, _, _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptUpdate(_, _, _, _, _)).WillOnce(DoAll(SetArgPointee<2>(60), Return(1)));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptFinal_ex(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_free(junk)).WillOnce(Invoke(EVP_CIPHER_CTX_free));
     Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33, '*');
     // First byte is treated as the salt length
     dummyBuffer[0] = 32;
-    EXPECT_THROW( // NOLINT
-        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer),
-        Common::Obfuscation::ICipherException);
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "SECDeobfuscation Failed due to: Failed to finalise EVP Decrypt");
+    }
 }
 
 TEST_F(CipherTest, FailDecryptBecauseSaltLongerThanKey) // NOLINT
@@ -124,5 +178,139 @@ TEST_F(CipherTest, FailDecryptBecauseSaltLongerThanKey) // NOLINT
     {
         ASSERT_EQ(std::string(exception.what()), "Incorrect number of salt bytes");
     }
+}
 
+TEST_F(CipherTest, EncryptWithoutKeyThrows) // NOLINT
+{
+    Common::ObfuscationImpl::SecureDynamicBuffer keyBuffer;
+    Common::ObfuscationImpl::SecureDynamicBuffer saltBuffer(32, '*');
+    std::string dummyPassword = "password";
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Encrypt(keyBuffer, saltBuffer, dummyPassword);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "Empty key not allowed");
+    }
+}
+
+TEST_F(CipherTest, EncryptWithoutSaltThrows) // NOLINT
+{
+    Common::ObfuscationImpl::SecureDynamicBuffer keyBuffer(32, '*');
+    Common::ObfuscationImpl::SecureDynamicBuffer saltBuffer;
+    std::string dummyPassword = "password";
+    // First byte is treated as the salt length
+    keyBuffer[0] = 32;
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Encrypt(keyBuffer, saltBuffer, dummyPassword);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "Empty salt not allowed");
+    }
+}
+
+TEST_F(CipherTest, EncryptWithoutPasswordThrows) // NOLINT
+{
+    Common::ObfuscationImpl::SecureDynamicBuffer keyBuffer(32, '*');
+    Common::ObfuscationImpl::SecureDynamicBuffer saltBuffer(32, '*');
+    std::string dummyPassword;
+    // First byte is treated as the salt length
+    keyBuffer[0] = 32;
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Encrypt(keyBuffer, saltBuffer, dummyPassword);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "No password to encrypt");
+    }
+}
+
+TEST_F(CipherTest, BadEncryptSaltLength) // NOLINT
+{
+    Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(31, '*');
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
+    std::string dummyPassword = "password";
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Encrypt(dummyBuffer, dummyBuffer, dummyPassword);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "Incorrect number of salt bytes");
+    }
+}
+
+TEST_F(CipherTest, FailEncryptInit) // NOLINT
+{
+    EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_EncryptInit_ex(_, _, _, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_free(junk)).WillOnce(Invoke(EVP_CIPHER_CTX_free));
+    Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(32, '*');
+    std::string dummyPassword = "password";
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Encrypt(dummyBuffer, dummyBuffer, dummyPassword);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "SECDeobfuscation Failed due to: Failed to initialise EVP Encrypt");
+    }
+}
+
+TEST_F(CipherTest, FailEncryptUpdate) // NOLINT
+{
+    EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_EncryptInit_ex(_, _, _, _, _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_EncryptUpdate(_, _, _, _, _)).WillOnce(DoAll(SetArgPointee<2>(60), Return(0)));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_free(junk)).WillOnce(Invoke(EVP_CIPHER_CTX_free));
+    Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(32, '*');
+    std::string dummyPassword = "password";
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Encrypt(dummyBuffer, dummyBuffer, dummyPassword);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "SECDeobfuscation Failed due to: Failed to update EVP Encrypt");
+    }
+}
+
+TEST_F(CipherTest, FailEncryptFinal) // NOLINT
+{
+    EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_EncryptInit_ex(_, _, _, _, _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_EncryptUpdate(_, _, _, _, _)).WillOnce(DoAll(SetArgPointee<2>(60), Return(1)));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_EncryptFinal_ex(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_free(junk)).WillOnce(Invoke(EVP_CIPHER_CTX_free));
+    Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(32, '*');
+    std::string dummyPassword = "password";
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Encrypt(dummyBuffer, dummyBuffer, dummyPassword);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "SECDeobfuscation Failed due to: Failed to finalise EVP Encrypt");
+    }
 }

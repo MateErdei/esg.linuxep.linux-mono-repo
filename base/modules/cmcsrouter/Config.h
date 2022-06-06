@@ -25,4 +25,5 @@ namespace MCS
     const std::string MCS_PROXY("mcsProxy");
     const std::string MCS_CONNECTED_PROXY("mcsConnectedProxy");
     const std::string VERSION_NUMBER("versionNumber");
+    const std::string MCS_POLICY_PROXY_CREDENTIALS("mcs_policy_proxy_credentials");
 }

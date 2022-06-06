@@ -20,4 +20,9 @@ public:
         int(EVP_CIPHER_CTX*, const EVP_CIPHER*, ENGINE*, const unsigned char*, const unsigned char*));
     MOCK_CONST_METHOD5(EVP_DecryptUpdate, int(EVP_CIPHER_CTX*, unsigned char*, int*, const unsigned char*, int));
     MOCK_CONST_METHOD3(EVP_DecryptFinal_ex, int(EVP_CIPHER_CTX*, unsigned char*, int*));
+    MOCK_CONST_METHOD5(
+        EVP_EncryptInit_ex,
+        int(EVP_CIPHER_CTX*, const EVP_CIPHER*, ENGINE*, const unsigned char*, const unsigned char*));
+    MOCK_CONST_METHOD5(EVP_EncryptUpdate, int(EVP_CIPHER_CTX*, unsigned char*, int*, const unsigned char*, int));
+    MOCK_CONST_METHOD3(EVP_EncryptFinal_ex, int(EVP_CIPHER_CTX*, unsigned char*, int*));
 };
