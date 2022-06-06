@@ -5,7 +5,7 @@
     "Properties" : {
       "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
       "KeyName" : { "Ref" : "KeyName" },
-      "ImageId" : "ami-0fed3e36b964f509b",
+      "ImageId" : "ami-077744656d09b7b22",
       "InstanceType": "c4.large",
       "InstanceInitiatedShutdownBehavior": "terminate",
       "Tags" : [
@@ -17,7 +17,7 @@
         {"Key" : "CostCentre", "Value" : "GB11601200"},
         {"Key" : "Project", "Value" : "XDR"},
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
-        {"Key" : "BaseAmi", "Value" : "ami-0fed3e36b964f509b"},
+        {"Key" : "BaseAmi", "Value" : "ami-077744656d09b7b22"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
@@ -48,9 +48,6 @@
         "yum -y install epel-release make gcc nfs-utils kernel-devel fuse-libs gdb rpm-build cifs-utils wget attr psmisc zip 2>&1 >>/tmp/cloudFormationInit.log\n",
         "yum -y install python3-devel python3-pip policycoreutils-python-utils 2>&1 >>/tmp/cloudFormationInit.log\n",
         "pip3 install --upgrade robotframework nest_asyncio psutil zmq protobuf paramiko watchdog cryptography==3.3.1 python-dateutil requests enum34 packaging 2>&1 >>/tmp/cloudFormationInit.log\n",
-        "curl 'https://s3.amazonaws.com/aws-cli/awscli-bundle.zip' -o 'awscli-bundle.zip' 2>&1 >>/tmp/cloudFormationInit.log\n",
-        "unzip awscli-bundle.zip 2>&1 >>/tmp/cloudFormationInit.log\n",
-        "sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/bin/aws 2>&1 >>/tmp/cloudFormationInit.log\n",
         "unlink /bin/python >>/tmp/cloudFormationInit.log\n",
         "ln -s /bin/python2 /bin/python >>/tmp/cloudFormationInit.log\n",
         "service rpcbind start 2>&1 >>/tmp/cloudFormationInit.log\n",
