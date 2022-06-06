@@ -286,12 +286,24 @@ Thin Installer Succeeds When System Has Glibc Same As Build Machine
     Run Thininstaller With Non Standard Path  0  ${PATH}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    INSTALLER EXECUTED
 
-#TODO - actually broken
 Thin Installer Falls Back From Bad Env Proxy To Direct
     Setup Warehouse
     # NB we use the warehouse URL as the MCSUrl here as the thin installer just does a get over HTTPS that's all we need
     # the url to respond against
     Run Default Thininstaller   expected_return_code=0  override_location=https://localhost:1233  proxy=http://notanaddress.sophos.com  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Check Thininstaller Log Contains  INSTALLER EXECUTED
+    Check Thininstaller Log Contains  WARN: Could not connect using proxy
+
+Thin Installer Registering With Message Relays Is Not Impacted By Env Proxy
+    Setup Warehouse
+    Start Message Relay
+
+    # NB we use the warehouse URL as the MCSUrl here as the thin installer just does a get over HTTPS that's all we need
+    # the url to respond against
+    Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
+    Build Default Creds Thininstaller From Sections
+    Run Default Thininstaller   expected_return_code=0  override_location=https://localhost:1233  proxy=http://notanaddress.sophos.com  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+
     Check Thininstaller Log Contains  INSTALLER EXECUTED
     Check Thininstaller Log Contains  WARN: Could not connect using proxy
 
@@ -310,7 +322,6 @@ Thin Installer SUL Library Will Not Connect to Warehouse If Connection Has TLS b
     Run Default Thininstaller    10
     Check Thininstaller Log Contains    Failed to download the base installer! (Error code = 46)
 
-#TODO - actually broken
 Thin Installer And SUL Library Will Successfully Connect With Server Running TLSv1_2
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     [Tags]  SMOKE  THIN_INSTALLER
@@ -319,7 +330,6 @@ Thin Installer And SUL Library Will Successfully Connect With Server Running TLS
     Run Default Thininstaller    0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    INSTALLER EXECUTED
 
-#TODO - actually broken
 Thin Installer With Space In Name Works
     Setup Warehouse
     Run Default Thininstaller With Different Name    SophosSetup (1).sh    0   force_certs_dir=${SUPPORT_FILES}/sophos_certs
@@ -347,7 +357,6 @@ Thin Installer Fails When No Path In Systemd File
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
 
-#TODO - "works" but logging needs to be wrangled
 Thin Installer Attempts Install And Register Through Message Relays
     [Setup]    Setup Thininstaller Test Without Local Cloud Server
     [Teardown]  Teardown With Temporary Directory Clean And Stopping Message Relays
@@ -412,16 +421,6 @@ Thin Installer Attempts Install And Register Through Message Relays
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
 
-Thin Installer Registering With Message Relays Is Not Impacted By Env Proxy
-    Setup Warehouse
-    Start Message Relay
-
-    Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
-    Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller   expected_return_code=0  override_location=https://localhost:1233  proxy=http://notanaddress.sophos.com  force_certs_dir=${SUPPORT_FILES}/sophos_certs
-
-    Check Thininstaller Log Contains  INFO - Product successfully registered via proxy: localhost:20000
-# TODO - not working
 Thin Installer Digest Proxy
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     [Teardown]  Teardown With Temporary Directory Clean
@@ -454,7 +453,6 @@ Thin Installer Digest Proxy
 
     Check Log Does Not Contain  Try connection: Sophos at http://dci.sophosupd.com/update via proxy: http://localhost:10000\n\n  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader log
 
-# TODO- fails because keys are insane
 Thin Installer Environment Proxy
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     [Teardown]  Teardown With Temporary Directory Clean
@@ -601,8 +599,7 @@ Thin Installer Repairs Broken Existing Installation
 
     Check Thininstaller Log Contains  Found existing installation here: /opt/sophos-spl
 
-#    TODO - re-enable check when logging is unborked
-#    Check Thininstaller Log Does Not Contain  ERROR
+    Check Thininstaller Log Does Not Contain  ERROR
     Should Exist  ${REGISTER_CENTRAL}
     Remove Thininstaller Log
     Check Root Directory Permissions Are Not Changed
