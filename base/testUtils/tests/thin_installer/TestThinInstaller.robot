@@ -307,7 +307,7 @@ Thin Installer SUL Library Will Not Connect to Warehouse If Connection Has TLS b
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Setup Warehouse   --tls1_2   --tls1_1
     Start Local Cloud Server   --tls   tlsv1_2
-    Run Default Thininstaller    10    https://localhost:4443
+    Run Default Thininstaller    10
     Check Thininstaller Log Contains    Failed to download the base installer! (Error code = 46)
 
 #TODO - actually broken
@@ -316,7 +316,7 @@ Thin Installer And SUL Library Will Successfully Connect With Server Running TLS
     [Tags]  SMOKE  THIN_INSTALLER
     Setup Warehouse   --tls1_2   --tls1_2
     Start Local Cloud Server   --tls   tlsv1_2
-    Run Default Thininstaller    0    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Run Default Thininstaller    0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    INSTALLER EXECUTED
 
 #TODO - actually broken
@@ -387,17 +387,14 @@ Thin Installer Attempts Install And Register Through Message Relays
     Check Thininstaller Log Contains In Order
     ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via dummyhost1:10000)
     ...  Checking we can connect to Sophos Central (at https://localhost:4443/mcs via localhost:20000)\nDEBUG: Set CURLOPT_PROXYAUTH to CURLAUTH_ANY\nDEBUG: Set CURLOPT_PROXY to: localhost:20000\nDEBUG: Successfully got [No error] from Sophos Central
-
+    ...  DEBUG - Performing request: https://localhost:4443/mcs/register\nDEBUG - cURL Info:   Trying 127.0.0.1:10000...\n\nDEBUG - cURL Info: connect to 127.0.0.1 port 10000 failed: Connection refused
+    ...  INFO - Product successfully registered via proxy: localhost:20000
+    ...  DEBUG - Performing request: https://localhost:4443/mcs/authenticate/endpoint/ThisIsAnMCSID+1001/role/endpoint\nDEBUG - cURL Info:   Trying 127.0.0.1:20000...\n\nDEBUG - cURL Info: Connected to localhost (127.0.0.1) port 20000 (#0)
 
     Should Exist    ${SOPHOS_INSTALL}
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
     Should Be Equal As Integers  ${result.rc}  0  Management Agent not running after installation
     Check MCS Router Running
-
-    # Check the message relays made their way through to the registration command in the full installer
-    Check Register Central Log Contains In Order
-    ...  Trying connection via message relay dummyhost1:10000
-    ...  Successfully connected to localhost:4443 via localhost:20000
 
     # Check the message relays made their way through to the MCS Router
     File Should Exist  ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
