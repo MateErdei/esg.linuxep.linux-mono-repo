@@ -6,12 +6,12 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="sul">
-            <release-version branch="release/2022-15" build-id="20220405084457-b85262fdd979a3ff100ab7805a13ff3b8888fd37-3J82Gf"/>
+            <release-version branch="release/2022-18" build-id="20220422150248-cb78c50b4afb1b46a543a160364d1ec391632a80-237oLh"/>
             <development-version branch="develop"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="linuxep" repo="versig">
-            <release-version branch="release/Version_2_0_0" build-id="20220317112535-fba49acf7b84878fd63a3a870c341a3689f204cd-uhjl6E"/>
+            <release-version branch="release/Version_2_0_0" build-id="20220404133303-48fc071566c10fd37ba73723043a2b8453ca1d10-1ZPxUM"/>
             <development-version branch="master"/>
             <include artifact-path="output" dest-dir="/build/input/"/>
         </build-asset>
@@ -25,11 +25,11 @@
             <include artifact-path="cmake" dest-dir="/build/input/cmake"/>
         </build-asset>
         <build-asset project="thirdparty" repo="curl">
-            <release-version branch="release/sspl/Version_7_78_0" build-id="20220401134148-8df63f1cccb9b0bd6847a895a085d0e3f4842ed4-dkLoWq"/>
+            <release-version branch="release/sspl/Version_7_78_0" build-id="20220412101428-37f878ecaf2231cac57d4fe0525463c7acbe2c60-yWypaT"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="cpython">
-            <release-version branch="release/sspl/Version_3_9_7" build-id="20220401134218-2e55c5ab89820a152bacc267a00a80612ebf49c1-iad2u0"/>
+            <release-version branch="release/sspl/Version_3_9_7" build-id="20220412101422-5d5e6662dfc737c2eff1352cf0556f2da170c1a2-YgP1am"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="gcc">
@@ -41,7 +41,7 @@
             <include artifact-path="include" dest-dir="/build/redist/gsl/include"/>
         </build-asset>
         <build-asset project="thirdparty" repo="libexpat">
-            <release-version branch="release/sspl/Version_2_4_1" build-id="20220310142121-420df4f6d41e969e47ca0944ab289e8ec5c844d6-PpWwDQ"/>
+            <release-version branch="release/sspl/Version_2_4_8" build-id="20220412084210-700180882b0055f197dcf0198d71f0be516561bc-ihDKUE"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="libzmq">
@@ -53,7 +53,7 @@
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="minizip">
-            <release-version branch="release/linux-3.0.2" build-id="20210622151109-45729c01a79b678f7a29cf76cf770128ef856e2e-7mmYMo"/>
+            <release-version branch="release/linux-3.0.2" build-id="20220412101459-f74c7b2ba4b34d79c0682d567ca536d437147200-6OkAsV"/>
             <development-version branch="sophos/linux-sspl-master"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
@@ -106,7 +106,7 @@
             <include artifact-path="watchdog" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="zlib">
-            <release-version branch="release/sspl/Version_1_2_11" build-id="20220310143426-7a27b6dcf50b30fe14028c01094ace032326c1ad-17fQbX"/>
+            <release-version branch="release/sspl/Version_1_2_12" build-id="20220412084330-fbed66023e864153b2947dbffac57b6600587601-Z87Tnl"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
@@ -120,14 +120,14 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/sophlib" build-id="20220331091219-7e68d4a817ddb3cdd7d84b1594b2d9addf0986df-X4hqu2"/>
+            <release-version branch="release/sophlib" build-id="20220413171826-1cce64e1f2cba5a8e81c8397ee1d57e19153b65f-HoZYAQ"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64"/>
         </build-asset>
 
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/2022.15-linux-sdds3" build-id="20220331140049-c17460d0c68bd361a6efcb3ca3c71860266dc827-jlMH5V"/>
+            <release-version branch="release/2022-24-linux" build-id="20220606085243-1459b59f4cb55ff78a8738f0da8a0f8cf0d4d4dd-YWGmAr"/>
             <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
