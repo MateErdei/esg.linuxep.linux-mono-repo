@@ -471,7 +471,6 @@ Threat Detector Restarts If System File Contents Change
     Append To File  ${TESTSYSPATH}   "#NewLine"
 
     Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${TESTSYSFILE}
-    AV Plugin Log Should Not Contain With Offset  System configuration not changed for ${TESTSYSFILE}
 
     Wait until threat detector running
     mark sophos threat detector log
@@ -480,7 +479,6 @@ Threat Detector Restarts If System File Contents Change
     Deregister On Fail   Revert System File To Original
 
     Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${TESTSYSFILE}
-    AV Plugin Log Should Not Contain With Offset  System configuration not changed for ${TESTSYSFILE}
 
     ${POSTTESTCONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
     Should Be Equal   ${POSTTESTCONTENTS}   ${ORG_CONTENTS}
@@ -519,6 +517,7 @@ Threat Detector Does Not Restart If Sometimes-symlinked System File Contents Do 
     copy file  ${SOMETIMES_SYMLINKED_SYSPATH}  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
     Revert Sometimes-symlinked System File To Original
 
+    Wait Until AV Plugin Log Contains With Offset  System configuration not changed for ${SOMETIMES_SYMLINKED_SYSFILE}
     AV Plugin Log Should Not Contain With Offset  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}
 
 

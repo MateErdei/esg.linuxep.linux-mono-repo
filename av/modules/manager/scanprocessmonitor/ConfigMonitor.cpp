@@ -147,6 +147,7 @@ void ConfigMonitor::run()
 
     while(true)
     {
+        bool interestingDirTouched = false;
         fd_set temp_readfds = readfds;
         int active = ::pselect(max_fd+1, &temp_readfds, nullptr, nullptr, nullptr, nullptr);
 
@@ -181,28 +182,12 @@ void ConfigMonitor::run()
                 if (event->len)
                 {
                     // Don't care if it's close-after-write or rename/move
-                    if (isInteresting(event->name))
-                    {
-                        auto newContents = getContents(event->name);
-                        if (contents.at(event->name) == newContents)
-                        {
-                            LOGINFO("System configuration not changed for "<< event->name);
-                        }
-                        else
-                        {
-                            LOGINFO("System configuration updated for " << event->name);
-                            m_configChangedPipe.notify();
-                            LOGDEBUG("Old content size=" << contents.at(event->name).size());
-                            LOGDEBUG("New content size=" << newContents.size());
-                            contents[event->name] = newContents;
-                        }
-                    }
+                    interestingDirTouched = true;
                 }
                 i += EVENT_SIZE + event->len;
             }
         }
 
-        bool interestingDirTouched = false;
         for (const auto& iter: m_interestingDirs)
         {
             if (FDUtils::fd_isset(iter.second->getFD(), &temp_readfds))
@@ -213,11 +198,14 @@ void ConfigMonitor::run()
 
         if (interestingDirTouched)
         {
-            interestingDirTouched = false;
             for (auto& filepath : interestingFiles())
             {
                 auto newContents = getContents(filepath);
-                if (contents.at(filepath) != newContents)
+                if (contents.at(filepath) == newContents)
+                {
+                    LOGINFO("System configuration not changed for "<< filepath);
+                }
+                else
                 {
                     LOGINFO("System configuration updated for " << filepath);
                     m_configChangedPipe.notify();
