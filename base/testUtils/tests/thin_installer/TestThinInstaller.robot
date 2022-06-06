@@ -412,6 +412,15 @@ Thin Installer Attempts Install And Register Through Message Relays
     Check Thininstaller Log Does Not Contain  ERROR
     Check Root Directory Permissions Are Not Changed
 
+Thin Installer Registering With Message Relays Is Not Impacted By Env Proxy
+    Setup Warehouse
+    Start Message Relay
+
+    Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
+    Build Default Creds Thininstaller From Sections
+    Run Default Thininstaller   expected_return_code=0  override_location=https://localhost:1233  proxy=http://notanaddress.sophos.com  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+
+    Check Thininstaller Log Contains  INFO - Product successfully registered via proxy: localhost:20000
 # TODO - not working
 Thin Installer Digest Proxy
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
