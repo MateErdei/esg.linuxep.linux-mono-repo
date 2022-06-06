@@ -230,6 +230,15 @@ namespace Common::HttpRequestsImpl
                     encodedUsername + ":" + encodedPassword);
             }
         }
+        else
+        {
+            // Curl will use env proxies (which we only ever read then set explicitly), not doing this causes
+            // curl to use an env proxy when we explicitly ask to go directly
+            curlOptions.emplace_back(
+                "Set no proxy - CURLOPT_NOPROXY",
+                CURLOPT_NOPROXY,
+                "*");
+        }
 
         // Handle allowing redirects, a lot of sites redirect, a user must explicitly ask for this to be enabled
         if (request.allowRedirects)
