@@ -1,3 +1,7 @@
+
+# TODO LINUXDAR-4273 pare this down to the minimum required set of libraries
+# (currently this is effectively the whole pluginapi + some extras) Also consider making this a "thininstaller output"
+# as it is unlikely to be used anywhere else.
 add_library(cmcsrouterapi SHARED
         $<TARGET_OBJECTS:HttpRequestsImpl>
         $<TARGET_OBJECTS:applicationconfigurationimpl>

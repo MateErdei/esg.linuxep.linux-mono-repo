@@ -13,7 +13,6 @@ namespace MCS
 
     void ConfigOptions::writeToDisk(std::string fullPathToOutFile)
     {
-//        auto fs = Common::FileSystem::fileSystem();
         std::stringstream outString;
         for(auto it = config.cbegin(); it != config.cend(); ++it)
         {
