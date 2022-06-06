@@ -202,21 +202,28 @@ void ConfigMonitor::run()
             }
         }
 
+        bool interestingDirTouched = false;
         for (const auto& iter: m_interestingDirs)
         {
             if (FDUtils::fd_isset(iter.second->getFD(), &temp_readfds))
             {
-                for (auto& filepath: interestingFiles())
+                interestingDirTouched = true;
+            }
+        }
+
+        if (interestingDirTouched)
+        {
+            interestingDirTouched = false;
+            for (auto& filepath : interestingFiles())
+            {
+                auto newContents = getContents(filepath);
+                if (contents.at(filepath) != newContents)
                 {
-                    auto newContents = getContents(filepath);
-                    if (contents.at(filepath) != newContents)
-                    {
-                        LOGINFO("System configuration updated for " << filepath);
-                        m_configChangedPipe.notify();
-                        LOGDEBUG("Old content size=" << contents.at(filepath).size());
-                        LOGDEBUG("New content size=" << newContents.size());
-                        contents[filepath] = newContents;
-                    }
+                    LOGINFO("System configuration updated for " << filepath);
+                    m_configChangedPipe.notify();
+                    LOGDEBUG("Old content size=" << contents.at(filepath).size());
+                    LOGDEBUG("New content size=" << newContents.size());
+                    contents[filepath] = newContents;
                 }
             }
         }

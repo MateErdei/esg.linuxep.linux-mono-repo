@@ -16,8 +16,11 @@ namespace plugin::manager::scanprocessmonitor
     class InotifyFD
     {
     public:
-        InotifyFD(fs::path directory);
+        explicit InotifyFD(fs::path directory);
+
         ~InotifyFD();
+        InotifyFD(const InotifyFD&) = delete;
+        InotifyFD& operator=(const InotifyFD&) = delete;
 
         int getFD();
 
