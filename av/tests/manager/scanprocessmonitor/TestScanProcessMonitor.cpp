@@ -160,6 +160,7 @@ TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfAnotherWrite) // NOLINT
 
     EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
     EXPECT_TRUE(appenderContains("System configuration updated for "));
+    EXPECT_FALSE(appenderContains("System configuration not changed for "));
 
     clearMemoryAppender();
 
@@ -169,6 +170,7 @@ TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfAnotherWrite) // NOLINT
 
     EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
     EXPECT_TRUE(appenderContains("System configuration updated for "));
+    EXPECT_FALSE(appenderContains("System configuration not changed for "));
 
     a.requestStop();
     a.join();
