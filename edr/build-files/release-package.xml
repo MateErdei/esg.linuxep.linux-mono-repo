@@ -7,14 +7,14 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-18" build-id="20220425105140-e0ae558b067a6ecc873e7171e05cedc367402e56-UZ47qA"/>
+            <release-version branch="release/2022-24" build-id="20220606110625-f3ee979a2e1c14a0e0927a8193c927f0d1f23edd-wDtd9f"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>
 
         <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2022-18-linux" build-id="20220425092947-e094c36b62829ecdd97af1d55480a10413a620eb-wmlMDw"/>
+            <release-version branch="release/2022-24-linux" build-id="20220607085818-18cf795141ab89c0809d604449c4081935bbc0fa-CkQ8pt"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="/build/input/sspl-osquery-components"/>
         </build-asset>
@@ -24,12 +24,12 @@
             <include artifact-path="linux-x64-extension" dest-dir="/build/input/linux-x64-extension"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <release-version branch="release/SED_2022.18_linux_libs" build-id="20220425113848-972cd9a58b28f148b809d779a06cf3810ee00b35-v7TM0H" />
+            <release-version branch="release/SED_2022.24_linux_libs" build-id="20220606095017-5275fc56a7aa0adafa8887fbe3ad2567028526e7-hZubCK" />
             <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/2022-18-linux" build-id="20220425074826-3692c12a6ddf9dc8fd74ff1116cf2fdc325c6d87-C1Ssbv"/>
+            <release-version branch="release/2022-24-linux" build-id="20220606085243-1459b59f4cb55ff78a8738f0da8a0f8cf0d4d4dd-YWGmAr"/>
             <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
