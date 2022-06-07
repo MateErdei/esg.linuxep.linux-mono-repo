@@ -7,7 +7,7 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/Version_1_1_9" build-id="20220111115616-63e343f79cd351f4b766d0f4697fff50969105d6-T8rvVv"/>
-            <development-version branch="feature/LINUXDAR-4274-include-registration-library-in-artifact-from-base"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
