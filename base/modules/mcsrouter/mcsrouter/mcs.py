@@ -494,8 +494,8 @@ class MCS:
 
     def token_and_url_are_set(self):
         if os.path.isfile(path_manager.root_config()):
-            token = self.__m_policy_config.get("MCSToken", None)
-            url = self.__m_policy_config.get("MCSURL", None)
+            token = self.__m_policy_config.get("MCSToken")
+            url = self.__m_policy_config.get("MCSURL")
             if token and url:
                 return True
         return False
