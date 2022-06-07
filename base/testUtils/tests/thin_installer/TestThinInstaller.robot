@@ -302,8 +302,7 @@ Thin Installer Registering With Message Relays Is Not Impacted By Env Proxy
     Build Default Creds Thininstaller From Sections
     Run Default Thininstaller   expected_return_code=0  override_location=https://localhost:1233  proxy=http://notanaddress.sophos.com  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
-    Check Thininstaller Log Contains  INSTALLER EXECUTED
-    Check Thininstaller Log Contains  WARN: Could not connect using proxy
+    Check Thininstaller Log Contains  INFO - Product successfully registered via proxy: localhost:20000
 
 Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE  THIN_INSTALLER
