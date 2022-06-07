@@ -255,7 +255,7 @@ class ThinInstallerUtils(object):
         if not certs_dir:
             sophos_certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs")
             logger.info("sophos_certs_dir: {}".format(sophos_certs_dir))
-        else:            
+        else:
             sophos_certs_dir = certs_dir
         if not mcs_ca:
             env_cert = os.environ["MCS_CA"]
@@ -367,7 +367,7 @@ class ThinInstallerUtils(object):
         os.makedirs("/tmp/i/am/fake/bin/")
         open('/tmp/i/am/fake/bin/savscan', 'a').close()
         os.chmod("/tmp/i/am/fake/bin/savscan", stat.S_IXOTH)
-        
+
     def remove_fake_savscan_in_tmp(self):
         shutil.rmtree("/tmp/i/")
 
@@ -376,7 +376,7 @@ class ThinInstallerUtils(object):
         link_target = "/tmp/i/am/fake/bin/savscan"
         os.symlink(link_target, destination)
         logger.info("made symlink at: {}".format(destination))
-        
+
     def delete_fake_sweep_symlink(self, location = "/usr/bin"):
         location = os.path.join(location, "sweep")
         os.remove(location)
@@ -586,3 +586,13 @@ class ThinInstallerUtils(object):
             logger.info(actual)
             if expected_mcs_url != actual.strip():
                 raise AssertionError(f"expected $MCS_URL to be: '{expected_mcs_url}', not '{actual}'")
+
+    def get_mcs_config_paths_from_args_passed_to_base_installer(self, all_args):
+        logger.info(all_args)
+        root_config_pattern = r"--mcs-config (\/tmp\/SophosCentralInstall_.*\/mcs.config)"
+        match_object = re.search(root_config_pattern, all_args)
+        root_config_path = match_object.group(1)
+        policy_config_pattern = r"--mcs-policy-config (\/tmp\/SophosCentralInstall_.*\/mcsPolicy.config)"
+        match_object = re.search(policy_config_pattern, all_args)
+        policy_config_path = match_object.group(1)
+        return root_config_path, policy_config_path

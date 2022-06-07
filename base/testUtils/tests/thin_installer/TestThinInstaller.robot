@@ -744,3 +744,29 @@ Disable Auditd Argument Saved To Install Options
 Do Not Disable Auditd Argument Saved To Install Options
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Run Thin Installer And Check Argument Is Saved To Install Options File  --do-not-disable-auditd
+
+Thin Installer Passes MCS Config To Base Installer Via Args
+    Setup Warehouse
+    Start Message Relay
+
+    Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
+    Build Default Creds Thininstaller From Sections
+
+    Run Default Thininstaller    0  force_certs_dir=${SUPPORT_FILES}/sophos_certs  cleanup=${False}
+
+    Check Thininstaller Log Contains    INSTALLER EXECUTED
+    ${args} =  Get File  /tmp/args_thininstaller_called_base_installer_with
+    ${root_config_path}  ${policy_config_path} =  get_mcs_config_paths_from_args_passed_to_base_installer  ${args}
+    File Should Exist  ${root_config_path}
+    File Should Exist  ${policy_config_path}
+    Log File  ${root_config_path}
+    Log File  ${policy_config_path}
+    ${root_config_contents} =  Get File  ${root_config_path}
+    ${policy_config_contents} =  Get File  ${policy_config_path}
+    Should Contain  ${policy_config_contents}  MCSID=ThisIsAnMCSID+1001
+    Should Contain  ${policy_config_contents}  MCSPassword=ThisIsThePassword
+    Should Contain  ${root_config_contents}  MCSToken=ThisIsARegToken
+    Should Contain  ${root_config_contents}  CAFILE=/vagrant/everest-base/testUtils/SupportFiles/CloudAutomation/root-ca.crt.pem
+    Should Contain  ${root_config_contents}  MCSURL=https://localhost:4443/mcs
+    Should Contain  ${root_config_contents}  customerToken=ThisIsACustomerToken
+    Should Contain  ${root_config_contents}  mcsConnectedProxy=localhost:20000
