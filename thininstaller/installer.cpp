@@ -729,7 +729,6 @@ int main(int argc, char** argv)
 {
     g_DebugMode = static_cast<bool>(getenv("DEBUG_THIN_INSTALLER"));
 
-//    Common::Logging::ConsoleLoggingSetup m_loggingSetup(Common::Logging::LOGOFFFORTEST());
     log4cplus::Initializer initializer;
     log4cplus::BasicConfigurator config;
     config.configure();
@@ -759,7 +758,7 @@ int main(int argc, char** argv)
     }
 
     std::vector<std::string> registerArgValues;
-    for(int i = 2; i < argc; i++)
+    for(int i = 2; i < argc; ++i)
     {
         registerArgValues.emplace_back(argv[i]);
     }
