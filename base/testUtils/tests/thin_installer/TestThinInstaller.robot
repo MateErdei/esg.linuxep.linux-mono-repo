@@ -745,7 +745,7 @@ Do Not Disable Auditd Argument Saved To Install Options
     [Setup]  Setup Thininstaller Test Without Local Cloud Server
     Run Thin Installer And Check Argument Is Saved To Install Options File  --do-not-disable-auditd
 
-Thin Installer Passes MCS Config To Base Installer Via Args
+Thin Installer Passes MCS Config To Base Installer Via Args And Only One Registration Call Made
     Setup Warehouse
     Start Message Relay
 
@@ -770,3 +770,6 @@ Thin Installer Passes MCS Config To Base Installer Via Args
     Should Contain  ${root_config_contents}  MCSURL=https://localhost:4443/mcs
     Should Contain  ${root_config_contents}  customerToken=ThisIsACustomerToken
     Should Contain  ${root_config_contents}  mcsConnectedProxy=localhost:20000
+
+    # only one registration call in cloud server logs
+    Check Cloud Server Log Contains  POST - /mcs/register (Sophos MCS Client)    occurs=1
