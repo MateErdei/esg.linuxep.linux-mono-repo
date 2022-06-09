@@ -230,7 +230,7 @@ EDR Osquery restarts mtr extension when killed
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  2
+    ...  Check Log Contains String At least N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  2
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  2 secs
@@ -248,7 +248,7 @@ EDR Osquery restarts mtr extension when killed
         Wait Until Keyword Succeeds
         ...  5 secs
         ...  1 secs
-        ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  3
+        ...  Check Log Contains String At least N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  3
     Run Live Query  ${GREP}   simple
     Wait Until Keyword Succeeds
     ...  30 secs

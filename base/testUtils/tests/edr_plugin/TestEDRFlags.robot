@@ -20,7 +20,6 @@ Force Tags  LOAD1
 *** Test Cases ***
 Flags Are Only Sent To EDR and Not MTR
     Install MDR Directly
-    Register With Fake Cloud
     Wait Until Keyword Succeeds
     ...  30
     ...  1
@@ -44,7 +43,6 @@ EDR runs sophos extension when XDR is enabled
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Should Be Equal As Strings  0  ${result.rc}
-    Register With Fake Cloud
 
     Wait Until Keyword Succeeds
     ...  45
@@ -66,7 +64,6 @@ EDR disables curl tables when network available flag becomes false
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Should Be Equal As Strings  0  ${result.rc}
-    Register With Fake Cloud
     Wait Until Keyword Succeeds
     ...  30
     ...  1
@@ -124,8 +121,10 @@ File Should Not Contain
     Should Not Contain  ${contents}   ${expected_contents}
 
 EDR Test Setup
-    Install EDR Directly
     Start Local Cloud Server   --initial-alc-policy    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct.xml
+    Register With Fake Cloud
+    Install EDR Directly
+
 
 EDR Test Teardown
     Stop Local Cloud Server
