@@ -866,7 +866,7 @@ int main(int argc, char** argv)
         }
         else
         {
-            httpClient.setCertPath("./mcs.config");
+            httpClient.setCertPath("./mcs_rootca.crt");
         }
         httpClient.setID(rootConfigOptions.config[MCS::MCS_ID]);
         httpClient.setPassword(rootConfigOptions.config[MCS::MCS_PASSWORD]);
