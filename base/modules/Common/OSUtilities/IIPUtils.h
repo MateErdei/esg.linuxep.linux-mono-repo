@@ -1,19 +1,19 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
 
 #include <array>
 #include <cstdint>
+#include <ifaddrs.h>
 #include <netdb.h>
+#include <optional>
 #include <string>
 #include <vector>
 
-namespace Common
-{
-    namespace OSUtilities
+namespace Common::OSUtilities
     {
         using Ip6addr = std::array<uint8_t, 16>;
         using Ip4addr = uint32_t;
@@ -42,15 +42,22 @@ namespace Common
 
         public:
             explicit IP6(struct sockaddr_in6*);
+            explicit IP6(const std::string& stringAddress);
             int distance(const IP6& other) const;
             std::string stringAddress() const { return m_address; };
-            // Ip6addr ipAddress() const{ return m_ip6addr; };
+            Ip6addr ipAddress() const{ return m_ip6addr; };
         };
 
         struct IPs
         {
             std::vector<IP4> ip4collection;
             std::vector<IP6> ip6collection;
+        };
+
+        struct Interface
+        {
+            IPs ipAddresses;
+            std::string name;
         };
 
         /**
@@ -99,5 +106,4 @@ namespace Common
          */
         SortServersReport indexOfSortedURIsByIPProximity(const std::vector<std::string>& servers);
         std::vector<int> sortedIndexes(const SortServersReport& report);
-    } // namespace OSUtilities
-} // namespace Common
+    } // namespace Common::OSUtilities

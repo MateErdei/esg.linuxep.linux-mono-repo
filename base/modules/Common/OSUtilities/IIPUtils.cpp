@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "IIPUtils.h"
@@ -8,14 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/OSUtilities/IDnsLookup.h>
 #include <Common/OSUtilities/ILocalIP.h>
 #include <arpa/inet.h>
-#include <net/if.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 
 #include <algorithm>
-#include <cstring>
 #include <future>
-#include <ifaddrs.h>
 #include <netdb.h>
 #include <regex>
 #include <sstream>
@@ -110,15 +107,12 @@ namespace
     }
 
 } // namespace
-namespace Common
-{
-    namespace OSUtilities
+namespace Common::OSUtilities
     {
         // IP4
 
-        IP4::IP4(struct sockaddr_in* ipSockAddr)
+        IP4::IP4(struct sockaddr_in* ipSockAddr) : m_ip4addr(ipSockAddr->sin_addr.s_addr)
         {
-            m_ip4addr = ipSockAddr->sin_addr.s_addr;
             m_address = ip2string(ipSockAddr);
         }
 
@@ -148,7 +142,7 @@ namespace Common
             if (-1 == static_cast<int32_t>(ip))
             {
                 std::stringstream s;
-                s << "Invalid ip address: " << stringAddress;
+                s << "Invalid IPv4 address: " << stringAddress;
                 throw std::runtime_error(s.str());
             }
             m_address = stringAddress;
@@ -160,6 +154,21 @@ namespace Common
         {
             m_ip6addr = ::convert(ipSockAddr->sin6_addr.s6_addr);
             m_address = ip2string(ipSockAddr);
+        }
+
+        IP6::IP6(const std::string& stringAddress)
+        {
+            unsigned char buf[sizeof(struct in6_addr)];
+            int ipConversion = inet_pton(AF_INET6, stringAddress.c_str(), buf);
+
+            if (1 != ipConversion)
+            {
+                std::stringstream s;
+                s << "Invalid IPv6 address: " << stringAddress;
+                throw std::runtime_error(s.str());
+            }
+            m_address = stringAddress;
+            m_ip6addr = ::convert(buf);
         }
 
         int IP6::distance(const Common::OSUtilities::IP6& other) const
@@ -241,5 +250,4 @@ namespace Common
             return answer;
         }
 
-    } // namespace OSUtilities
-} // namespace Common
+    } // namespace Common::OSUtilities

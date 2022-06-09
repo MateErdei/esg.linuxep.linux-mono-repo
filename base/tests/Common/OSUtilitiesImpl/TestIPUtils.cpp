@@ -73,9 +73,21 @@ TEST(TestIPUtils, IP4CannotBeConstructedByInvalidIPString) // NOLINT
         "270.101.89.90",   // each number must be smaller than 256
         "10.101.89.90.89", // there are only 4 fields
     };
-    for (auto invalid_ip : invalid_ips)
+    for (const auto& invalid_ip : invalid_ips)
     {
-        EXPECT_THROW(IP4{ invalid_ip }, std::runtime_error) << "Did not rejected invalid ip: " << invalid_ip; // NOLINT
+        EXPECT_THROW(IP4{ invalid_ip }, std::runtime_error) << "Did not reject invalid IPv4: " << invalid_ip; // NOLINT
+    }
+}
+
+TEST(TestIPUtils, IP6CannotBeConstructedByInvalidIPString) // NOLINT
+{
+    std::vector<std::string> invalid_ips = {
+        "8cc1:bec7:87c5:b668:62bf:ccaa:9f56", // there should be 8 fields
+        "192.168.168.64", // ipv4 address
+    };
+    for (const auto& invalid_ip : invalid_ips)
+    {
+        EXPECT_THROW(IP6{ invalid_ip }, std::runtime_error) << "Did not reject invalid IPv6: " << invalid_ip; // NOLINT
     }
 }
 

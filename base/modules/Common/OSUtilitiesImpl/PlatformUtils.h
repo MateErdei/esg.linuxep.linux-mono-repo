@@ -5,14 +5,22 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "OSUtilities/IPlatformUtils.h"
 #include <Common/HttpRequests/IHttpRequester.h>
+#include <Common/OSUtilities/IIPUtils.h>
+#include <Common/OSUtilities/IPlatformUtils.h>
 #include <sys/utsname.h>
 
-namespace Common
-{
-    namespace OSUtilitiesImpl
+namespace Common::OSUtilitiesImpl
     {
+        // Ordering is important, this defines the order of the interface sorting
+        enum class InterfaceCharacteristic {
+            IS_ETH,
+            IS_EM,
+            IS_OTHER,
+            IS_PRIVATE,
+            IS_DOCKER
+        };
+
         class PlatformUtils : public Common::OSUtilities::IPlatformUtils
         {
         public:
@@ -28,10 +36,10 @@ namespace Common
             [[nodiscard]] std::string getOsMajorVersion() const override;
             [[nodiscard]] std::string getOsMinorVersion() const override;
             [[nodiscard]] std::string getDomainname() const override;
-            [[nodiscard]] std::string getIp4Address() const override;
-            [[nodiscard]] std::vector<std::string> getIp4Addresses() const override;
-            [[nodiscard]] std::string getIp6Address() const override;
-            [[nodiscard]] std::vector<std::string> getIp6Addresses() const override;
+            [[nodiscard]] std::string getFirstIpAddress(const std::vector<std::string>& ipAddresses) const override;
+            [[nodiscard]] std::vector<std::string> getIp4Addresses(const std::vector<Common::OSUtilities::Interface>& interfaces) const override;
+            [[nodiscard]] std::vector<std::string> getIp6Addresses(const std::vector<Common::OSUtilities::Interface>& interfaces) const override;
+            void sortInterfaces(std::vector<Common::OSUtilities::Interface>& interfaces) const override;
             [[nodiscard]] std::string getCloudPlatformMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const override;
             [[nodiscard]] std::vector<std::string> getMacAddresses() const override;
 
@@ -43,6 +51,7 @@ namespace Common
             [[nodiscard]] utsname getUtsname() const;
             void populateVendorDetails();
             [[nodiscard]] static std::string extractDistroFromFile(const std::string& filePath);
+            [[nodiscard]] static InterfaceCharacteristic getInterfaceCharacteristic(const Common::OSUtilities::Interface& interface);
             [[nodiscard]] std::string getAwsMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const;
             [[nodiscard]] std::string getGcpMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const;
             [[nodiscard]] std::string getOracleMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const;
@@ -56,5 +65,4 @@ namespace Common
             std::string m_osMinorVersion;
         };
 
-    } // namespace OSUtilitiesImpl
-} // namespace Common
+    } // namespace  Common::OSUtilitiesImpl

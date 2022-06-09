@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "LocalIPImpl.h"
@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/OSUtilities/IIPUtils.h>
 #include <net/if.h>
 
-#include <cstring>
+#include <algorithm>
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <sstream>
@@ -29,7 +29,24 @@ namespace
         explicit IfAddrScopeGuard(struct ifaddrs* ifAddr_) : addr(ifAddr_) {}
         ~IfAddrScopeGuard() { freeifaddrs(addr); }
     };
-    IPs localIPs()
+
+    void addIpToInterface(struct ifaddrs* listIFAddr, Common::OSUtilities::Interface& interface)
+    {
+        int family = listIFAddr->ifa_addr->sa_family;
+
+        if (family == AF_INET)
+        {
+            struct sockaddr_in* ipSockAddr = reinterpret_cast<struct sockaddr_in*>(listIFAddr->ifa_addr); // NOLINT
+            interface.ipAddresses.ip4collection.emplace_back(ipSockAddr);
+        }
+        else if (family == AF_INET6)
+        {
+            struct sockaddr_in6* ipSockAddr = reinterpret_cast<struct sockaddr_in6*>(listIFAddr->ifa_addr); // NOLINT
+            interface.ipAddresses.ip6collection.emplace_back(ipSockAddr);
+        }
+    }
+
+    std::vector<Common::OSUtilities::Interface> localInterfaces()
     {
         struct ifaddrs* listIFAddr;
 
@@ -40,46 +57,71 @@ namespace
 
         // ensure the entire list is cleared on return
         IfAddrScopeGuard ifAddrScopeGuard{ listIFAddr };
-        IPs ips;
+        std::vector<Common::OSUtilities::Interface> interfaces;
+
         // walk through the list
         for (; listIFAddr != nullptr; listIFAddr = listIFAddr->ifa_next)
         {
             if (listIFAddr->ifa_addr == nullptr)
+            {
                 continue;
+            }
 
             if (listIFAddr->ifa_flags & IFF_LOOPBACK)
+            {
                 continue;
-
-            int family = listIFAddr->ifa_addr->sa_family;
-
-            if (family == AF_INET)
-            {
-                struct sockaddr_in* ipSockAddr = reinterpret_cast<struct sockaddr_in*>(listIFAddr->ifa_addr); // NOLINT
-                ips.ip4collection.emplace_back(ipSockAddr);
             }
-            else if (family == AF_INET6)
+
+            std::string interfaceName = listIFAddr->ifa_name;
+
+            auto interfaceIter = std::find_if(
+                interfaces.begin(),
+                interfaces.end(),
+                [&interfaceName](const Common::OSUtilities::Interface& interface) {
+                    return interface.name == interfaceName;
+                });
+
+            if (interfaceIter == interfaces.end()) // if interfaceName not found, create new interface
             {
-                struct sockaddr_in6* ipSockAddr =
-                    reinterpret_cast<struct sockaddr_in6*>(listIFAddr->ifa_addr); // NOLINT
-                ips.ip6collection.emplace_back(ipSockAddr);
+                Common::OSUtilities::Interface interface;
+                interface.name = interfaceName;
+                addIpToInterface(listIFAddr, interface);
+
+                interfaces.emplace_back(interface);
+            }
+            else
+            {
+                addIpToInterface(listIFAddr, *interfaceIter);
             }
         }
+        return interfaces;
+    }
+
+    IPs localIPs()
+    {
+        std::vector<Common::OSUtilities::Interface> interfaces = localInterfaces();
+        IPs ips;
+
+        for (const auto& interface : interfaces)
+        {
+            ips.ip4collection.insert(ips.ip4collection.end(), interface.ipAddresses.ip4collection.begin(), interface.ipAddresses.ip4collection.end());
+            ips.ip6collection.insert(ips.ip6collection.end(), interface.ipAddresses.ip6collection.begin(), interface.ipAddresses.ip6collection.end());
+        }
+
         return ips;
     }
 
 } // namespace
 
-namespace Common
-{
-    namespace OSUtilitiesImpl
+namespace Common::OSUtilitiesImpl
     {
         Common::OSUtilities::IPs LocalIPImpl::getLocalIPs() const { return ::localIPs(); }
+        std::vector<Common::OSUtilities::Interface> LocalIPImpl::getLocalInterfaces() const { return ::localInterfaces(); }
 
         void replaceLocalIP(ILocalIPPtr other) { LocalIPStaticPointer().reset(other.release()); }
 
         void restoreLocalIP() { LocalIPStaticPointer().reset(new Common::OSUtilitiesImpl::LocalIPImpl()); }
-    } // namespace OSUtilitiesImpl
-} // namespace Common
+    } // namespace Common::OSUtilitiesImpl
 
 Common::OSUtilities::ILocalIP* Common::OSUtilities::localIP()
 {

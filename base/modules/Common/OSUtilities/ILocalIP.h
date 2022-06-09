@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #pragma once
@@ -19,6 +19,7 @@ namespace Common
              * @return
              */
             virtual IPs getLocalIPs() const = 0;
+            virtual std::vector<Common::OSUtilities::Interface> getLocalInterfaces() const = 0;
         };
 
         /**

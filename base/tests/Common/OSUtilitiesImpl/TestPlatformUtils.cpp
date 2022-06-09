@@ -4,11 +4,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/OSUtilitiesImpl/PlatformUtils.h>
 #include <Common/OSUtilitiesImpl/CloudMetadataConverters.h>
+#include <Common/OSUtilitiesImpl/PlatformUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
+#include <tests/Common/OSUtilitiesImpl/MockILocalIP.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -384,4 +385,30 @@ TEST(TestPlatformUtils, GetAndConvertOracleMetadataToXml) // NOLINT
     ASSERT_EQ(resultXml.lookup("oracle/hostname").contents(), "my-hostname");
     ASSERT_EQ(resultXml.lookup("oracle/state").contents(), "Running");
     ASSERT_EQ(resultXml.lookup("oracle/instanceId").contents(), "ocid1.instance.oc1.phx.exampleuniqueID");
+}
+
+TEST(TestPlatformUtils, GetAndCorrectlySortIpAddressesForStatusXML) // NOLINT
+{
+    PlatformUtils platformUtils;
+
+    auto mockLocalIP = std::make_shared<StrictMock<MockILocalIP>>();
+    std::vector<Common::OSUtilities::Interface> interfaces = MockILocalIP::buildInterfacesHelper();
+    platformUtils.sortInterfaces(interfaces);
+
+    std::vector<std::string> ip4Addresses = platformUtils.getIp4Addresses(interfaces);
+    std::vector<std::string> ip6Addresses = platformUtils.getIp6Addresses(interfaces);
+
+    std::vector<std::string> expectedSortedIp4Addresses = {"192.168.168.64", "125.184.182.125", "192.240.35.35", "172.6.251.34", "100.80.13.214"};
+    std::vector<std::string> expectedSortedIp6Addresses = {
+        "f5eb:f7a4:323f:e898:f212:d0a6:3405:feec",
+        "4d48:b9eb:62a5:4119:6e7f:89e9:a652:4941",
+        "e36:e861:82a2:a473:2c24:7a07:7867:6a50",
+        "8cc1:bec7:87c5:b668:62bf:ccaa:9f56:8f7f",
+        "edbd:3bb8:bffb:4b6b:3536:2be7:3066:4276"
+    };
+
+    ASSERT_EQ(ip4Addresses, expectedSortedIp4Addresses);
+    ASSERT_EQ(ip6Addresses, expectedSortedIp6Addresses);
+    ASSERT_EQ(platformUtils.getFirstIpAddress(ip4Addresses), "192.168.168.64");
+    ASSERT_EQ(platformUtils.getFirstIpAddress(ip6Addresses), "f5eb:f7a4:323f:e898:f212:d0a6:3405:feec");
 }

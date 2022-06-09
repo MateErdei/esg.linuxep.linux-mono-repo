@@ -23,10 +23,10 @@ public:
     MOCK_CONST_METHOD0(getOsMajorVersion, std::string());
     MOCK_CONST_METHOD0(getOsMinorVersion, std::string());
     MOCK_CONST_METHOD0(getDomainname, std::string());
-    MOCK_CONST_METHOD0(getIp4Address, std::string());
-    MOCK_CONST_METHOD0(getIp4Addresses, std::vector<std::string>());
-    MOCK_CONST_METHOD0(getIp6Address, std::string());
-    MOCK_CONST_METHOD0(getIp6Addresses, std::vector<std::string>());
+    MOCK_CONST_METHOD1(getFirstIpAddress, std::string(const std::vector<std::string>& ipAddresses));
+    MOCK_CONST_METHOD1(getIp4Addresses, std::vector<std::string>(const std::vector<Common::OSUtilities::Interface>& interfaces));
+    MOCK_CONST_METHOD1(getIp6Addresses, std::vector<std::string>(const std::vector<Common::OSUtilities::Interface>& interfaces));
+    MOCK_CONST_METHOD1(sortInterfaces, void(std::vector<Common::OSUtilities::Interface>& interfaces));
     MOCK_CONST_METHOD1(getCloudPlatformMetadata, std::string(std::shared_ptr<Common::HttpRequests::IHttpRequester>));
     MOCK_CONST_METHOD0(getMacAddresses, std::vector<std::string>());
 

@@ -51,3 +51,4 @@ testUtils/SupportFiles/CloudAutomation/root-ca.crt.*
 testUtils/SupportFiles/CloudAutomation/server-*.pem
 testUtils/SupportFiles/CloudAutomation/utm.cert.pem
 testUtils/*-VBoxSVC-*.log
+/tap_venv/
