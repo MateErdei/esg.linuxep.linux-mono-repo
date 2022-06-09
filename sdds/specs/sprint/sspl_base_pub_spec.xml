@@ -9,12 +9,11 @@
         <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.0.79" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
         <component importreference="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.908" line="ServerProtectionLinux-Plugin-Heartbeat" mountpoint="ServerProtectionLinux-Plugin-Heartbeat"/>
     </componentsuite>
-        <componentsuite importreference="ServerProtectionLinux-Base-1.1.10.9">
-            <component importreference="ServerProtectionLinux-Base-component-1.1.10.107" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
-            <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.6.0.21" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
-            <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.2.17" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
-            <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.0.79" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
-            <component importreference="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.908" line="ServerProtectionLinux-Plugin-Heartbeat" mountpoint="ServerProtectionLinux-Plugin-Heartbeat"/>
+        <componentsuite importreference="ServerProtectionLinux-Base-1.1.10.6">
+            <component importreference="ServerProtectionLinux-Base-component-1.1.10.49" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
+            <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.2.14" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
+            <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.2.2" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
+            <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.0.42" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
         </componentsuite>
     <componentsuite importreference="ServerProtectionLinux-Base-1.1.9.11">
         <component importreference="ServerProtectionLinux-Base-component-1.1.9.25" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
@@ -207,7 +206,6 @@
                       line="ML_MODEL2_LINUX" tag="LINUX_SCAN" warehousename="ml_models2"/>
           </component>
           <component importreference="ServerProtectionLinux-Plugin-AV-1.0.6.593">
-              <releasetag baseversion="" tag="RECOMMENDED"/>
               <genericsupplement
                       decodepath="files/plugins/av/chroot/susi/update_source/vdl"
                       line="DataSetA" tag="LATEST_CLOUD_ENDPOINT" warehousename="ixdata"/>
