@@ -109,7 +109,7 @@ namespace CentralRegistration
         }
 
         // default set of options, note these options are populated later after registration
-        // `defaulting here to make is clearer when they are being set.`
+        // defaulting here to make is clearer when they are being set.
         configOptions[MCS::MCS_ID] = "";
         configOptions[MCS::MCS_PASSWORD] = "";
         configOptions[MCS::MCS_PRODUCT_VERSION] ="";

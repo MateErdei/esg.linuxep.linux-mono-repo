@@ -11,7 +11,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 namespace MCS
 {
 
-    void ConfigOptions::writeToDisk(std::string fullPathToOutFile)
+    void ConfigOptions::writeToDisk(const std::string& fullPathToOutFile)
     {
         std::stringstream outString;
         for(auto it = config.cbegin(); it != config.cend(); ++it)

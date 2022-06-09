@@ -72,12 +72,12 @@ while [[ $# -ge 1 ]] ; do
         --mcs-config)
             shift
             PREREGISTED_MCS_CONFIG=$1
-            [[ -f ${PREREGISTED_MCS_CONFIG} ]] || exit 2 "mcs config \"${PREREGISTED_MCS_CONFIG}\" does not exist"
+            [[ -f ${PREREGISTED_MCS_CONFIG} ]] || exit 2 "MCS config \"${PREREGISTED_MCS_CONFIG}\" does not exist"
             ;;
         --mcs-policy-config)
             shift
             PREREGISTED_MCS_POLICY_CONFIG=$1
-            [[ -f ${PREREGISTED_MCS_POLICY_CONFIG} ]] || exit 2 "mcs config \"${PREREGISTED_MCS_POLICY_CONFIG}\" does not exist"
+            [[ -f ${PREREGISTED_MCS_POLICY_CONFIG} ]] || exit 2 "MCS policy config \"${PREREGISTED_MCS_POLICY_CONFIG}\" does not exist"
             ;;
         *)
             failure 2 "BAD OPTION $1"
