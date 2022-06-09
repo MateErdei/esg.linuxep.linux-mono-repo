@@ -11,7 +11,7 @@ Test Teardown   Teardown
 
 *** Test Case ***
 Thin Installer can install Base to Dev Region
-    [Tags]  DEV_CENTRAL
+    [Tags]  DEV_CENTRAL  MANUAL
     Setup Warehouses
     Create Thin Installer
     Run Thin Installer  /tmp/SophosInstallCombined.sh  ${0}  http://localhost:1233  ${SUPPORT_FILES}/certs/hmr-dev-sha1.pem
