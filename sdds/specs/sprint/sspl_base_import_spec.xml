@@ -137,7 +137,7 @@
     </line>
     <line id="ServerProtectionLinux-Plugin-liveresponse">
 	  <component id="ServerProtectionLinux-Plugin-liveresponse-1.6.0.21"
-                 version="1.5.1.136"
+                 version="1.6.0.21"
                  artifact="esg-releasable-candidate/winep.liveterminal/release--2022-24-linux/20220606151148-e947687e8a6b2e5b63ebbba72e5667c42d65c15d-EUo2CJ/liveterminal/sdds/"
                  longdic="Sophos Linux Live Response" 
                  shortdic="Sophos Linux Live Response"/>
