@@ -162,7 +162,7 @@ namespace ManagementAgent
             std::stringstream statusXml;
 
             statusXml << R"(<?xml version="1.0" encoding="utf-8" ?>)"
-                      << R"(<health version="3.0.0" activeHeartbeat=")" << m_activeHeartbeat << R"(" activeHeartbeatUtmId=")" << m_activeHeartbeatUtmId << R"(">)"
+                      << R"(<health version="3.0.0" activeHeartbeat=")" << (m_activeHeartbeat ? "true" : "false") << R"(" activeHeartbeatUtmId=")" << m_activeHeartbeatUtmId << R"(">)"
                       << R"(<item name="health" value=")" << m_overallHealth << R"(" />)";
 
             if (!m_pluginServiceHealth.empty())
