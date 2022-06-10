@@ -409,11 +409,6 @@ namespace ManagementAgent
                     pluginHealthStatus.activeHeartbeatUtmId = healthResult["activeHeartbeatUtmId"];
                     pluginHealthStatus.activeHeartbeat = healthResult["activeHeartbeat"];
                 }
-                else
-                {
-                    pluginHealthStatus.activeHeartbeatUtmId = "";
-                    pluginHealthStatus.activeHeartbeat = false;
-                }
             }
             catch(const std::exception& ex)
             {

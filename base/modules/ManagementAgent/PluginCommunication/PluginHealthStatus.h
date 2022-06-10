@@ -34,8 +34,8 @@ namespace ManagementAgent
             HealthType healthType;
             std::string displayName;
             unsigned int healthValue;
-            std::string activeHeartbeatUtmId;
-            bool activeHeartbeat;
+            std::string activeHeartbeatUtmId = "";
+            bool activeHeartbeat = false;
         };
 
     } // namespace PluginCommunication
