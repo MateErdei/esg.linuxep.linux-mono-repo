@@ -3,10 +3,10 @@
 echo "See README.txt for documentation"
 echo "Installing dependencies"
 
-TAP_PYPI="https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple"
+TAP_PYPI="https://artifactory.sophos-ops.com/api/pypi/pypi/simple"
 
 echo "----------------------------------------------------------------------------------------"
-echo "[!] You MUST run this script as '. ./setupEnvironment.sh' to set the environment variables"
+echo "[!] You MUST run this script as '. ./wrapper.sh' to set the environment variables"
 echo "----------------------------------------------------------------------------------------"
 sleep 1
 
@@ -48,7 +48,10 @@ function install_dependencies()
   echo "----------------------------------------------------------------------------------------"
   if [ -n "$(which apt-get)" ]
   then
+    apt update
     apt-get install git -y || echo failed to install git
+    # ubuntu python is missing -m pip and -m ensurepip, use apt:
+    apt-get install python3-pip -y || echo failed to install python3-pip
   elif [ -n "$(which yum)" ]
   then
     yum install git -y
@@ -56,8 +59,10 @@ function install_dependencies()
 
   echo "----------------------------------------------------------------------------------------"
   echo installing/upgrading pip dependencies
-  python3 -m pip install --upgrade pip -i $TAP_PYPI --trusted-host tap-artifactory1.eng.sophos
-  python3 -m pip install --upgrade tap keyrings.alt -i $TAP_PYPI --trusted-host tap-artifactory1.eng.sophos
+  python3 -m pip install --upgrade pip -i $TAP_PYPI --trusted-host artifactory.sophos-ops.com
+  # pip cannot implicitly handle old PyYAML, get a recent one: https://github.com/yaml/pyyaml/issues/349
+  python3 -m pip install --ignore-installed PyYAML -i $TAP_PYPI --trusted-host artifactory.sophos-ops.com
+  python3 -m pip install --upgrade tap keyrings.alt -i $TAP_PYPI --trusted-host artifactory.sophos-ops.com
   echo "----------------------------------------------------------------------------------------"
 }
 
