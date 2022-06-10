@@ -77,7 +77,7 @@ def add_cloudserver_args(parser):
                         help="force all registration to fail")
     parser.add_argument("--force-fail-jwt", action="store_true", dest="failjwt",
                         default=False,
-                        help="force all registration to fail")
+                        help="force authentication to fail")
 
     libs_dir = PathManager.get_libs_path()
     support_file_dir = PathManager.get_support_file_path()
