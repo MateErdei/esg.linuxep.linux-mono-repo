@@ -404,12 +404,16 @@ namespace ManagementAgent
             {
                 nlohmann::json healthResult = nlohmann::json::parse(health);
                 pluginHealthStatus.healthValue = healthResult["Health"];
+                pluginHealthStatus.activeHeartbeatUtmId = healthResult["activeHeartbeatUtmId"];
+                pluginHealthStatus.activeHeartbeat = healthResult["activeHeartbeat"];
             }
             catch(const std::exception& ex)
             {
                 LOGWARN("Failed to read plugin health for: " << pluginName << ", with error" << ex.what());
                 // default to not running if value is not valid.
                 pluginHealthStatus.healthValue = 1;
+                pluginHealthStatus.activeHeartbeatUtmId = "";
+                pluginHealthStatus.activeHeartbeat = false;
             }
             return pluginHealthStatus;
         }

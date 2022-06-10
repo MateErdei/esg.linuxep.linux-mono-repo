@@ -103,12 +103,23 @@ namespace ManagementAgent
         {
             // done this in one method, but we can break it out if needs be.
             unsigned int healthValue = 1;
+            std::string activeHeartbeatUtmId = "";
+            bool activeHeartbeat = false;
             for (const auto& health : m_pluginServiceHealth)
             {
                 healthValue = std::max(convertDetailedValueToOverallValue(health.second.healthValue), healthValue);
+                if(!health.second.activeHeartbeatUtmId.empty())
+                {
+                    activeHeartbeatUtmId = health.second.activeHeartbeatUtmId;
+                }
+                if(health.second.activeHeartbeat)
+                {
+                    activeHeartbeat = true;
+                }
             }
             m_overallPluginServiceHealth = healthValue;
-
+            m_activeHeartbeat = activeHeartbeat;
+            m_activeHeartbeatUtmId = activeHeartbeatUtmId;
             healthValue = 1;
             for (const auto& health : m_pluginThreatServiceHealth)
             {
@@ -151,7 +162,7 @@ namespace ManagementAgent
             std::stringstream statusXml;
 
             statusXml << R"(<?xml version="1.0" encoding="utf-8" ?>)"
-                      << R"(<health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId="">)"
+                      << R"(<health version="3.0.0" activeHeartbeat=")" << m_activeHeartbeat << R"(" activeHeartbeatUtmId=")" << m_activeHeartbeatUtmId << R"(">)"
                       << R"(<item name="health" value=")" << m_overallHealth << R"(" />)";
 
             if (!m_pluginServiceHealth.empty())

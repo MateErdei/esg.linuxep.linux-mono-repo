@@ -85,6 +85,8 @@ namespace ManagementAgent
             unsigned int m_overallPluginServiceHealth;
             unsigned int m_overallPluginThreatServiceHealth;
             unsigned int m_overallPluginThreatDetectionHealth;
+            std::string m_activeHeartbeatUtmId;
+            bool m_activeHeartbeat;
             std::string m_cachedHealthStatusXml;
         };
     } // namespace HealthStatusImpl
