@@ -183,7 +183,6 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Mark AV Log
     Mark Sophos Threat Detector Log
     Start AV
-    Register Cleanup  Exclude Failed To Read Message From Scanning Server
     Register Cleanup  Exclude Scan Now Terminated
     Register Cleanup  Exclude Unixsocket Failed To Send Scan Request To STD
     Register Cleanup  Exclude Failed To Scan Files

@@ -62,9 +62,6 @@ Exclude Failed To Acquire Susi Lock
 Exclude Failed To Scan Multiple Files Cloud
     mark_expected_error_in_log  ${CLOUDSCAN_LOG_PATH}  NamedScanRunner <> Failed to scan one or more files due to an error
 
-Exclude Failed To Read Message From Scanning Server
-    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  UnixSocket <> Failed to read message from Scanning Server - retrying after sleep
-
 Exclude Failed To Send Scan Request To STD
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  UnixSocket <> Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
 

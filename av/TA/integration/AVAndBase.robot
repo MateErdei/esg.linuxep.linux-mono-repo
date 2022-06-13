@@ -697,7 +697,6 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Register Cleanup    Exclude Scan Now Terminated
     Register Cleanup    Exclude Failed To Scan Files
     Register Cleanup    Exclude Failed To Send Scan Request To STD
-    Register Cleanup    Exclude Failed To Read Message From Scanning Server
     Register On Fail    dump log  ${SCANNOW_LOG_PATH}
     Configure scan now
     Run Process  bash  ${BASH_SCRIPTS_PATH}/fileMaker.sh  1000  stderr=STDOUT
@@ -723,7 +722,6 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Register Cleanup    Exclude Scan Now Terminated
     Register Cleanup    Exclude Failed To Scan Files
     Register Cleanup    Exclude Failed To Send Scan Request To STD
-    Register Cleanup    Exclude Failed To Read Message From Scanning Server
     Register Cleanup    Exclude Scan Now Found Threats But Aborted With 25
     Configure scan now
     Start Sophos Threat Detector if not running

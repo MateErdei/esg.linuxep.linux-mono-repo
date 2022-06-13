@@ -128,7 +128,7 @@ unixsocket::ScanningClientSocket::scan(datatypes::AutoFd& fd, const scan_message
             if (!retryErrorLogged) // NOLINT
             {
                 checkIfScanAborted();
-                LOGERROR(e.what() << " - retrying after sleep");
+                LOGWARN(e.what() << " - retrying after sleep");
             }
             nanosleep(&m_sleepTime, nullptr);
             if (!attemptConnect())
