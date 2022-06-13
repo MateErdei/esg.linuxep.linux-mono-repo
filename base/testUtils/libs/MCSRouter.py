@@ -443,13 +443,13 @@ class MCSRouter(object):
             if not os.path.exists(folder):
                 raise AssertionError("MCS folder not created: {}".format(folder))
 
-    def check_correct_mcs_password_and_id_for_local_cloud_saved(self, config_path=None):
+    def check_correct_mcs_password_and_id_for_local_cloud_saved(self):
         logger.info(self.cloud_server_process)
         
-        if not self.is_mcs_config_present(config_path):
+        if not self.is_mcs_config_present():
             raise AssertionError("No MCS Config - registration failed.")
 
-        config_dict = self.read_mcs_config(config_path)
+        config_dict = self.read_mcs_config()
         logger.info(f"config_dict:\n{config_dict}")
 
         expected_password = "ThisIsThePassword"
@@ -1004,9 +1004,8 @@ class MCSRouter(object):
         except EnvironmentError:
             logger.info("Can't read {}".format(p))
 
-    def read_mcs_config(self, path=None):
-        if not path:
-            path = self.mcs_config_path()
+    def read_mcs_config(self):
+        path = self.mcs_config_path()
         config_dict = {}
         if os.path.exists(path):
             with open(path, "r") as f:
@@ -1022,10 +1021,8 @@ class MCSRouter(object):
         if config_dict != {}:
             raise AssertionError("MCS Config File has been written")
 
-    def is_mcs_config_present(self, config_path=None):
-        if not config_path:
-            config_path = self.mcs_config_path()
-        return os.path.isfile(config_path)
+    def is_mcs_config_present(self):
+        return os.path.isfile(self.mcs_config_path())
 
     def cleanup_mcsrouter_directories(self):
         for full_path in self.mcs_router_runtime_folders:

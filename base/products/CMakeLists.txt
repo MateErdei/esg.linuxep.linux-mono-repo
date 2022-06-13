@@ -1,5 +1,5 @@
 add_subdirectory(commandline)
-add_subdirectory(cmcsrouterApi)
+add_subdirectory(cmcsrouter)
 add_subdirectory(CommsComponent)
 add_subdirectory(distribution)
 add_subdirectory(Diagnose)

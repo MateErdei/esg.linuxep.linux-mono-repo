@@ -315,19 +315,6 @@ Installer Copies Install Options File
     ${contents} =  Get File  ${ETC_DIR}/install_options
     Should Contain  ${contents}  --thing
 
-Installer Copies MCS Config Files Into place When Passed In As Args
-    Ensure Uninstalled
-    Should Not Exist   ${SOPHOS_INSTALL}
-    Create File  /tmp/mcsconfig  content="MCSID=root\nMCSToken=root"
-    Create File  /tmp/policyconfig  content="MCSID=policy\nMCSToken=policy"
-    Run Full Installer Expecting Code  0  --mcs-config  /tmp/mcsconfig  --mcs-policy-config  /tmp/policyconfig
-    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/mcs.config  sophos-spl-local  sophos-spl-group  -rw-r-----
-    ${root_contents} =  Get File  ${SOPHOS_INSTALL}/base/etc/mcs.config
-    Should Be Equal As Strings  ${root_contents}  "MCSID=root\nMCSToken=root"
-    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config  sophos-spl-local  sophos-spl-group  -rw-r-----
-    ${policy_contents} =  Get File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    Should Be Equal As Strings  ${policy_contents}  "MCSID=policy\nMCSToken=policy"
-
 All Installed Libs Are Built With A Consistent GCC Version
     Run Full Installer
     check_libs_for_consistent_gcc_version  ${SOPHOS_INSTALL}/base/lib64/

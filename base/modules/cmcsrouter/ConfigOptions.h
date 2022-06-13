@@ -18,8 +18,5 @@ namespace MCS
     {
         std::vector<MCS::MessageRelay> messageRelays;
         std::map<std::string, std::string> config;
-
-        void writeToDisk(const std::string& fullPathToOutFile) const;
     };
-
-} // namespace MCS
+}

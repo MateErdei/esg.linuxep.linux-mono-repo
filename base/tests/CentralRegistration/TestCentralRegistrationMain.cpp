@@ -38,7 +38,8 @@ TEST_F(CentralRegistrationMainTests, extractor) //NOLINT
 
 TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArguments) // NOLINT
 {
-    std::vector<std::string> argValues{"MCS_Token001", "https://MCS_URL", "--central-group=group1/group2", "--products=antivirus,mdr"
+    std::vector<std::string> argValues{
+        "CentralRegistration", "MCS_Token001", "https://MCS_URL", "--groups=group1/group2", "--products=antivirus,mdr"
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
@@ -50,8 +51,8 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
-    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
-    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
     ASSERT_EQ(configOptions.config[MCS::CENTRAL_GROUP], "group1/group2");
     ASSERT_EQ(configOptions.config[MCS::MCS_PRODUCTS], "antivirus,mdr");
     ASSERT_EQ(configOptions.config[MCS::MCS_PROXY], "");
@@ -64,13 +65,14 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsIncludingOptionals) // NOLINT
 {
     std::vector<std::string> argValues{
+        "CentralRegistration",
         "MCS_Token001",
         "https://MCS_URL",
         "--customer-token", "MCS_CustomerToken002",
         "--proxy-credentials", "proxyUsername:proxyPassword",
         "--message-relay", "relay1:port1,priority1,id1;relay2:port2,priority2,id2;relay3:port3,priority3,id3",
         "--version", "thininstallerVersion",
-        "--central-group=group1/group2",
+        "--groups=group1/group2",
         "--products=antivirus,mdr"
     };
 
@@ -82,8 +84,8 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
-    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
-    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
     ASSERT_EQ(configOptions.config[MCS::CENTRAL_GROUP], "group1/group2");
     ASSERT_EQ(configOptions.config[MCS::MCS_PRODUCTS], "antivirus,mdr");
     ASSERT_EQ(configOptions.config[MCS::MCS_PROXY], "");
@@ -109,7 +111,8 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
 TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithProxyCreds) // NOLINT
 {
-    std::vector<std::string> argValues{"MCS_Token001", "https://MCS_URL", "--central-group=group1/group2", "--products=antivirus,mdr"
+    std::vector<std::string> argValues{
+        "CentralRegistration", "MCS_Token001", "https://MCS_URL", "--groups=group1/group2", "--products=antivirus,mdr"
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
@@ -121,8 +124,8 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
-    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
-    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
     ASSERT_EQ(configOptions.config[MCS::CENTRAL_GROUP], "group1/group2");
     ASSERT_EQ(configOptions.config[MCS::MCS_PRODUCTS], "antivirus,mdr");
     ASSERT_EQ(configOptions.config[MCS::MCS_PROXY], "");
@@ -133,7 +136,8 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
 TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithMCS_CA_Override) // NOLINT
 {
-    std::vector<std::string> argValues{"MCS_Token001", "https://MCS_URL", "--central-group=group1/group2", "--products=antivirus,mdr"
+    std::vector<std::string> argValues{
+        "CentralRegistration", "MCS_Token001", "https://MCS_URL", "--groups=group1/group2", "--products=antivirus,mdr"
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
@@ -145,8 +149,8 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
-    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
-    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
     ASSERT_EQ(configOptions.config[MCS::CENTRAL_GROUP], "group1/group2");
     ASSERT_EQ(configOptions.config[MCS::MCS_PRODUCTS], "antivirus,mdr");
     ASSERT_EQ(configOptions.config[MCS::MCS_PROXY], "");
@@ -157,7 +161,8 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
 TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithHTTPSEnvProxySet) // NOLINT
 {
-    std::vector<std::string> argValues{"MCS_Token001", "https://MCS_URL", "--central-group=group1/group2", "--products=antivirus,mdr"
+    std::vector<std::string> argValues{
+        "CentralRegistration", "MCS_Token001", "https://MCS_URL", "--groups=group1/group2", "--products=antivirus,mdr"
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
@@ -169,8 +174,8 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
-    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
-    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
     ASSERT_EQ(configOptions.config[MCS::CENTRAL_GROUP], "group1/group2");
     ASSERT_EQ(configOptions.config[MCS::MCS_PRODUCTS], "antivirus,mdr");
     ASSERT_EQ(configOptions.config[MCS::MCS_PROXY], "https://secure_proxy:443");
@@ -181,7 +186,8 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
 TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineArgumentsWithHTTPEnvProxySet) // NOLINT
 {
-    std::vector<std::string> argValues{"MCS_Token001", "https://MCS_URL", "--central-group=group1/group2", "--products=antivirus,mdr"
+    std::vector<std::string> argValues{
+        "CentralRegistration", "MCS_Token001", "https://MCS_URL", "--groups=group1/group2", "--products=antivirus,mdr"
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();
@@ -193,8 +199,8 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
-    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
-    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[1]);
+    ASSERT_EQ(configOptions.config[MCS::MCS_URL], argValues[2]);
     ASSERT_EQ(configOptions.config[MCS::CENTRAL_GROUP], "group1/group2");
     ASSERT_EQ(configOptions.config[MCS::MCS_PRODUCTS], "antivirus,mdr");
     ASSERT_EQ(configOptions.config[MCS::MCS_PROXY], "http://non_secure_proxy:80");
@@ -221,7 +227,8 @@ TEST_F(CentralRegistrationMainTests, FailsWhenNotEnoughArgsGiven) // NOLINT
 
 TEST_F(CentralRegistrationMainTests, FailsWhenArgTwoIsAnOptionalArg) // NOLINT
 {
-    std::vector<std::string> argValues{"--groups=group1/group2", "MCS_Token001", "https://MCS_URL", "--products=antivirus,mdr"
+    std::vector<std::string> argValues{
+        "CentralRegistration", "--groups=group1/group2", "MCS_Token001", "https://MCS_URL", "--products=antivirus,mdr"
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();
@@ -236,7 +243,8 @@ TEST_F(CentralRegistrationMainTests, FailsWhenArgTwoIsAnOptionalArg) // NOLINT
 
 TEST_F(CentralRegistrationMainTests, FailsWhenArgThreeIsAnOptionalArg) // NOLINT
 {
-    std::vector<std::string> argValues{"MCS_Token001", "--groups=group1/group2", "https://MCS_URL", "--products=antivirus,mdr"
+    std::vector<std::string> argValues{
+        "CentralRegistration", "MCS_Token001", "--groups=group1/group2", "https://MCS_URL", "--products=antivirus,mdr"
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();

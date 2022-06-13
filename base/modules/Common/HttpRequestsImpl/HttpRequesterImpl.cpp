@@ -212,32 +212,24 @@ namespace Common::HttpRequestsImpl
                 curlOptions.emplace_back("OPTIONS request - CURLOPT_CUSTOMREQUEST", CURLOPT_CUSTOMREQUEST, "OPTIONS");
                 break;
         }
+
         // Handle proxy being specified by user
         if (request.proxy.has_value())
         {
-            curlOptions.emplace_back(
-                "Set cURL to choose best authentication available - CURLOPT_PROXYAUTH",
-                CURLOPT_PROXYAUTH,
-                static_cast<long> CURLAUTH_ANY); // cast to long because the curl_easy_setopt function takes long but the constant is unsigned long
             curlOptions.emplace_back("Specify proxy - CURLOPT_PROXY", CURLOPT_PROXY, request.proxy.value());
             if (request.proxyUsername.has_value() && request.proxyPassword.has_value())
             {
                 std::string encodedUsername = curlEscape(request.proxyUsername.value());
                 std::string encodedPassword = curlEscape(request.proxyPassword.value());
                 curlOptions.emplace_back(
+                    "Set cURL to choose best authentication available - CURLOPT_PROXYAUTH",
+                    CURLOPT_PROXYAUTH,
+                    static_cast<long> CURLAUTH_ANY); // cast to long because the curl_easy_setopt function takes long but the constant is unsigned long
+                curlOptions.emplace_back(
                     "Set proxy user and password - CURLOPT_PROXYUSERPWD",
                     CURLOPT_PROXYUSERPWD,
                     encodedUsername + ":" + encodedPassword);
             }
-        }
-        else
-        {
-            // Curl will use env proxies (which we only ever read then set explicitly), not doing this causes
-            // curl to use an env proxy when we explicitly ask to go directly
-            curlOptions.emplace_back(
-                "Set no proxy - CURLOPT_NOPROXY",
-                CURLOPT_NOPROXY,
-                "*");
         }
 
         // Handle allowing redirects, a lot of sites redirect, a user must explicitly ask for this to be enabled

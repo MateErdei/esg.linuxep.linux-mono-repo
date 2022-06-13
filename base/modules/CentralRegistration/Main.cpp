@@ -41,36 +41,36 @@ namespace CentralRegistration
         auto argSize = args.size();
 
         // Positional args (expect 2 + binary)
-        if (argSize < 2)
+        if (argSize < 3)
         {
             LOGERROR("Insufficient positional arguments given. Expecting 2: MCS Token, MCS URL");
             return MCS::ConfigOptions{};
         }
-        if (!Common::UtilityImpl::StringUtils::startswith(args[0], "--"))
-        {
-            configOptions[MCS::MCS_TOKEN] = args[0];
-        }
-        else
-        {
-            LOGERROR("Expecting MCS Token, found optional argument: " + args[0]);
-            return MCS::ConfigOptions{};
-        }
         if (!Common::UtilityImpl::StringUtils::startswith(args[1], "--"))
         {
-            configOptions[MCS::MCS_URL] = args[1];
+            configOptions[MCS::MCS_TOKEN] = args[1];
         }
         else
         {
-            LOGERROR("Expecting MCS URL, found optional argument: " + args[1]);
+            LOGERROR("Expecting MCS Token, found optional argument: " + args[1]);
+            return MCS::ConfigOptions{};
+        }
+        if (!Common::UtilityImpl::StringUtils::startswith(args[2], "--"))
+        {
+            configOptions[MCS::MCS_URL] = args[2];
+        }
+        else
+        {
+            LOGERROR("Expecting MCS URL, found optional argument: " + args[2]);
             return MCS::ConfigOptions{};
         }
 
         // Optional args
-        for (size_t i=2; i < argSize; ++i)
+        for (size_t i=3; i < argSize; ++i)
         {
             std::string currentArg(args[i]);
 
-            if (Common::UtilityImpl::StringUtils::startswith(currentArg, "--central-group"))
+            if (Common::UtilityImpl::StringUtils::startswith(currentArg, "--group"))
             {
                 updateConfigOptions(MCS::CENTRAL_GROUP, currentArg, configOptions);
             }
@@ -174,10 +174,10 @@ namespace CentralRegistration
     {
         Common::Logging::ConsoleLoggingSetup loggerSetup;
         // convert args to vector for to remove the need to handle pointers.
-        std::vector<std::string> args;
-        for (int i=1; i < argc; ++i)
+        std::vector<std::string> args(argc);
+        for (int i=0; i < argc; ++i)
         {
-            args.emplace_back(argv[i]);
+            args[i]= argv[i];
         }
         try
         {

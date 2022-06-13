@@ -10,9 +10,7 @@ add_library(mcsimpl SHARED
         MCSApiCalls.h
         Config.h
         MessageRelay.h
-        ConfigOptions.h
-        ConfigOptions.cpp
-        )
+        ConfigOptions.h)
 
 include_directories(mcsimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
 target_link_libraries(mcsimpl PUBLIC HttpRequestsImpl obfuscationimpl osutilitiesimpl xmlutilities ${OPENSSLCRYPTO_LIBRARY})

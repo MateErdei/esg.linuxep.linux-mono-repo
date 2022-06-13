@@ -14,7 +14,7 @@ namespace MCS
 class MCSApiCalls
 {
     public:
-        std::string getJwt(MCSHttpClient client);
+        std::string getJwToken(MCSHttpClient client);
         bool registerEndpoint(
             MCSHttpClient& client,
             MCS::ConfigOptions& configOptions,
@@ -27,6 +27,7 @@ class MCSApiCalls
             const std::string& statusXml,
             const std::string& proxy
         );
+
 };
 
 }
