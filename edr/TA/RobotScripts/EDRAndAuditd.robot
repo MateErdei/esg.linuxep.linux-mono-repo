@@ -89,14 +89,18 @@ Suite Setup For EDR And Auditd
     Store Whether Auditd Is Running
     # If no auitd, install it
     ${auditd_name}=  Get Audit Package Name
-    Run Keyword Unless  ${auditd_already_installed_when_suite_started}  install_package  ${auditd_name}
+    IF    ${auditd_already_installed_when_suite_started} == ${False}
+        install_package  ${auditd_name}
+    END
 
 Suite Teardown For EDR And Auditd
     # Start up auditd if it was already running when the suite started
     Run Keyword If  ${auditd_already_running_when_suite_started}  Start Auditd
     # Remove auitd if we had to install it for this test suite
     ${auditd_name}=  Get Audit Package Name
-    Run Keyword Unless  ${auditd_already_installed_when_suite_started}  remove_package  ${auditd_name}
+    IF    ${auditd_already_installed_when_suite_started} == ${False}
+        remove_package  ${auditd_name}
+    END
     Uninstall All
 
 Test Teardown For EDR And Auditd
