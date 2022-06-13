@@ -22,6 +22,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/PluginApiImpl/MockedPluginApiCallback.h>
 #include <tests/Common/Helpers/TempDir.h>
+#include "json.hpp"
 
 #include <thread>
 
@@ -376,6 +377,26 @@ TEST_F(TestPluginManager, TestGetStatusOnRemovedPluginThrows) // NOLINT
         m_pluginManagerPtr->getStatus(m_pluginOneName), // NOLINT
         Common::PluginCommunication::IPluginCommunicationException);
 }
+TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForPopulatedUtmInformation) // NOLINT
+{
+    nlohmann::json hbtJson;
+    hbtJson["Health"] = 0;
+    hbtJson["activeHeartbeat"] = true;
+    hbtJson["activeHeartbeatUtmId"] = "some-random-utm-id-0";
+
+
+    EXPECT_CALL(*m_mockedPluginApiCallback, getHealth()).Times(1).WillOnce(Return(hbtJson.dump()));
+    std::thread getHealth(
+            [this]() {
+                nlohmann::json hbtJson;
+                hbtJson["Health"] = 0;
+                hbtJson["activeHeartbeat"] = true;
+                hbtJson["activeHeartbeatUtmId"] = "some-random-utm-id-0";
+                ASSERT_EQ(m_pluginManagerPtr->getHealth(m_pluginOneName), hbtJson.dump());
+            });
+    getHealth.join();
+}
+
 
 TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins) // NOLINT
 {
