@@ -340,18 +340,24 @@ set(OUTPUT "${CMAKE_SOURCE_DIR}/output")
 set(CMAKE_INSTALL_PREFIX "${REL_DIST}")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-if ( PythonCoverage )
+# MCS Python settings, used in registerCentral.in.sh, mcsrouter.in.sh and python unit tests.
+if (PythonCoverage)
     message(With python coverage)
-    SET(PYTHONPATH \$pythonzip:\$BASE_DIR/lib64/:/usr/local/lib/python3.6/dist-packages/:/usr/local/lib64/python3.6/site-packages)
-    SET(PYTHON_ARGS_FOR_PROD  "-m coverage run -p" )
-    SET(PYTHON_COMMAND ${PYTHON_EXECUTABLE} -m coverage run -p )
-    SET(INSTALL_ADJUST "chmod 0750 \"\${SOPHOS_INSTALL}/base/lib64\"\nchown root:\${GROUP_NAME} \"\${SOPHOS_INSTALL}/base/lib64\"\nchown -R root:\${GROUP_NAME} \"\${SOPHOS_INSTALL}/base/lib64/mcsrouter\"\nchmod -R 0750 \"\${SOPHOS_INSTALL}/base/lib64/mcsrouter\"")
+    set(PYTHONPATH /usr/lib/python3.8/:\$BASE_DIR/lib64/) #Python path must include base MCS code to run mcsrouter etc.
+    set(PYTHON_ARGS_FOR_PROD  "-m coverage run -p") # args passed to product python
+    set(PYTHON_COMMAND ${PYTHON_EXECUTABLE} -m coverage run -p) # for python unit tests
+    set(INSTALL_ADJUST "chmod 0750 \"\${SOPHOS_INSTALL}/base/lib64\"\nchown root:\${GROUP_NAME} \"\${SOPHOS_INSTALL}/base/lib64\"\nchown -R root:\${GROUP_NAME} \"\${SOPHOS_INSTALL}/base/lib64/mcsrouter\"\nchmod -R 0750 \"\${SOPHOS_INSTALL}/base/lib64/mcsrouter\"")
+    set(PRODUCT_PYTHON_EXECUTABLE "python3")
 else()
-    message( "without python coverage")
-    SET(PYTHONPATH \$pythonzip:\$mcsrouterzip  )
-    SET(PYTHON_ARGS_FOR_PROD  "" )
-    SET(PYTHON_COMMAND ${PYTHON_EXECUTABLE})
+    message("without python coverage")
+    set(PYTHONPATH \$pythonzip:\$mcsrouterzip)
+    set(PYTHON_ARGS_FOR_PROD  "")
+    set(PYTHON_COMMAND ${PYTHON_EXECUTABLE})
+    set(PRODUCT_PYTHON_EXECUTABLE "\$BASE_DIR/bin/python3")
+    set(PRODUCT_PYTHONHOME "\$INST_DIR/base/")
+    set(PRODUCT_PYTHON_LD_LIBRARY_PATH "\$INST_DIR/base/lib:\$INST_DIR/base/lib64")
 endif()
+
 
 # Set extra files and dirs to delete when we run clean target
 set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES

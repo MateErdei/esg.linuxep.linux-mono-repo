@@ -34,7 +34,7 @@ INSTALL(CODE "MESSAGE(STATUS \"Generating SDDS2 manifests\")
         COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
         RESULT_VARIABLE STATUS)
     if(STATUS AND NOT STATUS EQUAL 0)
-        message(STATUS \"Failed to generate SDDS2 manifests: ${STATUS}\")
+        message(FATAL_ERROR \"Failed to generate SDDS2 manifests: ${STATUS}\")
     endif()")
 
 # Generate SDDS3 manifests
@@ -46,7 +46,7 @@ INSTALL(CODE "MESSAGE(STATUS \"Generating SDDS3 manifests\")
         COMMAND ${INPUT}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/SDDS-Import.xml --nonce `sha256sum ${DIST}/SDDS-Import.xml | head -c 10`
         RESULT_VARIABLE STATUS)
     if(STATUS AND NOT STATUS EQUAL 0)
-        message(STATUS \"Failed to generate SDDS3 manifests: ${STATUS}\")
+        message(FATAL_ERROR \"Failed to generate SDDS3 manifests: ${STATUS}\")
     endif()")
 
 # Generate the output dir to be published

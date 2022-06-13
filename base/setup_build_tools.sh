@@ -14,6 +14,9 @@ BASEDIR=$(dirname "$0")
 # Just in case this script ever gets symlinked
 BASEDIR=$(readlink -f "$BASEDIR")
 
+CURRENT_USER=$USER
+[[ -n "$CURRENT_USER" ]] || CURRENT_USER=$(whoami)
+
 if [[ "$LINUX_ENV_SETUP" != "true" ]]
 then
   source "$BASEDIR/setup_env_vars.sh"
@@ -119,7 +122,7 @@ then
 else
     echo "Creating TAP cache dir: $TAP_CACHE"
     sudo mkdir "$TAP_CACHE"
-    sudo chown "$USER" "$TAP_CACHE"
+    sudo chown "$CURRENT_USER" "$TAP_CACHE"
 fi
 
 # Temporary - When in monorepo we will not need to do this and have it in / and created by root, we'll be able to have
@@ -131,7 +134,7 @@ then
 else
     echo "Creating Root level dir: $ROOT_LEVEL_BUILD_DIR"
     sudo mkdir "$ROOT_LEVEL_BUILD_DIR"
-    sudo chown "$USER" "$ROOT_LEVEL_BUILD_DIR"
+    sudo chown "$CURRENT_USER" "$ROOT_LEVEL_BUILD_DIR"
 fi
 
 tap --version

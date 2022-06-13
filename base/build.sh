@@ -263,6 +263,7 @@ function build()
     (( $NPROC < 1 )) && NPROC=1
     cmake -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" \
           -DNO_GCOV="true" \
+          -DPythonCoverage="${PythonCoverage}" \
           "$BASE" \
           || exitFailure 14 "Failed to configure $PRODUCT"
 

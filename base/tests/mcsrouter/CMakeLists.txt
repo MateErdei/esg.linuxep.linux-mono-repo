@@ -7,7 +7,7 @@ foreach (python_test  ${python_tests})
     message("All python test files ${output}" )
     add_test (NAME Python${output}
             COMMAND ${PYTHON_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/${python_test}
-            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/modules
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/mcsrouter
             )
 
     set_tests_properties(Python${output}

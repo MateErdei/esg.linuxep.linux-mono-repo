@@ -8,22 +8,19 @@ function failure() {
 BASE=$(pwd)
 
 echo 'remove previous coverage results'
-rm -rf modules/.coverage
+rm -rf modules/.coverage*
+rm -rf tests/mcsrouter/.coverage*
 echo "build Run Tests and Produce Coverge Report.sh with systemtests"
 git checkout build/release-package.xml
-sudo -H ./testUtils/SupportFiles/jenkins/SetupCIBuildScripts.sh
 export PATH=$PATH:/usr/local/bin/
-export BUILD_JWT=$(cat "testUtils/SupportFiles/jenkins/jwt_token.txt")
-./fetchandbuild.sh --python-coverage
+./tap_fetch.sh
+./build.sh --release --python-coverage
 SDDS_COMPONENT="${BASE}/output/SDDS-COMPONENT"
 echo "Keep the coverage for unit tests"
-pushd modules
+pushd tests/mcsrouter
 python3 -m coverage combine || echo 'ignore error'
-[[ -f .coverage ]] && mv .coverage  ../testUtils/.coverage
+[[ -f .coverage ]] && mv .coverage  ../../testUtils/.coverage
 popd
-#setup pycryptodome imports, system python only goes up to 3.6 and we build the product with 3.7
-sudo rm -rf /usr/local/lib64/python3.6/site-packages/Crypto/*
-sudo cp -r /build/redist/pycryptodome/Crypto/*   /usr/local/lib64/python3.6/site-packages/Crypto/
 
 pushd testUtils
 echo 'run system tests'
@@ -37,14 +34,13 @@ else
 fi
 echo 'replace path to the original source'
 
-sed -i "s#/opt/sophos-spl/base/lib64#${BASE}/modules/mcsrouter#g" .coverage
-sed -i "s/py.0/py/g" .coverage
-sed -i "s_/opt/sophos-spl/base/lib_${SDDS_COMPONENT}/files/base/lib_g" .coverage
-
+python3 "$BASE/testUtils/replacePythonCoveragePaths.py" -c "$BASE/testUtils/.coverage" -f "/opt/sophos-spl/base/lib64" -r "${BASE}/modules/mcsrouter"
+python3 "$BASE/testUtils/replacePythonCoveragePaths.py" -c "$BASE/testUtils/.coverage" -f "py.0" -r "py"
+python3 "$BASE/testUtils/replacePythonCoveragePaths.py" -c "$BASE/testUtils/.coverage" -f "/opt/sophos-spl/base/lib" -r "${SDDS_COMPONENT}/files/base/lib"
 
 # create the xml report that is used by jenkins
 python3 -m coverage combine || echo 'ignore error'
-python3 -m coverage xml -i  --omit="*python3.7*,*site-packages*,*build64*,*tests"
+python3 -m coverage xml -i  --omit="*dist-packages*,*python3.7*,*site-packages*,*build64*,*tests"
 # publish the report to filer 6
 if [[ ${USER} == "jenkins" ]]; then
   TARGET_PATH=/mnt/filer6/linux/SSPL/testautomation/pythoncoverage/
