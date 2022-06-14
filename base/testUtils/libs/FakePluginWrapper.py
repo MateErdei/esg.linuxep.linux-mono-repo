@@ -125,7 +125,12 @@ class FakePluginWrapper(object):
         return health
 
     def set_service_health(self, health, active_heartbeat, active_heartbeat_utm_id):
-        self.plugin.set_health('{"Health": {}, "activeHeartbeat": {}, "activeHeartbeatUtmId: {}"}'.format(health, "true" if active_heartbeat else "false", active_heartbeat_utm_id))
+        dict = {
+            "Health": health,
+            "activeHeartbeat": "true" if active_heartbeat else "false",
+            "activeHeartbeatUtmId": active_heartbeat_utm_id
+        }
+        self.plugin.set_health(json.dumps(dict))
 
     def get_plugin_policy(self, original_value=""):
         policy = self.plugin.get_policy()
