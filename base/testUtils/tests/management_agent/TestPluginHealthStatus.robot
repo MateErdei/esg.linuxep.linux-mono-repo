@@ -156,6 +156,41 @@ Verify Log Behaviour When Plugin Health Retrieval Fails
     Stop Plugin
     Stop Management Agent
 
+Verify Management Agent Can Receive Service Health Information
+    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
+    # make sure no previous status xml file exists.
+    Remove Status Xml Files
+
+    Setup Plugin Registry
+    Set Fake Plugin App Id    HBT
+    Set Service Health    0    True    "fake-utm-id-007"
+    Start Management Agent
+
+    ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
+    ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
+    Wait Until Keyword Succeeds
+    ...  40
+    ...  5
+    ...  File Should Exist   ${SHS_STATUS_FILE}
+
+    ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="fake-utm-id-007"><item name="health" value="3" /><item name="service" value="3" ><detail name="FakePlugin" value="2" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="3" ><detail name="FakePlugin" value="2" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
+
+
+    Log File  ${SHS_STATUS_FILE}
+    Wait Until Keyword Succeeds
+    ...  5
+    ...  1
+    ...  File Should Contain   ${SHS_STATUS_FILE}  ${EXPECTED_CONTENT}
+
+    ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":3,"service":3,"threat":1,"threatService":3}
+
+    Wait Until Keyword Succeeds
+    ...  5
+    ...  1
+    ...  File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
+    # clean up
+    Stop Management Agent
+
 *** Keywords ***
 Service Sleep Teardown
     Revert Service  sophos-spl-update.service

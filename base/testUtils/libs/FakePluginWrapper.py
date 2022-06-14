@@ -124,6 +124,9 @@ class FakePluginWrapper(object):
             raise AssertionError("No health has been sent")
         return health
 
+    def set_service_heatlh(self, health, active_heartbeat, active_heartbeat_utm_id):
+        self.plugin.set_health('{"Health": {}, "activeHeartbeat": {}, "activeHeartbeatUtmId: {}"}'.format(health, "true" if active_heartbeat else "false", active_heartbeat_utm_id))
+
     def get_plugin_policy(self, original_value=""):
         policy = self.plugin.get_policy()
         if policy is None or policy == original_value:

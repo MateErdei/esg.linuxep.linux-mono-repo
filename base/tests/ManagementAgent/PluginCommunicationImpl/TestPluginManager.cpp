@@ -396,7 +396,24 @@ TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForPopulatedUtmInformat
             });
     getHealth.join();
 }
+TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForMissingUtmInformation) // NOLINT
+{
+    nlohmann::json hbtJson;
+    hbtJson["Health"] = 0;
+    hbtJson["activeHeartbeat"] = false;
+    hbtJson["activeHeartbeatUtmId"] = "";
 
+    EXPECT_CALL(*m_mockedPluginApiCallback, getHealth()).Times(1).WillOnce(Return(hbtJson.dump()));
+    std::thread getHealth(
+            [this]() {
+                nlohmann::json hbtJson;
+                hbtJson["Health"] = 0;
+                hbtJson["activeHeartbeat"] = false;
+                hbtJson["activeHeartbeatUtmId"] = "";
+                ASSERT_EQ(m_pluginManagerPtr->getHealth(m_pluginOneName), hbtJson.dump());
+            });
+    getHealth.join();
+}
 
 TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins) // NOLINT
 {
