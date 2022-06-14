@@ -134,7 +134,7 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenStatusFileFailsToWri
     task3.run();
 }
 
-TEST_F(HealthTaskTests, test) // NOLINT
+TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWithCorrectUtmInformationWhenStatusFileFailsToWriteSuccessfully) // NOLINT
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
