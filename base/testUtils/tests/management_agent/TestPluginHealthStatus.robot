@@ -177,8 +177,8 @@ Verify Management Agent Can Receive Service Health Information
         ...  Check Management Agent Log Contains   Management Agent running.
         File Should Exist   ${SHS_POLICY_FILE}
         File Should Not Exist   ${SHS_STATUS_FILE}
-        #check overallHealth is good before health status is calculated
-        ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":1,"service":1,"threat":1,"threatService":1}
+
+        ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":3,"service":3,"threat":1,"threatService":3}
         File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
         Wait Until Keyword Succeeds
         ...  40
