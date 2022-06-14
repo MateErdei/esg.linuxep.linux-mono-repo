@@ -16,7 +16,6 @@ add_library(cmcsrouterapi SHARED
         $<TARGET_OBJECTS:mcsimpl>
         $<TARGET_OBJECTS:obfuscationimpl>
         $<TARGET_OBJECTS:osutilitiesimpl>
-        $<TARGET_OBJECTS:osutilitiesimpl>
         $<TARGET_OBJECTS:pluginapiobjects>
         $<TARGET_OBJECTS:pluginprotocolobject>
         $<TARGET_OBJECTS:processimplobject>
@@ -80,6 +79,7 @@ add_copy_directory(cmcsrouter)
 add_copy_directory(CentralRegistration)
 add_copy_directory(Common/OSUtilities)
 add_copy_directory(Common/CurlWrapper)
+add_copy_directory(Common/HttpRequests)
 add_copy_directory(Common/HttpRequestsImpl)
 add_copy_directory(Common/HttpSenderImpl)
 
