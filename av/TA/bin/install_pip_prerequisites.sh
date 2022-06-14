@@ -55,9 +55,19 @@ then
     fi
     ping -c2 abn-centosrepo || true
     ping -c2 abn-engrepo.eng.sophos || true
-    cat /etc/yum.repos.d/CentOS-Base.repo || true
-    cat /etc/yum.conf || true
-    grep -r abn-centosrepo /etc/yum.repos.d/* /etc/yum.conf || true
+
+    if [[ -f /etc/yum.repos.d/CentOS-Base.repo ]]
+    then
+      cat /etc/yum.repos.d/CentOS-Base.repo
+    fi
+
+    if [[ -f /etc/yum.repos.d/CentOS-Base.repo ]]
+    then
+       cat /etc/yum.conf
+       grep -r abn-centosrepo /etc/yum.conf || true
+    fi
+
+    grep -r abn-centosrepo /etc/yum.repos.d/* || true
 
     yum install -y gcc gcc-c++ make capnproto-devel capnproto-libs capnproto nfs-utils zip python3-pkgconfig
 else
