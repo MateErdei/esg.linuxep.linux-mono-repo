@@ -10,10 +10,11 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 namespace MCS
 {
-    const std::string MCS_ID("mcsId");
-    const std::string MCS_PASSWORD("mcsPassword");
-    const std::string MCS_TOKEN("mcsToken");
-    const std::string MCS_URL("mcsUrl");
+    const std::string MCS_ID("MCSID");
+    const std::string MCS_PASSWORD("MCSPassword");
+    const std::string MCS_TOKEN("MCSToken");
+    const std::string MCS_SAVED_TOKEN("MCS_saved_token");
+    const std::string MCS_URL("MCSURL");
     const std::string MCS_CUSTOMER_TOKEN("customerToken");
     const std::string MCS_PRODUCTS("products");
     const std::string CENTRAL_GROUP("centralGroup");
@@ -21,9 +22,13 @@ namespace MCS
     const std::string MCS_PROXY_USERNAME("proxyUsername");
     const std::string MCS_PROXY_PASSWORD("proxyPassword");
     const std::string MCS_CERT("mcsCert");
-    const std::string MCS_CA_OVERRIDE("mcsCAOverride");
-    const std::string MCS_PROXY("mcsProxy");
+    const std::string MCS_CA_OVERRIDE("CAFILE");
+    const std::string MCS_PROXY("proxy");
     const std::string MCS_CONNECTED_PROXY("mcsConnectedProxy");
     const std::string VERSION_NUMBER("versionNumber");
+    const std::string TENANT_ID("tenant_id");
+    const std::string DEVICE_ID("device_id");
+    const std::string JWT_TOKEN("jwt_token");
+    const std::string CURRENT_RELAY_ID("current_relay_id");
     const std::string MCS_POLICY_PROXY_CREDENTIALS("mcs_policy_proxy_credentials");
 }

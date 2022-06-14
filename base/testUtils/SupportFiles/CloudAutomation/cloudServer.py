@@ -1190,6 +1190,7 @@ def reset_cookies():
 
 REREGISTER_NEXT = False
 REGISTER_401 = False
+FAIL_JWT = False
 
 
 class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
@@ -1336,6 +1337,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         return self.ret(FLAGS)
 
     def mcs_jwt_token(self):
+        if FAIL_JWT:
+            return self.send_401()
         match_object = re.match(r"/mcs/authenticate/endpoint/([^/]+)", self.path)
         if not match_object:
             return self.ret("Bad JWT Authenticate URI path", 400)
@@ -2110,7 +2113,12 @@ def main(argv):
         setupLogging()
         logger.info("Starting cloud Server")
         options = parseArguments()
-
+        if options.failregistration:
+            global REGISTER_401
+            REGISTER_401 = True
+        if options.failjwt:
+            global FAIL_JWT
+            FAIL_JWT = True
         global HEARTBEAT_ENABLED
         HEARTBEAT_ENABLED = options.heartbeat
 

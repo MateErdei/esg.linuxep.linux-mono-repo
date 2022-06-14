@@ -175,8 +175,9 @@ class ThinInstallerUtils(object):
         os.chmod(target_path, 0o700)
 
     def configure_and_run_thininstaller_using_real_warehouse_policy(self, expected_return_code, policy_file_path, message_relays=None,
-                                                                    proxy=None, update_caches=None, bad_url=False, args=None, mcs_ca=None, real=False, override_certs_dir=None):
-        command = [self.default_installsh_path]
+                                                                    proxy=None, update_caches=None, bad_url=False, args=None, mcs_ca=None,
+                                                                    real=False, override_certs_dir=None, force_legacy_install=False):
+        command = ["bash", "-x", self.default_installsh_path]
         if args:
             split_args = args.split(" ")
             for arg in split_args:
@@ -213,7 +214,7 @@ class ThinInstallerUtils(object):
         self.create_default_credentials_file(update_creds=hashed_credentials, message_relays=message_relays, update_caches=update_caches)
         self.build_default_creds_thininstaller_from_sections()
         self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca,
-                               override_location=connection_address, certs_dir=warehouse_certs_dir, proxy=proxy, real=real)
+                               override_location=connection_address, certs_dir=warehouse_certs_dir, proxy=proxy, real=real, force_legacy_install=force_legacy_install)
 
     def build_default_creds_thininstaller_from_sections(self):
         self.build_thininstaller_from_sections(self.default_credentials_file_location, self.default_installsh_path)
@@ -248,12 +249,13 @@ class ThinInstallerUtils(object):
                           force_certs_dir=None,
                           real=False,
                           cleanup=True,
-                          temp_dir_to_unpack_to=None):
+                          temp_dir_to_unpack_to=None,
+                          force_legacy_install=False):
         cwd = os.getcwd()
         if not certs_dir:
             sophos_certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs")
             logger.info("sophos_certs_dir: {}".format(sophos_certs_dir))
-        else:            
+        else:
             sophos_certs_dir = certs_dir
         if not mcs_ca:
             env_cert = os.environ["MCS_CA"]
@@ -295,6 +297,8 @@ class ThinInstallerUtils(object):
             self.env['OVERRIDE_INSTALLER_CLEANUP'] = "1"
         if temp_dir_to_unpack_to:
             self.env['SOPHOS_TEMP_DIRECTORY'] = temp_dir_to_unpack_to
+        if force_legacy_install:
+            self.env['FORCE_LEGACY_INSTALL'] = "1"
 
         logger.info("env: {}".format(self.env))
         log = open(self.log_path, 'w+')
@@ -327,7 +331,7 @@ class ThinInstallerUtils(object):
             override_location = None
         if not installsh_path:
             installsh_path = self.default_installsh_path
-        self.run_thininstaller([installsh_path, *thininstaller_args],
+        self.run_thininstaller(["bash", "-x", installsh_path, *thininstaller_args],
                                expected_return_code,
                                mcsurl,
                                mcs_ca,
@@ -363,7 +367,7 @@ class ThinInstallerUtils(object):
         os.makedirs("/tmp/i/am/fake/bin/")
         open('/tmp/i/am/fake/bin/savscan', 'a').close()
         os.chmod("/tmp/i/am/fake/bin/savscan", stat.S_IXOTH)
-        
+
     def remove_fake_savscan_in_tmp(self):
         shutil.rmtree("/tmp/i/")
 
@@ -372,7 +376,7 @@ class ThinInstallerUtils(object):
         link_target = "/tmp/i/am/fake/bin/savscan"
         os.symlink(link_target, destination)
         logger.info("made symlink at: {}".format(destination))
-        
+
     def delete_fake_sweep_symlink(self, location = "/usr/bin"):
         location = os.path.join(location, "sweep")
         os.remove(location)
@@ -432,7 +436,7 @@ class ThinInstallerUtils(object):
 
         self.run_thininstaller(command, expectedReturnCode)
 
-    def run_default_thinistaller_with_product_args_and_central(self, expectedReturnCode, mcsurl, force_certs_dir, product_argument=""):
+    def run_default_thinistaller_with_product_args_and_central(self, expectedReturnCode, force_certs_dir, product_argument="", mcsurl=None):
         command = [self.default_installsh_path]
         if product_argument != "":
             command.append(product_argument)
@@ -582,3 +586,13 @@ class ThinInstallerUtils(object):
             logger.info(actual)
             if expected_mcs_url != actual.strip():
                 raise AssertionError(f"expected $MCS_URL to be: '{expected_mcs_url}', not '{actual}'")
+
+    def get_mcs_config_paths_from_args_passed_to_base_installer(self, all_args):
+        logger.info(all_args)
+        root_config_pattern = r"--mcs-config (\/tmp\/SophosCentralInstall_.*\/mcs.config)"
+        match_object = re.search(root_config_pattern, all_args)
+        root_config_path = match_object.group(1)
+        policy_config_pattern = r"--mcs-policy-config (\/tmp\/SophosCentralInstall_.*\/mcsPolicy.config)"
+        match_object = re.search(policy_config_pattern, all_args)
+        policy_config_path = match_object.group(1)
+        return root_config_path, policy_config_path
