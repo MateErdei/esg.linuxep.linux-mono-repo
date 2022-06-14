@@ -42,18 +42,14 @@ then
     ping -c2 abn-engrepo.eng.sophos || true
 #    sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' /etc/yum.repos.d/CentOS-Base.repo
 #    sed -i -e's/abn-centosrepo/abn-engrepo.eng.sophos/g' /etc/yum.repos.d/epel.repo
+
     if [[ -f /etc/yum.repos.d/CentOS-Base.repo ]]
     then
       cat /etc/yum.repos.d/CentOS-Base.repo
-    fi
+      cat /etc/yum.conf
 
-    if [[ -f /etc/yum.repos.d/CentOS-Base.repo ]]
-    then
-       cat /etc/yum.conf
-       grep -r abn-centosrepo /etc/yum.conf || true
+      grep -r abn-centosrepo /etc/yum.repos.d/* /etc/yum.conf || true
     fi
-
-    grep -r abn-centosrepo /etc/yum.repos.d/* || true
 
     yum check-update || {
         EXIT=$?
