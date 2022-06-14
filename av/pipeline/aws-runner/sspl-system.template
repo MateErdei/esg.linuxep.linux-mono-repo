@@ -99,11 +99,6 @@
       {"Fn::Equals" : [{"Ref" : "RunOne"}, "miraclelinuxx64"]},
       {"Fn::Equals" : [{"Ref" : "RunOne"}, "miracle"]}
     ]},
-    "RunAmazonLinux2x64" : {"Fn::Or": [
-        {"Condition" : "RunAmazon"},
-        {"Condition" : "RunAll"},
-        {"Fn::Equals" : [{"Ref" : "RunOne"}, "amazonlinux2x64"]}
-        ]},
     "RunAmazonLinux2022x64" : {"Fn::Or": [
           {"Condition" : "RunAmazon"},
           {"Condition" : "RunAll"},

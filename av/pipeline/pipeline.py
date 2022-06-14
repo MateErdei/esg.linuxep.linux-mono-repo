@@ -331,6 +331,7 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
     test_environments = {'ubuntu1804': 'ubuntu1804_x64_server_en_us',
                          'ubuntu2004': 'ubuntu2004_x64_server_en_us',
                          'centos77': 'centos77_x64_server_en_us',
+                         'amzn2': 'amzlinux2_x64_server_en_us',
                          }
 
     if parameters.run_centos8_tap != 'false':
