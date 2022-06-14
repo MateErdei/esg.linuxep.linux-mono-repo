@@ -1717,7 +1717,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
                          "registrationToken":"ThisIsARegTokenFromTheDeploymentAPI",\
                          "products":[]}'
         json_dict = json.loads(template_body)
-        supported_products = "mdr", "antivirus", "none"
+        supported_products = "mdr", "antivirus", "xdr", "none"
         unsupported_products = "unsupported_product"
         for product in products:
             if product in supported_products:

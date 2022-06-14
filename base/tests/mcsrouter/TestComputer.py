@@ -202,7 +202,6 @@ class TestComputer(unittest.TestCase):
     @mock.patch("mcsrouter.ip_address.get_non_local_ipv4", return_value=[])
     def test_group_status_xml_with_product_selection(self, mo, *mockarg):
         options_class = namedtuple('Options', 'selected_products')
-        options = options_class(selected_products="mdr,antivirus")
         adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
         self.assertIn(("<productsToInstall>"
                        "<product>mdr</product>"
@@ -249,6 +248,26 @@ class TestComputer(unittest.TestCase):
                        "<product>mdr</product>"
                        "</productsToInstall>"),
                       adapter.get_common_status_xml(options_class(selected_products='thisStringShouldBeFilteredOut",antivirus,mdr')))
+        self.assertIn(("<productsToInstall>"
+                       "<product>mdr</product>"
+                       "<product>antivirus</product>"
+                       "<product>xdr</product>"
+                       "</productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products="mdr,antivirus,xdr")))
+        self.assertIn(("<productsToInstall>"
+                       "<product>xdr</product>"
+                       "<product>antivirus</product>"
+                       "</productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products="xdr,antivirus")))
+        self.assertIn(("<productsToInstall>"
+                       "<product>mdr</product>"
+                       "<product>xdr</product>"
+                       "</productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products="mdr,xdr")))
+        self.assertIn(("<productsToInstall>"
+                       "<product>xdr</product>"
+                       "</productsToInstall>"),
+                      adapter.get_common_status_xml(options_class(selected_products="xdr")))
 
     def test_get_installation_device_group_handles_permissions_error(self):
         def mocked_is_file(path):

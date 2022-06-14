@@ -712,20 +712,40 @@ Thin Installer With Trailing Comma In Product Args Fails
     Run Default Thininstaller With Args  27  --products=antivirus,
     Check Thininstaller Log Contains   Error: Products passed with trailing comma --- aborting install
 
+Thin Installer Passes XDR Product Arg To Base Installer
+    Setup Warehouse
+    Run Default Thinistaller With Product Args And Central  0  https://localhost:1233  ${SUPPORT_FILES}/sophos_certs  --products=xdr
+    Thin Installer Calls Base Installer With Environment Variables For Product Argument  xdr
+
 Thin Installer Passes MDR Products Arg To Base Installer
     Setup Warehouse
     Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=mdr
     Thin Installer Calls Base Installer With Environment Variables For Product Argument  mdr
+
+Thin Installer Passes MDR and XDR Products Arg To Base Installer
+    Setup Warehouse
+    Run Default Thinistaller With Product Args And Central  0  https://localhost:1233  ${SUPPORT_FILES}/sophos_certs  --products=mdr,xdr
+    Thin Installer Calls Base Installer With Environment Variables For Product Argument  mdr,xdr
 
 Thin Installer Passes AV Products Arg To Base Installer
     Setup Warehouse
     Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=antivirus
     Thin Installer Calls Base Installer With Environment Variables For Product Argument  antivirus
 
+Thin Installer Passes AV and XDR Products Arg To Base Installer
+    Setup Warehouse
+    Run Default Thinistaller With Product Args And Central  0  https://localhost:1233  ${SUPPORT_FILES}/sophos_certs  --products=antivirus,xdr
+    Thin Installer Calls Base Installer With Environment Variables For Product Argument  antivirus,xdr
+
 Thin Installer Passes MDR And AV Products Arg To Base Installer
     Setup Warehouse
     Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=mdr,antivirus
     Thin Installer Calls Base Installer With Environment Variables For Product Argument  mdr,antivirus
+
+Thin Installer Passes MDR, AV, and XDR Products Arg To Base Installer
+    Setup Warehouse
+    Run Default Thinistaller With Product Args And Central  0  https://localhost:1233  ${SUPPORT_FILES}/sophos_certs  --products=mdr,antivirus,xdr
+    Thin Installer Calls Base Installer With Environment Variables For Product Argument  mdr,antivirus,xdr
 
 Thin Installer Passes None Products Arg To Base Installer
     Setup Warehouse

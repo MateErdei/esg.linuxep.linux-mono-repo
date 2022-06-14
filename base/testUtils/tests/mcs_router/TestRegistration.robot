@@ -248,6 +248,26 @@ Registering And Asking For Just Antivirus
     Check Cloud Server Log Contains  products requested from deployment API: ['antivirus']
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
+Registering And Asking For Just XDR
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=xdr
+    Check Cloud Server Log Contains  products requested from deployment API: ['xdr']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
+Registering And Asking For XDR And Antivirus
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=xdr,antivirus
+    Check Cloud Server Log Contains  products requested from deployment API: ['xdr', 'antivirus']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
+Registering And Asking For MDR And XDR
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=mdr,xdr
+    Check Cloud Server Log Contains  products requested from deployment API: ['mdr', 'xdr']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
+Registering And Asking For MDR, Antivirus, and XDR
+    Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=mdr,antivirus,xdr
+    Check Cloud Server Log Contains  products requested from deployment API: ['mdr', 'antivirus', 'xdr']
+    Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
+
 Registering And Asking For MDR And Antivirus
     Register With Local Cloud Server  customer_token=ThisIsACustomerToken  product_selection=mdr,antivirus
     Check Cloud Server Log Contains  products requested from deployment API: ['mdr', 'antivirus']
