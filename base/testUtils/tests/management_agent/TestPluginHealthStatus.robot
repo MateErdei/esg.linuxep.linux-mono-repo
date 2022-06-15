@@ -80,7 +80,12 @@ Verify Management Agent Can Receive Service Health Information
         ...  File Should Exist   ${SHS_STATUS_FILE}
 
         ${EXPECTEDPOLICY_CONTENT}=  Set Variable   {"health":1,"service":1,"threat":1,"threatService":1}
-        File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
+
+         Wait Until Keyword Succeeds
+                ...  180
+                ...  5
+                ...  File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
+
         Wait Until Keyword Succeeds
         ...  40
         ...  5
