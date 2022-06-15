@@ -126,7 +126,7 @@ class FakePluginWrapper(object):
 
     def set_service_health(self, health, active_heartbeat, active_heartbeat_utm_id):
         dict = {
-            "Health": health,
+            "Health": int(health),
             "activeHeartbeat": "true" if active_heartbeat else "false",
             "activeHeartbeatUtmId": active_heartbeat_utm_id
         }
