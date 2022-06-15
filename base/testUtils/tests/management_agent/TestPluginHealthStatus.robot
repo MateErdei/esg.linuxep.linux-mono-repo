@@ -166,7 +166,7 @@ Verify Management Agent Can Receive Service Health Information
 
         Start Plugin
         Set Fake Plugin App Id    HBT
-        Send Plugin Service Health    0    True    "fake-utm-id-007"    HBT
+        Set Service Health    0    True    "fake-utm-id-007"
 
         ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
         ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json

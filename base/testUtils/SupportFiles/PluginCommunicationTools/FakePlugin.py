@@ -364,11 +364,6 @@ class FakePlugin(object):
         response = self.send_message_over_agent_socket(threat_health_message)
         return response
 
-    def send_service_health(self, app_id, service_health_json):
-        service_health_message = self.build_message(Messages.REQUEST_HEALTH.value, app_id, service_health_json)
-        response = self.send_message_over_agent_socket(service_health_message)
-        return response
-
     def send_request_policy(self, app_id):
         request_policy_message = self.build_message(Messages.REQUEST_POLICY.value, app_id, [])
         response = self.send_message_over_agent_socket(request_policy_message)
