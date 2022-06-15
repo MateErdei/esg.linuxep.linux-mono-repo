@@ -54,6 +54,49 @@ Verify Management Agent Can Check Good Plugin Health Status
     Stop Plugin
     Stop Management Agent
 
+Verify Management Agent Can Receive Service Health Information
+    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
+        # make sure no previous status xml file exists.
+        Remove Status Xml Files
+
+        Setup Plugin Registry
+        Start Management Agent
+
+        Start Plugin
+        Set Fake Plugin App Id    HBT
+        Set Service Health    0    True    "fake-utm-id-007"
+
+        ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
+        ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
+
+        Wait Until Keyword Succeeds
+        ...  15
+        ...  5
+        ...  Check Management Agent Log Contains   Management Agent running.
+        File Should Exist   ${SHS_POLICY_FILE}
+        File Should Not Exist   ${SHS_STATUS_FILE}
+
+        ${EXPECTEDPOLICY_CONTENT}=  Set Variable   {"health":1,"service":1,"threat":1,"threatService":1}
+        File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
+        Wait Until Keyword Succeeds
+        ...  40
+        ...  5
+        ...  File Should Exist   ${SHS_STATUS_FILE}
+
+        ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="fake-utm-id-007"><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
+
+        Wait Until Keyword Succeeds
+        ...  40
+        ...  5
+        ...  File Should Contain   ${SHS_STATUS_FILE}  ${EXPECTED_CONTENT}
+
+
+        # clean up
+        Stop Plugin
+        Stop Management Agent
+
+
+
 Verify Management Agent Can Check Bad Plugin Health Status
     [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
     # make sure no previous status xml file exists.
@@ -156,46 +199,6 @@ Verify Log Behaviour When Plugin Health Retrieval Fails
     Stop Plugin
     Stop Management Agent
 
-Verify Management Agent Can Receive Service Health Information
-    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
-        # make sure no previous status xml file exists.
-        Remove Status Xml Files
-
-        Setup Plugin Registry
-        Start Management Agent
-
-        Start Plugin
-        Set Fake Plugin App Id    HBT
-        Set Service Health    0    True    "fake-utm-id-007"
-
-        ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
-        ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
-
-        Wait Until Keyword Succeeds
-        ...  15
-        ...  5
-        ...  Check Management Agent Log Contains   Management Agent running.
-        File Should Exist   ${SHS_POLICY_FILE}
-        File Should Not Exist   ${SHS_STATUS_FILE}
-
-        ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":3,"service":3,"threat":1,"threatService":3}
-        File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
-        Wait Until Keyword Succeeds
-        ...  40
-        ...  5
-        ...  File Should Exist   ${SHS_STATUS_FILE}
-
-        ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="fake-utm-id-007"><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
-
-        Wait Until Keyword Succeeds
-        ...  5
-        ...  1
-        ...  File Should Contain   ${SHS_STATUS_FILE}  ${EXPECTED_CONTENT}
-
-
-        # clean up
-        Stop Plugin
-        Stop Management Agent
 
 *** Keywords ***
 Service Sleep Teardown
