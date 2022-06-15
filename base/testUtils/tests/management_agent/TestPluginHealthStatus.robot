@@ -73,7 +73,6 @@ Verify Management Agent Can Receive Service Health Information
         ...  40
         ...  5
         ...  Check Management Agent Log Contains   Starting service health checks
-        File Should Not Exist   ${SHS_STATUS_FILE}
 
         Wait Until Keyword Succeeds
         ...  180
