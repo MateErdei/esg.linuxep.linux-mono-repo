@@ -107,6 +107,12 @@ Verify Management Agent Can Check Bad Plugin Health Status
 
     ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
     ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
+
+    Wait Until Keyword Succeeds
+        ...  40
+        ...  5
+        ...  Check Management Agent Log Contains   Starting service health checks
+
     Wait Until Keyword Succeeds
     ...  40
     ...  5
