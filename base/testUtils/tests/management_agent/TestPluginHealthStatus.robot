@@ -70,9 +70,15 @@ Verify Management Agent Can Receive Service Health Information
         ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
 
         Wait Until Keyword Succeeds
+        ...  40
+        ...  5
+        ...  Check Management Agent Log Contains   Starting service health checks
+
+        Wait Until Keyword Succeeds
         ...  15
         ...  5
         ...  Check Management Agent Log Contains   Management Agent running.
+
         File Should Exist   ${SHS_POLICY_FILE}
         File Should Not Exist   ${SHS_STATUS_FILE}
 
@@ -107,11 +113,6 @@ Verify Management Agent Can Check Bad Plugin Health Status
 
     ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
     ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
-
-    Wait Until Keyword Succeeds
-        ...  40
-        ...  5
-        ...  Check Management Agent Log Contains   Starting service health checks
 
     Wait Until Keyword Succeeds
     ...  40
