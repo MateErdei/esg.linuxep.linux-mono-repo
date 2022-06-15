@@ -73,14 +73,12 @@ Verify Management Agent Can Receive Service Health Information
         ...  40
         ...  5
         ...  Check Management Agent Log Contains   Starting service health checks
+        File Should Not Exist   ${SHS_STATUS_FILE}
 
         Wait Until Keyword Succeeds
-        ...  15
+        ...  180
         ...  5
-        ...  Check Management Agent Log Contains   Management Agent running.
-
-        File Should Exist   ${SHS_POLICY_FILE}
-        File Should Not Exist   ${SHS_STATUS_FILE}
+        ...  File Should Exist   ${SHS_STATUS_FILE}
 
         ${EXPECTEDPOLICY_CONTENT}=  Set Variable   {"health":1,"service":1,"threat":1,"threatService":1}
         File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
