@@ -64,7 +64,7 @@ Verify Management Agent Can Receive Service Health Information
 
         Start Plugin
         Set Fake Plugin App Id    HBT
-        Set Service Health    0    True    "fake-utm-id-007"
+        Set Service Health    0    True    fake-utm-id-007
 
         ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
         ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
@@ -91,7 +91,7 @@ Verify Management Agent Can Receive Service Health Information
         ...  5
         ...  File Should Exist   ${SHS_STATUS_FILE}
 
-        ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="fake-utm-id-007"><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
+        ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="fake-utm-id-007"><item name="health" value="3" /><item name="service" value="3" ><detail name="FakePlugin" value="1" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="3" ><detail name="FakePlugin" value="1" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
         Wait Until Keyword Succeeds
         ...  40
