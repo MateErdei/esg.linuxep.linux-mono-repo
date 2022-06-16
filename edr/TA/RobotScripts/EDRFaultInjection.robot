@@ -86,8 +86,46 @@ EDR Plugin replaces flags file on startup
     ...  5 secs
     ...  File Should Not Contain Only  ${OSQUERY_FLAGS_FILE}  badcontent
 
+EDR Plugin Ignores Flags Unrelated to Plugin
+    [Setup]    Install With Base SDDS Debug
+    Send Mock Flags Policy  {"livequery.network-tables.available": "true", "scheduled_queries.next": "true", "sdds3.enabled": "false"}
+    Install EDR Directly from SDDS
+    Check EDR Plugin Installed With Base
+
+    Wait Until Keyword Succeeds
+    ...    10 secs
+    ...    1 secs
+    ...    EDR Plugin Log Contains    Flags: {"livequery.network-tables.available": "true", "scheduled_queries.next": "true", "sdds3.enabled": "false"}
+
+    Wait Until Keyword Succeeds
+    ...    30 secs
+    ...    1 secs
+    ...    Check Osquery Running
+    ${startPid} =  Get Osquery Pid
+    ${edrMark} =  Mark File  ${EDR_LOG_PATH}
+
+    Send Mock Flags Policy  {"livequery.network-tables.available": "true", "scheduled_queries.next": "true", "sdds3.enabled": "true"}
+    Wait Until Keyword Succeeds
+    ...    30 secs
+    ...    1 secs
+    ...    EDR Plugin Log Contains    Flags: {"livequery.network-tables.available": "true", "scheduled_queries.next": "true", "sdds3.enabled": "true"}
+
+    Check Osquery Has Not Restarted    ${startPid}    30s
+    Marked File Does Not Contain    ${EDR_LOG_PATH}   Query packs have been enabled or disabled. Restarting osquery to apply changes  ${edrMark}
+
 *** Keywords ***
 Check Osquery Has Restarted
     [Arguments]  ${oldPid}
     ${newPid} =  Get Osquery Pid
     Should Not be Equal  ${oldPid}  ${newPid}
+
+Check Osquery Has Not Restarted
+    [Arguments]    ${originalPid}    ${time}=10s
+    Sleep    ${time}
+    ${endPid} =  Get Osquery Pid
+    Should Be Equal As Integers  ${originalPid}  ${endPid}
+
+Send Mock Flags Policy
+    [Arguments]    ${fileContents}
+    Create File    /tmp/flags.json    ${fileContents}
+    Move File Atomically as sophos-spl-local    /tmp/flags.json    ${SOPHOS_INSTALL}/base/mcs/policy/flags.json

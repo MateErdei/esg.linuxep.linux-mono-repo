@@ -356,6 +356,13 @@ Move File Atomically
     Copy File  ${source}  /opt/NotARealFile
     Move File  /opt/NotARealFile  ${destination}
 
+Move File Atomically as sophos-spl-local
+    [Arguments]  ${source}  ${destination}
+    Copy File  ${source}  /opt/NotARealFile
+    Run Process  chown  sophos-spl-local:sophos-spl-group  /opt/NotARealFile
+    Run Process  chmod  640  /opt/NotARealFile
+    Move File  /opt/NotARealFile  ${destination}
+
 Enable XDR
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Is XDR Enabled in Plugin Conf
