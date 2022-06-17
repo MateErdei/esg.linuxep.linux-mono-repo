@@ -188,16 +188,12 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     #TODO LINUXDAR-2972 remove when this defect is fixed
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-    #TODO LINUXDAR-3191 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
+
     #this is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
-    #TODO LINUXDAR-3187 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 15
-    #TODO LINUXDAR-3188 remove when the fix for this defect is in dogfood
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  UnixSocket <> Failed to write Process Control Request to socket. Exception caught: Environment interruption
 
+    #TODO LINUXDAR-5140 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
     Run Keyword And Expect Error  *
     ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
 
@@ -343,11 +339,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     #TODO LINUXDAR-2972 remove when this defect is fixed
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-    #TODO LINUXDAR-3191 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
-    #TODO LINUXDAR-3188 remove when the fix for this defect is in dogfood
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  UnixSocket <> Failed to write Process Control Request to socket. Exception caught: Environment interruption
+    #TODO LINUXDAR-5140 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
 
 
     Check All Product Logs Do Not Contain Error
@@ -527,15 +520,11 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     #TODO LINUXDAR-2972 remove when this defect is fixed
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-    #TODO LINUXDAR-3191 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
+
     #this is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
-    #TODO LINUXDAR-3187 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 15
-    #TODO LINUXDAR-3188 remove when the fix for this defect is in previous release
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  UnixSocket <> Failed to write Process Control Request to socket. Exception caught: Environment interruption
+    #TODO LINUXDAR-5140 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
     Run Keyword And Expect Error  *
     ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
 
@@ -674,9 +663,8 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     #TODO LINUXDAR-2972 remove when this defect is fixed
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-    #TODO LINUXDAR-3191 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
+    #TODO LINUXDAR-5140 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical

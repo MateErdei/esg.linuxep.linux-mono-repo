@@ -27,6 +27,7 @@ ${InstalledEDRPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/edr/VE
 ${InstalledRuntimedetectionsPluginVersionFile}  ${SOPHOS_INSTALL}/plugins/runtimedetections/VERSION.ini
 ${InstalledLRPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
 ${InstalledEJPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
+${InstalledHBTPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/heartbeat/VERSION.ini
 ${WarehouseBaseVersionFileExtension}            ./TestInstallFiles/ServerProtectionLinux-Base/files/base/VERSION.ini
 ${WarehouseMDRPluginVersionFileExtension}       ./TestInstallFiles/ServerProtectionLinux-MDR-Control/files/plugins/mtr/VERSION.ini
 ${WarehouseMDRSuiteVersionFileExtension}        ./TestInstallFiles/ServerProtectionLinux-MDR-DBOS-Component/files/plugins/mtr/dbos/data/VERSION.ini

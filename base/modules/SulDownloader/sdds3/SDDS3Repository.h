@@ -60,6 +60,8 @@ namespace SulDownloader
          */
         void generateProductListFromSdds3PackageInfo(const std::string& primaryRigidName);
 
+        void setFeatures(std::vector<std::string> configfeatures);
+
     private:
         void setupSdds3LibLogger();
         void populateOldConfigFromFile();
@@ -70,6 +72,7 @@ namespace SulDownloader
             const std::string& response,
             std::set<std::string>& suites,
             std::set<std::string>& releaseGroups);
+        bool doesFeatureCodeMatchConfig(const std::vector<std::string>& keys);
         std::string generateUserAgentString(const std::string& tenant_id, const std::string& device_id);
         std::shared_ptr<sdds3::Session> m_session;
         sdds3::Repo m_repo;
@@ -82,5 +85,6 @@ namespace SulDownloader
         bool m_supplementOnly;
         std::pair<std::set<std::string>, std::set<std::string>> m_dataToSync;
         std::string m_sourceUrl;
+        std::vector<std::string> m_configFeatures;
     };
 } // namespace SulDownloader

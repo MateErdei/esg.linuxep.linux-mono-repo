@@ -63,14 +63,29 @@ namespace SulDownloader
     {
         m_supplementOnly = supplementOnly;
         populateOldConfigFromFile();
-
+        setFeatures(configurationData.getFeatures());
         m_dataToSync = getDataToSync(connectionSetup, configurationData);
 
-        if(m_error.Description.empty())
+        if (m_error.Description.empty())
         {
             return true;
         }
 
+        return false;
+    }
+
+    bool SDDS3Repository::doesFeatureCodeMatchConfig(const std::vector<std::string>& keys)
+    {
+        if (!m_configFeatures.empty() && !keys.empty())
+        {
+            for (auto const& key : keys)
+            {
+                if (std::count(m_configFeatures.begin(), m_configFeatures.end(), key))
+                {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -161,6 +176,12 @@ namespace SulDownloader
                 releaseGroups.insert(std::string(g.value()));
             }
         }
+    }
+
+
+    void SDDS3Repository::setFeatures(std::vector<std::string> configfeatures)
+    {
+        m_configFeatures = configfeatures;
     }
 
     std::pair<std::set<std::string>, std::set<std::string>>
@@ -442,7 +463,10 @@ namespace SulDownloader
                 }
                 product.setProductHasChanged(product.productHasChanged() && packageContainsSupplement);
             }
-
+            if (!doesFeatureCodeMatchConfig(productMetadata.getFeatures()))
+            {
+                continue;
+            }
             m_selectedSubscriptions.push_back(
                 { productMetadata.getLine(), productMetadata.getVersion(), productMetadata.subProducts() });
 

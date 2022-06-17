@@ -177,10 +177,12 @@ namespace SulDownloader
                 {
                     std::string localDistributionRepository =
                         Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository();
-                    if (distributePath.find(localDistributionRepository) == std::string::npos)
+                    std::string localSDDS3DistributionRepository =
+                        Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository();
+                    if (distributePath.find(localDistributionRepository) == std::string::npos && distributePath.find(localSDDS3DistributionRepository) == std::string::npos)
                     {
                         throw std::logic_error(
-                            "Received a path to remove that is not in the local distribution repository: " +
+                            "Received a path to remove that is not a local distribution repository sub directory: " +
                             distributePath);
                     }
                     Common::FileSystem::fileSystem()->removeFileOrDirectory(distributePath);

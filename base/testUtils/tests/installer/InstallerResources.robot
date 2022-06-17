@@ -143,6 +143,9 @@ Display All SSPL Plugins Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/runtimedetections | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/heartbeat | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    Log  ${result.stdout}
 
 Display List Files Dash L in Directory 
    [Arguments]  ${DirPath}

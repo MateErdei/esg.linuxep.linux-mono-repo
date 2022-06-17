@@ -463,11 +463,8 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
     # Specific to this test:
-    #TODO LINUXDAR-3187 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 15
-    #TODO LINUXDAR-3191 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get SAV policy at startup (No Policy Available)
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av <> Failed to get ALC policy at startup (No Policy Available)
+    #TODO LINUXDAR-5140 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical

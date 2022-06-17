@@ -57,8 +57,12 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSo
 
     sdds3::PackageRef package1;
     package1.lineId_ = "line1";
+    package1.features_ = {"CORE"};
     sdds3::PackageRef package2;
     package2.lineId_ = "line2";
+    package2.features_ = {"CORE"};
+    repository.setFeatures({"CORE"});
+
 
     std::vector<sdds3::PackageRef> packagesToInstall = {package1};
     std::vector<sdds3::PackageRef> allPackages = {package1, package2};
@@ -125,8 +129,11 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsAl
 
     sdds3::PackageRef package1;
     package1.lineId_ = "line1";
+    package1.features_ = {"CORE"};
     sdds3::PackageRef package2;
     package2.lineId_ = "line2";
+    package2.features_ = {"CORE"};
+    repository.setFeatures({"CORE"});
 
     std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
     std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
@@ -143,7 +150,63 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsAl
     EXPECT_TRUE(products[1].productHasChanged());
 }
 
-TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsPrimaryComponentFirst) // NOLINT
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsOnlytheProductWithTheRightFeatureCode) // NOLINT
+{
+    SDDS3Repository repository;
+    auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
+
+    sdds3::PackageRef package1;
+    package1.lineId_ = "line1";
+    package1.features_ = {"CORE"};
+    sdds3::PackageRef package2;
+    package2.lineId_ = "line2";
+    package2.features_ = {"SAV"};
+    repository.setFeatures({"CORE"});
+
+    std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
+    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
+    EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
+    EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
+    EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
+
+    repository.generateProductListFromSdds3PackageInfo("line1");
+    auto products = repository.getProducts();
+
+    EXPECT_EQ(products[0].getLine(), "line1");
+    EXPECT_TRUE(products[0].productHasChanged());
+    EXPECT_EQ(products.size(),1);
+}
+
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsAllProductsThatHaveAtLeastOneFeatureCodeFromTheConfigList) // NOLINT
+{
+    SDDS3Repository repository;
+    auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
+
+    sdds3::PackageRef package1;
+    package1.lineId_ = "line1";
+    package1.features_ = {"CORE"};
+    sdds3::PackageRef package2;
+    package2.lineId_ = "line2";
+    package2.features_ = {"SAV"};
+    repository.setFeatures({"CORE","SAV"});
+
+    std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
+    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
+    EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
+    EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
+    EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
+
+    repository.generateProductListFromSdds3PackageInfo("line1");
+    auto products = repository.getProducts();
+
+    EXPECT_EQ(products[0].getLine(), "line1");
+    EXPECT_TRUE(products[0].productHasChanged());
+    EXPECT_EQ(products[1].getLine(), "line2");
+    EXPECT_TRUE(products[1].productHasChanged());
+    EXPECT_EQ(products.size(),2);
+}
+
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoHandlesComponentsWithNoFeatureCode) // NOLINT
 {
     SDDS3Repository repository;
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
@@ -151,8 +214,32 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsPr
     sdds3::PackageRef package1;
     package1.lineId_ = "line1";
     sdds3::PackageRef package2;
-    package2.lineId_ = "line2_primary";
+    package2.lineId_ = "line2";
+    repository.setFeatures({"CORE"});
 
+    std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
+    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
+    EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
+    EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
+    EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
+
+    repository.generateProductListFromSdds3PackageInfo("line1");
+    auto products = repository.getProducts();
+
+    EXPECT_EQ(products.size(),0);
+}
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsPrimaryComponentFirst) // NOLINT
+{
+    SDDS3Repository repository;
+    auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
+
+    sdds3::PackageRef package1;
+    package1.lineId_ = "line1";
+    package1.features_ = {"CORE"};
+    sdds3::PackageRef package2;
+    package2.lineId_ = "line2_primary";
+    package2.features_ = {"CORE"};
+    repository.setFeatures({"CORE"});
     std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
     std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
@@ -177,8 +264,11 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsNo
 
     sdds3::PackageRef package1;
     package1.lineId_ = "line1";
+    package1.features_ = {"CORE"};
     sdds3::PackageRef package2;
     package2.lineId_ = "line2";
+    package2.features_ = {"CORE"};
+    repository.setFeatures({"CORE"});
 
     std::vector<sdds3::PackageRef> packagesToInstall = { };
     std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
@@ -202,8 +292,11 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSu
 
     sdds3::PackageRef package1;
     package1.lineId_ = "line1";
+    package1.features_ = {"CORE"};
     sdds3::PackageRef package2;
     package2.lineId_ = "line2";
+    package2.features_ = {"CORE"};
+
 
     std::vector<sdds3::PackageRef> packagesToInstall = {package1, package2};
     std::vector<sdds3::PackageRef> allPackages = {package1, package2};
@@ -219,6 +312,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSu
     configurationData.setTenantId("hello");
     configurationData.setDeviceId("hello");
     configurationData.setJWToken("hello");
+    configurationData.setFeatures({"CORE"});
 
     ProductSubscription productSubscription("Base","","RECOMMENDED", "");
     std::vector<ProductSubscription> productSubscriptions = {productSubscription};
