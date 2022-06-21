@@ -151,14 +151,14 @@ void ConfigMonitor::run()
         fd_set temp_readfds = readfds;
         int active = ::pselect(max_fd+1, &temp_readfds, nullptr, nullptr, nullptr, nullptr);
 
-        if (active < 0 and errno != EINTR)
+        if (stopRequested())
         {
-            LOGERROR("failure in ConfigMonitor: pselect failed: " << strerror(errno));
             break;
         }
 
-        if (stopRequested())
+        if (active < 0 and errno != EINTR)
         {
+            LOGERROR("failure in ConfigMonitor: pselect failed: " << strerror(errno));
             break;
         }
 

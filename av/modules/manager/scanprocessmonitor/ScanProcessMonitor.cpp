@@ -104,16 +104,16 @@ void plugin::manager::scanprocessmonitor::ScanProcessMonitor::run()
         fd_set tempReadfds = readfds;
         int active = ::pselect(max_fd + 1, &tempReadfds, nullptr, nullptr, &restartBackoff, nullptr);
 
+        terminate = stopRequested();
+        if (terminate)
+        {
+            break;
+        }
+
         if (active < 0 and errno != EINTR)
         {
             auto buf = safer_strerror(errno);
             LOGERROR("failure in ScanProcessMonitor: pselect failed: " << buf);
-            break;
-        }
-
-        terminate = stopRequested();
-        if (terminate)
-        {
             break;
         }
 
