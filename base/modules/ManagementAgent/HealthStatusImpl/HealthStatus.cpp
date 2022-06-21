@@ -23,6 +23,8 @@ namespace ManagementAgent
             m_overallPluginServiceHealth(0),
             m_overallPluginThreatServiceHealth(0),
             m_overallPluginThreatDetectionHealth(0),
+            m_activeHeartbeatUtmId(""),
+            m_activeHeartbeat(false),
             m_cachedHealthStatusXml("")
         {
             loadThreatHealth();
