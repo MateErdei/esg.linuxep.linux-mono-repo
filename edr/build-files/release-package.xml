@@ -133,6 +133,7 @@
         <release-asset artifact-path="edr/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
         <release-asset artifact-path="edr/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
         <release-asset artifact-path="edr-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
+        <release-asset artifact-path="edr-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="999"/>
 
         <build-asset artifact-path="symbols" source-dir="output/symbols" mode="release"/>
         <build-asset artifact-path="schema" source-dir="output/schema" mode="release"/>
