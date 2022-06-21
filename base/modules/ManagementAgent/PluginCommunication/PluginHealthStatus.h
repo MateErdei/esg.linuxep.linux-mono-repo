@@ -28,7 +28,7 @@ namespace ManagementAgent
             bool operator==(const PluginHealthStatus& rhs) const
             {
                 return this->healthValue == rhs.healthValue && this->displayName == rhs.displayName &&
-                       this->healthValue == rhs.healthValue;
+                       this->healthValue == rhs.healthValue && this->activeHeartbeat == rhs.activeHeartbeat && this->activeHeartbeatUtmId == rhs.activeHeartbeatUtmId;
             }
 
             HealthType healthType;

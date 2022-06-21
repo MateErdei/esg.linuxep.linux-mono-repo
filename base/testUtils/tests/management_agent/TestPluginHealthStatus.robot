@@ -55,7 +55,7 @@ Verify Management Agent Can Check Good Plugin Health Status
     Stop Management Agent
 
 Verify Management Agent Can Receive Service Health Information
-    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
+    [Tags]  MANAGEMENT_AGENT  TAP_TESTS
         # make sure no previous status xml file exists.
         Remove Status Xml Files
 

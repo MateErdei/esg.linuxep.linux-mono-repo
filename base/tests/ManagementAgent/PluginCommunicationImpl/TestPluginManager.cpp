@@ -383,18 +383,8 @@ TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForPopulatedUtmInformat
     hbtJson["Health"] = 0;
     hbtJson["activeHeartbeat"] = true;
     hbtJson["activeHeartbeatUtmId"] = "some-random-utm-id-0";
-
-
     EXPECT_CALL(*m_mockedPluginApiCallback, getHealth()).Times(1).WillOnce(Return(hbtJson.dump()));
-    std::thread getHealth(
-            [this]() {
-                nlohmann::json hbtJson;
-                hbtJson["Health"] = 0;
-                hbtJson["activeHeartbeat"] = true;
-                hbtJson["activeHeartbeatUtmId"] = "some-random-utm-id-0";
-                ASSERT_EQ(m_pluginManagerPtr->getHealth(m_pluginOneName), hbtJson.dump());
-            });
-    getHealth.join();
+    ASSERT_EQ(m_pluginManagerPtr->getHealth(m_pluginOneName), hbtJson.dump());
 }
 TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForMissingUtmInformation) // NOLINT
 {
@@ -404,15 +394,7 @@ TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForMissingUtmInformatio
     hbtJson["activeHeartbeatUtmId"] = "";
 
     EXPECT_CALL(*m_mockedPluginApiCallback, getHealth()).Times(1).WillOnce(Return(hbtJson.dump()));
-    std::thread getHealth(
-            [this]() {
-                nlohmann::json hbtJson;
-                hbtJson["Health"] = 0;
-                hbtJson["activeHeartbeat"] = false;
-                hbtJson["activeHeartbeatUtmId"] = "";
-                ASSERT_EQ(m_pluginManagerPtr->getHealth(m_pluginOneName), hbtJson.dump());
-            });
-    getHealth.join();
+    ASSERT_EQ(m_pluginManagerPtr->getHealth(m_pluginOneName), hbtJson.dump());
 }
 
 TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins) // NOLINT
