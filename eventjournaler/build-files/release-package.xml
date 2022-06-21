@@ -93,7 +93,9 @@
 
         <!--   999, 060 outputs   -->
         <release-asset artifact-path="eventjournaler-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999" />
+        <release-asset artifact-path="eventjournaler-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="999" />
         <release-asset artifact-path="eventjournaler-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060" />
+        <release-asset artifact-path="eventjournaler-060/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="060" />
 
 
         <!--   Coverage outputs   -->
