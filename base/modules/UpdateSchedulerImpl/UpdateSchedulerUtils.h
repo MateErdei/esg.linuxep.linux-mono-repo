@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2021 Sophos Limited.  All rights reserved.
+Copyright 2021-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -21,6 +21,9 @@ namespace UpdateSchedulerImpl
             static std::string getDeviceId();
 
             static std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> getUpdateConfigWithLatestJWT();
+            static bool isFlagSet(const std::string& flag, const std::string& flagContent);
+
+            inline static const std::string SDDS3_ENABLED_FLAG = "sdds3.enabled";
         private:
         static std::string getValueFromMCSConfig(const std::string& key);
     };

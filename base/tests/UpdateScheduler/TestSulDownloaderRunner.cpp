@@ -76,7 +76,8 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRun) // NOLINT
         std::launch::async, [&tempDir]() { tempDir->createFileAtomically("update_report.json", "some json"); });
 
     // Check result from suldownloader runner, NB queue will block until item available.
-    auto task = queue->pop();
+    SchedulerTask task;
+    queue->pop(task, 1);
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFinished);
     EXPECT_EQ(task.content, "update_report.json");
 }
@@ -104,7 +105,8 @@ TEST_F(TestSulDownloaderRunner, SulDownloaderRunsThenFails) // NOLINT
         std::launch::async, [&tempDir]() { tempDir->createFileAtomically("update_report.json", "some json"); });
 
     // Check result from suldownloader runner, NB queue will block until item available.
-    auto task = queue->pop();
+    SchedulerTask task;
+    queue->pop(task, 1);
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFinished);
     EXPECT_EQ(task.content, "update_report.json");
 
@@ -134,7 +136,8 @@ TEST_F(TestSulDownloaderRunner, SuccessfulRunWithWait) // NOLINT
 
     runnerThread.join();
 
-    auto task = queue->pop();
+    SchedulerTask task;
+    queue->pop(task, 1);
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFinished);
     EXPECT_EQ(task.content, "update_report.json");
 }
@@ -151,7 +154,8 @@ TEST_F(TestSulDownloaderRunner, Timeout) // NOLINT
 
     runnerThread.join();
 
-    auto task = queue->pop();
+    SchedulerTask task;
+    queue->pop(task, 1);
     ASSERT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderTimedOut);
 }
 
@@ -168,7 +172,8 @@ TEST_F(TestSulDownloaderRunner, Aborted) // NOLINT
 
     runner.abortWaitingForReport();
     runnerThread.join();
-    auto task = queue->pop();
+    SchedulerTask task;
+    queue->pop(task, 1);
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderMonitorDetached);
 }
 
@@ -186,7 +191,8 @@ TEST_F(TestSulDownloaderRunner, FailedToStart) // NOLINT
 
     runner.abortWaitingForReport();
     runnerThread.join();
-    auto task = queue->pop();
+    SchedulerTask task;
+    queue->pop(task, 1);
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFailedToStart);
     EXPECT_EQ(task.content, errorMessage);
 }

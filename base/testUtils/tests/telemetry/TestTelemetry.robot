@@ -156,6 +156,7 @@ Telemetry Executable Generates Update Scheduler Telemetry
     # Make sure there are no left over update telemetry items.
     Cleanup Telemetry Server
     Require Fresh Install
+    Send Mock Flags Policy
 
     Create Empty SulDownloader Config
     setup mcs config with JWT token
@@ -172,6 +173,7 @@ Telemetry Executable Generates Update Scheduler Telemetry With Fixed Version And
     # Make sure there are no left over update telemetry items.
     Cleanup Telemetry Server
     Require Fresh Install
+    Send Mock Flags Policy
 
     Create Empty SulDownloader Config
     setup mcs config with JWT token

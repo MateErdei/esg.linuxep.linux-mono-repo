@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2021 Sophos Limited.  All rights reserved.
+Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -23,6 +23,7 @@ namespace UpdateSchedulerImpl
         explicit SchedulerPluginCallback(std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> task);
 
         void applyNewPolicy(const std::string& policyXml) override;
+        void applyNewPolicyWithAppId(const std::string& appId, const std::string& policyXml) override;
 
         void queueAction(const std::string& actionXml) override;
         void onShutdown() override;

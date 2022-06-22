@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2021 Sophos Limited.  All rights reserved.
+Copyright 2021-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -142,5 +142,31 @@ namespace UpdateSchedulerImpl
             LOGERROR("Failed to read file "<< path << " due to error "<< ex.what());
         }
         return token;
+    }
+
+    bool UpdateSchedulerUtils::isFlagSet(const std::string& flag, const std::string& flagContent)
+    {
+        bool flagValue = false;
+
+        try
+        {
+            nlohmann::json j = nlohmann::json::parse(flagContent);
+
+            if (j.find(flag) != j.end())
+            {
+                if (j[flag] == true)
+                {
+                    flagValue = true;
+                }
+            }
+        }
+        catch (nlohmann::json::parse_error& ex)
+        {
+            std::stringstream errorMessage;
+            errorMessage << "Could not parse json: " << flagContent << " with error: " << ex.what();
+            LOGWARN(errorMessage.str());
+        }
+
+        return flagValue;
     }
 }

@@ -50,7 +50,8 @@ public:
         std::vector<SchedulerTask::TaskType> receivedValues;
         while (true)
         {
-            auto curr_value = queue.pop();
+            SchedulerTask curr_value;
+            queue.pop(curr_value, 1);
             if (curr_value.taskType != SchedulerTask::TaskType::Stop)
             {
                 receivedValues.push_back(curr_value.taskType);
@@ -88,8 +89,11 @@ TEST_F(TestCronSchedulerThread, CronSendQueueTaskOnRegularPeriod) // NOLINT
     time_point start_time = now();
     schedulerThread.start();
 
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
+    SchedulerTask task;
+    queue->pop(task, 1);
+    ASSERT_EQ(task.taskType, SchedulerTask::TaskType::ScheduledUpdate);
+    queue->pop(task, 1);
+    ASSERT_EQ(task.taskType, SchedulerTask::TaskType::ScheduledUpdate);
     // define expectation only for the lower bound, as the upper bound depends heavily on the machine burden.
     EXPECT_LE(300, elapsed_time_ms(start_time));
 }
@@ -102,13 +106,18 @@ TEST_F(TestCronSchedulerThread, resetMethodRestablishRegularPeriod) // NOLINT
     time_point start_time = now();
     schedulerThread.start();
 
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
+    SchedulerTask task;
+    queue->pop(task, 1);
+    ASSERT_EQ(task.taskType, SchedulerTask::TaskType::ScheduledUpdate);
     schedulerThread.setPeriodTime(milliseconds(200));
     schedulerThread.reset();
 
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
+    queue->pop(task, 1);
+    ASSERT_EQ(task.taskType, SchedulerTask::TaskType::ScheduledUpdate);
+    queue->pop(task, 1);
+    ASSERT_EQ(task.taskType, SchedulerTask::TaskType::ScheduledUpdate);
+    queue->pop(task, 1);
+    ASSERT_EQ(task.taskType, SchedulerTask::TaskType::ScheduledUpdate);
 
     // define expectation only for the lower bound, as the upper bound depends heavily on the machine burden.
     EXPECT_LE(400, elapsed_time_ms(start_time));
@@ -122,8 +131,11 @@ TEST_F(TestCronSchedulerThread, requestStop) // NOLINT
     time_point start_time = now();
     schedulerThread.start();
 
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::ScheduledUpdate);
+    SchedulerTask task;
+    queue->pop(task, 1);
+    ASSERT_EQ(task.taskType, SchedulerTask::TaskType::ScheduledUpdate);
+    queue->pop(task, 1);
+    ASSERT_EQ(task.taskType, SchedulerTask::TaskType::ScheduledUpdate);
     schedulerThread.requestStop();
     EXPECT_LE(110, elapsed_time_ms(start_time));
 }
@@ -141,7 +153,9 @@ TEST_F(TestCronSchedulerThread, setTimeInMinutesButDoNotWait) // NOLINT
         queue->pushStop();
     });
 
-    ASSERT_EQ(queue->pop().taskType, SchedulerTask::TaskType::Stop);
+    SchedulerTask task;
+    queue->pop(task, 1);
+    ASSERT_EQ(task.taskType, SchedulerTask::TaskType::Stop);
 
     stopInserter.join();
 

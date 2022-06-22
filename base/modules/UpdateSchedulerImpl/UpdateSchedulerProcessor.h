@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -9,6 +9,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "configModule/UpdatePolicyTranslator.h"
 
+#include <Common/PersistentValue/PersistentValue.h>
 #include <Common/PluginApiImpl/BaseServiceAPI.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
@@ -17,10 +18,17 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
+    class DetectRequestToStop : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
+
     class UpdateSchedulerProcessor
     {
         inline static const std::string ALC_API = "ALC";
         inline static const std::string VERSIONID = "1";
+        inline static const std::string FLAGS_API = "FLAGS";
 
     public:
         UpdateSchedulerProcessor(
@@ -31,11 +39,13 @@ namespace UpdateSchedulerImpl
             std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner> sulDownloaderRunner);
         void mainLoop();
         static std::string getAppId();
+        static std::string waitForTheFirstPolicy(UpdateScheduler::SchedulerTaskQueue& queueTask, int maxTasksThreshold, const std::string& policyAppId);
 
     private:
         void waitForSulDownloaderToFinish(int numberOfSeconds2Wait);
         void waitForJWTokenToArrive(int numberOfSeconds2Wait);
-        void processPolicy(const std::string& policyXml);
+        void processALCPolicy(const std::string& policyXml);
+        void processFlags(const std::string& flagsContent);
 
         void processUpdateNow(const std::string& actionXml);
         void processScheduleUpdate();
@@ -68,9 +78,11 @@ namespace UpdateSchedulerImpl
         Common::UtilityImpl::FormattedTime m_formattedTime;
         bool m_policyReceived;
         bool m_pendingUpdate;
+        bool m_sdds3Enabled;
         SulDownloader::suldownloaderdata::WeekDayAndTimeForDelay m_scheduledUpdateConfig;
         std::vector<std::string> m_featuresInPolicy;
         std::vector<std::string> m_featuresCurrentlyInstalled;
         std::vector<std::string> m_subscriptionRigidNamesInPolicy;
+        inline static int QUEUE_TIMEOUT = 5;
     };
 } // namespace UpdateSchedulerImpl

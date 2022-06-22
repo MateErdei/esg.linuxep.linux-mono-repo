@@ -59,7 +59,8 @@ TEST_F(TestAsyncSulDownloaderRunner, triggerSulDownloader) // NOLINT
         std::launch::async, [&tempDir]() { tempDir->createFileAtomically("update_report.json", "some json"); });
 
     // Check result from suldownloader runner, NB queue will block until item available.
-    auto task = queue->pop();
+    SchedulerTask task;
+    queue->pop(task, 1);
 
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderFinished);
     EXPECT_EQ(task.content, "update_report.json");
@@ -95,7 +96,8 @@ TEST_F(TestAsyncSulDownloaderRunner, isRunningAndAbort) // NOLINT
     runner->triggerAbort();
 
     // Check result from suldownloader runner, NB queue will block until item available.
-    auto task = queue->pop();
+    SchedulerTask task;
+    queue->pop(task, 1);
 
     EXPECT_EQ(task.taskType, SchedulerTask::TaskType::SulDownloaderMonitorDetached);
 }

@@ -132,7 +132,8 @@ namespace
         {
             while (true)
             {
-                auto task = m_queueTask->pop();
+                UpdateScheduler::SchedulerTask task;
+                m_queueTask->pop(task, 1);
                 if (task.taskType == UpdateScheduler::SchedulerTask::TaskType::Policy)
                 {
                     if (task.content != content)
@@ -154,7 +155,8 @@ namespace
         {
             while (true)
             {
-                auto task = m_queueTask->pop();
+                UpdateScheduler::SchedulerTask task;
+                m_queueTask->pop(task, 1);
                 if (task.taskType == UpdateScheduler::SchedulerTask::TaskType::UpdateNow)
                 {
                     return;
@@ -168,8 +170,13 @@ namespace
         void clearQueue()
         {
             m_queueTask->pushStop();
-            while (m_queueTask->pop().taskType != UpdateScheduler::SchedulerTask::TaskType::Stop)
+            UpdateScheduler::SchedulerTask task;
+            while (m_queueTask->pop(task, 1))
             {
+                if (task.taskType == UpdateScheduler::SchedulerTask::TaskType::Stop)
+                {
+                    break;
+                }
             }
         }
 
@@ -179,7 +186,8 @@ namespace
             m_queueTask->pushStop();
             while (true)
             {
-                auto task = m_queueTask->pop();
+                UpdateScheduler::SchedulerTask task;
+                m_queueTask->pop(task, 1);
                 if (task.taskType == UpdateScheduler::SchedulerTask::TaskType::Stop)
                 {
                     break;

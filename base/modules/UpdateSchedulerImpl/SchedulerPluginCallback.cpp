@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2021, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -40,10 +40,15 @@ namespace UpdateSchedulerImpl
         LOGDEBUG("Plugin Callback Started");
     }
 
-    void SchedulerPluginCallback::applyNewPolicy(const std::string& policyXml)
+    void SchedulerPluginCallback::applyNewPolicy(const std::string& /* policyXml */)
+    {
+        LOGERROR("Attempted to apply new policy without AppId: This method should never be called.");
+    }
+
+    void SchedulerPluginCallback::applyNewPolicyWithAppId(const std::string& appId, const std::string& policyXml)
     {
         LOGDEBUG("Applying new policy");
-        m_task->push(SchedulerTask{ SchedulerTask::TaskType::Policy, policyXml });
+        m_task->push(SchedulerTask{ SchedulerTask::TaskType::Policy, policyXml, appId });
     }
 
     void SchedulerPluginCallback::queueAction(const std::string& actionXml)

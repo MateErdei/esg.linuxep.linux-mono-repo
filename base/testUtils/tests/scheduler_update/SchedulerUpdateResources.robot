@@ -43,6 +43,15 @@ Send Policy With Cache
 Send Policy With No Cache And No Proxy
     Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
 
+Send Mock Flags Policy
+    [Arguments]    ${fileContents}={"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": true}
+    Create File    /tmp/flags.json    ${fileContents}
+
+    Copy File    /tmp/flags.json  /opt/NotARealFile
+    Run Process  chown  sophos-spl-local:sophos-spl-group  /opt/NotARealFile
+    Run Process  chmod  640  /opt/NotARealFile
+    Move File    /opt/NotARealFile  ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
+
 Stop Update Scheduler
     ${wdctl} =   Set Variable  ${SOPHOS_INSTALL}/bin/wdctl
     ${result} =    Run Process    ${wdctl}    stop  updatescheduler
@@ -80,10 +89,9 @@ Restart Update Scheduler
 Setup Update Scheduler Environment
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Send Mock Flags Policy
     Disable mcsrouter
     setup mcs config with JWT token
-
-
 
 Setup Update Scheduler Environment and Stop All Services
     Setup Update Scheduler Environment
@@ -98,6 +106,7 @@ setup mcs config with JWT token
 Setup Current Update Scheduler Environment
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Send Mock Flags Policy
     Disable mcsrouter
     setup mcs config with JWT token
     Create Empty Config File To Stop First Update On First Policy Received
@@ -108,9 +117,15 @@ Setup Current Update Scheduler Environment
 Setup Current Update Scheduler Environment Without Policy
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Send Mock Flags Policy
     Disable mcsrouter
     setup mcs config with JWT token
 
+Setup Current Update Scheduler Environment Without Flags
+    Require Fresh Install
+    Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
+    Disable mcsrouter
+    setup mcs config with JWT token
 
 Check Status and Events Are Created
     [Arguments]   ${waitTime}=10 secs  ${attemptsTime}=1 secs

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2020 Sophos Limited.  All rights reserved.
+Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -145,6 +145,7 @@ namespace UpdateSchedulerImpl
         m_formattedTime(),
         m_policyReceived(false),
         m_pendingUpdate(false),
+        m_sdds3Enabled(false),
         m_featuresInPolicy(),
         m_featuresCurrentlyInstalled(readInstalledFeaturesJsonFile())
     {
@@ -185,41 +186,71 @@ namespace UpdateSchedulerImpl
             LOGERROR("Unexpected error when requesting policy: " << apiException.what());
         }
 
+        try
+        {
+            m_baseService->requestPolicies(UpdateSchedulerProcessor::FLAGS_API);
+        }
+        catch (const Common::PluginApi::NoPolicyAvailableException&)
+        {
+            LOGINFO("No policy available right now for app: " << UpdateSchedulerProcessor::FLAGS_API);
+            // Ignore no Policy Available errors
+        }
+        catch (const Common::PluginApi::ApiException& apiException)
+        {
+            std::string errorMsg(apiException.what());
+            assert(errorMsg.find(Common::PluginApi::NoPolicyAvailableException::NoPolicyAvailable) == std::string::npos);
+            LOGERROR("Unexpected error when requesting policy: " << apiException.what());
+        }
+
+        std::string flagsPolicy = waitForTheFirstPolicy(*m_queueTask,  5, UpdateSchedulerProcessor::FLAGS_API);
+        processFlags(flagsPolicy);
+
         while (true)
         {
             try
             {
-                SchedulerTask task = m_queueTask->pop();
-                switch (task.taskType)
+                SchedulerTask task;
+                bool hasTask = m_queueTask->pop(task, QUEUE_TIMEOUT);
+                if (hasTask)
                 {
-                    case SchedulerTask::TaskType::UpdateNow:
-                        processUpdateNow(task.content);
-                        break;
-                    case SchedulerTask::TaskType::ScheduledUpdate:
-                        processScheduleUpdate();
-                        break;
-                    case SchedulerTask::TaskType::Policy:
-                        processPolicy(task.content);
-                        break;
-                    case SchedulerTask::TaskType::Stop:
-                        return;
-                    case SchedulerTask::TaskType::SulDownloaderFinished:
-                        processSulDownloaderFinished(task.content);
-                        break;
-                    case SchedulerTask::TaskType::SulDownloaderFailedToStart:
-                        processSulDownloaderFailedToStart(task.content);
-                        break;
-                    case SchedulerTask::TaskType::SulDownloaderTimedOut:
-                        processSulDownloaderTimedOut();
-                        break;
-                    case SchedulerTask::TaskType::SulDownloaderMonitorDetached:
-                        processSulDownloaderMonitorDetached();
-                        break;
-                    case SchedulerTask::TaskType::ShutdownReceived:
-                        processShutdownReceived();
-                        break;
-                    default:
-                        break;
+                    switch (task.taskType) {
+                        case SchedulerTask::TaskType::UpdateNow:
+                            processUpdateNow(task.content);
+                            break;
+                        case SchedulerTask::TaskType::ScheduledUpdate:
+                            processScheduleUpdate();
+                            break;
+                        case SchedulerTask::TaskType::Policy:
+                            LOGDEBUG("Process task POLICY: " << task.appId);
+
+                            if (task.appId == UpdateSchedulerProcessor::ALC_API) {
+                                processALCPolicy(task.content);
+                            } else if (task.appId == UpdateSchedulerProcessor::FLAGS_API) {
+                                processFlags(task.content);
+                            } else {
+                                LOGWARN("Received " << task.appId << " policy unexpectedly");
+                            }
+                            break;
+                        case SchedulerTask::TaskType::Stop:
+                            return;
+                        case SchedulerTask::TaskType::SulDownloaderFinished:
+                            processSulDownloaderFinished(task.content);
+                            break;
+                        case SchedulerTask::TaskType::SulDownloaderFailedToStart:
+                            processSulDownloaderFailedToStart(task.content);
+                            break;
+                        case SchedulerTask::TaskType::SulDownloaderTimedOut:
+                            processSulDownloaderTimedOut();
+                            break;
+                        case SchedulerTask::TaskType::SulDownloaderMonitorDetached:
+                            processSulDownloaderMonitorDetached();
+                            break;
+                        case SchedulerTask::TaskType::ShutdownReceived:
+                            processShutdownReceived();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             catch (std::exception& ex)
@@ -229,7 +260,7 @@ namespace UpdateSchedulerImpl
         }
     }
 
-    void UpdateSchedulerProcessor::processPolicy(const std::string& policyXml)
+    void UpdateSchedulerProcessor::processALCPolicy(const std::string& policyXml)
     {
         LOGINFO("New policy received");
         try
@@ -370,6 +401,53 @@ namespace UpdateSchedulerImpl
         {
             LOGWARN("Invalid policy received: " << ex.what());
         }
+    }
+
+    void UpdateSchedulerProcessor::processFlags(const std::string& flagsContent)
+    {
+        LOGDEBUG("Flags: " << flagsContent);
+        if (flagsContent.empty())
+        {
+            return;
+        }
+
+        m_sdds3Enabled = UpdateSchedulerUtils::isFlagSet(UpdateSchedulerUtils::SDDS3_ENABLED_FLAG, flagsContent);
+        LOGDEBUG("Received " << UpdateSchedulerUtils::SDDS3_ENABLED_FLAG << " flag value: " << m_sdds3Enabled);
+    }
+
+    std::string UpdateSchedulerProcessor::waitForTheFirstPolicy(SchedulerTaskQueue& queueTask, int maxTasksThreshold, const std::string& policyAppId)
+    {
+        std::vector<SchedulerTask> nonPolicyTasks;
+        std::string policyContent;
+        for (int i = 0; i < maxTasksThreshold; i++)
+        {
+            SchedulerTask task;
+            if (!queueTask.pop(task, QUEUE_TIMEOUT))
+            {
+                LOGINFO(policyAppId << " policy has not been sent to the plugin");
+                break;
+            }
+            if (task.taskType == SchedulerTask::TaskType::Policy && task.appId == policyAppId)
+            {
+                policyContent = task.content;
+                LOGINFO("First " << policyAppId << " policy received.");
+                break;
+            }
+            LOGDEBUG("Keep task: " <<static_cast<int>(task.taskType));
+            nonPolicyTasks.emplace_back(task);
+            if (task.taskType == SchedulerTask::TaskType::Stop)
+            {
+                LOGINFO("Abort waiting for the first policy as Stop signal received.");
+                throw DetectRequestToStop("");
+            }
+        }
+        LOGDEBUG("Return from waitForTheFirstPolicy ");
+
+        for (auto it = nonPolicyTasks.rbegin(); it != nonPolicyTasks.rend(); ++it)
+        {
+            queueTask.pushFront(*it);
+        }
+        return policyContent;
     }
 
     void UpdateSchedulerProcessor::processUpdateNow(const std::string& actionXML)
@@ -650,6 +728,8 @@ namespace UpdateSchedulerImpl
         std::string tempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         std::string serializedConfigData =
             SulDownloader::suldownloaderdata::ConfigurationData::toJsonSettings(configurationData);
+        LOGDEBUG("Writing to update_config.json:");
+        LOGDEBUG(serializedConfigData);
         Common::FileSystem::fileSystem()->writeFileAtomically(m_configfilePath, serializedConfigData, tempPath);
     }
 

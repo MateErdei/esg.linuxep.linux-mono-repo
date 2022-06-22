@@ -1,6 +1,6 @@
 {
   "policyAppIds": [
-    "ALC"
+    "ALC", "FLAGS"
   ],
   "actionAppIds": [
     "ALC"

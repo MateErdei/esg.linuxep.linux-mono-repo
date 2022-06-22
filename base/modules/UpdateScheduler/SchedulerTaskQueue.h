@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018 Sophos Limited.  All rights reserved.
+Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -30,6 +30,7 @@ namespace UpdateScheduler
 
         TaskType taskType;
         std::string content;
+        std::string appId = "";
     };
 
     class SchedulerTaskQueue
@@ -40,8 +41,9 @@ namespace UpdateScheduler
 
     public:
         void push(SchedulerTask);
-        SchedulerTask pop();
+        bool pop(SchedulerTask& task, int timeout);
         void pushStop();
+        void pushFront(SchedulerTask task);
     };
 
 } // namespace UpdateScheduler
