@@ -98,11 +98,15 @@ class ThinInstallerUtils(object):
         if os.path.isdir(local_dir):
             logger.info("Thin Installer source: " + local_dir)
             return local_dir
+        attempts = [local_dir]
 
         if os.path.isfile(self.last_good_artisan_build_file):
+            attempts.append(self.last_good_artisan_build_file)
 
             with open(self.last_good_artisan_build_file) as f:
                 last_good_build = f.read()
+
+            attempts.append(last_good_build)
 
             print("Last good Thin Installer build: {}".format(last_good_build))
             source_folder = os.path.join("/mnt", "filer6", "bfr", "sspl-thininstaller", "develop", last_good_build, "sspl-thininstaller")
@@ -114,7 +118,7 @@ class ThinInstallerUtils(object):
             logger.info("using {} as source".format(source))
             return source
 
-        raise AssertionError("Could not find thininstaller output")
+        raise AssertionError("Could not find thininstaller output in {}".format(attempts))
 
     def get_thininstaller(self, source=None):
         source = self.find_thininstaller_output(source)

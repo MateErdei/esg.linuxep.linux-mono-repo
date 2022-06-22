@@ -66,12 +66,14 @@ class UpdateServer(object):
         if openssl_bin_path is None or openssl_lib_path is None:
             raise AssertionError("openssl environment variables not set OPENSSL_BIN_PATH={}, OPENSSL_LIB_PATH={}".format(openssl_bin_path, openssl_lib_path))
 
-        env=os.environ.copy()
+        env = os.environ.copy()
         env["PATH"] = openssl_bin_path + ":" + env["PATH"]
         env["LD_LIBRARY_PATH"] = openssl_lib_path
 
-        subprocess.check_call(["make", "-C", os.path.join(self.server_path, "https"), "clean"], env=env, stdout=subprocess.PIPE)
-        subprocess.check_call(["make", "-C", os.path.join(self.server_path, "https"), "all"], env=env, stdout=subprocess.PIPE)
+        subprocess.check_call(["make", "-C", os.path.join(self.server_path, "https"), "clean"], env=env,
+                              stdout=subprocess.PIPE)
+        subprocess.check_call(["make", "-C", os.path.join(self.server_path, "https"), "all"], env=env,
+                              stdout=subprocess.PIPE)
 
     def start_update_server(self, port, directory, protocol="--tls1_2"):
         if not os.path.isdir(directory):
@@ -208,17 +210,28 @@ class UpdateServer(object):
         if self.curl_url(url, proxy) != 0:
             raise AssertionError("cannot reach url: {}".format(url))
 
-    def unpack_openssl(self, tmp_path = "/tmp"):
+    def unpack_openssl(self, tmp_path="/tmp"):
         openssl_input = get_variable("OPENSSL_INPUT")
         if openssl_input is None:
             raise AssertionError("Required env variable 'OPENSSL_INPUT' is not specified")
         target_path = os.path.join(tmp_path, "openssl")
-        if os.path.isdir(openssl_input):
-            if not os.path.isdir(target_path):
-                shutil.copytree(openssl_input, target_path)
-
 
         openssl_tar = os.path.join(openssl_input, "openssl.tar")
-        os.system("tar -xvf {} -C {} > /dev/null".format(openssl_tar, tmp_path))
+        if os.path.isfile(openssl_tar):
+            os.system("tar xvf {} -C {} >/dev/null".format(openssl_tar, tmp_path))
+        elif os.path.isdir(os.path.join(openssl_input, "bin64")):
+            if not os.path.isdir(target_path):
+                logger.info(f"Using {openssl_input} as openssl")
+                shutil.copytree(openssl_input, target_path)
+        elif not os.path.isdir(target_path):
+            logger.info(f"Using system openssl as {openssl_tar} doesn't exist")
+            os.makedirs(target_path, exist_ok=True)
+            if os.path.isfile("/usr/lib/x86_64-linux-gnu/libcrypto.so.1.1"):
+                os.symlink("/usr/lib/x86_64-linux-gnu", os.path.join(target_path, "lib64"))
+            elif os.path.isfile("/lib64/libcrypto.so.1.1") or os.path.isfile("/lib64/libcrypto.so.10"):
+                os.symlink("/lib64", os.path.join(target_path, "lib64"))
+            else:
+                raise AssertionError("Can't find libcrypto.so.1.1 for system openssl")
+            os.symlink("/usr/bin", os.path.join(target_path, "bin64"))
 
         return target_path

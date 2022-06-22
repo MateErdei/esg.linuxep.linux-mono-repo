@@ -23,6 +23,9 @@ JENKINS_DIR=$(dirname ${0})
 
 [[ -z $SYSTEMPRODUCT_TEST_INPUT ]] && SYSTEMPRODUCT_TEST_INPUT=/tmp/system-product-test-inputs
 
+SUDO="sudo "
+[[ $(id -u) == 0 ]] && SUDO=
+
 date
 
 function fail {
@@ -71,7 +74,7 @@ function platform_exclude_tag()
 EXPECTED_WORKSPACE="/home/jenkins/workspace/Everest-SystemProductTests/label/(RhelCloneBuilder|Rhel8CloneBuilder|CentOSCloneBuilder|UbuntuCloneBuilder)"
 if [[ $WORKSPACE =~ $EXPECTED_WORKSPACE ]]
 then
-    sudo cp $WORKSPACE/testUtils/SupportFiles/jenkins/auditdConfig.txt /etc/audit/auditd.conf || fail "ERROR: failed to copy auditdConfig from $WORKSPACE/SupportFiles to /etc/audit/auditd.conf"
+    ${SUDO}cp $WORKSPACE/testUtils/SupportFiles/jenkins/auditdConfig.txt /etc/audit/auditd.conf || fail "ERROR: failed to copy auditdConfig from $WORKSPACE/SupportFiles to /etc/audit/auditd.conf"
 fi
 
 export TEST_UTILS=$WORKSPACE/testUtils
@@ -151,13 +154,14 @@ elif [[ -n "${LIVERESPONSE_COVERAGE:-}" ]]; then
   export BULLSEYE_UPLOAD=1
 fi
 
+SUDOE="sudo -E "
+[[ $(id -u) == 0 ]] && SUDOE=
 
-
-ROBOT_BASE_COMMAND="sudo -E python3 -m robot -x robot.xml --loglevel TRACE "
+ROBOT_BASE_COMMAND="${SUDOE}python3 -m robot -x robot.xml --loglevel TRACE "
 RERUNFAILED=${RERUNFAILED:-false}
 HasFailure=false
 
-inputArguments="$@"
+inputArguments="$*"
 
 platform_exclude_tag
 EXCLUDED_BY_DEFAULT_TAGS="MANUAL PUB_SUB FUZZ TESTFAILURE MCS_FUZZ AMAZON_LINUX EXAMPLE_PLUGIN "$PLATFORM_EXCLUDE_TAG
@@ -173,17 +177,17 @@ done
 ROBOT_BASE_COMMAND="${ROBOT_BASE_COMMAND} ${EXTRA_ARGUMENTS}"
 
 #Setup crash dumps for when a segfault occurs during system tests
-sudo sysctl kernel.core_pattern=/tmp/core-%e-%s-%u-%g-%p-%t
+${SUDO}sysctl kernel.core_pattern=/tmp/core-%e-%s-%u-%g-%p-%t
 ulimit -c unlimited
 
 echo "Running command: ${ROBOT_BASE_COMMAND} $@"
-eval $ROBOT_BASE_COMMAND $@ . || HasFailure=true
+eval $ROBOT_BASE_COMMAND "$@" . || HasFailure=true
 
 if [[ ${RERUNFAILED} == true && ${HasFailure} == true ]]; then
     echo "Running for re-run"
-    sudo -E mv output.xml output1.xml
-    sudo -E python3 -m robot --rerunfailed output1.xml --output output2.xml  . || echo "Failed tests on rerun"
-    sudo -E rebot --merge --output output.xml -l log.html -r report.html output1.xml output2.xml
+    ${SUDOE}mv output.xml output1.xml
+    ${SUDOE}python3 -m robot --rerunfailed output1.xml --output output2.xml  . || echo "Failed tests on rerun"
+    ${SUDOE}rebot --merge --output output.xml -l log.html -r report.html output1.xml output2.xml
 fi
 
 #upload coverage results
@@ -195,7 +199,10 @@ fi
 
 if [[ $WORKSPACE =~ $EXPECTED_WORKSPACE ]]
 then
-    sudo chown -R jenkins:jenkins ${WORKSPACE} || fail "ERROR: failed to chown "$WORKSPACE
+    ${SUDO}chown -R jenkins:jenkins ${WORKSPACE} || fail "ERROR: failed to chown "$WORKSPACE
 fi
 
-sudo find /home/jenkins/jenkins_slave -name "*-cleanup_*" -exec rm -rf {} \; || exit 0
+if [[ -d /home/jenkins/jenkins_slave ]]
+then
+    ${SUDO}find /home/jenkins/jenkins_slave -name "*-cleanup_*" -exec rm -rf {} \; || exit 0
+fi

@@ -43,6 +43,7 @@ testUtils/SupportFiles/warehouseGeneration/Authentication/
 testUtils/log.html
 testUtils/output.xml
 testUtils/report.html
+testUtils/robot.xml
 testUtils/SystemProductTestOutput/
 testUtils/robot
 testUtils/tests/temp/

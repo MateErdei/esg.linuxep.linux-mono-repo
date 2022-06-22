@@ -2,21 +2,34 @@ import os
 import PathManager
 import FullInstallerUtils
 
+try:
+    from robot.api import logger
+except ImportError:
+    import logging
+    logger = logging.getLogger(__name__)
+
+
 def get_websocket_server_path():
     candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("liveterminal")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "ta", "scripts", "utils", "websocket_server"))
+    else:
+        logger.error("Failed to find liveterminal when looking for websocket_server")
+
     return FullInstallerUtils.get_plugin_sdds("websocket server", "WEBSOCKET_SERVER", candidates)
 
+
 PathManager.addPathToSysPath(get_websocket_server_path())
-import LTserver, certificates
+
 
 class WebsocketWrapper:
     def __init__(self):
         self._server = None
 
     def start_websocket_server(self, port=443):
+        import certificates
+        import LTserver
         print("staring websocket server")
         self._server = LTserver.LTServerImpl('localhost', port, certificates.CERTIFICATE_PEM, log_dir=LTserver.THIS_DIR)
         self._log_path = self._server.logfile
@@ -44,11 +57,14 @@ class WebsocketWrapper:
 
     @staticmethod
     def install_lt_server_certificates():
+        import certificates
         certificates.InstallCertificates.install_certificate()
 
     @staticmethod
     def uninstall_lt_server_certificates():
+        import certificates
         certificates.InstallCertificates.uninstall_certificate()
+
 
 if __name__ == "__main__":
     wbs = WebsocketWrapper()

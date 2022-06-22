@@ -17,12 +17,11 @@ import requests
 import subprocess
 from packaging import version
 
-
 import PathManager
 
 THIS_FILE = os.path.realpath(__file__)
 LIBS_DIR = PathManager.get_libs_path()
-PRODUCT_TEST_ROOT_DIRECTORY =  PathManager.get_testUtils_dir()
+PRODUCT_TEST_ROOT_DIRECTORY = PathManager.get_testUtils_dir()
 
 SUPPORT_FILE_PATH = PathManager.get_support_file_path()
 REAL_WAREHOUSE_DIRECTORY = os.path.join(SUPPORT_FILE_PATH, "CentralXml", "RealWarehousePolicies")
@@ -47,7 +46,7 @@ INTERNAL_OSTIA_HOST_REDIRECT = """127.0.0.1  ostia.eng.sophos
 10.1.200.228    d3.sophosupd.com
 10.1.200.228    d3.sophosupd.net
 """
-OSTIA_HOSTS_BACKUP_FILENAME="ostia_hosts.bk"
+OSTIA_HOSTS_BACKUP_FILENAME = "ostia_hosts.bk"
 
 USERNAME = "username"
 PASSWORD = "password"
@@ -60,7 +59,7 @@ DEV_BUILD_CERTS = "dev"
 # The version under test, usually master dev builds
 OSTIA_VUT_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/vut"
 
-#a version with a different query pack than vut
+# a version with a different query pack than vut
 OSTIA_QUERY_PACK_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/query-pack"
 # a version with edr 9.99.9 for downgrade tests
 OSTIA_EDR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/edr-999"
@@ -70,17 +69,17 @@ OSTIA_EDR_AND_MTR_999_ADDRESS = "https://ostia.eng.sophos/latest/sspl-warehouse/
 
 # dictionary of ostia addresses against the ports that should be used to serve their customer files locally
 OSTIA_ADDRESSES = {
-                    OSTIA_VUT_ADDRESS: "2233",
-                    OSTIA_EDR_999_ADDRESS: "7233",
-                    OSTIA_BASE_999_ADDRESS: "7235",
-                    OSTIA_QUERY_PACK_ADDRESS: "7239",
-                    OSTIA_MTR_999_ADDRESS: "7237",
-                    OSTIA_EDR_AND_MTR_999_ADDRESS: "7240"
-                   }
+    OSTIA_VUT_ADDRESS: "2233",
+    OSTIA_EDR_999_ADDRESS: "7233",
+    OSTIA_BASE_999_ADDRESS: "7235",
+    OSTIA_QUERY_PACK_ADDRESS: "7239",
+    OSTIA_MTR_999_ADDRESS: "7237",
+    OSTIA_EDR_AND_MTR_999_ADDRESS: "7240"
+}
 
 BALLISTA_ADDRESS = "https://dci.sophosupd.com/cloudupdate"
 INTERNAL_MIRROR_BALLISTA_ADDRESS = "https://dci.sophosupd.net/sprints"
-ADDRESS_DICT= {
+ADDRESS_DICT = {
     "external": BALLISTA_ADDRESS,
     "internal": INTERNAL_MIRROR_BALLISTA_ADDRESS
 }
@@ -96,6 +95,7 @@ ROOT_CA_INSTALLATION_EXTENSION_OLD = os.path.join("base", "update", "certs", "ro
 PS_ROOT_CA_INSTALLATION_EXTENSION_OLD = os.path.join("base", "update", "certs", "ps_rootca.crt")
 
 SOPHOS_ALIAS_EXTENSION = os.path.join("base", "update", "var", "sophos_alias.txt")
+
 
 def _make_local_copy_of_warehouse():
     branch_directories = []
@@ -114,9 +114,11 @@ def _make_local_copy_of_warehouse():
             shutil.copytree(os.path.join(latest_path, "customer"), os.path.join(local_destination_path, "customer"))
             shutil.copytree(os.path.join(latest_path, "warehouse"), os.path.join(local_destination_path, "warehouse"))
 
+
 def _cleanup_local_warehouses():
     if os.path.isdir(LOCAL_WAREHOUSES):
         shutil.rmtree(LOCAL_WAREHOUSES_ROOT)
+
 
 def _get_sophos_install_path():
     sophos_install_path = BuiltIn().get_variable_value("${SOPHOS_INSTALL}", "/opt/sophos-spl")
@@ -137,6 +139,7 @@ def _install_upgrade_certs(root_ca, ps_root_ca):
         shutil.copy(root_ca, os.path.join(sophos_install_path, ROOT_CA_INSTALLATION_EXTENSION_OLD))
         shutil.copy(ps_root_ca, os.path.join(sophos_install_path, PS_ROOT_CA_INSTALLATION_EXTENSION_OLD))
 
+
 def _install_sophos_alias_file(url):
     sophos_install_path = _get_sophos_install_path()
     sophos_alias_file_path = os.path.join(sophos_install_path, SOPHOS_ALIAS_EXTENSION)
@@ -147,6 +150,7 @@ def _install_sophos_alias_file(url):
     with open(sophos_alias_file_path, "w") as sophos_alias_file:
         sophos_alias_file.write(url)
         logger.info("wrote alias '{}' to '{}'".format(url, sophos_alias_file_path))
+
 
 def _remove_sophos_alias_file():
     sophos_install_path = _get_sophos_install_path()
@@ -169,6 +173,7 @@ def getYesterday():
 
 sdds_specs_directory = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "sdds-specs")
 
+
 def get_importrefrence_for_component_with_tag(rigid_name, tag, pubspec):
     line = list(filter(lambda n: rigid_name == n.attrib["id"], pubspec.findall("./warehouses//line")))[0]
     for component in line.findall("./component"):
@@ -177,13 +182,17 @@ def get_importrefrence_for_component_with_tag(rigid_name, tag, pubspec):
                 return component.attrib["importreference"]
     raise AssertionError(f"Did not find {rigid_name} in {pubspec}")
 
+
 def get_importrefrence_for_component_with_tag_from_componentsuite(rigid_name, componentsuite_rigid_name, tag, pubspec):
     componentsuite_importref = get_importrefrence_for_component_with_tag(componentsuite_rigid_name, tag, pubspec)
 
-    line = list(filter(lambda n: componentsuite_rigid_name == n.attrib["id"], pubspec.findall("./componentsuites/line")))[0]
-    componentsuite = list(filter(lambda n: componentsuite_importref == n.attrib["importreference"], line.findall("./componentsuite")))[0]
+    line = \
+        list(filter(lambda n: componentsuite_rigid_name == n.attrib["id"], pubspec.findall("./componentsuites/line")))[0]
+    componentsuite = \
+        list(filter(lambda n: componentsuite_importref == n.attrib["importreference"], line.findall("./componentsuite")))[0]
     component = list(filter(lambda n: rigid_name == n.attrib["line"], componentsuite.findall("./component")))[0]
     return component.attrib["importreference"]
+
 
 def get_version_for_component_with_importref(rigid_name, importref, importspec):
     line = list(filter(lambda n: rigid_name == n.attrib["id"], importspec.findall("./imports/line")))[0]
@@ -198,11 +207,13 @@ def get_version_for_rigidname(rigid_name, tag="RECOMMENDED"):
     version = get_version_for_component_with_importref(rigid_name, importref)
     return version
 
+
 def get_dci_xml_from_update_credentials_inner(dci_address):
     r = requests.get(dci_address)
     signature_start = r.content.find(b"-----BEGIN SIGNATURE-----")
     xml_string = r.content[:signature_start].decode()
     return xml_string
+
 
 def get_dci_xml_from_update_credentials(dci_address):
     error_message = None
@@ -212,7 +223,8 @@ def get_dci_xml_from_update_credentials(dci_address):
         except Exception as reason:
             error_message = reason
     else:
-        logger.error(f"Failed to get dci xml from update credentials for {update_credentials}: {error_message}")
+        logger.error(f"Failed to get dci xml from update credentials for {dci_address}: {error_message}")
+
 
 def get_sdds_names_from_dci_xml_string(dci_xml_string):
     root = ET.fromstring(dci_xml_string)
@@ -221,6 +233,7 @@ def get_sdds_names_from_dci_xml_string(dci_xml_string):
     for warehouse_entry in warehouse_entries:
         sdds_names.append(warehouse_entry.text)
     return sdds_names
+
 
 def get_sdds_names_from_update_credentials(dci_address):
     xml = get_dci_xml_from_update_credentials(dci_address)
@@ -232,6 +245,7 @@ def get_sdds_names_from_update_credentials(dci_address):
 importspec = "importspec"
 pubspec = "publicationspec"
 
+
 def get_spec_type_from_spec(spec):
     root_tag = spec.find(".").tag
     if root_tag == importspec:
@@ -241,7 +255,9 @@ def get_spec_type_from_spec(spec):
     else:
         raise AssertionError(f"expected {root_tag} to be either {importspec} or {pubspec}")
 
+
 def get_spec_xml_dict_from_filer6():
+    logger.debug(f"Loading specs from {sdds_specs_directory}")
     files_on_filer6_dict = {}
     if not os.path.isdir(sdds_specs_directory):
         return files_on_filer6_dict
@@ -251,17 +267,18 @@ def get_spec_xml_dict_from_filer6():
             spec = ET.parse(os.path.join(sdds_specs_directory, file_name))
             expected_sdds_name = ".".join(file_name.split(".")[:3])
             spec_type = get_spec_type_from_spec(spec)
-            if not files_on_filer6_dict.get(expected_sdds_name, None):
-                files_on_filer6_dict[expected_sdds_name] = {}
+            spec_dict = files_on_filer6_dict.setdefault(expected_sdds_name, {})
 
-            if files_on_filer6_dict[expected_sdds_name].get(spec_type, None):
-                raise AssertionError(f"Found multiple {spec_type} for {expected_sdds_name}: {files_on_filer6_dict[expected_sdds_name][spec_type]} & {file_name}")
+            if spec_type in spec_dict:
+                raise AssertionError(
+                    f"Found multiple {spec_type} for {expected_sdds_name}: {spec_dict[spec_type]} & {file_name}")
             else:
-                files_on_filer6_dict[expected_sdds_name][spec_type] = spec
+                spec_dict[spec_type] = spec
         except Exception as e:
             logger.error(f"Failed to parse: '{file_name}', reason: {str(e)}")
 
     return files_on_filer6_dict
+
 
 def get_version_from_sdds_import_file(path):
     with open(path) as file:
@@ -269,13 +286,15 @@ def get_version_from_sdds_import_file(path):
         xml = ET.fromstring(contents)
         return xml.find(".//Version").text
 
+
 def get_version_of_component_with_tag_from_spec_xml(rigidname, tag, spec_xml_dict, relevant_sdds_names):
     for sdds_name in relevant_sdds_names:
         # print(sdds_name)
         try:
             if spec_xml_dict.get(sdds_name, None):
                 importref = get_importrefrence_for_component_with_tag(rigidname, tag, spec_xml_dict[sdds_name][pubspec])
-                version = get_version_for_component_with_importref(rigidname, importref, spec_xml_dict[sdds_name][importspec])
+                version = get_version_for_component_with_importref(rigidname, importref,
+                                                                   spec_xml_dict[sdds_name][importspec])
                 return version
         except:
             pass
@@ -284,24 +303,44 @@ def get_version_of_component_with_tag_from_spec_xml(rigidname, tag, spec_xml_dic
         # print(spec_xml_dict.keys())
         raise AssertionError(f"Did not find {rigidname} in {spec_xml_dict}")
 
-def get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidname, componentsuite_rigid_name, tag, spec_xml_dict, relevant_sdds_names):
+
+def get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidname, componentsuite_rigid_name, tag,
+                                                                        spec_xml_dict, relevant_sdds_names,
+                                                                        optional=False):
+    optional = bool(optional)
+    examined = []
+
     for sdds_name in relevant_sdds_names:
         # print(sdds_name)
         try:
-            if spec_xml_dict.get(sdds_name, None):
-                importref = get_importrefrence_for_component_with_tag_from_componentsuite(rigidname, componentsuite_rigid_name, tag, spec_xml_dict[sdds_name][pubspec])
-                version = get_version_for_component_with_importref(rigidname, importref, spec_xml_dict[sdds_name][importspec])
-                return version
-        except:
-            pass
+            spec_xml = spec_xml_dict.get(sdds_name, None)
+            if not spec_xml:
+                if "SSPL" in sdds_name:
+                    logger.debug(f"Not got the spec for {sdds_name} from {sdds_specs_directory}")
+                continue
+            examined.append(sdds_name)
+
+            logger.debug("get_version_of_component_with_tag_from_spec_xml_from_componentsuite: {} -> {}".format(
+                sdds_name, spec_xml)
+            )
+
+            importref = get_importrefrence_for_component_with_tag_from_componentsuite(rigidname,
+                                                                                      componentsuite_rigid_name, tag,
+                                                                                      spec_xml[pubspec])
+            return get_version_for_component_with_importref(rigidname, importref, spec_xml[importspec])
+        except (AssertionError, IndexError):
+            continue
     else:
         # print(relevant_sdds_names)
         # print(spec_xml_dict.keys())
-        raise AssertionError(f"Did not find {rigidname} in {spec_xml_dict}")
+        if optional:
+            logger.error(f"Did not find {rigidname} in {examined} from {relevant_sdds_names}")
+            return None
+        else:
+            raise AssertionError(f"Did not find {rigidname} in {examined} from {relevant_sdds_names}")
 
 
 class TemplateConfig:
-
     use_local_warehouses = os.path.isdir(LOCAL_WAREHOUSES)
 
     def __init__(self, env_key, username, build_type, ostia_adress):
@@ -377,7 +416,7 @@ class TemplateConfig:
     def _validate_values(self):
         if self.build_type not in [PROD_BUILD_CERTS, DEV_BUILD_CERTS]:
             raise ValueError("Build type override for {} is invalid, should be {} or {}, was {}".format(
-                             self.env_key, PROD_BUILD_CERTS, DEV_BUILD_CERTS, self.build_type))
+                self.env_key, PROD_BUILD_CERTS, DEV_BUILD_CERTS, self.build_type))
 
     def _define_hashed_creds(self):
         self.hashed_credentials = calculate_hashed_creds(self.username, self.password)
@@ -406,7 +445,7 @@ class TemplateConfig:
 
         _install_upgrade_certs(root_ca, ps_root_ca)
 
-    def generate_warehouse_policy_from_template(self, template_file_name, proposed_output_path = None):
+    def generate_warehouse_policy_from_template(self, template_file_name, proposed_output_path=None):
         """
         :param template_file_name: file name for the ALC policy which will be used to generate a new policy file
         based on data stored in the  template_configuration_values dictionary
@@ -448,7 +487,8 @@ class TemplateConfig:
                     full contents:
                     {}
                     
-                    """.format(self.policy_file_name, self.username, self.password, self.get_connection_address(), template_string_with_replaced_values)
+                    """.format(self.policy_file_name, self.username, self.password, self.get_connection_address(),
+                               template_string_with_replaced_values)
                 )
         return output_policy
 
@@ -465,6 +505,7 @@ class TemplateConfig:
     def get_relevant_sdds_filenames(self):
         return self.relevent_sdds_files
 
+
 class WarehouseUtils(object):
     """
     Class to setup ALC Policy files used in tests.
@@ -472,41 +513,54 @@ class WarehouseUtils(object):
 
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
     ROBOT_LISTENER_API_VERSION = 2
-    os.environ['VUT_PREV_RELEASE']= "CSP7I0S0GZZE:CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=:db55fcf8898da2b3f3c06f26e9246cbb"
-    os.environ['VUT_PREV_DOGFOOD']= "QA767596:CCCirMa73nCbF+rU9aHeyqCasmwZR9GpWyPav3N0ONhr56KqcJR8L7OdlrmdHJLXc08=:105f4d87e14c91142561bf3d022e55b9"
+    os.environ[
+        'VUT_PREV_RELEASE'] = "CSP7I0S0GZZE:CCADasoUC50JcnRFdhJR+mhonNzZ872yyT0W8e2/3dGohT2bPmkQy/baXddi+RzbTxg=:db55fcf8898da2b3f3c06f26e9246cbb"
+    os.environ[
+        'VUT_PREV_DOGFOOD'] = "QA767596:CCCirMa73nCbF+rU9aHeyqCasmwZR9GpWyPav3N0ONhr56KqcJR8L7OdlrmdHJLXc08=:105f4d87e14c91142561bf3d022e55b9"
 
     WAREHOUSE_SPEC_XML = get_spec_xml_dict_from_filer6()
     template_configuration_values = {
-        "mtr_edr_vut_and_base_999.xml": TemplateConfig("BASE_999", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_BASE_999_ADDRESS),
+        "mtr_edr_vut_and_base_999.xml": TemplateConfig("BASE_999", "mtr_user_vut", PROD_BUILD_CERTS,
+                                                       OSTIA_BASE_999_ADDRESS),
         "old_query_pack.xml": TemplateConfig("QUERY_PACK", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_QUERY_PACK_ADDRESS),
-        "base_mtr_vut_and_edr_999.xml": TemplateConfig("BASE_MTR_AND_EDR_999", "user_mtr_vut_edr_999", PROD_BUILD_CERTS, OSTIA_EDR_999_ADDRESS),
-        "base_vut_and_mtr_edr_999.xml": TemplateConfig("BASE_AND_MTR_EDR_999", "mtr_and_edr_user_999", PROD_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
-        "base_vut_and_mtr_edr_av_999.xml": TemplateConfig("BASE_AND_MTR_EDR_AV_999", "av_user_999", PROD_BUILD_CERTS, OSTIA_EDR_AND_MTR_999_ADDRESS),
+        "base_mtr_vut_and_edr_999.xml": TemplateConfig("BASE_MTR_AND_EDR_999", "user_mtr_vut_edr_999", PROD_BUILD_CERTS,
+                                                       OSTIA_EDR_999_ADDRESS),
+        "base_vut_and_mtr_edr_999.xml": TemplateConfig("BASE_AND_MTR_EDR_999", "mtr_and_edr_user_999", PROD_BUILD_CERTS,
+                                                       OSTIA_EDR_AND_MTR_999_ADDRESS),
+        "base_vut_and_mtr_edr_av_999.xml": TemplateConfig("BASE_AND_MTR_EDR_AV_999", "av_user_999", PROD_BUILD_CERTS,
+                                                          OSTIA_EDR_AND_MTR_999_ADDRESS),
         "base_and_mtr_VUT.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_edr_and_mtr_and_av_VUT.xml": TemplateConfig("BALLISTA_VUT", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_edr_and_mtr_and_av_VUT.xml": TemplateConfig("BALLISTA_VUT", "av_user_vut", PROD_BUILD_CERTS,
+                                                          OSTIA_VUT_ADDRESS),
         # we are overriding the two warehouses below to use ballista warehouse,
         # if we want to switch them back to ostia the address has to change to the new warehouses location
-        "base_edr_and_mtr_and_av_VUT-1.xml": TemplateConfig("VUT_PREV_DOGFOOD", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_edr_and_mtr_and_av_Release.xml": TemplateConfig("VUT_PREV_RELEASE", "av_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
+        "base_edr_and_mtr_and_av_VUT-1.xml": TemplateConfig("VUT_PREV_DOGFOOD", "av_user_vut", PROD_BUILD_CERTS,
+                                                            OSTIA_VUT_ADDRESS),
+        "base_edr_and_mtr_and_av_Release.xml": TemplateConfig("VUT_PREV_RELEASE", "av_user_vut", PROD_BUILD_CERTS,
+                                                              OSTIA_VUT_ADDRESS),
         "base_and_edr_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_edr_and_mtr.xml": TemplateConfig("BALLISTA_VUT", "mtr_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
         "base_only_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_only_fixed_version_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_only_fixed_version_999.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_only_weeklyScheduleVUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS),
-        "base_only_VUT_no_ballista_override.xml": TemplateConfig("NO_OVERRIDE", "base_user_vut", PROD_BUILD_CERTS, OSTIA_VUT_ADDRESS)
+        "base_only_fixed_version_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS,
+                                                          OSTIA_VUT_ADDRESS),
+        "base_only_fixed_version_999.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS,
+                                                          OSTIA_VUT_ADDRESS),
+        "base_only_weeklyScheduleVUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS,
+                                                          OSTIA_VUT_ADDRESS),
+        "base_only_VUT_no_ballista_override.xml": TemplateConfig("NO_OVERRIDE", "base_user_vut", PROD_BUILD_CERTS,
+                                                                 OSTIA_VUT_ADDRESS)
     }
 
     RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES = {
         "ServerProtectionLinux-Plugin-AV": "Sophos Server Protection Linux - av",
         "ServerProtectionLinux-Plugin-liveresponse": "Sophos Live Response",
-        "ServerProtectionLinux-Plugin-MDR": "Sophos Managed Threat Response plug-in" ,
+        "ServerProtectionLinux-Plugin-MDR": "Sophos Managed Threat Response plug-in",
         "ServerProtectionLinux-Plugin-EventJournaler": "EventJournaler",
         "ServerProtectionLinux-Base-component": "Sophos Server Protection Linux - Base Component",
         "ServerProtectionLinux-Plugin-EDR": "Sophos Endpoint Detection and Response plug-in",
-        "ServerProtectionLinux-Plugin-RuntimeDetections": "Sophos Linux Runtime Detection Plugin"
+        "ServerProtectionLinux-Plugin-RuntimeDetections": "Sophos Linux Runtime Detection Plugin",
+        "ServerProtectionLinux-Plugin-Heartbeat": "Sophos Server Protection Linux - Heartbeat",
     }
-
 
     update_server = UpdateServer.UpdateServer("ostia_update_server.log")
 
@@ -597,7 +651,6 @@ class WarehouseUtils(object):
         """
         _remove_sophos_alias_file()
 
-
     def get_customer_file_domain_for_policy(self, policy_path):
         template_config = self._get_template_config_from_dictionary_using_path(policy_path)
         return template_config.customer_file_domain
@@ -616,9 +669,11 @@ class WarehouseUtils(object):
     def modify_host_file_for_local_ostia_warehouses(self):
         if os.environ.get("INTERNAL_HOST_REDIRECT"):
             logger.info("using internal redirect")
-            self.update_server.modify_host_file_for_local_updating(new_hosts_file_content=INTERNAL_OSTIA_HOST_REDIRECT, backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
+            self.update_server.modify_host_file_for_local_updating(new_hosts_file_content=INTERNAL_OSTIA_HOST_REDIRECT,
+                                                                   backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
         else:
-            self.update_server.modify_host_file_for_local_updating(new_hosts_file_content=OSTIA_HOST_REDIRECT, backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
+            self.update_server.modify_host_file_for_local_updating(new_hosts_file_content=OSTIA_HOST_REDIRECT,
+                                                                   backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
 
     def start_all_local_update_servers(self):
         self.update_server.stop_update_server()
@@ -667,15 +722,14 @@ class WarehouseUtils(object):
             template_policy_name = template_policy
 
         generated_ballista_policy_path = os.path.join(GENERATED_FILE_DIRECTORY, generated_ballista_policy_name)
-        ballista_config.generate_warehouse_policy_from_template(template_policy_name, proposed_output_path=generated_ballista_policy_path)
+        ballista_config.generate_warehouse_policy_from_template(template_policy_name,
+                                                                proposed_output_path=generated_ballista_policy_path)
         self.template_configuration_values["template_policy_name"] = ballista_config
         return generated_ballista_policy_path
-
 
     def __get_localwarehouse_path_for_branch(self, branch):
         return os.path.join(SYSTEMPRODUCT_TEST_INPUT, "/local_warehouses/dev/sspl-warehouse", branch,
                             "warehouse/warehouse/catalogue")
-
 
     def Disable_Product_Warehouse_to_ensure_we_only_perform_a_supplement_update(self, branch="develop"):
         # ${SYSTEMPRODUCT_TEST_INPUT}/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/catalogue
@@ -713,26 +767,36 @@ class WarehouseUtils(object):
     def get_version_from_warehouse_for_rigidname(self, template_policy, rigidname, tag="RECOMMENDED"):
         template_config = self._get_template_config_from_dictionary_using_path(template_policy)
         relevant_sdds_files = template_config.get_relevant_sdds_filenames()
-        return get_version_of_component_with_tag_from_spec_xml(rigidname, tag, self.WAREHOUSE_SPEC_XML, relevant_sdds_files)
+        return get_version_of_component_with_tag_from_spec_xml(rigidname, tag, self.WAREHOUSE_SPEC_XML,
+                                                               relevant_sdds_files)
 
-    def get_version_from_warehouse_for_rigidname_in_componentsuite(self, template_policy, rigidname, componentsuite_rigidname, tag="RECOMMENDED"):
+    def get_version_from_warehouse_for_rigidname_in_componentsuite(self, template_policy, rigidname,
+                                                                   componentsuite_rigidname, tag="RECOMMENDED",
+                                                                   optional=False):
         template_config = self._get_template_config_from_dictionary_using_path(template_policy)
         relevant_sdds_files = template_config.get_relevant_sdds_filenames()
-        return get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidname, componentsuite_rigidname, tag, self.WAREHOUSE_SPEC_XML, relevant_sdds_files)
+        return get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidname, componentsuite_rigidname,
+                                                                                   tag, self.WAREHOUSE_SPEC_XML,
+                                                                                   relevant_sdds_files, optional)
 
     def get_version_for_rigidname_in_vut_warehouse(self, rigidname):
         if rigidname == "ServerProtectionLinux-Base":
             if not os.environ.get("BALLISTA_VUT"):
                 # dev warehouse hard code version
                 return "1.0.0"
-            return get_version_from_sdds_import_file(os.path.join(PathManager.SYSTEM_PRODUCT_TEST_INPUTS, "sspl-componentsuite", "SDDS-Import.xml"))
-        warehouse_root = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse", "develop", "warehouse", "warehouse")
+            return get_version_from_sdds_import_file(
+                os.path.join(PathManager.SYSTEM_PRODUCT_TEST_INPUTS, "sspl-componentsuite", "SDDS-Import.xml"))
+        warehouse_root = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse", "develop", "warehouse",
+                                      "warehouse")
         product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
-        version = subprocess.check_output(f'grep -r "PRODUCT_NAME = {product_name}" {SYSTEMPRODUCT_TEST_INPUT}/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/ | awk -F: \'{{print $1}}\' | xargs grep "PRODUCT_VERSION" | sed "s/PRODUCT_VERSION\ =\ //"', shell=True)
+        version = subprocess.check_output(
+            f'grep -r "PRODUCT_NAME = {product_name}" {SYSTEMPRODUCT_TEST_INPUT}/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/ | awk -F: \'{{print $1}}\' | xargs grep "PRODUCT_VERSION" | sed "s/PRODUCT_VERSION\ =\ //"',
+            shell=True)
         return version.strip().decode()
 
     def second_version_is_lower(self, version1, version2):
         return version.parse(version1) > version.parse(version2)
+
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":

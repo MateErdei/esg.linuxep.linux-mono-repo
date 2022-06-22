@@ -6,6 +6,8 @@ import PathManager
 import psutil
 import time
 
+import robot.api.logger as logger
+
 class ProcessUtils(object):
     def spawn_sleep_process(self, process_name="PickYourPoison", run_from_location="/tmp"):
         pick_your_poison_path = os.path.join(PathManager.ROBOT_ROOT_PATH, "SystemProductTestOutput", "PickYourPoison")
@@ -14,7 +16,6 @@ class ProcessUtils(object):
         destination = os.path.join(run_from_location, process_name)
         shutil.copy(pick_your_poison_path, destination)
 
-
         process = subprocess.Popen([destination, "--run"])
         os.remove(destination)
 
@@ -22,12 +23,17 @@ class ProcessUtils(object):
 
     def get_process_memory(self, pid):
         # Deal with robot passing pid as string.
-        pid = int(pid)
+        if len(pid) == 0:
+            raise AssertionError("get_process_memory called with no pid")
+        pids = pid.split("\n")
+        assert len(pids) > 0
+        if len(pids) > 1:
+            logger.error("Multiple PIDs provided to get_process_memory: %s" % str(pids))
+        pid = int(pids[0])
         process = psutil.Process(pid)
 
         # in bytes
         return process.memory_info().rss
-
 
     # Robot run process and start process don't seem to work well in some cases, they either interfere with each
     # other of just hang. So here are a couple simple run process functions to call from tests.
@@ -38,7 +44,7 @@ class ProcessUtils(object):
         process = subprocess.Popen(command)
         return process.pid
 
-    def run_and_wait_for_process(self, proc: str, *args) -> str:
+    def run_and_wait_for_process(self, proc: str, *args) -> tuple:
         command = [proc]
         for arg in args:
             command.append(arg)
@@ -57,4 +63,3 @@ class ProcessUtils(object):
         if psutil.pid_exists(pid):
             print(f"The pid {pid} did not shutdown after sending a {signal_to_send} signal, sending SIGKILL")
             os.kill(pid, signal.SIGKILL)
-

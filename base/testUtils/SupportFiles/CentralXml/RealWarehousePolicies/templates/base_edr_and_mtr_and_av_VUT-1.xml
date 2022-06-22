@@ -24,13 +24,28 @@
         <delay_supplements enabled="true"/>
     </AUConfig>
     <Features>
-        <Feature id="CORE"/>
-        <Feature id="MDR"/>
-        <Feature id="SDU"/>
+        <Feature id="APPCNTRL"/>
         <Feature id="AV"/>
+        <Feature id="CORE"/>
+        <Feature id="DLP"/>
+        <Feature id="DVCCNTRL"/>
+        <Feature id="EFW"/>
+        <Feature id="HBT"/>
         <Feature id="LIVEQUERY"/>
         <Feature id="LIVETERMINAL"/>
+        <Feature id="MDR"/>
+        <Feature id="MTD"/>
+        <Feature id="NTP"/>
+        <Feature id="SAV"/>
+        <Feature id="SDU"/>
+        <Feature id="WEBCNTRL"/>
     </Features>
+    <Products>
+        <Product id="antivirus"/>
+        <Product id="mdr"/>
+        <Product id="xdr"/>
+    </Products>
+    <automatic_sdu_submission Enabled="true"/>
     <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
     <customer id="ad936fd6-329d-e43b-cb15-3635be1058db"/>
 </AUConfigurations>

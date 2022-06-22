@@ -13,6 +13,7 @@ except:
 
 THIS_FILE_PATH = os.path.realpath(__file__)
 
+
 def are_basenames_in_directory(directory_to_check, basenames, callback_to_verify_paths=None):
     """
 
@@ -33,28 +34,38 @@ def are_basenames_in_directory(directory_to_check, basenames, callback_to_verify
                 raise AssertionError("{} exists but did not return true when passed to {}".format(path_to_check, callback_to_verify_paths))
     return True
 
+
 def find_local_component_dir_path(component_dirname):
-    dir_path = os.path.dirname(THIS_FILE_PATH)
-    #loops until "component_dirname" is in directory pointed to by dir_path
-    while not are_basenames_in_directory(dir_path, [component_dirname]):
-        dir_path = os.path.dirname(dir_path)
-        print(dir_path)
-        if dir_path ==  "/":
-            logger.info("Failed to find {} dir, recursed till reached root".format(component_dirname))
-            return None
-    return os.path.join(dir_path, component_dirname)
+    attempts = []
+    for dir_path in (os.path.dirname(THIS_FILE_PATH), os.path.dirname(__file__), os.getcwd()):
+        # loops until "component_dirname" is in directory pointed to by dir_path
+        while not are_basenames_in_directory(dir_path, [component_dirname]):
+            attempts.append(dir_path)
+            dir_path = os.path.dirname(dir_path)
+            print(dir_path)
+            if dir_path == "/":
+                break
+        if dir_path != "/":
+            return os.path.join(dir_path, component_dirname)
+
+    logger.info("Failed to find {} dir, recursed till reached root from {}: tried {}".format(
+        component_dirname,
+        os.path.dirname(THIS_FILE_PATH),
+        attempts))
+    return None
     
 
 def find_local_base_dir_path():
     return find_local_component_dir_path("everest-base")
 
+
 def find_local_mtr_dir_path():
     return find_local_component_dir_path("sspl-plugin-mdr-component")
     
 
-
 def libs_supportfiles_and_tests_are_here(dir_path):
     return are_basenames_in_directory(dir_path, ["libs", "SupportFiles", "tests", "testUtilsMarker"])
+
 
 def get_testUtils_dir():
     dir_path = os.path.dirname(THIS_FILE_PATH)

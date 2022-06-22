@@ -234,6 +234,26 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
 
+    ${ExpectedHBTReleaseVersion} =  get_version_from_warehouse_for_rigidname_in_componentsuite
+    ...  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-Heartbeat  ServerProtectionLinux-Base
+    ...  optional=True
+
+    ${ExpectedBaseReleaseVersion} =  get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
+    ${ExpectedMtrReleaseVersion} =   get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-MDR
+    ${ExpectedAVReleaseVersion} =    get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-AV
+    ${ExpectedEDRReleaseVersion} =   get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-EDR
+    ${ExpectedLRReleaseVersion} =                 get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-liveresponse  ServerProtectionLinux-Base
+    ${ExpectedEJReleaseVersion} =                 get_version_from_warehouse_for_rigidname_in_componentsuite    ${BaseEdrAndMtrAndAVDogfoodPolicy}    ServerProtectionLinux-Plugin-EventJournaler    ServerProtectionLinux-Base
+    ${ExpectedRuntimedetectionsReleaseVersion} =  get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-RuntimeDetections  ServerProtectionLinux-Base
+
+    ${ExpectedBaseDevVersion} =   get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
+    ${ExpectedMtrDevVersion} =    get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-MDR
+    ${ExpectedAVDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
+    ${ExpectedLRDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
+    ${ExpectedHBTDevVersion} =    get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-Heartbeat
+    ${ExpectedEJDevVersion} =    get_version_for_rigidname_in_vut_warehouse    ServerProtectionLinux-Plugin-EventJournaler
+    ${ExpectedRuntimedetectionsDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
+
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVVUTPolicy}
@@ -247,35 +267,24 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
 
     Check Current Release Installed Correctly
-    ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
-    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
     ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${ExpectBaseDowngrade} =  second_version_is_lower  ${ExpectedBaseDevVersion}  ${ExpectedBaseReleaseVersion}
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseVersion}
-    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-MDR
-    ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-MDR
     ${MtrVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrVersion}
-    ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
-    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-AV
     ${AVVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVVersion}
     ${ExpectedEDRDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
-    ${ExpectedEDRReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-EDR
     ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
-    ${ExpectedLRDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedLRReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-liveresponse  ServerProtectionLinux-Base
     ${LrDevVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LrDevVersion}
-    ${ExpectedEJDevVersion} =    get_version_for_rigidname_in_vut_warehouse    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedEJReleaseVersion} =    get_version_from_warehouse_for_rigidname_in_componentsuite    ${BaseEdrAndMtrAndAVDogfoodPolicy}    ServerProtectionLinux-Plugin-EventJournaler    ServerProtectionLinux-Base
     ${EJDevVersion} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJDevVersion}
-    ${ExpectedRuntimedetectionsDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
-    ${ExpectedRuntimedetectionsReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-RuntimeDetections  ServerProtectionLinux-Base
     ${RuntimeDetectionsDevVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimeDetectionsDevVersion}
+    ${HBTDevVersion} =      Get Version Number From Ini File   ${InstalledHBTPluginVersionFile}
+    Should Be Equal As Strings  ${ExpectedHBTDevVersion}  ${HBTDevVersion}
 
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
@@ -349,13 +358,14 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Log File  /tmp/preserve-sul-downgrade
     Check EAP Release With AV Installed Correctly
 
-    ${BaseReleaseVersion} =                     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    ${MtrReleaseVersion} =                      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-    ${EdrReleaseVersion} =                      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
-    ${AVReleaseVersion} =                       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    ${LRReleaseVersion} =                       Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
-    ${RuntimedetectionsReleaseVersion} =        Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
-    ${EJReleaseVersion} =                       Get Version Number From Ini File   ${InstalledEJPluginVersionFile}
+    ${BaseReleaseVersion} =                   Get Version Number From Ini File   ${InstalledBaseVersionFile}
+    ${MtrReleaseVersion} =                    Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
+    ${EdrReleaseVersion} =                    Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
+    ${AVReleaseVersion} =                     Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
+    ${LRReleaseVersion} =                     Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
+    ${RuntimedetectionsReleaseVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    ${EJReleaseVersion} =                     Get Version Number From Ini File   ${InstalledEJPluginVersionFile}
+    ${HBTReleaseVersion} =                    Get Version Number From Ini File   ${InstalledHBTPluginVersionFile}
 
     Should Be Equal As Strings      ${BaseReleaseVersion}               ${ExpectedBaseReleaseVersion}
     Should Be Equal As Strings      ${MtrReleaseVersion}                ${ExpectedMtrReleaseVersion}
@@ -364,7 +374,9 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Strings      ${LRReleaseVersion}                 ${ExpectedLRReleaseVersion}
     Should Be Equal As Strings      ${RuntimedetectionsReleaseVersion}  ${ExpectedRuntimedetectionsReleaseVersion}
     Should Be Equal As Strings      ${EJReleaseVersion}                 ${ExpectedEJReleaseVersion}
+    Should Be Equal As Strings      ${HBTReleaseVersion}                ${ExpectedHBTReleaseVersion}
 
+    Should Be Equal As Strings  ${ExpectedHBTDevVersion}  ${HBTDevVersion}
 
     #Check users haven't been removed and added back
     ${new_sspl_user_uid} =  Get UID From Username  sophos-spl-user
@@ -419,6 +431,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimeDetectionsVersion}
     ${EJVersion} =    Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJVersion}
+
+    version_number_in_ini_file_should_be  ${InstalledHBTPluginVersionFile}  ${ExpectedHBTDevVersion}
 
     #the query pack should have been re-installed
     Wait Until Keyword Succeeds
