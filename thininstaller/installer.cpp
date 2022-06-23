@@ -1,16 +1,15 @@
-#include "SUL.h"
 #include "curl.h"
+#include "json.hpp"
 
 #include <CentralRegistration/Main.h>
 #include <cmcsrouter/Config.h>
 #include <cmcsrouter/ConfigOptions.h>
 #include <cmcsrouter/MCSApiCalls.h>
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/LoggerConfig.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/UtilityImpl/StringUtils.h>
 
 #include <log4cplus/logger.h>
-#include <log4cplus/loggingmacros.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/initializer.h>
 
@@ -19,22 +18,16 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <fcntl.h>
 #include <iostream>
 #include <memory>
-#include <sstream>
+
 #include <string>
 #include <unistd.h>
 #include <utility>
 #include <vector>
 
-
-
-static SU_PHandle g_Product = nullptr;
 static bool g_DebugMode = false;
 
-static const std::vector<std::string> g_GuidPreferences{"ServerProtectionLinux-Base-component", "ServerProtectionLinux-Base"};
-static const char* g_ReleaseTag = "RECOMMENDED";
 
 // Used to check if an env proxy is in use.
 const char* g_httpsProxy = getenv("https_proxy");
@@ -44,7 +37,6 @@ const char* g_httpsProxy = getenv("https_proxy");
 static char g_buf[BIGBUF];
 static int g_bufptr = 0;
 static std::string g_mcs_url;
-static std::string g_sul_credentials;
 
 class ServerAddress
 {
@@ -247,77 +239,6 @@ static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& p
     return connected;
 }
 
-std::string strFromSul(SU_ConstString sulString, SU_Handle session)
-{
-    if ( sulString == nullptr)
-    {
-        return std::string{}; 
-    }
-    std::string copyStr{sulString}; 
-    SU_freeString(session, sulString ); 
-    return copyStr; 
-}
-
-std::string getProductMetadata(SU_PHandle product, const char * tag, SU_Int index)
-{
-    return strFromSul(SU_queryProductMetadata(product, tag, index ), SU_getSession(product)); 
-}
-
-/// Print metadata for a product using the SUL library, for debug purposes.
-/// \param product SUL object which acts as a handle to a products warehouse info.
-/// \param attribute The attribute of the product metadata that you want printed.
-static void queryProductMetadata(SU_PHandle product, const char* attribute)
-{
-    static std::string nullString{"<null>"}; 
-    std::string result = getProductMetadata(product, attribute, 0);     
-    printf("%s: [%s]\n", attribute, !result.empty() ? result.c_str() : nullString.c_str());
-}
-
-static void writeSignedFile(const char* cred)
-{
-    std::string path = "./warehouse/catalogue/signed-";
-    path += cred;
-    int fd = ::open(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0600); // NOLINT
-    assert(fd >= 0);
-
-    ssize_t retSize = ::write(fd, "true", 4);
-    assert(retSize > 0);
-
-    int ret = ::close(fd);
-    assert(ret == 0);
-}
-
-static bool isSULError(SU_Result ret)
-{
-    return ret != SU_Result_OK && ret != SU_Result_nullSuccess;
-}
-
-/// Used to log SUL lib errors by the macro RETURN_IF_ERROR, logs debug if success.
-/// \param what The error message
-/// \param ret The return value of the SUL lib call
-/// \param session SUL session handle used to get further error details
-/// \return Returns true if the call to the SUL lib returns an error, false if the call was successful.
-static bool logSulError(const char* what, SU_Result ret, SU_Handle session)
-{
-    if (isSULError(ret))
-    {
-        std::string error = strFromSul(SU_getErrorDetails(session), session); 
-        fprintf(stderr, "FAILURE: %s: %s (%d)\n", what, error.c_str(), ret);
-        return true;
-    }
-    else
-    {
-        logDebug(std::string(what) + ": " + std::to_string(ret));
-    }
-    return false;
-}
-
-#define RETURN_IF_ERROR(what, sulerror)                                                                            \
-if (logSulError(what, sulerror, session->m_session))                                                               \
-{                                                                                                                  \
-    return sulerror;                                                                                               \
-}
-
 /// Splits a string by a deliminator and returns a vector of the split strings.
 /// \param string_to_split
 /// \param delim Deliminator used to split the string
@@ -383,348 +304,6 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string&
     return proxies;
 }
 
-class SULSession
-{
-public:
-    SULSession()
-    {
-        m_session = SU_beginSession();
-        if (m_session == nullptr)
-        {
-            throw std::runtime_error("Failed to start SUL session");
-        }
-    }
-    SULSession(const SULSession&) = delete;
-    SULSession& operator=(const SULSession&) = delete;
-
-    ~SULSession()
-    {
-        if (m_session != nullptr)
-        {
-            SU_endSession(m_session);
-        }
-    }
-
-    SU_Handle m_session = nullptr;
-};
-
-class SULInit
-{
-public:
-    SULInit(const SULInit&) = delete;
-    SULInit& operator=(const SULInit&) = delete;
-
-    SULInit() { SU_init(); }
-
-    ~SULInit() { SU_deinit(); }
-};
-
-struct ProductInfo
-{
-    SU_PHandle pHandle; 
-    bool hasTargetReleaseTag; 
-    std::string rigidName;
-    std::vector<std::string> releaseTags;
-    static ProductInfo from(SU_PHandle product)
-    {
-        ProductInfo productInfo;
-        if (g_DebugMode)
-        {
-            queryProductMetadata(product, "Line");
-            queryProductMetadata(product, "Major");
-            queryProductMetadata(product, "Minor");
-            queryProductMetadata(product, "Name");
-            queryProductMetadata(product, "VersionId");
-            queryProductMetadata(product, "DefaultHomeFolder");
-            queryProductMetadata(product, "Platforms");
-            queryProductMetadata(product, "ReleaseTagsTag");
-            printf("\n");
-        }
-
-        // First get the list of available Release Tags
-        int index = 0;
-        while (true)
-        {
-            std::string tag = getProductMetadata(product, "ReleaseTagsTag", index);
-            if (tag.empty())
-            {
-                break;
-            }
-            productInfo.releaseTags.push_back(tag);
-            index++;
-        }
-        // Now that we have the available release tags check to see if one of them matches the target release tag.
-        productInfo.hasTargetReleaseTag = false;
-        for(auto& tag : productInfo.releaseTags)
-        {
-            if(tag == g_ReleaseTag)
-            {
-                productInfo.hasTargetReleaseTag = true;
-                break;
-            }
-        }
-
-        productInfo.rigidName =  getProductMetadata(product, "Line", 0); 
-        productInfo.pHandle = product; 
-        return productInfo;
-    }
-};
-
-struct MatchProduct
-{
-    std::string m_rigidLine; 
-    MatchProduct( std::string rigidLine): m_rigidLine(std::move(rigidLine)){}
-    bool operator()(const ProductInfo& pInfo) const{
-        return pInfo.rigidName == m_rigidLine && pInfo.hasTargetReleaseTag; 
-    }
-};
-
-std::vector<ProductInfo> listProductsFromWarehouse(SU_Handle session){
-    std::vector<ProductInfo> products; 
-    while (true)
-    {
-        logDebug("Getting next product");
-        SU_PHandle product = SU_getProductRelease(session);
-        if (product)
-        {
-            products.emplace_back(ProductInfo::from(product));
-        }
-        else{
-            logDebug("Out of products");
-            break;
-        }
-    }
-    return products; 
-}
-
-/// Downloads installer from sophos URL
-/// \param location Sophos warehouse URL
-/// \param updateCache Whether location is an Update Cache.
-/// \param disableEnvProxy Whether we should stop SUL using any env proxies.
-/// \return Error code or 0 for success.
-static int downloadInstaller(std::string location, bool updateCache, bool disableEnvProxy)
-{
-    SULInit init;
-    SU_Result ret;
-    std::unique_ptr<SULSession> session;
-
-    try
-    {
-        session.reset(new SULSession());
-    }
-    catch(std::runtime_error& ex)
-    {
-        logDebug(ex.what());
-        return 49;
-    }
-
-    if (session->m_session == nullptr)
-    {
-        logError("Failed to init SUL session");
-        return 45;
-    }
-
-    if (updateCache)
-    {
-        std::string redirectToLocation = location + "/sophos/warehouse";
-        const char* redirectFromAddresses[] = {
-            "d1.sophosupd.com/update", "d1.sophosupd.net/update", "d2.sophosupd.com/update",
-            "d2.sophosupd.net/update", "d3.sophosupd.com/update", "d3.sophosupd.net/update",
-        };
-        for (auto& redirectFromAddress : redirectFromAddresses)
-        {
-            ret = SU_addRedirect(session->m_session, redirectFromAddress, redirectToLocation.c_str());
-            RETURN_IF_ERROR("addredirect", ret);
-        }
-
-        location = "https://" + location + "/sophos/customer";
-    }
-
-    ret = SU_setLoggingLevel(session->m_session, SU_LoggingLevel_verbose);
-    RETURN_IF_ERROR("SU_setLoggingLevel", ret)
-
-    ret = SU_addCache(session->m_session, "./cache");
-    RETURN_IF_ERROR("addCache", ret);
-
-    ret = SU_setLocalRepository(session->m_session, "./warehouse");
-    RETURN_IF_ERROR("setlocal", ret);
-
-    ret = SU_addSophosLocation(session->m_session, location.c_str());
-    RETURN_IF_ERROR("addsophoslocation", ret);
-
-    ret = SU_setUseHttps(session->m_session, true);
-    RETURN_IF_ERROR("setUseHttps", ret);
-
-    if (updateCache)
-    {
-        auto certsToUse = const_cast<char*>("installer/uc_certs.crt");
-        ret = SU_setSslCertificatePath(session->m_session, certsToUse);
-        RETURN_IF_ERROR("setSslCertificatePath", ret);
-    }
-
-    ret = SU_setUseSophosCertStore(session->m_session, true);
-    RETURN_IF_ERROR("setUseSophosCertStore", ret);
-
-    char* certsDir = getenv("OVERRIDE_SOPHOS_CERTS");
-    certsDir = certsDir ? certsDir : (char*)"installer";
-
-    char* creds = getenv("OVERRIDE_SOPHOS_CREDS");
-    creds = creds ? creds : const_cast<char*>(g_sul_credentials.c_str());
-
-    // Write signed file
-    writeSignedFile(creds);
-
-    logDebug("Creds is [" + std::string(creds) + "]");
-
-    const char* proxy = nullptr;
-    if (updateCache || disableEnvProxy)
-    {
-        proxy = "noproxy:";
-    }
-
-    ret = SU_addUpdateSource(session->m_session, "SOPHOS", creds, creds, proxy, nullptr, nullptr);
-    RETURN_IF_ERROR("addUpdateSource", ret);
-
-    ret = SU_setCertificatePath(session->m_session, certsDir);
-    RETURN_IF_ERROR("setCertificatePath", ret);
-
-    std::stringstream listingWarehouseMessage;
-    listingWarehouseMessage << "Listing warehouse with creds [" << creds << "] at [" << location << "] with certs dir [" << certsDir << "] via [HTTPS]";
-    if (updateCache)
-    {
-        listingWarehouseMessage << " using UC";
-    }
-    if (!disableEnvProxy && g_httpsProxy)
-    {
-        listingWarehouseMessage << " env proxy [" << g_httpsProxy << "]";
-    }
-    logDebug(listingWarehouseMessage.str());
-
-    ret = SU_readRemoteMetadata(session->m_session);
-    logDebug("readRemoteMetadata: " + std::to_string(ret));
-
-    if (isSULError(ret))
-    {
-        logDebug(
-            "Failed to connect to warehouse at " + location + " (SUL error is [" + std::to_string(ret) + "-" +
-            SU_getErrorDetails(session->m_session) + "]). Please check your firewall rules and proxy configuration");
-
-        return 46;
-    }
-
-    std::vector<ProductInfo> products = listProductsFromWarehouse(session->m_session); 
-    
-    std::vector<ProductInfo>::iterator selectedProductIt; 
-    for( auto & targetRigidName: g_GuidPreferences)
-    {
-        selectedProductIt = std::find_if(products.begin(), products.end(), MatchProduct(targetRigidName)); 
-        if (selectedProductIt != products.end())
-        {
-            break; 
-        }
-    }
-
-    if (selectedProductIt == products.end())
-    {
-        logError("Internal error - base installer not found");
-        return 47;
-    }
-
-    // remove all the other products
-    for( auto it=products.begin(); it != products.end(); ++it)
-    {
-        if ( it != selectedProductIt)
-        {
-                ret = SU_removeProduct(it->pHandle);
-                RETURN_IF_ERROR("SU_removeProduct", ret);
-        }
-    }
-
-    g_Product = selectedProductIt->pHandle; 
-
-    ret = SU_synchronise(session->m_session);
-    logDebug("synchronise: " + std::to_string(ret));
-    if (isSULError(ret))
-    {
-        fprintf(
-            stderr,
-            "Failed to synchronise warehouse at %s (SUL error is [%d-%s]). "
-            "Please check your firewall rules and proxy configuration\n",
-            location.c_str(),
-            ret,
-            SU_getErrorDetails(session->m_session));
-        return 48;
-    }
-
-    ret = SU_addDistribution(g_Product, "./distribute/", 0, "", "");
-    RETURN_IF_ERROR("addDistribution", ret);
-    ret = SU_distribute(session->m_session, 0);
-    RETURN_IF_ERROR("distribute", ret);
-
-    return 0;
-}
-
-/// Tries to download the base installer via the following methods:
-/// 1) Update Caches 2) Allowing any env proxies 3) Explicitly disabling env proxies - allows fallback if env proxy is bad
-/// \param caches Vector of Update Caches which should be tried to download from first.
-/// \return Error code or 0 for success.
-static int downloadInstallerDirectOrCaches(const std::vector<ServerAddress>& caches)
-{
-    int ret = 0;
-    log("Downloading base installer (this may take some time)");
-
-    // Try override if set
-    const char* sophosLocation = getenv("OVERRIDE_SOPHOS_LOCATION");
-
-    // If the override is set then don't try to use UCs
-    if (!sophosLocation)
-    {
-        sophosLocation = "http://dci.sophosupd.com/update";
-
-        // Try using update caches
-        for (auto& cache : caches)
-        {
-            logDebug("Attempting to download installer from update cache address [" + cache.getAddress() + "]");
-            ret = downloadInstaller(cache.getAddress(), true, true);
-            if (ret == 0)
-            {
-                logDebug("Successfully downloaded installer from update cache address [" + cache.getAddress() + "]");
-                return ret;
-            }
-        }
-    }
-
-    logDebug("Attempting to download installer from Sophos");
-
-    // Download installer directly from sophos, *allowing* env proxies
-    ret = downloadInstaller(sophosLocation, false, false);
-
-    if (ret == 0)
-    {
-        logDebug("Successfully downloaded installer from Sophos");
-        return 0;
-    }
-
-    // If we failed to download via UCs and directly (possibly via a proxy)
-    // then here we check to see if proxy was set, if one is set and the download failed then we try without proxies.
-    if (g_httpsProxy)
-    {
-        // Download installer directly from sophos, *disallowing* env proxies
-        // as the previous download using it didn't work, so disable proxies.
-        ret = downloadInstaller(sophosLocation, false, true);
-
-        if (ret == 0)
-        {
-            logDebug("Successfully downloaded installer from Sophos");
-            return 0;
-        }
-    }
-
-    // If we got here then all download attempts have failed.
-    log("Failed to download installer");
-    return ret;
-}
-
 int main(int argc, char** argv)
 {
     g_DebugMode = static_cast<bool>(getenv("DEBUG_THIN_INSTALLER"));
@@ -732,15 +311,21 @@ int main(int argc, char** argv)
     log4cplus::Initializer initializer;
     log4cplus::BasicConfigurator config;
     config.configure();
-    log4cplus::Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("main"));
     if (g_DebugMode)
     {
-        logger.setLogLevel(log4cplus::INFO_LOG_LEVEL);
+        log4cplus::Logger::getRoot().setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
+        std::stringstream initMessage;
+        initMessage << "Logger configured for level: DEBUG" << std::endl;
+        log4cplus::Logger::getRoot().log(log4cplus::DEBUG_LOG_LEVEL, initMessage.str());
     }
     else
     {
-        logger.setLogLevel(log4cplus::OFF_LOG_LEVEL);
+        log4cplus::Logger::getRoot().setLogLevel(log4cplus::INFO_LOG_LEVEL);
+        std::stringstream initMessage;
+        initMessage << "Logger configured for level: INFO" << std::endl;
+        log4cplus::Logger::getRoot().log(log4cplus::INFO_LOG_LEVEL, initMessage.str());
     }
+
 
     if (argc < 2)
     {
@@ -758,7 +343,7 @@ int main(int argc, char** argv)
     }
 
     std::vector<std::string> registerArgValues;
-    for(int i = 2; i < argc; ++i)
+    for (int i = 2; i < argc; ++i)
     {
         registerArgValues.emplace_back(argv[i]);
     }
@@ -790,10 +375,6 @@ int main(int argc, char** argv)
             {
                 g_mcs_url = argvalue;
             }
-            else if (argname == "UPDATE_CREDENTIALS")
-            {
-                g_sul_credentials = argvalue;
-            }
             else if (argname == "MESSAGE_RELAYS")
             {
                 relays = extractPrioritisedAddresses(argvalue);
@@ -810,12 +391,6 @@ int main(int argc, char** argv)
     {
         logError("Didn't find mcs url in credentials file");
         return 42;
-    }
-
-    if (g_sul_credentials.empty())
-    {
-        logError("Didn't find update credentials in credentials file");
-        return 43;
     }
 
     char* override_mcs_url = getenv("OVERRIDE_CLOUD_URL");
@@ -876,21 +451,51 @@ int main(int argc, char** argv)
                 rootConfigOptions.config[MCS::MCS_PROXY_USERNAME],
                 rootConfigOptions.config[MCS::MCS_PROXY_PASSWORD]);
         }
-        std::string jwt = MCS::MCSApiCalls().getJwt(httpClient);
-        if (jwt.empty())
+        std::map<std::string,std::string> jwt = MCS::MCSApiCalls().getAuthenticationInfo(httpClient);
+        if (jwt[MCS::TENANT_ID].empty() || jwt[MCS::DEVICE_ID].empty() || jwt[MCS::JWT_TOKEN].empty())
         {
+            log("Failed to get JWT from Sophos Central");
             return 52;
         }
-        // TODO LINUXDAR-4273 stop logging this
-        log("JWT: ");
-        log(jwt);
+
         MCS::ConfigOptions policyOptions;
         policyOptions.config[MCS::MCS_ID] = rootConfigOptions.config[MCS::MCS_ID];
         policyOptions.config[MCS::MCS_PASSWORD] = rootConfigOptions.config[MCS::MCS_PASSWORD];
+        policyOptions.config[MCS::TENANT_ID] = jwt[MCS::TENANT_ID];
+        policyOptions.config[MCS::DEVICE_ID] = jwt[MCS::DEVICE_ID];
+        policyOptions.config["jwt_token"] = jwt[MCS::JWT_TOKEN];
+
         rootConfigOptions.config[MCS::MCS_ID] = "";
         rootConfigOptions.config[MCS::MCS_PASSWORD] = "";
         rootConfigOptions.writeToDisk("./mcs.config");
         policyOptions.writeToDisk("./mcsPolicy.config");
+        auto fs = Common::FileSystem::fileSystem();
+        std::string versigPath = Common::FileSystem::join( fs->currentWorkingDirectory(),"installer/bin/versig");
+        nlohmann::json j;
+        //Dummy values for now
+        j["credential"]["username"] = "jwt[MCS::TENANT_ID]";
+        j["credential"]["password"] = "jwt[MCS::TENANT_ID]";
+
+        j["versigPath"] = versigPath;
+        j["useSDDS3"] = true;
+
+        j["primarySubscription"]["rigidName"] = "ServerProtectionLinux-Base";
+        j["primarySubscription"]["tag"] = "RECOMMENDED";
+        j["features"] = {"CORE"};
+        j["tenantId"] = jwt[MCS::TENANT_ID];
+        j["deviceId"] = jwt[MCS::DEVICE_ID];
+        j["JWToken"] = jwt[MCS::JWT_TOKEN];
+
+        if (!update_caches.empty())
+        {
+            j["updateCaches"]={};
+            for (const auto& cache: update_caches)
+            {
+                j["updateCaches"].emplace_back(cache.getAddress());
+            }
+
+        }
+        fs->writeFile("./update_config.json",j.dump());
     }
-    return downloadInstallerDirectOrCaches(update_caches);
+    return 0;
 }

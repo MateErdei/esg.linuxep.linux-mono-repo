@@ -82,6 +82,14 @@ function failure()
     code=$1
     shift
     echo "$@" >&2
+    # only remove files if we didnt get far enough through the process to install
+    if ! is_sspl_installed ; then
+      if [ -n ${SOPHOS_INSTALL} ]
+      then
+        echo "Removing ${SOPHOS_INSTALL}"
+        rm -rf ${SOPHOS_INSTALL}
+      fi
+    fi
     cleanup_and_exit ${code}
 }
 
@@ -104,7 +112,21 @@ function handle_installer_errorcodes()
         failure ${EXITCODE_NO_CENTRAL} "Cannot connect to Sophos Central - please check your network connections"
     elif [ ${errcode} -eq 0 ]
     then
-        echo "Finished downloading base installer"
+        echo "Successfully installed product"
+    else
+        failure ${EXITCODE_DOWNLOAD_FAILED} "Failed to download the base installer! (Error code = $errcode)"
+    fi
+}
+
+function handle_register_errorcodes()
+{
+    errcode=$1
+    if [ ${errcode} -eq 44 ]
+    then
+        failure ${EXITCODE_NO_CENTRAL} "Cannot connect to Sophos Central - please check your network connections"
+    elif [ ${errcode} -eq 0 ]
+    then
+        echo "Successfully registered with Sophos Central"
     elif [ ${errcode} -eq ${EXITCODE_REGISTRATION_FAILED} ]
     then
         failure ${EXITCODE_REGISTRATION_FAILED} "Failed to register with Sophos Central, aborting installation"
@@ -112,10 +134,9 @@ function handle_installer_errorcodes()
     then
         failure ${EXITCODE_AUTHENTICATION_FAILED} "Failed to authenticate with Sophos Central, aborting installation"
     else
-        failure ${EXITCODE_DOWNLOAD_FAILED} "Failed to download the base installer! (Error code = $errcode)"
+        failure ${EXITCODE_DOWNLOAD_FAILED} "Failed to register with Central (Error code = $errcode)"
     fi
 }
-
 function check_free_storage()
 {
     local space=$1
@@ -345,15 +366,16 @@ do
         ;;
         --instdir=*)
             SOPHOS_INSTALL="${i#*=}"
+            #set this here so if the --instdir passed in wrong we don't try to remove the root directory
+            export SOPHOS_INSTALL="${SOPHOS_INSTALL}/sophos-spl"
             if ((${#SOPHOS_INSTALL} > 50))
             then
                 failure ${EXITCODE_BAD_INSTALL_PATH} "The --instdir path provided is too long and needs to be 50 characters or less. ${SOPHOS_INSTALL} is ${#SOPHOS_INSTALL} characters long"
             fi
-            if [[ ${SOPHOS_INSTALL} == /tmp* ]]
+            if [[ "${SOPHOS_INSTALL}" == /tmp* ]]
             then
                 failure ${EXITCODE_BAD_INSTALL_PATH} "The --instdir path provided is in the non-persistent /tmp folder. Please choose a location that is persistent"
             fi
-            export SOPHOS_INSTALL="${SOPHOS_INSTALL}/sophos-spl"
             shift
         ;;
         --proxy-credentials=*)
@@ -394,7 +416,7 @@ do
 done
 
 # Verify that instdir does not contain special characters that may cause problems.
-if ! echo "$SOPHOS_INSTALL" | grep -q '^[-a-zA-Z0-9\/\_\.]*$'
+if ! echo "${SOPHOS_INSTALL}" | grep -q '^[-a-zA-Z0-9\/\_\.]*$'
 then
     failure ${EXITCODE_BAD_INSTALL_PATH} "The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted"
 fi
@@ -412,7 +434,7 @@ fi
 
 # Create Sophos temp directory (unless overridden with an existing dir)
 if [ -z "$SOPHOS_TEMP_DIRECTORY" ]; then
-    SOPHOS_TEMP_DIRECTORY=`sophos_mktempdir SophosCentralInstall`
+    SOPHOS_TEMP_DIRECTORY=`sophos_mktempdir SophosCentralInstall` || failure ${EXITCODE_CANNOT_MAKE_TEMP} "Could not generate name for temp folder in /tmp"
 fi
 
 mkdir -p "$SOPHOS_TEMP_DIRECTORY"
@@ -534,13 +556,13 @@ then
     fi
 
     # If the user specified a different install dir to the existing one then they must remove the old install first.
-    if [[ ${SOPHOS_INSTALL} != ${EXISTING_SSPL_PATH} ]]
+    if [[ "${SOPHOS_INSTALL}" != ${EXISTING_SSPL_PATH} ]]
     then
         failure ${EXITCODE_ALREADY_INSTALLED} "Please uninstall ${PRODUCT_NAME} before using this installer. You can run ${EXISTING_SSPL_PATH}/bin/uninstall.sh"
     fi
 
     # Check the existing installation is ok, if it is then register again with the creds from this installer.
-    if [ -d "$SOPHOS_INSTALL" ]
+    if [ -d "${SOPHOS_INSTALL}" ]
     then
         if [ -f "$REGISTER_CENTRAL" ]
         then
@@ -560,7 +582,7 @@ then
         fi
     fi
 else  # sspl not installed
-    if [ -d ${SOPHOS_INSTALL} ]
+    if [ -d "${SOPHOS_INSTALL}" ]
     then
         failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either delete this folder or choose another location"
     fi
@@ -579,93 +601,47 @@ rm -f installer.tar.gz || failure ${EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED} "E
 
 export LD_LIBRARY_PATH=installer/bin64:installer/bin32
 
-# Make necessary directories
-mkdir distribute
-mkdir cache
-mkdir warehouse
-mkdir warehouse/catalogue
-
 echo "Installation process for ${PRODUCT_NAME} started"
 MCS_TOKEN="$CLOUD_TOKEN"
 MCS_URL="$CLOUD_URL"
 
+mkdir -p "${SOPHOS_INSTALL}/base/etc/sophosspl"
+echo "[global]" > "${SOPHOS_INSTALL}/base/etc/logger.conf"
+echo "VERBOSITY = INFO" >> "${SOPHOS_INSTALL}/base/etc/logger.conf"
+
 ${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL} ${CUSTOMER_TOKEN_ARGUMENT} ${CMCSROUTER_MESSAGE_RELAYS} ${CMCSROUTER_PRODUCT_ARGUMENTS} ${REGISTRATION_GROUP_ARGS}
+handle_register_errorcodes $?
+#setup for running suldownloader
+mkdir -p "${SOPHOS_INSTALL}/base/update/rootcerts"
+mkdir -p "${SOPHOS_INSTALL}/base/update/var/updatescheduler"
+mkdir -p "${SOPHOS_INSTALL}/var/sophosspl"
+mkdir -p "${SOPHOS_INSTALL}/base/update/cache"
+mkdir -p "${SOPHOS_INSTALL}/var/lock"
 
-handle_installer_errorcodes $?
+cp ${BIN}/../rootca.crt "${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt"
 
-if [ -n "$DEBUG_THIN_INSTALLER" ]
+[ -n "$OVERRIDE_SUS_LOCATION" ] && echo "URLS = $OVERRIDE_SUS_LOCATION" >> "${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini"
+[ -n "$OVERRIDE_SUS_LOCATION" ] && echo "Overriding Sophos Update Service address with $OVERRIDE_SUS_LOCATION"
+[ -n "$OVERRIDE_CDN_LOCATION" ] && echo "CDN_URL = $OVERRIDE_CDN_LOCATION" >> "${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini"
+[ -n "$OVERRIDE_CDN_LOCATION" ] && echo "Overriding Sophos Update address with $OVERRIDE_CDN_LOCATION"
+[ -n "$SDDS3_USE_HTTP" ] && echo "USE_HTTP = true" >> "${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini"
+[ -n "$USE_SDDS3" ] && echo "USE_SDDS3 = true" >> "${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini"
+
+#copy mcs files in pace to base
+cp mcs.config  "${SOPHOS_INSTALL}/base/etc"
+cp mcsPolicy.config  "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
+
+if [[ -n ${https_proxy} ]]
 then
-    echo "Validating downloaded installer"
+    echo -n "${https_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
+elif [[ -n ${http_proxy} ]]
+then
+    echo -n "${http_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
 fi
 
-# Verify manifest.dat
-CERT=installer/rootca.crt
-[ -n ${OVERRIDE_SOPHOS_CERTS} ] && CERT=${OVERRIDE_SOPHOS_CERTS}/rootca.crt
-[ -f ${CERT} ] || CERT=installer/rootca.crt
-
-DEBUG_VERSIG=
-if [ -n "$DEBUG_THIN_INSTALLER" ]
-then
-    DEBUG_VERSIG=--silent-off
-fi
-
-${BIN}/versig -c$CERT -fdistribute/manifest.dat -ddistribute --check-install-sh $DEBUG_VERSIG \
-    || failure ${EXITCODE_VERIFY_INSTALLER_FAILED} "ERROR: Failed to verify base installer: $?"
-
-[ -z "$OVERRIDE_PROD_SOPHOS_CERTS" ] || cp ${OVERRIDE_PROD_SOPHOS_CERTS}/* distribute/update/certificates/
-
-credentials=""
-if [ -z "$OVERRIDE_SOPHOS_CREDS" ]
-then
-    creds=$(grep 'UPDATE_CREDENTIALS=' credentials.txt | sed 's/UPDATE_CREDENTIALS=//')
-    credentials="--update-type=s --update-source-username=$creds --update-source-password=$creds"
-else
-    credentials="--update-type=s --update-source-username=$OVERRIDE_SOPHOS_CREDS --update-source-password=$OVERRIDE_SOPHOS_CREDS"
-fi
-
-sslca=""
-if [ -n "$OVERRIDE_SSL_SOPHOS_CERTS" ]
-then
-    sslca="--PrimaryUpdateSSLSophosCA=$OVERRIDE_SSL_SOPHOS_CERTS"
-fi
-
-update_caches=""
-if [ -n "$UPDATE_CACHES" ]
-then
-    update_caches="--UpdateCacheLocations=$UPDATE_CACHES --UpdateCacheSSLCA=$UPDATE_CACHE_CERT"
-fi
-
-cd distribute
-
-chmod u+x install.sh || failure ${EXITCODE_CHMOD_FAILED} "Failed to chmod base installer: $?"
-
-echo "Running base installer"
-echo "Product will be installed to: ${SOPHOS_INSTALL}"
-
-if [ -n "$DEBUG_THIN_INSTALLER" ]
-then
-  DEBUG_INSTALL_SCRIPT="-x"
-fi
-
-if [ -z ${FORCE_LEGACY_INSTALL} ]
-then
-  MCS_CONFIG_ARGS="--mcs-config ${SOPHOS_TEMP_DIRECTORY}/mcs.config --mcs-policy-config ${SOPHOS_TEMP_DIRECTORY}/mcsPolicy.config"
-else
-  MCS_CONFIG_ARGS=""
-fi
-
-MCS_TOKEN="$CLOUD_TOKEN" \
-MCS_URL="$CLOUD_URL" \
-MCS_MESSAGE_RELAYS="$MESSAGE_RELAYS" \
-INSTALL_OPTIONS_FILE="$INSTALL_OPTIONS_FILE" \
-CUSTOMER_TOKEN_ARGUMENT="$CUSTOMER_TOKEN_ARGUMENT" \
-PRODUCT_ARGUMENTS="$PRODUCT_ARGUMENTS" \
-bash ${DEBUG_INSTALL_SCRIPT} ./install.sh $ALLOW_OVERRIDE_MCS_CA ${MCS_CONFIG_ARGS}
+${BIN}/SulDownloader update_config.json "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json" || failure ${EXITCODE_BASE_INSTALL_FAILED} "Failed to install sucessfully"
 inst_ret=$?
-if [ ${inst_ret} -ne 0 ] && [ ${inst_ret} -ne 4 ]
-then
-    failure ${EXITCODE_BASE_INSTALL_FAILED} "ERROR: Installer returned $inst_ret (see above messages)"
-fi
+handle_installer_errorcodes $?
 
 cleanup_and_exit ${inst_ret}
 __MIDDLE_BIT__
