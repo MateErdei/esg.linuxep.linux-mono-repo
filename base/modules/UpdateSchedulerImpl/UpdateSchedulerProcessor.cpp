@@ -477,53 +477,6 @@ namespace UpdateSchedulerImpl
         return policyContent;
     }
 
-    void UpdateSchedulerProcessor::processFlags(const std::string& flagsContent)
-    {
-        LOGDEBUG("Flags: " << flagsContent);
-        if (flagsContent.empty())
-        {
-            return;
-        }
-
-        m_sdds3Enabled = UpdateSchedulerUtils::isFlagSet(UpdateSchedulerUtils::SDDS3_ENABLED_FLAG, flagsContent);
-        LOGDEBUG("Received " << UpdateSchedulerUtils::SDDS3_ENABLED_FLAG << " flag value: " << m_sdds3Enabled);
-    }
-
-    std::string UpdateSchedulerProcessor::waitForTheFirstPolicy(SchedulerTaskQueue& queueTask, int maxTasksThreshold, const std::string& policyAppId)
-    {
-        std::vector<SchedulerTask> nonPolicyTasks;
-        std::string policyContent;
-        for (int i = 0; i < maxTasksThreshold; i++)
-        {
-            SchedulerTask task;
-            if (!queueTask.pop(task, QUEUE_TIMEOUT))
-            {
-                LOGINFO(policyAppId << " policy has not been sent to the plugin");
-                break;
-            }
-            if (task.taskType == SchedulerTask::TaskType::Policy && task.appId == policyAppId)
-            {
-                policyContent = task.content;
-                LOGINFO("First " << policyAppId << " policy received.");
-                break;
-            }
-            LOGDEBUG("Keep task: " <<static_cast<int>(task.taskType));
-            nonPolicyTasks.emplace_back(task);
-            if (task.taskType == SchedulerTask::TaskType::Stop)
-            {
-                LOGINFO("Abort waiting for the first policy as Stop signal received.");
-                throw DetectRequestToStop("");
-            }
-        }
-        LOGDEBUG("Return from waitForTheFirstPolicy ");
-
-        for (auto it = nonPolicyTasks.rbegin(); it != nonPolicyTasks.rend(); ++it)
-        {
-            queueTask.pushFront(*it);
-        }
-        return policyContent;
-    }
-
     void UpdateSchedulerProcessor::processUpdateNow(const std::string& actionXML)
     {
         if (!configModule::isUpdateNowAction(actionXML))
