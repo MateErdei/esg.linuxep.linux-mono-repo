@@ -174,6 +174,7 @@ Create Local SDDS3 Override
     # these settings will instruct SulDownloader to update using SDDS3 via a local test HTTP server.
     ...  URLS = http://127.0.0.1:8080
     ...  CDN_URL = http://127.0.0.1:8080
+    ...  USE_SDDS3 = true
     ...  USE_HTTP = true
     Create File    ${sdds3_override_file}    content=${override_file_contents}
 
