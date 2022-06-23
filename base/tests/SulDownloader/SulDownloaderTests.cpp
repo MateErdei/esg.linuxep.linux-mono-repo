@@ -269,12 +269,11 @@ public:
     {
         auto* filesystemMock = new StrictMock<MockFileSystem>();
         EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse"))
+
+        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/"))
             .Times(expectCallCount)
             .WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary"))
-            .Times(expectCallCount)
-            .WillRepeatedly(Return(true));
+        EXPECT_CALL(*filesystemMock, currentWorkingDirectory()).WillRepeatedly(Return("/opt/sophos-spl/base/bin"));
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
 
@@ -328,7 +327,7 @@ public:
             mockFileSystem, writeFile("/opt/sophos-spl/var/suldownloader_last_product_update.marker", "")
         ).Times(::testing::AtMost(1));
         EXPECT_CALL(
-            mockFileSystem, writeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), "")
+            mockFileSystem, writeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), "/opt/sophos-spl/base/bin")
         ).Times(::testing::AtMost(1));
         EXPECT_CALL(
             mockFileSystem, removeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile())
@@ -356,8 +355,6 @@ public:
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
             std::unique_ptr<MockFilePermissions>(mockFilePermissions);
         Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-//        std::unique_ptr<Tests::ScopedReplaceFilePermissions> scopedReplaceFilePermissions =
-//            std::make_unique<Tests::ScopedReplaceFilePermissions>(std::unique_ptr<Common::FileSystem::IFilePermissions>(mockFilePermissions));
 
     }
 
@@ -493,8 +490,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     std::vector<std::string> emptyFileList;
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -508,7 +504,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),true);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),false);
     std::string baseInstallPath = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     EXPECT_CALL(fileSystemMock, isDirectory(baseInstallPath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(baseInstallPath));
@@ -581,8 +577,7 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     std::string previousReportFilename = "update_report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -643,8 +638,7 @@ TEST_F( // NOLINT
         previousReportFilename, "invalid_file_name1.txt", "invalid_file_name2.json", "report_invalid_file_name3.txt"
     };
     std::vector<std::string> emptyFileList;
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -714,8 +708,7 @@ TEST_F( // NOLINT
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
 
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -786,8 +779,7 @@ TEST_F( // NOLINT
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
 
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -1175,6 +1167,7 @@ TEST_F( // NOLINT
         expectedDownloadReport,
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
+
 /**
  * Simulate invalid signature
  *

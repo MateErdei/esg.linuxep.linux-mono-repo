@@ -23,7 +23,7 @@ add_library(remotediagnoseimpl SHARED
         runnerModule/DiagnoseRunnerFactory.h
         )
 
-include_directories(remotediagnoseimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
+include_directories(remotediagnoseimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 
 target_link_libraries(remotediagnoseimpl PUBLIC
         pluginapiimpl

@@ -62,14 +62,12 @@ Restart EDR Plugin
 Install EDR
     [Arguments]  ${policy}  ${args}=${None}
     Start Local Cloud Server  --initial-alc-policy  ${policy}
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${policy}  args=${args}
+    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
 
-    Send ALC Policy And Prepare For Upgrade  ${policy}
-    Trigger Update Now
     Wait Until Keyword Succeeds
-    ...   200 secs
+    ...   150 secs
     ...   10 secs
-    ...   Check Suldownloader Log Contains In Order     Installing product: ServerProtectionLinux-Plugin-EDR   Generating the report file
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     Wait For EDR to be Installed
 
@@ -165,10 +163,37 @@ EDR Suite Setup
     UpgradeResources.Suite Setup
     ${result} =  Run Process  curl -v https://ostia.eng.sophos/latest/sspl-warehouse/master   shell=True
     Should Be Equal As Integers  ${result.rc}  0  "Failed to Verify connection to Update Server. Please, check endpoint is configured. (Hint: tools/setup_sspl/setupEnvironment2.sh).\nStdOut: ${result.stdout}\nStdErr: ${result.stderr}"
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
+    Set Suite Variable    ${GL_handle}    ${handle}
 
 EDR Suite Teardown
     UpgradeResources.Suite Teardown
+    Stop Local SDDS3 Server
 
+Setup SUS all develop
+    Remove Directory   /tmp/launchdarkly   recursive=True
+    Create Directory   /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
+
+
+Setup SUS all 999
+    Remove Directory   /tmp/launchdarkly   recursive=True
+    Create Directory   /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
+
+Setup SUS only edr 999
+    Remove Directory   /tmp/launchdarkly   recursive=True
+    Create Directory   /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
+    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
 EDR Test Setup
     UpgradeResources.Test Setup
 

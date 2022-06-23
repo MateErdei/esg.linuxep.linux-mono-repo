@@ -59,10 +59,10 @@
             <development-version branch="develop" />
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="output" dest-dir="sspl-thininstaller" />
         </build-asset>
-
-        <!--        <package name="sspl-thininstaller" version="sspl-thininstaller/1-0-6-5/220942/output" dest="." buildtype="prod">-->
-        <!--            <include src="." dest="sspl-thininstaller"/>-->
-        <!--        </package>-->
+        <build-asset project="linuxep" repo="thininstaller">
+            <development-version branch="release/Version-1_1_4" />
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="output" dest-dir="sspl-legacy-thininstaller" />
+        </build-asset>
 
         <build-asset project="thirdparty" repo="openssl">
             <release-version branch="release/sspl/Version_1_1_1m" build-id="20220310143347-fb032a83957c266bd183e2bc36460e7d1cd9d718-29xDys"/>
@@ -102,8 +102,10 @@
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="0-6-0/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/0-6-0/warehouse/warehouse" />
 
             <!-- sdds3-->
+            <include artifact-path="sdds3-repo-999" dest-dir="sdds3/repo" />
             <include artifact-path="sdds3-repo" dest-dir="sdds3/repo" />
             <include artifact-path="sdds3-launchdarkly" dest-dir="sdds3/launchdarkly" />
+            <include artifact-path="sdds3-launchdarkly-999" dest-dir="sdds3/launchdarkly-999" />
 
         </build-asset>
 

@@ -70,6 +70,24 @@ namespace UpdateSchedulerImpl
             }
         }
     }
+    std::string UpdateSchedulerUtils::readMarkerFile()
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        std::string path = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
+        if (fs->isFile(path))
+        {
+
+            try
+            {
+                return fs->readFile(path);
+            }
+            catch (Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGERROR("Failed to read file "<< path << " due to error "<< ex.what());
+            }
+        }
+        return "";
+    }
 
     std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> UpdateSchedulerUtils::getUpdateConfigWithLatestJWT()
     {

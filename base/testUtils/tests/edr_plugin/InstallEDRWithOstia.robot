@@ -47,6 +47,7 @@ ${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.co
 *** Test Cases ***
 Install all plugins 999 then downgrade to all plugins develop
     [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
+    Setup SUS all 999
     Install EDR  ${BaseAndMTREdr999Policy}
     Wait Until EDR OSQuery Running  30
 
@@ -120,6 +121,7 @@ Install all plugins 999 then downgrade to all plugins develop
 
 Install edr 999 and downgrade to current edr
     [Tags]  PLUGIN_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
+    Setup SUS only edr 999
     Install EDR  ${BaseMtrAndEdr999Policy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
@@ -159,6 +161,7 @@ Install edr 999 and downgrade to current edr
     Check All Product Logs Do Not Contain Critical
 
 Update Run that Does Not Change The Product Does not ReInstall The Product
+    Setup SUS all develop
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
@@ -187,6 +190,7 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
 
 Install master of base and edr and mtr and upgrade to edr 999
     [Timeout]  10 minutes
+    Setup SUS all develop
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
@@ -250,6 +254,7 @@ Install master of base and edr and mtr and upgrade to edr 999
     Check All Product Logs Do Not Contain Critical
 
 Install master of base and edr and mtr and upgrade to new query pack
+    Setup SUS all develop
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
@@ -276,7 +281,7 @@ Install master of base and edr and mtr and upgrade to new query pack
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  10 secs
-    ...  Check Log Contains String At Least N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Generating the report file in   2
+    ...  Check Log Contains String At Least N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Generating the report file in   3
 
 
     # Ensure EDR was restarted during upgrade.
@@ -305,6 +310,7 @@ Install master of base and edr and mtr and upgrade to new query pack
 
 Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999 and av 999
     [Timeout]  10 minutes
+    Setup SUS all develop
     Install EDR  ${BaseEdrAndMtrAndAVVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
@@ -323,7 +329,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
     Wait for first update
 
-    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
+    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdrAV999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
@@ -401,7 +407,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Wait Until Keyword Succeeds
     ...   200 secs
     ...   2 secs
-    ...   Check Log Contains String At Least N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String At Least N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
 
     # Check for warning that there is a naming collision in the map of query tags
     Wait Until Keyword Succeeds
@@ -470,6 +476,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Check All Product Logs Do Not Contain Critical
 
 Install master of base and edr and mtr and upgrade to base 999
+    Setup SUS all develop
     Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check log Does not Contain   Installing product: ServerProtectionLinux-Base-component version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader

@@ -31,7 +31,7 @@ ${InstalledHBTPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/heartb
 ${WarehouseBaseVersionFileExtension}            ./TestInstallFiles/ServerProtectionLinux-Base/files/base/VERSION.ini
 ${WarehouseMDRPluginVersionFileExtension}       ./TestInstallFiles/ServerProtectionLinux-MDR-Control/files/plugins/mtr/VERSION.ini
 ${WarehouseMDRSuiteVersionFileExtension}        ./TestInstallFiles/ServerProtectionLinux-MDR-DBOS-Component/files/plugins/mtr/dbos/data/VERSION.ini
-
+${sdds3_server_output}                             /tmp/sdds3_server.log
 
 *** Keywords ***
 Test Setup
@@ -190,5 +190,5 @@ Start Local SDDS3 Server With Empty Repo
 
 Stop Local SDDS3 Server
      terminate process  ${GL_handle}  True
-     Log File    ${sdds3_server_output}
+     Dump Teardown Log    ${sdds3_server_output}
      terminate all processes  True

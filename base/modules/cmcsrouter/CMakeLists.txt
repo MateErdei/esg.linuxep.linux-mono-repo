@@ -14,7 +14,7 @@ add_library(mcsimpl SHARED
         ConfigOptions.cpp
         )
 
-include_directories(mcsimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
+include_directories(mcsimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 target_link_libraries(mcsimpl PUBLIC HttpRequestsImpl obfuscationimpl osutilitiesimpl xmlutilities ${OPENSSLCRYPTO_LIBRARY})
 
 SET_TARGET_PROPERTIES(mcsimpl

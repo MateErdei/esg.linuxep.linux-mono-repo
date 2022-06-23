@@ -41,6 +41,8 @@ public:
 
     MOCK_CONST_METHOD0(getManagementAgentStatusCacheFilePath, std::string(void));
 
+    MOCK_CONST_METHOD0(getLocalWarehouseStoreDir, std::string(void));
+
     MOCK_CONST_METHOD0(getLocalWarehouseRepository, std::string(void));
     MOCK_CONST_METHOD0(getLocalDistributionRepository, std::string(void));
 
@@ -56,6 +58,8 @@ public:
 
     MOCK_CONST_METHOD0(getUpdateCertificatesPath, std::string(void));
     MOCK_CONST_METHOD0(getSulDownloaderProcessedReportPath, std::string(void));
+    MOCK_CONST_METHOD0(getSulDownloaderPath, std::string(void));
+    MOCK_CONST_METHOD0(getBaseExecutablesDir, std::string(void));
     MOCK_CONST_METHOD0(getUpdateCacheCertificateFilePath, std::string(void));
     MOCK_CONST_METHOD0(getTempPath, std::string(void));
     MOCK_CONST_METHOD0(getBaseLogDirectory, std::string(void));

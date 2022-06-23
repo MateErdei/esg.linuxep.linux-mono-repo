@@ -50,3 +50,5 @@ SET_TARGET_PROPERTIES(utilityimpl
 
 install(TARGETS utilityimpl
         LIBRARY DESTINATION files/base/lib64)
+
+install(TARGETS utilityimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

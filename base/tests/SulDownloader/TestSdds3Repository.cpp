@@ -12,6 +12,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <modules/SulDownloader/suldownloaderdata/CatalogueInfo.h>
 #include <modules/SulDownloader/suldownloaderdata/DownloadedProduct.h>
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <modules/SulDownloader/sdds3/SDDS3Repository.h>
 #include <SulDownloader/sdds3/ISdds3Wrapper.h>
 
@@ -27,12 +28,19 @@ public:
     {
 
         Test::SetUp();
+        MockedApplicationPathManager* mockAppManager = new NiceMock<MockedApplicationPathManager>();
+        MockedApplicationPathManager& mock(*mockAppManager);
+        ON_CALL(mock, getUpdateCertificatesPath()).WillByDefault(Return("/etc/ssl/cert"));
+
+        Common::ApplicationConfiguration::replaceApplicationPathManager(
+            std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
     }
     /**
     * Remove the temporary directory.
     */
     void TearDown() override
     {
+        Common::ApplicationConfiguration::restoreApplicationPathManager();
         Tests::restoreSdds3Wrapper();
         Test::TearDown();
     }

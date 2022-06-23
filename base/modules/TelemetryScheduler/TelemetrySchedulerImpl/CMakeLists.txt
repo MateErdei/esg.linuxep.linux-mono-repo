@@ -14,7 +14,7 @@ add_library(telemetryschedulerimpl SHARED
         SleepyThread.h
         ITaskQueue.h)
 
-include_directories(telemetryschedulerimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
+include_directories(telemetryschedulerimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 
 target_link_libraries(telemetryschedulerimpl PUBLIC
         telemetryschedulerloggerimpl

@@ -36,6 +36,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getMcsCurrentProxyFilePath() const override;
         std::string getManagementAgentStatusCacheFilePath() const override;
 
+        std::string getLocalWarehouseStoreDir() const override;
         std::string getLocalWarehouseRepository() const override;
         std::string getLocalDistributionRepository() const override;
         std::string getLocalSdds3Repository() const override;
@@ -59,6 +60,8 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getPreXdrUpdateReportPath() const override;
         std::string getSulDownloaderReportPath() const override;
+        std::string getSulDownloaderPath() const override;
+        std::string getBaseExecutablesDir() const override;
         std::string getSulDownloaderProcessedReportPath() const override;
         std::string getSulDownloaderConfigFilePath() const override;
         std::string getSulDownloaderReportGeneratedFilePath() const override;

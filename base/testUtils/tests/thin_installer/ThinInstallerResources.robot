@@ -9,7 +9,25 @@ ${CUSTOM_DIR_BASE} =  /CustomPath
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 
 *** Keywords ***
+Setup Update Tests
+    Regenerate HTTPS Certificates
+    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Uninstall SAV
+    Regenerate Certificates
+    Set Local CA Environment Variable
 
+Cleanup Update Tests
+    Cleanup System Ca Certs
+    Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
+
+Setup sdds3 Update Tests
+    ${handle}=  Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Set Local CA Environment Variable
+
+Cleanup sdds3 Update Tests
+    Stop Local SDDS3 Server
 Setup Thininstaller Test
     Require Uninstalled
     Set Environment Variable  CORRUPTINSTALL  no

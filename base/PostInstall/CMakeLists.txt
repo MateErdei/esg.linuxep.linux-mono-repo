@@ -6,6 +6,16 @@ set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImpor
 
 INSTALL(CODE "MESSAGE(STATUS \"Post install steps\")")
 
+INSTALL(CODE "MESSAGE(STATUS \"Taring Thininstaller Dependencies\")
+    execute_process(
+        COMMAND tar czf ${CMAKE_BINARY_DIR}/products/ThininstallerDependencies/cmcsrouterapi.tar.gz -C ${CMAKE_BINARY_DIR}/products/ThininstallerDependencies/  mcslibrary
+        COMMAND_ERROR_IS_FATAL ANY)")
+
+INSTALL(CODE "MESSAGE(STATUS \"Cleaning Thininstaller Dependencies dir\")
+    execute_process(
+        COMMAND rm -rf ${CMAKE_BINARY_DIR}/products/ThininstallerDependencies/mcslibrary
+        COMMAND_ERROR_IS_FATAL ANY)")
+
 # Strip executables
 INSTALL(CODE "MESSAGE(STATUS \"Stripping executables\")
     execute_process(
@@ -59,5 +69,5 @@ INSTALL(CODE "MESSAGE(STATUS \"Generating output directory\")
     execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/products/PluginApi/pluginapi.tar.gz ${OUTPUT}/pluginapi.tar.gz)
     execute_process(COMMAND tar -zcvf ${OUTPUT}/SystemProductTestOutput.tar.gz -C ${CMAKE_BINARY_DIR} SystemProductTestOutput/)
     execute_process(COMMAND [[ -d ${CMAKE_BINARY_DIR}/symbols ]] && cp -a ${CMAKE_BINARY_DIR}/symbols ${OUTPUT}/)
-    execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/products/cmcsrouterApi/cmcsrouterapi.tar.gz ${OUTPUT}/cmcsrouterapi.tar.gz)
+    execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/products/ThininstallerDependencies/cmcsrouterapi.tar.gz ${OUTPUT}/cmcsrouterapi.tar.gz)
 ")

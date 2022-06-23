@@ -44,7 +44,9 @@ add_library(suldownloaderdata SHARED
         UpdateSupplementDecider.h
         ISdds3Repository.h
         )
-target_include_directories(suldownloaderdata PUBLIC  ../../../thirdparty/nlohmann-json)
-target_link_libraries(suldownloaderdata PUBLIC filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl logging obfuscationimpl protobufutil commscomponentimpl)
+target_include_directories(suldownloaderdata PUBLIC  ${NLOHMANN_JSON_INCLUDE_DIR})
+target_link_libraries(suldownloaderdata PUBLIC filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl logging obfuscationimpl protobufutil)
 install(TARGETS suldownloaderdata
         LIBRARY DESTINATION files/base/lib64)
+
+install(TARGETS suldownloaderdata LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

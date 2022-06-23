@@ -12,7 +12,7 @@ add_library(plugincommunicationimpl SHARED
         PluginServerCallback.cpp
         PluginServerCallback.h
         )
-target_include_directories(plugincommunicationimpl PUBLIC  ${CMAKE_SOURCE_DIR}/modules ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
+target_include_directories(plugincommunicationimpl PUBLIC  ${CMAKE_SOURCE_DIR}/modules ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 target_link_libraries(plugincommunicationimpl PUBLIC
         threads
         pluginapiimpl

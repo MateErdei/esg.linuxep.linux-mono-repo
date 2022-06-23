@@ -28,6 +28,7 @@ message ConfigurationSettings
     optional string JWToken = 5;
     optional string tenantId = 6;
     optional string deviceId = 7;
+    optional string versigPath = 8;
     repeated string installArguments = 9;
 
     enum LogLevelOption
@@ -57,5 +58,5 @@ message ConfigurationSettings
         Configures SulDownloader to download from slow supplements, where such a choice is available.
      */
     optional bool useSlowSupplements = 17 [default=false];
-
+    optional bool useSDDS3 = 18 [default=false];
 }

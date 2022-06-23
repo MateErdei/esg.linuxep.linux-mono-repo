@@ -16,6 +16,7 @@ namespace UpdateSchedulerImpl
     public:
             static std::string calculateHealth(StateData::StateMachineData stateMachineData);
             static void cleanUpMarkerFile();
+            static std::string readMarkerFile();
             static std::string getJWToken();
             static std::string getTenantId();
             static std::string getDeviceId();

@@ -461,6 +461,12 @@ then
     chown "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/telemetry/cache/updatescheduler-telemetry.json"
 fi
 
+if [ -f "${SOPHOS_INSTALL}/var/sophosspl/upgrade_marker_file" ]
+then
+  chown -h "${UPDATESCHEDULER_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/sophosspl/upgrade_marker_file"
+  chmod 640 "${SOPHOS_INSTALL}/var/sophosspl/upgrade_marker_file"
+fi
+
 if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json" ]]
 then
     chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json"

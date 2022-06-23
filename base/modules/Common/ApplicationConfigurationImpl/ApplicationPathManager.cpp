@@ -125,6 +125,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "tmp");
         }
 
+        std::string ApplicationPathManager::getLocalWarehouseStoreDir() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/update/cache/");
+        }
+
         std::string ApplicationPathManager::getLocalWarehouseRepository() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/update/cache/primarywarehouse");
@@ -206,6 +211,16 @@ namespace Common
         std::string ApplicationPathManager::getSulDownloaderReportPath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/update/var/updatescheduler");
+        }
+
+        std::string ApplicationPathManager::getSulDownloaderPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/bin/SulDownloader");
+        }
+
+        std::string ApplicationPathManager::getBaseExecutablesDir() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/bin/");
         }
 
         std::string ApplicationPathManager::getSulDownloaderProcessedReportPath() const
@@ -387,10 +402,12 @@ namespace Common
         {
             return Common::FileSystem::join(getMcsStatusFilePath(), "SHS_status.xml");
         }
+
         std::string ApplicationPathManager::getOverallHealthFilePath() const
         {
             return Common::FileSystem::join(getInternalPolicyFilePath(), "internal_EPHEALTH.json");
         }
+
 
     } // namespace ApplicationConfigurationImpl
 

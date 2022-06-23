@@ -30,3 +30,5 @@ SET_TARGET_PROPERTIES(obfuscationimpl
 
 install(TARGETS obfuscationimpl
         LIBRARY DESTINATION files/base/lib64)
+
+install(TARGETS obfuscationimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

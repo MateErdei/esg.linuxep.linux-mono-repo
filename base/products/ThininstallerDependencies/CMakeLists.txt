@@ -1,13 +1,9 @@
 
-# TODO LINUXDAR-4273 pare this down to the minimum required set of libraries
-# (currently this is effectively the whole pluginapi + some extras) Also consider making this a "thininstaller output"
-# as it is unlikely to be used anywhere else.
 add_library(cmcsrouterapi SHARED
         $<TARGET_OBJECTS:HttpRequestsImpl>
         $<TARGET_OBJECTS:applicationconfigurationimpl>
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         $<TARGET_OBJECTS:centralregistrationimpl>
-        $<TARGET_OBJECTS:directorywatcherimplobject>
         $<TARGET_OBJECTS:filesystemimpl>
         $<TARGET_OBJECTS:filesystemimplobject>
         $<TARGET_OBJECTS:httpsenderimpl>
@@ -16,22 +12,12 @@ add_library(cmcsrouterapi SHARED
         $<TARGET_OBJECTS:mcsimpl>
         $<TARGET_OBJECTS:obfuscationimpl>
         $<TARGET_OBJECTS:osutilitiesimpl>
-        $<TARGET_OBJECTS:pluginapiobjects>
-        $<TARGET_OBJECTS:pluginprotocolobject>
-        $<TARGET_OBJECTS:processimplobject>
-        $<TARGET_OBJECTS:processmonitoringimplobject>
-        $<TARGET_OBJECTS:procutilimplobject>
-        $<TARGET_OBJECTS:protobufutilobject>
-        $<TARGET_OBJECTS:reactorimplobject>
         $<TARGET_OBJECTS:sslimpl>
-        $<TARGET_OBJECTS:telemetryhelperimplobject>
         $<TARGET_OBJECTS:threadsobject>
         $<TARGET_OBJECTS:utilityimpl>
         $<TARGET_OBJECTS:utilityimplobject>
         $<TARGET_OBJECTS:xmlutilities>
         $<TARGET_OBJECTS:xmlutilitiesobject>
-        $<TARGET_OBJECTS:zeromqwrapperimplobject>
-        $<TARGET_OBJECTS:zmqwrapperapiimplobject>
         )
 
 target_link_libraries(cmcsrouterapi PUBLIC zmq log4cplus protobuf expat -L${EXPAT_INPUT}/lib64 -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib)
@@ -52,6 +38,7 @@ FindLibraryFullPath( zlibfull  z   ${ZLIB_INPUT}/lib64)
 add_custom_target(
         cmcsrouterapitar ALL
         COMMAND mkdir -p mcslibrary/include mcslibrary/lib64
+        COMMAND cp ${NLOHMANN_JSON_INCLUDE_DIR}/json.hpp mcslibrary/include
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:cmcsrouterapi> mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} mcslibrary/lib64
@@ -82,10 +69,3 @@ add_copy_directory(Common/CurlWrapper)
 add_copy_directory(Common/HttpRequests)
 add_copy_directory(Common/HttpRequestsImpl)
 add_copy_directory(Common/HttpSenderImpl)
-
-add_custom_command(
-        TARGET cmcsrouterapitar
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E tar czf cmcsrouterapi.tar.gz mcslibrary
-        COMMAND rm -rf mcslibrary
-)

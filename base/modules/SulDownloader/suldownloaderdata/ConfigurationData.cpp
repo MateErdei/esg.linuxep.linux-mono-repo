@@ -150,6 +150,16 @@ void ConfigurationData::setJWToken(const std::string& token)
     m_jwToken = token;
 }
 
+const std::string& ConfigurationData::getVersigPath() const
+{
+    return m_versigPath;
+}
+
+void ConfigurationData::setVersigPath(const std::string& token)
+{
+    m_versigPath = token;
+}
+
 const std::string& ConfigurationData::getTenantId() const
 {
     return m_tenantId;
@@ -253,23 +263,15 @@ bool ConfigurationData::verifySettingsAreValid()
         return false;
     }
 
-    std::string localWarehouseRepository = getLocalWarehouseRepository();
-    if (!fileSystem->isDirectory(localWarehouseRepository))
+    std::string localWarehouseStore = Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseStoreDir();
+    if (!fileSystem->isDirectory(localWarehouseStore))
     {
         LOGERROR(
-            "Invalid Settings: Local warehouse repository does not exist or is not a directory: "
-            << localWarehouseRepository);
+            "Invalid Settings: Local warehouse directory does not exist or is not a directory: "
+            << localWarehouseStore);
         return false;
     }
 
-    std::string localDistributionRepository = getLocalDistributionRepository();
-    if (!fileSystem->isDirectory(localDistributionRepository))
-    {
-        LOGERROR(
-            "Invalid Settings: Local distribution repository does not exist or is not a directory: "
-            << localDistributionRepository);
-        return false;
-    }
 
     if (!m_localUpdateCacheUrls.empty())
     {
@@ -376,6 +378,7 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     configurationData.setProductsSubscription(products);
     configurationData.setFeatures(features);
     configurationData.setJWToken(settings.jwtoken());
+    configurationData.setVersigPath(settings.versigpath());
     configurationData.setTenantId(settings.tenantid());
     configurationData.setDeviceId(settings.deviceid());
 
@@ -400,6 +403,7 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     configurationData.setOptionalManifestNames(optionalManifestnames);
 
     configurationData.setUseSlowSupplements(settings.useslowsupplements());
+    configurationData.setUseSDDS3(settings.usesdds3());
 
     return configurationData;
 }
@@ -501,6 +505,7 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     settings.mutable_proxy()->mutable_url()->assign(configurationData.getPolicyProxy().getUrl());
 
     settings.mutable_jwtoken()->assign(configurationData.getJWToken());
+    settings.mutable_versigpath()->assign(configurationData.getVersigPath());
     settings.mutable_tenantid()->assign(configurationData.getTenantId());
     settings.mutable_deviceid()->assign(configurationData.getDeviceId());
     const auto& primarySubscription = configurationData.getPrimarySubscription();
@@ -534,6 +539,7 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     }
 
     settings.set_useslowsupplements(configurationData.getUseSlowSupplements());
+    settings.set_usesdds3(configurationData.getUseSDDS3());
 
     for (const auto& optionalManifestName : configurationData.getOptionalManifestNames())
     {
@@ -628,4 +634,14 @@ void ConfigurationData::setUseSlowSupplements(bool useSlowSupplements)
 bool ConfigurationData::getUseSlowSupplements() const
 {
     return m_useSlowSupplements;
+}
+
+void ConfigurationData::setUseSDDS3(bool useSDDS3)
+{
+    m_useSDDS3 = useSDDS3;
+}
+
+bool ConfigurationData::getUseSDDS3() const
+{
+    return m_useSDDS3;
 }

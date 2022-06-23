@@ -1,7 +1,10 @@
 *** Settings ***
 Test Teardown   Teardown
-Suite Teardown   Refresh HTTPS Certs
 
+Suite Setup      Setup Update Tests
+Suite Teardown   Run Keywords
+...              Cleanup Update Tests    AND
+...              Refresh HTTPS Certs
 Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Library     ${LIBS_DIRECTORY}/UpdateServer.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
@@ -54,7 +57,7 @@ Clear Environment Proxy
 *** Test Case ***
 Thin Installer can install via Update Cache and Fallback from broken update cache
     Require Uninstalled
-    Get Thininstaller
+    Get Legacy Thininstaller
     Setup Update Cache
     Can Curl Url    https://localhost:1236/sophos/customer
     Set Local CA Environment Variable
@@ -72,7 +75,7 @@ Thin Installer can install via Update Cache and Fallback from broken update cach
 
 Thin Installer can install via Update Cache With Bad Proxy
     Require Uninstalled
-    Get Thininstaller
+    Get Legacy Thininstaller
     Setup Update Cache
     Can Curl Url    https://localhost:1236/sophos/customer
     Set Local CA Environment Variable
@@ -90,7 +93,7 @@ Thin Installer can install via Update Cache With Bad Proxy
 
 Thin Installer fails with bad update cache cert
     Require Uninstalled
-    Get Thininstaller
+    Get Legacy Thininstaller
     Create Default Credentials File  update_caches=localhost:1236,2,1;localhost:1235,1,1
     Build Default Creds Thininstaller From Sections
     Regenerate HTTPS Certificates

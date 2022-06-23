@@ -54,6 +54,8 @@ namespace Common::ApplicationConfiguration
 
         virtual std::string getManagementAgentStatusCacheFilePath() const = 0;
 
+        virtual std::string getLocalWarehouseStoreDir() const = 0;
+
         virtual std::string getLocalWarehouseRepository() const = 0;
         virtual std::string getLocalDistributionRepository() const = 0;
 
@@ -78,6 +80,8 @@ namespace Common::ApplicationConfiguration
 
         virtual std::string getPreXdrUpdateReportPath() const = 0;
         virtual std::string getSulDownloaderReportPath() const = 0;
+        virtual std::string getSulDownloaderPath() const = 0;
+        virtual std::string getBaseExecutablesDir() const = 0;
         virtual std::string getSulDownloaderProcessedReportPath() const = 0;
         virtual std::string getSulDownloaderConfigFilePath() const = 0;
         virtual std::string getSulDownloaderReportGeneratedFilePath() const = 0;

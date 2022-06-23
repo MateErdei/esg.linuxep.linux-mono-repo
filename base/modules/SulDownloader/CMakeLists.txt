@@ -46,4 +46,6 @@ SET_TARGET_PROPERTIES( suldownloaderimpl
 install(TARGETS suldownloaderimpl
         LIBRARY DESTINATION files/base/lib64)
 
+install(TARGETS suldownloaderimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})
+
 add_dependencies(suldownloaderimpl copy_libs)

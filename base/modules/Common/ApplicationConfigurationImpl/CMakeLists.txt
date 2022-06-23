@@ -13,3 +13,5 @@ add_library(applicationconfigurationimpl SHARED $<TARGET_OBJECTS:applicationconf
 
 install(TARGETS applicationconfigurationimpl
         LIBRARY DESTINATION files/base/lib64)
+
+install(TARGETS applicationconfigurationimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

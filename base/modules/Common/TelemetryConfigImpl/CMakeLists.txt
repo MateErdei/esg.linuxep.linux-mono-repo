@@ -10,7 +10,7 @@ add_library(telemetryconfigimpl SHARED
         MessageRelay.cpp
         )
 
-include_directories(telemetryconfigimpl BEFORE ../../../thirdparty/nlohmann-json)
+include_directories(telemetryconfigimpl BEFORE ${NLOHMANN_JSON_INCLUDE_DIR})
 
 target_link_libraries(telemetryconfigimpl PUBLIC obfuscationimpl logging)
 

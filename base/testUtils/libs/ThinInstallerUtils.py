@@ -15,7 +15,7 @@ import CentralUtils
 from robot.libraries.BuiltIn import BuiltIn
 
 import PathManager
-
+import FullInstallerUtils
 
 def extract_hashed_credentials_from_alc_policy(alc_file_path):
     if not os.path.exists(alc_file_path):
@@ -124,6 +124,10 @@ class ThinInstallerUtils(object):
         source = self.find_thininstaller_output(source)
         self.copy_and_unpack_thininstaller(source)
 
+    def get_legacy_thininstaller(self,source=None):
+        source = FullInstallerUtils.get_plugin_sdds("sdds2 thininstaller", "SDDS2_THININSTALLER", ["/tmp/system-product-test-inputs/sspl-legacy-thininstaller"])
+        self.copy_and_unpack_thininstaller(source);
+
     def copy_and_unpack_thininstaller(self, source):
         print("Getting Thin Installer from: {}".format(source))
         shutil.rmtree(self.installer_files)
@@ -180,14 +184,14 @@ class ThinInstallerUtils(object):
 
     def configure_and_run_thininstaller_using_real_warehouse_policy(self, expected_return_code, policy_file_path, message_relays=None,
                                                                     proxy=None, update_caches=None, bad_url=False, args=None, mcs_ca=None,
-                                                                    real=False, override_certs_dir=None, force_legacy_install=False):
+                                                                    override_certs_dir=None, force_legacy_install=False):
         command = ["bash", "-x", self.default_installsh_path]
         if args:
             split_args = args.split(" ")
             for arg in split_args:
                 command.append(arg)
 
-        self.get_thininstaller()
+        self.get_legacy_thininstaller()
 
         if not os.path.isfile(policy_file_path):
             raise OSError("%s file does not exist", policy_file_path)
@@ -218,7 +222,28 @@ class ThinInstallerUtils(object):
         self.create_default_credentials_file(update_creds=hashed_credentials, message_relays=message_relays, update_caches=update_caches)
         self.build_default_creds_thininstaller_from_sections()
         self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca,
-                               override_location=connection_address, certs_dir=warehouse_certs_dir, proxy=proxy, real=real, force_legacy_install=force_legacy_install)
+                               override_location=connection_address, certs_dir=warehouse_certs_dir, proxy=proxy, force_legacy_install=force_legacy_install)
+
+    def configure_and_run_SDDS3_thininstaller(self, expected_return_code,
+                                                                    sus=None,
+                                                                    cdn=None,
+                                                                    use_http=False,
+                                                                    message_relays=None,
+                                                                    proxy=None,
+                                                                    update_caches=None,
+                                                                    args=None,
+                                                                    mcs_ca=None):
+        command = ["bash", "-x", self.default_installsh_path]
+        if args:
+            split_args = args.split(" ")
+            for arg in split_args:
+                command.append(arg)
+
+        self.get_thininstaller()
+
+        self.create_default_credentials_file(message_relays=message_relays, update_caches=update_caches)
+        self.build_default_creds_thininstaller_from_sections()
+        self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca, proxy=proxy, sus_url=sus, sdds3_cdn_url=cdn, sdds3_use_http=use_http)
 
     def build_default_creds_thininstaller_from_sections(self):
         self.build_thininstaller_from_sections(self.default_credentials_file_location, self.default_installsh_path)
@@ -251,9 +276,12 @@ class ThinInstallerUtils(object):
                           override_path=None,
                           certs_dir=None,
                           force_certs_dir=None,
-                          real=False,
                           cleanup=True,
                           temp_dir_to_unpack_to=None,
+                          sus_url="http://127.0.0.1:8080",
+                          sdds3_cdn_url="http://127.0.0.1:8080",
+                          sdds3_use_http=True,
+                          force_sdds3=False,
                           force_legacy_install=False):
         cwd = os.getcwd()
         if not certs_dir:
@@ -286,7 +314,7 @@ class ThinInstallerUtils(object):
                 except KeyError:
                     pass
         self.env["MCS_CA"] = mcs_ca
-        if command[-1] not in ("--help", "-h", "--version") and not real:
+        if command[-1] not in ("--help", "-h", "--version"):
             command.append("--allow-override-mcs-ca")
         if override_location:
             self.env["OVERRIDE_SOPHOS_LOCATION"] = override_location
@@ -301,6 +329,14 @@ class ThinInstallerUtils(object):
             self.env['OVERRIDE_INSTALLER_CLEANUP'] = "1"
         if temp_dir_to_unpack_to:
             self.env['SOPHOS_TEMP_DIRECTORY'] = temp_dir_to_unpack_to
+        if sdds3_use_http:
+            self.env['SDDS3_USE_HTTP'] = "1"
+        if sdds3_cdn_url:
+            self.env['OVERRIDE_CDN_LOCATION'] = sdds3_cdn_url
+        if sus_url:
+            self.env['OVERRIDE_SUS_LOCATION'] = sus_url
+        if force_sdds3:
+            self.env['USE_SDDS3'] = "1"
         if force_legacy_install:
             self.env['FORCE_LEGACY_INSTALL'] = "1"
 
@@ -350,15 +386,6 @@ class ThinInstallerUtils(object):
         logger.info("new thin installer file path: {}".format(new_filepath))
         shutil.move(self.default_installsh_path, new_filepath)
         self.run_default_thininstaller(*args, installsh_path=new_filepath, **kwargs)
-
-    def run_real_thininstaller(self):
-        cwd = os.getcwd()
-        certs_dir = os.path.join(PathManager.get_support_file_path(), "sophos_certs", "prod_certs")
-        mcs_ca = CentralUtils.get_nova_mcs_ca_path()
-        self.run_thininstaller([self.default_installsh_path],
-                               mcs_ca=mcs_ca,
-                               override_location=None,
-                               certs_dir=certs_dir)
 
     def run_thininstaller_with_non_standard_path(self, expected_return_code, override_path, mcsurl=None, force_certs_dir=None):
         self.run_thininstaller([self.default_installsh_path],

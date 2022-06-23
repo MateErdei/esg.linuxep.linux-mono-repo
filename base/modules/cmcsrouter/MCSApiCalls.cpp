@@ -13,8 +13,10 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 namespace MCS
 {
-    std::string MCSApiCalls::getJwt(MCSHttpClient client)
+    std::map<std::string,std::string> MCSApiCalls::getAuthenticationInfo(MCSHttpClient client)
     {
+        std::map<std::string,std::string> list;
+
         Common::HttpRequests::Headers requestHeaders;
         requestHeaders.insert({"Content-Type","application/xml; charset=utf-8"});
         Common::HttpRequests::Response response =
@@ -23,9 +25,23 @@ namespace MCS
                                           requestHeaders);
         if (response.status == 200)
         {
-            return response.body;
+            nlohmann::json j;
+            try
+            {
+                j = nlohmann::json::parse(response.body);
+            }
+            catch (nlohmann::json::parse_error& ex)
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Could not parse json: " << response.body << " with error: " << ex.what();
+                LOGWARN(errorMessage.str());
+            }
+            list.insert({"tenant_id",j.value("tenant_id","")});
+            list.insert({"device_id",j.value("device_id","")});
+            list.insert({"access_token",j.value("access_token","")});
+
         }
-        return "";
+        return list;
     }
 
     std::string MCSApiCalls::preregisterEndpoint(

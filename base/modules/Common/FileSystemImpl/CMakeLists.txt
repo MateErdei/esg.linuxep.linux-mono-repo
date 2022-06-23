@@ -22,3 +22,5 @@ SET_TARGET_PROPERTIES(filesystemimpl
 
 install(TARGETS filesystemimpl
         LIBRARY DESTINATION files/base/lib64)
+
+install(TARGETS filesystemimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

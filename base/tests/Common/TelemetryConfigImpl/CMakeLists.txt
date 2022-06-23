@@ -6,7 +6,7 @@ add_executable(TelemetryConfigImplTests
         MessageRelayTests.cpp
         )
 
-target_include_directories(TelemetryConfigImplTests SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" ../../../thirdparty/nlohmann-json)
+target_include_directories(TelemetryConfigImplTests SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" ${NLOHMANN_JSON_INCLUDE_DIR})
 
 target_link_libraries(TelemetryConfigImplTests telemetryconfigimpl)
 target_link_libraries(TelemetryConfigImplTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY})

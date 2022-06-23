@@ -60,7 +60,7 @@ namespace SulDownloader
          */
         void generateProductListFromSdds3PackageInfo(const std::string& primaryRigidName);
 
-        void setFeatures(std::vector<std::string> configfeatures);
+        void setFeatures(const std::vector<std::string>& configfeatures);
 
     private:
         void setupSdds3LibLogger();

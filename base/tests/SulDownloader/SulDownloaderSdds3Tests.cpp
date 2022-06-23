@@ -15,6 +15,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
@@ -92,6 +93,7 @@ public:
         SulDownloader::suldownloaderdata::VersigFactory::instance().restoreCreator();
         TestSdds3RepositoryHelper::restoreSdds3RepositoryFactory();
         Tests::restoreFilePermissions();
+        Common::ApplicationConfiguration::restoreApplicationPathManager();
         Test::TearDown();
     }
 
@@ -279,13 +281,12 @@ public:
     {
         auto* filesystemMock = new StrictMock<MockFileSystem>();
         EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse"))
+        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/"))
             .Times(expectCallCount)
             .WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary"))
-            .Times(expectCallCount)
-            .WillRepeatedly(Return(true));
+
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
+        EXPECT_CALL(*filesystemMock, currentWorkingDirectory()).WillRepeatedly(Return("/opt/sophos-spl/base/bin"));
         EXPECT_CALL(*filesystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
 
         setupExpectanceWriteProductUpdate(*filesystemMock);
@@ -338,7 +339,7 @@ public:
             mockFileSystem, writeFile("/opt/sophos-spl/var/suldownloader_last_product_update.marker", "")
         ).Times(::testing::AtMost(1));
         EXPECT_CALL(
-            mockFileSystem, writeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), "")
+            mockFileSystem, writeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), "/opt/sophos-spl/base/bin")
         ).Times(::testing::AtMost(1));
         EXPECT_CALL(
             mockFileSystem, removeFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile())
@@ -348,7 +349,7 @@ public:
         ).Times(::testing::AtMost(1));
     }
 
-    void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains,bool markerFileWritten)
+    void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains)
     {
         EXPECT_CALL(
             mockFileSystem, writeFile(::testing::HasSubstr("/opt/sophos-spl/tmp"), ::testing::HasSubstr(contains)));
@@ -357,17 +358,10 @@ public:
         EXPECT_CALL(*mockFilePermissions, chown(testing::HasSubstr("/opt/sophos-spl/tmp"), sophos::updateSchedulerUser(), "root"));
         mode_t expectedFilePermissions = S_IRUSR | S_IWUSR;
         EXPECT_CALL(*mockFilePermissions, chmod(testing::HasSubstr("/opt/sophos-spl/tmp"), expectedFilePermissions));
-        if (markerFileWritten)
-        {
-            EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), sophos::updateSchedulerUser(), sophos::group()));
-            EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), S_IRUSR | S_IWUSR | S_IRGRP));
-        }
 
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
             std::unique_ptr<MockFilePermissions>(mockFilePermissions);
         Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-//        std::unique_ptr<Tests::ScopedReplaceFilePermissions> scopedReplaceFilePermissions =
-//            std::make_unique<Tests::ScopedReplaceFilePermissions>(std::unique_ptr<Common::FileSystem::IFilePermissions>(mockFilePermissions));
 
     }
 
@@ -493,6 +487,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -505,8 +501,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     std::vector<std::string> emptyFileList;
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -521,7 +516,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),true);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS));
     std::string baseInstallPath = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     EXPECT_CALL(fileSystemMock, isDirectory(baseInstallPath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(baseInstallPath));
@@ -574,6 +569,8 @@ TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpect
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -596,8 +593,7 @@ TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpect
     std::string previousReportFilename = "update_report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -613,7 +609,7 @@ TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpect
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),false);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS));
 
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -639,6 +635,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
+
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -663,8 +662,7 @@ TEST_F( // NOLINT
         previousReportFilename, "invalid_file_name1.txt", "invalid_file_name2.json", "report_invalid_file_name3.txt"
     };
     std::vector<std::string> emptyFileList;
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -681,7 +679,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),false);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS));
 
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -712,6 +710,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -739,8 +739,7 @@ TEST_F( // NOLINT
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
 
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -757,7 +756,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),false);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS));
 
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
@@ -791,6 +790,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -816,8 +817,7 @@ TEST_F( // NOLINT
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
 
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -833,7 +833,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED),false);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED));
 
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
@@ -1069,6 +1069,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, getError()).WillRepeatedly(Return(wError));
     EXPECT_CALL(mock, getProducts()).WillOnce(Return(emptyProducts));
@@ -1131,6 +1133,8 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure) // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
 
@@ -1183,6 +1187,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1282,6 +1288,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     // the real warehouse will set DistributePath after distribute to the products
@@ -1377,6 +1385,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1477,6 +1487,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1575,6 +1587,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1694,6 +1708,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1811,6 +1827,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -1909,6 +1927,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2013,6 +2033,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2117,6 +2139,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2217,6 +2241,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2324,6 +2350,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2424,6 +2452,8 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true)); // successful tryConnect call
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2471,6 +2501,8 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2534,6 +2566,8 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2652,6 +2686,7 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
     EXPECT_CALL(mock, synchronize(_));
     EXPECT_CALL(mock, distribute());
     EXPECT_CALL(mock, purge());
@@ -2674,8 +2709,7 @@ TEST_F( // NOLINT
     std::string previousReportFilename = "update_report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
-    // it should not depend on currentWorkingDirectory:  	LINUXEP-6153
-    EXPECT_CALL(fileSystemMock, currentWorkingDirectory()).Times(0);
+
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -2690,7 +2724,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),false);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS));
 
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));

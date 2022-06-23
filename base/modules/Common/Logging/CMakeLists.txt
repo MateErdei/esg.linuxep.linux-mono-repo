@@ -34,3 +34,5 @@ target_link_libraries(logging PUBLIC
 
 install(TARGETS logging
         LIBRARY DESTINATION files/base/lib64)
+
+install(TARGETS logging LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

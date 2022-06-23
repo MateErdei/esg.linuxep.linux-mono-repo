@@ -21,3 +21,5 @@ SET_TARGET_PROPERTIES(processimpl
 
 install(TARGETS processimpl
         LIBRARY DESTINATION files/base/lib64)
+
+install(TARGETS processimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

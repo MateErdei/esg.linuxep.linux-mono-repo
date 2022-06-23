@@ -15,6 +15,9 @@ SET_TARGET_PROPERTIES( SulDownloader
 install(TARGETS SulDownloader
         DESTINATION files/base/bin)
 
+# Export suldownloader for thin installer as well.
+install(TARGETS SulDownloader DESTINATION ${THININSTALLER_DEPS_DIR_BIN})
+
 add_dependencies(SulDownloader copy_libs)
 
 

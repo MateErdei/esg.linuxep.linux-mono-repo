@@ -6,6 +6,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "MCSHttpClient.h"
 #include "ConfigOptions.h"
 
+#include <json.hpp>
+
 #include <string>
 #include <map>
 
@@ -14,7 +16,7 @@ namespace MCS
 class MCSApiCalls
 {
     public:
-        std::string getJwt(MCSHttpClient client);
+        std::map<std::string,std::string> getAuthenticationInfo(MCSHttpClient client);
         bool registerEndpoint(
             MCSHttpClient& client,
             MCS::ConfigOptions& configOptions,

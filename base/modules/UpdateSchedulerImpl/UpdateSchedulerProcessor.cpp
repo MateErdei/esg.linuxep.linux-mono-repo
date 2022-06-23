@@ -801,8 +801,18 @@ namespace UpdateSchedulerImpl
 
     void UpdateSchedulerProcessor::waitForSulDownloaderToFinish(int numberOfSeconds2Wait)
     {
-        std::string pathOfSulDownloader = Common::FileSystem::join(
-            Common::ApplicationConfiguration::applicationPathManager().sophosInstall(), "base/bin/SulDownloader");
+        std::string pathFromMarkerFile = UpdateSchedulerUtils::readMarkerFile();
+        std::string pathOfSulDownloader;
+        // if the marker file is empty or has a slash it in Suldownloader is running from the default location and not from thinstaller
+        if (pathFromMarkerFile.empty())
+        {
+            pathOfSulDownloader = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderPath();
+        }
+        else
+        {
+            pathOfSulDownloader = "installer/bin/SulDownloader";
+        }
+
         auto* iFileSystem = Common::FileSystem::fileSystem();
 
         std::string pidOfCommand;

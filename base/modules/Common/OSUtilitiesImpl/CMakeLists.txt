@@ -22,10 +22,12 @@ add_library(osutilitiesimpl SHARED
 
 target_link_libraries(osutilitiesimpl PUBLIC sslimpl filesystemimpl utilityimpl applicationconfigurationimpl pthread)
 
-target_include_directories(osutilitiesimpl PUBLIC BEFORE ../../../thirdparty/nlohmann-json ../CurlWrapper)
+target_include_directories(osutilitiesimpl PUBLIC BEFORE ${NLOHMANN_JSON_INCLUDE_DIR} ../CurlWrapper)
 
 SET_TARGET_PROPERTIES(osutilitiesimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS osutilitiesimpl
         LIBRARY DESTINATION files/base/lib64)
+
+install(TARGETS osutilitiesimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

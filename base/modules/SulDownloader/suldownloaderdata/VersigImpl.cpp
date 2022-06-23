@@ -86,7 +86,12 @@ IVersig::VerifySignature VersigImpl::verify(
         return VerifySignature::INVALID_ARGUMENTS;
     }
 
-    std::string versig_path = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
+    std::string versig_path = configurationData.getVersigPath();
+    if (versig_path.empty() || !fileSystem->isExecutable(versig_path))
+    {
+        versig_path = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
+    }
+
     if (!fileSystem->isExecutable(versig_path))
     {
         LOGERROR("Tool to verify signature can not be executed: " << versig_path);

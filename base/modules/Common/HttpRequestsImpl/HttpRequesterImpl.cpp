@@ -280,7 +280,7 @@ namespace Common::HttpRequestsImpl
                 if (Common::FileSystem::fileSystem()->isFile(caPath))
                 {
                     caPathFound = true;
-                    LOGINFO("Using system CA path: " << caPath);
+                    LOGDEBUG("Using system CA path: " << caPath);
                     curlOptions.emplace_back("Path for CA bundle - CURLOPT_CAINFO", CURLOPT_CAINFO, caPath);
                     curlOptions.emplace_back(
                         "Path for CA dir - CURLOPT_CAPATH", CURLOPT_CAPATH, Common::FileSystem::dirName(caPath));

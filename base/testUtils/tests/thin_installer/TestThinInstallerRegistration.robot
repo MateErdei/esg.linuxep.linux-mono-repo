@@ -34,7 +34,7 @@ Default Tags  THIN_INSTALLER
 *** Test Case ***
 Thin Installer Registers Before Installing
     Start Local Cloud Server
-    Run Default Thininstaller  10
+    Run Default Thininstaller  18
     Check Thininstaller Log Contains    Successfully registered with Sophos Central
     Should Not Exist   ${SOPHOS_INSTALL}
 

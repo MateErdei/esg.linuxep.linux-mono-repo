@@ -28,7 +28,7 @@ namespace MCS
     const std::string VERSION_NUMBER("versionNumber");
     const std::string TENANT_ID("tenant_id");
     const std::string DEVICE_ID("device_id");
-    const std::string JWT_TOKEN("jwt_token");
+    const std::string JWT_TOKEN("access_token");
     const std::string CURRENT_RELAY_ID("current_relay_id");
     const std::string MCS_POLICY_PROXY_CREDENTIALS("mcs_policy_proxy_credentials");
 }

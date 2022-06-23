@@ -31,8 +31,8 @@ public:
 
         auto filesystemMock = new NiceMock<MockFileSystem>();
         ON_CALL(*filesystemMock, isDirectory(Common::ApplicationConfiguration::applicationPathManager().sophosInstall())).WillByDefault(Return(true));
-        ON_CALL(*filesystemMock, isDirectory(m_primaryPath)).WillByDefault(Return(true));
-        ON_CALL(*filesystemMock, isDirectory(m_distPath)).WillByDefault(Return(true));
+        ON_CALL(*filesystemMock, isDirectory(Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseStoreDir())).WillByDefault(Return(true));
+
         std::string empty;
         ON_CALL(*filesystemMock, exists(empty)).WillByDefault(Return(false));
         ON_CALL(*filesystemMock, exists(Ne(empty))).WillByDefault(Return(true));

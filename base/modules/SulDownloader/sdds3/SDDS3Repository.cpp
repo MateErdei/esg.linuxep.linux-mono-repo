@@ -91,13 +91,13 @@ namespace SulDownloader
 
     bool SDDS3Repository::hasError() const
     {
-        if(!m_error.Description.empty())
+        if (!m_error.Description.empty())
         {
             return true;
         }
-        for(const auto& product : m_products)
+        for (const auto& product : m_products)
         {
-            if(product.hasError())
+            if (product.hasError())
             {
                 return true;
             }
@@ -179,7 +179,7 @@ namespace SulDownloader
     }
 
 
-    void SDDS3Repository::setFeatures(std::vector<std::string> configfeatures)
+    void SDDS3Repository::setFeatures(const std::vector<std::string>& configfeatures)
     {
         m_configFeatures = configfeatures;
     }
@@ -209,7 +209,7 @@ namespace SulDownloader
             std::string overrideFile =
                 Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
             bool useHttps = true;
-            if(Common::FileSystem::fileSystem()->exists(overrideFile))
+            if (Common::FileSystem::fileSystem()->exists(overrideFile))
             {
                 useHttps = (Common::UtilityImpl::StringUtils::extractValueFromIniFile(overrideFile, "USE_HTTP").empty());
             }
@@ -256,7 +256,7 @@ namespace SulDownloader
         {
             const std::string& productID = sub.rigidName();
 
-            bool notFound = (std::find_if( suites.begin(), suites.end(),
+            bool notFound = (std::find_if ( suites.begin(), suites.end(),
                                           [productID,prefixSize](const std::string& suiteName)
                                           {
                                             std::string warehouseSuite = suiteName.substr(prefixSize, suiteName.size()-prefixSize);
@@ -282,7 +282,7 @@ namespace SulDownloader
 
     void SDDS3Repository::synchronize(const suldownloaderdata::ConfigurationData& configurationData)
     {
-        if(hasError())
+        if (hasError())
         {
             return;
         }
@@ -300,15 +300,9 @@ namespace SulDownloader
             LOGDEBUG("Release Group: '" << releaseGroup << "' is available to be downloaded." );
         }
 
-        auto certPaths = CommsComponent::getCaCertificateStorePaths();
-        // expect that there should be only 1 cert path provided.
-        std::string systemCertPath;
-        if(certPaths.size() > 0)
-        {
-            systemCertPath = certPaths[0];
-        }
 
-        m_session = std::make_shared<sdds3::Session>(systemCertPath);
+
+        m_session = std::make_shared<sdds3::Session>(Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath());
 
         sdds3::Repo repo(Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3Repository());
         m_repo = repo;
@@ -316,7 +310,7 @@ namespace SulDownloader
         m_session->httpConfig.userAgent = generateUserAgentString(configurationData.getTenantId(), configurationData.getDeviceId());
         m_config.suites = suites;
         m_config.release_groups_filter = releaseGroups;
-        for(const auto& srcUrlToTry : DEFAULT_UPDATE_URLS)
+        for (const auto& srcUrlToTry : DEFAULT_UPDATE_URLS)
         {
             std::string srcUrl(srcUrlToTry);
             m_error.reset(); // Clear error for retry
@@ -331,6 +325,7 @@ namespace SulDownloader
                         Common::UtilityImpl::StringUtils::extractValueFromIniFile(overrideFile, "CDN_URL");
                     if (!cdnOverrideUrl.empty())
                     {
+                        LOGWARN("Overriding Sophos CDN address with " << cdnOverrideUrl);
                         srcUrl = cdnOverrideUrl;
                     }
                 }
@@ -348,7 +343,7 @@ namespace SulDownloader
                 LOGWARN("Failed to Sync with " << srcUrl << " error: " << ex.what());
             }
         }
-        if(!hasError())
+        if (!hasError())
         {
             generateProductListFromSdds3PackageInfo(configurationData.getPrimarySubscription().rigidName());
         }
@@ -393,7 +388,7 @@ namespace SulDownloader
         }
 
         std::vector<sdds3::PackageRef> packagesWithSupplements;
-        if(m_supplementOnly)
+        if (m_supplementOnly)
         {
             packagesWithSupplements =
                 SulDownloader::sdds3Wrapper()->getPackagesIncludingSupplements(*m_session.get(), m_repo, m_config);
@@ -430,7 +425,7 @@ namespace SulDownloader
 
             std::vector<Tag> tags;
 
-            for(auto& releaseTag : package.tags_)
+            for (auto& releaseTag : package.tags_)
             {
                 tags.emplace_back("", "", releaseTag.name);
             }
@@ -450,7 +445,7 @@ namespace SulDownloader
                 }
             }
 
-            if(m_supplementOnly)
+            if (m_supplementOnly)
             {
                 bool packageContainsSupplement = false;
                 for (auto& packageWithsupplement : packagesWithSupplements)
@@ -477,7 +472,7 @@ namespace SulDownloader
 
             // ensure that the primary product is the first in the list,
             // so that primary product always being installed first.
-            if(product.getLine().find(primaryRigidName) != std::string::npos)
+            if (product.getLine().find(primaryRigidName) != std::string::npos)
             {
                 m_products.insert(m_products.begin(), product);
             }
@@ -491,7 +486,7 @@ namespace SulDownloader
 
     void SDDS3Repository::distribute()
     {
-        if(hasError())
+        if (hasError())
         {
             return;
         }

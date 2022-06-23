@@ -12,7 +12,7 @@ add_library(telemetryhelperimplobject OBJECT
         TelemetryJsonToMap.cpp
         TelemetryJsonToMap.h)
 
-target_include_directories(telemetryhelperimplobject PUBLIC ../../Common ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
+target_include_directories(telemetryhelperimplobject PUBLIC ../../Common ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 
 add_library(telemetryhelperimpl SHARED $<TARGET_OBJECTS:telemetryhelperimplobject>)
 

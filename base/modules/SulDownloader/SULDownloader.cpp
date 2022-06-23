@@ -248,6 +248,7 @@ namespace SulDownloader
             if (product.productHasChanged() || product.forceProductReinstall() || product.productWillBeDowngraded())
             {
                 product.verify(configurationData);
+
                 productChanging = true;
             }
         }
@@ -264,16 +265,25 @@ namespace SulDownloader
                 false);
         }
 
-        auto fs = Common::FileSystem::fileSystem();
+        auto fileSystem = Common::FileSystem::fileSystem();
         if (productChanging)
         {
             std::string markerPath = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
+            std::string currentWorking = fileSystem->currentWorkingDirectory();
             try
             {
-                fs->writeFile(markerPath, "");
-                auto fp = Common::FileSystem::filePermissions();
-                fp->chown(markerPath, sophos::updateSchedulerUser(), sophos::group());
-                fp->chmod(markerPath, S_IRUSR | S_IWUSR | S_IRGRP);
+                // if current working dir is slash then Suldownloader has been started from systemd
+                if (currentWorking == "/")
+                {
+                    fileSystem->writeFile(markerPath, "");
+                    auto fp = Common::FileSystem::filePermissions();
+                    fp->chown(markerPath, sophos::updateSchedulerUser(), sophos::group());
+                    fp->chmod(markerPath, S_IRUSR | S_IWUSR | S_IRGRP);
+                }
+                else
+                {
+                    fileSystem->writeFile(markerPath, currentWorking);
+                }
             }
             catch (Common::FileSystem::IFileSystemException& ex)
             {
@@ -355,9 +365,9 @@ namespace SulDownloader
             try
             {
                 std::string updateMarkerFile = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
-                if (fs->isFile(updateMarkerFile))
+                if (fileSystem->isFile(updateMarkerFile))
                 {
-                    fs->removeFile(updateMarkerFile);
+                    fileSystem->removeFile(updateMarkerFile);
                 }
                 else
                 {
@@ -402,11 +412,16 @@ namespace SulDownloader
             }
         }
         std::string sdds3OverrideSettingsFile = Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
-        auto overrideValue = StringUtils::extractValueFromIniFile(sdds3OverrideSettingsFile, "URLS");
+        std::string overrideValue;
+        if (Common::FileSystem::fileSystem()->isFile(sdds3OverrideSettingsFile))
+        {
+            overrideValue = StringUtils::extractValueFromIniFile(sdds3OverrideSettingsFile, "URLS");
+        }
 
         std::vector<std::string> urls = {"https://sus.sophosupd.com"};
-        if(!overrideValue.empty())
+        if (!overrideValue.empty())
         {
+            LOGWARN("Overriding Sophos Update Service address list with " << overrideValue);
             urls = StringUtils::splitString(overrideValue, ",");
         }
 
@@ -439,13 +454,14 @@ namespace SulDownloader
             Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3Repository();
         try
         {
-            if (!Common::FileSystem::fileSystem()->exists(sdds3RepositoryPath))
+            auto fileSystem = Common::FileSystem::fileSystem();
+            if (!fileSystem->exists(sdds3RepositoryPath))
             {
-                Common::FileSystem::fileSystem()->makedirs(sdds3RepositoryPath);
+                fileSystem->makedirs(sdds3RepositoryPath);
             }
-            if (!Common::FileSystem::fileSystem()->exists(sdds3DistributionPath))
+            if (!fileSystem->exists(sdds3DistributionPath))
             {
-                Common::FileSystem::fileSystem()->makedirs(sdds3DistributionPath);
+                fileSystem->makedirs(sdds3DistributionPath);
             }
         }
         catch (Common::FileSystem::IFileSystemException& ex)
@@ -479,8 +495,15 @@ namespace SulDownloader
         LOGDEBUG("Purging local SDDS2 cache");
         try
         {
-            Common::FileSystem::fileSystem()->recursivelyDeleteContentsOfDirectory(configurationData.getLocalWarehouseRepository());
-            Common::FileSystem::fileSystem()->recursivelyDeleteContentsOfDirectory(configurationData.getLocalDistributionRepository());
+            auto fileSystem = Common::FileSystem::fileSystem();
+            if (fileSystem->isDirectory(configurationData.getLocalWarehouseRepository()))
+            {
+                fileSystem->recursivelyDeleteContentsOfDirectory(configurationData.getLocalWarehouseRepository());
+            }
+            if (fileSystem->isDirectory(configurationData.getLocalDistributionRepository()))
+            {
+                fileSystem->recursivelyDeleteContentsOfDirectory(configurationData.getLocalDistributionRepository());
+            }
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {
@@ -608,14 +631,14 @@ namespace SulDownloader
 
         std::pair<bool, IRepositoryPtr> repositoryResult;
         std::string overrideFile = Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
-        std::string useSdds3;
-        if(Common::FileSystem::fileSystem()->exists(overrideFile))
+        bool useSdds3 = configurationData.getUseSDDS3();
+        if (!useSdds3 && Common::FileSystem::fileSystem()->exists(overrideFile))
         {
-            useSdds3 = StringUtils::extractValueFromIniFile(overrideFile, "USE_SDDS3");
+            useSdds3 = !(StringUtils::extractValueFromIniFile(overrideFile, "USE_SDDS3").empty());
         }
-        if (!configurationData.getJWToken().empty() && !useSdds3.empty())
+        if (!configurationData.getJWToken().empty() && useSdds3)
         {
-            LOGDEBUG("Running in SDDS3 updating mode");
+            LOGINFO("Running in SDDS3 updating mode");
             // Make sure root directories are created
             createSdds3UpdateCacheFolders();
             repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly);

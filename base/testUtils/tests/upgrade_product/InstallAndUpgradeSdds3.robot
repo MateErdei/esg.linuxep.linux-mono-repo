@@ -56,7 +56,7 @@ ${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/AL
 
 ${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
 ${UpdateConfigFile}                         ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
-${sdds3_server_output}                      /tmp/sdds3_server.log
+
 
 ${sdds2_primary}                            ${SOPHOS_INSTALL}/base/update/cache/primary
 ${sdds2_primary_warehouse}                  ${SOPHOS_INSTALL}/base/update/cache/primarywarehouse
@@ -92,47 +92,43 @@ Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVVUTPolicy}
+    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
 
     Wait Until Keyword Succeeds
-    ...   300 secs
+    ...   150 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
     Check Local SDDS2 Cache Has Contents
 
     Create Local SDDS3 Override
     Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   2 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/suite
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/package
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/supplement
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/
-
-    Wait Until Keyword Succeeds
-    ...   10 secs
-    ...   1 secs
-    ...   Check Suldownloader Log Contains   suldownloaderdata <> Performing Sync
-    Check Local SDDS2 Cache Is Empty
+    #TODO put this section back once LINUXDAR-4379 is done
+#    Wait Until Keyword Succeeds
+#    ...   10 secs
+#    ...   2 secs
+#    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository
+#    Wait Until Keyword Succeeds
+#    ...   200 secs
+#    ...   10 secs
+#    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/suite
+#    Wait Until Keyword Succeeds
+#    ...   200 secs
+#    ...   2 secs
+#    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/package
+#    Wait Until Keyword Succeeds
+#    ...   200 secs
+#    ...   2 secs
+#    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/supplement
+#    Wait Until Keyword Succeeds
+#    ...   120 secs
+#    ...   10 secs
+#    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
-    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  2
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    Check Local SDDS2 Cache Is Empty
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  3
 
 SDDS3 updating respects ALC feature codes
     [Setup]    Test Setup With Ostia
@@ -142,12 +138,12 @@ SDDS3 updating respects ALC feature codes
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVVUTPolicy}
+    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
 
     Wait Until Keyword Succeeds
-    ...   300 secs
+    ...   150 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
     Check Local SDDS2 Cache Has Contents
 
     Create Local SDDS3 Override
@@ -156,8 +152,8 @@ SDDS3 updating respects ALC feature codes
     Wait Until Keyword Succeeds
     ...   120 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
-    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  2
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  3
     #core plugins should be installed
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/eventjournaler
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/runtimedetections
@@ -171,8 +167,8 @@ SDDS3 updating respects ALC feature codes
     Wait Until Keyword Succeeds
     ...   120 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
-    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  3
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  4
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  4
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/av
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/edr
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/liveresponse
@@ -186,12 +182,12 @@ SDDS3 updating with changed unused feature codes do not change version
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVVUTPolicy}
+    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
 
     Wait Until Keyword Succeeds
-    ...   300 secs
+    ...   150 secs
     ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
     Check Local SDDS2 Cache Has Contents
 
     Create Local SDDS3 Override
@@ -200,8 +196,8 @@ SDDS3 updating with changed unused feature codes do not change version
     Wait Until Keyword Succeeds
     ...   120 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
-    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  2
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+
     ${BaseVersionBeforeUpdate} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
     ${EdrVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}

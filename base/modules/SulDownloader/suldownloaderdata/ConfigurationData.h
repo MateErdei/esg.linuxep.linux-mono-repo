@@ -144,6 +144,18 @@ namespace SulDownloader::suldownloaderdata
         void setJWToken(const std::string& token);
 
         /**
+         * Gets the VersigPath
+         * @return string containing the latest VersigPath
+         */
+        const std::string& getVersigPath() const;
+
+        /**
+         * Sets the configured VersigPath
+         * @param pstring containing the latest VersigPath
+         */
+        void setVersigPath(const std::string& token);
+
+        /**
          * gets the tenant id
          * @return string containing the tenant id
          */
@@ -303,6 +315,17 @@ namespace SulDownloader::suldownloaderdata
          */
         [[nodiscard]] bool getUseSlowSupplements() const;
 
+        /**
+         * Set whether to use SDDS3 updating
+         * @param useSDDS3
+         */
+        void setUseSDDS3(bool useSDDS3);
+
+        /**
+         * Get whether to use SDDS3 updating or not.
+         * @return
+         */
+        [[nodiscard]] bool getUseSDDS3() const;
 
         /**
          * Used to verify all required settings stored in the ConfigurationData object
@@ -361,7 +384,8 @@ namespace SulDownloader::suldownloaderdata
         std::vector<std::string> m_localUpdateCacheUrls;
         Proxy m_policyProxy;
         State m_state;
-        std::string  m_jwToken;
+        std::string m_versigPath;
+        std::string m_jwToken;
         std::string m_tenantId;
         std::string m_deviceId;
         std::vector<ProductSubscription> m_productsSubscription;
@@ -373,6 +397,7 @@ namespace SulDownloader::suldownloaderdata
         std::vector<std::string> m_manifestNames;
         std::vector<std::string> m_optionalManifestNames;
         bool m_useSlowSupplements = false;
+        bool m_useSDDS3 = false;
         WeekDayAndTimeForDelay m_scheduledUpdate;
     };
 } // namespace SulDownloader::suldownloaderdata

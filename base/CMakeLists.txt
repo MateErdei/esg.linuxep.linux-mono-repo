@@ -175,6 +175,8 @@ set(SOPHLIB_LIBRARIES ${SOPHLIB_INPUT}/lib64/file/libfile.pic.a
   ${SOPHLIB_INPUT}/lib64/string/libstring.pic.a
   ${SOPHLIB_INPUT}/lib64/time/libtime.pic.a)
 
+set(NLOHMANN_JSON_INCLUDE_DIR ../../../thirdparty/nlohmann-json)
+
 ## Allow this to be redirected for SUL development
 if(NOT DEFINED SUL_INPUT)
     set( SUL_INPUT ${INPUT}/SUL )
@@ -358,6 +360,9 @@ else()
     set(PRODUCT_PYTHON_LD_LIBRARY_PATH "\$INST_DIR/base/lib:\$INST_DIR/base/lib64")
 endif()
 
+# set as var to pass around as extra install locations for libs needed by mcs.
+set(THININSTALLER_DEPS_DIR_LIB64 ${CMAKE_BINARY_DIR}/products/ThininstallerDependencies/mcslibrary/lib64)
+set(THININSTALLER_DEPS_DIR_BIN ${CMAKE_BINARY_DIR}/products/ThininstallerDependencies/mcslibrary/bin)
 
 # Set extra files and dirs to delete when we run clean target
 set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
