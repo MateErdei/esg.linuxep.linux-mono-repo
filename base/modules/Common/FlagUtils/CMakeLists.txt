@@ -1,0 +1,13 @@
+add_library(flagutilsobject OBJECT
+        FlagUtils.cpp
+        FlagUtils.h
+        Logger.cpp
+        Logger.h)
+
+target_include_directories(flagutilsobject PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
+
+include_directories(flagutilsobject BEFORE ../../../thirdparty/nlohmann-json)
+
+SET_TARGET_PROPERTIES(flagutilsobject PROPERTIES INSTALL_RPATH "$ORIGIN")
+
+install(TARGETS flagutilsobject LIBRARY DESTINATION files/base/lib64)

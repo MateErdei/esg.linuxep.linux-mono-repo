@@ -1,23 +1,23 @@
 
 add_library(pluginapi SHARED
+        $<TARGET_OBJECTS:applicationconfigurationimplobject>
+        $<TARGET_OBJECTS:directorywatcherimplobject>
+        $<TARGET_OBJECTS:filesystemimplobject>
+        $<TARGET_OBJECTS:flagutilsobject>
+        $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:pluginapiobjects>
         $<TARGET_OBJECTS:pluginprotocolobject>
+        $<TARGET_OBJECTS:processimplobject>
+        $<TARGET_OBJECTS:processmonitoringimplobject>
+        $<TARGET_OBJECTS:procutilimplobject>
+        $<TARGET_OBJECTS:protobufutilobject>
+        $<TARGET_OBJECTS:reactorimplobject>
+        $<TARGET_OBJECTS:telemetryhelperimplobject>
+        $<TARGET_OBJECTS:threadsobject>
+        $<TARGET_OBJECTS:utilityimplobject>
+        $<TARGET_OBJECTS:xmlutilitiesobject>
         $<TARGET_OBJECTS:zeromqwrapperimplobject>
         $<TARGET_OBJECTS:zmqwrapperapiimplobject>
-        $<TARGET_OBJECTS:reactorimplobject>
-        $<TARGET_OBJECTS:threadsobject>
-        $<TARGET_OBJECTS:filesystemimplobject>
-        $<TARGET_OBJECTS:procutilimplobject>
-        $<TARGET_OBJECTS:applicationconfigurationimplobject>
-        $<TARGET_OBJECTS:loggingobject>
-        $<TARGET_OBJECTS:telemetryhelperimplobject>
-        $<TARGET_OBJECTS:processmonitoringimplobject>
-        $<TARGET_OBJECTS:processimplobject>
-        $<TARGET_OBJECTS:processutilsobject>
-        $<TARGET_OBJECTS:utilityimplobject>
-        $<TARGET_OBJECTS:protobufutilobject>
-        $<TARGET_OBJECTS:xmlutilitiesobject>
-        $<TARGET_OBJECTS:directorywatcherimplobject>
         )
 
 target_link_libraries(pluginapi PUBLIC zmq log4cplus protobuf expat -L${EXPAT_INPUT}/lib64 -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib)
@@ -41,39 +41,40 @@ FindLibraryFullPath( expatfull   expat  ${EXPAT_INPUT}/lib64)
 FindLibraryFullPath( zlibfull  z   ${ZLIB_INPUT}/lib64)
 configure_file(PluginAPICommitHash.in PluginAPICommitHash @ONLY)
 
-add_custom_target(plugintar ALL
+add_custom_target(
+        plugintar ALL
         COMMAND mkdir -p pluginapi/include pluginapi/lib64
         COMMAND mkdir -p pluginapi/include/Common/ApplicationConfiguration
         COMMAND mkdir -p pluginapi/include/Common/DirectoryWatcher
         COMMAND mkdir -p pluginapi/include/Common/Exceptions
         COMMAND mkdir -p pluginapi/include/Common/FileSystem
-        COMMAND mkdir -p pluginapi/include/Common/ProcUtilImpl
+        COMMAND mkdir -p pluginapi/include/Common/FlagUtils
         COMMAND mkdir -p pluginapi/include/Common/Logging
         COMMAND mkdir -p pluginapi/include/Common/PersistentValue
+        COMMAND mkdir -p pluginapi/include/Common/PluginApi
+        COMMAND mkdir -p pluginapi/include/Common/ProcUtilImpl
         COMMAND mkdir -p pluginapi/include/Common/Process
         COMMAND mkdir -p pluginapi/include/Common/ProcessMonitoring
-        COMMAND mkdir -p pluginapi/include/Common/ProcessUtils
-        COMMAND mkdir -p pluginapi/include/Common/PluginApi
         COMMAND mkdir -p pluginapi/include/Common/Reactor
         COMMAND mkdir -p pluginapi/include/Common/TelemetryHelperImpl
         COMMAND mkdir -p pluginapi/include/Common/Threads
-        COMMAND mkdir -p pluginapi/include/Common/XmlUtilities
         COMMAND mkdir -p pluginapi/include/Common/UtilityImpl
-        COMMAND mkdir -p pluginapi/include/Common/ZeroMQWrapper
+        COMMAND mkdir -p pluginapi/include/Common/XmlUtilities
         COMMAND mkdir -p pluginapi/include/Common/ZMQWrapperApi
+        COMMAND mkdir -p pluginapi/include/Common/ZeroMQWrapper
         COMMAND mkdir -p pluginapi/tests/include/Common/Helpers
         COMMAND mkdir -p pluginapi/include/thirdparty/nlohmann-json
         COMMAND mkdir -p pluginapi/tests/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/thirdparty/nlohmann-json pluginapi/include/thirdparty/nlohmann-json
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:pluginapi> pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${zmqfull} pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${log4cplusfull} pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${protobuffull} pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${expatfull}    pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${zlibfull}    pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:sharedtesthelpers> pluginapi/tests/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different PluginAPICommitHash pluginapi
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/thirdparty/nlohmann-json pluginapi/include/thirdparty/nlohmann-json
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${expatfull}    pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${zlibfull}    pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sharedtesthelpers> pluginapi/tests/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy PluginAPICommitHash pluginapi
         DEPENDS testhelpers
 )
 
@@ -87,7 +88,7 @@ function(add_copy_directory base)
             POST_BUILD
             #            COMMAND echo ${base}
             #            COMMAND echo ${tempfiles}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${tempfiles} pluginapi/include/${base}/
+            COMMAND ${CMAKE_COMMAND} -E copy ${tempfiles} pluginapi/include/${base}/
     )
 endfunction()
 
@@ -101,7 +102,7 @@ function(add_copy_test_directory base)
             POST_BUILD
             #            COMMAND echo ${base}
             #            COMMAND echo ${tempfiles}
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${tempfiles} pluginapi/tests/include/${base}/
+            COMMAND ${CMAKE_COMMAND} -E copy ${tempfiles} pluginapi/tests/include/${base}/
     )
 endfunction()
 
@@ -109,20 +110,20 @@ add_copy_directory(Common/ApplicationConfiguration)
 add_copy_directory(Common/DirectoryWatcher)
 add_copy_directory(Common/Exceptions)
 add_copy_directory(Common/FileSystem)
-add_copy_directory(Common/ProcUtilImpl)
+add_copy_directory(Common/FlagUtils)
 add_copy_directory(Common/Logging)
-add_copy_directory(Common/PluginApi)
 add_copy_directory(Common/PersistentValue)
+add_copy_directory(Common/PluginApi)
+add_copy_directory(Common/ProcUtilImpl)
 add_copy_directory(Common/Process)
 add_copy_directory(Common/ProcessMonitoring)
-add_copy_directory(Common/ProcessUtils)
 add_copy_directory(Common/Reactor)
 add_copy_directory(Common/TelemetryHelperImpl)
 add_copy_directory(Common/Threads)
-add_copy_directory(Common/XmlUtilities)
 add_copy_directory(Common/UtilityImpl)
-add_copy_directory(Common/ZeroMQWrapper)
+add_copy_directory(Common/XmlUtilities)
 add_copy_directory(Common/ZMQWrapperApi)
+add_copy_directory(Common/ZeroMQWrapper)
 add_copy_test_directory(Common/Helpers)
 
 
@@ -137,7 +138,7 @@ add_custom_command(
         TARGET plugintar
         POST_BUILD
         COMMAND mkdir -p pluginapi/distribution
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${distributionfiles} pluginapi/distribution/
+        COMMAND ${CMAKE_COMMAND} -E copy ${distributionfiles} pluginapi/distribution/
 )
 
 add_custom_command(
