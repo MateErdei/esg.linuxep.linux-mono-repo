@@ -152,7 +152,7 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, waitForTheFirstPolicyDoesNotRe
     queueTask.push(UpdateScheduler::SchedulerTask{UpdateScheduler::SchedulerTask::TaskType::Policy,"3", "APPID"});
     queueTask.push(UpdateScheduler::SchedulerTask{notPolicy,"4"});
     queueTask.push(UpdateScheduler::SchedulerTask{notPolicy,"5"});
-    std::string policyContents = UpdateSchedulerImpl::UpdateSchedulerProcessor::waitForTheFirstPolicy(queueTask, 5, "APPID");
+    std::string policyContents = UpdateSchedulerImpl::UpdateSchedulerProcessor::waitForPolicy(queueTask, 5, "APPID");
 
     EXPECT_EQ("3", policyContents);
 

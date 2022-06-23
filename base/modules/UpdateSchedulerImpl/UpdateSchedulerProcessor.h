@@ -5,9 +5,6 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #pragma once
-#include "SchedulerPluginCallback.h"
-
-#include "configModule/UpdatePolicyTranslator.h"
 
 #include <Common/PersistentValue/PersistentValue.h>
 #include <Common/PluginApiImpl/BaseServiceAPI.h>
@@ -15,6 +12,8 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 #include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
 #include <UpdateScheduler/ICronSchedulerThread.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
+#include <UpdateSchedulerImpl/SchedulerPluginCallback.h>
+#include <UpdateSchedulerImpl/configModule/UpdatePolicyTranslator.h>
 
 namespace UpdateSchedulerImpl
 {
@@ -39,7 +38,7 @@ namespace UpdateSchedulerImpl
             std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner> sulDownloaderRunner);
         void mainLoop();
         static std::string getAppId();
-        static std::string waitForTheFirstPolicy(UpdateScheduler::SchedulerTaskQueue& queueTask, int maxTasksThreshold, const std::string& policyAppId);
+        static std::string waitForPolicy(UpdateScheduler::SchedulerTaskQueue& queueTask, int maxTasksThreshold, const std::string& policyAppId);
 
     private:
         void waitForSulDownloaderToFinish(int numberOfSeconds2Wait);
@@ -58,12 +57,12 @@ namespace UpdateSchedulerImpl
         void processSulDownloaderMonitorDetached();
         void saveUpdateCacheCertificate(const std::string& cacheCertificateContent);
         void writeConfigurationData(const SulDownloader::suldownloaderdata::ConfigurationData&);
-        std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getPreviousConfigurationData();
+        static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getCurrentConfigurationData();
+        static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getPreviousConfigurationData();
 
         void safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const;
 
         void waitForSulDownloaderToFinish();
-
         std::shared_ptr<UpdateScheduler::SchedulerTaskQueue> m_queueTask;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<SchedulerPluginCallback> m_callback;
@@ -78,6 +77,7 @@ namespace UpdateSchedulerImpl
         Common::UtilityImpl::FormattedTime m_formattedTime;
         bool m_policyReceived;
         bool m_pendingUpdate;
+        bool m_flagsPolicyProcessed;
         bool m_sdds3Enabled;
         SulDownloader::suldownloaderdata::WeekDayAndTimeForDelay m_scheduledUpdateConfig;
         std::vector<std::string> m_featuresInPolicy;

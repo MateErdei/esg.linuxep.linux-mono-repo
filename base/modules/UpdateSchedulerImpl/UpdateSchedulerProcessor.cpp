@@ -4,38 +4,33 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "UpdateSchedulerProcessor.h"
-#include "UpdateSchedulerUtils.h"
-#include "Logger.h"
-
-#include "configModule/DownloadReportsAnalyser.h"
-#include "configModule/UpdateActionParser.h"
-#include "configModule/UpdatePolicyTranslator.h"
-
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/FlagUtils/FlagUtils.h>
 #include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/NoPolicyAvailableException.h>
 #include <Common/Process/IProcess.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
-#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 #include <SulDownloader/suldownloaderdata/UpdateSupplementDecider.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
+#include <UpdateSchedulerImpl/Logger.h>
+#include <UpdateSchedulerImpl/UpdateSchedulerProcessor.h>
+#include <UpdateSchedulerImpl/UpdateSchedulerUtils.h>
+#include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
+#include <UpdateSchedulerImpl/configModule/UpdateActionParser.h>
 #include <UpdateSchedulerImpl/runnerModule/AsyncSulDownloaderRunner.h>
 #include <UpdateSchedulerImpl/stateMachinesModule/EventStateMachine.h>
-
 #include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
 
 #include <chrono>
 #include <csignal>
+#include <iomanip>
 #include <json.hpp>
 #include <thread>
-#include <iomanip>
 
 using namespace std::chrono;
 
@@ -145,6 +140,7 @@ namespace UpdateSchedulerImpl
         m_formattedTime(),
         m_policyReceived(false),
         m_pendingUpdate(false),
+        m_flagsPolicyProcessed(false),
         m_sdds3Enabled(false),
         m_featuresInPolicy(),
         m_featuresCurrentlyInstalled(readInstalledFeaturesJsonFile())
@@ -202,9 +198,6 @@ namespace UpdateSchedulerImpl
             LOGERROR("Unexpected error when requesting policy: " << apiException.what());
         }
 
-        std::string flagsPolicy = waitForTheFirstPolicy(*m_queueTask,  5, UpdateSchedulerProcessor::FLAGS_API);
-        processFlags(flagsPolicy);
-
         while (true)
         {
             try
@@ -223,11 +216,16 @@ namespace UpdateSchedulerImpl
                         case SchedulerTask::TaskType::Policy:
                             LOGDEBUG("Process task POLICY: " << task.appId);
 
-                            if (task.appId == UpdateSchedulerProcessor::ALC_API) {
+                            if (task.appId == UpdateSchedulerProcessor::ALC_API)
+                            {
                                 processALCPolicy(task.content);
-                            } else if (task.appId == UpdateSchedulerProcessor::FLAGS_API) {
+                            }
+                            else if (task.appId == UpdateSchedulerProcessor::FLAGS_API)
+                            {
                                 processFlags(task.content);
-                            } else {
+                            }
+                            else
+                            {
                                 LOGWARN("Received " << task.appId << " policy unexpectedly");
                             }
                             break;
@@ -262,7 +260,17 @@ namespace UpdateSchedulerImpl
 
     void UpdateSchedulerProcessor::processALCPolicy(const std::string& policyXml)
     {
-        LOGINFO("New policy received");
+        LOGINFO("New ALC policy received");
+
+        if (!m_flagsPolicyProcessed || !Common::FileSystem::fileSystem()->exists(Common::ApplicationConfiguration::applicationPathManager().getMcsFlagsFilePath()))
+        {
+            LOGDEBUG(Common::ApplicationConfiguration::applicationPathManager().getMcsFlagsFilePath() << " does not exist, performing a short wait for Central flags");
+
+            // Waiting for flags policy to attempt to get the latest central flags
+            std::string flagsPolicy = waitForPolicy(*m_queueTask, 5, UpdateSchedulerProcessor::FLAGS_API);
+            processFlags(flagsPolicy);
+        }
+
         try
         {
             SettingsHolder settingsHolder = m_policyTranslator.translatePolicy(policyXml);
@@ -300,6 +308,7 @@ namespace UpdateSchedulerImpl
             settingsHolder.configurationData.setJWToken(token);
             settingsHolder.configurationData.setDeviceId(UpdateSchedulerUtils::getDeviceId());
             settingsHolder.configurationData.setTenantId(UpdateSchedulerUtils::getTenantId());
+            settingsHolder.configurationData.setUseSDDS3(m_sdds3Enabled);
             writeConfigurationData(settingsHolder.configurationData);
             m_scheduledUpdateConfig = settingsHolder.weeklySchedule;
             m_featuresInPolicy = settingsHolder.configurationData.getFeatures();
@@ -399,8 +408,73 @@ namespace UpdateSchedulerImpl
         }
         catch (UpdateSchedulerImpl::configModule::PolicyValidationException& ex)
         {
-            LOGWARN("Invalid policy received: " << ex.what());
+            LOGWARN("Invalid ALC policy received: " << ex.what());
         }
+    }
+
+    void UpdateSchedulerProcessor::processFlags(const std::string& flagsContent)
+    {
+        m_flagsPolicyProcessed = true;
+        LOGINFO("Processing Flags");
+        LOGDEBUG("Flags: " << flagsContent);
+        if (flagsContent.empty())
+        {
+            return;
+        }
+
+        bool currentFlag = m_sdds3Enabled;
+        m_sdds3Enabled = Common::FlagUtils::isFlagSet(UpdateSchedulerUtils::SDDS3_ENABLED_FLAG, flagsContent);
+        LOGDEBUG("Received " << UpdateSchedulerUtils::SDDS3_ENABLED_FLAG << " flag value: " << m_sdds3Enabled);
+
+        if (currentFlag == m_sdds3Enabled)
+        {
+            LOGDEBUG(UpdateSchedulerUtils::SDDS3_ENABLED_FLAG << " flag value still: " << m_sdds3Enabled);
+            return;
+        }
+
+        if (getCurrentConfigurationData().has_value())
+        {
+            SulDownloader::suldownloaderdata::ConfigurationData currentConfigData = getCurrentConfigurationData().value();
+            currentConfigData.setUseSDDS3(m_sdds3Enabled);
+
+            writeConfigurationData(currentConfigData);
+        }
+    }
+
+    std::string UpdateSchedulerProcessor::waitForPolicy(
+        SchedulerTaskQueue& queueTask, int maxTasksThreshold, const std::string& policyAppId)
+    {
+        std::vector<SchedulerTask> nonPolicyTasks;
+        std::string policyContent;
+        for (int i = 0; i < maxTasksThreshold; i++)
+        {
+            SchedulerTask task;
+            if (!queueTask.pop(task, QUEUE_TIMEOUT))
+            {
+                LOGINFO(policyAppId << " policy has not been sent to the plugin");
+                break;
+            }
+            if (task.taskType == SchedulerTask::TaskType::Policy && task.appId == policyAppId)
+            {
+                policyContent = task.content;
+                LOGINFO("First " << policyAppId << " policy received.");
+                break;
+            }
+            LOGDEBUG("Keep task: " <<static_cast<int>(task.taskType));
+            nonPolicyTasks.emplace_back(task);
+            if (task.taskType == SchedulerTask::TaskType::Stop)
+            {
+                LOGINFO("Abort waiting for the first policy as Stop signal received.");
+                throw DetectRequestToStop("");
+            }
+        }
+        LOGDEBUG("Return from waitForPolicy ");
+
+        for (auto it = nonPolicyTasks.rbegin(); it != nonPolicyTasks.rend(); ++it)
+        {
+            queueTask.pushFront(*it);
+        }
+        return policyContent;
     }
 
     void UpdateSchedulerProcessor::processFlags(const std::string& flagsContent)
@@ -740,31 +814,28 @@ namespace UpdateSchedulerImpl
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath(),
             Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
 
-        std::string previousConfigSettings;
-        SulDownloader::suldownloaderdata::ConfigurationData previousConfigurationData;
-
+        std::optional<SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData;
         if (Common::FileSystem::fileSystem()->isFile(previousConfigFilePath))
         {
             LOGDEBUG("Previous update configuration file found.");
-            try
-            {
-                previousConfigSettings = Common::FileSystem::fileSystem()->readFile(previousConfigFilePath);
-
-                previousConfigurationData =
-                    SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(previousConfigSettings);
-                return std::optional<SulDownloader::suldownloaderdata::ConfigurationData>{ previousConfigurationData };
-            }
-            catch (SulDownloader::suldownloaderdata::SulDownloaderException& ex)
-            {
-                LOGWARN("Failed to load previous configuration settings from : " << previousConfigFilePath);
-            }
-            catch (Common::FileSystem::IFileSystemException& ex)
-            {
-                LOGWARN("Failed to read previous configuration file : " << previousConfigFilePath);
-            }
+            previousConfigurationData = UpdateSchedulerUtils::getConfigurationDataFromJsonFile(previousConfigFilePath);
         }
 
-        return std::nullopt;
+        return previousConfigurationData;
+    }
+
+    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerProcessor::getCurrentConfigurationData()
+    {
+        Path currentConfigFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
+
+        std::optional<SulDownloader::suldownloaderdata::ConfigurationData> currentConfigurationData;
+        if (Common::FileSystem::fileSystem()->isFile(currentConfigFilePath))
+        {
+            LOGDEBUG("Current update configuration file found.");
+            currentConfigurationData = UpdateSchedulerUtils::getConfigurationDataFromJsonFile(currentConfigFilePath);
+        }
+
+        return currentConfigurationData;
     }
 
     void UpdateSchedulerProcessor::safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const
