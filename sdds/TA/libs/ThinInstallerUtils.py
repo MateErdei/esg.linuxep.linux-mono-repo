@@ -68,6 +68,10 @@ def run_thin_installer(installer_path, expected_exit_code, override_location, mc
     env = os.environ.copy()
     env["OVERRIDE_SOPHOS_LOCATION"] = override_location
     env["DEBUG_THIN_INSTALLER"] = "1"
+    env["OVERRIDE_SUS_LOCATION"] = "http://127.0.0.1:8080"
+    env["OVERRIDE_CDN_LOCATION"] = "http://127.0.0.1:8080"
+    env["SDDS3_USE_HTTP"] = "1"
+    env["USE_SDDS3"] = "1"
     command = ['bash', installer_path]
 
     if mcs_ca:

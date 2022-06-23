@@ -30,9 +30,10 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput) -> Dict[str, I
 
     test_inputs = dict(
         test_scripts=context.artifact.from_folder('./TA'),
-        warehouse=build / 'develop/warehouse',
-        customer=build / 'develop/customer',
-        thin_installer=context.artifact.from_component('sspl-thininstaller', "develop", None) / 'output',
+        repo=build / 'sdds3-repo',
+        launchdarkly=build / 'sdds3-launchdarkly',
+        thin_installer=context.artifact.from_component('linuxep.thininstaller',
+           "develop", None, org='', storage='esg-build-tested') / 'build/output'
     )
     return test_inputs
 
@@ -86,21 +87,42 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     run_tests = parameters.run_tests != 'false'
 
     with stage.parallel('build'):
-        build = build_dev_warehouse(stage=stage, name="release-package")
-        if base999:
-            build_dev_warehouse(stage=stage, name="release-package-base-999")
-        if query_pack:
-            build_dev_warehouse(stage=stage, name="release-package-query-pack")
-        if edr999:
-            build_dev_warehouse(stage=stage, name="release-package-edr-999")
-        if mdr999:
-            build_dev_warehouse(stage=stage, name="release-package-mdr-999")
-        if edr999 and mdr999:
-            build_dev_warehouse(stage=stage, name="release-package-edr-mdr-999")
-        if zero_six_zero:
-            build_dev_warehouse(stage=stage, name="release-package-060")
-        build_dev_warehouse(stage=stage, name="localwarehouse", image='JenkinsLinuxTemplate7')
+        branch = context.branch
+        is_release_branch = branch.startswith('release-') or branch.startswith('hotfix-')
+        if not is_release_branch:
+            build = build_dev_warehouse(stage=stage, name="release-package")
+            if base999:
+                build_dev_warehouse(stage=stage, name="release-package-base-999")
+            if query_pack:
+                build_dev_warehouse(stage=stage, name="release-package-query-pack")
+            if edr999:
+                build_dev_warehouse(stage=stage, name="release-package-edr-999")
+            if mdr999:
+                build_dev_warehouse(stage=stage, name="release-package-mdr-999")
+            if edr999 and mdr999:
+                build_dev_warehouse(stage=stage, name="release-package-edr-mdr-999")
+            if zero_six_zero:
+                build_dev_warehouse(stage=stage, name="release-package-060")
+            build_dev_warehouse(stage=stage, name="localwarehouse", image='JenkinsLinuxTemplate7')
+            run_tests
+        else:
+            build = False
 
+        is_release_branch = branch.startswith('release-') or branch.startswith('hotfix-')
 
-    if build and run_tests:
-        run_tap_tests(stage, context, parameters, build)
+        if is_release_branch:
+            do_dev = False
+            do_prod = True
+        else:
+            do_dev = parameters.dev != 'false'
+            do_prod = parameters.prod == 'true'
+
+        with stage.parallel('sdds3'):
+            if do_prod:
+                build_sdds3_warehouse(stage=stage, mode="prod")
+            if do_dev:
+                buildsdds3 = build_sdds3_warehouse(stage=stage, mode="dev")
+                build_sdds3_warehouse(stage=stage, mode="999")
+
+    if run_tests and buildsdds3:
+        run_tap_tests(stage, context, parameters, buildsdds3)
