@@ -632,10 +632,6 @@ namespace SulDownloader
         std::pair<bool, IRepositoryPtr> repositoryResult;
         std::string overrideFile = Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
         bool useSdds3 = configurationData.getUseSDDS3();
-        if (!useSdds3 && Common::FileSystem::fileSystem()->exists(overrideFile))
-        {
-            useSdds3 = !(StringUtils::extractValueFromIniFile(overrideFile, "USE_SDDS3").empty());
-        }
         if (!configurationData.getJWToken().empty() && useSdds3)
         {
             LOGINFO("Running in SDDS3 updating mode");

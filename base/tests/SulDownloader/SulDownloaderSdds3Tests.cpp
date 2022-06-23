@@ -101,7 +101,6 @@ public:
     {
         std::vector<std::string> lines = {
             "URLS = http://127.0.0.1:8080" ,
-            "USE_SDDS3 = true",
             "USE_HTTP = true"};
         return lines;
     }
