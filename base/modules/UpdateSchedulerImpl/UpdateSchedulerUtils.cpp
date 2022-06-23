@@ -4,14 +4,13 @@ Copyright 2021-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "UpdateSchedulerUtils.h"
-#include "Logger.h"
-
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/StringUtils.h>
-
+#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
+#include <UpdateSchedulerImpl/Logger.h>
+#include <UpdateSchedulerImpl/UpdateSchedulerUtils.h>
 
 #include <json.hpp>
 namespace UpdateSchedulerImpl
@@ -162,29 +161,26 @@ namespace UpdateSchedulerImpl
         return token;
     }
 
-    bool UpdateSchedulerUtils::isFlagSet(const std::string& flag, const std::string& flagContent)
+    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerUtils::getConfigurationDataFromJsonFile(const std::string& filePath)
     {
-        bool flagValue = false;
-
         try
         {
-            nlohmann::json j = nlohmann::json::parse(flagContent);
+            std::string configSettings = Common::FileSystem::fileSystem()->readFile(filePath);
 
-            if (j.find(flag) != j.end())
-            {
-                if (j[flag] == true)
-                {
-                    flagValue = true;
-                }
-            }
+            SulDownloader::suldownloaderdata::ConfigurationData configurationData =
+                SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(configSettings);
+
+            return configurationData;
         }
-        catch (nlohmann::json::parse_error& ex)
+        catch (SulDownloader::suldownloaderdata::SulDownloaderException& ex)
         {
-            std::stringstream errorMessage;
-            errorMessage << "Could not parse json: " << flagContent << " with error: " << ex.what();
-            LOGWARN(errorMessage.str());
+            LOGWARN("Failed to load configuration settings from : " << filePath);
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGWARN("Failed to read configuration file : " << filePath);
         }
 
-        return flagValue;
+        return std::nullopt;
     }
 }
