@@ -11,7 +11,8 @@ Library           OperatingSystem
 Global Setup Tasks
     ${placeholder} =  PathManager.get_support_file_path
     Set Global Variable  ${SUPPORT_FILES}     ${placeholder}
-
+    ${placeholder} =  PathManager.get_libs_file_path
+    Set Global Variable  ${LIB_FILES}     ${placeholder}
     ${placeholder} =  Get Environment Variable  SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}  ${placeholder}
 

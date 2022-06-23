@@ -7,7 +7,8 @@ Library     ../libs/Cleanup.py
 Library     ../libs/LogUtils.py
 
 Force Tags  WAREHOUSE  SSPLAV
-
+Suite Setup  SDDS3 server setup
+Suite Teardown  SDDS3 Server Teardown
 Test Setup      Base Test Setup
 Test Teardown   Teardown
 
@@ -16,7 +17,6 @@ Thin Installer can install SSPLAV
     [Tags]       FAKE_CENTRAL
     [Timeout]    10 minutes
     Start Fake Cloud
-    Setup Warehouses
     Create Thin Installer  https://localhost:4443/mcs
     Run Thin Installer  /tmp/SophosInstallCombined.sh  ${0}  http://localhost:1233  ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
     Verify That MCS Connection To Central Is Established
@@ -27,7 +27,10 @@ Thin Installer can install SSPLAV
     Send ALC Policy With AV
 
     Wait For ALC Policy On Endpoint
-
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 sec
+    ...  Update Config Should Contain AV
     Run Update Now
 
     Wait For SSPLAV to be installed
@@ -39,6 +42,7 @@ ${SULDOWNLOADER_LOG_PATH}           ${BASE_LOGS}/suldownloader.log
 ${UPDATESCHEDULER_LOG_PATH}         ${BASE_LOGS}/sophosspl/updatescheduler.log
 ${MCS_DIR} =                        ${SOPHOS_INSTALL}/base/mcs
 ${ALC_POLICY_PATH} =                ${MCS_DIR}/policy/ALC-1_policy.xml
+${UPDATE_CONFIG_PATH} =             ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
 
 *** Keywords ***
 
@@ -60,6 +64,9 @@ Wait For ALC Policy On Endpoint
     ...  1 sec
     ...  Check ALC Policy On Endpoint  ${POLICY}
 
+Update Config Should Contain AV
+    ${contents} =  get file  ${UPDATE_CONFIG_PATH}
+    Should contain   ${contents}   ServerProtectionLinux-Plugin-AV
 
 Check ALC Policy On Endpoint
     [Arguments]  ${EXPECTED_POLICY_FILE}=${POLICY}

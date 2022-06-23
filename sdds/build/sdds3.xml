@@ -18,49 +18,50 @@
         <trusted-asset artifact-path="filer5-migrate/gcclinux/8-1-0-43/213047/gcclinux/gcc-8.1.0-linux.tar.gz" dest-dir="redist/gcc"/>
         <trusted-asset artifact-path="filer5-migrate/sddsimportgen/1-0-12/214456/sddsimportgen" dest-dir="./linuxep_suites"/>
 
-        <build-asset project="linuxep" repo="everest-base" mode="dev">
+        <build-asset project="linuxep" repo="everest-base">
             <development-version branch="develop"/>
-            <include artifact-path="sspl-base/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64"/>
+            <include artifact-path="sspl-base/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64" mode="dev"/>
+            <include artifact-path="sspl-base-999/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64" mode="999"/>
         </build-asset>
 
-        <build-asset project="linuxep" repo="capsule8-sensor" mode="dev">
+        <build-asset project="linuxep" repo="capsule8-sensor">
             <development-version branch="master"/>
-            <include artifact-path="SDDS3-PACKAGE" dest-dir="redist/runtimedetections/latest/x64"/>
+            <include artifact-path="SDDS3-PACKAGE" dest-dir="redist/runtimedetections/latest/x64" mode="dev,999"/>
         </build-asset>
 
-<!--        commented out due to not being in integr8 phase 2-->
-<!--        <build-asset project="linuxep" repo="sspl-plugin-heartbeat" >-->
-<!--            <development-version branch="develop"/>-->
-<!--            <include artifact-path="sspl-plugin-heartbeat/SDDS-COMPONENT" dest-dir="redist/package/sspl-plugin-heartbeat"/>-->
-<!--        </build-asset>-->
-
-        <build-asset project="winep" repo="liveterminal" mode="dev">
+        <build-asset project="winep" repo="liveterminal">
             <development-version branch="develop"/>
-            <include artifact-path="liveterminal/SDDS3-PACKAGE" dest-dir="redist/liveresponse/latest/x64"/>
+            <include artifact-path="liveterminal/SDDS3-PACKAGE" dest-dir="redist/liveresponse/latest/x64" mode="dev"/>
+            <include artifact-path="liveterminal-999/SDDS3-PACKAGE" dest-dir="redist/liveresponse/latest/x64" mode="999"/>
         </build-asset>
 
-        <build-asset project="linuxep" repo="sspl-plugin-edr-component" mode="dev">
+        <build-asset project="linuxep" repo="sspl-plugin-edr-component">
             <development-version branch="develop"/>
-            <include artifact-path="edr/SDDS3-PACKAGE" dest-dir="redist/edr/latest/x64"/>
+            <include artifact-path="edr/SDDS3-PACKAGE" dest-dir="redist/edr/latest/x64" mode="dev"/>
+            <include artifact-path="edr-999/SDDS3-PACKAGE" dest-dir="redist/edr/latest/x64" mode="999"/>
         </build-asset>
 
-        <build-asset project="linuxep" repo="sspl-plugin-event-journaler" mode="dev">
+        <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
             <development-version branch="develop"/>
-            <include artifact-path="eventjournaler/SDDS3-PACKAGE" dest-dir="redist/event-journaler/latest/x64"/>
+            <include artifact-path="eventjournaler/SDDS3-PACKAGE" dest-dir="redist/event-journaler/latest/x64" mode="dev"/>
+            <include artifact-path="eventjournaler-999/SDDS3-PACKAGE" dest-dir="redist/event-journaler/latest/x64" mode="999"/>
         </build-asset>
 
-        <build-asset project="linuxep" repo="sspl-plugin-mdr-component" mode="dev">
+        <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
             <development-version branch="develop"/>
-            <include artifact-path="mdr/SDDS3-PACKAGE" dest-dir="redist/mdr/latest/x64"/>
+            <include artifact-path="mdr/SDDS3-PACKAGE" dest-dir="redist/mdr/latest/x64" mode="dev"/>
+            <include artifact-path="mdr-999/SDDS3-PACKAGE" dest-dir="redist/mdr/latest/x64" mode="999"/>
         </build-asset>
 
-        <build-asset project="linuxep" repo="sspl-plugin-anti-virus" mode="dev">
+        <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
             <development-version branch="develop"/>
-            <include artifact-path="sspl-plugin-anti-virus/SDDS3-PACKAGE" dest-dir="redist/av/latest/x64"/>
+            <include artifact-path="sspl-plugin-anti-virus/SDDS3-PACKAGE" dest-dir="redist/av/latest/x64" mode="dev"/>
+            <include artifact-path="sspl-plugin-anti-virus-999/SDDS3-PACKAGE" dest-dir="redist/av/latest/x64" mode="999"/>
         </build-asset>
-        <build-asset project="linuxep" repo="sspl-plugin-heartbeat" mode="dev">
+        <build-asset project="linuxep" repo="sspl-plugin-heartbeat">
             <development-version branch="develop"/>
-            <include artifact-path="sspl-plugin-heartbeat/SDDS3-PACKAGE" dest-dir="redist/heartbeat/latest/x64"/>
+            <include artifact-path="sspl-plugin-heartbeat/SDDS3-PACKAGE" dest-dir="redist/heartbeat/latest/x64" mode="dev"/>
+            <include artifact-path="sspl-plugin-heartbeat-999/SDDS3-PACKAGE" dest-dir="redist/heartbeat/latest/x64" mode="999"/>
         </build-asset>
 
 
@@ -103,7 +104,7 @@
             <args>-u tools/src/dump_environment/dump_environment.py</args>
             <workingdir>.</workingdir>
         </command>
-        <command mode="dev">
+        <command mode="dev,999">
             <program>python3</program>
             <args>-u sdds3/tools/gen_bazel.py</args>
             <workingdir>.</workingdir>
@@ -123,16 +124,25 @@
     <publish>
 
         <!--dev version-->
-        <build-asset artifact-path="sdds3-repo" source-dir="bazel-out/k8-fastbuild/bin/sdds3">
+        <build-asset artifact-path="sdds3-repo" source-dir="bazel-out/k8-fastbuild/bin/sdds3" mode="dev">
             <include glob="package/**"/>
             <include glob="suite/**"/>
             <include glob="supplement/**"/>
             <include glob="supplement_package/**"/>
         </build-asset>
-        <release-asset artifact-path="sdds3-launchdarkly" source-dir="output/launchdarkly">
+        <release-asset artifact-path="sdds3-launchdarkly" source-dir="output/launchdarkly" mode="dev">
             <include glob="*.json"/>
         </release-asset>
-
+        <!--999 version-->
+        <build-asset artifact-path="sdds3-repo-999" source-dir="bazel-out/k8-fastbuild/bin/sdds3" mode="999">
+            <include glob="package/**"/>
+            <include glob="suite/**"/>
+            <include glob="supplement/**"/>
+            <include glob="supplement_package/**"/>
+        </build-asset>
+        <release-asset artifact-path="sdds3-launchdarkly-999" source-dir="output/launchdarkly" mode="999">
+            <include glob="*.json"/>
+        </release-asset>
         <!--prod version-->
         <release-asset artifact-path="prod-sdds3-repo" source-dir="bazel-out/k8-fastbuild/bin/sdds3" mode="prod">
             <include glob="package/**"/>

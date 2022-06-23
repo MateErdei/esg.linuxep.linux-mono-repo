@@ -2,6 +2,7 @@
 Library     ../libs/Cleanup.py
 Library     ../libs/HostsUtils.py
 Library     ../libs/OSUtils.py
+Library     ../libs/LogUtils.py
 Library     ../libs/ThinInstallerUtils.py
 Library     ../libs/UpdateServer.py
 Library     Process
@@ -67,3 +68,13 @@ Create Thin Installer
 
 Check Base Installed
     Directory Should Exist  ${SOPHOS_INSTALL}
+
+
+SDDS3 server setup
+    ${handle}=  Start Process  python3 ${LIB_FILES}/SDDS3server.py --launchdarkly ${INPUT_DIRECTORY}/launchdarkly --sdds3 ${INPUT_DIRECTORY}/repo  shell=true
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+SDDS3 Server Teardown
+     dump log    /tmp/sdds3_server.log
+     terminate process  ${GL_handle}  True
+     terminate all processes  True

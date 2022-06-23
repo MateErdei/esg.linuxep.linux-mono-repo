@@ -56,3 +56,7 @@ SUPPORTFILEPATH = os.path.join(ROBOT_ROOT_PATH, "SupportFiles")
 def get_support_file_path():
     return SUPPORTFILEPATH
 
+LIBSFILEPATH = os.path.join(ROBOT_ROOT_PATH, "libs")
+def get_libs_file_path():
+    return LIBSFILEPATH
+
