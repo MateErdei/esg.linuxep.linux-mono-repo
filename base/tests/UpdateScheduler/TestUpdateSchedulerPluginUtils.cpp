@@ -4,7 +4,6 @@ Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <Common/FlagUtils/FlagUtils.h>
 #include <UpdateSchedulerImpl/UpdateSchedulerUtils.h>
 #include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
 
@@ -149,30 +148,4 @@ TEST_F(UpdateSchedulerUtils, getUpdateConfigWithLatestJWTWhenTokenInUpdateConfig
     std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> pair = UpdateSchedulerImpl::UpdateSchedulerUtils::getUpdateConfigWithLatestJWT();
     ASSERT_EQ(pair.second,true);
     ASSERT_EQ(pair.first.getJWToken(),"tuff");
-}
-
-TEST_F(UpdateSchedulerUtils, testisFlagSetReturnsTruewhenFlagIsSDDS3Enabled)
-{
-    std::string content = R"({"sdds3.enabled" : true})";
-    ASSERT_EQ(true, Common::FlagUtils::isFlagSet(UpdateSchedulerImpl::UpdateSchedulerUtils::SDDS3_ENABLED_FLAG, content));
-}
-
-TEST_F(UpdateSchedulerUtils, testisFlagSetReturnsFalseWhenFlagIsNotSDDS3Enabled)
-{
-    std::string falseFlagContent = R"({"sdds3.enabled" : false})";
-    std::string diffFlagContent = R"({"xdr.enabled" : true})";
-
-    ASSERT_EQ(false, Common::FlagUtils::isFlagSet(UpdateSchedulerImpl::UpdateSchedulerUtils::SDDS3_ENABLED_FLAG, falseFlagContent));
-    ASSERT_EQ(false, Common::FlagUtils::isFlagSet(UpdateSchedulerImpl::UpdateSchedulerUtils::SDDS3_ENABLED_FLAG, diffFlagContent));
-}
-
-TEST_F(UpdateSchedulerUtils, testisFlagSetReturnsFalseWhenInvalidJson)
-{
-    std::string jsonNoQuotes = R"({sdds3.enabled : true})";
-    std::string jsonNoBool = R"({"sdds3.enabled" : "true"})";
-
-    ASSERT_EQ(false, Common::FlagUtils::isFlagSet(UpdateSchedulerImpl::UpdateSchedulerUtils::SDDS3_ENABLED_FLAG, "{}"));
-    ASSERT_EQ(false, Common::FlagUtils::isFlagSet(UpdateSchedulerImpl::UpdateSchedulerUtils::SDDS3_ENABLED_FLAG, "}"));
-    ASSERT_EQ(false, Common::FlagUtils::isFlagSet(UpdateSchedulerImpl::UpdateSchedulerUtils::SDDS3_ENABLED_FLAG, jsonNoQuotes));
-    ASSERT_EQ(false, Common::FlagUtils::isFlagSet(UpdateSchedulerImpl::UpdateSchedulerUtils::SDDS3_ENABLED_FLAG, jsonNoBool));
 }

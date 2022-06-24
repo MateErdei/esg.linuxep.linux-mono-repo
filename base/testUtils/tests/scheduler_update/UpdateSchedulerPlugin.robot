@@ -59,7 +59,7 @@ UpdateScheduler Does Not Create A Config For An Invalid Policy With No Username
     Simulate Send Policy   ALC_policy_invalid.xml
 
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  15 secs
     ...  1 secs
     ...  Check Log Contains   Invalid policy: Username is empty    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
 
