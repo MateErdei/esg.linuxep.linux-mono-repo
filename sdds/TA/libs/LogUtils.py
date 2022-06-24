@@ -64,3 +64,28 @@ class LogUtils(object):
         mcsrouter_log = self.mcs_router_log()
         self.check_log_contains(string_to_contain, mcsrouter_log, "MCS Router")
         logger.info(mcsrouter_log)
+
+    def get_number_of_occurences_of_substring_in_string(self, string, substring, use_regex=False):
+        if use_regex:
+            return self.get_number_of_occurences_of_regex_in_string(string, substring)
+        count = 0
+        index = 0
+        while True:
+            index = string.find(substring, index)
+            if index == -1:
+                break
+            index += len(substring)
+            count += 1
+        return count
+
+    def check_log_contains_string_n_times(self, log_path,  string_to_contain, expected_occurence):
+        contents = get_log_contents(log_path)
+
+        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain)
+        if num_occurences != int(expected_occurence):
+            raise AssertionError(
+                "{} Contains: \"{}\" - {} times not the requested {} times".format(log_path,
+                                                                                   string_to_contain,
+                                                                                   num_occurences,
+                                                                                   expected_occurence))
+

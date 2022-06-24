@@ -23,7 +23,10 @@ Thin Installer can install SSPLAV
 
     register on fail  dump log  ${SULDOWNLOADER_LOG_PATH}
     register on fail  dump log  ${UPDATESCHEDULER_LOG_PATH}
-
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  10 sec
+    ...  check_log_contains_string_n_times   ${SULDOWNLOADER_LOG_PATH}    Update success   2
     Send ALC Policy With AV
 
     Wait For ALC Policy On Endpoint
