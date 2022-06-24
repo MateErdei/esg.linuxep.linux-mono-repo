@@ -8,6 +8,20 @@ Default Tags   SULDOWNLOADER  UPDATE_SCHEDULER
 Force Tags  LOAD6
 
 *** Test Cases ***
+SDDS3 Enabled Flag is Set to False by Default When Not Present in Flags Json
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Log Contains    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json does not exist, performing a short wait for Central flags    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
+    Check Update Config Contains Expected useSDDS3 Value    false
+
+    Send Mock Flags Policy    {"livequery.network-tables.available": true, "scheduled_queries.next": true}
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  1 secs
+        ...  Check Log Contains    Flags: {"livequery.network-tables.available": true, "scheduled_queries.next": true}    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
+    Check Update Config Contains Expected useSDDS3 Value    false
+
 UpdateScheduler Will Not Trigger SULDownloader Until Flags Policy is Read
     Setup Plugin Install Failed
     Wait Until Keyword Succeeds
