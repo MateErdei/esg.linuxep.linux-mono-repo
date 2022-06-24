@@ -49,7 +49,6 @@ ${fixed_version_policy}                     ${SUPPORT_FILES}/CentralXml/ALC_Fixe
 ${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
 ${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
-${UpdateConfigFile}                         ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
 ${sdds3_server_output}                      /tmp/sdds3_server.log
 
 *** Test Cases ***
@@ -65,9 +64,9 @@ Sul Downloader Requests Fixed Version When Fixed Version In Policy
     Wait Until Keyword Succeeds
     ...    5s
     ...    1s
-    ...    Log File    ${UpdateConfigFile}
-    ${content}=  Get File    ${UpdateConfigFile}
-    File Should Contain  ${UpdateConfigFile}     JWToken
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...   10 secs

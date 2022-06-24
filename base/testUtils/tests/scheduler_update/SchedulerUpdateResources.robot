@@ -44,7 +44,7 @@ Send Policy With No Cache And No Proxy
     Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
 
 Send Mock Flags Policy
-    [Arguments]    ${fileContents}={"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": true}
+    [Arguments]    ${fileContents}
     Create File    /tmp/flags.json    ${fileContents}
 
     Copy File    /tmp/flags.json  /opt/NotARealFile
@@ -98,7 +98,6 @@ Restart Update Scheduler
 Setup Update Scheduler Environment
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-    Send Mock Flags Policy
     Disable mcsrouter
     setup mcs config with JWT token
 
@@ -115,7 +114,6 @@ setup mcs config with JWT token
 Setup Current Update Scheduler Environment
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-    Send Mock Flags Policy
     Disable mcsrouter
     setup mcs config with JWT token
     Create Empty Config File To Stop First Update On First Policy Received
@@ -124,13 +122,6 @@ Setup Current Update Scheduler Environment
     Send Policy With Cache
 
 Setup Current Update Scheduler Environment Without Policy
-    Require Fresh Install
-    Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
-    Send Mock Flags Policy
-    Disable mcsrouter
-    setup mcs config with JWT token
-
-Setup Current Update Scheduler Environment Without Flags
     Require Fresh Install
     Set Test Variable  ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
     Disable mcsrouter

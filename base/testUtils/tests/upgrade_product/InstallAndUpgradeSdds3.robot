@@ -55,7 +55,6 @@ ${Sophos_Scheduled_Query_Pack}              ${SOPHOS_INSTALL}/plugins/edr/etc/os
 ${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
 ${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
-${UpdateConfigFile}                         ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
 
 
 ${sdds2_primary}                            ${SOPHOS_INSTALL}/base/update/cache/primary
@@ -75,7 +74,7 @@ Sul Downloader fails update if expected product missing from SUS
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   5 secs
-    ...   File Should Contain  ${UpdateConfigFile}     ServerProtectionLinux-Plugin-Fake
+    ...   File Should Contain  ${UPDATE_CONFIG}     ServerProtectionLinux-Plugin-Fake
 
     Trigger Update Now
 

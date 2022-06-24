@@ -156,11 +156,14 @@ Telemetry Executable Generates Update Scheduler Telemetry
     # Make sure there are no left over update telemetry items.
     Cleanup Telemetry Server
     Require Fresh Install
-    Send Mock Flags Policy
 
     Create Empty SulDownloader Config
     setup mcs config with JWT token
     Drop ALC Policy Into Place
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Log Contains    Processing Flags    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
 
     Prepare To Run Telemetry Executable
 
@@ -173,11 +176,14 @@ Telemetry Executable Generates Update Scheduler Telemetry With Fixed Version And
     # Make sure there are no left over update telemetry items.
     Cleanup Telemetry Server
     Require Fresh Install
-    Send Mock Flags Policy
 
     Create Empty SulDownloader Config
     setup mcs config with JWT token
     Drop ALC Policy With Fixed Version Into Place
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Log Contains    Processing Flags    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
 
     Prepare To Run Telemetry Executable
 
