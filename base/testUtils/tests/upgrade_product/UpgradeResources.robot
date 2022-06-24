@@ -170,12 +170,13 @@ Mark Known Upgrade Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections died with 1
 
 Create Local SDDS3 Override
+    [Arguments]  ${URLS}=http://127.0.0.1:8080  ${CDN_URL}=http://127.0.0.1:8080  ${USE_SDDS3_OVERRIDE}=true  ${USE_HTTP}=true
     ${override_file_contents} =  Catenate    SEPARATOR=\n
     # these settings will instruct SulDownloader to update using SDDS3 via a local test HTTP server.
-    ...  URLS = http://127.0.0.1:8080
-    ...  CDN_URL = http://127.0.0.1:8080
-    ...  USE_SDDS3 = true
-    ...  USE_HTTP = true
+    ...  URLS = ${URLS}
+    ...  CDN_URL = ${CDN_URL}
+    ...  USE_SDDS3 = ${USE_SDDS3_OVERRIDE}
+    ...  USE_HTTP = ${USE_HTTP}
     Create File    ${sdds3_override_file}    content=${override_file_contents}
 
 Start Local SDDS3 Server

@@ -52,6 +52,15 @@ Send Mock Flags Policy
     Run Process  chmod  640  /opt/NotARealFile
     Move File    /opt/NotARealFile  ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
 
+Overwrite MCS Flags File
+    [Arguments]    ${fileContents}={"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": true}
+    Create File    /tmp/flags.json    ${fileContents}
+
+    Copy File    /tmp/flags.json  /opt/NotARealFile
+    Run Process  chown  sophos-spl-local:sophos-spl-group  /opt/NotARealFile
+    Run Process  chmod  600  /opt/NotARealFile
+    Move File    /opt/NotARealFile  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
+
 Stop Update Scheduler
     ${wdctl} =   Set Variable  ${SOPHOS_INSTALL}/bin/wdctl
     ${result} =    Run Process    ${wdctl}    stop  updatescheduler

@@ -1326,6 +1326,12 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         return self.ret(commands)
 
     def mcs_flags(self):
+        flag_file_path = os.path.join("/tmp", "mcs_flags")
+        if os.path.isfile(flag_file_path):
+            logger.info(f"Getting flags from {flag_file_path}")
+            with open(flag_file_path) as flag_file:
+                return self.ret(flag_file.read())
+        logger.info(f"Using default flags")
         FLAGS = r"""{
   "livequery.network-tables.available" : true,
   "endpoint.flag2.enabled" : false,

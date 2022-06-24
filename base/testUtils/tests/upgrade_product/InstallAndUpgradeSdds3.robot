@@ -232,6 +232,111 @@ SDDS3 updating with changed unused feature codes do not change version
     Should Be Equal As Strings  ${HBTVersionBeforeUpdate}  ${HBTVersionAfterUpdate}
     Should Be Equal As Strings  ${BaseVersionBeforeUpdate}  ${BaseVersionAfterUpdate}
 
+We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False Then Update Using SDDS3 When Flag Turns True
+    [Setup]    Test Setup With Ostia
+    [Teardown]    Test Teardown With Ostia
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    ${handle}=  Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    #check first two updates are SDDS3 (install) followed by SDDS2 update (5th line only appears in sdds2 mode)
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Running in SDDS3 updating mode  1
+    Check Log Contains In Order
+    ...  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    ...  Logger suldownloader configured for level: INFO
+    ...  Running in SDDS3 updating mode
+    ...  Update success
+    ...  Logger suldownloader configured for level: INFO
+    ...  Products downloaded and synchronized with warehouse
+    ...  Update success
+
+    #Don't force SDDS3 as we want to use flags to trigger it.
+    Create Local SDDS3 Override  USE_SDDS3_OVERRIDE=false
+
+    #prevent mcs overwriting flags
+    File Should Contain  ${UpdateConfigFile}     "useSDDS3": false
+    Overwrite MCS Flags File  {"sdds3.enabled": true}
+    Wait Until Keyword Succeeds
+    ...     10s
+    ...     2s
+    ...     File Should Contain  ${UpdateConfigFile}     "useSDDS3": true
+    Mark Sul Log
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Marked Sul Log Contains    Running in SDDS3 updating mode
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  3
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Running in SDDS3 updating mode  2
+
+We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True Then Update Using SDDS2 When Flag Turns False
+    [Setup]    Test Setup With Ostia
+    [Teardown]    Test Teardown With Ostia And Fake Cloud MCS Flag Override
+    ${desired_flags} =     Catenate    SEPARATOR=\n
+    ...  {
+    ...    "livequery.network-tables.available" : true,
+    ...    "endpoint.flag2.enabled" : false,
+    ...    "endpoint.flag3.enabled" : false,
+    ...    "jwt-token.available" : true,
+    ...    "mcs.v2.data_feed.available": true,
+    ...    "sdds3.enabled": true
+    ...  }
+
+    Create File  /tmp/mcs_flags  ${desired_flags}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    ${handle}=  Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    #check first two updates are SDDS3 (installation + initial update)
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Running in SDDS3 updating mode  2
+    Check Log Contains In Order
+    ...  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    ...  Logger suldownloader configured for level: INFO
+    ...  Running in SDDS3 updating mode
+    ...  Update success
+    ...  Logger suldownloader configured for level: INFO
+    ...  Running in SDDS3 updating mode
+    ...  Update success
+
+    #prevent mcs overwriting flags
+    File Should Contain  ${UpdateConfigFile}     "useSDDS3": true
+    Overwrite MCS Flags File  {"sdds3.enabled": false}
+    Wait Until Keyword Succeeds
+    ...     10s
+    ...     2s
+    ...     File Should Contain  ${UpdateConfigFile}     "useSDDS3": false
+    Mark Sul Log
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Marked Sul Log Does Not Contain    Running in SDDS3 updating mode
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  3
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Running in SDDS3 updating mode  2
+
 *** Keywords ***
 Create Dummy Local SDDS2 Cache Files
     Create File         ${sdds2_primary}/base/update/cache/primary/1
@@ -271,3 +376,6 @@ Test Teardown With Ostia
     Stop Local SDDS3 Server
     Teardown Ostia Warehouse Environment
     Test Teardown
+
+Test Teardown With Ostia And Fake Cloud MCS Flag Override
+    Remove File  /tmp/mcs_flags
