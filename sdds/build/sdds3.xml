@@ -26,7 +26,8 @@
 
         <build-asset project="linuxep" repo="capsule8-sensor">
             <development-version branch="master"/>
-            <include artifact-path="SDDS3-PACKAGE" dest-dir="redist/runtimedetections/latest/x64" mode="dev,999"/>
+            <include artifact-path="SDDS3-PACKAGE" dest-dir="redist/runtimedetections/latest/x64" mode="dev"/>
+            <include artifact-path="SDDS3-COMPONENT-999" dest-dir="redist/runtimedetections/latest/x64" mode="999"/>
         </build-asset>
 
         <build-asset project="winep" repo="liveterminal">
