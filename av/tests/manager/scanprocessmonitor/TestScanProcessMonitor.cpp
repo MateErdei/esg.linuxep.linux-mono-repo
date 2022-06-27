@@ -248,28 +248,28 @@ TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfMove) // NOLINT
     a.join();
 }
 
-//TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfWriteToSymlinkTarget) // NOLINT
-//{
-//    fs::path symlinkTargetDir = m_testDir / "targetDir";
-//    fs::path symlinkTarget = symlinkTargetDir / "targetFile";
-//    fs::create_directories(symlinkTargetDir);
-//
-//    std::ofstream ofs(symlinkTarget);
-//    ofs << "This is some text";
-//    ofs.close();
-//
-//    fs::create_symlink(symlinkTarget, "hosts");
-//
-//    Common::Threads::NotifyPipe configPipe;
-//    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
-//    a.start();
-//
-//    ofs.open("hosts");
-//    ofs << "This is some different text";
-//    ofs.close();
-//
-//    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
-//
-//    a.requestStop();
-//    a.join();
-//}
+TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfWriteToSymlinkTarget) // NOLINT
+{
+    fs::path symlinkTargetDir = m_testDir / "targetDir";
+    fs::path symlinkTarget = symlinkTargetDir / "targetFile";
+    fs::create_directories(symlinkTargetDir);
+
+    std::ofstream ofs(symlinkTarget);
+    ofs << "This is some text";
+    ofs.close();
+
+    fs::create_symlink(symlinkTarget, "hosts");
+
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
+    a.start();
+
+    ofs.open("hosts");
+    ofs << "This is some different text";
+    ofs.close();
+
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    a.requestStop();
+    a.join();
+}
