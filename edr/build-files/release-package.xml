@@ -7,19 +7,19 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-24" build-id="20220606110625-f3ee979a2e1c14a0e0927a8193c927f0d1f23edd-wDtd9f"/>
+            <release-version branch="release/2022-27" build-id="20220624174822-3fe1b1a04318a3e99923d0e4df4d7c1c3aa0142d-OZ6upC"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>
 
         <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2022-24-linux" build-id="20220607085818-18cf795141ab89c0809d604449c4081935bbc0fa-CkQ8pt"/>
+            <release-version branch="release/2022.27" build-id="20220624115923-3fe7cf1e37984a2c84a81a23ac66600d59697876-xpN3Yg"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="/build/input/sspl-osquery-components"/>
         </build-asset>
         <build-asset project="winep" repo="dbos">
-            <release-version branch="release/2022.15" build-id="20220329135124-8c839de0cf0f5d41a35693344d1d445879b7c915-5B6yYv"/>
+            <release-version branch="release/2022-27-linux" build-id="20220627095559-35759bfd09007f004979e4a3ecc1b5e06cb5d8f2-dZlne8"/>
             <development-version branch="develop"/>
             <include artifact-path="linux-x64-extension" dest-dir="/build/input/linux-x64-extension"/>
         </build-asset>
