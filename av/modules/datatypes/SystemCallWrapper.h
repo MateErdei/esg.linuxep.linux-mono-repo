@@ -39,5 +39,15 @@ namespace datatypes
             long upTime = res == -1 ? 0 : systemInfo.uptime;
             return std::pair(res, upTime);
         }
+
+        int pselect(int __nfds,
+                    fd_set *__restrict __readfds,
+                    fd_set *__restrict __writefds,
+                    fd_set *__restrict __exceptfds,
+                    const struct timespec *__restrict __timeout,
+                    const __sigset_t *__restrict __sigmask) override
+        {
+            return ::pselect(__nfds, __readfds, __writefds, __exceptfds, __timeout, __sigmask);
+        }
     };
 }

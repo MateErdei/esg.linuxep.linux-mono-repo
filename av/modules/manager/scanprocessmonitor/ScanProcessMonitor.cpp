@@ -24,8 +24,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace fs = sophos_filesystem;
 
-plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(std::string processControllerSocket)
-    : m_config_monitor(m_config_changed)
+plugin::manager::scanprocessmonitor::ScanProcessMonitor::ScanProcessMonitor(std::string processControllerSocket, datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
+    : m_config_monitor(m_config_changed, systemCallWrapper)
     , m_processControllerSocket(std::move(processControllerSocket))
 {
 }

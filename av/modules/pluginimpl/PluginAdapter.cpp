@@ -12,6 +12,7 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 #include "common/PluginUtils.h"
 #include "datatypes/sophos_filesystem.h"
+#include "datatypes/SystemCallWrapper.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -66,7 +67,7 @@ namespace Plugin
         m_threatReporterServer(threat_reporter_socket(), 0660,
                                std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath)),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
-            process_controller_socket())),
+            process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
         m_threatEventPublisher(m_zmqContext->getPublisher())

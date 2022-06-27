@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "InotifyFD.h"
 
 #include "datatypes/sophos_filesystem.h"
+#include "datatypes/ISystemCallWrapper.h"
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Threads/NotifyPipe.h"
@@ -25,6 +26,7 @@ namespace plugin::manager::scanprocessmonitor
     {
     public:
         explicit ConfigMonitor(Common::Threads::NotifyPipe& pipe,
+                               datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
                                std::string base="/etc");
 
     private:
@@ -39,5 +41,6 @@ namespace plugin::manager::scanprocessmonitor
         fs::path m_base;
 
         std::map<fs::path, std::shared_ptr<InotifyFD>> m_interestingDirs;
+        datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
     };
 }

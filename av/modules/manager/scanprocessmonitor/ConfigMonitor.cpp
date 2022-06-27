@@ -46,9 +46,11 @@ static inline bool isInteresting(const std::string& basename)
 }
 
 ConfigMonitor::ConfigMonitor(Common::Threads::NotifyPipe& pipe,
+                             datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
                              std::string base)
     : m_configChangedPipe(pipe)
     , m_base(std::move(base))
+    , m_sysCalls(systemCallWrapper)
 {
     resolveSymlinksForInterestingFiles();
 }
@@ -149,7 +151,7 @@ void ConfigMonitor::run()
     {
         bool configChanged = false;
         fd_set temp_readfds = readfds;
-        int active = ::pselect(max_fd+1, &temp_readfds, nullptr, nullptr, nullptr, nullptr);
+        int active = m_sysCalls->pselect(max_fd+1, &temp_readfds, nullptr, nullptr, nullptr, nullptr);
 
         if (stopRequested())
         {

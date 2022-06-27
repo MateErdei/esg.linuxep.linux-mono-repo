@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "ConfigMonitor.h"
 
 #include "datatypes/sophos_filesystem.h"
+#include "datatypes/ISystemCallWrapper.h"
 #include "unixsocket/processControllerSocket/ProcessControllerClient.h"
 
 namespace plugin::manager::scanprocessmonitor
@@ -16,7 +17,8 @@ namespace plugin::manager::scanprocessmonitor
     class ScanProcessMonitor : public Common::Threads::AbstractThread
     {
     public:
-        explicit ScanProcessMonitor(std::string processControllerSocket);
+        explicit ScanProcessMonitor(std::string processControllerSocket,
+                                    datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
         void run() override;
 
         /**
