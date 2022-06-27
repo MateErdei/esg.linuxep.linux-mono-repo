@@ -120,6 +120,7 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         with stage.parallel('sdds3'):
             if do_prod:
                 build_sdds3_warehouse(stage=stage, mode="prod")
+                buildsdds3 = False;
             if do_dev:
                 buildsdds3 = build_sdds3_warehouse(stage=stage, mode="dev")
                 build_sdds3_warehouse(stage=stage, mode="999")

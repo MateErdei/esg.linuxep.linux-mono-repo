@@ -1,14 +1,14 @@
 <?xml version="1.0" ?>
 <importspec>
   <warehouses>
-    <warehouse id="ssplmdr" name="DNR_SSPL_MDR_SPRINT_2022_24"/>
+    <warehouse id="ssplmdr" name="DNR_SSPL_MDR_SPRINT_2022_27"/>
   </warehouses>
   <imports>
     <line id="ServerProtectionLinux-Plugin-MDR">
       <component
-              id="ServerProtectionLinux-Plugin-MDR-1.0.12.13"
-              version="1.0.12.13"
-              artifact="esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--2022-24/20220606143906-c887545ca30704d140d53fa5e4d15577d67dce4b-F5682d/mdr/SDDS-COMPONENT/"
+              id="ServerProtectionLinux-Plugin-MDR-1.0.12.21"
+              version="1.0.12.21"
+              artifact="esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--2022-27/20220627112857-e3838f77e71b87acda348d1fb8b302feca30db9c-28yYtP/mdr/SDDS-COMPONENT/"
               longdic="Sophos Server Protection for Linux MTR" shortdic="Sophos Server Protection for Linux MTR" />
       <component
               id="ServerProtectionLinux-Plugin-MDR-1.0.12.2"
