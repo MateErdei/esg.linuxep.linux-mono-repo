@@ -261,12 +261,12 @@ We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False 
     Create Local SDDS3 Override  USE_SDDS3_OVERRIDE=false
 
     #prevent mcs overwriting flags
-    File Should Contain  ${UpdateConfigFile}     "useSDDS3": false
+    File Should Contain  ${UPDATE_CONFIG}     "useSDDS3": false
     Overwrite MCS Flags File  {"sdds3.enabled": true}
     Wait Until Keyword Succeeds
     ...     10s
     ...     2s
-    ...     File Should Contain  ${UpdateConfigFile}     "useSDDS3": true
+    ...     File Should Contain  ${UPDATE_CONFIG}     "useSDDS3": true
     Mark Sul Log
     Trigger Update Now
     Wait Until Keyword Succeeds
@@ -317,12 +317,12 @@ We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True T
     ...  Update success
 
     #prevent mcs overwriting flags
-    File Should Contain  ${UpdateConfigFile}     "useSDDS3": true
+    File Should Contain  ${UPDATE_CONFIG}     "useSDDS3": true
     Overwrite MCS Flags File  {"sdds3.enabled": false}
     Wait Until Keyword Succeeds
     ...     10s
     ...     2s
-    ...     File Should Contain  ${UpdateConfigFile}     "useSDDS3": false
+    ...     File Should Contain  ${UPDATE_CONFIG}     "useSDDS3": false
     Mark Sul Log
     Trigger Update Now
     Wait Until Keyword Succeeds
@@ -377,4 +377,5 @@ Test Teardown With Ostia
     Test Teardown
 
 Test Teardown With Ostia And Fake Cloud MCS Flag Override
+    Test Teardown With Ostia
     Remove File  /tmp/mcs_flags
