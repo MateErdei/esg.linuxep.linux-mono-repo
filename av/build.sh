@@ -140,7 +140,7 @@ do
             export USE_LIBFUZZER=1
             CMAKE_BUILD_TYPE=Debug
             UNITTEST=0
-            LOCAL_CMAKE=1
+            LOCAL_CMAKE=0
             BUILD_SDDS3=0
             ;;
         --plugin-api-tar)
