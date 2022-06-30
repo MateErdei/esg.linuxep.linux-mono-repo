@@ -1,44 +1,24 @@
 /******************************************************************************************************
 
-Copyright 2021, Sophos Limited.  All rights reserved.
+Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <modules/pluginimpl/PluginUtils.h>
+
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
-
-#include <Common/Helpers/TempDir.h>
-#include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MockFileSystem.h>
+#include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/MockFilePermissions.h>
+#include <Common/Helpers/MockFileSystem.h>
+#include <Common/Helpers/TempDir.h>
+
+#include <modules/pluginimpl/ApplicationPaths.h>
+#include <modules/pluginimpl/PluginUtils.h>
+
 #include <gtest/gtest.h>
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
 class TestPluginUtils: public LogOffInitializedTests{};
-
-TEST_F(TestPluginUtils, testisFlagSetReturnsTruewhenFlagIsXDR)
-{
-    std::string content = R"({"xdr.enabled" : true})";
-    ASSERT_EQ(true, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, content));
-}
-
-TEST_F(TestPluginUtils, testisFlagSetReturnsFalseWhenFlagIsNotXDR)
-{
-    std::string content = R"({"xdr.enabled" : false})";
-    ASSERT_EQ(false, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, content));
-}
-
-TEST_F(TestPluginUtils, testisFlagSetReturnsFalseWhenInvalidJson)
-{
-    ASSERT_EQ(false, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, "{}"));
-    ASSERT_EQ(false, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, "}"));
-    std::string content = R"({xdr.enabled : true})";
-    ASSERT_EQ(false, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, content));
-    std::string content1 = R"({"xdr.enabled" : "true"})";
-    ASSERT_EQ(false, Plugin::PluginUtils::isFlagSet(Plugin::PluginUtils::XDR_FLAG, content1));
-}
 
 TEST_F(TestPluginUtils, retrieveGivenFlagFromSettingsFileWhenItIsEDR)
 {

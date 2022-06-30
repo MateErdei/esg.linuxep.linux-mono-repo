@@ -1,31 +1,30 @@
 /******************************************************************************************************
 
-Copyright 2018-2021 Sophos Limited.  All rights reserved.
+Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "PluginAdapter.h"
-
-#include "ApplicationPaths.h"
-#include "IOsqueryProcess.h"
-#include "Logger.h"
-#include "TelemetryConsts.h"
-#include "PluginUtils.h"
-#include "LiveQueryPolicyParser.h"
-
-#include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <Common/FlagUtils/FlagUtils.h>
 #include <Common/PluginApi/NoPolicyAvailableException.h>
 #include <Common/ProcUtilImpl/ProcUtilities.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
 
+#include <modules/pluginimpl/ApplicationPaths.h>
+#include <modules/pluginimpl/IOsqueryProcess.h>
+#include <modules/pluginimpl/LiveQueryPolicyParser.h>
+#include <modules/pluginimpl/Logger.h>
+#include <modules/pluginimpl/PluginAdapter.h>
+#include <modules/pluginimpl/PluginUtils.h>
+#include <modules/pluginimpl/TelemetryConsts.h>
+
 #include <cmath>
-#include <unistd.h>
 #include <fstream>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <thirdparty/nlohmann-json/json.hpp>
+#include <unistd.h>
 
 // helper class that allow to schedule a task.
 // but it also has some capability of interrupting the scheduler at any point
@@ -563,8 +562,8 @@ namespace Plugin
         }
 
         bool flagsHaveChanged = false;
-        bool useNextQueryPack = Plugin::PluginUtils::isFlagSet(PluginUtils::QUERY_PACK_NEXT, flagsContent);
-        bool networkTablesAvailable = Plugin::PluginUtils::isFlagSet(PluginUtils::NETWORK_TABLES_FLAG, flagsContent);
+        bool useNextQueryPack = Common::FlagUtils::isFlagSet(PluginUtils::QUERY_PACK_NEXT, flagsContent);
+        bool networkTablesAvailable = Common::FlagUtils::isFlagSet(PluginUtils::NETWORK_TABLES_FLAG, flagsContent);
 
         if (useNextQueryPack)
         {

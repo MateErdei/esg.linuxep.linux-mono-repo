@@ -1,52 +1,23 @@
 /******************************************************************************************************
 
-Copyright 2020 Sophos Limited.  All rights reserved.
+Copyright 2020-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "PluginUtils.h"
-
-#include "ApplicationPaths.h"
-#include "LiveQueryPolicyParser.h"
-#include "Logger.h"
-#include "OsqueryConfigurator.h"
-
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/UtilityImpl/FileUtils.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <thirdparty/nlohmann-json/json.hpp>
+
+#include <modules/pluginimpl/ApplicationPaths.h>
+#include <modules/pluginimpl/LiveQueryPolicyParser.h>
+#include <modules/pluginimpl/Logger.h>
+#include <modules/pluginimpl/OsqueryConfigurator.h>
+#include <modules/pluginimpl/PluginUtils.h>
 
 #include <fstream>
 
 namespace Plugin
 {
-    bool PluginUtils::isFlagSet(const std::string& flag, const std::string& flagContent)
-    {
-        bool flagValue = false;
-
-        try
-        {
-            nlohmann::json j = nlohmann::json::parse(flagContent);
-
-            if (j.find(flag) != j.end())
-            {
-                if (j[flag] == true)
-                {
-                    flagValue = true;
-                }
-            }
-        }
-        catch (nlohmann::json::parse_error& ex)
-        {
-            std::stringstream errorMessage;
-            errorMessage << "Could not parse json: " << flagContent << " with error: " << ex.what();
-            LOGWARN(errorMessage.str());
-        }
-
-        return flagValue;
-    }
-
     bool PluginUtils::retrieveGivenFlagFromSettingsFile(const std::string& flag)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
