@@ -351,6 +351,10 @@ namespace SulDownloader
         {
             if ( (product.productHasChanged() || product.forceProductReinstall()) && !product.getProductIsBeingUninstalled())
             {
+                LOGINFO(product.productHasChanged());
+                LOGINFO(product.forceProductReinstall());
+                LOGINFO(product.getProductIsBeingUninstalled());
+
                 product.install(configurationData.getInstallArguments());
             }
             else
