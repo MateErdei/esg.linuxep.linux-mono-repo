@@ -37,7 +37,9 @@ Test wdctl will block on removing a plugin
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   removePluginRegistration   fakePlugin
     ${date1} =	Get Current Date
     ${TimeDiff} =	Subtract Date From Date  ${date1}  ${date}
-    Run Keyword Unless  4.5 < ${TimeDiff}   Fail
+    IF    ${TimeDiff} < 4.5
+        Fail
+    END
 
 
 *** Keywords ***

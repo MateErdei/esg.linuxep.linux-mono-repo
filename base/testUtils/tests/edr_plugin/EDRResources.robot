@@ -145,8 +145,9 @@ Install And Enable AuditD If Required
     ...   Run Shell Process   apt-get install auditd -y    OnError=failed to install auditd  timeout=200s
 
     #  Assume all other supported platforms install software using YUM
-    Run Keyword Unless  ${Result}==${True}
-    ...  Run Shell Process   yum install audit -y    OnError=failed to install auditd  timeout=200s
+    IF  ${Result}!=${True}
+      Run Shell Process   yum install audit -y    OnError=failed to install auditd  timeout=200s
+    END
 
     Run Shell Process   systemctl start auditd    OnError=failed to start auditd
 
@@ -156,8 +157,9 @@ Uninstall AuditD If Required
     ...   Run Shell Process   apt-get remove auditd -y    OnError=failed to remove auditd  timeout=200s
 
     #  Assume all other supported platforms install software using YUM
-    Run Keyword Unless  ${Result}==${True}
-    ...  Run Shell Process   yum remove audit -y    OnError=failed to remove auditd  timeout=200s
+    IF  ${Result}!=${True}
+      Run Shell Process   yum remove audit -y    OnError=failed to remove auditd  timeout=200s
+    END
 
 EDR Suite Setup
     UpgradeResources.Suite Setup

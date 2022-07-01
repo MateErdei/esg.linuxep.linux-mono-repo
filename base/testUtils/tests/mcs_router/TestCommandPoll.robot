@@ -89,7 +89,11 @@ Test Connection Retry Backoff Period Is Set Correctly
     ...   waiting up to 60.000000s after 3 failures
 
     ${timestamp1} =  Get Time Difference Between Two Log Lines   waiting up to 15.000000s after 1 failures   waiting up to 30.000000s after 2 failures     ${MCSRouterLog}
-    Run Keyword Unless  10 < ${timestamp1} < 15.5  Fail
+    IF  ${timestamp1} < 10 or 15.5 < ${timestamp1}
+      Fail
+    END
 
     ${timestamp2} =  Get Time Difference Between Two Log Lines   waiting up to 30.000000s after 2 failures   waiting up to 60.000000s after 3 failures     ${MCSRouterLog}
-    Run Keyword Unless  15 < ${timestamp2} < 30.5  Fail
+    IF  ${timestamp2} < 15 or 30.5 < ${timestamp2}
+      Fail
+    END

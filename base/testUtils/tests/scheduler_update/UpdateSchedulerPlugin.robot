@@ -577,7 +577,9 @@ UpdateScheduler Schedules a Scheduled Update and Updates as Scheduled
 
     ${ActualUpdateDate} =  Get Current Date
     ${TimeDiff} =  Subtract Date From Date  ${ActualUpdateDate}  ${ScheduledDate}
-    Run Keyword Unless  -60 < ${TimeDiff} < 480  Fail
+    IF  ${TimeDiff} < -60 or 480 < ${TimeDiff}
+      Fail
+    END
 
 
 UpdateScheduler Performs Update After Receiving Policy With Different Features

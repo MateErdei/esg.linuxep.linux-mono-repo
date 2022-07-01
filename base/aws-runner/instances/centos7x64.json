@@ -38,7 +38,6 @@
         "#!/bin/bash\n",
         "echo 'Testing ", {"Ref": "BuildName"},"'\n",
         "echo 'Setting up the system for tests ...' >>/tmp/cloudFormationInit.log\n",
-        "pip3 install --upgrade robotframework python-dateutil 2>&1 >>/tmp/cloudFormationInit.log\n",
         "export HOSTNAME=@HOSTNAMEGOESHERE@", "\n",
         "nmcli general hostname ${HOSTNAME}\n",
         "hostnamectl set-hostname ${HOSTNAME}\n",
