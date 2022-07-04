@@ -128,7 +128,7 @@ Setup Current Update Scheduler Environment Without Policy
     setup mcs config with JWT token
 
 Check Status and Events Are Created
-    [Arguments]   ${waitTime}=10 secs  ${attemptsTime}=1 secs
+    [Arguments]   ${waitTime}=15 secs  ${attemptsTime}=1 secs
 
    Check Status Is Created    ${waitTime}  ${attemptsTime}
 

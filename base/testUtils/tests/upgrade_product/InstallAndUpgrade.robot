@@ -483,6 +483,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ${ExpectedRuntimedetectionsDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
     ${ExpectedEJDevVersion} =    get_version_for_rigidname_in_vut_warehouse    ServerProtectionLinux-Plugin-EventJournaler
 
+    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -500,7 +501,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
 #
     Mark Watchdog Log
     Mark Managementagent Log
-    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+
     Trigger Update Now
 
 # TODO LINUXDAR-4263: Uncomment this when SSPL Shipping has Health
@@ -817,14 +818,16 @@ Check Installed Version In Status Message Is Correctly Reported Based On Version
     ...   5 secs
     ...   File Should Exist  ${status_file}
 
-    Override Local LogConf File for a component   INFO  global
-    Run Process  systemctl  restart  sophos-spl
+    Wait Until Keyword Succeeds
+    ...   180 secs
+    ...   10 secs
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   1
 
-    # Tigger update to make sure everything has settle down foe test, i.e. we do not want files to be updated
+    # Trigger update to make sure everything has settle down for test, i.e. we do not want files to be updated
     # when the actual test update is being performed.
     Trigger Update Now
     Wait Until Keyword Succeeds
-    ...   240 secs
+    ...   120 secs
     ...   10 secs
     ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   2
 
