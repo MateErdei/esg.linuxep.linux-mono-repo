@@ -1,13 +1,13 @@
 <?xml version="1.0" ?>
 <importspec>
   <warehouses>
-    <warehouse id="sspl"   name="DNR_SSPL_SPRINT_2022_27"/>
+    <warehouse id="sspl"   name="DNR_SSPL_SPRINT_2022_27_RESPIN_AV_24"/>
   </warehouses>
   <imports>
     <line id="ServerProtectionLinux-Base">
-		<componentsuite id="ServerProtectionLinux-Base-1.1.10.12"
-						version="1.1.10.12"
-						artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--2022-27/20220627125452-e48ede3bea942f1a249dffa4e858a8383a5ed580-fSL7Bt/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
+		<componentsuite id="ServerProtectionLinux-Base-1.1.10.13"
+						version="1.1.10.13"
+						artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--2022-27/20220701085649-e48ede3bea942f1a249dffa4e858a8383a5ed580-1aPWJ5/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
 						longdic="Sophos Linux Base"
 						shortdic="Sophos Linux Base"/>
 		<componentsuite id="ServerProtectionLinux-Base-1.1.10.6"
@@ -222,9 +222,9 @@
 				 shortdic="Sophos Linux Runtime Detection Plugin"/>
     </line>
 	<line id="ServerProtectionLinux-Plugin-AV">
-      <component id="ServerProtectionLinux-Plugin-AV-1.0.6.675"
-				   version="1.0.6.675"
-				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2022-27/20220627101929-be8253eeb2465f0a12e891708806179326d73ee0-sVxBI2/sspl-plugin-anti-virus/SDDS-COMPONENT/"
+      <component id="ServerProtectionLinux-Plugin-AV-1.0.6.641"
+				   version="1.0.6.641"
+				   artifact="esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2022-24/20220606171158-566d846d701538028473dfb20c354f5b2c00e2fa-b2b070/sspl-plugin-anti-virus/SDDS-COMPONENT/"
 				   longdic="Sophos Linux AntiVirus"
 				   shortdic="Sophos Linux AntiVirus"/>
 		<component id="ServerProtectionLinux-Plugin-AV-1.0.6.593"
