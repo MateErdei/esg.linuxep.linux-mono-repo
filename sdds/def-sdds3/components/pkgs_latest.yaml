@@ -11,7 +11,7 @@ edr.latest.x64:
   line-id: ServerProtectionLinux-Plugin-EDR
   mountpoint: ServerProtectionLinux-Plugin-EDR
 av.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2022-27/20220627101929-be8253eeb2465f0a12e891708806179326d73ee0-sVxBI2/sspl-plugin-anti-virus/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2022-24/20220606171158-566d846d701538028473dfb20c354f5b2c00e2fa-b2b070/sspl-plugin-anti-virus/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-AV
   mountpoint: ServerProtectionLinux-Plugin-AV
 mdr.latest.x64:
