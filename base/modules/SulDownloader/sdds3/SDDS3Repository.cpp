@@ -375,18 +375,6 @@ namespace SulDownloader
 
     void SDDS3Repository::generateProductListFromSdds3PackageInfo(const std::string& primaryRigidName)
     {
-
-        std::string configFilePathString =
-            Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
-        try
-        {
-            SulDownloader::sdds3Wrapper()->saveConfig(m_config, configFilePathString);
-        }
-        catch(const std::exception& ex)
-        {
-           LOGERROR("Failed to store SDDS3 config file, error:" << ex.what());
-        }
-
         std::vector<sdds3::PackageRef> packagesWithSupplements;
         if (m_supplementOnly)
         {
@@ -412,6 +400,18 @@ namespace SulDownloader
             LOGINFO(pair.first + " - " + pair.second);
         }
         LOGINFO("JAKE5");
+
+        std::string configFilePathString =
+                Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
+        try
+        {
+            SulDownloader::sdds3Wrapper()->saveConfig(m_config, configFilePathString);
+        }
+        catch(const std::exception& ex)
+        {
+            LOGERROR("Failed to store SDDS3 config file, error:" << ex.what());
+        }
+
         std::vector<sdds3::PackageRef> allPackages =
             SulDownloader::sdds3Wrapper()->getPackages(*m_session.get(), m_repo, m_config);
 
