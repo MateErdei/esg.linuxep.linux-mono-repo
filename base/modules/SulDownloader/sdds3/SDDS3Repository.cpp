@@ -393,8 +393,25 @@ namespace SulDownloader
             packagesWithSupplements =
                 SulDownloader::sdds3Wrapper()->getPackagesIncludingSupplements(*m_session.get(), m_repo, m_config);
         }
+        LOGINFO("JAKE1");
+        for (auto const &pair: m_config.package_thumbprints) {
+            LOGINFO(pair.first + " - " + pair.second);
+        }
+        LOGINFO("JAKE2");
+        for (auto const &pair: m_oldConfig.package_thumbprints) {
+            LOGINFO(pair.first + " - " + pair.second);
+        }
         std::vector<sdds3::PackageRef> packagesToInstall =
             SulDownloader::sdds3Wrapper()->getPackagesToInstall(*m_session.get(), m_repo, m_config, m_oldConfig);
+        LOGINFO("JAKE3");
+        for (auto const &pair: m_config.package_thumbprints) {
+            LOGINFO(pair.first + " - " + pair.second);
+        }
+        LOGINFO("JAKE4");
+        for (auto const &pair: m_oldConfig.package_thumbprints) {
+            LOGINFO(pair.first + " - " + pair.second);
+        }
+        LOGINFO("JAKE5");
         std::vector<sdds3::PackageRef> allPackages =
             SulDownloader::sdds3Wrapper()->getPackages(*m_session.get(), m_repo, m_config);
 
