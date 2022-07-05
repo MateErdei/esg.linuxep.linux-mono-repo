@@ -223,6 +223,13 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check Update Reports Have Been Processed
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
+    Stop AV Plugin
+    Stop Threat Detector
+    Override LogConf File as Global Level  DEBUG
+    Start AV Plugin
+    Start Threat Detector
+    Wait until threat detector running
+
     # This will turn health bad because "Check AV Plugin Can Scan Files" scans an eicar.
     Check AV Plugin Can Scan Files
     Wait Until Keyword Succeeds

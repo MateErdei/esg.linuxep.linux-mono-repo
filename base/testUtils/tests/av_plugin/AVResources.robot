@@ -60,10 +60,20 @@ Check AV Plugin Executable Not Running
     Should Not Be Equal As Integers    ${result.rc}    0     msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Stop AV Plugin
-    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
+    ${result} =    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
+    Should Be Equal As Integers    ${result.rc}    0
 
 Start AV Plugin
-    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
+    ${result} =    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
+    Should Be Equal As Integers    ${result.rc}    0
+
+Stop Threat Detector
+    ${result} =    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  threat_detector
+    Should Be Equal As Integers    ${result.rc}    0
+
+Start Threat Detector
+    ${result} =    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  threat_detector
+    Should Be Equal As Integers    ${result.rc}    0
 
 AV Plugin Log Contains
     [Arguments]  ${TextToFind}
