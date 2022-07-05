@@ -573,6 +573,14 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check Event Journaler Executable Running
     Wait For RuntimeDetections to be Installed
     Check AV Plugin Permissions
+
+    Stop AV Plugin
+    Stop Threat Detector
+    Override LogConf File as Global Level  DEBUG
+    Start AV Plugin
+    Start Threat Detector
+    Wait until threat detector running
+
     Check AV Plugin Can Scan Files
     Check Update Reports Have Been Processed
 
