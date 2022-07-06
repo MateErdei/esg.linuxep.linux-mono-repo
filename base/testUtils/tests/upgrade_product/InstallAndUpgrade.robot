@@ -101,15 +101,12 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVDogfoodPolicy}
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVDogfoodPolicy}  force_legacy_install=${True}
-    Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n
+    Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n[av]\nVERBOSITY = DEBUG\n[threat_detector]\nVERBOSITY = DEBUG\n
 
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    Run Shell Process   /opt/sophos-spl/bin/wdctl stop av     OnError=Failed to stop av
-    Override LogConf File as Global Level  DEBUG
-    Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
 
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
 
@@ -222,13 +219,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check AV Plugin Permissions
     Check Update Reports Have Been Processed
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
-
-    Stop AV Plugin
-    Stop Threat Detector
-    Override LogConf File as Global Level  DEBUG
-    Start AV Plugin
-    Start Threat Detector
-    Wait until threat detector running
 
     # This will turn health bad because "Check AV Plugin Can Scan Files" scans an eicar.
     Check AV Plugin Can Scan Files
@@ -454,15 +444,12 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVReleasePolicy}
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVReleasePolicy}  force_legacy_install=${True}
-    Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n
+    Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n[av]\nVERBOSITY = DEBUG\n[threat_detector]\nVERBOSITY = DEBUG\n
 
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    Run Shell Process   /opt/sophos-spl/bin/wdctl stop av     OnError=Failed to stop av
-    Override LogConf File as Global Level  DEBUG
-    Run Shell Process   /opt/sophos-spl/bin/wdctl start av    OnError=Failed to start av
 
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
 
@@ -573,13 +560,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check Event Journaler Executable Running
     Wait For RuntimeDetections to be Installed
     Check AV Plugin Permissions
-
-    Stop AV Plugin
-    Stop Threat Detector
-    Override LogConf File as Global Level  DEBUG
-    Start AV Plugin
-    Start Threat Detector
-    Wait until threat detector running
 
     Check AV Plugin Can Scan Files
     Check Update Reports Have Been Processed
