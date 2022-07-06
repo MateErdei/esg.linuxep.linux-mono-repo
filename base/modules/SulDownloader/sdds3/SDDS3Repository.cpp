@@ -381,30 +381,14 @@ namespace SulDownloader
             packagesWithSupplements =
                 SulDownloader::sdds3Wrapper()->getPackagesIncludingSupplements(*m_session.get(), m_repo, m_config);
         }
-        LOGINFO("JAKE1");
-        for (auto const &pair: m_config.package_thumbprints) {
-            LOGINFO(pair.first + " - " + pair.second);
-        }
-        LOGINFO("JAKE2");
-        for (auto const &pair: m_oldConfig.package_thumbprints) {
-            LOGINFO(pair.first + " - " + pair.second);
-        }
         std::vector<sdds3::PackageRef> packagesToInstall =
             SulDownloader::sdds3Wrapper()->getPackagesToInstall(*m_session.get(), m_repo, m_config, m_oldConfig);
-        LOGINFO("JAKE3");
-        for (auto const &pair: m_config.package_thumbprints) {
-            LOGINFO(pair.first + " - " + pair.second);
-        }
-        LOGINFO("JAKE4");
-        for (auto const &pair: m_oldConfig.package_thumbprints) {
-            LOGINFO(pair.first + " - " + pair.second);
-        }
-        LOGINFO("JAKE5");
 
         std::string configFilePathString =
                 Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
         try
         {
+            // save config to disk after getPackagesToInstall, which generates package thumbprints for m_config
             SulDownloader::sdds3Wrapper()->saveConfig(m_config, configFilePathString);
         }
         catch(const std::exception& ex)
