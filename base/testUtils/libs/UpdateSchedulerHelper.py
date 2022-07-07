@@ -424,4 +424,11 @@ class UpdateSchedulerHelper(object):
                         return
         raise AssertionError("Failed to find product entry for {}".format(rigidName))
 
+    def all_products_in_update_report_are_up_to_date(self, path_to_report):
+        with open(path_to_report, "r") as report_file:
+            report_json = json.loads(report_file.read())
+            logger.info(report_json)
+            assert len(report_json["products"]) > 0, f"expected products in report json: {report_json}"
+            for product in report_json["products"]:
+                assert product["productStatus"] == "UPTODATE", f"expected product: {product} to be UPTODATE"
 

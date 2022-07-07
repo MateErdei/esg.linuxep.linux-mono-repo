@@ -232,7 +232,8 @@ class ThinInstallerUtils(object):
                                                                     proxy=None,
                                                                     update_caches=None,
                                                                     args=None,
-                                                                    mcs_ca=None):
+                                                                    mcs_ca=None,
+                                                                    force_sdds3_post_install=False):
         command = ["bash", "-x", self.default_installsh_path]
         if args:
             split_args = args.split(" ")
@@ -243,7 +244,7 @@ class ThinInstallerUtils(object):
 
         self.create_default_credentials_file(message_relays=message_relays, update_caches=update_caches)
         self.build_default_creds_thininstaller_from_sections()
-        self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca, proxy=proxy, sus_url=sus, sdds3_cdn_url=cdn, sdds3_use_http=use_http)
+        self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca, proxy=proxy, sus_url=sus, sdds3_cdn_url=cdn, sdds3_use_http=use_http, force_sdds3=force_sdds3_post_install)
 
     def build_default_creds_thininstaller_from_sections(self):
         self.build_thininstaller_from_sections(self.default_credentials_file_location, self.default_installsh_path)

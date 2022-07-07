@@ -336,6 +336,42 @@ We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True T
     Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  3
     Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Running in SDDS3 updating mode  2
 
+
+Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installations of Components
+    [Setup]    Test Setup With Ostia
+    [Teardown]    Test Teardown With Ostia
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    ${handle}=  Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  use_http=${True}  force_sdds3_post_install=${True}
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Running in SDDS3 updating mode  2
+
+    Mark Sul Log
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Marked Sul Log Contains   Update success
+    Check Marked Sul Log Does Not Contain  Installing product
+
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-MDR' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-EDR' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-AV' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-liveresponse' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-RuntimeDetections' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-Heartbeat' is up to date.
+    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-EventJournaler' is up to date.
+    ${latest_report} =  Run Shell Process  ls ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report* -rt | cut -f 1 | tail -n1  shell=${True}
+    all_products_in_update_report_are_up_to_date  ${latest_report.strip()}
+
 *** Keywords ***
 Create Dummy Local SDDS2 Cache Files
     Create File         ${sdds2_primary}/base/update/cache/primary/1

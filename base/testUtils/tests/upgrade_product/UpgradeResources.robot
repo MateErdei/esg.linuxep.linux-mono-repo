@@ -145,7 +145,10 @@ Run Shell Process
     [Arguments]  ${Command}   ${OnError}   ${timeout}=20s   ${expectedExitCode}=0
     ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
     Should Be Equal As Integers  ${result.rc}  ${expectedExitCode}   "${OnError}.\nstdout: \n${result.stdout} \n.stderr: \n${result.stderr}"
-    [Return]  ${result.stdout} + ${result.stderr}
+    ${output} =     Catenate    SEPARATOR=\n
+    ...     ${result.stdout}
+    ...     ${result.stderr}
+    [Return]  ${output}
 
 Log XDR Intermediary File
     Run Keyword And Ignore Error   Log File  ${SOPHOS_INSTALL}/plugins/edr/var/xdr_intermediary
