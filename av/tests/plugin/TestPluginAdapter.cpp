@@ -624,15 +624,22 @@ TEST_F(TestPluginAdapter, testPublishThreatReport) //NOLINT
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
+
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     pluginAdapter.connectToThreatPublishingSocket(m_threatEventPublisherSocketPath);
-    std::string threatDetectedJSON = R"sophos({"threatName":"eicar", "threatPath":"/tmp/eicar.com"})sophos";
 
-    while (thread.getData().empty())
+    std::string threatDetectedJSON = R"sophos({"threatName":"eicar", "threatPath":"/tmp/eicar.com"})sophos";
+    // pluginAdapter appears to take a few moments to connect to the threatPublishingSocket, try a few times
+    for (int tries=0; tries<10; ++tries)
     {
         pluginAdapter.publishThreatEvent(threatDetectedJSON);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(10ms);
+        if (!thread.getData().empty())
+        {
+            break;
+        }
     }
+    ASSERT_FALSE(thread.getData().empty());
 
     auto data = thread.getData();
     EXPECT_EQ(data.at(0), "threatEvents");

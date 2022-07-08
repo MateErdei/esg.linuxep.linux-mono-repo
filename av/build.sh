@@ -55,7 +55,7 @@ VALGRIND=0
 NO_BUILD=0
 LOCAL_GCC=0
 LOCAL_CMAKE=0
-DUMP_LAST_TEST_ON_FAILURE=1
+DUMP_LAST_TEST_ON_FAILURE=0
 RUN_CPPCHECK=0
 BUILD_SDDS3=1
 TAP=${TAP:-tap}
@@ -71,6 +71,7 @@ do
             NO_UNPACK=
             VALGRIND=0
             CMAKE_BUILD_TYPE=RelWithDebInfo
+            DUMP_LAST_TEST_ON_FAILURE=1
             BUILD_SDDS3=1
             export ENABLE_STRIP=1
             ;;
@@ -91,7 +92,6 @@ do
             #NPROC=4
             CLEAN=0
             UNITTEST=1
-            DUMP_LAST_TEST_ON_FAILURE=0
             BUILD_SDDS3=0
             ;;
         --centos7-local|--centos7|--centos)
@@ -125,8 +125,8 @@ do
         --no-unpack|--nounpack)
             NO_UNPACK=1
             ;;
-        --no-dump-last-test-on-failure)
-            DUMP_LAST_TEST_ON_FAILURE=0
+        --dump-last-test-on-failure)
+            DUMP_LAST_TEST_ON_FAILURE=1
             ;;
         --cmake-option)
             shift
@@ -492,19 +492,24 @@ function build()
           || exitFailure $FAILURE_BULLSEYE_FAILED_TO_CREATE_COVFILE "Failed to copy covfile: $?"
     fi
 
-    if (( ${VALGRIND} == 1 ))
+    if (( VALGRIND == 1 ))
     then
         ## -VV --debug
         ctest \
-        --test-action memcheck --parallel ${NPROC} \
-        --output-on-failure \
+          --test-action memcheck \
+          --parallel ${NPROC} \
+          --output-on-failure \
          || {
             local EXITCODE=$?
             exitFailure 16 "Unit tests failed for $PRODUCT: $EXITCODE"
         }
-    elif (( ${UNITTEST} == 1 ))
+    elif (( UNITTEST == 1 ))
     then
-        make ARGS=-j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
+        ctest \
+          --parallel ${NPROC} \
+          --timeout 15 \
+          --output-on-failure \
+        || {
             local EXITCODE=$?
             echo "Unit tests failed with $EXITCODE"
             if (( DUMP_LAST_TEST_ON_FAILURE == 1 ))
