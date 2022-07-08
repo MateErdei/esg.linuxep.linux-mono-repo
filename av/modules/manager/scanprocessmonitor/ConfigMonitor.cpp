@@ -206,17 +206,24 @@ namespace plugin::manager::scanprocessmonitor
                 }
             }
 
-        bool interestingDirTouched = false;
-        for (const auto& iter : m_interestingDirs)
-        {
-            if (FDUtils::fd_isset(iter.second->getFD(), &temp_readFds))
+            bool interestingDirTouched = false;
+            for (const auto& iter : m_interestingDirs)
             {
-                interestingDirTouched = true;
+                int fd = iter.second->getFD();
+                if (FDUtils::fd_isset(fd, &temp_readFds))
+                {
+                    // flush the buffer
+                    char buffer[EVENT_BUF_LEN];
+                    ::read(fd, buffer, EVENT_BUF_LEN);
+
+                    LOGDEBUG("Inotified in directory: " << iter.first);
+                    interestingDirTouched = true;
+                }
             }
-        }
 
             if (interestingDirTouched)
             {
+                LOGDEBUG("Change detected in monitored directory, checking config for changes");
                 for (auto& filepath : interestingFiles())
                 {
                     auto newContents = getContents(filepath);
