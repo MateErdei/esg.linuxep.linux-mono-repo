@@ -26,6 +26,7 @@ namespace plugin::manager::scanprocessmonitor
          * Causes sophos_threat_detector to reload susi config.
          */
         void policy_configuration_changed();
+
     private:
         void sendRequestToThreatDetector(scan_messages::E_COMMAND_TYPE requestType);
         Common::Threads::NotifyPipe m_config_changed;

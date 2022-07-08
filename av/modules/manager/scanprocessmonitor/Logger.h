@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,10 +8,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <Common/Logging/SophosLoggerMacros.h>
 
-log4cplus::Logger& getScanProcessMonitor();
+namespace plugin::manager::scanprocessmonitor
+{
+    log4cplus::Logger& getScanProcessMonitorLogger();
+}
 
-#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getScanProcessMonitor(), x)  // NOLINT
-#define LOGINFO(x) LOG4CPLUS_INFO(getScanProcessMonitor(), x)    // NOLINT
-#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getScanProcessMonitor(), x) // NOLINT
-#define LOGWARN(x) LOG4CPLUS_WARN(getScanProcessMonitor(), x)    // NOLINT
-#define LOGERROR(x) LOG4CPLUS_ERROR(getScanProcessMonitor(), x)  // NOLINT
+#define LOGDEBUG(x) LOG4CPLUS_DEBUG(getScanProcessMonitorLogger(), x)  // NOLINT
+#define LOGINFO(x) LOG4CPLUS_INFO(getScanProcessMonitorLogger(), x)    // NOLINT
+#define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getScanProcessMonitorLogger(), x) // NOLINT
+#define LOGWARN(x) LOG4CPLUS_WARN(getScanProcessMonitorLogger(), x)    // NOLINT
+#define LOGERROR(x) LOG4CPLUS_ERROR(getScanProcessMonitorLogger(), x)  // NOLINT

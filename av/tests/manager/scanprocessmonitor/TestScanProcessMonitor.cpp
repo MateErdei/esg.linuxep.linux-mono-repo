@@ -212,12 +212,12 @@ TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotNotifiedOnCreateOutsideDir) // 
     Common::Threads::NotifyPipe configPipe;
 
     fs::create_directory("watched");
-    fs::create_directory("notwatched");
+    fs::create_directory("not_watched");
 
     ConfigMonitor a(configPipe, m_systemCallWrapper, toString(m_testDir / "watched"));
     a.start();
 
-    std::ofstream ofs("notwatched/hosts");
+    std::ofstream ofs("not_watched/hosts");
     ofs.close();
 
     EXPECT_FALSE(waitForPipe(configPipe, MONITOR_LATENCY));
@@ -231,16 +231,16 @@ TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfMove) // NOLINT
     Common::Threads::NotifyPipe configPipe;
 
     fs::create_directory("watched");
-    fs::create_directory("notwatched");
+    fs::create_directory("not_watched");
 
     ConfigMonitor a(configPipe, m_systemCallWrapper, toString(m_testDir / "watched"));
     a.start();
 
-    std::ofstream ofs("notwatched/hosts");
+    std::ofstream ofs("not_watched/hosts");
     ofs << "This is some text";
     ofs.close();
 
-    fs::rename("notwatched/hosts", "watched/hosts");
+    fs::rename("not_watched/hosts", "watched/hosts");
 
     EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
 
@@ -264,11 +264,98 @@ TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfWriteToSymlinkTarget) //
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
 
-    ofs.open("hosts");
+    ofs.open(symlinkTarget);
     ofs << "This is some different text";
     ofs.close();
 
     EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    a.requestStop();
+    a.join();
+}
+
+TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfWriteToRelativeSymlinkTarget) // NOLINT
+{
+    fs::path symlinkTargetDir = m_testDir / "targetDir";
+    fs::path symlinkTarget = symlinkTargetDir / "targetFile";
+    fs::create_directories(symlinkTargetDir);
+
+    std::ofstream ofs(symlinkTarget);
+    ofs << "This is some text";
+    ofs.close();
+
+    fs::create_symlink("targetDir/targetFile", "hosts");
+
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
+    a.start();
+
+    ofs.open(symlinkTarget);
+    ofs << "This is some different text";
+    ofs.close();
+
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    a.requestStop();
+    a.join();
+}
+
+TEST_F(TestScanProcessMonitor, ConfigMonitorIsNotifiedOfWriteToMultipleSymlinkTarget) // NOLINT
+{
+    fs::path symlinkTargetDir = m_testDir / "targetDir";
+    fs::path symlinkTarget = symlinkTargetDir / "targetFile";
+    fs::path intermediateSymlinkTarget = symlinkTargetDir / "intermediateFile";
+    fs::create_directories(symlinkTargetDir);
+
+    std::ofstream ofs(symlinkTarget);
+    ofs << "This is some text";
+    ofs.close();
+
+    fs::create_symlink(symlinkTarget, intermediateSymlinkTarget);
+    fs::create_symlink(intermediateSymlinkTarget, m_testDir / "hosts");
+
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
+    a.start();
+
+    ofs.open(symlinkTarget);
+    ofs << "This is some different text";
+    ofs.close();
+
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    a.requestStop();
+    a.join();
+}
+
+TEST_F(TestScanProcessMonitor, ConfigMonitorIgnoresRecursiveSymlink) // NOLINT
+{
+    fs::create_symlink("hosts", m_testDir / "hosts");
+
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
+
+    a.start();
+    a.requestStop();
+    a.join();
+}
+
+TEST_F(TestScanProcessMonitor, ConfigMonitorHandlesInvalidDir) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::path invalidDir = m_testDir / "invalidDir";
+
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_systemCallWrapper, invalidDir);
+
+    a.start();
+
+    EXPECT_TRUE(waitForLog("Failed to watch directory: \"" + invalidDir.string() + "\""));
+    EXPECT_TRUE(waitForLog("Unable to monitor DNS config files"));
+    EXPECT_TRUE(waitForLog("Failed to initialise inotify"));
+
+    std::this_thread::sleep_for(100ms);
 
     a.requestStop();
     a.join();

@@ -16,7 +16,6 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "Common/Threads/AbstractThread.h"
 
 #include <map>
-#include <vector>
 
 namespace fs = sophos_filesystem;
 
