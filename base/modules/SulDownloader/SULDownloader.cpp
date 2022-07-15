@@ -1,19 +1,8 @@
 /******************************************************************************************************
 
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-
-#include "SulDownloader.h"
-
-#include "ProductUninstaller.h"
-
-#include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
-#include "sdds3/Sdds3RepositoryFactory.h"
-#include "suldownloaderdata/Logger.h"
-#include "warehouse/SULRaii.h"
-#include "warehouse/WarehouseRepository.h"
-#include "warehouse/WarehouseRepositoryFactory.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFilePermissions.h>
@@ -24,7 +13,11 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/UtilityImpl/UniformIntDistribution.h>
+#include <SulDownloader/Logger.h>
+#include <SulDownloader/ProductUninstaller.h>
+#include <SulDownloader/SulDownloader.h>
+#include <SulDownloader/sdds3/SDDS3Utils.h>
+#include <SulDownloader/sdds3/Sdds3RepositoryFactory.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
 #include <SulDownloader/suldownloaderdata/DownloadReport.h>
@@ -32,10 +25,13 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 #include <SulDownloader/suldownloaderdata/TimeTracker.h>
-#include <sys/stat.h>
+#include <SulDownloader/warehouse/SULRaii.h>
+#include <SulDownloader/warehouse/WarehouseRepository.h>
+#include <SulDownloader/warehouse/WarehouseRepositoryFactory.h>
 
 #include <algorithm>
 #include <cassert>
+#include <sys/stat.h>
 #include <thread>
 
 using namespace SulDownloader::suldownloaderdata;
@@ -541,6 +537,8 @@ namespace SulDownloader
         ConnectionSelector connectionSelector;
         auto candidates = connectionSelector.getConnectionCandidates(configurationData);
 
+        removeSDDS3Cache();
+
         for (const auto& connectionSetup : candidates)
         {
             success =
@@ -593,8 +591,6 @@ namespace SulDownloader
         }
 
         return std::make_pair(success, std::move(warehouseRepository));
-
-
     }
 
     DownloadReport runSULDownloader(

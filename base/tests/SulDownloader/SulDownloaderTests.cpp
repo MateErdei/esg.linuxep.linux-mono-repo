@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -9,13 +9,9 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
  */
 
 #include "ConfigurationSettings.pb.h"
-#include "MockVersig.h"
-#include "MockWarehouseRepository.h"
-#include "TestWarehouseHelper.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/ProcessImpl/ArgcAndEnv.h>
@@ -28,14 +24,18 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 #include <SulDownloader/suldownloaderdata/TimeTracker.h>
 #include <SulDownloader/suldownloaderdata/VersigImpl.h>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include <tests/Common/FileSystemImpl/MockPidLockFileUtils.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/MockProcess.h>
+#include <tests/SulDownloader/MockVersig.h>
+#include <tests/SulDownloader/MockWarehouseRepository.h>
+#include <tests/SulDownloader/TestWarehouseHelper.h>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 using namespace SulDownloader::suldownloaderdata;
 using SulDownloaderProto::ConfigurationSettings;
@@ -267,20 +267,20 @@ public:
 
     MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1)
     {
-        auto* filesystemMock = new StrictMock<MockFileSystem>();
-        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
+        auto* fileSystemMock = new StrictMock<MockFileSystem>();
+        EXPECT_CALL(*fileSystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
 
-        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/"))
+        EXPECT_CALL(*fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/"))
             .Times(expectCallCount)
             .WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, currentWorkingDirectory()).WillRepeatedly(Return("/opt/sophos-spl/base/bin"));
-        EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
+        EXPECT_CALL(*fileSystemMock, currentWorkingDirectory()).WillRepeatedly(Return("/opt/sophos-spl/base/bin"));
+        EXPECT_CALL(*fileSystemMock, exists(_)).WillRepeatedly(Return(true));
+        EXPECT_CALL(*fileSystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
 
-        setupExpectanceWriteProductUpdate(*filesystemMock);
+        setupExpectanceWriteProductUpdate(*fileSystemMock);
 
-        auto* pointer = filesystemMock;
-        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        auto* pointer = fileSystemMock;
+        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));
         return *pointer;
     }
 
@@ -443,8 +443,8 @@ TEST_F(SULDownloaderTest, configurationDataVerificationOfDefaultSettingsReturnsT
 
 TEST_F(SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode) // NOLINT
 {
-    auto filesystemMock = new MockFileSystem();
-    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    auto fileSystemMock = new MockFileSystem();
+    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));
 
     int expectedErrorCode = -2;
 
@@ -458,7 +458,7 @@ TEST_F(SULDownloaderTest, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode)
     EXPECT_EQ(SulDownloader::main_entry(3, inputFileDoesNotExist), -2);
 
 
-    EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/directorypath")).WillOnce(Return(true));
+    EXPECT_CALL(*fileSystemMock, isDirectory("/opt/sophos-spl/directorypath")).WillOnce(Return(true));
     // directory can not be replaced by file
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "input.json", "/opt/sophos-spl/directorypath" }, {});
 
@@ -498,6 +498,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
@@ -586,6 +589,9 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
 
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupExpectanceWriteAtomically(
@@ -647,6 +653,9 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
 
@@ -718,6 +727,9 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupExpectanceWriteAtomically(
@@ -788,6 +800,9 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
     EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupExpectanceWriteAtomically(
@@ -813,16 +828,79 @@ TEST_F( // NOLINT
         SulDownloader::main_entry(3, args.argc()), SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED);
 }
 
+TEST_F(SULDownloaderTest, main_entry_SDDS3CacheIsRemovedDuringSDDS2Update) // NOLINT
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    MockWarehouseRepository& mock = repositoryMocked();
+
+    auto products = defaultProducts();
+    products[0].setProductHasChanged(false);
+    products[1].setProductHasChanged(false);
+
+    EXPECT_CALL(mock, tryConnect(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
+    EXPECT_CALL(mock, synchronize(_));
+    EXPECT_CALL(mock, distribute());
+    EXPECT_CALL(mock, purge());
+    // the real warehouse will set DistributePath after distribute to the products
+    products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
+    products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
+    EXPECT_CALL(mock, getProducts()).WillOnce(Return(products));
+    EXPECT_CALL(mock, getSourceURL());
+    EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
+    EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
+
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
+
+    TimeTracker timeTracker;
+    timeTracker.setStartTime(std::time_t(0));
+    timeTracker.setFinishedTime(std::time_t(0));
+    DownloadReport downloadReport =
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
+    std::string previousReportFilename = "update_report-previous.json";
+    std::vector<std::string> previousReportFileList = { previousReportFilename };
+    std::vector<std::string> emptyFileList;
+
+    EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
+
+    EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(previousReportFileList));
+    EXPECT_CALL(fileSystemMock, readFile(previousReportFilename)).WillOnce(Return(previousJsonReport));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/sdds3primary"));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository"));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, removeFile("/opt/sophos-spl/base/update/var/package_config.xml"));
+    EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
+
+    setupExpectanceWriteAtomically(
+        fileSystemMock,
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS),false);
+
+    std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
+    EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+
+    Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
+
+    EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
+}
+
 // the other execution paths were covered in main_entry_* tests.
 TEST_F( // NOLINT
     SULDownloaderTest,
     fileEntriesAndRunDownloaderThrowIfCannotCreateOutputFile)
 {
-    auto filesystemMock = new MockFileSystem();
-    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-    EXPECT_CALL(*filesystemMock, readFile("/dir/input.json")).WillRepeatedly(Return(jsonSettings(defaultSettings())));
-    EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created/output.json")).WillOnce(Return(false));
-    EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created")).WillOnce(Return(false));
+    auto fileSystemMock = new MockFileSystem();
+    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));
+    EXPECT_CALL(*fileSystemMock, readFile("/dir/input.json")).WillRepeatedly(Return(jsonSettings(defaultSettings())));
+    EXPECT_CALL(*fileSystemMock, isDirectory("/dir/path/that/cannot/be/created/output.json")).WillOnce(Return(false));
+    EXPECT_CALL(*fileSystemMock, isDirectory("/dir/path/that/cannot/be/created")).WillOnce(Return(false));
 
     EXPECT_THROW( // NOLINT
         SulDownloader::fileEntriesAndRunDownloader("/dir/input.json", "/dir/path/that/cannot/be/created/output.json", ""),
@@ -880,6 +958,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, dumpLogs());
 
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
@@ -939,6 +1020,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, dumpLogs());
 
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
 
@@ -984,6 +1068,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, dumpLogs());
 
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
@@ -1032,6 +1119,9 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
         .WillRepeatedly(Return(true));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
@@ -1091,6 +1181,9 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, dumpLogs());
 
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
@@ -1142,6 +1235,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
@@ -1195,6 +1291,9 @@ TEST_F( // NOLINT
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0", "PRODUCT_VERSION = 1.1.3.703");
 
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     SulDownloader::suldownloaderdata::VersigFactory::instance().replaceCreator([&counter]() {
@@ -1273,6 +1372,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0", "PRODUCT_VERSION = 1.1.3.703");
@@ -1371,6 +1473,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0", "PRODUCT_VERSION = 1.1.3.703");
@@ -1461,6 +1566,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
@@ -1558,6 +1666,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/bin/uninstall.sh")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isExecutable("/opt/sophos-spl/bin/uninstall.sh")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.0");
@@ -1670,6 +1781,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, isExecutable("/opt/sophos-spl/base/update/var/installedproducts/ServerProtectionLinux-Plugin-EDR.sh")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupBaseVersionFileCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.7", "PRODUCT_VERSION = 1.1.3.7");
@@ -1784,6 +1898,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
@@ -1883,6 +2000,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
@@ -1982,6 +2102,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
@@ -2077,6 +2200,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
@@ -2179,6 +2305,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
@@ -2274,6 +2403,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
@@ -2368,6 +2500,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
@@ -2426,6 +2561,9 @@ TEST_F( // NOLINT
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles(uninstallPath)).WillOnce(Return(emptyFileList));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.703", "PRODUCT_VERSION = 1.1.3.703");
@@ -2459,8 +2597,8 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_checkLogVerbosityVERBOSE)
 {
-    auto& fileSystem = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(false));
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, isFile(_)).WillOnce(Return(false));
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
@@ -2471,7 +2609,10 @@ TEST_F( // NOLINT
     suldownloaderdata::ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
-    EXPECT_CALL(fileSystem, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     auto downloadReport =
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
@@ -2485,8 +2626,8 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_checkLogVerbosityNORMAL)
 {
-    auto& fileSystem = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(false));
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, isFile(_)).WillOnce(Return(false));
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
@@ -2497,7 +2638,10 @@ TEST_F( // NOLINT
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
-    EXPECT_CALL(fileSystem, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillOnce(Return(false));
 
     auto downloadReport =
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);

@@ -5,7 +5,7 @@ Suite Teardown   Suite Teardown Without Ostia
 Test Setup       Test Setup
 Test Teardown    Run Keywords
 ...                Stop Local SDDS3 Server   AND
-...                 Test Teardown
+...                Test Teardown
 
 Test Timeout  10 mins
 
@@ -25,19 +25,10 @@ Library     Process
 Library     OperatingSystem
 Library     String
 
-Resource    ../event_journaler/EventJournalerResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../installer/InstallerResources.robot
-Resource    ../thin_installer/ThinInstallerResources.robot
-Resource    ../example_plugin/ExamplePluginResources.robot
-Resource    ../av_plugin/AVResources.robot
-Resource    ../mdr_plugin/MDRResources.robot
-Resource    ../edr_plugin/EDRResources.robot
-Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
-Resource    ../GeneralTeardownResource.robot
 Resource    UpgradeResources.robot
-Resource    ../management_agent/ManagementAgentResources.robot
 
 *** Variables ***
 ${BaseEdrAndMtrAndAVDogfoodPolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
@@ -48,7 +39,7 @@ ${BaseOnlyVUT_weekly_schedule_Policy}       ${GeneratedWarehousePolicies}/base_o
 
 ${LocalWarehouseDir}                        ./local_warehouses
 ${SULDownloaderLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader.log
-${SULDownloaderSyncLog}                         ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log
+${SULDownloaderSyncLog}                     ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log
 ${SULDownloaderLogDowngrade}                ${SOPHOS_INSTALL}/logs/base/downgrade-backup/suldownloader.log
 ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
 ${Sophos_Scheduled_Query_Pack}              ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
@@ -59,6 +50,8 @@ ${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sd
 
 ${sdds2_primary}                            ${SOPHOS_INSTALL}/base/update/cache/primary
 ${sdds2_primary_warehouse}                  ${SOPHOS_INSTALL}/base/update/cache/primarywarehouse
+${sdds3_primary}                            ${SOPHOS_INSTALL}/base/update/cache/sdds3primary
+${sdds3_primary_repository}                 ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository
 
 *** Test Cases ***
 Sul Downloader fails update if expected product missing from SUS
@@ -83,6 +76,7 @@ Sul Downloader fails update if expected product missing from SUS
     ...   5 secs
     ...   Check Suldownloader Log Contains   Failed to connect to repository: Package : ServerProtectionLinux-Plugin-Fake missing from warehouse
 
+
 Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     [Setup]    Test Setup With Ostia
     [Teardown]    Test Teardown With Ostia
@@ -91,43 +85,49 @@ Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
 
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    Override LogConf File as Global Level  DEBUG
     Check Local SDDS2 Cache Has Contents
 
     Create Local SDDS3 Override
     Trigger Update Now
-    #TODO put this section back once LINUXDAR-4379 is done
-#    Wait Until Keyword Succeeds
-#    ...   10 secs
-#    ...   2 secs
-#    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository
-#    Wait Until Keyword Succeeds
-#    ...   200 secs
-#    ...   10 secs
-#    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/suite
-#    Wait Until Keyword Succeeds
-#    ...   200 secs
-#    ...   2 secs
-#    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/package
-#    Wait Until Keyword Succeeds
-#    ...   200 secs
-#    ...   2 secs
-#    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/supplement
-#    Wait Until Keyword Succeeds
-#    ...   120 secs
-#    ...   10 secs
-#    ...   Directory Should Exist   ${SOPHOS_INSTALL}/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/
+
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   Directory Should Exist   ${sdds3_primary_repository}
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Directory Should Exist   ${sdds3_primary_repository}/suite
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Directory Should Exist   ${sdds3_primary_repository}/package
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Directory Should Exist   ${sdds3_primary_repository}/supplement
+    Wait Until Keyword Succeeds
+    ...   240 secs
+    ...   10 secs
+    ...   Directory Should Exist   ${sdds3_primary}/ServerProtectionLinux-Base-component/
+
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    Check Suldownloader Log Contains In Order    Update success    Purging local SDDS2 cache    Update success
+
     Check Local SDDS2 Cache Is Empty
+
     Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  3
+
 
 SDDS3 updating respects ALC feature codes
     [Setup]    Test Setup With Ostia
@@ -137,7 +137,7 @@ SDDS3 updating respects ALC feature codes
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -173,6 +173,7 @@ SDDS3 updating respects ALC feature codes
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/liveresponse
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/mtr
 
+
 SDDS3 updating with changed unused feature codes do not change version
     [Setup]    Test Setup With Ostia
     [Teardown]    Test Teardown With Ostia
@@ -181,7 +182,7 @@ SDDS3 updating with changed unused feature codes do not change version
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -231,6 +232,7 @@ SDDS3 updating with changed unused feature codes do not change version
     Should Be Equal As Strings  ${HBTVersionBeforeUpdate}  ${HBTVersionAfterUpdate}
     Should Be Equal As Strings  ${BaseVersionBeforeUpdate}  ${BaseVersionAfterUpdate}
 
+
 We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False Then Update Using SDDS3 When Flag Turns True
     [Setup]    Test Setup With Ostia
     [Teardown]    Test Teardown With Ostia
@@ -239,7 +241,7 @@ We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False 
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -248,8 +250,7 @@ We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False 
 
     #check first two updates are SDDS3 (install) followed by SDDS2 update (5th line only appears in sdds2 mode)
     Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Running in SDDS3 updating mode  1
-    Check Log Contains In Order
-    ...  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Check Suldownloader Log Contains In Order
     ...  Logger suldownloader configured for level: INFO
     ...  Running in SDDS3 updating mode
     ...  Update success
@@ -280,6 +281,7 @@ We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False 
     Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  3
     Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Running in SDDS3 updating mode  2
 
+
 We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True Then Update Using SDDS2 When Flag Turns False
     [Setup]    Test Setup With Ostia
     [Teardown]    Test Teardown With Ostia And Fake Cloud MCS Flag Override
@@ -298,7 +300,7 @@ We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True T
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -307,8 +309,7 @@ We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True T
 
     #check first two updates are SDDS3 (installation + initial update)
     Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Running in SDDS3 updating mode  2
-    Check Log Contains In Order
-    ...  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Check Suldownloader Log Contains In Order
     ...  Logger suldownloader configured for level: INFO
     ...  Running in SDDS3 updating mode
     ...  Update success
@@ -345,7 +346,7 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  use_http=${True}  force_sdds3_post_install=${True}
+    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  use_http=${True}  force_sdds3_post_install=${True}
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -370,18 +371,50 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-Heartbeat' is up to date.
     Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-EventJournaler' is up to date.
     ${latest_report} =  Run Shell Process  ls ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report* -rt | cut -f 1 | tail -n1  shell=${True}
-    all_products_in_update_report_are_up_to_date  ${latest_report.strip()}
+    All Products In Update Report Are Up To Date  ${latest_report.strip()}
+
+
+During Transition From SDDS3 to SDDS2 SDDS3 Cache Is Removed Before Downloading SDDS2 Files
+    [Setup]    Test Setup With Ostia
+    [Teardown]    Test Teardown With Ostia
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    ${handle}=  Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Log Contains    Update success    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log
+
+    Override LogConf File as Global Level  DEBUG
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   5 secs
+    ...   Check Local SDDS3 Cache Has Contents
+
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  150 secs
+    ...  10 secs
+    ...  Check Suldownloader Log Contains In Order    Update success    Purging local SDDS3 cache    Update success
+
+    Check Local SDDS3 Cache Is Empty
+    Check Local SDDS2 Cache Has Contents
 
 *** Keywords ***
 Create Dummy Local SDDS2 Cache Files
-    Create File         ${sdds2_primary}/base/update/cache/primary/1
-    Create Directory    ${sdds2_primary}/base/update/cache/primary/2
-    Create File         ${sdds2_primary}/base/update/cache/primary/2f
-    Create Directory    ${sdds2_primary}/base/update/cache/primary/2d
-    Create File         ${sdds2_primary_warehouse}/base/update/cache/primarywarehouse/1
-    Create Directory    ${sdds2_primary_warehouse}/base/update/cache/primarywarehouse/2
-    Create File         ${sdds2_primary_warehouse}/base/update/cache/primarywarehouse/2f
-    Create Directory    ${sdds2_primary_warehouse}/base/update/cache/primarywarehouse/2d
+    Create File         ${sdds2_primary}/1
+    Create Directory    ${sdds2_primary}/2
+    Create File         ${sdds2_primary}/2f
+    Create Directory    ${sdds2_primary}/2d
+    Create File         ${sdds2_primary_warehouse}/1
+    Create Directory    ${sdds2_primary_warehouse}/2
+    Create File         ${sdds2_primary_warehouse}/2f
+    Create Directory    ${sdds2_primary_warehouse}/2d
 
 Directory Should Be Empty
     [Arguments]    ${directory_path}
@@ -399,9 +432,17 @@ Check Local SDDS2 Cache Is Empty
     Directory Should Be Empty    ${sdds2_primary}
     Directory Should Be Empty    ${sdds2_primary_warehouse}
 
+Check Local SDDS3 Cache Is Empty
+    Directory Should Be Empty    ${sdds3_primary}
+    Directory Should Be Empty    ${sdds3_primary_repository}
+
 Check Local SDDS2 Cache Has Contents
     Directory Should Not Be Empty    ${sdds2_primary}
     Directory Should Not Be Empty    ${sdds2_primary_warehouse}
+
+Check Local SDDS3 Cache Has Contents
+    Directory Should Not Be Empty    ${sdds3_primary}
+    Directory Should Not Be Empty    ${sdds3_primary_repository}
 
 Test Setup With Ostia
     Test Setup
