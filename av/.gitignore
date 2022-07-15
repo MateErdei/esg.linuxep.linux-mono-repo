@@ -43,3 +43,4 @@ tmp/
 /TA/sophos_threat_detector/
 /cmake-build-debug-coverage/
 /cmake-build-fuzz-coverage/
+/tests/googletest
