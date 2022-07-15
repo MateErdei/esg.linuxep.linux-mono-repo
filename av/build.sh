@@ -87,7 +87,8 @@ do
             ## Set good options for a local build
             export ENABLE_STRIP=0
             CMAKE_BUILD_TYPE=Debug
-            LOCAL_GCC=1
+            ## gcc 7 no longer supported
+            LOCAL_GCC=0
             LOCAL_CMAKE=1
             #NPROC=4
             CLEAN=0
