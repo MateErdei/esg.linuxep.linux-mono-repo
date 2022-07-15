@@ -204,9 +204,11 @@ namespace plugin::manager::scanprocessmonitor
 
             if (FDUtils::fd_isset(inotifyFD.getFD(), &temp_readFds))
             {
-                //            LOGDEBUG("inotified");
                 // Something changed under m_base (/etc)
-                char buffer[EVENT_BUF_LEN];
+                // Per https://man7.org/linux/man-pages/man7/inotify.7.html
+                // This buffer should be aligned for struct inotify_event
+                char buffer[EVENT_BUF_LEN] __attribute__ ((aligned(__alignof__(struct inotify_event))));
+
                 ssize_t length = ::read(inotifyFD.getFD(), buffer, EVENT_BUF_LEN);
 
                 if (length < 0)
