@@ -90,10 +90,10 @@ namespace plugin::manager::scanprocessmonitor
 
     void ConfigMonitor::resolveSymlinksForInterestingFiles()
     {
-        auto fs = Common::FileSystem::fileSystem();
+        auto* fs = Common::FileSystem::fileSystem();
 
         const auto& INTERESTING_FILES = interestingFiles();
-        for (auto& filename : INTERESTING_FILES)
+        for (const auto& filename : INTERESTING_FILES)
         {
             // resolve symlinked config files up to a depth of MAX_SYMLINK_DEPTH
             fs::path filepath = m_base / filename;
