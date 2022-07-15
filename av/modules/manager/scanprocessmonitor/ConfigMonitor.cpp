@@ -58,7 +58,6 @@ namespace plugin::manager::scanprocessmonitor
         m_base(std::move(base)),
         m_sysCalls(std::move(systemCallWrapper))
     {
-        resolveSymlinksForInterestingFiles();
     }
 
     /**
@@ -88,7 +87,7 @@ namespace plugin::manager::scanprocessmonitor
         return result;
     }
 
-    void ConfigMonitor::resolveSymlinksForInterestingFiles()
+    bool ConfigMonitor::resolveSymlinksForInterestingFiles()
     {
         auto* fs = Common::FileSystem::fileSystem();
 
@@ -114,22 +113,26 @@ namespace plugin::manager::scanprocessmonitor
                     if (symlinkTargetDirFD->getFD() < 0)
                     {
                         LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files: " << strerror(errno));
-                        return;
+                        return false;
                     }
                     m_interestingDirs.insert_or_assign(parentDir, symlinkTargetDirFD);
+                    LOGDEBUG("Monitoring "<<parentDir<<" for config changes");
                 }
             }
         }
+        return true;
     }
 
     void ConfigMonitor::run()
     {
-        auto contents = getContentsMap();
+        m_currentContents = getContentsMap();
 
         // Add a watch for changes to the directory base ("/etc")
         InotifyFD inotifyFD(m_base);
 
-        // do this after trying to set up watches, but before any possible return due to errors.
+        bool success = resolveSymlinksForInterestingFiles();
+
+        // Must announce before we start failing
         announceThreadStarted();
 
         if (inotifyFD.getFD() < 0)
@@ -137,6 +140,40 @@ namespace plugin::manager::scanprocessmonitor
             LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files");
             return;
         }
+        if (!success)
+        {
+            LOGERROR("Failed to setup inotify watches for symlink directories");
+            return;
+        }
+
+        while (true)
+        {
+            bool running = inner_run(inotifyFD);
+            if (!running)
+            {
+                // can exit for good reasons as well as errors.
+                break;
+            }
+            LOGDEBUG("Re-evaluating configuration symlinks");
+            m_interestingDirs.clear();
+            success = resolveSymlinksForInterestingFiles();
+            if (!success)
+            {
+                LOGERROR("Failed to setup inotify watches for symlink directories");
+                break;
+            }
+            // Now we need to check files for any changes - in case we missed then when we
+            // didn't monitor directories
+            if (check_all_files())
+            {
+                m_configChangedPipe.notify();
+            }
+        }
+    }
+
+    bool ConfigMonitor::inner_run(InotifyFD& inotifyFD)
+    {
+        assert(inotifyFD.getFD() >= 0);
 
         fd_set readFds;
         FD_ZERO(&readFds);
@@ -156,13 +193,13 @@ namespace plugin::manager::scanprocessmonitor
 
             if (stopRequested())
             {
-                break;
+                return false;
             }
 
             if (active < 0 and errno != EINTR)
             {
                 LOGERROR("failure in ConfigMonitor: pselect failed: " << strerror(errno));
-                break;
+                return false;
             }
 
             if (FDUtils::fd_isset(inotifyFD.getFD(), &temp_readFds))
@@ -175,7 +212,7 @@ namespace plugin::manager::scanprocessmonitor
                 if (length < 0)
                 {
                     LOGERROR("Failed to read event from inotify: " << strerror(errno));
-                    break;
+                    return false;
                 }
 
                 uint32_t i = 0;
@@ -187,19 +224,7 @@ namespace plugin::manager::scanprocessmonitor
                         // Don't care if it's close-after-write or rename/move
                         if (isInteresting(event->name))
                         {
-                            auto newContents = getContents(event->name);
-                            if (contents.at(event->name) == newContents)
-                            {
-                                LOGINFO("System configuration not changed for " << event->name);
-                            }
-                            else
-                            {
-                                LOGINFO("System configuration updated for " << event->name);
-                                configChanged = true;
-                                LOGDEBUG("Old content size=" << contents.at(event->name).size());
-                                LOGDEBUG("New content size=" << newContents.size());
-                                contents[event->name] = newContents;
-                            }
+                            configChanged = check_file_for_changes(event->name, true) || configChanged;
                         }
                     }
                     i += EVENT_SIZE + event->len;
@@ -224,24 +249,53 @@ namespace plugin::manager::scanprocessmonitor
             if (interestingDirTouched)
             {
                 LOGDEBUG("Change detected in monitored directory, checking config for changes");
-                for (const auto& filepath : interestingFiles())
+                if (check_all_files())
                 {
-                    auto newContents = getContents(filepath);
-                    if (contents.at(filepath) != newContents)
-                    {
-                        LOGINFO("System configuration updated for " << filepath);
-                        configChanged = true;
-                        LOGDEBUG("Old content size=" << contents.at(filepath).size());
-                        LOGDEBUG("New content size=" << newContents.size());
-                        contents[filepath] = newContents;
-                    }
+                    configChanged = true;
                 }
             }
 
             if (configChanged)
             {
+                // Only notify if the actual contents have changed
                 m_configChangedPipe.notify();
             }
+
+            if (interestingDirTouched)
+            {
+                // Need to re-evaluate directories
+                return true;
+            }
         }
+    }
+
+    bool ConfigMonitor::check_file_for_changes(const std::string& filepath, bool logUnchanged)
+    {
+        auto newContents = getContents(filepath);
+        if (m_currentContents.at(filepath) != newContents)
+        {
+            LOGINFO("System configuration updated for " << filepath);
+            LOGDEBUG("Old content size=" << m_currentContents.at(filepath).size());
+            LOGDEBUG("New content size=" << newContents.size());
+            m_currentContents[filepath] = newContents;
+            return true;
+        }
+        else if (logUnchanged)
+        {
+            LOGINFO("System configuration not changed for " << filepath);
+        }
+
+        return false;
+    }
+
+    bool ConfigMonitor::check_all_files()
+    {
+        bool configChanged = false;
+        for (const auto& filepath : interestingFiles())
+        {
+            // Don't short-circuit - we want to update all contents in case of simultaneous updates
+            configChanged = check_file_for_changes(filepath, false) || configChanged;
+        }
+        return configChanged;
     }
 }

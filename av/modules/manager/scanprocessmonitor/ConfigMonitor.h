@@ -31,7 +31,30 @@ namespace plugin::manager::scanprocessmonitor
     private:
         using contentMap_t = std::map<std::string, std::string>;
         void run() override;
-        void resolveSymlinksForInterestingFiles();
+
+        /**
+         * @return True if we successfully setup symlinks
+         */
+        bool resolveSymlinksForInterestingFiles();
+
+        /**
+         *
+         * @return True if we should continue running
+         */
+        bool inner_run(InotifyFD& inotifyFD);
+
+        /**
+         *
+         * @param filepath
+         * @return True if the file has changed contents
+         */
+        bool check_file_for_changes(const std::string& filepath, bool logUnchanged);
+
+        /**
+         * Check all files for changes
+         * @return True if any of the interesting files have changed contents
+         */
+        bool check_all_files();
 
         std::string getContents(const std::string& basename);
         contentMap_t getContentsMap();
@@ -41,5 +64,7 @@ namespace plugin::manager::scanprocessmonitor
 
         std::map<fs::path, std::shared_ptr<InotifyFD>> m_interestingDirs;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
+        contentMap_t m_currentContents;
+
     };
 }

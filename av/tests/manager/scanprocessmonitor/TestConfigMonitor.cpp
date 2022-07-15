@@ -427,6 +427,44 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfChangedSymlink)
     a.join();
 }
 
+TEST_F(TestConfigMonitor, DISABLED_ConfigMonitorIsNotifiedOfRemovedChangedSymlink)
+{
+    fs::path symlinkTargetDir1 = m_testDir / "targetDir1";
+    fs::path symlinkTarget1 = symlinkTargetDir1 / "targetFile";
+    fs::create_directories(symlinkTargetDir1);
+
+    std::ofstream ofs(symlinkTarget1);
+    ofs << "This is some text";
+    ofs.close();
+
+    fs::path symlinkTargetDir2 = m_testDir / "targetDir2";
+    fs::path symlinkTarget2 = symlinkTargetDir2 / "targetFile";
+    fs::create_directories(symlinkTargetDir2);
+
+    ofs.open(symlinkTarget2);
+    ofs << "This is some different text";
+    ofs.close();
+
+    fs::create_symlink(symlinkTarget1, "hosts");
+
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
+    a.start();
+
+    EXPECT_FALSE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    // replace the symlink
+    fs::remove("hosts");
+    fs::create_symlink(symlinkTarget2, "hosts");
+
+    // we should get only one notification
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+    EXPECT_FALSE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    a.requestStop();
+    a.join();
+}
+
 TEST_F(TestConfigMonitor, ConfigMonitorIgnoresChangedSymlinkSameContent)
 {
     fs::path symlinkTargetDir1 = m_testDir / "targetDir1";
@@ -456,6 +494,59 @@ TEST_F(TestConfigMonitor, ConfigMonitorIgnoresChangedSymlinkSameContent)
     fs::rename("hosts.new", "hosts");
 
     EXPECT_FALSE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    a.requestStop();
+    a.join();
+}
+
+TEST_F(TestConfigMonitor, catchChangesToSymlinkToFile)
+{
+    fs::path monitoredDir = m_testDir / "etc";
+    fs::create_directories(monitoredDir);
+    fs::path monitoredHosts = monitoredDir / "hosts";
+
+    fs::path intermediateDir = m_testDir / "intermediate";
+    fs::create_directories(intermediateDir);
+    fs::path intermediateHosts = intermediateDir / "isymlink";
+    fs::path intermediateHostsNew = intermediateDir / "isymlink.new";
+
+    fs::path targetDir1 = m_testDir / "targetDir1";
+    fs::create_directories(targetDir1);
+    fs::path target1 = targetDir1 / "targetFile";
+
+    fs::path targetDir2 = m_testDir / "targetDir2";
+    fs::create_directories(targetDir2);
+    fs::path target2 = targetDir2 / "targetFile";
+
+    std::ofstream ofs(target1);
+    ofs << "Original Text";
+    ofs.close();
+
+    ofs.open(target2);
+    ofs << "This is some different text";
+    ofs.close();
+
+
+    fs::create_symlink(intermediateHosts, monitoredHosts);
+    fs::create_symlink(target1, intermediateHosts);
+
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_systemCallWrapper, monitoredDir);
+    a.start();
+
+    EXPECT_FALSE(waitForPipe(configPipe, 10ms));
+
+    // replace the symlink
+    fs::create_symlink(target2, intermediateHostsNew);
+    fs::rename(intermediateHostsNew, intermediateHosts);
+
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    ofs.open(target2);
+    ofs << "Text version 3";
+    ofs.close();
+
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
 
     a.requestStop();
     a.join();
