@@ -224,7 +224,7 @@ namespace plugin::manager::scanprocessmonitor
             if (interestingDirTouched)
             {
                 LOGDEBUG("Change detected in monitored directory, checking config for changes");
-                for (auto& filepath : interestingFiles())
+                for (const auto& filepath : interestingFiles())
                 {
                     auto newContents = getContents(filepath);
                     if (contents.at(filepath) != newContents)
