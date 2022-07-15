@@ -87,7 +87,7 @@ static inline std::string toString(const fs::path& p)
 
 const static auto MONITOR_LATENCY = 100ms; //NOLINT
 
-TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWrite) // NOLINT
+TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWrite)
 {
     std::ofstream ofs("hosts");
     ofs << "This is some text";
@@ -427,7 +427,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfChangedSymlink)
     a.join();
 }
 
-TEST_F(TestConfigMonitor, DISABLED_ConfigMonitorIsNotifiedOfRemovedChangedSymlink)
+TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfRemovedChangedSymlink)
 {
     fs::path symlinkTargetDir1 = m_testDir / "targetDir1";
     fs::path symlinkTarget1 = symlinkTargetDir1 / "targetFile";
