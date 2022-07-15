@@ -132,7 +132,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorLogsErrorWhenPselectFails)
     a.join();
 }
 
-TEST_F(TestConfigMonitor, ConfigMonitorDoesNotLogErrorWhenShuttingDownAndPselectFails)
+TEST_F(TestConfigMonitor, noNotificationWhenSameContentsRewritten)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -149,7 +149,6 @@ TEST_F(TestConfigMonitor, ConfigMonitorDoesNotLogErrorWhenShuttingDownAndPselect
     ofs.close();
 
     EXPECT_FALSE(waitForPipe(configPipe, MONITOR_LATENCY));
-    EXPECT_TRUE(appenderContains("System configuration not changed for "));
     EXPECT_FALSE(appenderContains("System configuration updated for "));
 
     a.requestStop();
@@ -499,7 +498,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIgnoresChangedSymlinkSameContent)
     a.join();
 }
 
-TEST_F(TestConfigMonitor, catchChangesToSymlinkToFile)
+TEST_F(TestConfigMonitor, catchIntermediateSymlinkChanges)
 {
     fs::path monitoredDir = m_testDir / "etc";
     fs::create_directories(monitoredDir);
@@ -539,6 +538,55 @@ TEST_F(TestConfigMonitor, catchChangesToSymlinkToFile)
     // replace the symlink
     fs::create_symlink(target2, intermediateHostsNew);
     fs::rename(intermediateHostsNew, intermediateHosts);
+
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    ofs.open(target2);
+    ofs << "Text version 3";
+    ofs.close();
+
+    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
+
+    a.requestStop();
+    a.join();
+}
+
+
+TEST_F(TestConfigMonitor, catchBaseSymlinkChanges)
+{
+    fs::path monitoredDir = m_testDir / "etc";
+    fs::create_directories(monitoredDir);
+    fs::path monitoredHosts = monitoredDir / "hosts";
+    fs::path monitoredHostsNew = monitoredDir / "hosts.new";
+
+    fs::path targetDir1 = m_testDir / "targetDir1";
+    fs::create_directories(targetDir1);
+    fs::path target1 = targetDir1 / "targetFile";
+
+    fs::path targetDir2 = m_testDir / "targetDir2";
+    fs::create_directories(targetDir2);
+    fs::path target2 = targetDir2 / "targetFile";
+
+    std::ofstream ofs(target1);
+    ofs << "Original Text";
+    ofs.close();
+
+    ofs.open(target2);
+    ofs << "This is some different text";
+    ofs.close();
+
+
+    fs::create_symlink(target1, monitoredHosts);
+
+    Common::Threads::NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_systemCallWrapper, monitoredDir);
+    a.start();
+
+    EXPECT_FALSE(waitForPipe(configPipe, 10ms));
+
+    // replace the symlink
+    fs::create_symlink(target2, monitoredHostsNew);
+    fs::rename(monitoredHostsNew, monitoredHosts);
 
     EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
 

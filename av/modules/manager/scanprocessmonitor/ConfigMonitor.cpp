@@ -187,7 +187,6 @@ namespace plugin::manager::scanprocessmonitor
 
         while (true)
         {
-            bool configChanged = false;
             fd_set temp_readFds = readFds;
             int active = m_sysCalls->pselect(max_fd + 1, &temp_readFds, nullptr, nullptr, nullptr, nullptr);
 
@@ -202,6 +201,7 @@ namespace plugin::manager::scanprocessmonitor
                 return false;
             }
 
+            bool interestingDirTouched = false;
             if (FDUtils::fd_isset(inotifyFD.getFD(), &temp_readFds))
             {
                 // Something changed under m_base (/etc)
@@ -226,14 +226,13 @@ namespace plugin::manager::scanprocessmonitor
                         // Don't care if it's close-after-write or rename/move
                         if (isInteresting(event->name))
                         {
-                            configChanged = check_file_for_changes(event->name, true) || configChanged;
+                            interestingDirTouched = true;
                         }
                     }
                     i += EVENT_SIZE + event->len;
                 }
             }
 
-            bool interestingDirTouched = false;
             for (const auto& iter : m_interestingDirs)
             {
                 int fd = iter.second->getFD();
@@ -251,21 +250,6 @@ namespace plugin::manager::scanprocessmonitor
             if (interestingDirTouched)
             {
                 LOGDEBUG("Change detected in monitored directory, checking config for changes");
-                if (check_all_files())
-                {
-                    configChanged = true;
-                }
-            }
-
-            if (configChanged)
-            {
-                // Only notify if the actual contents have changed
-                m_configChangedPipe.notify();
-            }
-
-            if (interestingDirTouched)
-            {
-                // Need to re-evaluate directories
                 return true;
             }
         }
