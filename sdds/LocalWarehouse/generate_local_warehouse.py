@@ -80,7 +80,7 @@ def fetch_artifacts(args):
     release_package_path = os.path.join(args.workingdir, "release-package.xml")
     with open(release_package_path, 'w') as release_package_file:
         release_package_file.write(package_xml.format(args.workingdir, args.branch))
-    artisan_fetch(release_package_path, build_mode="not_used", production_build=False, verbose=True)
+    artisan_fetch(release_package_path, build_mode="not_used", production_build=False)
     fix_utils_scripts(args)
 
 def unzip_file_to_path_in_workingdir(path_to_zip, relative_path_to_dest, args):
