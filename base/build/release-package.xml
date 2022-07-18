@@ -120,14 +120,14 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/sophlib" build-id="20220331091219-7e68d4a817ddb3cdd7d84b1594b2d9addf0986df-X4hqu2"/>
+            <release-version branch="release/sophlib" build-id="20220713133804-bd190da51ebe34de00b9b24a2740d4aa3429edf0-x1dt3y"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64"/>
         </build-asset>
 
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/2022-18-linux" build-id="20220425074826-3692c12a6ddf9dc8fd74ff1116cf2fdc325c6d87-C1Ssbv"/>
+            <release-version branch="release/2022-30-linux" build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>
             <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
