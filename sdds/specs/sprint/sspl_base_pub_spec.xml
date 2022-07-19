@@ -83,7 +83,7 @@
 		</component>
       </line>
       <line id="ServerProtectionLinux-Plugin-EDR">
-        <component importreference="ServerProtectionLinux-Plugin-EDR-1.1.6.64">
+        <component importreference="ServerProtectionLinux-Plugin-EDR-1.1.6.87">
           <releasetag baseversion="" tag="BETA"/>
           <releasetag baseversion="" tag="RECOMMENDED"/>
           <genericsupplement decodepath="scheduled_query_pack"
