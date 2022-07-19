@@ -31,7 +31,7 @@ liveresponse.latest.x64:
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse
 runtimedetections.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.capsule8-sensor/release--sensor--2022-27/20220624210127-757beb6b82c808ad612fcd6f12086e3a20808120-6m4MxW/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.capsule8-sensor/release--sensor--version_5_0_2/20220718200136-e948da939d9a1193237822d6255664b97bfd6842-qIWhSK/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
   mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
 heartbeat.latest.x64:
