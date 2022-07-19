@@ -490,7 +490,8 @@ Threat Detector Does Not Restart If System File Contents Do Not Change
     copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Revert System File To Original
 
-    Wait Until AV Plugin Log Contains With Offset  System configuration not changed for ${TESTSYSFILE}
+    ## LINUXDAR-5249 - we now just check all files every time
+    Wait Until AV Plugin Log Contains With Offset  System configuration not changed
     AV Plugin Log Should Not Contain With Offset  System configuration updated for ${TESTSYSFILE}
 
 

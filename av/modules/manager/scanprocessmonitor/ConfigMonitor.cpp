@@ -162,11 +162,15 @@ namespace plugin::manager::scanprocessmonitor
                 LOGERROR("Failed to setup inotify watches for symlink directories");
                 break;
             }
-            // Now we need to check files for any changes - in case we missed then when we
-            // didn't monitor directories
+            // Now we need to check files for any changes
+            // This ensures we don't miss anything while setting up our new inotify stuff
             if (check_all_files())
             {
                 m_configChangedPipe.notify();
+            }
+            else
+            {
+                LOGDEBUG("System configuration not changed");
             }
         }
     }
