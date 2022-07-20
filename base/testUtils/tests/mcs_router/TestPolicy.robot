@@ -174,7 +174,10 @@ MCS Resets Token If Empty Token Is Sent In MCS Policy
     Set Default MCS Policy
 
     Check Cloud Server Log For Command Poll  4
-    Check MCS Policy Config Contains  PolicyRegToken
+    Wait Until Keyword Succeeds
+    ...  3s
+    ...  1s
+    ...  Check MCS Policy Config Contains  PolicyRegToken
 
     #Wait until next command poll as user agent info is updated in the header of the command poll
     Check Cloud Server Log For Command Poll  5
@@ -195,7 +198,10 @@ MCS Resets Token If Empty Token Is Sent In MCS Policy And Remains Empty On Resta
     #Check user agent and policy config has a reg token
     Send Cmd To Fake Cloud   controller/userAgent  ${User_Agent_File}
     ${User_Agent_Info}=  Get File  ${User_Agent_File}
-    Check MCS Policy Config Contains  PolicyRegToken
+    Wait Until Keyword Succeeds
+    ...  3s
+    ...  1s
+    ...  Check MCS Policy Config Contains  PolicyRegToken
     Set MCS Policy Registration Token Empty
 
     Check Cloud Server Log For Command Poll  2

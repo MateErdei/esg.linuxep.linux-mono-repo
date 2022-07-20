@@ -242,6 +242,14 @@ EDR Osquery restarts mtr extension when killed
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/livequery.log   edr_log  Successfully executed query  2
     ${result} =  Run Process  pgrep osquery | xargs kill -15  shell=true
     Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  Check Log Contains String At Least N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log      Process task OSQUERY_PROCESS_FINISHED  1
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  MTR Extension is running
+    Wait Until Keyword Succeeds
     ...  70 secs
     ...  10 secs
     ...  Check Log Contains String At Least N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log   edr_osquery_log  Created and monitoring extension child  3
