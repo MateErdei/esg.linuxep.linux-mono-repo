@@ -109,8 +109,11 @@ def download_url(url, dest):
 
 def unpack(zip_file, dest, passwd=None):
     log("Extracting: {}".format(ensure_unicode(zip_file)))
+
+    shutil.rmtree(dest, ignore_errors=True)
+    safe_mkdir(dest)
+
     with zipfile.ZipFile(ensure_unicode(zip_file)) as z:
-        safe_mkdir(dest)
         if passwd:
             z.setpassword(ensure_binary(passwd))
         z.extractall(ensure_unicode(dest))
