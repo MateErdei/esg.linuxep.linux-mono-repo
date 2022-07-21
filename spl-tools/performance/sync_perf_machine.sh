@@ -20,22 +20,22 @@ else
   echo "Setting up gcc build area"
   rm -rf /root/gcc-build-test
   mkdir -p /root/gcc-build-test/build || failure "Could not make gcc build dir"
-  cp /mnt/filer6/linux/SSPL/tools/gcc-releases-gcc-8.5.0.tar.gz /root/gcc-build-test/ || failure "Could not copy gcc source tar"
+  cp /mnt/filer6/linux/SSPL/tools/gcc-11.2.0.tar.gz /root/gcc-build-test/ || failure "Could not copy gcc source tar"
   pushd /root/gcc-build-test || failure "Could not pushd into gcc build dir to untar"
-    tar -xzf gcc-releases-gcc-8.5.0.tar.gz || failure "Could not untar gcc source"
+    tar -xzf gcc-11.2.0.tar.gz || failure "Could not untar gcc source"
   popd
   pushd /root/gcc-build-test/build
-    ../gcc-releases-gcc-8.5.0/configure --enable-languages=c,c++ --disable-multilib  || echo "Could not configure gcc build will patch and try running /root/gcc-build-test/gcc-releases-gcc-8.5.0/contrib/download_prerequisites"
+    ../gcc-11.2.0/configure --enable-languages=c,c++ --disable-multilib  || echo "Could not configure gcc build will patch and try running /root/gcc-build-test/gcc-11.2.0/contrib/download_prerequisites"
     sleep 3
 
     echo "Patching ftp to http as the files are not available via ftp"
-    sed -i 's/ftp:/http:/g' /root/gcc-build-test/gcc-releases-gcc-8.5.0/contrib/download_prerequisites || failure "Could not patch download_prerequisites"
+    sed -i 's/ftp:/http:/g' /root/gcc-build-test/gcc-11.2.0/contrib/download_prerequisites || failure "Could not patch download_prerequisites"
     sleep 3
 
-    pushd /root/gcc-build-test/gcc-releases-gcc-8.5.0
+    pushd /root/gcc-build-test/gcc-11.2.0
       ./contrib/download_prerequisites || failure "Could not download prerequisites for gcc"
     popd
-    ../gcc-releases-gcc-8.5.0/configure --enable-languages=c,c++ --disable-multilib  || failure "Could not configure gcc build"
+    ../gcc-11.2.0/configure --enable-languages=c,c++ --disable-multilib  || failure "Could not configure gcc build"
   popd
 fi
 
