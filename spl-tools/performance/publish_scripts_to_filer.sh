@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# IMPORTANT: This script copies files from sspl-tools, base and liveterminal repos from your dev machine.
-#            Please make sure that base and liveterminal are both up to date and on develop before running this script.
+# IMPORTANT: This script copies files from sspl-tools, base, event-journaler and liveterminal repos from your dev machine.
+#            Please make sure that base, event-journaler and liveterminal are both up to date and on develop before running this script.
 
 # This is a helper script that will copy the needed performance
 # scripts from your machine to filer. This is to be used in conjunction
@@ -45,20 +45,26 @@ fi
 
 [[ -d $PERF_DIR ]] || failure "Could not access: $PERF_DIR"
 
-copy_file run-test-gcc.sh
-copy_file build-gcc-only.sh
 copy_file PerformanceResources.py
-copy_file RunPerfTests.py
+copy_file RTD.sh
+copy_file RunCentralLiveQuery.py
 copy_file RunEventJournalerIngestionTest.py
 copy_file RunLocalLiveQuery.py
-copy_file RunCentralLiveQuery.py
-copy_file save-osquery-db-file-count.sh
-copy_file sync_perf_machine.sh
+copy_file RunPerfTests.py
+copy_file build-gcc-only.sh
 copy_file install-edr-mtr.sh
 copy_file install-edr.sh
+copy_file record_sspl_install_size.sh
+copy_file run-test-gcc.sh
+copy_file save-osquery-db-file-count.sh
+copy_file sync_perf_machine.sh
+copy_file ssplDogfoodFeedback.sh
 
 copy_file ../everest-base/testUtils/SupportFiles/CloudAutomation/cloudClient.py
 copy_file ../everest-base/testUtils/SupportFiles/CloudAutomation/SophosHTTPSClient.py
+
+copy_file ../sspl-plugin-event-journaler/output/manualTools/JournalReader
+copy_file ../sspl-plugin-event-journaler/output/manualTools/EventPubSub
 
 # Live Response terminal tests
 copy_file RunLocalLiveTerminal.py
