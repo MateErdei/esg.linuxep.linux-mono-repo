@@ -10,7 +10,7 @@ import json
 def find_all_release_xmls(start_dir):
     release_package_names = ["release-package-linux.xml", "linux-release-package.xml", "linux_package.xml",
                              "sed-libs-linux-package.xml", "linux-centos7.xml", "dev.xml", "sdds3.xml",
-                             "capsule8-sensor-package.xml", "release-package.xml", "package.xml"]
+                             "rtd-package.xml", "release-package.xml", "package.xml"]
     release_file_locations = []
 
     for repo in next(os.walk(start_dir))[1]:
