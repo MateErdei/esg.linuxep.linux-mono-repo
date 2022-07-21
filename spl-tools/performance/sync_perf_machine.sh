@@ -12,6 +12,10 @@ function failure()
 
 [[ -d /mnt/filer6/linux/ ]] || failure "Could not access filer6 linux dir"
 
+echo "Setting up machine"
+yum upgrade
+yum -y install python3
+
 # prepare gcc build area
 if [[ -d /root/gcc-build-test ]]
 then
@@ -47,32 +51,16 @@ echo "Copying MCS certs to /root"
 cp -r /mnt/filer6/linux/SSPL/tools/setup_sspl/certs /root/
 
 echo "Installing needed python3 modules"
-python3 -m pip install requests || failure "Could not install requests"
+python3 -m pip install requests watchdog websockets nest_asyncio || failure "Could not install requests"
 
 echo ""
-echo "Some example crontab entries:"
+echo "Add the following crontab and then reboot the machine to complete sync:"
 echo ""
-echo "# Run gcc build timed test every 2 hours"
-echo "0 */2 * * * python3 /root/performance/RunPerfTests.py -s gcc"
+echo "@reboot /root/metricbeat-7.1.1-linux-x86_64/metricbeat -c /root/metricbeat-7.1.1-linux-x86_64/metricbeat.yml"
+echo "0 16 * * * /root/performance/ssplDogfoodFeedback.sh"
 echo ""
-echo "# Install EDR at  8am, run tests and then remove it at 4pm"
-echo "0 8 * * * /root/performance/install-edr.sh <CENTRAL_ACCOUNT_PASSWORD>"
-echo "*/30 08-15  * * *  python3 /root/performance/RunPerfTests.py -s central-livequery -r p -i <CENTRAL_ACCOUNT_ID> -p <CENTRAL_ACCOUNT_SECRET>"
-echo "*/30 08-15  * * *  python3 /root/performance/RunPerfTests.py -s central-livequery -r p -e LicenceDarwin+2@gmail.com -p <CENTRAL_ACCOUNT_PASSWORD>"
-echo "0 16 * * * /root/ssplDogfoodFeedback.sh && /opt/sophos-spl/bin/uninstall.sh --force"
-echo ""
-echo "# Install EDR and MTR at  4pm, run tests and then remove it at 12am"
-echo "0 16 * * * /root/performance/install-edr-mtr.sh <CENTRAL_ACCOUNT_PASSWORD>"
-echo "*/30 16-21  * * *  python3 /root/performance/RunPerfTests.py -s central-livequery -r p -i <CENTRAL_ACCOUNT_ID> -p <CENTRAL_ACCOUNT_SECRET>"
-echo "*/30 16-21  * * *  python3 /root/performance/RunPerfTests.py -s central-livequery -r p -e LicenceDarwin@gmail.com -p <CENTRAL_ACCOUNT_PASSWORD>"
-echo "0 0 * * * /root/ssplDogfoodFeedback.sh && /opt/sophos-spl/bin/uninstall.sh --force"
-echo ""
-echo "# Run local live queries at 10am"
-echo "0 10 * * *  python3 /root/performance/RunPerfTests.py -s local-livequery"
-echo ""
-echo "# Measuring osquery DB files every 5 mins"
-echo "*/5 * * * *  bash /root/performance/save-osquery-db-file-count.sh"
-echo ""
+
+echo "The performance machine will also require python 3.7 to be installed for some tests to run"
 
 echo "Done"
 
