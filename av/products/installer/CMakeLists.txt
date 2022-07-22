@@ -1,9 +1,11 @@
 configure_file(install.sh.in ${PROJECT_BINARY_DIR}/install.sh @ONLY )
 configure_file(plugin.json.in ${PROJECT_BINARY_DIR}/${PLUGIN_NAME}.json @ONLY )
+configure_file(on_access_process.json.in ${PROJECT_BINARY_DIR}/on_access_process.json @ONLY )
 configure_file(threat_detector.json.in ${PROJECT_BINARY_DIR}/threat_detector.json @ONLY )
 configure_file(uninstall.sh.in ${PROJECT_BINARY_DIR}/uninstall.sh @ONLY )
 
 install(FILES  ${PROJECT_BINARY_DIR}/${PLUGIN_NAME}.json DESTINATION files/base/pluginRegistry)
+install(FILES  ${PROJECT_BINARY_DIR}/on_access_process.json DESTINATION files/base/pluginRegistry)
 install(FILES  ${PROJECT_BINARY_DIR}/threat_detector.json DESTINATION files/base/pluginRegistry)
 
 install(FILES ${PROJECT_BINARY_DIR}/install.sh

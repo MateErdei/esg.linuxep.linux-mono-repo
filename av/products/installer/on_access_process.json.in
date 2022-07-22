@@ -1,0 +1,13 @@
+{
+  "executableFullPath": "plugins/@PLUGIN_NAME@/sbin/soapd",
+  "executableArguments": [
+  ],
+  "environmentVariables": [
+    {
+      "name": "SOPHOS_INSTALL",
+      "value": "SOPHOS_INSTALL_VALUE"
+    }
+  ],
+  "executableUserAndGroup": "root:root",
+  "secondsToShutDown": 30
+}
