@@ -436,42 +436,42 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                                 stage.task(task_name=name, func=robot_task, machine=machine,
                                            include_tag=include)
 
-            if do_coverage:
-                with stage.parallel('coverage'):
-                    coverage_inputs = get_inputs(context, coverage_build, coverage=True)
+        if do_coverage:
+            with stage.parallel('coverage'):
+                coverage_inputs = get_inputs(context, coverage_build, coverage=True)
 
-                    with stage.parallel('pytest'):
-                        machine_bullseye_pytest = \
+                with stage.parallel('pytest'):
+                    machine_bullseye_pytest = \
+                        tap.Machine('ubuntu1804_x64_server_en_us',
+                                    inputs=coverage_inputs,
+                                    outputs={'covfile': TaskOutput('covfiles')},
+                                    platform=tap.Platform.Linux)
+                    stage.task(task_name='component',
+                               func=bullseye_coverage_pytest_task,
+                               machine=machine_bullseye_pytest)
+
+                with stage.parallel('robot'):
+                    for include in include_tag.split():
+                        machine_bullseye_robot = \
                             tap.Machine('ubuntu1804_x64_server_en_us',
                                         inputs=coverage_inputs,
                                         outputs={'covfile': TaskOutput('covfiles')},
                                         platform=tap.Platform.Linux)
-                        stage.task(task_name='component',
-                                   func=bullseye_coverage_pytest_task,
-                                   machine=machine_bullseye_pytest)
+                        stage.task(task_name=include,
+                                   func=bullseye_coverage_robot_task,
+                                   machine=machine_bullseye_robot,
+                                   include_tag=include)
 
-                    with stage.parallel('robot'):
-                        for include in include_tag.split():
-                            machine_bullseye_robot = \
-                                tap.Machine('ubuntu1804_x64_server_en_us',
-                                            inputs=coverage_inputs,
-                                            outputs={'covfile': TaskOutput('covfiles')},
-                                            platform=tap.Platform.Linux)
-                            stage.task(task_name=include,
-                                       func=bullseye_coverage_robot_task,
-                                       machine=machine_bullseye_robot,
-                                       include_tag=include)
-
-                    combine_inputs = coverage_inputs
-                    combine_inputs['covfiles'] = TaskOutput('covfiles')
-                    machine_bullseye_combine = \
-                        tap.Machine('ubuntu1804_x64_server_en_us',
-                                    inputs=combine_inputs,
-                                    platform=tap.Platform.Linux)
-                    stage.task(task_name='combine',
-                               func=bullseye_coverage_combine_task,
-                               machine=machine_bullseye_combine,
-                               include_tag=include_tag)
+                combine_inputs = coverage_inputs
+                combine_inputs['covfiles'] = TaskOutput('covfiles')
+                machine_bullseye_combine = \
+                    tap.Machine('ubuntu1804_x64_server_en_us',
+                                inputs=combine_inputs,
+                                platform=tap.Platform.Linux)
+                stage.task(task_name='combine',
+                           func=bullseye_coverage_combine_task,
+                           machine=machine_bullseye_combine,
+                           include_tag=include_tag)
 
         if run_aws_tests:
             aws_test_inputs = get_inputs(context, av_build, aws=True)
