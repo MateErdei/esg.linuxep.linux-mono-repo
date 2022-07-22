@@ -4,6 +4,14 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "ApplicationPaths.h"
+#include "IOsqueryProcess.h"
+#include "LiveQueryPolicyParser.h"
+#include "Logger.h"
+#include "PluginAdapter.h"
+#include "PluginUtils.h"
+#include "TelemetryConsts.h"
+
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -14,16 +22,9 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
 
-#include <modules/pluginimpl/ApplicationPaths.h>
-#include <modules/pluginimpl/IOsqueryProcess.h>
-#include <modules/pluginimpl/LiveQueryPolicyParser.h>
-#include <modules/pluginimpl/Logger.h>
-#include <modules/pluginimpl/PluginAdapter.h>
-#include <modules/pluginimpl/PluginUtils.h>
-#include <modules/pluginimpl/TelemetryConsts.h>
-
 #include <cmath>
 #include <fstream>
+#include <thirdparty/nlohmann-json/json.hpp>
 #include <unistd.h>
 
 // helper class that allow to schedule a task.
