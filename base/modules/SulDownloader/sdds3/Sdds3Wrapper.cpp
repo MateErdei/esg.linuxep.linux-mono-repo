@@ -15,7 +15,9 @@ namespace SulDownloader
         const sdds3::Repo& repo,
         const sdds3::Config& config)
     {
-        return sdds3::get_packages_including_supplements(session, repo, config);
+        const auto filterSupplements =
+            sdds3::FilterPackagesBy(sdds3::PackageFilter::NotInstallable, sdds3::PackageFilter::ReferencedFromSupplement);
+        return sdds3::get_packages(session, repo, config,filterSupplements);
     }
     std::vector<sdds3::PackageRef> Sdds3Wrapper::getPackagesToInstall(
         sdds3::Session& session,
