@@ -95,9 +95,9 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, environment=None
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/coredumps', 'coredumps', raise_on_failure=False)
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
-                    "robot" + get_suffix() + "_" + machine_name + "_" + include_tag + "-log.html")
+                    "av" + get_suffix() + "_" + machine_name + "_" + include_tag + "-log.html")
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/report.html",
-                    "robot" + get_suffix() + "_" + machine_name + "_" + include_tag + "-report.html")
+                    "av" + get_suffix() + "_" + machine_name + "_" + include_tag + "-report.html")
 
 
 @tap.timeout(task_timeout=120)
@@ -138,7 +138,7 @@ def aws_task(machine: tap.Machine, include_tag: str):
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/combined-log.html",
-                    "robot" + get_suffix() + "_aws-log.html")
+                    "av" + get_suffix() + "_aws-log.html")
 
 
 def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
