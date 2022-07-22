@@ -152,6 +152,8 @@ Update before Init then Restart Threat Detector
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /usr/
     ...   stdout=${LOG_FILE}   stderr=STDOUT
 
+    Register Cleanup    Terminate Process  ${cls_handle}
+
     Wait Until Sophos Threat Detector Log Contains With Offset   Scan requested
     Wait Until Sophos Threat Detector Log Contains With Offset   Initializing SUSI   timeout=30
 
@@ -168,6 +170,8 @@ Update before Init then Restart Threat Detector
 
     # Stop CLS
     ${result} =   Terminate Process  ${cls_handle}
+    deregister cleanup  Terminate Process  ${cls_handle}
+
     Should Contain  ${{ [ ${EXECUTION_INTERRUPTED}, ${SCAN_ABORTED_WITH_THREAT} ] }}   ${result.rc}
 
     # force a log dump, for investigation / debug purposes

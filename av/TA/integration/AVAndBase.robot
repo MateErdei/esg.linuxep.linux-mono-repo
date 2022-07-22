@@ -71,6 +71,7 @@ AV plugin runs scan now while CLS is running
     ${cls_handle} =     Start Process  ${CLI_SCANNER_PATH}  /usr/
     ...   stdout=${LOG_FILE}   stderr=STDOUT
     Process Should Be Running   ${cls_handle}
+    Register Cleanup    Terminate Process  ${cls_handle}
 
     # check CLS is scanning
     Wait Until Keyword Succeeds
@@ -106,6 +107,8 @@ AV plugin runs scan now while CLS is running
 
     # Stop CLS
     ${result} =   Terminate Process  ${cls_handle}
+    deregister cleanup  Terminate Process  ${cls_handle}
+
     Should Contain  ${{ [ ${EXECUTION_INTERRUPTED}, ${SCAN_ABORTED_WITH_THREAT} ] }}   ${result.rc}
 
 AV plugin runs CLS while scan now is running
