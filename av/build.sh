@@ -422,6 +422,8 @@ function build()
         return 0
     fi
 
+    [[ -n ${NPROC:-} ]] || NPROC=$(nproc || echo 2)
+
     if (( BULLSEYE == 1 ))
     then
         BULLSEYE_DIR=/opt/BullseyeCoverage
@@ -439,6 +441,8 @@ function build()
         export CC=$BULLSEYE_DIR/bin/gcc
         export CXX=$BULLSEYE_DIR/bin/g++
         covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
+        # Coverage fails if we build -j8
+        NPROC=2
     fi
 
     #   Required for build scripts to run on dev machines
@@ -469,7 +473,6 @@ function build()
     [[ $CLEAN == 1 ]] && rm -rf build${BITS}
     mkdir -p build${BITS}
     cd build${BITS}
-    [[ -n ${NPROC:-} ]] || NPROC=$(nproc || echo 2)
     which cmake
     LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
         cmake \
