@@ -16,7 +16,7 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
         </build-asset>
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/2022-24-linux" build-id="20220606085243-1459b59f4cb55ff78a8738f0da8a0f8cf0d4d4dd-YWGmAr"/>
+            <release-version branch="release/2022-30-linux" build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="input/sdds3"/>
         </build-asset>
 
