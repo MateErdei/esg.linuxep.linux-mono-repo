@@ -332,12 +332,16 @@ function install_product()
     #Create plugin registration file
     local TEMP_PLUGIN_REG_FILE=${SOPHOS_INSTALL}/tmp/${PLUGIN_NAME}.json
     local TEMP_THREAT_DETECTOR_REG_FILE=${SOPHOS_INSTALL}/tmp/threat_detector.json
+    local TEMP_ONACCESS_PROCESS_REG_FILE=${SOPHOS_INSTALL}/tmp/on_access_process.json
     sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/${PLUGIN_NAME}.json"  > "${TEMP_PLUGIN_REG_FILE}"
     sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/threat_detector.json" > "${TEMP_THREAT_DETECTOR_REG_FILE}"
+    sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/on_access_process.json" > "${TEMP_ONACCESS_PROCESS_REG_FILE}"
     "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_PLUGIN_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_PLUGIN_REG_FILE}"
     "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_THREAT_DETECTOR_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_THREAT_DETECTOR_REG_FILE}"
+    "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_ONACCESS_PROCESS_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_ONACCESS_PROCESS_REG_FILE}"
     rm -f ${TEMP_PLUGIN_REG_FILE}
     rm -f ${TEMP_THREAT_DETECTOR_REG_FILE}
+    rm -f ${TEMP_ONACCESS_PROCESS_REG_FILE}
 
     #Install files using versioned copy (apart from SUSI)
     find "$DIST/files/plugins" -type f -not -path "$DIST/files/plugins/av/chroot/susi/*" -print0 \

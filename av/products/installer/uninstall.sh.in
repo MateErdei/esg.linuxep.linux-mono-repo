@@ -53,6 +53,7 @@ rm -f /usr/local/bin/avscanner
 
 "${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
 "${BASEDIR}/bin/wdctl" removePluginRegistration "threat_detector"
+"${BASEDIR}/bin/wdctl" removePluginRegistration "on_access_process"
 
 rm -rf "$UNINSTALLDIR"
 rm -f "$SYMLINK"
