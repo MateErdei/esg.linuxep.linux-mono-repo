@@ -126,14 +126,14 @@ def pytest_task(machine: tap.Machine):
     pytest_task_with_env(machine)
 
 
-AWS_TIMEOUT = 120
+AWS_TIMEOUT = 130
 
 
 @tap.timeout(task_timeout=AWS_TIMEOUT)
 def aws_task(machine: tap.Machine, include_tag: str):
     try:
         machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", include_tag,
-                    timeout=((AWS_TIMEOUT-10)*60))
+                    timeout=((AWS_TIMEOUT-5)*60))
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
