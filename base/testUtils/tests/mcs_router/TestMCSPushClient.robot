@@ -215,15 +215,15 @@ Verify Push Client Will Attempt To Connect On Every Command Poll When Push Serve
     ...   Check Mcs Envelope Log Contains Regex String N Times   GET \/commands\/applications\/MCS;(\\w;*)+\/endpoint\/   1
 
     Wait Until Keyword Succeeds
-    ...   6s
-    ...   1s
+    ...   30s
+    ...   2s
     ...   Run Keywords
     ...   Check Log Contains String N times   ${MCS_ROUTER_LOG}   mcs_router  Trying to re-connect to Push Server  1  AND
     ...   Check Mcs Envelope Log Contains Regex String N Times   GET \/commands\/applications\/MCS;(\\w;*)+\/endpoint\/   2
 
     Wait Until Keyword Succeeds
-    ...   6s
-    ...   1s
+    ...   30s
+    ...   2s
     ...   Run Keywords
     ...   Check Log Contains String N times   ${MCS_ROUTER_LOG}   mcs_router  Trying to re-connect to Push Server  2   AND
     ...   Check Mcs Envelope Log Contains Regex String N Times   GET \/commands\/applications\/MCS;(\\w;*)+\/endpoint\/   3
