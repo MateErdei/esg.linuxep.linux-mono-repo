@@ -7,7 +7,7 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-27" build-id="20220624174822-3fe1b1a04318a3e99923d0e4df4d7c1c3aa0142d-OZ6upC"/>
+            <release-version branch="release/2022-30" build-id="20220718120117-9dd78bad548b4fdac7e57486f970d58cd5272f21-veR5uL"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input" />
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
@@ -20,7 +20,7 @@
             <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/2022-24-linux" build-id="20220606085243-1459b59f4cb55ff78a8738f0da8a0f8cf0d4d4dd-YWGmAr"/>
+            <release-version branch="release/2022-30-linux" build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>
             <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
