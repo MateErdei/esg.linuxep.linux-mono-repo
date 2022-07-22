@@ -3,8 +3,10 @@ set(SOAPD_EXE_NAME soapd)
 
 add_executable(${SOAPD_EXE_NAME}
         sophos_on_access_process_main.cpp)
-target_link_libraries(soapd PUBLIC
+target_link_libraries(${SOAPD_EXE_NAME} PUBLIC
+        soapdbootstrap
         )
+target_include_directories(${SOAPD_EXE_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
 SET_TARGET_PROPERTIES(${SOAPD_EXE_NAME}
         PROPERTIES
