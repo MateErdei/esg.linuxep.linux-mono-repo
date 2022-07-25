@@ -9,5 +9,5 @@
     }
   ],
   "executableUserAndGroup": "root:root",
-  "secondsToShutDown": 30
+  "secondsToShutDown": 10
 }
