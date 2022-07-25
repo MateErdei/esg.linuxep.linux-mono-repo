@@ -251,6 +251,9 @@ def extract_plugin_version(extracted_tar_path, plugin_name):
 
     return "unknown"
 
+def get_diagnose_unpack_folder(filename):
+    size = len(".tar.gz")
+    return filename[:-size]
 
 def process_diagnose_file(tar_path):
     global g_extract_dir
@@ -276,7 +279,8 @@ def process_diagnose_file(tar_path):
     tar = tarfile.open(local_tar_path)
     tar.extractall(sub_dir)
     tar.close()
-
+    #dir in which files are unpacked too
+    unpacked_dir = os.path.join(sub_dir, get_diagnose_unpack_folder(tar_file_name))
     # product logs
     logs = []
 
@@ -284,19 +288,19 @@ def process_diagnose_file(tar_path):
     system_files = []
 
     # Base
-    base = os.path.join(sub_dir, "BaseFiles")
+    base = os.path.join(unpacked_dir, "BaseFiles")
     for filename in Path(base).glob('**/*.log*'):
         logs.append(str(filename))
         print(filename)
 
     # Plugins
-    plugins = os.path.join(sub_dir, "PluginFiles")
+    plugins = os.path.join(unpacked_dir, "PluginFiles")
     for filename in Path(plugins).glob('**/*.log*'):
         logs.append(str(filename))
         print(filename)
 
     # System files - NB currently ignoring large system files as they take too long to import.
-    system_file_path = os.path.join(sub_dir, "SystemFiles")
+    system_file_path = os.path.join(unpacked_dir, "SystemFiles")
     for filename in Path(system_file_path).glob('*'):
         file_name_string = str(filename)
         file_size_bytes = os.path.getsize(file_name_string)
@@ -308,15 +312,15 @@ def process_diagnose_file(tar_path):
         else:
             print("WARN - Ignoring system file due to size: {}".format(filename))
 
-    hostname = extract_hostname(sub_dir)
+    hostname = extract_hostname(unpacked_dir)
     if hostname is None or hostname == "None" or hostname == "":
         print("Skipping tar because could not extract hostname from hostnamectl: {}".format(tar_path))
         return
 
-    ip = extract_ip(sub_dir)
-    product_base_version = extract_base_version(sub_dir)
-    product_edr_version = extract_plugin_version(sub_dir, "edr")
-    product_mtr_version = extract_plugin_version(sub_dir, "mtr")
+    ip = extract_ip(unpacked_dir)
+    product_base_version = extract_base_version(unpacked_dir)
+    product_edr_version = extract_plugin_version(unpacked_dir, "edr")
+    product_mtr_version = extract_plugin_version(unpacked_dir, "mtr")
 
     print("Hostname: {}".format(hostname))
     print("IP: {}".format(ip))
