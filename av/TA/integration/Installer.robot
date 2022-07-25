@@ -620,6 +620,9 @@ Check installer removes sophos_threat_detector log symlink
     File Should Not Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
 
 Check AV installer can add AV users when /usr/sbin is not in path
+    # Temp: Until we have a sigterm handler
+    Exclude soapd died
+
     Run plugin uninstaller
     Install AV Directly from SDDS Without /usr/sbin in PATH
     User Should Exist  sophos-spl-av
