@@ -102,6 +102,10 @@ Exclude Scan As Invalid
 Exclude MCS Router is dead
     mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
 
+Exclude soapd died
+    # Temp: Until we have a sigterm handler
+    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/soapd died with 15
+
 Exclude STD Symlink Error
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  LogSetup <> Create symlink for logs at
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  LogSetup <> Create symlink for logs at

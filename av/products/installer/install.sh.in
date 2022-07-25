@@ -396,6 +396,8 @@ function install_product()
     #Then start sophos_threat_detector
     "${SOPHOS_INSTALL}/bin/wdctl" start threat_detector || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos_threat_detector"
 
+    "${SOPHOS_INSTALL}/bin/wdctl" start on_access_process || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos on-access process"
+
     cp "$DIST/manifest.dat" "${VAR}/manifest.dat" || failure ${EXIT_FAIL_COPY_MANIFEST} "Failed to copy manifest from install-set to installation"
 }
 

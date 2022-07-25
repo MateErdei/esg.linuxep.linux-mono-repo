@@ -579,6 +579,9 @@ AV Plugin Can Send Telemetry After Upgrade
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 AV Plugin Restores Downgrade Logs
+    # Temp: Until we have a sigterm handler
+    Exclude soapd died
+
     Run plugin uninstaller with downgrade flag
     Directory Should Exist  ${AV_BACKUP_DIR}
     Check AV Plugin Not Installed
