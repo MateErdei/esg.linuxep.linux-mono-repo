@@ -629,6 +629,9 @@ Check AV installer can add AV users when /usr/sbin is not in path
     User Should Exist  sophos-spl-threat-detector
 
 Check AV uninstaller can remove AV users when /usr/sbin is not in path
+    # Temp: Until we have a sigterm handler
+    Exclude soapd died
+
     Uninstall AV Without /usr/sbin in PATH
     User Should Not Exist   sophos-spl-av
     User Should Not Exist   sophos-spl-threat-detector
