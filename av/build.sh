@@ -441,8 +441,6 @@ function build()
         export CC=$BULLSEYE_DIR/bin/gcc
         export CXX=$BULLSEYE_DIR/bin/g++
         covclear || exitFailure $FAILURE_BULLSEYE "Unable to clear results"
-        # Coverage fails if we build -j8
-        NPROC=2
     fi
 
     #   Required for build scripts to run on dev machines
