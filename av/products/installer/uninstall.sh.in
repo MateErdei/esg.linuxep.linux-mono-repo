@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2018 Sophos Limited.  All rights reserved.
+# Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 # Find the location of where the script is running from
 # Allows the script to be called from anywhere either directly or via symlink
