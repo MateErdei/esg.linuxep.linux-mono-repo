@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#PLUGINS_DIR="/opt/sophos-spl/plugins"
 SSPL_DIR="/opt/sophos-spl/plugins"
 [[ -d "$SSPL_DIR" ]] || exit 1
 HOSTNAME=$(hostname)
@@ -14,7 +13,7 @@ SIZE=$(du -B $BLOCK_SIZE -sx --exclude /opt/sophos-spl/var/sophos-spl-comms /opt
 
 # Basic check to make sure we do have something installed before polluting test data with a bad setup.
 BASIC_CHECK_LIMIT_KB=10000
-if (( $SIZE < BASIC_CHECK_LIMIT_KB ))
+if (( $SIZE < $BASIC_CHECK_LIMIT_KB ))
 then
     # Something went wrong, the install can't be less than this small
     echo "Check the product install, it's less than ${BASIC_CHECK_LIMIT_KB}kB"

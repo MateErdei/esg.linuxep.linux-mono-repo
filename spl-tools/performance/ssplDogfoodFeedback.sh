@@ -4,12 +4,6 @@
 
 # This script is intended to be used to gather diagnose logs from our dogfood machines and save them to S3
 
-if [[ -n $https_proxy ]]
-then
-    export http_proxy="http://allegro.eng.sophos:3128/"
-    export https_proxy="$http_proxy"
-fi
-
 function failure()
 {
     echo "FAILURE: $@"
