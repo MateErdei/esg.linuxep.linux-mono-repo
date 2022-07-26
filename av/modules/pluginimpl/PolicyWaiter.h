@@ -19,6 +19,8 @@ namespace Plugin
     class PolicyWaiter
     {
     public:
+        using clock_t = std::chrono::steady_clock;
+        using timepoint_t = std::chrono::time_point<clock_t>;
         using seconds_t = std::chrono::seconds;
         using policy_list_t = std::vector<std::string>;
         static constexpr seconds_t DEFAULT_WARNING_TIMEOUT{3600};
@@ -31,7 +33,7 @@ namespace Plugin
          * Get the timeout before we should be alerted
          * @return
          */
-        [[nodiscard]] seconds_t timeout() const;
+        [[nodiscard]] timepoint_t timeout() const;
 
         /**
          * Notify the Policy Waiter that we've got a policy
@@ -44,20 +46,36 @@ namespace Plugin
          */
         void checkTimeout();
 
+        [[nodiscard]] bool hasAllPolicies() const
+        {
+            return m_pendingPolicies.empty();
+        }
+
+        [[nodiscard]] bool infoLogged() const
+        {
+            return m_infoLogged;
+        }
+
     TEST_PUBLIC:
-        PolicyWaiter(time_t now, policy_list_t expectedPolicies, seconds_t infoTimeout, seconds_t warningTimeout=DEFAULT_WARNING_TIMEOUT);
+        PolicyWaiter(timepoint_t now, policy_list_t expectedPolicies, seconds_t infoTimeout, seconds_t warningTimeout=DEFAULT_WARNING_TIMEOUT);
 
         /**
          * Get the timeout before we should be alerted
          * @return
          */
-        [[nodiscard]] seconds_t timeout(time_t now) const;
+        [[nodiscard]] timepoint_t timeout(timepoint_t now) const;
 
+
+        /**
+         * Get the relative timeout before we should be alerted
+         * @return
+         */
+        [[nodiscard]] seconds_t relativeTimeout(timepoint_t now) const;
 
         /**
          * Check if we should log something due to not receiving policies
          */
-        void checkTimeout(time_t now);
+        void checkTimeout(timepoint_t now);
 
     private:
         /**
@@ -65,7 +83,7 @@ namespace Plugin
          */
         policy_list_t m_pendingPolicies;
 
-        time_t m_start;
+        timepoint_t m_start;
         seconds_t m_infoTimeout;
         seconds_t m_warningTimeout;
         bool m_infoLogged = false;

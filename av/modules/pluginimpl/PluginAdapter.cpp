@@ -8,6 +8,7 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 #include "HealthStatus.h"
 #include "Logger.h"
+#include "PolicyWaiter.h"
 #include "StringUtils.h"
 
 #include "common/PluginUtils.h"
@@ -114,66 +115,66 @@ namespace Plugin
 
     void PluginAdapter::innerLoop()
     {
-        auto initialPolicyDeadline = std::chrono::steady_clock::now() + std::chrono::seconds(m_waitForPolicyTimeout);
+        PolicyWaiter::policy_list_t policies;
+        policies.push_back("SAV");
+        policies.push_back("ALC");
+        PolicyWaiter policyWaiter(std::move(policies), PolicyWaiter::seconds_t{m_waitForPolicyTimeout});
+
         bool threadsRunning = false;
 
         while (true)
         {
-            Task task;
-            if (!threadsRunning)
+            Task task{};
+            bool gotTask = m_queueTask->pop(task, policyWaiter.timeout());
+            if (gotTask)
             {
-                if ( m_gotSavPolicy && m_gotAlcPolicy )
+                switch (task.taskType)
                 {
-                    startThreads();
-                    threadsRunning = true;
-                    continue;
-                }
-                if (!m_queueTask->pop(task, initialPolicyDeadline))
-                {
-                    // timed out
-                    if (!m_gotSavPolicy)
+                    case Task::TaskType::Stop:
+                        return;
+
+                    case Task::TaskType::Policy:
                     {
-                        LOGINFO("SAV policy has not been sent to the plugin");
-                    }
-                    if (!m_gotAlcPolicy)
-                    {
-                        LOGINFO("ALC policy has not been sent to the plugin");
+                        bool policyUpdated = false;
+                        std::string appId;
+                        processPolicy(task.Content, policyUpdated, appId);
+                        policyWaiter.gotPolicy(appId);
+                        m_restartSophosThreatDetector = policyUpdated || m_restartSophosThreatDetector;
+                        break;
                     }
 
-                    startThreads();
-                    threadsRunning = true;
-                    continue;
+                    case Task::TaskType::Action:
+                        processAction(task.Content);
+                        break;
+
+                    case Task::TaskType::ScanComplete:
+                    case Task::TaskType::ThreatDetected:
+                        m_baseService->sendEvent("SAV", task.Content);
+                        break;
+
+                    case Task::TaskType::SendStatus:
+                        m_baseService->sendStatus("SAV", task.Content, task.Content);
+                        break;
                 }
+
+                processSUSIRestartRequest();
             }
             else
             {
-                task = m_queueTask->pop();
+                // timeout waiting for policy
+                policyWaiter.checkTimeout();
             }
 
-            switch (task.taskType)
+            // if we've got policies, or timed out the initial wait then start threads
+            if (!threadsRunning)
             {
-                case Task::TaskType::Stop:
-                    return;
-
-                case Task::TaskType::Policy:
-                    m_restartSophosThreatDetector = processPolicy(task.Content) || m_restartSophosThreatDetector;
-                    break;
-
-                case Task::TaskType::Action:
-                    processAction(task.Content);
-                    break;
-
-                case Task::TaskType::ScanComplete:
-                case Task::TaskType::ThreatDetected:
-                    m_baseService->sendEvent("SAV", task.Content);
-                    break;
-
-                case Task::TaskType::SendStatus:
-                    m_baseService->sendStatus("SAV", task.Content, task.Content);
-                    break;
+                if (policyWaiter.hasAllPolicies() || policyWaiter.infoLogged())
+                {
+                    startThreads();
+                    threadsRunning = true;
+                    continue;
+                }
             }
-
-            processSUSIRestartRequest();
         }
     }
 
@@ -191,7 +192,7 @@ namespace Plugin
         }
     }
 
-    bool PluginAdapter::processPolicy(const std::string& policyXml)
+    void PluginAdapter::processPolicy(const std::string& policyXml, bool& policyUpdated, std::string& appId)
     {
         LOGINFO("Received Policy");
         auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
@@ -212,13 +213,17 @@ namespace Plugin
                     LOGINFO("ALC policy received for the first time.");
                     m_gotAlcPolicy = true;
                 }
-                return updated;
+                policyUpdated = updated;
+                appId = "ALC";
+                return;
             }
             else
             {
                 LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
             }
-            return false;
+            policyUpdated = false;
+            appId = "";
+            return;
         }
 
         // SAV policy
@@ -226,7 +231,9 @@ namespace Plugin
         if (policyType != "2")
         {
             LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
-            return false;
+            policyUpdated = false;
+            appId = "";
+            return;
         }
 
         LOGINFO("Processing SAV Policy");
@@ -243,7 +250,8 @@ namespace Plugin
             LOGINFO("SAV policy received for the first time.");
             m_gotSavPolicy = true;
         }
-        return savPolicyHasChanged;
+        policyUpdated = savPolicyHasChanged;
+        appId = "SAV";
     }
 
     void PluginAdapter::processAction(const std::string& actionXml)

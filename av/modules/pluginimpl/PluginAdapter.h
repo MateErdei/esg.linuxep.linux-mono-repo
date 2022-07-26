@@ -54,9 +54,10 @@ namespace Plugin
         /**
          *
          * @param policyXml
-         * @return true if a new policy has arrived false otherwise
+         * @param policyUpdated OUT - has the policy been updated
+         * @param appId OUT - the appId for the policy
          */
-        bool processPolicy(const std::string& policyXml);
+        void processPolicy(const std::string& policyXml, bool& policyUpdated, std::string& appId);
         void processAction(const std::string& actionXml);
         void startThreads();
         void innerLoop();
