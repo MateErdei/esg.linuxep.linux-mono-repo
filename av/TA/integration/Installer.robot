@@ -628,6 +628,19 @@ Check AV uninstaller can remove AV users when /usr/sbin is not in path
     User Should Not Exist   sophos-spl-av
     User Should Not Exist   sophos-spl-threat-detector
 
+Check AV installer sets correct home directory for the users it creates
+    Run plugin uninstaller
+    Install AV Directly from SDDS
+
+    User Should Exist  sophos-spl-av
+    ${rc}  ${homedir} =  Run And Return Rc And Output  getent passwd sophos-spl-av | cut -d: -f6
+    Should Be Equal As Strings  ${homedir}  /opt/sophos-spl
+
+    User Should Exist  sophos-spl-threat-detector
+    ${rc}  ${homedir} =  Run And Return Rc And Output  getent passwd sophos-spl-threat-detector | cut -d: -f6
+    Should Be Equal As Strings  ${homedir}  /opt/sophos-spl
+
+
 *** Variables ***
 ${IDE_NAME}         peend.ide
 ${IDE2_NAME}        pemid.ide
