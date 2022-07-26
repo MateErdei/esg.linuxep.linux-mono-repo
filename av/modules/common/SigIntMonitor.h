@@ -21,6 +21,10 @@ namespace common
         SigIntMonitor(const SigIntMonitor&) = delete;
         SigIntMonitor& operator=(const SigIntMonitor&) = delete;
         static std::shared_ptr<SigIntMonitor> getSigIntMonitor();
+        int monitorFd()
+        {
+            return m_pipe.readFd();
+        }
         bool triggered();
 
     private:

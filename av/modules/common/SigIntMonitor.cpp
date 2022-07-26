@@ -25,7 +25,7 @@ static void signal_handler(int)
 {
     if (SIGINT_MONITOR_PIPE >= 0)
     {
-        int ret = ::write(SIGINT_MONITOR_PIPE, "\0", 1);
+        auto ret = ::write(SIGINT_MONITOR_PIPE, "\0", 1);
         /*
          * We are in a signal-context, so are very limited on what we can do.
          * http://manpages.ubuntu.com/manpages/bionic/man7/signal-safety.7.html

@@ -579,9 +579,6 @@ AV Plugin Can Send Telemetry After Upgrade
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 AV Plugin Restores Downgrade Logs
-    # Temp: Until we have a sigterm handler
-    Exclude soapd died
-
     Run plugin uninstaller with downgrade flag
     Directory Should Exist  ${AV_BACKUP_DIR}
     Check AV Plugin Not Installed
@@ -620,17 +617,12 @@ Check installer removes sophos_threat_detector log symlink
     File Should Not Exist  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
 
 Check AV installer can add AV users when /usr/sbin is not in path
-    # Temp: Until we have a sigterm handler
-    Exclude soapd died
-
     Run plugin uninstaller
     Install AV Directly from SDDS Without /usr/sbin in PATH
     User Should Exist  sophos-spl-av
     User Should Exist  sophos-spl-threat-detector
 
 Check AV uninstaller can remove AV users when /usr/sbin is not in path
-    # Temp: Until we have a sigterm handler
-    Exclude soapd died
 
     Uninstall AV Without /usr/sbin in PATH
     User Should Not Exist   sophos-spl-av

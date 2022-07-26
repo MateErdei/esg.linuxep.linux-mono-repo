@@ -5,6 +5,7 @@ add_library(soapdbootstrap SHARED
         )
 
 target_link_libraries(soapdbootstrap  PUBLIC
+        common
         )
 
 install(TARGETS soapdbootstrap
