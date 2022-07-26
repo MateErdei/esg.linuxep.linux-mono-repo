@@ -29,22 +29,17 @@ namespace
         }
         PolicyWaiter::policy_list_t m_policies;
 
-        PolicyWaiter getWaiter(seconds_t infoTimeout)
+        [[nodiscard]] PolicyWaiter getWaiter(seconds_t infoTimeout) const
         {
             return PolicyWaiter{m_policies, infoTimeout};
         }
 
-        timepoint_t plus7seconds(timepoint_t now)
-        {
-            return plus(now, 7);
-        }
-
-        timepoint_t plus(timepoint_t now, long seconds)
+        [[nodiscard]] timepoint_t plus(timepoint_t now, long seconds) const
         {
             return now + seconds_t{seconds};
         }
 
-        timepoint_t toTP(long epoch)
+        [[nodiscard]] timepoint_t toTP(long epoch) const
         {
             return timepoint_t{} + seconds_t{epoch};
         }
