@@ -12,7 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace mount_monitor::mountinfo
 {
-    using IMountPointSharedVector = std::vector<IMountPointSharedPtr>;
+    using IMountPointSharedVector = std::vector<mount_monitor::mountinfo::IMountPointSharedPtr>;
 
     class IMountInfo
     {

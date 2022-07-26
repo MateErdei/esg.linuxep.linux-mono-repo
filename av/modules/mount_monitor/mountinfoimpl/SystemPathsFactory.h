@@ -12,7 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace mount_monitor::mountinfoimpl
 {
-    class SystemPathsFactory : public mountinfo::ISystemPathsFactory
+    class SystemPathsFactory : public mount_monitor::mountinfo::ISystemPathsFactory
     {
     public:
         [[nodiscard]] mountinfo::ISystemPathsSharedPtr createSystemPaths() const override;

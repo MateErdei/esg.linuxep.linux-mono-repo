@@ -1,3 +1,2 @@
 
 add_subdirectory(mountinfoimpl)
-add_subdirectory(mountmonitor)
