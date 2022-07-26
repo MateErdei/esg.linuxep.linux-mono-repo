@@ -5,3 +5,4 @@ pytest-html
 Cython
 pycapnp
 robotframework>=4.0
+requests

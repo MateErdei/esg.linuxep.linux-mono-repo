@@ -25,6 +25,7 @@ ${CLI_SCANNER_PATH}                             ${COMPONENT_ROOT_PATH}/bin/avsca
 ${AV_LOG_PATH}                                  ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
 ${SOPHOS_THREAT_DETECTOR_SHUTDOWN_FILE_PATH}    ${AV_PLUGIN_PATH}/chroot/var/threat_detector_expected_shutdown
 ${SOPHOS_THREAT_DETECTOR_PID_FILE_PATH}         ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
+${ON_ACCESS_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/soapd.log
 ${THREAT_DETECTOR_LOG_PATH}                     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
 ${THREAT_DETECTOR_INFO_LOG_PATH}                ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.info.log
 ${SUSI_DEBUG_LOG_PATH}                          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
@@ -41,6 +42,7 @@ ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}            ${COMPONENT_ROOT_PATH}/chroot/${
 ${AV_SDDS}                                      ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}                                  ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
+${ON_ACCESS_BIN}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/soapd
 ${SOPHOS_THREAT_DETECTOR_BINARY}                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector
 ${SOPHOS_THREAT_DETECTOR_LAUNCHER}              ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 ${EXPORT_FILE}                                  /etc/exports
@@ -219,6 +221,10 @@ AV Plugin Log Contains
     [Arguments]  ${input}
     LogUtils.File Log Contains  ${AV_LOG_PATH}   ${input}
 
+On Access Log Contains
+    [Arguments]  ${input}
+    File Log Contains     ${ON_ACCESS_LOG_PATH}   ${input}
+
 Threat Detector Log Contains
     [Arguments]  ${input}
     File Log Contains  ${THREAT_DETECTOR_LOG_PATH}   ${input}
@@ -308,6 +314,10 @@ Check Threat Detector Copied Files To Chroot
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/ld.so.cache
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/host.conf
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/hosts
+
+Increase On Access Log To Max Size
+    [Arguments]  ${remaining}=1
+    increase_threat_detector_log_to_max_size_by_path  ${ON_ACCESS_LOG_PATH}  ${remaining}
 
 Increase Threat Detector Log To Max Size
     [Arguments]  ${remaining}=1
@@ -401,6 +411,13 @@ Wait until AV Plugin running with offset
     ...  2 secs
     ...  Check Plugin Running
     Wait Until AV Plugin Log Contains With Offset  ${COMPONENT} <> Starting scanScheduler  timeout=40
+
+Wait Until On Access running
+    ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
+    Wait Until Keyword Succeeds
+        ...  60 secs
+        ...  2 secs
+        ...  On Access Log Contains  Sophos on access process started
 
 Wait until threat detector running
     # wait for sophos_threat_detector to initialize
