@@ -2,6 +2,8 @@
 add_library(soapdbootstrap SHARED
         SoapdBootstrap.cpp
         SoapdBootstrap.h
+        Logger.cpp
+        Logger.h
         )
 
 target_link_libraries(soapdbootstrap  PUBLIC

@@ -2,18 +2,18 @@
 
 #include "SoapdBootstrap.h"
 
+#include "Logger.h"
+
 #include "common/SigIntMonitor.h"
 #include "common/SigTermMonitor.h"
 
 #include <memory>
 
 #include <poll.h>
-#include <unistd.h>
 
 int sophos_on_access_process::soapd_bootstrap::SoapdBootstrap::runSoapd()
 {
-    // Setup logging
-
+    LOGINFO("Sophos on access process started");
     // Implement soapd
 
     std::shared_ptr<common::SigIntMonitor> sigIntMonitor{common::SigIntMonitor::getSigIntMonitor()};
