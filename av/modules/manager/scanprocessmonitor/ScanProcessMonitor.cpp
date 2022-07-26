@@ -144,6 +144,7 @@ namespace plugin::manager::scanprocessmonitor
         }
 
         m_config_monitor.requestStop();
+        m_config_monitor.join();
 
         LOGSUPPORT("Exiting sophos_threat_detector monitor");
     }
