@@ -10,7 +10,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "ScanCallbackImpl.h"
 #include "ScanClient.h"
 
-#include "avscanner/mountinfoimpl/Mounts.h"
+#include "mount_monitor/mountinfoimpl/Mounts.h"
 
 #include <capnp/message.h>
 #include <common/StringUtils.h>
@@ -64,10 +64,10 @@ namespace avscanner::avscannerimpl
         static_cast<void>(m_logger);
     }
 
-    avscanner::mountinfo::IMountPointSharedVector NamedScanRunner::getIncludedMountpoints(
-        const avscanner::mountinfo::IMountPointSharedVector& allMountpoints) const
+    mount_monitor::mountinfo::IMountPointSharedVector NamedScanRunner::getIncludedMountpoints(
+        const mount_monitor::mountinfo::IMountPointSharedVector& allMountpoints) const
     {
-        avscanner::mountinfo::IMountPointSharedVector includedMountpoints;
+        mount_monitor::mountinfo::IMountPointSharedVector includedMountpoints;
         for (const auto& mp : allMountpoints)
         {
             if ((mp->isHardDisc() && m_config.m_scanHardDisc) || (mp->isNetwork() && m_config.m_scanNetwork) ||

@@ -8,8 +8,8 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "avscanner/mountinfoimpl/Mounts.h"
-#include "avscanner/mountinfoimpl/SystemPathsFactory.h"
+#include "mount_monitor/mountinfoimpl/Mounts.h"
+#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "common/AbortScanException.h"
 #include "common/ErrorCodes.h"
 #include "common/ScanManuallyInterruptedException.h"
@@ -60,17 +60,17 @@ std::shared_ptr<unixsocket::IScanningClientSocket> BaseRunner::getSocket()
     return m_socket;
 }
 
-void BaseRunner::setMountInfo(mountinfo::IMountInfoSharedPtr ptr)
+void BaseRunner::setMountInfo(mount_monitor::mountinfo::IMountInfoSharedPtr ptr)
 {
     m_mountInfo = std::move(ptr);
 }
 
-avscanner::mountinfo::IMountInfoSharedPtr BaseRunner::getMountInfo()
+mount_monitor::mountinfo::IMountInfoSharedPtr BaseRunner::getMountInfo()
 {
     if (!m_mountInfo)
     {
-        auto pathsFactory = std::make_shared<mountinfoimpl::SystemPathsFactory>();
-        m_mountInfo = std::make_shared<mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
+        auto pathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
+        m_mountInfo = std::make_shared<mount_monitor::mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
     }
     return m_mountInfo;
 }

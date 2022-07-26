@@ -1,3 +1,2 @@
 
 add_subdirectory(avscannerimpl)
-add_subdirectory(mountinfoimpl)

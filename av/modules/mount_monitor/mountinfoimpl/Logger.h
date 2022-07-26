@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/Logging/SophosLoggerMacros.h>
+#include "Common/Logging/SophosLoggerMacros.h"
 
 #include <string>
 

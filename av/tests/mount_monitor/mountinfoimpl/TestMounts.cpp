@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "tests/common/LogInitializedTests.h"
 
-#include "avscanner/mountinfoimpl/Mounts.h"
+#include "mount_monitor/mountinfoimpl/Mounts.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include <gmock/gmock.h>
@@ -17,15 +17,15 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace fs = sophos_filesystem;
 
-using namespace avscanner::mountinfo;
-using namespace avscanner::mountinfoimpl;
+using namespace mount_monitor::mountinfo;
+using namespace mount_monitor::mountinfoimpl;
 
 using ::testing::Return;
 using ::testing::StrictMock;
 
 namespace
 {
-    class MockSystemPaths : public avscanner::mountinfo::ISystemPaths
+    class MockSystemPaths : public mount_monitor::mountinfo::ISystemPaths
     {
     public:
         MOCK_CONST_METHOD0(mountInfoFilePath, std::string());

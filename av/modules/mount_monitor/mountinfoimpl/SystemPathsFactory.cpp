@@ -6,11 +6,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "SystemPathsFactory.h"
 
-#include "avscanner/mountinfoimpl/SystemPaths.h"
+#include "SystemPaths.h"
 
-using namespace avscanner::mountinfoimpl;
+using namespace mount_monitor::mountinfoimpl;
 
-avscanner::mountinfo::ISystemPathsSharedPtr SystemPathsFactory::createSystemPaths() const
+mount_monitor::mountinfo::ISystemPathsSharedPtr SystemPathsFactory::createSystemPaths() const
 {
     return std::make_shared<SystemPaths>();
 }

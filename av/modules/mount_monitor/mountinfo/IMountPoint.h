@@ -9,7 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <memory>
 #include <string>
 
-namespace avscanner::mountinfo
+namespace mount_monitor::mountinfo
 {
     class IMountPoint
     {

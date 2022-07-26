@@ -4,14 +4,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "avscanner/mountinfoimpl/Mounts.h"
-#include "avscanner/mountinfoimpl/SystemPathsFactory.h"
+#include "mount_monitor/mountinfoimpl/Mounts.h"
+#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
 #include <iostream>
 
-using namespace avscanner::mountinfoimpl;
+using namespace mount_monitor::mountinfoimpl;
 
 int main()
 {

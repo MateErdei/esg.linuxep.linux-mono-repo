@@ -4,13 +4,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "avscanner/mountinfoimpl/SystemPaths.h"
+#include "mount_monitor/mountinfoimpl/SystemPaths.h"
 
 #include "tests/common/LogInitializedTests.h"
 
 #include <gtest/gtest.h>
 
-using namespace avscanner::mountinfoimpl;
+using namespace mount_monitor::mountinfoimpl;
 
 class TestSystemPaths : public LogInitializedTests
 {

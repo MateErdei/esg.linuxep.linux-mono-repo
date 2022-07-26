@@ -6,13 +6,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "avscanner/mountinfo/IMountPoint.h"
+#include "IMountPoint.h"
 
 #include <vector>
 
-namespace avscanner::mountinfo
+namespace mount_monitor::mountinfo
 {
-    using IMountPointSharedVector = std::vector<mountinfo::IMountPointSharedPtr>;
+    using IMountPointSharedVector = std::vector<mount_monitor::mountinfo::IMountPointSharedPtr>;
 
     class IMountInfo
     {

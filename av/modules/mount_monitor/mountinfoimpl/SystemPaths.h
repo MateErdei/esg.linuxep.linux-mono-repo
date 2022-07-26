@@ -6,9 +6,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "avscanner/mountinfo/ISystemPaths.h"
+#include "mount_monitor/mountinfo/ISystemPaths.h"
 
-namespace avscanner::mountinfoimpl
+namespace mount_monitor::mountinfoimpl
 {
     class SystemPaths : public mountinfo::ISystemPaths
     {

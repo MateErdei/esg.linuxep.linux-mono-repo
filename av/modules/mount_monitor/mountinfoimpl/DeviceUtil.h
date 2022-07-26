@@ -12,7 +12,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <memory>
 #include <string>
 
-namespace avscanner::mountinfoimpl
+namespace mount_monitor::mountinfoimpl
 {
     class DeviceUtil
     {

@@ -22,21 +22,21 @@ namespace avscanner::avscannerimpl
     public:
         void setSocket(std::shared_ptr<unixsocket::IScanningClientSocket> ptr) override;
 
-        void setMountInfo(mountinfo::IMountInfoSharedPtr ptr) override;
+        void setMountInfo(mount_monitor::mountinfo::IMountInfoSharedPtr ptr) override;
 
     protected:
         BaseRunner();
         
         int m_returnCode = common::E_CLEAN_SUCCESS;
         std::shared_ptr<unixsocket::IScanningClientSocket> m_socket;
-        mountinfo::IMountInfoSharedPtr m_mountInfo;
+        mount_monitor::mountinfo::IMountInfoSharedPtr m_mountInfo;
         std::shared_ptr<ScanCallbackImpl> m_scanCallbacks;
 
         /**
          * Get or create mount info.
          * @return
          */
-        mountinfo::IMountInfoSharedPtr getMountInfo();
+        mount_monitor::mountinfo::IMountInfoSharedPtr getMountInfo();
         /**
          * Get or create a scanning socket
          * @return

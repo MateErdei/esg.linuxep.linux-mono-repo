@@ -6,8 +6,8 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "avscanner/mountinfo/IMountPoint.h"
-#include "avscanner/mountinfo/IMountInfo.h"
+#include "mount_monitor/mountinfo/IMountPoint.h"
+#include "mount_monitor/mountinfo/IMountInfo.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include <gmock/gmock.h>
@@ -16,7 +16,7 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class MockMountPoint : public avscanner::mountinfo::IMountPoint
+    class MockMountPoint : public mount_monitor::mountinfo::IMountPoint
     {
     public:
         MOCK_CONST_METHOD0(device, std::string());
@@ -29,7 +29,7 @@ namespace
         MOCK_CONST_METHOD0(mountPoint, std::string());
     };
 
-    class FakeMountPoint : public avscanner::mountinfo::IMountPoint
+    class FakeMountPoint : public mount_monitor::mountinfo::IMountPoint
     {
     public:
         std::string m_mountPoint;
@@ -82,11 +82,11 @@ namespace
         }
     };
 
-    class FakeMountInfo : public avscanner::mountinfo::IMountInfo
+    class FakeMountInfo : public mount_monitor::mountinfo::IMountInfo
     {
     public:
-        std::vector<std::shared_ptr<avscanner::mountinfo::IMountPoint>> m_mountPoints;
-        std::vector<std::shared_ptr<avscanner::mountinfo::IMountPoint>> mountPoints() override
+        std::vector<std::shared_ptr<mount_monitor::mountinfo::IMountPoint>> m_mountPoints;
+        std::vector<std::shared_ptr<mount_monitor::mountinfo::IMountPoint>> mountPoints() override
         {
             return m_mountPoints;
         }

@@ -4,11 +4,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "avscanner/mountinfoimpl/DeviceUtil.h"
+#include "mount_monitor/mountinfoimpl/DeviceUtil.h"
 #include "datatypes/SystemCallWrapperFactory.h"
-
 #include "tests/common/LogInitializedTests.h"
-#include <tests/datatypes/MockSysCalls.h>
+#include "tests/datatypes/MockSysCalls.h"
 
 #include <gmock/gmock.h>
 #include <linux/magic.h>
@@ -16,7 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/statfs.h>
 
 using namespace datatypes;
-using namespace avscanner::mountinfoimpl;
+using namespace mount_monitor::mountinfoimpl;
 
 
 using ::testing::Return;

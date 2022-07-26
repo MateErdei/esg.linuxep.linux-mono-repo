@@ -22,7 +22,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include <fstream>
 
 using namespace avscanner::avscannerimpl;
-using namespace avscanner::mountinfo;
+using namespace mount_monitor::mountinfo;
 using namespace testing;
 
 namespace fs = sophos_filesystem;
@@ -345,7 +345,7 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
     EXPECT_CALL(*specialDevice, isSpecial()).WillOnce(Return(true));
 
     ::capnp::MallocMessageBuilder message;
-    avscanner::mountinfo::IMountPointSharedVector allMountpoints;
+    mount_monitor::mountinfo::IMountPointSharedVector allMountpoints;
     allMountpoints.push_back(localFixedDevice);
     allMountpoints.push_back(networkDevice);
     allMountpoints.push_back(opticalDevice);

@@ -8,12 +8,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "DeviceUtil.h"
 
-#include "avscanner/mountinfo/IMountInfo.h"
-#include "avscanner/mountinfo/ISystemPaths.h"
+#include "mount_monitor/mountinfo/IMountInfo.h"
+#include "mount_monitor/mountinfo/ISystemPaths.h"
 
 #include <memory>
 
-namespace avscanner::mountinfoimpl
+namespace mount_monitor::mountinfoimpl
 {
     class Mounts : virtual public mountinfo::IMountInfo
     {

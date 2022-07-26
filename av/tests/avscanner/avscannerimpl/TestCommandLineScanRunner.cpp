@@ -21,7 +21,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 namespace fs = sophos_filesystem;
 
 using namespace avscanner::avscannerimpl;
-using namespace avscanner::mountinfo;
+using namespace mount_monitor::mountinfo;
 using namespace common;
 
 using namespace testing;

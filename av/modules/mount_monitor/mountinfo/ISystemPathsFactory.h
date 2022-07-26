@@ -6,15 +6,16 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "avscanner/mountinfo/ISystemPathsFactory.h"
+#include "ISystemPaths.h"
 
-#include <memory>
-
-namespace avscanner::mountinfoimpl
+namespace mount_monitor::mountinfo
 {
-    class SystemPathsFactory : public avscanner::mountinfo::ISystemPathsFactory
+    class ISystemPathsFactory
     {
     public:
-        [[nodiscard]] mountinfo::ISystemPathsSharedPtr createSystemPaths() const override;
+        virtual ~ISystemPathsFactory() = default;
+        [[nodiscard]] virtual ISystemPathsSharedPtr createSystemPaths() const = 0;
     };
+
+    using ISystemPathsFactorySharedPtr = std::shared_ptr<ISystemPathsFactory>;
 }

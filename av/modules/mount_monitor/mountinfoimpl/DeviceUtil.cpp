@@ -22,7 +22,7 @@ extern "C"
 #include <linux/hdreg.h>
 }
 
-using namespace avscanner::mountinfoimpl;
+using namespace mount_monitor::mountinfoimpl;
 using namespace datatypes;
 
 DeviceUtil::DeviceUtil(const ISystemCallWrapperFactorySharedPtr& systemCallWrapperFactory)

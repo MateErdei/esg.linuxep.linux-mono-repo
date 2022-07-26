@@ -24,8 +24,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/wait.h>
 #include <unistd.h>
 
-using namespace avscanner::mountinfo;
-using namespace avscanner::mountinfoimpl;
+using namespace mount_monitor::mountinfo;
+using namespace mount_monitor::mountinfoimpl;
 
 std::string octalUnescape(const std::string& input)
 {
@@ -394,7 +394,7 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
 /**
  * Iterator for the list of mount points.
  */
-avscanner::mountinfo::IMountPointSharedVector Mounts::mountPoints()
+IMountPointSharedVector Mounts::mountPoints()
 {
     return m_devices;
 }
@@ -409,9 +409,9 @@ static datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper()
     return factory->createSystemCallWrapper();
 }
 
-static avscanner::mountinfoimpl::DeviceUtilSharedPtr getDeviceUtil()
+static DeviceUtilSharedPtr getDeviceUtil()
 {
-    static auto util = std::make_shared<avscanner::mountinfoimpl::DeviceUtil>(createSystemCallWrapper());
+    static auto util = std::make_shared<DeviceUtil>(createSystemCallWrapper());
     return util;
 }
 
