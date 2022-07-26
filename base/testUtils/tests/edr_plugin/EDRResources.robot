@@ -59,7 +59,7 @@ Restart EDR Plugin
     ...   1 secs
     ...   EDR Plugin Is Running
 
-Install EDR
+Install EDR SDDS3
     [Arguments]  ${policy}  ${args}=${None}
     Start Local Cloud Server  --initial-alc-policy  ${policy}
     configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
@@ -68,6 +68,23 @@ Install EDR
     ...   150 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    Wait For EDR to be Installed
+
+    Should Exist  ${EDR_DIR}
+
+
+Install EDR SDDS2
+    [Arguments]  ${policy}  ${args}=${None}
+    Start Local Cloud Server  --initial-alc-policy  ${policy}
+    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${policy}  args=${args}
+
+    Send ALC Policy And Prepare For Upgrade  ${policy}
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   10 secs
+    ...   Check Suldownloader Log Contains In Order     Installing product: ServerProtectionLinux-Plugin-EDR   Generating the report file
 
     Wait For EDR to be Installed
 

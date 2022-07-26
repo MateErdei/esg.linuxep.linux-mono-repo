@@ -48,7 +48,7 @@ ${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.co
 Install all plugins 999 then downgrade to all plugins develop
     [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
     Setup SUS all 999
-    Install EDR  ${BaseAndMTREdr999Policy}
+    Install EDR SDDS3  ${BaseAndMTREdr999Policy}
     Wait Until EDR OSQuery Running  30
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
@@ -122,7 +122,7 @@ Install all plugins 999 then downgrade to all plugins develop
 Install edr 999 and downgrade to current edr
     [Tags]  PLUGIN_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
     Setup SUS only edr 999
-    Install EDR  ${BaseMtrAndEdr999Policy}
+    Install EDR SDDS3  ${BaseMtrAndEdr999Policy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
 
@@ -162,7 +162,7 @@ Install edr 999 and downgrade to current edr
 
 Update Run that Does Not Change The Product Does not ReInstall The Product
     Setup SUS all develop
-    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+    Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
     Wait for first update
@@ -191,7 +191,7 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
 Install master of base and edr and mtr and upgrade to edr 999
     [Timeout]  10 minutes
     Setup SUS all develop
-    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+    Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
 
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
 
@@ -255,7 +255,7 @@ Install master of base and edr and mtr and upgrade to edr 999
 
 Install master of base and edr and mtr and upgrade to new query pack
     Setup SUS all develop
-    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+    Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
     Wait Until Keyword Succeeds
@@ -311,7 +311,7 @@ Install master of base and edr and mtr and upgrade to new query pack
 Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999 and av 999
     [Timeout]  10 minutes
     Setup SUS all develop
-    Install EDR  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Install EDR SDDS3  ${BaseEdrAndMtrAndAVVUTPolicy}
 
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
@@ -476,7 +476,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
 
 Install master of base and edr and mtr and upgrade to base 999
     Setup SUS all develop
-    Install EDR  ${BaseAndEdrAndMtrVUTPolicy}
+    Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
 
     Check log Does not Contain   Installing product: ServerProtectionLinux-Base-component version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
 
@@ -532,17 +532,11 @@ Install master of base and edr and mtr and upgrade to base 999
     Check All Product Logs Do Not Contain Critical
 
 
-
-
 Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
+    Setup SUS all develop
+    Install EDR SDDS3  ${BaseAndEdrVUTPolicy}
+
     ${statusPath}=  Set Variable  ${MCS_DIR}/status/ALC_status.xml
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}
-
-    # Install EDR
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-
-    Wait for first update
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
@@ -559,7 +553,6 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     # Install MTR
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
 
-
     Wait Until Keyword Succeeds
     ...  40 secs
     ...  5 secs
@@ -568,7 +561,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
 
     Wait Until MDR Installed
 
@@ -593,14 +586,8 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     Check All Product Logs Do Not Contain Critical
 
 Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}
-    Log File  /etc/hosts
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrAndMtrVUTPolicy}
-    Override Local LogConf File Using Content  [global]\nVERBOSITY = DEBUG\n
-    # Install EDR And MTR
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
-
-    Wait for first update
+    Setup SUS all develop
+    Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
 
     # ensure initial plugins are installed and running
     Wait Until MDR Installed
@@ -608,7 +595,6 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
 
     # Transition to EDR Only
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrVUTPolicy}
-
 
     Wait Until Keyword Succeeds
     ...  60 secs
@@ -620,7 +606,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
 
     # ensure EDR still running after update
     EDR Plugin Is Running
@@ -634,7 +620,6 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
-
 
 
 *** Keywords ***
@@ -653,13 +638,9 @@ Wait for first update
         ...   10 secs
         ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
-
 Check EDR Downgraded From 999
     ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
     Should Not Contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
-
-
-
 
 Check Installed Plugins Are VUT Versions
     ${contents} =  Get File  ${EDR_DIR}/VERSION.ini
@@ -677,7 +658,6 @@ Check Installed Plugins Are VUT Versions
     ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
     ${runtimedetections_vut_version} =  get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
     Should Contain   ${contents}   PRODUCT_VERSION = ${runtimedetections_vut_version}
-
 
 Wait For Suldownloader To Finish
     Wait Until Keyword Succeeds
