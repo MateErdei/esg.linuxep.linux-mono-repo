@@ -6,6 +6,8 @@ sophos_add_library(pluginimpl SHARED
         HealthStatus.h
         PolicyProcessor.cpp
         PolicyProcessor.h
+        PolicyWaiter.cpp
+        PolicyWaiter.h
         PluginCallback.cpp
         PluginCallback.h
         QueueTask.cpp

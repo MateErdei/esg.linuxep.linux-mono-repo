@@ -29,7 +29,7 @@ namespace
 
         int count(const std::string& expected) const;
         bool contains(const std::string& expected) const;
-        bool contains(const std::string& expected, int count) const;
+        bool containsCount(const std::string& expected, int count) const;
         void close() override {}
         EventCollection::size_type size() const;
         void clear() noexcept;
@@ -81,7 +81,7 @@ namespace
         return actualCount;
     }
 
-    bool MemoryAppender::contains(const std::string& expected, int expectedCount) const
+    bool MemoryAppender::containsCount(const std::string& expected, int expectedCount) const
     {
         return expectedCount == count(expected);
     }
@@ -127,7 +127,13 @@ namespace
         [[nodiscard]] bool appenderContains(const std::string& expected, int expectedCount) const
         {
             assert(m_memoryAppender != nullptr);
-            return m_memoryAppender->contains(expected, expectedCount);
+            return m_memoryAppender->containsCount(expected, expectedCount);
+        }
+
+        [[nodiscard]] bool appenderContainsCount(const std::string& expected, int expectedCount) const
+        {
+            assert(m_memoryAppender != nullptr);
+            return m_memoryAppender->containsCount(expected, expectedCount);
         }
 
         [[nodiscard]] EventCollection::size_type appenderSize() const
