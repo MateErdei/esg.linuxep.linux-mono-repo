@@ -8,22 +8,11 @@
 
 using namespace Plugin;
 
-using timepoint_t = PolicyWaiter::timepoint_t;
-using seconds_t = PolicyWaiter::seconds_t;
-
-namespace
-{
-    timepoint_t getNow()
-    {
-        return PolicyWaiter::clock_t::now();
-    }
-}
-
 PolicyWaiter::PolicyWaiter(policy_list_t expectedPolicies, seconds_t infoTimeout, seconds_t warningTimeout)
-    : PolicyWaiter(getNow(), std::move(expectedPolicies), infoTimeout, warningTimeout)
+    : PolicyWaiter(::time(nullptr), std::move(expectedPolicies), infoTimeout, warningTimeout)
 {}
 
-PolicyWaiter::PolicyWaiter(timepoint_t now, policy_list_t expectedPolicies, std::chrono::seconds infoTimeout, std::chrono::seconds warningTimeout)
+PolicyWaiter::PolicyWaiter(time_t now, policy_list_t expectedPolicies, std::chrono::seconds infoTimeout, std::chrono::seconds warningTimeout)
     : m_pendingPolicies{std::move(expectedPolicies)}
     , m_start(now)
     , m_infoTimeout(infoTimeout)
@@ -39,23 +28,18 @@ void PolicyWaiter::gotPolicy(const std::string& appId)
     }
 }
 
-timepoint_t Plugin::PolicyWaiter::timeout() const
+std::chrono::seconds Plugin::PolicyWaiter::timeout() const
 {
-    return timeout(getNow());
+    return timeout(::time(nullptr));
 }
 
-timepoint_t PolicyWaiter::timeout(timepoint_t now) const
-{
-    return now + relativeTimeout(now);
-}
-
-seconds_t PolicyWaiter::relativeTimeout(timepoint_t now) const
+std::chrono::seconds PolicyWaiter::timeout(time_t now) const
 {
     /**
      * Can't be MAX int since we want to add to a now value in TaskQueue
      */
-    static constexpr seconds_t MAX_TIMEOUT{9999999};
-    static constexpr seconds_t ZERO{0};
+    static constexpr std::chrono::seconds MAX_TIMEOUT{9999999};
+    static constexpr std::chrono::seconds ZERO{0};
 
     if (m_pendingPolicies.empty())
     {
@@ -63,8 +47,7 @@ seconds_t PolicyWaiter::relativeTimeout(timepoint_t now) const
         return MAX_TIMEOUT;
     }
 
-    auto delayMs{now - m_start};
-    auto delay = std::chrono::duration_cast<seconds_t>(delayMs);
+    std::chrono::seconds delay{now - m_start};
     if (!m_infoLogged)
     {
         // Not received policies yet, and not logged info message
@@ -86,10 +69,10 @@ seconds_t PolicyWaiter::relativeTimeout(timepoint_t now) const
 
 void PolicyWaiter::checkTimeout()
 {
-    return checkTimeout(getNow());
+    return checkTimeout(::time(nullptr));
 }
 
-void PolicyWaiter::checkTimeout(timepoint_t now)
+void PolicyWaiter::checkTimeout(time_t now)
 {
     if (m_warningLogged)
     {
@@ -101,7 +84,7 @@ void PolicyWaiter::checkTimeout(timepoint_t now)
         return; // Don't log anything - we've got the policies!
     }
 
-    auto delay{now - m_start};
+    std::chrono::seconds delay{now - m_start};
     if (delay > m_warningTimeout)
     {
         assert(!m_warningLogged);
@@ -117,7 +100,7 @@ void PolicyWaiter::checkTimeout(timepoint_t now)
     {
         for (const auto& policy : m_pendingPolicies)
         {
-            LOGINFO(policy << " policy has not been sent to the plugin");
+            LOGINFO("Failed to get " << policy << " policy at startup");
         }
         m_infoLogged = true;
         return;
