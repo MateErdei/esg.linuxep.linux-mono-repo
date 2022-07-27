@@ -8,8 +8,8 @@ then
     # Retry 10 times before timeout
     for (( i=0; i<10; i++ ))
     do
-       DEBIAN_FRONTEND=noninteractive apt-get install -y nfs-kernel-server zip unzip samba p7zip-full
-       if (( $? == 0 )); then
+       if DEBIAN_FRONTEND=noninteractive apt-get install -y nfs-kernel-server zip unzip samba p7zip-full
+       then
           echo "Installation succeeded"
           break
        else
