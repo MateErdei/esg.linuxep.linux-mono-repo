@@ -8,11 +8,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
+#include <algorithm>
 #include <string>
 
 namespace
 {
-    const std::string WHITESPACE = " \n\r\t\f\v";
+    constexpr const char* WHITESPACE = " \n\r\t\f\v";
 
     std::string rtrim(const std::string& s)
     {
@@ -29,6 +30,7 @@ void threat_scanner::susiLogCallback(void* token, SusiLogLevel level, const char
 
     if (!m.empty())
     {
+        HighestLevelRecorder::record(level);
         switch (level)
         {
             case SUSI_LOG_LEVEL_DETAIL:
@@ -78,4 +80,11 @@ void threat_scanner::fallbackSusiLogCallback(void*, SusiLogLevel level, const ch
                 break;
         }
     }
+}
+
+thread_local SusiLogLevel threat_scanner::HighestLevelRecorder::m_highest = SUSI_LOG_LEVEL_DETAIL;
+
+void threat_scanner::HighestLevelRecorder::record(SusiLogLevel level)
+{
+    m_highest = std::max(m_highest, level);
 }

@@ -8,6 +8,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 #include "ScannerInfo.h"
+#include "SusiLogger.h"
 
 #include "pluginimpl/ObfuscationImpl/Base64.h"
 
@@ -185,6 +186,7 @@ SusiScanner::scan(
         const std::string& userID)
 {
     m_shutdownTimer->reset();
+    HighestLevelRecorder::reset();
 
     scan_messages::ScanResponse response;
 
@@ -208,6 +210,7 @@ SusiScanner::scan(
     LOG_SUSI_DEBUG("D " << timeAfterScan << " T" << paddedThreadId.str() << " Finished scanning " << file_path << " result: " << std::hex << res << std::dec);
 
     LOGTRACE("Scanning " << file_path.c_str() << " result: " << std::hex << res << std::dec);
+    bool loggedErrorFromResult = false;
     if (scanResult != nullptr)
     {
         try
@@ -236,6 +239,7 @@ SusiScanner::scan(
                     std::string errorMsg = susiErrorToReadableError(escapedPath, result["error"]);
                     LOGERROR(errorMsg);
                     response.setErrorMsg(errorMsg);
+                    loggedErrorFromResult = true;
                 }
             }
         }
@@ -249,8 +253,21 @@ SusiScanner::scan(
     m_susi->freeResult(scanResult);
     if (SUSI_FAILURE(res))
     {
-        LOGDEBUG("Susi returned error code: " << res);
-        response.setErrorMsg(susiResultErrorToReadableError(file_path, res));
+        std::string escapedPath = file_path;
+        common::escapeControlCharacters(escapedPath);
+        std::string errorMsg = susiResultErrorToReadableError(escapedPath, res);
+
+        if (!loggedErrorFromResult)
+        {
+            LOGERROR(errorMsg);
+            response.setErrorMsg(errorMsg); // Only put this is we don't have something specific
+            loggedErrorFromResult = true;
+        }
+        else
+        {
+            // Already logged error messages from JSON so don't repeat
+            LOGDEBUG(errorMsg);
+        }
     }
     else if (res == SUSI_I_THREATPRESENT)
     {
@@ -268,6 +285,14 @@ SusiScanner::scan(
                 sendThreatReport(detection.path, detection.name, detection.sha256, scanType, userID);
             }
         }
+    }
+
+    // If we haven't logged an error, but SUSI logged an error message anyway, then report the filepath
+    if (!loggedErrorFromResult && HighestLevelRecorder::getHighest() >= SUSI_LOG_LEVEL_ERROR)
+    {
+        std::string escapedPath = file_path;
+        common::escapeControlCharacters(escapedPath);
+        LOGERROR("Error logged from SUSI while scanning "<<escapedPath);
     }
 
     return response;
