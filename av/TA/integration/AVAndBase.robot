@@ -213,6 +213,7 @@ AV plugin runs scheduled scan after restart
     Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    Exclude Communication Between AV And Base Due To No Incoming Data
 
 AV plugin reports an info message if no policy is received
     Stop AV Plugin
