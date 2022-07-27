@@ -103,6 +103,10 @@ namespace Plugin
 
         innerLoop();
         LOGSUPPORT("Stopping the main program loop");
+        m_schedulerThread.reset();
+        m_threatDetectorThread.reset();
+        LOGSUPPORT("Finished the main program loop");
+
     }
 
     void PluginAdapter::startThreads()
