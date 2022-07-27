@@ -3,23 +3,21 @@
 Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
 #include "MockSusiWrapper.h"
 #include "MockSusiWrapperFactory.h"
 
+#include "../../common/Common.h"
+#include "../../common/LogInitializedTests.h"
+#include "../../common/WaitForEvent.h"
 #include "sophos_threat_detector/threat_scanner/SusiScanner.h"
 #include "sophos_threat_detector/threat_scanner/ThrowIfNotOk.h"
-
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
-#include "../common/Common.h"
-#include "../common/LogInitializedTests.h"
-#include "../common/WaitForEvent.h"
-
+#include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include <Common/Logging/ConsoleLoggingSetup.h>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include <csignal>
 

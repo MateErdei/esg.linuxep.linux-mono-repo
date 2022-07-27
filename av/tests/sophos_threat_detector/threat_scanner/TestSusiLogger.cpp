@@ -4,9 +4,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "../../common/MemoryAppender.h"
 #include "sophos_threat_detector/threat_scanner/SusiLogger.h"
-
-#include "../common/MemoryAppender.h"
 
 #include <gtest/gtest.h>
 

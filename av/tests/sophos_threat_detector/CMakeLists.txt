@@ -1,2 +1,3 @@
 
 add_subdirectory(sophosthreatdetectorimpl)
+add_subdirectory(threat_scanner)

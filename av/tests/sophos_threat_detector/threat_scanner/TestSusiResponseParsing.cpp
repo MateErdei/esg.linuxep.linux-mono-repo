@@ -4,10 +4,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
+#include "datatypes/Print.h"
+#include "thirdparty/nlohmann-json/json.hpp"
 
-#include <thirdparty/nlohmann-json/json.hpp>
-#include <datatypes/Print.h>
+#include <gtest/gtest.h>
 
 using json = nlohmann::json;
 

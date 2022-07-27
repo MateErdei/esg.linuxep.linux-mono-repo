@@ -4,7 +4,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "../common/LogInitializedTests.h"
+#include "../../common/LogInitializedTests.h"
 
 // Include the .cpp to get static functions...
 #include "sophos_threat_detector/threat_scanner/SusiWrapperFactory.cpp" // NOLINT
