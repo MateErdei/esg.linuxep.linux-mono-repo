@@ -1,12 +1,11 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "../common/config.h"
-#include "sophos_on_access_process/soapd_bootstrap/SoapdBootstrap.h"
+#include "LogSetup.h"
 
-#include "Common/Logging/PluginLoggingSetup.h"
+#include "sophos_on_access_process/soapd_bootstrap/SoapdBootstrap.h"
 
 int main()
 {
-    Common::Logging::PluginLoggingSetup setupFileLoggingWithPath(PLUGIN_NAME, "soapd");
+    LogSetup logging;
     return sophos_on_access_process::soapd_bootstrap::SoapdBootstrap::runSoapd();
 }

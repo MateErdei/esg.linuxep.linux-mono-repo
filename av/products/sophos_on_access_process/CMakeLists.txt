@@ -3,8 +3,8 @@ set(SOAPD_EXE_NAME soapd)
 
 add_executable(${SOAPD_EXE_NAME}
         sophos_on_access_process_main.cpp
-        )
-
+        LogSetup.cpp
+        LogSetup.h)
 target_link_libraries(${SOAPD_EXE_NAME} PUBLIC
         soapdbootstrap
         )

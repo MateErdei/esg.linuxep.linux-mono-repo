@@ -1,13 +1,14 @@
 
 add_library(soapdbootstrap SHARED
-        SoapdBootstrap.cpp
-        SoapdBootstrap.h
         Logger.cpp
         Logger.h
-        )
+        OnAccessConfig.h
+        SoapdBootstrap.cpp
+        SoapdBootstrap.h)
 
 target_link_libraries(soapdbootstrap  PUBLIC
         common
+        mountinfoimpl
         )
 
 install(TARGETS soapdbootstrap
