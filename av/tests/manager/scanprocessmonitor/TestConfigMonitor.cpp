@@ -85,7 +85,7 @@ static inline std::string toString(const fs::path& p)
     return p.string();
 }
 
-const static auto MONITOR_LATENCY = 100ms; //NOLINT
+const static auto MONITOR_LATENCY = 150ms; //NOLINT
 
 TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWrite)
 {
