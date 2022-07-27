@@ -548,7 +548,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut using SDDS2
     Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
 
     Wait Until Keyword Succeeds
-    ...  40 secs
+    ...  150 secs
     ...  5 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR
 
