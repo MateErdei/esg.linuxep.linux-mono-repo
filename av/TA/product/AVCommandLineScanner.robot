@@ -1722,12 +1722,14 @@ CLS Can init susi safely in parallel
 
 CLS Can Scan Special File That Cannot Be Read
     Register Cleanup    Exclude SUSI Illegal seek error
+    Register Cleanup    Exclude Failed To Scan Special File That Cannot Be Read In Threat Detector Logs
     Register Cleanup    Run Process  ip  netns  delete  avtest  stderr=STDOUT
     ${result} =  Run Process  ip  netns  add  avtest  stderr=STDOUT
-    Log  output is ${result.stdout}
+    Register On Fail  Log  ip netns add avtest output is ${result.stdout}
     Should Be equal As Integers  ${result.rc}  0
     Wait Until File exists  /run/netns/avtest
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /run/netns/avtest
+    Register On Fail  Log  avscanner output is ${output}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
 Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
