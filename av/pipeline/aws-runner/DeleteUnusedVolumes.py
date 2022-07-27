@@ -18,5 +18,11 @@ volumes = ec2.get_all_volumes(filters={
 
 for volume in volumes:
     print(volume)
-    volume.delete()
+    try:
+        volume.delete()
+    except boto.exception.EC2ResponseError as ex:
+        # Don't fail if volume can't be deleted
+        print("Failed to delete {}: {}".format(volume, ex))
+
+
 
