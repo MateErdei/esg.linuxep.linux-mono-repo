@@ -149,6 +149,7 @@ EDR clears jrl files when scheduled queries are disabled
     File Should not exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/queryid
 
 EDR Recovers From Incomplete Database Purge
+    Install With Base SDDS
     Check EDR Plugin Installed With Base
     Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
 
@@ -161,25 +162,15 @@ EDR Recovers From Incomplete Database Purge
     Create File  ${canary_file}  foo
 
     Stop EDR
-    Remove File  ${COMPONENT_ROOT_PATH}/VERSION.ini
-    Create File  ${COMPONENT_ROOT_PATH}/VERSION.ini  PRODUCT_NAME = Sophos Endpoint Detection and Response plug-in\nPRODUCT_VERSION = 1.1.1.1\nBUILD_DATE = 2021-05-21\nCOMMIT_HASH = bef8c41c4f3a8cd0458f91bed3a076e81428e394\nPLUGIN_API_COMMIT_HASH = 93b8ec8736dcb5b4266f85b1b08110ebe19c7f03
     Create Debug Level Logger Config File
-    ${sstFiles}=  List Files In Directory  ${COMPONENT_ROOT_PATH}/var/osquery.db  *.sst
-    Remove File  ${COMPONENT_ROOT_PATH}/var/osquery.db/${sstFiles[0]}
-    should not exist  ${COMPONENT_ROOT_PATH}/var/osquery.db/${sstFiles[0]}
+    Corrupt OSQuery Database
     Start EDR
 
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  2 secs
-    ...  File Log Contains    ${EDR_LOG_PATH}    Osquery health check failed: write() send(): Broken pipe
+    ...  File Log Contains    ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log    Destroying RocksDB database due to corruption
 
-    # Run Installer which has the work around in that will purge the osquery database on an upgrade from a version
-    # older than 1.1.2
-    ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to re-run edr installer.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
-    log  ${result.stdout}
-    log  ${result.stderr}
     Should Not Exist  ${canary_file}
     ${edrMark} =  Mark File  ${EDR_LOG_PATH}
 
@@ -190,6 +181,31 @@ EDR Recovers From Incomplete Database Purge
     ...  Check Simple Query Works
 
     Marked File Does Not Contain    ${EDR_LOG_PATH}   Osquery health check failed: write() send(): Broken pipe  ${edrMark}
+
+OSQuery Database is Purged When Previously Installed EDR Version is Below 1.1.2
+    Check EDR Plugin Installed With Base
+    Wait Until Keyword Succeeds
+    ...  100 secs
+    ...  5 secs
+    ...  Number Of SST Database Files Is Greater Than  0
+
+    ${canary_file}=  Set Variable  ${COMPONENT_ROOT_PATH}/var/osquery.db/file_should_be_deleted
+    Create File  ${canary_file}  foo
+
+    Stop EDR
+    Remove File  ${COMPONENT_ROOT_PATH}/VERSION.ini
+    Create File  ${COMPONENT_ROOT_PATH}/VERSION.ini  PRODUCT_NAME = Sophos Endpoint Detection and Response plug-in\nPRODUCT_VERSION = 1.1.1.1\nBUILD_DATE = 2021-05-21\nCOMMIT_HASH = bef8c41c4f3a8cd0458f91bed3a076e81428e394\nPLUGIN_API_COMMIT_HASH = 93b8ec8736dcb5b4266f85b1b08110ebe19c7f03
+    Create Debug Level Logger Config File
+    Corrupt OSQuery Database
+    Start EDR
+
+    # Run Installer which has the work around in that will purge the osquery database on an upgrade from a version
+    # older than 1.1.2
+    ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
+    Should Be Equal As Integers  ${result.rc}  0   "Failed to re-run edr installer.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Not Exist  ${canary_file}
 
 EDR Plugin Can Run Queries For Event Journal Detection Table
     Check EDR Plugin Installed With Base
@@ -458,3 +474,8 @@ Check Rsyslog Started Without Error
     Log  ${result.stderr}
     Should Contain  ${result.stdout}  active (running)
     Should Not Contain  ${result.stdout}  Could not open output pipe '/opt/sophos-spl/shared/syslog_pipe'
+
+Corrupt OSQuery Database
+    ${sstFiles}=  List Files In Directory  ${COMPONENT_ROOT_PATH}/var/osquery.db  *.sst
+    Remove File  ${COMPONENT_ROOT_PATH}/var/osquery.db/${sstFiles[0]}
+    should not exist  ${COMPONENT_ROOT_PATH}/var/osquery.db/${sstFiles[0]}
