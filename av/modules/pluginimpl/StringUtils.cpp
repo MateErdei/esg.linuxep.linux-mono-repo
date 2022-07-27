@@ -70,6 +70,20 @@ std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ServerThr
     return result;
 }
 
+std::string pluginimpl::generateOnAccessConfig(bool isEnabled,
+                                               const std::vector<std::string>& exclusionList,
+                                               const std::string& excludeRemoteFiles)
+{
+    json config;
+    json exclusions(exclusionList);
+
+    config["enabled"] = isEnabled;
+    config["exclusions"] = exclusions;
+    config["excludeRemoteFiles"] = excludeRemoteFiles;
+
+    return config.dump();
+}
+
 std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ServerThreatDetected& detection)
 {
     json threatEvent;

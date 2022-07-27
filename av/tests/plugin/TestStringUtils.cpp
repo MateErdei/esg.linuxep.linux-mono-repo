@@ -254,3 +254,14 @@ TEST_F(TestStringUtils, TestEmptyThreatNameJSON) // NOLINT
 
     EXPECT_EQ(result, expectedJSON);
 }
+
+TEST_F(TestStringUtils, TestGenerateOnAcessConfig)
+{
+    std::vector<std::string> exclusionList = {"x", "y", "z"};
+
+    std::string expectedResult = R"({"enabled":true,"excludeRemoteFiles":"true","exclusions":["x","y","z"]})";
+    EXPECT_EQ(expectedResult, generateOnAccessConfig(true, exclusionList, "true"));
+
+    expectedResult = R"({"enabled":false,"excludeRemoteFiles":"false","exclusions":["x","y","z"]})";
+    EXPECT_EQ(expectedResult, generateOnAccessConfig(false, exclusionList, "false"));
+}

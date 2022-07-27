@@ -4,6 +4,8 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+# define SLEEP_TIME 0
+
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include "PluginMemoryAppenderUsingTests.h"
@@ -36,6 +38,7 @@ namespace
             appConfig.setData("PLUGIN_INSTALL", m_testDir );
             
             m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
+            m_soapConfigPath = m_testDir / "var/soapd_config.json";
             m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
         }
@@ -47,6 +50,7 @@ namespace
         
         std::string m_susiStartupConfigPath;
         std::string m_susiStartupConfigChrootPath;
+        std::string m_soapConfigPath;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
     };
 }
@@ -437,6 +441,10 @@ TEST_F(TestPolicyProcessor, processSavPolicy) // NOLINT
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           R"sophos({"enabled":false,"excludeRemoteFiles":"","exclusions":[]})sophos",
+                                                           _,
+                                                           0640));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -462,6 +470,11 @@ TEST_F(TestPolicyProcessor, defaultSXL4lookupValueIsTrue) // NOLINT
 
 TEST_F(TestPolicyProcessor, processSavPolicyChanged) // NOLINT
 {
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           R"sophos({"enabled":false,"excludeRemoteFiles":"","exclusions":[]})sophos",
+                                                           _,
+                                                           0640)).Times(2);
+
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
     {
         InSequence seq;
@@ -512,6 +525,10 @@ TEST_F(TestPolicyProcessor, processSavPolicyMissing) // NOLINT
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           R"sophos({"enabled":false,"excludeRemoteFiles":"","exclusions":[]})sophos",
+                                                           _,
+                                                           0640));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -544,6 +561,10 @@ TEST_F(TestPolicyProcessor, processSavPolicyInvalid) // NOLINT
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           R"sophos({"enabled":false,"excludeRemoteFiles":"","exclusions":[]})sophos",
+                                                           _,
+                                                           0640));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 

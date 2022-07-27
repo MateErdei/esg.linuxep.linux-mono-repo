@@ -196,6 +196,8 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
 
     EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillRepeatedly(Throw(ex));
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(_,_)).WillRepeatedly(Throw(ex));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFileAtomically(_,_,_,_)).WillRepeatedly(Throw(ex));
+
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();

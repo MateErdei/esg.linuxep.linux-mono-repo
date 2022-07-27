@@ -7,10 +7,12 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "PolicyProcessor.h"
 
 #include "Logger.h"
+#include "StringUtils.h"
 
 #include "unixsocket/processControllerSocket/ProcessControllerClient.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <common/StringUtils.h>
@@ -43,10 +45,16 @@ namespace Plugin
             return pluginInstall + "/var/susi_startup_settings.json";
         }
 
-        std::string getSoapControlSocket()
+        std::string getSoapControlSocketPath()
         {
             auto  pluginInstall = getPluginInstall();
             return  pluginInstall + "/var/soapd_controller";
+        }
+
+        std::string getSoapConfigPath()
+        {
+            auto  pluginInstall = getPluginInstall();
+            return  pluginInstall + "/var/soapd_config.json";
         }
     }
 
@@ -150,6 +158,30 @@ namespace Plugin
         return common::md5_hash(cred); // always do the second hash
     }
 
+    void PolicyProcessor::processOnAccessPolicy(const Common::XmlUtilities::AttributesMap& policy,  const struct timespec& socketSleepTime)
+    {
+        LOGINFO("Processing On Access Scanning settings");
+
+        auto excludeRemoteFiles = policy.lookup("config/onAccessScan/linuxExclusions/excludeRemoteFiles").contents();
+        auto exclusionList = extractListFromXML(policy, "config/onAccessScan/linuxExclusions/filePathSet/filePath");
+        auto config = pluginimpl::generateOnAccessConfig(isOnAccessEnabled(policy), exclusionList, excludeRemoteFiles);
+
+        try
+        {
+            auto* fs = Common::FileSystem::fileSystem();
+            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+            fs->writeFileAtomically(getSoapConfigPath(), config, tempDir, 0640);
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR("Failed to write On Access Config, Sophos On Access Process will use the default settings");
+            return;
+        }
+
+        unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath(), socketSleepTime);
+        scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+        processController.sendProcessControlRequest(processControlRequest);
+    }
 
     bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed)
     {
@@ -162,9 +194,7 @@ namespace Plugin
             return false;
         }
 
-        unixsocket::ProcessControllerClientSocket processController(getSoapControlSocket());
-        scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
-        processController.sendProcessControlRequest(processControlRequest);
+        processOnAccessPolicy(policy);
 
         json susiStartupSettings;
         susiStartupSettings["enableSxlLookup"] = m_lookupEnabled;
@@ -200,5 +230,28 @@ namespace Plugin
         }
         // Default to true if we can't read or understand the sendData value
         return true;
+    }
+
+    bool PolicyProcessor::isOnAccessEnabled(const Common::XmlUtilities::AttributesMap& policy)
+    {
+        auto contents = policy.lookup("config/onAccessScan/enabled").contents();
+        if (contents == "true" || contents == "false")
+        {
+            return contents == "true";
+        }
+        // Default to false if we can't read or understand the sendData value
+        return false;
+    }
+
+    std::vector<std::string> PolicyProcessor::extractListFromXML(const Common::XmlUtilities::AttributesMap& policy, const std::string& entityFullPath)
+    {
+        std::vector<std::string> results;
+        auto attrs = policy.lookupMultiple(entityFullPath);
+        results.reserve(attrs.size());
+        for (const auto& attr : attrs)
+        {
+            results.emplace_back(attr.contents());
+        }
+        return results;
     }
 }
