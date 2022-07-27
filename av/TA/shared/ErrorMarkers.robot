@@ -3,6 +3,10 @@ Library         ../Libs/LogUtils.py
 Resource    AVResources.robot
 
 *** Keywords ***
+Exclude Scan Now mount point does not exist
+    # TODO: Remove once LINUXDAR-4805/5057/5342 are fixed
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan "/run/user/0": file/folder does not exist
+
 Exclude Scan Now Found Threats But Aborted With 25
     mark_expected_error_in_log  ${AV_LOG_PATH}  ScanScheduler <> Scan: Scan Now, found threats but aborted with exit code: 25
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  ScanScheduler <> Scan: Scan Now, found threats but aborted with exit code: 25

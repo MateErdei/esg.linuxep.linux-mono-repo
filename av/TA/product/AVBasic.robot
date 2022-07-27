@@ -306,6 +306,8 @@ AV Plugin Scan Now Does Not Detect PUA
 
     File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  "/tmp_test/eicar_pua.com" is infected
 
+    Exclude Scan Now mount point does not exist
+
 AV Plugin Scan Now with Bind Mount
     ${source} =       Set Variable  /tmp_test/directory
     ${destination} =  Set Variable  /tmp_test/bind_mount

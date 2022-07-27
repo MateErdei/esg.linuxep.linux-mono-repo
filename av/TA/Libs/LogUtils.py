@@ -67,7 +67,7 @@ def _mark_expected_errors_in_log(log_location, *error_messages):
             for error_message in error_messages:
                 if error_message in line:
                     line = line.replace(error_string, mark_string)
-                    break #  Don't need to look any further
+                    break  # Don't need to look any further
             new_lines.append(line + "\n")
         contents = "".join(new_lines)
 
