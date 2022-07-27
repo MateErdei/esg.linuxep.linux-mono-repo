@@ -76,3 +76,45 @@ TEST_F(TestSusiLoggerCallback, unknown_level)
     threat_scanner::susiLogCallback(nullptr, static_cast<SusiLogLevel>(50), "UNKNOWN_MESSAGE");
     EXPECT_TRUE(appenderContains("ERROR - 50: UNKNOWN_MESSAGE"));
 }
+
+TEST_F(TestSusiLoggerCallback, highest_is_debug)
+{
+    using namespace threat_scanner;
+    HighestLevelRecorder::reset();
+    susiLogCallback(nullptr, SUSI_LOG_LEVEL_DETAIL, "DEBUG_MESSAGE");
+    EXPECT_EQ(HighestLevelRecorder::getHighest(), SUSI_LOG_LEVEL_DETAIL);
+}
+
+TEST_F(TestSusiLoggerCallback, highest_is_info)
+{
+    // Also tests the highest first.
+
+    using namespace threat_scanner;
+    HighestLevelRecorder::reset();
+    susiLogCallback(nullptr, SUSI_LOG_LEVEL_INFO, "MESSAGE");
+    susiLogCallback(nullptr, SUSI_LOG_LEVEL_DETAIL, "DEBUG_MESSAGE");
+    EXPECT_EQ(HighestLevelRecorder::getHighest(), SUSI_LOG_LEVEL_INFO);
+}
+
+TEST_F(TestSusiLoggerCallback, highest_is_warning)
+{
+    // Also tests the highest last.
+
+    using namespace threat_scanner;
+    HighestLevelRecorder::reset();
+    susiLogCallback(nullptr, SUSI_LOG_LEVEL_DETAIL, "MESSAGE");
+    susiLogCallback(nullptr, SUSI_LOG_LEVEL_WARNING, "MESSAGE");
+    EXPECT_EQ(HighestLevelRecorder::getHighest(), SUSI_LOG_LEVEL_WARNING);
+}
+
+TEST_F(TestSusiLoggerCallback, highest_is_error)
+{
+    // Also tests the highest in the middle.
+
+    using namespace threat_scanner;
+    HighestLevelRecorder::reset();
+    susiLogCallback(nullptr, SUSI_LOG_LEVEL_DETAIL, "MESSAGE");
+    susiLogCallback(nullptr, SUSI_LOG_LEVEL_ERROR, "MESSAGE");
+    susiLogCallback(nullptr, SUSI_LOG_LEVEL_WARNING, "MESSAGE");
+    EXPECT_EQ(HighestLevelRecorder::getHighest(), SUSI_LOG_LEVEL_ERROR);
+}
