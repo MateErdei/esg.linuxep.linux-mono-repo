@@ -118,3 +118,14 @@ TEST_F(TestSusiLoggerCallback, highest_is_error)
     susiLogCallback(nullptr, SUSI_LOG_LEVEL_WARNING, "MESSAGE");
     EXPECT_EQ(HighestLevelRecorder::getHighest(), SUSI_LOG_LEVEL_ERROR);
 }
+
+TEST_F(TestSusiLoggerCallback, highest_is_debug_after_reset)
+{
+    using namespace threat_scanner;
+    HighestLevelRecorder::reset();
+    susiLogCallback(nullptr, SUSI_LOG_LEVEL_ERROR, "MESSAGE");
+    EXPECT_EQ(HighestLevelRecorder::getHighest(), SUSI_LOG_LEVEL_ERROR);
+
+    HighestLevelRecorder::reset();
+    EXPECT_EQ(HighestLevelRecorder::getHighest(), SUSI_LOG_LEVEL_DETAIL);
+}
