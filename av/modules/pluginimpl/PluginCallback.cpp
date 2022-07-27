@@ -85,6 +85,10 @@ namespace Plugin
 
     void PluginCallback::setThreatHealth(long threatStatus)
     {
+        if (m_threatStatus != threatStatus)
+        {
+            LOGINFO("Threat health changed to " << threatStatus);
+        }
         m_threatStatus = threatStatus;
     }
 
