@@ -85,6 +85,9 @@ then
     exec ${SOPHOS_INSTALL}/base/bin/registerCentral "${MCS_TOKEN}" "${MCS_URL}"
 else
     echo "Not registering with Central as no token/url specified"
+    ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter
+    # copy AV on-access enabled policy in place
+    cp ${TEST_SUITE}/resources/SAV-2_policy_OA_enabled.xml ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
 fi
 
 if [[ -n ${CONFIGURE_DEBUG} ]]

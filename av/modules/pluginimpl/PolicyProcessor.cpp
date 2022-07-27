@@ -8,6 +8,8 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
+#include "unixsocket/processControllerSocket/ProcessControllerClient.h"
+
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -39,6 +41,12 @@ namespace Plugin
         {
             auto pluginInstall = getPluginInstall();
             return pluginInstall + "/var/susi_startup_settings.json";
+        }
+
+        std::string getSoapControlSocket()
+        {
+            auto  pluginInstall = getPluginInstall();
+            return  pluginInstall + "/var/soapd_controller";
         }
     }
 
@@ -153,6 +161,10 @@ namespace Plugin
 
             return false;
         }
+
+        unixsocket::ProcessControllerClientSocket processController(getSoapControlSocket());
+        scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+        processController.sendProcessControlRequest(processControlRequest);
 
         json susiStartupSettings;
         susiStartupSettings["enableSxlLookup"] = m_lookupEnabled;
