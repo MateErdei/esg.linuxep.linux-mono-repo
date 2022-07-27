@@ -77,6 +77,27 @@ Sul Downloader Requests Fixed Version When Fixed Version In Policy
     ...   1 secs
     ...   File Should Contain    ${sdds3_server_output}     ServerProtectionLinux-Plugin-MDR fixedVersion: 1.0.2 requested
 
+Sul Downloader Report error correctly when it cannot connect to sdds3 cdn
+    Start Local Cloud Server
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override  URLS=http://localhost:9000
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    Check SulDownloader Log Contains  Failed to connect to repository: Update connection error, received HTTP response code
+
 *** Keywords ***
 Create Dummy Local SDDS2 Cache Files
     Create File         ${sdds2_primary}/base/update/cache/primary/1

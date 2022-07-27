@@ -230,7 +230,7 @@ namespace SulDownloader
             if (status_code != 200)
             {
                 std::stringstream message;
-                message << "received HTTP response code " << status_code;
+                message << "Update connection error, received HTTP response code " << status_code;
                 m_error.Description = message.str();
                 m_error.status = RepositoryStatus::CONNECTIONERROR;
                 return std::make_pair(suites, releaseGroups);
