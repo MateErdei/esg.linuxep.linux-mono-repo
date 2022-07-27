@@ -518,6 +518,7 @@ function build()
             then
                 cat Testing/Temporary/LastTest.log || true
             fi
+            cp Testing/Temporary/LastTest.log $BASE/log/ || true
             exitFailure $FAILURE_UNIT_TESTS "Unit tests failed for $PRODUCT"
         }
     fi
