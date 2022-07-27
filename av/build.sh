@@ -95,6 +95,9 @@ do
             UNITTEST=1
             BUILD_SDDS3=0
             ;;
+        --no-sdds3)
+            BUILD_SDDS3=0
+            ;;
         --centos7-local|--centos7|--centos)
             export ENABLE_STRIP=0
             CMAKE_BUILD_TYPE=Debug
