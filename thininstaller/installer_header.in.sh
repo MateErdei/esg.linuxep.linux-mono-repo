@@ -230,7 +230,7 @@ function check_total_mem()
     then
         return 0
     fi
-    failure ${EXITCODE_NOT_ENOUGH_MEM} "This machine does not meet product requirements. The product requires at least 1GB of RAM"
+    failure ${EXITCODE_NOT_ENOUGH_MEM} "This machine does not meet product requirements (total RAM: ${totalMemKiloBytes}kB). The product requires at least 930000kB of RAM"
 }
 
 function check_SAV_installed()
@@ -593,8 +593,8 @@ check_free_storage 2048
 # Check that the install path has valid permission on the existing directories
 check_install_path_has_correct_permissions
 
-# Check there is enough RAM (~1GB in kB)
-check_total_mem 1000000
+# Check there is enough RAM (930000kB)
+check_total_mem 930000
 
 tar -zxf installer.tar.gz || failure ${EXITCODE_FAILED_TO_UNPACK} "ERROR: Failed to unpack thin installer: $?"
 rm -f installer.tar.gz || failure ${EXITCODE_DELETE_INSTALLER_ARCHIVE_FAILED} "ERROR: Failed to delete packed thin installer: $?"
