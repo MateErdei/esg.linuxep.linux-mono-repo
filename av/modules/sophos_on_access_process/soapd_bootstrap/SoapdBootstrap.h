@@ -13,6 +13,7 @@ namespace sophos_on_access_process::soapd_bootstrap
     public:
         static int runSoapd();
 
+        static mount_monitor::mountinfo::IMountPointSharedVector getAllMountpoints();
         static mount_monitor::mountinfo::IMountPointSharedVector getIncludedMountpoints(
             const OnAccessConfig& config, const mount_monitor::mountinfo::IMountPointSharedVector& allMountpoints);
     };
