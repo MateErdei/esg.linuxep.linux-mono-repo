@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "../../common/MemoryAppender.h"
 #include "sophos_threat_detector/threat_scanner/SusiLogger.h"
@@ -23,28 +19,28 @@ namespace
 
 // Test SUSI debug stream:
 
-TEST_F(TestSusiLoggerCallbackSusiDebugLog, debug_level) // NOLINT
+TEST_F(TestSusiLoggerCallbackSusiDebugLog, debug_level)
 {
     UsingMemoryAppender holder(*this);
     threat_scanner::susiLogCallback(nullptr, SUSI_LOG_LEVEL_DETAIL, "DEBUG_MESSAGE");
     EXPECT_TRUE(appenderContains("DEBUG - DEBUG_MESSAGE"));
 }
 
-TEST_F(TestSusiLoggerCallbackSusiDebugLog, info_level) // NOLINT
+TEST_F(TestSusiLoggerCallbackSusiDebugLog, info_level)
 {
     UsingMemoryAppender holder(*this);
     threat_scanner::susiLogCallback(nullptr, SUSI_LOG_LEVEL_INFO, "INFO_MESSAGE");
     EXPECT_TRUE(appenderContains("SPRT - INFO_MESSAGE"));
 }
 
-TEST_F(TestSusiLoggerCallbackSusiDebugLog, warning_level) // NOLINT
+TEST_F(TestSusiLoggerCallbackSusiDebugLog, warning_level)
 {
     UsingMemoryAppender holder(*this);
     threat_scanner::susiLogCallback(nullptr, SUSI_LOG_LEVEL_WARNING, "WARNING_MESSAGE");
     EXPECT_TRUE(appenderContains("WARN - WARNING_MESSAGE"));
 }
 
-TEST_F(TestSusiLoggerCallbackSusiDebugLog, error_level) // NOLINT
+TEST_F(TestSusiLoggerCallbackSusiDebugLog, error_level)
 {
     UsingMemoryAppender holder(*this);
     threat_scanner::susiLogCallback(nullptr, SUSI_LOG_LEVEL_ERROR, "ERROR_MESSAGE");
@@ -53,28 +49,28 @@ TEST_F(TestSusiLoggerCallbackSusiDebugLog, error_level) // NOLINT
 
 // Test normal log stream:
 
-TEST_F(TestSusiLoggerCallback, debug_level) // NOLINT
+TEST_F(TestSusiLoggerCallback, debug_level)
 {
     UsingMemoryAppender holder(*this);
     threat_scanner::susiLogCallback(nullptr, SUSI_LOG_LEVEL_DETAIL, "DEBUG_MESSAGE");
     EXPECT_FALSE(appenderContains("DEBUG_MESSAGE"));
 }
 
-TEST_F(TestSusiLoggerCallback, warning_level) // NOLINT
+TEST_F(TestSusiLoggerCallback, warning_level)
 {
     UsingMemoryAppender holder(*this);
     threat_scanner::susiLogCallback(nullptr, SUSI_LOG_LEVEL_WARNING, "WARNING_MESSAGE");
     EXPECT_TRUE(appenderContains("WARN - WARNING_MESSAGE"));
 }
 
-TEST_F(TestSusiLoggerCallback, error_level) // NOLINT
+TEST_F(TestSusiLoggerCallback, error_level)
 {
     UsingMemoryAppender holder(*this);
     threat_scanner::susiLogCallback(nullptr, SUSI_LOG_LEVEL_ERROR, "ERROR_MESSAGE");
     EXPECT_TRUE(appenderContains("ERROR - ERROR_MESSAGE"));
 }
 
-TEST_F(TestSusiLoggerCallback, unknown_level) // NOLINT
+TEST_F(TestSusiLoggerCallback, unknown_level)
 {
     UsingMemoryAppender holder(*this);
     threat_scanner::susiLogCallback(nullptr, static_cast<SusiLogLevel>(50), "UNKNOWN_MESSAGE");
