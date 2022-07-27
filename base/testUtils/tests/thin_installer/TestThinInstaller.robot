@@ -189,7 +189,7 @@ Thin Installer fails to download test file from warehouse if certificate is not 
 
 Thin Installer fails to install on system without enough memory
     Run Default Thininstaller With Fake Memory Amount    234
-    Check Thininstaller Log Contains    This machine does not meet product requirements. The product requires at least 1GB of RAM
+    Check Thininstaller Log Contains    This machine does not meet product requirements (total RAM: 234kB). The product requires at least 930000kB of RAM
 
 Thin Installer fails to install on system without enough storage
     Run Default Thininstaller With Fake Small Disk
