@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "pluginimpl/PluginCallback.h"
 #include "pluginimpl/QueueTask.h"
@@ -178,7 +174,7 @@ namespace
     };
 }
 
-TEST_F(TestPluginCallback, getTelemetry_version) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_version)
 {
     std::string modifiedVersion = "1.2.3.457";
 
@@ -200,7 +196,7 @@ TEST_F(TestPluginCallback, getTelemetry_version) //NOLINT
     EXPECT_EQ(modifiedTelemetry["version"], modifiedVersion);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_version_fileDoesNotExist) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_version_fileDoesNotExist)
 {
     fs::remove(m_versionFile);
 
@@ -209,7 +205,7 @@ TEST_F(TestPluginCallback, getTelemetry_version_fileDoesNotExist) //NOLINT
     EXPECT_EQ(telemetry["version"], "unknown");
 }
 
-TEST_F(TestPluginCallback, getTelemetry_mlLibHash) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_mlLibHash)
 {
     std::string modifiedExpectedMlLibHash = "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3";
 
@@ -227,7 +223,7 @@ TEST_F(TestPluginCallback, getTelemetry_mlLibHash) //NOLINT
     EXPECT_EQ(modifiedTelemetry["ml-lib-hash"], modifiedExpectedMlLibHash);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_mlLibHash_fileDoesNotExist) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_mlLibHash_fileDoesNotExist)
 {
     fs::remove(m_mlLibPath);
 
@@ -236,7 +232,7 @@ TEST_F(TestPluginCallback, getTelemetry_mlLibHash_fileDoesNotExist) //NOLINT
     EXPECT_EQ(telemetry["ml-lib-hash"], "unknown");
 }
 
-TEST_F(TestPluginCallback, getTelemetry_mlModelVersion) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_mlModelVersion)
 {
     std::string modifiedHexString = "7374617469635f5f5f5f646574656374696f6e00ed03000004000000733b3401ec25b100010000000000000000001000";
     std::string modifiedExpectedMlModelVersion = "20200307";
@@ -254,7 +250,7 @@ TEST_F(TestPluginCallback, getTelemetry_mlModelVersion) //NOLINT
     EXPECT_EQ(modifiedTelemetry["ml-pe-model-version"], modifiedExpectedMlModelVersion);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_mlModelVersion_fileDoesNotExist) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_mlModelVersion_fileDoesNotExist)
 {
     fs::remove(m_mlModelPath);
 
@@ -264,7 +260,7 @@ TEST_F(TestPluginCallback, getTelemetry_mlModelVersion_fileDoesNotExist) //NOLIN
     EXPECT_EQ(telemetry["ml-pe-model-version"], "unknown");
 }
 
-TEST_F(TestPluginCallback, getTelemetry_lrData) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_lrData)
 {
     std::string modifiedExpectedLrHash = "8d58f634a5b5051db5ee0bb9d005779b382be410e8ebd5144590f2f0429f9220";
 
@@ -287,7 +283,7 @@ TEST_F(TestPluginCallback, getTelemetry_lrData) //NOLINT
     EXPECT_EQ(modifiedTelemetry["lr-data-hash"], modifiedExpectedLrHash);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_lrData_fileDoesNotExist) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_lrData_fileDoesNotExist)
 {
     fs::remove(m_lrFilerepPath);
 
@@ -302,7 +298,7 @@ TEST_F(TestPluginCallback, getTelemetry_lrData_fileDoesNotExist) //NOLINT
     EXPECT_EQ(telemetry["lr-data-hash"], "unknown");
 }
 
-TEST_F(TestPluginCallback, getTelemetry_vdlIdeCount) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_vdlIdeCount)
 {
     unsigned long modifiedExpectedVdlIdeCount = 4;
 
@@ -317,7 +313,7 @@ TEST_F(TestPluginCallback, getTelemetry_vdlIdeCount) //NOLINT
     EXPECT_EQ(modifiedTelemetry["vdl-ide-count"], modifiedExpectedVdlIdeCount);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_vdlIdeCount_dirDoesNotExist) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_vdlIdeCount_dirDoesNotExist)
 {
     fs::remove_all(m_vdlDirPath);
 
@@ -326,14 +322,14 @@ TEST_F(TestPluginCallback, getTelemetry_vdlIdeCount_dirDoesNotExist) //NOLINT
     EXPECT_EQ(initialTelemetry["vdl-ide-count"], 0);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_vdlVersion) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_vdlVersion)
 {
     json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
     EXPECT_EQ(initialTelemetry["vdl-version"], "DataSet-A");
 }
 
-TEST_F(TestPluginCallback, getTelemetry_vdlVersion_fileDoesNotExist) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_vdlVersion_fileDoesNotExist)
 {
     fs::remove(m_vdlVersionFilePath);
 
@@ -342,7 +338,7 @@ TEST_F(TestPluginCallback, getTelemetry_vdlVersion_fileDoesNotExist) //NOLINT
     EXPECT_EQ(telemetry["vdl-version"], "unknown");
 }
 
-TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup)
 {
     m_pluginCallback->setSXL4Lookups(true);
 
@@ -357,14 +353,14 @@ TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup) //NOLINT
     EXPECT_EQ(modifiedTelemetry["sxl4-lookup"], false);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup_fileDoesNotExist) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup_fileDoesNotExist)
 {
     json telemetry = json::parse(m_pluginCallback->getTelemetry());
 
     EXPECT_EQ(telemetry["sxl4-lookup"], true);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_threatHealth) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_threatHealth)
 {
     m_pluginCallback->setThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
 
@@ -379,14 +375,14 @@ TEST_F(TestPluginCallback, getTelemetry_threatHealth) //NOLINT
     EXPECT_EQ(modifiedTelemetry["threatHealth"], E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_threatHealth_fileDoesNotExist) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_threatHealth_fileDoesNotExist)
 {
     json telemetry = json::parse(m_pluginCallback->getTelemetry());
 
     EXPECT_EQ(telemetry["threatHealth"], E_THREAT_HEALTH_STATUS_GOOD);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_health) //NOLINT
+TEST_F(TestPluginCallback, getTelemetry_health)
 {
     json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
@@ -421,7 +417,7 @@ TEST_F(TestPluginCallback, getTelemetry_health) //NOLINT
     ASSERT_EQ(modifiedTelemetry["health"], E_HEALTH_STATUS_GOOD);
 }
 
-TEST_F(TestPluginCallback, getHealthReturnsZeroWhenCalculateHealthSuccessful) //NOLINT
+TEST_F(TestPluginCallback, getHealthReturnsZeroWhenCalculateHealthSuccessful)
 {
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
@@ -451,7 +447,7 @@ TEST_F(TestPluginCallback, getHealthReturnsZeroWhenCalculateHealthSuccessful) //
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getHealthReturnsZeroWhenShutdownFileIsValid) //NOLINT
+TEST_F(TestPluginCallback, getHealthReturnsZeroWhenShutdownFileIsValid)
 {
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
 
@@ -467,7 +463,7 @@ TEST_F(TestPluginCallback, getHealthReturnsZeroWhenShutdownFileIsValid) //NOLINT
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdownFileHasExpired) //NOLINT
+TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdownFileHasExpired)
 {
     testing::internal::CaptureStderr();
 
@@ -490,7 +486,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdownHasAFileSystemException) //NOLINT
+TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdownHasAFileSystemException)
 {
     testing::internal::CaptureStderr();
 
@@ -515,7 +511,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidFileContentsAreMalformed) //NOLINT
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidFileContentsAreMalformed)
 {
     testing::internal::CaptureStderr();
 
@@ -537,7 +533,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidFileContentsAreMalforme
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidDirectoryInProcIsMissing) //NOLINT
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidDirectoryInProcIsMissing)
 {
     testing::internal::CaptureStderr();
 
@@ -561,7 +557,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidDirectoryInProcIsMissin
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneIfAccessingPidDirectoryHasAFileSystemException) //NOLINT
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfAccessingPidDirectoryHasAFileSystemException)
 {
     testing::internal::CaptureStderr();
 
@@ -586,7 +582,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfAccessingPidDirectoryHasAF
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusUidMalformed) //NOLINT
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusUidMalformed)
 {
     testing::internal::CaptureStderr();
 
@@ -613,7 +609,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusUidMalformed) //
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneIfUidUsernameDoesNotCorrespondToSophosThreatDetector) //NOLINT
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfUidUsernameDoesNotCorrespondToSophosThreatDetector)
 {
     testing::internal::CaptureStderr();
 
@@ -645,7 +641,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfUidUsernameDoesNotCorrespo
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusFileFailsToBeRead) //NOLINT
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusFileFailsToBeRead)
 {
     testing::internal::CaptureStderr();
 
@@ -672,7 +668,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusFileFailsToBeRea
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenGettingUsername) //NOLINT
+TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenGettingUsername)
 {
     testing::internal::CaptureStderr();
 
@@ -704,7 +700,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenGet
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getHealthReturnsOneWhenCmdlineArgOfPidIsNotSophosThreatDetector) //NOLINT
+TEST_F(TestPluginCallback, getHealthReturnsOneWhenCmdlineArgOfPidIsNotSophosThreatDetector)
 {
     testing::internal::CaptureStderr();
 
@@ -738,7 +734,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenCmdlineArgOfPidIsNotSophosThre
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneOnWhenCmdlineProcFileCannotBeRead) //NOLINT
+TEST_F(TestPluginCallback, calculateHealthReturnsOneOnWhenCmdlineProcFileCannotBeRead)
 {
     testing::internal::CaptureStderr();
 
@@ -772,7 +768,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneOnWhenCmdlineProcFileCannotB
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenAccessingCmdlineProcFile) //NOLINT
+TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenAccessingCmdlineProcFile)
 {
     testing::internal::CaptureStderr();
 
@@ -849,7 +845,7 @@ TEST_F(TestPluginCallback, getTelemetry_ProductInfo)
     ASSERT_NE(modifiedTelemetry["threatProcessAge"], expectAgeValueToBeGreaterThan);
 }
 
-TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesWhenPidFileDoesNotExist) //NOLINT
+TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesWhenPidFileDoesNotExist)
 {
     testing::internal::CaptureStderr();
 
@@ -870,7 +866,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesWhenPidFileDoesNotExist) /
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidFileContentsAreMalformed) //NOLINT
+TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidFileContentsAreMalformed)
 {
     testing::internal::CaptureStderr();
 
@@ -892,7 +888,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidFileContentsAreMalfor
 }
 
 
-TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidDirectoryInProcIsMissing) //NOLINT
+TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidDirectoryInProcIsMissing)
 {
     testing::internal::CaptureStderr();
 
@@ -916,7 +912,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidDirectoryInProcIsMiss
 }
 
 
-TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfAccessingPidDirectoryHasAFileSystemException) //NOLINT
+TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfAccessingPidDirectoryHasAFileSystemException)
 {
     testing::internal::CaptureStderr();
 
@@ -940,7 +936,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfAccessingPidDirectoryHas
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfStatFileSizeIsIncorrect) //NOLINT
+TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfStatFileSizeIsIncorrect)
 {
     testing::internal::CaptureStderr();
 
@@ -966,7 +962,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfStatFileSizeIsIncorrect)
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getProcessInfoReturnsMemoryCorrectAgeZeroWithInvalidSysInfoCall) //NOLINT
+TEST_F(TestPluginCallback, getProcessInfoReturnsMemoryCorrectAgeZeroWithInvalidSysInfoCall)
 {
     testing::internal::CaptureStderr();
 
@@ -998,7 +994,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsMemoryCorrectAgeZeroWithInvalidS
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getProcessInfoReturnsCorrectValuesWhenSuccessful) //NOLINT
+TEST_F(TestPluginCallback, getProcessInfoReturnsCorrectValuesWhenSuccessful)
 {
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
     std::string pidFileContents = "1234";
@@ -1024,7 +1020,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsCorrectValuesWhenSuccessful) //N
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfProcStatFileFailsToBeRead) //NOLINT
+TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfProcStatFileFailsToBeRead)
 {
     testing::internal::CaptureStderr();
 
@@ -1050,7 +1046,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfProcStatFileFailsToBeRea
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenAccessingStatProcFile) //NOLINT
+TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenAccessingStatProcFile)
 {
     testing::internal::CaptureStderr();
 
@@ -1060,8 +1056,8 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenA
     int pidFileContentsConverted = 1234;
 
     auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
