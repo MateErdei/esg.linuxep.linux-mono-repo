@@ -19,6 +19,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
+#include <sys/poll.h>
+
 namespace fs = sophos_filesystem;
 
 using namespace sophos_on_access_process::soapd_bootstrap;
@@ -87,26 +89,28 @@ void SoapdBootstrap::innerRun(
     std::shared_ptr<common::SigIntMonitor>& sigIntMonitor,
     std::shared_ptr<common::SigTermMonitor>& sigTermMonitor)
 {
-    fd_set readFDs;
-    FD_ZERO(&readFDs);
-    int max = -1;
+    const int num_fds = 2;
+    struct pollfd fds[num_fds];
 
-    max = FDUtils::addFD(&readFDs, sigTermMonitor->monitorFd(), max);
-    max = FDUtils::addFD(&readFDs, sigIntMonitor->monitorFd(), max);
+    fds[0].fd = sigIntMonitor->monitorFd();
+    fds[0].events = POLLIN;
+    fds[0].revents = 0;
+
+    fds[1].fd = sigTermMonitor->monitorFd();
+    fds[1].events = POLLIN;
+    fds[1].revents = 0;
 
     while (true)
     {
-        fd_set tempRead = readFDs;
-
         // wait for an activity on one of the fds
-        int activity = pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
+        int activity = ::ppoll(fds, num_fds, nullptr, nullptr);
         if (activity < 0)
         {
-            // error in pselect
+            // error in ppoll
             int error = errno;
             if (error == EINTR)
             {
-                LOGDEBUG("Ignoring EINTR from pselect");
+                LOGDEBUG("Ignoring EINTR from ppoll");
                 continue;
             }
 
@@ -114,14 +118,14 @@ void SoapdBootstrap::innerRun(
             break;
         }
 
-        if (FDUtils::fd_isset(sigTermMonitor->monitorFd(), &tempRead))
+        if ((fds[0].revents & POLLIN) != 0)
         {
-            LOGINFO("Sophos On Access Process received SIGTERM - shutting down");
-            sigTermMonitor->triggered();
+            LOGINFO("Sophos On Access Process received SIGINT - shutting down");
+            sigIntMonitor->triggered();
             break;
         }
 
-        if (FDUtils::fd_isset(sigIntMonitor->monitorFd(), &tempRead))
+        if ((fds[1].revents & POLLIN) != 0)
         {
             LOGINFO("Sophos On Access Process received SIGTERM - shutting down");
             sigTermMonitor->triggered();
