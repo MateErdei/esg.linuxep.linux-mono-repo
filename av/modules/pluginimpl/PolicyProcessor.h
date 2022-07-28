@@ -46,7 +46,6 @@ namespace Plugin
     private:
         std::string m_customerId;
         bool m_lookupEnabled = true;
-        static bool isOnAccessEnabled(const Common::XmlUtilities::AttributesMap& policy);
         static std::vector<std::string> extractListFromXML(
             const Common::XmlUtilities::AttributesMap& policy,
             const std::string& entityFullPath);
