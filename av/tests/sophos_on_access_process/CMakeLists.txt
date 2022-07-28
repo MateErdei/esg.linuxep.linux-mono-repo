@@ -3,11 +3,14 @@ include(GoogleTest)
 SophosAddTest(TestSophosOnAccessProcessImpl
         ../common/LogInitializedTests.cpp
         TestSoapdBootstrap.cpp
+        TestOnAccessConfigMonitor.cpp
         PROJECTS soapdbootstrap
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
         ${CMAKE_SOURCE_DIR}/tests
-        LIBS pthread
+        ${pluginapiinclude}
+        ${testhelpersinclude}
+        LIBS pthread ${pluginapilib} ${testhelperslib}
         )
 
 SET_TARGET_PROPERTIES(TestSophosOnAccessProcessImpl

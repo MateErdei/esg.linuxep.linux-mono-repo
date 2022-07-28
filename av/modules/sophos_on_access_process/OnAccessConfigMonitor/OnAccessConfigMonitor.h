@@ -8,13 +8,21 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "Common/Threads/AbstractThread.h"
 
-class OnAccessConfigMonitor : public Common::Threads::AbstractThread
+namespace sophos_on_access_process::ConfigMonitorThread
 {
-public:
-    explicit OnAccessConfigMonitor(std::string processControllerSocketPath);
+    class OnAccessConfigMonitor : public Common::Threads::AbstractThread
+    {
+    public:
+        explicit OnAccessConfigMonitor(std::string processControllerSocketPath);
 
-    void run() override;
-private:
-    std::string m_processControllerSocketPath;
-    unixsocket::ProcessControllerServerSocket m_processControllerServer;
-};
+        void run() override;
+
+        static std::string readConfigFile();
+        static bool parseOnAccessSettingsFromJson(const std::string& jsonString);
+
+    private:
+        std::string m_processControllerSocketPath;
+        unixsocket::ProcessControllerServerSocket m_processControllerServer;
+        static bool isSettingTrue(const std::string& settingString);
+    };
+}

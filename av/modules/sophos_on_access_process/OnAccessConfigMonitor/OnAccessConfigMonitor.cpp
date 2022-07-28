@@ -7,13 +7,18 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "OnAccessConfigMonitor.h"
 
 #include "Logger.h"
+#include "common/FDUtils.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystem.h"
-#include "common/FDUtils.h"
+#include "Common/FileSystem/IFileSystemException.h"
+
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <utility>
 
+using json = nlohmann::json;
+using namespace sophos_on_access_process::ConfigMonitorThread;
 namespace fs = sophos_filesystem;
 
 OnAccessConfigMonitor::OnAccessConfigMonitor(std::string processControllerSocket) :
@@ -66,13 +71,52 @@ void OnAccessConfigMonitor::run()
         if (FDUtils::fd_isset(m_processControllerServer.monitorReloadFd(), &tempRead))
         {
             LOGINFO("Sophos On Access Process received configuration reload request");
-            auto* sophosFsAPI =  Common::FileSystem::fileSystem();
-            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-            fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
-            auto configPath = pluginInstall / "var/soapd_config.json";
-            auto onAccessSettings = sophosFsAPI->readFile(configPath.string());
-            LOGINFO(onAccessSettings);
+            auto jsonString =  readConfigFile();
+            parseOnAccessSettingsFromJson(jsonString);
+
+            //update fanotify settings
+
             m_processControllerServer.triggeredReload();
         }
     }
+}
+
+std::string OnAccessConfigMonitor::readConfigFile()
+{
+    auto* sophosFsAPI =  Common::FileSystem::fileSystem();
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
+    auto configPath = pluginInstall / "var/soapd_config.json";
+
+    try
+    {
+        std::string onAccessJsonConfig = sophosFsAPI->readFile(configPath.string());
+        LOGDEBUG("New on-access configuration: " << onAccessJsonConfig);
+        return  onAccessJsonConfig;
+    }
+    catch (const Common::FileSystem::IFileSystemException& ex)
+    {
+        LOGWARN("Failed to read on-access configuration, keeping existing configuration");
+        return  "";
+    }
+}
+
+bool OnAccessConfigMonitor::parseOnAccessSettingsFromJson(const std::string& jsonString)
+{
+    json parsedConfig;
+    try
+    {
+        parsedConfig = json::parse(jsonString);
+
+        LOGINFO("On-access enabled: " << parsedConfig["enabled"]);
+        LOGINFO("On-access scan network: " << parsedConfig["excludeRemoteFiles"]);
+        LOGINFO("On-access exclusions: " << parsedConfig["exclusions"]);
+    }
+    catch (const json::parse_error& e)
+    {
+        LOGWARN("Failed to parse json configuration, reason: " << e.what());
+        return false;
+    }
+
+    return true;
 }

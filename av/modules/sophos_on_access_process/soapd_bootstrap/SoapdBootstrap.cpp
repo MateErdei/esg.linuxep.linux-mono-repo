@@ -72,7 +72,7 @@ int SoapdBootstrap::runSoapd()
     fs::path socketPath = pluginInstall / "var/soapd_controller";
     LOGINFO("Socket is at: " << socketPath);
 
-    OnAccessConfigMonitor configMonitor(socketPath);
+    ConfigMonitorThread::OnAccessConfigMonitor configMonitor(socketPath);
     configMonitor.start();
 
     innerRun(sigIntMonitor, sigTermMonitor);
