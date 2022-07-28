@@ -78,6 +78,7 @@ std::string SusiScanner::susiErrorToReadableError(const std::string& filePath, c
     {
         // SOPHOS_SAVI_ERROR_NOT_SUPPORTED
         errorMsg << " as it is not a supported file type";
+        level = log4cplus::WARN_LOG_LEVEL;
     }
     else if (susiError == "couldn't open")
     {

@@ -324,7 +324,7 @@ class ThreatScannerParameterizedTest
 INSTANTIATE_TEST_SUITE_P(TestThreatScanner, ThreatScannerParameterizedTest, ::testing::Values(
     std::make_tuple("encrypted", "Failed to scan test.file as it is password protected", log4cplus::WARN_LOG_LEVEL),
     std::make_tuple("corrupt", "Failed to scan test.file as it is corrupted", log4cplus::ERROR_LOG_LEVEL),
-    std::make_tuple("unsupported", "Failed to scan test.file as it is not a supported file type", log4cplus::ERROR_LOG_LEVEL),
+    std::make_tuple("unsupported", "Failed to scan test.file as it is not a supported file type", log4cplus::WARN_LOG_LEVEL),
     std::make_tuple("couldn't open", "Failed to scan test.file as it could not be opened", log4cplus::ERROR_LOG_LEVEL),
     std::make_tuple("recursion limit", "Failed to scan test.file as it is a Zip Bomb", log4cplus::ERROR_LOG_LEVEL),
     std::make_tuple("scan failed", "Failed to scan test.file due to a sweep failure", log4cplus::ERROR_LOG_LEVEL),
