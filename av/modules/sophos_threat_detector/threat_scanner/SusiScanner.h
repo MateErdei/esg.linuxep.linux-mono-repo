@@ -43,7 +43,8 @@ namespace threat_scanner
 
         static std::string susiResultErrorToReadableError(
             const std::string& filePath,
-            SusiResult susiError);
+            SusiResult susiError,
+            log4cplus::LogLevel& level);
 
     private:
         void sendThreatReport(

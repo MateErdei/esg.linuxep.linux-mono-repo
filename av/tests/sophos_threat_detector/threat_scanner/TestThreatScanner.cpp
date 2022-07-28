@@ -294,15 +294,10 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat)
 
 TEST(TestThreatScanner, TestsusiResultErrorToReadableErrorUnknown)
 {
-    setupFakeSophosThreatDetectorConfig();
+    auto loglevel = log4cplus::DEBUG_LOG_LEVEL;
+    EXPECT_EQ(threat_scanner::SusiScanner::susiResultErrorToReadableError("test.file", static_cast<SusiResult>(17), loglevel), "Failed to scan test.file due to an unknown susi error [17]");
 
-    auto susiWrapper = std::make_shared<MockSusiWrapper>("");
-    std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
-
-    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, nullptr);
-
-    EXPECT_EQ(susiScanner.susiResultErrorToReadableError("test.file", static_cast<SusiResult>(17)), "Failed to scan test.file due to an unknown susi error [17]");
+    EXPECT_EQ(loglevel, log4cplus::ERROR_LOG_LEVEL);
 }
 
 TEST(TestThrowIfNotOk, TestOk)
@@ -368,5 +363,7 @@ INSTANTIATE_TEST_SUITE_P(TestThreatScanner, SusiResultErrorToReadableErrorParame
 
 TEST_P(SusiResultErrorToReadableErrorParameterized, susiResultErrorToReadableError)
 {
-    EXPECT_EQ(threat_scanner::SusiScanner::susiResultErrorToReadableError("test.file", std::get<0>(GetParam())), std::get<1>(GetParam()));
+    auto loglevel = log4cplus::DEBUG_LOG_LEVEL;
+    EXPECT_EQ(threat_scanner::SusiScanner::susiResultErrorToReadableError("test.file", std::get<0>(GetParam()), loglevel), std::get<1>(GetParam()));
+    EXPECT_EQ(loglevel, std::get<2>(GetParam()));
 }
