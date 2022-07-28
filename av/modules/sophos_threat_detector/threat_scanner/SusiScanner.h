@@ -34,11 +34,11 @@ namespace threat_scanner
             const std::string& userID) override;
 
     TEST_PUBLIC:
-        std::string susiErrorToReadableError(
+        static std::string susiErrorToReadableError(
             const std::string& filePath,
             const std::string& susiError);
 
-        std::string susiResultErrorToReadableError(
+        static std::string susiResultErrorToReadableError(
             const std::string& filePath,
             SusiResult susiError);
 
