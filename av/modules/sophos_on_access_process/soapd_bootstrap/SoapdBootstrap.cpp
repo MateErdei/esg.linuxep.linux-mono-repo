@@ -8,16 +8,16 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "datatypes/sophos_filesystem.h"
-#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
-
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "common/FDUtils.h"
 #include "common/SigIntMonitor.h"
 #include "common/SigTermMonitor.h"
-
+#include "datatypes/sophos_filesystem.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
+#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
+
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <memory>
 
@@ -92,7 +92,7 @@ int SoapdBootstrap::runSoapd()
     {
         fd_set tempRead = readFDs;
 
-        // wait for an activity on one of the sockets
+        // wait for an activity on one of the fds
         int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
         if (activity < 0)
         {
@@ -132,7 +132,10 @@ int SoapdBootstrap::runSoapd()
         if (FDUtils::fd_isset(processController.monitorReloadFd(), &tempRead))
         {
             LOGINFO("Sophos On Access Process received configuration reload request");
-            //load configuration
+            auto* sophosFsAPI =  Common::FileSystem::fileSystem();
+            auto configPath = pluginInstall / "var/soapd_config.json";
+            auto onAccessSettings = sophosFsAPI->readFile(configPath.string());
+            LOGINFO(onAccessSettings);
             processController.triggeredReload();
         }
     }
