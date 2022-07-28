@@ -8,10 +8,6 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <Common/XmlUtilities/AttributesMap.h>
 
-#ifndef SLEEP_TIME
-# define SLEEP_TIME 1
-#endif
-
 namespace Plugin
 {
     class PolicyProcessor

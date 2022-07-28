@@ -4,8 +4,6 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-# define SLEEP_TIME 0
-
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include "PluginMemoryAppenderUsingTests.h"
