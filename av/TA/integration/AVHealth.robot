@@ -92,13 +92,18 @@ Clean CLS Result Does Not Reset Threat Health
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
     Create File     /tmp_test/clean_file       ${CLEAN_STRING}
 
+    mark av log
+    mark sophos threat detector log
+
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/naughty_eicar
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in /tmp_test/naughty_eicar
+    AV Plugin Log Contains With Offset  Threat health changed to 2
 
     Check Threat Health is Reporting Correctly    2
+
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/clean_file
     Log  return code is ${rc}
