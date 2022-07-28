@@ -218,7 +218,8 @@ class UpdateServer(object):
 
         openssl_tar = os.path.join(openssl_input, "openssl.tar")
         if os.path.isfile(openssl_tar):
-            os.system("tar xvf {} -C {} >/dev/null".format(openssl_tar, tmp_path))
+            if not os.path.isdir(os.path.join(target_path, "bin64")):
+                os.system("tar xvf {} -C {} >/dev/null".format(openssl_tar, tmp_path))
         elif os.path.isdir(os.path.join(openssl_input, "bin64")):
             if not os.path.isdir(target_path):
                 logger.info(f"Using {openssl_input} as openssl")

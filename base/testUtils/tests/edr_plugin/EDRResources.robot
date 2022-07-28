@@ -62,7 +62,7 @@ Restart EDR Plugin
 Install EDR SDDS3
     [Arguments]  ${policy}  ${args}=${None}
     Start Local Cloud Server  --initial-alc-policy  ${policy}
-    configure_and_run_SDDS3_thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -180,6 +180,8 @@ Uninstall AuditD If Required
 
 EDR Suite Setup
     UpgradeResources.Suite Setup
+    Generate Local Ssl Certs If They Dont Exist
+    Install Local SSL Server Cert To System
     ${result} =  Run Process  curl -v https://ostia.eng.sophos/latest/sspl-warehouse/master   shell=True
     Should Be Equal As Integers  ${result.rc}  0  "Failed to Verify connection to Update Server. Please, check endpoint is configured. (Hint: tools/setup_sspl/setupEnvironment2.sh).\nStdOut: ${result.stdout}\nStdErr: ${result.stderr}"
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true

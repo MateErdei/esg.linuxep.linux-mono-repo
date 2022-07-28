@@ -158,20 +158,6 @@ def coverage_task(machine: tap.Machine, branch: str):
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
 
-def pytest_task(machine: tap.Machine):
-    try:
-        install_requirements(machine)
-        tests_dir = str(machine.inputs.test_scripts)
-        args = ['python3', '-u', '-m', 'pytest', tests_dir,
-                '-o', 'log_cli=true',
-                '--html=/opt/test/results/report.html'
-                ]
-        machine.run(*args)
-        machine.run('ls', '/opt/test/logs')
-    finally:
-        machine.output_artifact('/opt/test/results', 'results')
-        machine.output_artifact('/opt/test/logs', 'logs')
-
 def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
     """Return an input artifact from an unified pipeline build"""
     artifact = context.artifact.from_component(component, branch, org='', storage='esg-build-tested')

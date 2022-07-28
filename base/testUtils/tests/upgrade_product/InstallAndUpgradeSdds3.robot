@@ -85,7 +85,7 @@ Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -137,7 +137,7 @@ SDDS3 updating respects ALC feature codes
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -182,7 +182,7 @@ SDDS3 updating with changed unused feature codes do not change version
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -241,7 +241,7 @@ We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False 
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -300,7 +300,7 @@ We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True T
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -346,7 +346,7 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  use_http=${True}  force_sdds3_post_install=${True}
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080   force_sdds3_post_install=${True}
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -382,7 +382,7 @@ During Transition From SDDS3 to SDDS2 SDDS3 Cache Is Removed Before Downloading 
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller  0  http://127.0.0.1:8080   http://127.0.0.1:8080  ${True}
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
 
     Wait Until Keyword Succeeds
     ...   150 secs

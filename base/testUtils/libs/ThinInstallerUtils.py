@@ -279,9 +279,9 @@ class ThinInstallerUtils(object):
                           force_certs_dir=None,
                           cleanup=True,
                           temp_dir_to_unpack_to=None,
-                          sus_url="http://127.0.0.1:8080",
-                          sdds3_cdn_url="http://127.0.0.1:8080",
-                          sdds3_use_http=True,
+                          sus_url="https://localhost:8080",
+                          sdds3_cdn_url="https://localhost:8080",
+                          sdds3_use_http=False,
                           force_sdds3=False,
                           force_legacy_install=False):
         cwd = os.getcwd()
@@ -291,7 +291,7 @@ class ThinInstallerUtils(object):
         else:
             sophos_certs_dir = certs_dir
         if not mcs_ca:
-            env_cert = os.environ["MCS_CA"]
+            env_cert = os.environ.get("MCS_CA","")
             if os.path.isfile(env_cert):
                 mcs_ca = env_cert
             else:

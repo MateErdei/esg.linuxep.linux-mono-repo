@@ -66,7 +66,6 @@ Dump All Logs
 
     Dump Teardown Log    ./tmp/proxy_server.log
     Dump Teardown Log    /tmp/sdds3_server.log
-    Remove File          /tmp/sdds3_server.log
     Dump Teardown Log    ./tmp/proxy.log
     Dump Teardown Log    ./tmp/relay.log
     Dump Teardown Log    ./tmp/CapnPublisher.log
@@ -122,6 +121,7 @@ General Test Teardown
     Check For Coredumps  ${TEST NAME}
     Check Dmesg For Segfaults
     Run Keyword If Test Failed    Dump All Logs
+    Remove File          /tmp/sdds3_server.log
     Run Keyword If Test Failed    Check and Dump Journalctl
     Run Keyword If Test Passed    Check Journalctl
     Run Keyword If Test Failed    Log Status Of Rsyslog

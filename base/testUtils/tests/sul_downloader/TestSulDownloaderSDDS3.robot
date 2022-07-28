@@ -40,7 +40,7 @@ Resource    ../upgrade_product/UpgradeResources.robot
 Resource    ../management_agent/ManagementAgentResources.robot
 
 
-Default Tags  TAP_TESTS  SULDOWNLOADER
+Default Tags  SULDOWNLOADER
 
 
 *** Variables ***

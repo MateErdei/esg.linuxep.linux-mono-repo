@@ -22,6 +22,8 @@ Cleanup Update Tests
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
 
 Setup sdds3 Update Tests
+    Generate Local Ssl Certs If They Dont Exist
+    Install Local SSL Server Cert To System
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
     Set Local CA Environment Variable
