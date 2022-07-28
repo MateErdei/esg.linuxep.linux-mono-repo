@@ -3,6 +3,7 @@
 add_subdirectory(ObfuscationImpl)
 
 sophos_add_library(pluginimpl SHARED
+        HealthStatus.cpp
         HealthStatus.h
         PolicyProcessor.cpp
         PolicyProcessor.h

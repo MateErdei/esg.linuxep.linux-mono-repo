@@ -100,7 +100,7 @@ Clean CLS Result Does Not Reset Threat Health
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in /tmp_test/naughty_eicar
-    AV Plugin Log Contains With Offset  Threat health changed to 2
+    AV Plugin Log Contains With Offset  Threat health changed to suspicious
 
     Check Threat Health is Reporting Correctly    2
 

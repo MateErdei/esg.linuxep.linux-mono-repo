@@ -79,11 +79,11 @@ namespace Plugin
         m_lookupEnabled = sxl4Lookup;
     }
 
-    void PluginCallback::setThreatHealth(long threatStatus)
+    void PluginCallback::setThreatHealth(E_HEALTH_STATUS threatStatus)
     {
         if (m_threatStatus != threatStatus)
         {
-            LOGINFO("Threat health changed to " << threatStatus);
+            LOGINFO("Threat health changed to " << threatHealthToString(threatStatus));
         }
         m_threatStatus = threatStatus;
     }

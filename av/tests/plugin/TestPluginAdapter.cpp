@@ -9,12 +9,13 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/MockApiBaseServices.h>
 
-#include <pluginimpl/PluginAdapter.h>
-#include <pluginimpl/PluginAdapter.cpp>
+#include "pluginimpl/PluginAdapter.h"
 #include "datatypes/sophos_filesystem.h"
+
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>

@@ -376,7 +376,7 @@ TEST_F(TestPluginCallback, getTelemetry_threatHealth)
 
     m_pluginCallback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
-    EXPECT_TRUE(appenderContains("Threat health changed to 2"));
+    EXPECT_TRUE(appenderContains("Threat health changed to suspicious"));
 
     json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
     EXPECT_EQ(modifiedTelemetry["threatHealth"], E_THREAT_HEALTH_STATUS_SUSPICIOUS);

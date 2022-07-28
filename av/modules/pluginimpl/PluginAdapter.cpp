@@ -4,6 +4,8 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+# define PLUGIN_INTERNAL public
+
 #include "PluginAdapter.h"
 
 #include "HealthStatus.h"
@@ -99,7 +101,9 @@ namespace Plugin
             LOGINFO("Failed to request ALC policy at startup (" << e.what() << ")");
         }
 
-        m_callback->setThreatHealth(pluginimpl::getThreatStatus());
+        m_callback->setThreatHealth(
+            static_cast<E_HEALTH_STATUS>(pluginimpl::getThreatStatus())
+            );
 
         innerLoop();
         LOGSUPPORT("Stopping the main program loop");
@@ -304,11 +308,11 @@ namespace Plugin
         }
     }
 
-    void PluginAdapter::publishThreatHealth(long threatStatus)
+    void PluginAdapter::publishThreatHealth(E_HEALTH_STATUS threatStatus)
     {
         try
         {
-            LOGDEBUG("Publishing threat health: " << threatStatus << " (1 = good, 2 = suspicious)");
+            LOGDEBUG("Publishing threat health: " << threatHealthToString(threatStatus));
 
             m_callback->setThreatHealth(threatStatus);
             m_baseService->sendThreatHealth("{\"ThreatHealth\":" + std::to_string(threatStatus) + "}");

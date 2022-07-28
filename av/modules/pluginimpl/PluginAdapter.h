@@ -6,6 +6,11 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#ifndef PLUGIN_INTERNAL
+# define PLUGIN_INTERNAL private
+#endif
+
+#include "HealthStatus.h"
 #include "PluginCallback.h"
 #include "PolicyProcessor.h"
 #include "QueueTask.h"
@@ -47,9 +52,10 @@ namespace Plugin
         void processScanComplete(std::string& scanCompletedXml, int exitCode) override;
         void processThreatReport(const std::string& threatDetectedXML);
         void publishThreatEvent(const std::string& threatDetectedJSON);
-        void publishThreatHealth(long threatStatus);
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
 
+    PLUGIN_INTERNAL:
+        void publishThreatHealth(E_HEALTH_STATUS threatStatus);
     private:
         /**
          *

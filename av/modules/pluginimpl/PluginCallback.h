@@ -45,7 +45,7 @@ namespace Plugin
         void setRunning(bool running);
         bool isRunning();
         void setSXL4Lookups(bool sxl4Lookup);
-        void setThreatHealth(long threatStatus);
+        void setThreatHealth(E_HEALTH_STATUS threatStatus);
         [[nodiscard]] long getThreatHealth() const;
 
     private:

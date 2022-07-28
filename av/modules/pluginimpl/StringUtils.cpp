@@ -106,7 +106,7 @@ long pluginimpl::getThreatStatus()
     {
         try
         {
-            long health = static_cast<long long>(j["threatHealth"]);
+            long health = static_cast<long>(j["threatHealth"]);
             return health;
         }
         catch (std::exception& exception)
