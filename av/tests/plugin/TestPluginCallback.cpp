@@ -12,7 +12,7 @@
 #include <Common/UtilityImpl/StringUtils.h>
 #include <gtest/gtest.h>
 #include <pluginimpl/HealthStatus.h>
-#include <tests/common/LogInitializedTests.h>
+#include <tests/common/MemoryAppender.h>
 #include <tests/datatypes/MockSysCalls.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
@@ -24,9 +24,13 @@ using json = nlohmann::json;
 
 namespace
 {
-    class TestPluginCallback : public LogInitializedTests
+    class TestPluginCallback : public MemoryAppenderUsingTests
     {
     public:
+        TestPluginCallback()
+                : MemoryAppenderUsingTests("av")
+        {}
+
         void SetUp() override
         {
             const ::testing::TestInfo* const test_info =
