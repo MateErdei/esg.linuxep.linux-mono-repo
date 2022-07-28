@@ -35,7 +35,7 @@ namespace threat_scanner
 
         std::string susiErrorToReadableError(
             const std::string& filePath,
-            const std::string& susiError) override;
+            const std::string& susiError);
 
         std::string susiResultErrorToReadableError(
             const std::string& filePath,
