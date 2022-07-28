@@ -149,7 +149,8 @@ namespace
             {
                 input >> buf[0] >> buf[1];
                 long val = strtol(buf, nullptr, 16);
-                datafile << static_cast<unsigned char>(val & 0xff);
+                assert(val >= 0);
+                datafile << static_cast<unsigned char>(static_cast<unsigned>(val) & 0xff);
             }
         }
 
@@ -399,8 +400,8 @@ TEST_F(TestPluginCallback, getTelemetry_health)
     std::optional<std::string> cmdlineProcContents = "sophos_threat_detector\0";
     std::optional<std::string> statProcContents = "1 2 3";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -429,8 +430,8 @@ TEST_F(TestPluginCallback, getHealthReturnsZeroWhenCalculateHealthSuccessful)
     std::string expectedUsername = "sophos-spl-threat-detector";
     std::optional<std::string> cmdlineProcContents = "sophos_threat_detector\0";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -451,7 +452,7 @@ TEST_F(TestPluginCallback, getHealthReturnsZeroWhenShutdownFileIsValid)
 {
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
@@ -470,7 +471,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
@@ -493,7 +494,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
@@ -519,7 +520,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidFileContentsAreMalforme
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
     std::string badPidContents = "notanint";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
@@ -542,7 +543,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidDirectoryInProcIsMissin
     std::string pidFileContents = "1234";
     Path pidProcDirectory = "/proc/1234";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
@@ -566,7 +567,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfAccessingPidDirectoryHasAF
     std::string pidFileContents = "1234";
     Path pidProcDirectory = "/proc/1234";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
@@ -593,7 +594,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusUidMalformed)
     int pidFileContentsConverted = 1234;
     std::string badProcStatusContents = "Uid: notanint";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
@@ -622,8 +623,8 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfUidUsernameDoesNotCorrespo
     int uidContentsConverted = 5678;
     std::string unexpectedUsername = "some-other-username";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -652,7 +653,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfProcStatusFileFailsToBeRea
     int pidFileContentsConverted = 1234;
     std::optional<std::string> statusProcContents = std::nullopt;
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
@@ -680,8 +681,8 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenGet
     std::string statusProcContents = "Uid: 5678";
     int uidContentsConverted = 5678;
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -714,8 +715,8 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenCmdlineArgOfPidIsNotSophosThre
     std::string expectedUsername = "sophos-spl-threat-detector";
     std::optional<std::string> wrongCmdlineProcContents = "not_sophos_threat_detector\0";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -748,8 +749,8 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneOnWhenCmdlineProcFileCannotB
     std::string expectedUsername = "sophos-spl-threat-detector";
     std::optional<std::string> cmdlineProcContents = std::nullopt;
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -781,8 +782,8 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenAcc
     int uidContentsConverted = 5678;
     std::string expectedUsername = "sophos-spl-threat-detector";
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -823,10 +824,11 @@ TEST_F(TestPluginCallback, getTelemetry_ProductInfo)
     int pidFileContentsConverted = 1234;
     int uidContentsConverted = 5678;
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    auto filePermissionsMock = new StrictMock<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillRepeatedly(Return(pidFileContents));
@@ -852,7 +854,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesWhenPidFileDoesNotExist)
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
 
     auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Throw(
@@ -874,7 +876,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidFileContentsAreMalfor
     std::string badPidContents = "notanint";
 
     auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(badPidContents));
@@ -897,7 +899,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidDirectoryInProcIsMiss
     Path pidProcDirectory = "/proc/1234";
 
     auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
@@ -921,7 +923,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfAccessingPidDirectoryHas
     Path pidProcDirectory = "/proc/1234";
 
     auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
@@ -947,7 +949,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfStatFileSizeIsIncorrect)
     std::string statProcContents = "1 2 3";
 
     auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
@@ -975,7 +977,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsMemoryCorrectAgeZeroWithInvalidS
 
     auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
@@ -1004,7 +1006,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsCorrectValuesWhenSuccessful)
     std::pair<int, long> sysCallUptime(0, 1000);
 
     auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
@@ -1031,7 +1033,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfProcStatFileFailsToBeRea
     std::optional<std::string> statProcContents = std::nullopt;
 
     auto sysCallsMock = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
