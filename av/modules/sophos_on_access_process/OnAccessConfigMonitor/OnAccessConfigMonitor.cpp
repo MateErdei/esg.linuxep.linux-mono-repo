@@ -74,7 +74,7 @@ void OnAccessConfigMonitor::run()
             auto jsonString =  readConfigFile();
             parseOnAccessSettingsFromJson(jsonString);
 
-            //update fanotify settings
+            //update fanotify settings depending on parse result
 
             m_processControllerServer.triggeredReload();
         }
@@ -101,22 +101,39 @@ std::string OnAccessConfigMonitor::readConfigFile()
     }
 }
 
-bool OnAccessConfigMonitor::parseOnAccessSettingsFromJson(const std::string& jsonString)
+OnAccessConfiguration OnAccessConfigMonitor::parseOnAccessSettingsFromJson(const std::string& jsonString)
 {
     json parsedConfig;
     try
     {
         parsedConfig = json::parse(jsonString);
 
+        OnAccessConfiguration configuration{};
+        configuration.enabled = isSettingTrue(parsedConfig["enabled"]);
+        configuration.excludeRemoteFiles = isSettingTrue(parsedConfig["excludeRemoteFiles"]);
+        configuration.exclusions = parsedConfig["exclusions"].get<std::vector<std::string>>();
+
         LOGINFO("On-access enabled: " << parsedConfig["enabled"]);
         LOGINFO("On-access scan network: " << parsedConfig["excludeRemoteFiles"]);
         LOGINFO("On-access exclusions: " << parsedConfig["exclusions"]);
+
+        return configuration;
     }
     catch (const json::parse_error& e)
     {
         LOGWARN("Failed to parse json configuration, reason: " << e.what());
-        return false;
     }
 
-    return true;
+    return {};
+}
+
+bool OnAccessConfigMonitor::isSettingTrue(const std::string& settingString)
+{
+    if(settingString == "true")
+    {
+        return true;
+    }
+
+    //return false for any other possibility
+    return false;
 }

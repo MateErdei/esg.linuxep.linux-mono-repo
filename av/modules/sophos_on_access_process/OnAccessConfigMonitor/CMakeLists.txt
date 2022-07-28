@@ -4,6 +4,7 @@ add_library(onAccessConfigMonitor SHARED
         OnAccessConfigMonitor.h
         Logger.cpp
         Logger.h
+        OnAccessConfiguration.h
         )
 
 target_link_libraries(onAccessConfigMonitor  PUBLIC

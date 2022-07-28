@@ -71,5 +71,37 @@ TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJson) // NOLINT
 {
     std::string jsonString = R"({"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]})";
 
-    ASSERT_EQ(OnAccessConfigMonitor::parseOnAccessSettingsFromJson(jsonString), true);
+    OnAccessConfiguration expectedResult;
+    expectedResult.enabled = true;
+    expectedResult.excludeRemoteFiles = false;
+    expectedResult.exclusions = {"/mnt/", "/uk-filer5/"};
+
+    ASSERT_EQ(OnAccessConfigMonitor::parseOnAccessSettingsFromJson(jsonString), expectedResult);
+
+    expectedResult.enabled = false;
+    expectedResult.excludeRemoteFiles = true;
+    expectedResult.exclusions = {"/uk-filer5/", "/mnt/"};
+
+    ASSERT_NE(OnAccessConfigMonitor::parseOnAccessSettingsFromJson(jsonString), expectedResult);
+}
+
+TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJsonInvalidJson) // NOLINT
+{
+    std::string jsonString = R"({"enabled":"I think","excludeRemoteFiles":"therefore","exclusions":["I","am"]})";
+
+    OnAccessConfiguration expectedResult;
+    expectedResult.enabled = false;
+    expectedResult.excludeRemoteFiles = false;
+    expectedResult.exclusions = {"I", "am"};
+
+    ASSERT_EQ(OnAccessConfigMonitor::parseOnAccessSettingsFromJson(jsonString), expectedResult);
+}
+
+TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJsonInvalidJsonSyntax) // NOLINT
+{
+    std::string jsonString = R"(this is going to break)";
+
+    OnAccessConfiguration expectedResult {};
+
+    ASSERT_EQ(OnAccessConfigMonitor::parseOnAccessSettingsFromJson(jsonString), expectedResult);
 }
