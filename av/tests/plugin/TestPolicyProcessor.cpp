@@ -600,7 +600,7 @@ TEST_F(TestPolicyProcessor, processSavPolicyInvalid) // NOLINT
     EXPECT_TRUE(changed);
 }
 
-TEST_F(TestPolicyProcessor, processOnAccessPolicy) // NOLINT
+TEST_F(TestPolicyProcessor, processOnAccessPolicy)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
@@ -631,7 +631,7 @@ TEST_F(TestPolicyProcessor, processOnAccessPolicy) // NOLINT
     proc.processOnAccessPolicy(attributeMap);
 }
 
-TEST_F(TestPolicyProcessor, processInvalidOnAccessPolicy) // NOLINT
+TEST_F(TestPolicyProcessor, processInvalidOnAccessPolicy)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,

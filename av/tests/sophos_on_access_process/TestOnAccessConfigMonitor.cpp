@@ -48,7 +48,7 @@ protected:
     std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
 };
 
-TEST_F(TestOnAccessConfigMonitor, readConfigFile) // NOLINT
+TEST_F(TestOnAccessConfigMonitor, readConfigFile)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapConfigPath)).WillOnce(Return("x"));
 
@@ -57,7 +57,7 @@ TEST_F(TestOnAccessConfigMonitor, readConfigFile) // NOLINT
     ASSERT_EQ(OnAccessConfigMonitor::readConfigFile(), "x");
 }
 
-TEST_F(TestOnAccessConfigMonitor, readConfigFileReadThrows) // NOLINT
+TEST_F(TestOnAccessConfigMonitor, readConfigFileReadThrows)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapConfigPath)).WillOnce(
         Throw(Common::FileSystem::IFileSystemException("bang")));
@@ -67,7 +67,7 @@ TEST_F(TestOnAccessConfigMonitor, readConfigFileReadThrows) // NOLINT
     ASSERT_EQ(OnAccessConfigMonitor::readConfigFile(), "");
 }
 
-TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJson) // NOLINT
+TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJson)
 {
     std::string jsonString = R"({"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]})";
 
@@ -85,7 +85,7 @@ TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJson) // NOLINT
     ASSERT_NE(OnAccessConfigMonitor::parseOnAccessSettingsFromJson(jsonString), expectedResult);
 }
 
-TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJsonInvalidJson) // NOLINT
+TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJsonInvalidJson)
 {
     std::string jsonString = R"({"enabled":"I think","excludeRemoteFiles":"therefore","exclusions":["I","am"]})";
 
@@ -97,7 +97,7 @@ TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJsonInvalidJson) // N
     ASSERT_EQ(OnAccessConfigMonitor::parseOnAccessSettingsFromJson(jsonString), expectedResult);
 }
 
-TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJsonInvalidJsonSyntax) // NOLINT
+TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJsonInvalidJsonSyntax)
 {
     std::string jsonString = R"(this is going to break)";
 
