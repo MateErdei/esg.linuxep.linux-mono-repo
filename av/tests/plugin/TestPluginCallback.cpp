@@ -367,30 +367,30 @@ TEST_F(TestPluginCallback, getTelemetry_sxl4Lookup_fileDoesNotExist)
 
 TEST_F(TestPluginCallback, getTelemetry_threatHealth)
 {
+    UsingMemoryAppender memAppend(*this);
+
     m_pluginCallback->setThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
 
     json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
-
     EXPECT_EQ(initialTelemetry["threatHealth"], E_THREAT_HEALTH_STATUS_GOOD);
 
     m_pluginCallback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 
-    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
+    EXPECT_TRUE(appenderContains("Threat health changed to 2"));
 
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
     EXPECT_EQ(modifiedTelemetry["threatHealth"], E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 }
 
 TEST_F(TestPluginCallback, getTelemetry_threatHealth_fileDoesNotExist)
 {
     json telemetry = json::parse(m_pluginCallback->getTelemetry());
-
     EXPECT_EQ(telemetry["threatHealth"], E_THREAT_HEALTH_STATUS_GOOD);
 }
 
 TEST_F(TestPluginCallback, getTelemetry_health)
 {
     json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
-
     ASSERT_EQ(initialTelemetry["health"], E_HEALTH_STATUS_BAD);
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
@@ -418,7 +418,6 @@ TEST_F(TestPluginCallback, getTelemetry_health)
     EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "stat")).WillOnce(Return(statProcContents));
 
     json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
-
     ASSERT_EQ(modifiedTelemetry["health"], E_HEALTH_STATUS_GOOD);
 }
 
