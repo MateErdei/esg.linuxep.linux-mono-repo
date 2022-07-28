@@ -2,7 +2,7 @@
 add_library(soapdbootstrap SHARED
         Logger.cpp
         Logger.h
-        OnAccessConfig.h
+        OnAccessMountConfig.h
         SoapdBootstrap.cpp
         SoapdBootstrap.h
         )

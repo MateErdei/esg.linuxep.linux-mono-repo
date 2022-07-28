@@ -24,7 +24,7 @@ namespace fs = sophos_filesystem;
 using namespace sophos_on_access_process::soapd_bootstrap;
 
 mount_monitor::mountinfo::IMountPointSharedVector SoapdBootstrap::getIncludedMountpoints(
-    const OnAccessConfig& config, const mount_monitor::mountinfo::IMountPointSharedVector& allMountpoints)
+    const OnAccessMountConfig& config, const mount_monitor::mountinfo::IMountPointSharedVector& allMountpoints)
 {
     mount_monitor::mountinfo::IMountPointSharedVector includedMountpoints;
     for (const auto& mp : allMountpoints)
@@ -54,7 +54,7 @@ int SoapdBootstrap::runSoapd()
     std::shared_ptr<common::SigIntMonitor> sigIntMonitor{common::SigIntMonitor::getSigIntMonitor()};
     std::shared_ptr<common::SigTermMonitor> sigTermMonitor{common::SigTermMonitor::getSigTermMonitor()};
 
-    OnAccessConfig config;
+    OnAccessMountConfig config;
     // work out which filesystems are included based of config and mount information
     auto pathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
     auto mountInfo = std::make_shared<mount_monitor::mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());

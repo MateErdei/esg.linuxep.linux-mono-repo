@@ -20,7 +20,7 @@ class TestSoapdBootstrap : public LogInitializedTests
 
 TEST_F(TestSoapdBootstrap, TestGetIncludedMountpoints) // NOLINT
 {
-    OnAccessConfig config;
+    OnAccessMountConfig config;
     config.m_scanHardDisc = true;
     config.m_scanNetwork = true;
     config.m_scanOptical = true;
