@@ -18,6 +18,8 @@ namespace Plugin
     {
     public:
         PolicyProcessor();
+        virtual ~PolicyProcessor() = default;
+
         /**
          *
          * @param policy
@@ -32,16 +34,19 @@ namespace Plugin
          */
         bool processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed = true);
 
+        void processOnAccessPolicy(const Common::XmlUtilities::AttributesMap& policy);
+
         static std::string getCustomerId(const Common::XmlUtilities::AttributesMap& policy);
         static bool isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy);
         [[nodiscard]] bool getSXL4LookupsEnabled() const;
+
+    protected:
+        virtual void notifyOnAccessProcess();
 
     private:
         std::string m_customerId;
         bool m_lookupEnabled = true;
         static bool isOnAccessEnabled(const Common::XmlUtilities::AttributesMap& policy);
-        static void processOnAccessPolicy(const Common::XmlUtilities::AttributesMap& policy,
-                                          const struct timespec& socketSleepTime= { SLEEP_TIME, 0 });
         static std::vector<std::string> extractListFromXML(
             const Common::XmlUtilities::AttributesMap& policy,
             const std::string& entityFullPath);

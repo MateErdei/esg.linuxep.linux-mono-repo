@@ -16,7 +16,7 @@ namespace pluginimpl
 {
     std::string generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection);
     std::string generateThreatDetectedJson(const scan_messages::ServerThreatDetected& detection);
-    std::string generateOnAccessConfig(bool isEnabled,
+    std::string generateOnAccessConfig(const std::string&,
                                        const std::vector<std::string>& exclusionList,
                                        const std::string& excludeRemoteFiles);
     long getThreatStatus();

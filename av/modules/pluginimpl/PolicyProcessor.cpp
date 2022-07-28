@@ -158,13 +158,21 @@ namespace Plugin
         return common::md5_hash(cred); // always do the second hash
     }
 
-    void PolicyProcessor::processOnAccessPolicy(const Common::XmlUtilities::AttributesMap& policy,  const struct timespec& socketSleepTime)
+    void PolicyProcessor::notifyOnAccessProcess()
+    {
+        unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath());
+        scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+        processController.sendProcessControlRequest(processControlRequest);
+    }
+
+    void PolicyProcessor::processOnAccessPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
         LOGINFO("Processing On Access Scanning settings");
 
         auto excludeRemoteFiles = policy.lookup("config/onAccessScan/linuxExclusions/excludeRemoteFiles").contents();
         auto exclusionList = extractListFromXML(policy, "config/onAccessScan/linuxExclusions/filePathSet/filePath");
-        auto config = pluginimpl::generateOnAccessConfig(isOnAccessEnabled(policy), exclusionList, excludeRemoteFiles);
+        auto enabled = policy.lookup("config/onAccessScan/enabled").contents();
+        auto config = pluginimpl::generateOnAccessConfig(enabled, exclusionList, excludeRemoteFiles);
 
         try
         {
@@ -174,13 +182,11 @@ namespace Plugin
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
-            LOGERROR("Failed to write On Access Config, Sophos On Access Process will use the default settings");
+            LOGERROR("Failed to write On Access Config, Sophos On Access Process will use the default settings " << e.what());
             return;
         }
 
-        unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath(), socketSleepTime);
-        scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
-        processController.sendProcessControlRequest(processControlRequest);
+        notifyOnAccessProcess();
     }
 
     bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed)
@@ -230,17 +236,6 @@ namespace Plugin
         }
         // Default to true if we can't read or understand the sendData value
         return true;
-    }
-
-    bool PolicyProcessor::isOnAccessEnabled(const Common::XmlUtilities::AttributesMap& policy)
-    {
-        auto contents = policy.lookup("config/onAccessScan/enabled").contents();
-        if (contents == "true" || contents == "false")
-        {
-            return contents == "true";
-        }
-        // Default to false if we can't read or understand the sendData value
-        return false;
     }
 
     std::vector<std::string> PolicyProcessor::extractListFromXML(const Common::XmlUtilities::AttributesMap& policy, const std::string& entityFullPath)

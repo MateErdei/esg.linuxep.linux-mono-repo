@@ -53,6 +53,15 @@ namespace
         std::string m_soapConfigPath;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
     };
+
+    class PolicyProcessorUnitTestClass : public Plugin::PolicyProcessor
+    {
+    protected:
+        void notifyOnAccessProcess() override
+        {
+            PRINT("Notified soapd");
+        }
+    };
 }
 
 const std::string FULL_POLICY //NOLINT
@@ -442,13 +451,13 @@ TEST_F(TestPolicyProcessor, processSavPolicy) // NOLINT
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           R"sophos({"enabled":false,"excludeRemoteFiles":"","exclusions":[]})sophos",
+                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})sophos",
                                                            _,
                                                            0640));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    Plugin::PolicyProcessor proc;
+    PolicyProcessorUnitTestClass proc;
 
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <config>
@@ -471,7 +480,7 @@ TEST_F(TestPolicyProcessor, defaultSXL4lookupValueIsTrue) // NOLINT
 TEST_F(TestPolicyProcessor, processSavPolicyChanged) // NOLINT
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           R"sophos({"enabled":false,"excludeRemoteFiles":"","exclusions":[]})sophos",
+                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})sophos",
                                                            _,
                                                            0640)).Times(2);
 
@@ -487,7 +496,7 @@ TEST_F(TestPolicyProcessor, processSavPolicyChanged) // NOLINT
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    Plugin::PolicyProcessor proc;
+    PolicyProcessorUnitTestClass proc;
 
     std::string policyXmlTrue = R"sophos(<?xml version="1.0"?>
 <config>
@@ -526,13 +535,13 @@ TEST_F(TestPolicyProcessor, processSavPolicyMissing) // NOLINT
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           R"sophos({"enabled":false,"excludeRemoteFiles":"","exclusions":[]})sophos",
+                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})sophos",
                                                            _,
-                                                           0640));
+                                                           0640)).Times(2);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    Plugin::PolicyProcessor proc;
+    PolicyProcessorUnitTestClass proc;
 
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <config>
@@ -562,13 +571,13 @@ TEST_F(TestPolicyProcessor, processSavPolicyInvalid) // NOLINT
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           R"sophos({"enabled":false,"excludeRemoteFiles":"","exclusions":[]})sophos",
+                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})sophos",
                                                            _,
-                                                           0640));
+                                                           0640)).Times(2);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    Plugin::PolicyProcessor proc;
+    PolicyProcessorUnitTestClass proc;
 
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <config>
@@ -591,4 +600,66 @@ TEST_F(TestPolicyProcessor, processSavPolicyInvalid) // NOLINT
     proc.processSavPolicy(attributeMap);
     bool changed = proc.processSavPolicy(attributeMapInvalid);
     EXPECT_TRUE(changed);
+}
+
+TEST_F(TestPolicyProcessor, processOnAccessPolicy) // NOLINT
+{
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           R"sophos({"enabled":"true","excludeRemoteFiles":"false","exclusions":["x","y"]})sophos",
+                                                           _,
+                                                           0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+
+    std::string policyXml = R"sophos(<?xml version="1.0"?>
+<config>
+    <onAccessScan>
+        <enabled>true</enabled>
+        <linuxExclusions>
+          <filePathSet>
+            <filePath>x</filePath>
+            <filePath>y</filePath>
+          </filePathSet>
+          <excludeRemoteFiles>false</excludeRemoteFiles>
+        </linuxExclusions>
+    </onAccessScan>
+</config>
+)sophos";
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+
+    proc.processOnAccessPolicy(attributeMap);
+}
+
+TEST_F(TestPolicyProcessor, processInvalidOnAccessPolicy) // NOLINT
+{
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":["x","y"]})sophos",
+                                                           _,
+                                                           0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+
+    std::string policyXml = R"sophos(<?xml version="1.0"?>
+<config>
+    <onAccessScan>
+        <enabled>this is supposed to be true/false</enabled>
+        <linuxExclusions>
+          <filePathSet>
+            <filePath>x</filePath>
+            <filePath>y</filePath>
+          </filePathSet>
+          <excludeRemoteFiles>this is supposed to be true/false</excludeRemoteFiles>
+        </linuxExclusions>
+    </onAccessScan>
+</config>
+)sophos";
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+
+    proc.processOnAccessPolicy(attributeMap);
 }
