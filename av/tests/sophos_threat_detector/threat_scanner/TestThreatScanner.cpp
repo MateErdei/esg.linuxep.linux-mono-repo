@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #include "MockSusiWrapper.h"
 #include "MockSusiWrapperFactory.h"
 
@@ -104,7 +101,7 @@ namespace
     };
 }
 
-TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
+TEST(TestThreatScanner, test_SusiScannerConstruction)
 {
     setupFakeSophosThreatDetectorConfig();
 
@@ -146,7 +143,7 @@ TEST(TestThreatScanner, test_SusiScannerConstruction) //NOLINT
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, nullptr);
 }
 
-TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
+TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives)
 {
     setupFakeSophosThreatDetectorConfig();
 
@@ -189,7 +186,7 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives) //NOLINT
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, true, false, nullptr, nullptr);
 }
 
-TEST(TestThreatScanner, test_SusiScannerConstructionWithScanImages) //NOLINT
+TEST(TestThreatScanner, test_SusiScannerConstructionWithScanImages)
 {
     setupFakeSophosThreatDetectorConfig();
 
@@ -232,7 +229,7 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanImages) //NOLINT
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, true, nullptr, nullptr);
 }
 
-TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
+TEST(TestThreatScanner, test_SusiScanner_scanFile_clean)
 {
     setupFakeSophosThreatDetectorConfig();
 
@@ -258,7 +255,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean) //NOLINT
     EXPECT_EQ(response.allClean(), true);
 }
 
-TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
+TEST(TestThreatScanner, test_SusiScanner_scanFile_threat)
 {
     setupFakeSophosThreatDetectorConfig();
 
@@ -293,7 +290,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat) //NOLINT
     EXPECT_EQ(response.allClean(), false);
 }
 
-TEST(TestThreatScanner, TestsusiResultErrorToReadableErrorUnknown) // NOLINT
+TEST(TestThreatScanner, TestsusiResultErrorToReadableErrorUnknown)
 {
     setupFakeSophosThreatDetectorConfig();
 
@@ -306,12 +303,12 @@ TEST(TestThreatScanner, TestsusiResultErrorToReadableErrorUnknown) // NOLINT
     EXPECT_EQ(susiScanner.susiResultErrorToReadableError("test.file", static_cast<SusiResult>(17)), "Failed to scan test.file due to an unknown susi error [17]");
 }
 
-TEST(TestThrowIfNotOk, TestOk) // NOLINT
+TEST(TestThrowIfNotOk, TestOk)
 {
     EXPECT_NO_THROW(throwIfNotOk(SUSI_S_OK, "Should not throw"));
 }
 
-TEST(TestThrowIfNotOk, TestNotOk) // NOLINT
+TEST(TestThrowIfNotOk, TestNotOk)
 {
     EXPECT_THROW(throwIfNotOk(SUSI_E_BAD_JSON, "Should throw"), std::runtime_error);
 }
@@ -322,7 +319,7 @@ class ThreatScannerParameterizedTest
 {
 };
 
-INSTANTIATE_TEST_CASE_P(TestThreatScanner, ThreatScannerParameterizedTest, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(TestThreatScanner, ThreatScannerParameterizedTest, ::testing::Values(
     std::make_tuple("encrypted", "Failed to scan test.file as it is password protected"),
     std::make_tuple("corrupt", "Failed to scan test.file as it is corrupted"),
     std::make_tuple("unsupported", "Failed to scan test.file as it is not a supported file type"),
@@ -330,9 +327,9 @@ INSTANTIATE_TEST_CASE_P(TestThreatScanner, ThreatScannerParameterizedTest, ::tes
     std::make_tuple("recursion limit", "Failed to scan test.file as it is a Zip Bomb"),
     std::make_tuple("scan failed", "Failed to scan test.file due to a sweep failure"),
     std::make_tuple("unexpected (0x80040231)", "Failed to scan test.file [unexpected (0x80040231)]")
-)); // NOLINT
+));
 
-TEST_P(ThreatScannerParameterizedTest, susiErrorToReadableError) // NOLINT
+TEST_P(ThreatScannerParameterizedTest, susiErrorToReadableError)
 {
     setupFakeSophosThreatDetectorConfig();
 
@@ -350,7 +347,7 @@ class SusiResultErrorToReadableErrorParameterized
 {
 };
 
-INSTANTIATE_TEST_CASE_P(TestThreatScanner, SusiResultErrorToReadableErrorParameterized, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(TestThreatScanner, SusiResultErrorToReadableErrorParameterized, ::testing::Values(
     std::make_tuple(SUSI_E_INTERNAL, "Failed to scan test.file due to an internal susi error"),
     std::make_tuple(SUSI_E_INVALIDARG, "Failed to scan test.file due to a susi invalid argument error"),
     std::make_tuple(SUSI_E_OUTOFMEMORY, "Failed to scan test.file due to a susi out of memory error"),
@@ -371,9 +368,9 @@ INSTANTIATE_TEST_CASE_P(TestThreatScanner, SusiResultErrorToReadableErrorParamet
     std::make_tuple(SUSI_E_CALLBACK, "Failed to scan test.file due to a callback error"),
     std::make_tuple(SUSI_E_BAD_JSON, "Failed to scan test.file due to a failure to parse scan result"),
     std::make_tuple(SUSI_E_MANIFEST, "Failed to scan test.file due to a bad susi manifest")
-)); // NOLINT
+));
 
-TEST_P(SusiResultErrorToReadableErrorParameterized, susiResultErrorToReadableError) // NOLINT
+TEST_P(SusiResultErrorToReadableErrorParameterized, susiResultErrorToReadableError)
 {
     setupFakeSophosThreatDetectorConfig();
 
