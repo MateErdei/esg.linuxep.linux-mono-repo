@@ -9,7 +9,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <string>
 #include <vector>
 
-namespace sophos_on_access_process::ConfigMonitorThread
+namespace sophos_on_access_process::OnAccessConfig
 {
     struct OnAccessConfiguration
     {
@@ -29,4 +29,8 @@ namespace sophos_on_access_process::ConfigMonitorThread
     {
         return !(lhs == rhs);
     }
+
+    std::string readConfigFile();
+    OnAccessConfiguration parseOnAccessSettingsFromJson(const std::string& jsonString);
+    bool isSettingTrue(const std::string& settingString);
 }

@@ -18,6 +18,9 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         static mount_monitor::mountinfo::IMountPointSharedVector getIncludedMountpoints(
             const OnAccessMountConfig& config, const mount_monitor::mountinfo::IMountPointSharedVector& allMountpoints);
-        static void innerRun(std::shared_ptr<common::SigIntMonitor>& sigIntMonitor, std::shared_ptr<common::SigTermMonitor>& sigTermMonitor);
+        static void innerRun(
+            std::shared_ptr<common::SigIntMonitor>& sigIntMonitor,
+            std::shared_ptr<common::SigTermMonitor>& sigTermMonitor,
+            Common::Threads::NotifyPipe pipe);
     };
 }

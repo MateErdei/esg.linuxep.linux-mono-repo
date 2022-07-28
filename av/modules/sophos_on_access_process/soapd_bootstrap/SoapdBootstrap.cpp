@@ -11,7 +11,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "datatypes/sophos_filesystem.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
-#include "sophos_on_access_process/OnAccessConfigMonitor/OnAccessConfigMonitor.h"
+#include "sophos_on_access_process/OnAccessConfig//OnAccessConfigMonitor.h"
+#include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -74,10 +75,11 @@ int SoapdBootstrap::runSoapd()
     fs::path socketPath = pluginInstall / "var/soapd_controller";
     LOGINFO("Socket is at: " << socketPath);
 
-    ConfigMonitorThread::OnAccessConfigMonitor configMonitor(socketPath);
+    Common::Threads::NotifyPipe onAccessConfigPipe;
+    OnAccessConfig::OnAccessConfigMonitor configMonitor(socketPath, onAccessConfigPipe);
     configMonitor.start();
 
-    innerRun(sigIntMonitor, sigTermMonitor);
+    innerRun(sigIntMonitor, sigTermMonitor, onAccessConfigPipe);
 
     configMonitor.requestStop();
     configMonitor.join();
@@ -87,9 +89,10 @@ int SoapdBootstrap::runSoapd()
 
 void SoapdBootstrap::innerRun(
     std::shared_ptr<common::SigIntMonitor>& sigIntMonitor,
-    std::shared_ptr<common::SigTermMonitor>& sigTermMonitor)
+    std::shared_ptr<common::SigTermMonitor>& sigTermMonitor,
+    Common::Threads::NotifyPipe pipe)
 {
-    const int num_fds = 2;
+    const int num_fds = 3;
     struct pollfd fds[num_fds];
 
     fds[0].fd = sigIntMonitor->monitorFd();
@@ -99,6 +102,10 @@ void SoapdBootstrap::innerRun(
     fds[1].fd = sigTermMonitor->monitorFd();
     fds[1].events = POLLIN;
     fds[1].revents = 0;
+
+    fds[2].fd = pipe.readFd();
+    fds[2].events = POLLIN;
+    fds[2].revents = 0;
 
     while (true)
     {
@@ -129,6 +136,16 @@ void SoapdBootstrap::innerRun(
         {
             LOGINFO("Sophos On Access Process received SIGTERM - shutting down");
             sigTermMonitor->triggered();
+            break;
+        }
+
+        if ((fds[2].revents & POLLIN) != 0)
+        {
+            pipe.notified();
+
+            auto jsonString = OnAccessConfig::readConfigFile();
+            OnAccessConfig::parseOnAccessSettingsFromJson(jsonString);
+
             break;
         }
     }

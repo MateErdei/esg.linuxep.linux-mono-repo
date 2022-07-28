@@ -4,21 +4,20 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "sophos_on_access_process/OnAccessConfigMonitor/OnAccessConfigMonitor.h"
-
 #include "common/LogInitializedTests.h"
 #include "datatypes/sophos_filesystem.h"
+#include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
 
-#include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
 
 #include <gtest/gtest.h>
 
-using namespace sophos_on_access_process::ConfigMonitorThread;
+using namespace sophos_on_access_process::OnAccessConfig;
 namespace fs = sophos_filesystem;
 
-class TestOnAccessConfigMonitor : public LogInitializedTests
+class TestOnAccessConfigUtils : public LogInitializedTests
 {
 protected:
     fs::path m_testDir;
@@ -48,26 +47,26 @@ protected:
     std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
 };
 
-TEST_F(TestOnAccessConfigMonitor, readConfigFile)
+TEST_F(TestOnAccessConfigUtils, readConfigFile)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapConfigPath)).WillOnce(Return("x"));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    ASSERT_EQ(OnAccessConfigMonitor::readConfigFile(), "x");
+    ASSERT_EQ(readConfigFile(), "x");
 }
 
-TEST_F(TestOnAccessConfigMonitor, readConfigFileReadThrows)
+TEST_F(TestOnAccessConfigUtils, readConfigFileReadThrows)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapConfigPath)).WillOnce(
         Throw(Common::FileSystem::IFileSystemException("bang")));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    ASSERT_EQ(OnAccessConfigMonitor::readConfigFile(), "");
+    ASSERT_EQ(readConfigFile(), "");
 }
 
-TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJson)
+TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJson)
 {
     std::string jsonString = R"({"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]})";
 
@@ -76,16 +75,16 @@ TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJson)
     expectedResult.excludeRemoteFiles = false;
     expectedResult.exclusions = {"/mnt/", "/uk-filer5/"};
 
-    ASSERT_EQ(OnAccessConfigMonitor::parseOnAccessSettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessSettingsFromJson(jsonString), expectedResult);
 
     expectedResult.enabled = false;
     expectedResult.excludeRemoteFiles = true;
     expectedResult.exclusions = {"/uk-filer5/", "/mnt/"};
 
-    ASSERT_NE(OnAccessConfigMonitor::parseOnAccessSettingsFromJson(jsonString), expectedResult);
+    ASSERT_NE(parseOnAccessSettingsFromJson(jsonString), expectedResult);
 }
 
-TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJsonInvalidJson)
+TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJsonInvalidJson)
 {
     std::string jsonString = R"({"enabled":"I think","excludeRemoteFiles":"therefore","exclusions":["I","am"]})";
 
@@ -94,14 +93,14 @@ TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJsonInvalidJson)
     expectedResult.excludeRemoteFiles = false;
     expectedResult.exclusions = {"I", "am"};
 
-    ASSERT_EQ(OnAccessConfigMonitor::parseOnAccessSettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessSettingsFromJson(jsonString), expectedResult);
 }
 
-TEST_F(TestOnAccessConfigMonitor, parseOnAccessSettingsFromJsonInvalidJsonSyntax)
+TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJsonInvalidJsonSyntax)
 {
     std::string jsonString = R"(this is going to break)";
 
     OnAccessConfiguration expectedResult {};
 
-    ASSERT_EQ(OnAccessConfigMonitor::parseOnAccessSettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessSettingsFromJson(jsonString), expectedResult);
 }
