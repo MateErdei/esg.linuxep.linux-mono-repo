@@ -8,20 +8,18 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "common/FDUtils.h"
-#include "common/SigIntMonitor.h"
-#include "common/SigTermMonitor.h"
 #include "datatypes/sophos_filesystem.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
+#include "sophos_on_access_process/OnAccessConfigMonitor/OnAccessConfigMonitor.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "Common/FileSystem/IFileSystem.h"
+#include "common/FDUtils.h"
+#include "common/SigIntMonitor.h"
+#include "common/SigTermMonitor.h"
 
 #include <memory>
-
-#include <poll.h>
 
 namespace fs = sophos_filesystem;
 
@@ -76,8 +74,8 @@ int SoapdBootstrap::runSoapd()
     fs::path socketPath = pluginInstall / "var/soapd_controller";
     LOGINFO("Socket is at: " << socketPath);
 
-    unixsocket::ProcessControllerServerSocket processController(socketPath, 0666);
-    processController.start();
+    OnAccessConfigMonitor configMonitor(socketPath);
+    configMonitor.start();
 
     fd_set readFDs;
     FD_ZERO(&readFDs);
@@ -85,8 +83,6 @@ int SoapdBootstrap::runSoapd()
 
     max = FDUtils::addFD(&readFDs, sigTermMonitor->monitorFd(), max);
     max = FDUtils::addFD(&readFDs, sigIntMonitor->monitorFd(), max);
-    max = FDUtils::addFD(&readFDs, processController.monitorShutdownFd(), max);
-    max = FDUtils::addFD(&readFDs, processController.monitorReloadFd(), max);
 
     while (true)
     {
@@ -104,7 +100,7 @@ int SoapdBootstrap::runSoapd()
                 continue;
             }
 
-            LOGERROR("Failed to read from socket - shutting down. Error: " << strerror(error) << " (" << error << ')');
+            LOGERROR("Failed to read from pipe - shutting down. Error: " << strerror(error) << " (" << error << ')');
             break;
         }
 
@@ -121,24 +117,10 @@ int SoapdBootstrap::runSoapd()
             sigTermMonitor->triggered();
             break;
         }
-
-        if (FDUtils::fd_isset(processController.monitorShutdownFd(), &tempRead))
-        {
-            LOGINFO("Sophos On Access Process received shutdown request");
-            processController.triggeredShutdown();
-            break;
-        }
-
-        if (FDUtils::fd_isset(processController.monitorReloadFd(), &tempRead))
-        {
-            LOGINFO("Sophos On Access Process received configuration reload request");
-            auto* sophosFsAPI =  Common::FileSystem::fileSystem();
-            auto configPath = pluginInstall / "var/soapd_config.json";
-            auto onAccessSettings = sophosFsAPI->readFile(configPath.string());
-            LOGINFO(onAccessSettings);
-            processController.triggeredReload();
-        }
     }
+
+    configMonitor.requestStop();
+    configMonitor.join();
 
     return 0;
 }

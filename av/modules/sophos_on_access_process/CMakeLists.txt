@@ -1,2 +1,3 @@
 
+add_subdirectory(OnAccessConfigMonitor)
 add_subdirectory(soapd_bootstrap)

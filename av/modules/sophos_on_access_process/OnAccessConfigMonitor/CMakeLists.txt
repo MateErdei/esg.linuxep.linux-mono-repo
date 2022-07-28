@@ -1,24 +1,19 @@
 
-add_library(soapdbootstrap SHARED
+add_library(onAccessConfigMonitor SHARED
+        OnAccessConfigMonitor.cpp
+        OnAccessConfigMonitor.h
         Logger.cpp
         Logger.h
-        OnAccessConfig.h
-        SoapdBootstrap.cpp
-        SoapdBootstrap.h
         )
 
-target_link_libraries(soapdbootstrap  PUBLIC
-        common
-        mountinfoimpl
-        datatypes
+target_link_libraries(onAccessConfigMonitor  PUBLIC
         unixsocket
-        onAccessConfigMonitor
         )
 
-install(TARGETS soapdbootstrap
+install(TARGETS onAccessConfigMonitor
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
-SET_TARGET_PROPERTIES(soapdbootstrap
+SET_TARGET_PROPERTIES(onAccessConfigMonitor
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
         INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64"
