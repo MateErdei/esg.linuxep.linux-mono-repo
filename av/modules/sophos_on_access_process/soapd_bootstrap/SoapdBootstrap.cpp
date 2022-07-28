@@ -16,8 +16,6 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "common/FDUtils.h"
-#include "common/SigIntMonitor.h"
-#include "common/SigTermMonitor.h"
 
 #include <memory>
 
@@ -77,6 +75,18 @@ int SoapdBootstrap::runSoapd()
     OnAccessConfigMonitor configMonitor(socketPath);
     configMonitor.start();
 
+    innerRun(sigIntMonitor, sigTermMonitor);
+
+    configMonitor.requestStop();
+    configMonitor.join();
+
+    return 0;
+}
+
+void SoapdBootstrap::innerRun(
+    std::shared_ptr<common::SigIntMonitor>& sigIntMonitor,
+    std::shared_ptr<common::SigTermMonitor>& sigTermMonitor)
+{
     fd_set readFDs;
     FD_ZERO(&readFDs);
     int max = -1;
@@ -89,7 +99,7 @@ int SoapdBootstrap::runSoapd()
         fd_set tempRead = readFDs;
 
         // wait for an activity on one of the fds
-        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
+        int activity = pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
         if (activity < 0)
         {
             // error in pselect
@@ -118,9 +128,4 @@ int SoapdBootstrap::runSoapd()
             break;
         }
     }
-
-    configMonitor.requestStop();
-    configMonitor.join();
-
-    return 0;
 }
