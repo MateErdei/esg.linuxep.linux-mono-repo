@@ -67,6 +67,7 @@ std::string SusiScanner::susiErrorToReadableError(const std::string& filePath, c
     {
         // SOPHOS_SAVI_ERROR_FILE_ENCRYPTED
         errorMsg << " as it is password protected";
+        level = log4cplus::WARN_LOG_LEVEL;
     }
     else if (susiError == "corrupt")
     {
