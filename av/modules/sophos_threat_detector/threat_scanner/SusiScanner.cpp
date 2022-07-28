@@ -57,8 +57,9 @@ void SusiScanner::sendThreatReport(
         );
 }
 
-std::string SusiScanner::susiErrorToReadableError(const std::string& filePath, const std::string& susiError)
+std::string SusiScanner::susiErrorToReadableError(const std::string& filePath, const std::string& susiError, log4cplus::LogLevel& level)
 {
+    level = log4cplus::ERROR_LOG_LEVEL;
     std::stringstream errorMsg;
     errorMsg << "Failed to scan " << filePath;
 
@@ -233,7 +234,7 @@ SusiScanner::scan(
                 if (result.contains("error"))
                 {
                     log4cplus::LogLevel logLevel = log4cplus::ERROR_LOG_LEVEL;
-                    std::string errorMsg = susiErrorToReadableError(escapedPath, result["error"]);
+                    std::string errorMsg = susiErrorToReadableError(escapedPath, result["error"], logLevel);
                     getThreatScannerLogger().log(logLevel, errorMsg);
                     response.setErrorMsg(errorMsg);
                     loggedErrorFromResult = true;

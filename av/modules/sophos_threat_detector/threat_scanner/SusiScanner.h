@@ -15,6 +15,8 @@
 #include <datatypes/AutoFd.h>
 #include <scan_messages/ScanResponse.h>
 
+#include <log4cplus/loglevel.h>
+
 namespace threat_scanner
 {
     class SusiScanner : public IThreatScanner
@@ -36,7 +38,8 @@ namespace threat_scanner
     TEST_PUBLIC:
         static std::string susiErrorToReadableError(
             const std::string& filePath,
-            const std::string& susiError);
+            const std::string& susiError,
+            log4cplus::LogLevel& level);
 
         static std::string susiResultErrorToReadableError(
             const std::string& filePath,

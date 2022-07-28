@@ -333,15 +333,9 @@ INSTANTIATE_TEST_SUITE_P(TestThreatScanner, ThreatScannerParameterizedTest, ::te
 
 TEST_P(ThreatScannerParameterizedTest, susiErrorToReadableError)
 {
-    setupFakeSophosThreatDetectorConfig();
-
-    auto susiWrapper = std::make_shared<MockSusiWrapper>("");
-    std::shared_ptr<MockSusiWrapperFactory> susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
-
-    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, nullptr);
-
-    EXPECT_EQ(susiScanner.susiErrorToReadableError("test.file", std::get<0>(GetParam())), std::get<1>(GetParam()));
+    auto loglevel = log4cplus::DEBUG_LOG_LEVEL;
+    EXPECT_EQ(threat_scanner::SusiScanner::susiErrorToReadableError("test.file", std::get<0>(GetParam()), loglevel), std::get<1>(GetParam()));
+    EXPECT_EQ(loglevel, log4cplus::ERROR_LOG_LEVEL);
 }
 
 class SusiResultErrorToReadableErrorParameterized
