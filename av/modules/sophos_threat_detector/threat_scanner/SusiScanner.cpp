@@ -155,6 +155,7 @@ std::string SusiScanner::susiResultErrorToReadableError(const std::string& fileP
             break;
         case SUSI_E_FILEENCRYPTED:
             errorMsg << " as it is password protected";
+            level = log4cplus::WARN_LOG_LEVEL;
             break;
         case SUSI_E_FILEMULTIVOLUME:
             errorMsg << " due to a multi-volume error";
