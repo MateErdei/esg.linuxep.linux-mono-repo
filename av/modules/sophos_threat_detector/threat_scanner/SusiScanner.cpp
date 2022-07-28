@@ -232,8 +232,9 @@ SusiScanner::scan(
 
                 if (result.contains("error"))
                 {
+                    log4cplus::LogLevel logLevel = log4cplus::ERROR_LOG_LEVEL;
                     std::string errorMsg = susiErrorToReadableError(escapedPath, result["error"]);
-                    LOGERROR(errorMsg);
+                    getThreatScannerLogger().log(logLevel, errorMsg);
                     response.setErrorMsg(errorMsg);
                     loggedErrorFromResult = true;
                 }
