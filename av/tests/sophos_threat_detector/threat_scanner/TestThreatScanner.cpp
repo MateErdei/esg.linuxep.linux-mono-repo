@@ -1,5 +1,7 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
+# define TEST_PUBLIC public
+
 #include "MockSusiWrapper.h"
 #include "MockSusiWrapperFactory.h"
 

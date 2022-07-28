@@ -1,10 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
+
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
 
 #include "IScanNotification.h"
 #include "ISusiWrapperFactory.h"
@@ -33,6 +33,7 @@ namespace threat_scanner
             int64_t scanType,
             const std::string& userID) override;
 
+    TEST_PUBLIC:
         std::string susiErrorToReadableError(
             const std::string& filePath,
             const std::string& susiError);
