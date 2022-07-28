@@ -358,6 +358,16 @@ Plugin Log Contains
     [Arguments]  ${input}
     LogUtils.check_log_contains  ${input}  ${AV_LOG_PATH}
 
+Wait Until On Access Log Contains
+    [Arguments]  ${input}  ${timeout}=15  ${interval}=0
+    ${interval} =   Set Variable If
+    ...   ${interval} > 0   ${interval}
+    ...   ${timeout} >= 120   10
+    ...   ${timeout} >= 60   5
+    ...   ${timeout} >= 15   3
+    ...   1
+    Wait Until File Log Contains  On Access Log Contains   ${input}   timeout=${timeout}  interval=${interval}
+
 FakeManagement Log Contains
     [Arguments]  ${input}
     ${log_path} =   FakeManagementLog.get_fake_management_log_path

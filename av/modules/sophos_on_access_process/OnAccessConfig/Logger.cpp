@@ -7,8 +7,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include <Common/Logging/LoggerConfig.h>
 
-log4cplus::Logger& getOnAccessConfigMonitorLogger()
+log4cplus::Logger& getOnAccessConfigLogger()
 {
-    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("OnAccessConfigMonitor");
+    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("OnAccessConfig");
     return STATIC_LOGGER;
 }

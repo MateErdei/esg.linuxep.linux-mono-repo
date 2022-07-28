@@ -86,3 +86,16 @@ On Access Log Rotates
     Log  ${result.stdout}
 
     Verify on access log rotated
+
+On Access Process Parses Policy Config
+    Start On Access
+
+    Start Fake Management If Required
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    Wait Until On Access Log Contains  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
+    Wait Until On Access Log Contains  On-access enabled: "true"
+    Wait Until On Access Log Contains  On-access scan network: "false"
+    Wait Until On Access Log Contains  On-access exclusions: ["/mnt/","/uk-filer5/"]
