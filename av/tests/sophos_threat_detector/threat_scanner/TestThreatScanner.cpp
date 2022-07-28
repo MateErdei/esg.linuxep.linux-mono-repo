@@ -317,25 +317,25 @@ TEST(TestThrowIfNotOk, TestNotOk)
 
 
 class ThreatScannerParameterizedTest
-    : public ::testing::TestWithParam<std::tuple<std::string, std::string>>
+    : public ::testing::TestWithParam<std::tuple<std::string, std::string, log4cplus::LogLevel > >
 {
 };
 
 INSTANTIATE_TEST_SUITE_P(TestThreatScanner, ThreatScannerParameterizedTest, ::testing::Values(
-    std::make_tuple("encrypted", "Failed to scan test.file as it is password protected"),
-    std::make_tuple("corrupt", "Failed to scan test.file as it is corrupted"),
-    std::make_tuple("unsupported", "Failed to scan test.file as it is not a supported file type"),
-    std::make_tuple("couldn't open", "Failed to scan test.file as it could not be opened"),
-    std::make_tuple("recursion limit", "Failed to scan test.file as it is a Zip Bomb"),
-    std::make_tuple("scan failed", "Failed to scan test.file due to a sweep failure"),
-    std::make_tuple("unexpected (0x80040231)", "Failed to scan test.file [unexpected (0x80040231)]")
+    std::make_tuple("encrypted", "Failed to scan test.file as it is password protected", log4cplus::ERROR_LOG_LEVEL),
+    std::make_tuple("corrupt", "Failed to scan test.file as it is corrupted", log4cplus::ERROR_LOG_LEVEL),
+    std::make_tuple("unsupported", "Failed to scan test.file as it is not a supported file type", log4cplus::ERROR_LOG_LEVEL),
+    std::make_tuple("couldn't open", "Failed to scan test.file as it could not be opened", log4cplus::ERROR_LOG_LEVEL),
+    std::make_tuple("recursion limit", "Failed to scan test.file as it is a Zip Bomb", log4cplus::ERROR_LOG_LEVEL),
+    std::make_tuple("scan failed", "Failed to scan test.file due to a sweep failure", log4cplus::ERROR_LOG_LEVEL),
+    std::make_tuple("unexpected (0x80040231)", "Failed to scan test.file [unexpected (0x80040231)]", log4cplus::ERROR_LOG_LEVEL)
 ));
 
 TEST_P(ThreatScannerParameterizedTest, susiErrorToReadableError)
 {
     auto loglevel = log4cplus::DEBUG_LOG_LEVEL;
     EXPECT_EQ(threat_scanner::SusiScanner::susiErrorToReadableError("test.file", std::get<0>(GetParam()), loglevel), std::get<1>(GetParam()));
-    EXPECT_EQ(loglevel, log4cplus::ERROR_LOG_LEVEL);
+    EXPECT_EQ(loglevel, std::get<2>(GetParam()));
 }
 
 class SusiResultErrorToReadableErrorParameterized
