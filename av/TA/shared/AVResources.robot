@@ -401,7 +401,7 @@ Wait until AV Plugin running
     Wait Until Keyword Succeeds
     ...  40 secs
     ...  2 secs
-    ...  Plugin Log Contains  ${COMPONENT} <> Starting scanScheduler
+    ...  Plugin Log Contains  Common <> Starting scanScheduler
     # Only output in debug mode:
     # ...  Plugin Log Contains  ${COMPONENT} <> Starting the main program loop
 
@@ -410,7 +410,7 @@ Wait until AV Plugin running with offset
     ...  30 secs
     ...  2 secs
     ...  Check Plugin Running
-    Wait Until AV Plugin Log Contains With Offset  ${COMPONENT} <> Starting scanScheduler  timeout=40
+    Wait Until AV Plugin Log Contains With Offset  Common <> Starting scanScheduler  timeout=40
 
 Wait Until On Access running
     ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
