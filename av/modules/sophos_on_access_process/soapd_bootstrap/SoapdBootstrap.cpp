@@ -81,8 +81,12 @@ int SoapdBootstrap::runSoapd()
 
     innerRun(sigIntMonitor, sigTermMonitor, onAccessConfigPipe);
 
+    LOGINFO("Stopping On Access config monitor");
     configMonitor.requestStop();
+    LOGINFO("Joining On Access config monitor");
     configMonitor.join();
+
+    LOGINFO("Exiting soapd");
 
     return 0;
 }
@@ -145,8 +149,6 @@ void SoapdBootstrap::innerRun(
 
             auto jsonString = OnAccessConfig::readConfigFile();
             OnAccessConfig::parseOnAccessSettingsFromJson(jsonString);
-
-            break;
         }
     }
 }

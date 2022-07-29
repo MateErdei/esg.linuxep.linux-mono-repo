@@ -31,7 +31,7 @@ void OnAccessConfigMonitor::run()
     FD_ZERO(&readFDs);
     int max = -1;
 
-
+    max = FDUtils::addFD(&readFDs, m_notifyPipe.readFd(), max);
     max = FDUtils::addFD(&readFDs, m_processControllerServer.monitorShutdownFd(), max);
     max = FDUtils::addFD(&readFDs, m_processControllerServer.monitorReloadFd(), max);
 
@@ -53,6 +53,12 @@ void OnAccessConfigMonitor::run()
 
             LOGERROR("Failed to read from socket - shutting down. Error: " << strerror(error) << " (" << error << ')');
             break;
+        }
+
+        if (stopRequested())
+        {
+            LOGDEBUG("Got stop request, exiting OnAccessConfigMonitor");
+            return;
         }
 
         if (FDUtils::fd_isset(m_processControllerServer.monitorShutdownFd(), &tempRead))
