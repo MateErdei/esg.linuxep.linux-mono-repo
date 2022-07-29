@@ -32,35 +32,7 @@ namespace
 
         std::shared_ptr<datatypes::SystemCallWrapper> m_sysCallWrapper;
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
-        struct pollfd m_fds[2]{};
         WaitForEvent m_serverWaitGuard;
-    };
-
-    /*
-     * Simple thread runner, used to ensure threads are stopped before objects are destroyed.
-     */
-    class SimpleThreadRunner
-    {
-    public:
-        explicit SimpleThreadRunner(Common::Threads::AbstractThread& thread)
-            : m_thread(thread)
-        {
-            m_thread.start();
-        }
-
-        ~SimpleThreadRunner()
-        {
-            killThreads();
-        }
-
-        void killThreads()
-        {
-            m_thread.requestStop();
-            m_thread.join();
-        }
-
-    private:
-        Common::Threads::AbstractThread& m_thread;
     };
 }
 
@@ -110,7 +82,7 @@ TEST_F(TestMountMonitor, TestGetIncludedMountpoints) // NOLINT
     EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 4);
 }
 
-TEST_F(TestMountMonitor, TestPollOfProcMounts) // NOLINT
+TEST_F(TestMountMonitor, TestMountsEvaluatedOnPorcMountsChange) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -120,9 +92,10 @@ TEST_F(TestMountMonitor, TestPollOfProcMounts) // NOLINT
     config.m_scanOptical = true;
     config.m_scanRemovable = true;
 
-    m_fds[1].revents = POLLPRI;
+    struct pollfd fds[2]{};
+    fds[1].revents = POLLPRI;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(m_fds, m_fds+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&m_serverWaitGuard, &WaitForEvent::onEventNoArgs), Return(-1)));
     MountMonitor mountMonitor(config, m_mockSysCallWrapper);
     int numMountPoints = mountMonitor.getIncludedMountpoints(mountMonitor.getAllMountpoints()).size();
@@ -135,4 +108,24 @@ TEST_F(TestMountMonitor, TestPollOfProcMounts) // NOLINT
     m_serverWaitGuard.wait();
 
     EXPECT_EQ(appenderCount(logMsg1.str()), 2);
+}
+
+TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    OnAccessConfig config;
+    config.m_scanHardDisc = true;
+    config.m_scanNetwork = true;
+    config.m_scanOptical = true;
+    config.m_scanRemovable = true;
+
+    struct pollfd fds[2]{};
+    fds[0].revents = POLLIN;
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
+    MountMonitor mountMonitor(config, m_mockSysCallWrapper);
+    common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor");
+
+    EXPECT_TRUE(waitForLog("Stopping monitoring of mounts"));
 }
