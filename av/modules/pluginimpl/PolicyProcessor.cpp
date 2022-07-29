@@ -171,6 +171,7 @@ namespace Plugin
 
         auto excludeRemoteFiles = policy.lookup("config/onAccessScan/linuxExclusions/excludeRemoteFiles").contents();
         auto exclusionList = extractListFromXML(policy, "config/onAccessScan/linuxExclusions/filePathSet/filePath");
+        //TODO: LINUXDAR-5352 update the xml path, this setting will be off by default
         auto enabled = policy.lookup("config/onAccessScan/enabled").contents();
         auto config = pluginimpl::generateOnAccessConfig(enabled, exclusionList, excludeRemoteFiles);
 
