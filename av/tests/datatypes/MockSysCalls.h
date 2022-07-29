@@ -23,5 +23,9 @@ namespace
                                   fd_set *__restrict __exceptfds,
                                   const struct timespec *__restrict __timeout,
                                   const __sigset_t *__restrict __sigmask));
+        MOCK_METHOD4(ppoll, int(struct pollfd* fd,
+                          nfds_t num_fds,
+                          const struct timespec* timeout,
+                          const __sigset_t* ss));
     };
 }

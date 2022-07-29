@@ -6,49 +6,17 @@
 
 #include "common/SigIntMonitor.h"
 #include "common/SigTermMonitor.h"
-#include "datatypes/AutoFd.h"
+#include "common/ThreadRunner.h"
+#include "datatypes/SystemCallWrapper.h"
 
-#include "mount_monitor/mountinfoimpl/Mounts.h"
-#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
+#include "mount_monitor/mount_monitor/MountMonitor.h"
+#include "mount_monitor/mount_monitor/OnAccessConfig.h"
 
-#include <cstring>
 #include <memory>
 
 #include <poll.h>
 
 using namespace sophos_on_access_process::soapd_bootstrap;
-
-mount_monitor::mountinfo::IMountPointSharedVector SoapdBootstrap::getAllMountpoints()
-{
-    auto pathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
-    auto mountInfo = std::make_shared<mount_monitor::mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
-    auto allMountpoints = mountInfo->mountPoints();
-    LOGINFO("Found " << allMountpoints.size() << " mount points on the system");
-    return allMountpoints;
-}
-
-mount_monitor::mountinfo::IMountPointSharedVector SoapdBootstrap::getIncludedMountpoints(
-    const OnAccessConfig& config, const mount_monitor::mountinfo::IMountPointSharedVector& allMountpoints)
-{
-    mount_monitor::mountinfo::IMountPointSharedVector includedMountpoints;
-    for (const auto& mp : allMountpoints)
-    {
-        if ((mp->isHardDisc() && config.m_scanHardDisc) || (mp->isNetwork() && config.m_scanNetwork) ||
-            (mp->isOptical() && config.m_scanOptical) || (mp->isRemovable() && config.m_scanRemovable))
-        {
-            includedMountpoints.push_back(mp);
-        }
-        else if (mp->isSpecial())
-        {
-            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is system and will be excluded from the scan");
-        }
-        else
-        {
-            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " has been excluded from the scan");
-        }
-    }
-    return includedMountpoints;
-}
 
 int SoapdBootstrap::runSoapd()
 {
@@ -58,22 +26,12 @@ int SoapdBootstrap::runSoapd()
     std::shared_ptr<common::SigIntMonitor> sigIntMonitor{common::SigIntMonitor::getSigIntMonitor()};
     std::shared_ptr<common::SigTermMonitor> sigTermMonitor{common::SigTermMonitor::getSigTermMonitor()};
 
-    OnAccessConfig config;
-    // work out which filesystems are included based of config and mount information
-    auto includedMountpoints = getIncludedMountpoints(config, getAllMountpoints());
-    LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
-    for (const auto& mp : includedMountpoints)
-    {
-        LOGDEBUG("Including mount point: " << mp->mountPoint());
-    }
+    mount_monitor::mount_monitor::OnAccessConfig config;
+    auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+    auto mountMonitor = std::make_unique<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper);
+    auto mountMonitorThread = std::make_unique<common::ThreadRunner>(*mountMonitor, "scanProcessMonitor");
 
-    datatypes::AutoFd mountsFd(open("/proc/mounts", O_RDONLY));
-    if (!mountsFd.valid())
-    {
-        throw std::runtime_error("Failed to open /proc/mounts");
-    }
-
-    const int num_fds = 3;
+    const int num_fds = 2;
     struct pollfd fds[num_fds];
 
     fds[0].fd = sigIntMonitor->monitorFd();
@@ -84,43 +42,7 @@ int SoapdBootstrap::runSoapd()
     fds[1].events = POLLIN;
     fds[1].revents = 0;
 
-    fds[2].fd = mountsFd.get();
-    fds[2].events = POLLPRI;
-    fds[2].revents = 0;
-
-    while (true)
-    {
-        int activity = ::ppoll(fds, num_fds, nullptr, nullptr);
-
-        if (activity < 0)
-        {
-            int error = errno;
-            if (error == EINTR)
-            {
-                LOGDEBUG("Ignoring EINTR from ppoll");
-                continue;
-            }
-
-            LOGERROR("Failed to monitor config. Error: " << strerror(error)<< " (" << error << ')');
-            break;
-        }
-        else if (activity == 0)
-        {
-            // Timed out - will attempt to reconnect if not connected
-            continue;
-        }
-
-        if ((fds[2].revents & POLLPRI) != 0)
-        {
-            LOGINFO("Mount points changed - re-evaluating");
-            includedMountpoints = getIncludedMountpoints(config, getAllMountpoints());
-            LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
-            for (const auto& mp : includedMountpoints)
-            {
-                LOGDEBUG("Including mount point: " << mp->mountPoint());
-            }
-        }
-    }
+    ::ppoll(fds, num_fds, nullptr, nullptr);
 
     return 0;
 }

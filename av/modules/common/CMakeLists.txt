@@ -13,6 +13,8 @@ add_library(common SHARED
         SigTermMonitor.h
         StringUtils.cpp
         StringUtils.h
+        ThreadRunner.cpp
+        ThreadRunner.h
         PathUtils.cpp
         PathUtils.h
         PluginUtils.cpp

@@ -49,5 +49,13 @@ namespace datatypes
         {
             return ::pselect(__nfds, __readfds, __writefds, __exceptfds, __timeout, __sigmask);
         }
+
+        int ppoll(struct pollfd* fd,
+                  nfds_t num_fds,
+                  const struct timespec* timeout,
+                  const __sigset_t* ss) override
+        {
+            return ::ppoll(fd, num_fds, timeout, ss);
+        }
     };
 }

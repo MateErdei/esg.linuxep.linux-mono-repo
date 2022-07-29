@@ -424,7 +424,6 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
-    EXPECT_TRUE(waitForLog("Starting scanScheduler", 500ms));
 
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>)";
@@ -462,7 +461,6 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
-    EXPECT_TRUE(waitForLog("Starting scanScheduler", 500ms));
 
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="NONE" id="" subtype="MALFORMED" replyRequired="0"/>)";

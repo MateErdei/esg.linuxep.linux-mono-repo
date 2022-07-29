@@ -8,6 +8,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <memory>
 #include <string>
+#include <sys/poll.h>
 #include <sys/statfs.h>
 
 namespace datatypes
@@ -26,6 +27,10 @@ namespace datatypes
                     fd_set *__restrict __exceptfds,
                     const struct timespec *__restrict __timeout,
                     const __sigset_t *__restrict __sigmask) = 0;
+        virtual int ppoll(struct pollfd* fd,
+                    nfds_t num_fds,
+                    const struct timespec* timeout,
+                    const __sigset_t* ss) = 0;
     };
 
     using ISystemCallWrapperSharedPtr = std::shared_ptr<ISystemCallWrapper>;
