@@ -618,7 +618,10 @@ mkdir -p "${SOPHOS_INSTALL}/var/sophosspl"
 mkdir -p "${SOPHOS_INSTALL}/base/update/cache"
 mkdir -p "${SOPHOS_INSTALL}/var/lock"
 
-cp ${BIN}/../rootca.crt "${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt"
+CERT=${BIN}/../rootca.crt
+[ -n ${OVERRIDE_SOPHOS_CERTS} ] && CERT=${OVERRIDE_SOPHOS_CERTS}/rootca.crt
+[ -f ${CERT} ] || CERT=${BIN}/../rootca.crt
+cp "$CERT" "${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt"
 
 [ -n "$OVERRIDE_SUS_LOCATION" ] && echo "URLS = $OVERRIDE_SUS_LOCATION" >> "${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini"
 [ -n "$OVERRIDE_SUS_LOCATION" ] && echo "Overriding Sophos Update Service address with $OVERRIDE_SUS_LOCATION"
