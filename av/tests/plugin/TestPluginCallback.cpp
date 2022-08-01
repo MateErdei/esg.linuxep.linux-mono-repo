@@ -802,7 +802,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneOnFileSystemExceptionWhenAcc
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error reading threat detector cmdline proc file due to: "));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error reading sophos_threat_detector cmdline proc file due to: "));
     ASSERT_EQ(result, expectedResult);
 }
 

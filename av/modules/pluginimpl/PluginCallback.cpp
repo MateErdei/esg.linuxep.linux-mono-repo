@@ -332,26 +332,21 @@ namespace Plugin
         return "";
     }
 
-    long PluginCallback::calculateHealth()
+    bool PluginCallback::isProcessHealthy(
+        int pid,
+        const std::string& processName,
+        const std::string& processUsername,
+        Common::FileSystem::IFileSystem* fileSystem)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
-        auto fileSystem = Common::FileSystem::fileSystem();
 
         std::optional<std::string> statusFileContents;
         std::optional<std::string> procFileCmdlineContent;
 
-        if (shutdownFileValid())
-        {
-            LOGDEBUG("Valid shutdown file found for Sophos Threat Detector, plugin considered healthy.");
-            return E_HEALTH_STATUS_GOOD;
-        }
-
-        int pid = getThreatDetectorPID(fileSystem);
-
         if (pid == 0)
         {
-            LOGWARN("Health encountered an error resolving pid for ThreatDetector");
-            return E_HEALTH_STATUS_BAD;
+            LOGWARN("Health encountered an error resolving pid for " << processName);
+            return false;
         }
 
         try
@@ -364,26 +359,26 @@ namespace Plugin
             if (!stringToIntResult.second.empty())
             {
                 LOGWARN("Failed to read Pid Status file to int due to: " << stringToIntResult.second);
-                return E_HEALTH_STATUS_BAD;
+                return false;
             }
             int uid = stringToIntResult.first;
             std::string username = filePermissions->getUserName(uid);
 
-            if (username != "sophos-spl-threat-detector")
+            if (username != processUsername)
             {
-                LOGWARN("Unexpected user permissions for /proc/" << pid << ": " << username << " does not equal 'sophos-spl-threat-detector'");
-                return E_HEALTH_STATUS_BAD;
+                LOGWARN("Unexpected user permissions for /proc/" << pid << ": " << username << " does not equal '" << processUsername << "'");
+                return false;
             }
         }
         catch (const std::bad_optional_access& e)
         {
             LOGWARN("Status file of Pid: " << pid << " is empty. Returning bad health due to: " << e.what());
-            return E_HEALTH_STATUS_BAD;
+            return false;
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
             LOGWARN("Failed whilst validating user file permissions of /proc/" << pid << " due to: " << e.what());
-            return E_HEALTH_STATUS_BAD;
+            return false;
         }
 
         try
@@ -391,20 +386,38 @@ namespace Plugin
             procFileCmdlineContent = fileSystem->readProcFile(pid, "cmdline");
             std::string procCmdline = Common::UtilityImpl::StringUtils::splitString(procFileCmdlineContent.value(), { '\0' })[0];
 
-            if (procCmdline != "sophos_threat_detector")
+            if (procCmdline != processName)
             {
-                LOGWARN("The proc cmdline for " << pid << " does not equal the expected value (sophos_threat_detector): " << procFileCmdlineContent.value());
-                return E_HEALTH_STATUS_BAD;
+                LOGWARN("The proc cmdline for " << pid << " does not equal the expected value (" << processName << "): " << procFileCmdlineContent.value());
+                return false;
             }
         }
         catch (const std::bad_optional_access& e)
         {
             LOGWARN("Cmdline file of Pid: " << pid << " is empty. Returning bad health due to: " << e.what());
-            return E_HEALTH_STATUS_BAD;
+            return false;
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
-            LOGWARN("Error reading threat detector cmdline proc file due to: " << e.what());
+            LOGWARN("Error reading " << processName << " cmdline proc file due to: " << e.what());
+            return false;
+        }
+
+        return true;
+    }
+
+    long PluginCallback::calculateHealth()
+    {
+        auto fileSystem = Common::FileSystem::fileSystem();
+        if (shutdownFileValid())
+        {
+            LOGDEBUG("Valid shutdown file found for Sophos Threat Detector, plugin considered healthy.");
+            return E_HEALTH_STATUS_GOOD;
+        }
+
+        int pid = getThreatDetectorPID(fileSystem);
+        if (!isProcessHealthy(pid, "sophos_threat_detector", "sophos-spl-threat-detector", fileSystem))
+        {
             return E_HEALTH_STATUS_BAD;
         }
 

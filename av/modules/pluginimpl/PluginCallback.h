@@ -55,6 +55,10 @@ namespace Plugin
         static std::string getMlLibHash();
         static std::string getMlModelVersion();
         static std::string getVirusDataVersion();
+        bool isProcessHealthy(int pid,
+                              const std::string& processName,
+                              const std::string& processUsername,
+                              Common::FileSystem::IFileSystem* fileSystem);
 
         static int getThreatDetectorPID(Common::FileSystem::IFileSystem* fileSystem);
         [[nodiscard]] bool shutdownFileValid() const;
