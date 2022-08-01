@@ -1,13 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "MountMonitor.h"
 
 #include "Logger.h"
 
+#include "common/SaferStrerror.h"
 #include "datatypes/AutoFd.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
@@ -128,7 +125,8 @@ namespace mount_monitor::mount_monitor
                     continue;
                 }
 
-                LOGERROR("Failed to monitor config. Error: " << strerror(error)<< " (" << error << ')');
+                LOGERROR("Failed to monitor config. Error: "
+                         << common::safer_strerror(error)<< " (" << error << ')');
                 break;
             }
             else if (activity == 0)
