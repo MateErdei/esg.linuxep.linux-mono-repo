@@ -1,14 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "BaseServerSocket.h"
 
 #include "Logger.h"
 
-#include <common/FDUtils.h>
+#include "common/FDUtils.h"
+#include "common/SaferStrerror.h"
 
 #include <stdexcept>
 
@@ -102,7 +99,7 @@ void unixsocket::BaseServerSocket::run()
                 continue;
             }
 
-            LOGERROR("Socket failed, closing " << m_socketName << ". Error: " << strerror(error)<< " (" << error << ')');
+            LOGERROR("Socket failed, closing " << m_socketName << ". Error: " << common::safer_strerror(error)<< " (" << error << ')');
             break;
         }
 
@@ -120,7 +117,7 @@ void unixsocket::BaseServerSocket::run()
 
             if (client_socket.get() < 0)
             {
-                LOGERROR(m_socketName << " failed to accept connection: " << strerror(errno));
+                LOGERROR(m_socketName << " failed to accept connection: " << common::safer_strerror(errno));
                 terminate = true;
             }
             else
