@@ -50,7 +50,7 @@ namespace common
         // Setup signal handler
         struct sigaction action {};
         action.sa_handler = signal_handler;
-        action.sa_flags = 0;
+        action.sa_flags = SA_RESTART;
         int ret = ::sigaction(SIGTERM, &action, nullptr);
         if (ret != 0)
         {
