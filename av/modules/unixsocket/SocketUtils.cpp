@@ -9,6 +9,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "SocketUtilsImpl.h"
 
+#include "common/SaferStrerror.h"
+
 #include <cstdint>
 #include <cstring>
 #include <memory>
@@ -71,7 +73,7 @@ int unixsocket::readLength(int socket_fd)
         }
         else if (count == -1)
         {
-            LOGDEBUG("Reading socket returned error: " << std::strerror(errno));
+            LOGDEBUG("Reading socket returned error: " << common::safer_strerror(errno));
             return -1;
         }
         else if (count == 0)
