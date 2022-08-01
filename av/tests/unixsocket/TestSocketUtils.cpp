@@ -1,52 +1,56 @@
-/******************************************************************************************************
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
+// Package under test
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/SocketUtilsImpl.h"
-
-#include "UnixSocketMemoryAppenderUsingTests.h"
+// Product
+#include "common/SaferStrerror.h"
 #include <datatypes/AutoFd.h>
 #include <datatypes/Print.h>
+
+// Test utils
+#include "UnixSocketMemoryAppenderUsingTests.h"
+
+// 3rd party
 #include <gtest/gtest.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
+// Std C++
 #include <deque>
 #include <utility>
+// Std C
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 
 
 using namespace unixsocket;
 using namespace testing;
 
-TEST(TestSplit, TestSplitOneByte) // NOLINT
+TEST(TestSplit, TestSplitOneByte)
 {
     auto result = splitInto7Bits(0x64);
     EXPECT_THAT(result, ElementsAre(0x64));
 }
 
-TEST(TestSplit, TestSplitTwoBytes) // NOLINT
+TEST(TestSplit, TestSplitTwoBytes)
 {
     auto result = splitInto7Bits(0xff);
     EXPECT_THAT(result, ElementsAre(0x01, 0x7f));
 }
 
-TEST(TestSplit, TestSplitTwoBytesMax) // NOLINT
+TEST(TestSplit, TestSplitTwoBytesMax)
 {
     auto result = splitInto7Bits(0x3fff);
     EXPECT_THAT(result, ElementsAre( 0x7f, 0x7f ));
 }
 
-TEST(TestSplit, TestSplitThree) // NOLINT
+TEST(TestSplit, TestSplitThree)
 {
     auto result = splitInto7Bits(0xffff);
     EXPECT_THAT(result, ElementsAre( 0x03, 0x7f, 0x7f ));
 }
 
-TEST(TestSplit, TestSplitThreeMax) // NOLINT
+TEST(TestSplit, TestSplitThreeMax)
 {
     auto result = splitInto7Bits(0x1fffff);
     EXPECT_THAT(result, ElementsAre( 0x7f, 0x7f, 0x7f ));
@@ -73,7 +77,7 @@ TEST(TestBuffer, TestOneByteMax) //NOLINT
     EXPECT_THAT(bufVector, ElementsAre(0x7f));
 }
 
-TEST(TestBuffer, TestTwoBytes) // NOLINT
+TEST(TestBuffer, TestTwoBytes)
 {
     auto bytes = splitInto7Bits(0xff);
     EXPECT_THAT(bytes, ElementsAre(0x01, 0x7f));
@@ -83,7 +87,7 @@ TEST(TestBuffer, TestTwoBytes) // NOLINT
     EXPECT_THAT(bufVector, ElementsAre(0x81, 0x7f));
 }
 
-TEST(TestBuffer, TestThreeBytes) // NOLINT
+TEST(TestBuffer, TestThreeBytes)
 {
     auto bytes = splitInto7Bits(0xffff);
     EXPECT_THAT(bytes, ElementsAre(0x03, 0x7f, 0x7f));
@@ -93,7 +97,7 @@ TEST(TestBuffer, TestThreeBytes) // NOLINT
     EXPECT_THAT(bufVector, ElementsAre(0x83, 0xff, 0x7f));
 }
 
-TEST(TestBuffer, TestThreeBytesWithZeroes) // NOLINT
+TEST(TestBuffer, TestThreeBytesWithZeroes)
 {
     auto bytes = splitInto7Bits(0x10000);
     EXPECT_THAT(bytes, ElementsAre(0x04, 0x00, 0x00));
@@ -192,19 +196,20 @@ namespace
     };
 }
 
-TEST_F(TestReadLength, EOFReturnsMinus2) // NOLINT
+TEST_F(TestReadLength, EOFReturnsMinus2)
 {
     TestFile tf;
     tf.create();
 
     datatypes::AutoFd fd(tf.readFD());
-    ASSERT_GE(fd.get(), 0) << "Open read-only failed: errno=" << errno << ": " << strerror(errno);
+    ASSERT_GE(fd.get(), 0) << "Open read-only failed: errno=" << errno << ": " <<
+        common::safer_strerror(errno);
 
     int ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, -2);
 }
 
-TEST_F(TestReadLength, FailedRead) // NOLINT
+TEST_F(TestReadLength, FailedRead)
 {
     const std::string expected = "Reading socket returned error: ";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -222,7 +227,7 @@ TEST_F(TestReadLength, FailedRead) // NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestReadLength, TooLargeLengthReturnsMinusOne) // NOLINT
+TEST_F(TestReadLength, TooLargeLengthReturnsMinusOne)
 {
     TestFile tf;
     unsigned char buffer[] = { 0xff, 0xff, 0xff, 0xff, 0xff };
@@ -234,7 +239,7 @@ TEST_F(TestReadLength, TooLargeLengthReturnsMinusOne) // NOLINT
     int ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, -1);
 }
-TEST_F(TestReadLength, ZeroLength) // NOLINT
+TEST_F(TestReadLength, ZeroLength)
 {
     TestFile tf;
     unsigned char buffer[] = { 0x00 };
@@ -247,7 +252,7 @@ TEST_F(TestReadLength, ZeroLength) // NOLINT
     EXPECT_EQ(ret, 0);
 }
 
-TEST_F(TestReadLength, TwoByteLength) // NOLINT
+TEST_F(TestReadLength, TwoByteLength)
 {
     TestFile tf;
     unsigned char buffer[] = { 0x81, 0x7f };
@@ -260,7 +265,7 @@ TEST_F(TestReadLength, TwoByteLength) // NOLINT
     EXPECT_EQ(ret, 0xff);
 }
 
-TEST_F(TestReadLength, MaxLength) // NOLINT
+TEST_F(TestReadLength, MaxLength)
 {
     TestFile tf;
 
@@ -275,7 +280,7 @@ TEST_F(TestReadLength, MaxLength) // NOLINT
     EXPECT_EQ(ret, 0x0100007f);
 }
 
-TEST_F(TestReadLength, OverMaxLength) // NOLINT
+TEST_F(TestReadLength, OverMaxLength)
 {
     TestFile tf;
 
@@ -290,7 +295,7 @@ TEST_F(TestReadLength, OverMaxLength) // NOLINT
     EXPECT_EQ(ret, -1);
 }
 
-TEST_F(TestReadLength, PaddedLength) // NOLINT
+TEST_F(TestReadLength, PaddedLength)
 {
     TestFile tf;
 
@@ -304,7 +309,7 @@ TEST_F(TestReadLength, PaddedLength) // NOLINT
     EXPECT_EQ(ret, 1);
 }
 
-TEST(TestWriteLength, TwoByteLength) // NOLINT
+TEST(TestWriteLength, TwoByteLength)
 {
     TestSocket socket_pair;
 
@@ -319,7 +324,7 @@ TEST(TestWriteLength, TwoByteLength) // NOLINT
     EXPECT_THAT(bufVector, ElementsAre(0x81, 0x7f));
 }
 
-TEST(TestWriteLength, ZeroLength) // NOLINT
+TEST(TestWriteLength, ZeroLength)
 {
     TestSocket socket_pair;
 
@@ -334,7 +339,7 @@ TEST(TestWriteLength, ZeroLength) // NOLINT
     }
 }
 
-TEST(TestWriteLength, WriteError) // NOLINT
+TEST(TestWriteLength, WriteError)
 {
     TestSocket socket_pair;
 
@@ -351,7 +356,7 @@ TEST(TestWriteLength, WriteError) // NOLINT
     }
 }
 
-TEST(TestWriteLengthAndBuffer, SimpleWrite) // NOLINT
+TEST(TestWriteLengthAndBuffer, SimpleWrite)
 {
     std::string client_buffer = "hello";
     TestSocket socket_pair;
@@ -365,7 +370,7 @@ TEST(TestWriteLengthAndBuffer, SimpleWrite) // NOLINT
     EXPECT_STREQ(server_buffer+1, client_buffer.c_str());
 }
 
-TEST_F(TestFdTransfer, validFd) // NOLINT
+TEST_F(TestFdTransfer, validFd)
 {
     TestSocket socket_pair;
 
@@ -375,10 +380,10 @@ TEST_F(TestFdTransfer, validFd) // NOLINT
     datatypes::AutoFd client_fd(tf.readFD());
 
     int ret = unixsocket::send_fd(socket_pair.get_client_fd(), client_fd.get());
-    ASSERT_GT(ret, 0) << "send_fd failed with: " << strerror(errno);
+    ASSERT_GT(ret, 0) << "send_fd failed with: " << common::safer_strerror(errno);
 
     int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
-    ASSERT_GE(new_fd, 0) << "recv_fd failed with: " << strerror(errno);
+    ASSERT_GE(new_fd, 0) << "recv_fd failed with: " << common::safer_strerror(errno);
     datatypes::AutoFd server_fd(new_fd);
 
     ASSERT_NE(server_fd.get(), client_fd.get());
@@ -389,7 +394,7 @@ TEST_F(TestFdTransfer, validFd) // NOLINT
     ASSERT_STREQ(buffer, "foo");
 }
 
-TEST_F(TestFdTransfer, writeError) // NOLINT
+TEST_F(TestFdTransfer, writeError)
 {
     TestSocket socket_pair;
 
@@ -403,7 +408,7 @@ TEST_F(TestFdTransfer, writeError) // NOLINT
     ASSERT_EQ(ret, -1);
 }
 
-TEST_F(TestFdTransfer, readError) // NOLINT
+TEST_F(TestFdTransfer, readError)
 {
     TestSocket socket_pair;
 
@@ -451,7 +456,7 @@ static int count_open_fds()
     return count;
 }
 
-TEST_F(TestFdTransfer, sendTwoFds) // NOLINT
+TEST_F(TestFdTransfer, sendTwoFds)
 {
     const std::string expected = "Control data was truncated when receiving fd";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -474,7 +479,7 @@ TEST_F(TestFdTransfer, sendTwoFds) // NOLINT
     EXPECT_FALSE(appenderContains(expected));
 }
 
-TEST_F(TestFdTransfer, sendThreeFds) // NOLINT
+TEST_F(TestFdTransfer, sendThreeFds)
 {
     const std::string expected = "Control data was truncated when receiving fd";
 
@@ -500,7 +505,7 @@ TEST_F(TestFdTransfer, sendThreeFds) // NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestFdTransfer, sendZeroFds) // NOLINT
+TEST_F(TestFdTransfer, sendZeroFds)
 {
     const std::string expected = "Failed to receive fd: ";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -515,7 +520,7 @@ TEST_F(TestFdTransfer, sendZeroFds) // NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestFdTransfer, sendRegularMessage) // NOLINT
+TEST_F(TestFdTransfer, sendRegularMessage)
 {
     const std::string expected = "Failed to receive fd: ";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -530,7 +535,7 @@ TEST_F(TestFdTransfer, sendRegularMessage) // NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST(TestSocketUtils, environmentInterruptionReportsWhat) // NOLINT
+TEST(TestSocketUtils, environmentInterruptionReportsWhat)
 {
     try
     {
