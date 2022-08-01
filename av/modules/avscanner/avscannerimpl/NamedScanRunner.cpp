@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "NamedScanRunner.h"
 
@@ -73,7 +69,25 @@ namespace avscanner::avscannerimpl
             if ((mp->isHardDisc() && m_config.m_scanHardDisc) || (mp->isNetwork() && m_config.m_scanNetwork) ||
                 (mp->isOptical() && m_config.m_scanOptical) || (mp->isRemovable() && m_config.m_scanRemovable))
             {
-                includedMountpoints.push_back(mp);
+                // Apply path based exclusions immediately:
+                bool excluded = false;
+
+                for (const auto& exclusion : m_config.m_excludePaths)
+                {
+                    if (exclusion.appliesToPath(mp->mountPoint(), true))
+                    {
+                        excluded = true;
+                        break;
+                    }
+                }
+                if (excluded)
+                {
+                    LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " has been excluded by path from the scan");
+                }
+                else
+                {
+                    includedMountpoints.push_back(mp);
+                }
             }
             else if (mp->isSpecial())
             {

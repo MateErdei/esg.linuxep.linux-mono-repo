@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
@@ -127,7 +123,7 @@ namespace
     };
 }
 
-TEST_F(TestNamedScanRunner, TestNamedScanConfigDeserialisation) // NOLINT
+TEST_F(TestNamedScanRunner, TestNamedScanConfigDeserialisation)
 {
     m_scanHardDisc = false;
     m_scanNetwork = true;
@@ -161,7 +157,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigDeserialisation) // NOLINT
     EXPECT_EQ(config.m_scanRemovable, m_scanRemovable);
 }
 
-TEST_F(TestNamedScanRunner, TestNamedScanConfigDirectoryPassedAsFilename) // NOLINT
+TEST_F(TestNamedScanRunner, TestNamedScanConfigDirectoryPassedAsFilename)
 {
     try
     {
@@ -174,7 +170,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigDirectoryPassedAsFilename) // NOL
     }
 }
 
-TEST_F(TestNamedScanRunner, TestNamedScanConfigInvalidFormat) // NOLINT
+TEST_F(TestNamedScanRunner, TestNamedScanConfigInvalidFormat)
 {
     try
     {
@@ -187,7 +183,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigInvalidFormat) // NOLINT
     }
 }
 
-TEST_F(TestNamedScanRunner, TestNamedScanConfigBinaryContents) // NOLINT
+TEST_F(TestNamedScanRunner, TestNamedScanConfigBinaryContents)
 {
     try
     {
@@ -200,7 +196,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigBinaryContents) // NOLINT
     }
 }
 
-TEST_F(TestNamedScanRunner, TestNamedScanConfigEmptyFile) // NOLINT
+TEST_F(TestNamedScanRunner, TestNamedScanConfigEmptyFile)
 {
     fs::path emptyFile = m_testDir / "TestNamedScanConfigEmptyFile";
     std::ofstream emptyFileHandle(emptyFile);
@@ -215,7 +211,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigEmptyFile) // NOLINT
     }
 }
 
-TEST_F(TestNamedScanRunner, TestNamedScanConfigIncompleteConfig) // NOLINT
+TEST_F(TestNamedScanRunner, TestNamedScanConfigIncompleteConfig)
 {
     std::string filename = "namedScanConfig";
     ::capnp::MallocMessageBuilder message;
@@ -247,7 +243,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigIncompleteConfig) // NOLINT
     }
 }
 
-TEST_F(TestNamedScanRunner, TestNamedScanConfigNonUTF8fileName) // NOLINT
+TEST_F(TestNamedScanRunner, TestNamedScanConfigNonUTF8fileName)
 {
     // echo -n "名前の付いたオンデマンド検索の設定" | iconv -f utf-8 -t euc-jp | hexdump -C
     std::vector<unsigned char> threatPathBytes { 0xcc, 0xbe, 0xc1, 0xb0, 0xa4, 0xce, 0xc9, 0xd5, 0xa4, 0xa4, 0xa4, 0xbf,
@@ -281,7 +277,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigNonUTF8fileName) // NOLINT
     EXPECT_EQ(config.m_scanRemovable, m_scanRemovable);
 }
 
-TEST_F(TestNamedScanRunner, TestNamedScanConfigLargeFile) // NOLINT
+TEST_F(TestNamedScanRunner, TestNamedScanConfigLargeFile)
 {
     std::string largeScanConfigFilename = "TestNamedScanConfigLargeFile";
 
@@ -312,7 +308,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigLargeFile) // NOLINT
     EXPECT_EQ(config.m_scanRemovable, m_scanRemovable);
 }
 
-TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
+TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints)
 {
     m_scanHardDisc = true;
     m_scanNetwork = true;
@@ -321,21 +317,25 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
 
     std::shared_ptr<::testing::StrictMock<MockMountPoint>> localFixedDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
     EXPECT_CALL(*localFixedDevice, isHardDisc()).WillOnce(Return(true));
+    EXPECT_CALL(*localFixedDevice, mountPoint()).WillRepeatedly(Return("/"));
 
     std::shared_ptr<::testing::StrictMock<MockMountPoint>> networkDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
     EXPECT_CALL(*networkDevice, isHardDisc()).WillOnce(Return(false));
     EXPECT_CALL(*networkDevice, isNetwork()).WillOnce(Return(true));
+    EXPECT_CALL(*networkDevice, mountPoint()).WillRepeatedly(Return("/"));
 
     std::shared_ptr<::testing::StrictMock<MockMountPoint>> opticalDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
     EXPECT_CALL(*opticalDevice, isHardDisc()).WillOnce(Return(false));
     EXPECT_CALL(*opticalDevice, isNetwork()).WillOnce(Return(false));
     EXPECT_CALL(*opticalDevice, isOptical()).WillOnce(Return(true));
+    EXPECT_CALL(*opticalDevice, mountPoint()).WillRepeatedly(Return("/"));
 
     std::shared_ptr<::testing::StrictMock<MockMountPoint>> removableDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
     EXPECT_CALL(*removableDevice, isHardDisc()).WillOnce(Return(false));
     EXPECT_CALL(*removableDevice, isNetwork()).WillOnce(Return(false));
     EXPECT_CALL(*removableDevice, isOptical()).WillOnce(Return(false));
     EXPECT_CALL(*removableDevice, isRemovable()).WillOnce(Return(true));
+    EXPECT_CALL(*removableDevice, mountPoint()).WillRepeatedly(Return("/"));
 
     std::shared_ptr<::testing::StrictMock<MockMountPoint>> specialDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
     EXPECT_CALL(*specialDevice, isHardDisc()).WillOnce(Return(false));
@@ -365,7 +365,7 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints) // NOLINT
     EXPECT_EQ(runner.getIncludedMountpoints(allMountpoints).size(), 4);
 }
 
-TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
+TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -407,7 +407,7 @@ TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated) // NOLINT
     fs::remove_all(testDir);
 }
 
-TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
+TEST_F(TestNamedScanRunner, TestExcludeByStem)
 {
     fs::path testfile = m_testDir / "file1.txt";
     std::ofstream testfileStream(testfile.string());
@@ -451,7 +451,7 @@ TEST_F(TestNamedScanRunner, TestExcludeByStem) // NOLINT
     EXPECT_THAT(socket2->m_paths, Not(Contains(testfile)));
 }
 
-TEST_F(TestNamedScanRunner, TestExcludeByFullPath) // NOLINT
+TEST_F(TestNamedScanRunner, TestExcludeByFullPath)
 {
     fs::path testDir = m_testDir;
     fs::path fullPathExcludedFile = testDir / "foo";
@@ -499,7 +499,7 @@ TEST_F(TestNamedScanRunner, TestExcludeByFullPath) // NOLINT
     EXPECT_THAT(socket2->m_paths, Contains(fullPathIncludedFile));
 }
 
-TEST_F(TestNamedScanRunner, TestExcludeByGlob) // NOLINT
+TEST_F(TestNamedScanRunner, TestExcludeByGlob)
 {
     fs::path testDir = m_testDir;
     fs::path globExcludedFile = testDir / "foo.txt";
@@ -555,7 +555,7 @@ TEST_F(TestNamedScanRunner, TestExcludeByGlob) // NOLINT
 
 }
 
-TEST_F(TestNamedScanRunner, TestExcludeByFilename) // NOLINT
+TEST_F(TestNamedScanRunner, TestExcludeByFilename)
 {
     fs::path testDir = m_testDir;
     fs::path filenameExcludedFile = testDir / "bar" / "foo";
@@ -606,7 +606,7 @@ TEST_F(TestNamedScanRunner, TestExcludeByFilename) // NOLINT
 
 }
 
-TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithFileNameExclusions) // NOLINT
+TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithFileNameExclusions)
 {
     fs::path testfile = m_testDir / "file1.txt";
     std::ofstream testfileStream(testfile.string());
@@ -632,7 +632,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithFileNameExclusions) // NOLINT
     EXPECT_THAT(socket->m_paths, Contains(testfile));
 }
 
-TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithNonUTF8Exclusions) // NOLINT
+TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithNonUTF8Exclusions)
 {
     //echo -n "検索から除外するファイル" | iconv -f utf-8 -t euc-jp | hexdump -C
     std::vector<unsigned char> eucJpFileBytes { 0xb8, 0xa1, 0xba, 0xf7, 0xa4, 0xab, 0xa4, 0xe9,
@@ -672,7 +672,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanRunnerWithNonUTF8Exclusions) // NOLINT
     EXPECT_THAT(socket->m_paths, Contains(utf8filepath));
 }
 
-TEST_F(TestNamedScanRunner, TestNamedScanRunnerStopsAtExcludedDirectory) // NOLINT
+TEST_F(TestNamedScanRunner, TestNamedScanRunnerStopsAtExcludedDirectory)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -703,7 +703,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanRunnerStopsAtExcludedDirectory) // NOLI
 }
 
 
-TEST_F(TestNamedScanRunner, TestAbortOnlyHappensOnce) // NOLINT
+TEST_F(TestNamedScanRunner, TestAbortOnlyHappensOnce)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -719,7 +719,7 @@ TEST_F(TestNamedScanRunner, TestAbortOnlyHappensOnce) // NOLINT
     EXPECT_EQ(appenderCount("Deliberate Abort"), 1);
 }
 
-TEST_F(TestNamedScanRunner, TestMissingMountpoint) // NOLINT
+TEST_F(TestNamedScanRunner, TestMissingMountpoint)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
