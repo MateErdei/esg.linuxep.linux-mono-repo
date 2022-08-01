@@ -18,7 +18,7 @@ def setup_logging(filename, name):
         os.makedirs(log_dir)
     logfile = os.path.join(log_dir, filename)
 
-    file_handler = logging.handlers.RotatingFileHandler(logfile, maxBytes=1024 * 1024, backupCount=5)
+    file_handler = logging.FileHandler(logfile)
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.DEBUG)
     logger.addHandler(file_handler)
