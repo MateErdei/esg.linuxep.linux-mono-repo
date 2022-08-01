@@ -58,7 +58,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         }
         else
         {
-            m_callback.registerError(oss);
+            m_callback.registerError(oss, ec);
             return; // Can't continue scanning, since we don't have a file
         }
     }
@@ -85,11 +85,20 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         {
             throw;
         }
+        catch (const fs::filesystem_error& ex)
+        {
+            std::ostringstream oss;
+            oss << "Failed to process: " << common::escapePathForLogging(starting_point);
+
+            m_callback.registerError(oss, ex.code());
+        }
         catch (const std::runtime_error& ex)
         {
             std::ostringstream oss;
             oss << "Failed to process: " << common::escapePathForLogging(starting_point);
-            m_callback.registerError(oss);
+
+            std::error_code ec (EINVAL, std::system_category());
+            m_callback.registerError(oss, ec);
         }
         return;
     }
@@ -148,7 +157,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir) // NOLINT(misc-no-re
         {
             std::ostringstream oss;
             oss << "Failed to check exclusions against: " << common::escapePathForLogging(current_dir) << " due to an error: " << e.what();
-            m_callback.registerError(oss);
+
+            std::error_code ec (EINVAL, std::system_category());
+            m_callback.registerError(oss, ec);
             m_loggedExclusionCheckFailed = true;
         }
     }
@@ -159,7 +170,9 @@ void FileWalker::scanDirectory(const fs::path& current_dir) // NOLINT(misc-no-re
     {
         std::ostringstream oss;
         oss << "Failed to stat " << common::escapePathForLogging(current_dir) << "(" << errno << ")";
-        m_callback.registerError(oss);
+
+        std::error_code ec (errno, std::system_category());
+        m_callback.registerError(oss, ec);
         return;
     }
 
@@ -200,7 +213,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir) // NOLINT(misc-no-re
         {
             std::ostringstream oss;
             oss << "Failed to get the symlink status of: " << common::escapePathForLogging(p.path()) << " [" << e.code().message() << "]";
-            m_callback.registerError(oss);
+            m_callback.registerError(oss, e.code());
             continue;
         }
 
@@ -222,7 +235,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir) // NOLINT(misc-no-re
         {
             std::ostringstream oss;
             oss << "Failed to get the status of: " << p << " [" << e.code().message() << "]";
-            m_callback.registerError(oss);
+            m_callback.registerError(oss, e.code());
             continue;
         }
 
@@ -244,11 +257,21 @@ void FileWalker::scanDirectory(const fs::path& current_dir) // NOLINT(misc-no-re
             {
                 throw;
             }
+            catch (const fs::filesystem_error& e)
+            {
+                std::ostringstream oss;
+                oss << "Failed to process: " << p.path().string();
+
+                m_callback.registerError(oss, e.code());
+                continue;
+            }
             catch (const std::runtime_error& ex)
             {
                 std::ostringstream oss;
                 oss << "Failed to process: " << p.path().string();
-                m_callback.registerError(oss);
+
+                std::error_code errorCode(errno, std::system_category());
+                m_callback.registerError(oss, errorCode);
                 continue;
             }
         }
@@ -265,7 +288,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir) // NOLINT(misc-no-re
     {
         std::ostringstream oss;
         oss << "Failed to iterate: " << current_dir << ": " << ec.message();
-        m_callback.registerError(oss);
+        m_callback.registerError(oss, ec);
         return;
     }
 }

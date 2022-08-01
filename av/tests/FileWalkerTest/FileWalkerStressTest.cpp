@@ -44,7 +44,7 @@ namespace
             std::cout << "DIR:" << p << '\n';
             return false;
         }
-        void registerError(const std::ostringstream &errorString) override
+        void registerError(const std::ostringstream &errorString, std::error_code) override
         {
             std::cout << errorString.str() << '\n';
         }

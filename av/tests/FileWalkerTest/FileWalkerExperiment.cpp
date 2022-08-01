@@ -27,9 +27,9 @@ public:
         std::cout << "DIR:" << p << '\n';
         return false;
     }
-    void registerError(const std::ostringstream &errorString) override
+    void registerError(const std::ostringstream &errorString, std::error_code ec) override
     {
-        std::cout << errorString.str() << '\n';
+        std::cerr << errorString.str() << ec << '\n';
     }
 
 };

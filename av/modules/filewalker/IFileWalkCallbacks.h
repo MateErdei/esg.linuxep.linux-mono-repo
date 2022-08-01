@@ -58,8 +58,9 @@ namespace filewalker
          * Callback for registering errors for the Scan Summary
          *
          * @param errorString
+         * @param errorCode - std::error_code from exception or similar
          */
-        virtual void registerError(const std::ostringstream &errorString) = 0;
+        virtual void registerError(const std::ostringstream &errorString, std::error_code errorCode ) = 0;
 
     protected:
         IFileWalkCallbacks() = default;

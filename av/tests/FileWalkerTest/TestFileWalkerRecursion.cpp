@@ -57,7 +57,7 @@ TEST_F(TestFileWalkerRecursion, hugeFilePathStartFromPathRoot) // NOLINT
     EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_,_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
-    EXPECT_CALL(*callbacks, registerError(_)).Times(1);
+    EXPECT_CALL(*callbacks, registerError(_, _)).Times(1);
 
     filewalker::FileWalker fw(*callbacks);
     EXPECT_NO_THROW(fw.walk("TestHugePathFileWalker"));
@@ -161,7 +161,7 @@ TEST_F(TestFileWalkerRecursion, deepFilePathStartFromPathRoot) // NOLINT
     EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_,_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
-    EXPECT_CALL(*callbacks, registerError(_)).Times(1);
+    EXPECT_CALL(*callbacks, registerError(_, _)).Times(1);
 
     EXPECT_CALL(*callbacks, processFile(EndsWith("/file.txt"), _)).Times(0);
 
@@ -190,7 +190,7 @@ TEST_F(TestFileWalkerRecursion, cannotIterate) // NOLINT
     EXPECT_CALL(*callbacks, includeDirectory(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_,_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
-    EXPECT_CALL(*callbacks, registerError(_)).Times(1);
+    EXPECT_CALL(*callbacks, registerError(_, _)).Times(1);
 
     // set the rlimit for number of open file descriptors
     struct rlimit old_limit = {};
