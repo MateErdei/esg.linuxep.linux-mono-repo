@@ -1,5 +1,4 @@
 if (NOT DEFINED ENV{USE_LIBFUZZER})
-include(GoogleTest)
 
 SophosAddTest(TestSophosOnAccessProcessImpl
         ../common/LogInitializedTests.cpp
@@ -22,16 +21,17 @@ SET_TARGET_PROPERTIES(TestSophosOnAccessProcessImpl
 
 endif (NOT DEFINED ENV{USE_LIBFUZZER})
 
-if (DEFINED ENV{USE_LIBFUZZER})
 add_executable(OnAccessConfigReaderFuzzer
         OnAccessConfigReaderFuzzer.cpp)
 
 target_link_libraries(OnAccessConfigReaderFuzzer  PUBLIC
-        onAccessConfigMonitor)
+        onAccessConfigMonitor
+        datatypes
+        )
 
 target_include_directories(OnAccessConfigReaderFuzzer PUBLIC ${CMAKE_SOURCE_DIR}/modules)
-target_include_directories(OnAccessConfigReaderFuzzer SYSTEM PRIVATE ${BOOSTPATH})
 
+if (DEFINED ENV{USE_LIBFUZZER})
 SET_TARGET_PROPERTIES( OnAccessConfigReaderFuzzer
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
