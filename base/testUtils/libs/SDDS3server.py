@@ -107,7 +107,7 @@ def get_signature(data):
 
 SIG_CERT = get_cert('pub')
 INT_CERT = get_cert('ca')
-
+dictOfRequests ={}
 
 def sign_response(data):
     """Generate a JWT-format signature for the content"""
@@ -160,6 +160,54 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
     def _not_modified(self):
         self.send_response(HTTPStatus.NOT_MODIFIED)
         self.end_headers()
+
+    def normal_handle_get_request(self):
+        self.log_message("%s", "Headers:\n{}".format(self.headers))
+        self.log_message("%s", "path:\n{}".format(self.path))
+        return SimpleHTTPRequestHandler.do_GET(self)
+
+    def retry_5_times_get_request(self):
+        if self.path in dictOfRequests.keys():
+            dictOfRequests[self.path] = dictOfRequests[self.path] +1
+        else:
+            dictOfRequests[self.path] = 1
+
+        if dictOfRequests[self.path] == 5:
+            self.normal_handle_get_request()
+        else:
+            self.send_response(202)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+
+    def return_202s_then_404(self):
+        if self.path in dictOfRequests.keys():
+            dictOfRequests[self.path] = dictOfRequests[self.path] +1
+        else:
+            dictOfRequests[self.path] = 1
+
+        if dictOfRequests[self.path] == 5:
+            self.send_response(404)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+        else:
+            self.send_response(202)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+
+    def return_exitCode(self, exitCode):
+        self.send_response(exitCode)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def do_GET(self):
+        if os.environ.get("COMMAND") == "retry":
+            self.retry_5_times_get_request()
+        elif os.environ.get("COMMAND") == "failure":
+            self.return_202s_then_404()
+        elif os.environ.get("EXITCODE") != None:
+            self.return_exitCode(int(os.environ.get("EXITCODE")))
+        else:
+            self.normal_handle_get_request()
 
     def do_POST(self):          # pylint: disable=C0103
         """Read the SUS request from the client, and log it
