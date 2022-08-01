@@ -44,6 +44,7 @@ On Access Test Teardown
     List AV Plugin Path
     run teardown functions
     Stop On Access
+    Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
 
     Check All Product Logs Do Not Contain Error
     Component Test TearDown
@@ -97,5 +98,31 @@ On Access Process Parses Policy Config
 
     Wait Until On Access Log Contains  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
     Wait Until On Access Log Contains  On-access enabled: "true"
+    Wait Until On Access Log Contains  On-access scan network: "true"
+    Wait Until On Access Log Contains  On-access exclusions: ["/mnt/","/uk-filer5/"]
+
+On Access Does Not Include Remote Files If Excluded In Policy
+    [Tags]  NFS
+    ${source} =       Set Variable  /tmp_test/nfsshare
+    ${destination} =  Set Variable  /testmnt/nfsshare
+    Create Directory  ${source}
+    Create Directory  ${destination}
+    Create Local NFS Share   ${source}   ${destination}
+    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
+
+    Start On Access
+    Wait Until On Access Log Contains  Including mount point: /testmnt/nfsshare
+
+    Start Fake Management If Required
+
+    Mark On Access Log
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    Wait Until On Access Log Contains  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":["/mnt/","/uk-filer5/"]}
+    Wait Until On Access Log Contains  On-access enabled: "true"
     Wait Until On Access Log Contains  On-access scan network: "false"
     Wait Until On Access Log Contains  On-access exclusions: ["/mnt/","/uk-filer5/"]
+
+    Wait Until On Access Log Contains  OA config changed, re-enumerating mount points
+    On Access Does Not Log Contain With Offset  Including mount point: /testmnt/nfsshare

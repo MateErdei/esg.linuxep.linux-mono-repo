@@ -1,16 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "SoapdBootstrap.h"
 
 #include "Logger.h"
 
 #include "datatypes/sophos_filesystem.h"
-#include "mount_monitor/mountinfoimpl/Mounts.h"
-#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
+#include "common/ThreadRunner.h"
+#include "datatypes/SystemCallWrapper.h"
 #include "sophos_on_access_process/OnAccessConfig//OnAccessConfigMonitor.h"
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
@@ -20,34 +16,11 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
-#include <sys/poll.h>
+#include <poll.h>
 
 namespace fs = sophos_filesystem;
 
 using namespace sophos_on_access_process::soapd_bootstrap;
-
-mount_monitor::mountinfo::IMountPointSharedVector SoapdBootstrap::getIncludedMountpoints(
-    const OnAccessMountConfig& config, const mount_monitor::mountinfo::IMountPointSharedVector& allMountpoints)
-{
-    mount_monitor::mountinfo::IMountPointSharedVector includedMountpoints;
-    for (const auto& mp : allMountpoints)
-    {
-        if ((mp->isHardDisc() && config.m_scanHardDisc) || (mp->isNetwork() && config.m_scanNetwork) ||
-            (mp->isOptical() && config.m_scanOptical) || (mp->isRemovable() && config.m_scanRemovable))
-        {
-            includedMountpoints.push_back(mp);
-        }
-        else if (mp->isSpecial())
-        {
-            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is system and will be excluded from the scan");
-        }
-        else
-        {
-            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " has been excluded from the scan");
-        }
-    }
-    return includedMountpoints;
-}
 
 int SoapdBootstrap::runSoapd()
 {
@@ -56,19 +29,6 @@ int SoapdBootstrap::runSoapd()
 
     std::shared_ptr<common::SigIntMonitor> sigIntMonitor{common::SigIntMonitor::getSigIntMonitor()};
     std::shared_ptr<common::SigTermMonitor> sigTermMonitor{common::SigTermMonitor::getSigTermMonitor()};
-
-    OnAccessMountConfig config;
-    // work out which filesystems are included based of config and mount information
-    auto pathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
-    auto mountInfo = std::make_shared<mount_monitor::mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
-    auto allMountpoints = mountInfo->mountPoints();
-    LOGINFO("Found " << allMountpoints.size() << " mount points on the system");
-    auto includedMountpoints = getIncludedMountpoints(config, allMountpoints);
-    LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
-    for (const auto& mp : includedMountpoints)
-    {
-        LOGDEBUG("Including mount point: " << mp->mountPoint());
-    }
 
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
@@ -96,6 +56,11 @@ void SoapdBootstrap::innerRun(
     std::shared_ptr<common::SigTermMonitor>& sigTermMonitor,
     Common::Threads::NotifyPipe pipe)
 {
+    mount_monitor::mount_monitor::OnAccessMountConfig config;
+    auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+    auto mountMonitor = std::make_unique<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper);
+    auto mountMonitorThread = std::make_unique<common::ThreadRunner>(*mountMonitor, "scanProcessMonitor");
+
     const int num_fds = 3;
     struct pollfd fds[num_fds];
 
@@ -148,7 +113,8 @@ void SoapdBootstrap::innerRun(
             pipe.notified();
 
             auto jsonString = OnAccessConfig::readConfigFile();
-            OnAccessConfig::parseOnAccessSettingsFromJson(jsonString);
+            OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessSettingsFromJson(jsonString);
+            mountMonitor->setExcludeRemoteFiles(oaConfig.excludeRemoteFiles);
         }
     }
 }

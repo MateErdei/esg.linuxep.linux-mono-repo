@@ -131,6 +131,11 @@ Mark Susi Debug Log
     Set Suite Variable   ${SUSI_DEBUG_LOG_MARK}  ${count}
     Log  "SUSI_DEBUG LOG MARK = ${SUSI_DEBUG_LOG_MARK}"
 
+Mark On Access Log
+    ${count} =  Count File Log Lines  ${ON_ACCESS_LOG_PATH}
+    Set Suite Variable   ${ON_ACCESS_LOG_MARK}  ${count}
+    Log  "ON_ACCESS LOG PATH = ${ON_ACCESS_LOG_PATH}"
+
 Mark Log
     [Arguments]  ${path}
     ${count} =  Count File Log Lines  ${path}
@@ -224,6 +229,20 @@ AV Plugin Log Contains
 On Access Log Contains
     [Arguments]  ${input}
     File Log Contains     ${ON_ACCESS_LOG_PATH}   ${input}
+
+On Access Does Not Log Contain
+    [Arguments]  ${input}
+    File Log Should Not Contain  ${ON_ACCESS_LOG_PATH}   ${input}
+
+On Access Log Contains With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${ON_ACCESS_LOG_MARK}  0
+    File Log Contains With Offset     ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
+
+On Access Does Not Log Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${ON_ACCESS_LOG_MARK}  0
+    File Log Should Not Contain With Offset  ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
 
 Threat Detector Log Contains
     [Arguments]  ${input}

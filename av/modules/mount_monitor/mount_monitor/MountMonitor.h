@@ -24,6 +24,8 @@ namespace mount_monitor::mount_monitor
             datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
             struct timespec pollTimeout = {2,0});
 
+        void setExcludeRemoteFiles(bool excludeRemoteFiles);
+
         mountinfo::IMountPointSharedVector getAllMountpoints();
         mountinfo::IMountPointSharedVector getIncludedMountpoints(mountinfo::IMountPointSharedVector allMountPoints);
     private:

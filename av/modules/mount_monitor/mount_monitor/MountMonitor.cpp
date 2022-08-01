@@ -61,6 +61,22 @@ namespace mount_monitor::mount_monitor
         return includedMountpoints;
     }
 
+    void MountMonitor::setExcludeRemoteFiles(bool excludeRemoteFiles)
+    {
+        bool scanNetwork = !excludeRemoteFiles;
+        if (scanNetwork != m_config.m_scanNetwork)
+        {
+            LOGINFO("OA config changed, re-enumerating mount points");
+            m_config.m_scanNetwork = scanNetwork;
+            auto includedMountpoints = getIncludedMountpoints(getAllMountpoints());
+            LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
+            for (const auto& mp : includedMountpoints)
+            {
+                LOGDEBUG("Including mount point: " << mp->mountPoint());
+            }
+        }
+    }
+
     void MountMonitor::run()
     {
         // work out which filesystems are included based of config and mount information
