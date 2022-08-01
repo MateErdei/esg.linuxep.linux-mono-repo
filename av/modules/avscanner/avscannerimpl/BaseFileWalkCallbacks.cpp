@@ -187,8 +187,9 @@ void BaseFileWalkCallbacks::genericFailure(const std::exception& e, const std::s
 {
     std::ostringstream errorString;
     errorString << "Failed to scan" << escapedPath << " [" << e.what() << "]";
+    std::error_code ec (EINVAL, std::system_category());
 
-    m_scanner->scanError(errorString);
+    m_scanner->scanError(errorString, ec);
     m_returnCode = common::E_GENERIC_FAILURE;
     throw AbortScanException(e.what());
 }

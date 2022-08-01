@@ -69,7 +69,12 @@ namespace avscanner::avscannerimpl
          * @return Scan response
          */
         scan_messages::ScanResponse scan(const path& fileToScanPath, bool isSymlink) override;
-        void scanError(const std::ostringstream& error) override { m_callbacks->scanError(error.str()); };
+
+        void scanError(const std::ostringstream& error, std::error_code) override
+        {
+            m_callbacks->scanError(error.str());
+        }
+
         static std::string failedToOpen(int error);
 
     private:

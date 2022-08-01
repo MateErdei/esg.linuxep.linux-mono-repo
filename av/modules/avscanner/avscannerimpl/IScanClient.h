@@ -16,6 +16,6 @@ namespace avscanner::avscannerimpl
     public:
         virtual ~IScanClient() = default;
         virtual scan_messages::ScanResponse scan(const sophos_filesystem::path& fileToScanPath, bool isSymlink) = 0;
-        virtual void scanError(const std::ostringstream& error) = 0;
+        virtual void scanError(const std::ostringstream& error, std::error_code errorCode) = 0;
     };
 }

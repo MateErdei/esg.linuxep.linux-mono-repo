@@ -52,7 +52,7 @@ namespace
     class MockScanClient : public IScanClient
     {
     public:
-        MOCK_METHOD1(scanError, void(const std::ostringstream& error));
+        MOCK_METHOD(void, scanError, (const std::ostringstream& error, std::error_code errorCode), (override));
         MOCK_METHOD2(scan, scan_messages::ScanResponse(const fs::path& fileToScanPath, bool isSymlink));
     };
 
@@ -118,7 +118,7 @@ TEST_F(TestBaseFileWalkCallbacks, scanThrows) // NOLINT
     EXPECT_CALL(callback, logScanningLine(_)).Times(1);
     AbortScanException abortScanException("exception");
     EXPECT_CALL(*scanClient, scan(_, _)).WillOnce(Throw(abortScanException));
-    EXPECT_CALL(*scanClient, scanError(_));
+    EXPECT_CALL(*scanClient, scanError(_, _));
 
     try
     {

@@ -39,9 +39,9 @@ namespace avscanner::avscannerimpl
         void processFile(const fs::path& path, bool symlinkTarget) override;
         bool includeDirectory(const sophos_filesystem::path& path) override;
         bool userDefinedExclusionCheck(const sophos_filesystem::path& path, bool isSymlink) override;
-        void registerError(const std::ostringstream &errorString, std::error_code) override
+        void registerError(const std::ostringstream &errorString, std::error_code errorCode) override
         {
-            m_scanner->scanError(errorString);
+            m_scanner->scanError(errorString, std::move(errorCode));
         };
 
         [[nodiscard]] int returnCode() const
