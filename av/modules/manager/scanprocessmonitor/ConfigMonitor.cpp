@@ -1,14 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ConfigMonitor.h"
 
 #include "Logger.h"
 
 #include "common/FDUtils.h"
+#include "common/SaferStrerror.h"
 
 #include <cerrno>
 #include <cstring>
@@ -112,7 +109,8 @@ namespace plugin::manager::scanprocessmonitor
                     auto symlinkTargetDirFD = std::make_shared<InotifyFD>(parentDir);
                     if (symlinkTargetDirFD->getFD() < 0)
                     {
-                        LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files: " << strerror(errno));
+                        LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files: "
+                                 << common::safer_strerror(errno));
                         return false;
                     }
                     m_interestingDirs.insert_or_assign(parentDir, symlinkTargetDirFD);
@@ -201,7 +199,7 @@ namespace plugin::manager::scanprocessmonitor
 
             if (active < 0 and errno != EINTR)
             {
-                LOGERROR("failure in ConfigMonitor: pselect failed: " << strerror(errno));
+                LOGERROR("failure in ConfigMonitor: pselect failed: " << common::safer_strerror(errno));
                 return false;
             }
 
@@ -217,7 +215,7 @@ namespace plugin::manager::scanprocessmonitor
 
                 if (length < 0)
                 {
-                    LOGERROR("Failed to read event from inotify: " << strerror(errno));
+                    LOGERROR("Failed to read event from inotify: " << common::safer_strerror(errno));
                     return false;
                 }
 
