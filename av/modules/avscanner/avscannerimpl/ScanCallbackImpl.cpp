@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ScanCallbackImpl.h"
 #include "TimeDuration.h"
@@ -44,7 +40,7 @@ void ScanCallbackImpl::infectedFile(const std::map<path, std::string>& detection
     }
 }
 
-void ScanCallbackImpl::scanError(const std::string& errorMsg)
+void ScanCallbackImpl::scanError(const std::string& errorMsg, std::error_code)
 {
     incrementErrorCount();
     LOGERROR(errorMsg);

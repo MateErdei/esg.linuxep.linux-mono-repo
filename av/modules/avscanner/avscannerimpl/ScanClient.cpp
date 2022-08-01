@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ScanClient.h"
 
@@ -69,7 +65,8 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
         std::ostringstream logMsg;
         logMsg << failedToOpen(error) << escapedPath;
 
-        m_callbacks->scanError(logMsg.str());
+        std::error_code ec (error, std::system_category());
+        m_callbacks->scanError(logMsg.str(), ec);
 
         return scan_messages::ScanResponse();
     }
@@ -91,7 +88,8 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
         {
             if (!errorMsg.empty())
             {
-                m_callbacks->scanError(errorMsg);
+                std::error_code ec (EINVAL, std::system_category());
+                m_callbacks->scanError(errorMsg, ec);
 
                 if(common::contains(errorMsg, "as it is password protected"))
                 {
@@ -107,7 +105,8 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
         {
             if (!errorMsg.empty())
             {
-                m_callbacks->scanError(errorMsg);
+                std::error_code ec (EINVAL, std::system_category());
+                m_callbacks->scanError(errorMsg, ec);
             }
             std::map<path, std::string> detections;
             for(const auto& detection : response.getDetections())

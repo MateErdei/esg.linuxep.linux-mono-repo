@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -33,13 +29,13 @@ namespace
     public:
         MOCK_METHOD1(cleanFile, void(const path&));
         MOCK_METHOD3(infectedFile, void(const std::map<path, std::string>& detections, const fs::path& realPath,  bool isSymlink));
-        MOCK_METHOD1(scanError, void(const std::string&));
+        MOCK_METHOD(void, scanError, (const std::string&, std::error_code), (override));
         MOCK_METHOD0(scanStarted, void());
         MOCK_METHOD0(logSummary, void());
     };
 }
 
-TEST(TestScanClient, TestConstruction) // NOLINT
+TEST(TestScanClient, TestConstruction)
 {
     StrictMock<MockIScanningClientSocket> mock_socket;
     std::shared_ptr<avscanner::avscannerimpl::IScanCallbacks> mock_callbacks(
@@ -49,7 +45,7 @@ TEST(TestScanClient, TestConstruction) // NOLINT
     ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
 }
 
-TEST(TestScanClient, TestConstructionWithoutCallbacks) // NOLINT
+TEST(TestScanClient, TestConstructionWithoutCallbacks)
 {
     StrictMock<MockIScanningClientSocket> mock_socket;
     std::shared_ptr<avscanner::avscannerimpl::IScanCallbacks> mock_callbacks;
@@ -57,7 +53,7 @@ TEST(TestScanClient, TestConstructionWithoutCallbacks) // NOLINT
     ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
 }
 
-TEST(TestScanClient, TestScanEtcPasswd) // NOLINT
+TEST(TestScanClient, TestScanEtcPasswd)
 {
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
@@ -78,7 +74,7 @@ TEST(TestScanClient, TestScanEtcPasswd) // NOLINT
     EXPECT_TRUE(result.allClean());
 }
 
-TEST(TestScanClient, TestScanArchive) // NOLINT
+TEST(TestScanClient, TestScanArchive)
 {
     path infectedFile1 = "/tmp/test.tar/eicar.com";
     path infectedFile2 = "/tmp/test.tar/eicar.exe";
@@ -110,7 +106,7 @@ TEST(TestScanClient, TestScanArchive) // NOLINT
     EXPECT_EQ(result.getDetections().size(), 2);
 }
 
-TEST(TestScanClient, TestScanImage) // NOLINT
+TEST(TestScanClient, TestScanImage)
 {
     path infectedFile1 = "/tmp/test.tar/eicar.iso";
     std::string threatName = "EICAR-AV-Test";
@@ -139,7 +135,7 @@ TEST(TestScanClient, TestScanImage) // NOLINT
     EXPECT_EQ(result.getDetections().size(), 1);
 }
 
-TEST(TestScanClient, TestScanInfectedNoCallback) // NOLINT
+TEST(TestScanClient, TestScanInfectedNoCallback)
 {
     using namespace ::testing;
     static const char* THREAT = "THREAT";
@@ -159,7 +155,7 @@ TEST(TestScanClient, TestScanInfectedNoCallback) // NOLINT
     EXPECT_EQ(result.getDetections()[0].name, THREAT);
 }
 
-TEST(TestScanClient, TestScanInfected) // NOLINT
+TEST(TestScanClient, TestScanInfected)
 {
     using namespace ::testing;
     static const char* THREAT = "THREAT";
@@ -188,7 +184,7 @@ TEST(TestScanClient, TestScanInfected) // NOLINT
     EXPECT_EQ(result.getDetections()[0].name, THREAT);
 }
 
-TEST(TestScanClient, TestFailedToOpenMessages) // NOLINT
+TEST(TestScanClient, TestFailedToOpenMessages)
 {
     EXPECT_EQ(ScanClient::failedToOpen(EACCES), "Failed to open as permission denied: ");
     EXPECT_EQ(ScanClient::failedToOpen(ENAMETOOLONG), "Failed to open as the path is too long: ");

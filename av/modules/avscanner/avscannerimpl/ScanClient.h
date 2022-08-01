@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -30,7 +26,14 @@ namespace avscanner::avscannerimpl
          * @param isSymlink
          */
         virtual void infectedFile(const std::map<path, std::string>& detections, const sophos_filesystem::path& realPath, bool isSymlink) = 0;
-        virtual void scanError(const std::string&) = 0;
+
+        /**
+         * Report an error related to scanning.
+         *
+         * @param errorCode the error_code related to the scan error.
+         */
+        virtual void scanError(const std::string&, std::error_code errorCode) = 0;
+
         virtual void scanStarted() = 0;
         virtual void logSummary() = 0;
 
@@ -70,9 +73,9 @@ namespace avscanner::avscannerimpl
          */
         scan_messages::ScanResponse scan(const path& fileToScanPath, bool isSymlink) override;
 
-        void scanError(const std::ostringstream& error, std::error_code) override
+        void scanError(const std::ostringstream& error, std::error_code errorCode) override
         {
-            m_callbacks->scanError(error.str());
+            m_callbacks->scanError(error.str(), errorCode);
         }
 
         static std::string failedToOpen(int error);

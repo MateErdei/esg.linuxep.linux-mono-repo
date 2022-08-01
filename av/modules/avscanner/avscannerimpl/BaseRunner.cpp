@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "BaseRunner.h"
 
@@ -86,7 +82,7 @@ bool BaseRunner::walk(filewalker::FileWalker& filewalker,
     catch (fs::filesystem_error& e)
     {
         auto errorString = "Failed to completely scan " + reportpath + " due to an error: " + e.what();
-        m_scanCallbacks->scanError(errorString);
+        m_scanCallbacks->scanError(errorString, e.code());
         m_returnCode = e.code().value();
     }
     catch (const ScanManuallyInterruptedException& e)

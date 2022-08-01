@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -26,7 +22,7 @@ namespace avscanner::avscannerimpl
 
         void cleanFile(const path&) override;
         void infectedFile(const std::map<path, std::string>& detections, const sophos_filesystem::path&, bool isSymlink=false) override;
-        void scanError(const std::string& errorMsg) override;
+        void scanError(const std::string& errorMsg, std::error_code) override;
         common::E_ERROR_CODES returnCode();
         void scanStarted() override { m_startTime = time(nullptr); }
         void logSummary() override;
