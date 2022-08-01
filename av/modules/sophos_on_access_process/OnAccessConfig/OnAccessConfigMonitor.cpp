@@ -1,13 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "OnAccessConfigMonitor.h"
 
 #include "Logger.h"
+
 #include "common/FDUtils.h"
+#include "common/SaferStrerror.h"
 
 #include <utility>
 
@@ -51,7 +49,8 @@ void OnAccessConfigMonitor::run()
                 continue;
             }
 
-            LOGERROR("Failed to read from socket - shutting down. Error: " << strerror(error) << " (" << error << ')');
+            LOGERROR("Failed to read from socket - shutting down. Error: "
+                     << common::safer_strerror(error) << " (" << error << ')');
             break;
         }
 
