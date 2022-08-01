@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -41,7 +37,7 @@ namespace avscanner::avscannerimpl
         bool userDefinedExclusionCheck(const sophos_filesystem::path& path, bool isSymlink) override;
         void registerError(const std::ostringstream &errorString, std::error_code errorCode) override
         {
-            m_scanner->scanError(errorString, std::move(errorCode));
+            m_scanner->scanError(errorString, errorCode);
         };
 
         [[nodiscard]] int returnCode() const

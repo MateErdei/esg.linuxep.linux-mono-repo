@@ -40,10 +40,17 @@ void ScanCallbackImpl::infectedFile(const std::map<path, std::string>& detection
     }
 }
 
-void ScanCallbackImpl::scanError(const std::string& errorMsg, std::error_code)
+void ScanCallbackImpl::scanError(const std::string& errorMsg, std::error_code errorCode)
 {
     incrementErrorCount();
-    LOGERROR(errorMsg);
+    if (errorCode.category() == std::system_category() && errorCode.value() == ENOENT)
+    {
+        LOGINFO(errorMsg);
+    }
+    else
+    {
+        LOGERROR(errorMsg);
+    }
 }
 
 common::E_ERROR_CODES ScanCallbackImpl::returnCode()
