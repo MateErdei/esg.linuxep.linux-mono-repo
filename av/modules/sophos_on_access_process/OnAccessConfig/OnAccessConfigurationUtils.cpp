@@ -62,6 +62,18 @@ namespace sophos_on_access_process::OnAccessConfig
         }
         catch (const json::parse_error& e)
         {
+            LOGWARN("Failed to parse json configuration due to parse error, reason: " << e.what());
+        }
+        catch (const json::out_of_range & e)
+        {
+            LOGWARN("Failed to parse json configuration due to out of range error, reason: " << e.what());
+        }
+            catch (const json::type_error & e)
+        {
+            LOGWARN("Failed to parse json configuration due to type error, reason: " << e.what());
+        }
+        catch (const json::other_error & e)
+        {
             LOGWARN("Failed to parse json configuration, reason: " << e.what());
         }
 

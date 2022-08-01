@@ -674,6 +674,7 @@ Installer Test Setup
     Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
     Register On Fail  dump log  ${AV_LOG_PATH}
+    Register On Fail  dump log  ${ON_ACCESS_LOG_PATH}
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
     Require Plugin Installed and Running
