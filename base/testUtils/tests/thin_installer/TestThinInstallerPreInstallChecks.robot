@@ -1,7 +1,4 @@
 *** Settings ***
-Test Setup      Setup Thininstaller Test Without Local Cloud Server
-Test Teardown   Teardown
-
 Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Library     ${LIBS_DIRECTORY}/UpdateServer.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
@@ -24,71 +21,15 @@ Resource  ThinInstallerResources.robot
 
 Default Tags  THIN_INSTALLER
 
+Test Setup      Setup Thininstaller Test Without Local Cloud Server
+Test Teardown   Thininstaller Test Teardown
 *** Keywords ***
-Setup With Large Group Creation
-    Setup Group File With Large Group Creation
-
-Teardown With Large Group Creation
-    Teardown Group File With Large Group Creation
-    Teardown
-
-Setup Thininstaller Test
-    Start Local Cloud Server
-    Setup Thininstaller Test Without Local Cloud Server
-
 Setup Thininstaller Test Without Local Cloud Server
     Require Uninstalled
     Set Environment Variable  CORRUPTINSTALL  no
     Get Thininstaller
     Create Default Credentials File
     Build Default Creds Thininstaller From Sections
-
-Setup Legacy Thininstaller Test
-    Start Local Cloud Server
-    Setup Legacy Thininstaller Test Without Local Cloud Server
-
-Setup Legacy Thininstaller Test Without Local Cloud Server
-    Setup Update Tests
-
-    Require Uninstalled
-    Set Environment Variable  CORRUPTINSTALL  no
-    Get Legacy Thininstaller
-    Create Default Credentials File
-    Build Default Creds Thininstaller From Sections
-
-Setup Warehouse
-    [Arguments]    ${customer_file_protocol}=--tls1_2   ${warehouse_protocol}=--tls1_2
-    Clear Warehouse Config
-    Generate Install File In Directory     ./tmp/TestInstallFiles/${BASE_RIGID_NAME}
-    Add Component Warehouse Config   ${BASE_RIGID_NAME}   ./tmp/TestInstallFiles/    ./tmp/temp_warehouse/
-    Generate Warehouse
-    Start Update Server    1233    ./tmp/temp_warehouse/customer_files/   ${customer_file_protocol}
-    Start Update Server    1234    ./tmp/temp_warehouse/warehouses/sophosmain/   ${warehouse_protocol}
-
-Teardown With Temporary Directory Clean
-    Teardown
-    Remove Directory   ${tmpdir}  recursive=True
-
-Teardown With Temporary Directory Clean And Stopping Message Relays
-    Teardown With Temporary Directory Clean
-    Stop Proxy If Running
-
-Teardown
-    General Test Teardown
-    Stop Update Server
-    Stop Proxy Servers
-    Run Keyword If Test Failed   Dump Cloud Server Log
-    Stop Local Cloud Server
-    Cleanup Local Cloud Server Logs
-    Teardown Reset Original Path
-    Run Keyword If Test Failed    Dump Thininstaller Log
-    Remove Thininstaller Log
-    Cleanup Files
-    Require Uninstalled
-    Remove Environment Variable  SOPHOS_INSTALL
-    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
-    Remove Environment Variable  INSTALL_OPTIONS_FILE
-    Cleanup Temporary Folders
 
 Remove SAV files
     Remove Fake Savscan In Tmp
@@ -99,11 +40,7 @@ Remove SAV files
 
 SAV Teardown
     Remove SAV files
-    Teardown
-
-Cert Test Teardown
-    Teardown
-    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
+    Thininstaller Test Teardown
 
 Run ThinInstaller Instdir And Check It Fails
     [Arguments]    ${path}
@@ -139,25 +76,6 @@ Get System Path
     ${PATH} =  Get Environment Variable  PATH
     [Return]  ${PATH}
 
-Thin Installer Calls Base Installer With Environment Variables For Product Argument
-    [Arguments]  ${productArgs}
-
-    Validate Env Passed To Base Installer  --products ${productArgs}   --customer-token ThisIsACustomerToken   ThisIsARegToken   https://localhost:4443/mcs
-
-Thin Installer Calls Base Installer Without Environment Variables For Product Argument
-    Validate Env Passed To Base Installer  ${EMPTY}  --customer-token ThisIsACustomerToken  ThisIsARegToken  https://localhost:4443/mcs
-
-Run Thin Installer And Check Argument Is Saved To Install Options File
-    [Arguments]  ${argument}
-    ${install_location}=  get_default_install_script_path
-    ${thin_installer_cmd}=  Create List    ${install_location}   ${argument}
-    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
-    Run Thin Installer  ${thin_installer_cmd}   expected_return_code=0  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
-    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}
-    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
-    ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
-    Should Contain  ${contents}  ${argument}
-
 *** Variables ***
 ${PROXY_LOG}  ./tmp/proxy_server.log
 ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
@@ -166,8 +84,6 @@ ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 @{PRODUCT_MDR_ARGUMENT} =  --products\=mdr
 ${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
 *** Test Case ***
-
-
 Thin Installer fails to install on system without enough memory
     Run Default Thininstaller With Fake Memory Amount    234
     Check Thininstaller Log Contains    This machine does not meet product requirements (total RAM: 234kB). The product requires at least 930000kB of RAM
@@ -331,7 +247,6 @@ Thin Installer Fails With Invalid Group Names
     Remove Thininstaller Log
 
 Thin Installer Fails With Oversized Group Name
-    [Setup]    Setup Thininstaller Test Without Local Cloud Server
     ${max_sized_group_name}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 1024  shell=True
     Run Default Thininstaller With Args  3  --group=${max_sized_group_name.stdout}
 

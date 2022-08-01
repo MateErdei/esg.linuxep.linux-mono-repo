@@ -27,12 +27,9 @@ Resource  ThinInstallerResources.robot
 Default Tags  THIN_INSTALLER
 
 *** Keywords ***
-Setup With Large Group Creation
-    Setup Group File With Large Group Creation
-
 Teardown With Large Group Creation
     Teardown Group File With Large Group Creation
-    Teardown
+    Restore warehouse with fake sdds3 base
 
 Setup Thininstaller Test
     Start Local Cloud Server
@@ -45,38 +42,36 @@ Setup Thininstaller Test Without Local Cloud Server
     Create Default Credentials File
     Build Default Creds Thininstaller From Sections
 
-Setup Legacy Thininstaller Test
-    Start Local Cloud Server
-    Setup Legacy Thininstaller Test Without Local Cloud Server
-
-Setup Legacy Thininstaller Test Without Local Cloud Server
-    Setup Update Tests
-
-    Require Uninstalled
-    Set Environment Variable  CORRUPTINSTALL  no
-    Get Legacy Thininstaller
-    Create Default Credentials File
-    Build Default Creds Thininstaller From Sections
-
 Setup TSL server 1_1
     Stop Local SDDS3 Server
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo --protocol tls1_1  shell=true
     Set Suite Variable    ${GL_handle}    ${handle}
     Setup Thininstaller Test
 
-Restore normal SDDS3 server
-    Teardown
+Setup SDDS3 server with real warehouse
     Stop Local SDDS3 Server
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
+    Setup Thininstaller Test
+
+Restore fake SDDS3 server
+    Teardown
+    Stop Local SDDS3 Server
+    ${handle}=  Start Local SDDS3 server with fake files
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+Setup warehouse With sdds3 base
+    Clean up fake warehouse
+    Generate Warehouse From Local Base Input
+
+Restore warehouse with fake sdds3 base
+    Teardown
+    Clean up fake warehouse
+    Generate Fake sdds3 warehouse
 
 Teardown With Temporary Directory Clean
     Teardown
     Remove Directory   ${tmpdir}  recursive=True
-
-Teardown With Temporary Directory Clean And Stopping Message Relays
-    Teardown With Temporary Directory Clean
-    Stop Proxy If Running
 
 Teardown
     General Test Teardown
@@ -95,34 +90,9 @@ Teardown
     Remove Environment Variable  INSTALL_OPTIONS_FILE
     Cleanup Temporary Folders
 
-Remove SAV files
-    Remove Fake Savscan In Tmp
-    Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/bin
-    Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/local/bin/
-    Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /bin
-    Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /tmp
-
-SAV Teardown
-    Remove SAV files
-    Teardown
-
 Cert Test Teardown
     Teardown
     Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
-
-Run ThinInstaller Instdir And Check It Fails
-    [Arguments]    ${path}
-    Log  ${path}
-    Run Default Thininstaller With Args  19  --instdir=${path}
-    Check Thininstaller Log Contains  The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted
-    Remove Thininstaller Log
-
-Run ThinInstaller With Bad Group Name And Check It Fails
-    [Arguments]    ${groupName}
-    Log  ${GroupName}
-    Run Default Thininstaller With Args  24  --group=${groupName}
-    Check Thininstaller Log Contains  Error: Group name contains one of the following invalid characters: < & > ' \" --- aborting install
-    Remove Thininstaller Log
 
 Create Fake Ldd Executable With Version As Argument And Add It To Path
     [Arguments]  ${version}
@@ -144,25 +114,23 @@ Get System Path
     ${PATH} =  Get Environment Variable  PATH
     [Return]  ${PATH}
 
-Thin Installer Calls Base Installer With Environment Variables For Product Argument
-    [Arguments]  ${productArgs}
-
-    Validate Env Passed To Base Installer  --products ${productArgs}   --customer-token ThisIsACustomerToken   ThisIsARegToken   https://localhost:4443/mcs
-
-Thin Installer Calls Base Installer Without Environment Variables For Product Argument
-    Validate Env Passed To Base Installer  ${EMPTY}  --customer-token ThisIsACustomerToken  ThisIsARegToken  https://localhost:4443/mcs
-
 Run Thin Installer And Check Argument Is Saved To Install Options File
     [Arguments]  ${argument}
     ${install_location}=  get_default_install_script_path
     ${thin_installer_cmd}=  Create List    ${install_location}   ${argument}
     Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
-    Run Thin Installer  ${thin_installer_cmd}   expected_return_code=0  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
+    Run Thin Installer  ${thin_installer_cmd}   expected_return_code=0  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}
     Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
     ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
     Should Contain  ${contents}  ${argument}
 
+Setup base Install
+    Require Installed
+    Create File    ${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag
+    Create File    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
+    Remove File    ${SOPHOS_INSTALL}/base/VERSION.ini.0
+    ${result1} =   Run Process   cp ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/VERSION.ini ${SOPHOS_INSTALL}/base/VERSION.ini.0  shell=true
 *** Variables ***
 ${PROXY_LOG}  ./tmp/proxy_server.log
 ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
@@ -174,27 +142,27 @@ ${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direc
 Thin Installer can download test file from warehouse and execute it
     [Tags]  SMOKE  THIN_INSTALLER
 
-    configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
+    Run Default Thininstaller  0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Successfully installed product
 
 Thin Installer fails to download test file from warehouse if certificate is not installed
     [Teardown]  Cert Test Teardown
     Cleanup System Ca Certs
-    Run Default Thininstaller    18
+    Run Default Thininstaller    18  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
 Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE  THIN_INSTALLER
     Start Local Cloud Server   --tls   tlsv1_1
     Cloud Server Log Should Contain      SSL version: _SSLMethod.PROTOCOL_TLSv1_1
-    Run Default Thininstaller    3    https://localhost:4443
+    Run Default Thininstaller    3    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Failed to connect to Sophos Central at https://localhost:4443 (cURL error is [SSL connect error]). Please check your firewall rules
 
 Thin Installer SUL Library Will Not Connect to Warehouse If Connection Has TLS below TLSv1_2
     [Setup]  Setup TSL server 1_1
-    [Teardown]  Restore normal SDDS3 server
+    [Teardown]  Restore fake SDDS3 server
     Start Local Cloud Server
     Run Default Thininstaller    18
-    Check Thininstaller Log Contains    Failed to connect to repository: received HTTP response code 35
+    Check Thininstaller Log Contains    Failed to connect to repository: Update connection error, received HTTP response code 35
 
 
 Thin Installer With Space In Name Works
@@ -205,28 +173,27 @@ Thin Installer With Space In Name Works
 Thin Installer Registers Existing Installation
     [Tags]  THIN_INSTALLER  MCS_ROUTER
     [Teardown]  Teardown With Temporary Directory Clean
-    Setup For Test With Warehouse Containing Base
+    Setup base Install
     Start Local Cloud Server
 
     # Force an installation
-    Run Default Thininstaller  expected_return_code=0
+    Run Default Thininstaller  expected_return_code=0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
     Check Thininstaller Log Does Not Contain  ERROR
     Check Cloud Server Log Contains  Register with ::ThisIsARegToken\n
     Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
-    remove_thininstaller_log
 
 
 Thin Installer Does Not Pass Customer Token Argument To Register Central When No Product Selection Arguments Given
     [Tags]  THIN_INSTALLER  MCS_ROUTER
     [Teardown]  Teardown With Temporary Directory Clean
-    Setup For Test With Warehouse Containing Base
+    Setup base Install
     Start Local Cloud Server
     ${registerCentralArgFilePath} =  replace_register_central_with_script_that_echos_args
 
     # Force an installation
-    Run Default Thininstaller  expected_return_code=0
+    Run Default Thininstaller  expected_return_code=0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
     Check Thininstaller Log Does Not Contain  ERROR
     ${registerCentralArgs} =  Get File  ${registerCentralArgFilePath}
@@ -234,29 +201,27 @@ Thin Installer Does Not Pass Customer Token Argument To Register Central When No
     # Be able to process the argument
     Should Be Equal As Strings  '${registerCentralArgs.strip()}'   'ThisIsARegToken https://localhost:4443/mcs'
 
-    Remove Thininstaller Log
 
 Thin Installer Registers Existing Installation With Product Args
     [Tags]  THIN_INSTALLER  MCS_ROUTER
     [Teardown]  Teardown With Temporary Directory Clean
-    Setup For Test With Warehouse Containing Base
+    Setup base Install
     Start Local Cloud Server
 
     # Force an installation
-    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0
+    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
     Check Thininstaller Log Does Not Contain  ERROR
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
     Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegToken\n
 
-    Remove Thininstaller Log
 
 
 Thin Installer Installs Product Successfully When A Large Number Of Users Are In One Group
     [Documentation]  Created for LINUXDAR-2249
     [Teardown]  Teardown With Large Group Creation
     Setup Group File With Large Group Creation
-    Setup For Test With Warehouse Containing Product
+    Setup warehouse With sdds3 base
     Start Local Cloud Server
 
     Should Not Exist    ${SOPHOS_INSTALL}
@@ -270,6 +235,8 @@ Thin Installer Installs Product Successfully When A Large Number Of Users Are In
 
 
 Thin Installer Installs Product Successfully With Product Arguments
+    [Teardown]  Restore warehouse with fake sdds3 base
+    Setup warehouse With sdds3 base
     Start Local Cloud Server
 
     Should Not Exist    ${SOPHOS_INSTALL}
@@ -282,8 +249,9 @@ Thin Installer Installs Product Successfully With Product Arguments
     Check Cloud Server Log Contains  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
 Thin Installer Repairs Broken Existing Installation
-    [Teardown]  Teardown With Temporary Directory Clean
-    Setup For Test With Warehouse Containing Base
+    [Teardown]  Restore warehouse with fake sdds3 base
+    Setup warehouse With sdds3 base
+    Setup base Install
     # Break installation
     Should Exist  ${REGISTER_CENTRAL}
     Remove File  ${REGISTER_CENTRAL}
@@ -295,7 +263,7 @@ Thin Installer Repairs Broken Existing Installation
 
     Check Thininstaller Log Does Not Contain  ERROR
     Should Exist  ${REGISTER_CENTRAL}
-    Remove Thininstaller Log
+
     Check Root Directory Permissions Are Not Changed
     ${mcsrouter_log} =  Mcs Router Log
     #there is a race condition where the mcsrouter can restart when
@@ -303,7 +271,11 @@ Thin Installer Repairs Broken Existing Installation
     Remove File  ${mcsrouter_log}
     Check Expected Base Processes Are Running
 
+
+
 Thin Installer Force Works
+    [Teardown]  Restore warehouse with fake sdds3 base
+    Setup warehouse With sdds3 base
     Run Full Installer
     Start Local Cloud Server
 
@@ -318,7 +290,6 @@ Thin Installer Force Works
     Check Thininstaller Log Contains  Successfully installed product
     Should Have A Stopped Sophos Message In Journalctl Since Certain Time  ${time}
     Should Have Set KillMode To Mixed
-    Remove Thininstaller Log
     Check Root Directory Permissions Are Not Changed
 
 Thin Installer Saves Group Names To Install Options
@@ -347,7 +318,7 @@ Thin Installer Passes MDR Products Arg To Base Installer
 
 Thin Installer Passes MDR and XDR Products Arg To Base Installer
     Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=mdr,xdr
-        Check Thininstaller Log Contains  Carrying out Preregistration for selected products: mdr,xdr
+    Check Thininstaller Log Contains  Carrying out Preregistration for selected products: mdr,xdr
 
 Thin Installer Passes AV Products Arg To Base Installer
     Run Default Thinistaller With Product Args And Central  0  ${SUPPORT_FILES}/sophos_certs  --products=antivirus

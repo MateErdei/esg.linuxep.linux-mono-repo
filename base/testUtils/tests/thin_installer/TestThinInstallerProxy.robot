@@ -25,13 +25,6 @@ Resource  ThinInstallerResources.robot
 Default Tags  THIN_INSTALLER
 
 *** Keywords ***
-Setup With Large Group Creation
-    Setup Group File With Large Group Creation
-
-Teardown With Large Group Creation
-    Teardown Group File With Large Group Creation
-    Teardown
-
 Setup Thininstaller Test
     Start Local Cloud Server
     Setup Thininstaller Test Without Local Cloud Server
@@ -89,74 +82,6 @@ Teardown
     Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
     Remove Environment Variable  INSTALL_OPTIONS_FILE
     Cleanup Temporary Folders
-
-Remove SAV files
-    Remove Fake Savscan In Tmp
-    Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/bin
-    Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /usr/local/bin/
-    Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /bin
-    Run Keyword And Ignore Error    Delete Fake Sweep Symlink    /tmp
-
-SAV Teardown
-    Remove SAV files
-    Teardown
-
-Cert Test Teardown
-    Teardown
-    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
-
-Run ThinInstaller Instdir And Check It Fails
-    [Arguments]    ${path}
-    Log  ${path}
-    Run Default Thininstaller With Args  19  --instdir=${path}
-    Check Thininstaller Log Contains  The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted
-    Remove Thininstaller Log
-
-Run ThinInstaller With Bad Group Name And Check It Fails
-    [Arguments]    ${groupName}
-    Log  ${GroupName}
-    Run Default Thininstaller With Args  24  --group=${groupName}
-    Check Thininstaller Log Contains  Error: Group name contains one of the following invalid characters: < & > ' \" --- aborting install
-    Remove Thininstaller Log
-
-Create Fake Ldd Executable With Version As Argument And Add It To Path
-    [Arguments]  ${version}
-    ${FakeLddDirectory} =  Add Temporary Directory  FakeExecutable
-    ${script} =     Catenate    SEPARATOR=\n
-    ...    \#!/bin/bash
-    ...    echo "ldd (Ubuntu GLIBC 99999-ubuntu1) ${version}"
-    ...    \
-    Create File    ${FakeLddDirectory}/ldd   content=${script}
-    Run Process    chmod  +x  ${FakeLddDirectory}/ldd
-
-    ${PATH} =  Get System Path
-    ${result} =  Run Process  ${FakeLddDirectory}/ldd
-    Log  ${result.stdout}
-
-    [Return]  ${FakeLddDirectory}:${PATH}
-
-Get System Path
-    ${PATH} =  Get Environment Variable  PATH
-    [Return]  ${PATH}
-
-Thin Installer Calls Base Installer With Environment Variables For Product Argument
-    [Arguments]  ${productArgs}
-
-    Validate Env Passed To Base Installer  --products ${productArgs}   --customer-token ThisIsACustomerToken   ThisIsARegToken   https://localhost:4443/mcs
-
-Thin Installer Calls Base Installer Without Environment Variables For Product Argument
-    Validate Env Passed To Base Installer  ${EMPTY}  --customer-token ThisIsACustomerToken  ThisIsARegToken  https://localhost:4443/mcs
-
-Run Thin Installer And Check Argument Is Saved To Install Options File
-    [Arguments]  ${argument}
-    ${install_location}=  get_default_install_script_path
-    ${thin_installer_cmd}=  Create List    ${install_location}   ${argument}
-    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
-    Run Thin Installer  ${thin_installer_cmd}   expected_return_code=0  cleanup=False  temp_dir_to_unpack_to=${CUSTOM_TEMP_UNPACK_DIR}
-    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}
-    Should Exist  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
-    ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
-    Should Contain  ${contents}  ${argument}
 
 *** Variables ***
 ${PROXY_LOG}  ./tmp/proxy_server.log

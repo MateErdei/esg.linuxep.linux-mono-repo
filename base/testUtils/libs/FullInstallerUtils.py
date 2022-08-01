@@ -488,7 +488,7 @@ def Uninstall_SSPL(installdir=None):
     while does_group_exist() and counter2 < 5:
         logger.info(f"Removing group, it should have already been removed by now. Counter: {counter2}")
         counter2 = counter2 + 1
-        for user in ['sophos-spl-user', 'sophos-spl-network', 'sophos-spl-local']:
+        for user in ['sophos-spl-user', 'sophos-spl-network', 'sophos-spl-local', 'sophos-spl-updatescheduler']:
             if does_user_exist(user):
                 remove_user(delete_user_cmd, user)
 

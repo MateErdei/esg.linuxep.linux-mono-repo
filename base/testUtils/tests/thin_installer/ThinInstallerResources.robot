@@ -1,6 +1,6 @@
 *** Settings ***
 
-Resource  ThinInstallerResources.robot
+Resource  ../update/SDDS3Resources.robot
 
 *** Variables ***
 ${EtcGroupFilePath}  /etc/group
@@ -24,12 +24,14 @@ Cleanup Update Tests
 Setup sdds3 Update Tests
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
-    ${handle}=  Start Local SDDS3 Server
+    Generate Fake sdds3 warehouse
+    ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
     Set Local CA Environment Variable
 
 Cleanup sdds3 Update Tests
     Stop Local SDDS3 Server
+    Clean up fake warehouse
 Setup Thininstaller Test
     Require Uninstalled
     Set Environment Variable  CORRUPTINSTALL  no
@@ -50,7 +52,6 @@ Thininstaller Test Teardown
     Cleanup Files
     Require Uninstalled
     Remove Environment Variable  SOPHOS_INSTALL
-    Remove Directory  ${CUSTOM_DIR_BASE}  recursive=True
     Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
     Remove Environment Variable  INSTALL_OPTIONS_FILE
     Cleanup Temporary Folders
