@@ -1,21 +1,24 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
+// Class
 #include "SoapdBootstrap.h"
-
+// Package
 #include "Logger.h"
-
-#include "datatypes/sophos_filesystem.h"
-#include "common/ThreadRunner.h"
-#include "datatypes/SystemCallWrapper.h"
+// Component
 #include "sophos_on_access_process/OnAccessConfig//OnAccessConfigMonitor.h"
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
-#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
-
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+// Product
 #include "common/FDUtils.h"
-
+#include "common/SaferStrerror.h"
+#include "common/ThreadRunner.h"
+#include "datatypes/sophos_filesystem.h"
+#include "datatypes/SystemCallWrapper.h"
+#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
+// Base
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+// Std C++
 #include <memory>
-
+// Std C
 #include <poll.h>
 
 namespace fs = sophos_filesystem;
@@ -90,7 +93,8 @@ void SoapdBootstrap::innerRun(
                 continue;
             }
 
-            LOGERROR("Failed to read from pipe - shutting down. Error: " << strerror(error) << " (" << error << ')');
+            LOGERROR("Failed to read from pipe - shutting down. Error: "
+                     << common::safer_strerror(error) << " (" << error << ')');
             break;
         }
 
