@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ScanningServerConnectionThread.h"
 
@@ -20,6 +16,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include <capnp/serialize.h>
 
 #include <cassert>
+#include <csignal>
 #include <iostream>
 #include <stdexcept>
 #include <utility>
@@ -85,6 +82,19 @@ void unixsocket::ScanningServerConnectionThread::run()
     setIsRunning(true);
     announceThreadStarted();
 
+    // LINUXDAR-4543: Block signals in this thread, and all threads started from this thread
+    sigset_t signals;
+    sigemptyset(&signals);
+    sigaddset(&signals, SIGUSR1);
+    sigaddset(&signals, SIGTERM);
+    sigaddset(&signals, SIGHUP);
+    sigaddset(&signals, SIGQUIT);
+    int s = pthread_sigmask(SIG_BLOCK, &signals, nullptr);
+    std::ignore = s; assert(s == 0);
+
+    // Start server:
+    LOGDEBUG("Starting Scanning Server thread");
+
     try
     {
         inner_run();
@@ -113,6 +123,9 @@ void unixsocket::ScanningServerConnectionThread::run()
         // Fatal since this means we have thrown something that isn't a subclass of std::exception
         LOGFATAL("Terminated ScanningServerConnectionThread with unknown exception");
     }
+
+    LOGDEBUG("Stopping Scanning Server thread");
+
     setIsRunning(false);
 }
 
