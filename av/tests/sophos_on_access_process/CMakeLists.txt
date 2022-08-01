@@ -1,4 +1,5 @@
 if (NOT DEFINED ENV{USE_LIBFUZZER})
+include(GoogleTest)
 
 SophosAddTest(TestSophosOnAccessProcessImpl
         ../common/LogInitializedTests.cpp
