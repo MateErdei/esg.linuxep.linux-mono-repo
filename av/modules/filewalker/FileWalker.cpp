@@ -59,6 +59,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         else
         {
             m_callback.registerError(oss);
+            return; // Can't continue scanning, since we don't have a file
         }
     }
 
