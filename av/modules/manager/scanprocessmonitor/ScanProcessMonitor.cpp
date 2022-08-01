@@ -10,6 +10,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "common/FDUtils.h"
 #include "common/PluginUtils.h"
+#include "common/SaferStrerror.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include <cstring>
@@ -39,20 +40,6 @@ namespace plugin::manager::scanprocessmonitor
             static const auto inhibit_system_file_change_restart_file =
                 common::getPluginInstallPath() / "var/inhibit_system_file_change_restart_threat_detector";
             return sophos_filesystem::exists(inhibit_system_file_change_restart_file);
-        }
-
-        std::string safer_strerror(int error)
-        {
-            errno = 0;
-            char buf[256];
-#ifdef _GNU_SOURCE
-            const char* res = strerror_r(error, buf, sizeof(buf));
-            return res;
-#else
-            int res = strerror_r(error, buf, sizeof(buf));
-            std::ignore = res;
-            return buf;
-#endif
         }
     }
 
@@ -107,7 +94,7 @@ namespace plugin::manager::scanprocessmonitor
 
             if (active < 0 and errno != EINTR)
             {
-                auto buf = safer_strerror(errno);
+                auto buf = common::safer_strerror(errno);
                 LOGERROR("failure in ScanProcessMonitor: pselect failed: " << buf);
                 break;
             }

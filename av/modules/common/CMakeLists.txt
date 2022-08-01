@@ -19,6 +19,8 @@ add_library(common SHARED
         PathUtils.h
         PluginUtils.cpp
         PluginUtils.h
+        SaferStrerror.cpp
+        SaferStrerror.h
         ScanInterruptedException.h
         ScanManuallyInterruptedException.h)
 
