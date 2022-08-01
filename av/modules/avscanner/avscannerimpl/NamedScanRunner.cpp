@@ -75,7 +75,6 @@ namespace avscanner::avscannerimpl
 
                 for (const auto& exclusion : m_config.m_excludePaths)
                 {
-                    // Might need to extend this to cover unknown?
                     if (exclusion.appliesToPath(mountpoint, false, false)) // We don't know if the mount point is a directory yet
                     {
                         excluded = true;
