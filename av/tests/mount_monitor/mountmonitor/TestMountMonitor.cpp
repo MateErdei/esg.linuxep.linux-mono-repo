@@ -82,7 +82,7 @@ TEST_F(TestMountMonitor, TestGetIncludedMountpoints) // NOLINT
     EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 4);
 }
 
-TEST_F(TestMountMonitor, TestMountsEvaluatedOnPorcMountsChange) // NOLINT
+TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -98,7 +98,7 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnPorcMountsChange) // NOLINT
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&m_serverWaitGuard, &WaitForEvent::onEventNoArgs), Return(-1)));
     MountMonitor mountMonitor(config, m_mockSysCallWrapper);
-    int numMountPoints = mountMonitor.getIncludedMountpoints(mountMonitor.getAllMountpoints()).size();
+    auto numMountPoints = mountMonitor.getIncludedMountpoints(mountMonitor.getAllMountpoints()).size();
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor");
 
     std::stringstream logMsg1;
