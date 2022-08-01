@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 
@@ -10,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 
-TEST(Exclusion, TestStemTypes) // NOLINT
+TEST(Exclusion, TestStemTypes)
 {
     Exclusion rootExcl("/");
     EXPECT_EQ(rootExcl.type(), STEM);
@@ -23,6 +19,12 @@ TEST(Exclusion, TestStemTypes) // NOLINT
     EXPECT_TRUE(stemExcl.appliesToPath("/multiple/nested/dirs/foo"));
     EXPECT_TRUE(stemExcl.appliesToPath("/multiple/nested/dirs/foo/bar"));
     EXPECT_FALSE(stemExcl.appliesToPath("/multiple/nested/dirs"));
+    EXPECT_TRUE(stemExcl.appliesToPath("/multiple/nested/dirs", true, false)); // If we know dirs is a directory, then we can exclude it
+    EXPECT_FALSE(stemExcl.appliesToPath("/multiple/nested/dirs", false, false));
+    EXPECT_FALSE(stemExcl.appliesToPath("/multiple/nested/dirt", true, false));
+    EXPECT_FALSE(stemExcl.appliesToPath("/multiple/nested/dirst", true, false));
+    EXPECT_FALSE(stemExcl.appliesToPath("/multiple/nested/dis", true, false));
+
 
     Exclusion rootExclWithAsterisk("/*");
     EXPECT_EQ(rootExclWithAsterisk.type(), STEM);
@@ -40,7 +42,7 @@ TEST(Exclusion, TestStemTypes) // NOLINT
 
 }
 
-TEST(Exclusion, TestFullpathTypes) // NOLINT
+TEST(Exclusion, TestFullpathTypes)
 {
     Exclusion fullpathExcl("/tmp/foo.txt");
     EXPECT_EQ(fullpathExcl.type(), FULLPATH);
@@ -59,7 +61,7 @@ TEST(Exclusion, TestFullpathTypes) // NOLINT
     EXPECT_FALSE(dirpathExcl.appliesToPath("/tmp/foo/bar"));
 }
 
-TEST(Exclusion, TestGlobTypes) // NOLINT
+TEST(Exclusion, TestGlobTypes)
 {
     Exclusion globExclAsteriskEnd("/tmp/foo*");
     EXPECT_EQ(globExclAsteriskEnd.type(), GLOB);
@@ -147,7 +149,7 @@ TEST(Exclusion, TestGlobTypes) // NOLINT
     EXPECT_TRUE(regexMetaCharExcl2.appliesToPath("/tmp/(e|E)ic{2,3}ar.com"));
 }
 
-TEST(Exclusion, TestFilenameTypes) // NOLINT
+TEST(Exclusion, TestFilenameTypes)
 {
     Exclusion filenameExcl("foo.txt");
     EXPECT_EQ(filenameExcl.type(), FILENAME);
@@ -165,7 +167,7 @@ TEST(Exclusion, TestFilenameTypes) // NOLINT
     EXPECT_FALSE(filename2Excl.appliesToPath("/tmp/barfoo"));
 }
 
-TEST(Exclusion, TestRelativeTypes) // NOLINT
+TEST(Exclusion, TestRelativeTypes)
 {
     Exclusion dirExcl("bar/");
     EXPECT_EQ(dirExcl.type(), RELATIVE_STEM);
@@ -184,7 +186,7 @@ TEST(Exclusion, TestRelativeTypes) // NOLINT
     EXPECT_FALSE(dirAndFileExcl.appliesToPath("/tmp/foo/bar"));
 }
 
-TEST(Exclusion, TestRelativeGlobTypes) // NOLINT
+TEST(Exclusion, TestRelativeGlobTypes)
 {
     Exclusion filenameMatchAnyExcl("foo.*");
     EXPECT_EQ(filenameMatchAnyExcl.type(), RELATIVE_GLOB);
@@ -227,7 +229,7 @@ TEST(Exclusion, TestRelativeGlobTypes) // NOLINT
 
 }
 
-TEST(Exclusion, TestInvalidTypes) // NOLINT
+TEST(Exclusion, TestInvalidTypes)
 {
     Exclusion invalidExcl("");
     EXPECT_EQ(invalidExcl.type(), INVALID);

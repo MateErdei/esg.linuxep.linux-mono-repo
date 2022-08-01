@@ -71,10 +71,12 @@ namespace avscanner::avscannerimpl
             {
                 // Apply path based exclusions immediately:
                 bool excluded = false;
+                const auto& mountpoint = mp->mountPoint();
 
                 for (const auto& exclusion : m_config.m_excludePaths)
                 {
-                    if (exclusion.appliesToPath(mp->mountPoint(), true))
+                    // Might need to extend this to cover unknown?
+                    if (exclusion.appliesToPath(mountpoint, false, false)) // We don't know if the mount point is a directory yet
                     {
                         excluded = true;
                         break;
@@ -82,7 +84,7 @@ namespace avscanner::avscannerimpl
                 }
                 if (excluded)
                 {
-                    LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " has been excluded by path from the scan");
+                    LOGDEBUG("Mount point " << mountpoint.c_str() << " has been excluded by path from the scan");
                 }
                 else
                 {

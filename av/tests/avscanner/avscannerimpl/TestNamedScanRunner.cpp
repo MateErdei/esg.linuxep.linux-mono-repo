@@ -365,6 +365,55 @@ TEST_F(TestNamedScanRunner, TestGetIncludedMountpoints)
     EXPECT_EQ(runner.getIncludedMountpoints(allMountpoints).size(), 4);
 }
 
+TEST_F(TestNamedScanRunner, TestExclusionsAppliedAtInclusionTime)
+{
+    m_scanHardDisc = true;
+    m_scanNetwork = true;
+    m_scanOptical = true;
+    m_scanRemovable = true;
+
+    std::shared_ptr<::testing::StrictMock<MockMountPoint>> localFixedDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
+    EXPECT_CALL(*localFixedDevice, isHardDisc()).WillOnce(Return(true));
+    EXPECT_CALL(*localFixedDevice, mountPoint()).WillRepeatedly(Return("/etc/a"));
+
+    std::shared_ptr<::testing::StrictMock<MockMountPoint>> networkDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
+    EXPECT_CALL(*networkDevice, isHardDisc()).WillOnce(Return(false));
+    EXPECT_CALL(*networkDevice, isNetwork()).WillOnce(Return(true));
+    EXPECT_CALL(*networkDevice, mountPoint()).WillRepeatedly(Return("/etc/b"));
+
+    std::shared_ptr<::testing::StrictMock<MockMountPoint>> opticalDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
+    EXPECT_CALL(*opticalDevice, isHardDisc()).WillOnce(Return(false));
+    EXPECT_CALL(*opticalDevice, isNetwork()).WillOnce(Return(false));
+    EXPECT_CALL(*opticalDevice, isOptical()).WillOnce(Return(true));
+    EXPECT_CALL(*opticalDevice, mountPoint()).WillRepeatedly(Return("/etc/c"));
+
+    std::shared_ptr<::testing::StrictMock<MockMountPoint>> removableDevice = std::make_shared<::testing::StrictMock<MockMountPoint>>();
+    EXPECT_CALL(*removableDevice, isHardDisc()).WillOnce(Return(false));
+    EXPECT_CALL(*removableDevice, isNetwork()).WillOnce(Return(false));
+    EXPECT_CALL(*removableDevice, isOptical()).WillOnce(Return(false));
+    EXPECT_CALL(*removableDevice, isRemovable()).WillOnce(Return(true));
+    EXPECT_CALL(*removableDevice, mountPoint()).WillRepeatedly(Return("/home/a"));
+
+    ::capnp::MallocMessageBuilder message;
+    mount_monitor::mountinfo::IMountPointSharedVector allMountpoints;
+    allMountpoints.push_back(localFixedDevice);
+    allMountpoints.push_back(networkDevice);
+    allMountpoints.push_back(opticalDevice);
+    allMountpoints.push_back(removableDevice);
+
+    Sophos::ssplav::NamedScan::Reader scanConfigOut = createNamedScanConfig(
+        message,
+        m_expectedExclusions,
+        m_scanHardDisc,
+        m_scanNetwork,
+        m_scanOptical,
+        m_scanRemovable);
+
+    NamedScanRunner runner(scanConfigOut);
+
+    EXPECT_EQ(runner.getIncludedMountpoints(allMountpoints).size(), 0);
+}
+
 TEST_F(TestNamedScanRunner, TestDuplicateMountPointsGetDeduplicated)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);

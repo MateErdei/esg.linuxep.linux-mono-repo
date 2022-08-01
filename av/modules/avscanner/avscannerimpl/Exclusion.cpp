@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "Exclusion.h"
 
@@ -88,14 +84,17 @@ Exclusion::Exclusion(const std::string& path):
     }
 }
 
-// isDirectory defaults to false
-bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
+auto Exclusion::appliesToPath(const std::string& path, bool isDirectory, bool isFile) const -> bool
 {
     switch(m_type)
     {
         case STEM:
         {
             if (common::PathUtils::startswith(path, m_exclusionPath))
+            {
+                return true;
+            }
+            if (isDirectory && path.size()+1 == m_exclusionPath.size() && common::PathUtils::startswith(m_exclusionPath, path))
             {
                 return true;
             }
@@ -111,7 +110,8 @@ bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
         }
         case FILENAME:
         {
-            if (isDirectory)
+            // FILENAME only applies to files, not directories or unknown
+            if (!isFile)
             {
                 break;
             }
@@ -128,7 +128,7 @@ bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
         case FULLPATH:
         {
             // Full paths shouldn't match directories
-            if (path == m_exclusionPath && !isDirectory)
+            if (path == m_exclusionPath && isFile)
             {
                 return true;
             }
@@ -148,6 +148,16 @@ bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
             break;
     }
     return false;
+}
+
+// isDirectory defaults to false
+bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
+{
+    if (isDirectory)
+    {
+        return appliesToPath(path, true, false);
+    }
+    return appliesToPath(path, false, true);
 }
 
 std::string Exclusion::path() const

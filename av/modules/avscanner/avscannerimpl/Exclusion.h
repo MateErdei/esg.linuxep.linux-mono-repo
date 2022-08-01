@@ -28,6 +28,7 @@ namespace avscanner::avscannerimpl
     public:
         explicit Exclusion(const std::string& path);
 
+        [[nodiscard]] bool appliesToPath(const std::string& path, bool isDirectory, bool isFile) const;
         [[nodiscard]] bool appliesToPath(const std::string& path, bool ignoreFilenameExclusion=false) const;
         [[nodiscard]] std::string path() const;
         [[nodiscard]] std::string displayPath() const;
