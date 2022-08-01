@@ -13,7 +13,9 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "common/Define.h"
 #include "common/FDUtils.h"
+#include "common/SaferStrerror.h"
 #include "common/SigTermMonitor.h"
+
 #ifdef USE_SUSI
 #include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
 #else
@@ -61,7 +63,7 @@ namespace sspl::sophosthreatdetectorimpl
             {
                 if (error == EAI_SYSTEM)
                 {
-                    LOGERROR("Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: " << strerror(errno));
+                    LOGERROR("Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: " << common::safer_strerror(errno));
                 }
                 else
                 {
@@ -244,7 +246,7 @@ namespace sspl::sophosthreatdetectorimpl
             int ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
             if (ret != 0)
             {
-                LOGERROR("Failed to lock capabilities: " << strerror(errno));
+                LOGERROR("Failed to lock capabilities: " << common::safer_strerror(errno));
             }
             return ret;
         }
@@ -422,7 +424,8 @@ namespace sspl::sophosthreatdetectorimpl
                         continue;
                     }
 
-                    LOGERROR("Failed to read from socket - shutting down. Error: " << strerror(error) << " (" << error << ')');
+                    LOGERROR("Failed to read from socket - shutting down. Error: "
+                             << common::safer_strerror(error) << " (" << error << ')');
                     returnCode = common::E_GENERIC_FAILURE;
                     break;
                 }
