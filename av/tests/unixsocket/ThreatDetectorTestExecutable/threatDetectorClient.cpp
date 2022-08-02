@@ -69,7 +69,7 @@ namespace Fuzzing
 
     static int runFuzzing()
     {
-        auto clientSocket = std::make_shared<unixsocket::ScanningClientSocket>(m_socketPath, timespec{0,1});
+        auto clientSocket = std::make_shared<unixsocket::ScanningClientSocket>(m_socketPath);
         auto scanCallbacks = std::make_shared<FakeCallbacks>();
 
         avscanner::avscannerimpl::ScanClient scanner(*clientSocket, scanCallbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
@@ -102,7 +102,7 @@ static void initializeLogging()
     Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
 }
 
-static int writeSampleFile(std::string path)
+static int writeSampleFile(const std::string& path)
 {
     ::capnp::MallocMessageBuilder message;
     scan_messages::ScanResponse scanResponse;
@@ -113,7 +113,7 @@ static int writeSampleFile(std::string path)
 
     std::string responseString = scanResponse.serialise();
 
-    int size = responseString.size();
+    auto size = responseString.size();
 
     auto bytes = unixsocket::splitInto7Bits(size);
     auto lengthBytes = unixsocket::addTopBitAndPutInBuffer(bytes);

@@ -6,16 +6,16 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
-#include "common/AbortScanException.h"
+
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/Reloader.h"
-#include "unixsocket/threatDetectorSocket/ReconnectSettings.h"
-#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
-#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
-#include "unixsocket/SocketUtils.h"
-
 #include "tests/common/TestFile.h"
 #include "tests/common/WaitForEvent.h"
+#include "unixsocket/SocketUtils.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
+#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
+
+// #include "common/AbortScanException.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -23,7 +23,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include <list>
 #include <memory>
 
-#include <fcntl.h>
+// #include <fcntl.h>
 
 using namespace ::testing;
 namespace fs = sophos_filesystem;
@@ -51,20 +51,20 @@ namespace
     class MockScanner : public threat_scanner::IThreatScanner
     {
     public:
-        MOCK_METHOD4(scan, scan_messages::ScanResponse(datatypes::AutoFd&, const std::string&, int64_t,
+        MOCK_METHOD(scan_messages::ScanResponse, scan, (datatypes::AutoFd&, const std::string&, int64_t,
             const std::string& userID));
 
-        MOCK_METHOD2(susiErrorToReadableError, std::string(const std::string& filePath, const std::string& susiError));
+        MOCK_METHOD(std::string, susiErrorToReadableError, (const std::string& filePath, const std::string& susiError));
     };
     class MockScannerFactory : public threat_scanner::IThreatScannerFactory
     {
     public:
-        MOCK_METHOD2(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives, bool scanImages));
+        MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanImages));
 
-        MOCK_METHOD0(update, bool());
-        MOCK_METHOD0(reload, bool());
-        MOCK_METHOD0(shutdown, void());
-        MOCK_METHOD0(susiIsInitialized, bool());
+        MOCK_METHOD(bool, update, ());
+        MOCK_METHOD(bool, reload, ());
+        MOCK_METHOD(void, shutdown, ());
+        MOCK_METHOD(bool, susiIsInitialized, ());
     };
 }
 
@@ -96,7 +96,24 @@ static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket
     request.setScanInsideArchives(false);
     request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     request.setUserID("root");
-    return socket.scan(file_fd, request);
+
+    scan_messages::ScanResponse response;
+
+    auto sendResult = socket.sendRequest(file_fd, request);
+    if (sendResult != 0)
+    {
+        response.setErrorMsg("Failed to send scan request");
+        return response;
+    }
+
+    auto receiveResponse = socket.receiveResponse(response);
+    if (!receiveResponse)
+    {
+        response.setErrorMsg("Failed to get scan response");
+        return response;
+    }
+
+    return response;
 }
 
 TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
@@ -202,8 +219,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
     server.join();
 }
 
-
-TEST_F(TestThreatDetectorSocket, test_scan_throws) // NOLINT
+TEST_F(TestThreatDetectorSocket, test_scan_throws)
 {
     static const std::string THREAT_PATH = "/dev/null";
     std::string socketPath = "scanning_socket";
@@ -222,7 +238,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws) // NOLINT
 
     // Create client connection
     {
-        unixsocket::ScanningClientSocket client_socket(socketPath, {0, 1'000'000});
+        unixsocket::ScanningClientSocket client_socket(socketPath);
         TestFile testFile("testfile");
         datatypes::AutoFd fd(testFile.open());
         auto response = scan(client_socket, fd, THREAT_PATH);
@@ -237,9 +253,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws) // NOLINT
     scannerFactory.reset();
 }
 
-
-
-TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLINT
+TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -252,21 +266,21 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLIN
     unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory);
     server.start();
 
-    struct timespec clientSleepTime={0, 10'000};
-
     // Use a std::list since we can't copy/move ScanningClientSocket
     std::list<unixsocket::ScanningClientSocket> client_sockets;
     // Create client connections - more than the max
-    int clientConnectionCount = server.maxClientConnections() * 2;
-    ASSERT_GT(clientConnectionCount, 0);
+    int clientConnectionCount = server.maxClientConnections() + 1;
+    PRINT("Starting " << clientConnectionCount << " client connections");
+
+    ASSERT_GT(clientConnectionCount, 1);
     for (int i=0; i < clientConnectionCount; ++i)
     {
-        client_sockets.emplace_back(socketPath,clientSleepTime);
+        client_sockets.emplace_back(socketPath);
     }
 
-    // Can't continue test if we don't have refused connections
-    ASSERT_TRUE(appenderContains("Refusing connection: Maximum number of scanners reached"));
     ASSERT_FALSE(client_sockets.empty());
+    // Can't continue test if we don't have refused connections
+    ASSERT_TRUE(waitForLog("Refusing connection: Maximum number of scanners reached", 500ms));
 
     // Try a scan with the last connection
     {
@@ -274,27 +288,12 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused) // NOLIN
         unixsocket::ScanningClientSocket& client_socket(client_sockets.back());
         TestFile testFile("testfile");
         datatypes::AutoFd fd(testFile.open());
-        for (int i=0;i< TOTAL_MAX_RECONNECTS / MAX_SCAN_RETRIES;++i)
-        {
-            auto response = scan(client_socket, fd, THREAT_PATH);
-            EXPECT_NE(response.getErrorMsg(), ""); // We should have an error message
-        }
 
-        // 5th time should throw exception ( TOTAL_MAX_RECONNECTS / MAX_SCAN_RETRIES + 1)
-        try
-        {
-            auto response = scan(client_socket, fd, THREAT_PATH);
-            FAIL() << "Managed to scan 5 times with no connection";
-        }
-        catch (const AbortScanException&)
-        {
-            // expected exception
-        }
+        auto response = scan(client_socket, fd, THREAT_PATH);
+        EXPECT_EQ(response.getErrorMsg(), "Failed to send scan request");
     }
 
     server.requestStop();
     client_sockets.clear();
     server.join();
 }
-
-
