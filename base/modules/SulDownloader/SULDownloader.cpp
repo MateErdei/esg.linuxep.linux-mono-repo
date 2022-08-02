@@ -632,6 +632,18 @@ namespace SulDownloader
         {
             useSdds3 = !(StringUtils::extractValueFromIniFile(overrideFile, "USE_SDDS3").empty());
         }
+
+        if (useSdds3 && !configurationData.getPrimarySubscription().fixedVersion().empty())
+        {
+            if (StringUtils::isVersionOlder("1.2", configurationData.getPrimarySubscription().fixedVersion()))
+            {
+                LOGINFO(
+                    "The requested fixed version is not available on SDDS3: " +
+                    configurationData.getPrimarySubscription().fixedVersion() + ". Reverting to SDDS2 mode.");
+                useSdds3 = false;
+            }
+        }
+
         if (!configurationData.getJWToken().empty() && useSdds3)
         {
             LOGINFO("Running in SDDS3 updating mode");

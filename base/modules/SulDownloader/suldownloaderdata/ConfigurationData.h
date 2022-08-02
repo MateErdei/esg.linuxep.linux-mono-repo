@@ -52,6 +52,7 @@ namespace SulDownloader::suldownloaderdata
         }
 
         bool operator!=(const ProductSubscription& rhs) const { return !operator==(rhs); }
+
     };
 
     /**

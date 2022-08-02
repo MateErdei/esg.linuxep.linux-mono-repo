@@ -40,8 +40,8 @@ public:
         m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
         return *filesystemMock;
     }
-Tests::ScopedReplaceFileSystem m_replacer; 
 
+    Tests::ScopedReplaceFileSystem m_replacer;
 
     ::testing::AssertionResult configurationDataIsEquivalent(
         const char* m_expr,
@@ -738,6 +738,5 @@ createJsonString("", "");
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(serializedConfigurationDataWithUnknownField); 
     std::vector<std::string> features = configurationData.getFeatures(); 
     std::vector<std::string> expected_features{{std::string{"CORE"}, std::string{"MDR"}}}; 
-    EXPECT_EQ(features, expected_features);  
-
+    EXPECT_EQ(features, expected_features);
 }

@@ -189,7 +189,7 @@ Drop ALC Policy Into Place
     Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
 Drop ALC Policy With Fixed Version Into Place
-    Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml  ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 
 Drop MCS Config Into Place
     Drop sophos-spl-local File Into Place     ${SUPPORT_FILES}/base_data/mcs.config  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
