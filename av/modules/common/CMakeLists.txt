@@ -23,7 +23,6 @@ add_library(common SHARED
         SaferStrerror.h
         ScanInterruptedException.h
         ScanManuallyInterruptedException.h
-        signals/IMonitorable.h
         signals/SignalHandlerBase.cpp
         signals/SignalHandlerBase.h
         )

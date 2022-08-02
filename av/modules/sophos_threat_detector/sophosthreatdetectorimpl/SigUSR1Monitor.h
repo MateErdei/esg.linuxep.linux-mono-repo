@@ -8,22 +8,22 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "IReloadable.h"
 
-#include "common/signals/IMonitorable.h"
+#include "common/signals/SignalHandlerBase.h"
 
 #include <Common/Threads/NotifyPipe.h>
 
 namespace sspl::sophosthreatdetectorimpl
 {
-    class SigUSR1Monitor : public common::signals::IMonitorable
+    class SigUSR1Monitor
     {
     public:
         SigUSR1Monitor() = delete;
         SigUSR1Monitor(const SigUSR1Monitor&) = delete;
         explicit SigUSR1Monitor(IReloadablePtr reloadable);
-        ~SigUSR1Monitor() override;
+        ~SigUSR1Monitor();
 
-        int monitorFd() override;
-        void triggered() override;
+        int monitorFd();
+        void triggered();
 
     private:
         Common::Threads::NotifyPipe m_pipe;
