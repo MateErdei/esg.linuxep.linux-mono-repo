@@ -1377,7 +1377,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     # After the log message, only wait ten seconds for avscanner to exit
     ${result} =  Wait For Process  handle=${HANDLE}  timeout=10s  on_timeout=kill
 
-    ${line_count} =  Count Lines In Log  ${LOG_FILE}  Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
+    ${line_count} =  Count Lines In Log  ${LOG_FILE}  Failed to scan file
 
     Should Be True  ${0} < ${line_count} < ${10}
 

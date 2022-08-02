@@ -90,9 +90,9 @@ namespace avscanner::avscannerimpl
                     if (!retryErrorLogged)
                     {
                         LOGWARN("Failed to reconnect to Sophos Threat Detector - retrying...");
-                        retryErrorLogged = true;
                     }
                 }
+                retryErrorLogged = true;
                 m_reconnectAttempts++;
             }
         }
@@ -182,13 +182,13 @@ namespace avscanner::avscannerimpl
 
             else if (ret == 0)
             {
+                // timeout
                 return;
             }
 
-            else if (ret > 0)
+            else // if (ret > 0)
             {
                 checkIfScanAborted();
-                break;
             }
         }
     }
