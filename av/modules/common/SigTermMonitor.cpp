@@ -31,14 +31,14 @@ namespace common
         : LatchingSignalHandler(SIGTERM)
     {
         // Setup signal handler
-        SIGTERM_MONITOR_PIPE = setSignalHandler(SIGTERM, signal_handler);
+        SIGTERM_MONITOR_PIPE = setSignalHandler(signal_handler);
     }
 
     SigTermMonitor::~SigTermMonitor()
     {
         // clear signal handler
         SIGTERM_MONITOR_PIPE = -1;
-        clearSignalHandler(SIGTERM);
+        clearSignalHandler();
     }
 
     std::shared_ptr<SigTermMonitor> SigTermMonitor::getSigTermMonitor()

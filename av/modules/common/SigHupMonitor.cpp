@@ -27,14 +27,14 @@ common::SigHupMonitor::SigHupMonitor()
     : LatchingSignalHandler(SIGHUP)
 {
     // Setup signal handler
-    SIGHUP_MONITOR_PIPE = setSignalHandler(SIGHUP, signal_handler);
+    SIGHUP_MONITOR_PIPE = setSignalHandler(signal_handler);
 }
 
 common::SigHupMonitor::~SigHupMonitor()
 {
     // clear signal handler
     SIGHUP_MONITOR_PIPE = -1;
-    clearSignalHandler(SIGHUP);
+    clearSignalHandler();
 }
 
 std::shared_ptr<common::SigHupMonitor> common::SigHupMonitor::getSigHupMonitor()

@@ -27,14 +27,14 @@ common::SigIntMonitor::SigIntMonitor()
     : LatchingSignalHandler(SIGINT)
 {
     // Setup signal handler
-    SIGINT_MONITOR_PIPE = setSignalHandler(SIGINT, signal_handler);
+    SIGINT_MONITOR_PIPE = setSignalHandler(signal_handler);
 }
 
 common::SigIntMonitor::~SigIntMonitor()
 {
     // clear signal handler
     SIGINT_MONITOR_PIPE = -1;
-    clearSignalHandler(SIGINT);
+    clearSignalHandler();
 }
 
 std::shared_ptr<common::SigIntMonitor> common::SigIntMonitor::getSigIntMonitor()

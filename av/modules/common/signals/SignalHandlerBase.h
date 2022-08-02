@@ -20,8 +20,8 @@ namespace common::signals
         virtual ~SignalHandlerBase() = default;
 
         int monitorFd();
-        int setSignalHandler(int signal, __sighandler_t handler);
-        void clearSignalHandler(int signal);
+        int setSignalHandler(__sighandler_t handler);
+        void clearSignalHandler() const;
     protected:
         Common::Threads::NotifyPipe m_pipe;
         int m_signalNumber;
