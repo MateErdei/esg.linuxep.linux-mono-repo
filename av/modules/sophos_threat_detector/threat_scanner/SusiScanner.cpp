@@ -232,7 +232,13 @@ SusiScanner::scan(
                     for (auto detection : result["detections"])
                     {
                         LOGWARN("Detected " << detection["threatName"] << " in " << escapedPath);
-                        response.addDetection(Common::ObfuscationImpl::Base64::Decode(result["base64path"]), detection["threatName"], result["sha256"]);
+                        std::string tempReportingPath = Common::ObfuscationImpl::Base64::Decode(result["base64path"]);
+                        if (tempReportingPath.size() < file_path.size())
+                        {
+                            // Refuse to use the path returned by SUSI if it is shorter than the one we started with.
+                            tempReportingPath = file_path;
+                        }
+                        response.addDetection(tempReportingPath, detection["threatName"], result["sha256"]);
                     }
                 }
 
