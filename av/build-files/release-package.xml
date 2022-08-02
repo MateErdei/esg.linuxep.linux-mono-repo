@@ -10,99 +10,120 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-30" build-id="20220718120117-9dd78bad548b4fdac7e57486f970d58cd5272f21-veR5uL"/>
-            <development-version branch="develop"/>
-            <include artifact-path="sspl-base/pluginapi" dest-dir="input" />
-            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds" />
+<!--            <release-version branch="release/2022-30"-->
+<!--                             build-id="20220718120117-9dd78bad548b4fdac7e57486f970d58cd5272f21-veR5uL"/>-->
+            <development-version branch="feature/LINUXDAR-5162-upgrade-openssl"/>
+            <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
+            <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/2022-30-linux" build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>
+<!--            <release-version branch="release/2022-30-linux"-->
+<!--                             build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>-->
+            <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="input/sdds3"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="boost">
-            <release-version branch="release/sspl/Version_1_78_0" build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
+            <release-version branch="release/sspl/Version_1_78_0"
+                             build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
             <include artifact-path="output" dest-dir="input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="cmake">
-            <release-version branch="release/sophos/v3.22.1" build-id="20220412085321-29886e1a6f8ae2867207fa5c4873eaac5c6075a7-VxG3sr"/>
+            <release-version branch="release/sophos/v3.22.1"
+                             build-id="20220412085321-29886e1a6f8ae2867207fa5c4873eaac5c6075a7-VxG3sr"/>
             <include artifact-path="cmake" dest-dir="input/cmake"/>
         </build-asset>
         <build-asset project="thirdparty" repo="gcc">
-            <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
+            <release-version branch="release/Version_11_2_0"
+                             build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="googletest">
-            <release-version branch="release/sspl/Version_1_11_0" build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>
-            <include artifact-path="thirdparty/googletest/gmock-headers" dest-dir="input/googletest/gmock-headers/gmock"/>
+            <release-version branch="release/sspl/Version_1_11_0"
+                             build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>
+            <include artifact-path="thirdparty/googletest/gmock-headers"
+                     dest-dir="input/googletest/gmock-headers/gmock"/>
             <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="input/googletest/gmock-libs"/>
-            <include artifact-path="thirdparty/googletest/gtest-headers" dest-dir="input/googletest/gtest-headers/gtest"/>
+            <include artifact-path="thirdparty/googletest/gtest-headers"
+                     dest-dir="input/googletest/gtest-headers/gtest"/>
             <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="input/googletest/gtest-libs"/>
         </build-asset>
         <!-- Need to compile our own messages -->
         <build-asset project="thirdparty" repo="capnproto">
-            <release-version branch="release/sspl/Version_0_8_0" build-id="20220314153844-e29cb764e609e0e34cd89aadd802d528f8020536-wQNt99"/>
+            <release-version branch="release/sspl/Version_0_8_0"
+                             build-id="20220314153844-e29cb764e609e0e34cd89aadd802d528f8020536-wQNt99"/>
             <include artifact-path="capnproto" dest-dir="input"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="openssl">
-            <release-version branch="release/sspl/Version_1_1_1n" build-id="20220401105035-fa22fd953fa7997cf90dbf895e1ece2de4a008c5-z53ZhW"/>
-            <include artifact-path="output" dest-dir="input" />
+            <release-version branch="release/sspl/Version_1_1_1q"
+                             build-id="20220725102623-b49f6c504d454be8e7bc6a7dc7f7528b53920bdc-iF7TY0"/>
+            <include artifact-path="output" dest-dir="input"/>
         </build-asset>
 
         <!-- SUSI imports -->
         <build-asset project="core" repo="engine">
-            <release-version branch="release/3.85.1" build-id="20220321101926-4e639779678aba81878512a8dbfa2937d7fac066-SDs0N8"/>
+            <release-version branch="release/3.85.1"
+                             build-id="20220321101926-4e639779678aba81878512a8dbfa2937d7fac066-SDs0N8"/>
             <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="input/susi_input/libsavi"/>
-            <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/libsophtainer"/>
+            <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4"
+                     dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
 
         <build-asset project="ec" repo="liblocalrep">
-            <release-version branch="release/2.3" build-id="20220502131229-8f193bbbde6ce5b91b0b94cfc6091093af6d2c21-F8EXYi"/>
+            <release-version branch="release/2.3"
+                             build-id="20220502131229-8f193bbbde6ce5b91b0b94cfc6091093af6d2c21-F8EXYi"/>
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
-        <trusted-asset artifact-path="filer5-migrate/model-linux-x64/1-3/212025/oempackage/linux-x64-model-gcc4.8.1.tar" dest-dir="input/susi_input/mllib"/>
+        <trusted-asset artifact-path="filer5-migrate/model-linux-x64/1-3/212025/oempackage/linux-x64-model-gcc4.8.1.tar"
+                       dest-dir="input/susi_input/mllib"/>
 
         <build-asset project="ec" repo="susi">
-            <release-version branch="release/2.0" build-id="20220510125737-13c0735291821539325af76cab1474c614fdeb06-6zShry"/>
-            <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib" />
-            <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib" />
-            <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include" />
-            <include artifact-path="release/rules" dest-dir="input/susi_input/rules" />
+            <release-version branch="release/2.0"
+                             build-id="20220510125737-13c0735291821539325af76cab1474c614fdeb06-6zShry"/>
+            <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib"/>
+            <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib"/>
+            <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include"/>
+            <include artifact-path="release/rules" dest-dir="input/susi_input/rules"/>
         </build-asset>
 
         <build-asset project="core" repo="httpsrequester">
-            <release-version branch="release/1.2" build-id="20220429060401-fa8db91f110608d19dfaaf3ea553081e11f3df2a-khtLXq"/>
+            <release-version branch="release/1.2"
+                             build-id="20220429060401-fa8db91f110608d19dfaaf3ea553081e11f3df2a-khtLXq"/>
             <include artifact-path="release/centos7/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
         </build-asset>
 
         <!-- external dependencies -->
         <build-asset project="thirdparty" repo="icu">
-            <release-version branch="release--sophos--susi--70.1" build-id="20211122160606-cae4f46bbfdecde35f62a69e9b31f240348c0f8f-hYx1a2" />
-            <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/icu/lib" />
+            <release-version branch="release--sophos--susi--70.1"
+                             build-id="20211122160606-cae4f46bbfdecde35f62a69e9b31f240348c0f8f-hYx1a2"/>
+            <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/icu/lib"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="libarchive">
-            <release-version branch="release--sophos--core--3.5.2" build-id="20211129093003-b525273b2abdbabe88d1b2d1dd5360a1e67f4b2d-V7m9kv" />
-            <include artifact-path="release/linux-x64/lib" dest-dir="input/susi_input/libarchive/lib" />
+            <release-version branch="release--sophos--core--3.5.2"
+                             build-id="20211129093003-b525273b2abdbabe88d1b2d1dd5360a1e67f4b2d-V7m9kv"/>
+            <include artifact-path="release/linux-x64/lib" dest-dir="input/susi_input/libarchive/lib"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="luajit">
-            <release-version branch="release--sophos--susi--2.1.0" build-id="20211004080500-1a9d72db49c57f6eabb70705001bd654d3da99ed-NeJf83" />
-            <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/luajit/lib" />
+            <release-version branch="release--sophos--susi--2.1.0"
+                             build-id="20211004080500-1a9d72db49c57f6eabb70705001bd654d3da99ed-NeJf83"/>
+            <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/luajit/lib"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="boost">
-            <release-version branch="release--sophos--core--1.77.0" build-id="20211126090955-ef33f0a539b87f97ee9e7e5b1220d25dc313589e-cB3kgN" />
+            <release-version branch="release--sophos--core--1.77.0"
+                             build-id="20211126090955-ef33f0a539b87f97ee9e7e5b1220d25dc313589e-cB3kgN"/>
             <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/boost"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="openssl">
-            <release-version branch="release--sophos--susi--1.1.1n" build-id="20220405102536-9699d5a9fc0e21e05bb42046076af371eb94a7ef-jw9CRv" />
-            <include artifact-path="openssl-linux-x64" dest-dir="input/susi_input/openssl/lib" />
+            <release-version branch="release--sophos--susi--1.1.1n"
+                             build-id="20220405102536-9699d5a9fc0e21e05bb42046076af371eb94a7ef-jw9CRv"/>
+            <include artifact-path="openssl-linux-x64" dest-dir="input/susi_input/openssl/lib"/>
         </build-asset>
-
 
 
     </inputs>
@@ -137,26 +158,31 @@
         <workingdir>.</workingdir>
         <destdir>sspl-plugin-anti-virus</destdir>
 
-        <release-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
-        <release-asset artifact-path="sspl-plugin-anti-virus/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
-        <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
-        <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="999"/>
+        <release-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT"
+                       mode="release"/>
+        <release-asset artifact-path="sspl-plugin-anti-virus/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE"
+                       mode="release"/>
+        <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT"
+                       mode="999"/>
+        <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE"
+                       mode="999"/>
 
         <build-asset artifact-path="output" source-dir="output" mode="release,debug">
         </build-asset>
         <build-asset artifact-path="coverage" source-dir="output" mode="coverage">
         </build-asset>
-        <logs name="build_log" source-dir="log" mode="debug,release" />
-        <logs name="coverage_log" source-dir="log" mode="coverage" />
+        <logs name="build_log" source-dir="log" mode="debug,release"/>
+        <logs name="coverage_log" source-dir="log" mode="coverage"/>
 
         <buildoutputs>
             <!-- rename logs for coverage builds -->
-            <output name="build_log" srcfolder="log" mode="oldci"> </output>
-            <output name="coverage_log" srcfolder="log" mode="oldcoverage"> </output>
+            <output name="build_log" srcfolder="log" mode="oldci"></output>
+            <output name="coverage_log" srcfolder="log" mode="oldcoverage"></output>
 
             <!-- rename output for coverage builds -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="oldci"> </output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="oldci"></output>
         </buildoutputs>
-        <publishbranches>master,develop,feature/LINUXDAR-2501-make-changes-necessary-to-use-2020.47-version-of-susi</publishbranches>
+        <publishbranches>master,develop,feature/LINUXDAR-2501-make-changes-necessary-to-use-2020.47-version-of-susi
+        </publishbranches>
     </publish>
 </package>
