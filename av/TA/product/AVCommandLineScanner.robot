@@ -81,7 +81,10 @@ AVCommandLineScanner Test TearDown
 
 Clear logs
     Stop AV
-    Wait Until AV Plugin Log Contains With Offset  Exiting AV plugin
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check AV Plugin Not Running
 
     Log  Backup logs before removing them
     Dump Log  ${AV_LOG_PATH}

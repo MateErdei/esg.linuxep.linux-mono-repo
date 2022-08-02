@@ -547,6 +547,11 @@ AVBasic Suite Teardown
 
 
 Clear Logs
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check AV Plugin Not Running
+
     Log  Backup logs before removing them
     Dump Log  ${AV_LOG_PATH}
     Dump Log  ${THREAT_DETECTOR_LOG_PATH}
@@ -582,7 +587,7 @@ Product Test Teardown
 
     Component Test TearDown
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
-    #Run clear logs only after we stopped all the processes, Component Test TearDown is killing all running processes
+    #Run clear logs only after we stopped all the processes
     ${result} =   Check If The Logs Are Close To Rotating
     run keyword if  ${result}   Clear Logs
     Run Keyword If Test Failed  Clear logs
