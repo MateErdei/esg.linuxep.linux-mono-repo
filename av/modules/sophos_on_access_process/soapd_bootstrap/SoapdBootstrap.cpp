@@ -32,6 +32,9 @@ void write_pid_file(const fs::path& pluginInstall)
     std::ofstream ofs(pidFilePath, std::ofstream::trunc);
     ofs << pid;
     ofs.close();
+    fs::permissions(pidFilePath,
+                    fs::perms::group_read | fs::perms::others_read,
+                    fs::perm_options::add);
 }
 
 int SoapdBootstrap::runSoapd()

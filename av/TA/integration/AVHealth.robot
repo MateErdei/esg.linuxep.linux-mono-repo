@@ -86,6 +86,16 @@ Sophos Threat Detector Not Running Triggers Bad Status Health
     Wait until threat detector running
     Check Status Health is Reporting Correctly    0
 
+Sophos On-Access Process Not Running Triggers Bad Status Health
+    Check Status Health is Reporting Correctly    0
+
+    Stop soapd
+    Check Status Health is Reporting Correctly    1
+
+    Start soapd
+    Wait until threat detector running
+    Check Status Health is Reporting Correctly    0
+
 Clean CLS Result Does Not Reset Threat Health
     Check Threat Health is Reporting Correctly    1
 

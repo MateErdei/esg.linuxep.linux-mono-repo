@@ -379,7 +379,7 @@ namespace Plugin
             procFileCmdlineContent = fileSystem->readProcFile(pid, "cmdline");
             std::string procCmdline = Common::UtilityImpl::StringUtils::splitString(procFileCmdlineContent.value(), { '\0' })[0];
 
-            if (procCmdline != processName)
+            if (basename(procCmdline.c_str()) != processName)
             {
                 LOGWARN("The proc cmdline for " << pid << " does not equal the expected value (" << processName << "): " << procFileCmdlineContent.value());
                 return false;
