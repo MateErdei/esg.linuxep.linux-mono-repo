@@ -15,7 +15,6 @@ namespace common
         ~SigHupMonitor() override;
 
         static std::shared_ptr<SigHupMonitor> getSigHupMonitor();
-        bool triggered();
 
     };
 }

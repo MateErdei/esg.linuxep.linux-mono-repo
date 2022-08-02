@@ -27,15 +27,6 @@ namespace common
         }
     }
 
-    bool SigTermMonitor::triggered()
-    {
-        while (m_pipe.notified())
-        {
-            m_signalled = true;
-        }
-        return m_signalled;
-    }
-
     SigTermMonitor::SigTermMonitor()
     {
         // Setup signal handler

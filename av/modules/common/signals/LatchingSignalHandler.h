@@ -8,5 +8,9 @@ namespace common::signals
 {
     class LatchingSignalHandler : public SignalHandlerBase
     {
+    public:
+        bool triggered();
+    protected:
+        bool m_signalled = false;
     };
 }

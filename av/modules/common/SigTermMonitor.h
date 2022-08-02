@@ -15,7 +15,6 @@ namespace common
         ~SigTermMonitor() override;
 
         static std::shared_ptr<SigTermMonitor> getSigTermMonitor();
-        bool triggered();
 
     };
 }

@@ -15,7 +15,6 @@ namespace common
         ~SigIntMonitor() override;
 
         static std::shared_ptr<SigIntMonitor> getSigIntMonitor();
-        bool triggered();
 
     };
 }

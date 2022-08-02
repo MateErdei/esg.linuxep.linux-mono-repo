@@ -6,15 +6,6 @@
 #include <cassert>
 #include <csignal>
 
-bool common::SigHupMonitor::triggered()
-{
-    while (m_pipe.notified())
-    {
-        m_signalled = true;
-    }
-    return m_signalled;
-}
-
 static int SIGHUP_MONITOR_PIPE = -1; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 static void signal_handler(int)

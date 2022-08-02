@@ -18,6 +18,5 @@ namespace common::signals
         int monitorFd();
     protected:
         Common::Threads::NotifyPipe m_pipe;
-        bool m_signalled = false;
     };
 }
