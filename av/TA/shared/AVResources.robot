@@ -92,9 +92,15 @@ Require Sophos Threat Detector Running
     ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Run Keyword If  ${result} == ${-1}  Run Sophos Threat Detector Directly
 
+Dump Threads And Fail
+    [Arguments]  ${ERROR_MESSAGE}
+    Dump Threads  ${PLUGIN_BINARY}
+    Dump All Processes
+    Fail  ${ERROR_MESSAGE}
+
 Check AV Plugin Not Running
     ${result} =   ProcessUtils.pidof  ${PLUGIN_BINARY}
-    Should Be Equal As Integers  ${result}  ${-1}
+    Run Keyword If  ${result} != ${-1}      Dump Threads And Fail    AV plugin still running: ${result}
 
 Check Threat Detector Not Running
     ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
