@@ -15,6 +15,8 @@ SophosAddTest(TestCommon
         TestSigTermMonitor.cpp
         TestStringUtils.cpp
         TestSigTermMonitor.cpp
+        signals/TestSignalHandlerBase.cpp
+        signals/TestSignalHandlerTemplate.cpp
         PROJECTS common
         INC_DIRS
         ${CMAKE_SOURCE_DIR}

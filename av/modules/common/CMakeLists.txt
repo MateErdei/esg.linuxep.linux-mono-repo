@@ -27,6 +27,7 @@ add_library(common SHARED
         signals/LatchingSignalHandler.h
         signals/SignalHandlerBase.cpp
         signals/SignalHandlerBase.h
+        signals/SignalHandlerTemplate.h
         )
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)

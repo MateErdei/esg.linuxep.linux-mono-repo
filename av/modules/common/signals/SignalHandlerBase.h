@@ -4,6 +4,7 @@
 
 #include <Common/Threads/NotifyPipe.h>
 
+#include <cassert>
 #include <csignal>
 
 namespace common::signals
