@@ -53,28 +53,39 @@ namespace sophos_on_access_process::OnAccessConfig
             configuration.excludeRemoteFiles = isSettingTrue(parsedConfig["excludeRemoteFiles"]);
             configuration.exclusions = parsedConfig["exclusions"].get<std::vector<std::string>>();
 
-            LOGINFO("On-access enabled: " << parsedConfig["enabled"]);
+
             std::string scanNetwork = isSettingTrue(parsedConfig["excludeRemoteFiles"]) ? "\"false\"" : "\"true\"";
+#ifndef USING_LIBFUZZER
+            LOGINFO("On-access enabled: " << parsedConfig["enabled"]);
             LOGINFO("On-access scan network: " << scanNetwork);
             LOGINFO("On-access exclusions: " << parsedConfig["exclusions"]);
+#endif
 
             return configuration;
         }
         catch (const json::parse_error& e)
         {
+#ifndef USING_LIBFUZZER
             LOGWARN("Failed to parse json configuration due to parse error, reason: " << e.what());
+#endif
         }
         catch (const json::out_of_range & e)
         {
+#ifndef USING_LIBFUZZER
             LOGWARN("Failed to parse json configuration due to out of range error, reason: " << e.what());
+#endif
         }
             catch (const json::type_error & e)
         {
+#ifndef USING_LIBFUZZER
             LOGWARN("Failed to parse json configuration due to type error, reason: " << e.what());
+#endif
         }
         catch (const json::other_error & e)
         {
+#ifndef USING_LIBFUZZER
             LOGWARN("Failed to parse json configuration, reason: " << e.what());
+#endif
         }
 
         return {};
