@@ -93,9 +93,13 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
     struct pollfd fds[2]{};
     fds[1].revents = POLLPRI;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)))
+        .WillOnce(
+            DoAll(
+                InvokeWithoutArgs(&clientWaitGuard, &WaitForEvent::waitDefault),
+                SetArrayArgument<0>(fds, fds+2),
+                Return(1)
+                ))
         .WillOnce(DoAll(
-            InvokeWithoutArgs(&clientWaitGuard, &WaitForEvent::waitDefault),
             InvokeWithoutArgs(&m_serverWaitGuard, &WaitForEvent::onEventNoArgs),
             Return(-1)
             )
@@ -108,10 +112,12 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
     logMsg1 << "Including " << numMountPoints << " mount points in on-access scanning";
     EXPECT_TRUE(waitForLog(logMsg1.str()));
     EXPECT_EQ(appenderCount(logMsg1.str()), 1);
-    clientWaitGuard.onEventNoArgs();
-    m_serverWaitGuard.wait();
+
+    clientWaitGuard.onEventNoArgs(); // Will allow the first call to complete
+    m_serverWaitGuard.wait(); // Waits for the second call to start
 
     EXPECT_EQ(appenderCount(logMsg1.str()), 2);
+
 }
 
 TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe) // NOLINT
