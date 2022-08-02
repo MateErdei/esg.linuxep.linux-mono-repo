@@ -14,7 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace sspl::sophosthreatdetectorimpl
 {
-    class SigUSR1Monitor
+    class SigUSR1Monitor : public common::signals::SignalHandlerBase
     {
     public:
         SigUSR1Monitor() = delete;
@@ -22,11 +22,9 @@ namespace sspl::sophosthreatdetectorimpl
         explicit SigUSR1Monitor(IReloadablePtr reloadable);
         ~SigUSR1Monitor();
 
-        int monitorFd();
         void triggered();
 
     private:
-        Common::Threads::NotifyPipe m_pipe;
         IReloadablePtr m_reloader;
     };
 }

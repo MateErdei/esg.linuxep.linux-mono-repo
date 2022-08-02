@@ -20,7 +20,7 @@ namespace sspl::sophosthreatdetectorimpl
         {
             if (GL_USR1_MONITOR_PIPE >= 0)
             {
-                [[maybe_unused]] ssize_t ret = ::write(GL_USR1_MONITOR_PIPE, "\0", 1);
+                [[maybe_unused]] auto ret = ::write(GL_USR1_MONITOR_PIPE, "\0", 1);
                 /*
                  * We are in a signal-context, so are very limited on what we can do.
                  * http://manpages.ubuntu.com/manpages/bionic/man7/signal-safety.7.html
@@ -31,10 +31,6 @@ namespace sspl::sophosthreatdetectorimpl
         }
     }
 
-    int SigUSR1Monitor::monitorFd()
-    {
-        return m_pipe.readFd();
-    }
     void SigUSR1Monitor::triggered()
     {
         while (m_pipe.notified())
