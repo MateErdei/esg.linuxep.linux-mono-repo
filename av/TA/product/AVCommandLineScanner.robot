@@ -1588,7 +1588,7 @@ CLS Can Append Summary To Log When SigTerm Occurs
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
     Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
-    register on fail  dump_threads  ${CLI_SCANNER_PATH}
+    register on fail  dump_threads_from_process  ${cls_handle}
 
     Wait Until File exists  ${SCAN_LOG}
     Dump Log  ${SCAN_LOG}
@@ -1633,7 +1633,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
     Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
-    register on fail  dump_threads  ${CLI_SCANNER_PATH}
+    register on fail  dump_threads_from_process  ${cls_handle}
 
     Wait Until File exists  ${SCAN_LOG}
     Wait For File With Particular Contents   \ Scanning\   ${SCAN_LOG}
@@ -1747,6 +1747,8 @@ CLS Can Scan Special File That Cannot Be Read
     Register On Fail  Log  ip netns add avtest output is ${result.stdout}
     Should Be equal As Integers  ${result.rc}  0
     Wait Until File exists  /run/netns/avtest
+    ${catrc}   ${catoutput} =    Run And Return Rc And Output    cat /run/netns/avtest
+    Register On Fail  Log  cat result: = ${catrc} output = ${catoutput}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /run/netns/avtest
     Register On Fail  Log  avscanner output is ${output}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}

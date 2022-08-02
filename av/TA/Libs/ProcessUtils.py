@@ -74,6 +74,9 @@ def dump_threads(executable):
         logger.info("%s not running" % executable)
         return
 
+    return dump_threads_from_pid(pid)
+
+def dump_threads_from_pid(pid):
     # write script out
     script = b"""set pagination 0
 thread apply all bt
@@ -91,10 +94,18 @@ quit
     # Get rid of boilerplate before backtraces
     output = output.split("(gdb)", 1)[-1]
 
-    logger.info("pstack (%d):" % ( exitcode))
+    logger.info("pstack (%d):" % exitcode)
     for line in output.splitlines():
         logger.info(line)
 
+def dump_threads_from_process(process):
+    """
+    Dump threads from a Handle from Start Process
+    https://robotframework.org/robotframework/latest/libraries/Process.html#Start%20Process
+    :param process:
+    :return:
+    """
+    return dump_threads_from_pid(process.pid)
 
 def __main(argv):
     print(pidof(argv[1]))
