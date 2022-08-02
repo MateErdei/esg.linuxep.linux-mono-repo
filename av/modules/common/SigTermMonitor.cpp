@@ -16,7 +16,7 @@ namespace common
         {
             if (SIGTERM_MONITOR_PIPE >= 0)
             {
-                [[maybe_unused]] ssize_t ret = ::write(SIGTERM_MONITOR_PIPE, "\0", 1);
+                [[maybe_unused]] auto ret = ::write(SIGTERM_MONITOR_PIPE, "\0", 1);
                 /*
                  * We are in a signal-context, so are very limited on what we can do.
                  * http://manpages.ubuntu.com/manpages/bionic/man7/signal-safety.7.html
