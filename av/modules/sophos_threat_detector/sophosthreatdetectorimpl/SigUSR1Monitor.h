@@ -6,8 +6,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "IMonitorable.h"
 #include "IReloadable.h"
+
+#include "common/signals/IMonitorable.h"
 
 #include <Common/Threads/NotifyPipe.h>
 
