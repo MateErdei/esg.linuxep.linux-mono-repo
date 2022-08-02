@@ -14,7 +14,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace sspl::sophosthreatdetectorimpl
 {
-    class SigUSR1Monitor : public IMonitorable
+    class SigUSR1Monitor : public common::signals::IMonitorable
     {
     public:
         SigUSR1Monitor() = delete;
