@@ -12,10 +12,7 @@ namespace common
     {
     public:
         explicit SigHupMonitor();
-        ~SigHupMonitor();
-
-        SigHupMonitor(const SigHupMonitor&) = delete;
-        SigHupMonitor& operator=(const SigHupMonitor&) = delete;
+        ~SigHupMonitor() override;
 
         static std::shared_ptr<SigHupMonitor> getSigHupMonitor();
         bool triggered();

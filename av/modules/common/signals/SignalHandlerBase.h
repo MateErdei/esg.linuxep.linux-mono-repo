@@ -9,6 +9,12 @@ namespace common::signals
     class SignalHandlerBase
     {
     public:
+        SignalHandlerBase() = default;
+        SignalHandlerBase(const SignalHandlerBase&) = delete;
+        SignalHandlerBase& operator=(const SignalHandlerBase&) = delete;
+
+        virtual ~SignalHandlerBase() = default;
+
         int monitorFd();
     protected:
         Common::Threads::NotifyPipe m_pipe;

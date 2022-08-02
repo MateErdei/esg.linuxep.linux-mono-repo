@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -18,9 +14,8 @@ namespace sspl::sophosthreatdetectorimpl
     {
     public:
         SigUSR1Monitor() = delete;
-        SigUSR1Monitor(const SigUSR1Monitor&) = delete;
         explicit SigUSR1Monitor(IReloadablePtr reloadable);
-        ~SigUSR1Monitor();
+        ~SigUSR1Monitor() override;
 
         void triggered();
 

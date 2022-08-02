@@ -12,10 +12,8 @@ namespace common
     {
     public:
         explicit SigIntMonitor();
-        ~SigIntMonitor();
+        ~SigIntMonitor() override;
 
-        SigIntMonitor(const SigIntMonitor&) = delete;
-        SigIntMonitor& operator=(const SigIntMonitor&) = delete;
         static std::shared_ptr<SigIntMonitor> getSigIntMonitor();
         bool triggered();
 
