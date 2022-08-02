@@ -8,7 +8,7 @@
 
 namespace common
 {
-    class SigIntMonitor
+    class SigIntMonitor : public common::signals::SignalHandlerBase
     {
     public:
         explicit SigIntMonitor();
@@ -23,8 +23,5 @@ namespace common
         }
         bool triggered();
 
-    private:
-        Common::Threads::NotifyPipe m_pipe;
-        bool m_signalled = false;
     };
 }

@@ -8,5 +8,8 @@ namespace common::signals
 {
     class SignalHandlerBase
     {
+    protected:
+        Common::Threads::NotifyPipe m_pipe;
+        bool m_signalled = false;
     };
 }

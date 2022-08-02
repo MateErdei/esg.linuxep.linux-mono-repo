@@ -21,8 +21,5 @@ namespace common
         int monitorFd();
         bool triggered();
 
-    private:
-        Common::Threads::NotifyPipe m_pipe;
-        bool m_signalled = false;
     };
 }
