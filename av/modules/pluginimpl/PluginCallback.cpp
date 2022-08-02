@@ -10,7 +10,6 @@
 #include "common/StringUtils.h"
 // Product
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -343,12 +342,6 @@ namespace Plugin
         std::optional<std::string> statusFileContents;
         std::optional<std::string> procFileCmdlineContent;
 
-        if (pid == 0)
-        {
-            LOGWARN("Health encountered an error resolving pid for " << processName);
-            return false;
-        }
-
         try
         {
             statusFileContents = fileSystem->readProcFile(pid, "status");
@@ -415,8 +408,21 @@ namespace Plugin
             return E_HEALTH_STATUS_GOOD;
         }
 
-        int pid = getThreatDetectorPID(fileSystem);
-        if (!isProcessHealthy(pid, "sophos_threat_detector", "sophos-spl-threat-detector", fileSystem))
+        Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
+        int threatDetectorPid = getProcessPidFromFile(fileSystem, threatDetectorPidFile);
+        if (threatDetectorPid == 0)
+        {
+            LOGWARN("Health encountered an error resolving pid for Threat Detector");
+            return E_HEALTH_STATUS_BAD;
+        }
+        if (!isProcessHealthy(threatDetectorPid, "sophos_threat_detector", "sophos-spl-threat-detector", fileSystem))
+        {
+            return E_HEALTH_STATUS_BAD;
+        }
+
+        Path soapdPidFile = common::getPluginInstallPath() / "var/soapd.pid";
+        int soapdPid = getProcessPidFromFile(fileSystem, soapdPidFile);
+        if (!isProcessHealthy(soapdPid, "soapd", "root", fileSystem))
         {
             return E_HEALTH_STATUS_BAD;
         }
@@ -442,7 +448,8 @@ namespace Plugin
         std::optional<std::string> statFileContents;
 
         auto fileSystem = Common::FileSystem::fileSystem();
-        int pid = getThreatDetectorPID(fileSystem);
+        Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
+        int pid = getProcessPidFromFile(fileSystem, threatDetectorPidFile);
 
         if (pid == 0)
         {
@@ -453,7 +460,8 @@ namespace Plugin
         {
             statFileContents = fileSystem->readProcFile(pid, "stat");
             auto procStat = Common::UtilityImpl::StringUtils::splitString(statFileContents.value(), { ' ' });
-            if (procStat.size() != expectedStatFileSize) {
+            if (procStat.size() != expectedStatFileSize)
+            {
                 LOGDEBUG("The proc stat for " << pid << " is not of expected size");
                 LOGERROR("Failed to get Sophos Threat Detector Process Info");
                 return std::pair(0, 0);
@@ -485,16 +493,14 @@ namespace Plugin
         return { memoryUsage, runTime };
     }
 
-    int PluginCallback::getThreatDetectorPID(Common::FileSystem::IFileSystem* fileSystem)
+    int PluginCallback::getProcessPidFromFile(Common::FileSystem::IFileSystem* fileSystem, const Path& pidFilePath)
     {
         int pid;
         std::string pidAsString;
 
-        Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
-
         try
         {
-            pidAsString = fileSystem->readFile(threatDetectorPidFile);
+            pidAsString = fileSystem->readFile(pidFilePath);
 
             std::pair<int, std::string> pidStringToIntResult =
                     Common::UtilityImpl::StringUtils::stringToInt(pidAsString);
@@ -507,7 +513,7 @@ namespace Plugin
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
-            LOGWARN("Error accessing threat detector pid file: " << threatDetectorPidFile << " due to: " << e.what());
+            LOGWARN("Error accessing pid file: " << pidFilePath << " due to: " << e.what());
             return 0;
         }
 
@@ -515,7 +521,7 @@ namespace Plugin
         {
             if (!fileSystem->isDirectory("/proc/" + pidAsString))
             {
-                LOGDEBUG("Sophos Threat Detector process no longer running: " << pidAsString);
+                LOGDEBUG("Process no longer running: " << pidAsString);
                 return 0;
             }
         }

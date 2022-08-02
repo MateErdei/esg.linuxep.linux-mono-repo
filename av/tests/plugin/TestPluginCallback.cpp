@@ -395,13 +395,21 @@ TEST_F(TestPluginCallback, getTelemetry_health)
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
-    std::string pidFileContents = "1234";
-    Path pidProcDirectory = "/proc/1234";
-    int pidFileContentsConverted = 1234;
-    std::optional<std::string> statusProcContents = "Uid: 5678";
-    int uidContentsConverted = 5678;
-    std::string expectedUsername = "sophos-spl-threat-detector";
-    std::optional<std::string> cmdlineProcContents = "sophos_threat_detector\0";
+    Path soapdPidFile = m_basePath / "var/soapd.pid";
+    std::string threatDetectorPidFileContents = "1234";
+    std::string soapdPidFileContents = "1235";
+    Path threatDetectorPidProcDirectory = "/proc/1234";
+    Path soapdPidProcDirectory = "/proc/1235";
+    int threatDetectorPidFileContentsConverted = 1234;
+    int soapdPidFileContentsConverted = 1235;
+    std::optional<std::string> threatDetectorStatusProcContents = "Uid: 5678";
+    std::optional<std::string> soapdStatusProcContents = "Uid: 0";
+    int threatDetectorUidContentsConverted = 5678;
+    int soapdUidContentsConverted = 0;
+    std::string threatDetectorExpectedUsername = "sophos-spl-threat-detector";
+    std::string soapdExpectedUsername = "root";
+    std::optional<std::string> threatDetectorCmdlineProcContents = "sophos_threat_detector\0";
+    std::optional<std::string> soapdCmdlineProcContents = "soapd\0";
     std::optional<std::string> statProcContents = "1 2 3";
 
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -410,12 +418,18 @@ TEST_F(TestPluginCallback, getTelemetry_health)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
-    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillRepeatedly(Return(pidFileContents));
-    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
-    EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(expectedUsername));
-    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Return(cmdlineProcContents));
-    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "stat")).WillOnce(Return(statProcContents));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillRepeatedly(Return(threatDetectorPidFileContents));
+    EXPECT_CALL(*filesystemMock, readFile(soapdPidFile)).WillRepeatedly(Return(soapdPidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(threatDetectorPidProcDirectory)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, isDirectory(soapdPidProcDirectory)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(threatDetectorPidFileContentsConverted, "status")).WillOnce(Return(threatDetectorStatusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(threatDetectorUidContentsConverted)).WillOnce(Return(threatDetectorExpectedUsername));
+    EXPECT_CALL(*filesystemMock, readProcFile(threatDetectorPidFileContentsConverted, "cmdline")).WillOnce(Return(threatDetectorCmdlineProcContents));
+    EXPECT_CALL(*filesystemMock, readProcFile(threatDetectorPidFileContentsConverted, "stat")).WillOnce(Return(statProcContents));
+
+    EXPECT_CALL(*filesystemMock, readProcFile(soapdPidFileContentsConverted, "status")).WillOnce(Return(soapdStatusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(soapdUidContentsConverted)).WillOnce(Return(soapdExpectedUsername));
+    EXPECT_CALL(*filesystemMock, readProcFile(soapdPidFileContentsConverted, "cmdline")).WillOnce(Return(soapdCmdlineProcContents));
 
     json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
     ASSERT_EQ(modifiedTelemetry["health"], E_HEALTH_STATUS_GOOD);
@@ -425,13 +439,22 @@ TEST_F(TestPluginCallback, getHealthReturnsZeroWhenCalculateHealthSuccessful)
 {
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
-    std::string pidFileContents = "1234";
-    Path pidProcDirectory = "/proc/1234";
-    int pidFileContentsConverted = 1234;
-    std::optional<std::string> statusProcContents = "Uid: 5678";
-    int uidContentsConverted = 5678;
-    std::string expectedUsername = "sophos-spl-threat-detector";
-    std::optional<std::string> cmdlineProcContents = "sophos_threat_detector\0";
+    Path soapdPidFile = m_basePath / "var/soapd.pid";
+    std::string threatDetectorPidFileContents = "1234";
+    std::string soapdPidFileContents = "1235";
+    Path threatDetectorPidProcDirectory = "/proc/1234";
+    Path soapdPidProcDirectory = "/proc/1235";
+    int threatDetectorPidFileContentsConverted = 1234;
+    int soapdPidFileContentsConverted = 1235;
+    std::optional<std::string> threatDetectorStatusProcContents = "Uid: 5678";
+    std::optional<std::string> soapdStatusProcContents = "Uid: 0";
+    int threatDetectorUidContentsConverted = 5678;
+    int soapdUidContentsConverted = 0;
+    std::string threatDetectorExpectedUsername = "sophos-spl-threat-detector";
+    std::string soapdExpectedUsername = "root";
+    std::optional<std::string> threatDetectorCmdlineProcContents = "sophos_threat_detector\0";
+    std::optional<std::string> soapdCmdlineProcContents = "soapd\0";
+    std::optional<std::string> statProcContents = "1 2 3";
 
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
@@ -439,11 +462,16 @@ TEST_F(TestPluginCallback, getHealthReturnsZeroWhenCalculateHealthSuccessful)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
-    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
-    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
-    EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(expectedUsername));
-    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Return(cmdlineProcContents));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillRepeatedly(Return(threatDetectorPidFileContents));
+    EXPECT_CALL(*filesystemMock, readFile(soapdPidFile)).WillRepeatedly(Return(soapdPidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(threatDetectorPidProcDirectory)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, isDirectory(soapdPidProcDirectory)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(threatDetectorPidFileContentsConverted, "status")).WillOnce(Return(threatDetectorStatusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(threatDetectorUidContentsConverted)).WillOnce(Return(threatDetectorExpectedUsername));
+    EXPECT_CALL(*filesystemMock, readProcFile(threatDetectorPidFileContentsConverted, "cmdline")).WillOnce(Return(threatDetectorCmdlineProcContents));
+    EXPECT_CALL(*filesystemMock, readProcFile(soapdPidFileContentsConverted, "status")).WillOnce(Return(soapdStatusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(soapdUidContentsConverted)).WillOnce(Return(soapdExpectedUsername));
+    EXPECT_CALL(*filesystemMock, readProcFile(soapdPidFileContentsConverted, "cmdline")).WillOnce(Return(soapdCmdlineProcContents));
 
     long expectedResult = E_HEALTH_STATUS_GOOD;
     long result = m_pluginCallback->calculateHealth();
@@ -486,7 +514,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing threat detector pid file: "));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing pid file: "));
     ASSERT_EQ(result, expectedResult);
 }
 
@@ -511,7 +539,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
 
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing threat detector expected shutdown file: "));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing threat detector pid file: "));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing pid file: "));
     ASSERT_EQ(result, expectedResult);
 }
 
@@ -557,7 +585,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfPidDirectoryInProcIsMissin
     long result = m_pluginCallback->calculateHealth();
 
     std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Threat Detector process no longer running: "));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Process no longer running: "));
     ASSERT_EQ(result, expectedResult);
 }
 
@@ -814,18 +842,26 @@ TEST_F(TestPluginCallback, getTelemetry_ProductInfo)
     ASSERT_EQ(initialTelemetry["threatProcessAge"], 0);
 
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    Path soapdPidFile = m_basePath / "var/soapd.pid";
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
-    Path pidProcDirectory = "/proc/1234";
+    Path threatDetectorPidProcDirectory = "/proc/1234";
+    Path soapdPidProcDirectory = "/proc/1235";
 
-    std::string expectedUsername = "sophos-spl-threat-detector";
-    std::string pidFileContents = "1234";
+    std::string threatDetectorExpectedUsername = "sophos-spl-threat-detector";
+    std::string soapdExpectedUsername = "root";
 
-    std::optional<std::string> statusProcContents = "Uid: 5678";
-    std::optional<std::string> cmdlineProcContents = "sophos_threat_detector\0";
+    std::optional<std::string> threatDetectorStatusProcContents = "Uid: 5678";
+    std::optional<std::string> soapdStatusProcContents = "Uid: 0";
+    std::optional<std::string> threatDetectorCmdlineProcContents = "sophos_threat_detector\0";
+    std::optional<std::string> soapdCmdlineProcContents = "soapd\0";
     std::optional<std::string> statProcContents = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 100 23 500 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52";
 
-    int pidFileContentsConverted = 1234;
-    int uidContentsConverted = 5678;
+    int threatDetectorUidContentsConverted = 5678;
+    int soapdUidContentsConverted = 0;
+    int threatDetectorPidFileContentsConverted = 1234;
+    int soapdPidFileContentsConverted = 1235;
+    std::string threatDetectorPidFileContents = "1234";
+    std::string soapdPidFileContents = "1235";
 
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -834,12 +870,17 @@ TEST_F(TestPluginCallback, getTelemetry_ProductInfo)
     Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
-    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillRepeatedly(Return(pidFileContents));
-    EXPECT_CALL(*filesystemMock, isDirectory(pidProcDirectory)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "status")).WillOnce(Return(statusProcContents));
-    EXPECT_CALL(*filePermissionsMock, getUserName(uidContentsConverted)).WillOnce(Return(expectedUsername));
-    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "cmdline")).WillOnce(Return(cmdlineProcContents));
-    EXPECT_CALL(*filesystemMock, readProcFile(pidFileContentsConverted, "stat")).WillOnce(Return(statProcContents));
+    EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillRepeatedly(Return(threatDetectorPidFileContents));
+    EXPECT_CALL(*filesystemMock, readFile(soapdPidFile)).WillRepeatedly(Return(soapdPidFileContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(threatDetectorPidProcDirectory)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(threatDetectorPidFileContentsConverted, "status")).WillOnce(Return(threatDetectorStatusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(threatDetectorUidContentsConverted)).WillOnce(Return(threatDetectorExpectedUsername));
+    EXPECT_CALL(*filesystemMock, readProcFile(threatDetectorPidFileContentsConverted, "cmdline")).WillOnce(Return(threatDetectorCmdlineProcContents));
+    EXPECT_CALL(*filesystemMock, readProcFile(threatDetectorPidFileContentsConverted, "stat")).WillOnce(Return(statProcContents));
+    EXPECT_CALL(*filesystemMock, isDirectory(soapdPidProcDirectory)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readProcFile(soapdPidFileContentsConverted, "status")).WillOnce(Return(soapdStatusProcContents));
+    EXPECT_CALL(*filePermissionsMock, getUserName(soapdUidContentsConverted)).WillOnce(Return(soapdExpectedUsername));
+    EXPECT_CALL(*filesystemMock, readProcFile(soapdPidFileContentsConverted, "cmdline")).WillOnce(Return(soapdCmdlineProcContents));
 
     json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
@@ -867,7 +908,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesWhenPidFileDoesNotExist)
     std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(sysCallsMock);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing threat detector pid file: "));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing pid file: "));
     ASSERT_EQ(result, expectedResult);
 }
 
@@ -912,7 +953,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidDirectoryInProcIsMiss
     std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(sysCallsMock);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Threat Detector process no longer running: "));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Process no longer running: "));
     ASSERT_EQ(result, expectedResult);
 }
 

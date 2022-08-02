@@ -11,6 +11,7 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 #include "datatypes/sophos_filesystem.h"
 
+#include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/PluginApi/IPluginCallbackApi.h>
 #include <common/PluginUtils.h>
@@ -60,7 +61,7 @@ namespace Plugin
                               const std::string& processUsername,
                               Common::FileSystem::IFileSystem* fileSystem);
 
-        static int getThreatDetectorPID(Common::FileSystem::IFileSystem* fileSystem);
+        static int getProcessPidFromFile(Common::FileSystem::IFileSystem* fileSystem, const Path&);
         [[nodiscard]] bool shutdownFileValid() const;
 
         /**
