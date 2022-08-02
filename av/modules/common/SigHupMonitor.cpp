@@ -24,6 +24,7 @@ static void signal_handler(int)
 }
 
 common::SigHupMonitor::SigHupMonitor()
+    : LatchingSignalHandler(SIGHUP)
 {
     // Setup signal handler
     SIGHUP_MONITOR_PIPE = setSignalHandler(SIGHUP, signal_handler);

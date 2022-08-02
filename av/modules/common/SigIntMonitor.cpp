@@ -24,6 +24,7 @@ static void signal_handler(int)
 }
 
 common::SigIntMonitor::SigIntMonitor()
+    : LatchingSignalHandler(SIGINT)
 {
     // Setup signal handler
     SIGINT_MONITOR_PIPE = setSignalHandler(SIGINT, signal_handler);

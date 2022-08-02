@@ -38,7 +38,9 @@ namespace sspl::sophosthreatdetectorimpl
         m_reloader->update();
     }
 
-    SigUSR1Monitor::SigUSR1Monitor(IReloadablePtr reloadable) : m_reloader(std::move(reloadable))
+    SigUSR1Monitor::SigUSR1Monitor(IReloadablePtr reloadable)
+        : SignalHandlerBase(SIGUSR1),
+        m_reloader(std::move(reloadable))
     {
         // Setup signal handler
         GL_USR1_MONITOR_PIPE = setSignalHandler(SIGUSR1, signal_handler);

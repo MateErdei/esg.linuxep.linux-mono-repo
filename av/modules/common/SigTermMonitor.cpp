@@ -28,6 +28,7 @@ namespace common
     }
 
     SigTermMonitor::SigTermMonitor()
+        : LatchingSignalHandler(SIGTERM)
     {
         // Setup signal handler
         SIGTERM_MONITOR_PIPE = setSignalHandler(SIGTERM, signal_handler);

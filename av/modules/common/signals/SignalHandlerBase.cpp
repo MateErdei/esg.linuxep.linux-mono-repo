@@ -10,6 +10,7 @@ int SignalHandlerBase::monitorFd()
 {
     return m_pipe.readFd();
 }
+
 int SignalHandlerBase::setSignalHandler(int signal, __sighandler_t signal_handler)
 {
     // Setup signal handler

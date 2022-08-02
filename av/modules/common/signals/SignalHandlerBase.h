@@ -11,7 +11,9 @@ namespace common::signals
     class SignalHandlerBase
     {
     public:
-        SignalHandlerBase() = default;
+        explicit SignalHandlerBase(int signalNumber)
+            : m_signalNumber(signalNumber)
+        {}
         SignalHandlerBase(const SignalHandlerBase&) = delete;
         SignalHandlerBase& operator=(const SignalHandlerBase&) = delete;
 
@@ -22,5 +24,6 @@ namespace common::signals
         void clearSignalHandler(int signal);
     protected:
         Common::Threads::NotifyPipe m_pipe;
+        int m_signalNumber;
     };
 }
