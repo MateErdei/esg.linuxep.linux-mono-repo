@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "signals/SignalHandlerBase.h"
+#include "signals/LatchingSignalHandler.h"
 
 #include <memory>
 
 namespace common
 {
-    class SigIntMonitor : public common::signals::SignalHandlerBase
+    class SigIntMonitor : public common::signals::LatchingSignalHandler
     {
     public:
         explicit SigIntMonitor();
