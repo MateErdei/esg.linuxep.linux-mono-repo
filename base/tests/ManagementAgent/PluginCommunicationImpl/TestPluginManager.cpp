@@ -538,6 +538,28 @@ TEST_F(TestPluginManager, PluginImplementingQueueActionWithCorrelationShouldRece
 
 }
 
+TEST_F(TestPluginManager, CheckIfSinglePluginInRegistryReturnsTrueWhenPluginIsFound) // NOLINT
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    std::string plugin = "thisPluginExists";
+    std::string expectedCalledPath =
+        Common::FileSystem::join(
+            Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath(), plugin) +
+        ".json";
+    EXPECT_CALL(fileSystemMock, isFile(expectedCalledPath)).WillOnce(Return(true));
 
+    ASSERT_TRUE(m_pluginManagerPtr->checkIfSinglePluginInRegistry(plugin));
+}
 
+TEST_F(TestPluginManager, CheckIfSinglePluginInRegistryReturnsFalseWhenPluginIsNotFound) // NOLINT
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    std::string plugin = "thisPluginDoesNotExist";
+    std::string expectedCalledPath =
+        Common::FileSystem::join(
+            Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath(), plugin) +
+        ".json";
+    EXPECT_CALL(fileSystemMock, isFile(expectedCalledPath)).WillOnce(Return(false));
 
+    ASSERT_FALSE(m_pluginManagerPtr->checkIfSinglePluginInRegistry(plugin));
+}

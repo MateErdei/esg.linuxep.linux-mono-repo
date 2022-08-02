@@ -54,8 +54,16 @@ namespace ManagementAgent
 
                 ManagementAgent::PluginCommunication::PluginHealthStatus pluginHealthStatus =
                     m_pluginManager.getHealthStatusForPlugin(pluginName, prevHealthMissing);
+                if (pluginHealthStatus.healthValue == 2 && !m_pluginManager.checkIfSinglePluginInRegistry(pluginName))
+                {
+                    m_pluginManager.removePlugin(pluginName);
+                    LOGINFO(pluginName << " has been uninstalled.");
+                }
+                else
+                {
+                    m_pluginManager.getSharedHealthStatusObj()->addPluginHealth(pluginName, pluginHealthStatus);
+                }
 
-                m_pluginManager.getSharedHealthStatusObj()->addPluginHealth(pluginName, pluginHealthStatus);
             }
 
             // Hard coding MCSRouter status to Good

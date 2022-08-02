@@ -184,3 +184,44 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWithCorrectUtmInformatio
     ManagementAgent::HealthStatusImpl::HealthTask task3(m_mockPluginManager);
     task3.run();
 }
+
+TEST_F(HealthTaskTests, run_healthRemovesMissingPluginsIfNotFoundInRegistry) // NOLINT
+{
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
+        std::make_unique<Tests::ScopedReplaceFileSystem>(
+            std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
+    ManagementAgent::PluginCommunication::PluginHealthStatus pluginHealthMissing;
+    pluginHealthMissing.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
+    pluginHealthMissing.healthValue = 2;
+    pluginHealthMissing.displayName = "Plugin";
+    pluginHealthMissing.activeHeartbeat = false;
+    pluginHealthMissing.activeHeartbeatUtmId = "some-random-utm-id-0";
+
+    // No bad plugins, since they've been removed, results in good health
+    std::string expectedXml =
+        R"(<?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>)";
+
+    EXPECT_CALL(*filesystemMock, isFile(m_healthFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(m_healthFilePath))
+        .WillRepeatedly(Return("{\"health\":1,\"service\":1,\"threatService\":1,\"threat\":1}"));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(m_statusFilePath, expectedXml, m_tempDir, m_statusFileMode))
+        .Times(1)
+        .RetiresOnSaturation();
+
+    EXPECT_CALL(
+        *filesystemMock,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return(false));
+
+    EXPECT_CALL(m_mockPluginManager, getRegisteredPluginNames()).WillOnce(Return(std::vector<std::string>{ "plugin" }));
+    EXPECT_CALL(m_mockPluginManager, getHealthStatusForPlugin("plugin", false)).WillOnce(Return(pluginHealthMissing));
+    auto healthStatus = std::make_shared<ManagementAgent::HealthStatusImpl::HealthStatus>();
+    EXPECT_CALL(m_mockPluginManager, checkIfSinglePluginInRegistry("plugin")).WillOnce(Return(false));
+    EXPECT_CALL(m_mockPluginManager, removePlugin("plugin"));
+    EXPECT_CALL(m_mockPluginManager, getSharedHealthStatusObj()).WillRepeatedly(Return(healthStatus));
+
+    ManagementAgent::HealthStatusImpl::HealthTask task(m_mockPluginManager);
+    task.run();
+}

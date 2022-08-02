@@ -24,6 +24,7 @@ public:
     MOCK_METHOD3(queueAction, int(const std::string& appId, const std::string& actionXml, const std::string& correlationId));
     MOCK_METHOD1(getStatus, std::vector<Common::PluginApi::StatusInfo>(const std::string& pluginName));
     MOCK_METHOD1(getTelemetry, std::string(const std::string& pluginName));
+    MOCK_METHOD1(checkIfSinglePluginInRegistry, bool(const std::string& pluginName));
     MOCK_METHOD1(getHealth, std::string(const std::string& pluginName));
     MOCK_METHOD2(
         registerAndConfigure,

@@ -92,6 +92,13 @@ namespace ManagementAgent
             virtual int queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId) = 0;
 
             /**
+             * Check if a plugin is still installed
+             *
+             * @param pluginName
+             */
+            virtual bool checkIfSinglePluginInRegistry(const std::string& pluginName) = 0;
+
+            /**
              * Query the plugin for the status of each appId that the plugin named pluginName support.
              *
              * @return Status XML

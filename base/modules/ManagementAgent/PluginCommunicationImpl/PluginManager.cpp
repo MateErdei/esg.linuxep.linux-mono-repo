@@ -167,10 +167,7 @@ namespace ManagementAgent
         {
             for (auto& plugin : pluginsAndErrors)
             {
-                std::string pluginFile = plugin.first + ".json";
-                std::string pluginRegistryFileName = Common::FileSystem::join(
-                    Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath(), pluginFile);
-                if (Common::FileSystem::fileSystem()->isFile(pluginRegistryFileName))
+                if (checkIfSinglePluginInRegistry(plugin.first))
                 {
                     // Plugin is installed, but we failed to communicate with it. Log an error.
                     LOGERROR("Failure on sending message to " << plugin.first << ". Reason: " << plugin.second);
@@ -182,6 +179,14 @@ namespace ManagementAgent
                     LOGINFO(plugin.first << " has been uninstalled.");
                 }
             }
+        }
+
+        bool PluginManager::checkIfSinglePluginInRegistry(const std::string& pluginName)
+        {
+            std::string pluginFile = pluginName + ".json";
+            std::string pluginRegistryFileName = Common::FileSystem::join(
+                Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath(), pluginFile);
+            return (Common::FileSystem::fileSystem()->isFile(pluginRegistryFileName));
         }
 
         std::vector<Common::PluginApi::StatusInfo> PluginManager::getStatus(const std::string& pluginName)
