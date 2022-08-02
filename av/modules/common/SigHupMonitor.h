@@ -1,18 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/Threads/NotifyPipe.h>
+#include "signals/SignalHandlerBase.h"
 
 #include <memory>
 
 namespace common
 {
-    class SigHupMonitor
+    class SigHupMonitor : public common::signals::SignalHandlerBase
     {
     public:
         explicit SigHupMonitor();

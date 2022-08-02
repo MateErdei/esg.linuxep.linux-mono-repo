@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <Common/Threads/NotifyPipe.h>
+#include "signals/SignalHandlerBase.h"
 
 #include <memory>
 

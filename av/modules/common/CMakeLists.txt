@@ -22,7 +22,10 @@ add_library(common SHARED
         SaferStrerror.cpp
         SaferStrerror.h
         ScanInterruptedException.h
-        ScanManuallyInterruptedException.h)
+        ScanManuallyInterruptedException.h
+        signals/SignalHandlerBase.cpp
+        signals/SignalHandlerBase.h
+        )
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
