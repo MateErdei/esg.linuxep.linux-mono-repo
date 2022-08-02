@@ -3,6 +3,7 @@
 #pragma once
 
 #include "IScanClient.h"
+#include "ClientSocketWrapper.h"
 #include "NamedScanConfig.h"
 
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
@@ -81,7 +82,7 @@ namespace avscanner::avscannerimpl
         static std::string failedToOpen(int error);
 
     private:
-        unixsocket::IScanningClientSocket& m_socket;
+        ClientSocketWrapper m_socket;
         std::shared_ptr<IScanCallbacks> m_callbacks;
         bool m_scanInArchives;
         bool m_scanInImages;

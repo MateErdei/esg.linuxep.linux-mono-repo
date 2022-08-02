@@ -22,7 +22,9 @@ add_library(avscannerimpl SHARED
         ScanClient.h
         TimeDuration.cpp
         TimeDuration.h
-        )
+        ClientSocketWrapper.cpp
+        ClientSocketWrapper.h
+        IClientSocketWrapper.h)
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)

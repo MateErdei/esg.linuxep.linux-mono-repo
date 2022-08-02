@@ -8,12 +8,14 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "datatypes/sophos_filesystem.h"
+
+#include <gtest/gtest.h>
+
 #include <fstream>
 
-#define BASE "/tmp/TestPluginAdapter"
 namespace fs = sophos_filesystem;
 
-const fs::path tmpdir()
+fs::path tmpdir()
 {
     const ::testing::TestInfo* const test_info =
         ::testing::UnitTest::GetInstance()->current_test_info();

@@ -10,11 +10,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace unixsocket
 {
-    int readLength(int socketfd);
-    void writeLength(int socket_fd, unsigned length);
-    bool writeLengthAndBuffer(int socketfd, const std::string& buffer);
+    ssize_t readLength(int socket_fd);
+    void writeLength(int socket_fd, size_t length);
+    bool writeLengthAndBuffer(int socket_fd, const std::string& buffer);
     int recv_fd(int socket);
-    int send_fd(int socket, int fd);
+    ssize_t send_fd(int socket, int fd);
 
     struct environmentInterruption : public std::exception
     {

@@ -2,7 +2,6 @@
 
 #include "ScanClient.h"
 
-#include "Logger.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
@@ -11,7 +10,6 @@
 #include <common/StringUtils.h>
 #include <common/ErrorCodes.h>
 
-#include <iostream>
 #include <string>
 #include <fcntl.h>
 
@@ -23,7 +21,7 @@ ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
                        bool scanInArchives,
                        bool scanInImages,
                        E_SCAN_TYPE scanType)
-        : m_socket(socket)
+        : m_socket(ClientSocketWrapper(socket))
         , m_callbacks(std::move(callbacks))
         , m_scanInArchives(scanInArchives)
         , m_scanInImages(scanInImages)
@@ -68,7 +66,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
         std::error_code ec (error, std::system_category());
         m_callbacks->scanError(logMsg.str(), ec);
 
-        return scan_messages::ScanResponse();
+        return {};
     }
 
     scan_messages::ClientScanRequest request;

@@ -6,9 +6,12 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "common/AbortScanException.h"
 #include "scan_messages/ClientScanRequest.h"
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
+
+#include "common/AbortScanException.h"
+
+#include <fcntl.h>
 
 namespace
 {
@@ -27,38 +30,72 @@ namespace
 
     class RecordingMockSocket : public unixsocket::IScanningClientSocket {
     public:
-        bool m_withDetections;
         explicit RecordingMockSocket(const bool withDetections=true)
         : m_withDetections(withDetections)
-        {}
-
-        scan_messages::ScanResponse
-        scan(datatypes::AutoFd &, const scan_messages::ClientScanRequest &request) override {
-            std::string p = ScanPathAccessor(request);
-            m_paths.emplace_back(p);
-//            PRINT("Scanning " << p);
-            scan_messages::ScanResponse response;
-            if (m_withDetections)
-            {
-                response.addDetection(p, "threatName","sha256");
-            }
-            return response;
+        {
+            // socket needs to be something that will not hang in a ::poll call.
+            m_socketFd.reset(::open("/dev/zero", O_RDONLY));
         }
 
+
+        int connect() override
+        {
+            return 0;
+        }
+
+        int sendRequest(datatypes::AutoFd&, const scan_messages::ClientScanRequest& request) override
+        {
+            std::string p = ScanPathAccessor(request);
+            m_paths.emplace_back(p);
+            //            PRINT("Scanning " << p);
+            return 0;
+        }
+
+        bool receiveResponse(scan_messages::ScanResponse& response) override
+        {
+            if (m_withDetections)
+            {
+                response.addDetection(m_paths.back(), "threatName","sha256");
+            }
+            return true;
+        }
+
+        int socketFd() override
+        {
+            return m_socketFd.fd();
+        }
+
+        bool m_withDetections;
         std::vector <std::string> m_paths;
+        datatypes::AutoFd m_socketFd;
     };
 
     class AbortingTestSocket : public unixsocket::IScanningClientSocket
     {
     public:
-        int m_abortCount = 0;
-        scan_messages::ScanResponse scan(
-            datatypes::AutoFd&,
-            const scan_messages::ClientScanRequest&) override
+        int connect() override
         {
             m_abortCount++;
             throw AbortScanException("Deliberate Abort");
         }
 
+        int sendRequest(datatypes::AutoFd&, const scan_messages::ClientScanRequest&) override
+        {
+            m_abortCount++;
+            throw AbortScanException("Deliberate Abort");
+        }
+
+        bool receiveResponse(scan_messages::ScanResponse&) override
+        {
+            m_abortCount++;
+            throw AbortScanException("Deliberate Abort");
+        }
+
+        int socketFd() override
+        {
+            return -1;
+        }
+
+        int m_abortCount = 0;
     };
 }

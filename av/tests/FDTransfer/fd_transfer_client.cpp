@@ -1,10 +1,11 @@
 /******************************************************************************************************
 
-Copyright 2019-2021, Sophos Limited.  All rights reserved.
+Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
 #include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
+#include "avscanner/avscannerimpl/ClientSocketWrapper.h"
 
 #include <string>
 #include <cassert>
@@ -20,7 +21,15 @@ static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket
     request.setScanInsideImages(false);
     request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     request.setUserID("root");
-    return socket.scan(fd, request);
+    socket.sendRequest(fd, request);
+
+    scan_messages::ScanResponse response;
+    auto ret = socket.receiveResponse(response);
+    if (!ret)
+    {
+        response.setErrorMsg("Failed to get scan response");
+    }
+    return response;
 }
 
 int main(int argc, char* argv[])

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -18,7 +18,10 @@ namespace unixsocket
     {
     public:
         virtual ~IScanningClientSocket() = default;
-        virtual scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest&) = 0;
 
+        virtual int connect() = 0;
+        virtual int sendRequest(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request) = 0;
+        virtual bool receiveResponse(scan_messages::ScanResponse& response) = 0;
+        virtual int socketFd() = 0;
     };
 }

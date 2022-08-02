@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -8,9 +8,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "IScanningClientSocket.h"
 
-#include "common/SigIntMonitor.h"
-#include "common/SigTermMonitor.h"
-#include "common/SigHupMonitor.h"
 #include "scan_messages/ClientScanRequest.h"
 #include "scan_messages/ScanResponse.h"
 
@@ -24,23 +21,17 @@ namespace unixsocket
     public:
         ScanningClientSocket& operator=(const ScanningClientSocket&) = delete;
         ScanningClientSocket(const ScanningClientSocket&) = delete;
-        explicit ScanningClientSocket(std::string socket_path, const struct timespec& sleepTime={1,0});
+        explicit ScanningClientSocket(std::string socket_path);
         ~ScanningClientSocket() override = default;
 
-        scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest&) override;
+
+        int connect() override;
+        int sendRequest(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request) override;
+        bool receiveResponse(scan_messages::ScanResponse& response) override;
+        int socketFd() override;
 
     private:
-        void connect();
-        int attemptConnect();
-        void checkIfScanAborted();
-        scan_messages::ScanResponse attemptScan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest&);
-
-        std::shared_ptr<common::SigIntMonitor> m_sigIntMonitor;
-        std::shared_ptr<common::SigTermMonitor> m_sigTermMonitor;
-        std::shared_ptr<common::SigHupMonitor> m_sigHupMonitor;
-        int m_reconnectAttempts;
         std::string m_socketPath;
         datatypes::AutoFd m_socket_fd;
-        struct timespec m_sleepTime;
     };
 }

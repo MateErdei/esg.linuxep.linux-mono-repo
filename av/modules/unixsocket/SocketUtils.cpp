@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-void unixsocket::writeLength(int socket_fd, unsigned length)
+void unixsocket::writeLength(int socket_fd, size_t length)
 {
     if (length == 0)
     {
@@ -46,14 +46,14 @@ bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
     return true;
 }
 
-int unixsocket::readLength(int socket_fd)
+ssize_t unixsocket::readLength(int socket_fd)
 {
     int32_t total = 0;
     uint8_t byte = 0; // For some reason clang-tidy thinks this is signed
     const uint8_t TOP_BIT = 0x80;
     while (true)
     {
-        ssize_t count = read(socket_fd, &byte, 1);
+        ssize_t count = ::read(socket_fd, &byte, 1);
         if (count == 1)
         {
             if ((byte & TOP_BIT) == 0)
@@ -153,7 +153,7 @@ int unixsocket::recv_fd(int socket)
     return fd;
 }
 
-int unixsocket::send_fd(int socket, int fd)  // send fd by socket
+ssize_t unixsocket::send_fd(int socket, int fd)  // send fd by socket
 {
     char buf[CMSG_SPACE(sizeof(fd))] {};
     int dup = 0;

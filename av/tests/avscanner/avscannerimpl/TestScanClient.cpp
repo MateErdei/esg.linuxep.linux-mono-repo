@@ -1,15 +1,18 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
-#include "avscanner/avscannerimpl/ScanCallbackImpl.h"
+// #include "avscanner/avscannerimpl/ScanCallbackImpl.h"
 #include "avscanner/avscannerimpl/ScanClient.h"
+// #include "tests/common/Common.h"
+
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "tests/common/Common.h"
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
+#include <fcntl.h>
 
 using namespace avscanner::avscannerimpl;
-using ::testing::_;
+using ::testing::_; // NOLINT
 using ::testing::Eq;
 using ::testing::Return;
 using ::testing::StrictMock;
@@ -21,17 +24,29 @@ namespace
     class MockIScanningClientSocket : public unixsocket::IScanningClientSocket
     {
     public:
-        MOCK_METHOD2(scan, scan_messages::ScanResponse(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest&));
+        MockIScanningClientSocket()
+        {
+            m_socketFd.reset(::open("/dev/zero", O_RDONLY));
+            ON_CALL(*this, socketFd).WillByDefault([this]() {return this->m_socketFd.fd();});
+        }
+
+        MOCK_METHOD(int, connect, ());
+        MOCK_METHOD(int, sendRequest, (datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request));
+        MOCK_METHOD(bool, receiveResponse, (scan_messages::ScanResponse& response));
+        MOCK_METHOD(int, socketFd, ());
+
+    private:
+        datatypes::AutoFd m_socketFd;
     };
 
     class MockIScanCallbacks : public avscanner::avscannerimpl::IScanCallbacks
     {
     public:
-        MOCK_METHOD1(cleanFile, void(const path&));
-        MOCK_METHOD3(infectedFile, void(const std::map<path, std::string>& detections, const fs::path& realPath,  bool isSymlink));
+        MOCK_METHOD(void, cleanFile, (const path&));
+        MOCK_METHOD(void, infectedFile, ((const std::map<path, std::string>& detections), const fs::path& realPath,  bool isSymlink));
         MOCK_METHOD(void, scanError, (const std::string&, std::error_code), (override));
-        MOCK_METHOD0(scanStarted, void());
-        MOCK_METHOD0(logSummary, void());
+        MOCK_METHOD(void, scanStarted, ());
+        MOCK_METHOD(void, logSummary, ());
     };
 }
 
@@ -58,9 +73,16 @@ TEST(TestScanClient, TestScanEtcPasswd)
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
 
-    EXPECT_CALL(mock_socket, scan(_,_))
+    EXPECT_CALL(mock_socket, socketFd);
+    EXPECT_CALL(mock_socket, sendRequest(_,_))
         .Times(1)
-        .WillOnce(Return(response));
+        .WillOnce(Return(true));
+    EXPECT_CALL(mock_socket, receiveResponse(_))
+        .Times(1)
+        .WillOnce(testing::DoAll(
+            testing::SetArgReferee<0>(response),
+            Return(true)
+                ));
 
     std::shared_ptr<StrictMock<MockIScanCallbacks> > mock_callbacks(
             new StrictMock<MockIScanCallbacks>()
@@ -88,9 +110,16 @@ TEST(TestScanClient, TestScanArchive)
     detections.emplace(infectedFile1, threatName);
     detections.emplace(infectedFile2, threatName);
 
-    EXPECT_CALL(mock_socket, scan(_,_))
+    EXPECT_CALL(mock_socket, socketFd);
+    EXPECT_CALL(mock_socket, sendRequest(_,_))
         .Times(1)
-        .WillOnce(Return(response));
+        .WillOnce(Return(0));
+    EXPECT_CALL(mock_socket, receiveResponse(_))
+        .Times(1)
+        .WillOnce(testing::DoAll(
+            testing::SetArgReferee<0>(response),
+            Return(true)
+        ));
 
     std::shared_ptr<StrictMock<MockIScanCallbacks> > mock_callbacks(
         new StrictMock<MockIScanCallbacks>()
@@ -117,9 +146,16 @@ TEST(TestScanClient, TestScanImage)
     std::map<path, std::string> detections;
     detections.emplace(infectedFile1, threatName);
 
-    EXPECT_CALL(mock_socket, scan(_,_))
-            .Times(1)
-            .WillOnce(Return(response));
+    EXPECT_CALL(mock_socket, socketFd);
+    EXPECT_CALL(mock_socket, sendRequest(_,_))
+        .Times(1)
+        .WillOnce(Return(0));
+    EXPECT_CALL(mock_socket, receiveResponse(_))
+        .Times(1)
+        .WillOnce(testing::DoAll(
+            testing::SetArgReferee<0>(response),
+            Return(true)
+                ));
 
     std::shared_ptr<StrictMock<MockIScanCallbacks> > mock_callbacks(
             new StrictMock<MockIScanCallbacks>()
@@ -144,9 +180,16 @@ TEST(TestScanClient, TestScanInfectedNoCallback)
     scan_messages::ScanResponse response;
     response.addDetection("/tmp/eicar.com", THREAT,"");
 
-    EXPECT_CALL(mock_socket, scan(_, _))
-            .Times(1)
-            .WillOnce(Return(response));
+    EXPECT_CALL(mock_socket, socketFd);
+    EXPECT_CALL(mock_socket, sendRequest(_,_))
+        .Times(1)
+        .WillOnce(Return(0));
+    EXPECT_CALL(mock_socket, receiveResponse(_))
+        .Times(1)
+        .WillOnce(testing::DoAll(
+            testing::SetArgReferee<0>(response),
+            Return(true)
+                ));
 
     std::shared_ptr<avscanner::avscannerimpl::IScanCallbacks> mock_callbacks;
     ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
@@ -166,9 +209,16 @@ TEST(TestScanClient, TestScanInfected)
     std::map<path, std::string> detections;
     detections.emplace("/etc/passwd", THREAT);
 
-    EXPECT_CALL(mock_socket, scan(_, _))
+    EXPECT_CALL(mock_socket, socketFd);
+    EXPECT_CALL(mock_socket, sendRequest(_,_))
         .Times(1)
-        .WillOnce(Return(response));
+        .WillOnce(Return(0));
+    EXPECT_CALL(mock_socket, receiveResponse(_))
+        .Times(1)
+        .WillOnce(testing::DoAll(
+            testing::SetArgReferee<0>(response),
+            Return(true)
+                ));
 
     std::shared_ptr<StrictMock<MockIScanCallbacks> > mock_callbacks(
             new StrictMock<MockIScanCallbacks>()

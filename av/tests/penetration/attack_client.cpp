@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -22,7 +22,15 @@ static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket
     request.setScanInsideArchives(false);
     request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     request.setUserID("root");
-    return socket.scan(fd, request);
+    socket.sendRequest(fd, request);
+
+    scan_messages::ScanResponse response;
+    auto ret = socket.receiveResponse(response);
+    if (!ret)
+    {
+        response.setErrorMsg("Failed to get scan response");
+    }
+    return response;
 }
 
 int main(int argc, char* argv[])
