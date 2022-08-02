@@ -30,29 +30,14 @@ namespace common
     SigTermMonitor::SigTermMonitor()
     {
         // Setup signal handler
-        struct sigaction action {};
-        action.sa_handler = signal_handler;
-        action.sa_flags = SA_RESTART;
-        int ret = ::sigaction(SIGTERM, &action, nullptr);
-        if (ret != 0)
-        {
-            LOGERROR("Failed to setup SIGTERM signal handler");
-        }
-        SIGTERM_MONITOR_PIPE = m_pipe.writeFd();
+        SIGTERM_MONITOR_PIPE = setSignalHandler(SIGTERM, signal_handler);
     }
 
     SigTermMonitor::~SigTermMonitor()
     {
         // clear signal handler
         SIGTERM_MONITOR_PIPE = -1;
-        struct sigaction action {};
-        action.sa_handler = SIG_IGN;
-        action.sa_flags = 0;
-        int ret = ::sigaction(SIGTERM, &action, nullptr);
-        if (ret != 0)
-        {
-            LOGERROR("Failed to clear SIGTERM signal handler");
-        }
+        clearSignalHandler(SIGTERM);
     }
 
     std::shared_ptr<SigTermMonitor> SigTermMonitor::getSigTermMonitor()

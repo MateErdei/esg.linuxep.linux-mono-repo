@@ -26,29 +26,14 @@ static void signal_handler(int)
 common::SigHupMonitor::SigHupMonitor()
 {
     // Setup signal handler
-    struct sigaction action{};
-    action.sa_handler = signal_handler;
-    action.sa_flags = SA_RESTART;
-    int ret = ::sigaction(SIGHUP, &action, nullptr);
-    if (ret != 0)
-    {
-        LOGERROR("Failed to setup SIGTERM signal handler");
-    }
-    SIGHUP_MONITOR_PIPE = m_pipe.writeFd();
+    SIGHUP_MONITOR_PIPE = setSignalHandler(SIGHUP, signal_handler);
 }
 
 common::SigHupMonitor::~SigHupMonitor()
 {
     // clear signal handler
     SIGHUP_MONITOR_PIPE = -1;
-    struct sigaction action{};
-    action.sa_handler = SIG_IGN;
-    action.sa_flags = 0;
-    int ret = ::sigaction(SIGHUP, &action, nullptr);
-    if (ret != 0)
-    {
-        LOGERROR("Failed to clear SIGTERM signal handler");
-    }
+    clearSignalHandler(SIGHUP);
 }
 
 std::shared_ptr<common::SigHupMonitor> common::SigHupMonitor::getSigHupMonitor()

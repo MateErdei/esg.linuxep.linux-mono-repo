@@ -4,6 +4,8 @@
 
 #include <Common/Threads/NotifyPipe.h>
 
+#include <csignal>
+
 namespace common::signals
 {
     class SignalHandlerBase
@@ -16,6 +18,8 @@ namespace common::signals
         virtual ~SignalHandlerBase() = default;
 
         int monitorFd();
+        int setSignalHandler(int signal, __sighandler_t handler);
+        void clearSignalHandler(int signal);
     protected:
         Common::Threads::NotifyPipe m_pipe;
     };

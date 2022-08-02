@@ -41,28 +41,13 @@ namespace sspl::sophosthreatdetectorimpl
     SigUSR1Monitor::SigUSR1Monitor(IReloadablePtr reloadable) : m_reloader(std::move(reloadable))
     {
         // Setup signal handler
-        struct sigaction action {};
-        action.sa_handler = signal_handler;
-        action.sa_flags = SA_RESTART;
-        int ret = ::sigaction(SIGUSR1, &action, nullptr);
-        if (ret != 0)
-        {
-            LOGERROR("Failed to setup SIGUSR1 signal handler");
-        }
-        GL_USR1_MONITOR_PIPE = m_pipe.writeFd();
+        GL_USR1_MONITOR_PIPE = setSignalHandler(SIGUSR1, signal_handler);
     }
 
     SigUSR1Monitor::~SigUSR1Monitor()
     {
         // clear signal handler
         GL_USR1_MONITOR_PIPE = -1;
-        struct sigaction action {};
-        action.sa_handler = SIG_DFL;
-        action.sa_flags = SA_RESTART;
-        int ret = ::sigaction(SIGUSR1, &action, nullptr);
-        if (ret != 0)
-        {
-            LOGERROR("Failed to clear SIGUSR1 signal handler");
-        }
+        clearSignalHandler(SIGUSR1);
     }
 }

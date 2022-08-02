@@ -26,29 +26,14 @@ static void signal_handler(int)
 common::SigIntMonitor::SigIntMonitor()
 {
     // Setup signal handler
-    struct sigaction action{};
-    action.sa_handler = signal_handler;
-    action.sa_flags = SA_RESTART;
-    int ret = ::sigaction(SIGINT, &action, nullptr);
-    if (ret != 0)
-    {
-        LOGERROR("Failed to setup SIGINT signal handler");
-    }
-    SIGINT_MONITOR_PIPE = m_pipe.writeFd();
+    SIGINT_MONITOR_PIPE = setSignalHandler(SIGINT, signal_handler);
 }
 
 common::SigIntMonitor::~SigIntMonitor()
 {
     // clear signal handler
     SIGINT_MONITOR_PIPE = -1;
-    struct sigaction action{};
-    action.sa_handler = SIG_IGN;
-    action.sa_flags = 0;
-    int ret = ::sigaction(SIGINT, &action, nullptr);
-    if (ret != 0)
-    {
-        LOGERROR("Failed to clear SIGINT signal handler");
-    }
+    clearSignalHandler(SIGINT);
 }
 
 std::shared_ptr<common::SigIntMonitor> common::SigIntMonitor::getSigIntMonitor()
