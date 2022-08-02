@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #include <chrono>
 #include <future>
 
@@ -21,13 +18,19 @@ public:
         m_promise.set_value(true);
     }
 
-    void wait(std::size_t milliseconds = 30*1000)
+    void wait(std::size_t milliseconds=30*1000)
     {
         std::chrono::milliseconds duration(milliseconds);
         if (m_future.wait_for(duration) != std::future_status::ready)
         {
             FAIL() << "WaitForEvent::wait(" << milliseconds << ") timed out";
         }
+    }
+
+    void waitDefault()
+    {
+        std::size_t milliseconds = 30L * 1000;
+        wait(milliseconds);
     }
 
     void clear()
