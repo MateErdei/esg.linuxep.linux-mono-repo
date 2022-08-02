@@ -11,10 +11,9 @@ SophosAddTest(TestCommon
         ../common/LogInitializedTests.cpp
         TestPathUtils.cpp
         TestSaferStrerror.cpp
-        TestSigIntMonitor.cpp
-        TestSigTermMonitor.cpp
         TestStringUtils.cpp
-        TestSigTermMonitor.cpp
+        signals/TestSigIntMonitor.cpp
+        signals/TestSigTermMonitor.cpp
         signals/TestSignalHandlerBase.cpp
         signals/TestSignalHandlerTemplate.cpp
         PROJECTS common
