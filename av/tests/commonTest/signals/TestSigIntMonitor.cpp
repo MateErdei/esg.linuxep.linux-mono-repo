@@ -1,9 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
+// Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 #include "modules/common/SigIntMonitor.h"
 
@@ -20,12 +15,12 @@ namespace
     };
 }
 
-TEST_F(TestSigIntMonitor, testConstruction) // NOLINT
+TEST_F(TestSigIntMonitor, testConstruction)
 {
     EXPECT_FALSE(m_monitor.triggered());
 }
 
-TEST_F(TestSigIntMonitor, testSignal) // NOLINT
+TEST_F(TestSigIntMonitor, testSignal)
 {
     ::kill(::getpid(), SIGINT);
     EXPECT_TRUE(m_monitor.triggered());
