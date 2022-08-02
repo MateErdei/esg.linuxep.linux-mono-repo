@@ -11,6 +11,7 @@ Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/AVScanner.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
+Library         ../Libs/ProcessUtils.py
 Library         ../Libs/SystemFileWatcher.py
 Library         ../Libs/ThreatReportUtils.py
 
@@ -1587,12 +1588,13 @@ CLS Can Append Summary To Log When SigTerm Occurs
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
     Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
+    register on fail  dump_threads  ${CLI_SCANNER_PATH}
 
     Wait Until File exists  ${SCAN_LOG}
     Dump Log  ${SCAN_LOG}
 
     Send Signal To Process  SIGTERM  handle=${cls_handle}
-    ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=terminate
+    ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=continue
 
     Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=1
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
@@ -1631,12 +1633,13 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
     Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
+    register on fail  dump_threads  ${CLI_SCANNER_PATH}
 
     Wait Until File exists  ${SCAN_LOG}
     Wait For File With Particular Contents   \ Scanning\   ${SCAN_LOG}
 
     Send Signal To Process  SIGHUP  handle=${cls_handle}
-    ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=terminate
+    ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=continue
     Dump Log  ${SCAN_LOG}
 
     Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
