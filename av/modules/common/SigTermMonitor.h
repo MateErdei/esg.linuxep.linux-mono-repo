@@ -12,10 +12,12 @@ namespace common
     {
     public:
         explicit SigTermMonitor();
-        SigTermMonitor(const SigTermMonitor&) = delete;
         ~SigTermMonitor();
 
-        int monitorFd();
+        SigTermMonitor(const SigTermMonitor&) = delete;
+        SigTermMonitor& operator=(const SigTermMonitor&) = delete;
+
+        static std::shared_ptr<SigTermMonitor> getSigTermMonitor();
         bool triggered();
 
     };

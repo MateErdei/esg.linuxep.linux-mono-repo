@@ -8,6 +8,8 @@ namespace common::signals
 {
     class SignalHandlerBase
     {
+    public:
+        int monitorFd();
     protected:
         Common::Threads::NotifyPipe m_pipe;
         bool m_signalled = false;

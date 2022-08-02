@@ -10,11 +10,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <csignal>
 
-int common::SigHupMonitor::monitorFd()
-{
-    return m_pipe.readFd();
-}
-
 bool common::SigHupMonitor::triggered()
 {
     while (m_pipe.notified())
@@ -30,7 +25,7 @@ static void signal_handler(int)
 {
     if (SIGHUP_MONITOR_PIPE >= 0)
     {
-        int ret = ::write(SIGHUP_MONITOR_PIPE, "\0", 1);
+        auto ret = ::write(SIGHUP_MONITOR_PIPE, "\0", 1);
         /*
          * We are in a signal-context, so are very limited on what we can do.
          * http://manpages.ubuntu.com/manpages/bionic/man7/signal-safety.7.html

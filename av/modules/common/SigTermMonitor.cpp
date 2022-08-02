@@ -31,11 +31,6 @@ namespace common
         }
     }
 
-    int SigTermMonitor::monitorFd()
-    {
-        return m_pipe.readFd();
-    }
-
     bool SigTermMonitor::triggered()
     {
         while (m_pipe.notified())

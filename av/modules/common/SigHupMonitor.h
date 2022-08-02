@@ -18,7 +18,6 @@ namespace common
         SigHupMonitor& operator=(const SigHupMonitor&) = delete;
 
         static std::shared_ptr<SigHupMonitor> getSigHupMonitor();
-        int monitorFd();
         bool triggered();
 
     };
