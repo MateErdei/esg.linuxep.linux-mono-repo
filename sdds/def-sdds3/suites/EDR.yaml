@@ -11,3 +11,4 @@ instances:
         component: edr.latest.x64
         supplements:
           - scheduledquerypack
+          - scheduledquerypacknext
