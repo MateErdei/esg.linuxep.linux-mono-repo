@@ -46,7 +46,7 @@ Check AV Plugin Installed Directly
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  AV Plugin Log Contains  av <> Starting scanScheduler
+    ...  AV Plugin Log Contains  <> Starting scanScheduler
 
 Check AV Plugin Running
     ${result} =    Run Process  pgrep  -f  ${PLUGIN_BINARY}
