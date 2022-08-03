@@ -7,19 +7,19 @@ namespace
 {
     class TestSigTermMonitor: public ::testing::Test
     {
-    public:
-        common::SigTermMonitor m_monitor;
     };
 }
 
 TEST_F(TestSigTermMonitor, testConstruction)
 {
-    EXPECT_FALSE(m_monitor.triggered());
+    common::SigTermMonitor monitor(true);
+    EXPECT_FALSE(monitor.triggered());
 }
 
 TEST_F(TestSigTermMonitor, triggerNotified)
 {
-    EXPECT_FALSE(m_monitor.triggered());
+    common::SigTermMonitor monitor(false);
+    EXPECT_FALSE(monitor.triggered());
     ::kill(::getpid(), SIGTERM);
-    EXPECT_TRUE(m_monitor.triggered());
+    EXPECT_TRUE(monitor.triggered());
 }

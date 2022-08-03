@@ -11,10 +11,10 @@ namespace common
     class SigTermMonitor : public common::signals::LatchingSignalHandler
     {
     public:
-        explicit SigTermMonitor();
+        explicit SigTermMonitor(bool restartSyscalls);
         ~SigTermMonitor() override;
 
-        static std::shared_ptr<SigTermMonitor> getSigTermMonitor();
+        static std::shared_ptr<SigTermMonitor> getSigTermMonitor(bool restartSyscalls);
 
     };
 }

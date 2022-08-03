@@ -35,7 +35,7 @@ BaseRunner::BaseRunner()
 {
     // Ensure signal handlers are created before logging is set up
     std::ignore = common::SigIntMonitor::getSigIntMonitor();
-    std::ignore = common::SigTermMonitor::getSigTermMonitor();
+    std::ignore = common::SigTermMonitor::getSigTermMonitor(false);
     std::ignore = common::SigHupMonitor::getSigHupMonitor();
 }
 

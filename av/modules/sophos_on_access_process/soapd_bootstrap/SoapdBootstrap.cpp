@@ -34,7 +34,7 @@ int SoapdBootstrap::runSoapd()
     // Implement soapd
 
     std::shared_ptr<common::SigIntMonitor> sigIntMonitor{common::SigIntMonitor::getSigIntMonitor()};
-    std::shared_ptr<common::SigTermMonitor> sigTermMonitor{common::SigTermMonitor::getSigTermMonitor()};
+    std::shared_ptr<common::SigTermMonitor> sigTermMonitor{common::SigTermMonitor::getSigTermMonitor(true)};
 
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");

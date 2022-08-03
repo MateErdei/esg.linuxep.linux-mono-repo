@@ -14,11 +14,11 @@ namespace common
         int SIGTERM_MONITOR_PIPE = -1; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
     }
 
-    SigTermMonitor::SigTermMonitor()
+    SigTermMonitor::SigTermMonitor(bool restartSyscalls)
         : LatchingSignalHandler(SIGTERM)
     {
         // Setup signal handler
-        SIGTERM_MONITOR_PIPE = setSignalHandler(common::signals::signal_handler<SIGTERM_MONITOR_PIPE>);
+        SIGTERM_MONITOR_PIPE = setSignalHandler(common::signals::signal_handler<SIGTERM_MONITOR_PIPE>, restartSyscalls);
     }
 
     SigTermMonitor::~SigTermMonitor()
@@ -28,9 +28,9 @@ namespace common
         clearSignalHandler();
     }
 
-    std::shared_ptr<SigTermMonitor> SigTermMonitor::getSigTermMonitor()
+    std::shared_ptr<SigTermMonitor> SigTermMonitor::getSigTermMonitor(bool restartSyscalls)
     {
-        static std::shared_ptr<SigTermMonitor> monitor(std::make_shared<SigTermMonitor>());
+        static std::shared_ptr<SigTermMonitor> monitor(std::make_shared<SigTermMonitor>(restartSyscalls));
         return monitor;
     }
 } // namespace common
