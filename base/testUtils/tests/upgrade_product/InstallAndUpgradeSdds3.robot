@@ -405,6 +405,48 @@ During Transition From SDDS3 to SDDS2 SDDS3 Cache Is Removed Before Downloading 
     Check Local SDDS3 Cache Is Empty
     Check Local SDDS2 Cache Has Contents
 
+Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
+    [Setup]    Test Setup With Ostia
+    [Teardown]    Test Teardown With Ostia
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    ${handle}=  Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    Create Local SDDS3 Override
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   5 secs
+    ...   Check Local SDDS3 Cache Has Contents
+
+    Wait Until Keyword Succeeds
+    ...  300 secs
+    ...  10 secs
+    ...  Directory Should Exist  ${sdds3_primary}/ServerProtectionLinux-Plugin-EDR
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  10 secs
+    ...  Directory Should Exist  ${sdds3_primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  10 secs
+    ...  Directory Should Exist  ${sdds3_primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack_next
+
+    ${scheduled_query_pack} =             Get File    ${sdds3_primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack/sophos-scheduled-query-pack.conf
+    ${scheduled_query_pack_next} =        Get File    ${sdds3_primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack_next/sophos-scheduled-query-pack.conf
+    Should Be Equal As Strings            ${scheduled_query_pack}    ${scheduled_query_pack_next}
+
+    ${scheduled_query_pack_mtr} =         Get File    ${sdds3_primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
+    ${scheduled_query_pack_next_mtr} =    Get File    ${sdds3_primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
+    Should Be Equal As Strings            ${scheduled_query_pack_mtr}    ${scheduled_query_pack_next_mtr}
+
+
 *** Keywords ***
 Create Dummy Local SDDS2 Cache Files
     Create File         ${sdds2_primary}/1
