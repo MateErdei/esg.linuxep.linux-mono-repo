@@ -527,6 +527,8 @@ Threat Detector Does Not Restart If Sometimes-symlinked System File Contents Do 
 
 *** Keywords ***
 Start AV
+    Check AV Plugin Not Running
+
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     mark av log
     mark sophos threat detector log
@@ -584,9 +586,6 @@ Product Test Setup
 Product Test Teardown
     Delete Eicars From Tmp
     run teardown functions
-
-    ${result} =  Run Process  ps  -ef   |    grep   sophos  stderr=STDOUT  shell=yes
-    Log  output is ${result.stdout}
 
     Component Test TearDown
 
