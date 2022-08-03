@@ -82,7 +82,8 @@ TEST(TestScanClient, TestScanEtcPasswd)
     EXPECT_CALL(mock_socket, connect)
         .Times(1)
         .WillOnce(Return(0));
-    EXPECT_CALL(mock_socket, socketFd);
+    EXPECT_CALL(mock_socket, socketFd)
+        .Times(1);
     EXPECT_CALL(mock_socket, sendRequest(_,_))
         .Times(1)
         .WillOnce(Return(true));
