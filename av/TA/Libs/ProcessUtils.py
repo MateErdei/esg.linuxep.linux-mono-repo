@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (C) 2021 Sophos Plc, Oxford, England.
+# Copyright (C) 2021-2022 Sophos Plc, Oxford, England.
 # All rights reserved.
 
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -77,13 +78,18 @@ def dump_threads(executable):
     return dump_threads_from_pid(pid)
 
 def dump_threads_from_pid(pid):
+    gdb = shutil.which('gdb')
+    if gdb is None:
+        logger.error("gdb not found!")
+        return
+
     # write script out
     script = b"""set pagination 0
 thread apply all bt
 quit
 """
     # run gdb
-    proc = subprocess.Popen([b'gdb', b'/proc/%d/exe' % pid, str(pid)],
+    proc = subprocess.Popen([gdb, b'/proc/%d/exe' % pid, str(pid)],
                             stdin=subprocess.PIPE,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT)
