@@ -213,24 +213,19 @@ do
         --valgrind)
             VALGRIND=1
             ;;
-        --get-input-old)
-            rm -rf ${BUILD_DIR}/input
-            python3 -m build_scripts.artisan_fetch build-files/release-package.xml
-            ;;
         --tap)
             shift
             TAP=$1
             ;;
         --get-input|--get-input-new)
-            rm -rf ${BUILD_DIR}/input ${BUILD_DIR}/redist
+            rm -rf input redist
             export TAP_PARAMETER_MODE=release
             $TAP fetch av_plugin.build.normal_build
             ;;
         --setup)
-            rm -rf ${BUILD_DIR}/input ${BUILD_DIR}/redist
+            rm -rf input redist
             export TAP_PARAMETER_MODE=release
             $TAP fetch av_plugin.build.normal_build
-            rm -f ${BUILD_DIR}/input/gcc-*-linux.tar.gz
             NO_BUILD=1
             LOCAL_GCC=1
             LOCAL_CMAKE=1
