@@ -16,7 +16,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #define pr_arg(x) ((unsigned long) x)
 
-static int cap_set_ambient(cap_value_t cap, cap_flag_value_t set)
+
+//Reimplmenet cap_set_ambient for older kernels
+static int sophos_cap_set_ambient(cap_value_t cap, cap_flag_value_t set)
 {
     int val;
     switch (set)
@@ -68,10 +70,10 @@ int pass_on_capability(cap_value_t cap)
     }
 
     errno = 0;
-    ret = cap_set_ambient(cap, CAP_SET);
+    ret = sophos_cap_set_ambient(cap, CAP_SET);
     if (ret != 0)
     {
-        perror("cap_set_ambient fails");
+        perror("sophos_cap_set_ambient fails");
         return E_CAP_SET_AMBIENT;
     }
 
