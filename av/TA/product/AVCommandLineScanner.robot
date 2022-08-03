@@ -1588,7 +1588,7 @@ CLS Can Append Summary To Log When SigTerm Occurs
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
     Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
-    register on fail  dump_threads_from_process  ${cls_handle}
+    register on fail  dump_threads_from_pid  ${cls_handle.pid}
 
     Wait Until File exists  ${SCAN_LOG}
     Dump Log  ${SCAN_LOG}
@@ -1633,7 +1633,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
     Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
-    register on fail  dump_threads_from_process  ${cls_handle}
+    register on fail  dump_threads_from_pid  ${cls_handle.pid}
 
     Wait Until File exists  ${SCAN_LOG}
     Wait For File With Particular Contents   \ Scanning\   ${SCAN_LOG}
