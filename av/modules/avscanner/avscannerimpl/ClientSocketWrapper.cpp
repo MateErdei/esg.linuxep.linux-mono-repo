@@ -62,7 +62,7 @@ namespace avscanner::avscannerimpl
         {
             if (m_reconnectAttempts >= TOTAL_MAX_RECONNECTS)
             {
-                throw AbortScanException("Reached total maximum number of reconnection attempts. Aborting scan.");
+                throw common::AbortScanException("Reached total maximum number of reconnection attempts. Aborting scan.");
             }
 
             checkIfScanAborted();

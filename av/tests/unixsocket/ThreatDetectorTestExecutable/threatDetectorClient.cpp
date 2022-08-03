@@ -21,7 +21,7 @@
 #include <fstream>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
-#define BASE "/tmp/TestPluginAdapter"
+// #define BASE "/tmp/TestPluginAdapter"
 
 namespace fs = sophos_filesystem;
 
@@ -44,7 +44,7 @@ namespace Fuzzing
 
     static std::unique_ptr<FakeDetectionServer::FakeServerSocket> socketServer;
 
-    static std::string m_scanResult  = R"({"results":[{"detections":[{"threatName":"EICAR-AV-Test","threatType":"virus"}],"path":"/home/vagrant/eicar1","sha256":"131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"}],"time":"2020-10-27T10:14:03Z"})";
+    // static std::string m_scanResult  = R"({"results":[{"detections":[{"threatName":"EICAR-AV-Test","threatType":"virus"}],"path":"/home/vagrant/eicar1","sha256":"131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"}],"time":"2020-10-27T10:14:03Z"})";
 
     static void doInitialization(uint8_t* data, size_t size)
     {
@@ -78,7 +78,7 @@ namespace Fuzzing
         {
             scanner.scan("/etc/passwd", false);
         }
-        catch(AbortScanException& e)
+        catch(common::AbortScanException& e)
         {
             // ScanClient throws these exceptions when it receives a malformed capnp message.
             // We don't want to stop the fuzzing when that happens.

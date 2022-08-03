@@ -16,8 +16,6 @@ Copyright 2019-2022, Sophos Limited.  All rights reserved.
 #include <fstream>
 #include <string>
 
-#include <unistd.h>
-
 namespace fs = sophos_filesystem;
 
 using namespace ::testing;
@@ -25,7 +23,7 @@ using namespace ::testing;
 TEST_F(TestFileWalker, includeDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingPoint = fs::path("sandbox");
 
@@ -42,7 +40,7 @@ TEST_F(TestFileWalker, includeDirectory) // NOLINT
 TEST_F(TestFileWalker, includeCurrentDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingPoint = fs::path(".");
 
@@ -59,9 +57,9 @@ TEST_F(TestFileWalker, includeCurrentDirectory) // NOLINT
 TEST_F(TestFileWalker, reuseObject) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
     fs::create_directories("sandbox/f/g/i/j");
-    std::ofstream("sandbox/f/g/file2.txt");
+    std::ofstream("sandbox/f/g/file2.txt").close();
     fs::path startingPoint = fs::path("sandbox/a");
 
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
@@ -88,9 +86,9 @@ TEST_F(TestFileWalker, reuseObject) // NOLINT
 TEST_F(TestFileWalker, scanDirectoryOnlyOnce) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
     fs::create_directories("sandbox/f/g/i/j");
-    std::ofstream("sandbox/f/g/file2.txt");
+    std::ofstream("sandbox/f/g/file2.txt").close();
     fs::path startingPoint = fs::path("sandbox/a");
 
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
@@ -116,7 +114,7 @@ TEST_F(TestFileWalker, scanDirectoryOnlyOnce) // NOLINT
 TEST_F(TestFileWalker, absoluteIncludePath) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingPoint = fs::absolute("sandbox");
 
@@ -133,7 +131,7 @@ TEST_F(TestFileWalker, absoluteIncludePath) // NOLINT
 TEST_F(TestFileWalker, currentDirIsDeleted) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingPoint = fs::absolute("sandbox");
     fs::path expected = fs::absolute("sandbox/a/b/file1.txt");
@@ -469,7 +467,7 @@ TEST_F(TestFileWalker, abortScanExceptionFromProcessFile) // NOLINT
     fs::path startingPoint = fs::absolute("sandbox/file1.txt");
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
-    AbortScanException abortScan("Cannot connect to scanning service");
+    common::AbortScanException abortScan("Cannot connect to scanning service");
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Throw(abortScan));
 
     try
@@ -478,7 +476,7 @@ TEST_F(TestFileWalker, abortScanExceptionFromProcessFile) // NOLINT
         fw.walk(startingPoint);
         FAIL() << "walk() did not throw";
     }
-    catch (AbortScanException& ex)
+    catch (common::AbortScanException& ex)
     {
         ASSERT_STREQ(ex.what(), abortScan.what());
     }
@@ -503,7 +501,7 @@ TEST_F(TestFileWalker, abortScanExceptionFromProcessFileInWalk) // NOLINT
     EXPECT_CALL(*callbacks, userDefinedExclusionCheck(_)).WillOnce(Return(false));
     EXPECT_CALL(*callbacks, processFile(_, _)).Times(0);
 
-    AbortScanException abortScan("Cannot connect to scanning service");
+    common::AbortScanException abortScan("Cannot connect to scanning service");
     EXPECT_CALL(*callbacks, processFile(_, _)).WillOnce(Throw(abortScan)).RetiresOnSaturation();
 
     try
@@ -512,7 +510,7 @@ TEST_F(TestFileWalker, abortScanExceptionFromProcessFileInWalk) // NOLINT
         fw.walk(startingPoint);
         FAIL() << "walk() did not throw";
     }
-    catch (AbortScanException& ex)
+    catch (common::AbortScanException& ex)
     {
         ASSERT_STREQ(ex.what(), abortScan.what());
     }
@@ -521,7 +519,7 @@ TEST_F(TestFileWalker, abortScanExceptionFromProcessFileInWalk) // NOLINT
 TEST_F(TestFileWalker, excludeDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
@@ -537,7 +535,7 @@ TEST_F(TestFileWalker, excludeDirectory) // NOLINT
 TEST_F(TestFileWalker, userExcludeDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     auto callbacks = std::make_shared<StrictMock<MockCallbacks>>();
 
@@ -634,7 +632,7 @@ TEST_F(TestFileWalker, scanPathThatDoesNotExistWithSpecialCharacter) // NOLINT
 TEST_F(TestFileWalker, includeSingleFile) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     const fs::path& startingPath("sandbox/a/b/file1.txt");
 
@@ -688,7 +686,7 @@ TEST_F(TestFileWalker, scanStartsFromSymlinkToSpecial) // NOLINT
 TEST_F(TestFileWalker, scanWalksSpecial) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
     ASSERT_EQ(::mkfifo("sandbox/a/b/fifo", 0600), 0);
 
     fs::path startingPoint = fs::path("sandbox");
@@ -707,7 +705,7 @@ TEST_F(TestFileWalker, scanWalksSpecial) // NOLINT
 TEST_F(TestFileWalker, scanWalksSymlinkToSpecial) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
     ASSERT_EQ(::mkfifo("fifo", 0600), 0);
     fs::create_symlink("../fifo", "sandbox/fifo");
 
@@ -730,7 +728,7 @@ TEST_F(TestFileWalker, scanWalksSymlinkToSpecial) // NOLINT
 TEST_F(TestFileWalker, startWithSymlinkToDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingPoint = fs::path("symlink_to_sandbox");
 
@@ -749,7 +747,7 @@ TEST_F(TestFileWalker, startWithSymlinkToDirectory) // NOLINT
 TEST_F(TestFileWalker, startWithDirectoryViaSymlink) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::create_symlink("sandbox", "symlink_to_sandbox");
     fs::path startingPoint = fs::path("symlink_to_sandbox/a");
@@ -767,7 +765,7 @@ TEST_F(TestFileWalker, startWithDirectoryViaSymlink) // NOLINT
 TEST_F(TestFileWalker, startWithSymlinkToFile) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingPoint = fs::path("symlink_to_file");
 
@@ -786,7 +784,7 @@ TEST_F(TestFileWalker, startWithSymlinkToFile) // NOLINT
 TEST_F(TestFileWalker, startWithBrokenSymlink) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingPoint = fs::path("sandbox/broken_symlink");
 
@@ -817,7 +815,7 @@ TEST_F(TestFileWalker, startWithBrokenSymlink) // NOLINT
 TEST_F(TestFileWalker, startWithBrokenSymlinkPath) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingPoint = fs::path("sandbox/broken_symlink/start");
 
@@ -850,18 +848,18 @@ TEST_F(TestFileWalker, symlinksInWalkNoFollow) // NOLINT
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingPoint = fs::path("sandbox");
 
     fs::create_directories("other_dir");
-    std::ofstream("other_dir/file2.txt");
+    std::ofstream("other_dir/file2.txt").close();
     fs::create_symlink("../other_dir", "sandbox/other_dir");
     fs::create_symlink("../other_dir/file2.txt", "sandbox/file2.txt");
     fs::create_symlink("absent", "sandbox/broken_symlink");
 
     fs::create_directories("other_dir2");
-    std::ofstream("other_dir2/file3.txt");
+    std::ofstream("other_dir2/file3.txt").close();
     fs::create_symlink("../other_dir2/", "sandbox/other_dir2");
     fs::create_symlink("absent2/", "sandbox/broken_symlink2");
 
@@ -887,18 +885,18 @@ TEST_F(TestFileWalker, symlinksInWalkNoFollow) // NOLINT
 TEST_F(TestFileWalker, followSymlinksInWalk) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingPoint = fs::path("sandbox");
 
     fs::create_directories("other_dir");
-    std::ofstream("other_dir/file2.txt");
+    std::ofstream("other_dir/file2.txt").close();
     fs::create_symlink("../other_dir", "sandbox/other_dir");
     fs::create_symlink("../other_dir/file2.txt", "sandbox/file2.txt");
     fs::create_symlink("absent", "sandbox/broken_symlink");
 
     fs::create_directories("other_dir2");
-    std::ofstream("other_dir2/file3.txt");
+    std::ofstream("other_dir2/file3.txt").close();
     fs::create_symlink("../other_dir2/", "sandbox/other_dir2");
     fs::create_symlink("absent2/", "sandbox/broken_symlink2");
 
@@ -928,7 +926,7 @@ TEST_F(TestFileWalker, duplicateSymlinksInWalkNoFollow) // NOLINT
     fs::path startingPoint = fs::path("sandbox");
 
     fs::create_directories("other_dir");
-    std::ofstream("other_dir/file2.txt");
+    std::ofstream("other_dir/file2.txt").close();
     fs::create_symlink("../other_dir", "sandbox/link1");
     fs::create_symlink("../other_dir", "sandbox/link2");
 
@@ -948,7 +946,7 @@ TEST_F(TestFileWalker, duplicateDirSymlinksInWalk) // NOLINT
     fs::path startingPoint = fs::path("sandbox");
 
     fs::create_directories("other_dir");
-    std::ofstream("other_dir/file2.txt");
+    std::ofstream("other_dir/file2.txt").close();
     fs::create_symlink("../other_dir", "sandbox/dirlink1");
     fs::create_symlink("../other_dir", "sandbox/dirlink2");
 
@@ -968,8 +966,8 @@ TEST_F(TestFileWalker, scanDirectoryAndSymlinkToDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b");
     fs::create_directories("sandbox/c/d");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/c/d/file2.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/c/d/file2.txt").close();
     fs::create_symlink("../c/d", "sandbox/a/d");
     fs::create_symlink("../a/b", "sandbox/c/b");
 
@@ -992,7 +990,7 @@ TEST_F(TestFileWalker, scanDirectoryAndSymlinkToDirectory) // NOLINT
 TEST_F(TestFileWalker, symlinksToStartingDir) // NOLINT
 {
     fs::create_directories("sandbox");
-    std::ofstream("sandbox/file1.txt");
+    std::ofstream("sandbox/file1.txt").close();
     fs::create_symlink(".", "sandbox/dirlink1");
     fs::create_directories("sandbox/dir2");
     fs::create_symlink("..", "sandbox/dir2/dirlink2");
@@ -1015,7 +1013,7 @@ TEST_F(TestFileWalker, duplicateFileSymlinksInWalk) // NOLINT
     fs::path startingPoint = fs::path("sandbox");
 
     fs::create_directories("other_dir");
-    std::ofstream("other_dir/file1.txt");
+    std::ofstream("other_dir/file1.txt").close();
     fs::create_symlink("../other_dir/file1.txt", "sandbox/filelink1");
     fs::create_symlink("../other_dir/file1.txt", "sandbox/filelink2");
 
@@ -1037,7 +1035,7 @@ TEST_F(TestFileWalker, backtrackProtectionAppliesAcrossMultipleWalks) // NOLINT
     fs::create_directories("sandbox/dir2");
 
     fs::create_directories("other_dir");
-    std::ofstream("other_dir/file.txt");
+    std::ofstream("other_dir/file.txt").close();
     fs::create_symlink("../../other_dir", "sandbox/dir1/dirlink1");
     fs::create_symlink("../../other_dir", "sandbox/dir2/dirlink2");
 
@@ -1057,7 +1055,7 @@ TEST_F(TestFileWalker, backtrackProtectionAppliesAcrossMultipleWalks) // NOLINT
 TEST_F(TestFileWalker, withStayOnDevice) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingPoint = fs::path("sandbox");
 
@@ -1126,7 +1124,7 @@ TEST_F(TestFileWalker, symlinkNoPermission) // NOLINT
     fs::create_directories("target");
     ASSERT_FALSE(fs::exists("link"));
     fs::create_directories("link");
-    std::ofstream("target/file");
+    std::ofstream("target/file").close();
     ASSERT_FALSE(fs::exists("link/symlink"));
     fs::create_symlink("../target/file", "link/symlink");
     fs::permissions("target/file", fs::perms::none);

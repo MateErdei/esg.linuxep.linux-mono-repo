@@ -2,8 +2,6 @@
 
 #include "BaseRunner.h"
 
-#include "Logger.h"
-
 #include "mount_monitor/mountinfoimpl/Mounts.h"
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "common/AbortScanException.h"
@@ -35,7 +33,7 @@ static fs::path pluginInstall()
 
 BaseRunner::BaseRunner()
 {
-    // Ensure signal handlers are created before logging is setup
+    // Ensure signal handlers are created before logging is set up
     std::ignore = common::SigIntMonitor::getSigIntMonitor();
     std::ignore = common::SigTermMonitor::getSigTermMonitor();
     std::ignore = common::SigHupMonitor::getSigHupMonitor();
@@ -95,7 +93,7 @@ bool BaseRunner::walk(filewalker::FileWalker& filewalker,
         m_returnCode = common::E_EXECUTION_INTERRUPTED;
         return false;
     }
-    catch (const AbortScanException& e)
+    catch (const common::AbortScanException& e)
     {
         // Abort scan has already been logged in the genericFailure method
         // genericFailure -> ScanCallbackImpl::scanError(const std::string& errorMsg)

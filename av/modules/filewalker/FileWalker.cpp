@@ -11,8 +11,6 @@
 #include "common/ScanManuallyInterruptedException.h"
 #include "common/StringUtils.h"
 
-#include <cstring>
-
 #include <sys/stat.h>
 
 namespace fs = sophos_filesystem;
@@ -78,7 +76,7 @@ void FileWalker::walk(const sophos_filesystem::path& starting_point)
         {
             throw;
         }
-        catch (const AbortScanException&)
+        catch (const common::AbortScanException&)
         {
             throw;
         }
@@ -250,7 +248,7 @@ void FileWalker::scanDirectory(const fs::path& current_dir) // NOLINT(misc-no-re
             {
                 throw;
             }
-            catch (const AbortScanException&)
+            catch (const common::AbortScanException&)
             {
                 throw;
             }

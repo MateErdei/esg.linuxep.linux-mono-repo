@@ -125,7 +125,7 @@ TEST_F(TestBaseFileWalkCallbacks, scanThrows) // NOLINT
         callback.processFile(fs::path("/testfile"), false);
         FAIL() << "processFile didn't throw";
     }
-    catch (AbortScanException& ex)
+    catch (common::AbortScanException& ex)
     {
         EXPECT_STREQ(abortScanException.what(), ex.what());
     }

@@ -10,11 +10,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <string>
 #include <utility>
 
-class AbortScanException : virtual public std::runtime_error
+namespace common
 {
-public:
-    explicit AbortScanException(const std::string& errorMsg)
-        : std::runtime_error(errorMsg)
+    class AbortScanException : virtual public std::runtime_error
     {
-    }
-};
+    public:
+        explicit AbortScanException(const std::string& errorMsg) : std::runtime_error(errorMsg) {}
+    };
+}

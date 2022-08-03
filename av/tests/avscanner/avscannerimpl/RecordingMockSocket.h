@@ -82,13 +82,13 @@ namespace
         bool sendRequest(datatypes::AutoFd&, const scan_messages::ClientScanRequest&) override
         {
             m_abortCount++;
-            throw AbortScanException("Deliberate Abort");
+            throw common::AbortScanException("Deliberate Abort");
         }
 
         bool receiveResponse(scan_messages::ScanResponse&) override
         {
             m_abortCount++;
-            throw AbortScanException("Deliberate Abort");
+            throw common::AbortScanException("Deliberate Abort");
         }
 
         int socketFd() override

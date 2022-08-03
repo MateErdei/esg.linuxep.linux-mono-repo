@@ -120,7 +120,7 @@ namespace unixsocket
 
             std::stringstream errorMsg;
             errorMsg << "Malformed response from Sophos Threat Detector (" << ex.getDescription().cStr() << ")";
-            throw AbortScanException(errorMsg.str());
+            throw common::AbortScanException(errorMsg.str());
         }
 
         return true;

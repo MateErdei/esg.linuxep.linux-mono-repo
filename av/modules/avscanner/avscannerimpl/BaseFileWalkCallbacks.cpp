@@ -191,5 +191,5 @@ void BaseFileWalkCallbacks::genericFailure(const std::exception& e, const std::s
 
     m_scanner->scanError(errorString, ec);
     m_returnCode = common::E_GENERIC_FAILURE;
-    throw AbortScanException(e.what());
+    throw common::AbortScanException(e.what());
 }

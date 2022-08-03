@@ -221,7 +221,7 @@ TEST_F(TestClientSocketWrapper, ScanReconnectLimit)
         EXPECT_EQ(errMsg, "Failed to scan file: /foo/bar after 60 retries");
     }
 
-    EXPECT_THROW(csw.scan(fd, request), AbortScanException);
+    EXPECT_THROW(csw.scan(fd, request), common::AbortScanException);
 }
 
 TEST_F(TestClientSocketWrapper, ScanRetriesReceive)
