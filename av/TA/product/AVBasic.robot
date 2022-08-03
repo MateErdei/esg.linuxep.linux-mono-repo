@@ -585,7 +585,14 @@ Product Test Teardown
     Delete Eicars From Tmp
     run teardown functions
 
+    ${result} =  Run Process  ps  -ef   |    grep   sophos  stderr=STDOUT  shell=yes
+    Log  output is ${result.stdout}
+
     Component Test TearDown
+
+    ${result} =  Run Process  ps  -ef   |    grep   sophos  stderr=STDOUT  shell=yes
+    Log  output is ${result.stdout}
+
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
     #Run clear logs only after we stopped all the processes
     ${result} =   Check If The Logs Are Close To Rotating

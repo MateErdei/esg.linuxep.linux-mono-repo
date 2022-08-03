@@ -99,6 +99,8 @@ Dump Threads And Fail
     Fail  ${ERROR_MESSAGE}
 
 Check AV Plugin Not Running
+    ${result} =  Run Process  ps  -ef   |    grep   sophos  stderr=STDOUT  shell=yes
+    Log  output is ${result.stdout}
     ${result} =   ProcessUtils.pidof  ${PLUGIN_BINARY}
     Run Keyword If  ${result} != ${-1}      Dump Threads And Fail    AV plugin still running: ${result}
 

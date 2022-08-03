@@ -80,6 +80,9 @@ AVCommandLineScanner Test TearDown
     Run Keyword If Test Failed  Reset AVCommandLineScanner Suite
 
 Clear logs
+    ${result} =  Run Process  ps  -ef   |    grep   sophos  stderr=STDOUT  shell=yes
+    Log  output is ${result.stdout}
+
     Stop AV
     Wait Until Keyword Succeeds
     ...  30 secs
