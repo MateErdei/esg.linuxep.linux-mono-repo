@@ -1751,6 +1751,7 @@ CLS Can Scan Special File That Cannot Be Read
     Register On Fail  Log  cat result: = ${catrc} output = ${catoutput}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /run/netns/avtest
     Register On Fail  Log  avscanner output is ${output}
+    Dump Log  ${SUSI_DEBUG_LOG_PATH}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
 Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
