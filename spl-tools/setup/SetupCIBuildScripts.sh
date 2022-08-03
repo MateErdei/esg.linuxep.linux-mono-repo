@@ -16,8 +16,8 @@ SCRIPTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 mkdir -p ~/.config/pip/
 pushd ~/.config/pip/
 echo [global] > pip.conf
-echo index-url = https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple >> pip.conf
-echo cert = $SCRIPTDIR/sophos_certs.pem >> pip.conf
+echo "index-url = https://artifactory.sophos-ops.com/api/pypi/pypi/simple" >> pip.conf
+echo "trusted-host = artifactory.sophos-ops.com" >> pip.conf
 
 python3 -m pip install --upgrade build_scripts || failure "Unable to install build_scripts"
 python3 -m pip install --upgrade keyrings.alt || failure "Unable to install dependency"
