@@ -8,7 +8,7 @@ then
     # Retry 10 times before timeout
     for (( i=0; i<10; i++ ))
     do
-       if DEBIAN_FRONTEND=noninteractive apt-get install -y nfs-kernel-server zip unzip samba p7zip-full
+       if DEBIAN_FRONTEND=noninteractive apt-get install -y nfs-kernel-server zip unzip samba p7zip-full gdb
        then
           echo "Installation succeeded"
           break
@@ -61,7 +61,7 @@ then
             exit $EXIT
         fi
     }
-    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba p7zip
+    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba p7zip gdb
 else
     echo "Can't find package management system"
     exit 1
