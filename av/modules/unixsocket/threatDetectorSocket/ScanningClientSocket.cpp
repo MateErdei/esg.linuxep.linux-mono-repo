@@ -25,7 +25,6 @@ namespace unixsocket
     ScanningClientSocket::ScanningClientSocket(std::string socket_path) :
         m_socketPath(std::move(socket_path))
     {
-        ScanningClientSocket::connect();
     }
 
     int ScanningClientSocket::connect()
@@ -41,36 +40,43 @@ namespace unixsocket
         return ::connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
     }
 
-    int ScanningClientSocket::sendRequest(
+    bool ScanningClientSocket::sendRequest(
         datatypes::AutoFd& fd,
         const scan_messages::ClientScanRequest& request)
     {
-        assert(m_socket_fd >= 0);
+        if (!m_socket_fd.valid())
+        {
+            return false;
+        }
         std::string dataAsString = request.serialise();
 
         try
         {
             if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
             {
-                return -1;
+                return false;
             }
 
             auto ret = send_fd(m_socket_fd, fd.get());
             if (ret < 0)
             {
-                return -1;
+                return false;
             }
         }
         catch (environmentInterruption& e)
         {
-            return -1;
+            return false;
         }
 
-        return 0;
+        return true;
     }
 
     bool ScanningClientSocket::receiveResponse(scan_messages::ScanResponse& response)
     {
+        if (!m_socket_fd.valid())
+        {
+            return false;
+        }
         auto length = readLength(m_socket_fd);
         if (length < 0)
         {

@@ -89,18 +89,31 @@ TEST_F(TestThreatDetectorSocket, test_running) // NOLINT
     EXPECT_TRUE(appenderContains("Closing Scanning Server socket"));
 }
 
-static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, datatypes::AutoFd& file_fd, const std::string& filename)
+static scan_messages::ScanResponse scan(
+    unixsocket::ScanningClientSocket& socket,
+    datatypes::AutoFd& file_fd,
+    const std::string& filename)
 {
+    scan_messages::ScanResponse response;
+
+    if (socket.socketFd() <= 0)
+    {
+        auto connectResult = socket.connect();
+        if (connectResult != 0)
+        {
+            response.setErrorMsg("Failed to connect");
+            return response;
+        }
+    }
+
     scan_messages::ClientScanRequest request;
     request.setPath(filename);
     request.setScanInsideArchives(false);
     request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     request.setUserID("root");
 
-    scan_messages::ScanResponse response;
-
     auto sendResult = socket.sendRequest(file_fd, request);
-    if (sendResult != 0)
+    if (!sendResult)
     {
         response.setErrorMsg("Failed to send scan request");
         return response;
@@ -128,8 +141,10 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
     auto expected_response = scan_messages::ScanResponse();
     expected_response.addDetection("/tmp/eicar.com", "THREAT","");
 
-    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillOnce(Return(expected_response));
-    EXPECT_CALL(*scannerFactory, createScanner(false, false)).WillOnce(Return(ByMove(std::move(scanner))));
+    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _))
+        .WillOnce(Return(expected_response));
+    EXPECT_CALL(*scannerFactory, createScanner(false, false))
+        .WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
     server.start();
@@ -164,8 +179,10 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
     auto expected_response = scan_messages::ScanResponse();
     expected_response.addDetection("/bin/bash", "","");
 
-    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillOnce(Return(expected_response));
-    EXPECT_CALL(*scannerFactory, createScanner(false, false)).WillOnce(Return(ByMove(std::move(scanner))));
+    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _))
+        .WillOnce(Return(expected_response));
+    EXPECT_CALL(*scannerFactory, createScanner(false, false))
+        .WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
     server.start();
@@ -194,8 +211,10 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
     auto expected_response = scan_messages::ScanResponse();
     expected_response.addDetection("/bin/bash", "","");
 
-    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillRepeatedly(Return(expected_response));
-    EXPECT_CALL(*scannerFactory, createScanner(false, false)).WillOnce(Return(ByMove(std::move(scanner))));
+    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _))
+        .WillRepeatedly(Return(expected_response));
+    EXPECT_CALL(*scannerFactory, createScanner(false, false))
+        .WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
     server.start();
@@ -228,10 +247,11 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws)
 
     auto* scannerPtr = scanner.get();
 
-    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _)).WillRepeatedly(Throw(std::runtime_error("Intentional throw")));
+    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _))
+        .WillRepeatedly(Throw(std::runtime_error("Intentional throw")));
     EXPECT_CALL(*scannerFactory, createScanner(false, false))
-            .WillOnce(Return(ByMove(std::move(scanner))))
-            .WillRepeatedly([](bool, bool)->threat_scanner::IThreatScannerPtr{ return nullptr; });
+        .WillOnce(Return(ByMove(std::move(scanner))))
+        .WillRepeatedly([](bool, bool)->threat_scanner::IThreatScannerPtr{ return nullptr; });
 
     unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory);
     server.start();
@@ -261,7 +281,9 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused)
     std::string socketPath = "/tmp/scanning_socket";
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     EXPECT_CALL(*scannerFactory, createScanner(false, false))
-        .WillRepeatedly([](bool, bool)->threat_scanner::IThreatScannerPtr { return std::make_unique<StrictMock<MockScanner>>(); } );
+        .WillRepeatedly(
+            [](bool, bool) -> threat_scanner::IThreatScannerPtr
+            { return std::make_unique<StrictMock<MockScanner>>(); });
 
     unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory);
     server.start();
@@ -275,7 +297,8 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused)
     ASSERT_GT(clientConnectionCount, 1);
     for (int i=0; i < clientConnectionCount; ++i)
     {
-        client_sockets.emplace_back(socketPath);
+        auto& socket = client_sockets.emplace_back(socketPath);
+        socket.connect();
     }
 
     ASSERT_FALSE(client_sockets.empty());

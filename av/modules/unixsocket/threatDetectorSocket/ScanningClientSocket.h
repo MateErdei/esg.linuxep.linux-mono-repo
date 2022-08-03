@@ -26,7 +26,7 @@ namespace unixsocket
 
 
         int connect() override;
-        int sendRequest(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request) override;
+        bool sendRequest(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request) override;
         bool receiveResponse(scan_messages::ScanResponse& response) override;
         int socketFd() override;
 

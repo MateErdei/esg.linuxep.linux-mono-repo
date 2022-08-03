@@ -27,7 +27,9 @@ namespace avscanner::avscannerimpl
         m_sigHupMonitor(common::SigHupMonitor::getSigHupMonitor()),
         m_reconnectAttempts(0),
         m_sleepTime(sleepTime)
-    {}
+    {
+        ClientSocketWrapper::connect();
+    }
 
     void ClientSocketWrapper::connect()
     {
@@ -48,7 +50,6 @@ namespace avscanner::avscannerimpl
             ret = m_socket.connect();
         }
 
-        assert(ret == 0);
         m_reconnectAttempts = 0;
     }
 
@@ -110,7 +111,7 @@ namespace avscanner::avscannerimpl
         datatypes::AutoFd& fd,
         const scan_messages::ClientScanRequest& request)
     {
-        if (m_socket.sendRequest(fd, request) < 0)
+        if (!m_socket.sendRequest(fd, request))
         {
             throw ReconnectScannerException("Failed to send scan request");
         }

@@ -43,12 +43,12 @@ namespace
             return 0;
         }
 
-        int sendRequest(datatypes::AutoFd&, const scan_messages::ClientScanRequest& request) override
+        bool sendRequest(datatypes::AutoFd&, const scan_messages::ClientScanRequest& request) override
         {
             std::string p = ScanPathAccessor(request);
             m_paths.emplace_back(p);
             //            PRINT("Scanning " << p);
-            return 0;
+            return true;
         }
 
         bool receiveResponse(scan_messages::ScanResponse& response) override
@@ -75,11 +75,11 @@ namespace
     public:
         int connect() override
         {
-            m_abortCount++;
-            throw AbortScanException("Deliberate Abort");
+            // real connect() method never throws.
+            return 0;
         }
 
-        int sendRequest(datatypes::AutoFd&, const scan_messages::ClientScanRequest&) override
+        bool sendRequest(datatypes::AutoFd&, const scan_messages::ClientScanRequest&) override
         {
             m_abortCount++;
             throw AbortScanException("Deliberate Abort");

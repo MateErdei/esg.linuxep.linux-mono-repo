@@ -20,7 +20,7 @@ namespace unixsocket
         virtual ~IScanningClientSocket() = default;
 
         virtual int connect() = 0;
-        virtual int sendRequest(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request) = 0;
+        virtual bool sendRequest(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request) = 0;
         virtual bool receiveResponse(scan_messages::ScanResponse& response) = 0;
         virtual int socketFd() = 0;
     };

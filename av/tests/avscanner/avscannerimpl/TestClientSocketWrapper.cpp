@@ -10,7 +10,6 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "RecordingMockSocket.h"
 
-#include "avscanner/avscannerimpl/ReconnectSettings.h"
 #include "avscanner/avscannerimpl/ClientSocketWrapper.h"
 
 

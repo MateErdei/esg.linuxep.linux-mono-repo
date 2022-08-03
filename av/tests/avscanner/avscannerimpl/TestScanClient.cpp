@@ -1,8 +1,6 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-// #include "avscanner/avscannerimpl/ScanCallbackImpl.h"
 #include "avscanner/avscannerimpl/ScanClient.h"
-// #include "tests/common/Common.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
@@ -31,7 +29,7 @@ namespace
         }
 
         MOCK_METHOD(int, connect, ());
-        MOCK_METHOD(int, sendRequest, (datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request));
+        MOCK_METHOD(bool, sendRequest, (datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request));
         MOCK_METHOD(bool, receiveResponse, (scan_messages::ScanResponse& response));
         MOCK_METHOD(int, socketFd, ());
 
@@ -57,6 +55,10 @@ TEST(TestScanClient, TestConstruction)
             new StrictMock<MockIScanCallbacks>()
     );
 
+    EXPECT_CALL(mock_socket, connect)
+        .Times(1)
+        .WillOnce(Return(0));
+
     ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
 }
 
@@ -64,6 +66,10 @@ TEST(TestScanClient, TestConstructionWithoutCallbacks)
 {
     StrictMock<MockIScanningClientSocket> mock_socket;
     std::shared_ptr<avscanner::avscannerimpl::IScanCallbacks> mock_callbacks;
+
+    EXPECT_CALL(mock_socket, connect)
+        .Times(1)
+        .WillOnce(Return(0));
 
     ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
 }
@@ -73,6 +79,9 @@ TEST(TestScanClient, TestScanEtcPasswd)
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
 
+    EXPECT_CALL(mock_socket, connect)
+        .Times(1)
+        .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
     EXPECT_CALL(mock_socket, sendRequest(_,_))
         .Times(1)
@@ -110,10 +119,13 @@ TEST(TestScanClient, TestScanArchive)
     detections.emplace(infectedFile1, threatName);
     detections.emplace(infectedFile2, threatName);
 
+    EXPECT_CALL(mock_socket, connect)
+        .Times(1)
+        .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
     EXPECT_CALL(mock_socket, sendRequest(_,_))
         .Times(1)
-        .WillOnce(Return(0));
+        .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))
         .Times(1)
         .WillOnce(testing::DoAll(
@@ -146,10 +158,13 @@ TEST(TestScanClient, TestScanImage)
     std::map<path, std::string> detections;
     detections.emplace(infectedFile1, threatName);
 
+    EXPECT_CALL(mock_socket, connect)
+        .Times(1)
+        .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
     EXPECT_CALL(mock_socket, sendRequest(_,_))
         .Times(1)
-        .WillOnce(Return(0));
+        .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))
         .Times(1)
         .WillOnce(testing::DoAll(
@@ -180,10 +195,13 @@ TEST(TestScanClient, TestScanInfectedNoCallback)
     scan_messages::ScanResponse response;
     response.addDetection("/tmp/eicar.com", THREAT,"");
 
+    EXPECT_CALL(mock_socket, connect)
+        .Times(1)
+        .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
     EXPECT_CALL(mock_socket, sendRequest(_,_))
         .Times(1)
-        .WillOnce(Return(0));
+        .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))
         .Times(1)
         .WillOnce(testing::DoAll(
@@ -209,10 +227,13 @@ TEST(TestScanClient, TestScanInfected)
     std::map<path, std::string> detections;
     detections.emplace("/etc/passwd", THREAT);
 
+    EXPECT_CALL(mock_socket, connect)
+        .Times(1)
+        .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
     EXPECT_CALL(mock_socket, sendRequest(_,_))
         .Times(1)
-        .WillOnce(Return(0));
+        .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))
         .Times(1)
         .WillOnce(testing::DoAll(

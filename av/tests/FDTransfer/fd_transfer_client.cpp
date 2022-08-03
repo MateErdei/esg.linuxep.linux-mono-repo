@@ -21,6 +21,7 @@ static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket
     request.setScanInsideImages(false);
     request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     request.setUserID("root");
+    socket.connect();
     socket.sendRequest(fd, request);
 
     scan_messages::ScanResponse response;

@@ -123,6 +123,7 @@ namespace avscanner::avscannerimpl
 
         m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
 
+        // TODO - can this throw?
         auto scanner =
             std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_config.m_scanArchives, m_config.m_scanImages, E_SCAN_TYPE_SCHEDULED);
         NamedScanWalkerCallbackImpl callbacks(scanner, excludedMountPoints, m_config);
