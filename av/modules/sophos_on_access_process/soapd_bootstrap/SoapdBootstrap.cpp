@@ -5,14 +5,16 @@
 // Package
 #include "Logger.h"
 // Component
-#include "sophos_on_access_process/OnAccessConfig//OnAccessConfigMonitor.h"
+#include "sophos_on_access_process/OnAccessConfig/OnAccessConfigMonitor.h"
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
+#include "sophos_on_access_process/fanotifyhandler/FANotifyHandler.h"
 // Product
 #include "common/FDUtils.h"
 #include "common/SaferStrerror.h"
 #include "common/ThreadRunner.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
+#include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 // Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -24,6 +26,7 @@
 namespace fs = sophos_filesystem;
 
 using namespace sophos_on_access_process::soapd_bootstrap;
+using namespace sophos_on_access_process::fanotifyhandler;
 
 int SoapdBootstrap::runSoapd()
 {
@@ -63,6 +66,7 @@ void SoapdBootstrap::innerRun(
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
     auto mountMonitor = std::make_unique<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper);
     auto mountMonitorThread = std::make_unique<common::ThreadRunner>(*mountMonitor, "scanProcessMonitor");
+    auto faNotifyHandler = std::make_unique<FANotifyHandler>();//(mountMonitor->getAllMountpoints());
 
     const int num_fds = 3;
     struct pollfd fds[num_fds];

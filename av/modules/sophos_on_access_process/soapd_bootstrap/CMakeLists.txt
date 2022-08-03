@@ -2,17 +2,17 @@
 add_library(soapdbootstrap SHARED
         Logger.cpp
         Logger.h
-        OnAccessMountConfig.h
         SoapdBootstrap.cpp
         SoapdBootstrap.h
         )
 
 target_link_libraries(soapdbootstrap  PUBLIC
         common
-        mountinfoimpl
         datatypes
-        unixsocket
+        fanotifyhandler
+        mountmonitor
         onAccessConfigMonitor
+        unixsocket
         )
 
 install(TARGETS soapdbootstrap
