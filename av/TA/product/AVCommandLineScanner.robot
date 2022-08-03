@@ -1586,9 +1586,12 @@ CLS Can Append Summary To Log When SigTerm Occurs
     Register Cleanup  Exclude Scan Errors From File Samples
     Remove File  ${SCAN_LOG}
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
+    ${cls_process} =    Get Process Object  ${cls_handle}
+    Log  PID: ${cls_process.pid}
+    dump_threads_from_pid  ${cls_process.pid}
     Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
-    register on fail  dump_threads_from_pid  ${cls_handle.pid}
+    register on fail  dump_threads_from_pid  ${cls_process.pid}
 
     Wait Until File exists  ${SCAN_LOG}
     Dump Log  ${SCAN_LOG}
@@ -1631,9 +1634,10 @@ CLS Can Append Summary To Log When SIGHUP Is Received
 
     Mark Sophos Threat Detector Log
     ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
+    ${cls_process} =    Get Process Object  ${cls_handle}
     Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
-    register on fail  dump_threads_from_pid  ${cls_handle.pid}
+    register on fail  dump_threads_from_pid  ${cls_process.pid}
 
     Wait Until File exists  ${SCAN_LOG}
     Wait For File With Particular Contents   \ Scanning\   ${SCAN_LOG}
