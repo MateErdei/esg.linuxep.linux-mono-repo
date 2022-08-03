@@ -3,6 +3,7 @@
 #include "avscanner/avscannerimpl/ScanClient.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "common/ErrorCodes.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -10,10 +11,7 @@
 #include <fcntl.h>
 
 using namespace avscanner::avscannerimpl;
-using ::testing::_; // NOLINT
-using ::testing::Eq;
-using ::testing::Return;
-using ::testing::StrictMock;
+using namespace testing;
 
 namespace fs = sophos_filesystem;
 
@@ -189,7 +187,6 @@ TEST(TestScanClient, TestScanImage)
 
 TEST(TestScanClient, TestScanInfectedNoCallback)
 {
-    using namespace ::testing;
     static const char* THREAT = "THREAT";
 
     StrictMock<MockIScanningClientSocket> mock_socket;
@@ -254,6 +251,146 @@ TEST(TestScanClient, TestScanInfected)
 
     EXPECT_FALSE(result.getDetections().empty());
     EXPECT_EQ(result.getDetections()[0].name, THREAT);
+}
+
+TEST(TestScanClient, TestScanError)
+{
+    std::string errorMsg = "Scan error message";
+
+    StrictMock<MockIScanningClientSocket> mock_socket;
+    scan_messages::ScanResponse response;
+    response.setErrorMsg(errorMsg);
+
+    EXPECT_CALL(mock_socket, connect)
+        .Times(1)
+        .WillOnce(Return(0));
+    EXPECT_CALL(mock_socket, socketFd);
+    EXPECT_CALL(mock_socket, sendRequest(_,_))
+        .Times(1)
+        .WillOnce(Return(true));
+    EXPECT_CALL(mock_socket, receiveResponse(_))
+        .Times(1)
+        .WillOnce(testing::DoAll(
+            testing::SetArgReferee<0>(response),
+            Return(true)
+                ));
+
+    auto mock_callbacks = std::make_shared<StrictMock<MockIScanCallbacks> >();
+
+      EXPECT_CALL(*mock_callbacks, scanError(Eq(errorMsg), _))
+        .Times(1);
+
+    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    auto result = s.scan("/etc/passwd");
+
+    EXPECT_TRUE(result.getDetections().empty());
+    EXPECT_NE(mock_callbacks->m_returnCode, common::E_PASSWORD_PROTECTED);
+}
+
+TEST(TestScanClient, TestScanErrorPasswordProtected)
+{
+    std::string errorMsg = "Scan error message containing 'as it is password protected'";
+
+    StrictMock<MockIScanningClientSocket> mock_socket;
+    scan_messages::ScanResponse response;
+    response.setErrorMsg(errorMsg);
+
+    EXPECT_CALL(mock_socket, connect)
+        .Times(1)
+        .WillOnce(Return(0));
+    EXPECT_CALL(mock_socket, socketFd);
+    EXPECT_CALL(mock_socket, sendRequest(_,_))
+        .Times(1)
+        .WillOnce(Return(true));
+    EXPECT_CALL(mock_socket, receiveResponse(_))
+        .Times(1)
+        .WillOnce(testing::DoAll(
+            testing::SetArgReferee<0>(response),
+            Return(true)
+                ));
+
+    auto mock_callbacks = std::make_shared<StrictMock<MockIScanCallbacks> >();
+
+    EXPECT_CALL(*mock_callbacks, scanError(Eq(errorMsg), _))
+        .Times(1);
+
+    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    auto result = s.scan("/etc/passwd");
+
+    EXPECT_TRUE(result.getDetections().empty());
+    EXPECT_EQ(mock_callbacks->m_returnCode, common::E_PASSWORD_PROTECTED);
+}
+
+TEST(TestScanClient, TestScanErrorWithDetections)
+{
+    static const char* THREAT = "THREAT";
+    std::string errorMsg = "Scan error message";
+
+    StrictMock<MockIScanningClientSocket> mock_socket;
+    scan_messages::ScanResponse response;
+    response.addDetection("/etc/passwd", THREAT,"");
+    response.setErrorMsg(errorMsg);
+    std::map<path, std::string> detections;
+    detections.emplace("/etc/passwd", THREAT);
+
+    EXPECT_CALL(mock_socket, connect)
+        .Times(1)
+        .WillOnce(Return(0));
+    EXPECT_CALL(mock_socket, socketFd);
+    EXPECT_CALL(mock_socket, sendRequest(_,_))
+        .Times(1)
+        .WillOnce(Return(true));
+    EXPECT_CALL(mock_socket, receiveResponse(_))
+        .Times(1)
+        .WillOnce(testing::DoAll(
+            testing::SetArgReferee<0>(response),
+            Return(true)
+                ));
+
+    auto mock_callbacks = std::make_shared<StrictMock<MockIScanCallbacks> >();
+
+    EXPECT_CALL(*mock_callbacks, infectedFile(Eq(detections), _, false))
+        .Times(1);
+    EXPECT_CALL(*mock_callbacks, scanError(Eq(errorMsg), _))
+        .Times(1);
+
+    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    auto result = s.scan("/etc/passwd");
+
+    EXPECT_FALSE(result.getDetections().empty());
+    EXPECT_EQ(result.getDetections()[0].name, THREAT);
+}
+
+TEST(TestScanClient, TestScanCannotOpen)
+{
+    StrictMock<MockIScanningClientSocket> mock_socket;
+
+    std::shared_ptr<StrictMock<MockIScanCallbacks> > mock_callbacks(
+        new StrictMock<MockIScanCallbacks>()
+    );
+
+    EXPECT_CALL(mock_socket, connect)
+        .Times(1)
+        .WillOnce(Return(0));
+
+    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+
+    std::string errorMsg;
+    std::error_code errorCode;
+
+    EXPECT_CALL(*mock_callbacks, scanError(_, _))
+        .Times(1)
+        .WillOnce(DoAll(
+            SaveArg<0>(&errorMsg),
+            SaveArg<1>(&errorCode)));
+
+    auto result = s.scan("/doesntexist");
+    EXPECT_TRUE(result.allClean());
+
+    EXPECT_EQ(errorMsg, "Failed to open as path is a dangling symlink or a directory component is missing: /doesntexist");
+    EXPECT_EQ(errorCode.message(), "No such file or directory");
+    EXPECT_EQ(errorCode.category(), std::system_category());
+
 }
 
 TEST(TestScanClient, TestFailedToOpenMessages)
