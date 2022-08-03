@@ -11,10 +11,10 @@ namespace common
     class SigHupMonitor : public common::signals::LatchingSignalHandler
     {
     public:
-        explicit SigHupMonitor();
+        explicit SigHupMonitor(bool restartSyscalls=true);
         ~SigHupMonitor() override;
 
-        static std::shared_ptr<SigHupMonitor> getSigHupMonitor();
+        static std::shared_ptr<SigHupMonitor> getSigHupMonitor(bool restartSyscalls=true);
 
     };
 }

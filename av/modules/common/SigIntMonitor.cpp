@@ -9,11 +9,11 @@
 
 static int SIGINT_MONITOR_PIPE = -1; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-common::SigIntMonitor::SigIntMonitor()
+common::SigIntMonitor::SigIntMonitor(bool restartSyscalls)
     : LatchingSignalHandler(SIGINT)
 {
     // Setup signal handler
-    SIGINT_MONITOR_PIPE = setSignalHandler(common::signals::signal_handler<SIGINT_MONITOR_PIPE>);
+    SIGINT_MONITOR_PIPE = setSignalHandler(common::signals::signal_handler<SIGINT_MONITOR_PIPE>, restartSyscalls);
 }
 
 common::SigIntMonitor::~SigIntMonitor()
@@ -23,8 +23,8 @@ common::SigIntMonitor::~SigIntMonitor()
     clearSignalHandler();
 }
 
-std::shared_ptr<common::SigIntMonitor> common::SigIntMonitor::getSigIntMonitor()
+std::shared_ptr<common::SigIntMonitor> common::SigIntMonitor::getSigIntMonitor(bool restartSyscalls)
 {
-    static std::shared_ptr<common::SigIntMonitor> monitor(std::make_shared<common::SigIntMonitor>());
+    static std::shared_ptr<common::SigIntMonitor> monitor(std::make_shared<common::SigIntMonitor>(restartSyscalls));
     return monitor;
 }
