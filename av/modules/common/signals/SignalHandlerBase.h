@@ -21,7 +21,7 @@ namespace common::signals
         virtual ~SignalHandlerBase() = default;
 
         int monitorFd();
-        int setSignalHandler(__sighandler_t handler);
+        int setSignalHandler(__sighandler_t handler, bool restartSyscalls=false);
         void clearSignalHandler() const;
     protected:
         Common::Threads::NotifyPipe m_pipe;

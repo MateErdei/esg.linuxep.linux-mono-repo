@@ -11,13 +11,22 @@ int SignalHandlerBase::monitorFd()
     return m_pipe.readFd();
 }
 
-int SignalHandlerBase::setSignalHandler(__sighandler_t signal_handler)
+int SignalHandlerBase::setSignalHandler(__sighandler_t signal_handler, bool restartSyscalls)
 {
     // Setup signal handler
     struct sigaction action{};
     action.sa_handler = signal_handler;
-    action.sa_flags = SA_RESTART;
-    int ret = ::sigaction(m_signalNumber, &action, nullptr);
+
+    if (restartSyscalls)
+    {
+        action.sa_flags = SA_RESTART;
+    }
+    else
+    {
+        action.sa_flags = 0;
+    }
+
+    auto ret = ::sigaction(m_signalNumber, &action, nullptr);
     if (ret != 0)
     {
         LOGERROR("Failed to setup " << m_signalNumber <<" signal handler");

@@ -31,7 +31,7 @@ namespace sspl::sophosthreatdetectorimpl
         m_reloader(std::move(reloadable))
     {
         // Setup signal handler
-        GL_USR1_MONITOR_PIPE = setSignalHandler(common::signals::signal_handler<GL_USR1_MONITOR_PIPE>);
+        GL_USR1_MONITOR_PIPE = setSignalHandler(common::signals::signal_handler<GL_USR1_MONITOR_PIPE>, true);
     }
 
     SigUSR1Monitor::~SigUSR1Monitor()
