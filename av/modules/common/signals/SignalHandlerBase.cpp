@@ -4,6 +4,8 @@
 
 #include "../Logger.h"
 
+#include <cstring>
+
 using namespace common::signals;
 
 int SignalHandlerBase::monitorFd()
@@ -29,7 +31,7 @@ int SignalHandlerBase::setSignalHandler(__sighandler_t signal_handler, bool rest
     auto ret = ::sigaction(m_signalNumber, &action, nullptr);
     if (ret != 0)
     {
-        LOGERROR("Failed to setup " << m_signalNumber <<" signal handler");
+        LOGERROR("Failed to setup " << strsignal(m_signalNumber) <<" signal handler");
         return -1;
     }
     return m_pipe.writeFd();
@@ -43,6 +45,6 @@ void SignalHandlerBase::clearSignalHandler() const
     int ret = ::sigaction(m_signalNumber, &action, nullptr);
     if (ret != 0)
     {
-        LOGERROR("Failed to clear " << m_signalNumber <<" signal handler");
+        LOGERROR("Failed to clear " << strsignal(m_signalNumber) <<" signal handler");
     }
 }
