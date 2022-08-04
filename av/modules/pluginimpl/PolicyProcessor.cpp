@@ -1,24 +1,24 @@
-/******************************************************************************************************
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
+// Class
 #include "PolicyProcessor.h"
-
+// Package
 #include "Logger.h"
 #include "StringUtils.h"
-
+// Plugin
 #include "unixsocket/processControllerSocket/ProcessControllerClient.h"
-
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+// Product
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <common/StringUtils.h>
 #include <pluginimpl/ObfuscationImpl/Obfuscate.h>
+// Third party
 #include <thirdparty/nlohmann-json/json.hpp>
-
+// Std C
 #include <sys/stat.h>
 
 using json = nlohmann::json;
@@ -188,6 +188,13 @@ namespace Plugin
         }
 
         notifyOnAccessProcess();
+
+        {
+            auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+            Common::Telemetry::TelemetryObject onAccessEnabledTelemetry;
+            onAccessEnabledTelemetry.set(Common::Telemetry::TelemetryValue(enabled));
+            telemetry.set("onAccessConfigured", onAccessEnabledTelemetry, true);
+        }
     }
 
     bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed)
