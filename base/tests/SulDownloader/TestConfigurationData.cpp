@@ -419,9 +419,15 @@ TEST_F( // NOLINT
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyShouldReturnValidObject) // NOLINT
 {
     auto& fileSystem = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(true));
+
+    std::string savedProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getSavedEnvironmentProxyFilePath();
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystem, isFile(savedProxyFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystem, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::vector<std::string> savedURL{"https://user:password@savedProxy.com"};
-    EXPECT_CALL(fileSystem, readLines(_)).WillOnce(Return(savedURL));
+    EXPECT_CALL(fileSystem, readLines(savedProxyFilePath)).WillOnce(Return(savedURL));
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
@@ -436,9 +442,15 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyS
 TEST_F(ConfigurationDataTest, fromJsonSettingsUnauthenticatedProxyInSavedProxyShouldReturnValidObject) // NOLINT
 {
     auto& fileSystem = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(true));
+    std::string savedProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getSavedEnvironmentProxyFilePath();
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystem, isFile(savedProxyFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystem, isFile(currentProxyFilePath)).WillOnce(Return(false));
+
     std::vector<std::string> savedURL{"http://savedProxy.com"};
-    EXPECT_CALL(fileSystem, readLines(_)).WillOnce(Return(savedURL));
+    EXPECT_CALL(fileSystem, readLines(savedProxyFilePath)).WillOnce(Return(savedURL));
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
@@ -454,11 +466,15 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLo
 {
     Common::Logging::ConsoleLoggingSetup consoleLogger;
     testing::internal::CaptureStderr();
-
     auto& fileSystem = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(true));
+    std::string savedProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getSavedEnvironmentProxyFilePath();
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystem, isFile(savedProxyFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystem, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::vector<std::string> savedURL{"www.user:password@invalidsavedProxy.com"};
-    EXPECT_CALL(fileSystem, readLines(_)).WillOnce(Return(savedURL));
+    EXPECT_CALL(fileSystem, readLines(savedProxyFilePath)).WillOnce(Return(savedURL));
 
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
@@ -739,4 +755,59 @@ createJsonString("", "");
     std::vector<std::string> features = configurationData.getFeatures(); 
     std::vector<std::string> expected_features{{std::string{"CORE"}, std::string{"MDR"}}}; 
     EXPECT_EQ(features, expected_features);
+}
+
+TEST_F(ConfigurationDataTest, currentMcsProxyReturnsNulloptIfCurrentProxyFileMissing) // NOLINT
+{
+    auto& fileSystem = setupFileSystemAndGetMock();
+
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystem, isFile(currentProxyFilePath)).WillOnce(Return(false));
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    std::optional<Proxy> actualProxy = configurationData.currentMcsProxy();
+    EXPECT_EQ(actualProxy, std::nullopt);
+}
+
+TEST_F(ConfigurationDataTest, currentMcsProxyReturnsNulloptIfCurrentProxyFileEmpty) // NOLINT
+{
+    auto& fileSystem = setupFileSystemAndGetMock();
+
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystem, isFile(currentProxyFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(fileSystem, readFile(currentProxyFilePath)).WillOnce(Return(""));
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+
+    std::optional<Proxy> expectedProxy = std::nullopt;
+    std::optional<Proxy> actualProxy = configurationData.currentMcsProxy();
+    EXPECT_EQ(actualProxy, expectedProxy);
+}
+
+TEST_F(ConfigurationDataTest, proxyIsExtractedFromCurrentProxyFileAndLogsAddress) // NOLINT
+{
+    Common::Logging::ConsoleLoggingSetup consoleLogger;
+    testing::internal::CaptureStderr();
+
+    auto& fileSystem = setupFileSystemAndGetMock();
+
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+
+    EXPECT_CALL(fileSystem, isFile(currentProxyFilePath)).WillOnce(Return(true));
+    std::string currentProxy = R"({"proxy": "10.55.36.235:3129", "credentials": "CCBv6oin2yWCd1PUWKpab1GcYXBB0iC1bwnajy0O1XVvOrRTTFGiruMEz5auCd8BpbE="})";
+    EXPECT_CALL(fileSystem, readFile(currentProxyFilePath)).WillOnce(Return(currentProxy));
+
+    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+
+    std::optional<Proxy> expectedProxy = Proxy("10.55.36.235:3129", ProxyCredentials("user","password",""));
+    std::optional<Proxy> actualProxy = configurationData.currentMcsProxy();
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Proxy address from current_proxy file: 10.55.36.235:3129"));
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Proxy in current_proxy has credentials"));
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Deobfuscated credentials from current_proxy"));
+    ASSERT_EQ(actualProxy, expectedProxy);
 }

@@ -6,8 +6,13 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 
 #include "SDDS3Repository.h"
 
-#include "Sdds3Wrapper.h"
+#include "CurlWrapper.h"
+#include "ICurlWrapper.h"
 #include "SDDS3Utils.h"
+#include "Sdds3Wrapper.h"
+#include "SusRequestParameters.h"
+
+#include "HttpRequestsImpl/HttpRequesterImpl.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -16,15 +21,14 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 #include <SulDownloader/suldownloaderdata/Logger.h>
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
 #include <experimental/filesystem>
-
 #include <sophlib/logging/Logging.h>
+
 #include <Config.h>
 #include <PackageRef.h>
+#include <filesystem>
 #include <iostream>
 #include <json.hpp>
 #include <utility>
-#include <filesystem>
-
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -70,7 +74,7 @@ namespace SulDownloader
         {
             return true;
         }
-
+        LOGDEBUG("Getting suites failed with: " << m_error.Description);
         return false;
     }
 
@@ -154,103 +158,61 @@ namespace SulDownloader
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderSynLogPath(), log_level);
     }
 
-    void SDDS3Repository::parseSUSResponse(
-        const std::string& response,
-        std::set<std::string>& suites,
-        std::set<std::string>& releaseGroups)
-    {
-        auto json = nlohmann::json::parse(response);
-
-        if (json.contains("suites"))
-        {
-            for (const auto& s : json["suites"].items())
-            {
-                suites.insert(std::string(s.value()));
-            }
-        }
-
-        if (json.contains("release-groups"))
-        {
-            for (const auto& g : json["release-groups"].items())
-            {
-                releaseGroups.insert(std::string(g.value()));
-            }
-        }
-    }
-
-
     void SDDS3Repository::setFeatures(const std::vector<std::string>& configfeatures)
     {
         m_configFeatures = configfeatures;
     }
 
-    std::pair<std::set<std::string>, std::set<std::string>>
-    SDDS3Repository::getDataToSync(const suldownloaderdata::ConnectionSetup& connectionSetup,
+
+    SDDS3::SusData SDDS3Repository::getDataToSync(const suldownloaderdata::ConnectionSetup& connectionSetup,
                                    const ConfigurationData& configurationData)
     {
-        std::set<std::string> suites;
-        std::set<std::string> releaseGroups;
+        SDDS3::SusData susData;
         try
         {
             SUSRequestParameters requestParameters;
             requestParameters.product = "linuxep";
             requestParameters.platformToken = "LINUX_INTEL_LIBC6";
-
             requestParameters.subscriptions = configurationData.getProductsSubscription();
             requestParameters.subscriptions.insert(requestParameters.subscriptions.begin(),
                                                     configurationData.getPrimarySubscription());
+            requestParameters.tenantId = configurationData.getTenantId();
+            requestParameters.deviceId = configurationData.getDeviceId();
+            requestParameters.baseUrl = connectionSetup.getUpdateLocationURL();
+            requestParameters.jwt = configurationData.getJWToken();
+            requestParameters.timeoutSeconds = DEFAULT_TIMEOUT_S;
+            requestParameters.proxy = connectionSetup.getProxy();
 
-            std::string requestJson = createSUSRequestBody(requestParameters);
-            LOGDEBUG(requestJson);
+            std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curl = std::make_shared<Common::CurlWrapper::CurlWrapper>();
+            std::shared_ptr<Common::HttpRequests::IHttpRequester> httpClient = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curl);
+            SDDS3::SusRequester susRequester(httpClient);
 
-            // start of SUS request
-            std::string userAgent = generateUserAgentString(configurationData.getTenantId(),
-                                                            configurationData.getDeviceId());
-            std::string overrideFile =
-                Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
-            bool useHttps = true;
-            if (Common::FileSystem::fileSystem()->exists(overrideFile))
+            auto susResponse = susRequester.request(requestParameters);
+            if (susResponse.success)
             {
-                useHttps = (Common::UtilityImpl::StringUtils::extractValueFromIniFile(overrideFile, "USE_HTTP").empty());
+                LOGINFO("SUS Request was successful");
+                m_error.status = RepositoryStatus::SUCCESS;
+                m_error.Description = "";
+                checkForMissingPackages(requestParameters.subscriptions, susResponse.data.suites);
+                susData = susResponse.data;
             }
-
-            auto httpSession = std::make_unique<utilities::LinuxHttpClient::Session>(userAgent, utilities::LinuxHttpClient::Proxy(), useHttps);
-
-            httpSession->SetTimeouts(DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
-
-            std::string url = connectionSetup.getUpdateLocationURL() + "/v3/" + configurationData.getTenantId() + "/" + configurationData.getDeviceId();
-            LOGDEBUG("Trying SUS url: " << url);
-            auto httpConnection = std::make_unique<utilities::LinuxHttpClient::Connection>(*httpSession, url);
-
-            auto request = std::make_unique<utilities::LinuxHttpClient::Request>(*httpConnection, "POST", "");
-            request->AddRequestHeader_Authorization("Bearer", configurationData.getJWToken());
-            request->AddRequestHeader_ContentType("application/json");
-            request->SetRequestPayload(requestJson);
-            unsigned int status_code = request->Send();
-            if (status_code != 200)
+            else
             {
-                std::stringstream message;
-                message << "Update connection error, received HTTP response code " << status_code;
-                m_error.Description = message.str();
                 m_error.status = RepositoryStatus::CONNECTIONERROR;
-                return std::make_pair(suites, releaseGroups);
+                m_error.Description = susResponse.error;
             }
-
-            parseSUSResponse(request->Read(), suites, releaseGroups);
-            checkForMissingPackages(requestParameters.subscriptions, suites);
-            return std::make_pair(suites, releaseGroups);
-
         }
         catch (const std::exception& ex)
         {
             m_error.status = RepositoryStatus::CONNECTIONERROR;
             m_error.Description = ex.what();
-            return std::make_pair(suites, releaseGroups);
         }
+        return susData;
     }
 
     void SDDS3Repository::checkForMissingPackages(const std::vector<ProductSubscription>& subscriptions,const std::set<std::string>& suites)
     {
+        LOGDEBUG("Checking for missing packages");
         size_t prefixSize = std::string("sdds3.").size();
         for (const auto& sub: subscriptions)
         {
@@ -287,8 +249,8 @@ namespace SulDownloader
             return;
         }
 
-        std::set<std::string>& suites = m_dataToSync.first;
-        std::set<std::string>& releaseGroups = m_dataToSync.second;
+        std::set<std::string>& suites = m_dataToSync.suites;
+        std::set<std::string>& releaseGroups = m_dataToSync.releaseGroups;
 
         for (const auto& suite : suites)
         {

@@ -156,7 +156,7 @@ Thin Installer SUL Library Will Not Connect to Warehouse If Connection Has TLS b
     [Teardown]  Restore fake SDDS3 server
     Start Local Cloud Server
     Run Default Thininstaller    18
-    Check Thininstaller Log Contains    Failed to connect to repository: Update connection error, received HTTP response code 35
+    Check Thininstaller Log Contains    Failed to connect to repository: SUS request failed with error: SSL connect error
 
 
 Thin Installer With Space In Name Works

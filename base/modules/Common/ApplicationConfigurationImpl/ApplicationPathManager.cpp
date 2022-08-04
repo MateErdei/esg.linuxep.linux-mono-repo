@@ -113,7 +113,7 @@ namespace Common
         }
         std::string ApplicationPathManager::getMcsCurrentProxyFilePath() const
         {
-            return Common::FileSystem::join(getMcsConfigFolderPath(), "current_proxy");
+            return Common::FileSystem::join(getMcsConfigFolderPath(), getMcsCurrentProxyFileName());
         }
         std::string ApplicationPathManager::getMcsFlagsFilePath() const
         {
@@ -411,7 +411,10 @@ namespace Common
         {
             return Common::FileSystem::join(getInternalPolicyFilePath(), "internal_EPHEALTH.json");
         }
-
+        std::string ApplicationPathManager::getMcsCurrentProxyFileName() const
+        {
+            return "current_proxy";
+        }
 
     } // namespace ApplicationConfigurationImpl
 

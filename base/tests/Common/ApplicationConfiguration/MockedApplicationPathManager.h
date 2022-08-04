@@ -38,6 +38,7 @@ public:
     MOCK_CONST_METHOD0(getMcsEventFilePath, std::string(void));
     MOCK_CONST_METHOD0(getMcsConfigFolderPath, std::string(void));
     MOCK_CONST_METHOD0(getMcsCurrentProxyFilePath, std::string(void));
+    MOCK_CONST_METHOD0(getMcsCurrentProxyFileName, std::string(void));
     MOCK_CONST_METHOD0(getMcsFlagsFilePath, std::string(void));
 
     MOCK_CONST_METHOD0(getManagementAgentStatusCacheFilePath, std::string(void));

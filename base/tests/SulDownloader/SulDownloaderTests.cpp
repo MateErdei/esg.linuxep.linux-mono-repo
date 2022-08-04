@@ -491,6 +491,9 @@ TEST_F( // NOLINT
 
     std::vector<std::string> emptyFileList;
 
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -581,6 +584,9 @@ TEST_F(SULDownloaderTest, main_entry_onSuccessCreatesReportContainingExpectedSuc
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
 
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -645,6 +651,9 @@ TEST_F( // NOLINT
     };
     std::vector<std::string> emptyFileList;
 
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -717,7 +726,9 @@ TEST_F( // NOLINT
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
 
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -791,7 +802,9 @@ TEST_F( // NOLINT
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
 
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -862,6 +875,9 @@ TEST_F(SULDownloaderTest, main_entry_SDDS3CacheIsRemovedDuringSDDS2Update) // NO
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
 
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -958,6 +974,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, dumpLogs());
 
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
@@ -1019,7 +1038,9 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, dumpLogs());
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
@@ -1067,7 +1088,9 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, dumpLogs());
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
@@ -1116,7 +1139,9 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, dumpLogs());
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
@@ -1180,7 +1205,9 @@ TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
 
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, dumpLogs());
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
@@ -1231,6 +1258,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -1290,7 +1320,9 @@ TEST_F( // NOLINT
     int counter = 0;
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0", "PRODUCT_VERSION = 1.1.3.703");
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
@@ -1360,6 +1392,9 @@ TEST_F( // NOLINT
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
 
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1461,6 +1496,9 @@ TEST_F( // NOLINT
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
 
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1553,7 +1591,9 @@ TEST_F( // NOLINT
     {
         product.setProductHasChanged(true);
     }
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1651,7 +1691,9 @@ TEST_F( // NOLINT
     {
         product.setProductHasChanged(true);
     }
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1766,7 +1808,9 @@ TEST_F( // NOLINT
     {
         product.setProductHasChanged(true);
     }
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1885,7 +1929,9 @@ TEST_F( // NOLINT
 
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1987,7 +2033,9 @@ TEST_F( // NOLINT
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -2089,7 +2137,9 @@ TEST_F( // NOLINT
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -2187,7 +2237,9 @@ TEST_F( // NOLINT
     {
         product.setProductHasChanged(false);
     }
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -2292,7 +2344,9 @@ TEST_F( // NOLINT
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -2390,7 +2444,9 @@ TEST_F( // NOLINT
     {
         product.setProductHasChanged(false);
     }
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -2495,7 +2551,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -2556,7 +2614,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -2609,6 +2669,10 @@ TEST_F( // NOLINT
     suldownloaderdata::ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));
@@ -2638,6 +2702,10 @@ TEST_F( // NOLINT
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+
+    std::string currentProxyFilePath =
+        Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(fileSystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primaryrepository")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/package_config.xml")).WillOnce(Return(false));

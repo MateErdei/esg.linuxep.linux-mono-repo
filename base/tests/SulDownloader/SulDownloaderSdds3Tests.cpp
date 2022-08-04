@@ -288,7 +288,9 @@ public:
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, currentWorkingDirectory()).WillRepeatedly(Return("/opt/sophos-spl/base/bin"));
         EXPECT_CALL(*filesystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
-
+        std::string currentProxyFilePath =
+            Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+        EXPECT_CALL(*filesystemMock, isFile(currentProxyFilePath)).WillOnce(Return(false));
         setupExpectanceWriteProductUpdate(*filesystemMock);
 
         auto* pointer = filesystemMock;
@@ -442,7 +444,18 @@ protected:
 
 TEST_F(SULDownloaderSdds3Test, configurationDataVerificationOfDefaultSettingsReturnsTrue) // NOLINT
 {
-    setupFileSystemAndGetMock();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/"))
+        .Times(1)
+        .WillRepeatedly(Return(true));
+
+    EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, currentWorkingDirectory()).WillRepeatedly(Return("/opt/sophos-spl/base/bin"));
+    EXPECT_CALL(*filesystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
+    setupExpectanceWriteProductUpdate(*filesystemMock);
+
+    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
     SulDownloader::suldownloaderdata::ConfigurationData confData = configData(defaultSettings());
     confData.verifySettingsAreValid();
     EXPECT_TRUE(confData.isVerified());
@@ -450,26 +463,40 @@ TEST_F(SULDownloaderSdds3Test, configurationDataVerificationOfDefaultSettingsRet
 
 TEST_F(SULDownloaderSdds3Test, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode) // NOLINT
 {
-    auto filesystemMock = new MockFileSystem();
-    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-
-    int expectedErrorCode = -2;
-
     char** argsNotUsed = nullptr;
     EXPECT_EQ(SulDownloader::main_entry(2, argsNotUsed), -1);
     EXPECT_EQ(SulDownloader::main_entry(1, argsNotUsed), -1);
+}
+
+TEST_F(SULDownloaderSdds3Test, main_entry_missingInputFileCausesReturnsCorrectErrorCode) // NOLINT
+{
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
     char* inputFileDoesNotExist[] = { const_cast<char*>("SulDownloader"),
                                       const_cast<char*>("inputfiledoesnotexists.json"),
-                                      const_cast<char*>("createoutputpath.json") };
+                                      const_cast<char*>("/some/dir/createoutputpath.json") };
+
+    EXPECT_CALL(*filesystemMock, isFile("supplement_only.marker")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isDirectory("/some/dir")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, isDirectory("/some/dir/createoutputpath.json")).WillOnce(Return(false));
+    std::vector<Path> noOldReports;
+    EXPECT_CALL(*filesystemMock, listFiles("/some/dir")).WillOnce(Return(noOldReports));
+    EXPECT_CALL(*filesystemMock, readFile("inputfiledoesnotexists.json")).WillRepeatedly(Throw(IFileSystemException("Cannot read file")));
 
     EXPECT_EQ(SulDownloader::main_entry(3, inputFileDoesNotExist), -2);
+}
 
+TEST_F(SULDownloaderSdds3Test, main_entry_inputFileGivenAsDirReturnsCorrectErrorCode) // NOLINT
+{
+    auto filesystemMock = new MockFileSystem();
+    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/directorypath")).WillOnce(Return(true));
+
     // directory can not be replaced by file
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "input.json", "/opt/sophos-spl/directorypath" }, {});
 
-    EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), expectedErrorCode);
+    EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), -2);
 }
 
 TEST_F( // NOLINT
@@ -501,7 +528,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
 
     std::vector<std::string> emptyFileList;
-
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -593,7 +619,6 @@ TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpect
     std::string previousReportFilename = "update_report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
-
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -662,7 +687,6 @@ TEST_F( // NOLINT
         previousReportFilename, "invalid_file_name1.txt", "invalid_file_name2.json", "report_invalid_file_name3.txt"
     };
     std::vector<std::string> emptyFileList;
-
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
@@ -738,7 +762,6 @@ TEST_F( // NOLINT
     std::string previousReportFilename = "update_report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
-
 
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
@@ -816,7 +839,6 @@ TEST_F( // NOLINT
     std::string previousReportFilename = "update_report-previous.json";
     std::vector<std::string> previousReportFileList = { previousReportFilename };
     std::vector<std::string> emptyFileList;
-
 
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
@@ -919,7 +941,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
     EXPECT_CALL(mock, getSourceURL());
-
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
@@ -980,7 +1001,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
     EXPECT_CALL(mock, getSourceURL());
-
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
@@ -1026,7 +1046,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
     EXPECT_CALL(mock, getSourceURL());
-
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
@@ -1077,7 +1096,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(emptyProducts)));
 
     EXPECT_CALL(mock, getSourceURL());
-
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
@@ -1143,8 +1161,6 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure) // NOLINT
     EXPECT_CALL(mock, listInstalledSubscriptions()).WillOnce(Return(subscriptionsFromProduct(products)));
 
     EXPECT_CALL(mock, getSourceURL());
-
-
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
@@ -1198,7 +1214,6 @@ TEST_F( // NOLINT
     EXPECT_CALL(mock, getSourceURL());
     EXPECT_CALL(mock, listInstalledProducts).WillOnce(Return(productsInfo({ products[0], products[1] })));
     EXPECT_CALL(mock, listInstalledSubscriptions).WillOnce(Return(subscriptionsInfo({ products[0], products[1] })));
-
     std::vector<std::string> emptyFileList;
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
     EXPECT_CALL(fileSystemMock, isDirectory(uninstallPath)).WillOnce(Return(true));
@@ -1257,7 +1272,6 @@ TEST_F( // NOLINT
     int counter = 0;
 
     setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.1.3.0", "PRODUCT_VERSION = 1.1.3.703");
-
     EXPECT_CALL(fileSystemMock, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
     EXPECT_CALL(fileSystemMock, readLines("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(defaultOverrideSettings()));
@@ -1330,7 +1344,6 @@ TEST_F( // NOLINT
 
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
-
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1435,7 +1448,6 @@ TEST_F( // NOLINT
 
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
-
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1532,7 +1544,6 @@ TEST_F( // NOLINT
     {
         product.setProductHasChanged(true);
     }
-
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1634,7 +1645,6 @@ TEST_F( // NOLINT
     {
         product.setProductHasChanged(true);
     }
-
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1753,7 +1763,6 @@ TEST_F( // NOLINT
     {
         product.setProductHasChanged(true);
     }
-
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1875,7 +1884,6 @@ TEST_F( // NOLINT
 
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
-
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -1981,7 +1989,6 @@ TEST_F( // NOLINT
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
-
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -2087,7 +2094,6 @@ TEST_F( // NOLINT
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
-
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -2189,7 +2195,6 @@ TEST_F( // NOLINT
     {
         product.setProductHasChanged(false);
     }
-
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -2298,7 +2303,6 @@ TEST_F( // NOLINT
     // the real warehouse will set DistributePath after distribute to the products
     products[0].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component");
     products[1].setDistributePath("/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR");
-
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -2400,7 +2404,6 @@ TEST_F( // NOLINT
     {
         product.setProductHasChanged(false);
     }
-
     std::string everest_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     std::string plugin_installer = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Plugin-EDR/install.sh";
     EXPECT_CALL(fileSystemMock, exists(everest_installer)).WillOnce(Return(true));
@@ -2498,7 +2501,6 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, false, _)).WillOnce(Return(true)); // successful tryConnect call
-
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
@@ -2563,7 +2565,6 @@ TEST_F( // NOLINT
 
     EXPECT_CALL(mock, hasError()).WillRepeatedly(Return(false));
     EXPECT_CALL(mock, tryConnect(_, true, _)).WillOnce(Return(true)); // successful tryConnect call
-
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, recursivelyDeleteContentsOfDirectory("/opt/sophos-spl/base/update/cache/primary")).RetiresOnSaturation();
     EXPECT_CALL(fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primarywarehouse")).WillOnce(Return(true));
@@ -2620,7 +2621,8 @@ TEST_F( // NOLINT
     runSULDownloader_checkLogVerbosityVERBOSE)
 {
     auto& fileSystem = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(false));
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
@@ -2648,7 +2650,8 @@ TEST_F( // NOLINT
     runSULDownloader_checkLogVerbosityNORMAL)
 {
     auto& fileSystem = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystem, isFile(_)).WillOnce(Return(false));
+    EXPECT_CALL(fileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(false));
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
@@ -2667,6 +2670,7 @@ TEST_F( // NOLINT
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
     std::string output = testing::internal::GetCapturedStdout();
     std::string errStd = testing::internal::GetCapturedStderr();
+
     ASSERT_THAT(output, ::testing::Not(::testing::HasSubstr("Proxy used was")));
     ASSERT_THAT(errStd, ::testing::Not(::testing::HasSubstr("Proxy used was")));
     ASSERT_THAT(errStd, ::testing::HasSubstr("Failed to connect to repository"));

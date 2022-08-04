@@ -38,6 +38,39 @@ namespace SulDownloader
         return json.dump();
     }
 
+    void parseSUSResponse(
+        const std::string& response,
+        std::set<std::string>& suites,
+        std::set<std::string>& releaseGroups)
+    {
+        try
+        {
+            auto json = nlohmann::json::parse(response);
+
+            if (json.contains("suites"))
+            {
+                for (const auto& s : json["suites"].items())
+                {
+                    suites.insert(std::string(s.value()));
+                }
+            }
+
+            if (json.contains("release-groups"))
+            {
+                for (const auto& g : json["release-groups"].items())
+                {
+                    releaseGroups.insert(std::string(g.value()));
+                }
+            }
+        }
+        catch (const std::exception& exception)
+        {
+            std::stringstream errorMessage;
+            errorMessage << "Failed to parse SUS response with error: " << exception.what() << ", JSON content: " << response;
+            throw std::runtime_error(errorMessage.str());
+        }
+    }
+
     void removeSDDS3Cache()
     {
         std::string sdds3DistributionPath =

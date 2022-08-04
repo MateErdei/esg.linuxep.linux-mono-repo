@@ -45,7 +45,18 @@ add_library(suldownloaderdata SHARED
         ISdds3Repository.h
         )
 target_include_directories(suldownloaderdata PUBLIC  ${NLOHMANN_JSON_INCLUDE_DIR})
-target_link_libraries(suldownloaderdata PUBLIC filesystemimpl processimpl threads utilityimpl applicationconfigurationimpl logging obfuscationimpl protobufutil)
+
+target_link_libraries(suldownloaderdata PUBLIC
+        filesystemimpl
+        processimpl
+        threads
+        utilityimpl
+        applicationconfigurationimpl
+        logging
+        obfuscationimpl
+        protobufutil
+        ProxyUtilsLib)
+
 install(TARGETS suldownloaderdata
         LIBRARY DESTINATION files/base/lib64)
 

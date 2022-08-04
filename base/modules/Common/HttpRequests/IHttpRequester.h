@@ -8,6 +8,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <optional>
 #include <string>
 #include <vector>
+#include <ostream>
 
 namespace Common::HttpRequests
 {
@@ -35,91 +36,151 @@ namespace Common::HttpRequests
         std::optional<std::string> proxy = std::nullopt;
         std::optional<std::string> proxyUsername = std::nullopt;
         std::optional<std::string> proxyPassword = std::nullopt;
+
+        // Allow underlying library to automatically pick up and use environment proxies, user must explicitly ask for
+        // this to be enabled
+        bool allowEnvironmentProxy = false;
+
+        // Bandwidth limit in bytes/sec
         std::optional<long> bandwidthLimit = std::nullopt;
+
+        // Timeout in seconds
         long timeout = 600;
+
+        // Follow redirects when told to by server, a user must explicitly ask for this to be enabled
         bool allowRedirects = false;
         RequestType requestType = RequestType::GET;
 
         // used for dumping request contents for test
-        friend std::ostream& operator<< (std::ostream& os, const RequestConfig& config)
+        friend std::ostream& operator<<(std::ostream& os, const RequestConfig& config)
         {
-            os << "url: " + config.url + "\n";
-            if(config.headers)
+            os << "url: " << config.url << std::endl;
+            if (config.headers)
             {
-                os << std::string("headers:\n");
-                for(auto header : config.headers.value())
+                os << "headers:" << std::endl;
+                for (const auto& header : config.headers.value())
                 {
-                    os << header.first + ":" + header.second + "\n";
+                    os << header.first << ":" << header.second << std::endl;
                 }
             }
             if (config.data)
             {
-                os << config.data.value() + "\n";
+                os << config.data.value() << std::endl;
             }
             if (config.port)
             {
-                os << std::to_string(config.port.value()) + "\n";
+                os << std::to_string(config.port.value()) << std::endl;
             }
-            if(config.parameters)
+            if (config.parameters)
             {
-                os << std::string("parameters:\n");
-                for(auto param : config.parameters.value())
+                os << "parameters:" << std::endl;
+                for (const auto& param : config.parameters.value())
                 {
-                    os << param.first + ":" + param.second + "\n";
+                    os << param.first << ":" << param.second << std::endl;
                 }
             }
             if (config.certPath)
             {
-                os << config.certPath.value() + "\n";
+                os << config.certPath.value() << std::endl;
             }
             if (config.fileDownloadLocation)
             {
-                os << config.fileDownloadLocation.value() + "\n";
+                os << config.fileDownloadLocation.value() << std::endl;
             }
             if (config.fileToUpload)
             {
-                os << config.fileToUpload.value() + "\n";
+                os << config.fileToUpload.value() << std::endl;
             }
             if (config.proxy)
             {
-                os << config.proxy.value() + "\n";
+                os << config.proxy.value() << std::endl;
             }
             if (config.proxyUsername)
             {
-                os << config.proxyUsername.value() + "\n";
+                os << config.proxyUsername.value() << std::endl;
             }
             if (config.proxyPassword)
             {
-                os << config.proxyPassword.value() + "\n";
+                os << config.proxyPassword.value() << std::endl;
             }
             if (config.bandwidthLimit)
             {
-                os << std::to_string(config.bandwidthLimit.value()) + "\n";
+                os << std::to_string(config.bandwidthLimit.value()) << std::endl;
             }
-            os << std::to_string(config.timeout) + "\n";
-            os << std::to_string(config.allowRedirects) + "\n";
-            os << std::to_string(config.requestType) + "\n";
+            os << std::string("timeout: ") << std::to_string(config.timeout) << std::endl;
+            os << std::string("allowRedirects: ") << std::to_string(config.allowRedirects) << std::endl;
+            os << std::string("requestType: ") << std::to_string(config.requestType) << std::endl;
+            os << std::string("allowEnvironmentProxy: ") << std::to_string(config.allowEnvironmentProxy) << std::endl;
             return os;
         }
-
     };
-    inline bool operator==(const RequestConfig lhs,const RequestConfig rhs)
+
+    inline bool operator==(const RequestConfig& lhs, const RequestConfig& rhs)
     {
-        if (lhs.url != rhs.url){return false;}
-        if (lhs.headers != rhs.headers){return false;}
-        if (lhs.data != rhs.data){return false;}
-        if (lhs.port != rhs.port){return false;}
-        if (lhs.parameters != rhs.parameters){return false;}
-        if (lhs.certPath != rhs.certPath){return false;}
-        if (lhs.fileDownloadLocation != rhs.fileDownloadLocation){return false;}
-        if (lhs.fileToUpload != rhs.fileToUpload){return false;}
-        if (lhs.proxy != rhs.proxy){return false;}
-        if (lhs.proxyUsername != rhs.proxyUsername){return false;}
-        if (lhs.proxyPassword != rhs.proxyPassword){return false;}
-        if (lhs.bandwidthLimit != rhs.bandwidthLimit){return false;}
-        if (lhs.timeout != rhs.timeout){return false;}
-        if (lhs.allowRedirects != rhs.allowRedirects){return false;}
-        if (lhs.requestType != rhs.requestType){return false;}
+        if (lhs.url != rhs.url)
+        {
+            return false;
+        }
+        if (lhs.headers != rhs.headers)
+        {
+            return false;
+        }
+        if (lhs.data != rhs.data)
+        {
+            return false;
+        }
+        if (lhs.port != rhs.port)
+        {
+            return false;
+        }
+        if (lhs.parameters != rhs.parameters)
+        {
+            return false;
+        }
+        if (lhs.certPath != rhs.certPath)
+        {
+            return false;
+        }
+        if (lhs.fileDownloadLocation != rhs.fileDownloadLocation)
+        {
+            return false;
+        }
+        if (lhs.fileToUpload != rhs.fileToUpload)
+        {
+            return false;
+        }
+        if (lhs.proxy != rhs.proxy)
+        {
+            return false;
+        }
+        if (lhs.proxyUsername != rhs.proxyUsername)
+        {
+            return false;
+        }
+        if (lhs.proxyPassword != rhs.proxyPassword)
+        {
+            return false;
+        }
+        if (lhs.bandwidthLimit != rhs.bandwidthLimit)
+        {
+            return false;
+        }
+        if (lhs.timeout != rhs.timeout)
+        {
+            return false;
+        }
+        if (lhs.allowRedirects != rhs.allowRedirects)
+        {
+            return false;
+        }
+        if (lhs.requestType != rhs.requestType)
+        {
+            return false;
+        }
+        if (lhs.allowEnvironmentProxy != rhs.allowEnvironmentProxy)
+        {
+            return false;
+        }
 
         return true;
     }
@@ -147,7 +208,9 @@ namespace Common::HttpRequests
         FAILED
     };
 
-    const int STATUS_NOT_SET = -1;
+    // Add more as we need them
+    constexpr long HTTP_STATUS_NOT_SET = -1;
+    constexpr long HTTP_STATUS_OK = 200;
 
     struct Response
     {
@@ -155,7 +218,7 @@ namespace Common::HttpRequests
         std::string error;
         ResponseErrorCode errorCode = FAILED;
         Headers headers;
-        long status = STATUS_NOT_SET;
+        long status = HTTP_STATUS_NOT_SET;
     };
 
     class HttpRequestsException : public std::exception

@@ -6,6 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ConnectionSelector.h"
 
+#include "Logger.h"
+
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
@@ -23,6 +25,7 @@ std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const C
     for (const auto& url : configurationData.getLocalUpdateCacheUrls())
     {
         candidates.emplace_back(url, configurationData.getCredentials(), true, proxyForUpdateCache);
+        LOGDEBUG("Adding Update Cache connection candidate, URL: " << url << ", proxy: " << proxyForUpdateCache.getUrl());
     }
 
     for (auto& proxy : proxies)
@@ -30,14 +33,9 @@ std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const C
         for (const auto& url : configurationData.getSophosUpdateUrls())
         {
             candidates.emplace_back(url, configurationData.getCredentials(), false, proxy);
+            LOGDEBUG("Adding connection candidate, URL: " << url << ", proxy: " << proxy.getUrl());
         }
     }
 
     return candidates;
 }
-//
-//    void ConnectionSelector::setLastSuccessfullConnection(const ConnectionSetup & /*connectionSetup*/,
-//                                                          const ConfigurationData & /*configurationData*/)
-//    {
-//
-//    }

@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -9,7 +9,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "SulDownloaderException.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/ProxyUtils/ProxyUtils.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ProtobufUtil/MessageUtility.h>
@@ -447,14 +447,30 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
     // 3. Saved environment proxy (saved on install)
     // 4. No Proxy
     std::vector<Proxy> options;
+
+    // Policy proxy
     if (!m_policyProxy.empty())
     {
+        LOGDEBUG("Proxy found in ALC Policy: " << m_policyProxy.getUrl());
         options.emplace_back(m_policyProxy);
     }
+
+    // current_proxy file (whichever proxy MCS is using) added here for SDDS3 SUS Requests.
+    auto currentProxy = currentMcsProxy();
+    if (currentProxy.has_value())
+    {
+        LOGDEBUG("Proxy found in current_proxy file: " << currentProxy.value().getUrl());
+        options.emplace_back(currentProxy.value());
+    }
+
+    // Environment proxy
     if (hasEnvironmentProxy())
     {
+        LOGDEBUG("Proxy found in environment");
         options.emplace_back("environment:");
     }
+
+    // Install time env proxy
     std::string savedProxyFilePath =
         Common::ApplicationConfiguration::applicationPathManager().getSavedEnvironmentProxyFilePath();
     if (Common::FileSystem::fileSystem()->isFile(savedProxyFilePath))
@@ -472,6 +488,8 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
             }
         }
     }
+
+    // Direct
     options.emplace_back(Proxy(Proxy::NoProxy));
 
     return options;
@@ -644,4 +662,42 @@ void ConfigurationData::setUseSDDS3(bool useSDDS3)
 bool ConfigurationData::getUseSDDS3() const
 {
     return m_useSDDS3;
+}
+
+std::optional<Proxy> ConfigurationData::currentMcsProxy()
+{
+    // current_proxy file (whichever proxy MCS is using) added here for SDDS3 SUS Requests.
+    try
+    {
+        auto [address, creds] = Common::ProxyUtils::getCurrentProxy();
+        if (!address.empty())
+        {
+            LOGDEBUG("Proxy address from " <<  Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFileName() << " file: " << address);
+            if (!creds.empty())
+            {
+                LOGDEBUG("Proxy in " <<  Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFileName() << " has credentials");
+                try
+                {
+                    auto [username, password] =  Common::ProxyUtils::deobfuscateProxyCreds(creds);
+                    LOGDEBUG("Deobfuscated credentials from " << Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFileName());
+                    return Proxy(address, ProxyCredentials(username, password));
+                }
+                catch (const std::exception& ex)
+                {
+                    LOGERROR("Failed to deobfuscate proxy credentials: " << ex.what());
+                }
+            }
+            else
+            {
+                LOGDEBUG("Proxy in " << Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFileName() << " does not have credentials");
+                return Proxy(address);
+            }
+        }
+    }
+    catch(const std::exception& exception)
+    {
+        LOGERROR("Exception throw while processing " << Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFileName() << " file");
+    }
+
+    return std::nullopt;
 }

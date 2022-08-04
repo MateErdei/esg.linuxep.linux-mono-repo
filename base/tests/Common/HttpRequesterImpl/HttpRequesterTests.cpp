@@ -180,8 +180,8 @@ TEST_F(HttpRequesterImplTests, clientPerformsGetRequestSendingHeaders)
     curl_slist* curlHeaders = nullptr;
     curlHeaders = curl_slist_append(curlHeaders, "placeholder only");
 
-    // "header1:value1" is what HttpRequests::Headers {{"header1", "value1"}}, in the request, will be converted to
-    EXPECT_CALL(*curlWrapper, curlSlistAppend(_, "header1:value1")).WillOnce(Return(curlHeaders));
+    // "header1: value1" is what HttpRequests::Headers {{"header1", "value1"}}, in the request, will be converted to
+    EXPECT_CALL(*curlWrapper, curlSlistAppend(_, "header1: value1")).WillOnce(Return(curlHeaders));
     EXPECT_CALL(*curlWrapper, curlEasySetOptHeaders(fakeCurlHandle, _)).WillOnce(Return(CURLE_OK));
 
     EXPECT_CALL(*curlWrapper, curlEasyPerform(fakeCurlHandle)).WillOnce(Return(CURLE_OK));

@@ -392,7 +392,7 @@ namespace SulDownloader
             setForceInstallForAllProducts);
     }
 
-    std::vector<ConnectionSetup> populateSdds3ConneectionCandidates(const ConfigurationData& configurationData)
+    std::vector<ConnectionSetup> populateSdds3ConnectionCandidates(const ConfigurationData& configurationData)
     {
         ConnectionSelector connectionSelector;
         auto candidates = connectionSelector.getConnectionCandidates(configurationData);
@@ -421,23 +421,24 @@ namespace SulDownloader
             urls = StringUtils::splitString(overrideValue, ",");
         }
 
-        for(auto& proxy : proxies)
+        for (const auto& proxy : proxies)
         {
-            for(auto& url : urls)
+            for (const auto& url : urls)
             {
                 Credentials credentials;
                 ConnectionSetup connectionSetup(url, credentials, false, proxy);
                 finalConnectionCandidates.emplace_back(connectionSetup);
+                LOGDEBUG("Adding SDDS3 connection candidate, URL: " << url << ", proxy: " << proxy.getUrl());
             }
         }
 
-        for(auto& url : urls)
+        for (const auto& url : urls)
         {
             Credentials credentials;
             ConnectionSetup connectionSetup(url, credentials, false, Proxy());
             finalConnectionCandidates.push_back(connectionSetup);
+            LOGDEBUG("Adding SDDS3 connection candidate, URL: " << url);
         }
-
 
         return finalConnectionCandidates;
     }
@@ -469,14 +470,13 @@ namespace SulDownloader
     std::pair<bool, IRepositoryPtr> updateFromSDDS3Repository( const ConfigurationData& configurationData,
                                                               bool supplementOnly)
     {
-
-
-        auto candidates = populateSdds3ConneectionCandidates(configurationData);
+        auto candidates = populateSdds3ConnectionCandidates(configurationData);
         auto repository = Sdds3RepositoryFactory::instance().createRepository();
 
-        for(auto& connectionCandidate : candidates)
+        for (auto& connectionCandidate : candidates)
         {
-            if(repository->tryConnect(connectionCandidate, supplementOnly, configurationData))
+            LOGDEBUG("Trying connection candidate, URL: " << connectionCandidate.getUpdateLocationURL() << ", proxy: " << connectionCandidate.getProxy().getUrl());
+            if (repository->tryConnect(connectionCandidate, supplementOnly, configurationData))
             {
                 break;
             }
@@ -653,6 +653,7 @@ namespace SulDownloader
         }
         else
         {
+            LOGINFO("Running in SDDS2 updating mode");
             repositoryResult = updateFromSDDS2Warehouse(configurationData, supplementOnly);
         }
 

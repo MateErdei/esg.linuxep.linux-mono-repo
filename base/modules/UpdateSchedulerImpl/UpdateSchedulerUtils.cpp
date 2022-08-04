@@ -75,7 +75,6 @@ namespace UpdateSchedulerImpl
         std::string path = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
         if (fs->isFile(path))
         {
-
             try
             {
                 return fs->readFile(path);
@@ -88,41 +87,49 @@ namespace UpdateSchedulerImpl
         return "";
     }
 
+    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerUtils::getPreviousConfigurationData()
+    {
+        Path previousConfigFilePath = Common::FileSystem::join(
+            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath(),
+            Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
+
+        std::optional<SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData;
+        if (Common::FileSystem::fileSystem()->isFile(previousConfigFilePath))
+        {
+            LOGDEBUG("Previous update configuration file found.");
+            previousConfigurationData = UpdateSchedulerUtils::getConfigurationDataFromJsonFile(previousConfigFilePath);
+        }
+
+        return previousConfigurationData;
+    }
+
+    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerUtils::getCurrentConfigurationData()
+    {
+        Path currentConfigFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
+
+        std::optional<SulDownloader::suldownloaderdata::ConfigurationData> currentConfigurationData;
+        if (Common::FileSystem::fileSystem()->isFile(currentConfigFilePath))
+        {
+            LOGDEBUG("Current update configuration file found.");
+            currentConfigurationData = UpdateSchedulerUtils::getConfigurationDataFromJsonFile(currentConfigFilePath);
+        }
+
+        return currentConfigurationData;
+    }
+
     std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> UpdateSchedulerUtils::getUpdateConfigWithLatestJWT()
     {
-        SulDownloader::suldownloaderdata::ConfigurationData config;
-        std::string path = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
-        auto fs = Common::FileSystem::fileSystem();
-        std::string contents;
-        std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> pair = std::make_pair(config,false);
-        try
+        auto currentConfigData = getCurrentConfigurationData();
+        if (currentConfigData.has_value())
         {
-            if (fs->isFile(path))
+            std::string token = getJWToken();
+            if (token != currentConfigData.value().getJWToken())
             {
-                contents = fs->readFile(path);
-            }
-            else
-            {
-                return pair;
+                currentConfigData.value().setJWToken(token);
+                return {currentConfigData.value(), true};
             }
         }
-        catch (Common::FileSystem::IFileSystemException& ex)
-        {
-            LOGERROR("Failed to read file "<< path << " due to error "<< ex.what());
-
-            return pair;
-        }
-        config = SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(contents);
-
-        std::string token = getJWToken();
-        if (token != config.getJWToken())
-        {
-            config.setJWToken(token);
-            pair.first = config;
-            pair.second = true;
-        }
-
-        return pair;
+        return {SulDownloader::suldownloaderdata::ConfigurationData(), false};
     }
 
     std::string UpdateSchedulerUtils::getDeviceId()

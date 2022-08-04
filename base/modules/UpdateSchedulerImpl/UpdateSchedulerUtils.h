@@ -20,6 +20,8 @@ namespace UpdateSchedulerImpl
         static std::string getTenantId();
         static std::string getDeviceId();
 
+        static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getCurrentConfigurationData();
+        static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getPreviousConfigurationData();
         static std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> getUpdateConfigWithLatestJWT();
         static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getConfigurationDataFromJsonFile(const std::string& filePath);
 

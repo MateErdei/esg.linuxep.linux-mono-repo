@@ -372,6 +372,9 @@ namespace SulDownloader::suldownloaderdata
          */
         static std::optional<Proxy> proxyFromSavedProxyUrl(const std::string& savedProxyURL);
 
+
+        static std::optional<Proxy> currentMcsProxy();
+
     private:
         enum class State
         {

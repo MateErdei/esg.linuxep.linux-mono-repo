@@ -339,7 +339,7 @@ namespace UpdateSchedulerImpl
             }
 
             std::optional<SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData =
-                getPreviousConfigurationData();
+                UpdateSchedulerUtils::getPreviousConfigurationData();
 
             if (previousConfigurationData.has_value() &&
                     (SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
@@ -432,11 +432,11 @@ namespace UpdateSchedulerImpl
             return;
         }
 
-        if (getCurrentConfigurationData().has_value())
+        auto config = UpdateSchedulerUtils::getCurrentConfigurationData();
+        if (config.has_value())
         {
-            SulDownloader::suldownloaderdata::ConfigurationData currentConfigData = getCurrentConfigurationData().value();
+            SulDownloader::suldownloaderdata::ConfigurationData currentConfigData = config.value();
             currentConfigData.setUseSDDS3(m_sdds3Enabled);
-
             writeConfigurationData(currentConfigData);
         }
     }
@@ -508,6 +508,8 @@ namespace UpdateSchedulerImpl
             m_pendingUpdate = true;
             return;
         }
+
+        // Update config with latest JWT
         std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> pair = UpdateSchedulerUtils::getUpdateConfigWithLatestJWT();
         if (pair.second)
         {
@@ -758,37 +760,6 @@ namespace UpdateSchedulerImpl
         LOGDEBUG("Writing to update_config.json:");
         LOGDEBUG(serializedConfigData);
         Common::FileSystem::fileSystem()->writeFileAtomically(m_configfilePath, serializedConfigData, tempPath);
-    }
-
-    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerProcessor::
-        getPreviousConfigurationData()
-    {
-        Path previousConfigFilePath = Common::FileSystem::join(
-            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath(),
-            Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
-
-        std::optional<SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData;
-        if (Common::FileSystem::fileSystem()->isFile(previousConfigFilePath))
-        {
-            LOGDEBUG("Previous update configuration file found.");
-            previousConfigurationData = UpdateSchedulerUtils::getConfigurationDataFromJsonFile(previousConfigFilePath);
-        }
-
-        return previousConfigurationData;
-    }
-
-    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerProcessor::getCurrentConfigurationData()
-    {
-        Path currentConfigFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
-
-        std::optional<SulDownloader::suldownloaderdata::ConfigurationData> currentConfigurationData;
-        if (Common::FileSystem::fileSystem()->isFile(currentConfigFilePath))
-        {
-            LOGDEBUG("Current update configuration file found.");
-            currentConfigurationData = UpdateSchedulerUtils::getConfigurationDataFromJsonFile(currentConfigFilePath);
-        }
-
-        return currentConfigurationData;
     }
 
     void UpdateSchedulerProcessor::safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const

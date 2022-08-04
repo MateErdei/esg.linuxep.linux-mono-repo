@@ -46,7 +46,9 @@ target_link_libraries(commscomponentimpl PUBLIC
         directorywatcherimpl
         filesystemimpl
         directorywatcherimpl
-        processutils)
+        procutilimpl
+        ProxyUtilsLib
+        )
 
 SET_TARGET_PROPERTIES( commscomponentimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

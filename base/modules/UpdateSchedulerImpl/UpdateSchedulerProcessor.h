@@ -57,9 +57,6 @@ namespace UpdateSchedulerImpl
         void processSulDownloaderMonitorDetached();
         void saveUpdateCacheCertificate(const std::string& cacheCertificateContent);
         void writeConfigurationData(const SulDownloader::suldownloaderdata::ConfigurationData&);
-        static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getCurrentConfigurationData();
-        static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getPreviousConfigurationData();
-
         void safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const;
 
         void waitForSulDownloaderToFinish();

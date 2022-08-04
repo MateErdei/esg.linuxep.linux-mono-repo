@@ -57,6 +57,7 @@ Global Setup Tasks
     Set Global Variable  ${UPDATECACHE_CERT_PATH}       ${UPDATE_DIR}/updatecachecerts/cache_certificates.crt
     Set Global Variable  ${UPDATE_ROOTCERT_DIR}         ${UPDATE_DIR}/rootcerts
     Set Global Variable  ${UPGRADING_MARKER_FILE}       ${SOPHOS_INSTALL}/var/sophosspl/upgrade_marker_file
+    Set Global Variable  ${CURRENT_PROXY_FILE}          ${ETC_DIR}/sophosspl/current_proxy
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
     Set Global Variable  ${UPDATE_SERVICE}              sophos-spl-update

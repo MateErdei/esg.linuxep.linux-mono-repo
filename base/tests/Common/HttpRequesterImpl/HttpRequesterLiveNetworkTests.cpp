@@ -292,7 +292,7 @@ TEST_P(HttpRequesterLiveNetworkTestsParam, getWithPortAndTimeout)
     request.timeout = 3;
     Common::HttpRequests::Response response = client.get(request);
 
-    ASSERT_EQ(response.status, Common::HttpRequests::STATUS_NOT_SET);
+    ASSERT_EQ(response.status, Common::HttpRequests::HTTP_STATUS_NOT_SET);
     ASSERT_EQ(response.body, "");
     ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::TIMEOUT);
     ASSERT_EQ(response.error, "Timeout was reached");
@@ -480,7 +480,7 @@ TEST_F(HttpRequesterLiveNetworkTests, httpsFailsWithMissingCert)
     Common::HttpRequests::Response response =
         client.get(Common::HttpRequests::RequestConfig{ .url = url, .certPath = "/missing/file.crt" });
 
-    ASSERT_EQ(response.status, Common::HttpRequests::STATUS_NOT_SET);
+    ASSERT_EQ(response.status, Common::HttpRequests::HTTP_STATUS_NOT_SET);
     ASSERT_EQ(response.body, "");
     ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::CERTIFICATE_ERROR);
 }

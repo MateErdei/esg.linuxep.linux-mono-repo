@@ -10,6 +10,8 @@ add_library(suldownloaderimpl SHARED
         warehouse/WarehouseRepository.h
         warehouse/WarehouseRepositoryFactory.cpp
         warehouse/WarehouseRepositoryFactory.h
+        ../Common/CurlWrapper/CurlWrapper.h
+        ../Common/CurlWrapper/CurlWrapper.cpp
         sdds3/SDDS3Repository.cpp
         sdds3/SDDS3Repository.h
         sdds3/Sdds3RepositoryFactory.cpp
@@ -19,6 +21,11 @@ add_library(suldownloaderimpl SHARED
         sdds3/ISdds3Wrapper.h
         sdds3/Sdds3Wrapper.h
         sdds3/Sdds3Wrapper.cpp
+        sdds3/SusRequestParameters.h
+        sdds3/SusRequester.h
+        sdds3/SusRequester.cpp
+        sdds3/Logger.h
+        sdds3/Logger.cpp
         suldownloaderdata/IWarehouseRepository.h
         SULDownloader.cpp
         SulDownloader.h
@@ -35,7 +42,7 @@ include_directories(suldownloaderimpl BEFORE ${SOPHLIB_INCLUDE_DIR} ${SUL_INPUT}
 set(SUL_LIBRARY -L${SUL_LIBRARY_DIR} -lSUL)
 set(SDDS3_LIBRARY -L${SDDS3LIB_INPUT} -lsdds3 -ldelta -lpugixml -lutils -lminizip -lsdds3crypto -lminizip)
 target_compile_options(suldownloaderimpl PUBLIC -Wno-unused-value -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-stringop-overflow)
-target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata ${SUL_LIBRARY} ${SDDS3_LIBRARY} ${SOPHLIB_LIBRARIES} osutilitiesimpl stdc++fs -Wno-maybe-uninitialized -Wno-stringop-overflow)
+target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata ${SUL_LIBRARY} ${SDDS3_LIBRARY} ${SOPHLIB_LIBRARIES} osutilitiesimpl HttpRequestsImpl  stdc++fs -Wno-maybe-uninitialized -Wno-stringop-overflow)
 
 SET_TARGET_PROPERTIES( suldownloaderimpl
         PROPERTIES

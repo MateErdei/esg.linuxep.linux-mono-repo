@@ -161,8 +161,6 @@ namespace Common::HttpRequestsImpl
             }
         }
 
-
-
         // Set the request URL
         curlOptions.emplace_back("URL - CURLOPT_URL", CURLOPT_URL, request.url);
 
@@ -232,12 +230,19 @@ namespace Common::HttpRequestsImpl
         }
         else
         {
-            // Curl will use env proxies (which we only ever read then set explicitly), not doing this causes
-            // curl to use an env proxy when we explicitly ask to go directly
-            curlOptions.emplace_back(
-                "Set no proxy - CURLOPT_NOPROXY",
-                CURLOPT_NOPROXY,
-                "*");
+            if (request.allowEnvironmentProxy)
+            {
+                curlOptions.emplace_back(
+                    "Set cURL to choose best authentication available - CURLOPT_PROXYAUTH",
+                    CURLOPT_PROXYAUTH,
+                    static_cast<long> CURLAUTH_ANY); // cast to long because the curl_easy_setopt function takes long but the constant is unsigned long
+            }
+            else
+            {
+                // Curl will use env proxies (which we should only ever read then set explicitly), not doing this causes
+                // curl to use an env proxy when we explicitly ask to go directly
+                curlOptions.emplace_back("Set no proxy - CURLOPT_NOPROXY", CURLOPT_NOPROXY, "*");
+            }
         }
 
         // Handle allowing redirects, a lot of sites redirect, a user must explicitly ask for this to be enabled
@@ -302,8 +307,8 @@ namespace Common::HttpRequestsImpl
         {
             for (auto const& [header, value] : request.headers.value())
             {
-                LOGDEBUG("Append header: " << header << ":" << value);
-                curlHeaders = m_curlWrapper->curlSlistAppend(curlHeaders, header + ":" + value);
+                LOGDEBUG("Append header: " << header << ": " << value);
+                curlHeaders = m_curlWrapper->curlSlistAppend(curlHeaders, header + ": " + value);
                 if (!curlHeaders)
                 {
                     m_curlWrapper->curlSlistFreeAll(curlHeaders);

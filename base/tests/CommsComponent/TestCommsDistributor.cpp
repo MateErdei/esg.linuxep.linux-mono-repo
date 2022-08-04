@@ -144,6 +144,7 @@ TEST_F(TestCommsDistributor, testDistributorHandlesRequestFilesAndResponsesAndSe
     
     // using the tempDirPath to have the current_proxy file for this test
     EXPECT_CALL(mock, getBaseSophossplConfigFileDirectory()).WillRepeatedly(Return(requestTempDirPath));
+    EXPECT_CALL(mock, getMcsCurrentProxyFilePath()).WillRepeatedly(Return(m_requestTempDir->absPath("current_proxy")));
 
     Common::ApplicationConfiguration::replaceApplicationPathManager(
             std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
