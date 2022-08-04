@@ -125,9 +125,12 @@ Start AV
 #    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
 #    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
 #    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
-    Check AV Plugin Not Running
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Start AV Plugin process
+    ${result} =   ProcessUtils.pidof  ${PLUGIN_BINARY}
+
+    IF  ${result} == ${-1}
+        FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
+        Start AV Plugin process
+    END
 
 Stop AV
 #    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
