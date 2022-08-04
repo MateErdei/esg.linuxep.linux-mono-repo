@@ -48,12 +48,6 @@ Setup TSL server 1_1
     Set Suite Variable    ${GL_handle}    ${handle}
     Setup Thininstaller Test
 
-Setup SDDS3 server with real warehouse
-    Stop Local SDDS3 Server
-    ${handle}=  Start Local SDDS3 Server
-    Set Suite Variable    ${GL_handle}    ${handle}
-    Setup Thininstaller Test
-
 Restore fake SDDS3 server
     Teardown
     Stop Local SDDS3 Server
@@ -226,7 +220,7 @@ Thin Installer Installs Product Successfully When A Large Number Of Users Are In
 
     Should Not Exist    ${SOPHOS_INSTALL}
 
-    Run Default Thininstaller  expected_return_code=0
+    Run Default Thininstaller  expected_return_code=0   force_certs_dir=${SDDS3_DEVCERTS}
 
     Check Expected Base Processes Are Running
 
@@ -241,7 +235,7 @@ Thin Installer Installs Product Successfully With Product Arguments
 
     Should Not Exist    ${SOPHOS_INSTALL}
 
-    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0
+    Run Default Thininstaller  thininstaller_args=${PRODUCT_MDR_ARGUMENT}  expected_return_code=0   force_certs_dir=${SDDS3_DEVCERTS}
 
     Check MCS Router Running
     Check Correct MCS Password And ID For Local Cloud Saved
@@ -257,7 +251,7 @@ Thin Installer Repairs Broken Existing Installation
     Remove File  ${REGISTER_CENTRAL}
     Should Not Exist  ${REGISTER_CENTRAL}
 
-    Run Default Thininstaller  expected_return_code=0
+    Run Default Thininstaller  expected_return_code=0  force_certs_dir=${SDDS3_DEVCERTS}
 
     Check Thininstaller Log Contains  Found existing installation here: /opt/sophos-spl
 
@@ -285,7 +279,7 @@ Thin Installer Force Works
     Remove Directory  /opt/sophos-spl  recursive=True
     Should Not Exist  ${REGISTER_CENTRAL}
     ${time} =  Get Current Date  exclude_millis=true
-    Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0
+    Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0  force_certs_dir=${SDDS3_DEVCERTS}
     Should Exist  ${REGISTER_CENTRAL}
     Check Thininstaller Log Contains  Successfully installed product
     Should Have A Stopped Sophos Message In Journalctl Since Certain Time  ${time}

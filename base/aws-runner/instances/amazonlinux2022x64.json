@@ -65,7 +65,7 @@
         "export SYSTEMPRODUCT_TEST_INPUT=/opt/sspl/system-product-test-inputs\n",
         "python3.9 -m venv /opt/sspl/tap-venv >> /tmp/cloudFormationInit.log 2>&1\n",
         "/opt/sspl/tap-venv/bin/python -m pip install --find-links=/opt/sspl/pipCache tap >> /tmp/cloudFormationInit.log 2>&1\n",
-        "export TAP_VENV=/opt/sspl/tap-venv/bin/activate\n",
+        "export TAP_VENV=/opt/sspl/tap-venv/bin/activate 2>&1\n",
         "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ >> /tmp/cloudFormationInit.log 2>&1\n",
         "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
         "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",

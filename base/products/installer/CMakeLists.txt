@@ -50,6 +50,10 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/installer/backupfileslist.dat
         DESTINATION files/base/etc
         PERMISSIONS OWNER_READ OWNER_WRITE)
 
+install(FILES ${CMAKE_SOURCE_DIR}/products/installer/rootca384.crt
+        DESTINATION files/base/update/rootcerts
+        PERMISSIONS OWNER_READ OWNER_WRITE)
+
 add_executable(versionedcopy
         VersionedCopyMain.cpp
         ../../modules/Installer/VersionedCopy/VersionedCopy.h
