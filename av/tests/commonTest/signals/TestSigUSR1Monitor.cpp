@@ -1,11 +1,10 @@
 // Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
-#include "sophos_threat_detector/sophosthreatdetectorimpl/SigUSR1Monitor.h"
-
+#include "modules/common/signals/SigUSR1Monitor.h"
 #include "tests/common/LogInitializedTests.h"
 
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace
 {

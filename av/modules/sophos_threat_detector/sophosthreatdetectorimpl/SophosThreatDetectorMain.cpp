@@ -1,20 +1,17 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "SophosThreatDetectorMain.h"
+
 #include "Logger.h"
 #include "Reloader.h"
 #include "ShutdownTimer.h"
-#include "SigUSR1Monitor.h"
 #include "ThreatReporter.h"
 
 #include "common/Define.h"
 #include "common/FDUtils.h"
 #include "common/SaferStrerror.h"
 #include "common/SigTermMonitor.h"
+#include "common/signals/SigUSR1Monitor.h"
 
 #ifdef USE_SUSI
 #include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>

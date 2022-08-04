@@ -29,6 +29,8 @@ add_library(common SHARED
         signals/SignalHandlerBase.cpp
         signals/SignalHandlerBase.h
         signals/SignalHandlerTemplate.h
+        signals/SigUSR1Monitor.cpp
+        signals/SigUSR1Monitor.h
         )
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)

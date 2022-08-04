@@ -2,10 +2,9 @@
 
 #pragma once
 
+#include "Common/Threads/NotifyPipe.h"
 #include "common/signals/IReloadable.h"
 #include "common/signals/SignalHandlerBase.h"
-
-#include <Common/Threads/NotifyPipe.h>
 
 namespace sspl::sophosthreatdetectorimpl
 {

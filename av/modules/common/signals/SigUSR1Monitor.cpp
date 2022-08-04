@@ -1,10 +1,10 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "SigUSR1Monitor.h"
-
-#include "Logger.h"
+// Package
+#include "SignalHandlerTemplate.h"
+#include "../Logger.h"
 // Component
-#include "common/signals/SignalHandlerTemplate.h"
 
 // Std C++
 #include <csignal>

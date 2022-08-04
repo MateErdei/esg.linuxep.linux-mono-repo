@@ -4,8 +4,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "sophos_threat_detector/sophosthreatdetectorimpl/SigUSR1Monitor.h"
 #include "../../common/LogInitializedTests.h"
+
+#include "common/signals/SigUSR1Monitor.h"
 
 #include <gtest/gtest.h>
 
