@@ -1,0 +1,98 @@
+// Copyright 2022, Sophos Limited.  All rights reserved.
+
+#include "PidLockFile.h"
+
+#include "Logger.h"
+#include "PidLockFileException.h"
+
+#include "datatypes/sophos_filesystem.h"
+
+#include <sstream>
+
+#include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+using namespace common;
+namespace fs = sophos_filesystem;
+
+
+PidLockFile::PidLockFile(const std::string& pidfile)
+    : m_pidfile(pidfile),m_fd(-1)
+{
+    // open for write
+    int localfd = open(pidfile.c_str(), O_RDWR | O_CREAT
+#ifdef O_CLOEXEC
+                                            | O_CLOEXEC
+#endif
+                       , S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
+
+    if (localfd == -1)
+    {
+        std::ostringstream ost;
+        ost << "Unable to open lock file " << pidfile << " because " <<strerror(errno) << "(" << errno << ")";
+
+        LOGERROR("ERROR:" << ost.str());
+        throw PidLockFileException(ost.str());
+    }
+    fs::permissions(pidfile.c_str(), fs::perms::group_read | fs::perms::others_read,
+                    fs::perm_options::add);
+
+    // lock
+    struct flock fl;
+    fl.l_type = F_WRLCK;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = 0;
+    fl.l_len = 0;
+
+    if (fcntl(localfd, F_SETLKW, &fl) == -1)
+    {
+        std::ostringstream ost;
+        ost << "Unable to lock lock file "<< pidfile << " because " << strerror(errno) << "(" << errno << ")";
+
+        // unable to lock the file
+        LOGERROR("ERROR:" << ost.str());
+        close(localfd);
+        throw PidLockFileException(ost.str());
+    }
+
+    // truncate and write new PID
+    if (ftruncate(localfd,0) != 0)
+    {
+        LOGDEBUG("Failed to truncate pidfile: " << errno);
+        close(localfd);
+        throw PidLockFileException("Unabled to truncate lock file");
+    }
+
+    // write new PID
+    char pid[15];
+    snprintf(pid,14,"%ld",static_cast<long>(getpid()));
+    pid[14] = 0;
+    size_t pidLen = strlen(pid);
+
+    ssize_t written = write(localfd,pid,pidLen);
+    if (written < 0 || static_cast<size_t>(written) != pidLen)
+    {
+        LOGDEBUG("Failed to write pid to pidfile: " << errno);
+        close(localfd);
+        throw PidLockFileException("Unabled to pid to pid lock file");
+    }
+
+    m_fd = localfd;
+    LOGINFO("Lock taken on: " << pidfile);
+}
+
+PidLockFile::~PidLockFile()
+{
+    LOGINFO("Closing lock file");
+    if (m_fd >= 0)
+    {
+        close(m_fd);
+        m_fd = -1;
+        unlink(m_pidfile.c_str());
+    }
+}

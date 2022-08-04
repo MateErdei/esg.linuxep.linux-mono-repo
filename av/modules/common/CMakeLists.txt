@@ -4,6 +4,9 @@ add_library(common SHARED
         ErrorCodesC.h
         Logger.cpp
         Logger.h
+        PidLockFile.cpp
+        PidLockFile.h
+        PidLockFileException.h
         ShuttingDownException.h
         StringUtils.cpp
         StringUtils.h

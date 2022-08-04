@@ -1,49 +1,42 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
+// Class
 #include "SoapdBootstrap.h"
-
+// Package
 #include "Logger.h"
-
-#include "datatypes/sophos_filesystem.h"
-#include "common/ThreadRunner.h"
-#include "datatypes/SystemCallWrapper.h"
+// Component
 #include "sophos_on_access_process/OnAccessConfig//OnAccessConfigMonitor.h"
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
-#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
-
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+// Product
 #include "common/FDUtils.h"
-
-#include <memory>
+#include "common/PidLockFile.h"
+#include "common/SaferStrerror.h"
+#include "common/ThreadRunner.h"
+#include "datatypes/sophos_filesystem.h"
+#include "datatypes/SystemCallWrapper.h"
+#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
+// Base
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+// Std C++
 #include <fstream>
-
+#include <memory>
+// Std C
 #include <poll.h>
 
 namespace fs = sophos_filesystem;
 
 using namespace sophos_on_access_process::soapd_bootstrap;
 
-void write_pid_file(const fs::path& pluginInstall)
-{
-    fs::path pidFilePath = pluginInstall / "var/soapd.pid";
-    fs::remove(pidFilePath);
-    pid_t pid = getpid();
-    LOGDEBUG("Writing Pid: " << pid << " to: " << pidFilePath);
-    std::ofstream ofs(pidFilePath, std::ofstream::trunc);
-    ofs << pid;
-    ofs.close();
-    fs::permissions(pidFilePath,
-                    fs::perms::group_read | fs::perms::others_read,
-                    fs::perm_options::add);
-}
 
 int SoapdBootstrap::runSoapd()
 {
     LOGINFO("Sophos on access process started");
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
-    write_pid_file(pluginInstall);
-    // Implement soapd
+
+    // Take soapd lock file
+    fs::path lockfile = pluginInstall / "var/soapd.pid";
+    common::PidLockFile lock(lockfile);
 
     std::shared_ptr<common::SigIntMonitor> sigIntMonitor{common::SigIntMonitor::getSigIntMonitor()};
     std::shared_ptr<common::SigTermMonitor> sigTermMonitor{common::SigTermMonitor::getSigTermMonitor()};
@@ -106,7 +99,8 @@ void SoapdBootstrap::innerRun(
                 continue;
             }
 
-            LOGERROR("Failed to read from pipe - shutting down. Error: " << strerror(error) << " (" << error << ')');
+            LOGERROR("Failed to read from pipe - shutting down. Error: "
+                     << common::safer_strerror(error) << " (" << error << ')');
             break;
         }
 

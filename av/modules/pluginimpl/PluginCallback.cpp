@@ -1,31 +1,28 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-// Class
 #include "PluginCallback.h"
-// Package
+
 #include "Logger.h"
-#include "PolicyProcessor.h"
-// Component
+
 #include "common/PluginUtils.h"
 #include "common/StringUtils.h"
-// Product
+#include "common/SaferStrerror.h"
+#include "datatypes/AutoFd.h"
+
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <datatypes/SystemCallWrapper.h>
 #include <thirdparty/nlohmann-json/json.hpp>
-// Std C++
+#include <datatypes/SystemCallWrapper.h>
+
 #include <fstream>
-#include <thread>
-#include <chrono>
-// Std C
+
 #include <unistd.h>
 
 namespace fs = sophos_filesystem;
 
-using namespace std::chrono_literals;
 
 namespace Plugin
 {
@@ -35,10 +32,6 @@ namespace Plugin
     {
         std::string noPolicySetStatus = generateSAVStatusXML();
         m_statusInfo = { noPolicySetStatus, noPolicySetStatus, "SAV" };
-
-        // Initially configure On-Access off, until we get a policy
-        Plugin::PolicyProcessor::setOnAccessConfiguredTelemetry(false);
-
         LOGDEBUG("Plugin Callback Started");
     }
 
@@ -58,18 +51,13 @@ namespace Plugin
     {
         LOGSUPPORT("Shutdown signal received");
         m_task->pushStop();
-
-        auto deadline = std::chrono::steady_clock::now() + 30s;
-        auto nextLog = std::chrono::steady_clock::now() + 1s;
-
-        while(isRunning() && std::chrono::steady_clock::now() < deadline)
+        int timeoutCounter = 0;
+        int shutdownTimeout = 30;
+        while(isRunning() && timeoutCounter < shutdownTimeout)
         {
-            if ( std::chrono::steady_clock::now() > nextLog )
-            {
-                nextLog = std::chrono::steady_clock::now() + 1s;
-                LOGSUPPORT("Shutdown waiting for all processes to complete");
-            }
-            std::this_thread::sleep_for(50ms);
+            LOGSUPPORT("Shutdown waiting for all processes to complete");
+            sleep(1);
+            timeoutCounter++;
         }
     }
 
@@ -117,10 +105,10 @@ namespace Plugin
         telemetry.set("vdl-version", getVirusDataVersion());
         telemetry.set("version", common::getPluginVersion());
         telemetry.set("sxl4-lookup", m_lookupEnabled);
-        telemetry.set("health", calculateHealth());
+        auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+        telemetry.set("health", calculateHealth(sysCalls));
         telemetry.set("threatHealth", m_threatStatus);
 
-        auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
         auto processInfo = getThreatScannerProcessinfo(sysCalls);
         telemetry.set("threatMemoryUsage", processInfo.first);
         telemetry.set("threatProcessAge", processInfo.second);
@@ -399,9 +387,41 @@ namespace Plugin
         return true;
     }
 
-    long PluginCallback::calculateHealth()
+    bool PluginCallback::isPidFileLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
-        auto fileSystem = Common::FileSystem::fileSystem();
+        datatypes::AutoFd fd(sysCalls->_open(pidfile.c_str(), O_RDONLY, 0644));
+        if (!fd.valid())
+        {
+            auto buf = common::safer_strerror(errno);
+            LOGDEBUG("Unable to open PID file " << pidfile << " (" << buf << "), assume process not running");
+            return false;
+        }
+
+        struct flock fl;
+        fl.l_type    = F_RDLCK;   /* Test for any lock on any part of file. */
+        fl.l_whence  = SEEK_SET;
+        fl.l_start   = 0;
+        fl.l_len     = 50;
+        sysCalls->fcntl(fd.get(), F_GETLK, &fl);  /* Overwrites lock structure with preventors. */
+        if (fl.l_type == F_WRLCK)
+        {
+            LOGDEBUG("Unable to acquire lock on " << pidfile << " as process " << fl.l_pid << " already has a write lock");
+            return true;
+        }
+        else if (fl.l_type == F_RDLCK)
+        {
+            LOGDEBUG("Unable to acquire lock on " << pidfile << " as process " << fl.l_pid << " already has a read lock");
+            return true;
+        }
+        else
+        {
+            LOGDEBUG("Lock acquired on PID file " << pidfile << ", assume process not running");
+        }
+        return false;
+    }
+
+    long PluginCallback::calculateHealth(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    {
         if (shutdownFileValid())
         {
             LOGDEBUG("Valid shutdown file found for Sophos Threat Detector, plugin considered healthy.");
@@ -409,20 +429,13 @@ namespace Plugin
         }
 
         Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
-        int threatDetectorPid = getProcessPidFromFile(fileSystem, threatDetectorPidFile);
-        if (threatDetectorPid == 0)
-        {
-            LOGWARN("Health encountered an error resolving pid for Threat Detector");
-            return E_HEALTH_STATUS_BAD;
-        }
-        if (!isProcessHealthy(threatDetectorPid, "sophos_threat_detector", "sophos-spl-threat-detector", fileSystem))
+        if (!isPidFileLocked(threatDetectorPidFile, sysCalls))
         {
             return E_HEALTH_STATUS_BAD;
         }
 
         Path soapdPidFile = common::getPluginInstallPath() / "var/soapd.pid";
-        int soapdPid = getProcessPidFromFile(fileSystem, soapdPidFile);
-        if (!isProcessHealthy(soapdPid, "soapd", "root", fileSystem))
+        if (!isPidFileLocked(soapdPidFile, sysCalls))
         {
             return E_HEALTH_STATUS_BAD;
         }
@@ -432,8 +445,9 @@ namespace Plugin
 
     std::string PluginCallback::getHealth()
     {
+        auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
         nlohmann::json j;
-        j["Health"] = calculateHealth();
+        j["Health"] = calculateHealth(sysCalls);
         return j.dump();
     }
 

@@ -9,6 +9,7 @@
 
 #include "common/Define.h"
 #include "common/FDUtils.h"
+#include "common/PidLockFile.h"
 #include "common/SaferStrerror.h"
 #include "common/signals/SigTermMonitor.h"
 #include "common/signals/SigUSR1Monitor.h"
@@ -258,17 +259,6 @@ namespace sspl::sophosthreatdetectorimpl
             return pluginInstall / "chroot/etc/threat_detector_config";
         }
 
-        void write_pid_file(const fs::path& pluginInstall)
-        {
-            fs::path pidFilePath = pluginInstall / "chroot/var/threat_detector.pid";
-            fs::remove(pidFilePath);
-            pid_t pid = getpid();
-            LOGDEBUG("Writing Pid: " << pid << " to: " << pidFilePath);
-            std::ofstream ofs(pidFilePath, std::ofstream::trunc);
-            ofs << pid;
-            ofs.close();
-        }
-
         void remove_shutdown_notice_file(const fs::path& pluginInstall)
         {
             fs::remove(pluginInstall / "chroot/var/threat_detector_expected_shutdown");
@@ -361,7 +351,8 @@ namespace sspl::sophosthreatdetectorimpl
 #endif
 
             remove_shutdown_notice_file(pluginInstall);
-            write_pid_file(pluginInstall);
+            fs::path lockfile = pluginInstall / "chroot/var/threat_detector.pid";
+            common::PidLockFile lock(lockfile);
 
             threat_scanner::IThreatReporterSharedPtr threatReporter =
                 std::make_shared<sspl::sophosthreatdetectorimpl::ThreatReporter>(threat_reporter_socket(pluginInstall));

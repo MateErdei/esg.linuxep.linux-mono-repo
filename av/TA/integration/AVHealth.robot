@@ -86,12 +86,40 @@ Sophos Threat Detector Not Running Triggers Bad Status Health
     Wait until threat detector running
     Check Status Health is Reporting Correctly    0
 
+Sophos Threat Detector PID File Existence Does Not Cause Good Status Health When Not Locked
+    Check Status Health is Reporting Correctly    0
+
+    Stop sophos_threat_detector
+    ${PID_FILE} =  Set Variable  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
+    Create File  123  ${PID_FILE}
+    Run  chmod 644 ${PID_FILE}
+    Check Status Health is Reporting Correctly    1
+
+    Remove File  ${PID_FILE}
+    Start sophos_threat_detector
+    Wait until threat detector running
+    Check Status Health is Reporting Correctly    0
+
 Sophos On-Access Process Not Running Triggers Bad Status Health
     Check Status Health is Reporting Correctly    0
 
     Stop soapd
     Check Status Health is Reporting Correctly    1
 
+    Start soapd
+    Wait until threat detector running
+    Check Status Health is Reporting Correctly    0
+
+Sophos On-Access PID File Existence Does Not Cause Good Status Health When Not Locked
+    Check Status Health is Reporting Correctly    0
+
+    Stop soapd
+    ${PID_FILE} =  Set Variable  ${AV_PLUGIN_PATH}/var/soapd.pid
+    Create File  123  ${PID_FILE}
+    Run  chmod 644 ${PID_FILE}
+    Check Status Health is Reporting Correctly    1
+
+    Remove File  ${PID_FILE}
     Start soapd
     Wait until threat detector running
     Check Status Health is Reporting Correctly    0

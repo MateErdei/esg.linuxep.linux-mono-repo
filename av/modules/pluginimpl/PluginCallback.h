@@ -39,7 +39,7 @@ namespace Plugin
         std::string getTelemetry() override;
         std::string getHealth() override;
 
-        long calculateHealth();
+        long calculateHealth(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
         static std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
 
         void sendStatus(const std::string& revID);
@@ -64,6 +64,7 @@ namespace Plugin
         static int getProcessPidFromFile(Common::FileSystem::IFileSystem* fileSystem, const Path&);
         [[nodiscard]] bool shutdownFileValid() const;
 
+        bool isPidFileLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
         /**
          * Takes a linux process status file's contents and returns a value at of a
          * given key.
