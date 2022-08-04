@@ -110,15 +110,19 @@ Mark logs
     Mark Susi Debug Log
 
 Stop AV Plugin process
-   ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
-   Log  ${result.stderr}
-   Log  ${result.stdout}
-   Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    ${proc} =  Get Process Object  ${AV_PLUGIN_HANDLE}
+    Log  Stopping AV Plugin Process PID=${proc.pid}
+    ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
+    Log  ${result.stderr}
+    Log  ${result.stdout}
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
 
 Start AV Plugin process
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
+    ${proc} =  Get Process Object  ${AV_PLUGIN_HANDLE}
+    Log  Started AV Plugin Process PID=${proc.pid}
     Check AV Plugin Installed
 
 Start AV
