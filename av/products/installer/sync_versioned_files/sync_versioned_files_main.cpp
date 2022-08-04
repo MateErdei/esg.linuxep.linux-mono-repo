@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
         ("destination", po::value<std::string>(), "Destination directory to sync files to")
         ("help", "produce help message")
         ("notVersioned", "sync non-versioned files")
+        ("copy", "copy new/changed files, and delete removed files")
         ;
 
     po::variables_map variableMap;
@@ -46,5 +47,17 @@ int main(int argc, char* argv[])
         isVersioned = false;
     }
 
-    return sync_versioned_files::sync_versioned_files(variableMap["source"].as<std::string>(), variableMap["destination"].as<std::string>(), isVersioned);
+    auto source = variableMap["source"].as<std::string>();
+    auto destination = variableMap["destination"].as<std::string>();
+
+    bool copy = (variableMap.count("copy") > 0);
+
+    if (copy)
+    {
+        return sync_versioned_files::copy(source, destination);
+    }
+    else
+    {
+        return sync_versioned_files::sync_versioned_files(source, destination, isVersioned);
+    }
 }

@@ -75,9 +75,62 @@ int sync_versioned_files::sync_versioned_files(const fs::path& src, const fs::pa
             }
             else
             {
-                PRINT("Delete "<< p.path());
                 fs::remove(p.path());
             }
+        }
+    }
+    return 0;
+}
+
+static bool are_identical(const path_t& src, const path_t& dest)
+{
+    std::ignore = src;
+    std::ignore = dest;
+    return true;
+}
+
+static void copyFile(const path_t& src, const path_t& dest)
+{
+    std::ignore = src;
+    std::ignore = dest;
+}
+
+int sync_versioned_files::copy(const path_t& src, const path_t& dest)
+{
+    // for each file in dest, work out what we expect as a source, and see if it is present
+    for (const auto& p : fs::directory_iterator(dest))
+    {
+        if (!fs::is_regular_file(p))
+        {
+            continue;
+        }
+        const auto& dest_name = p.path();
+        const auto src_name = replace_stem(dest_name, dest, src);
+        if (!fs::is_regular_file(src_name))
+        {
+            fs::remove(dest_name);
+            continue;
+        }
+        // Source exists, so compare
+        if (!are_identical(src_name, dest_name))
+        {
+            copyFile(src_name, dest_name);
+        }
+    }
+
+    // Now copy any new files
+    for (const auto& p : fs::directory_iterator(src))
+    {
+        if (!fs::is_regular_file(p))
+        {
+            continue;
+        }
+        const auto& src_name = p.path();
+        const auto dest_name = replace_stem(src_name, src, dest);
+
+        if (!fs::is_regular_file(dest_name))
+        {
+            copyFile(src_name, dest_name);
         }
     }
     return 0;
