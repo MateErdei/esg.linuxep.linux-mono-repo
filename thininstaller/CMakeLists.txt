@@ -133,6 +133,7 @@ add_custom_target(
         COMMAND chmod 700 ${libs_dir}/*
         COMMAND ln -snf ${libstcpp_name} ${libs_dir}/libstdc++.so.6
         COMMAND cp ${CMAKE_SOURCE_DIR}/rootca.crt ${INSTALLERDIR}/
+        COMMAND cp ${CMAKE_SOURCE_DIR}/rootca384.crt ${INSTALLERDIR}/
         COMMAND cp ${CMAKE_SOURCE_DIR}/ps_rootca.crt ${INSTALLERDIR}/
         COMMAND cp ${CMAKE_SOURCE_DIR}/certs/mcs_rootca.crt ${INSTALLERDIR}/
         COMMAND cp ${CMAKE_SOURCE_DIR}/sdds_https_rootca.crt ${INSTALLERDIR}/

@@ -623,6 +623,11 @@ CERT=${BIN}/../rootca.crt
 [ -f ${CERT} ] || CERT=${BIN}/../rootca.crt
 cp "$CERT" "${SOPHOS_INSTALL}/base/update/rootcerts/rootca.crt"
 
+CERT=${BIN}/../rootca384.crt
+[ -n ${OVERRIDE_SOPHOS_CERTS} ] && CERT=${OVERRIDE_SOPHOS_CERTS}/rootca384.crt
+[ -f ${CERT} ] || CERT=${BIN}/../rootca384.crt
+cp "$CERT" "${SOPHOS_INSTALL}/base/update/rootcerts/rootca384.crt"
+
 [ -n "$OVERRIDE_SUS_LOCATION" ] && echo "URLS = $OVERRIDE_SUS_LOCATION" >> "${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini"
 [ -n "$OVERRIDE_SUS_LOCATION" ] && echo "Overriding Sophos Update Service address with $OVERRIDE_SUS_LOCATION"
 [ -n "$OVERRIDE_CDN_LOCATION" ] && echo "CDN_URL = $OVERRIDE_CDN_LOCATION" >> "${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini"
