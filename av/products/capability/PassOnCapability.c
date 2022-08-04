@@ -17,7 +17,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #define pr_arg(x) ((unsigned long) x)
 
 
-//Reimplmenet cap_set_ambient for older kernels
+//Reimplement cap_set_ambient for older kernels
 static int sophos_cap_set_ambient(cap_value_t cap, cap_flag_value_t set)
 {
     int val;
