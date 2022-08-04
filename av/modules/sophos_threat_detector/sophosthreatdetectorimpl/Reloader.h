@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -14,7 +10,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 namespace sspl::sophosthreatdetectorimpl
 {
-    class Reloader : public IReloadable
+    class Reloader : public common::signals::IReloadable
     {
     public:
         Reloader() = default;

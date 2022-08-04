@@ -2,11 +2,13 @@
 
 #pragma once
 
+// Package
+#include "IReloadable.h"
+#include "SignalHandlerBase.h"
+// Product
 #include "Common/Threads/NotifyPipe.h"
-#include "common/signals/IReloadable.h"
-#include "common/signals/SignalHandlerBase.h"
 
-namespace sspl::sophosthreatdetectorimpl
+namespace common::signals
 {
     class SigUSR1Monitor : public common::signals::SignalHandlerBase
     {

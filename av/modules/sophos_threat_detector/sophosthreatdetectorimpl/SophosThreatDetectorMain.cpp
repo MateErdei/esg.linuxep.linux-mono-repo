@@ -385,7 +385,7 @@ namespace sspl::sophosthreatdetectorimpl
             server.start();
 
             LOGINFO("Starting USR1 monitor");
-            SigUSR1Monitor usr1Monitor(reloader); // Create monitor before loading SUSI
+            common::signals::SigUSR1Monitor usr1Monitor(reloader); // Create monitor before loading SUSI
 
             fs::path processControllerSocketPath = "/var/process_control_socket";
             unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0660);

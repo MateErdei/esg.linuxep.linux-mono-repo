@@ -9,7 +9,7 @@
 // Std C++
 #include <csignal>
 
-namespace sspl::sophosthreatdetectorimpl
+namespace common::signals
 {
     namespace {
         int GL_USR1_MONITOR_PIPE = -1; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)

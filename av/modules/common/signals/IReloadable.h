@@ -4,7 +4,7 @@
 
 #include <memory>
 
-namespace sspl::sophosthreatdetectorimpl
+namespace common::signals
 {
     class IReloadable
     {
