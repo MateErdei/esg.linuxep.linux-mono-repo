@@ -562,7 +562,6 @@ Clear Logs
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}*
-    Start AV
 
 Product Test Setup
     SystemFileWatcher.Start Watching System Files
