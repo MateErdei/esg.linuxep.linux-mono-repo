@@ -90,6 +90,8 @@ namespace Plugin
         catch (Common::PluginApi::ApiException& e)
         {
             LOGINFO("Failed to request SAV policy at startup (" << e.what() << ")");
+            // No SAV Policy available so record On Access is configured off
+            Plugin::PolicyProcessor::setOnAccessConfiguredTelemetry(false);
         }
         try
         {

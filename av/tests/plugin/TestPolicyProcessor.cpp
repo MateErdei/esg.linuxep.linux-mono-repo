@@ -636,7 +636,7 @@ TEST_F(TestPolicyProcessor, processOnAccessPolicyEnabled)
 
     auto telemetryStr = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     auto telemetry = nlohmann::json::parse(telemetryStr);
-    EXPECT_EQ(telemetry["onAccessConfigured"], "true");
+    EXPECT_EQ(telemetry["onAccessConfigured"], true);
 }
 
 TEST_F(TestPolicyProcessor, processOnAccessPolicyDisabled)
@@ -672,7 +672,7 @@ TEST_F(TestPolicyProcessor, processOnAccessPolicyDisabled)
     // Verify the telemetry is updated
     auto telemetryStr = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     auto telemetry = nlohmann::json::parse(telemetryStr);
-    EXPECT_EQ(telemetry["onAccessConfigured"], "false");
+    EXPECT_EQ(telemetry["onAccessConfigured"], false);
 }
 
 TEST_F(TestPolicyProcessor, processInvalidOnAccessPolicy)

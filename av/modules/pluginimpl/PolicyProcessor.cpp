@@ -189,12 +189,15 @@ namespace Plugin
 
         notifyOnAccessProcess();
 
-        {
-            auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-            Common::Telemetry::TelemetryObject onAccessEnabledTelemetry;
-            onAccessEnabledTelemetry.set(Common::Telemetry::TelemetryValue(enabled));
-            telemetry.set("onAccessConfigured", onAccessEnabledTelemetry, true);
-        }
+        setOnAccessConfiguredTelemetry(enabled == "true");
+    }
+
+    void PolicyProcessor::setOnAccessConfiguredTelemetry(bool enabled)
+    {
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        Common::Telemetry::TelemetryObject onAccessEnabledTelemetry;
+        onAccessEnabledTelemetry.set(Common::Telemetry::TelemetryValue(enabled));
+        telemetry.set("onAccessConfigured", onAccessEnabledTelemetry, true);
     }
 
     bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed)

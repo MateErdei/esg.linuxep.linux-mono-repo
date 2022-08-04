@@ -36,6 +36,8 @@ namespace Plugin
         static bool isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy);
         [[nodiscard]] bool getSXL4LookupsEnabled() const;
 
+        static void setOnAccessConfiguredTelemetry(bool enabled);
+
     protected:
         virtual void notifyOnAccessProcess();
 
