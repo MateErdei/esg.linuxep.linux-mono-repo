@@ -17,19 +17,19 @@ Resource        ../shared/AVResources.robot
 Resource        ../shared/BaseResources.robot
 Resource        ../shared/AVAndBaseResources.robot
 
-Suite Setup     AVAndBase Suite Setup
-Suite Teardown  AVAndBase Suite Teardown
+Suite Setup     Telemetry Suite Setup
+Suite Teardown  Telemetry Suite Teardown
 
 Test Setup      AV And Base Setup
 Test Teardown   AV And Base Teardown
 
 *** Keywords ***
-AVAndBase Suite Setup
+Telemetry Suite Setup
     Install With Base SDDS
     Send Alc Policy
     Send Sav Policy With No Scheduled Scans
 
-AVAndBase Suite Teardown
+Telemetry Suite Teardown
     Uninstall All
 
 Log Telemetry files
