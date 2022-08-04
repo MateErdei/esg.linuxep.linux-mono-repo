@@ -6,9 +6,9 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "IReloadable.h"
-
 #include "sophos_threat_detector/threat_scanner/IThreatScannerFactory.h"
+
+#include "common/signals/IReloadable.h"
 
 #include <stdexcept>
 

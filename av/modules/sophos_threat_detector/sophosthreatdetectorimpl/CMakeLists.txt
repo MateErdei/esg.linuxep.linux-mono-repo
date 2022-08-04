@@ -13,7 +13,6 @@ add_library(sophosthreatdetectorimpl SHARED
         Logger.h
         Reloader.cpp
         Reloader.h
-        IReloadable.h
         ShutdownTimer.cpp
         ShutdownTimer.h
         SigUSR1Monitor.cpp

@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include "IReloadable.h"
-
+#include "common/signals/IReloadable.h"
 #include "common/signals/SignalHandlerBase.h"
 
 #include <Common/Threads/NotifyPipe.h>
