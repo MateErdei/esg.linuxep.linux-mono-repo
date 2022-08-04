@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "ClientSocketWrapper.h"
 #include "ReconnectSettings.h"
@@ -22,9 +18,9 @@ namespace avscanner::avscannerimpl
 {
     ClientSocketWrapper::ClientSocketWrapper(unixsocket::IScanningClientSocket& socket, const struct timespec& sleepTime)
         : m_socket(socket),
-        m_sigIntMonitor(common::SigIntMonitor::getSigIntMonitor()),
-        m_sigTermMonitor(common::SigTermMonitor::getSigTermMonitor()),
-        m_sigHupMonitor(common::SigHupMonitor::getSigHupMonitor()),
+        m_sigIntMonitor(common::SigIntMonitor::getSigIntMonitor(false)),
+        m_sigTermMonitor(common::SigTermMonitor::getSigTermMonitor(false)),
+        m_sigHupMonitor(common::SigHupMonitor::getSigHupMonitor(false)),
         m_reconnectAttempts(0),
         m_sleepTime(sleepTime)
     {
