@@ -5,12 +5,6 @@ add_library(common SHARED
         Logger.cpp
         Logger.h
         ShuttingDownException.h
-        SigHupMonitor.cpp
-        SigHupMonitor.h
-        SigIntMonitor.cpp
-        SigIntMonitor.h
-        SigTermMonitor.cpp
-        SigTermMonitor.h
         StringUtils.cpp
         StringUtils.h
         ThreadRunner.cpp
@@ -24,11 +18,17 @@ add_library(common SHARED
         ScanInterruptedException.h
         ScanManuallyInterruptedException.h
         signals/IReloadable.h
+        signals/SigHupMonitor.cpp
+        signals/SigHupMonitor.h
+        signals/SigIntMonitor.cpp
+        signals/SigIntMonitor.h
         signals/LatchingSignalHandler.cpp
         signals/LatchingSignalHandler.h
         signals/SignalHandlerBase.cpp
         signals/SignalHandlerBase.h
         signals/SignalHandlerTemplate.h
+        signals/SigTermMonitor.cpp
+        signals/SigTermMonitor.h
         signals/SigUSR1Monitor.cpp
         signals/SigUSR1Monitor.h
         )

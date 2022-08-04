@@ -1,6 +1,6 @@
 // Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
-#include "modules/common/SigIntMonitor.h"
+#include "common/signals/SigIntMonitor.h"
 
 #include <gtest/gtest.h>
 

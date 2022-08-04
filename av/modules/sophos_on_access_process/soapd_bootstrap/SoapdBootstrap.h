@@ -2,13 +2,10 @@
 
 #pragma once
 
-#include "OnAccessMountConfig.h"
+#include "mount_monitor/mount_monitor/MountMonitor.h"
 
-#include "mount_monitor/mountinfo/IMountInfo.h"
-
-#include "common/SigIntMonitor.h"
-#include "common/SigTermMonitor.h"
-
+#include "common/signals/SigIntMonitor.h"
+#include "common/signals/SigTermMonitor.h"
 
 namespace sophos_on_access_process::soapd_bootstrap
 {
@@ -17,8 +14,6 @@ namespace sophos_on_access_process::soapd_bootstrap
     public:
         static int runSoapd();
 
-        static mount_monitor::mountinfo::IMountPointSharedVector getIncludedMountpoints(
-            const OnAccessMountConfig& config, const mount_monitor::mountinfo::IMountPointSharedVector& allMountpoints);
         static void innerRun(
             std::shared_ptr<common::SigIntMonitor>& sigIntMonitor,
             std::shared_ptr<common::SigTermMonitor>& sigTermMonitor,

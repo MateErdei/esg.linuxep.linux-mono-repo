@@ -10,7 +10,7 @@
 #include "common/Define.h"
 #include "common/FDUtils.h"
 #include "common/SaferStrerror.h"
-#include "common/SigTermMonitor.h"
+#include "common/signals/SigTermMonitor.h"
 #include "common/signals/SigUSR1Monitor.h"
 
 #ifdef USE_SUSI

@@ -2,8 +2,9 @@
 
 #include "SigTermMonitor.h"
 // Package
-#include "Logger.h"
-#include "signals/SignalHandlerTemplate.h"
+#include "SignalHandlerTemplate.h"
+
+#include "common/Logger.h"
 // Std C++
 #include <csignal>
 

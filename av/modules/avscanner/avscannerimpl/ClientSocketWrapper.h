@@ -7,11 +7,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "IClientSocketWrapper.h"
+
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 
-#include "common/SigIntMonitor.h"
-#include "common/SigTermMonitor.h"
-#include "common/SigHupMonitor.h"
+#include "common/signals/SigHupMonitor.h"
+#include "common/signals/SigIntMonitor.h"
+#include "common/signals/SigTermMonitor.h"
 
 namespace avscanner::avscannerimpl
 {

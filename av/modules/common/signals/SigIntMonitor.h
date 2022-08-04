@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "signals/LatchingSignalHandler.h"
+#include "LatchingSignalHandler.h"
 
 #include <memory>
 

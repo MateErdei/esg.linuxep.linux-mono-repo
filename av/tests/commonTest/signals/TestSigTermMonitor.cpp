@@ -1,7 +1,8 @@
 // Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
+#include "common/signals/SigTermMonitor.h"
+
 #include <gtest/gtest.h>
-#include "common/SigTermMonitor.h"
 
 namespace
 {
