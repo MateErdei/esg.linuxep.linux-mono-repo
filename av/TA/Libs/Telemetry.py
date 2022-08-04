@@ -26,6 +26,7 @@ def check_telemetry(telemetry):
     assert "threatHealth" in av_dict, "No Threat Health value in telemetry"
     assert "threatMemoryUsage" in av_dict, "No Threat Memory Usage in telemetry"
     assert "threatProcessAge" in av_dict, "No Threat Process Age in telemetry"
+    assert "onAccessConfigured" in av_dict, "No onAccessConfigured in telemetry"
     assert av_dict["lr-data-hash"] != "unknown", "LR Data Hash is set to unknown in telemetry"
     assert av_dict["ml-lib-hash"] != "unknown", "ML Lib Hash is set to unknown in telemetry"
     assert av_dict["ml-pe-model-version"] != "unknown", "No ML-PE Model is set to unknown in telemetry"

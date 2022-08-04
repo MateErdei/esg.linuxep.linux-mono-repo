@@ -65,7 +65,7 @@ AV plugin runs scheduled scan and updates telemetry
 
 
 AV Plugin Can Send Telemetry
-    # TODO - assumes threat health is 1 (good)
+    # Assumes threat health is 1 (good)
     Run Telemetry Executable With HTTPS Protocol    port=${4431}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
