@@ -8,24 +8,26 @@
 // Std C++
 #include <csignal>
 
+using namespace common::signals;
+
 static int SIGHUP_MONITOR_PIPE = -1; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-common::SigHupMonitor::SigHupMonitor(bool restartSyscalls)
+SigHupMonitor::SigHupMonitor(bool restartSyscalls)
     : LatchingSignalHandler(SIGHUP)
 {
     // Setup signal handler
-    SIGHUP_MONITOR_PIPE = setSignalHandler(common::signals::signal_handler<SIGHUP_MONITOR_PIPE>, restartSyscalls);
+    SIGHUP_MONITOR_PIPE = setSignalHandler(signal_handler<SIGHUP_MONITOR_PIPE>, restartSyscalls);
 }
 
-common::SigHupMonitor::~SigHupMonitor()
+SigHupMonitor::~SigHupMonitor()
 {
     // clear signal handler
     SIGHUP_MONITOR_PIPE = -1;
     clearSignalHandler();
 }
 
-std::shared_ptr<common::SigHupMonitor> common::SigHupMonitor::getSigHupMonitor(bool restartSyscalls)
+std::shared_ptr<SigHupMonitor> SigHupMonitor::getSigHupMonitor(bool restartSyscalls)
 {
-    static std::shared_ptr<common::SigHupMonitor> monitor(std::make_shared<common::SigHupMonitor>(restartSyscalls));
+    static std::shared_ptr<SigHupMonitor> monitor(std::make_shared<SigHupMonitor>(restartSyscalls));
     return monitor;
 }

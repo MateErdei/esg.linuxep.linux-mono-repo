@@ -33,8 +33,8 @@ int SoapdBootstrap::runSoapd()
     LOGINFO("Sophos on access process started");
     // Implement soapd
 
-    std::shared_ptr<common::SigIntMonitor> sigIntMonitor{common::SigIntMonitor::getSigIntMonitor()};
-    std::shared_ptr<common::SigTermMonitor> sigTermMonitor{common::SigTermMonitor::getSigTermMonitor(true)};
+    auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
+    auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
@@ -58,8 +58,8 @@ int SoapdBootstrap::runSoapd()
 }
 
 void SoapdBootstrap::innerRun(
-    std::shared_ptr<common::SigIntMonitor>& sigIntMonitor,
-    std::shared_ptr<common::SigTermMonitor>& sigTermMonitor,
+    std::shared_ptr<common::signals::SigIntMonitor>& sigIntMonitor,
+    std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor,
     Common::Threads::NotifyPipe pipe)
 {
     mount_monitor::mount_monitor::OnAccessMountConfig config;

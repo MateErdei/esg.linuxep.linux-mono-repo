@@ -18,9 +18,9 @@ namespace avscanner::avscannerimpl
 {
     ClientSocketWrapper::ClientSocketWrapper(unixsocket::IScanningClientSocket& socket, const struct timespec& sleepTime)
         : m_socket(socket),
-        m_sigIntMonitor(common::SigIntMonitor::getSigIntMonitor(false)),
-        m_sigTermMonitor(common::SigTermMonitor::getSigTermMonitor(false)),
-        m_sigHupMonitor(common::SigHupMonitor::getSigHupMonitor(false)),
+        m_sigIntMonitor(common::signals::SigIntMonitor::getSigIntMonitor(false)),
+        m_sigTermMonitor(common::signals::SigTermMonitor::getSigTermMonitor(false)),
+        m_sigHupMonitor(common::signals::SigHupMonitor::getSigHupMonitor(false)),
         m_reconnectAttempts(0),
         m_sleepTime(sleepTime)
     {

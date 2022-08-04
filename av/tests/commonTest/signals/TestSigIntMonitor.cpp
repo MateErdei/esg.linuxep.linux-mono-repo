@@ -6,12 +6,14 @@
 
 #include <csignal>
 
+using common::signals::SigIntMonitor;
+
 namespace
 {
     class TestSigIntMonitor: public ::testing::Test
     {
     public:
-        common::SigIntMonitor m_monitor;
+        SigIntMonitor m_monitor;
     };
 }
 

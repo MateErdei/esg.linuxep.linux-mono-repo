@@ -4,6 +4,8 @@
 
 #include <gtest/gtest.h>
 
+using common::signals::SigTermMonitor;
+
 namespace
 {
     class TestSigTermMonitor: public ::testing::Test
@@ -13,14 +15,23 @@ namespace
 
 TEST_F(TestSigTermMonitor, testConstruction)
 {
-    common::SigTermMonitor monitor(true);
+    SigTermMonitor monitor(true);
     EXPECT_FALSE(monitor.triggered());
 }
 
 TEST_F(TestSigTermMonitor, triggerNotified)
 {
-    common::SigTermMonitor monitor(false);
+    SigTermMonitor monitor(false);
     EXPECT_FALSE(monitor.triggered());
     ::kill(::getpid(), SIGTERM);
+    EXPECT_TRUE(monitor.triggered());
+}
+
+TEST_F(TestSigTermMonitor, triggerLatches)
+{
+    SigTermMonitor monitor(false);
+    EXPECT_FALSE(monitor.triggered());
+    ::kill(::getpid(), SIGTERM);
+    EXPECT_TRUE(monitor.triggered());
     EXPECT_TRUE(monitor.triggered());
 }

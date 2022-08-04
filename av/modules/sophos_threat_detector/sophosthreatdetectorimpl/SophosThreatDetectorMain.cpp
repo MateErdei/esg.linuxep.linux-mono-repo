@@ -282,7 +282,7 @@ namespace sspl::sophosthreatdetectorimpl
 
         int inner_main()
         {
-            common::SigTermMonitor sigTermMonitor{true};
+            common::signals::SigTermMonitor sigTermMonitor{true};
 
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");

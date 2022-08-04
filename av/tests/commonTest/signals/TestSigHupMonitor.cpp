@@ -11,7 +11,7 @@ namespace
     };
 }
 
-using common::SigHupMonitor;
+using common::signals::SigHupMonitor;
 
 TEST_F(TestSigHupMonitor, testConstruction)
 {

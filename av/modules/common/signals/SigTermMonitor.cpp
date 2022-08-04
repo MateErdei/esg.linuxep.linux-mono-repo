@@ -8,7 +8,7 @@
 // Std C++
 #include <csignal>
 
-namespace common
+namespace common::signals
 {
     namespace
     {

@@ -36,9 +36,9 @@ namespace avscanner::avscannerimpl
         void checkIfScanAborted();
 
         unixsocket::IScanningClientSocket& m_socket;
-        std::shared_ptr<common::SigIntMonitor> m_sigIntMonitor;
-        std::shared_ptr<common::SigTermMonitor> m_sigTermMonitor;
-        std::shared_ptr<common::SigHupMonitor> m_sigHupMonitor;
+        std::shared_ptr<common::signals::SigIntMonitor> m_sigIntMonitor;
+        std::shared_ptr<common::signals::SigTermMonitor> m_sigTermMonitor;
+        std::shared_ptr<common::signals::SigHupMonitor> m_sigHupMonitor;
         int m_reconnectAttempts;
         struct timespec m_sleepTime;
     };

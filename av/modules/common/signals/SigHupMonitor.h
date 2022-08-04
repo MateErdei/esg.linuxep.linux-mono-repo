@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace common
+namespace common::signals
 {
     class SigHupMonitor : public common::signals::LatchingSignalHandler
     {
