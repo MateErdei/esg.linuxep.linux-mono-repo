@@ -606,6 +606,11 @@ AV Plugin Can Send Telemetry
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 AV Plugin sends non-zero processInfo to Telemetry
+    # System file changes can cause ThreatDetector to be restarted while telemetry
+    # is being fetched
+    Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
+    Register Cleanup  Remove File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
+
     Restart sophos_threat_detector and mark logs
     Run Telemetry Executable With HTTPS Protocol    port=${4432}
 
