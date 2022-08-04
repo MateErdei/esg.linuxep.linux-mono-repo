@@ -27,7 +27,12 @@ def create_sav_policy_with_scheduled_scan(filename, timestamp):
 def create_sav_policy_with_multiple_scheduled_scans(filename, timestamp, no_of_scans=2):
     timestamp_builder = ""
     parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
-    day = calendar.day_name[parsed_timestamp.weekday()].lower()
+    # Cover today and tomorrow, to handle time wrap around
+    day = parsed_timestamp.weekday()
+    days = [
+        calendar.day_name[day].lower(),
+        calendar.day_name[(day+1) % 7].lower()
+    ]
     assert no_of_scans >= 1
 
     for scan in range(no_of_scans):
@@ -35,6 +40,7 @@ def create_sav_policy_with_multiple_scheduled_scans(filename, timestamp, no_of_s
         timestamp_builder += "<time>" + (parsed_timestamp + delta).strftime("%H:%M:%S") + "</time>\n\t\t\t"
 
     sav_policy_builder = _SavPolicyBuilder(RESOURCES_DIR+"/SAV_Policy_Configurable_Multiple_Scheduled_Scans.xml", filename)
+    day = "</day><day>".join(days)
     sav_policy_builder.set_scheduled_scan_day(day)
     sav_policy_builder.set_scheduled_scan_time(timestamp_builder)
     sav_policy_builder.send_sav_policy()
