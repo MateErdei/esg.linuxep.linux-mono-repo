@@ -37,18 +37,10 @@ Log Telemetry files
     Log  Telemetry files: ${result.stdout} code ${result.rc}
     Debug Telemetry  ${SSPL_BASE}/bin/telemetry
 
-Remove Users Stop Processes
-    ${rc}   ${output} =    Run And Return Rc And Output    pgrep av
-    Run Process   /bin/kill   -SIGKILL   ${output}
-    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
-    Run Process   /bin/kill   -SIGKILL   ${output}
-    Run Process  /usr/sbin/userdel   sophos-spl-av
-    Run Process  /usr/sbin/userdel   sophos-spl-threat-detector
-
 *** Test Cases ***
 
 AV plugin runs scheduled scan and updates telemetry
-    [Tags]  SLOW  RHEL7  TELEMETRY
+    [Tags]  SLOW  RHEL7
     #Register On Fail  Log Telemetry files
     Log Telemetry files
 
