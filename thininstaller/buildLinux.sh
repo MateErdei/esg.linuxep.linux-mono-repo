@@ -170,6 +170,9 @@ function build()
     make copyInstaller || exitFailure $FAILED_TO_COPY_INSTALLED "Failed to copy installer"
     popd
 
+    echo "Bundled libs:"
+    ls -l installer/lib64
+
     mkdir -p output
     tar cf partial_installer.tar installer/*
     rm -f partial_installer.tar.gz
