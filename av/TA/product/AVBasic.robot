@@ -538,7 +538,7 @@ Start AV
     Register Cleanup   Terminate And Wait until threat detector not running  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
-    Register Cleanup   Terminate Process  ${AV_PLUGIN_HANDLE}
+    Register Cleanup   Terminate And Wait until AV Plugin not running  ${AV_PLUGIN_HANDLE}
     Check AV Plugin Installed With Offset
 
 AVBasic Suite Setup

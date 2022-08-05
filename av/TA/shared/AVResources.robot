@@ -452,6 +452,13 @@ Wait until AV Plugin running with offset
     ...  Check Plugin Running
     Wait Until AV Plugin Log Contains With Offset  Common <> Starting scanScheduler  timeout=40
 
+Wait until AV Plugin not running
+    [Arguments]  ${timeout}=30
+    Wait Until Keyword Succeeds
+    ...  ${timeout} secs
+    ...  3 secs
+    ...  Check AV Plugin Not Running
+
 Wait Until On Access running
     ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
     Wait Until Keyword Succeeds
@@ -1063,3 +1070,8 @@ Terminate And Wait until threat detector not running
     [Arguments]   ${handle}
     Terminate Process  ${handle}
     Wait until threat detector not running
+
+Terminate And Wait until AV Plugin not running
+    [Arguments]   ${handle}
+    Terminate Process  ${handle}
+    Wait until AV Plugin not running

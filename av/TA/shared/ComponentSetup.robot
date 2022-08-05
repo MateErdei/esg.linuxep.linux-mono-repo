@@ -17,14 +17,8 @@ Component Test Setup
 Component Test TearDown
     # Stop Fake Management
     Terminate All Processes  kill=True
-    Wait Until Keyword Succeeds
-        ...  30 secs
-        ...  2 secs
-        ...  Check AV Plugin Not Running
-    Wait Until Keyword Succeeds
-        ...  30 secs
-        ...  2 secs
-        ...  Check Threat Detector Not Running
+    Wait until AV Plugin not running
+    Wait until Threat Detector not running
 
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log  encoding_errors=replace
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}  encoding_errors=replace
