@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "common/RecordingMockSocket.h"
 #include "../SoapMemoryAppenderUsingTests.h"
@@ -49,10 +45,11 @@ namespace
 TEST_F(TestClientSocketWrapper, Construction)
 {
     MockIScanningClientSocket socket {};
+    Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect).Times(1);
 
-    ClientSocketWrapper csw {socket};
+    ClientSocketWrapper csw {socket, notifyPipe};
 }
 
 TEST_F(TestClientSocketWrapper, Scan)
@@ -63,9 +60,10 @@ TEST_F(TestClientSocketWrapper, Scan)
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
+    Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect).Times(1);
-    ClientSocketWrapper csw {socket};
+    ClientSocketWrapper csw {socket, notifyPipe};
 
     {
         InSequence seq;
@@ -92,12 +90,13 @@ TEST_F(TestClientSocketWrapper, Scan)
 TEST_F(TestClientSocketWrapper, ConnectFails)
 {
     MockIScanningClientSocket socket {};
+    Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect())
         .Times(1)
         .WillOnce(Return(-1));
 
-    EXPECT_THROW(ClientSocketWrapper csw {socket}, ClientSocketException);
+    EXPECT_THROW(ClientSocketWrapper csw(socket, notifyPipe), ClientSocketException);
 }
 
 TEST_F(TestClientSocketWrapper, SendFails)
@@ -108,9 +107,10 @@ TEST_F(TestClientSocketWrapper, SendFails)
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
+    Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect).Times(1);
-    ClientSocketWrapper csw {socket};
+    ClientSocketWrapper csw {socket, notifyPipe};
 
     EXPECT_CALL(socket, sendRequest(_, _))
             .WillOnce(Return(false));
@@ -126,9 +126,10 @@ TEST_F(TestClientSocketWrapper, ReceiveFails)
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
+    Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect).Times(1);
-    ClientSocketWrapper csw {socket};
+    ClientSocketWrapper csw {socket, notifyPipe};
 
     {
         InSequence seq;
@@ -143,4 +144,33 @@ TEST_F(TestClientSocketWrapper, ReceiveFails)
     }
 
     EXPECT_THROW(csw.scan(fd, request), ClientSocketException);
+}
+
+TEST_F(TestClientSocketWrapper, ScanTerminates)
+{
+    datatypes::AutoFd fd {};
+
+    scan_messages::ClientScanRequest request;
+    scan_messages::ScanResponse response;
+
+    MockIScanningClientSocket socket {};
+    Common::Threads::NotifyPipe notifyPipe {};
+
+    EXPECT_CALL(socket, connect).Times(1);
+    ClientSocketWrapper csw {socket, notifyPipe};
+
+    notifyPipe.notify();
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(socket, sendRequest(_, _))
+            .WillOnce(Return(true));
+        EXPECT_CALL(socket, socketFd)
+            .Times(1);
+    }
+    EXPECT_CALL(socket, receiveResponse(_))
+        .Times(0);
+
+    EXPECT_THROW(csw.scan(fd, request), ScanInterruptedException);
 }

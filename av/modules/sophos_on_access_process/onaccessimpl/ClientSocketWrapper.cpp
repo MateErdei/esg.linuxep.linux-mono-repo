@@ -1,26 +1,17 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "ClientSocketWrapper.h"
 #include "Logger.h"
 
-#include "common/ScanManuallyInterruptedException.h"
-#include "common/ScanInterruptedException.h"
 #include <common/StringUtils.h>
 
 #include <poll.h>
 
 namespace sophos_on_access_process::onaccessimpl
 {
-    ClientSocketWrapper::ClientSocketWrapper(unixsocket::IScanningClientSocket& socket)
+    ClientSocketWrapper::ClientSocketWrapper(unixsocket::IScanningClientSocket& socket, Common::Threads::NotifyPipe& notifyPipe)
         : m_socket(socket),
-        m_sigIntMonitor(common::SigIntMonitor::getSigIntMonitor()),
-        m_sigTermMonitor(common::SigTermMonitor::getSigTermMonitor()),
-        m_sigHupMonitor(common::SigHupMonitor::getSigHupMonitor())
-
+        m_notifyPipe(notifyPipe)
     {
         ClientSocketWrapper::connect();
     }
@@ -58,9 +49,7 @@ namespace sophos_on_access_process::onaccessimpl
     {
         struct pollfd fds[] {
             { .fd = m_socket.socketFd(), .events = POLLIN, .revents = 0 },
-            { .fd = m_sigHupMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-            { .fd = m_sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-            { .fd = m_sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
+            { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
         };
 
         while (true)
@@ -88,22 +77,10 @@ namespace sophos_on_access_process::onaccessimpl
 
     void ClientSocketWrapper::checkIfScanAborted()
     {
-        if (m_sigIntMonitor->triggered())
+        if (m_notifyPipe.notified())
         {
-            LOGDEBUG("Received SIGINT");
-            throw ScanManuallyInterruptedException("Scan manually aborted");
-        }
-
-        if (m_sigTermMonitor->triggered())
-        {
-            LOGDEBUG("Received SIGTERM");
-            throw ScanInterruptedException("Scan aborted due to environment interruption");
-        }
-
-        if (m_sigHupMonitor->triggered())
-        {
-            LOGDEBUG("Received SIGHUP");
-            throw ScanInterruptedException("Scan aborted due to environment interruption");
+            LOGDEBUG("Received stop notification");
+            throw ScanInterruptedException("Scanner received stop notification");
         }
     }
 }

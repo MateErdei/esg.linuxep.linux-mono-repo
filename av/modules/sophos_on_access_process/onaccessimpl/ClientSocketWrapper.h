@@ -1,18 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include "ClientSocketException.h"
+
 #include "avscanner/avscannerimpl/IClientSocketWrapper.h"
+#include "common/ScanInterruptedException.h"
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 
-#include "common/SigIntMonitor.h"
-#include "common/SigTermMonitor.h"
-#include "common/SigHupMonitor.h"
+#include "Common/Threads/NotifyPipe.h"
 
 namespace sophos_on_access_process::onaccessimpl
 {
@@ -21,7 +17,7 @@ namespace sophos_on_access_process::onaccessimpl
     public:
         ClientSocketWrapper(const ClientSocketWrapper&) = delete;
         ClientSocketWrapper(ClientSocketWrapper&&) = default;
-        explicit ClientSocketWrapper(unixsocket::IScanningClientSocket& socket);
+        explicit ClientSocketWrapper(unixsocket::IScanningClientSocket& socket, Common::Threads::NotifyPipe& notifyPipe);
         ~ClientSocketWrapper() override = default;
         ClientSocketWrapper& operator=(const ClientSocketWrapper&) = delete;
 
@@ -33,8 +29,6 @@ namespace sophos_on_access_process::onaccessimpl
         void checkIfScanAborted();
 
         unixsocket::IScanningClientSocket& m_socket;
-        std::shared_ptr<common::SigIntMonitor> m_sigIntMonitor;
-        std::shared_ptr<common::SigTermMonitor> m_sigTermMonitor;
-        std::shared_ptr<common::SigHupMonitor> m_sigHupMonitor;
+        Common::Threads::NotifyPipe& m_notifyPipe;
     };
 }
