@@ -10,15 +10,15 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-<!--            <release-version branch="release/2022-30"-->
-<!--                             build-id="20220718120117-9dd78bad548b4fdac7e57486f970d58cd5272f21-veR5uL"/>-->
-            <development-version branch="feature/LINUXDAR-5162-upgrade-openssl"/>
+            <release-version branch="release/2022-30"
+                             build-id="20220718120117-9dd78bad548b4fdac7e57486f970d58cd5272f21-veR5uL"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="sau">
-<!--            <release-version branch="release/2022-30-linux"-->
-<!--                             build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>-->
+            <release-version branch="release/2022-30-linux"
+                             build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>
             <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="input/sdds3"/>
         </build-asset>
