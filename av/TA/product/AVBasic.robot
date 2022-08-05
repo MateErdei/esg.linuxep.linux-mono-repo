@@ -5,7 +5,6 @@ Library         Collections
 Library         DateTime
 Library         Process
 Library         OperatingSystem
-Library         ../Libs/CoreDumps.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
@@ -527,6 +526,18 @@ Threat Detector Does Not Restart If Sometimes-symlinked System File Contents Do 
 
 
 *** Keywords ***
+Start AV
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    mark av log
+    mark sophos threat detector log
+    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
+    Register Cleanup   Terminate And Wait until threat detector not running  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
+    Register Cleanup   Terminate Process  ${AV_PLUGIN_HANDLE}
+    Check AV Plugin Installed With Offset
+
 AVBasic Suite Setup
     Start Fake Management If Required
     Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
@@ -549,6 +560,7 @@ Clear Logs
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}*
+    Start AV
 
 Product Test Setup
     SystemFileWatcher.Start Watching System Files
@@ -574,10 +586,6 @@ Product Test Teardown
     run teardown functions
 
     Component Test TearDown
-
-    ${result} =  Run Process  ps  -ef   |    grep   sophos  stderr=STDOUT  shell=yes
-    Log  output is ${result.stdout}
-
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
     #Run clear logs only after we stopped all the processes
     ${result} =   Check If The Logs Are Close To Rotating
