@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -14,6 +10,17 @@ namespace sync_versioned_files
 {
     using path_t = fs::path;
 
+    /**
+     * Full synchronize between src to dest
+     *
+     * Copy changed files
+     * Delete removed files
+     * Copy new files
+     *
+     * @param src
+     * @param dest
+     * @return 0 for success, 1 for failure to copy changed files, 2 for failure to copy new files
+     */
     int copy(const path_t& src, const path_t& dest);
 
     int sync_versioned_files(const fs::path& src, const fs::path& dest, bool isVersioned=true);

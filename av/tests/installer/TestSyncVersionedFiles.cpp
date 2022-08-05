@@ -1,10 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "sync_versioned_files.h"
+
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <gtest/gtest.h>
 
@@ -34,16 +32,28 @@ namespace
             fs::remove_all(m_testDir);
         }
 
-        void create_file(const fs::path &p)
+        void create_file(const fs::path& p)
         {
             std::ofstream(p).close();
+        }
+
+        void create_file(const fs::path& p, const std::string& contents)
+        {
+            std::ofstream s(p);
+            s << contents;
+            s.close();
+        }
+
+        std::string read_file(const fs::path& p)
+        {
+            return Common::FileSystem::fileSystem()->readFile(p);
         }
 
         fs::path m_testDir;
     };
 } // namespace
 
-TEST_F(TestSyncVersionedFiles, testStartsWith_true) // NOLINT
+TEST_F(TestSyncVersionedFiles, testStartsWith_true)
 {
     fs::path a("/a/b/c/d");
     fs::path s("/a/b/c");
@@ -51,7 +61,7 @@ TEST_F(TestSyncVersionedFiles, testStartsWith_true) // NOLINT
 }
 
 
-TEST_F(TestSyncVersionedFiles, testStartsWith_false) // NOLINT
+TEST_F(TestSyncVersionedFiles, testStartsWith_false)
 {
     fs::path a("/a/b/c/d");
     fs::path s("/a/b/f");
@@ -59,7 +69,7 @@ TEST_F(TestSyncVersionedFiles, testStartsWith_false) // NOLINT
 }
 
 
-TEST_F(TestSyncVersionedFiles, testSuffix) // NOLINT
+TEST_F(TestSyncVersionedFiles, testSuffix)
 {
     fs::path a("/a/b/c/d");
     fs::path s("/a/b/c");
@@ -67,7 +77,7 @@ TEST_F(TestSyncVersionedFiles, testSuffix) // NOLINT
     EXPECT_EQ(actual_suffix.string(), "d");
 }
 
-TEST_F(TestSyncVersionedFiles, testPathSlash) // NOLINT
+TEST_F(TestSyncVersionedFiles, testPathSlash)
 {
     fs::path a("d");
     fs::path s2("/a/b/f");
@@ -75,7 +85,7 @@ TEST_F(TestSyncVersionedFiles, testPathSlash) // NOLINT
     EXPECT_EQ(combined.string(), "/a/b/f/d");
 }
 
-TEST_F(TestSyncVersionedFiles, testReplaceStem) // NOLINT
+TEST_F(TestSyncVersionedFiles, testReplaceStem)
 {
     fs::path a("/a/b/c/d");
     fs::path s("/a/b/c");
@@ -144,6 +154,110 @@ TEST_F(TestSyncVersionedFiles, testDeleteRemovedFile_oneMissing)
     EXPECT_FALSE(fs::exists(testfile));
 }
 
+TEST_F(TestSyncVersionedFiles, copyNoFiles)
+{
+    fs::path src = m_testDir / "src";
+    fs::path dest = m_testDir / "dest";
+    fs::create_directory(src);
+
+    int ret = sync_versioned_files::copy(src, dest);
+    EXPECT_EQ(ret, 0);
+    EXPECT_TRUE(fs::is_directory(dest));
+}
+
+TEST_F(TestSyncVersionedFiles, copyDestExists)
+{
+    fs::path src = m_testDir / "src";
+    fs::path dest = m_testDir / "dest";
+    fs::create_directory(src);
+    fs::create_directory(dest);
+
+    int ret = sync_versioned_files::copy(src, dest);
+    EXPECT_EQ(ret, 0);
+    EXPECT_TRUE(fs::is_directory(dest));
+}
+
+TEST_F(TestSyncVersionedFiles, copyNewFile)
+{
+    fs::path src = m_testDir / "src";
+    fs::path dest = m_testDir / "dest";
+    fs::create_directory(src);
+    fs::create_directory(dest);
+    create_file(src / "exists");
+
+    int ret = sync_versioned_files::copy(src, dest);
+    EXPECT_EQ(ret, 0);
+    EXPECT_TRUE(fs::is_directory(dest));
+    EXPECT_TRUE(fs::is_regular_file(dest / "exists"));
+}
+
+TEST_F(TestSyncVersionedFiles, copy2NewFiles)
+{
+    fs::path src = m_testDir / "src";
+    fs::path dest = m_testDir / "dest";
+    fs::create_directory(src);
+    fs::create_directory(dest);
+    create_file(src / "exists");
+    create_file(src / "exists2");
+
+    int ret = sync_versioned_files::copy(src, dest);
+    EXPECT_EQ(ret, 0);
+    EXPECT_TRUE(fs::is_directory(dest));
+    EXPECT_TRUE(fs::is_regular_file(dest / "exists"));
+    EXPECT_TRUE(fs::is_regular_file(dest / "exists2"));
+}
+
+TEST_F(TestSyncVersionedFiles, copyChangedFileSameSize)
+{
+    fs::path src = m_testDir / "src";
+    fs::path dest = m_testDir / "dest";
+    fs::create_directory(src);
+    fs::create_directory(dest);
+    create_file(dest / "exists", "old_contents");
+    std::string new_contents = "new_contents";
+    create_file(src / "exists", new_contents);
+
+    int ret = sync_versioned_files::copy(src, dest);
+    EXPECT_EQ(ret, 0);
+    EXPECT_TRUE(fs::is_directory(dest));
+    EXPECT_TRUE(fs::is_regular_file(dest / "exists"));
+    auto contents = read_file(dest / "exists");
+
+    EXPECT_EQ(contents, new_contents);
+}
+
+TEST_F(TestSyncVersionedFiles, copyChangedFileDifferentSizes)
+{
+    fs::path src = m_testDir / "src";
+    fs::path dest = m_testDir / "dest";
+    fs::create_directory(src);
+    fs::create_directory(dest);
+    create_file(dest / "exists", "old_contents that are a different size");
+    std::string new_contents = "new_contents";
+    create_file(src / "exists", new_contents);
+
+    int ret = sync_versioned_files::copy(src, dest);
+    EXPECT_EQ(ret, 0);
+    EXPECT_TRUE(fs::is_directory(dest));
+    EXPECT_TRUE(fs::is_regular_file(dest / "exists"));
+    auto contents = read_file(dest / "exists");
+
+    EXPECT_EQ(contents, new_contents);
+}
+
+TEST_F(TestSyncVersionedFiles, copyDeleteRemovedFile)
+{
+    fs::path src = m_testDir / "src";
+    fs::path dest = m_testDir / "dest";
+    fs::create_directory(src);
+    fs::create_directory(dest);
+    create_file(dest / "exists", "old_contents");
+
+    int ret = sync_versioned_files::copy(src, dest);
+    EXPECT_EQ(ret, 0);
+    EXPECT_FALSE(fs::is_regular_file(dest / "exists"));
+}
+
 class SyncVersionedFilesParameterizedTest
     : public ::testing::TestWithParam<bool>
 {
@@ -173,8 +287,7 @@ protected:
     fs::path m_testDir;
 };
 
-INSTANTIATE_TEST_CASE_P(TestSyncVersionedFiles, SyncVersionedFilesParameterizedTest, ::testing::Values(true, false)); // NOLINT
-
+INSTANTIATE_TEST_SUITE_P(TestSyncVersionedFiles, SyncVersionedFilesParameterizedTest, ::testing::Values(true, false));
 TEST_P(SyncVersionedFilesParameterizedTest, testSyncVersionedFiles)
 {
     bool isVersioned = GetParam();
