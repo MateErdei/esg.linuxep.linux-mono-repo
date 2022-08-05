@@ -46,6 +46,7 @@ Recreate Installation In Temp Dir
     Create Directory    ${InstallProductsDir}
 
 Setup For Test
+    Require Installed
     Recreate Installation In Temp Dir
     Copy file  ${SUPPORT_FILES}/sophos_certs/ps_rootca.crt   ${SOPHOS_INSTALL}/base/update/rootcerts/
     Copy file  ${SUPPORT_FILES}/sophos_certs/rootca.crt   ${SOPHOS_INSTALL}/base/update/rootcerts/

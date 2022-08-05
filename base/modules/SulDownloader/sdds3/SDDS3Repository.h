@@ -18,9 +18,6 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 
 namespace SulDownloader
 {
-    static const std::string DEFAULT_SERVICE_URL = "https://sus.sophosupd.com";
-    static const std::vector<std::string> DEFAULT_UPDATE_URLS = { "https://sdds3.sophosupd.com:443",
-                                                                  "https://sdds3.sophosupd.net:443" };
     static const int DEFAULT_TIMEOUT_S = 5;
 
     class SDDS3Repository : public virtual suldownloaderdata::ISdds3Repository
@@ -44,7 +41,9 @@ namespace SulDownloader
         std::vector<suldownloaderdata::ProductInfo> listInstalledProducts() const override;
         void purge() const override;
         SDDS3Repository();
-        void synchronize(const suldownloaderdata::ConfigurationData& configurationData) override;
+        bool synchronize(
+            const suldownloaderdata::ConfigurationData& configurationData,
+            const suldownloaderdata::ConnectionSetup& connectionSetup) override;
         void distribute() override;
 
         /***

@@ -11,6 +11,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 using namespace SulDownloader::suldownloaderdata;
 
 const std::string Proxy::NoProxy("noproxy:");              // nolint
+// if you change this const you will also need to change it in the sau Linuxhttp lib so that the sdds3lib continues to work
 const std::string Proxy::EnvironmentProxy("environment:"); // nolint
 
 Proxy::Proxy(std::string url, SulDownloader::suldownloaderdata::ProxyCredentials credentials) :

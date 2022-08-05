@@ -483,6 +483,10 @@ Check Sul Downloader log contains
     [Arguments]  ${contents}
     Check Log Contains   ${contents}    ${SULDOWNLOADER_LOG_PATH}   ${SULDOWNLOADER_LOG_PATH}
 
+Check Sul Downloader log does not contain
+    [Arguments]  ${contents}
+    check_log_does_not_contain   ${contents}    ${SULDOWNLOADER_LOG_PATH}   ${SULDOWNLOADER_LOG_PATH}
+
 Fail Update Install And Check Status Shows Good Install State
     Remove File    ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
     Setup Plugin Install Failed  startTime=2

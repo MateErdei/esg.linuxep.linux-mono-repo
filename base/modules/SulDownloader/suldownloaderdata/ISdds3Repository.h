@@ -27,7 +27,9 @@ namespace SulDownloader
 
             virtual ~ISdds3Repository() = default;
 
-            virtual void synchronize(const ConfigurationData& configurationData) = 0;
+            virtual bool synchronize(
+                const suldownloaderdata::ConfigurationData& configurationData,
+                const suldownloaderdata::ConnectionSetup& connectionSetup) = 0;
 //                                     std::set<std::string>& suites,
 //                                     std::set<std::string>& releaseGroups) = 0;
 

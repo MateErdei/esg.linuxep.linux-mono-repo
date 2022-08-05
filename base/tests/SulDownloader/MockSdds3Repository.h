@@ -23,7 +23,7 @@ public:
     MOCK_CONST_METHOD0(hasError, bool(void));
     MOCK_CONST_METHOD0(hasImmediateFailError, bool(void));
     MOCK_CONST_METHOD0(getError, suldownloaderdata::RepositoryError(void));
-    MOCK_METHOD1(synchronize, void(const suldownloaderdata::ConfigurationData& configurationData));
+    MOCK_METHOD2(synchronize, bool(const suldownloaderdata::ConfigurationData& configurationData,const suldownloaderdata::ConnectionSetup& connectionSetup));
     MOCK_METHOD0(distribute, void(void));
     MOCK_CONST_METHOD0(purge, void(void));
     MOCK_CONST_METHOD0(getProducts, std::vector<suldownloaderdata::DownloadedProduct>(void));

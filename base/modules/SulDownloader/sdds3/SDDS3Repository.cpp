@@ -242,12 +242,11 @@ namespace SulDownloader
         return "SophosUpdate/SDDS/3.0 (t=\"" + tenant_id + "\" d=\"" + device_id + "\" os=\"Linux\")";
     }
 
-    void SDDS3Repository::synchronize(const suldownloaderdata::ConfigurationData& configurationData)
+    bool SDDS3Repository::synchronize(
+        const suldownloaderdata::ConfigurationData& configurationData,
+        const suldownloaderdata::ConnectionSetup& connectionSetup)
     {
-        if (hasError())
-        {
-            return;
-        }
+        m_error.reset(); // Clear error for retry
 
         std::set<std::string>& suites = m_dataToSync.suites;
         std::set<std::string>& releaseGroups = m_dataToSync.releaseGroups;
@@ -262,53 +261,65 @@ namespace SulDownloader
             LOGDEBUG("Release Group: '" << releaseGroup << "' is available to be downloaded." );
         }
 
+        m_session = std::make_shared<sdds3::Session>(
+            Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath());
+        std::string srcUrl = connectionSetup.getUpdateLocationURL();
 
-
-        m_session = std::make_shared<sdds3::Session>(Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath());
+        if (connectionSetup.isCacheUpdate())
+        {
+            if (!Common::UtilityImpl::StringUtils::startswith(srcUrl, "http://") &&
+                !Common::UtilityImpl::StringUtils::startswith(srcUrl, "https://"))
+            {
+                srcUrl = "https://" + srcUrl;
+            }
+            LOGINFO("Trying update via update cache: " << srcUrl);
+            m_session->httpConfig.useSophosCertificateStore = true;
+            m_session->httpConfig.sophosCertificateStore = Common::ApplicationConfiguration::applicationPathManager().getUpdateCacheCertificateFilePath();
+        }
+        else if (!connectionSetup.getProxy().empty())
+        {
+            m_session->httpConfig.proxy.address_ = connectionSetup.getProxy().getUrl();
+            std::stringstream message;
+            message << "Trying to update via proxy " << connectionSetup.getProxy().getUrl() << " to " << srcUrl;
+            LOGINFO(message.str());
+            m_session->httpConfig.proxy.username_ = connectionSetup.getProxy().getCredentials().getUsername();
+            m_session->httpConfig.proxy.password_ = connectionSetup.getProxy().getCredentials().getPassword();
+        }
+        else
+        {
+            LOGINFO("Connecting to update source directly");
+        }
 
         sdds3::Repo repo(Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3Repository());
         m_repo = repo;
 
         m_session->httpConfig.userAgent = generateUserAgentString(configurationData.getTenantId(), configurationData.getDeviceId());
+
         m_config.suites = suites;
         m_config.release_groups_filter = releaseGroups;
-        for (const auto& srcUrlToTry : DEFAULT_UPDATE_URLS)
-        {
-            std::string srcUrl(srcUrlToTry);
-            m_error.reset(); // Clear error for retry
-            try
-            {
-                std::string overrideFile =
-                    Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
 
-                if (Common::FileSystem::fileSystem()->exists(overrideFile))
-                {
-                    std::string cdnOverrideUrl =
-                        Common::UtilityImpl::StringUtils::extractValueFromIniFile(overrideFile, "CDN_URL");
-                    if (!cdnOverrideUrl.empty())
-                    {
-                        LOGWARN("Overriding Sophos CDN address with " << cdnOverrideUrl);
-                        srcUrl = cdnOverrideUrl;
-                    }
-                }
-                LOGINFO("Performing Sync using " << srcUrl);
-                SulDownloader::sdds3Wrapper()->sync(*m_session.get(), repo, srcUrl, m_config, m_oldConfig);
-                m_sourceUrl = srcUrl;  // store which source was used - for reporting later.
-                break;
-            }
-            catch (const std::exception& ex)
-            {
-                m_error.status = RepositoryStatus::DOWNLOADFAILED;
-                std::stringstream message;
-                message << "Failed to sync " << ex.what();
-                m_error.Description = message.str();
-                LOGWARN("Failed to Sync with " << srcUrl << " error: " << ex.what());
-            }
+
+        try
+        {
+            LOGINFO("Performing Sync using " << srcUrl);
+            SulDownloader::sdds3Wrapper()->sync(*m_session.get(), repo, srcUrl, m_config, m_oldConfig);
+            m_sourceUrl = srcUrl;  // store which source was used - for reporting later.
         }
+        catch (const std::exception& ex)
+        {
+            m_error.status = RepositoryStatus::DOWNLOADFAILED;
+            std::stringstream message;
+            message << "Failed to sync " << ex.what();
+            m_error.Description = message.str();
+            LOGWARN("Failed to Sync with " << srcUrl << " error: " << ex.what());
+        }
+
         if (!hasError())
         {
             generateProductListFromSdds3PackageInfo(configurationData.getPrimarySubscription().rigidName());
+            return true;
         }
+        return false;
     }
 
     void SDDS3Repository::populateOldConfigFromFile()

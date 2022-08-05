@@ -16,9 +16,6 @@ import ssl
 import tempfile
 import time
 
-import PathManager
-
-SUPPORT_FILE_PATH = PathManager.get_support_file_path()
 
 def hash_file(name):
     sha256 = hashlib.sha256()
@@ -341,12 +338,24 @@ def main():
                         help='Path to (local) SDDS3 repository to serve')
     parser.add_argument('--protocol',
                         help='tsl setting option : tls1_1')
+    parser.add_argument('--port',
+                        help='port number of server default 8080')
+    parser.add_argument('--certpath', help='path to certificate, default is <SUPPORT_FILE_PATH>/https/server-private.pem')
     args = parser.parse_args()
+
     protocol = ssl.PROTOCOL_TLS
     if args.protocol:
         if args.protocol == "tls1_1":
             protocol = ssl.PROTOCOL_TLSv1_1
 
+    if args.certpath:
+        cert = args.certpath
+    else:
+        import PathManager
+        cert = os.path.join(PathManager.get_support_file_path(), "https", "server-private.pem")
+    port = 8080
+    if args.port:
+        port = int(args.port)
     if args.launchdarkly and args.mock_sus:
         raise NameError('error: --launchdarkly and --mock-sus are mutually exclusive. Pick one or the other')
 
@@ -360,10 +369,10 @@ def main():
                             + 'output/sus/mock_sus_response_*: specify --launchdarkly or --mock-sus')
 
     HandlerClass = make_request_handler(args)
-    httpd = ThreadingHTTPServer(('0.0.0.0', 8080), HandlerClass)
+    httpd = ThreadingHTTPServer(('0.0.0.0', port), HandlerClass)
     httpd.socket = ssl.wrap_socket(httpd.socket,
                                    server_side=True,
-                                   certfile=os.path.join(SUPPORT_FILE_PATH, "https", "server-private.pem"),
+                                   certfile=cert,
                                    ssl_version=protocol)
     httpd.allow_reuse_address = True
     print('Listening on 0.0.0.0 port 8080...')

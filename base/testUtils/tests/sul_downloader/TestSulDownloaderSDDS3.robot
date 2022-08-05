@@ -4,14 +4,21 @@ Suite Teardown   Suite Teardown Without Ostia
 
 Test Setup       Test Setup
 Test Teardown    Run Keywords
-...                Stop Local SDDS3 Server  AND
+...                Stop Local SDDS3 Server   AND
+...                Remove Environment Variable  http_proxy    AND
+...                Remove Environment Variable  https_proxy  AND
 ...                Stop Proxy If Running    AND
-...                Test Teardown
+...                Stop Proxy Servers   AND
+...                Clean up fake warehouse  AND
+...                 Test Teardown
 
-Test Timeout  10 mins
 
+Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
+
+Resource    ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../installer/InstallerResources.robot
 Resource    ../upgrade_product/UpgradeResources.robot
+Resource    SulDownloaderResources.robot
 
 Default Tags  SULDOWNLOADER
 
@@ -137,6 +144,106 @@ Sul Downloader Uses Current Proxy File for SUS Requests
         ...  SUS Request was successful
 
 
+Sul Downloader Installs SDDS3 Through Proxy
+    Start Simple Proxy Server    1235
+    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files
+    Set Suite Variable    ${GL_handle}    ${handle}
+    ${proxy_url} =    Set Variable    http://localhost:1235/
+    Set Environment Variable  http_proxy   ${proxy_url}
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...    20s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Trying to update via proxy localhost:1235 to https://localhost:8080
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Update success
+    Check Sul Downloader log does not contain    Connecting to update source directly
+
+Sul Downloader Installs SDDS3 Through update cache
+    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override   CDN_URL=https://localhost:8081
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...    20s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Trying update via update cache: https://localhost:8080
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Update success
+    Check Sul Downloader log does not contain    Connecting to update source directly
+
+Sul Downloader falls back to direct when proxy and UC do not work
+    write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
+    Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files   port=8081
+    Set Suite Variable    ${GL_handle}    ${handle}
+    ${proxy_url} =    Set Variable    http://localhost:1235/
+    Set Environment Variable  http_proxy   ${proxy_url}
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override   CDN_URL=https://localhost:8081  URLS=https://localhost:8081
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...    20s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Trying SUS request (https://localhost:8081) with proxy: http://localhost:1235/
+    Wait Until Keyword Succeeds
+    ...    20s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Trying SUS request (https://localhost:8081) without proxy
+    Wait Until Keyword Succeeds
+    ...    20s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Trying update via update cache: https://localhost:8080
+    Wait Until Keyword Succeeds
+    ...    20s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Trying to update via proxy http://localhost:1235/ to https://localhost:8081
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Update success
+    Check SulDownloader Log Contains    Connecting to update source directly
 *** Keywords ***
 File Should Contain
     [Arguments]  ${file_path}  ${expected_contents}

@@ -24,8 +24,8 @@ namespace SulDownloader
         public:
             std::vector<ConnectionSetup> getConnectionCandidates(
                 const suldownloaderdata::ConfigurationData& configurationData);
-            // void setLastSuccessfullConnection( const ConnectionSetup & connectionSetup, const ConfigurationData &
-            // configurationData);
+            std::vector<ConnectionSetup> getSDDS3ConnectionCandidates(
+                const suldownloaderdata::ConfigurationData& configurationData);
         };
     } // namespace suldownloaderdata
 } // namespace SulDownloader
