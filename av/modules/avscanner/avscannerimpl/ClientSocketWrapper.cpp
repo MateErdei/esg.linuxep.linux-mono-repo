@@ -10,6 +10,8 @@
 #include "common/ScanManuallyInterruptedException.h"
 #include <common/StringUtils.h>
 
+#include <sstream>
+
 #include <poll.h>
 
 
