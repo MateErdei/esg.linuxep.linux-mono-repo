@@ -6,8 +6,8 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="sul">
-<!--            <release-version branch="release/2022-18" build-id="20220422150248-cb78c50b4afb1b46a543a160364d1ec391632a80-237oLh"/>-->
-            <development-version branch="feature/LINUXDAR-5162-upgrade-openssl"/>
+            <release-version branch="release/2022-30" build-id="20220802133151-14d073eebbcbbda71a904f5689494b19dfae089c-A2VyPF"/>
+            <development-version branch="develop"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="linuxep" repo="versig">
@@ -127,8 +127,8 @@
         </build-asset>
 
         <build-asset project="winep" repo="sau">
-<!--            <release-version branch="release/2022-30-linux" build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>-->
-            <development-version branch="feature/LINUXDAR-5162-openssl-upgrade"/>
+            <release-version branch="release/2022-30-linux" build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>
+            <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
