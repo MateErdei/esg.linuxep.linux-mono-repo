@@ -1,23 +1,25 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
+// Class
 #include "PluginCallback.h"
-
+// Package
 #include "Logger.h"
-
+#include "PolicyProcessor.h"
+// Component
 #include "common/PluginUtils.h"
 #include "common/StringUtils.h"
-
+// Product
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <thirdparty/nlohmann-json/json.hpp>
 #include <datatypes/SystemCallWrapper.h>
-
+#include <thirdparty/nlohmann-json/json.hpp>
+// Std C++
 #include <fstream>
-
+// Std C
 #include <unistd.h>
 
 namespace fs = sophos_filesystem;
@@ -31,6 +33,10 @@ namespace Plugin
     {
         std::string noPolicySetStatus = generateSAVStatusXML();
         m_statusInfo = { noPolicySetStatus, noPolicySetStatus, "SAV" };
+
+        // Initially configure On-Access off, until we get a policy
+        Plugin::PolicyProcessor::setOnAccessConfiguredTelemetry(false);
+
         LOGDEBUG("Plugin Callback Started");
     }
 

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2022 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 # define PLUGIN_INTERNAL public
 
@@ -90,8 +86,6 @@ namespace Plugin
         catch (Common::PluginApi::ApiException& e)
         {
             LOGINFO("Failed to request SAV policy at startup (" << e.what() << ")");
-            // No SAV Policy available so record On Access is configured off
-            Plugin::PolicyProcessor::setOnAccessConfiguredTelemetry(false);
         }
         try
         {

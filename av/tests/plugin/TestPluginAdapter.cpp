@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "PluginMemoryAppenderUsingTests.h"
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
@@ -20,11 +16,13 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
 
+#include <tests/common/Common.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 
-#include <tests/common/Common.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 using namespace testing;
 using namespace Plugin;
@@ -127,7 +125,7 @@ ACTION_P(QueueStopTask, taskQueue) {
     taskQueue->pushStop();
 }
 
-TEST_F(TestPluginAdapter, testConstruction) //NOLINT
+TEST_F(TestPluginAdapter, testConstruction)
 {
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
@@ -137,7 +135,7 @@ TEST_F(TestPluginAdapter, testConstruction) //NOLINT
 }
 
 
-TEST_F(TestPluginAdapter, testMainLoop) //NOLINT
+TEST_F(TestPluginAdapter, testMainLoop)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -153,7 +151,7 @@ TEST_F(TestPluginAdapter, testMainLoop) //NOLINT
 }
 
 
-TEST_F(TestPluginAdapter, testRequestPoliciesThrows) //NOLINT
+TEST_F(TestPluginAdapter, testRequestPoliciesThrows)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -181,7 +179,7 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows) //NOLINT
     EXPECT_TRUE(appenderContains("Failed to request ALC policy at startup (dummy error)"));
 }
 
-TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
+TEST_F(TestPluginAdapter, testProcessPolicy)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -248,7 +246,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy) //NOLINT
     EXPECT_EQ(appenderCount("Requesting scan monitor to reload susi"), 1);
 }
 
-TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPolicy) //NOLINT
+TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPolicy)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -289,7 +287,7 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
 
 }
 
-TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
+TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -326,7 +324,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID) //NOLINT
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
 }
 
-TEST_F(TestPluginAdapter, testProcessUpdatePolicy) //NOLINT
+TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -365,7 +363,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy) //NOLINT
     EXPECT_TRUE(appenderContains("Processing policy: " + policyXml));
 }
 
-TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID) //NOLINT
+TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -409,7 +407,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID) //NO
     EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
 }
 
-TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
+TEST_F(TestPluginAdapter, testProcessAction)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger scanLogger = Common::Logging::getInstance("ScanScheduler");
@@ -447,7 +445,7 @@ TEST_F(TestPluginAdapter, testProcessAction) //NOLINT
     scanLogger.removeAppender(m_sharedAppender);
 }
 
-TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
+TEST_F(TestPluginAdapter, testProcessActionMalformed)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger scanLogger = Common::Logging::getInstance("ScanScheduler");
@@ -484,7 +482,7 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed) //NOLINT
     scanLogger.removeAppender(m_sharedAppender);
 }
 
-TEST_F(TestPluginAdapter, testProcessScanComplete) //NOLINT
+TEST_F(TestPluginAdapter, testProcessScanComplete)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -520,7 +518,7 @@ TEST_F(TestPluginAdapter, testProcessScanComplete) //NOLINT
 
 }
 
-TEST_F(TestPluginAdapter, testProcessThreatReport) //NOLINT
+TEST_F(TestPluginAdapter, testProcessThreatReport)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -616,7 +614,7 @@ void SubscriberThread::run()
     }
 }
 
-TEST_F(TestPluginAdapter, testPublishThreatReport) //NOLINT
+TEST_F(TestPluginAdapter, testPublishThreatReport)
 {
     auto subscriberContext = Common::ZMQWrapperApi::createContext();
     SubscriberThread thread(*subscriberContext, m_threatEventPublisherSocketPath);
@@ -647,7 +645,7 @@ TEST_F(TestPluginAdapter, testPublishThreatReport) //NOLINT
     EXPECT_EQ(data.at(1), threatDetectedJSON);
 }
 
-TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
+TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount)
 {
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
@@ -674,11 +672,11 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount) //NOLINT
     pluginAdapter.mainLoop();
 
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
-    std::string ExpectedTelemetry{ R"sophos({"threat-count":1})sophos" };
-    EXPECT_EQ(telemetryResult, ExpectedTelemetry);
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["threat-count"], 1);
 }
 
-TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount) //NOLINT
+TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount)
 {
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
@@ -705,11 +703,12 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount) //N
     pluginAdapter.mainLoop();
 
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
-    std::string ExpectedTelemetry{ R"sophos({"threat-eicar-count":1})sophos" };
-    EXPECT_EQ(telemetryResult, ExpectedTelemetry);
+
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["threat-eicar-count"], 1);
 }
 
-TEST_F(TestPluginAdapter, testInvalidTaskType) //NOLINT
+TEST_F(TestPluginAdapter, testInvalidTaskType)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -740,7 +739,7 @@ TEST_F(TestPluginAdapter, testInvalidTaskType) //NOLINT
 }
 
 
-TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies) //NOLINT
+TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -766,7 +765,7 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies) //NOLINT
     EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
 }
 
-TEST_F(TestPluginAdapter, testHealthResetsToGreenWhenAppriopriate) //NOLINT
+TEST_F(TestPluginAdapter, testHealthResetsToGreenWhenAppriopriate)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
