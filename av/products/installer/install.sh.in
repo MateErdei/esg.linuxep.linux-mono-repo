@@ -386,7 +386,6 @@ function install_product()
 
     ln -snf "${PLUGIN_INSTALL}/bin/avscanner" /usr/local/bin/avscanner
 
-    delete_removed_vdl
     generate_susi_package_manifest
     bootstrap_susi_from_update_source
 
@@ -412,12 +411,15 @@ function update_supplement()
     else
         echo "Lock acquired on $LOCKFILE"
         UPDATE_SRC="plugins/av/chroot/susi/update_source"
-        cp -auv "$DIST/files/$UPDATE_SRC/vdl/"* "$SOPHOS_INSTALL/$UPDATE_SRC/vdl/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Virus Data to installation"
+
+        $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$DIST/files/$UPDATE_SRC/vdl" "$SOPHOS_INSTALL/$UPDATE_SRC/vdl" --copy \
+            || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Virus Data to installation"
+
         cp -auv "$DIST/files/$UPDATE_SRC/model/"* "$SOPHOS_INSTALL/$UPDATE_SRC/model/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy ML Model to installation"
         cp -auv "$DIST/files/$UPDATE_SRC/reputation/"* "$SOPHOS_INSTALL/$UPDATE_SRC/reputation/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Local reputation data to installation"
         cp -auv "$DIST/files/$UPDATE_SRC/rules/"* "$SOPHOS_INSTALL/$UPDATE_SRC/rules/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy LUA files to installation"
         set_permissions_on_susi_update_source
-        delete_removed_vdl
+
     fi
 
     generate_susi_package_manifest

@@ -170,6 +170,7 @@ static bool are_identical(const path_t& src, const path_t& dest)
 static bool copyFile(const path_t& src, const path_t& dest)
 {
     std::error_code ec;
+    fs::remove(dest, ec); // Don't worry if the destination doesn't exist
     fs::copy(src, dest, fs::copy_options::overwrite_existing, ec);
     if (ec)
     {
