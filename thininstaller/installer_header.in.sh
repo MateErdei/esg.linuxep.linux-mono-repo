@@ -647,7 +647,7 @@ then
     echo -n "${http_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
 fi
 
-${BIN}/SulDownloader update_config.json "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json" || failure ${EXITCODE_BASE_INSTALL_FAILED} "Failed to install sucessfully"
+${BIN}/SulDownloader update_config.json "${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json" || failure ${EXITCODE_BASE_INSTALL_FAILED} "Failed to install successfully"
 inst_ret=$?
 handle_installer_errorcodes $?
 

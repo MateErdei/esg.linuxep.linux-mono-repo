@@ -476,6 +476,14 @@ int main(int argc, char** argv)
         j["credential"]["username"] = "jwt[MCS::TENANT_ID]";
         j["credential"]["password"] = "jwt[MCS::TENANT_ID]";
 
+        if (!rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY].empty())
+        {
+            logDebug("Proxy used for registration was: " + rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY]);
+            j["proxy"]["url"] = rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY];
+            j["proxy"]["credential"]["username"] = rootConfigOptions.config[MCS::MCS_PROXY_USERNAME];
+            j["proxy"]["credential"]["password"] = rootConfigOptions.config[MCS::MCS_PROXY_PASSWORD];
+        }
+
         j["versigPath"] = versigPath;
         j["useSDDS3"] = true;
 
