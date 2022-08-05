@@ -4,17 +4,16 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <gtest/gtest.h>
-#include <gmock/gmock-matchers.h>
-
 #include "MockMountPoint.h"
-#include "RecordingMockSocket.h"
 #include "ScanRunnerMemoryAppenderUsingTests.h"
 
 #include "avscanner/avscannerimpl/BaseFileWalkCallbacks.h"
 #include "avscanner/avscannerimpl/CommandLineScanRunner.h"
 #include "datatypes/sophos_filesystem.h"
+#include "tests/common/RecordingMockSocket.h"
 
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
 
 #include <fstream>
 
@@ -80,7 +79,7 @@ TEST_F(TestCommandLineScanRunner, constructionWithScanImages) // NOLINT
 TEST_F(TestCommandLineScanRunner, scanRelativePath) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingpoint = fs::absolute("sandbox");
 
@@ -101,7 +100,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativePath) // NOLINT
 TEST_F(TestCommandLineScanRunner, scanSameDirectoryTwice) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingpoint = fs::absolute("sandbox");
 
@@ -125,7 +124,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedPath) // NOLINT
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/f");
     fs::create_symlink(fs::absolute("sandbox/a"), "sandbox/f/a");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingpoint = fs::absolute("sandbox/f");
 
@@ -148,7 +147,7 @@ TEST_F(TestCommandLineScanRunner, doNotScanSymlinkedPath) // NOLINT
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/f");
     fs::create_symlink(fs::absolute("sandbox/a"), "sandbox/f/a");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingpoint = fs::absolute("sandbox/f");
 
@@ -170,7 +169,7 @@ TEST_F(TestCommandLineScanRunner, scanDirectoryAndSymlinkToDirectory) // NOLINT
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/f");
     fs::create_symlink(fs::absolute("sandbox/a"), "sandbox/f/a");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path symlinkStartingPoint = fs::absolute("sandbox/f");
     fs::path startingpoint = fs::absolute("sandbox/a");
@@ -195,9 +194,9 @@ TEST_F(TestCommandLineScanRunner, scanNonCanonicalPath) // NOLINT
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/b/d/e");
     fs::create_directories("sandbox/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/b/d/file1.txt");
-    std::ofstream("sandbox/d/e/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/b/d/file1.txt").close();
+    std::ofstream("sandbox/d/e/file1.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("./sandbox/a"));
@@ -220,7 +219,7 @@ TEST_F(TestCommandLineScanRunner, scanNonCanonicalPath) // NOLINT
 TEST_F(TestCommandLineScanRunner, scanAbsolutePath) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingpoint = fs::absolute("sandbox");
 
@@ -243,7 +242,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectory) // NOLINT
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back("sandbox/");
@@ -264,7 +263,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectory) // NOLINT
 TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectory) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox/"));
@@ -285,7 +284,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanArchives) // NOLI
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back("sandbox");
@@ -309,7 +308,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanImages) // NOLINT
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.iso");
+    std::ofstream("sandbox/a/b/file1.iso").close();
 
     std::vector<std::string> paths;
     paths.emplace_back("sandbox");
@@ -331,8 +330,8 @@ TEST_F(TestCommandLineScanRunner, scanRelativeDirectoryWithScanImages) // NOLINT
 TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithFilenameExclusion) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/a/b/file2.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/a/b/file2.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox"));
@@ -353,7 +352,7 @@ TEST_F(TestCommandLineScanRunner, exclusionIsFileToScan) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox/a/b/file1.txt"));
@@ -374,7 +373,7 @@ TEST_F(TestCommandLineScanRunner, anEmptyExclusionProvided) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox/a/b/file1.txt"));
@@ -397,8 +396,8 @@ TEST_F(TestCommandLineScanRunner, exclusionIsDirectoryToScan) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/a/b/d/file2.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/a/b/d/file2.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox/a/b/"));
@@ -423,7 +422,7 @@ TEST_F(TestCommandLineScanRunner, scanDirectoryExcludedAsFilePath) // NOLINT
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back("sandbox");
@@ -449,7 +448,7 @@ TEST_F(TestCommandLineScanRunner, scanFileExcludedAsDirectoryPath) // NOLINT
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back("sandbox/a/b/file1.txt");
@@ -476,8 +475,8 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOL
 
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/a/f");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/a/f/file2.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/a/f/file2.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox"));
@@ -502,8 +501,8 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithStemExclusion) // NOL
 TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithFullPathExclusion) // NOLINT
 {
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/a/b/file2.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/a/b/file2.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox"));
@@ -526,8 +525,8 @@ TEST_F(TestCommandLineScanRunner, scanAbsoluteDirectoryWithGlobExclusion) // NOL
 
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/a/f");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/a/f/file2.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/a/f/file2.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox"));
@@ -555,8 +554,8 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusions) // NOLINT
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/a/f");
     fs::create_directories("sandbox/a/g");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/a/f/file2.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/a/f/file2.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox"));
@@ -594,8 +593,8 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalNonExistentExclusions) // NOLINT
 
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/a/f");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/a/f/file2.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/a/f/file2.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox"));
@@ -637,8 +636,8 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsRootExclusion) // NOLINT
 
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/a/f");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/a/f/file2.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/a/f/file2.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox"));
@@ -668,8 +667,8 @@ TEST_F(TestCommandLineScanRunner, nonCanonicalExclusionsWithFilename) // NOLINT
 
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/a/f");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/a/f/file2.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/a/f/file2.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox"));
@@ -699,7 +698,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteTargetExclusion) // NOL
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("symlink_sandbox");
-    std::ofstream("symlink_sandbox/file1.txt");
+    std::ofstream("symlink_sandbox/file1.txt").close();
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
     fs::create_symlink("symlink_sandbox/file1.txt", fs::absolute(startingPoint));
@@ -725,7 +724,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeTargetExclusion) // NOL
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("symlink_sandbox");
-    std::ofstream("symlink_sandbox/file1.txt");
+    std::ofstream("symlink_sandbox/file1.txt").close();
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
     fs::create_symlink("symlink_sandbox/file1.txt", fs::absolute(startingPoint));
@@ -755,7 +754,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithAbsoluteDirectExclusion) // NOL
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("symlink_sandbox");
-    std::ofstream("symlink_sandbox/file1.txt");
+    std::ofstream("symlink_sandbox/file1.txt").close();
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
     fs::create_symlink("symlink_sandbox/file1.txt", fs::absolute(startingPoint));
@@ -781,7 +780,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkWithRelativeDirectExclusion) // NOL
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("symlink_sandbox");
-    std::ofstream("symlink_sandbox/file1.txt");
+    std::ofstream("symlink_sandbox/file1.txt").close();
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
     fs::create_symlink("symlink_sandbox/file1.txt", fs::absolute(startingPoint));
@@ -810,7 +809,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeTargetExclus
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("symlink_sandbox/a/b/c");
-    std::ofstream("symlink_sandbox/a/b/c/file1.txt");
+    std::ofstream("symlink_sandbox/a/b/c/file1.txt").close();
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
     fs::create_symlink("symlink_sandbox/", fs::absolute(startingPoint));
@@ -840,7 +839,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteTargetExclus
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("symlink_sandbox/a/b/c");
-    std::ofstream("symlink_sandbox/a/b/c/file1.txt");
+    std::ofstream("symlink_sandbox/a/b/c/file1.txt").close();
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
     fs::create_symlink("symlink_sandbox/", fs::absolute(startingPoint));
@@ -867,7 +866,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithAbsoluteDirectExclus
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("symlink_sandbox/a/b/c");
-    std::ofstream("symlink_sandbox/a/b/c/file1.txt");
+    std::ofstream("symlink_sandbox/a/b/c/file1.txt").close();
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
     fs::create_symlink("symlink_sandbox/", fs::absolute(startingPoint));
@@ -894,7 +893,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithRelativeDirectExclus
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("symlink_sandbox/a/b/c");
-    std::ofstream("symlink_sandbox/a/b/c/file1.txt");
+    std::ofstream("symlink_sandbox/a/b/c/file1.txt").close();
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_directory");
     fs::create_symlink("symlink_sandbox/", fs::absolute(startingPoint));
@@ -925,7 +924,7 @@ TEST_F(TestCommandLineScanRunner, scanRelativeSymlinkedDirectoryWithAbsoluteTarg
 
     fs::create_directories("a/b");
     fs::create_directories("symlink_sandbox");
-    std::ofstream("symlink_sandbox/file1.txt");
+    std::ofstream("symlink_sandbox/file1.txt").close();
 
     fs::create_symlink(fs::absolute("symlink_sandbox"), fs::absolute("a/b/symlink_to_sandbox_dir"));
 
@@ -962,7 +961,7 @@ TEST_F(TestCommandLineScanRunner, scanSymlinkedDirectoryWithFileExclusion) // NO
 
     fs::create_directories("a/b");
     fs::create_directories("symlink_sandbox");
-    std::ofstream("symlink_sandbox/file1.txt");
+    std::ofstream("symlink_sandbox/file1.txt").close();
 
     fs::path startingPoint = fs::path("a/b/symlink_to_sandbox_dir");
     fs::create_symlink(fs::absolute("symlink_sandbox"), fs::absolute(startingPoint));
@@ -989,7 +988,7 @@ TEST_F(TestCommandLineScanRunner, noSymlinkIsScannedWhenNotExplicitlyCalled) // 
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("symlink_sandbox");
-    std::ofstream("symlink_sandbox/file1.txt");
+    std::ofstream("symlink_sandbox/file1.txt").close();
 
     fs::path startingPoint = fs::path("symlink_to_sandbox_file");
     fs::create_symlink("symlink_sandbox/file1.txt", startingPoint);
@@ -1016,8 +1015,8 @@ TEST_F(TestCommandLineScanRunner, excludeNamedFolders) // NOLINT
 
     fs::create_directories("sandbox/a/b/d/e");
     fs::create_directories("sandbox/a/f");
-    std::ofstream("sandbox/a/b/file1.txt");
-    std::ofstream("sandbox/a/f/file2.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
+    std::ofstream("sandbox/a/f/file2.txt").close();
 
     std::vector<std::string> paths;
     paths.emplace_back(fs::absolute("sandbox"));
@@ -1046,7 +1045,7 @@ TEST_F(TestCommandLineScanRunner, excludeSpecialMounts) // NOLINT
     fs::path startingpoint = fs::absolute("sandbox");
 
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
 
     std::vector<std::string> paths;
@@ -1104,7 +1103,7 @@ TEST_F(TestCommandLineScanRunner, anEmptyPathProvided) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     fs::path startingpoint = fs::absolute("sandbox");
 
@@ -1130,7 +1129,7 @@ TEST_F(TestCommandLineScanRunner, RelativePathDoesntExist) // NOLINT
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     std::vector<std::string> paths;
     fs::path nonexistentRelPath("notsandbox");
@@ -1158,7 +1157,7 @@ TEST_F(TestCommandLineScanRunner, AbsolutePathDoesntExist) // NOLINT
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     fs::create_directories("sandbox/a/b/d/e");
-    std::ofstream("sandbox/a/b/file1.txt");
+    std::ofstream("sandbox/a/b/file1.txt").close();
 
     std::vector<std::string> paths;
     fs::path nonexistentAbsPath = fs::absolute("notsandbox");

@@ -3,12 +3,11 @@
 #include "ClientSocketWrapper.h"
 #include "ReconnectSettings.h"
 #include "ReconnectScannerException.h"
+#include "Logger.h"
 
 #include "common/AbortScanException.h"
 #include "common/ScanInterruptedException.h"
 #include "common/ScanManuallyInterruptedException.h"
-#include "unixsocket/Logger.h"
-
 #include <common/StringUtils.h>
 
 #include <poll.h>

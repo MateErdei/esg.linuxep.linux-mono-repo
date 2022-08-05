@@ -1,4 +1,7 @@
 if (NOT DEFINED ENV{USE_LIBFUZZER})
+
+add_subdirectory(onaccessimpl)
+
 include(GoogleTest)
 
 SophosAddTest(TestSophosOnAccessProcessImpl

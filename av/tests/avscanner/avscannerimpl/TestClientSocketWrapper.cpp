@@ -4,11 +4,11 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "RecordingMockSocket.h"
 #include "ScanRunnerMemoryAppenderUsingTests.h"
 
 #include "avscanner/avscannerimpl/ClientSocketWrapper.h"
 #include "avscanner/avscannerimpl/ReconnectSettings.h"
+#include "tests/common/RecordingMockSocket.h"
 
 #include <gtest/gtest.h>
 

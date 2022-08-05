@@ -1,19 +1,18 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-#include <gtest/gtest.h>
-#include <gmock/gmock-matchers.h>
-
 #include "MockMountPoint.h"
-#include "RecordingMockSocket.h"
 #include "ScanRunnerMemoryAppenderUsingTests.h"
 
 #include "avscanner/avscannerimpl/NamedScanRunner.h"
 #include "datatypes/sophos_filesystem.h"
+#include "tests/common/RecordingMockSocket.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
+#include <gmock/gmock-matchers.h>
+#include <gtest/gtest.h>
 
 #include <fstream>
 
@@ -145,6 +144,7 @@ TEST_F(TestNamedScanRunner, TestNamedScanConfigDeserialisation)
     EXPECT_EQ(config.m_scanName, m_expectedScanName);
 
     std::vector<std::string> excludePaths;
+    excludePaths.reserve(config.m_excludePaths.size());
     for(const auto& excl : config.m_excludePaths)
     {
         excludePaths.push_back(excl.path());
