@@ -32,12 +32,44 @@ Setup sdds3 Update Tests
 Cleanup sdds3 Update Tests
     Stop Local SDDS3 Server
     Clean up fake warehouse
+
+sdds3 suite setup with fakewarehouse with real base
+    Generate Local Ssl Certs If They Dont Exist
+    Install Local SSL Server Cert To System
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Set Local CA Environment Variable
+
+sdds3 suite fake warehouse Teardown
+    Clean up fake warehouse
+    Stop Local SDDS3 Server
+
+Setup base Install
+    Require Installed
+    Create File    ${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag
+    Create File    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
+    Remove File    ${SOPHOS_INSTALL}/base/VERSION.ini.0
+    ${result1} =   Run Process   cp ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/VERSION.ini ${SOPHOS_INSTALL}/base/VERSION.ini.0  shell=true
+
 Setup Thininstaller Test
+    Start Local Cloud Server
+    Setup Thininstaller Test Without Local Cloud Server
+
+Setup Thininstaller Test Without Local Cloud Server
     Require Uninstalled
     Set Environment Variable  CORRUPTINSTALL  no
     Get Thininstaller
     Create Default Credentials File
     Build Default Creds Thininstaller From Sections
+
+Teardown With Temporary Directory Clean
+    Thininstaller Test Teardown
+    Remove Directory   ${tmpdir}  recursive=True
+
+Teardown With Temporary Directory Clean And Stopping Message Relays
+    Teardown With Temporary Directory Clean
+    Stop Proxy If Running
 
 Thininstaller Test Teardown
     General Test Teardown

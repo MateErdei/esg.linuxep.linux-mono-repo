@@ -155,9 +155,19 @@ const std::string& ConfigurationData::getVersigPath() const
     return m_versigPath;
 }
 
-void ConfigurationData::setVersigPath(const std::string& token)
+void ConfigurationData::setVersigPath(const std::string& path)
 {
-    m_versigPath = token;
+    m_versigPath = path;
+}
+
+const std::string& ConfigurationData::getUpdateCacheCertPath() const
+{
+    return m_updateCacheCertPath;
+}
+
+void ConfigurationData::setUpdateCacheCertPath(const std::string& path)
+{
+    m_updateCacheCertPath = path;
 }
 
 const std::string& ConfigurationData::getTenantId() const
@@ -379,6 +389,7 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     configurationData.setFeatures(features);
     configurationData.setJWToken(settings.jwtoken());
     configurationData.setVersigPath(settings.versigpath());
+    configurationData.setUpdateCacheCertPath(settings.updatecachecertpath());
     configurationData.setTenantId(settings.tenantid());
     configurationData.setDeviceId(settings.deviceid());
 
@@ -524,6 +535,7 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
 
     settings.mutable_jwtoken()->assign(configurationData.getJWToken());
     settings.mutable_versigpath()->assign(configurationData.getVersigPath());
+    settings.mutable_updatecachecertpath()->assign(configurationData.getUpdateCacheCertPath());
     settings.mutable_tenantid()->assign(configurationData.getTenantId());
     settings.mutable_deviceid()->assign(configurationData.getDeviceId());
     const auto& primarySubscription = configurationData.getPrimarySubscription();

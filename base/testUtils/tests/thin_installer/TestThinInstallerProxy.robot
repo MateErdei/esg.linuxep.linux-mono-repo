@@ -25,16 +25,6 @@ Resource  ThinInstallerResources.robot
 Default Tags  THIN_INSTALLER
 
 *** Keywords ***
-Setup Thininstaller Test
-    Start Local Cloud Server
-    Setup Thininstaller Test Without Local Cloud Server
-
-Setup Thininstaller Test Without Local Cloud Server
-    Require Uninstalled
-    Set Environment Variable  CORRUPTINSTALL  no
-    Get Thininstaller
-    Create Default Credentials File
-    Build Default Creds Thininstaller From Sections
 
 Setup Legacy Thininstaller Test
     Start Local Cloud Server
@@ -58,13 +48,7 @@ Setup Warehouse
     Start Update Server    1233    ./tmp/temp_warehouse/customer_files/   ${customer_file_protocol}
     Start Update Server    1234    ./tmp/temp_warehouse/warehouses/sophosmain/   ${warehouse_protocol}
 
-Teardown With Temporary Directory Clean
-    Teardown
-    Remove Directory   ${tmpdir}  recursive=True
 
-Teardown With Temporary Directory Clean And Stopping Message Relays
-    Teardown With Temporary Directory Clean
-    Stop Proxy If Running
 
 Teardown
     General Test Teardown

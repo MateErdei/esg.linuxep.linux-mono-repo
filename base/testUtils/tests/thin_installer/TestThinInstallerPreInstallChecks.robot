@@ -24,12 +24,6 @@ Default Tags  THIN_INSTALLER
 Test Setup      Setup Thininstaller Test Without Local Cloud Server
 Test Teardown   Thininstaller Test Teardown
 *** Keywords ***
-Setup Thininstaller Test Without Local Cloud Server
-    Require Uninstalled
-    Set Environment Variable  CORRUPTINSTALL  no
-    Get Thininstaller
-    Create Default Credentials File
-    Build Default Creds Thininstaller From Sections
 
 Remove SAV files
     Remove Fake Savscan In Tmp

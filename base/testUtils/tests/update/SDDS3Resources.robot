@@ -118,6 +118,6 @@ Clean up fake warehouse
     Remove Directory  ${SDDS3_FAKEWAREHOUSE_DIR}  recursive=True
 
 Start Local SDDS3 server with fake files
-    [Arguments]  ${port}=8080
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${SDDS3_FAKEFLAGS} --sdds3 ${SDDS3_FAKEREPO} --port ${port}  shell=true
+    [Arguments]  ${port}=8080  ${cert}=${SUPPORT_FILES}/https/server-private.pem
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${SDDS3_FAKEFLAGS} --sdds3 ${SDDS3_FAKEREPO} --port ${port} --cert ${cert}  shell=true
     [Return]  ${handle}

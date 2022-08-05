@@ -1,6 +1,6 @@
 *** Settings ***
 Test Setup      Setup Thininstaller Test
-Test Teardown   Teardown
+Test Teardown   Thininstaller Test Teardown
 
 Suite Setup      Setup sdds3 Update Tests
 Suite Teardown   Cleanup sdds3 Update Tests
@@ -31,16 +31,6 @@ Teardown With Large Group Creation
     Teardown Group File With Large Group Creation
     Restore warehouse with fake sdds3 base
 
-Setup Thininstaller Test
-    Start Local Cloud Server
-    Setup Thininstaller Test Without Local Cloud Server
-
-Setup Thininstaller Test Without Local Cloud Server
-    Require Uninstalled
-    Set Environment Variable  CORRUPTINSTALL  no
-    Get Thininstaller
-    Create Default Credentials File
-    Build Default Creds Thininstaller From Sections
 
 Setup TSL server 1_1
     Stop Local SDDS3 Server
@@ -49,7 +39,7 @@ Setup TSL server 1_1
     Setup Thininstaller Test
 
 Restore fake SDDS3 server
-    Teardown
+    Thininstaller Test Teardown
     Stop Local SDDS3 Server
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -59,33 +49,12 @@ Setup warehouse With sdds3 base
     Generate Warehouse From Local Base Input
 
 Restore warehouse with fake sdds3 base
-    Teardown
+    Thininstaller Test Teardown
     Clean up fake warehouse
     Generate Fake sdds3 warehouse
 
-Teardown With Temporary Directory Clean
-    Teardown
-    Remove Directory   ${tmpdir}  recursive=True
-
-Teardown
-    General Test Teardown
-    Stop Update Server
-    Stop Proxy Servers
-    Run Keyword If Test Failed   Dump Cloud Server Log
-    Stop Local Cloud Server
-    Cleanup Local Cloud Server Logs
-    Teardown Reset Original Path
-    Run Keyword If Test Failed    Dump Thininstaller Log
-    Remove Thininstaller Log
-    Cleanup Files
-    Require Uninstalled
-    Remove Environment Variable  SOPHOS_INSTALL
-    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
-    Remove Environment Variable  INSTALL_OPTIONS_FILE
-    Cleanup Temporary Folders
-
 Cert Test Teardown
-    Teardown
+    Thininstaller Test Teardown
     Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
 
 Create Fake Ldd Executable With Version As Argument And Add It To Path
@@ -119,12 +88,7 @@ Run Thin Installer And Check Argument Is Saved To Install Options File
     ${contents} =  Get File  ${CUSTOM_TEMP_UNPACK_DIR}/install_options
     Should Contain  ${contents}  ${argument}
 
-Setup base Install
-    Require Installed
-    Create File    ${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag
-    Create File    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_config.json
-    Remove File    ${SOPHOS_INSTALL}/base/VERSION.ini.0
-    ${result1} =   Run Process   cp ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/VERSION.ini ${SOPHOS_INSTALL}/base/VERSION.ini.0  shell=true
+
 *** Variables ***
 ${PROXY_LOG}  ./tmp/proxy_server.log
 ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config

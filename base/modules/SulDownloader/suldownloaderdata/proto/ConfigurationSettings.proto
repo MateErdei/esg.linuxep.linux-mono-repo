@@ -59,4 +59,5 @@ message ConfigurationSettings
      */
     optional bool useSlowSupplements = 17 [default=false];
     optional bool useSDDS3 = 18 [default=false];
+    optional string updateCacheCertPath = 19;
 }

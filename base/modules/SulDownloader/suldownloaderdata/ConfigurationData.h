@@ -154,8 +154,20 @@ namespace SulDownloader::suldownloaderdata
          * Sets the configured VersigPath
          * @param pstring containing the latest VersigPath
          */
-        void setVersigPath(const std::string& token);
+        void setVersigPath(const std::string& path);
 
+
+        /**
+         * Gets the updateCache certificates Path
+         * @return string containing the latest updateCache certificates Path
+         */
+        const std::string& getUpdateCacheCertPath() const;
+
+        /**
+         * Sets the configured updateCache certificates Path
+         * @param pstring containing the latest updateCache certificates Path
+         */
+        void setUpdateCacheCertPath(const std::string& path);
         /**
          * gets the tenant id
          * @return string containing the tenant id
@@ -389,6 +401,7 @@ namespace SulDownloader::suldownloaderdata
         Proxy m_policyProxy;
         State m_state;
         std::string m_versigPath;
+        std::string m_updateCacheCertPath;
         std::string m_jwToken;
         std::string m_tenantId;
         std::string m_deviceId;

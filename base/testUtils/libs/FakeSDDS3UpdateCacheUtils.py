@@ -31,16 +31,16 @@ ALC_UPDATE_CACHE_TEMPLATE="""<?xml version="1.0"?>
             <intermediate_certificate id="cfe086255488e4a45ebe10956bb3606c7ab5dc6a.crt">@CERTIFICATE@</intermediate_certificate>
         </intermediate_certificates>
         <locations>
-            <location hostname="localhost:8080" priority="1" id="4092822d-0925-4deb-9146-fbc8532f8c55"/>
+            <location hostname="@URL@" priority="1" id="4092822d-0925-4deb-9146-fbc8532f8c55"/>
         </locations>
     </update_cache>
     <customer id="4b4ca3ba-c144-4447-8050-6c96a7104c11"/>
 </AUConfigurations>
 """
 
-def write_ALC_update_cache_policy(cert_path):
+def write_ALC_update_cache_policy(cert_path,cache_url="localhost:8080"):
     with open(cert_path, 'r') as cert:
         contents = cert.read()
-    suite_xml = ALC_UPDATE_CACHE_TEMPLATE.replace("@CERTIFICATE@", contents)
+    suite_xml = ALC_UPDATE_CACHE_TEMPLATE.replace("@CERTIFICATE@", contents).replace("@URL@",cache_url)
     with open(os.path.join("/tmp" ,"ALC_policy.xml"), "w") as f:
         f.write(suite_xml)

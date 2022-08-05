@@ -172,3 +172,36 @@ Test that SDDS3 can Handle 202 then success from Update Caches
     ...    10s
     ...    Check SulDownloader Log Contains  Update success
     Check Sul Downloader log does not contain    Connecting to update source directly
+
+
+Sul Downloader fails to Installs SDDS3 Through update cache if UC cert is wrong
+    write_ALC_update_cache_policy   ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem
+    Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files  8081
+    Set Suite Variable    ${GL_handle}    ${handle}
+    ${handle}=  Start Local SDDS3 server with fake files   8080
+    Set Suite Variable    ${GL_UC_handle}    ${handle}
+
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override   CDN_URL=https://localhost:8081   URLS=https://localhost:8081
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...    20s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Trying update via update cache: https://localhost:8080
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Update success
+    Check SulDownloader Log Contains    Failed to Sync with https://localhost:8080 error: Error syncing https://localhost:8080/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 35
+    Check SulDownloader Log Contains    Connecting to update source directly

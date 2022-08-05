@@ -509,6 +509,9 @@ class LogUtils(object):
     def check_suldownloader_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.suldownloader_log, "Suldownloader")
 
+    def check_suldownloader_log_should_not_contain(self, string_to_contain):
+        self.check_log_does_not_contain(string_to_contain, self.suldownloader_log, "Suldownloader")
+
     def check_tscheduler_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.tscheduler_log, "Tscheduler")
 

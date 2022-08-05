@@ -1,19 +1,22 @@
 *** Settings ***
+Test Setup      Setup Thininstaller Test
 Test Teardown   Teardown
 
-Suite Setup      Setup Update Tests
-Suite Teardown   Run Keywords
-...              Cleanup Update Tests    AND
-...              Refresh HTTPS Certs
-Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
+Suite Setup  sdds3 suite setup with fakewarehouse with real base
+Suite Teardown   sdds3 suite fake warehouse Teardown
+
 Library     ${LIBS_DIRECTORY}/UpdateServer.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
+Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
+
 Library     Process
 Library     OperatingSystem
+
+Resource    ../upgrade_product/UpgradeResources.robot
 Resource    ./ThinInstallerResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../GeneralTeardownResource.robot
@@ -40,11 +43,6 @@ Teardown
     Cleanup Files
     Clear Environment Proxy
 
-Refresh HTTPS Certs
-    Cleanup System Ca Certs
-    Regenerate HTTPS Certificates
-    Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
 
 Set Bad Environment Proxy
     Set Environment Variable  https_proxy  http://localhost:2/
@@ -57,53 +55,30 @@ Clear Environment Proxy
 *** Test Case ***
 Thin Installer can install via Update Cache and Fallback from broken update cache
     Require Uninstalled
-    Get Legacy Thininstaller
-    Setup Update Cache
-    Can Curl Url    https://localhost:1236/sophos/customer
-    Set Local CA Environment Variable
-    Regenerate Certificates
     Start Local Cloud Server
-    Create Default Credentials File  update_caches=localhost:1236,2,1;localhost:1235,1,1
+    Create Default Credentials File  update_caches=localhost:8080,2,1;localhost:1235,1,1
     Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller  0  no_connection_address_override=${True}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
-    Check Thininstaller Log Contains In Order
-        ...  Failed to connect to warehouse at https://localhost:1235/sophos/customer
-        ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:1236/sophos/customer]
-        ...  Successfully downloaded installer from update cache address [localhost:1236]
-        ...  INSTALLER EXECUTED
-    Check Thininstaller Log does not contain  http://dci.sophosupd.com/update
+    Run Default Thininstaller  0  force_certs_dir=${SDDS3_DEVCERTS}
+    Check Suldownloader Log Contains In Order
+        ...  Trying update via update cache: https://localhost:1235
+        ...  Trying update via update cache: https://localhost:8080
+        ...  Update success
+
+    check_suldownloader_log_should_not_contain  Connecting to update source directly
 
 Thin Installer can install via Update Cache With Bad Proxy
-    Require Uninstalled
-    Get Legacy Thininstaller
-    Setup Update Cache
-    Can Curl Url    https://localhost:1236/sophos/customer
-    Set Local CA Environment Variable
     Set Bad Environment Proxy
-    Regenerate Certificates
-    Start Local Cloud Server
-    Create Default Credentials File  update_caches=localhost:1236,2,1;localhost:1235,1,1
-    Build Default Creds Thininstaller From Sections
-    Run Default Thininstaller  0  no_connection_address_override=${True}  force_certs_dir=${SUPPORT_FILES}/sophos_certs
-    Check Thininstaller Log Contains In Order
-        ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:1235/sophos/customer]
-        ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:1236/sophos/customer]
-    Check Thininstaller Log does not contain  http://dci.sophosupd.com/update
-    Check Thininstaller Log does not contain  http://localhost:2/
-
-Thin Installer fails with bad update cache cert
     Require Uninstalled
-    Get Legacy Thininstaller
-    Create Default Credentials File  update_caches=localhost:1236,2,1;localhost:1235,1,1
-    Build Default Creds Thininstaller From Sections
-    Regenerate HTTPS Certificates
-    Setup Update Cache
-    Can Curl Url    https://localhost:1236/sophos/customer
-    Set Local CA Environment Variable
-    Regenerate Certificates
     Start Local Cloud Server
-    Run Default Thininstaller  10    no_connection_address_override=${True}
-    Check Thininstaller Log Contains In Order
-        ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:1235/sophos/customer]
-        ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [https://localhost:1236/sophos/customer]
-        ...  Listing warehouse with creds [9539d7d1f36a71bbac1259db9e868231] at [http://dci.sophosupd.com/update]
+    Create Default Credentials File  update_caches=localhost:8080,2,1;localhost:1235,1,1
+    Build Default Creds Thininstaller From Sections
+    Run Default Thininstaller  0  force_certs_dir=${SDDS3_DEVCERTS}
+    Check Suldownloader Log Contains In Order
+        ...  Trying update via update cache: https://localhost:1235
+        ...  Trying update via update cache: https://localhost:8080
+        ...  Update success
+
+    check_suldownloader_log_should_not_contain  Connecting to update source directly
+    check_suldownloader_log_should_not_contain  localhost:2
+
+
