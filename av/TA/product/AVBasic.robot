@@ -530,6 +530,9 @@ Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     mark av log
     mark sophos threat detector log
+    Check AV Plugin Not Running
+    Check Threat Detector Not Running
+    Check Threat Detector PID File Does Not Exist
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
     Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
     Register Cleanup   Terminate And Wait until threat detector not running  ${THREAT_DETECTOR_PLUGIN_HANDLE}

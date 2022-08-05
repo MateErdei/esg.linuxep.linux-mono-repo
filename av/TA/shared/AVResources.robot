@@ -106,6 +106,11 @@ Check Threat Detector Not Running
     ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Should Be Equal As Integers  ${result}  ${-1}
 
+Check Threat Detector PID File Does Not Exist
+    # TODO - investigate why PID file sometimes does not get cleaned up
+    Run Keyword And Ignore Error  File Should Not Exist  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
+    Remove File  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
+
 Count File Log Lines
     [Arguments]  ${path}
     ${status}  ${content} =  Run Keyword And Ignore Error
