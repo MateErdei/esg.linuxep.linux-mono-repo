@@ -6,7 +6,7 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="sul">
-            <release-version branch="release/2022-30" build-id="20220802133151-14d073eebbcbbda71a904f5689494b19dfae089c-A2VyPF"/>
+            <release-version branch="release/2022-33" build-id="20220805145417-14d073eebbcbbda71a904f5689494b19dfae089c-uKK3ur"/>
             <development-version branch="develop"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
@@ -127,7 +127,7 @@
         </build-asset>
 
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/2022-30-linux" build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>
+            <release-version branch="release/2022-33-linux" build-id="20220805145337-15ff49d1c10dfaee281962b1a9332dc1e326cd05-AYUB2C"/>
             <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
