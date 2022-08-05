@@ -366,3 +366,24 @@ Thin Installer Passes MCS Config To Base Installer Via Args And Only One Registr
 
     # only one registration call in cloud server logs
     Check Cloud Server Log Contains  POST - /mcs/register (Sophos MCS Client)    occurs=1
+
+
+Thin Installer Passes Proxy Used By Registration To Suldownloader During Install
+    Start Message Relay
+    Create Default Credentials File  message_relays=dummyhost1:10000,1,2;localhost:20000,2,4
+    Build Default Creds Thininstaller From Sections
+    Run Default Thininstaller    0  force_certs_dir=${SUPPORT_FILES}/sophos_certs  cleanup=${False}
+    Check Thininstaller Log Contains    Successfully installed product
+    Check Suldownloader Log Contains  Trying SUS request (https://localhost:8080) with proxy: localhost:20000
+    Check Suldownloader Log Contains  SUS Request was successful
+
+
+Thin Installer Passes Basic Auth Proxy Used By Registration To Suldownloader During Install
+    Start Proxy Server With Basic Auth    8192    username    password
+    Create Default Credentials File
+    Build Default Creds Thininstaller From Sections
+    Run Default Thininstaller   expected_return_code=0  proxy=http://username:password@localhost:8192  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Check Thininstaller Log Contains    Successfully installed product
+    Check Suldownloader Log Contains  Trying SUS request (https://localhost:8080) with proxy: http://username:password@localhost:8192
+    Check Suldownloader Log Contains  SUS Request was successful
+
