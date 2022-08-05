@@ -496,10 +496,12 @@ int main(int argc, char** argv)
 
         if (!update_caches.empty())
         {
-            j["updateCaches"]={};
+            j["updateCache"] = {};
+            std::string updateCachePath = Common::FileSystem::join( fs->currentWorkingDirectory(),"installer/uc_certs.crt");
+            j["updateCacheCertPath"] = updateCachePath;
             for (const auto& cache: update_caches)
             {
-                j["updateCaches"].emplace_back(cache.getAddress());
+                j["updateCache"].emplace_back(cache.getAddress());
             }
 
         }
