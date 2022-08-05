@@ -6,9 +6,9 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-<!--            <release-version branch="release/2022-30"-->
-<!--                             build-id="20220718120117-9dd78bad548b4fdac7e57486f970d58cd5272f21-veR5uL"/>-->
-            <development-version branch="feature/LINUXDAR-5162-upgrade-openssl"/>
+            <release-version branch="release/2022-30"
+                             build-id="20220718120117-9dd78bad548b4fdac7e57486f970d58cd5272f21-veR5uL"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
