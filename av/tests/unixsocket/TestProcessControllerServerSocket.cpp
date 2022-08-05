@@ -90,7 +90,7 @@ TEST_F(TestProcessControllerServerSocket, testTriggerNotified) // NOLINT
             if (retries > 10) {
                 FAIL() << "Failed to received shutdown request within 10 attempts";
             }
-            sleep(1);
+            std::this_thread::sleep_for(10ms);
             retries++;
         }
         EXPECT_TRUE(processControllerServer.triggeredShutdown());

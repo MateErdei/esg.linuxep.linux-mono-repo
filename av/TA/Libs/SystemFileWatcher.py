@@ -4,7 +4,6 @@
 # All rights reserved.
 
 import difflib
-import hashlib
 import os
 import time
 
@@ -20,11 +19,13 @@ SYSTEM_FILES = [
     "hosts",
 ]
 
+
 def get_variable(varName, defaultValue=None):
     try:
         return BuiltIn().get_variable_value("${}".format(varName), defaultValue)
     except RobotNotRunningError:
         return os.environ.get(varName, defaultValue)
+
 
 def _ensure_unicode(s):
     if isinstance(s, bytes):
@@ -33,6 +34,7 @@ def _ensure_unicode(s):
         except UnicodeDecodeError:
             return s.decode("Latin-1")
     return s
+
 
 class SystemFileWatcher(object):
     def __init__(self):
@@ -80,7 +82,7 @@ class SystemFileWatcher(object):
                 if contents_diff:
                     logger.error("%s changed mtime while being watched at %s" % (f, current_mtime))
                 else:
-                    logger.error("%s changed mtime without changing contents while being watched at %s" %
+                    logger.warn("%s changed mtime without changing contents while being watched at %s" %
                                  (f, current_mtime))
                 any_changed = True
 

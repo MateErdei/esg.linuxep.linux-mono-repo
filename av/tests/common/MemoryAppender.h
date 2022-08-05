@@ -145,7 +145,7 @@ namespace
         [[maybe_unused]] void dumpLog() const;
 
         using clock = std::chrono::steady_clock;
-        [[maybe_unused]] bool waitForLog(const std::string& expected, clock::duration wait_time = 100ms) const; // NOLINT(modernize-use-nodiscard)
+        [[maybe_unused]] bool waitForLog(const std::string& expected, clock::duration wait_time = 250ms) const; // NOLINT(modernize-use-nodiscard)
     };
 
     MemoryAppenderUsingTests::MemoryAppenderUsingTests(std::string loggerInstanceName) :
