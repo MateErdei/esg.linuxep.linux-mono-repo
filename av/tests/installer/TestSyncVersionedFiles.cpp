@@ -258,6 +258,49 @@ TEST_F(TestSyncVersionedFiles, copyDeleteRemovedFile)
     EXPECT_FALSE(fs::is_regular_file(dest / "exists"));
 }
 
+TEST_F(TestSyncVersionedFiles, copyDoNothingForUnchangedFile)
+{
+    fs::path src = m_testDir / "src";
+    fs::path dest = m_testDir / "dest";
+    fs::create_directory(src);
+    fs::create_directory(dest);
+
+    std::string old_contents = "old_contents";
+    create_file(src / "exists", old_contents);
+    create_file(dest / "exists", old_contents);
+
+    int ret = sync_versioned_files::copy(src, dest);
+    EXPECT_EQ(ret, 0);
+    ASSERT_TRUE(fs::is_regular_file(dest / "exists")); // Can't test contents if file doesn't exist
+    auto contents = read_file(dest / "exists");
+    EXPECT_EQ(contents, old_contents);
+}
+
+TEST_F(TestSyncVersionedFiles, copyDoNothingForUnchangedFileTestHardlink)
+{
+    fs::path src = m_testDir / "src";
+    fs::path dest = m_testDir / "dest";
+    auto dest_file = dest / "exists";
+    fs::create_directory(src);
+    fs::create_directory(dest);
+
+    std::string old_contents = "old_contents";
+    create_file(src / "exists", old_contents);
+    create_file(dest_file, old_contents);
+    fs::create_hard_link(dest_file, m_testDir / "exists");
+
+    auto original_hard_link_count = fs::hard_link_count(dest_file);
+
+    int ret = sync_versioned_files::copy(src, dest);
+    EXPECT_EQ(ret, 0);
+    ASSERT_TRUE(fs::is_regular_file(dest / "exists")); // Can't test contents if file doesn't exist
+    auto contents = read_file(dest / "exists");
+    EXPECT_EQ(contents, old_contents);
+
+    auto new_hard_link_count = fs::hard_link_count(dest_file);
+    EXPECT_EQ(new_hard_link_count, original_hard_link_count);
+}
+
 class SyncVersionedFilesParameterizedTest
     : public ::testing::TestWithParam<bool>
 {
