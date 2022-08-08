@@ -302,6 +302,9 @@ AV plugin runs scheduled scan while CLS is running
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Register Cleanup    Exclude Scan Errors From File Samples
 
+    Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
+    Register Cleanup  Remove File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
+
     # Scan /usr/ with CLS (should take a long time)
     ${LOG_FILE} =       Set Variable   /tmp/scan.log
     Remove File  ${LOG_FILE}
