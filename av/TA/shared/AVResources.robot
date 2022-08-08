@@ -396,6 +396,10 @@ Wait Until On Access Log Contains
     ...   1
     Wait Until File Log Contains  On Access Log Contains   ${input}   timeout=${timeout}  interval=${interval}
 
+Wait Until On Access Log Contains With Offset
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  On Access Log Contains With Offset  ${input}   timeout=${timeout}
+
 FakeManagement Log Contains
     [Arguments]  ${input}
     ${log_path} =   FakeManagementLog.get_fake_management_log_path

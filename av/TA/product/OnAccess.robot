@@ -127,3 +127,38 @@ On Access Does Not Include Remote Files If Excluded In Policy
 
     Wait Until On Access Log Contains  OA config changed, re-enumerating mount points
     On Access Does Not Log Contain With Offset  Including mount point: /testmnt/nfsshare
+
+On Access Monitors Addition And Removal Of Mount Points
+    [Tags]  NFS
+    Mark On Access Log
+    Start On Access
+    Wait Until On Access Log Contains With Offset  Including mount point:
+    On Access Does Not Log Contain With Offset  Including mount point: /testmnt/nfsshare
+    ${numMountsPreNFSmount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
+    Log  Number of Mount Points: ${numMountsPreNFSmount}
+
+    Mark On Access Log
+    ${source} =       Set Variable  /tmp_test/nfsshare
+    ${destination} =  Set Variable  /testmnt/nfsshare
+    Create Directory  ${source}
+    Create Directory  ${destination}
+    Create Local NFS Share   ${source}   ${destination}
+    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
+
+    Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
+    Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
+    ${totalNumMountsPostNFSmount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
+    Log  Number of Mount Points: ${totalNumMountsPostNFSmount}
+    Should Be Equal As Integers  ${totalNumMountsPostNFSmount}  ${numMountsPreNFSmount+1}
+
+    Start Fake Management If Required
+
+    Mark On Access Log
+    Remove Local NFS Share   ${source}   ${destination}
+    Deregister Cleanup  Remove Local NFS Share   ${source}   ${destination}
+
+    Wait Until On Access Log Contains  Mount points changed - re-evaluating
+    On Access Does Not Log Contain With Offset  Including mount point: /testmnt/nfsshare
+    ${totalNumMountsPostNFSumount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
+    Log  Number of Mount Points: ${totalNumMountsPostNFSumount}
+    Should Be Equal As Integers  ${totalNumMountsPostNFSumount}  ${numMountsPreNFSmount}
