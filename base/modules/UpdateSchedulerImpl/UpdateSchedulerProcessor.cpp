@@ -4,6 +4,8 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "UpdateUtilities/InstalledFeatures.h"
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -56,64 +58,43 @@ namespace
         }
         return false;
     }
+} // namespace
 
-    /**
-     * Persists a list of feature codes to disk in JSON format. Used by Update Scheduler so that it can correctly
-     * generate ALC status feature code list on an update failure or when first started.
-     * @param Reference to std::vector<std::string> which holds list of feature codes, e.g. CORE
-     */
-    void writeInstalledFeaturesJsonFile(std::vector<std::string>& features)
+namespace UpdateSchedulerImpl
+{
+    void writeInstalledFeatures(const std::vector<std::string>& features)
     {
         try
         {
-            nlohmann::json jsonFeatures(features);
-            auto fileSystem = Common::FileSystem::fileSystem();
-            fileSystem->writeFile(
-                Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(),
-                jsonFeatures.dump());
+            Common::UpdateUtilities::writeInstalledFeaturesJsonFile(features);
         }
-        catch (nlohmann::json::parse_error& jsonException)
+        catch (const nlohmann::detail::exception& jsonException)
         {
             LOGERROR("The installed features list could not be serialised for persisting to disk: " << jsonException.what());
         }
-        catch (Common::FileSystem::IFileSystemException& fileSystemException)
+        catch (const Common::FileSystem::IFileSystemException& fileSystemException)
         {
             LOGERROR("The installed features list could not be written to disk: " << fileSystemException.what());
         }
     }
 
-    /**
-     * Returns the list of features that are currently installed, if there is no file or the file cannot be parsed
-     * then this returns an empty list.
-     * @return std::vector<std::string> of feature codes, e.g. CORE
-     */
-    std::vector<std::string> readInstalledFeaturesJsonFile()
+    std::vector<std::string> readInstalledFeatures()
     {
         try
         {
-            auto fileSystem = Common::FileSystem::fileSystem();
-            if (!fileSystem->exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
-            {
-                return {};
-            }
-            std::string featureCodes = fileSystem->readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath());
-            nlohmann::json jsonFeatures = nlohmann::json::parse(featureCodes);
-            return jsonFeatures.get<std::vector<std::string>>();
+            return Common::UpdateUtilities::readInstalledFeaturesJsonFile();
         }
-        catch (Common::FileSystem::IFileSystemException& fileSystemException)
+        catch (const Common::FileSystem::IFileSystemException& fileSystemException)
         {
             LOGERROR("The installed features list could not be read from disk: " << fileSystemException.what());
         }
-        catch (nlohmann::json::parse_error& jsonException)
+        catch (const nlohmann::detail::exception& jsonException)
         {
             LOGERROR("The installed features list could not be deserialised for reading from disk: " << jsonException.what());
         }
         return {};
     }
-} // namespace
 
-namespace UpdateSchedulerImpl
-{
     using SettingsHolder = UpdateSchedulerImpl::configModule::SettingsHolder;
     using ReportAndFiles = UpdateSchedulerImpl::configModule::ReportAndFiles;
     using UpdateStatus = UpdateSchedulerImpl::configModule::UpdateStatus;
@@ -143,7 +124,7 @@ namespace UpdateSchedulerImpl
         m_flagsPolicyProcessed(false),
         m_sdds3Enabled(false),
         m_featuresInPolicy(),
-        m_featuresCurrentlyInstalled(readInstalledFeaturesJsonFile())
+        m_featuresCurrentlyInstalled(readInstalledFeatures())
     {
         Common::OSUtilitiesImpl::SXLMachineID sxlMachineID;
         try
@@ -656,7 +637,7 @@ namespace UpdateSchedulerImpl
         {
             m_featuresCurrentlyInstalled = m_featuresInPolicy;
             LOGDEBUG("Writing currently installed feature codes json to disk");
-            writeInstalledFeaturesJsonFile(m_featuresCurrentlyInstalled);
+            writeInstalledFeatures(m_featuresCurrentlyInstalled);
         }
 
 

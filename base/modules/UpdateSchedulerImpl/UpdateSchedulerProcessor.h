@@ -17,6 +17,21 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 namespace UpdateSchedulerImpl
 {
+
+    /**
+     * Persists a list of feature codes to disk in JSON format. Used by Update Scheduler so that it can correctly
+     * generate ALC status feature code list on an update failure or when first started.
+     * @param Reference to std::vector<std::string> which holds list of feature codes, e.g. CORE
+     */
+    void writeInstalledFeatures(const std::vector<std::string>& features);
+
+    /**
+     * Returns the list of features that are currently installed, if there is no file or the file cannot be parsed
+     * then this returns an empty list.
+     * @return std::vector<std::string> of feature codes, e.g. CORE
+     */
+    std::vector<std::string> readInstalledFeatures();
+
     class DetectRequestToStop : public std::runtime_error
     {
     public:
@@ -38,7 +53,10 @@ namespace UpdateSchedulerImpl
             std::unique_ptr<UpdateScheduler::IAsyncSulDownloaderRunner> sulDownloaderRunner);
         void mainLoop();
         static std::string getAppId();
-        static std::string waitForPolicy(UpdateScheduler::SchedulerTaskQueue& queueTask, int maxTasksThreshold, const std::string& policyAppId);
+        static std::string waitForPolicy(
+            UpdateScheduler::SchedulerTaskQueue& queueTask,
+            int maxTasksThreshold,
+            const std::string& policyAppId);
 
     private:
         void waitForSulDownloaderToFinish(int numberOfSeconds2Wait);

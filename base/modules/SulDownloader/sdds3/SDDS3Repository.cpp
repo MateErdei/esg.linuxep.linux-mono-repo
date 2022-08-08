@@ -11,8 +11,8 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 #include "SDDS3Utils.h"
 #include "Sdds3Wrapper.h"
 #include "SusRequestParameters.h"
-
 #include "HttpRequestsImpl/HttpRequesterImpl.h"
+#include "UpdateUtilities/InstalledFeatures.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -393,6 +393,22 @@ namespace SulDownloader
             packagesOfInterest = allPackages;
         }
 
+        // Get the currently installed features. We need to make sure if the required feature list changes
+        // and we have a downloaded component that is not yet installed but is added to the required list then
+        // we do actually run the installer by marking the product as changed.
+        std::vector<std::string> installedFeatures;
+        if (Common::UpdateUtilities::doesInstalledFeaturesListExist())
+        {
+            try
+            {
+                installedFeatures = Common::UpdateUtilities::readInstalledFeaturesJsonFile();
+            }
+            catch (const std::exception& exception)
+            {
+                LOGERROR("Failed to read currently installed feature list");
+            }
+        }
+
         for (auto& package : allPackages)
         {
             if (package.lineId_ == "ServerProtectionLinux-Base")
@@ -427,12 +443,18 @@ namespace SulDownloader
                 }
             }
 
+            if (Common::UpdateUtilities::shouldProductBeInstalledBasedOnFeatures(productMetadata.getFeatures(), installedFeatures, m_configFeatures))
+            {
+                LOGDEBUG("Already downloaded product requires install: " << product.getLine());
+                product.setProductHasChanged(true);
+            }
+
             if (m_supplementOnly)
             {
                 bool packageContainsSupplement = false;
-                for (auto& packageWithsupplement : packagesWithSupplements)
+                for (auto& packageWithSupplement : packagesWithSupplements)
                 {
-                    if (packageWithsupplement.lineId_ == package.lineId_)
+                    if (packageWithSupplement.lineId_ == package.lineId_)
                     {
                         packageContainsSupplement = true;
                         break;
@@ -440,6 +462,8 @@ namespace SulDownloader
                 }
                 product.setProductHasChanged(product.productHasChanged() && packageContainsSupplement);
             }
+
+            // Don't install features we don't want
             if (!doesFeatureCodeMatchConfig(productMetadata.getFeatures()))
             {
                 continue;

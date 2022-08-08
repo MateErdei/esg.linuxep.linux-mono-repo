@@ -31,7 +31,7 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresAreWrittenToJsonFile) 
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     std::vector<std::string> features = { "feature1", "feature2" };
-    writeInstalledFeaturesJsonFile(features);
+    UpdateSchedulerImpl::writeInstalledFeatures(features);
 }
 
 TEST_F(TestUpdateSchedulerProcessorHelperMethods, emptyListOfFeaturesAreWrittenToJsonFile) // NOLINT
@@ -43,7 +43,7 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, emptyListOfFeaturesAreWrittenT
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     std::vector<std::string> features = {};
-    writeInstalledFeaturesJsonFile(features);
+    UpdateSchedulerImpl::writeInstalledFeatures(features);
 }
 
 TEST_F(TestUpdateSchedulerProcessorHelperMethods, noThrowExpectedOnFileSystemError) // NOLINT
@@ -60,7 +60,7 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, noThrowExpectedOnFileSystemErr
         filesystemMock) };
 
     std::vector<std::string> features = { "feature1", "feature2" };
-    EXPECT_NO_THROW(writeInstalledFeaturesJsonFile(features));
+    EXPECT_NO_THROW(UpdateSchedulerImpl::writeInstalledFeatures(features));
 }
 
 TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresAreReadFromJsonFile) // NOLINT
@@ -76,7 +76,7 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresAreReadFromJsonFile) /
 
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     std::vector<std::string> expectedFeatures = {"featureA", "featureB"};
-    std::vector<std::string> actualFeatures = readInstalledFeaturesJsonFile();
+    std::vector<std::string> actualFeatures = UpdateSchedulerImpl::readInstalledFeatures();
     EXPECT_EQ(expectedFeatures, actualFeatures);
 }
 
@@ -93,7 +93,7 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresAreReadFromJsonFileWit
 
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     std::vector<std::string> expectedFeatures = {};
-    std::vector<std::string> actualFeatures = readInstalledFeaturesJsonFile();
+    std::vector<std::string> actualFeatures = UpdateSchedulerImpl::readInstalledFeatures();
     EXPECT_EQ(expectedFeatures, actualFeatures);
 }
 
@@ -109,7 +109,7 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresAreReadFromEmptyJsonFi
         .WillOnce(Return(""));
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     std::vector<std::string> expectedFeatures = {};
-    std::vector<std::string> actualFeatures = readInstalledFeaturesJsonFile();
+    std::vector<std::string> actualFeatures = UpdateSchedulerImpl::readInstalledFeatures();
     EXPECT_EQ(expectedFeatures, actualFeatures);
 }
 
@@ -126,7 +126,7 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, noThrowWhenFeaturesAreReadFrom
 
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     std::vector<std::string> expectedFeatures = {};
-    std::vector<std::string> actualFeatures = readInstalledFeaturesJsonFile();
+    std::vector<std::string> actualFeatures = UpdateSchedulerImpl::readInstalledFeatures();
     EXPECT_EQ(expectedFeatures, actualFeatures);
 }
 
@@ -139,7 +139,7 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresDefaultToEmptyListWhen
 
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
     std::vector<std::string> expectedFeatures = {};
-    std::vector<std::string> actualFeatures = readInstalledFeaturesJsonFile();
+    std::vector<std::string> actualFeatures = UpdateSchedulerImpl::readInstalledFeatures();
     EXPECT_EQ(expectedFeatures, actualFeatures);
 }
 

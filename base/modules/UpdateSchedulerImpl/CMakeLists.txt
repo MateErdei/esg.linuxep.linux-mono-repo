@@ -60,7 +60,10 @@ add_library(updateschedulerimpl SHARED
         stateMachinesModule/StateMachineProcessor.cpp
         stateMachinesModule/StateMachineProcessor.h
         UpdateSchedulerUtils.cpp
-        UpdateSchedulerUtils.h)
+        UpdateSchedulerUtils.h
+        ../Common/UpdateUtilities/InstalledFeatures.h
+        ../Common/UpdateUtilities/InstalledFeatures.cpp
+        )
 
 target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 

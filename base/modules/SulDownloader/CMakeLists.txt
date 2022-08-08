@@ -31,6 +31,8 @@ add_library(suldownloaderimpl SHARED
         SulDownloader.h
         ProductUninstaller.cpp
         ProductUninstaller.h
+        ../Common/UpdateUtilities/InstalledFeatures.h
+        ../Common/UpdateUtilities/InstalledFeatures.cpp
         Logger.cpp
         Logger.h
         )
