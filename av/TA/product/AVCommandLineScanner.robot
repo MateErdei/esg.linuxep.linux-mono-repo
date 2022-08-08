@@ -5,6 +5,7 @@ Library         Process
 Library         Collections
 Library         OperatingSystem
 Library         DateTime
+Library         ../Libs/CoreDumps.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FakeWatchdog.py

@@ -1,6 +1,7 @@
 *** Settings ***
 
 Library         OperatingSystem
+Library         ../Libs/CoreDumps.py
 Library         ../Libs/InstallSet.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/BaseUtils.py
@@ -54,6 +55,7 @@ Global Setup Tasks
     Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  false
 
     Create Install Set If Required
+    CoreDumps.Enable Core Files
 
 Global Teardown Tasks
     Run Keyword And Ignore Error  Uninstall All

@@ -10,6 +10,7 @@ Resource    ../shared/ErrorMarkers.robot
 
 Library         Collections
 Library         Process
+Library         ../Libs/CoreDumps.py
 Library         ../Libs/FullInstallerUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py

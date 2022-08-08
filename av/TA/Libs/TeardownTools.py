@@ -1,6 +1,9 @@
-import datetime
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright (C) 2022 Sophos Plc, Oxford, England.
+# All rights reserved.
+
 import os
-import shutil
 import subprocess as sp
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
@@ -72,35 +75,13 @@ class TeardownTools(object):
     ROBOT_LIBRARY_SCOPE = 'TEST SUITE'
     ROBOT_LISTENER_API_VERSION = 2
 
-    FORCE_LOGGING_KEY="FORCE_LOGGING"
+    FORCE_LOGGING_KEY = "FORCE_LOGGING"
 
     def __init__(self):
         self.log_files = _log_files()
         self.log_mark_dict = {}
         for log_key in self.log_files:
             self.log_mark_dict[log_key] = None
-
-    def check_dmesg_for_segfaults(self):
-        dmesg_process = sp.Popen(["dmesg", "-T"], stdout=sp.PIPE)
-        grep_process = sp.Popen(["grep", "-n3", "segfault"], stdin=dmesg_process.stdout, stdout=sp.PIPE)
-        dmesg_process.wait()
-        dmesg_process.stdout.close()
-        logger.info(dmesg_process.returncode)
-        grep_process.wait()
-        stdout, stderr = grep_process.communicate()
-        logger.info(stdout)
-        logger.info(stderr)
-        logger.info("dmesg return code: {}, expecting 0".format(dmesg_process.returncode))
-        assert dmesg_process.returncode == 0
-        logger.info("grep return code: {}, expecting 1".format(grep_process.returncode))
-        if grep_process.returncode == 0: #
-            #Clear the dmesg logs on a segfault to stop all subsequent tests failing for a single segfault
-            dmesg_process_clear_log = sp.Popen(["dmesg", "-C"], stdout=sp.PIPE)
-            dmesg_process_clear_log.wait()
-            logger.info("Clear dmesg after segfault detected")
-        assert grep_process.returncode == 1 # 0 means it found something, 1 means it didn't find anything, 2 means there was an error
-
-        return stdout
 
     def force_teardown_logging_if_env_set(self):
         if not os.environ.get(self.FORCE_LOGGING_KEY, None):
@@ -199,59 +180,3 @@ class TeardownTools(object):
         if root_coverage or tests_coverage:
             files = root_coverage + tests_coverage
             self._run_combine_ignore_error(files)
-
-    def check_for_coredumps(self, testname):
-        #self.mount_filer6()
-        if os.path.exists("/tmp"):
-            files_in_tmp = [f for f in os.listdir("/tmp") if os.path.isfile(os.path.join("/tmp", f))]
-            is_core_dump = False
-            for file in files_in_tmp:
-                if file.startswith("core-"):
-                    is_core_dump = True
-                    file_path = os.path.join("/tmp", file)
-                    #self.copy_to_filer6(file_path, testname)
-                    self.copy_to_coredump_dir(file_path, testname)
-                    os.remove(file_path)
-            if is_core_dump:
-                raise AssertionError("Core dump found")
-        else:
-            print("No tmp directory")
-
-
-    def copy_to_coredump_dir(self, filepath, testname):
-        testname = (testname + "_" + str(datetime.datetime.now())).replace(" ", "_")
-        coredump_dir = "/opt/test/coredumps"
-        if not os.path.exists(coredump_dir):
-            os.makedirs(coredump_dir)
-        shutil.copy(filepath, os.path.join(coredump_dir, testname))
-
-
-    def copy_to_filer6(self, filepath, testname):
-        fuzz_output_dir = "/mnt/filer6/linux/SSPL/CoreDumps"
-        testname = (testname + "_" + str(datetime.datetime.now())).replace(" ", "_")
-        core_dump_dir = os.path.join(fuzz_output_dir, testname)
-
-        logger.info("copying file: {} to filer6".format(filepath))
-        if not os.path.exists(core_dump_dir):
-            os.makedirs(core_dump_dir)
-        shutil.copy(filepath, core_dump_dir)
-
-    def mount_filer6(self):
-        filer6 = "/mnt/filer6/linux"
-        sspl_filer_path = "/mnt/filer6/linux/SSPL"
-
-        if not os.path.ismount(sspl_filer_path):
-            popen = sp.Popen(["mount", filer6], stdout=sp.PIPE, stderr=sp.PIPE)
-            output, stderror = popen.communicate()
-
-            if output:
-                logger.info(output)
-
-            if stderror:
-                logger.info(stderror)
-
-            returncode = popen.returncode
-            if returncode != 0:
-                return returncode
-
-

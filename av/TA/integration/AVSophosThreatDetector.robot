@@ -7,6 +7,7 @@ Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
 
+Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/ProcessUtils.py
 

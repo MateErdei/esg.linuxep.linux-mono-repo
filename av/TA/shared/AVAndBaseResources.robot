@@ -2,6 +2,8 @@
 Resource    AVResources.robot
 Resource    BaseResources.robot
 
+Library         ../Libs/CoreDumps.py
+
 *** Keywords ***
 
 AV and Base Setup

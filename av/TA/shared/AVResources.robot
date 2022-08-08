@@ -3,6 +3,7 @@ Library         Process
 Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
+Library         ../Libs/CoreDumps.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
@@ -523,6 +524,8 @@ Install Base For Component Tests
     Run Process  chmod  +x  ${BASE_SDDS}/files/base/bin/*
     ${result} =   Run Process   bash  ${BASE_SDDS}/install.sh  timeout=600s    stderr=STDOUT
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install base.\noutput: \n${result.stdout}"
+
+    CoreDumps.Enable Core Files
     # Check watchdog running
     ProcessUtils.wait_for_pid  ${WATCHDOG_BINARY}  ${5}
     # Stop MCS router since we haven't configured Central

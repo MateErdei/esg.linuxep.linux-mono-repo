@@ -7,6 +7,7 @@ Library         OperatingSystem
 Library         String
 
 Library         ../Libs/AVScanner.py
+Library         ../Libs/CoreDumps.py
 Library         ../Libs/LockFile.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/LogUtils.py
