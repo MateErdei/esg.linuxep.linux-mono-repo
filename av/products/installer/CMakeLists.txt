@@ -36,6 +36,8 @@ target_include_directories(sync_versioned_files PUBLIC
 
 target_link_libraries(sync_versioned_files PUBLIC
         ${STD_FILESYSTEM_IF_REQUIRED}
-        ${Boost_LIBRARIES} )
+        ${Boost_LIBRARIES}
+        datatypes
+        )
 install(TARGETS sync_versioned_files
         DESTINATION files/plugins/${PLUGIN_NAME}/sbin/)

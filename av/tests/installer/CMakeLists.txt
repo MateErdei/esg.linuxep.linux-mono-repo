@@ -8,6 +8,7 @@ SophosAddTest(TestSyncVersionedFiles
         LIBS ${STD_FILESYSTEM_IF_REQUIRED}
              pthread
              ${pluginapilib}
+             datatypes
         INC_DIRS ${CMAKE_SOURCE_DIR}/modules
                  ${CMAKE_SOURCE_DIR}/products/installer/sync_versioned_files
                  ${CMAKE_SOURCE_DIR}

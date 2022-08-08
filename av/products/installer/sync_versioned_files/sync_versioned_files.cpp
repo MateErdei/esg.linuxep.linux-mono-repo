@@ -3,6 +3,7 @@
 // Class
 #include "sync_versioned_files.h"
 // Component
+#include "datatypes/AutoFd.h"
 #include "datatypes/Print.h"
 // Std C++
 #include <cassert>
@@ -86,33 +87,6 @@ int sync_versioned_files::sync_versioned_files(const fs::path& src, const fs::pa
     return 0;
 }
 
-namespace
-{
-    class AutoFd
-    {
-    public:
-        int m_fd;
-        explicit AutoFd(int fd)
-            : m_fd(fd)
-        {}
-        ~AutoFd()
-        {
-            if (m_fd >= 0)
-            {
-                ::close(m_fd);
-            }
-        }
-        [[nodiscard]] bool valid() const
-        {
-            return m_fd >= 0;
-        }
-        [[nodiscard]] int fd() const
-        {
-            return m_fd;
-        }
-    };
-}
-
 /**
  * Compare two files, that should both exist
  * @param src
@@ -121,8 +95,8 @@ namespace
  */
 static bool are_identical(const path_t& src, const path_t& dest)
 {
-    AutoFd srcFile{::open(src.c_str(), O_RDONLY)};
-    AutoFd destFile{::open(dest.c_str(), O_RDONLY)};
+    datatypes::AutoFd srcFile{::open(src.c_str(), O_RDONLY)};
+    datatypes::AutoFd destFile{::open(dest.c_str(), O_RDONLY)};
     assert(srcFile.valid());
     assert(destFile.valid());
 
