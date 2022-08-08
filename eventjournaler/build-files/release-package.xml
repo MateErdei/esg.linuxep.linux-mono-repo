@@ -7,23 +7,23 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-30"
-                             build-id="20220718120117-9dd78bad548b4fdac7e57486f970d58cd5272f21-veR5uL"/>
+            <release-version branch="release/2022-33"
+                             build-id="20220805171151-714d3aacf10acdea28b8e78b3b633b59cab69e6c-ZYpqOn"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
             <include artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <release-version branch="release/SED_2022.24_linux_libs"
-                             build-id="20220606095017-5275fc56a7aa0adafa8887fbe3ad2567028526e7-hZubCK"/>
+            <release-version branch="release/SED_2022.33"
+                             build-id="20220808122423-8e4f9557ac08a7671589558996e5da328366b7ae-vKLP06"/>
             <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
             <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/2022-30-linux"
-                             build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>
+            <release-version branch="release/2022-33-linux"
+                             build-id="20220805145337-15ff49d1c10dfaee281962b1a9332dc1e326cd05-AYUB2C"/>
             <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
