@@ -6,10 +6,10 @@
 #include "Logger.h"
 #include "StringUtils.h"
 // Plugin
-#include "common/ApplicationPaths.h"
 #include "unixsocket/processControllerSocket/ProcessControllerClient.h"
 // Product
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <Common/FileSystem/IFileSystem.h>
@@ -27,6 +27,12 @@ namespace Plugin
 {
     namespace
     {
+        std::string getPluginInstall()
+        {
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            return appConfig.getData("PLUGIN_INSTALL");
+        }
+
         std::string getNonChrootCustomerIdPath()
         {
             auto pluginInstall = getPluginInstall();
@@ -50,12 +56,6 @@ namespace Plugin
             auto  pluginInstall = getPluginInstall();
             return  pluginInstall + "/var/soapd_config.json";
         }
-
-        std::string getSoapFlagConfigPath()
-        {
-            auto  pluginInstall = getPluginInstall();
-            return  pluginInstall + "/var/oa_flag.json";
-        }
     }
 
     PolicyProcessor::PolicyProcessor()
@@ -74,29 +74,20 @@ namespace Plugin
         }
     }
 
-    void PolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
+    bool PolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
         auto oldCustomerId = m_customerId;
         m_customerId = getCustomerId(policy);
-
-        if (!m_gotFirstAlcPolicy)
-        {
-            LOGINFO("ALC policy received for the first time.");
-            m_gotFirstAlcPolicy = true;
-        }
-
         if (m_customerId.empty())
         {
             LOGWARN("Failed to find customer ID from ALC policy");
-            m_restartThreatDetector = false;
-            return;
+            return false;
         }
 
         if (m_customerId == oldCustomerId)
         {
             // customer ID not changed
-            m_restartThreatDetector = false;
-            return;
+            return false;
         }
 
         // write customer ID to a file
@@ -112,7 +103,7 @@ namespace Plugin
         fs->writeFile(dest, m_customerId);
         ::chmod(dest.c_str(), 0640);
 
-        m_restartThreatDetector = true; // Only restart sophos_threat_detector if it changes
+        return true; // Only restart sophos_threat_detector if it changes
     }
 
     bool PolicyProcessor::getSXL4LookupsEnabled() const
@@ -167,10 +158,10 @@ namespace Plugin
         return common::md5_hash(cred); // always do the second hash
     }
 
-    void PolicyProcessor::notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE requestType)
+    void PolicyProcessor::notifyOnAccessProcess()
     {
         unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath());
-        scan_messages::ProcessControlSerialiser processControlRequest(requestType);
+        scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
         processController.sendProcessControlRequest(processControlRequest);
     }
 
@@ -196,7 +187,7 @@ namespace Plugin
             return;
         }
 
-        notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+        notifyOnAccessProcess();
 
         setOnAccessConfiguredTelemetry(enabled == "true");
     }
@@ -209,26 +200,18 @@ namespace Plugin
         telemetry.set("onAccessConfigured", onAccessEnabledTelemetry, true);
     }
 
-    void PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
+    bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed)
     {
-        processOnAccessPolicy(policy);
-
         bool oldLookupEnabled = m_lookupEnabled;
         m_lookupEnabled = isLookupEnabled(policy);
-
-        if (m_gotFirstSavPolicy && m_lookupEnabled == oldLookupEnabled)
+        if (isSAVPolicyAlreadyProcessed && m_lookupEnabled == oldLookupEnabled)
         {
-            // Dont restart Threat Detector if its not changed and its not the first policy
-            m_restartThreatDetector = false;
-            return;
+            // Only restart sophos_threat_detector if it is the first policy or it has changed
+
+            return false;
         }
 
-        if (!m_gotFirstSavPolicy)
-        {
-            LOGINFO("SAV policy received for the first time.");
-            m_gotFirstSavPolicy = true;
-        }
-
+        //processOnAccessPolicy(policy);
 
         json susiStartupSettings;
         susiStartupSettings["enableSxlLookup"] = m_lookupEnabled;
@@ -252,7 +235,7 @@ namespace Plugin
             LOGERROR(e.what() << ", setting default values for susi startup settings.");
         }
 
-        m_restartThreatDetector = true;
+        return true;
     }
 
     bool PolicyProcessor::isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy)
@@ -276,80 +259,5 @@ namespace Plugin
             results.emplace_back(attr.contents());
         }
         return results;
-    }
-
-    void PolicyProcessor::processFlagSettings(const std::string& flagsJson)
-    {
-        LOGDEBUG("Processing FLAGS settings");
-        try
-        {
-            nlohmann::json j = nlohmann::json::parse(flagsJson);
-            processOnAccessFlagSettings(j);
-            processSafeStoreFlagSettings(j);
-        }
-        catch (const json::parse_error& e)
-        {
-            LOGWARN("Failed to parse FLAGS policy due to parse error, reason: " << e.what());
-        }
-    }
-
-    void PolicyProcessor::processOnAccessFlagSettings(const nlohmann::json& flagsJson)
-    {
-        bool oaEnabled = false;
-
-        if (flagsJson.find(OA_FLAG) != flagsJson.end())
-        {
-            if (flagsJson[OA_FLAG] == true)
-            {
-                LOGINFO("On-access is enabled in the FLAGS policy, assuming on-access policy settings");
-                oaEnabled = true;
-            }
-            else
-            {
-                LOGINFO("On-access is disabled in the FLAGS policy, overriding on-access policy settings");
-            }
-        }
-        else
-        {
-            LOGINFO("No on-access flag found, overriding on-access policy settings");
-        }
-
-        json oaConfig;
-        oaConfig["oa_enabled"] = oaEnabled;
-
-        try
-        {
-            auto* fs = Common::FileSystem::fileSystem();
-            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-            fs->writeFileAtomically(getSoapFlagConfigPath(), oaConfig.dump(), tempDir, 0640);
-
-            notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
-        }
-        catch (const Common::FileSystem::IFileSystemException& e)
-        {
-            LOGERROR(
-                "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access "
-                "disabled)"
-                << e.what());
-        }
-    }
-
-    void PolicyProcessor::processSafeStoreFlagSettings(const nlohmann::json& flagsJson)
-    {
-        bool ssEnabled = flagsJson.value(SS_FLAG, false);
-        if (ssEnabled)
-        {
-            LOGINFO("SafeStore flag set. Setting SafeStore to enabled.");
-        }
-        else
-        {
-            LOGINFO("SafeStore flag not set. Setting SafeStore to disabled.");
-        }
-        m_safeStoreEnabled = ssEnabled;
-    }
-
-    bool PolicyProcessor::isSafeStoreEnabled() const
-    {
-        return m_safeStoreEnabled;
     }
 }
