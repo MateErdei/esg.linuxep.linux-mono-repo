@@ -18,4 +18,3 @@ instances:
           runtimedetections.latest.x64:
             supplements:
               - rdrules
-          heartbeat.latest.x64:
