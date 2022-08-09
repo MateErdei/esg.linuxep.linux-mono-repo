@@ -267,7 +267,7 @@ CLS Duration Summary is Displayed Correctly
     Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/    stdout=/tmp/stdout
 
     Sleep  65s
-    Send Signal To Process  2
+    Send Signal To Process  SIGINT
     ${result} =  Wait For Process  timeout=10s
     Process Should Be Stopped
     Should Contain   ${result.stdout}  files scanned in 1 minute
@@ -1782,3 +1782,62 @@ Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
     AV Plugin Log Contains With Offset  <item file="eicar_file"
     AV Plugin Log Contains With Offset  path="${NORMAL_DIRECTORY}/"/>
     AV Plugin Log Contains With Offset  <action action="101"/>
+
+
+AV Scanner waits for threat detector process
+    Create File     ${NORMAL_DIRECTORY}/eicar_file    ${EICAR_STRING}
+
+    Stop AV
+    register on fail  Start AV
+
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   ${NORMAL_DIRECTORY}   -x   /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
+
+    ## cannot wait for messages in the log as it is buffered and not written syncronously.
+    Sleep   10s
+    Start AV
+    ${result} =  Wait For Process  handle=${HANDLE}  timeout=180s
+    Process Should Be Stopped  handle=${HANDLE}
+
+    Dump Log   ${LOG_FILE}
+    File Log Contains   ${LOG_FILE}  Failed to connect to Sophos Threat Detector
+    Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
+
+
+AV Scanner stops promptly while trying to connect
+    Create File     ${NORMAL_DIRECTORY}/eicar_file    ${EICAR_STRING}
+
+    Stop AV
+    register cleanup  Start AV
+
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   ${NORMAL_DIRECTORY}   -x   /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
+
+    ## cannot wait for messages in the log as it is buffered and not written syncronously.
+    Sleep   5s
+    Send Signal To Process   SIGINT   handle=${HANDLE}
+    ${result} =  Wait For Process  handle=${HANDLE}  timeout=5s
+    Process Should Be Stopped  handle=${HANDLE}
+
+    Dump Log   ${LOG_FILE}
+    File Log Contains   ${LOG_FILE}  Failed to connect to Sophos Threat Detector
+    File Log Contains   ${LOG_FILE}  Scan manually aborted
+    Should Be Equal As Integers  ${result.rc}  ${1}
+
+
+AV Scanner stops promptly during a scan
+    Create File     ${NORMAL_DIRECTORY}/eicar_file    ${EICAR_STRING}
+
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
+    Wait Until File exists  ${LOG_FILE}
+    Wait For File With Particular Contents   \ Scanning\   ${LOG_FILE}
+
+    Stop AV
+    register cleanup  Start AV
+    Sleep   5
+
+    Send Signal To Process   SIGINT   handle=${HANDLE}
+    ${result} =  Wait For Process  handle=${HANDLE}  timeout=5s
+    Process Should Be Stopped  handle=${HANDLE}
+
+    Dump Log   ${LOG_FILE}
+    File Log Contains   ${LOG_FILE}  Failed to receive scan response
+    Should Be Equal As Integers  ${result.rc}  ${MANUAL_INTERUPTION_RESULT}
