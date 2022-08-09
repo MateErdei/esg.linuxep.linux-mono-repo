@@ -93,9 +93,6 @@ class CoreDumps(object):
         logger.warn("dmesg output: %s" % stdout)
 
     def check_dmesg_for_segfaults(self, testname=None):
-        if self.__m_ignore_cores_segfaults:
-            logger.debug("Ignoring segfaults in dmesg")
-            return
         sp = subprocess
         dmesg_process = sp.Popen([b"dmesg", b"-T"], stdout=sp.PIPE, stderr=sp.STDOUT)
         stdout = dmesg_process.communicate()[0]
@@ -163,7 +160,11 @@ class CoreDumps(object):
             sp.Popen(["dmesg", "-C"]).wait()
 
             self.check_for_coredumps(testname)  # Do this immediately in case it isn't called
-            if all_segfaults_are_rtd:
+
+            if self.__m_ignore_cores_segfaults:
+                logger.debug("Ignoring segfaults in dmesg")
+                return ""
+            elif all_segfaults_are_rtd:
                 logger.error("Not failing test for RTD segfaults! See LINUXDAR-4903")
             else:
                 raise AssertionError("segfault detected in dmesg: %s" % stdout)
@@ -171,12 +172,10 @@ class CoreDumps(object):
         return stdout
 
     def check_for_coredumps(self, testname=None):
-        if self.__m_ignore_cores_segfaults:
-            logger.debug("Ignoring core dumps")
-            return
         if testname is None:
             testname = BuiltIn().get_variable_value("${TEST NAME}")
         CORE_DIR="/z"
+
         if os.path.exists(CORE_DIR):
             coredumpnames = []
             found_core_dump = False
@@ -186,6 +185,11 @@ class CoreDumps(object):
 
                 file_path = os.path.join(CORE_DIR, file)
                 if not os.path.isfile(file_path):
+                    continue
+
+                if self.__m_ignore_cores_segfaults:
+                    logger.debug("Ignoring core dump:", file_path)
+                    os.unlink(file_path)
                     continue
 
                 found_core_dump = True
