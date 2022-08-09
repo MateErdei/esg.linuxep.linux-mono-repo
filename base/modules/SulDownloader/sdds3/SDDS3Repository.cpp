@@ -274,6 +274,7 @@ namespace SulDownloader
             }
             LOGINFO("Trying update via update cache: " << srcUrl);
             m_session->httpConfig.useSophosCertificateStore = true;
+            m_session->httpConfig.useUpdateCache = true;
             if (configurationData.getUpdateCacheCertPath().empty())
             {
                 m_session->httpConfig.sophosCertificateStore = Common::ApplicationConfiguration::applicationPathManager().getUpdateCacheCertificateFilePath();
