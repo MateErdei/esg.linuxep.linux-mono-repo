@@ -1824,8 +1824,6 @@ AV Scanner stops promptly while trying to connect
 
 
 AV Scanner stops promptly during a scan
-    Create File     ${NORMAL_DIRECTORY}/eicar_file    ${EICAR_STRING}
-
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
     Wait Until File exists  ${LOG_FILE}
     Wait For File With Particular Contents   \ Scanning\   ${LOG_FILE}
