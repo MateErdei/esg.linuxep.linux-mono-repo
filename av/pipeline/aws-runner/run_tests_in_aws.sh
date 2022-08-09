@@ -368,6 +368,22 @@ cleanupStack
 rm -rf ./results
 mkdir ./results
 aws s3 cp --recursive "s3://sspl-testbucket/test-results/${STACK}/" ./results
+
+CORE_DIR=/opt/test/coredumps
+if [[ $(id -u) != 0 ]]
+then
+    CORE_DIR=/tmp/coredumps
+fi
+
+rm -rf "${CORE_DIR}"
+mkdir -p "${CORE_DIR}"
+if [[ -d "${CORE_DIR}" ]]
+then
+  aws s3 sync "s3://sspl-testbucket/test-results/${STACK}/core-files" "${CORE_DIR}"
+  # delete core dir if empty
+  rmdir "${CORE_DIR}" || true
+fi
+
 python3 delete_old_results.py ${STACK}
 aws s3 rm ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME}
 

@@ -139,6 +139,7 @@ def aws_task(machine: tap.Machine, include_tag: str):
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/combined-log.html",
                     "av" + get_suffix() + "_aws-log.html")
+        machine.output_artifact('/opt/test/coredumps', 'coredumps', raise_on_failure=False)
 
 
 def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
