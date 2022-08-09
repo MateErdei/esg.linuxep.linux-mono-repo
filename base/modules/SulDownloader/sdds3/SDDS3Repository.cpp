@@ -272,6 +272,7 @@ namespace SulDownloader
             {
                 srcUrl = "https://" + srcUrl;
             }
+            srcUrl = srcUrl+ "/v3";
             LOGINFO("Trying update via update cache: " << srcUrl);
             m_session->httpConfig.useSophosCertificateStore = true;
             m_session->httpConfig.useUpdateCache = true;
