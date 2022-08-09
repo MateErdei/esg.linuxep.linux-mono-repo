@@ -20,6 +20,7 @@ Library     ${LIBS_DIRECTORY}/OSUtils.py
 Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
 Library     ${LIBS_DIRECTORY}/TeardownTools.py
 Library     ${LIBS_DIRECTORY}/UpgradeUtils.py
+Library     ${LIBS_DIRECTORY}/TelemetryUtils.py
 
 Library     Process
 Library     OperatingSystem
@@ -29,6 +30,7 @@ Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../installer/InstallerResources.robot
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
 Resource    UpgradeResources.robot
+Resource    ../telemetry/TelemetryResources.robot
 
 *** Variables ***
 ${BaseEdrAndMtrAndAVDogfoodPolicy}          ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT-1.xml
@@ -446,6 +448,57 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
     ${scheduled_query_pack_next_mtr} =    Get File    ${sdds3_primary}/ServerProtectionLinux-Plugin-EDR/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
     Should Be Equal As Strings            ${scheduled_query_pack_mtr}    ${scheduled_query_pack_next_mtr}
 
+
+SDDS3 Mechanism Is Updated in UpdateScheduler Telemetry After Successful Update To SDDS3
+    [Setup]    Test Setup With Ostia
+    [Teardown]    Test Teardown With Ostia
+    Cleanup Telemetry Server
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    ${handle}=  Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    Set Log Level For Component And Reset and Return Previous Log  updatescheduler   DEBUG
+
+    Wait Until Keyword Succeeds
+    ...    30 secs
+    ...    5 secs
+    ...    Check UpdateScheduler Log Contains String N Times    Sending status to Central    2
+
+    Prepare To Run Telemetry Executable With HTTPS Protocol    port=6443
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log File   ${TELEMETRY_OUTPUT_JSON}
+    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0   sddsid=av_user_vut  set_edr=True  set_av=True  most_recent_update_successful=True  sdds_mechanism=SDDS2
+
+    Overwrite MCS Flags File    {"sdds3.enabled": true}
+    Wait Until Keyword Succeeds
+    ...     10s
+    ...     2s
+    ...     File Should Contain  ${UPDATE_CONFIG}     "useSDDS3": true
+    Check Updatescheduler Log Contains    Received sdds3.enabled flag value: 1
+
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...    200 secs
+    ...    10 secs
+    ...    Check Suldownloader Log Contains In Order    Update success    Running in SDDS3 updating mode   Generating the report file
+    Wait Until Keyword Succeeds
+    ...    30 secs
+    ...    5 secs
+    ...    Check UpdateScheduler Log Contains String N Times    Sending status to Central    3
+
+    Cleanup Telemetry Server
+    Prepare To Run Telemetry Executable With HTTPS Protocol    port=6443
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log File   ${TELEMETRY_OUTPUT_JSON}
+    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0   sddsid=av_user_vut  set_edr=True  set_av=True  most_recent_update_successful=True  sdds_mechanism=SDDS3
+    Cleanup Telemetry Server
 
 *** Keywords ***
 Create Dummy Local SDDS2 Cache Files

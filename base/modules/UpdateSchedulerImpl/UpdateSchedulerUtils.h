@@ -19,6 +19,7 @@ namespace UpdateSchedulerImpl
         static std::string getJWToken();
         static std::string getTenantId();
         static std::string getDeviceId();
+        static std::string getSDDSMechanism(bool sdds3Enabled);
 
         static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getCurrentConfigurationData();
         static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getPreviousConfigurationData();

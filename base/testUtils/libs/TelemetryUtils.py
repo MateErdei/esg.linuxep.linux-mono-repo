@@ -42,6 +42,14 @@ class TelemetryUtils:
         self.telemetry_supplementary_filepath = os.path.join(base_info.get_install(), 'base/etc/telemetry-config.json')
         self.telemetry_exe_config_filepath = os.path.join(base_info.get_install(), 'base/telemetry/var/telemetry-exe.json')
 
+    def ordered(self, obj):
+        if isinstance(obj, dict):
+            return sorted((k, self.ordered(v)) for k, v in obj.items())
+        if isinstance(obj, list):
+            return sorted(self.ordered(x) for x in obj)
+        else:
+            return obj
+
     def generate_system_telemetry_dict(self,MCSProxy="Direct"):
         def update_system_telemetry_dict(telemetry_dict, key, getfunc):
             try:
@@ -179,7 +187,7 @@ class TelemetryUtils:
     def generate_update_scheduler_telemetry(self, number_failed_updates, most_recent_update_successful,
                                             successful_update_time, base_fixed_version, base_tag,
                                             mtr_fixed_version, mtr_tag, sddsid,set_edr,set_av,
-                                            install_state,download_state):
+                                            install_state,download_state, sdds_mechanism):
         health = 0
         if not(download_state == 0 and install_state == 0):
             health = 1
@@ -209,6 +217,9 @@ class TelemetryUtils:
         warehouse = {"sddsid": sddsid, "subscriptions": subscriptions}
 
         telemetry["warehouse"] = warehouse
+
+        if sdds_mechanism:
+            telemetry['sdds-mechanism'] = sdds_mechanism
 
         return telemetry
 
@@ -306,22 +317,30 @@ class TelemetryUtils:
                                                          successful_update_time=None, timing_tolerance=10,
                                                          base_fixed_version="", base_tag="RECOMMENDED",
                                                          mtr_fixed_version="", mtr_tag="RECOMMENDED", sddsid="",
-                                                         set_edr=False, set_av=False, install_state=0,download_state=0):
+                                                         set_edr=False, set_av=False, install_state=0,download_state=0,
+                                                         sdds_mechanism=None):
+        ignore_sdds_mechanism = sdds_mechanism is None
         expected_update_scheduler_telemetry_dict = self.generate_update_scheduler_telemetry(number_failed_updates,
                                                                                             most_recent_update_successful,
                                                                                             successful_update_time,
                                                                                             base_fixed_version, base_tag,
                                                                                             mtr_fixed_version, mtr_tag,
                                                                                             sddsid,set_edr,set_av,
-                                                                                            install_state,download_state)
+                                                                                            install_state,download_state,
+                                                                                            sdds_mechanism)
         actual_update_scheduler_telemetry_dict = json.loads(json_string)["updatescheduler"]
 
         self.check_update_scheduler_telemetry_is_correct(actual_update_scheduler_telemetry_dict,
-                                                         expected_update_scheduler_telemetry_dict, timing_tolerance)
+                                                         expected_update_scheduler_telemetry_dict, timing_tolerance,
+                                                         ignore_sdds_mechanism)
 
-    def check_update_scheduler_telemetry_is_correct(self, actual_dict, expected_dict, timing_tolerance):
+    def check_update_scheduler_telemetry_is_correct(self, actual_dict, expected_dict, timing_tolerance, ignore_sdds_mechanism):
         expected_successful_update_time = expected_dict.pop("successful-update-time", None)
         actual_successful_update_time = actual_dict.pop("successful-update-time", None)
+
+        if ignore_sdds_mechanism:
+            expected_dict.pop("sdds-mechanism", None)
+            actual_dict.pop("sdds-mechanism", None)
 
         if expected_successful_update_time is not None and actual_successful_update_time is not None:
             time_difference = abs(expected_successful_update_time - actual_successful_update_time)
@@ -332,7 +351,7 @@ class TelemetryUtils:
                     "Expected successful update time: {}\nActual successful update time: {}".format(
                         expected_successful_update_time, actual_successful_update_time))
 
-        if expected_dict != actual_dict:
+        if self.ordered(expected_dict) != self.ordered(actual_dict):
             raise AssertionError(
                 "Update scheduler telemetry generated by product doesn't match telemetry expected by test.\n"
                 "Expected telemetry: {}\nActual telemetry: {}".format(expected_dict, actual_dict))

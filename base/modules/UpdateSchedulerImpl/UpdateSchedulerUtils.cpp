@@ -145,6 +145,15 @@ namespace UpdateSchedulerImpl
         return getValueFromMCSConfig("jwt_token");
     }
 
+    std::string UpdateSchedulerUtils::getSDDSMechanism(bool sdds3Enabled)
+    {
+        if (sdds3Enabled)
+        {
+            return "SDDS3";
+        }
+        return "SDDS2";
+    }
+
     std::string UpdateSchedulerUtils::getValueFromMCSConfig(const std::string& key)
     {
         auto fs = Common::FileSystem::fileSystem();

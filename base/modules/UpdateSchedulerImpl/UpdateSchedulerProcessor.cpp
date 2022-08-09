@@ -668,6 +668,7 @@ namespace UpdateSchedulerImpl
             Common::Telemetry::TelemetryHelper::getInstance().set("latest-update-succeeded", true);
             Common::Telemetry::TelemetryHelper::getInstance().set(
                 "successful-update-time", duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
+            Common::Telemetry::TelemetryHelper::getInstance().set("sdds-mechanism", UpdateSchedulerUtils::getSDDSMechanism(m_sdds3Enabled));
 
             // on successful update copy the current update configuration to previous update configuration
             // the previous configuration file will be used on the next policy change and by suldownloader
