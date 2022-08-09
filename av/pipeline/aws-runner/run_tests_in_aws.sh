@@ -405,6 +405,7 @@ FAIL_COUNT=$(sed -ne's/window\.output\["stats"\][^f]*"fail":\([0-9][0-9]*\).*/\1
 echo "Failures: $FAIL_COUNT"
 if (( FAIL_COUNT > 0 ))
 then
+    python3 extract_failed_tests.py ./results/*-output.xml
     exit 1
 fi
 exit 0
