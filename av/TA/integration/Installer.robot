@@ -809,6 +809,8 @@ Installer Test Setup
 
     #Register Cleanup has LIFO order, so checking for errors is done last.
     Register Cleanup    Check All Product Logs Do Not Contain Error
+    # TODO: Remove once LINUXDAR-4486 is fixed
+    Register Cleanup    Exclude AV Died With
     Register Cleanup    Exclude CustomerID Failed To Read Error
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude Communication Between AV And Base Due To No Incoming Data
