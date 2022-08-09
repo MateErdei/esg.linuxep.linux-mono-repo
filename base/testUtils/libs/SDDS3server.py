@@ -160,6 +160,8 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
 
     def normal_handle_get_request(self):
         self.log_message("%s", "Headers:\n{}".format(self.headers))
+        if self.path.startswith("/v3"):
+            self.path = self.path[3:]
         self.log_message("%s", "path:\n{}".format(self.path))
         return SimpleHTTPRequestHandler.do_GET(self)
 
