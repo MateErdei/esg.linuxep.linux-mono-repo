@@ -13,6 +13,7 @@ add_library(common SHARED
         PathUtils.h
         PluginUtils.cpp
         PluginUtils.h
+        Poison.h
         SaferStrerror.cpp
         SaferStrerror.h
         ScanInterruptedException.h
@@ -30,8 +31,7 @@ add_library(common SHARED
         signals/SigTermMonitor.cpp
         signals/SigTermMonitor.h
         signals/SigUSR1Monitor.cpp
-        signals/SigUSR1Monitor.h
-        )
+        signals/SigUSR1Monitor.h)
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)

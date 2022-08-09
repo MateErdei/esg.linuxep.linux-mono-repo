@@ -10,6 +10,8 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 # define PLUGIN_INTERNAL private
 #endif
 
+#include "common/Poison.h"
+
 #include "HealthStatus.h"
 #include "PluginCallback.h"
 #include "PolicyProcessor.h"
