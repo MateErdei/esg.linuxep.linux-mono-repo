@@ -2,12 +2,11 @@
 <publicationspec importspec="sspl_base_import_spec.xml">
   <componentsuites>
     <line id="ServerProtectionLinux-Base">
-    <componentsuite importreference="ServerProtectionLinux-Base-1.1.10.14">
-        <component importreference="ServerProtectionLinux-Base-component-1.1.10.288" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
-        <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.6.0.32" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
-        <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.2.26" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
-        <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.2.2" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
-        <component importreference="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.1169" line="ServerProtectionLinux-Plugin-Heartbeat" mountpoint="ServerProtectionLinux-Plugin-Heartbeat"/>
+    <componentsuite importreference="ServerProtectionLinux-Base-1.1.10.18">
+        <component importreference="ServerProtectionLinux-Base-component-1.1.10.468" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
+        <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.6.0.69" line="ServerProtectionLinux-Plugin-liveresponse" mountpoint="ServerProtectionLinux-Plugin-liveresponse"/>
+        <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.2.44" line="ServerProtectionLinux-Plugin-EventJournaler" mountpoint="ServerProtectionLinux-Plugin-eventjournaler"/>
+        <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-5.1.0.2" line="ServerProtectionLinux-Plugin-RuntimeDetections" mountpoint="ServerProtectionLinux-Plugin-runtimedetections"/>
     </componentsuite>
         <componentsuite importreference="ServerProtectionLinux-Base-1.1.10.6">
             <component importreference="ServerProtectionLinux-Base-component-1.1.10.49" line="ServerProtectionLinux-Base-component" mountpoint="ServerProtectionLinux-Base-component"/>
@@ -58,7 +57,7 @@
   <warehouses>
     <warehouse furcatedentitlement="LINUX_SSPL" id="sspl">
       <line id="ServerProtectionLinux-Base">
-		<component importreference="ServerProtectionLinux-Base-1.1.10.14">
+		<component importreference="ServerProtectionLinux-Base-1.1.10.18">
             <releasetag baseversion="" tag="BETA2"/>
             <releasetag baseversion="" tag="RECOMMENDED"/>
             <releasetag baseversion="" tag="BETA"/>
@@ -83,7 +82,7 @@
 		</component>
       </line>
       <line id="ServerProtectionLinux-Plugin-EDR">
-        <component importreference="ServerProtectionLinux-Plugin-EDR-1.1.6.87">
+        <component importreference="ServerProtectionLinux-Plugin-EDR-1.1.6.121">
           <releasetag baseversion="" tag="BETA"/>
           <releasetag baseversion="" tag="RECOMMENDED"/>
           <genericsupplement decodepath="scheduled_query_pack"
@@ -121,7 +120,7 @@
         </component>
       </line>
       <line id="ServerProtectionLinux-Base-component">
-		<component importreference="ServerProtectionLinux-Base-component-1.1.10.288">
+		<component importreference="ServerProtectionLinux-Base-component-1.1.10.468">
 		  <genericsupplement decodepath="."
 		  line="SSPLFLAGS" tag="2022-1" warehousename="sspl_flags"/>
 		  </component>
@@ -156,7 +155,7 @@
 		<component importreference="ServerProtectionLinux-Base-component-1.1.3.703"/>
       </line>
       <line id="ServerProtectionLinux-Plugin-liveresponse">
-		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.6.0.32"/>
+		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.6.0.69"/>
         <component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.2.14"/>
 		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.1.9"/>
 		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.5.0.56"/>
@@ -165,13 +164,13 @@
 		<component importreference="ServerProtectionLinux-Plugin-liveresponse-1.2.0.11"/>
       </line>
       <line id="ServerProtectionLinux-Plugin-EventJournaler">
-		<component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.2.26"/>
+		<component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.2.44"/>
           <component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.2.2"/>
 		<component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.1.2"/>
 		<component importreference="ServerProtectionLinux-Plugin-EventJournaler-1.0.0.182"/>
       </line>
       <line id="ServerProtectionLinux-Plugin-RuntimeDetections">
-          <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.2.2">
+          <component importreference="ServerProtectionLinux-Plugin-RuntimeDetections-5.1.0.2">
               <genericsupplement decodepath="content_rules"
                                  line="rd_rules" tag="LATEST" warehousename="runtime_detection"/>
           </component>
@@ -193,7 +192,7 @@
 		</component>
       </line>
       <line id="ServerProtectionLinux-Plugin-AV">
-          <component importreference="ServerProtectionLinux-Plugin-AV-1.0.6.692">
+          <component importreference="ServerProtectionLinux-Plugin-AV-1.0.7.18">
               <releasetag baseversion="" tag="RECOMMENDED"/>
               <genericsupplement
                       decodepath="files/plugins/av/chroot/susi/update_source/vdl"
@@ -261,9 +260,6 @@
                       line="ML_MODEL_LINUX" tag="LINUX_SCAN" warehousename="ml_models"/>
           </component>
 	  </line>
-      <line id="ServerProtectionLinux-Plugin-Heartbeat">
-          <component importreference="ServerProtectionLinux-Plugin-Heartbeat-1.0.0.1169"/>
-      </line>
      </warehouse>
   </warehouses>
   <licenses>
