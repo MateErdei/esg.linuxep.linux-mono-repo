@@ -39,6 +39,8 @@ def attempt_backtrace_of_core(filepath):
 
 
 class CoreDumps(object):
+    def __init__(self):
+        self.__m_ignore_cores_segfaults = False
     def __find_watchdog_systemd_file(self):
         if os.path.isfile("/lib/systemd/system/sophos-spl.service"):
             return "/lib/systemd/system/sophos-spl.service"
@@ -91,6 +93,9 @@ class CoreDumps(object):
         logger.warn("dmesg output: %s" % stdout)
 
     def check_dmesg_for_segfaults(self, testname=None):
+        if self.__m_ignore_cores_segfaults:
+            logger.debug("Ignoring segfaults in dmesg")
+            return
         sp = subprocess
         dmesg_process = sp.Popen([b"dmesg", b"-T"], stdout=sp.PIPE, stderr=sp.STDOUT)
         stdout = dmesg_process.communicate()[0]
@@ -166,6 +171,9 @@ class CoreDumps(object):
         return stdout
 
     def check_for_coredumps(self, testname=None):
+        if self.__m_ignore_cores_segfaults:
+            logger.debug("Ignoring core dumps")
+            return
         if testname is None:
             testname = BuiltIn().get_variable_value("${TEST NAME}")
         CORE_DIR="/z"
@@ -215,6 +223,8 @@ class CoreDumps(object):
         logger.error("Moving core file to %s" % dest)
         shutil.copy(filepath, dest)
 
+    def ignore_coredumps_and_segfaults(self):
+        self.__m_ignore_cores_segfaults = True
 
 def __main(argv):
     for arg in argv[1:]:

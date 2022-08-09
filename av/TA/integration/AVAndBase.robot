@@ -571,6 +571,7 @@ AV Plugin Saves Logs On Downgrade
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now
     [Timeout]  15min
+    ignore coredumps and segfaults
     #We do a full uninstall so after the re-installation exclude this error
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude Threat Detector Launcher Died With 70
@@ -597,6 +598,7 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now With Threats
     [Timeout]  15min
+    ignore coredumps and segfaults
     register cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude Threat Detector Launcher Died With 70
     Register Cleanup    Exclude Threat Detector Launcher Died With 11
