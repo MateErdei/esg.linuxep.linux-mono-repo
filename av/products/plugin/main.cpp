@@ -120,7 +120,7 @@ int main()
     telemetry.set("threatHealth",sharedPluginCallBack->getThreatHealth());
     telemetry.save();
 
-    LOGINFO("Exiting AV plugin");
+    LOGINFO("Exiting AV plugin with " << ret);
     sharedPluginCallBack->setRunning(false);
     return ret;
 }

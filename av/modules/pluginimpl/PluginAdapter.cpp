@@ -106,7 +106,6 @@ namespace Plugin
         m_schedulerThread.reset();
         m_threatDetectorThread.reset();
         LOGSUPPORT("Finished the main program loop");
-
     }
 
     void PluginAdapter::startThreads()
@@ -135,6 +134,7 @@ namespace Plugin
                 switch (task.taskType)
                 {
                     case Task::TaskType::Stop:
+                        LOGSUPPORT("Stop task received");
                         return;
 
                     case Task::TaskType::Policy:
