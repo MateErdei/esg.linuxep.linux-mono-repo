@@ -6,6 +6,8 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "common/Poison.h"
+
 #include "BaseRunner.h"
 #include "Logger.h"
 #include "Options.h"
