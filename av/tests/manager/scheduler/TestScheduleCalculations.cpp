@@ -63,11 +63,13 @@ TEST(ScheduleCalculations, tomorrow) // NOLINT
     time_t now = 1580281980; // Wednesday 07:13:00 GMT - should we Wednesday or Tuesday everywhere -  Wed Jan 29 07:13:00 2020
     auto result = scan.calculateNextTime(now);
 
-    // should be Thursday 00:00 in localtime
-    struct tm* resulttm = localtime(&result);
-    EXPECT_EQ(resulttm->tm_hour, 0);
-    EXPECT_EQ(resulttm->tm_min, 0);
-    EXPECT_EQ(resulttm->tm_wday, 4);
+    // should be Thursday 00:00 in local time
+    struct tm resulttm{};
+    ::localtime_r(&result, &resulttm);
+
+    EXPECT_EQ(resulttm.tm_hour, 0);
+    EXPECT_EQ(resulttm.tm_min, 0);
+    EXPECT_EQ(resulttm.tm_wday, 4);
 }
 
 TEST(ScheduleCalculations, Saturday) // NOLINT
@@ -77,11 +79,13 @@ TEST(ScheduleCalculations, Saturday) // NOLINT
     time_t now = 1580385600; // Thu Jan 30 12:00:00 2020 +0000
     auto result = scan.calculateNextTime(now);
 
-    // should be Thursday 00:00 in localtime
-    struct tm* resulttm = ::localtime(&result);
-    EXPECT_EQ(resulttm->tm_hour, 0);
-    EXPECT_EQ(resulttm->tm_min, 0);
-    EXPECT_EQ(resulttm->tm_wday, 6);
+    // should be Thursday 00:00 in local time
+    struct tm resulttm{};
+    ::localtime_r(&result, &resulttm);
+
+    EXPECT_EQ(resulttm.tm_hour, 0);
+    EXPECT_EQ(resulttm.tm_min, 0);
+    EXPECT_EQ(resulttm.tm_wday, 6);
 }
 
 
@@ -91,20 +95,21 @@ TEST(ScheduleCalculations, NextWeek) // NOLINT
     time_t now = 1580558400; // Sat Feb  1 12:00:00 2020 +0000
     auto result = scan.calculateNextTime(now);
 
-    // should be Thursday 00:00 in localtime
-    struct tm* resulttm = ::localtime(&result);
-    EXPECT_EQ(resulttm->tm_hour, 0);
-    EXPECT_EQ(resulttm->tm_min, 0);
-    EXPECT_EQ(resulttm->tm_wday, 4); // Thursday
-    EXPECT_EQ(resulttm->tm_mday, 6); // Thursday 6th
-    EXPECT_EQ(resulttm->tm_mon, 1); // February
+    // should be Thursday 00:00 in local time
+    struct tm resulttm{};
+    ::localtime_r(&result, &resulttm);
+    EXPECT_EQ(resulttm.tm_hour, 0);
+    EXPECT_EQ(resulttm.tm_min, 0);
+    EXPECT_EQ(resulttm.tm_wday, 4); // Thursday
+    EXPECT_EQ(resulttm.tm_mday, 6); // Thursday 6th
+    EXPECT_EQ(resulttm.tm_mon, 1); // February
 }
 
 TEST(ScheduleCalculations, ThursdayWrapped) // NOLINT
 {
     ScheduledScan scan(getThursdayMiddayScheduledScan());
     time_t now = 1580385601; // Thu Jan 30 12:00:01 2020 +0000
-    // Convert to localtime
+    // Convert to local time
     struct tm now_tm{};
     struct tm* now_tm_result = ::localtime_r(&now, &now_tm);
     ASSERT_NE(now_tm_result, nullptr);
@@ -117,20 +122,21 @@ TEST(ScheduleCalculations, ThursdayWrapped) // NOLINT
 
     auto result = scan.calculateNextTime(now);
 
-    // should be Thursday 12:00 in localtime
-    struct tm* resulttm = ::localtime(&result);
-    EXPECT_EQ(resulttm->tm_hour, 12);
-    EXPECT_EQ(resulttm->tm_min, 0);
-    EXPECT_EQ(resulttm->tm_wday, 4); // Thursday
-    EXPECT_EQ(resulttm->tm_mday, 6); // Thursday 6th
-    EXPECT_EQ(resulttm->tm_mon, 1); // February
+    // should be Thursday 12:00 in local time
+    struct tm resulttm{};
+    ::localtime_r(&result, &resulttm);
+    EXPECT_EQ(resulttm.tm_hour, 12);
+    EXPECT_EQ(resulttm.tm_min, 0);
+    EXPECT_EQ(resulttm.tm_wday, 4); // Thursday
+    EXPECT_EQ(resulttm.tm_mday, 6); // Thursday 6th
+    EXPECT_EQ(resulttm.tm_mon, 1); // February
 }
 
 TEST(ScheduleCalculations, ThursdayNotWrapped) // NOLINT
 {
     ScheduledScan scan(getThursdayMiddayScheduledScan());
     time_t now = 1580385601; // Thu Jan 30 12:00:01 2020 +0000
-    // Convert to localtime
+    // Convert to local time
     struct tm now_tm{};
     struct tm* now_tm_result = ::localtime_r(&now, &now_tm);
     ASSERT_NE(now_tm_result, nullptr);
@@ -143,12 +149,13 @@ TEST(ScheduleCalculations, ThursdayNotWrapped) // NOLINT
 
     auto result = scan.calculateNextTime(now);
 
-    // should be Thursday 12:00 in localtime
-    struct tm* resulttm = ::localtime(&result);
-    EXPECT_EQ(resulttm->tm_hour, 12);
-    EXPECT_EQ(resulttm->tm_min, 0);
-    EXPECT_EQ(resulttm->tm_wday, 4); // Thursday
-    EXPECT_EQ(resulttm->tm_mday, 30); // Thursday 30th
-    EXPECT_EQ(resulttm->tm_mon, 0); // Jan
+    // should be Thursday 12:00 in local time
+    struct tm resulttm{};
+    ::localtime_r(&result, &resulttm);
+    EXPECT_EQ(resulttm.tm_hour, 12);
+    EXPECT_EQ(resulttm.tm_min, 0);
+    EXPECT_EQ(resulttm.tm_wday, 4); // Thursday
+    EXPECT_EQ(resulttm.tm_mday, 30); // Thursday 30th
+    EXPECT_EQ(resulttm.tm_mon, 0); // Jan
 }
 
