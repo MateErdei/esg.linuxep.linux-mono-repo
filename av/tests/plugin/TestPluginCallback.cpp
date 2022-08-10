@@ -409,22 +409,6 @@ TEST_F(TestPluginCallback, getHealthReturnsZeroWhenPidfileExistsButIsNotLocked)
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getHealthReturnsZeroWhenShutdownFileIsValid)
-{
-    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
-
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
-
-    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Return(std::time(nullptr) - 7));
-
-    long expectedResult = E_HEALTH_STATUS_GOOD;
-    long result = m_pluginCallback->calculateHealth(m_sysCalls);
-
-    ASSERT_EQ(result, expectedResult);
-}
-
 TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdownFileHasExpired)
 {
     testing::internal::CaptureStderr();
@@ -483,9 +467,6 @@ TEST_F(TestPluginCallback, calculateHealthReturnsZeroIfLockCanBeTakenOnPidFiles)
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
-    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
-        Common::FileSystem::IFileSystemException("Shutdown file read error.")));
     int fileDescriptor = 123;
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
     struct flock fl;
@@ -535,9 +516,6 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSoapdPidFi
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
-    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
-        Common::FileSystem::IFileSystemException("Shutdown file read error.")));
     int fileDescriptor = 123;
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
     struct flock threatDetectorFlock;

@@ -319,74 +319,6 @@ namespace Plugin
         return "";
     }
 
-    bool PluginCallback::isProcessHealthy(
-        int pid,
-        const std::string& processName,
-        const std::string& processUsername,
-        Common::FileSystem::IFileSystem* fileSystem)
-    {
-        auto filePermissions = Common::FileSystem::filePermissions();
-
-        std::optional<std::string> statusFileContents;
-        std::optional<std::string> procFileCmdlineContent;
-
-        try
-        {
-            statusFileContents = fileSystem->readProcFile(pid, "status");
-
-            std::pair<int, std::string> stringToIntResult = Common::UtilityImpl::StringUtils::stringToInt(
-                extractValueFromProcStatus(statusFileContents.value(), "Uid"));
-
-            if (!stringToIntResult.second.empty())
-            {
-                LOGWARN("Failed to read Pid Status file to int due to: " << stringToIntResult.second);
-                return false;
-            }
-            int uid = stringToIntResult.first;
-            std::string username = filePermissions->getUserName(uid);
-
-            if (username != processUsername)
-            {
-                LOGWARN("Unexpected user permissions for /proc/" << pid << ": " << username << " does not equal '" << processUsername << "'");
-                return false;
-            }
-        }
-        catch (const std::bad_optional_access& e)
-        {
-            LOGWARN("Status file of Pid: " << pid << " is empty. Returning bad health due to: " << e.what());
-            return false;
-        }
-        catch (const Common::FileSystem::IFileSystemException& e)
-        {
-            LOGWARN("Failed whilst validating user file permissions of /proc/" << pid << " due to: " << e.what());
-            return false;
-        }
-
-        try
-        {
-            procFileCmdlineContent = fileSystem->readProcFile(pid, "cmdline");
-            std::string procCmdline = Common::UtilityImpl::StringUtils::splitString(procFileCmdlineContent.value(), { '\0' })[0];
-
-            if (basename(procCmdline.c_str()) != processName)
-            {
-                LOGWARN("The proc cmdline for " << pid << " does not equal the expected value (" << processName << "): " << procFileCmdlineContent.value());
-                return false;
-            }
-        }
-        catch (const std::bad_optional_access& e)
-        {
-            LOGWARN("Cmdline file of Pid: " << pid << " is empty. Returning bad health due to: " << e.what());
-            return false;
-        }
-        catch (const Common::FileSystem::IFileSystemException& e)
-        {
-            LOGWARN("Error reading " << processName << " cmdline proc file due to: " << e.what());
-            return false;
-        }
-
-        return true;
-    }
-
     bool PluginCallback::isPidFileLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
         datatypes::AutoFd fd(sysCalls->_open(pidfile.c_str(), O_RDONLY, 0644));
@@ -422,14 +354,8 @@ namespace Plugin
 
     long PluginCallback::calculateHealth(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
-        if (shutdownFileValid())
-        {
-            LOGDEBUG("Valid shutdown file found for Sophos Threat Detector, plugin considered healthy.");
-            return E_HEALTH_STATUS_GOOD;
-        }
-
         Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
-        if (!isPidFileLocked(threatDetectorPidFile, sysCalls))
+        if (!isPidFileLocked(threatDetectorPidFile, sysCalls) && !shutdownFileValid())
         {
             return E_HEALTH_STATUS_BAD;
         }
