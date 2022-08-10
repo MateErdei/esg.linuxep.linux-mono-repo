@@ -134,6 +134,7 @@ On Access Monitors Addition And Removal Of Mount Points
     Start On Access
     Wait Until On Access Log Contains With Offset  Including mount point:
     On Access Does Not Log Contain With Offset  Including mount point: /testmnt/nfsshare
+    Sleep  1s
     ${numMountsPreNFSmount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
     Log  Number of Mount Points: ${numMountsPreNFSmount}
 
@@ -147,6 +148,7 @@ On Access Monitors Addition And Removal Of Mount Points
 
     Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
     Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
+    Sleep  1s
     ${totalNumMountsPostNFSmount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
     Log  Number of Mount Points: ${totalNumMountsPostNFSmount}
     Should Be Equal As Integers  ${totalNumMountsPostNFSmount}  ${numMountsPreNFSmount+1}
@@ -159,6 +161,7 @@ On Access Monitors Addition And Removal Of Mount Points
 
     Wait Until On Access Log Contains  Mount points changed - re-evaluating
     On Access Does Not Log Contain With Offset  Including mount point: /testmnt/nfsshare
+    Sleep  1s
     ${totalNumMountsPostNFSumount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
     Log  Number of Mount Points: ${totalNumMountsPostNFSumount}
     Should Be Equal As Integers  ${totalNumMountsPostNFSumount}  ${numMountsPreNFSmount}
