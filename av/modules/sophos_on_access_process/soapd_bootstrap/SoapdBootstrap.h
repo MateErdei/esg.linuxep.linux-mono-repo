@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "common/Poison.h"
-
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 
 #include "common/signals/SigIntMonitor.h"

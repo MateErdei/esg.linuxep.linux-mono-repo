@@ -6,6 +6,7 @@
 #include "Logger.h"
 
 #include "common/AbortScanException.h"
+#include "common/SaferStrerror.h"
 #include "common/ScanInterruptedException.h"
 #include "common/ScanManuallyInterruptedException.h"
 #include <common/StringUtils.h>
@@ -143,7 +144,7 @@ namespace avscanner::avscannerimpl
                     continue;
                 }
 
-                LOGERROR("Error from ppoll: " << strerror(errno));
+                LOGERROR("Error from ppoll: " << common::safer_strerror(errno));
                 throw ReconnectScannerException("Error while waiting for scan response");
             }
 
@@ -174,7 +175,7 @@ namespace avscanner::avscannerimpl
                     continue;
                 }
 
-                LOGERROR("Error from ppoll: " << strerror(errno));
+                LOGERROR("Error from ppoll: " << common::safer_strerror(errno));
                 throw ReconnectScannerException("Error while sleeping");
             }
 

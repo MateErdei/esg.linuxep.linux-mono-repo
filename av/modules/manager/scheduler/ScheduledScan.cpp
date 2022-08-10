@@ -123,11 +123,11 @@ time_t ScheduledScan::calculateNextTime(time_t now) const
     struct tm now_struct{};
     struct tm* result;
 
-    // Use localtime so that a scan runs on the basis of the local machine's timezone
+    // Use localtime_r so that a scan runs on the basis of the local machine's timezone
     result = ::localtime_r(&now, &now_struct);
     if (result == nullptr)
     {
-        LOGERROR("Failed to schedule scan: could not get localtime to calculate next scan time");
+        LOGERROR("Failed to schedule scan: could not get local time to calculate next scan time");
         // Throw exception?
         return static_cast<time_t>(-1);
     }

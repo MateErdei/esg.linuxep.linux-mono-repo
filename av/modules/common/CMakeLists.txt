@@ -13,7 +13,6 @@ add_library(common SHARED
         PathUtils.h
         PluginUtils.cpp
         PluginUtils.h
-        Poison.h
         SaferStrerror.cpp
         SaferStrerror.h
         ScanInterruptedException.h

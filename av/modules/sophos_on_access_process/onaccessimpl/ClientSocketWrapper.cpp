@@ -3,7 +3,8 @@
 #include "ClientSocketWrapper.h"
 #include "Logger.h"
 
-#include <common/StringUtils.h>
+#include "common/SaferStrerror.h"
+#include "common/StringUtils.h"
 
 #include <poll.h>
 
@@ -63,7 +64,7 @@ namespace sophos_on_access_process::onaccessimpl
                     continue;
                 }
 
-                LOGERROR("Error from ppoll: " << strerror(errno));
+                LOGERROR("Error from ppoll: " << common::safer_strerror(errno));
                 throw ClientSocketException("Error while waiting for scan response");
             }
 
