@@ -49,7 +49,6 @@ void ConnectionSetup::setProxy(const Proxy& proxy)
 void ConnectionSetup::setUpdateLocationURL(const std::string& updateLocationURL)
 {
     m_updateLocationURL = updateLocationURL;
-    assert(!m_updateLocationURL.empty());
 }
 
 std::string ConnectionSetup::toString() const
