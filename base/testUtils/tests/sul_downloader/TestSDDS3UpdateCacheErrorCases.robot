@@ -76,7 +76,7 @@ Test that SDDS3 can Handle 202s from Update Caches
     ...    400s
     ...    30s
     ...    Check SulDownloader Log Contains  Update success
-    Check SulDownloader Log Contains   Failed to Sync with https://localhost:8080 error: Error syncing https://localhost:8080/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 202
+    Check SulDownloader Log Contains   Failed to Sync with https://localhost:8080/v3 error: Error syncing https://localhost:8080/v3/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 202
 
 Test that SDDS3 can Handle 404s from Update Caches
     write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
@@ -107,7 +107,7 @@ Test that SDDS3 can Handle 404s from Update Caches
     ...    50s
     ...    5s
     ...    Check SulDownloader Log Contains  Update success
-    Check SulDownloader Log Contains   Failed to Sync with https://localhost:8080 error: Error syncing https://localhost:8080/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 404
+    Check SulDownloader Log Contains   Failed to Sync with https://localhost:8080/v3 error: Error syncing https://localhost:8080/v3/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 404
 
 
 Test that SDDS3 can Handle 202 then 404s from Update Caches
@@ -139,7 +139,7 @@ Test that SDDS3 can Handle 202 then 404s from Update Caches
     ...    50s
     ...    5s
     ...    Check SulDownloader Log Contains  Update success
-    Check SulDownloader Log Contains   Failed to Sync with https://localhost:8080 error: Error syncing https://localhost:8080/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 404
+    Check SulDownloader Log Contains   Failed to Sync with https://localhost:8080/v3 error: Error syncing https://localhost:8080/v3/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 404
 
 
 Test that SDDS3 can Handle 202 then success from Update Caches
@@ -203,5 +203,5 @@ Sul Downloader fails to Installs SDDS3 Through update cache if UC cert is wrong
     ...    60s
     ...    5s
     ...    Check SulDownloader Log Contains  Update success
-    Check SulDownloader Log Contains    Failed to Sync with https://localhost:8080 error: Error syncing https://localhost:8080/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 35
+    Check SulDownloader Log Contains    Failed to Sync with https://localhost:8080/v3 error: Error syncing https://localhost:8080/v3/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 35
     Check SulDownloader Log Contains    Connecting to update source directly

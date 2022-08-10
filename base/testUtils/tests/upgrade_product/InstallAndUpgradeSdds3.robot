@@ -207,7 +207,6 @@ SDDS3 updating with changed unused feature codes do not change version
     ${AVVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     ${RuntimeDetectionsVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
     ${EJVersionBeforeUpdate} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
-    ${HBTVersionBeforeUpdate} =      Get Version Number From Ini File    ${InstalledHBTPluginVersionFile}
 
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_fake_feature_codes_policy.xml  wait_for_policy=${True}
     Trigger Update Now
@@ -224,14 +223,12 @@ SDDS3 updating with changed unused feature codes do not change version
     ${AVVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     ${RuntimeDetectionsVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
     ${EJVersionAfterUpdate} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
-    ${HBTVersionAfterUpdate} =      Get Version Number From Ini File    ${InstalledHBTPluginVersionFile}
     Should Be Equal As Strings  ${RuntimeDetectionsVersionBeforeUpdate}  ${RuntimeDetectionsVersionAfterUpdate}
     Should Be Equal As Strings  ${MtrVersionBeforeUpdate}  ${MtrVersionAfterUpdate}
     Should Be Equal As Strings  ${EdrVersionBeforeUpdate}  ${EdrVersionAfterUpdate}
     Should Be Equal As Strings  ${LrVersionBeforeUpdate}  ${LrVersionAfterUpdate}
     Should Be Equal As Strings  ${AVVersionBeforeUpdate}  ${AVVersionAfterUpdate}
     Should Be Equal As Strings  ${EJVersionBeforeUpdate}  ${EJVersionAfterUpdate}
-    Should Be Equal As Strings  ${HBTVersionBeforeUpdate}  ${HBTVersionAfterUpdate}
     Should Be Equal As Strings  ${BaseVersionBeforeUpdate}  ${BaseVersionAfterUpdate}
 
 
@@ -370,7 +367,6 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-AV' is up to date.
     Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-liveresponse' is up to date.
     Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-RuntimeDetections' is up to date.
-    Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-Heartbeat' is up to date.
     Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-EventJournaler' is up to date.
     ${latest_report} =  Run Shell Process  ls ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report* -rt | cut -f 1 | tail -n1  shell=${True}
     All Products In Update Report Are Up To Date  ${latest_report.strip()}
