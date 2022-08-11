@@ -194,18 +194,20 @@ Threat Detector Logs Susi Version when applicable
     Dump and Reset Logs
     Start AV
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
-    Sophos Threat Detector Log Contains With Offset  Initializing SUSI
-    Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
+    Wait Until Sophos Threat Detector Log Contains With Offset  Initializing SUSI
+    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
     mark sophos threat detector log
 
     ${rc2}   ${output2} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
-    Sophos Threat Detector Log Contains With Offset  SUSI already initialised
+    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI already initialised
+    Sleep  1s  Allow a second for Threat Detector to log the loading of SUSI Libraries
     threat detector log should not contain with offset  SUSI Libraries loaded:
     mark sophos threat detector log
 
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
     Run Process   /bin/kill   -SIGUSR1   ${pid}
-    Sophos Threat Detector Log Contains With Offset  Threat scanner is already up to date
+    Wait Until Sophos Threat Detector Log Contains With Offset  Threat scanner is already up to date
+    Sleep  1s  Allow a second for Threat Detector to log the loading of SUSI Libraries
     threat detector log should not contain with offset  SUSI Libraries loaded:
 
 
@@ -218,7 +220,8 @@ Threat Detector Doesnt Log Every Scan
     Start AV
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
-    Sophos Threat Detector Log Contains With Offset  Initializing SUSI
+    Wait Until Sophos Threat Detector Log Contains With Offset  Initializing SUSI
+    Sleep  1s  Allow a second for Threat Detector to log the starting and finishing of the scan
     check log does not contain   Starting scan of    ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
     check log does not contain   Finished scanning   ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
     dump log  ${SUSI_DEBUG_LOG_PATH}
