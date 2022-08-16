@@ -71,6 +71,11 @@ class CoreDumps(object):
 
         open(watchdog, "w").writelines(output)
 
+        sp = subprocess
+        dmesg_process = sp.Popen(["systemctl", "daemon-reload"], stdout=sp.PIPE, stderr=sp.STDOUT)
+        stdout, stderr = dmesg_process.communicate()
+        logger.info("systemd reloaded: %s" % stdout)
+
     def enable_core_files(self):
         # First set local limit to infinity, to cover product and component tests
         resource.setrlimit(resource.RLIMIT_CORE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
