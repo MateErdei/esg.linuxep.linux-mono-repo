@@ -27,5 +27,10 @@ namespace
                                  nfds_t num_fds,
                                  const struct timespec* timeout,
                                  const __sigset_t* ss));
+        MOCK_METHOD(int, fanotify_mark, (int __fanotify_fd,
+                                         unsigned int __flags,
+                                         uint64_t __mask,
+                                         int __dfd,
+                                         const char *__pathname));
     };
 }

@@ -8,6 +8,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ISystemCallWrapper.h"
 
+#include <sys/fanotify.h>
 #include <sys/fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>
@@ -56,6 +57,15 @@ namespace datatypes
                   const __sigset_t* ss) override
         {
             return ::ppoll(fd, num_fds, timeout, ss);
+        }
+
+        int fanotify_mark(int __fanotify_fd,
+                          unsigned int __flags,
+                          uint64_t __mask,
+                          int __dfd,
+                          const char *__pathname) override
+        {
+            return ::fanotify_mark(__fanotify_fd, __flags, __mask, __dfd, __pathname);
         }
     };
 }
