@@ -11,9 +11,7 @@
 
 using namespace sophos_on_access_process::fanotifyhandler;
 
-static uint64_t EVENT_MASK = FAN_CLOSE_WRITE;
-
-FANotifyHandler::FANotifyHandler(mount_monitor::mountinfo::IMountPointSharedVector mountPoints)
+FANotifyHandler::FANotifyHandler()
 {
     m_fd.reset();
 
@@ -25,22 +23,9 @@ FANotifyHandler::FANotifyHandler(mount_monitor::mountinfo::IMountPointSharedVect
     }
     LOGINFO("FANotify successfully initialised");
 
-    for (const auto& mountPoint: mountPoints)
-    {
-        std::string mountPointStr = mountPoint->mountPoint();
-        int ret = fanotify_mark(fanotify_fd, FAN_MARK_ADD | FAN_MARK_MOUNT, EVENT_MASK, AT_FDCWD, mountPointStr.c_str());
-        if (ret == -1)
-        {
-            LOGERROR("Unable to mark fanotify: " << common::safer_strerror(errno) << ". On Access Scanning disabled");
-            return;
-        }
-        LOGINFO("Moint point marked for monitoring by FANotify: " << mountPointStr);
-    }
-
     m_fd.reset(fanotify_fd);
     LOGINFO("FANotify FD set to " << m_fd.fd());
 }
-
 
 int FANotifyHandler::faNotifyFd()
 {

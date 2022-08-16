@@ -64,9 +64,9 @@ void SoapdBootstrap::innerRun(
 {
     mount_monitor::mount_monitor::OnAccessMountConfig config;
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
-    auto mountMonitor = std::make_unique<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper);
+    auto faNotifyHandler = std::make_unique<FANotifyHandler>();
+    auto mountMonitor = std::make_unique<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, faNotifyHandler->faNotifyFd());
     auto mountMonitorThread = std::make_unique<common::ThreadRunner>(*mountMonitor, "scanProcessMonitor");
-    auto faNotifyHandler = std::make_unique<FANotifyHandler>(mountMonitor->getAllMountpoints());
 
     const int num_fds = 3;
     struct pollfd fds[num_fds];

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 
@@ -15,6 +11,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "common/ThreadRunner.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
+#include "sophos_on_access_process/fanotifyhandler/FANotifyHandler.h"
 
 using namespace mount_monitor::mount_monitor;
 using namespace testing;
@@ -28,15 +25,17 @@ namespace
         {
             m_sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
             m_mockSysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+            m_faNotifyHandler = std::make_shared<sophos_on_access_process::fanotifyhandler::FANotifyHandler>();
         }
 
         std::shared_ptr<datatypes::SystemCallWrapper> m_sysCallWrapper;
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
+        std::shared_ptr<sophos_on_access_process::fanotifyhandler::FANotifyHandler> m_faNotifyHandler;
         WaitForEvent m_serverWaitGuard;
     };
 }
 
-TEST_F(TestMountMonitor, TestGetIncludedMountpoints) // NOLINT
+TEST_F(TestMountMonitor, TestGetIncludedMountpoints)
 {
     OnAccessMountConfig config;
     config.m_scanHardDisc = true;
@@ -78,11 +77,11 @@ TEST_F(TestMountMonitor, TestGetIncludedMountpoints) // NOLINT
 
     EXPECT_CALL(*specialDevice, mountPoint()).WillOnce(Return("testSpecialMountPoint"));
 
-    MountMonitor mountMonitor(config, m_sysCallWrapper);
+    MountMonitor mountMonitor(config, m_sysCallWrapper, m_faNotifyHandler->faNotifyFd());
     EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 4);
 }
 
-TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange) // NOLINT
+TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -92,12 +91,23 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange) // NOLINT
     config.m_scanOptical = true;
     config.m_scanRemovable = true;
 
+    WaitForEvent clientWaitGuard;
+
     struct pollfd fds[2]{};
     fds[1].revents = POLLPRI;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)))
-        .WillOnce(DoAll(InvokeWithoutArgs(&m_serverWaitGuard, &WaitForEvent::onEventNoArgs), Return(-1)));
-    MountMonitor mountMonitor(config, m_mockSysCallWrapper);
+        .WillOnce(
+            DoAll(
+                InvokeWithoutArgs(&clientWaitGuard, &WaitForEvent::waitDefault),
+                SetArrayArgument<0>(fds, fds+2),
+                Return(1)
+                ))
+        .WillOnce(DoAll(
+            InvokeWithoutArgs(&m_serverWaitGuard, &WaitForEvent::onEventNoArgs),
+            Return(-1)
+            )
+          );
+    MountMonitor mountMonitor(config, m_mockSysCallWrapper, m_faNotifyHandler->faNotifyFd());
     auto numMountPoints = mountMonitor.getIncludedMountpoints(mountMonitor.getAllMountpoints()).size();
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor");
 
@@ -105,9 +115,12 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange) // NOLINT
     logMsg1 << "Including " << numMountPoints << " mount points in on-access scanning";
     EXPECT_TRUE(waitForLog(logMsg1.str()));
     EXPECT_EQ(appenderCount(logMsg1.str()), 1);
-    m_serverWaitGuard.wait();
+
+    clientWaitGuard.onEventNoArgs(); // Will allow the first call to complete
+    m_serverWaitGuard.wait(); // Waits for the second call to start
 
     EXPECT_EQ(appenderCount(logMsg1.str()), 2);
+
 }
 
 TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe) // NOLINT
@@ -124,7 +137,7 @@ TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe) // NOLINT
     fds[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
-    MountMonitor mountMonitor(config, m_mockSysCallWrapper);
+    MountMonitor mountMonitor(config, m_mockSysCallWrapper, m_faNotifyHandler->faNotifyFd());
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor");
 
     EXPECT_TRUE(waitForLog("Stopping monitoring of mounts"));

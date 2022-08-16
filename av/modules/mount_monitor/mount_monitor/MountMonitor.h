@@ -22,6 +22,7 @@ namespace mount_monitor::mount_monitor
         MountMonitor(
             OnAccessConfig& config,
             datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
+            int faNotifyFd,
             struct timespec pollTimeout = {2,0});
 
         void setExcludeRemoteFiles(bool excludeRemoteFiles);
@@ -30,9 +31,11 @@ namespace mount_monitor::mount_monitor
         mountinfo::IMountPointSharedVector getIncludedMountpoints(mountinfo::IMountPointSharedVector allMountPoints);
     private:
         void run() override;
+        void markMounts(mountinfo::IMountPointSharedVector mounts);
 
         OnAccessConfig& m_config;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
+        int m_faNotifyFd;
         const struct timespec m_pollTimeout;
     };
 }

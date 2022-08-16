@@ -11,7 +11,7 @@ namespace sophos_on_access_process::fanotifyhandler
     class FANotifyHandler
     {
         public:
-            FANotifyHandler(mount_monitor::mountinfo::IMountPointSharedVector mountPoints);
+            FANotifyHandler();
             ~FANotifyHandler();
             FANotifyHandler(const FANotifyHandler&) =delete;
             FANotifyHandler& operator=(const FANotifyHandler&) =delete;

@@ -13,15 +13,20 @@
 #include <sstream>
 
 #include <poll.h>
+#include <sys/fanotify.h>
+
+static uint64_t EVENT_MASK = FAN_CLOSE_WRITE;
 
 namespace mount_monitor::mount_monitor
 {
     MountMonitor::MountMonitor(
         OnAccessConfig& config,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
+        int faNotifyFd,
         struct timespec pollTimeout)
     : m_config(config)
     , m_sysCalls(std::move(systemCallWrapper))
+    , m_faNotifyFd(faNotifyFd)
     , m_pollTimeout(pollTimeout)
     {
 
@@ -74,15 +79,26 @@ namespace mount_monitor::mount_monitor
         }
     }
 
+    void MountMonitor::markMounts(mountinfo::IMountPointSharedVector mounts)
+    {
+        LOGDEBUG("Including " << mounts.size() << " mount points in on-access scanning");
+        for (const auto& mount: mounts)
+        {
+            std::string mountPointStr = mount->mountPoint();
+            int ret = fanotify_mark(m_faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, EVENT_MASK, FAN_NOFD, mountPointStr.c_str());
+            if (ret == -1)
+            {
+                LOGERROR("Unable to mark fanotify: " << common::safer_strerror(errno) << ". On Access Scanning disabled");
+                return;
+            }
+            LOGDEBUG("Including mount point: " << mountPointStr);
+        }
+    }
+
     void MountMonitor::run()
     {
         // work out which filesystems are included based of config and mount information
-        auto includedMountpoints = getIncludedMountpoints(getAllMountpoints());
-        LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
-        for (const auto& mp : includedMountpoints)
-        {
-            LOGDEBUG("Including mount point: " << mp->mountPoint());
-        }
+        markMounts(getIncludedMountpoints(getAllMountpoints()));
 
         LOGDEBUG("Setting poll timeout to " << m_pollTimeout.tv_sec << " seconds");
 
@@ -144,12 +160,7 @@ namespace mount_monitor::mount_monitor
             if ((fds[1].revents & POLLPRI) != 0)
             {
                 LOGINFO("Mount points changed - re-evaluating");
-                includedMountpoints = getIncludedMountpoints(getAllMountpoints());
-                LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
-                for (const auto& mp : includedMountpoints)
-                {
-                    LOGDEBUG("Including mount point: " << mp->mountPoint());
-                }
+                markMounts(getIncludedMountpoints(getAllMountpoints()));
             }
         }
     }
