@@ -17,7 +17,7 @@ def test_scan_now(sspl_mock, av_plugin_instance):
     agent.send_plugin_policy('av', "sav", policy_content)
     agent.send_plugin_action('av', 'sav', "123", action_content)
     av_plugin_instance.wait_log_contains("Received new Action")
-    av_plugin_instance.wait_log_contains("Evaluating Scan Now")
+    av_plugin_instance.wait_log_contains("Evaluating Scan Now", 20)
     av_plugin_instance.wait_log_contains("Starting scan Scan Now")
     av_plugin_instance.wait_log_contains("Sending scan complete event to Central")
     # TODO Needs to check for scan complete event from plugin (using agent.handle_send_event()) LINUXDAR-2677

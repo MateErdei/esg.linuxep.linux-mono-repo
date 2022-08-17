@@ -49,7 +49,14 @@ namespace mount_monitor::mount_monitor
             if ((mp->isHardDisc() && m_config.m_scanHardDisc) || (mp->isNetwork() && m_config.m_scanNetwork) ||
                 (mp->isOptical() && m_config.m_scanOptical) || (mp->isRemovable() && m_config.m_scanRemovable))
             {
-                includedMountpoints.push_back(mp);
+                if (mp->mountPoint().rfind("/opt/sophos-spl/", 0) == 0)
+                {
+                    LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is a Sophos SPL bind mount and will be excluded from the scan");
+                }
+                else
+                {
+                    includedMountpoints.push_back(mp);
+                }
             }
             else if (mp->isSpecial())
             {

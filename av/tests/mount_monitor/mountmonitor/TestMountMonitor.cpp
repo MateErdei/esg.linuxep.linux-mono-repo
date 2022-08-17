@@ -44,21 +44,25 @@ TEST_F(TestMountMonitor, TestGetIncludedMountpoints)
 
     std::shared_ptr<StrictMock<MockMountPoint>> localFixedDevice = std::make_shared<StrictMock<MockMountPoint>>();
     EXPECT_CALL(*localFixedDevice, isHardDisc()).WillOnce(Return(true));
+    EXPECT_CALL(*localFixedDevice, mountPoint()).WillOnce(Return("test"));
 
     std::shared_ptr<StrictMock<MockMountPoint>> networkDevice = std::make_shared<StrictMock<MockMountPoint>>();
     EXPECT_CALL(*networkDevice, isHardDisc()).WillOnce(Return(false));
     EXPECT_CALL(*networkDevice, isNetwork()).WillOnce(Return(true));
+    EXPECT_CALL(*networkDevice, mountPoint()).WillOnce(Return("test"));
 
     std::shared_ptr<StrictMock<MockMountPoint>> opticalDevice = std::make_shared<StrictMock<MockMountPoint>>();
     EXPECT_CALL(*opticalDevice, isHardDisc()).WillOnce(Return(false));
     EXPECT_CALL(*opticalDevice, isNetwork()).WillOnce(Return(false));
     EXPECT_CALL(*opticalDevice, isOptical()).WillOnce(Return(true));
+    EXPECT_CALL(*opticalDevice, mountPoint()).WillOnce(Return("test"));
 
     std::shared_ptr<StrictMock<MockMountPoint>> removableDevice = std::make_shared<StrictMock<MockMountPoint>>();
     EXPECT_CALL(*removableDevice, isHardDisc()).WillOnce(Return(false));
     EXPECT_CALL(*removableDevice, isNetwork()).WillOnce(Return(false));
     EXPECT_CALL(*removableDevice, isOptical()).WillOnce(Return(false));
     EXPECT_CALL(*removableDevice, isRemovable()).WillOnce(Return(true));
+    EXPECT_CALL(*removableDevice, mountPoint()).WillOnce(Return("test"));
 
     std::shared_ptr<StrictMock<MockMountPoint>> specialDevice = std::make_shared<StrictMock<MockMountPoint>>();
     EXPECT_CALL(*specialDevice, isHardDisc()).WillOnce(Return(false));
@@ -66,6 +70,7 @@ TEST_F(TestMountMonitor, TestGetIncludedMountpoints)
     EXPECT_CALL(*specialDevice, isOptical()).WillOnce(Return(false));
     EXPECT_CALL(*specialDevice, isRemovable()).WillOnce(Return(false));
     EXPECT_CALL(*specialDevice, isSpecial()).WillOnce(Return(true));
+    EXPECT_CALL(*specialDevice, mountPoint()).WillRepeatedly(Return("test"));
 
     mount_monitor::mountinfo::IMountPointSharedVector allMountpoints;
     allMountpoints.push_back(localFixedDevice);
