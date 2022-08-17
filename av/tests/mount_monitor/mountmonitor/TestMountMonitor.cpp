@@ -167,7 +167,7 @@ TEST_F(TestMountMonitor, TestMonitorLogsErrorIfMarkingFails) // NOLINT
     MountMonitor mountMonitor(config, m_mockSysCallWrapper, faNotifyFd);
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor");
 
-    EXPECT_TRUE(waitForLog("Unable to mark fanotify:"));
+    EXPECT_TRUE(waitForLog("Unable to mark fanotify for mount point "));
     EXPECT_TRUE(waitForLog("On Access Scanning disabled"));
     EXPECT_TRUE(waitForLog("Stopping monitoring of mounts"));
 }

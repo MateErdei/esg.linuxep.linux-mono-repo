@@ -628,6 +628,7 @@ Restart AV Plugin And Clear The Logs For Integration Tests
     Dump Log  ${AV_LOG_PATH}
     Dump Log  ${THREAT_DETECTOR_LOG_PATH}
     Dump Log  ${SUSI_DEBUG_LOG_PATH}
+    Dump Log  ${ON_ACCESS_LOG_PATH}
     Dump Log  ${SCANNOW_LOG_PATH}
     Dump Log  ${CLOUDSCAN_LOG_PATH}
     Dump Log  ${WATCHDOG_LOG}
@@ -636,6 +637,7 @@ Restart AV Plugin And Clear The Logs For Integration Tests
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_INFO_LOG_PATH}
+    Remove File    ${ON_ACCESS_LOG_PATH}
     Remove File    ${WATCHDOG_LOG}
     Remove File    ${CLOUDSCAN_LOG_PATH}
     Remove File    ${UPDATE_SCHEDULER}

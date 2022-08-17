@@ -88,7 +88,7 @@ namespace mount_monitor::mount_monitor
             int ret = m_sysCalls->fanotify_mark(m_faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, EVENT_MASK, FAN_NOFD, mountPointStr.c_str());
             if (ret == -1)
             {
-                LOGERROR("Unable to mark fanotify: " << common::safer_strerror(errno) << ". On Access Scanning disabled");
+                LOGERROR("Unable to mark fanotify for mount point " << mountPointStr << ": " << common::safer_strerror(errno) << ". On Access Scanning disabled");
                 return;
             }
             LOGDEBUG("Including mount point: " << mountPointStr);
