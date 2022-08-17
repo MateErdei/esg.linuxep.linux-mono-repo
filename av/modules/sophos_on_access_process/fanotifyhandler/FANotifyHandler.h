@@ -3,13 +3,14 @@
 #pragma once
 
 #include "datatypes/AutoFd.h"
+#include "datatypes/ISystemCallWrapper.h"
 
 namespace sophos_on_access_process::fanotifyhandler
 {
     class FANotifyHandler
     {
         public:
-            FANotifyHandler();
+            explicit FANotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
             ~FANotifyHandler();
             FANotifyHandler(const FANotifyHandler&) =delete;
             FANotifyHandler& operator=(const FANotifyHandler&) =delete;

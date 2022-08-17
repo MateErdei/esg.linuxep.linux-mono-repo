@@ -59,6 +59,12 @@ namespace datatypes
             return ::ppoll(fd, num_fds, timeout, ss);
         }
 
+        int fanotify_init(unsigned int __flags,
+                          unsigned int __event_f_flags) override
+        {
+            return ::fanotify_init(__flags, __event_f_flags);
+        }
+
         int fanotify_mark(int __fanotify_fd,
                           unsigned int __flags,
                           uint64_t __mask,

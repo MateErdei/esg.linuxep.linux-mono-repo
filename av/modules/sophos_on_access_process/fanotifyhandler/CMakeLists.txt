@@ -12,6 +12,9 @@ target_include_directories(fanotifyhandler PUBLIC
         ${pluginapiinclude}
         )
 
+target_link_libraries(fanotifyhandler
+        common)
+
 install(TARGETS fanotifyhandler
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 

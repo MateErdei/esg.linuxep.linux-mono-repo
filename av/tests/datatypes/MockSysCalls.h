@@ -27,6 +27,8 @@ namespace
                                  nfds_t num_fds,
                                  const struct timespec* timeout,
                                  const __sigset_t* ss));
+        MOCK_METHOD(int, fanotify_init, (unsigned int __flags,
+                                         unsigned int __event_f_flags));
         MOCK_METHOD(int, fanotify_mark, (int __fanotify_fd,
                                          unsigned int __flags,
                                          uint64_t __mask,
