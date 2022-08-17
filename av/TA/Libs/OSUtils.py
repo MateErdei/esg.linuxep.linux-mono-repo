@@ -67,3 +67,6 @@ def find_sdiskpart(path):
         if entry.mountpoint == path.__str__():
             disc = pathlib.Path(entry.device).resolve()
             return disc
+
+def get_robot_pid():
+    return os.getpid()

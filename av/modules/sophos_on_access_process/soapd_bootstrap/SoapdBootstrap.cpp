@@ -7,6 +7,7 @@
 // Component
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigMonitor.h"
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
+#include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/FANotifyHandler.h"
 // Product
 #include "common/FDUtils.h"
@@ -66,7 +67,9 @@ void SoapdBootstrap::innerRun(
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
     auto faNotifyHandler = std::make_unique<FANotifyHandler>();
     auto mountMonitor = std::make_unique<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, faNotifyHandler->faNotifyFd());
-    auto mountMonitorThread = std::make_unique<common::ThreadRunner>(*mountMonitor, "scanProcessMonitor");
+    auto mountMonitorThread = std::make_unique<common::ThreadRunner>(*mountMonitor, "mountMonitor");
+    auto eventReader = std::make_unique<EventReaderThread>(faNotifyHandler->faNotifyFd());
+    auto eventReaderThread = std::make_unique<common::ThreadRunner>(*eventReader, "eventReader");
 
     const int num_fds = 3;
     struct pollfd fds[num_fds];

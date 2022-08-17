@@ -9,6 +9,7 @@ Library         XML
 Library         ../Libs/fixtures/AVPlugin.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
+Library         ../Libs/OSUtils.py
 Library         ../Libs/ThreatReportUtils.py
 Library         ../Libs/Telemetry.py
 
@@ -968,3 +969,12 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Log File  ${CLOUDSCAN_LOG_PATH}
     File Log Should Not Contain With Offset  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
+
+On Access Logs When A File Is Closed Following Write
+    Mark On Access Log
+
+    Wait Until On Access Log Contains  Starting eventReader
+    ${pid} =  Get Robot Pid
+    Create File  /tmp_test/eicar.com  ${EICAR_STRING}
+    Register Cleanup  Remove File  /tmp_test/eicar.com
+    Wait Until On Access Log Contains  On-close event from PID ${pid} for FD

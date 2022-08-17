@@ -10,6 +10,7 @@ Library         ../Libs/AVScanner.py
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/LockFile.py
 Library         ../Libs/OnFail.py
+Library         ../Libs/OSUtils.py
 Library         ../Libs/LogUtils.py
 
 Resource    ../shared/ErrorMarkers.robot
@@ -165,3 +166,14 @@ On Access Monitors Addition And Removal Of Mount Points
     ${totalNumMountsPostNFSumount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
     Log  Number of Mount Points: ${totalNumMountsPostNFSumount}
     Should Be Equal As Integers  ${totalNumMountsPostNFSumount}  ${numMountsPreNFSmount}
+
+On Access Skips Over Files Written By Soapd PID
+    Mark On Access Log
+    Start On Access
+
+    Wait Until On Access Log Contains  Starting eventReader
+    ${pid} =  Get Robot Pid
+    Create File  /tmp_test/eicar.com  ${EICAR_STRING}
+    Register Cleanup  Remove File  /tmp_test/eicar.com
+    Wait Until On Access Log Contains  Skip event caused by soapd
+    On Access Does Not Log Contain With Offset  On-close event from PID ${pid} for FD

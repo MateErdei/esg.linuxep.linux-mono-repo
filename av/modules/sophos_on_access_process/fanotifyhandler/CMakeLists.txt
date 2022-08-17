@@ -1,10 +1,11 @@
 
 add_library(fanotifyhandler SHARED
+        EventReaderThread.cpp
+        EventReaderThread.h
         FANotifyHandler.cpp
         FANotifyHandler.h
         Logger.cpp
-        Logger.h
-        )
+        Logger.h)
 
 target_link_libraries(fanotifyhandler  PUBLIC
         mountmonitor
