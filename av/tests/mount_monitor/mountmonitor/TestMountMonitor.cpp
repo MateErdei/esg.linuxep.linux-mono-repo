@@ -114,7 +114,7 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
             Return(-1)
             )
           );
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, FAN_NOFD, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, AT_FDCWD, _)).WillRepeatedly(Return(0));
     MountMonitor mountMonitor(config, m_mockSysCallWrapper, faNotifyFd);
     auto numMountPoints = mountMonitor.getIncludedMountpoints(mountMonitor.getAllMountpoints()).size();
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor");
@@ -146,7 +146,7 @@ TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe) // NOLINT
     fds[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, FAN_NOFD, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, AT_FDCWD, _)).WillRepeatedly(Return(0));
     MountMonitor mountMonitor(config, m_mockSysCallWrapper, faNotifyFd);
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor");
 
@@ -168,7 +168,7 @@ TEST_F(TestMountMonitor, TestMonitorLogsErrorIfMarkingFails) // NOLINT
     fds[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, FAN_NOFD, _)).WillOnce(Return(-1));
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, AT_FDCWD, _)).WillOnce(Return(-1));
     MountMonitor mountMonitor(config, m_mockSysCallWrapper, faNotifyFd);
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor");
 

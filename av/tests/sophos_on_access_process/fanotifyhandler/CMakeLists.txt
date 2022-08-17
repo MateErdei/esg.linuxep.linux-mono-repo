@@ -2,6 +2,7 @@ include(GoogleTest)
 
 SophosAddTest(TestFANotifyHandler
         ../../common/LogInitializedTests.cpp
+        TestEventReaderThread.cpp
         TestFANotifyHandler.cpp
         PROJECTS fanotifyhandler
         INC_DIRS

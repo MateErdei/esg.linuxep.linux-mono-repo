@@ -20,8 +20,9 @@ using namespace sophos_on_access_process::fanotifyhandler;
 
 static const size_t BUFFER_SIZE = FAN_EVENT_METADATA_LEN * 2 - 1;
 
-EventReaderThread::EventReaderThread(int fanotifyFD)
+EventReaderThread::EventReaderThread(int fanotifyFD, datatypes::ISystemCallWrapperSharedPtr sysCalls)
     : m_fanotifyfd(fanotifyFD)
+    , m_sysCalls(sysCalls)
 {
     m_pid = getpid();
     m_ppid = getppid();
@@ -36,7 +37,7 @@ void EventReaderThread::handleFanotifyEvent()
     pid_t mysid = m_sid;
 
     errno = 0;
-    ssize_t len = ::read(m_fanotifyfd, buf, sizeof(buf));
+    ssize_t len = m_sysCalls->read(m_fanotifyfd, buf, sizeof(buf));
     int error = errno;
 
     // Verify we got something.
@@ -132,7 +133,7 @@ void EventReaderThread::run()
 
     while (true)
     {
-        int ret = ::ppoll(fds, num_fds, &pollTimeout, nullptr);
+        int ret = m_sysCalls->ppoll(fds, num_fds, &pollTimeout, nullptr);
 
         if (ret < 0)
         {

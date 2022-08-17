@@ -34,5 +34,6 @@ namespace
                                          uint64_t __mask,
                                          int __dfd,
                                          const char *__pathname));
+        MOCK_METHOD(ssize_t, read, (int __fd, void *__buf, size_t __nbytes));
     };
 }

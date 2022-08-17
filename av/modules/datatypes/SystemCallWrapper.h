@@ -12,6 +12,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include <sys/fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>
+#include <unistd.h>
 
 namespace datatypes
 {
@@ -72,6 +73,11 @@ namespace datatypes
                           const char *__pathname) override
         {
             return ::fanotify_mark(__fanotify_fd, __flags, __mask, __dfd, __pathname);
+        }
+
+        ssize_t read(int __fd, void *__buf, size_t __nbytes) override
+        {
+            return ::read (__fd, __buf, __nbytes);
         }
     };
 }

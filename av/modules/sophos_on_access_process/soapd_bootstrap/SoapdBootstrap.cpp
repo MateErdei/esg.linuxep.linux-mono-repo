@@ -68,7 +68,7 @@ void SoapdBootstrap::innerRun(
     auto faNotifyHandler = std::make_unique<FANotifyHandler>(sysCallWrapper);
     auto mountMonitor = std::make_unique<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, faNotifyHandler->faNotifyFd());
     auto mountMonitorThread = std::make_unique<common::ThreadRunner>(*mountMonitor, "mountMonitor");
-    auto eventReader = std::make_unique<EventReaderThread>(faNotifyHandler->faNotifyFd());
+    auto eventReader = std::make_unique<EventReaderThread>(faNotifyHandler->faNotifyFd(), sysCallWrapper);
     auto eventReaderThread = std::make_unique<common::ThreadRunner>(*eventReader, "eventReader");
 
     const int num_fds = 3;

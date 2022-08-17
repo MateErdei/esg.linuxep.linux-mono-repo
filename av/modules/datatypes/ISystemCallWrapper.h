@@ -38,6 +38,7 @@ namespace datatypes
                                   uint64_t __mask,
                                   int __dfd,
                                   const char *__pathname) = 0;
+        virtual ssize_t read(int __fd, void *__buf, size_t __nbytes) = 0;
     };
 
     using ISystemCallWrapperSharedPtr = std::shared_ptr<ISystemCallWrapper>;

@@ -92,7 +92,7 @@ namespace mount_monitor::mount_monitor
         for (const auto& mount: mounts)
         {
             std::string mountPointStr = mount->mountPoint();
-            int ret = m_sysCalls->fanotify_mark(m_faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, EVENT_MASK, FAN_NOFD, mountPointStr.c_str());
+            int ret = m_sysCalls->fanotify_mark(m_faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, EVENT_MASK, AT_FDCWD, mountPointStr.c_str());
             if (ret == -1)
             {
                 LOGERROR("Unable to mark fanotify for mount point " << mountPointStr << ": " << common::safer_strerror(errno) << ". On Access Scanning disabled");
