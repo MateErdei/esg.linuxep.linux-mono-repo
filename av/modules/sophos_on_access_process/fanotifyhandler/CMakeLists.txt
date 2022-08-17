@@ -7,8 +7,9 @@ add_library(fanotifyhandler SHARED
         Logger.cpp
         Logger.h)
 
-target_link_libraries(fanotifyhandler  PUBLIC
-        mountmonitor
+target_include_directories(fanotifyhandler PUBLIC
+        ${CMAKE_SOURCE_DIR}/modules
+        ${pluginapiinclude}
         )
 
 install(TARGETS fanotifyhandler

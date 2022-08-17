@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "mount_monitor/mountinfo/IMountInfo.h"
-
 #include "datatypes/AutoFd.h"
 
 namespace sophos_on_access_process::fanotifyhandler
