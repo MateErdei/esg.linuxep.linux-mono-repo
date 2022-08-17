@@ -3,7 +3,7 @@
 sus: ["linuxep"]
 line-id: ServerProtectionLinux-Plugin-EDR
 instances:
-  - tags: ["RECOMMENDED"]
+  - tags: ["RECOMMENDED", "BETA"]
     marketing_version: "{version} {sprint}"
     views:
       - platforms:

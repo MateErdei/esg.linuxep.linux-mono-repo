@@ -3,7 +3,7 @@
 sus: ["linuxep"]
 line-id: ServerProtectionLinux-Base
 instances:
-  - tags: ["RECOMMENDED"]
+  - tags: ["RECOMMENDED", "BETA", "BETA2"]
     marketing_version: "{version} {sprint}"
     views:
       - platforms:

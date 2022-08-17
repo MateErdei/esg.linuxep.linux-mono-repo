@@ -3,7 +3,7 @@
 sus: ["linuxep"]
 line-id: ServerProtectionLinux-Plugin-MDR
 instances:
-  - tags: ["RECOMMENDED"]
+  - tags: ["RECOMMENDED", "BETA"]
     marketing_version: "{version} {sprint}"
     views:
       - platforms:
