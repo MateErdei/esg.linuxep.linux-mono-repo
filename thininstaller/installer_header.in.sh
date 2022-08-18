@@ -393,7 +393,7 @@ do
         ;;
         --group=*)
             validate_group_name "${i#*=}"
-            REGISTRATION_GROUP_ARGS="--central-group ${i#*=}"
+            REGISTRATION_GROUP_ARGS="--central-group=${i#*=}"
             INSTALL_OPTIONS_ARGS+=("$i")
             shift
         ;;
