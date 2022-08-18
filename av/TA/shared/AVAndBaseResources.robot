@@ -14,6 +14,9 @@ AV and Base Setup
     Register Cleanup  Check Dmesg For Segfaults
     Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
     Require Plugin Installed and Running
+    # TODO: Remove restart of soapd once file descriptor usage issue is fixed
+    Stop soapd
+    Start soapd
 
     Remove Directory  /tmp/DiagnoseOutput  true
 
