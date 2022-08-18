@@ -71,6 +71,9 @@ REQUEST_NO_PRODUCTS="none"
 BUILD_LIBC_VERSION=@BUILD_SYSTEM_LIBC_VERSION@
 system_libc_version=$(ldd --version | grep 'ldd (.*)' | rev | cut -d ' ' -f 1 | rev)
 
+# Ensure override is unset so that it can only be set when explicitly passed in by the user with --allow-override-mcs-ca
+unset ALLOW_OVERRIDE_MCS_CA
+
 function cleanup_and_exit()
 {
     [ -z "$OVERRIDE_INSTALLER_CLEANUP" ] && rm -rf "$SOPHOS_TEMP_DIRECTORY"
