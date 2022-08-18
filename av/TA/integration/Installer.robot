@@ -666,6 +666,8 @@ Installer Suite Setup
     ...   ${IDE_DIR}/${IDE2_NAME}
     ...   ${IDE_DIR}/${IDE3_NAME}
     Install With Base SDDS
+    # TODO: Remove stopping of soapd once file descriptor usage issue is fixed
+    Stop soapd
 
 Installer Suite TearDown
     No Operation
@@ -679,8 +681,6 @@ Installer Test Setup
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
     Require Plugin Installed and Running
-    # TODO: Remove stopping of soapd once file descriptor usage issue is fixed
-    Stop soapd
     Mark AV Log
     Mark Sophos Threat Detector Log
 

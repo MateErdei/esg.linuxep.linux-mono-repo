@@ -15,6 +15,8 @@ Test Teardown   AV Health Test Teardown
 *** Keywords ***
 AV Health Suite Setup
     Install With Base SDDS
+    # TODO: Remove stopping of soapd once file descriptor usage issue is fixed
+    Stop soapd
 
 AV Health Test Setup
     SystemFileWatcher.Start Watching System Files

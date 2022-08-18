@@ -3,7 +3,6 @@
 // Class
 #include "EventReaderThread.h"
 #include "Logger.h"
-#include "fanotify.h"
 
 #include "common/SaferStrerror.h"
 
@@ -13,6 +12,7 @@
 #include <errno.h>
 #include <poll.h>
 #include <string.h>
+#include <sys/fanotify.h>
 #include <unistd.h>
 
 

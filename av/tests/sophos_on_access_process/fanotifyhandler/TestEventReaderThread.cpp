@@ -121,6 +121,36 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
     EXPECT_TRUE(waitForLog("Stopping the reading of FANotify events"));
 }
 
+TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    int fanotifyFD = 123;
+    struct fanotify_event_metadata metadata;
+    metadata.pid = 2345;
+    metadata.fd = 345;
+    metadata.mask = FAN_ONDIR;
+    metadata.vers = FANOTIFY_METADATA_VERSION;
+    metadata.event_len = FAN_EVENT_METADATA_LEN;
+
+    struct pollfd fds1[2]{};
+    fds1[1].revents = POLLIN;
+    struct pollfd fds2[2]{};
+    fds2[0].revents = POLLIN;
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
+
+    sophos_on_access_process::fanotifyhandler::EventReaderThread eventReader(fanotifyFD, m_mockSysCallWrapper);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader");
+
+    EXPECT_TRUE(waitForLog("got event: size "));
+    std::stringstream logMsg;
+    logMsg << "unknown operation mask: " << std::hex << metadata.mask;
+    EXPECT_TRUE(waitForLog(logMsg.str()));
+    EXPECT_TRUE(waitForLog("Stopping the reading of FANotify events"));
+}
+
 TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);

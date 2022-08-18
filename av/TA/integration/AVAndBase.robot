@@ -27,6 +27,8 @@ Test Teardown   AV And Base Teardown
 *** Keywords ***
 AVAndBase Suite Setup
     Install With Base SDDS
+    # TODO: Remove stopping of soapd once file descriptor usage issue is fixed
+    Stop soapd
     Send Alc Policy
     Send Sav Policy With No Scheduled Scans
 
