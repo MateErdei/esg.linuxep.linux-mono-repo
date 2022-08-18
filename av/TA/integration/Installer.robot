@@ -679,9 +679,9 @@ Installer Test Setup
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
     Require Plugin Installed and Running
-    # TODO: Remove restart of soapd once file descriptor usage issue is fixed
+    # TODO: Remove stopping of soapd once file descriptor usage issue is fixed
     Stop soapd
-    Start soapd
+    Register Cleanup  Start soapd
     Mark AV Log
     Mark Sophos Threat Detector Log
 

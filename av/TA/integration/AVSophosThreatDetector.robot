@@ -563,9 +563,9 @@ AVSophosThreatDetector Suite TearDown
 
 AVSophosThreatDetector Test Setup
     Require Plugin Installed and Running  DEBUG
-    # TODO: Remove restart of soapd once file descriptor usage issue is fixed
+    # TODO: Remove stopping of soapd once file descriptor usage issue is fixed
     Stop soapd
-    Start soapd
+    Register Cleanup  Start soapd
     Run Keyword and Ignore Error   Run Shell Process   ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
 
     Mark AV Log

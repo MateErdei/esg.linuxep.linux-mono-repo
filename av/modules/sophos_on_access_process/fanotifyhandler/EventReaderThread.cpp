@@ -65,12 +65,6 @@ bool EventReaderThread::handleFanotifyEvent()
 
     for (; FAN_EVENT_OK(metadata, len); metadata = FAN_EVENT_NEXT(metadata, len))
     {
-        if (metadata->vers < 2)
-        {
-            LOGERROR("fanotify kernel version too old" << metadata->vers);
-            return false;
-        }
-
         if (metadata->vers != FANOTIFY_METADATA_VERSION)
         {
             LOGERROR("fanotify wrong protocol version " << metadata->vers);

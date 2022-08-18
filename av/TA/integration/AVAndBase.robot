@@ -973,6 +973,8 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
 On Access Logs When A File Is Closed Following Write
     Mark On Access Log
 
+    Start soapd
+    Register cleanup  Stop soapd
     Wait Until On Access Log Contains  Starting eventReader
     ${pid} =  Get Robot Pid
     Create File  /tmp_test/eicar.com  ${EICAR_STRING}
