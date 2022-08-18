@@ -32,7 +32,8 @@ ${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.lo
 UpdateScheduler SulDownloader Report Sync With Warehouse Success
     [Tags]  SMOKE  UPDATE_SCHEDULER  TAP_TESTS
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
-    Setup Base and Plugin Sync and UpToDate
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Sync and UpToDate  ${features}
     Create File   ${UPGRADING_MARKER_FILE}
     Run process   chown sophos-spl-updatescheduler:sophos-spl-group ${UPGRADING_MARKER_FILE}  shell=yes
     Run process   chmod a+w ${UPGRADING_MARKER_FILE}  shell=yes
@@ -88,7 +89,8 @@ Systemctl Can Detect SulDownloader Service Runs Without Error After Error Report
 
 UpdateScheduler Regenerates The Config File If It Does Not Exist
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
-    Setup Base and Plugin Sync and UpToDate
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Sync and UpToDate  ${features}
     Remove File  ${UPDATE_CONFIG}
     Simulate Update Now
     Wait Until Keyword Succeeds
@@ -101,7 +103,8 @@ UpdateScheduler Regenerates The Config File If It Does Not Exist
     Check Event Report Success  ${eventPath}
 
 UpdateScheduler Second Run with Normal Run will not generate new Event
-    Setup Base and Plugin Sync and UpToDate
+    @{features}=  Create List   CORE  LIVETERMINAL
+    Setup Base and Plugin Sync and UpToDate  ${features}
     Simulate Update Now
     ${eventPath} =  Check Status and Events Are Created
     Check Event Report Success  ${eventPath}
@@ -110,7 +113,7 @@ UpdateScheduler Second Run with Normal Run will not generate new Event
     ${reportPath} =  Get latest report path
     Log  ${reportPath}
     Log File  ${reportPath}
-    Setup Base and Plugin Sync and UpToDate  startTime=2
+    Setup Base and Plugin Sync and UpToDate  ${features}  startTime=2
     Simulate Update Now
     Check No New Event Created  ${eventPath}
 
@@ -121,7 +124,8 @@ UpdateScheduler Second Run with Normal Run will not generate new Event
 UpdateScheduler Third Run With Upgrade Will Not Generate Event
     # If overall result of an update goes from SUCCESS to SUCCESS
     # even when files are being installed, no new event will be generated.
-    Setup Base and Plugin Sync and UpToDate
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Sync and UpToDate  ${features}
     Simulate Update Now
     ${eventPath} =  Check Status and Events Are Created
     ${StatusPath} =  Check Status Is Created
@@ -131,14 +135,14 @@ UpdateScheduler Third Run With Upgrade Will Not Generate Event
 
     ${reportPath} =  Get latest report path
 
-    Setup Base and Plugin Sync and UpToDate  startTime=2
+    Setup Base and Plugin Sync and UpToDate  ${features}  startTime=2
     Simulate Update Now
     Check No New Event Created  ${eventPath}
 
     # first report is to be removed as it does not add relevant information
     File Should not Exist  ${reportPath}
 
-    Setup Base and Plugin Upgraded  startTime=3  syncTime=3
+    Setup Base and Plugin Upgraded  ${features}  startTime=3  syncTime=3
     Simulate Update Now
 
     Check No New Event Created  ${eventPath}
@@ -161,7 +165,8 @@ UpdateScheduler Report Failure to Update
     Cleanup Telemetry Server
 
 Test Updatescheduler Adds Features That Get Installed On Subsequent Update
-    Setup Base And Plugin Sync And Uptodate
+    @{features}=  Create List   CORE
+    Setup Base And Plugin Sync And Uptodate  ${features}
     Simulate Update Now
     ${eventPath} =  Check Status and Events Are Created
     Wait Until Keyword Succeeds
@@ -169,8 +174,8 @@ Test Updatescheduler Adds Features That Get Installed On Subsequent Update
     ...  5 secs
     ...  Check Status Report Contain  Feature id="CORE"
     Check Status Report Does Not Contain  Feature id="MDR"
-
-    Setup Base And Plugin Sync And Uptodate
+    @{features}=  Create List   CORE  MDR
+    Setup Base And Plugin Sync And Uptodate  ${features}
     Send Policy To UpdateScheduler  ALC_policy_direct.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
@@ -179,7 +184,8 @@ Test Updatescheduler Adds Features That Get Installed On Subsequent Update
 
 
 Test Updatescheduler Does Not Add Features That Failed To Install
-    Setup Base And Plugin Sync And Uptodate
+    @{features}=  Create List   CORE
+    Setup Base And Plugin Sync And Uptodate  ${features}
     Simulate Update Now
     ${eventPath} =  Check Status and Events Are Created
     Wait Until Keyword Succeeds
@@ -198,7 +204,8 @@ Test Updatescheduler Does Not Add Features That Failed To Install
     Check Status Report Does Not Contain  Feature id="MDR"
 
 Test Updatescheduler State Machine Results Show In Status Xml Message Correctly
-    Setup Base Only Sync And Uptodate
+    @{features}=  Create List   CORE
+    Setup Base Only Sync And Uptodate  ${features}
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...  1 minutes
@@ -217,7 +224,8 @@ Test Updatescheduler State Machine Results Show In Status Xml Message Correctly
 
 Test Updatescheduler State Machine Results Show In Status Xml Message Correctly With Success Failure Success Restart
     #Success state
-    Setup Base Only Sync And Uptodate
+    @{features}=  Create List   CORE
+    Setup Base Only Sync And Uptodate  ${features}
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...  1 minutes
@@ -241,7 +249,8 @@ Test Updatescheduler State Machine Results Show In Status Xml Message Correctly 
 
     Remove File  ${statusPath}
     #Success state
-    Setup Base and Plugin Upgraded  startTime=3
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Upgraded  ${features}  startTime=3
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...  1 minutes
@@ -281,7 +290,8 @@ Test Updatescheduler State Machine Results Show In Status Xml Message Correctly 
     Should Contain  ${StatusContent}   <rebootState><required>no</required></rebootState>
 
 Test Updatescheduler State Machine Data Is Reset When State Machine File Is Empty Status Still Sent
-    Setup Base Only Sync And Uptodate
+    @{features}=  Create List   CORE
+    Setup Base Only Sync And Uptodate  ${features}
     Remove File  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json
     Create File  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json
     Log File  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json
@@ -302,7 +312,8 @@ Test Updatescheduler State Machine Data Is Reset When State Machine File Is Empt
     Should Contain  ${StatusContent}   <rebootState><required>no</required></rebootState>
     Log File  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/state_machine_raw_data.json
 
-    Setup Base and Plugin Upgraded  startTime=3
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Upgraded  ${features}  startTime=3
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...  1 minutes
@@ -325,7 +336,8 @@ Test Updatescheduler Features Codes Correct After Success Failure Success Restar
     ...  On a restart we prove that the feature codes that were saved to disk are being loaded in by forcing a
     ...  status to be generated from what is in updateschedulerprocessor memory.
 
-    Setup Base Only Sync And Uptodate
+    @{features}=  Create List   CORE
+    Setup Base Only Sync And Uptodate  ${features}
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...  1 minutes
@@ -342,7 +354,9 @@ Test Updatescheduler Features Codes Correct After Success Failure Success Restar
     Check Status Report Does Not Contain  Feature id="MDR"
 
     Remove File  ${statusPath}
-    Setup Base and Plugin Upgraded  startTime=3
+
+    @{features}=  Create List   CORE  MDR
+    Setup Base and Plugin Upgraded  ${features}  startTime=3
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...  1 minutes
@@ -367,7 +381,8 @@ Test Updatescheduler Features Codes Correct After Success Failure Success Restar
 
 Test Status Is Sent On Consecutive Successful Updates With Policy Changes
     Override LogConf File as Global Level  DEBUG
-    Setup Base And Plugin Sync And Uptodate
+    @{features}=  Create List   CORE
+    Setup Base And Plugin Sync And Uptodate  ${features}
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...  1 minutes
@@ -376,7 +391,9 @@ Test Status Is Sent On Consecutive Successful Updates With Policy Changes
     Check Status Report Does Not Contain  Feature id="MDR"
 
     Remove File  ${statusPath}
-    Setup Base And Plugin Sync And Uptodate
+
+    @{features}=  Create List   CORE  MDR
+    Setup Base And Plugin Sync And Uptodate  ${features}
     Send Policy To UpdateScheduler  ALC_policy_direct.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
@@ -385,7 +402,8 @@ Test Status Is Sent On Consecutive Successful Updates With Policy Changes
     Check Status Report Contain  Feature id="MDR"
 
     Remove File  ${statusPath}
-    Setup Base And Plugin Sync And Uptodate
+    @{features}=  Create List   CORE
+    Setup Base And Plugin Sync And Uptodate  ${features}
     Send Policy To UpdateScheduler  ALC_policy_direct_just_base.xml
     Wait Until Keyword Succeeds
     ...  1 minutes
@@ -442,7 +460,8 @@ UpdateScheduler Start and Restart
 
     Restart Update Scheduler
     Send Policy With Cache
-    Setup Base and Plugin Upgraded  startTime=3  syncTime=3
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Upgraded  ${features}  startTime=3  syncTime=3
     Simulate Update Now
     ${eventPath} =  Check Event File Generated  10
     Check Event Report Success  ${eventPath}

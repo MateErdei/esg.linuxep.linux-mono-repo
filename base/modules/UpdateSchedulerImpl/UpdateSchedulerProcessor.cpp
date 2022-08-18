@@ -62,22 +62,6 @@ namespace
 
 namespace UpdateSchedulerImpl
 {
-    void writeInstalledFeatures(const std::vector<std::string>& features)
-    {
-        try
-        {
-            Common::UpdateUtilities::writeInstalledFeaturesJsonFile(features);
-        }
-        catch (const nlohmann::detail::exception& jsonException)
-        {
-            LOGERROR("The installed features list could not be serialised for persisting to disk: " << jsonException.what());
-        }
-        catch (const Common::FileSystem::IFileSystemException& fileSystemException)
-        {
-            LOGERROR("The installed features list could not be written to disk: " << fileSystemException.what());
-        }
-    }
-
     std::vector<std::string> readInstalledFeatures()
     {
         try
@@ -631,16 +615,13 @@ namespace UpdateSchedulerImpl
             m_baseService->sendEvent(ALC_API, eventXml);
         }
 
-        // If the update succeeded then persist the currently installed feature codes to disk, so that on a failure
-        // these features can be reported in the ALC status.
+        // The installed feature list is saved by Suldownloader on successful update.
+        // Read it here so that we can produce the status.
         if (reportAndFiles.reportCollectionResult.SchedulerStatus.LastResult == 0)
         {
-            m_featuresCurrentlyInstalled = m_featuresInPolicy;
-            LOGDEBUG("Writing currently installed feature codes json to disk");
-            writeInstalledFeatures(m_featuresCurrentlyInstalled);
+            LOGDEBUG("Reading feature codes from installed feature codes file");
+            m_featuresCurrentlyInstalled = readInstalledFeatures();
         }
-
-
 
         std::string statusXML = SerializeUpdateStatus(
             reportAndFiles.reportCollectionResult.SchedulerStatus,

@@ -265,7 +265,7 @@ public:
         return *m_mockptr;
     }
 
-    MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1)
+    MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1, int expectedInstalledFeatures = 1, std::string installedFeatures = R"(["CORE"])")
     {
         auto* fileSystemMock = new StrictMock<MockFileSystem>();
         EXPECT_CALL(*fileSystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
@@ -276,7 +276,8 @@ public:
         EXPECT_CALL(*fileSystemMock, currentWorkingDirectory()).WillRepeatedly(Return("/opt/sophos-spl/base/bin"));
         EXPECT_CALL(*fileSystemMock, exists(_)).WillRepeatedly(Return(true));
         EXPECT_CALL(*fileSystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
-
+        std::string installedFeaturesFile = Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath();
+        EXPECT_CALL(*fileSystemMock, writeFile(installedFeaturesFile, installedFeatures)).Times(expectedInstalledFeatures);
         setupExpectanceWriteProductUpdate(*fileSystemMock);
 
         auto* pointer = fileSystemMock;
@@ -337,7 +338,7 @@ public:
         ).Times(::testing::AtMost(1));
     }
 
-    void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains,bool markerFileWritten)
+    void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains, bool markerFileWritten, int installedFeaturesWritesExpected = 1)
     {
         EXPECT_CALL(
             mockFileSystem, writeFile(::testing::HasSubstr("/opt/sophos-spl/tmp"), ::testing::HasSubstr(contains)));
@@ -351,6 +352,9 @@ public:
             EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), sophos::updateSchedulerUser(), sophos::group()));
             EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile(), S_IRUSR | S_IWUSR | S_IRGRP));
         }
+
+        EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), sophos::updateSchedulerUser(), sophos::group())).Times(installedFeaturesWritesExpected);
+        EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), S_IRUSR | S_IWUSR | S_IRGRP)).Times(installedFeaturesWritesExpected);
 
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
             std::unique_ptr<MockFilePermissions>(mockFilePermissions);
@@ -435,7 +439,7 @@ protected:
 
 TEST_F(SULDownloaderTest, configurationDataVerificationOfDefaultSettingsReturnsTrue) // NOLINT
 {
-    setupFileSystemAndGetMock();
+    setupFileSystemAndGetMock(1,0);
     SulDownloader::suldownloaderdata::ConfigurationData confData = configData(defaultSettings());
     confData.verifySettingsAreValid();
     EXPECT_TRUE(confData.isVerified());
@@ -768,7 +772,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     main_entry_onSuccessCreatesReportContainingExpectedUninstallFailedResult)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     auto products = defaultProducts();
@@ -820,7 +824,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED),false);
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED),false, 0);
 
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
@@ -956,7 +960,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_WarehouseConnectionFailureShouldCreateValidConnectionFailureReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
     SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
@@ -1005,7 +1009,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_WarehouseConnectionFailureShouldCreateValidConnectionFailureReportContainingPreviousReportDFata)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
     SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
@@ -1070,7 +1074,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_supplement_only_WarehouseConnectionFailureShouldCreateValidConnectionFailureReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked(2);  // reset called another time
     SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
@@ -1118,7 +1122,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_WarehouseSynchronizationFailureShouldCreateValidSyncronizationFailureReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
     SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
@@ -1167,7 +1171,7 @@ TEST_F( // NOLINT
  */
 TEST_F(SULDownloaderTest, runSULDownloader_onDistributeFailure) // NOLINT
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
     SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
@@ -1235,7 +1239,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_WarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1,0);
     MockWarehouseRepository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
@@ -1302,7 +1306,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_UpdateFailForInvalidSignature)
 {
-    MockFileSystem& fileSystemMock = setupFileSystemAndGetMock();
+    MockFileSystem& fileSystemMock = setupFileSystemAndGetMock(1,0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     ConfigurationData configurationData = configData(defaultSettings());
@@ -1378,7 +1382,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_PluginInstallationFailureShouldResultInValidInstalledFailedReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
 
     MockWarehouseRepository& mock = repositoryMocked();
 
@@ -1483,7 +1487,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_SuccessfulFullUpdateShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
@@ -1582,7 +1586,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_SuccessfulUpdateToNewVersionShouldNotRunUninstallScriptsAndShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
@@ -1682,7 +1686,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_SuccessfulUpdateToOlderVersionShouldRunUninstallScriptsAndShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
@@ -1799,7 +1803,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_SuccessfulUpdateToOlderVersionOfPluginShouldOnlyRunPluginUninstallScriptsAndShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
@@ -1917,7 +1921,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_SuccessfulFullUpdateWithSubscriptionsDifferentFromProductsShouldBeReportedCorrectly)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
@@ -2020,7 +2024,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_ListOfSubscriptionListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
@@ -2124,7 +2128,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_ListOfFeatureListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
@@ -2228,7 +2232,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_ListOfSubscriptionsWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
@@ -2331,7 +2335,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_ListOfFeaturesWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
@@ -2435,7 +2439,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_previousProductChangesShouldResultInSuccessfulFullUpdateAndProduceValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
@@ -2528,7 +2532,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
@@ -2591,7 +2595,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_supplement_only_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     MockWarehouseRepository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
@@ -2657,7 +2661,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_checkLogVerbosityVERBOSE)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     EXPECT_CALL(fileSystemMock, isFile(_)).WillOnce(Return(false));
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
@@ -2690,7 +2694,7 @@ TEST_F( // NOLINT
     SULDownloaderTest,
     runSULDownloader_checkLogVerbosityNORMAL)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 0);
     EXPECT_CALL(fileSystemMock, isFile(_)).WillOnce(Return(false));
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();

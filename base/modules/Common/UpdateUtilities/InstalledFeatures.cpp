@@ -3,8 +3,11 @@
 #include "json.hpp"
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "FileSystem/IFilePermissions.h"
 #include "FileSystem/IFileSystem.h"
+#include "UtilityImpl/ProjectNames.h"
 
+#include <sys/stat.h>
 #include <string>
 #include <vector>
 
@@ -17,6 +20,9 @@ namespace Common::UpdateUtilities
         auto fileSystem = Common::FileSystem::fileSystem();
         fileSystem->writeFile(
             Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), jsonFeatures.dump());
+        auto fp = Common::FileSystem::filePermissions();
+        fp->chown(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), sophos::updateSchedulerUser(), sophos::group());
+        fp->chmod(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), S_IRUSR | S_IWUSR | S_IRGRP);
     }
 
     bool doesInstalledFeaturesListExist()

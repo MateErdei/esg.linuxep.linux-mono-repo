@@ -39,8 +39,8 @@ UpdateScheduler Periodically Run SulDownloader
     Remove File  ${eventPath}
     #Remove status with the products in
     Remove File  ${statusPath}
-
-    Setup Base and Plugin Upgraded  startTime=3  syncTime=3
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Upgraded  {$features}  startTime=3  syncTime=3
     #Wait for up to 30 mins for the update
 
     ${eventPath} =  Check Event File Generated   1800

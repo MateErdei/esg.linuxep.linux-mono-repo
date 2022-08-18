@@ -4,6 +4,10 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "json.hpp"
+
+#include "UpdateUtilities/InstalledFeatures.h"
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -28,10 +32,10 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 #include <SulDownloader/warehouse/SULRaii.h>
 #include <SulDownloader/warehouse/WarehouseRepository.h>
 #include <SulDownloader/warehouse/WarehouseRepositoryFactory.h>
+#include <sys/stat.h>
 
 #include <algorithm>
 #include <cassert>
-#include <sys/stat.h>
 #include <thread>
 
 using namespace SulDownloader::suldownloaderdata;
@@ -50,11 +54,28 @@ namespace
         return false;
     }
 
+
 } // namespace
 
 namespace SulDownloader
 {
     using namespace Common::UtilityImpl;
+
+    void writeInstalledFeatures(const std::vector<std::string>& features)
+    {
+        try
+        {
+            Common::UpdateUtilities::writeInstalledFeaturesJsonFile(features);
+        }
+        catch (const nlohmann::detail::exception& jsonException)
+        {
+            LOGERROR("The installed features list could not be serialised for persisting to disk: " << jsonException.what());
+        }
+        catch (const Common::FileSystem::IFileSystemException& fileSystemException)
+        {
+            LOGERROR("There was a problem writing the installed features list: " << fileSystemException.what());
+        }
+    }
 
     bool forceInstallOfProduct(const DownloadedProduct& product, const DownloadReport& previousDownloadReport)
     {
@@ -577,7 +598,6 @@ namespace SulDownloader
             }
         }
 
-
         if (repository->hasError())
         {
             LOGERROR("Failed to synchronize repository: " << repository->getError().Description);
@@ -590,7 +610,6 @@ namespace SulDownloader
             LOGERROR("Failed to distribute repository: " << repository->getError().Description);
             return std::make_pair(false, std::move(repository));
         }
-
         return std::make_pair(true, std::move(repository));
     }
     std::pair<bool, IRepositoryPtr> updateFromSDDS2Warehouse( const ConfigurationData& configurationData,
@@ -819,6 +838,13 @@ namespace SulDownloader
 
             auto report =
                 runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
+
+            // If the installation was successful then we can safely update the list of installed features
+            if (report.getExitCode() == 0)
+            {
+                writeInstalledFeatures(configurationData.getFeatures());
+            }
+
             auto reportAndExitCode = DownloadReport::CodeAndSerialize(report);
             return std::tuple<int, std::string, bool>(
                 std::get<0>(reportAndExitCode), std::get<1>(reportAndExitCode), report.wasBaseDowngraded());

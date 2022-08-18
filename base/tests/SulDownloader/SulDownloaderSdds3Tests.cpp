@@ -9,13 +9,14 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
  */
 
 #include "ConfigurationSettings.pb.h"
-#include "MockVersig.h"
 #include "MockSdds3Repository.h"
+#include "MockVersig.h"
 #include "TestSdds3RepositoryHelper.h"
+
+#include "tests/Common/Helpers/LogInitializedTests.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
@@ -54,6 +55,16 @@ namespace
 {
     using DownloadedProductVector = std::vector<SulDownloader::suldownloaderdata::DownloadedProduct>;
     using ProductReportVector = std::vector<SulDownloader::suldownloaderdata::ProductReport>;
+
+    void setupInstalledFeaturesPermissions()
+    {
+        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+        EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), sophos::updateSchedulerUser(), sophos::group()));
+        EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), S_IRUSR | S_IWUSR | S_IRGRP));
+        auto mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+    }
+
 } // namespace
 
 class SULDownloaderSdds3Test : public ::testing::Test
@@ -277,7 +288,7 @@ public:
         return *m_mockptr;
     }
 
-    MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1, int expectCurrentProxy = 2)
+    MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1, int expectCurrentProxy = 2, int expectedInstalledFeatures = 1, std::string installedFeatures = R"(["CORE"])")
     {
         auto* filesystemMock = new StrictMock<MockFileSystem>();
         EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
@@ -291,6 +302,9 @@ public:
         std::string currentProxyFilePath =
             Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
         EXPECT_CALL(*filesystemMock, isFile(currentProxyFilePath)).Times(expectCurrentProxy).WillOnce(Return(false));
+        std::string installedFeaturesFile = Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath();
+        EXPECT_CALL(*filesystemMock, writeFile(installedFeaturesFile, installedFeatures)).Times(expectedInstalledFeatures);
+
         setupExpectanceWriteProductUpdate(*filesystemMock);
 
         auto* pointer = filesystemMock;
@@ -351,7 +365,7 @@ public:
         ).Times(::testing::AtMost(1));
     }
 
-    void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains)
+    void setupExpectanceWriteAtomically(MockFileSystem& mockFileSystem, const std::string& contains, int installedFeaturesWritesExpected = 1)
     {
         EXPECT_CALL(
             mockFileSystem, writeFile(::testing::HasSubstr("/opt/sophos-spl/tmp"), ::testing::HasSubstr(contains)));
@@ -360,6 +374,9 @@ public:
         EXPECT_CALL(*mockFilePermissions, chown(testing::HasSubstr("/opt/sophos-spl/tmp"), sophos::updateSchedulerUser(), "root"));
         mode_t expectedFilePermissions = S_IRUSR | S_IWUSR;
         EXPECT_CALL(*mockFilePermissions, chmod(testing::HasSubstr("/opt/sophos-spl/tmp"), expectedFilePermissions));
+
+        EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), sophos::updateSchedulerUser(), sophos::group())).Times(installedFeaturesWritesExpected);
+        EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), S_IRUSR | S_IWUSR | S_IRGRP)).Times(installedFeaturesWritesExpected);
 
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
             std::unique_ptr<MockFilePermissions>(mockFilePermissions);
@@ -503,7 +520,7 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     main_entry_onSuccessWhileForcingUpdateAsPreviousDownloadReportDoesNotExistCreatesReportContainingExpectedSuccessResult)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 1);
     MockSdds3Repository& mock = repositoryMocked();
 
     auto products = defaultProducts();
@@ -542,7 +559,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::SUCCESS), 1);
     std::string baseInstallPath = "/opt/sophos-spl/base/update/cache/primary/ServerProtectionLinux-Base-component/install.sh";
     EXPECT_CALL(fileSystemMock, isDirectory(baseInstallPath)).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, makeExecutable(baseInstallPath));
@@ -802,7 +819,7 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     main_entry_onSuccessCreatesReportContainingExpectedUninstallFailedResult)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
 
     auto products = defaultProducts();
@@ -855,7 +872,7 @@ TEST_F( // NOLINT
 
     setupExpectanceWriteAtomically(
         fileSystemMock,
-        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED));
+        SulDownloader::suldownloaderdata::toString(SulDownloader::suldownloaderdata::RepositoryStatus::UNINSTALLFAILED), 0);
 
     std::vector<std::string> fileListOfProductsToRemove = { "productRemove1.sh" };
     std::string uninstallPath = "/opt/sophos-spl/base/update/var/installedproducts";
@@ -925,7 +942,7 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_RepositoryConnectionFailureShouldCreateValidConnectionFailureReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1,1);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1,1, 0);
     MockSdds3Repository& mock = repositoryMocked();
     SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
@@ -969,7 +986,7 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_RepositoryConnectionFailureShouldCreateValidConnectionFailureReportContainingPreviousReportDFata)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1,1);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1,1, 0);
     MockSdds3Repository& mock = repositoryMocked();
     SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
@@ -1030,7 +1047,7 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_supplement_only_RepositoryConnectionFailureShouldCreateValidConnectionFailureReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1,1);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1,1, 0);
     MockSdds3Repository& mock = repositoryMocked(2);  // reset called another time
     SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
@@ -1073,7 +1090,7 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_RepositorySynchronizationFailureShouldCreateValidSyncronizationFailureReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
     SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
@@ -1121,7 +1138,7 @@ TEST_F( // NOLINT
  */
 TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure) // NOLINT
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
     SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
@@ -1188,7 +1205,7 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_RepositorySynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
@@ -1254,9 +1271,8 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_UpdateFailForInvalidSignature)
 {
-    MockFileSystem& fileSystemMock = setupFileSystemAndGetMock();
+    MockFileSystem& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-
     ConfigurationData configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
@@ -1331,8 +1347,7 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_PluginInstallationFailureShouldResultInValidInstalledFailedReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
-
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
 
     DownloadedProductVector products = defaultProducts();
@@ -1436,9 +1451,8 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulFullUpdateShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1535,9 +1549,8 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulUpdateToNewVersionShouldNotRunUninstallScriptsAndShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1636,9 +1649,8 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulUpdateToOlderVersionShouldRunUninstallScriptsAndShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1754,9 +1766,8 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulUpdateToOlderVersionOfPluginShouldOnlyRunPluginUninstallScriptsAndShouldResultInValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1872,9 +1883,8 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulFullUpdateWithSubscriptionsDifferentFromProductsShouldBeReportedCorrectly)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -1976,9 +1986,8 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfSubscriptionListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2081,9 +2090,8 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfFeatureListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2186,9 +2194,8 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfSubscriptionsWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2290,9 +2297,8 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfFeaturesWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(2);
+    auto& fileSystemMock = setupFileSystemAndGetMock(2, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2395,9 +2401,8 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_previousProductChangesShouldResultInSuccessfulFullUpdateAndProduceValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock(1);
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-
     DownloadedProductVector products = defaultProducts();
 
     for (auto& product : products)
@@ -2489,7 +2494,7 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
@@ -2553,11 +2558,10 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_supplement_only_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
-    auto& fileSystemMock = setupFileSystemAndGetMock();
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
     DownloadedProductVector products = defaultProducts();
     ProductReportVector productReports = defaultProductReports();
-
     for (auto& product : products)
     {
         product.setProductHasChanged(false);
@@ -2620,7 +2624,7 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_checkLogVerbosityVERBOSE)
 {
-    auto& fileSystem = setupFileSystemAndGetMock(1,1);
+    auto& fileSystem = setupFileSystemAndGetMock(1, 1, 0);
     EXPECT_CALL(fileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
     EXPECT_CALL(fileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(false));
     testing::internal::CaptureStdout();
@@ -2649,7 +2653,7 @@ TEST_F( // NOLINT
     SULDownloaderSdds3Test,
     runSULDownloader_checkLogVerbosityNORMAL)
 {
-    auto& fileSystem = setupFileSystemAndGetMock(1,1);
+    auto& fileSystem = setupFileSystemAndGetMock(1,1, 0);
     EXPECT_CALL(fileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
     EXPECT_CALL(fileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(false));
     testing::internal::CaptureStdout();
@@ -2737,4 +2741,53 @@ TEST_F( // NOLINT
     Common::ProcessImpl::ArgcAndEnv args("SulDownloader", { "/dir/input.json", "/dir/output.json" }, {});
 
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
+}
+
+
+// Suldownloader WriteInstalledFeatures()
+class TestSuldownloaderWriteInstalledFeaturesFunction: public LogOffInitializedTests{};
+
+TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, featuresAreWrittenToJsonFile) // NOLINT
+{
+    setupInstalledFeaturesPermissions();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(
+        *filesystemMock,
+        writeFile(
+            Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(),
+            "[\"feature1\",\"feature2\"]"));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+    std::vector<std::string> features = { "feature1", "feature2" };
+    SulDownloader::writeInstalledFeatures(features);
+}
+
+TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, emptyListOfFeaturesAreWrittenToJsonFile) // NOLINT
+{
+    setupInstalledFeaturesPermissions();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(
+        *filesystemMock,
+        writeFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), "[]"));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+    std::vector<std::string> features = {};
+    SulDownloader::writeInstalledFeatures(features);
+}
+
+TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, noThrowExpectedOnFileSystemError) // NOLINT
+{
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(
+        *filesystemMock,
+        writeFile(
+            Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(),
+            "[\"feature1\",\"feature2\"]"))
+        .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
+
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    std::vector<std::string> features = { "feature1", "feature2" };
+    EXPECT_NO_THROW(SulDownloader::writeInstalledFeatures(features));
 }

@@ -20,49 +20,6 @@ using namespace ::testing;
 
 class TestUpdateSchedulerProcessorHelperMethods : public LogOffInitializedTests{};
 
-TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresAreWrittenToJsonFile) // NOLINT
-{
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    EXPECT_CALL(
-        *filesystemMock,
-        writeFile(
-            Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(),
-            "[\"feature1\",\"feature2\"]"));
-    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
-    std::vector<std::string> features = { "feature1", "feature2" };
-    UpdateSchedulerImpl::writeInstalledFeatures(features);
-}
-
-TEST_F(TestUpdateSchedulerProcessorHelperMethods, emptyListOfFeaturesAreWrittenToJsonFile) // NOLINT
-{
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    EXPECT_CALL(
-        *filesystemMock,
-        writeFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), "[]"));
-    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
-    std::vector<std::string> features = {};
-    UpdateSchedulerImpl::writeInstalledFeatures(features);
-}
-
-TEST_F(TestUpdateSchedulerProcessorHelperMethods, noThrowExpectedOnFileSystemError) // NOLINT
-{
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    EXPECT_CALL(
-        *filesystemMock,
-        writeFile(
-            Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(),
-            "[\"feature1\",\"feature2\"]"))
-        .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
-
-    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
-
-    std::vector<std::string> features = { "feature1", "feature2" };
-    EXPECT_NO_THROW(UpdateSchedulerImpl::writeInstalledFeatures(features));
-}
-
 TEST_F(TestUpdateSchedulerProcessorHelperMethods, featuresAreReadFromJsonFile) // NOLINT
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();

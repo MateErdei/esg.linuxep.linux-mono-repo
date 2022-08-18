@@ -89,17 +89,20 @@ class FakeSulDownloader(object):
         self.sul_downloader_link = False
         pass
 
-    def setup_base_only_sync_and_uptodate(self, startTime=1, syncTime=1):
+    def setup_base_only_sync_and_uptodate(self, features, startTime=1, syncTime=1):
         self.__base_only('UPTODATE', startTime=startTime, syncTime=syncTime )
+        self.__write_installed_features_file(features)
 
-    def setup_base_and_plugin_upgraded(self, startTime=1, syncTime=1):
+    def setup_base_and_plugin_upgraded(self, features, startTime=1, syncTime=1):
+        self.__write_installed_features_file(features)
         self.__base_and_plugin('UPGRADED', startTime=startTime, syncTime=syncTime)
 
-    def setup_base_and_plugin_sync_and_uptodate(self, startTime=1, syncTime=1):
-        self.__base_and_plugin('UPTODATE', startTime=startTime, syncTime=syncTime )
+    def setup_base_and_plugin_sync_and_uptodate(self, features, startTime=1, syncTime=1):
+        self.__base_and_plugin('UPTODATE', startTime=startTime, syncTime=syncTime)
+        self.__write_installed_features_file(features)
 
     def setup_base_uptodate_via_update_cache(self, updateCacheUrl):
-        self.__base_and_plugin('UPTODATE', startTime=1, syncTime=1, urlSource=updateCacheUrl )
+        self.__base_and_plugin('UPTODATE', startTime=1, syncTime=1, urlSource=updateCacheUrl)
 
     def setup_plugin_install_failed(self, startTime=2, syncTime=1):
         report = self.__base_and_plugin_report(productStatus='UPTODATE', startTime=startTime, syncTime=syncTime)
@@ -107,6 +110,13 @@ class FakeSulDownloader(object):
         report['products'][1]['errorDescription'] = 'Failed to install'
         report['status'] = 'INSTALLFAILED'
         self.__setup_simulate_report(report)
+
+    def __write_installed_features_file(self, features: list):
+        logger.info(f"Writing installed features file list with: {features}")
+        installed_features_filepath = os.path.join(INSTALLPATH, "base/update/var/updatescheduler/installed_features.json")
+        with open(installed_features_filepath, 'w') as installed_features_file:
+            features_json = json.dumps(features)
+            installed_features_file.write(features_json)
 
     def __base_only(self, productStatus, **kwargs):
         report = self.__base_report(productStatus=productStatus, **kwargs)
@@ -131,7 +141,7 @@ class FakeSulDownloader(object):
         return report
 
     def __setup_simulate_report(self, report):
-        logger.debug( "Simulate SulDownloader will produce the report: {}".format(repr(report)))
+        logger.debug("Simulate SulDownloader will produce the report: {}".format(repr(report)))
         json_content = create_json_download_report(report)
         self.setup_copy_file(json_content, 1)
 

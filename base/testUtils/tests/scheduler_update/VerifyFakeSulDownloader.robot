@@ -36,7 +36,8 @@ FakeSulDownloader CopyFile
 
 
 FakeSulDownloader Base and Plugin Upgraded
-    Setup Base and Plugin Upgraded
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Upgraded  ${features}
     ${result} =    Run Process    ${SUL_DOWNLOADER}
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -51,7 +52,8 @@ FakeSulDownloader Base and Plugin Upgraded
 
 
 FakeSulDownloader Base and Plugin UpToDate
-    Setup Base and Plugin Sync and UpToDate
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Sync and UpToDate  ${features}
     ${result} =    Run Process    ${SUL_DOWNLOADER}
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
@@ -75,7 +77,8 @@ FakeSulDownloader Plugin Install Failed
 
 
 FakeSulDownloader StartTime respected
-    Setup Base and Plugin Sync and UpToDate  startTime=2
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Sync and UpToDate  ${features}  startTime=2
     ${result} =    Run Process    ${SUL_DOWNLOADER}
     ${content}=  Get File  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report.json
     Log    ${content}

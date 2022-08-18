@@ -14,6 +14,8 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <tuple>
 namespace SulDownloader
 {
+    void writeInstalledFeatures(const std::vector<std::string>& features);
+
     namespace suldownloaderdata
     {
         class ConfigurationData;

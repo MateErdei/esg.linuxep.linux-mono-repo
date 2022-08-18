@@ -37,7 +37,8 @@ UpdateScheduler Will Not Trigger SULDownloader Until Flags Policy is Read
     ...  10 secs
     ...  Check Update Config Contains Expected useSDDS3 Value    true
 
-    Setup Base and Plugin Sync and UpToDate
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Sync and UpToDate  ${features}
     Create File   ${UPGRADING_MARKER_FILE}
     Run process   chown sophos-spl-updatescheduler:sophos-spl-group ${UPGRADING_MARKER_FILE}  shell=yes
     Run process   chmod a+w ${UPGRADING_MARKER_FILE}  shell=yes
