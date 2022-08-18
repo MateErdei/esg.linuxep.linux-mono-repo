@@ -49,6 +49,11 @@ void EventReaderThread::handleFanotifyEvent()
             return;
         }
 
+        if (error == EMFILE)
+        {
+            throw std::runtime_error("Too many open file descriptors");
+        }
+
         // nothing actually there - maybe another thread got it
         LOGDEBUG(
             "no event or error: " << len <<

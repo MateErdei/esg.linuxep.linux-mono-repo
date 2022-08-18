@@ -46,7 +46,14 @@ int SoapdBootstrap::runSoapd()
     OnAccessConfig::OnAccessConfigMonitor configMonitor(socketPath, onAccessConfigPipe);
     configMonitor.start();
 
-    innerRun(sigIntMonitor, sigTermMonitor, onAccessConfigPipe);
+    try
+    {
+        innerRun(sigIntMonitor, sigTermMonitor, onAccessConfigPipe);
+    }
+    catch (const std::exception& e)
+    {
+        LOGERROR(e.what());
+    }
 
     LOGINFO("Stopping On Access config monitor");
     configMonitor.requestStop();

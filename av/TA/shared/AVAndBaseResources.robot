@@ -138,6 +138,14 @@ Start sophos_threat_detector
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  threat_detector
     Should Be Equal As Integers    ${result.rc}    0
 
+Stop soapd
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   on_access_process
+    Should Be Equal As Integers    ${result.rc}    0
+
+Start soapd
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  on_access_process
+    Should Be Equal As Integers    ${result.rc}    0
+
 Restart sophos_threat_detector
     Stop sophos_threat_detector
     Start sophos_threat_detector
