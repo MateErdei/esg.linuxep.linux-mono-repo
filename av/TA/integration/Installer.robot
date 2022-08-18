@@ -666,8 +666,6 @@ Installer Suite Setup
     ...   ${IDE_DIR}/${IDE2_NAME}
     ...   ${IDE_DIR}/${IDE3_NAME}
     Install With Base SDDS
-    # TODO: Remove stopping of soapd once file descriptor usage issue is fixed
-    Stop soapd
 
 Installer Suite TearDown
     No Operation

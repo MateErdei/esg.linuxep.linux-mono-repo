@@ -556,8 +556,6 @@ check sophos_threat_dector log for successful global rep lookup
 AVSophosThreatDetector Suite Setup
     Log  AVSophosThreatDetector Suite Setup
     Require Plugin Installed and Running  DEBUG
-    # TODO: Remove stopping of soapd once file descriptor usage issue is fixed
-    Stop soapd
 
 AVSophosThreatDetector Suite TearDown
     Log  AVSophosThreatDetector Suite TearDown

@@ -27,8 +27,6 @@ Test Teardown   AV And Base Teardown
 *** Keywords ***
 AVAndBase Suite Setup
     Install With Base SDDS
-    # TODO: Remove stopping of soapd once file descriptor usage issue is fixed
-    Stop soapd
     Send Alc Policy
     Send Sav Policy With No Scheduled Scans
 
@@ -780,7 +778,7 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Reloading susi as policy configuration has changed   timeout=60
     AV Plugin Log Does Not Contain With Offset  Failed to send shutdown request: Failed to connect to unix socket
-    #AV Plugin Log Does Not Contain With Offset  Failed to connect to Sophos Threat Detector Controller - retrying after sleep
+    AV Plugin Log Does Not Contain With Offset  Failed to connect to Sophos Threat Detector Controller - retrying after sleep
     Check Sophos Threat Detector has same PID   ${pid}
 
     # scan eicar to trigger susi to be loaded
@@ -975,8 +973,6 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
 On Access Logs When A File Is Closed Following Write
     Mark On Access Log
 
-    Start soapd
-    Register cleanup  Stop soapd
     Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until On Access Log Contains  Starting eventReader
