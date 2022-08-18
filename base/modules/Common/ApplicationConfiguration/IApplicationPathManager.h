@@ -125,6 +125,8 @@ namespace Common::ApplicationConfiguration
         virtual std::string getShsStatusFilePath() const = 0;
 
         virtual std::string getOverallHealthFilePath() const = 0;
+
+        virtual std::string getMcsCaOverrideFlag() const = 0;
     };
 
     IApplicationPathManager& applicationPathManager();

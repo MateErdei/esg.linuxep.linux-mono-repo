@@ -4,17 +4,24 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+
 #include <CentralRegistration/Main.h>
 #include <CentralRegistration/MessageReplayExtractor.h>
 #include <cmcsrouter/Config.h>
 #include <cmcsrouter/ConfigOptions.h>
 #include <gtest/gtest.h>
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
+#include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/MockSystemUtils.h>
 
 class CentralRegistrationMainTests : public LogInitializedTests
 {
-
+    virtual void TearDown()
+    {
+        Tests::restoreFileSystem();
+    }
 };
 
 TEST_F(CentralRegistrationMainTests, extractor) //NOLINT
@@ -43,7 +50,6 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
 
-    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("MCS_CA")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
@@ -76,7 +82,6 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
 
-    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("MCS_CA")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 
@@ -114,7 +119,6 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
 
-    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("MCS_CA")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return("user:password"));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
@@ -137,12 +141,14 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
-
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("MCS_CA")).WillOnce(Return("some_path"));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, exists(Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag())).WillOnce(Return(true));
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
@@ -162,7 +168,6 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
 
-    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("MCS_CA")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return("https://secure_proxy:443"));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).Times(0);
@@ -186,7 +191,6 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();
 
-    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("MCS_CA")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return("http://non_secure_proxy:80"));

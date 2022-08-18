@@ -415,6 +415,10 @@ namespace Common
         {
             return "current_proxy";
         }
+        std::string ApplicationPathManager::getMcsCaOverrideFlag() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/mcs/certs/ca_env_override_flag");
+        }
 
     } // namespace ApplicationConfigurationImpl
 

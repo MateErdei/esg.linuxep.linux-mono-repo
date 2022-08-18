@@ -106,4 +106,6 @@ public:
     MOCK_CONST_METHOD0(getThreatHealthJsonFilePath, std::string (void));
     MOCK_CONST_METHOD0(getShsStatusFilePath, std::string (void));
     MOCK_CONST_METHOD0(getOverallHealthFilePath, std::string (void));
+    MOCK_CONST_METHOD0(getMcsCaOverrideFlag, std::string (void));
+
 };

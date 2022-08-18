@@ -7,20 +7,22 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "Main.h"
 
 #include "CentralRegistration.h"
-#include "MessageReplayExtractor.h"
 #include "Logger.h"
+#include "MessageReplayExtractor.h"
 
+#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+
+#include <Common/CurlWrapper/CurlWrapper.h>
+#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include <Common/OSUtilitiesImpl/SystemUtils.h>
+#include <Common/ObfuscationImpl/Obfuscate.h>
+#include <Common/UtilityImpl/StringUtils.h>
+#include <Logging/ConsoleLoggingSetup.h>
+#include <Logging/FileLoggingSetup.h>
+#include <cmcsrouter/AgentAdapter.h>
 #include <cmcsrouter/Config.h>
 #include <cmcsrouter/ConfigOptions.h>
 #include <cmcsrouter/MessageRelay.h>
-#include <cmcsrouter/AgentAdapter.h>
-
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/OSUtilitiesImpl/SystemUtils.h>
-#include <Common/CurlWrapper/CurlWrapper.h>
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
-#include <Logging/ConsoleLoggingSetup.h>
-#include <Logging/FileLoggingSetup.h>
 
 namespace CentralRegistration
 {
@@ -37,6 +39,7 @@ namespace CentralRegistration
     {
         std::map<std::string, std::string> configOptions;
         std::string proxyCredentials;
+        std::string obscuredProxyCredentials;
         std::string messageRelaysAsString;
         auto argSize = args.size();
 
@@ -125,6 +128,7 @@ namespace CentralRegistration
             {
                 configOptions[MCS::MCS_PROXY_USERNAME] = values[0];
                 configOptions[MCS::MCS_PROXY_PASSWORD] = values[1];
+                configOptions[MCS::MCS_POLICY_PROXY_CREDENTIALS] = Common::ObfuscationImpl::SECObfuscate(proxyCredentials);
             }
         }
 
@@ -136,8 +140,10 @@ namespace CentralRegistration
         }
 
         configOptions[MCS::MCS_PROXY] = proxy;
-
-        configOptions[MCS::MCS_CA_OVERRIDE] = systemUtils->getEnvironmentVariable("MCS_CA");
+        if (Common::FileSystem::fileSystem()->exists(Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag()))
+        {
+            configOptions[MCS::MCS_CA_OVERRIDE] = systemUtils->getEnvironmentVariable("MCS_CA");
+        }
 
         std::vector<MCS::MessageRelay> messageRelays = extractMessageRelays(messageRelaysAsString);
 

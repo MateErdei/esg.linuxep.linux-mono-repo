@@ -101,6 +101,8 @@ namespace Common::ApplicationConfigurationImpl
         std::string getThreatHealthJsonFilePath() const override;
         std::string getShsStatusFilePath() const override;
         std::string getOverallHealthFilePath() const override;
+        std::string getMcsCaOverrideFlag() const override;
+
 
 
     private:
