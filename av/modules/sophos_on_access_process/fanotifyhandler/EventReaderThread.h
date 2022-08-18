@@ -16,7 +16,7 @@ namespace sophos_on_access_process::fanotifyhandler
         void run();
 
     private:
-        void handleFanotifyEvent();
+        bool handleFanotifyEvent();
 
         int m_fanotifyfd;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;

@@ -43,13 +43,10 @@ TEST_F(TestEventReaderThread, TestReaderLogsIfFanotifySendsNoEvent)
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
+    struct pollfd fds[2]{};
+    fds[1].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
+        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(Return(0));
 
     sophos_on_access_process::fanotifyhandler::EventReaderThread eventReader(fanotifyFD, m_mockSysCallWrapper);

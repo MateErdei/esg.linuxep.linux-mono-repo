@@ -29,7 +29,7 @@ EventReaderThread::EventReaderThread(int fanotifyFD, datatypes::ISystemCallWrapp
     m_sid = getsid(m_pid);
 }
 
-void EventReaderThread::handleFanotifyEvent()
+bool EventReaderThread::handleFanotifyEvent()
 {
     char buf[BUFFER_SIZE];
     pid_t mypid = m_pid;
@@ -46,12 +46,7 @@ void EventReaderThread::handleFanotifyEvent()
         if (error == EAGAIN)
         {
             // Another thread got it:
-            return;
-        }
-
-        if (error == EMFILE)
-        {
-            throw std::runtime_error("Too many open file descriptors");
+            return true;
         }
 
         // nothing actually there - maybe another thread got it
@@ -59,7 +54,7 @@ void EventReaderThread::handleFanotifyEvent()
             "no event or error: " << len <<
             " (" << error << " "<< common::safer_strerror(error)<<")"
         );
-        return;
+        return false;
     }
     else
     {
@@ -73,13 +68,13 @@ void EventReaderThread::handleFanotifyEvent()
         if (metadata->vers < 2)
         {
             LOGERROR("fanotify kernel version too old" << metadata->vers);
-            throw std::runtime_error("fanotify kernel version too old");
+            return false;
         }
 
         if (metadata->vers != FANOTIFY_METADATA_VERSION)
         {
             LOGERROR("fanotify wrong protocol version " << metadata->vers);
-            throw std::runtime_error("fanotify wrong protocol version");
+            return false;
         }
 
         if (metadata->fd < 0)
@@ -116,6 +111,7 @@ void EventReaderThread::handleFanotifyEvent()
             LOGDEBUG("unknown operation mask: " << std::hex << metadata->mask);
         }
     }
+    return true;
 }
 
 void EventReaderThread::run()
@@ -161,7 +157,11 @@ void EventReaderThread::run()
 
         if ((fds[1].revents & POLLIN) != 0)
         {
-            handleFanotifyEvent();
+            if (!handleFanotifyEvent())
+            {
+                LOGDEBUG("Stopping the reading of FANotify events");
+                break;
+            }
         }
     }
     LOGDEBUG("Exiting EventReaderThread::run()");
