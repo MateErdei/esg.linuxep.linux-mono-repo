@@ -51,5 +51,12 @@ Thin Installer Exits Without Installing If JWT Acquisition Fails
     Check Thininstaller Log Contains    Failed to authenticate with Sophos Central, aborting installation
     Should Not Exist   ${SOPHOS_INSTALL}
 
+Thin Installer Registers With Group
+    Start Local Cloud Server
+    Run Default Thininstaller With Args  18  --group=testgroupname
+    Check Thininstaller Log Contains    Successfully registered with Sophos Central
+    Should Not Exist   ${SOPHOS_INSTALL}
+    Check Cloud Server Log Contains  <deviceGroup>testgroupname</deviceGroup>
+
 
 

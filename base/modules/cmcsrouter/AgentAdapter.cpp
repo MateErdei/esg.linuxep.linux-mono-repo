@@ -12,7 +12,6 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/XmlUtilities/Validation.h>
-
 #include <iostream>
 
 namespace MCS
@@ -77,9 +76,9 @@ namespace MCS
         // For Groups, Products, and IP addresses
         std::stringstream optionals;
 
-        if (configOptions.find("products") != configOptions.end())
+        if (configOptions.find(MCS::MCS_PRODUCTS) != configOptions.end())
         {
-            std::string productsAsString = Common::UtilityImpl::StringUtils::replaceAll(configOptions.at("products"), " ", "");
+            std::string productsAsString = Common::UtilityImpl::StringUtils::replaceAll(configOptions.at(MCS::MCS_PRODUCTS), " ", "");
             optionals << "<productsToInstall>";
             if (productsAsString != "none")
             {
@@ -95,9 +94,9 @@ namespace MCS
             optionals << "</productsToInstall>";
         }
 
-        if (configOptions.find("centralGroup") != configOptions.end())
+        if (configOptions.find(MCS::CENTRAL_GROUP) != configOptions.end())
         {
-            std::string deviceGroupAsString = configOptions.at("centralGroup");
+            std::string deviceGroupAsString = configOptions.at(MCS::CENTRAL_GROUP);
             if (Common::XmlUtilities::Validation::stringWillNotBreakXmlParsing(deviceGroupAsString))
             {
                 optionals << "<deviceGroup>" << deviceGroupAsString << "</deviceGroup>";
