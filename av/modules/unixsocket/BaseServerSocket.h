@@ -13,7 +13,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "datatypes/AutoFd.h"
 #include "datatypes/sophos_filesystem.h"
 
-#include "Common/Threads/AbstractThread.h"
+#include "common/AbstractThreadPluginInterface.h"
 
 #include <common/ErrorCodes.h>
 
@@ -24,7 +24,7 @@ static const int MAX_CLIENT_CONNECTIONS = 128;
 
 namespace unixsocket
 {
-    class BaseServerSocket  : public Common::Threads::AbstractThread
+    class BaseServerSocket  : public common::AbstractThreadPluginInterface
     {
 
     public:

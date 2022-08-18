@@ -977,6 +977,8 @@ On Access Logs When A File Is Closed Following Write
 
     Start soapd
     Register cleanup  Stop soapd
+    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
+    Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until On Access Log Contains  Starting eventReader
     ${pid} =  Get Robot Pid
     Create File  /tmp_test/eicar.com  ${EICAR_STRING}

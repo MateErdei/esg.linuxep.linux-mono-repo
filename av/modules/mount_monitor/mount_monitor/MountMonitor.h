@@ -10,13 +10,13 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "mount_monitor/mount_monitor/OnAccessConfig.h"
 #include "mount_monitor/mountinfo/IMountInfo.h"
 
-#include "Common/Threads/AbstractThread.h"
+#include "common/AbstractThreadPluginInterface.h"
 
 #include <map>
 
 namespace mount_monitor::mount_monitor
 {
-    class MountMonitor : public Common::Threads::AbstractThread
+    class MountMonitor : public common::AbstractThreadPluginInterface
     {
     public:
         MountMonitor(

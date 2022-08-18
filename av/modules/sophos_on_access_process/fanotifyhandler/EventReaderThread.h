@@ -2,14 +2,14 @@
 
 #pragma once
 
+#include "common/AbstractThreadPluginInterface.h"
 #include "datatypes/ISystemCallWrapper.h"
 
-#include "Common/Threads/AbstractThread.h"
 #include "Common/Threads/NotifyPipe.h"
 
 namespace sophos_on_access_process::fanotifyhandler
 {
-    class EventReaderThread : public Common::Threads::AbstractThread
+    class EventReaderThread : public common::AbstractThreadPluginInterface
     {
     public:
         EventReaderThread(int fanotifyFD, datatypes::ISystemCallWrapperSharedPtr sysCalls);

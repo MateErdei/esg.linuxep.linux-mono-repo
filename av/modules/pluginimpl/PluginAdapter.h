@@ -33,9 +33,9 @@ namespace Plugin
         std::shared_ptr<QueueTask> m_queueTask;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<PluginCallback> m_callback;
-        manager::scheduler::ScanScheduler m_scanScheduler;
-        unixsocket::ThreatReporterServerSocket m_threatReporterServer;
-        std::unique_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_threatDetector;
+        std::shared_ptr<manager::scheduler::ScanScheduler> m_scanScheduler;
+        std::shared_ptr<unixsocket::ThreatReporterServerSocket> m_threatReporterServer;
+        std::shared_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_threatDetector;
         int m_waitForPolicyTimeout = 0;
 
         Common::ZMQWrapperApi::IContextSharedPtr m_zmqContext;

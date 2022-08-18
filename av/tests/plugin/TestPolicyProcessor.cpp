@@ -484,7 +484,7 @@ TEST_F(TestPolicyProcessor, processSavPolicyChanged)
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
                                                            R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})sophos",
                                                            _,
-                                                           0640)).Times(2);
+                                                           0640)).Times(3);
 
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
     {

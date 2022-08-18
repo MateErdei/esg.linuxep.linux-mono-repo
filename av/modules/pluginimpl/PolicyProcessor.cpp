@@ -202,6 +202,8 @@ namespace Plugin
 
     bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed)
     {
+        processOnAccessPolicy(policy);
+
         bool oldLookupEnabled = m_lookupEnabled;
         m_lookupEnabled = isLookupEnabled(policy);
         if (isSAVPolicyAlreadyProcessed && m_lookupEnabled == oldLookupEnabled)
@@ -210,8 +212,6 @@ namespace Plugin
 
             return false;
         }
-
-        processOnAccessPolicy(policy);
 
         json susiStartupSettings;
         susiStartupSettings["enableSxlLookup"] = m_lookupEnabled;

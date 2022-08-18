@@ -115,9 +115,9 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
             )
           );
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, AT_FDCWD, _)).WillRepeatedly(Return(0));
-    MountMonitor mountMonitor(config, m_mockSysCallWrapper, faNotifyFd);
-    auto numMountPoints = mountMonitor.getIncludedMountpoints(mountMonitor.getAllMountpoints()).size();
-    common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor");
+    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, faNotifyFd);
+    auto numMountPoints = mountMonitor->getIncludedMountpoints(mountMonitor->getAllMountpoints()).size();
+    common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 
     std::stringstream logMsg1;
     logMsg1 << "Including " << numMountPoints << " mount points in on-access scanning";
@@ -147,8 +147,8 @@ TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe) // NOLINT
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, AT_FDCWD, _)).WillRepeatedly(Return(0));
-    MountMonitor mountMonitor(config, m_mockSysCallWrapper, faNotifyFd);
-    common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor");
+    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, faNotifyFd);
+    common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 
     EXPECT_TRUE(waitForLog("Stopping monitoring of mounts"));
 }
@@ -169,8 +169,8 @@ TEST_F(TestMountMonitor, TestMonitorLogsErrorIfMarkingFails) // NOLINT
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, AT_FDCWD, _)).WillOnce(Return(-1));
-    MountMonitor mountMonitor(config, m_mockSysCallWrapper, faNotifyFd);
-    common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor");
+    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, faNotifyFd);
+    common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 
     EXPECT_TRUE(waitForLog("Unable to mark fanotify for mount point "));
     EXPECT_TRUE(waitForLog("On Access Scanning disabled"));

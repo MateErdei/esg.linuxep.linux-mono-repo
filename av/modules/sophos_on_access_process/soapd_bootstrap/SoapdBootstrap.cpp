@@ -73,10 +73,10 @@ void SoapdBootstrap::innerRun(
     mount_monitor::mount_monitor::OnAccessMountConfig config;
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
     auto faNotifyHandler = std::make_unique<FANotifyHandler>(sysCallWrapper);
-    auto mountMonitor = std::make_unique<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, faNotifyHandler->faNotifyFd());
-    auto mountMonitorThread = std::make_unique<common::ThreadRunner>(*mountMonitor, "mountMonitor");
-    auto eventReader = std::make_unique<EventReaderThread>(faNotifyHandler->faNotifyFd(), sysCallWrapper);
-    auto eventReaderThread = std::make_unique<common::ThreadRunner>(*eventReader, "eventReader");
+    auto mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, faNotifyHandler->faNotifyFd());
+    auto mountMonitorThread = std::make_unique<common::ThreadRunner>(mountMonitor, "mountMonitor", true);
+    auto eventReader = std::make_shared<EventReaderThread>(faNotifyHandler->faNotifyFd(), sysCallWrapper);
+    auto eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader, "eventReader", false);
 
     const int num_fds = 3;
     struct pollfd fds[num_fds];
@@ -92,6 +92,8 @@ void SoapdBootstrap::innerRun(
     fds[2].fd = pipe.readFd();
     fds[2].events = POLLIN;
     fds[2].revents = 0;
+
+    bool currentOaEnabledState = false;
 
     while (true)
     {
@@ -133,6 +135,19 @@ void SoapdBootstrap::innerRun(
             auto jsonString = OnAccessConfig::readConfigFile();
             OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessSettingsFromJson(jsonString);
             mountMonitor->setExcludeRemoteFiles(oaConfig.excludeRemoteFiles);
+
+            bool oldOaEnabledState = currentOaEnabledState;
+            currentOaEnabledState = oaConfig.enabled;
+            if (currentOaEnabledState && !oldOaEnabledState)
+            {
+                LOGINFO("On-access scanning enabled");
+                eventReaderThread->startIfNotStarted();
+            }
+            if (!currentOaEnabledState && oldOaEnabledState)
+            {
+                LOGINFO("On-access scanning disabled");
+                eventReaderThread->requestStopIfNotStopped();
+            }
         }
     }
 }

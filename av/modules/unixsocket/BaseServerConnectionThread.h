@@ -6,13 +6,13 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/Threads/AbstractThread.h"
+#include "common/AbstractThreadPluginInterface.h"
 
 #include <atomic>
 
 namespace unixsocket
 {
-    class BaseServerConnectionThread : public Common::Threads::AbstractThread
+    class BaseServerConnectionThread : public common::AbstractThreadPluginInterface
     {
     public:
         [[nodiscard]] bool isRunning() const;

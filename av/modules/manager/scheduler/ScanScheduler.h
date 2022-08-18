@@ -8,12 +8,12 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "ScheduledScanConfiguration.h"
 #include "ScanRunner.h"
 
-#include <Common/Threads/AbstractThread.h>
+#include "common/AbstractThreadPluginInterface.h"
 #include <map>
 
 namespace manager::scheduler
 {
-    class ScanScheduler : public Common::Threads::AbstractThread
+    class ScanScheduler : public common::AbstractThreadPluginInterface
     {
     public:
         explicit ScanScheduler(IScanComplete& completionNotifier);

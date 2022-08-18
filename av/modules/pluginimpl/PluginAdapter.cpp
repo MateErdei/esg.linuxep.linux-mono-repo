@@ -62,9 +62,9 @@ namespace Plugin
         m_queueTask(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
-        m_scanScheduler(*this),
-        m_threatReporterServer(threat_reporter_socket(), 0660,
-                               std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath)),
+        m_scanScheduler(std::make_shared<manager::scheduler::ScanScheduler>(*this)),
+        m_threatReporterServer(std::make_shared<unixsocket::ThreatReporterServerSocket>(threat_reporter_socket(), 0660,
+                               std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
@@ -76,7 +76,7 @@ namespace Plugin
     void PluginAdapter::mainLoop()
     {
         m_callback->setRunning(true);
-        common::ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter");
+        common::ThreadRunner sophos_threat_reporter(m_threatReporterServer, "threatReporter", true);
         LOGSUPPORT("Starting the main program loop");
         try
         {
@@ -110,8 +110,8 @@ namespace Plugin
 
     void PluginAdapter::startThreads()
     {
-        m_schedulerThread = std::make_unique<common::ThreadRunner>(m_scanScheduler, "scanScheduler");
-        m_threatDetectorThread = std::make_unique<common::ThreadRunner>(*m_threatDetector, "scanProcessMonitor");
+        m_schedulerThread = std::make_unique<common::ThreadRunner>(m_scanScheduler, "scanScheduler", true);
+        m_threatDetectorThread = std::make_unique<common::ThreadRunner>(m_threatDetector, "scanProcessMonitor", true);
         connectToThreatPublishingSocket(
             Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
     }
@@ -245,7 +245,7 @@ namespace Plugin
 
         bool savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap, m_gotSavPolicy);
         m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
-        m_scanScheduler.updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
+        m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
         std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
         m_callback->sendStatus(revID);
@@ -266,7 +266,7 @@ namespace Plugin
 
         if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
         {
-            m_scanScheduler.scanNow();
+            m_scanScheduler->scanNow();
         }
     }
 

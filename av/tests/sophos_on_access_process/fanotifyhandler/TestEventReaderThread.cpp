@@ -10,6 +10,7 @@
 #include <sstream>
 
 using namespace ::testing;
+using namespace sophos_on_access_process::fanotifyhandler;
 
 class TestEventReaderThread : public FANotifyHandlerMemoryAppenderUsingTests
 {
@@ -32,8 +33,8 @@ TEST_F(TestEventReaderThread, TestReaderExitsUsingPipe)
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
 
     int fanotifyFD = 123;
-    sophos_on_access_process::fanotifyhandler::EventReaderThread eventReader(fanotifyFD, m_mockSysCallWrapper);
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader");
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("Stopping the reading of FANotify events"));
 }
@@ -49,8 +50,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorIfFanotifySendsNoEvent)
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(Return(0));
 
-    sophos_on_access_process::fanotifyhandler::EventReaderThread eventReader(fanotifyFD, m_mockSysCallWrapper);
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader");
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("no event or error: 0"));
     EXPECT_TRUE(waitForLog("Stopping the reading of FANotify events"));
@@ -81,8 +82,8 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
 
-    sophos_on_access_process::fanotifyhandler::EventReaderThread eventReader(fanotifyFD, m_mockSysCallWrapper);
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader");
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
     std::stringstream logMsg;
@@ -111,8 +112,8 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
 
-    sophos_on_access_process::fanotifyhandler::EventReaderThread eventReader(fanotifyFD, m_mockSysCallWrapper);
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader");
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
     std::stringstream logMsg;
@@ -141,8 +142,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
 
-    sophos_on_access_process::fanotifyhandler::EventReaderThread eventReader(fanotifyFD, m_mockSysCallWrapper);
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader");
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
     std::stringstream logMsg;
@@ -168,8 +169,8 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
 
-    sophos_on_access_process::fanotifyhandler::EventReaderThread eventReader(fanotifyFD, m_mockSysCallWrapper);
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader");
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
     std::stringstream logMsg;
@@ -198,8 +199,8 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithoutFD)
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
 
-    sophos_on_access_process::fanotifyhandler::EventReaderThread eventReader(fanotifyFD, m_mockSysCallWrapper);
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader");
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
     EXPECT_TRUE(waitForLog("Got fanotify metadata event without fd"));
@@ -226,8 +227,8 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPid)
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
 
-    sophos_on_access_process::fanotifyhandler::EventReaderThread eventReader(fanotifyFD, m_mockSysCallWrapper);
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader");
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
     EXPECT_TRUE(waitForLog("Skip event caused by soapd"));
@@ -254,8 +255,8 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPpid)
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
 
-    sophos_on_access_process::fanotifyhandler::EventReaderThread eventReader(fanotifyFD, m_mockSysCallWrapper);
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader");
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
     EXPECT_TRUE(waitForLog("Skip event caused by soapd"));

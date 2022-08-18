@@ -1,26 +1,34 @@
 /******************************************************************************************************
 
-Copyright 2020-2022 Sophos Limited.  All rights reserved.
+Copyright 2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
+#include "common/AbstractThreadPluginInterface.h"
 
-#pragma once
-
-#include "Common/Threads/AbstractThread.h"
+#include <atomic>
+#include <memory>
 
 namespace common
 {
     class ThreadRunner
     {
     public:
-        explicit ThreadRunner(Common::Threads::AbstractThread &thread, std::string name);
-
+        explicit ThreadRunner(std::shared_ptr<common::AbstractThreadPluginInterface> thread, std::string name, bool startOnInitialisation);
         ~ThreadRunner();
+        ThreadRunner(const ThreadRunner&) = delete;
+        ThreadRunner& operator=(ThreadRunner const&) = delete;
+
+        void requestStopIfNotStopped();
+        void startIfNotStarted();
+
+        inline bool isStarted() { return m_started; }
 
     private:
-        void killThreads();
+        void stopThread();
+        void startThread();
 
-        Common::Threads::AbstractThread &m_thread;
+        std::shared_ptr<common::AbstractThreadPluginInterface> m_thread;
         std::string m_name;
+        std::atomic_bool m_started = false;
     };
 }
