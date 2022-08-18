@@ -681,7 +681,6 @@ Installer Test Setup
     Require Plugin Installed and Running
     # TODO: Remove stopping of soapd once file descriptor usage issue is fixed
     Stop soapd
-    Register Cleanup  Start soapd
     Mark AV Log
     Mark Sophos Threat Detector Log
 

@@ -16,7 +16,6 @@ AV and Base Setup
     Require Plugin Installed and Running
     # TODO: Remove stopping of soapd once file descriptor usage issue is fixed
     Stop soapd
-    Register Cleanup  Start soapd
 
     Remove Directory  /tmp/DiagnoseOutput  true
 
