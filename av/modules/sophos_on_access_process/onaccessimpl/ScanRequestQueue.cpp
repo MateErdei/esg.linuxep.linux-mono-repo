@@ -2,13 +2,9 @@
 
 #include "ScanRequestQueue.h"
 
-#include "Logger.h"
-
 using namespace sophos_on_access_process::onaccessimpl;
-using namespace std::chrono_literals;
 
-ScanRequestQueue::ScanRequestQueue(size_t maxSize)
-    : m_maxSize(maxSize)
+ScanRequestQueue::ScanRequestQueue()
 {
 
 }
@@ -18,40 +14,27 @@ ScanRequestQueue::~ScanRequestQueue()
 
 }
 
-bool ScanRequestQueue::emplace(ScanRequestQueueItem item)
+void ScanRequestQueue::push(std::shared_ptr<ClientScanRequest> scanRequest)
 {
-    size_t currentQueueSize = size();
-    if (currentQueueSize >= m_maxSize)
-    {
-        LOGWARN("Unable to add scan request to queue as it is at full capacity: " << currentQueueSize);
-        return false;
-    }
-    else
-    {
-        std::lock_guard<std::mutex> lock(m_lock);
-        m_queue.emplace(item);
-        m_condition.notify_one();
-        return true;
-    }
+    std::lock_guard<std::mutex> lock(m_lock);
+    m_queue.push(scanRequest);
+    m_condition.notify_one();
 }
 
-bool ScanRequestQueue::pop(ScanRequestQueueItem& item)
+std::shared_ptr<ClientScanRequest> ScanRequestQueue::pop()
 {
     std::unique_lock<std::mutex> lock(m_lock);
-    // release lock as long as the wait and re-aquire it afterwards.
-    if (m_condition.wait_for(lock, 100ms, [this]{ return !m_queue.empty(); }))
+    while(m_queue.empty())
     {
-        item = m_queue.front();
-        m_queue.pop();
-        return true;
+        // release lock as long as the wait and re-aquire it afterwards.
+        m_condition.wait(lock);
     }
-    else
-    {
-        return false;
-    }
+    std::shared_ptr<ClientScanRequest> scanRequest = m_queue.front();
+    m_queue.pop();
+    return scanRequest;
 }
 
-size_t ScanRequestQueue::size() const
+size_t ScanRequestQueue::size()
 {
     return m_queue.size();
 }

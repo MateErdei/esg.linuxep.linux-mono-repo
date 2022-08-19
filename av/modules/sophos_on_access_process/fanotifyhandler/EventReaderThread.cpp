@@ -76,20 +76,14 @@ bool EventReaderThread::handleFanotifyEvent()
             return false;
         }
 
-        auto eventFd = std::make_shared<datatypes::AutoFd>(metadata->fd);
-        if (!eventFd->valid())
+        if (metadata->fd < 0)
         {
             LOGDEBUG("Got fanotify metadata event without fd");
             continue;
         }
+        datatypes::AutoFd eventFd(metadata->fd);
 
-        auto path = getFilePathFromFd(eventFd->fd());
-        //Either path was too long or fd was invalid
-        if(path.empty())
-        {
-            continue;
-        }
-
+        auto path = getFilePathFromFd(eventFd.get());
         // Exclude events caused by AV logging to prevent recursive events
         if (path.rfind(m_pluginLogDir, 0) == 0)
         {
@@ -115,12 +109,8 @@ bool EventReaderThread::handleFanotifyEvent()
             auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
             scanRequest->setPath("");
             scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
-            scanRequest->setUserID(std::to_string(uid));
-            // TODO: Extend ClientScanRequest to include the file descriptor
-            if (!m_scanRequestQueue->emplace(std::make_pair(scanRequest, std::move(eventFd))))
-            {
-                LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
-            }
+            scanRequest->setUserID(std::to_string(0));
+            m_scanRequestQueue->push(scanRequest);
         }
         else
         {
@@ -137,17 +127,12 @@ std::string EventReaderThread::getFilePathFromFd(int fd)
     ssize_t len;
 
     if (fd <= 0)
-    {
-        LOGWARN("Failed to get path from fd");
         return "";
-    }
-
 
     std::stringstream procFdPath;
     procFdPath << "/proc/self/fd/" << fd;
     if ((len = m_sysCalls->readlink(procFdPath.str().c_str(), buffer, PATH_MAX - 1)) < 0)
     {
-        LOGWARN("Failed to get path from fd: " << common::safer_strerror(errno));
         return "";
     }
 
