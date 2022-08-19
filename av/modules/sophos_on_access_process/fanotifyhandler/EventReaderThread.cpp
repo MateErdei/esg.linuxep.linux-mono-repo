@@ -13,16 +13,22 @@
 #include <poll.h>
 #include <string.h>
 #include <sys/fanotify.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 
 using namespace sophos_on_access_process::fanotifyhandler;
 
-static const size_t BUFFER_SIZE = FAN_EVENT_METADATA_LEN * 2 - 1;
+static const size_t FAN_BUFFER_SIZE = FAN_EVENT_METADATA_LEN * 2 - 1;
 
-EventReaderThread::EventReaderThread(int fanotifyFD, datatypes::ISystemCallWrapperSharedPtr sysCalls)
+
+EventReaderThread::EventReaderThread(
+    int fanotifyFD,
+    datatypes::ISystemCallWrapperSharedPtr sysCalls,
+    std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestQueue> scanRequestQueue)
     : m_fanotifyfd(fanotifyFD)
     , m_sysCalls(sysCalls)
+    , m_scanRequestQueue(scanRequestQueue)
 {
     m_pid = getpid();
     m_ppid = getppid();
@@ -31,7 +37,7 @@ EventReaderThread::EventReaderThread(int fanotifyFD, datatypes::ISystemCallWrapp
 
 bool EventReaderThread::handleFanotifyEvent()
 {
-    char buf[BUFFER_SIZE];
+    char buf[FAN_BUFFER_SIZE];
     pid_t mypid = m_pid;
     pid_t myppid = m_ppid;
     pid_t mysid = m_sid;
@@ -99,6 +105,11 @@ bool EventReaderThread::handleFanotifyEvent()
         else if (metadata->mask & FAN_CLOSE)
         {
             LOGINFO("On-close event from PID " << metadata->pid << " for FD " << metadata->fd);
+            auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
+            scanRequest->setPath("");
+            scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
+            scanRequest->setUserID(std::to_string(0));
+            m_scanRequestQueue->push(scanRequest);
         }
         else
         {

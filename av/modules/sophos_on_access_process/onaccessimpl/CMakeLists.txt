@@ -4,7 +4,8 @@ add_library(onaccessimpl SHARED
         ClientSocketWrapper.h
         Logger.cpp
         Logger.h
-        )
+        ScanRequestQueue.cpp
+        ScanRequestQueue.h)
 
 target_link_libraries(onaccessimpl  PUBLIC
         unixsocket

@@ -9,6 +9,7 @@
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/FANotifyHandler.h"
+#include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 // Product
 #include "common/FDUtils.h"
 #include "common/SaferStrerror.h"
@@ -71,11 +72,12 @@ void SoapdBootstrap::innerRun(
     Common::Threads::NotifyPipe pipe)
 {
     mount_monitor::mount_monitor::OnAccessMountConfig config;
+    auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
     auto faNotifyHandler = std::make_unique<FANotifyHandler>(sysCallWrapper);
     auto mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, faNotifyHandler->faNotifyFd());
     auto mountMonitorThread = std::make_unique<common::ThreadRunner>(mountMonitor, "mountMonitor", true);
-    auto eventReader = std::make_shared<EventReaderThread>(faNotifyHandler->faNotifyFd(), sysCallWrapper);
+    auto eventReader = std::make_shared<EventReaderThread>(faNotifyHandler->faNotifyFd(), sysCallWrapper, scanRequestQueue);
     auto eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader, "eventReader", false);
 
     const int num_fds = 3;

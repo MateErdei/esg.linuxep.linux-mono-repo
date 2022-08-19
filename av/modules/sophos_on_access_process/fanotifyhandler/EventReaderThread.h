@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
+
 #include "common/AbstractThreadPluginInterface.h"
 #include "datatypes/ISystemCallWrapper.h"
 
@@ -12,7 +14,9 @@ namespace sophos_on_access_process::fanotifyhandler
     class EventReaderThread : public common::AbstractThreadPluginInterface
     {
     public:
-        EventReaderThread(int fanotifyFD, datatypes::ISystemCallWrapperSharedPtr sysCalls);
+        EventReaderThread(int fanotifyFD,
+                          datatypes::ISystemCallWrapperSharedPtr sysCalls,
+                          std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestQueue> scanRequestQueue);
         void run();
 
     private:
@@ -20,6 +24,7 @@ namespace sophos_on_access_process::fanotifyhandler
 
         int m_fanotifyfd;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
+        std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestQueue> m_scanRequestQueue;
         pid_t m_pid;
         pid_t m_ppid;
         pid_t m_sid;
