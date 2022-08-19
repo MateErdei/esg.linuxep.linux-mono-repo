@@ -35,6 +35,13 @@ namespace CentralRegistration
         }
     }
 
+    bool allowedToUseMcsCertOverride(std::shared_ptr<OSUtilities::ISystemUtils> systemUtils)
+    {
+        return systemUtils->getEnvironmentVariable("ALLOW_OVERRIDE_MCS_CA") == "--allow-override-mcs-ca" ||
+               Common::FileSystem::fileSystem()->exists(
+                   Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag());
+    }
+
     MCS::ConfigOptions processCommandLineOptions(const std::vector<std::string>& args, std::shared_ptr<OSUtilities::ISystemUtils> systemUtils)
     {
         std::map<std::string, std::string> configOptions;
@@ -140,7 +147,7 @@ namespace CentralRegistration
         }
 
         configOptions[MCS::MCS_PROXY] = proxy;
-        if (Common::FileSystem::fileSystem()->exists(Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag()))
+        if (allowedToUseMcsCertOverride(systemUtils))
         {
             configOptions[MCS::MCS_CA_OVERRIDE] = systemUtils->getEnvironmentVariable("MCS_CA");
         }

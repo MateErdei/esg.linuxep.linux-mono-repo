@@ -50,6 +50,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
 
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("ALLOW_OVERRIDE_MCS_CA")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
@@ -81,7 +82,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
-
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("ALLOW_OVERRIDE_MCS_CA")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 
@@ -118,7 +119,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
-
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("ALLOW_OVERRIDE_MCS_CA")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return("user:password"));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
@@ -141,6 +142,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("ALLOW_OVERRIDE_MCS_CA")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("MCS_CA")).WillOnce(Return("some_path"));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
@@ -167,7 +169,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>() ;
-
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("ALLOW_OVERRIDE_MCS_CA")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return("https://secure_proxy:443"));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).Times(0);
@@ -190,7 +192,7 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     };
 
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();
-
+    EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("ALLOW_OVERRIDE_MCS_CA")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("PROXY_CREDENTIALS")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return("http://non_secure_proxy:80"));
