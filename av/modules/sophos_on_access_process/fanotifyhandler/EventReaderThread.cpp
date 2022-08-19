@@ -24,7 +24,6 @@ using namespace sophos_on_access_process::fanotifyhandler;
 // Set the buffer size to the size of one memory page
 static constexpr size_t FAN_BUFFER_SIZE = 4096;
 
-
 EventReaderThread::EventReaderThread(
     int fanotifyFD,
     datatypes::ISystemCallWrapperSharedPtr sysCalls,
@@ -33,8 +32,8 @@ EventReaderThread::EventReaderThread(
     : m_fanotifyFd(fanotifyFD)
     , m_sysCalls(sysCalls)
     , m_pluginLogDir(pluginInstall / "log")
-    , m_pid(getpid())
     , m_scanRequestQueue(scanRequestQueue)
+    , m_pid(getpid())
 {
 }
 
@@ -81,9 +80,10 @@ bool EventReaderThread::handleFanotifyEvent()
         {
             LOGDEBUG("Got fanotify metadata event without fd");
             continue;
-        };
+        }
+        datatypes::AutoFd eventFd(metadata->fd);
 
-        auto path = getFilePathFromFd(metadata->fd);
+        auto path = getFilePathFromFd(eventFd.get());
         // Exclude events caused by AV logging to prevent recursive events
         if (path.rfind(m_pluginLogDir, 0) == 0)
         {
@@ -105,16 +105,12 @@ bool EventReaderThread::handleFanotifyEvent()
         }
         else if (metadata->mask & FAN_CLOSE_WRITE)
         {
-            // TODO: optimize this by using emplace instead of push
             LOGINFO("On-close event for " << path << " from PID " << metadata->pid << " and UID " << uid);
             auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
-            scanRequest->setPath(path);
+            scanRequest->setPath("");
             scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
-            scanRequest->setUserID(std::to_string(uid));
-            if (!m_scanRequestQueue->push(scanRequest, metadata->fd))
-            {
-                LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
-            }
+            scanRequest->setUserID(std::to_string(0));
+            m_scanRequestQueue->push(scanRequest);
         }
         else
         {

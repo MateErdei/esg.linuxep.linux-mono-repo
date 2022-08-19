@@ -4,8 +4,6 @@ add_library(onaccessimpl SHARED
         ClientSocketWrapper.h
         Logger.cpp
         Logger.h
-        ScanRequestHandler.cpp
-        ScanRequestHandler.h
         ScanRequestQueue.cpp
         ScanRequestQueue.h)
 

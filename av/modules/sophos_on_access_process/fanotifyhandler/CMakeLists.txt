@@ -12,7 +12,7 @@ target_include_directories(fanotifyhandler PUBLIC
         )
 
 target_link_libraries(fanotifyhandler
-        common)
+        common onaccessimpl)
 
 install(TARGETS fanotifyhandler
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
