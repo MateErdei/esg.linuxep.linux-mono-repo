@@ -453,18 +453,11 @@ void ConfigurationData::setOptionalManifestNames(const std::vector<std::string>&
 std::vector<Proxy> ConfigurationData::proxiesList() const
 {
     // This generates the list of proxies in order that they should be tried by SUL
-    // 1. Policy Proxy
-    // 2. Current environment proxy
+    // 1. Current environment proxy
+    // 2. Policy Proxy
     // 3. Saved environment proxy (saved on install)
     // 4. No Proxy
     std::vector<Proxy> options;
-
-    // Policy proxy
-    if (!m_policyProxy.empty())
-    {
-        LOGDEBUG("Proxy found in ALC Policy: " << m_policyProxy.getUrl());
-        options.emplace_back(m_policyProxy);
-    }
 
     // current_proxy file (whichever proxy MCS is using) added here for SDDS3 SUS Requests.
     auto currentProxy = currentMcsProxy();
@@ -472,6 +465,13 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
     {
         LOGDEBUG("Proxy found in current_proxy file: " << currentProxy.value().getUrl());
         options.emplace_back(currentProxy.value());
+    }
+
+    // Policy proxy
+    if (!m_policyProxy.empty())
+    {
+        LOGDEBUG("Proxy found in ALC Policy: " << m_policyProxy.getUrl());
+        options.emplace_back(m_policyProxy);
     }
 
     // Environment proxy
