@@ -28,9 +28,9 @@ TEST_F(TestScanRequestQueue, push_onlyEnqueuesUpToMaxSize)
     scanRequest2->setUserID("2");
 
     EXPECT_EQ(queue.size(), 0);
-    EXPECT_TRUE(queue.push(scanRequest1, 1));
+    queue.push(scanRequest1);
     EXPECT_EQ(queue.size(), 1);
-    EXPECT_FALSE(queue.push(scanRequest2, 2));
+    queue.push(scanRequest2);
     EXPECT_EQ(queue.size(), 1);
 
     EXPECT_TRUE(waitForLog("Unable to add scan request to queue as it is"));
@@ -46,39 +46,10 @@ TEST_F(TestScanRequestQueue, push_FIFO)
     auto pushRequest2 = std::make_shared<ClientScanRequest>();
     pushRequest2->setPath("2");
 
-    queue.push(pushRequest1, 1);
-    queue.push(pushRequest2, 2);
-    auto popItem1 = queue.pop();
-    EXPECT_EQ(popItem1.first->getPath(), "1");
-    EXPECT_EQ(popItem1.second, 1);
-    auto popItem2 = queue.pop();
-    EXPECT_EQ(popItem2.first->getPath(), "2");
-    EXPECT_EQ(popItem2.second, 2);
-}
-
-TEST_F(TestScanRequestQueue, queueCanProcessMoreItemsThanItsMaxSizeSequentially)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    ScanRequestQueue queue(2);
-    auto pushRequest1 = std::make_shared<ClientScanRequest>();
-    pushRequest1->setPath("1");
-    auto pushRequest2 = std::make_shared<ClientScanRequest>();
-    pushRequest2->setPath("2");
-    auto pushRequest3 = std::make_shared<ClientScanRequest>();
-    pushRequest3->setPath("3");
-
-    EXPECT_TRUE(queue.push(pushRequest1, 1));
-    EXPECT_TRUE(queue.push(pushRequest2, 2));
-    EXPECT_FALSE(queue.push(pushRequest3, 3));
-    auto popItem1 = queue.pop();
-    EXPECT_EQ(popItem1.first->getPath(), "1");
-    EXPECT_EQ(popItem1.second, 1);
-    EXPECT_TRUE(queue.push(pushRequest3, 3));
-    auto popItem2 = queue.pop();
-    EXPECT_EQ(popItem2.first->getPath(), "2");
-    EXPECT_EQ(popItem2.second, 2);
-    auto popItem3 = queue.pop();
-    EXPECT_EQ(popItem3.first->getPath(), "3");
-    EXPECT_EQ(popItem3.second, 3);
+    queue.push(pushRequest1);
+    queue.push(pushRequest2);
+    auto popRequest1 = queue.pop();
+    EXPECT_EQ(popRequest1->getPath(), "1");
+    auto popRequest2 = queue.pop();
+    EXPECT_EQ(popRequest2->getPath(), "2");
 }

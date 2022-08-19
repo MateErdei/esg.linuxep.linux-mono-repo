@@ -2,9 +2,12 @@
 
 #include "ScanRequestQueue.h"
 
+#include "Logger.h"
+
 using namespace sophos_on_access_process::onaccessimpl;
 
-ScanRequestQueue::ScanRequestQueue()
+ScanRequestQueue::ScanRequestQueue(size_t maxSize)
+    : m_maxSize(maxSize)
 {
 
 }
@@ -16,9 +19,16 @@ ScanRequestQueue::~ScanRequestQueue()
 
 void ScanRequestQueue::push(std::shared_ptr<ClientScanRequest> scanRequest)
 {
-    std::lock_guard<std::mutex> lock(m_lock);
-    m_queue.push(scanRequest);
-    m_condition.notify_one();
+    if (size() >= m_maxSize)
+    {
+        LOGWARN("Unable to add scan request to queue as it is");
+    }
+    else
+    {
+        std::lock_guard<std::mutex> lock(m_lock);
+        m_queue.push(scanRequest);
+        m_condition.notify_one();
+    }
 }
 
 std::shared_ptr<ClientScanRequest> ScanRequestQueue::pop()
