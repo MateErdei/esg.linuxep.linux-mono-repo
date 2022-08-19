@@ -43,7 +43,8 @@ namespace SulDownloader
         SDDS3Repository();
         bool synchronize(
             const suldownloaderdata::ConfigurationData& configurationData,
-            const suldownloaderdata::ConnectionSetup& connectionSetup) override;
+            const suldownloaderdata::ConnectionSetup& connectionSetup,
+            const bool ignoreFailedSupplementRefresh) override;
         void distribute() override;
 
         /***

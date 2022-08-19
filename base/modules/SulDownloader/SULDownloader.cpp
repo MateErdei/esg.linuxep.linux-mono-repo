@@ -590,11 +590,23 @@ namespace SulDownloader
             LOGWARN("Failed to delete SDDS2 cache, reason:" << ex.what());
         }
 
-        for (auto& connectionCandidate : cdnCandidates)
+        //using iterator here instead of a for range to avoid ignoringSupplementFailure early
+        // if there is a duplicate in the list for the last candidate
+        for (auto it = cdnCandidates.begin(); it != cdnCandidates.end(); ++it)
         {
-            if (repository->synchronize(configurationData, connectionCandidate))
+            if (std::next(it) == cdnCandidates.end()) // last element
             {
-                break;
+                if (repository->synchronize(configurationData, *it, true))
+                {
+                    break;
+                }
+            }
+            else
+            {
+                if (repository->synchronize(configurationData, *it, false))
+                {
+                    break;
+                }
             }
         }
 

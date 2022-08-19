@@ -29,9 +29,8 @@ namespace SulDownloader
 
             virtual bool synchronize(
                 const suldownloaderdata::ConfigurationData& configurationData,
-                const suldownloaderdata::ConnectionSetup& connectionSetup) = 0;
-//                                     std::set<std::string>& suites,
-//                                     std::set<std::string>& releaseGroups) = 0;
+                const suldownloaderdata::ConnectionSetup& connectionSetup,
+                const bool ignoreFailedSupplementRefresh) = 0;
 
             virtual void distribute() = 0;
 //

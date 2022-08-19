@@ -244,7 +244,8 @@ namespace SulDownloader
 
     bool SDDS3Repository::synchronize(
         const suldownloaderdata::ConfigurationData& configurationData,
-        const suldownloaderdata::ConnectionSetup& connectionSetup)
+        const suldownloaderdata::ConnectionSetup& connectionSetup,
+        const bool ignoreFailedSupplementRefresh)
     {
         m_error.reset(); // Clear error for retry
 
@@ -314,6 +315,18 @@ namespace SulDownloader
             LOGINFO("Performing Sync using " << srcUrl);
             SulDownloader::sdds3Wrapper()->sync(*m_session.get(), repo, srcUrl, m_config, m_oldConfig);
             m_sourceUrl = srcUrl;  // store which source was used - for reporting later.
+            if (!ignoreFailedSupplementRefresh)
+            {
+                // supplementFallbackCount is intialized then the sync call failed to pull down the latest supplements
+                if (m_session->syncStats.supplementFallbackCount)
+                {
+                    m_error.status = RepositoryStatus::DOWNLOADFAILED;
+                    std::string message;
+                    message = "Failed to sync supplements";
+                    m_error.Description = message;
+                    LOGWARN("Failed to Sync with " << srcUrl << " error: " << message);
+                }
+            }
         }
         catch (const std::exception& ex)
         {
