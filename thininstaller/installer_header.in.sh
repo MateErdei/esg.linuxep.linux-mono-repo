@@ -391,7 +391,7 @@ do
             shift
         ;;
         --allow-override-mcs-ca)
-            ALLOW_OVERRIDE_MCS_CA=--allow-override-mcs-ca
+            export ALLOW_OVERRIDE_MCS_CA=--allow-override-mcs-ca
             shift
         ;;
         --group=*)
