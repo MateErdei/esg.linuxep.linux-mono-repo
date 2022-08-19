@@ -10,12 +10,14 @@
 
 using namespace scan_messages;
 
+const size_t MAX_SIZE = 1000;
+
 namespace sophos_on_access_process::onaccessimpl
 {
     class ScanRequestQueue
     {
     public:
-        ScanRequestQueue();
+        ScanRequestQueue(size_t maxSize = MAX_SIZE);
         ~ScanRequestQueue();
 
         void push(std::shared_ptr<ClientScanRequest> scanRequest);
@@ -27,5 +29,7 @@ namespace sophos_on_access_process::onaccessimpl
         std::queue<std::shared_ptr<ClientScanRequest>> m_queue;
         mutable std::mutex m_lock;
         std::condition_variable m_condition;
+
+        size_t m_maxSize;
     };
 }
