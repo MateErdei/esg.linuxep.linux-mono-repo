@@ -34,7 +34,7 @@ TEST_F(TestEventReaderThread, TestReaderExitsUsingPipe)
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
 
     int fanotifyFD = 123;
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, scanRequestQueue);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("Stopping the reading of FANotify events"));
@@ -53,12 +53,11 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorIfFanotifySendsNoEvent)
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(Return(0));
 
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, scanRequestQueue);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("no event or error: 0"));
     EXPECT_TRUE(waitForLog("Stopping the reading of FANotify events"));
-    EXPECT_EQ(scanRequestQueue->size(), 0);
 }
 
 ACTION_P(AssignFanotifyEvent, param)
@@ -92,7 +91,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
     statbuf.st_uid = 1;
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(statbuf), Return(0)));
 
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, scanRequestQueue);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
@@ -129,7 +128,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
     statbuf.st_uid = 1;
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(statbuf), Return(0)));
 
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, scanRequestQueue);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
@@ -166,7 +165,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
     statbuf.st_uid = 1;
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(statbuf), Return(0)));
 
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, scanRequestQueue);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
@@ -195,7 +194,7 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
 
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, scanRequestQueue);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
@@ -227,7 +226,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithoutFD)
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
 
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, scanRequestQueue);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
@@ -257,7 +256,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPid)
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
 
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, scanRequestQueue);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));
@@ -287,7 +286,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPpid)
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
 
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, scanRequestQueue);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("got event: size "));

@@ -977,6 +977,7 @@ On Access Logs When A File Is Closed Following Write
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until On Access Log Contains  Starting eventReader
     ${pid} =  Get Robot Pid
-    Create File  /tmp_test/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  /tmp_test/eicar.com
-    Wait Until On Access Log Contains  On-close event from PID ${pid} for FD
+    ${filepath} =  Set Variable  /tmp_test/eicar.com
+    Create File  ${filepath}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${filepath}
+    Wait Until On Access Log Contains  On-close event for ${filepath} from PID ${pid} and UID
