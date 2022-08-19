@@ -9,6 +9,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include <memory>
 #include <string>
 #include <sys/poll.h>
+#include <sys/stat.h>
 #include <sys/statfs.h>
 
 namespace datatypes
@@ -19,6 +20,7 @@ namespace datatypes
         virtual ~ISystemCallWrapper() = default;
         virtual int _ioctl(int fd, unsigned long int request, char* buffer) = 0;
         virtual int _statfs(const char *file, struct ::statfs *buf) = 0;
+        virtual int _stat(const char *file, struct ::stat *buf) = 0;
         virtual int _open(const char *file, int oflag, mode_t mode) = 0;
         virtual std::pair<const int, const long> getSystemUpTime() = 0;
         virtual int pselect(int __nfds,
@@ -39,6 +41,7 @@ namespace datatypes
                                   int __dfd,
                                   const char *__pathname) = 0;
         virtual ssize_t read(int __fd, void *__buf, size_t __nbytes) = 0;
+        virtual ssize_t readlink(const char* __path, char* __buf, size_t __len) = 0;
     };
 
     using ISystemCallWrapperSharedPtr = std::shared_ptr<ISystemCallWrapper>;

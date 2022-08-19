@@ -29,6 +29,11 @@ namespace datatypes
             return ::statfs(file, buf);
         }
 
+        int _stat(const char* file, struct ::stat* buf) override
+        {
+            return ::stat(file, buf);
+        }
+
         int _open(const char *file, int oflag, mode_t mode) override
         {
             return ::open(file, oflag, mode);
@@ -78,6 +83,11 @@ namespace datatypes
         ssize_t read(int __fd, void *__buf, size_t __nbytes) override
         {
             return ::read (__fd, __buf, __nbytes);
+        }
+
+        ssize_t readlink(const char* __path, char* __buf, size_t __len) override
+        {
+            return ::readlink(__path, __buf, __len);
         }
     };
 }

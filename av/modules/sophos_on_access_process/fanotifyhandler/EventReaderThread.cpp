@@ -21,14 +21,9 @@ using namespace sophos_on_access_process::fanotifyhandler;
 
 static const size_t FAN_BUFFER_SIZE = FAN_EVENT_METADATA_LEN * 2 - 1;
 
-
-EventReaderThread::EventReaderThread(
-    int fanotifyFD,
-    datatypes::ISystemCallWrapperSharedPtr sysCalls,
-    std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestQueue> scanRequestQueue)
+EventReaderThread::EventReaderThread(int fanotifyFD, datatypes::ISystemCallWrapperSharedPtr sysCalls)
     : m_fanotifyfd(fanotifyFD)
     , m_sysCalls(sysCalls)
-    , m_scanRequestQueue(scanRequestQueue)
 {
     m_pid = getpid();
     m_ppid = getppid();
@@ -96,20 +91,17 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
+        auto path = getFilePathFromFd(metadata->fd);
+        auto uid = getUidFromPid(metadata->pid);
         // TODO: Handle process exclusions
 
         if (metadata->mask & FAN_OPEN_PERM)
         {
-            LOGINFO("On-open event from PID " << metadata->pid << " for FD " << metadata->fd);
+            LOGINFO("On-open event for " << path << " from PID " << metadata->pid << " and UID " << uid);
         }
         else if (metadata->mask & FAN_CLOSE)
         {
-            LOGINFO("On-close event from PID " << metadata->pid << " for FD " << metadata->fd);
-            auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
-            scanRequest->setPath("");
-            scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
-            scanRequest->setUserID(std::to_string(0));
-            m_scanRequestQueue->push(scanRequest);
+            LOGINFO("On-close event for " << path << " from PID " << metadata->pid << " and UID " << uid);
         }
         else
         {
@@ -117,6 +109,42 @@ bool EventReaderThread::handleFanotifyEvent()
         }
     }
     return true;
+}
+
+std::string EventReaderThread::getFilePathFromFd(int fd)
+{
+    constexpr const size_t BUFFER_SIZE = 4096;
+    char buffer[BUFFER_SIZE];
+
+    ssize_t len;
+
+    if (fd <= 0)
+        return "";
+
+    std::stringstream procFdPath;
+    procFdPath << "/proc/self/fd/" << fd;
+    if ((len = m_sysCalls->readlink(procFdPath.str().c_str(), buffer, BUFFER_SIZE - 1)) < 0)
+    {
+        return "";
+    }
+
+    buffer[len] = '\0';
+    return buffer;
+}
+
+uid_t EventReaderThread::getUidFromPid(pid_t pid)
+{
+    std::stringstream procPidPath;
+    procPidPath << "/proc/" << pid;
+    struct ::stat statbuf{};
+
+    int ret = m_sysCalls->_stat(procPidPath.str().c_str(), &statbuf);
+    if (ret == 0)
+    {
+        return statbuf.st_uid;
+    }
+
+    return 0;
 }
 
 void EventReaderThread::run()

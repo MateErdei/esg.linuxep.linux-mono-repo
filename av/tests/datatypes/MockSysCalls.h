@@ -16,6 +16,7 @@ namespace
         MOCK_METHOD((std::pair<const int, const long>), getSystemUpTime, ());
         MOCK_METHOD(int, _ioctl, (int __fd, unsigned long int __request, char* buffer));
         MOCK_METHOD(int, _statfs, (const char *__file, struct ::statfs *__buf));
+        MOCK_METHOD(int, _stat, (const char *__file, struct ::stat *__buf));
         MOCK_METHOD(int, _open, (const char *__file, int __oflag, mode_t mode));
         MOCK_METHOD(int, pselect, (int __nfds,
                                    fd_set *__restrict __readfds,
@@ -35,5 +36,6 @@ namespace
                                          int __dfd,
                                          const char *__pathname));
         MOCK_METHOD(ssize_t, read, (int __fd, void *__buf, size_t __nbytes));
+        MOCK_METHOD(ssize_t, readlink, (const char* __path, char* __buf, size_t __len));
     };
 }
