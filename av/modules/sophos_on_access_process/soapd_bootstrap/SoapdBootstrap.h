@@ -17,6 +17,7 @@ namespace sophos_on_access_process::soapd_bootstrap
         static void innerRun(
             std::shared_ptr<common::signals::SigIntMonitor>& sigIntMonitor,
             std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor,
-            Common::Threads::NotifyPipe pipe);
+            Common::Threads::NotifyPipe pipe,
+            const std::string& pluginInstall);
     };
 }

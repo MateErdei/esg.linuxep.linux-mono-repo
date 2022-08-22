@@ -21,13 +21,19 @@
 
 using namespace sophos_on_access_process::fanotifyhandler;
 
-static const size_t FAN_BUFFER_SIZE = FAN_EVENT_METADATA_LEN * 2 - 1;
+// Set the buffer size to the size of one memory page
+static constexpr size_t FAN_BUFFER_SIZE = 4096;
 
-EventReaderThread::EventReaderThread(int fanotifyFD, datatypes::ISystemCallWrapperSharedPtr sysCalls)
+
+EventReaderThread::EventReaderThread(
+    int fanotifyFD,
+    datatypes::ISystemCallWrapperSharedPtr sysCalls,
+    const fs::path& pluginInstall)
     : m_fanotifyfd(fanotifyFD)
     , m_sysCalls(sysCalls)
+    , m_pluginLogDir(pluginInstall / "log")
+    , m_pid(getpid())
 {
-    m_pid = getpid();
 }
 
 bool EventReaderThread::handleFanotifyEvent()
@@ -83,6 +89,12 @@ bool EventReaderThread::handleFanotifyEvent()
         }
 
         auto path = getFilePathFromFd(eventFd.get());
+        // Exclude events caused by AV logging to prevent recursive events
+        if (path.rfind(m_pluginLogDir, 0) == 0)
+        {
+            continue;
+        }
+
         auto uid = getUidFromPid(metadata->pid);
         // TODO: Handle process exclusions
 
@@ -134,7 +146,8 @@ uid_t EventReaderThread::getUidFromPid(pid_t pid)
         return statbuf.st_uid;
     }
 
-    return 0;
+    // return invalid UID
+    return static_cast<uid_t>(-1);
 }
 
 void EventReaderThread::run()
