@@ -1,4 +1,6 @@
 
+add_subdirectory(pluginutils)
+
 include(GoogleTest)
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
