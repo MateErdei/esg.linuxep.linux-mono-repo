@@ -166,6 +166,9 @@ namespace mount_monitor::mount_monitor
 
             if ((fds[1].revents & POLLPRI) != 0)
             {
+                // Mark all current mounts
+                // Will override previous marks for same mounts
+                // FANotify automatically unmarks mounts that are unmounted
                 LOGINFO("Mount points changed - re-evaluating");
                 markMounts(getIncludedMountpoints(getAllMountpoints()));
             }
