@@ -11,6 +11,7 @@
 #include <memory>
 // Standard C
 #include <errno.h>
+#include <limits.h>
 #include <poll.h>
 #include <string.h>
 #include <sys/fanotify.h>
@@ -27,24 +28,19 @@ EventReaderThread::EventReaderThread(int fanotifyFD, datatypes::ISystemCallWrapp
     , m_sysCalls(sysCalls)
 {
     m_pid = getpid();
-    m_ppid = getppid();
-    m_sid = getsid(m_pid);
 }
 
 bool EventReaderThread::handleFanotifyEvent()
 {
     char buf[FAN_BUFFER_SIZE];
-    pid_t mypid = m_pid;
-    pid_t myppid = m_ppid;
-    pid_t mysid = m_sid;
 
     errno = 0;
     ssize_t len = m_sysCalls->read(m_fanotifyfd, buf, sizeof(buf));
-    int error = errno;
 
     // Verify we got something.
     if (len <= 0)
     {
+        int error = errno;
         if (error == EAGAIN)
         {
             // Another thread got it:
@@ -80,16 +76,9 @@ bool EventReaderThread::handleFanotifyEvent()
         }
         datatypes::AutoFd eventFd(metadata->fd);
 
-        if (metadata->pid == mypid || metadata->pid == myppid || metadata->pid == 1)
+        if (metadata->pid == m_pid)
         {
             LOGDEBUG("Skip event caused by soapd");
-            continue;
-        }
-
-        // Check the session ID and whitelist any process that is in our session.
-        if (getsid(metadata->pid) == mysid)
-        {
-            LOGDEBUG("Event received from process in our session. Allowing pid " << metadata->pid);
             continue;
         }
 
@@ -97,11 +86,11 @@ bool EventReaderThread::handleFanotifyEvent()
         auto uid = getUidFromPid(metadata->pid);
         // TODO: Handle process exclusions
 
-        if (metadata->mask & FAN_OPEN_PERM)
+        if (metadata->mask & FAN_OPEN)
         {
             LOGINFO("On-open event for " << path << " from PID " << metadata->pid << " and UID " << uid);
         }
-        else if (metadata->mask & FAN_CLOSE)
+        else if (metadata->mask & FAN_CLOSE_WRITE)
         {
             LOGINFO("On-close event for " << path << " from PID " << metadata->pid << " and UID " << uid);
         }
@@ -115,8 +104,7 @@ bool EventReaderThread::handleFanotifyEvent()
 
 std::string EventReaderThread::getFilePathFromFd(int fd)
 {
-    constexpr const size_t BUFFER_SIZE = 4096;
-    char buffer[BUFFER_SIZE];
+    char buffer[PATH_MAX];
 
     ssize_t len;
 
@@ -125,7 +113,7 @@ std::string EventReaderThread::getFilePathFromFd(int fd)
 
     std::stringstream procFdPath;
     procFdPath << "/proc/self/fd/" << fd;
-    if ((len = m_sysCalls->readlink(procFdPath.str().c_str(), buffer, BUFFER_SIZE - 1)) < 0)
+    if ((len = m_sysCalls->readlink(procFdPath.str().c_str(), buffer, PATH_MAX - 1)) < 0)
     {
         return "";
     }
@@ -151,8 +139,6 @@ uid_t EventReaderThread::getUidFromPid(pid_t pid)
 
 void EventReaderThread::run()
 {
-    struct timespec pollTimeout = {5,0};
-
     int exitFD = m_notifyPipe.readFd();
     const int num_fds = 2;
     struct pollfd fds[num_fds];
@@ -169,7 +155,7 @@ void EventReaderThread::run()
 
     while (true)
     {
-        int ret = m_sysCalls->ppoll(fds, num_fds, &pollTimeout, nullptr);
+        int ret = m_sysCalls->ppoll(fds, num_fds, nullptr, nullptr);
 
         if (ret < 0)
         {
@@ -178,10 +164,6 @@ void EventReaderThread::run()
                 // Error
                 LOGDEBUG("Error from poll: " << errno);
             }
-        }
-        else if (ret == 0)
-        {
-            // TIMEOUT
         }
 
         if ((fds[0].revents & POLLIN) != 0)
@@ -199,5 +181,4 @@ void EventReaderThread::run()
             }
         }
     }
-    LOGDEBUG("Exiting EventReaderThread::run()");
 }

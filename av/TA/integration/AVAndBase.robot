@@ -969,15 +969,3 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Log File  ${CLOUDSCAN_LOG_PATH}
     File Log Should Not Contain With Offset  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
-
-On Access Logs When A File Is Closed Following Write
-    Mark On Access Log
-
-    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until On Access Log Contains  Starting eventReader
-    ${pid} =  Get Robot Pid
-    ${filepath} =  Set Variable  /tmp_test/eicar.com
-    Create File  ${filepath}  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${filepath}
-    Wait Until On Access Log Contains  On-close event for ${filepath} from PID ${pid} and UID
