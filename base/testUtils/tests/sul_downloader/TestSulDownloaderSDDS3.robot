@@ -49,7 +49,7 @@ Sul Downloader Requests Fixed Version When Fixed Version In Policy
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   2 secs
-    ...   File Should Contain    ${sdds3_server_output}     ServerProtectionLinux-Base fixedVersion: 1.2.0 requested
+    ...   File Should Contain    ${sdds3_server_output}     ServerProtectionLinux-Base fixedVersion: 2022.1.0.40 requested
     Wait Until Keyword Succeeds
     ...   2 secs
     ...   1 secs

@@ -736,7 +736,7 @@ namespace SulDownloader
 
         if (useSdds3 && !configurationData.getPrimarySubscription().fixedVersion().empty())
         {
-            if (StringUtils::isVersionOlder("1.2", configurationData.getPrimarySubscription().fixedVersion()))
+            if (StringUtils::isVersionOlder("2022", configurationData.getPrimarySubscription().fixedVersion()))
             {
                 LOGINFO(
                     "The requested fixed version is not available on SDDS3: " +
