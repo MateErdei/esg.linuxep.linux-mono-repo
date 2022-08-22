@@ -5,6 +5,7 @@
 #include "Logger.h"
 
 #include "common/SaferStrerror.h"
+#include "datatypes/AutoFd.h"
 
 // Standard C++
 #include <memory>
@@ -77,6 +78,7 @@ bool EventReaderThread::handleFanotifyEvent()
             LOGDEBUG("Got fanotify metadata event without fd");
             continue;
         }
+        datatypes::AutoFd eventFd(metadata->fd);
 
         if (metadata->pid == mypid || metadata->pid == myppid || metadata->pid == 1)
         {
@@ -91,7 +93,7 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
-        auto path = getFilePathFromFd(metadata->fd);
+        auto path = getFilePathFromFd(eventFd.get());
         auto uid = getUidFromPid(metadata->pid);
         // TODO: Handle process exclusions
 
