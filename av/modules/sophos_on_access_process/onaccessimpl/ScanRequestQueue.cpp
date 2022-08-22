@@ -19,9 +19,10 @@ ScanRequestQueue::~ScanRequestQueue()
 
 void ScanRequestQueue::push(std::shared_ptr<ClientScanRequest> scanRequest)
 {
-    if (size() >= m_maxSize)
+    size_t currentQueueSize = size();
+    if (currentQueueSize >= m_maxSize)
     {
-        LOGWARN("Unable to add scan request to queue as it is");
+        LOGWARN("Unable to add scan request to queue as it is at full capacity: " << currentQueueSize);
     }
     else
     {
