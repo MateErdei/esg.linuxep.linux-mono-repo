@@ -17,30 +17,29 @@ ScanRequestQueue::~ScanRequestQueue()
 
 }
 
-void ScanRequestQueue::push(std::shared_ptr<ClientScanRequest> scanRequest)
+bool ScanRequestQueue::push(ClientScanRequestPtr scanRequest, datatypes::AutoFd& fd)
 {
     size_t currentQueueSize = size();
     if (currentQueueSize >= m_maxSize)
     {
         LOGWARN("Unable to add scan request to queue as it is at full capacity: " << currentQueueSize);
+        return false;
     }
     else
     {
         std::lock_guard<std::mutex> lock(m_lock);
-        m_queue.push(scanRequest);
+        m_queue.emplace(scanRequest, fd);
         m_condition.notify_one();
+        return true;
     }
 }
 
-std::shared_ptr<ClientScanRequest> ScanRequestQueue::pop()
+std::pair<ClientScanRequestPtr, datatypes::AutoFd&> ScanRequestQueue::pop()
 {
     std::unique_lock<std::mutex> lock(m_lock);
-    while(m_queue.empty())
-    {
-        // release lock as long as the wait and re-aquire it afterwards.
-        m_condition.wait(lock);
-    }
-    std::shared_ptr<ClientScanRequest> scanRequest = m_queue.front();
+    // release lock as long as the wait and re-aquire it afterwards.
+    m_condition.wait(lock, [this]{ return !m_queue.empty(); });
+    auto scanRequest = m_queue.front();
     m_queue.pop();
     return scanRequest;
 }

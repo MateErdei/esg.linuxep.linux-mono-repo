@@ -105,12 +105,16 @@ bool EventReaderThread::handleFanotifyEvent()
         }
         else if (metadata->mask & FAN_CLOSE_WRITE)
         {
+            // TODO: optimize this by using emplace instead of push
             LOGINFO("On-close event for " << path << " from PID " << metadata->pid << " and UID " << uid);
             auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
             scanRequest->setPath("");
             scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
-            scanRequest->setUserID(std::to_string(0));
-            m_scanRequestQueue->push(scanRequest);
+            scanRequest->setUserID(std::to_string(uid));
+            if (!m_scanRequestQueue->push(scanRequest, eventFd))
+            {
+                LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
+            }
         }
         else
         {
