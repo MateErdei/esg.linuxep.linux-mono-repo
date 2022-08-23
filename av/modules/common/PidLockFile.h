@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "datatypes/ISystemCallWrapper.h"
+
 #include <string>
 
 namespace common
@@ -15,6 +17,8 @@ namespace common
     public:
         explicit PidLockFile(const std::string& pidfile);
         virtual ~PidLockFile();
+
+        static bool isPidFileLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
 
     private:
         std::string m_pidfile;

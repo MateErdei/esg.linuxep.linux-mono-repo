@@ -64,7 +64,6 @@ namespace Plugin
         static int getProcessPidFromFile(Common::FileSystem::IFileSystem* fileSystem, const Path&);
         [[nodiscard]] bool shutdownFileValid() const;
 
-        bool isPidFileLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
         /**
          * Takes a linux process status file's contents and returns a value at of a
          * given key.

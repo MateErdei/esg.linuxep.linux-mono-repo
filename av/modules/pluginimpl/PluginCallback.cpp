@@ -1,24 +1,25 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
+// Class
 #include "PluginCallback.h"
-
+// Package
 #include "Logger.h"
-
+#include "PolicyProcessor.h"
+// Component
 #include "common/PluginUtils.h"
+#include "common/PidLockFile.h"
 #include "common/StringUtils.h"
-#include "common/SaferStrerror.h"
-#include "datatypes/AutoFd.h"
-
+// Product
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <thirdparty/nlohmann-json/json.hpp>
 #include <datatypes/SystemCallWrapper.h>
-
+#include <thirdparty/nlohmann-json/json.hpp>
+// Std C++
 #include <fstream>
-
+// Std C
 #include <unistd.h>
 
 namespace fs = sophos_filesystem;
@@ -32,6 +33,10 @@ namespace Plugin
     {
         std::string noPolicySetStatus = generateSAVStatusXML();
         m_statusInfo = { noPolicySetStatus, noPolicySetStatus, "SAV" };
+
+        // Initially configure On-Access off, until we get a policy
+        Plugin::PolicyProcessor::setOnAccessConfiguredTelemetry(false);
+
         LOGDEBUG("Plugin Callback Started");
     }
 
@@ -319,49 +324,16 @@ namespace Plugin
         return "";
     }
 
-    bool PluginCallback::isPidFileLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
-    {
-        datatypes::AutoFd fd(sysCalls->_open(pidfile.c_str(), O_RDONLY, 0644));
-        if (!fd.valid())
-        {
-            auto buf = common::safer_strerror(errno);
-            LOGDEBUG("Unable to open PID file " << pidfile << " (" << buf << "), assume process not running");
-            return false;
-        }
-
-        struct flock fl;
-        fl.l_type    = F_RDLCK;   /* Test for any lock on any part of file. */
-        fl.l_whence  = SEEK_SET;
-        fl.l_start   = 0;
-        fl.l_len     = 50;
-        sysCalls->fcntl(fd.get(), F_GETLK, &fl);  /* Overwrites lock structure with preventors. */
-        if (fl.l_type == F_WRLCK)
-        {
-            LOGDEBUG("Unable to acquire lock on " << pidfile << " as process " << fl.l_pid << " already has a write lock");
-            return true;
-        }
-        else if (fl.l_type == F_RDLCK)
-        {
-            LOGDEBUG("Unable to acquire lock on " << pidfile << " as process " << fl.l_pid << " already has a read lock");
-            return true;
-        }
-        else
-        {
-            LOGDEBUG("Lock acquired on PID file " << pidfile << ", assume process not running");
-        }
-        return false;
-    }
-
     long PluginCallback::calculateHealth(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
         Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
-        if (!isPidFileLocked(threatDetectorPidFile, sysCalls) && !shutdownFileValid())
+        if (!common::PidLockFile::isPidFileLocked(threatDetectorPidFile, sysCalls) && !shutdownFileValid())
         {
             return E_HEALTH_STATUS_BAD;
         }
 
         Path soapdPidFile = common::getPluginInstallPath() / "var/soapd.pid";
-        if (!isPidFileLocked(soapdPidFile, sysCalls))
+        if (!common::PidLockFile::isPidFileLocked(soapdPidFile, sysCalls))
         {
             return E_HEALTH_STATUS_BAD;
         }

@@ -5,6 +5,8 @@
 #include "Logger.h"
 #include "PidLockFileException.h"
 
+#include "common/SaferStrerror.h"
+#include "datatypes/AutoFd.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include <sstream>
@@ -95,4 +97,37 @@ PidLockFile::~PidLockFile()
         m_fd = -1;
         unlink(m_pidfile.c_str());
     }
+}
+
+bool PidLockFile::isPidFileLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+{
+    datatypes::AutoFd fd(sysCalls->_open(pidfile.c_str(), O_RDONLY, 0644));
+    if (!fd.valid())
+    {
+        auto buf = common::safer_strerror(errno);
+        LOGDEBUG("Unable to open PID file " << pidfile << " (" << buf << "), assume process not running");
+        return false;
+    }
+
+    struct flock fl;
+    fl.l_type    = F_RDLCK;   /* Test for any lock on any part of file. */
+    fl.l_whence  = SEEK_SET;
+    fl.l_start   = 0;
+    fl.l_len     = 50;
+    sysCalls->fcntl(fd.get(), F_GETLK, &fl);  /* Overwrites lock structure with preventors. */
+    if (fl.l_type == F_WRLCK)
+    {
+        LOGDEBUG("Unable to acquire lock on " << pidfile << " as process " << fl.l_pid << " already has a write lock");
+        return true;
+    }
+    else if (fl.l_type == F_RDLCK)
+    {
+        LOGDEBUG("Unable to acquire lock on " << pidfile << " as process " << fl.l_pid << " already has a read lock");
+        return true;
+    }
+    else
+    {
+        LOGDEBUG("Lock acquired on PID file " << pidfile << ", assume process not running");
+    }
+    return false;
 }
