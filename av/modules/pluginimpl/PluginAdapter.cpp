@@ -96,6 +96,14 @@ namespace Plugin
         {
             LOGINFO("Failed to request ALC policy at startup (" << e.what() << ")");
         }
+        try
+        {
+            m_baseService->requestPolicies("FLAGS");
+        }
+        catch (Common::PluginApi::ApiException& e)
+        {
+            LOGINFO("Failed to request FLAGS policy at startup (" << e.what() << ")");
+        }
 
         m_callback->setThreatHealth(
             static_cast<E_HEALTH_STATUS>(pluginimpl::getThreatStatus())
@@ -139,11 +147,19 @@ namespace Plugin
 
                     case Task::TaskType::Policy:
                     {
-                        bool policyUpdated = false;
-                        std::string appId;
-                        processPolicy(task.Content, policyUpdated, appId);
-                        policyWaiter.gotPolicy(appId);
-                        m_restartSophosThreatDetector = policyUpdated || m_restartSophosThreatDetector;
+                        if (task.appId == "FLAGS")
+                        {
+                            processFlags(task.Content);
+                        }
+                        else
+                        {
+                            bool policyUpdated = false;
+                            std::string appId;
+                            processPolicy(task.Content, policyUpdated, appId);
+                            policyWaiter.gotPolicy(appId);
+                            m_restartSophosThreatDetector = policyUpdated || m_restartSophosThreatDetector;
+                        }
+
                         break;
                     }
 
@@ -194,6 +210,11 @@ namespace Plugin
                 m_restartSophosThreatDetector = false;
             }
         }
+    }
+
+    void PluginAdapter::processFlags(const std::string& flagsJson)
+    {
+        LOGINFO("Flags! " << flagsJson);
     }
 
     void PluginAdapter::processPolicy(const std::string& policyXml, bool& policyUpdated, std::string& appId)

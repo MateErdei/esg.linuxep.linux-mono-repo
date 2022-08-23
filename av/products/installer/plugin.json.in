@@ -1,7 +1,8 @@
 {
   "policyAppIds": [
         "SAV",
-        "ALC"
+        "ALC",
+        "FLAGS"
   ],
   "actionAppIds": [
         "SAV"

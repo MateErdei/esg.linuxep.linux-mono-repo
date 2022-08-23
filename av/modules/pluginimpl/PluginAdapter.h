@@ -78,5 +78,6 @@ namespace Plugin
 
         std::unique_ptr<common::ThreadRunner> m_schedulerThread;
         std::unique_ptr<common::ThreadRunner> m_threatDetectorThread;
+        void processFlags(const std::string& flagsJson);
     };
 } // namespace Plugin

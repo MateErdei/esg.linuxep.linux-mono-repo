@@ -26,6 +26,7 @@ namespace Plugin
         };
         TaskType taskType;
         std::string Content;
+        std::string appId="";
 
         [[nodiscard]] std::string getTaskName() const {
             switch (taskType)
