@@ -244,6 +244,33 @@ Sul Downloader falls back to direct when proxy and UC do not work
     ...    5s
     ...    Check SulDownloader Log Contains  Update success
     Check SulDownloader Log Contains    Connecting to update source directly
+
+Sul Downloader sdds3 sync Does not retry on curl errors
+    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files   port=8080
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override   CDN_URL=https://localhost:8090
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Update failed
+    check_log_does_not_contain    before retry after attempts:   ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
+    check_log_contains    caught exception: Couldn't connect to server   ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
+
 *** Keywords ***
 File Should Contain
     [Arguments]  ${file_path}  ${expected_contents}

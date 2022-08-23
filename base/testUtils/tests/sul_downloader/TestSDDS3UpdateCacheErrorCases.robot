@@ -203,7 +203,7 @@ Sul Downloader fails to Installs SDDS3 Through update cache if UC cert is wrong
     ...    60s
     ...    5s
     ...    Check SulDownloader Log Contains  Update success
-    Check SulDownloader Log Contains    Failed to Sync with https://localhost:8080/v3 error: Error syncing https://localhost:8080/v3/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 35
+    Check SulDownloader Log Contains    Failed to Sync with https://localhost:8080/v3 error: Error syncing https://localhost:8080/v3/suite/sdds3.ServerProtectionLinux-Base_2022.7.22.7.020fb0c370.dat: 0
     Check SulDownloader Log Contains    Connecting to update source directly
 
 Sul Downloader fails back to direct if UC fails to install supplements

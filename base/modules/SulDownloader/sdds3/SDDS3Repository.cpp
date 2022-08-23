@@ -6,29 +6,25 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 
 #include "SDDS3Repository.h"
 
-#include "CurlWrapper.h"
-#include "ICurlWrapper.h"
-#include "SDDS3Utils.h"
-#include "Sdds3Wrapper.h"
-#include "SusRequestParameters.h"
-#include "HttpRequestsImpl/HttpRequesterImpl.h"
-#include "UpdateUtilities/InstalledFeatures.h"
-
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <CommsComponent/CommsComponentUtils.h>
 #include <SulDownloader/suldownloaderdata/CatalogueInfo.h>
 #include <SulDownloader/suldownloaderdata/Logger.h>
 #include <SulDownloader/suldownloaderdata/ProductSelection.h>
-#include <experimental/filesystem>
-#include <sophlib/logging/Logging.h>
+#include "CurlWrapper.h"
+#include "ICurlWrapper.h"
 
 #include <Config.h>
 #include <PackageRef.h>
-#include <filesystem>
+#include "Sdds3Wrapper.h"
+#include "SusRequestParameters.h"
+#include "HttpRequestsImpl/HttpRequesterImpl.h"
+#include "UpdateUtilities/InstalledFeatures.h"
+
+#include <sophlib/logging/Logging.h>
+
 #include <iostream>
-#include <json.hpp>
-#include <utility>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -266,6 +262,7 @@ namespace SulDownloader
             Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath());
         std::string srcUrl = connectionSetup.getUpdateLocationURL();
 
+        m_session->httpConfig.connectTimeoutMs = 10000;
         if (connectionSetup.isCacheUpdate())
         {
             if (!Common::UtilityImpl::StringUtils::startswith(srcUrl, "http://") &&
