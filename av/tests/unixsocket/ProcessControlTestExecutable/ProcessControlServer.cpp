@@ -43,7 +43,13 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
     //start a process controller socket
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
-    unixsocket::ProcessControllerServerConnectionThread connectionThread(serverFd, shutdownPipe,reloadPipe);
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    unixsocket::ProcessControllerServerConnectionThread connectionThread(serverFd,
+                                                                         shutdownPipe,
+                                                                         reloadPipe,
+                                                                         enablePipe,
+                                                                         disablePipe);
     connectionThread.start();
 
     // send our request

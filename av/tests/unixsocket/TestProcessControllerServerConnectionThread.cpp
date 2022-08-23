@@ -122,7 +122,14 @@ namespace
 
             auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
             auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
-            m_connectionThread = std::make_shared<ProcessControllerServerConnectionThread>(m_serverFd, shutdownPipe,reloadPipe);
+            auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+            auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
+            m_connectionThread = std::make_shared<ProcessControllerServerConnectionThread>(m_serverFd,
+                                                                                           shutdownPipe,
+                                                                                           reloadPipe,
+                                                                                           enablePipe,
+                                                                                           disablePipe);
         }
 
         std::shared_ptr<ProcessControllerServerConnectionThread> m_connectionThread;
@@ -133,21 +140,30 @@ TEST_F(TestProcessControllerServerConnectionThread, successful_construction) //N
 {
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
 
-    EXPECT_NO_THROW(unixsocket::ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe,reloadPipe));
+    EXPECT_NO_THROW(unixsocket::ProcessControllerServerConnectionThread connectionThread(fdHolder,
+                                                                                         shutdownPipe,
+                                                                                         reloadPipe,
+                                                                                         enablePipe,
+                                                                                         disablePipe));
 }
 
 TEST_F(TestProcessControllerServerConnectionThread, isRunning_false_after_construction) //NOLINT
 {
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
 
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
 
-    unixsocket::ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe,reloadPipe);
+    unixsocket::ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe, reloadPipe, enablePipe, disablePipe);
     EXPECT_FALSE(connectionThread.isRunning());
 }
 
@@ -155,16 +171,20 @@ TEST_F(TestProcessControllerServerConnectionThread, fail_construction_with_bad_f
 {
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
     datatypes::AutoFd fdHolder;
     ASSERT_EQ(fdHolder.get(), -1);
-    EXPECT_THROW(ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe,reloadPipe), std::runtime_error);
+    EXPECT_THROW(ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe, reloadPipe, enablePipe, disablePipe),
+                 std::runtime_error);
 }
 
 TEST_F(TestProcessControllerServerConnectionThread, fail_construction_with_null_factory) //NOLINT
 {
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    ASSERT_THROW(ProcessControllerServerConnectionThread(fdHolder, nullptr, nullptr), std::runtime_error);
+    ASSERT_THROW(ProcessControllerServerConnectionThread(fdHolder, nullptr, nullptr, nullptr, nullptr), std::runtime_error);
 }
 
 TEST_F(TestProcessControllerServerConnectionThread, stop_while_running) //NOLINT
@@ -174,9 +194,12 @@ TEST_F(TestProcessControllerServerConnectionThread, stop_while_running) //NOLINT
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe,reloadPipe);
+    ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe, reloadPipe, enablePipe, disablePipe);
     EXPECT_FALSE(connectionThread.isRunning());
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
@@ -196,12 +219,14 @@ TEST_F(TestProcessControllerServerConnectionThread, eof_while_running) //NOLINT
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
 
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe, reloadPipe);
+    ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe, reloadPipe, enablePipe, disablePipe);
     connectionThread.start();
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -216,12 +241,14 @@ TEST_F(TestProcessControllerServerConnectionThread, send_zero_length) //NOLINT
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe, reloadPipe);
+    ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe, reloadPipe, enablePipe, disablePipe);
     connectionThread.start();
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -236,14 +263,16 @@ TEST_F(TestProcessControllerServerConnectionThread, closed_fd) //NOLINT
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     int fd = fdHolder.get();
-    ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe, reloadPipe);
+    ProcessControllerServerConnectionThread connectionThread(fdHolder, shutdownPipe, reloadPipe, enablePipe, disablePipe);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -257,6 +286,9 @@ TEST_F(TestProcessControllerServerConnectionThread, over_max_length) //NOLINT
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
     int socket_fds[2];
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
     ASSERT_EQ(ret, 0);
@@ -264,11 +296,11 @@ TEST_F(TestProcessControllerServerConnectionThread, over_max_length) //NOLINT
     datatypes::AutoFd clientFd(socket_fds[1]);
     ASSERT_GE(serverFd.get(), 0);
     ASSERT_GE(clientFd.get(), 0);
-    ProcessControllerServerConnectionThread connectionThread(serverFd, shutdownPipe, reloadPipe);
+    ProcessControllerServerConnectionThread connectionThread(serverFd, shutdownPipe, reloadPipe, enablePipe, disablePipe);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLength(clientFd.get(), 0x1000080);
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -282,6 +314,9 @@ TEST_F(TestProcessControllerServerConnectionThread, max_length) //NOLINT
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
     int socket_fds[2];
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
     ASSERT_EQ(ret, 0);
@@ -289,7 +324,7 @@ TEST_F(TestProcessControllerServerConnectionThread, max_length) //NOLINT
     datatypes::AutoFd clientFd(socket_fds[1]);
     ASSERT_GE(serverFd.get(), 0);
     ASSERT_GE(clientFd.get(), 0);
-    ProcessControllerServerConnectionThread connectionThread(serverFd, shutdownPipe, reloadPipe);
+    ProcessControllerServerConnectionThread connectionThread(serverFd, shutdownPipe, reloadPipe, enablePipe, disablePipe);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     // length is limited to ~16MB
@@ -311,6 +346,9 @@ TEST_F(TestProcessControllerServerConnectionThread, corrupt_request) //NOLINT
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
     int socket_fds[2];
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
     ASSERT_EQ(ret, 0);
@@ -318,7 +356,7 @@ TEST_F(TestProcessControllerServerConnectionThread, corrupt_request) //NOLINT
     datatypes::AutoFd clientFd(socket_fds[1]);
     ASSERT_GE(serverFd.get(), 0);
     ASSERT_GE(clientFd.get(), 0);
-    ProcessControllerServerConnectionThread connectionThread(serverFd, shutdownPipe, reloadPipe);
+    ProcessControllerServerConnectionThread connectionThread(serverFd, shutdownPipe, reloadPipe, enablePipe, disablePipe);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(clientFd.get(), request);
@@ -332,18 +370,19 @@ TEST_F(TestProcessControllerServerConnectionThread, corrupt_request) //NOLINT
 
 TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_shutdown_notification) // NOLINT
 {
-    const std::string expected = "Managed to get file descriptor: ";
-
     auto processControl = scan_messages::ProcessControlSerialiser(scan_messages::E_SHUTDOWN);
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
-    ProcessControllerServerConnectionThread connectionThread(m_serverFd, shutdownPipe, reloadPipe);
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
+    ProcessControllerServerConnectionThread connectionThread(m_serverFd, shutdownPipe, reloadPipe, enablePipe, disablePipe);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(m_clientFd.get(), processControl.serialise());
 
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog("Shutdown pipe has been notified"));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -353,41 +392,88 @@ TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_shutdown_
 
 TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_reload_notification) // NOLINT
 {
-    const std::string expected = "Managed to get file descriptor: ";
-
     auto processControl = scan_messages::ProcessControlSerialiser(scan_messages::E_RELOAD);
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
-    ProcessControllerServerConnectionThread connectionThread(m_serverFd, shutdownPipe, reloadPipe);
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
+    ProcessControllerServerConnectionThread connectionThread(m_serverFd, shutdownPipe, reloadPipe, enablePipe, disablePipe);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(m_clientFd.get(), processControl.serialise());
 
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog("Reload pipe has been notified"));
     connectionThread.requestStop();
     connectionThread.join();
 
     EXPECT_GT(m_memoryAppender->size(), 0);
     EXPECT_TRUE(reloadPipe->notified());
-    waitForLog("Reload pipe has been notified");
 }
 
-TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_invalid_notification) // NOLINT
+TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_enable_notification) // NOLINT
 {
-    const std::string expected = "Received unknown signal on Process Controller: 3";
-
-    auto processControl = MockProcessControlSerialiser(scan_messages::E_SHUTDOWN);
-    processControl.setCommandTypeInt(3);
+    auto processControl = scan_messages::ProcessControlSerialiser(scan_messages::E_ENABLE);
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
-    ProcessControllerServerConnectionThread connectionThread(m_serverFd, shutdownPipe, reloadPipe);
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
+    ProcessControllerServerConnectionThread connectionThread(m_serverFd, shutdownPipe, reloadPipe, enablePipe, disablePipe);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(m_clientFd.get(), processControl.serialise());
 
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog("Enable pipe has been notified"));
+    connectionThread.requestStop();
+    connectionThread.join();
+
+    EXPECT_GT(m_memoryAppender->size(), 0);
+    EXPECT_TRUE(enablePipe->notified());
+}
+
+TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_disable_notification) // NOLINT
+{
+    auto processControl = scan_messages::ProcessControlSerialiser(scan_messages::E_DISABLE);
+
+    auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
+    ProcessControllerServerConnectionThread connectionThread(m_serverFd, shutdownPipe, reloadPipe, enablePipe, disablePipe);
+    connectionThread.start();
+    EXPECT_TRUE(connectionThread.isRunning());
+    unixsocket::writeLengthAndBuffer(m_clientFd.get(), processControl.serialise());
+
+    EXPECT_TRUE(waitForLog("Disable pipe has been notified"));
+    connectionThread.requestStop();
+    connectionThread.join();
+
+    EXPECT_GT(m_memoryAppender->size(), 0);
+    EXPECT_TRUE(disablePipe->notified());
+}
+
+TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_invalid_notification) // NOLINT
+{
+    const std::string expected = "Received unknown signal on Process Controller: 5";
+
+    auto processControl = MockProcessControlSerialiser(scan_messages::E_SHUTDOWN);
+    processControl.setCommandTypeInt(5);
+
+    auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
+
+    ProcessControllerServerConnectionThread connectionThread(m_serverFd, shutdownPipe, reloadPipe, enablePipe, disablePipe);
+    connectionThread.start();
+    EXPECT_TRUE(connectionThread.isRunning());
+    unixsocket::writeLengthAndBuffer(m_clientFd.get(), processControl.serialise());
+
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 

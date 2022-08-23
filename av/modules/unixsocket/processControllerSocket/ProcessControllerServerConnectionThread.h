@@ -27,7 +27,9 @@ namespace unixsocket
         explicit ProcessControllerServerConnectionThread(
             datatypes::AutoFd& fd,
             std::shared_ptr<Common::Threads::NotifyPipe> shutdownPipe,
-            std::shared_ptr<Common::Threads::NotifyPipe> reloadPipe);
+            std::shared_ptr<Common::Threads::NotifyPipe> reloadPipe,
+            std::shared_ptr<Common::Threads::NotifyPipe> enablePipe,
+            std::shared_ptr<Common::Threads::NotifyPipe> disablePipe);
 
         void run() override;
 
@@ -37,6 +39,8 @@ namespace unixsocket
         datatypes::AutoFd m_fd;
         std::shared_ptr<Common::Threads::NotifyPipe> m_shutdownPipe;
         std::shared_ptr<Common::Threads::NotifyPipe> m_reloadPipe;
+        std::shared_ptr<Common::Threads::NotifyPipe> m_enablePipe;
+        std::shared_ptr<Common::Threads::NotifyPipe> m_disablePipe;
     };
 }
 

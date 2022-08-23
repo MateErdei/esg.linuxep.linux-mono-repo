@@ -26,10 +26,14 @@ using namespace unixsocket;
 
 ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread(datatypes::AutoFd& fd,
                                                                                  std::shared_ptr<Common::Threads::NotifyPipe> shutdownPipe,
-                                                                                 std::shared_ptr<Common::Threads::NotifyPipe> reloadPipe)
+                                                                                 std::shared_ptr<Common::Threads::NotifyPipe> reloadPipe,
+                                                                                 std::shared_ptr<Common::Threads::NotifyPipe> enablePipe,
+                                                                                 std::shared_ptr<Common::Threads::NotifyPipe> disablePipe)
         : m_fd(std::move(fd))
         , m_shutdownPipe(std::move(shutdownPipe))
         , m_reloadPipe(std::move(reloadPipe))
+        , m_enablePipe(std::move(enablePipe))
+        , m_disablePipe(std::move(disablePipe))
 {
     if (m_fd < 0)
     {
@@ -44,6 +48,16 @@ ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread
     if (m_reloadPipe == nullptr)
     {
         throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null update pipe");
+    }
+
+    if (m_enablePipe == nullptr)
+    {
+        throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null enable pipe");
+    }
+
+    if (m_disablePipe == nullptr)
+    {
+        throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null disable pipe");
     }
 }
 
@@ -188,20 +202,27 @@ void ProcessControllerServerConnectionThread::inner_run()
 
             LOGDEBUG("Read capn of " << bytes_read);
             auto processControlReader = parseProcessControlRequest(proto_buffer, bytes_read);
-            if (processControlReader.getCommandType() == scan_messages::E_SHUTDOWN)
+
+            switch(processControlReader.getCommandType())
             {
-                m_shutdownPipe->notify();
-                break;
-            }
-            else if(processControlReader.getCommandType() == scan_messages::E_RELOAD)
-            {
-                m_reloadPipe->notify();
-                LOGDEBUG("Reload pipe has been notified");
-                continue;
-            }
-            else
-            {
-                LOGDEBUG("Received unknown signal on Process Controller: " << processControlReader.getCommandType());
+                case scan_messages::E_SHUTDOWN:
+                    m_shutdownPipe->notify();
+                    LOGDEBUG("Shutdown pipe has been notified");
+                    break;
+                case scan_messages::E_RELOAD:
+                    m_reloadPipe->notify();
+                    LOGDEBUG("Reload pipe has been notified");
+                    break;
+                case scan_messages::E_ENABLE:
+                    m_enablePipe->notify();
+                    LOGDEBUG("Enable pipe has been notified");
+                    break;
+                case scan_messages::E_DISABLE:
+                    m_disablePipe->notify();
+                    LOGDEBUG("Disable pipe has been notified");
+                    break;
+                default:
+                    LOGDEBUG("Received unknown signal on Process Controller: " << processControlReader.getCommandType());
             }
         }
     }
