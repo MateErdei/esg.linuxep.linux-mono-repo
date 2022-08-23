@@ -146,6 +146,7 @@ TEST_F(TestPluginAdapter, testMainLoop)
     PluginAdapter pluginAdapter(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillOnce(QueueStopTask(m_queueTask));
     pluginAdapter.mainLoop();
 }
@@ -164,6 +165,7 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows)
     Common::PluginApi::ApiException ex { "dummy error" };
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).WillOnce(Throw(ex));
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillOnce(Throw(ex));
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).WillOnce(Throw(ex));
 
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <invalidPolicy />
@@ -177,6 +179,7 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows)
     EXPECT_TRUE(appenderContains("Received Policy"));
     EXPECT_TRUE(appenderContains("Failed to request SAV policy at startup (dummy error)"));
     EXPECT_TRUE(appenderContains("Failed to request ALC policy at startup (dummy error)"));
+    EXPECT_TRUE(appenderContains("Failed to request FLAGS policy at startup (dummy error)"));
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy)
@@ -235,6 +238,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
@@ -263,6 +267,7 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
     auto pluginAdapter = std::make_shared<PluginAdapter>(
         m_queueTask,
@@ -316,6 +321,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
@@ -357,6 +363,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
@@ -400,6 +407,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
@@ -419,6 +427,7 @@ TEST_F(TestPluginAdapter, testProcessAction)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
 
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -457,6 +466,7 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
@@ -510,6 +520,8 @@ TEST_F(TestPluginAdapter, testProcessScanComplete)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
     pluginAdapter.mainLoop();
     std::string expectedLog = "Sending scan complete notification to central: ";
     expectedLog.append(scanCompleteXml);
@@ -557,6 +569,8 @@ TEST_F(TestPluginAdapter, testProcessThreatReport)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
     pluginAdapter.mainLoop();
     std::string expectedLog = "Sending threat detection notification to central: ";
     expectedLog.append(threatDetectedXML);
@@ -669,6 +683,7 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
     pluginAdapter.mainLoop();
 
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
@@ -700,6 +715,8 @@ TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
     pluginAdapter.mainLoop();
 
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
@@ -720,6 +737,7 @@ TEST_F(TestPluginAdapter, testInvalidTaskType)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
     Task invalidTask = {static_cast<Task::TaskType>(99), ""};
     m_queueTask->push(invalidTask);
@@ -749,6 +767,7 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
