@@ -11,11 +11,16 @@
 
 using namespace sophos_on_access_process::OnAccessConfig;
 
-OnAccessConfigMonitor::OnAccessConfigMonitor(std::string processControllerSocket,
-                                             Common::Threads::NotifyPipe& pipe) :
+OnAccessConfigMonitor::OnAccessConfigMonitor(
+    std::string processControllerSocket,
+    Common::Threads::NotifyPipe& onAccessConfigPipe,
+    Common::Threads::NotifyPipe& usePolicyOverridePipe,
+    Common::Threads::NotifyPipe& useFlagOverridePipe) :
     m_processControllerSocketPath(std::move(processControllerSocket)),
     m_processControllerServer(m_processControllerSocketPath, 0666),
-    m_configChangedPipe(pipe)
+    m_configChangedPipe(onAccessConfigPipe),
+    m_usePolicyOverridePipe(usePolicyOverridePipe),
+    m_useFlagOverridePipe(useFlagOverridePipe)
 {
 }
 
@@ -32,6 +37,8 @@ void OnAccessConfigMonitor::run()
     max = FDUtils::addFD(&readFDs, m_notifyPipe.readFd(), max);
     max = FDUtils::addFD(&readFDs, m_processControllerServer.monitorShutdownFd(), max);
     max = FDUtils::addFD(&readFDs, m_processControllerServer.monitorReloadFd(), max);
+    max = FDUtils::addFD(&readFDs, m_processControllerServer.monitorEnableFd(), max);
+    max = FDUtils::addFD(&readFDs, m_processControllerServer.monitorDisableFd(), max);
 
     while (true)
     {
@@ -76,5 +83,27 @@ void OnAccessConfigMonitor::run()
 
             m_processControllerServer.triggeredReload();
         }
+
+        if (FDUtils::fd_isset(m_processControllerServer.monitorEnableFd(), &tempRead))
+        {
+            LOGINFO("Sophos On Access Process received enable policy override request");
+
+            //inform SoapdBootstrap that it should use override policy settings and disable OA
+            m_useFlagOverridePipe.notify();
+
+            m_processControllerServer.triggeredEnable();
+        }
+
+        if (FDUtils::fd_isset(m_processControllerServer.monitorDisableFd(), &tempRead))
+        {
+            LOGINFO("Sophos On Access Process received disable policy override request");
+
+            //inform SoapdBootstrap that it should use policy settings for OA
+            m_usePolicyOverridePipe.notify();
+
+            m_processControllerServer.triggeredDisable();
+        }
+
+
     }
 }

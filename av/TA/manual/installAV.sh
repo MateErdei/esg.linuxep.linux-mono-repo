@@ -2,12 +2,13 @@
 
 set -ex
 
-while getopts t:u:b flag
+while getopts t:u:b:f flag
 do
     case "${flag}" in
         t) MCS_TOKEN=${OPTARG};;
         u) MCS_URL=${OPTARG};;
         b) BREAK_UPDATING=true;;
+        f) FLAGS=true;;
         ?) echo "Error: Invalid option was specified -$OPTARG use -t for token -u for url and -b for breaking updating"
           failure 1;;
     esac
@@ -68,6 +69,11 @@ if [[ $BREAK_UPDATING ]]
 then
   mv /opt/sophos-spl/base/bin/SulDownloader.0 /opt/sophos-spl/base/bin/SulDownloader.bk
   mv /opt/sophos-spl/base/bin/UpdateScheduler.0 /opt/sophos-spl/base/bin/UpdateScheduler.bk
+fi
+
+if [[ $FLAGS ]]
+then
+  cp ${TEST_SUITE}/resources/flags_policy/flags.json ${SOPHOS_INSTALL}/base/mcs/policy/
 fi
 
 ## Install AV

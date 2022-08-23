@@ -6,6 +6,8 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "scan_messages/ProcessControlSerialiser.h"
+
 #include <Common/XmlUtilities/AttributesMap.h>
 
 namespace Plugin
@@ -38,8 +40,10 @@ namespace Plugin
 
         static void setOnAccessConfiguredTelemetry(bool enabled);
 
+        void processFlagSettings(const std::string& flagsJson);
+
     protected:
-        virtual void notifyOnAccessProcess();
+        virtual void notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE requestType);
 
     private:
         std::string m_customerId;
@@ -47,5 +51,7 @@ namespace Plugin
         static std::vector<std::string> extractListFromXML(
             const Common::XmlUtilities::AttributesMap& policy,
             const std::string& entityFullPath);
+
+        inline static const std::string OA_FLAG = "av.oa_enabled";
     };
 }

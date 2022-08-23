@@ -9,8 +9,11 @@ namespace sophos_on_access_process::OnAccessConfig
     class OnAccessConfigMonitor : public common::AbstractThreadPluginInterface
     {
     public:
-        explicit OnAccessConfigMonitor(std::string processControllerSocketPath,
-                                       Common::Threads::NotifyPipe& pipe);
+        explicit OnAccessConfigMonitor(
+            std::string processControllerSocketPath,
+            Common::Threads::NotifyPipe& onAccessConfigPipe,
+            Common::Threads::NotifyPipe& usePolicyOverridePipe,
+            Common::Threads::NotifyPipe& useFlagOverridePipe);
 
         void run() override;
 
@@ -18,5 +21,7 @@ namespace sophos_on_access_process::OnAccessConfig
         std::string m_processControllerSocketPath;
         unixsocket::ProcessControllerServerSocket m_processControllerServer;
         Common::Threads::NotifyPipe& m_configChangedPipe;
+        Common::Threads::NotifyPipe& m_usePolicyOverridePipe;
+        Common::Threads::NotifyPipe& m_useFlagOverridePipe;
     };
 }
