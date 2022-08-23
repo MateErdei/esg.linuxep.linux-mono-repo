@@ -246,7 +246,7 @@ done
 
 PRODUCT_UC=$(echo $PRODUCT | tr 'a-z' 'A-Z')
 
-[[ -n "${PRODUCT_NAME}" ]] || PRODUCT_NAME="Sophos Server Protection Linux - $PRODUCT"
+[[ -n "${PRODUCT_NAME}" ]] || PRODUCT_NAME="SPL-Anti-Virus-Plugin"
 [[ -n "${PRODUCT_LINE_ID}" ]] || PRODUCT_LINE_ID="ServerProtectionLinux-Plugin-${PRODUCT_UC}"
 [[ -n "${DEFAULT_HOME_FOLDER}" ]] || DEFAULT_HOME_FOLDER="$PRODUCT"
 

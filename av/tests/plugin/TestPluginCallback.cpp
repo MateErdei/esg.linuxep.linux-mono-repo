@@ -49,7 +49,7 @@ namespace
 
             std::ofstream versionFileStream;
             versionFileStream.open(m_versionFile);
-            versionFileStream << "PRODUCT_NAME = Sophos Server Protection Linux - av" << std::endl;
+            versionFileStream << "PRODUCT_NAME = SPL-Anti-Virus-Plugin" << std::endl;
             versionFileStream << "PRODUCT_VERSION = " << m_initialExpectedVersion << std::endl;
             versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
             versionFileStream << "COMMIT_HASH = " << m_initialExpectedCommitHash << std::endl;
@@ -189,7 +189,7 @@ TEST_F(TestPluginCallback, getTelemetry_version)
 
     std::ofstream versionFileStream;
     versionFileStream.open(m_versionFile);
-    versionFileStream << "PRODUCT_NAME = Sophos Server Protection Linux - av" << std::endl;
+    versionFileStream << "PRODUCT_NAME = SPL-Anti-Virus-Plugin" << std::endl;
     versionFileStream << "PRODUCT_VERSION = " << modifiedVersion << std::endl;
     versionFileStream << "BUILD_DATE = 1970-00-01" << std::endl;
     versionFileStream << "COMMIT_HASH = " << m_initialExpectedCommitHash << std::endl;

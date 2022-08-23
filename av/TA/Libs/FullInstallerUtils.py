@@ -8,7 +8,7 @@ from robot.api import logger
 
 
 def version_ini_file_contains_proper_format(file):
-    name_pattern = "^PRODUCT_NAME = Sophos Server Protection Linux - av\n\Z"
+    name_pattern = "^PRODUCT_NAME = SPL-Anti-Virus-Plugin\n\Z"
     version_pattern = "^PRODUCT_VERSION = ([0-9]*\.)*[0-9]*\n\Z"
     date_pattern = "^BUILD_DATE = [0-9]{4}\-[0-9]{2}\-[0-9]{2}\n\Z"
     git_commit_pattern = "^COMMIT_HASH = [0-9a-fA-F]{40}\n\Z"
