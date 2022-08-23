@@ -34,7 +34,7 @@ Query can be Sent From Fake Cloud and Received by MCS Router
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  10 secs
-    ...  Check Envelope Log Contains   /commands/applications/MCS;ALC;LiveQuery
+    ...  Check Envelope Log Contains   /commands/applications/MCS;ALC;CORE;LiveQuery
 
     Wait Until Keyword Succeeds
     ...  30 secs

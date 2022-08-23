@@ -58,6 +58,8 @@ Global Setup Tasks
     Set Global Variable  ${UPDATE_ROOTCERT_DIR}         ${UPDATE_DIR}/rootcerts
     Set Global Variable  ${UPGRADING_MARKER_FILE}       ${SOPHOS_INSTALL}/var/sophosspl/upgrade_marker_file
     Set Global Variable  ${CURRENT_PROXY_FILE}          ${ETC_DIR}/sophosspl/current_proxy
+    Set Global Variable  ${SHS_STATUS_FILE}             ${MCS_DIR}/status/SHS_status.xml
+    Set Global Variable  ${SHS_POLICY_FILE}             ${MCS_DIR}/internal_policy/internal_EPHEALTH.json
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
     Set Global Variable  ${UPDATE_SERVICE}              sophos-spl-update

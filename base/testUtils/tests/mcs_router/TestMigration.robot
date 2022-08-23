@@ -88,7 +88,7 @@ Successful Register With Cloud And Migrate To Another Cloud Server
     Wait Until Keyword Succeeds
     ...  60s
     ...  5s
-    ...  File Should Exist  /opt/sophos-spl/base/mcs/status/SHS_status.xml
+    ...  File Should Exist  ${SHS_STATUS_FILE}
     Trigger Migration Now
 
     # Long wait due to Push Server triggering reduced polling

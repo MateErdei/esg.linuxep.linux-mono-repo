@@ -143,6 +143,6 @@ Require Watchdog Running
 
 SHS Status File Contains
     [Arguments]  ${content_to_contain}
-    ${shsStatus} =  Get File   ${MCS_DIR}/status/SHS_status.xml
+    ${shsStatus} =  Get File   ${SHS_STATUS_FILE}
     Log  ${shsStatus}
     Should Contain  ${shsStatus}  ${content_to_contain}

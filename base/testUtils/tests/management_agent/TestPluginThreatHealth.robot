@@ -29,7 +29,7 @@ Management Agent Can Receive Plugin Threat Health And It Updates
     Wait Until Keyword Succeeds
     ...  30
     ...  1
-    ...  Should Exist  ${MCS_DIR}/status/SHS_status.xml
+    ...  Should Exist  ${SHS_STATUS_FILE}
 
     Wait Until Keyword Succeeds
     ...  60 secs

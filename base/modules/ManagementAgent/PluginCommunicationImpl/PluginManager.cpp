@@ -147,7 +147,7 @@ namespace ManagementAgent
             }
 
             // extra check for does MA also subscribe to this APPID then ingest/use
-            if (appId == "SHS")
+            if (appId == "CORE")
             {
                 if (isThreatResetTask(actionXml))
                 {

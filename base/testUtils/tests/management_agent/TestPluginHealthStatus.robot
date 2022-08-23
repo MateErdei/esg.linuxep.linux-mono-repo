@@ -25,9 +25,6 @@ Verify Management Agent Can Check Good Plugin Health Status
 
     Start Plugin
 
-    ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
-    ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
-
     Wait Until Keyword Succeeds
     ...  15
     ...  5
@@ -65,9 +62,6 @@ Verify Management Agent Can Receive Service Health Information
         Start Plugin
         Set Fake Plugin App Id    HBT
         Set Service Health    0    True    fake-utm-id-007
-
-        ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
-        ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
 
         Wait Until Keyword Succeeds
         ...  40
@@ -111,9 +105,6 @@ Verify Management Agent Can Check Bad Plugin Health Status
     Setup Plugin Registry
     Start Management Agent
 
-    ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
-    ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
-
     Wait Until Keyword Succeeds
     ...  40
     ...  5
@@ -146,8 +137,6 @@ Verify Management Agent does not check health when suldownloader is running
     Setup Plugin Registry
     Start Management Agent
 
-    ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
-
     Wait Until Keyword Succeeds
     ...  40
     ...  5
@@ -176,9 +165,6 @@ Verify Management Agent Does Not Report Health Of Removed Plugins
         Start Plugin
         Set Fake Plugin App Id    HBT
         Set Service Health    0    True    fake-utm-id-007
-
-        ${SHS_STATUS_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/status/SHS_status.xml
-        ${SHS_POLICY_FILE} =  Set Variable  /opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json
 
         Wait Until Keyword Succeeds
         ...  40

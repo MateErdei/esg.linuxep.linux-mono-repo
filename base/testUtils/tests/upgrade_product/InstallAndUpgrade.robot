@@ -485,33 +485,30 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait until threat detector running
 
-# TODO LINUXDAR-4263: Uncomment this when SSPL Shipping has Health
-#    ${HealthyShsStatusXmlContents} =  Set Variable  <item name="health" value="1" />
-#
-#    Wait Until Keyword Succeeds
-#    ...  60 secs
-#    ...  15 secs
-#    ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
-#
+    ${HealthyShsStatusXmlContents} =  Set Variable  <item name="health" value="1" />
+
+    Wait Until Keyword Succeeds
+    ...  150 secs
+    ...  5 secs
+    ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
+
     Mark Watchdog Log
     Mark Managementagent Log
 
     Trigger Update Now
 
-# TODO LINUXDAR-4263: Uncomment this when SSPL Shipping has Health
-#    Wait Until Keyword Succeeds
-#    ...   60 secs
-#    ...   10 secs
-#    ...   Check Log Contains  Installing product: ServerProtectionLinux-Base-component  /tmp/preserve-sul-downgrade   suldownloader_log
-#    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   10 secs
+    ...   Check Log Contains  Installing product: ServerProtectionLinux-Base-component  /tmp/preserve-sul-downgrade   suldownloader_log
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  2
 
-# TODO LINUXDAR-4263: Uncomment this when SSPL Shipping has Health
-#    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
     #confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
@@ -564,8 +561,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check AV Plugin Can Scan Files
     Check Update Reports Have Been Processed
 
-# TODO LINUXDAR-4263: Uncomment this when SSPL Shipping has Health
-#    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 
 We Can Downgrade From VUT to Release Without Unexpected Errors

@@ -506,7 +506,8 @@ class MCSEndpointManager(object):
     def getPolicy(self):
         return self.__m_policy
 
-class SHSEndpointManager(object):
+# CORE Policy
+class COREEndpointManager(object):
     def __init__(self):
         self.__m_resetHealth = None
 
@@ -617,7 +618,7 @@ class Endpoint(object):
         self.__edr = EDREndpointManager()
         self.__liveTerminal = LiveTerminalEndpointManager()
         self.__mcs = MCSEndpointManager()
-        self.__shs = SHSEndpointManager()
+        self.__core = COREEndpointManager()
         self.__alc = ALCEndpointManager()
         self.__mdr = MDREndpointManager()
         self.__livequery = LiveQueryEndpointManager()
@@ -833,9 +834,9 @@ class Endpoint(object):
         body = r"""<action type="sophos.core.threat.reset"/>"""
 
         return r"""<command>
-        <id>SHS</id>
+        <id>CORE</id>
         <seq>1</seq>
-        <appId>SHS</appId>
+        <appId>CORE</appId>
         <creationTime>{}</creationTime>
         <ttl>PT10000S</ttl>
         <body>{}</body>
@@ -913,7 +914,7 @@ class Endpoint(object):
             commands.append(self.policyCommand("MCS", self.__mcs.policyID()))
         if "APPSPROXY" in apps and self.__mcs.migrationPending():
             commands.append(self.migrateCommand())
-        if "SHS" in apps and self.__shs.resetHealthPending():
+        if "CORE" in apps and self.__core.resetHealthPending():
             commands.append(self.resetHealthCommand())
         if "ALC" in apps and self.__alc.policyPending():
             for policy_id in self.__alc.policiesID():
@@ -944,8 +945,8 @@ class Endpoint(object):
                 self.__hb.commandDeleted()
             elif c == "SAV":
                 self.__sav.commandDeleted()
-            elif c == "SHS":
-                self.__shs.commandDeleted()
+            elif c == "CORE":
+                self.__core.commandDeleted()
             elif c == "MCS":
                 self.__mcs.commandDeleted()
             elif c == "ALC":
@@ -1000,7 +1001,7 @@ class Endpoint(object):
         self.queued_actions.append(self.updateNowCommand(creation_time))
 
     def resetHealth(self):
-        self.__shs.resetHealth()
+        self.__core.resetHealth()
 
     def scanNow(self):
         self.__sav.scanNow()

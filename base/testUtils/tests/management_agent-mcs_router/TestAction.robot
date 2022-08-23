@@ -7,7 +7,6 @@ Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 
 Resource    ../management_agent/ManagementAgentResources.robot
-Resource    ../installer/InstallerResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 
 Test Teardown     Test Action Teardown
@@ -66,8 +65,9 @@ Verify Initiate LiveTerminal Action Sent Through MCS Router And Management Agent
 
     Check Temp Folder Doesnt Contain Atomic Files
 
-Verify Management Agent Handles SHS Health Reset Action When Received
+Verify Management Agent Handles CORE Health Reset Action When Received
     [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER
+    Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
 
@@ -76,6 +76,12 @@ Verify Management Agent Handles SHS Health Reset Action When Received
     Setup Plugin Registry
     Start Management Agent
     Start Plugin
+
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   5 secs
+    ...   File Should Exist  ${SHS_STATUS_FILE}
+    ${healthStatusXml} =    Get File    ${SHS_STATUS_FILE}
 
     ${content}    Evaluate    str('{"ThreatHealth": 2}')
     Send Plugin Threat Health   ${content}
@@ -86,6 +92,9 @@ Verify Management Agent Handles SHS Health Reset Action When Received
 
     Check Cloud Server Log For Command Poll
 
+    Mark Management Agent Log
+    Mark Mcsrouter Log
+
     Trigger Health Reset
     # Action will not be received until the next command poll
     Check Cloud Server Log For Command Poll    2
@@ -95,13 +104,15 @@ Verify Management Agent Handles SHS Health Reset Action When Received
     ...  1 secs
     ...  Check Log Contains In Order
          ...  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
-         ...  PluginManager: Queue action SHS
+         ...  PluginManager: Queue action CORE
          ...  Processing Health Reset Action.
 
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
     ...  SHS Status File Contains  <item name="threat" value="1" />
+
+    Check Marked Mcsrouter Log Contains String N Times  Sending status for SHS adapter  1
 
     Check Temp Folder Doesnt Contain Atomic Files
 
