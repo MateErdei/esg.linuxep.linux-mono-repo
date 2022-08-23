@@ -2132,7 +2132,7 @@ Require Update Server
 Require Warehouse With Fake Single Installer Product
     #generate install file in directory    ${tmpdir}/TestInstallFiles/
     Create Install File   0   INSTALLER EXECUTED    ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
-    Create File   ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/VERSION.ini   PRODUCT_NAME = Sophos Server Protection Linux - Base Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
+    Create File   ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}/VERSION.ini   PRODUCT_NAME = SPL-Base-Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
 
     Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}
 

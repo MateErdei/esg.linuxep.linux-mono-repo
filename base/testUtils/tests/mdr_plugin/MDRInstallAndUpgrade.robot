@@ -48,7 +48,7 @@ Install Release Candidate And Basic Services are Working
     Configure And Run Thininstaller Using Real Warehouse Policy  0   ${NextALC}   override_certs_dir=${PROD_CERTS}
     Wait For MTR to be Installed   ${NextALC}
 
-    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini   Sophos Managed Threat Response plug-in
+    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini   SPL-Managed-Threat-Response-Plugin
 
     Check Status And Event Message Sent
 

@@ -233,11 +233,10 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     token = rigidName+"#"+fullVersion
     setTextInTag(doc, "Token", token)
 
-    shortDescription = getVariable("SHORT_DESCRIPTION", "SHORT_DESCRIPTION", "shortDescription", fullVersion, reportAbsentFile=False)
+    shortDescription = getVariable("SHORT_DESCRIPTION", "SHORT_DESCRIPTION", "shortDescription", productName, reportAbsentFile=False)
     setTextInTag(doc, "ShortDesc", shortDescription)
 
-    longDescription = "Sophos Linux Protection Base Component v%s" % fullVersion
-    longDescription = getVariable("LONG_DESCRIPTION", "LONG_DESCRIPTION", "longDescription", longDescription, reportAbsentFile=False)
+    longDescription = getVariable("LONG_DESCRIPTION", "LONG_DESCRIPTION", "longDescription", productName, reportAbsentFile=False)
     setTextInTag(doc, "LongDesc", longDescription)
 
     xmlstr = doc.toxml('UTF-8')

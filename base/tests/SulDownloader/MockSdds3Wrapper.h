@@ -17,6 +17,7 @@ class MockSdds3Wrapper : public SulDownloader::ISdds3Wrapper
 {
 public:
     MOCK_METHOD3(getPackagesIncludingSupplements, std::vector<sdds3::PackageRef> (sdds3::Session& session, const sdds3::Repo& repo, const sdds3::Config& config));
+    MOCK_METHOD3(getSuites, std::vector<sdds3::Suite> (sdds3::Session& session, const sdds3::Repo& repo, const sdds3::Config& config));
     MOCK_METHOD4(getPackagesToInstall, std::vector<sdds3::PackageRef> (sdds3::Session& session, const sdds3::Repo& repo, sdds3::Config& config, const sdds3::Config& oldConfig));
     MOCK_METHOD3(getPackages, std::vector<sdds3::PackageRef> (sdds3::Session& session, const sdds3::Repo& repo, const sdds3::Config& config));
     MOCK_METHOD4(extractPackagesTo, void (sdds3::Session& session, const sdds3::Repo& repo, const sdds3::Config& config, const std::string& path));

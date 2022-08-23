@@ -432,6 +432,7 @@ namespace SulDownloader
             productMetadata.setDefaultHomePath(package.decodePath_);
             productMetadata.setName(package.name_);
             productMetadata.setFeatures(package.features_);
+            m_catalogueInfo.addInfo(package.lineId_, package.version_, package.name_);
 
             std::vector<Tag> tags;
 
@@ -441,7 +442,7 @@ namespace SulDownloader
             }
             productMetadata.setTags(tags);
             productMetadata.setVersion(package.version_);
-
+            productMetadata.setName(package.name_);
             DownloadedProduct product(productMetadata);
 
             product.setProductHasChanged(false);
@@ -480,8 +481,6 @@ namespace SulDownloader
             {
                 continue;
             }
-            m_selectedSubscriptions.push_back(
-                { productMetadata.getLine(), productMetadata.getVersion(), productMetadata.subProducts() });
 
             product.setDistributePath(
                        Common::FileSystem::join(
@@ -500,6 +499,13 @@ namespace SulDownloader
             }
         }
 
+        // Add suites details to the subscription list
+        std::vector<sdds3::Suite> suites = SulDownloader::sdds3Wrapper()->getSuites(*m_session.get(), m_repo, m_config);
+        for(auto& suite : suites)
+        {
+            m_selectedSubscriptions.push_back(
+                {suite.name_, suite.marketing_version_, {}});
+        }
     }
 
     void SDDS3Repository::distribute()

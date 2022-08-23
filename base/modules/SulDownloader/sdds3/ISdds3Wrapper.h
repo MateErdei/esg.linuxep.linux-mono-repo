@@ -17,6 +17,10 @@ namespace SulDownloader
     {
     public:
         virtual ~ISdds3Wrapper() = default;
+        virtual std::vector<sdds3::Suite> getSuites(
+            sdds3::Session& session,
+            const sdds3::Repo& repo,
+            const sdds3::Config& config) = 0;
         virtual std::vector<sdds3::PackageRef> getPackagesIncludingSupplements(
             sdds3::Session& session,
             const sdds3::Repo& repo,

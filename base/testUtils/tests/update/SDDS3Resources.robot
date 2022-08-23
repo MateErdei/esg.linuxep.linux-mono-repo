@@ -43,7 +43,7 @@ Generate Fake Base SDDS3 Package
     Create Directory  ${SDDS3_FAKEBASE}/files
     Create Directory  ${SDDS3_FAKEBASE}/files/bin
 
-    ${base_package} =  Set Variable   ${SDDS3_FAKEPACKAGES}/SophosServerProtectionLinux-BaseComponent_1.0.0.0.${nonce}.zip
+    ${base_package} =  Set Variable   ${SDDS3_FAKEPACKAGES}/SPL-Base-Component_1.0.0.0.${nonce}.zip
 
     Create File       ${SDDS3_FAKEBASE}/install.sh   \#!/bin/bash\necho \"THIS IS GOOD\" ;\nmkdir ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository/supplement\nexit 0
     Create File       ${SDDS3_FAKEBASE}/VERSION.ini   PRODUCT_VERSION = 99.99.99
@@ -52,7 +52,7 @@ Generate Fake Base SDDS3 Package
     Run Process  chmod  +x  ${SDDS3_FAKEBASE}/files/bin/uninstall.sh
 
     #generate sdds import for fake installset
-    Set Environment Variable    PRODUCT_NAME   Sophos Server Protection Linux - Base Component
+    Set Environment Variable    PRODUCT_NAME   SPL-Base-Component
     Set Environment Variable    FEATURE_LIST    CORE
     Set Environment Variable    VERSION_OVERRIDE  1.0.0.0
     ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${SDDS_IMPORT_AND_MANIFEST} ${SDDS3_FAKEBASE}  shell=true

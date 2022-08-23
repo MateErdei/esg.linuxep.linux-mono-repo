@@ -54,7 +54,7 @@ TEST_F(PluginUtilsTests, getFinishedStatusDoesNotThrowWhenThereIsNoVersioniniFil
 
 TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsRunning) // NOLINT
 {
-    std::vector<std::string> contents ={"PRODUCT_NAME = Sophos Server Protection Linux - Base Component","PRODUCT_VERSION = 1.0.0","BUILD_DATE = 2021-06-11"};
+    std::vector<std::string> contents ={"PRODUCT_NAME = SPL-Base-Component","PRODUCT_VERSION = 1.0.0","BUILD_DATE = 2021-06-11"};
     auto filesystemMock = new NiceMock<MockFileSystem>();
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
@@ -69,7 +69,7 @@ TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsRunnin
 }
 TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsNotRunning) // NOLINT
 {
-    std::vector<std::string> contents ={"PRODUCT_NAME = Sophos Server Protection Linux - Base Component","PRODUCT_VERSION = 1.0.0","BUILD_DATE = 2021-06-11"};
+    std::vector<std::string> contents ={"PRODUCT_NAME = SPL-Base-Component","PRODUCT_VERSION = 1.0.0","BUILD_DATE = 2021-06-11"};
     auto filesystemMock = new NiceMock<MockFileSystem>();
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));

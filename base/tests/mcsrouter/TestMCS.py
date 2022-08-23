@@ -290,7 +290,7 @@ class TestMCS(unittest.TestCase):
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.set_user_agent")
     def test_user_agent_set_during_startup(self, *mockargs):
         version_file_content = """
-        PRODUCT_NAME = Sophos Server Protection Linux - Base Component
+        PRODUCT_NAME = SPL-Base-Component
         PRODUCT_VERSION = 1.1.3.703
         BUILD_DATE = 2020-08-14
         """

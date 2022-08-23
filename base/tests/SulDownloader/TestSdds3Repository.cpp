@@ -89,6 +89,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSo
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("line1");
     auto products = repository.getProducts();
@@ -148,6 +149,7 @@ TEST_F(
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
 
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("base");
     auto products = repository.getProducts();
@@ -223,6 +225,8 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsAl
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
+
 
     repository.generateProductListFromSdds3PackageInfo("line1");
     auto products = repository.getProducts();
@@ -252,6 +256,7 @@ TEST_F(
     std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
+    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("line1");
@@ -281,6 +286,7 @@ TEST_F(
     std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
+    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("line1");
@@ -308,6 +314,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoHandlesCo
     std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
+    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("line1");
@@ -331,6 +338,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsPr
     std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
+    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
 
     // The rigid name passed in is used in a contains check, to ensure that works passing in the first part of the
@@ -373,6 +381,8 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsNo
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
+
 
     repository.generateProductListFromSdds3PackageInfo("line1");
     auto products = repository.getProducts();
@@ -404,6 +414,7 @@ TEST_F(
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, getPackagesIncludingSupplements(_, _, _)).WillOnce(Return(packagesWithSupplements));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
 
     // The following with set supplement only on repository.
     ConnectionSetup connectionSetup("hello");

@@ -552,13 +552,13 @@ class WarehouseUtils(object):
     }
 
     RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES = {
-        "ServerProtectionLinux-Plugin-AV": "Sophos Server Protection Linux - av",
-        "ServerProtectionLinux-Plugin-liveresponse": "Sophos Live Response",
-        "ServerProtectionLinux-Plugin-MDR": "Sophos Managed Threat Response plug-in",
-        "ServerProtectionLinux-Plugin-EventJournaler": "EventJournaler",
-        "ServerProtectionLinux-Base-component": "Sophos Server Protection Linux - Base Component",
-        "ServerProtectionLinux-Plugin-EDR": "Sophos Endpoint Detection and Response plug-in",
-        "ServerProtectionLinux-Plugin-RuntimeDetections": "Sophos Linux Runtime Detection Plugin",
+        "ServerProtectionLinux-Plugin-AV": "SPL-Anti-Virus-Plugin",
+        "ServerProtectionLinux-Plugin-liveresponse": "SPL-Live-Response-Plugin",
+        "ServerProtectionLinux-Plugin-MDR": "SPL-Managed-Threat-Response-Plugin",
+        "ServerProtectionLinux-Plugin-EventJournaler": "SPL-Event-Journaler-Plugin",
+        "ServerProtectionLinux-Base-component": "SPL-Base-Component",
+        "ServerProtectionLinux-Plugin-EDR": "SPL-Endpoint-Detection-and-Response-Plugin",
+        "ServerProtectionLinux-Plugin-RuntimeDetections": "SPL-Runtime-Detection-Plugin",
         "ServerProtectionLinux-Plugin-Heartbeat": "Sophos Server Protection Linux - Heartbeat",
     }
 

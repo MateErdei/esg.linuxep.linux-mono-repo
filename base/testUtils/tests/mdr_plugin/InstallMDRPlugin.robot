@@ -37,7 +37,7 @@ MDR Plugin Installs With Version Ini File
     Install MDR Directly
     Check MDR Plugin Installed
     File Should Exist   ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
-    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini   Sophos Managed Threat Response plug-in
+    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini   SPL-Managed-Threat-Response-Plugin
 
 MDR Installer Detects Stage1 Dark Bytes In Default Location And Removes It
     Install Fake Stage1 Dark Bytes

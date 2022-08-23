@@ -189,7 +189,7 @@ Setup Warehouse For Base
     ${dist} =  Get Folder With Installer
 
     Copy Directory  ${dist}  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base
-    Create File   ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini   PRODUCT_NAME = Sophos Server Protection Linux - Base Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
+    Create File   ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini   PRODUCT_NAME = SPL-Base-Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
     log file  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini
 
     Add Component Warehouse Config   ServerProtectionLinux-Base   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ServerProtectionLinux-Base
@@ -210,7 +210,7 @@ Setup Warehouse For Mdr
 
     Copy Directory     ${base_dist}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
     Copy Directory  ${dist}  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Plugin-MDR
-    Create File   ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini   PRODUCT_NAME = Sophos Server Protection Linux - Base Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
+    Create File   ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini   PRODUCT_NAME = SPL-Base-Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
     log file  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini
 
     Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}  Warehouse1
@@ -233,7 +233,7 @@ Setup Warehouse For Mdr 060
 
     Copy Directory     ${base_dist}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
     Copy Directory  ${dist}  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Plugin-MDR
-    Create File   ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini   PRODUCT_NAME = Sophos Server Protection Linux - Base Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
+    Create File   ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini   PRODUCT_NAME = SPL-Base-Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
     log file  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini
 
     Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}  Warehouse1

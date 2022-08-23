@@ -337,7 +337,9 @@ namespace SulDownloader
             if (found != productReport.end())
             {
                 LOGDEBUG("Product Report merged to subscription: " << found->second.rigidName << " " << found->second.statusToString() << " err: " << found->second.errorDescription);
-                productsRep.push_back(found->second);
+                auto entry = found->second;
+                entry.downloadedVersion = subscriptionInfo.version;
+                productsRep.push_back(entry);
             }
             else
             {

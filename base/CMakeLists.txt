@@ -84,7 +84,7 @@ if(NOT DEFINED PRODUCT_NAME)
     if (DEFINED ENV{PRODUCT_NAME})
         set(PRODUCT_NAME "$ENV{PRODUCT_NAME}")
     else()
-        set(PRODUCT_NAME "Sophos Server Protection Linux - Base Component")
+        set(PRODUCT_NAME "SPL-Base-Component")
     endif()
 endif()
 

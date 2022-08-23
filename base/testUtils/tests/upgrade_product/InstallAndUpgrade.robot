@@ -231,10 +231,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
 
-    ${ExpectedHBTReleaseVersion} =  get_version_from_warehouse_for_rigidname_in_componentsuite
-    ...  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-Heartbeat  ServerProtectionLinux-Base
-    ...  optional=True
-
     ${ExpectedBaseReleaseVersion} =  get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
     ${ExpectedMtrReleaseVersion} =   get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-MDR
     ${ExpectedAVReleaseVersion} =    get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-AV
@@ -247,7 +243,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${ExpectedMtrDevVersion} =    get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-MDR
     ${ExpectedAVDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
     ${ExpectedLRDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedHBTDevVersion} =    get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-Heartbeat
     ${ExpectedEJDevVersion} =    get_version_for_rigidname_in_vut_warehouse    ServerProtectionLinux-Plugin-EventJournaler
     ${ExpectedRuntimedetectionsDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
 
@@ -280,8 +275,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJDevVersion}
     ${RuntimeDetectionsDevVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimeDetectionsDevVersion}
-    ${HBTDevVersion} =      Get Version Number From Ini File   ${InstalledHBTPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedHBTDevVersion}  ${HBTDevVersion}
 
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
 
@@ -362,7 +355,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${LRReleaseVersion} =                     Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     ${RuntimedetectionsReleaseVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
     ${EJReleaseVersion} =                     Get Version Number From Ini File   ${InstalledEJPluginVersionFile}
-    ${HBTReleaseVersion} =                    Get Version Number From Ini File   ${InstalledHBTPluginVersionFile}
 
     Should Be Equal As Strings      ${BaseReleaseVersion}               ${ExpectedBaseReleaseVersion}
     Should Be Equal As Strings      ${MtrReleaseVersion}                ${ExpectedMtrReleaseVersion}
@@ -371,9 +363,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Strings      ${LRReleaseVersion}                 ${ExpectedLRReleaseVersion}
     Should Be Equal As Strings      ${RuntimedetectionsReleaseVersion}  ${ExpectedRuntimedetectionsReleaseVersion}
     Should Be Equal As Strings      ${EJReleaseVersion}                 ${ExpectedEJReleaseVersion}
-    Should Be Equal As Strings      ${HBTReleaseVersion}                ${ExpectedHBTReleaseVersion}
-
-    Should Be Equal As Strings  ${ExpectedHBTDevVersion}  ${HBTDevVersion}
 
     #Check users haven't been removed and added back
     ${new_sspl_user_uid} =  Get UID From Username  sophos-spl-user
@@ -428,8 +417,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimeDetectionsVersion}
     ${EJVersion} =    Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJVersion}
-
-    version_number_in_ini_file_should_be  ${InstalledHBTPluginVersionFile}  ${ExpectedHBTDevVersion}
 
     #the query pack should have been re-installed
     Wait Until Keyword Succeeds

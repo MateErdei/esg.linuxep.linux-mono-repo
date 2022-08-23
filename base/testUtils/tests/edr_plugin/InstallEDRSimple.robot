@@ -33,7 +33,7 @@ EDR Plugin Installs With Version Ini File
     Run Full Installer
     Install EDR Directly
     File Should Exist   ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
-    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini   Sophos Endpoint Detection and Response plug-in
+    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini   SPL-Endpoint-Detection-and-Response-Plugin
 
 EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not Running
     [Teardown]  EDR Uninstall Teardown

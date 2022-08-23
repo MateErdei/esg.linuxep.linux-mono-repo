@@ -65,7 +65,7 @@ Live Response Plugin Installs With Version Ini File
     Run Full Installer
     Install Live Response Directly
     File Should Exist   ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
-    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini   Sophos Live Response
+    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini   SPL-Live-Response-Plugin
 
 
 *** Keywords ***

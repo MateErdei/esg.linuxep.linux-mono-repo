@@ -817,7 +817,7 @@ def version_ini_file_contains_proper_format_for_product_name(file, product_name)
     git_commit_pattern = "^COMMIT_HASH = [0-9a-fA-F]{40}\n\Z"
     plugin_api_commit_pattern = "^PLUGIN_API_COMMIT_HASH = [0-9a-fA-F]{40}\n\Z"
 
-    if product_name == "Sophos Server Protection Linux - Base Component":
+    if product_name == "SPL-Base-Component":
         patterns = [name_pattern, version_pattern, date_pattern, git_commit_pattern]
     else:
         patterns = [name_pattern, version_pattern, date_pattern, git_commit_pattern, plugin_api_commit_pattern]

@@ -4,7 +4,7 @@ BASE_SUITE_TEMPLATE="""
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <suite name="ServerProtectionLinux-Base" version="2022.7.22.7" nonce="3b1805f739" marketing-version="2022.7.22.7 (develop)">
   <package-ref src="@FILENAME@" size="@SIZE@" sha256="@SHA@">
-    <name>SophosServerProtectionLinux-BaseComponent</name>
+    <name>SPL-Base-Component</name>
     <version>@VERSION@</version>
     <line-id>ServerProtectionLinux-Base-component</line-id>
     <nonce>@NONCE@</nonce>
@@ -43,7 +43,7 @@ FLAG_XML_TEMPLATE="""
   }
 }
 """
-default_package_path="/tmp/sdds3FakeWarehouse/fakerepo/package/SophosServerProtectionLinux-BaseComponent_1.0.0.0.020fb0c370.zip"
+default_package_path="/tmp/sdds3FakeWarehouse/fakerepo/package/SPL-Base-Component_1.0.0.0.020fb0c370.zip"
 default_output_path="/tmp/sdds3FakeWarehouse/fakerepo"
 default_flag_path="/tmp/sdds3FakeWarehouse/fakeflag"
 
@@ -54,7 +54,7 @@ def write_sdds3_suite_xml(package_path=default_package_path,output_path=default_
         content = f.read()
         sha = hashlib.sha256(content).hexdigest()
     filename = os.path.basename(package_path)
-    version = filename[42:-15]
+    version = filename[19:-15]
     nonce = filename.split(".")[4]
 
     print(version)

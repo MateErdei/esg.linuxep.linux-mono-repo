@@ -13,6 +13,10 @@ namespace SulDownloader
     class Sdds3Wrapper : public ISdds3Wrapper
     {
     public:
+        std::vector<sdds3::Suite> getSuites(
+            sdds3::Session& session,
+            const sdds3::Repo& repo,
+            const sdds3::Config& config) override;
         std::vector<sdds3::PackageRef> getPackagesIncludingSupplements(
             sdds3::Session& session,
             const sdds3::Repo& repo,

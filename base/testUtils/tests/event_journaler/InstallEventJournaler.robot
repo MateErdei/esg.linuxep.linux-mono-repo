@@ -18,7 +18,7 @@ Default Tags   EVENT_JOURNALER_PLUGIN
 Event Journaler Plugin Installs With Version Ini File
     Install Event Journaler Directly
     File Should Exist   ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
-    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini   EventJournaler
+    VERSION Ini File Contains Proper Format For Product Name   ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini   SPL-Event-Journaler-Plugin
 
 Verify That Event Journaler Logging Can Be Set Individually
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [eventjournaler]\nVERBOSITY=DEBUG\n

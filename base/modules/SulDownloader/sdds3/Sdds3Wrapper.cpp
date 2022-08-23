@@ -10,6 +10,14 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 class path;
 namespace SulDownloader
 {
+    std::vector<sdds3::Suite> Sdds3Wrapper::getSuites(
+        sdds3::Session& session,
+        const sdds3::Repo& repo,
+        const sdds3::Config& config)
+    {
+        return sdds3::get_suites(session, repo, config);
+    }
+
     std::vector<sdds3::PackageRef> Sdds3Wrapper::getPackagesIncludingSupplements(
         sdds3::Session& session,
         const sdds3::Repo& repo,
