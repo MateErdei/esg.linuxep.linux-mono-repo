@@ -15,8 +15,6 @@ using namespace sophos_on_access_process::fanotifyhandler;
 
 FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
 {
-    m_fd.reset();
-
     int fanotifyFd = systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
     if (fanotifyFd == -1)
     {
@@ -24,17 +22,17 @@ FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCa
         errMsg << "Unable to initialise fanotify: " << common::safer_strerror(errno);
         throw std::runtime_error(errMsg.str());
     }
-    LOGINFO("FANotify successfully initialised");
+    LOGINFO("Fanotify successfully initialised");
 
     m_fd.reset(fanotifyFd);
-    LOGINFO("FANotify FD set to " << m_fd.fd());
+    LOGINFO("Fanotify FD set to " << m_fd.fd());
 }
 
 int FanotifyHandler::getFd()
 {
     if (!m_fd.valid())
     {
-        LOGDEBUG("FANotify FD not valid " << m_fd.fd());
+        LOGDEBUG("Fanotify FD not valid " << m_fd.fd());
     }
 
     return m_fd.fd();

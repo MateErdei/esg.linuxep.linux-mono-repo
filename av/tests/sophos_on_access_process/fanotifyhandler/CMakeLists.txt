@@ -1,6 +1,6 @@
 include(GoogleTest)
 
-SophosAddTest(TestFANotifyHandler
+SophosAddTest(TestFanotifyHandler
         ../../common/LogInitializedTests.cpp
         TestFanotifyHandler.cpp
         PROJECTS fanotifyhandler
@@ -10,7 +10,7 @@ SophosAddTest(TestFANotifyHandler
         LIBS pthread
         )
 
-SET_TARGET_PROPERTIES(TestFANotifyHandler
+SET_TARGET_PROPERTIES(TestFanotifyHandler
         PROPERTIES
         INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"

@@ -172,7 +172,7 @@ namespace mount_monitor::mount_monitor
             {
                 // Mark all current mounts
                 // Will override previous marks for same mounts
-                // FANotify automatically unmarks mounts that are unmounted
+                // Fanotify automatically unmarks mounts that are unmounted
                 LOGINFO("Mount points changed - re-evaluating");
                 markMounts(getIncludedMountpoints(getAllMountpoints()));
             }

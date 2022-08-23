@@ -11,7 +11,7 @@
 
 using namespace ::testing;
 
-class TestFANotifyHandler : public FanotifyHandlerMemoryAppenderUsingTests
+class TestFanotifyHandler : public FanotifyHandlerMemoryAppenderUsingTests
 {
 protected:
     void SetUp() override
@@ -22,7 +22,7 @@ protected:
     std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
 };
 
-TEST_F(TestFANotifyHandler, construction)
+TEST_F(TestFanotifyHandler, construction)
 {
     int fanotifyFd = 0;
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -32,14 +32,14 @@ TEST_F(TestFANotifyHandler, construction)
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     EXPECT_EQ(handler.getFd(), fanotifyFd);
 
-    EXPECT_TRUE(waitForLog("FANotify successfully initialised"));
+    EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
     std::stringstream logMsg;
-    logMsg << "FANotify FD set to " << fanotifyFd;
+    logMsg << "Fanotify FD set to " << fanotifyFd;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_FALSE(appenderContains("Unable to initialise fanotify:"));
 }
 
-TEST_F(TestFANotifyHandler, construction_logsErrorIfFanotifyInitFails)
+TEST_F(TestFanotifyHandler, construction_logsErrorIfFanotifyInitFails)
 {
     int fanotifyFd = -1;
     UsingMemoryAppender memoryAppenderHolder(*this);
