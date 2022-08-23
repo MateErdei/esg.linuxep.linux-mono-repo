@@ -7,6 +7,7 @@
 // Component
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigMonitor.h"
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
+#include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 // Product
 #include "common/FDUtils.h"
@@ -31,7 +32,6 @@ using namespace sophos_on_access_process::fanotifyhandler;
 int SoapdBootstrap::runSoapd()
 {
     LOGINFO("Sophos on access process started");
-    // Implement soapd
 
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
@@ -42,31 +42,36 @@ int SoapdBootstrap::runSoapd()
     LOGINFO("Socket is at: " << socketPath);
 
     Common::Threads::NotifyPipe onAccessConfigPipe;
-    OnAccessConfig::OnAccessConfigMonitor configMonitor(socketPath, onAccessConfigPipe);
-    configMonitor.start();
+    auto configMonitor = std::make_shared<OnAccessConfig::OnAccessConfigMonitor>(socketPath, onAccessConfigPipe);
+    auto configMonitorThread = std::make_unique<common::ThreadRunner>(configMonitor, "configMonitor", true);
 
-    innerRun(sigIntMonitor, sigTermMonitor, onAccessConfigPipe);
-
-    LOGINFO("Stopping On Access config monitor");
-    configMonitor.requestStop();
-    LOGINFO("Joining On Access config monitor");
-    configMonitor.join();
+    try
+    {
+        innerRun(sigIntMonitor, sigTermMonitor, onAccessConfigPipe, pluginInstall);
+    }
+    catch (const std::exception& e)
+    {
+        LOGFATAL(e.what());
+        return 1;
+    }
 
     LOGINFO("Exiting soapd");
-
     return 0;
 }
 
 void SoapdBootstrap::innerRun(
     std::shared_ptr<common::signals::SigIntMonitor>& sigIntMonitor,
     std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor,
-    Common::Threads::NotifyPipe pipe)
+    Common::Threads::NotifyPipe pipe,
+    const std::string& pluginInstall)
 {
     mount_monitor::mount_monitor::OnAccessMountConfig config;
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
-    auto faNotifyHandler = std::make_unique<FanotifyHandler>(sysCallWrapper);
-    auto mountMonitor = std::make_unique<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, faNotifyHandler->getFd());
-    auto mountMonitorThread = std::make_unique<common::ThreadRunner>(*mountMonitor, "scanProcessMonitor");
+    auto fanotifyHandler = std::make_unique<FanotifyHandler>(sysCallWrapper);
+    auto mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, fanotifyHandler->getFd());
+    auto mountMonitorThread = std::make_unique<common::ThreadRunner>(mountMonitor, "mountMonitor", true);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyHandler->getFd(), sysCallWrapper, pluginInstall);
+    auto eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader, "eventReader", false);
 
     const int num_fds = 3;
     struct pollfd fds[num_fds];
@@ -82,6 +87,8 @@ void SoapdBootstrap::innerRun(
     fds[2].fd = pipe.readFd();
     fds[2].events = POLLIN;
     fds[2].revents = 0;
+
+    bool currentOaEnabledState = false;
 
     while (true)
     {
@@ -123,6 +130,19 @@ void SoapdBootstrap::innerRun(
             auto jsonString = OnAccessConfig::readConfigFile();
             OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessSettingsFromJson(jsonString);
             mountMonitor->setExcludeRemoteFiles(oaConfig.excludeRemoteFiles);
+
+            bool oldOaEnabledState = currentOaEnabledState;
+            currentOaEnabledState = oaConfig.enabled;
+            if (currentOaEnabledState && !oldOaEnabledState)
+            {
+                LOGINFO("On-access scanning enabled");
+                eventReaderThread->startIfNotStarted();
+            }
+            if (!currentOaEnabledState && oldOaEnabledState)
+            {
+                LOGINFO("On-access scanning disabled");
+                eventReaderThread->requestStopIfNotStopped();
+            }
         }
     }
 }

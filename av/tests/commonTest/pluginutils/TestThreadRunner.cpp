@@ -106,9 +106,6 @@ TEST_F(TestThreadRunner, ThreadRunnerHandlesStartWhenThreadIsNotValid) // NOLINT
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     std::shared_ptr<TestAbstractThreadImpl> nullThread = nullptr;
-    common::ThreadRunner testThreadRunner(nullThread, "invalidThreadOnStart", true);
-
-    EXPECT_FALSE(testThreadRunner.isStarted());
-    EXPECT_TRUE(appenderContains("Failed to start thread for invalidThreadOnStart"));
+    EXPECT_THROW(common::ThreadRunner testThreadRunner(nullThread, "invalidThreadOnStart", true), std::runtime_error);
 }
 

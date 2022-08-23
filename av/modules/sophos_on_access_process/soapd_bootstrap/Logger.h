@@ -15,4 +15,5 @@ log4cplus::Logger& getSophosOnAccessBootstrapImplLogger();
 #define LOGINFO(x) LOG4CPLUS_INFO(getSophosOnAccessBootstrapImplLogger(), x)    // NOLINT
 #define LOGWARN(x) LOG4CPLUS_WARN(getSophosOnAccessBootstrapImplLogger(), x)    // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getSophosOnAccessBootstrapImplLogger(), x)  // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getSophosOnAccessBootstrapImplLogger(), x)  // NOLINT
 #define LOGTRACE(x) LOG4CPLUS_TRACE(getSophosOnAccessBootstrapImplLogger(), x)  // NOLINT

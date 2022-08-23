@@ -6,11 +6,11 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 
-#include "Common/Threads/AbstractThread.h"
+#include "common/AbstractThreadPluginInterface.h"
 
 namespace sophos_on_access_process::OnAccessConfig
 {
-    class OnAccessConfigMonitor : public Common::Threads::AbstractThread
+    class OnAccessConfigMonitor : public common::AbstractThreadPluginInterface
     {
     public:
         explicit OnAccessConfigMonitor(std::string processControllerSocketPath,

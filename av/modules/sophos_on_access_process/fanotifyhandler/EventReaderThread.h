@@ -26,7 +26,7 @@ namespace sophos_on_access_process::fanotifyhandler
         std::string getFilePathFromFd(int fd);
         uid_t getUidFromPid(pid_t pid);
 
-        int m_fanotifyfd;
+        int m_fanotifyFd;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         fs::path m_pluginLogDir;
         pid_t m_pid;

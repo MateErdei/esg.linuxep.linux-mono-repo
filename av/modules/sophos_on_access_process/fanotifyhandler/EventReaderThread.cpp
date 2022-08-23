@@ -29,7 +29,7 @@ EventReaderThread::EventReaderThread(
     int fanotifyFD,
     datatypes::ISystemCallWrapperSharedPtr sysCalls,
     const fs::path& pluginInstall)
-    : m_fanotifyfd(fanotifyFD)
+    : m_fanotifyFd(fanotifyFD)
     , m_sysCalls(sysCalls)
     , m_pluginLogDir(pluginInstall / "log")
     , m_pid(getpid())
@@ -41,7 +41,7 @@ bool EventReaderThread::handleFanotifyEvent()
     char buf[FAN_BUFFER_SIZE];
 
     errno = 0;
-    ssize_t len = m_sysCalls->read(m_fanotifyfd, buf, sizeof(buf));
+    ssize_t len = m_sysCalls->read(m_fanotifyFd, buf, sizeof(buf));
 
     // Verify we got something.
     if (len <= 0)
@@ -82,16 +82,16 @@ bool EventReaderThread::handleFanotifyEvent()
         }
         datatypes::AutoFd eventFd(metadata->fd);
 
-        if (metadata->pid == m_pid)
-        {
-            LOGDEBUG("Skip event caused by soapd");
-            continue;
-        }
-
         auto path = getFilePathFromFd(eventFd.get());
         // Exclude events caused by AV logging to prevent recursive events
         if (path.rfind(m_pluginLogDir, 0) == 0)
         {
+            continue;
+        }
+
+        if (metadata->pid == m_pid)
+        {
+            LOGDEBUG("Skip event caused by soapd");
             continue;
         }
 
@@ -108,7 +108,7 @@ bool EventReaderThread::handleFanotifyEvent()
         }
         else
         {
-            LOGDEBUG("unknown operation mask: " << std::hex << metadata->mask);
+            LOGDEBUG("unknown operation mask: " << std::hex << metadata->mask << std::dec);
         }
     }
     return true;
@@ -152,23 +152,16 @@ uid_t EventReaderThread::getUidFromPid(pid_t pid)
 
 void EventReaderThread::run()
 {
-    int exitFD = m_notifyPipe.readFd();
-    const int num_fds = 2;
-    struct pollfd fds[num_fds];
-
-    fds[0].fd = exitFD;
-    fds[0].events = POLLIN;
-    fds[0].revents = 0;
-
-    fds[1].fd = m_fanotifyfd;
-    fds[1].events = POLLIN;
-    fds[1].revents = 0;
+    struct pollfd fds[] {
+        { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
+        { .fd = m_fanotifyFd, .events = POLLIN, .revents = 0 },
+    };
 
     announceThreadStarted();
 
     while (true)
     {
-        int ret = m_sysCalls->ppoll(fds, num_fds, nullptr, nullptr);
+        int ret = m_sysCalls->ppoll(fds, std::size(fds), nullptr, nullptr);
 
         if (ret < 0)
         {
@@ -181,7 +174,7 @@ void EventReaderThread::run()
 
         if ((fds[0].revents & POLLIN) != 0)
         {
-            LOGDEBUG("Stopping the reading of FANotify events");
+            LOGDEBUG("Stopping the reading of Fanotify events");
             break;
         }
 
@@ -189,7 +182,7 @@ void EventReaderThread::run()
         {
             if (!handleFanotifyEvent())
             {
-                LOGDEBUG("Stopping the reading of FANotify events");
+                LOGDEBUG("Stopping the reading of Fanotify events");
                 break;
             }
         }
