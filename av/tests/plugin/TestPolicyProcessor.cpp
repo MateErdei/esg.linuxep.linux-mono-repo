@@ -56,7 +56,7 @@ namespace
     class PolicyProcessorUnitTestClass : public Plugin::PolicyProcessor
     {
     protected:
-        void notifyOnAccessProcess() override
+        void notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE /*cmd*/) override
         {
             PRINT("Notified soapd");
         }

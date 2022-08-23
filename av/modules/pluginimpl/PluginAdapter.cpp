@@ -215,6 +215,7 @@ namespace Plugin
     void PluginAdapter::processFlags(const std::string& flagsJson)
     {
         LOGINFO("Flags! " << flagsJson);
+        m_policyProcessor.processFlagSettings(flagsJson);
     }
 
     void PluginAdapter::processPolicy(const std::string& policyXml, bool& policyUpdated, std::string& appId)

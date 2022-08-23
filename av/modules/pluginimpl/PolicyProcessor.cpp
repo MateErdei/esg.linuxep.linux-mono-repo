@@ -158,10 +158,10 @@ namespace Plugin
         return common::md5_hash(cred); // always do the second hash
     }
 
-    void PolicyProcessor::notifyOnAccessProcess()
+    void PolicyProcessor::notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE requestType)
     {
         unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath());
-        scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+        scan_messages::ProcessControlSerialiser processControlRequest(requestType);
         processController.sendProcessControlRequest(processControlRequest);
     }
 
@@ -187,7 +187,7 @@ namespace Plugin
             return;
         }
 
-        notifyOnAccessProcess();
+        notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
 
         setOnAccessConfiguredTelemetry(enabled == "true");
     }
@@ -259,5 +259,33 @@ namespace Plugin
             results.emplace_back(attr.contents());
         }
         return results;
+    }
+
+    void PolicyProcessor::processFlagSettings(const std::string& flagsJson)
+    {
+        LOGDEBUG("Processing FLAGS settings");
+
+        try
+        {
+            nlohmann::json j = nlohmann::json::parse(flagsJson);
+
+            if (j.find(OA_FLAG) != j.end())
+            {
+                if (j[OA_FLAG] == true)
+                {
+                    LOGINFO("On-access is enabled, notifying soapd to disable policy override");
+                    notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_DISABLE);
+                }
+                else
+                {
+                    LOGINFO("On-access is disabled in the FLAGS policy, notifying soapd to enable policy override");
+                    notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_ENABLE);
+                }
+            }
+        }
+        catch (const json::parse_error& e)
+        {
+            LOGWARN("Failed to parse FLAGS policy due to parse error, reason: " << e.what());
+        }
     }
 }
