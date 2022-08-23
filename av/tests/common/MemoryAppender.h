@@ -146,6 +146,7 @@ namespace
 
         using clock = std::chrono::steady_clock;
         [[maybe_unused]] bool waitForLog(const std::string& expected, clock::duration wait_time = 250ms) const; // NOLINT(modernize-use-nodiscard)
+        [[maybe_unused]] bool waitForLogMultiple(const std::string& expected, const int& count, clock::duration wait_time = 100ms) const; // NOLINT(modernize-use-nodiscard)
     };
 
     MemoryAppenderUsingTests::MemoryAppenderUsingTests(std::string loggerInstanceName) :
@@ -206,6 +207,21 @@ namespace
         do
         {
             if (appenderContains(expected))
+            {
+                return true;
+            }
+            std::this_thread::sleep_for(10ms);
+        } while (clock::now() < deadline);
+        return false;
+    }
+
+    bool MemoryAppenderUsingTests::waitForLogMultiple(const std::string& expected, const int& count, clock::duration wait_time) const
+    {
+        assert(m_memoryAppender != nullptr);
+        auto deadline = clock::now() + wait_time;
+        do
+        {
+            if (appenderContainsCount(expected, count))
             {
                 return true;
             }

@@ -4,6 +4,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "common/ThreadRunner.h"
 #include "datatypes/sophos_filesystem.h"
 #include "manager/scheduler/ScanScheduler.h"
 #include "manager/scheduler/ScheduledScanConfiguration.h"
@@ -190,36 +191,9 @@ namespace
             return 60;
         }
     };
-
-    /*
-     * Simple thread runner, used to ensure threads are stopped before objects are destroyed.
-     */
-    class SimpleThreadRunner
-    {
-    public:
-        explicit SimpleThreadRunner(Common::Threads::AbstractThread& thread)
-            : m_thread(thread)
-        {
-            m_thread.start();
-        }
-
-        ~SimpleThreadRunner()
-        {
-            killThreads();
-        }
-
-        void killThreads()
-        {
-            m_thread.requestStop();
-            m_thread.join();
-        }
-
-    private:
-        Common::Threads::AbstractThread& m_thread;
-    };
 }
 
-TEST_F(TestScanScheduler, constructor) //NOLINT
+TEST_F(TestScanScheduler, constructor)
 {
     FakeScanCompletion scanCompletion;
     ScanScheduler scheduler { scanCompletion };
@@ -227,15 +201,15 @@ TEST_F(TestScanScheduler, constructor) //NOLINT
     scheduler.updateConfig(scheduledScanConfiguration);
 }
 
-TEST_F(TestScanScheduler, destructWhileRunning) //NOLINT
+TEST_F(TestScanScheduler, destructWhileRunning)
 {
     // ensure that we don't destroy ScanScheduler before stopping its thread
     FakeScanCompletion scanCompletion;
-    ScanScheduler scheduler { scanCompletion };
-    SimpleThreadRunner schedulerThread(scheduler);
+    auto scheduler = std::make_shared<ScanScheduler>(scanCompletion);
+    common::ThreadRunner schedulerThread(scheduler, "ScanScheduler", true);
 }
 
-TEST_F(TestScanScheduler, findNextTime) //NOLINT
+TEST_F(TestScanScheduler, findNextTime)
 {
     FakeScanCompletion scanCompletion;
     ScanScheduler scheduler{scanCompletion};
@@ -251,7 +225,7 @@ TEST_F(TestScanScheduler, findNextTime) //NOLINT
     EXPECT_LE(spec.tv_sec, 3600);
 }
 
-TEST_F(TestScanScheduler, findNextTimeNoScanConfigured) //NOLINT
+TEST_F(TestScanScheduler, findNextTimeNoScanConfigured)
 {
     FakeScanCompletion scanCompletion;
     ScanScheduler scheduler{scanCompletion};
@@ -265,45 +239,74 @@ TEST_F(TestScanScheduler, findNextTimeNoScanConfigured) //NOLINT
     EXPECT_EQ(spec.tv_sec, 3600);
 }
 
-TEST_F(TestScanScheduler, scanNow) //NOLINT
+TEST_F(TestScanScheduler, scanNow)
 {
     FakeScanCompletion scanCompletion;
-    ScanScheduler scheduler{scanCompletion};
 
     ScheduledScanConfiguration scheduledScanConfiguration(m_emptyPolicy);
 
-    SimpleThreadRunner schedulerThread(scheduler);
+    auto scheduler = std::make_shared<ScanScheduler>(scanCompletion);
+    common::ThreadRunner schedulerThread(scheduler, "ScanScheduler", true);
 
-    scheduler.updateConfig(scheduledScanConfiguration);
+    scheduler->updateConfig(scheduledScanConfiguration);
 
     UsingMemoryAppender holder(*this);
 
-    scheduler.scanNow();
+    scheduler->scanNow();
 
     ASSERT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
     ASSERT_TRUE(waitForLog("Starting scan Scan Now", 500ms));
     ASSERT_TRUE(waitForLog("Completed scan Scan Now", 500ms));
 
-    schedulerThread.killThreads();
-
     EXPECT_EQ(scanCompletion.m_count, 1);
 }
 
 
-TEST_F(TestScanScheduler, scanNowTwice) //NOLINT
+/*TEST_F(TestScanScheduler, scanNowStopStart)
 {
     FakeScanCompletion scanCompletion;
-    ScanScheduler scheduler{scanCompletion};
 
     ScheduledScanConfiguration scheduledScanConfiguration(m_emptyPolicy);
 
-    SimpleThreadRunner schedulerThread(scheduler);
+    auto scheduler = std::make_shared<ScanScheduler>(scanCompletion);
+    common::ThreadRunner schedulerThread(scheduler, "ScanScheduler", true);
 
-    scheduler.updateConfig(scheduledScanConfiguration);
+    scheduler->updateConfig(scheduledScanConfiguration);
 
     UsingMemoryAppender holder(*this);
 
-    scheduler.scanNow();
+    scheduler->scanNow();
+
+    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 500ms));
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 500ms));
+
+    schedulerThread.requestStopIfNotStopped();
+    schedulerThread.startIfNotStarted();
+
+    scheduler->scanNow();
+
+    ASSERT_TRUE(waitForLogMultiple("Evaluating Scan Now", 2, 500ms));
+    ASSERT_TRUE(waitForLogMultiple("Starting scan Scan Now", 2, 500ms));
+    ASSERT_TRUE(waitForLogMultiple("Completed scan Scan Now", 2, 500ms));
+
+    EXPECT_EQ(scanCompletion.m_count, 2);
+}*/
+
+TEST_F(TestScanScheduler, scanNowTwice)
+{
+    FakeScanCompletion scanCompletion;
+
+    ScheduledScanConfiguration scheduledScanConfiguration(m_emptyPolicy);
+
+    auto scheduler = std::make_shared<ScanScheduler>(scanCompletion);
+    common::ThreadRunner schedulerThread(scheduler, "ScanScheduler", true);
+
+    scheduler->updateConfig(scheduledScanConfiguration);
+
+    UsingMemoryAppender holder(*this);
+
+    scheduler->scanNow();
 
     ASSERT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
     ASSERT_TRUE(waitForLog("Starting scan Scan Now", 500ms));
@@ -313,42 +316,36 @@ TEST_F(TestScanScheduler, scanNowTwice) //NOLINT
 
     clearMemoryAppender();
 
-    scheduler.scanNow();
+    scheduler->scanNow();
 
     ASSERT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
     EXPECT_TRUE(waitForLog("Starting scan Scan Now", 500ms));
     EXPECT_FALSE(appenderContains("Refusing to run a second Scan named: Scan Now"));
     EXPECT_TRUE(waitForLog("Completed scan Scan Now", 500ms));
-
-    schedulerThread.killThreads();
 }
 
 
-TEST_F(TestScanScheduler, scanNow_refusesConcurrentScanNow) //NOLINT
+TEST_F(TestScanScheduler, scanNow_refusesConcurrentScanNow)
 {
     UsingMemoryAppender holder(*this);
 
     FakeFileWalker fileWalker(m_basePath);
 
     FakeScanCompletion scanCompletion;
-
-    ScanScheduler scheduler{scanCompletion};
-
     ScheduledScanConfiguration scheduledScanConfiguration(m_emptyPolicy);
 
-    SimpleThreadRunner schedulerThread(scheduler);
+    auto scheduler = std::make_shared<ScanScheduler>(scanCompletion);
+    common::ThreadRunner schedulerThread(scheduler, "ScanScheduler", true);
 
-    scheduler.updateConfig(scheduledScanConfiguration);
-    scheduler.scanNow();
+    scheduler->updateConfig(scheduledScanConfiguration);
+    scheduler->scanNow();
     ASSERT_TRUE(waitForLog("Starting scan Scan Now", 500ms));
 
-    scheduler.scanNow();
+    scheduler->scanNow();
     EXPECT_TRUE(waitForLog("Refusing to run a second Scan named: Scan Now", 500ms));
 
     fileWalker.stopScan();
     ASSERT_TRUE(waitForLog("Completed scan Scan Now", 500ms));
-
-    schedulerThread.killThreads();
 
     EXPECT_EQ(scanCompletion.m_count, 1);
 
@@ -357,7 +354,7 @@ TEST_F(TestScanScheduler, scanNow_refusesConcurrentScanNow) //NOLINT
     EXPECT_THAT(log_lines, testing::SizeIs(1));
 }
 
-TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
+TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter)
 {
     UsingMemoryAppender holder(*this);
 
@@ -365,27 +362,22 @@ TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter) //NOLINT
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
 
     FakeScanCompletion scanCompletion;
-
-    ScanScheduler scheduler{scanCompletion};
-
     ScheduledScanConfiguration scheduledScanConfiguration(m_emptyPolicy);
 
-    SimpleThreadRunner schedulerThread(scheduler);
+    auto scheduler = std::make_shared<ScanScheduler>(scanCompletion);
+    common::ThreadRunner schedulerThread(scheduler, "ScanScheduler", true);
 
-    scheduler.updateConfig(scheduledScanConfiguration);
-    scheduler.scanNow();
+    scheduler->updateConfig(scheduledScanConfiguration);
+    scheduler->scanNow();
 
     ASSERT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
-
-    schedulerThread.killThreads();
 
     telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     std::string ExpectedTelemetry{ R"sophos({"scan-now-count":1})sophos" };
     EXPECT_EQ(telemetryResult, ExpectedTelemetry);
-
 }
 
-TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
+TEST_F(TestScanScheduler, runsScheduledScan)
 {
     UsingMemoryAppender holder(*this);
 
@@ -397,20 +389,20 @@ TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
 
     FakeScanCompletion scanCompletion;
 
-    WeirdTimeScanScheduler scheduler{scanCompletion};
+    auto scheduler = std::make_shared<WeirdTimeScanScheduler>(scanCompletion);
 
     // configure before running to avoid racing on setting/getting m_config
     ScheduledScanConfiguration scheduledScanConfiguration(m_scheduledScanPolicy);
-    scheduler.updateConfig(scheduledScanConfiguration);
+    scheduler->updateConfig(scheduledScanConfiguration);
 
-    SimpleThreadRunner schedulerThread(scheduler);
+    common::ThreadRunner schedulerThread(scheduler, "ScanScheduler", true);
 
     ASSERT_TRUE(waitForLog("Starting scan Another scan!",  1500ms));
 
     fileWalker.stopScan();
     EXPECT_TRUE(waitForLog("Completed scan Another scan!", 1000ms));
 
-    schedulerThread.killThreads();
+    schedulerThread.requestStopIfNotStopped();
 
     EXPECT_EQ(scanCompletion.m_count, 1);
 
@@ -419,7 +411,7 @@ TEST_F(TestScanScheduler, runsScheduledScan) //NOLINT
     EXPECT_THAT(log_lines, testing::SizeIs(1));
 }
 
-TEST_F(TestScanScheduler, runsScheduledScanAndScanNow) //NOLINT
+TEST_F(TestScanScheduler, runsScheduledScanAndScanNow)
 {
     UsingMemoryAppender holder(*this);
 
@@ -431,15 +423,15 @@ TEST_F(TestScanScheduler, runsScheduledScanAndScanNow) //NOLINT
 
     FakeScanCompletion scanCompletion;
 
-    WeirdTimeScanScheduler scheduler{scanCompletion};
+    auto scheduler = std::make_shared<WeirdTimeScanScheduler>(scanCompletion);
 
     // configure before running to avoid racing on setting/getting m_config
     ScheduledScanConfiguration scheduledScanConfiguration(m_scheduledScanPolicy);
-    scheduler.updateConfig(scheduledScanConfiguration);
+    scheduler->updateConfig(scheduledScanConfiguration);
 
-    SimpleThreadRunner schedulerThread(scheduler);
+    common::ThreadRunner schedulerThread(scheduler, "ScanScheduler", true);
 
-    scheduler.scanNow();
+    scheduler->scanNow();
 
     ASSERT_TRUE(waitForLog("Starting scan Another scan!", 1500ms));
     ASSERT_TRUE(waitForLog("Starting scan Scan Now", 500ms));
@@ -448,7 +440,7 @@ TEST_F(TestScanScheduler, runsScheduledScanAndScanNow) //NOLINT
     ASSERT_TRUE(waitForLog("Completed scan Another scan!", 1000ms));
     ASSERT_TRUE(waitForLog("Completed scan Scan Now", 500ms));
 
-    schedulerThread.killThreads();
+    schedulerThread.requestStopIfNotStopped();
 
     EXPECT_EQ(scanCompletion.m_count, 2);
 

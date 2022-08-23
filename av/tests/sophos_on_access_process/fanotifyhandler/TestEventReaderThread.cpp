@@ -135,6 +135,55 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
 
+TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    int fanotifyFD = 123;
+    struct fanotify_event_metadata metadata;
+    metadata.pid = 2345;
+    metadata.fd = 345;
+    metadata.mask = FAN_OPEN;
+    metadata.vers = FANOTIFY_METADATA_VERSION;
+    metadata.event_len = FAN_EVENT_METADATA_LEN;
+
+    struct pollfd fds1[2]{};
+    fds1[1].revents = POLLIN;
+    struct pollfd fds2[2]{};
+    fds2[0].revents = POLLIN;
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).Times(2).WillRepeatedly(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
+    const char* filePath1 = "/tmp/test";
+    const char* filePath2 = "/tmp/test/test";
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
+        .WillOnce(DoAll(SetArrayArgument<1>(filePath2, filePath2 + strlen(filePath2) + 1), Return(strlen(filePath2) + 1)));
+    struct ::stat statbuf{};
+    statbuf.st_uid = 1;
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).Times(2).WillRepeatedly(DoAll(SetArgPointee<1>(statbuf), Return(0)));
+
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+
+    EXPECT_TRUE(waitForLog("got event: size "));
+    std::stringstream logMsg1;
+    logMsg1 << "On-open event for " << filePath1 << " from PID " << metadata.pid << " and UID " << statbuf.st_uid;
+    EXPECT_TRUE(waitForLog(logMsg1.str()));
+    EXPECT_TRUE(waitForLog("Stopping the reading of FANotify events"));
+
+    eventReaderThread.requestStopIfNotStopped();
+    eventReaderThread.startIfNotStarted();
+
+    std::stringstream logMsg2;
+    logMsg2 << "On-open event for " << filePath2 << " from PID " << metadata.pid << " and UID " << statbuf.st_uid;
+    EXPECT_TRUE(waitForLog("got event: size "));
+    EXPECT_TRUE(waitForLog(logMsg2.str()));
+    EXPECT_TRUE(waitForLog("Stopping the reading of FANotify events"));
+}
+
 TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);

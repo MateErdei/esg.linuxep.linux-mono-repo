@@ -128,7 +128,59 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
     m_serverWaitGuard.wait(); // Waits for the second call to start
 
     EXPECT_EQ(appenderCount(logMsg1.str()), 2);
+}
 
+TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    OnAccessMountConfig config;
+    config.m_scanHardDisc = true;
+    config.m_scanNetwork = true;
+    config.m_scanOptical = true;
+    config.m_scanRemovable = true;
+    int faNotifyFd = 124;
+
+    WaitForEvent clientWaitGuard;
+
+    struct pollfd fds[2]{};
+    fds[1].revents = POLLPRI;
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(DoAll(InvokeWithoutArgs(&clientWaitGuard, &WaitForEvent::waitDefault),
+                SetArrayArgument<0>(fds, fds+2), Return(1)))
+        .WillOnce(DoAll(InvokeWithoutArgs(&m_serverWaitGuard, &WaitForEvent::onEventNoArgs),
+            Return(-1)))
+        .WillOnce(DoAll(InvokeWithoutArgs(&clientWaitGuard, &WaitForEvent::waitDefault),
+            SetArrayArgument<0>(fds, fds+2), Return(1)))
+        .WillOnce(DoAll(InvokeWithoutArgs(&m_serverWaitGuard, &WaitForEvent::onEventNoArgs),
+            Return(-1))
+        );
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, FAN_NOFD, _)).WillRepeatedly(Return(0));
+    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, faNotifyFd);
+    auto numMountPoints = mountMonitor->getIncludedMountpoints(mountMonitor->getAllMountpoints()).size();
+    common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
+
+    std::stringstream logMsg1;
+    logMsg1 << "Including " << numMountPoints << " mount points in on-access scanning";
+    EXPECT_TRUE(waitForLog(logMsg1.str()));
+
+    clientWaitGuard.onEventNoArgs(); // Will allow the first call to complete
+    m_serverWaitGuard.wait(); // Waits for the second call to start
+
+    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 2));
+
+    clientWaitGuard.clear();
+    m_serverWaitGuard.clear();
+
+    mountMonitorThread.requestStopIfNotStopped();
+    mountMonitorThread.startIfNotStarted();
+
+    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 3));
+
+    clientWaitGuard.onEventNoArgs(); // Will allow the first call to complete
+    m_serverWaitGuard.wait(); // Waits for the second call to start
+
+    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 4));
 }
 
 TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe) // NOLINT
