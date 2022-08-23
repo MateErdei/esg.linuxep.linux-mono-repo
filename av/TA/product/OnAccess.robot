@@ -509,3 +509,27 @@ On Access Scans File On XFS
     Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
     Wait Until On Access Log Contains  is infected with
 
+
+On Access Logs When A File Is Closed Following Write After Being Disabled
+    Mark On Access Log
+    Start On Access
+    Start Fake Management If Required
+
+    ${enabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    ${disabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
+
+    Send Plugin Policy  av  sav  ${enabledPolicyContent}
+    Wait Until On Access Log Contains  On-access enabled: "true"
+
+    Send Plugin Policy  av  sav  ${disabledPolicyContent}
+    Wait Until On Access Log Contains  On-access enabled: "false"
+
+    Send Plugin Policy  av  sav  ${enabledPolicyContent}
+    Wait Until On Access Log Contains  On-access enabled: "true"
+
+    Wait Until On Access Log Contains  Starting eventReader
+    ${pid} =  Get Robot Pid
+    ${filepath} =  Set Variable  /tmp_test/eicar.com
+    Create File  ${filepath}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${filepath}
+    Wait Until On Access Log Contains  On-close event for ${filepath} from PID ${pid} and UID 0
