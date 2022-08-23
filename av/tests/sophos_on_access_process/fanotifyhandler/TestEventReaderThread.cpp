@@ -11,6 +11,7 @@
 
 using namespace ::testing;
 using namespace sophos_on_access_process::fanotifyhandler;
+using namespace sophos_on_access_process::onaccessimpl;
 
 class TestEventReaderThread : public FanotifyHandlerMemoryAppenderUsingTests
 {
@@ -27,7 +28,7 @@ protected:
 TEST_F(TestEventReaderThread, TestReaderExitsUsingPipe)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
 
     struct pollfd fds[2]{};
     fds[0].revents = POLLIN;
@@ -45,7 +46,7 @@ TEST_F(TestEventReaderThread, TestReaderExitsUsingPipe)
 TEST_F(TestEventReaderThread, TestReaderLogsErrorIfFanotifySendsNoEvent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     int fanotifyFD = 123;
 
     struct pollfd fds[2]{};
@@ -65,7 +66,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorIfFanotifySendsNoEvent)
 TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
@@ -101,7 +102,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
 TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
@@ -139,7 +140,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
 TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
@@ -176,7 +177,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
 TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
@@ -211,7 +212,7 @@ TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
 TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = 2, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
@@ -239,7 +240,7 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
 TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithoutFD)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
@@ -268,7 +269,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithoutFD)
 TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPid)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
@@ -299,7 +300,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPid)
 TEST_F(TestEventReaderThread, TestReaderSkipsEventsInPluginLogDir)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
