@@ -28,11 +28,13 @@ static constexpr size_t FAN_BUFFER_SIZE = 4096;
 EventReaderThread::EventReaderThread(
     int fanotifyFD,
     datatypes::ISystemCallWrapperSharedPtr sysCalls,
-    const fs::path& pluginInstall)
+    const fs::path& pluginInstall,
+    std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestQueue> scanRequestQueue)
     : m_fanotifyFd(fanotifyFD)
     , m_sysCalls(sysCalls)
     , m_pluginLogDir(pluginInstall / "log")
     , m_pid(getpid())
+    , m_scanRequestQueue(scanRequestQueue)
 {
 }
 
@@ -104,7 +106,16 @@ bool EventReaderThread::handleFanotifyEvent()
         }
         else if (metadata->mask & FAN_CLOSE_WRITE)
         {
+            // TODO: optimize this by using emplace instead of push
             LOGINFO("On-close event for " << path << " from PID " << metadata->pid << " and UID " << uid);
+            auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
+            scanRequest->setPath(path);
+            scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
+            scanRequest->setUserID(std::to_string(uid));
+            if (!m_scanRequestQueue->push(scanRequest, eventFd))
+            {
+                LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
+            }
         }
         else
         {

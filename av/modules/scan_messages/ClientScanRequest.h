@@ -7,11 +7,11 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "ScanType.h"
 
+#include <memory>
 #include <string>
 
 namespace scan_messages
 {
-
     class ClientScanRequest
     {
     public:
@@ -49,5 +49,6 @@ namespace scan_messages
         E_SCAN_TYPE m_scanType = E_SCAN_TYPE_UNKNOWN;
     };
 
+    using ClientScanRequestPtr = std::shared_ptr<ClientScanRequest>;
 }
 
