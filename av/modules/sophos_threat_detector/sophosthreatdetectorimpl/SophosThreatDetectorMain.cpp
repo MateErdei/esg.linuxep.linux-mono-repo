@@ -29,6 +29,7 @@
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
 
+#include <csignal>
 #include <fstream>
 #include <string>
 
@@ -273,6 +274,11 @@ namespace sspl::sophosthreatdetectorimpl
         int inner_main()
         {
             common::signals::SigTermMonitor sigTermMonitor{true};
+
+            // Ignore SIGPIPE. send*() or write() on a broken pipe will now fail with errno=EPIPE rather than crash.
+            struct sigaction ignore {};
+            ignore.sa_handler = SIG_IGN;
+            ::sigaction(SIGPIPE, &ignore, nullptr);
 
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
