@@ -11,10 +11,9 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "common/FDUtils.h"
 #include "common/PluginUtils.h"
 #include "common/SaferStrerror.h"
+#include "common/ThreadRunner.h"
 #include "datatypes/sophos_filesystem.h"
 
-#include <cstring>
-#include <tuple>
 #include <utility>
 
 #include <sys/select.h>
@@ -46,7 +45,7 @@ namespace plugin::manager::scanprocessmonitor
     ScanProcessMonitor::ScanProcessMonitor(
         std::string processControllerSocket,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper) :
-        m_config_monitor(m_config_changed, std::move(systemCallWrapper)),
+        m_sysCallWrapper(std::move(systemCallWrapper)),
         m_processControllerSocket(std::move(processControllerSocket))
     {
     }
@@ -83,7 +82,8 @@ namespace plugin::manager::scanprocessmonitor
         max_fd = FDUtils::addFD(&readFds, m_policy_changed.readFd(), max_fd);
 
         // this is also triggering the m_config_changed pipe
-        m_config_monitor.start();
+        auto configMonitor = std::make_shared<ConfigMonitor>(m_config_changed, m_sysCallWrapper);
+        common::ThreadRunner configMonitorThread(configMonitor, "ConfigMonitor", true);
 
         announceThreadStarted();
 
@@ -129,10 +129,6 @@ namespace plugin::manager::scanprocessmonitor
                 }
             }
         }
-
-        m_config_monitor.requestStop();
-        m_config_monitor.join();
-
         LOGSUPPORT("Exiting sophos_threat_detector monitor");
     }
 

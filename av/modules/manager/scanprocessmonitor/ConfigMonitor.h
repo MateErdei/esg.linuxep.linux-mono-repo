@@ -8,12 +8,12 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "InotifyFD.h"
 
+#include "common/AbstractThreadPluginInterface.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/ISystemCallWrapper.h"
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Threads/NotifyPipe.h"
-#include "Common/Threads/AbstractThread.h"
 
 #include <map>
 
@@ -21,7 +21,7 @@ namespace fs = sophos_filesystem;
 
 namespace plugin::manager::scanprocessmonitor
 {
-    class ConfigMonitor : public Common::Threads::AbstractThread
+    class ConfigMonitor : public common::AbstractThreadPluginInterface
     {
     public:
         explicit ConfigMonitor(Common::Threads::NotifyPipe& pipe,
