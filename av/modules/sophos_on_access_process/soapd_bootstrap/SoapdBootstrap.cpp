@@ -7,8 +7,7 @@
 // Component
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigMonitor.h"
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
-#include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
-#include "sophos_on_access_process/fanotifyhandler/FANotifyHandler.h"
+#include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 // Product
 #include "common/FDUtils.h"
 #include "common/SaferStrerror.h"
@@ -46,14 +45,7 @@ int SoapdBootstrap::runSoapd()
     OnAccessConfig::OnAccessConfigMonitor configMonitor(socketPath, onAccessConfigPipe);
     configMonitor.start();
 
-    try
-    {
-        innerRun(sigIntMonitor, sigTermMonitor, onAccessConfigPipe, pluginInstall);
-    }
-    catch (const std::exception& e)
-    {
-        LOGERROR(e.what());
-    }
+    innerRun(sigIntMonitor, sigTermMonitor, onAccessConfigPipe);
 
     LOGINFO("Stopping On Access config monitor");
     configMonitor.requestStop();
@@ -68,16 +60,13 @@ int SoapdBootstrap::runSoapd()
 void SoapdBootstrap::innerRun(
     std::shared_ptr<common::signals::SigIntMonitor>& sigIntMonitor,
     std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor,
-    Common::Threads::NotifyPipe pipe,
-    const std::string& pluginInstall)
+    Common::Threads::NotifyPipe pipe)
 {
     mount_monitor::mount_monitor::OnAccessMountConfig config;
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
-    auto faNotifyHandler = std::make_unique<FANotifyHandler>(sysCallWrapper);
-    auto mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, faNotifyHandler->faNotifyFd());
-    auto mountMonitorThread = std::make_unique<common::ThreadRunner>(mountMonitor, "mountMonitor", true);
-    auto eventReader = std::make_shared<EventReaderThread>(faNotifyHandler->faNotifyFd(), sysCallWrapper, pluginInstall);
-    auto eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader, "eventReader", false);
+    auto faNotifyHandler = std::make_unique<FanotifyHandler>(sysCallWrapper);
+    auto mountMonitor = std::make_unique<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, faNotifyHandler->getFd());
+    auto mountMonitorThread = std::make_unique<common::ThreadRunner>(*mountMonitor, "scanProcessMonitor");
 
     const int num_fds = 3;
     struct pollfd fds[num_fds];
@@ -93,8 +82,6 @@ void SoapdBootstrap::innerRun(
     fds[2].fd = pipe.readFd();
     fds[2].events = POLLIN;
     fds[2].revents = 0;
-
-    bool currentOaEnabledState = false;
 
     while (true)
     {
@@ -136,19 +123,6 @@ void SoapdBootstrap::innerRun(
             auto jsonString = OnAccessConfig::readConfigFile();
             OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessSettingsFromJson(jsonString);
             mountMonitor->setExcludeRemoteFiles(oaConfig.excludeRemoteFiles);
-
-            bool oldOaEnabledState = currentOaEnabledState;
-            currentOaEnabledState = oaConfig.enabled;
-            if (currentOaEnabledState && !oldOaEnabledState)
-            {
-                LOGINFO("On-access scanning enabled");
-                eventReaderThread->startIfNotStarted();
-            }
-            if (!currentOaEnabledState && oldOaEnabledState)
-            {
-                LOGINFO("On-access scanning disabled");
-                eventReaderThread->requestStopIfNotStopped();
-            }
         }
     }
 }

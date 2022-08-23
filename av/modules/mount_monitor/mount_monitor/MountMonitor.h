@@ -22,7 +22,7 @@ namespace mount_monitor::mount_monitor
         MountMonitor(
             OnAccessConfig& config,
             datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
-            int faNotifyFd,
+            int fanotifyFd,
             struct timespec pollTimeout = {2,0});
 
         void setExcludeRemoteFiles(bool excludeRemoteFiles);
@@ -35,7 +35,7 @@ namespace mount_monitor::mount_monitor
 
         OnAccessConfig& m_config;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
-        int m_faNotifyFd;
+        int m_fanotifyFd;
         const struct timespec m_pollTimeout;
     };
 }

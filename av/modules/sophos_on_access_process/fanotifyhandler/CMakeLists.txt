@@ -1,11 +1,10 @@
 
 add_library(fanotifyhandler SHARED
-        EventReaderThread.cpp
-        EventReaderThread.h
-        FANotifyHandler.cpp
-        FANotifyHandler.h
+        FanotifyHandler.cpp
+        FanotifyHandler.h
         Logger.cpp
-        Logger.h)
+        Logger.h
+        )
 
 target_include_directories(fanotifyhandler PUBLIC
         ${CMAKE_SOURCE_DIR}/modules
@@ -13,7 +12,7 @@ target_include_directories(fanotifyhandler PUBLIC
         )
 
 target_link_libraries(fanotifyhandler
-        common onaccessimpl)
+        common)
 
 install(TARGETS fanotifyhandler
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

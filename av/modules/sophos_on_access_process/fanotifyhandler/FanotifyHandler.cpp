@@ -1,24 +1,28 @@
 //Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "FANotifyHandler.h"
+#include "FanotifyHandler.h"
+
 #include "Logger.h"
 
 #include "common/SaferStrerror.h"
+
+#include <sstream>
 
 #include <fcntl.h>
 #include <sys/fanotify.h>
 
 using namespace sophos_on_access_process::fanotifyhandler;
 
-FANotifyHandler::FANotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
+FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
 {
     m_fd.reset();
 
     int fanotifyFd = systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
     if (fanotifyFd == -1)
     {
-        LOGERROR("Unable to initialise fanotify: " << common::safer_strerror(errno) << ". On Access Scanning disabled");
-        return;
+        std::stringstream errMsg;
+        errMsg << "Unable to initialise fanotify: " << common::safer_strerror(errno);
+        throw std::runtime_error(errMsg.str());
     }
     LOGINFO("FANotify successfully initialised");
 
@@ -26,7 +30,7 @@ FANotifyHandler::FANotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCa
     LOGINFO("FANotify FD set to " << m_fd.fd());
 }
 
-int FANotifyHandler::faNotifyFd()
+int FanotifyHandler::getFd()
 {
     if (!m_fd.valid())
     {
@@ -36,7 +40,7 @@ int FANotifyHandler::faNotifyFd()
     return m_fd.fd();
 }
 
-FANotifyHandler::~FANotifyHandler()
+FanotifyHandler::~FanotifyHandler()
 {
     m_fd.close();
 }

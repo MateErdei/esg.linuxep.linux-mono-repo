@@ -176,3 +176,11 @@ TEST_F(TestMountMonitor, TestMonitorLogsErrorIfMarkingFails) // NOLINT
     EXPECT_TRUE(waitForLog("On Access Scanning disabled"));
     EXPECT_TRUE(waitForLog("Stopping monitoring of mounts"));
 }
+
+TEST_F(TestMountMonitor, TestConstructThrowsIfFanotifyFdInvalid) // NOLINT
+{
+    OnAccessMountConfig config;
+    int faNotifyFd = -1;
+
+    EXPECT_THROW(MountMonitor mountMonitor(config, m_mockSysCallWrapper, faNotifyFd), std::runtime_error);
+}

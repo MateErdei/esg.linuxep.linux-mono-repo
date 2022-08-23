@@ -6,10 +6,10 @@
 
 namespace
 {
-    class FANotifyHandlerMemoryAppenderUsingTests : public MemoryAppenderUsingTests
+    class FanotifyHandlerMemoryAppenderUsingTests : public MemoryAppenderUsingTests
     {
     public:
-        FANotifyHandlerMemoryAppenderUsingTests()
+        FanotifyHandlerMemoryAppenderUsingTests()
             : MemoryAppenderUsingTests("fanotifyhandler")
         {}
     };

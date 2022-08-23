@@ -20,16 +20,19 @@ static uint64_t EVENT_MASK = FAN_CLOSE_WRITE;
 namespace mount_monitor::mount_monitor
 {
     MountMonitor::MountMonitor(
-        OnAccessConfig& config,
+        OnAccessMountConfig& config,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
-        int faNotifyFd,
+        int fanotifyFd,
         struct timespec pollTimeout)
     : m_config(config)
     , m_sysCalls(std::move(systemCallWrapper))
-    , m_faNotifyFd(faNotifyFd)
+    , m_fanotifyFd(fanotifyFd)
     , m_pollTimeout(pollTimeout)
     {
-
+        if (m_fanotifyFd < 0)
+        {
+            throw std::runtime_error("fanotify file descriptor is invalid");
+        }
     }
 
     mountinfo::IMountPointSharedVector MountMonitor::getAllMountpoints()
@@ -92,7 +95,8 @@ namespace mount_monitor::mount_monitor
         for (const auto& mount: mounts)
         {
             std::string mountPointStr = mount->mountPoint();
-            int ret = m_sysCalls->fanotify_mark(m_faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, EVENT_MASK, AT_FDCWD, mountPointStr.c_str());
+            int ret = m_sysCalls->fanotify_mark(
+                m_fanotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, EVENT_MASK, FAN_NOFD, mountPointStr.c_str());
             if (ret == -1)
             {
                 LOGERROR("Unable to mark fanotify for mount point " << mountPointStr << ": " << common::safer_strerror(errno) << ". On Access Scanning disabled");

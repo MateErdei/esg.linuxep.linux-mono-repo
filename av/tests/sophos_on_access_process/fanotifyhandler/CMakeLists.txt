@@ -2,8 +2,7 @@ include(GoogleTest)
 
 SophosAddTest(TestFANotifyHandler
         ../../common/LogInitializedTests.cpp
-        TestEventReaderThread.cpp
-        TestFANotifyHandler.cpp
+        TestFanotifyHandler.cpp
         PROJECTS fanotifyhandler
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules

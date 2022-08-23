@@ -1,16 +1,17 @@
 //Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "FANotifyHandlerMemoryAppenderUsingTests.h"
+#include "FanotifyHandlerMemoryAppenderUsingTests.h"
 
 #include "datatypes/MockSysCalls.h"
-#include "sophos_on_access_process/fanotifyhandler/FANotifyHandler.h"
+#include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 
 #include <gtest/gtest.h>
+
 #include <sstream>
 
 using namespace ::testing;
 
-class TestFANotifyHandler : public FANotifyHandlerMemoryAppenderUsingTests
+class TestFANotifyHandler : public FanotifyHandlerMemoryAppenderUsingTests
 {
 protected:
     void SetUp() override
@@ -28,8 +29,8 @@ TEST_F(TestFANotifyHandler, construction)
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
 
-    sophos_on_access_process::fanotifyhandler::FANotifyHandler handler(m_mockSysCallWrapper);
-    EXPECT_EQ(handler.faNotifyFd(), fanotifyFd);
+    sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
+    EXPECT_EQ(handler.getFd(), fanotifyFd);
 
     EXPECT_TRUE(waitForLog("FANotify successfully initialised"));
     std::stringstream logMsg;
@@ -45,15 +46,5 @@ TEST_F(TestFANotifyHandler, construction_logsErrorIfFanotifyInitFails)
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
 
-    sophos_on_access_process::fanotifyhandler::FANotifyHandler handler(m_mockSysCallWrapper);
-    EXPECT_EQ(handler.faNotifyFd(), fanotifyFd);
-
-    EXPECT_TRUE(waitForLog("Unable to initialise fanotify:"));
-    EXPECT_FALSE(appenderContains("FANotify successfully initialised"));
-    std::stringstream logMsg;
-    logMsg << "FANotify FD set to " << fanotifyFd;
-    EXPECT_FALSE(appenderContains(logMsg.str()));
-    std::stringstream errMsg;
-    errMsg << "FANotify FD not valid " << fanotifyFd;
-    EXPECT_TRUE(waitForLog(errMsg.str()));
+    EXPECT_THROW(sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper), std::runtime_error);
 }
