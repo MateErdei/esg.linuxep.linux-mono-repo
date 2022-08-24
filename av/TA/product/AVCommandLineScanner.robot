@@ -1830,7 +1830,8 @@ AV Scanner stops promptly during a scan
 
     Stop AV
     register cleanup  Start AV
-    Sleep   5
+    # On some platforms a system scan can complete in 5 seconds so need to keep this sleep short enough that it is still running
+    Sleep   3
 
     Send Signal To Process   SIGINT   handle=${HANDLE}
     ${result} =  Wait For Process  handle=${HANDLE}  timeout=5s
