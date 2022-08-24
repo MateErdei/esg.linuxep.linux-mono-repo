@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
@@ -12,7 +8,6 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "tests/common/LogInitializedTests.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/UtilityImpl/StringUtils.h>
 
 #include <chrono>
 #include <thread>
@@ -29,7 +24,7 @@ public:
     }
 };
 
-TEST_F(TestScanRunner, construction) // NOLINT
+TEST_F(TestScanRunner, construction)
 {
     class FakeScanCompletion : public IScanComplete
     {
@@ -48,13 +43,13 @@ TEST_F(TestScanRunner, construction) // NOLINT
     static_cast<void>(test);
 }
 
-TEST_F(TestScanRunner, testCompletionXmlGenerationDoesntContainTemplateName) //NOLINT
+TEST_F(TestScanRunner, testCompletionXmlGenerationDoesntContainTemplateName)
 {
     std::string xml = generateScanCompleteXml("FOO");
     EXPECT_THAT(xml, Not(::testing::HasSubstr("<scanName>@@SCANNAME@@</scanName>")));
 }
 
-TEST_F(TestScanRunner, testCompletionXmlGenerationDoesContainTimestamp) // NOLINT
+TEST_F(TestScanRunner, testCompletionXmlGenerationDoesContainTimestamp)
 {
     std::string xml = generateScanCompleteXml("FOO");
     EXPECT_THAT(xml, Not(::testing::HasSubstr("<timestamp></timestamp>")));
@@ -62,7 +57,7 @@ TEST_F(TestScanRunner, testCompletionXmlGenerationDoesContainTimestamp) // NOLIN
     EXPECT_THAT(xml, ::testing::HasSubstr("</timestamp>"));
 }
 
-TEST_F(TestScanRunner, testCompletionXmlGenerationChangesTimestamp) // NOLINT
+TEST_F(TestScanRunner, testCompletionXmlGenerationChangesTimestamp)
 {
     std::string xml1 = generateScanCompleteXml("FOO");
     std::this_thread::sleep_for(std::chrono::milliseconds(1001));
@@ -70,7 +65,7 @@ TEST_F(TestScanRunner, testCompletionXmlGenerationChangesTimestamp) // NOLINT
     EXPECT_NE(xml1, xml2);
 }
 
-TEST_F(TestScanRunner, testTimestampGeneration) // NOLINT
+TEST_F(TestScanRunner, testTimestampGeneration)
 {
     std::string timestamp1 = datatypes::Time::currentToCentralTime();
     EXPECT_THAT(timestamp1, ::testing::MatchesRegex("[0-9]{8} [0-9]{6}"));
