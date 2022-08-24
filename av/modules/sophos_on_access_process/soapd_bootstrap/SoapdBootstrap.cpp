@@ -73,7 +73,6 @@ void SoapdBootstrap::innerRun(
     auto mountMonitorThread = std::make_unique<common::ThreadRunner>(mountMonitor, "mountMonitor", true);
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyHandler->getFd(), sysCallWrapper, common::getPluginInstallPath(), scanRequestQueue);
     auto eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader, "eventReader", false);
-    eventReaderThread->startIfNotStarted();
 
     std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(scanRequestQueue, scanRequestSocketPath);
