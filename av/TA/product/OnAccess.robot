@@ -189,3 +189,42 @@ On Access Process Handles Consecutive Process Control Requests
     Wait Until On Access Log Contains  Enable pipe has been notified
     Wait Until On Access Log Contains  Disable pipe has been notified
     Wait Until On Access Log Contains  New on-access configuration: {"enabled":"false"
+
+On Access Is Disabled By Default If No Flags Policy Arrives
+    Start On Access
+
+    Start Fake Management If Required
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    #TODO once fanotify changes are merged
+
+On Access Is Enabled After it Receives Enable Flags
+    Start On Access
+
+    Start Fake Management If Required
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+
+    #TODO add checks after the merge
+
+On Access Is Disabled After it Receives Disable Flags
+    Start On Access
+
+    Start Fake Management If Required
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+
+    #TODO add checks after the merge
