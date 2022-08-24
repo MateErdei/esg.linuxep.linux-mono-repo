@@ -51,18 +51,6 @@ void ScanRequestHandler::scan(std::shared_ptr<scan_messages::ClientScanRequest> 
 {
     std::string fileToScanPath = scanRequest->getPath();
     datatypes::AutoFd file_fd(fd);
-    if (!file_fd.valid())
-    {
-        int error = errno;
-        std::string escapedPath = common::escapePathForLogging(fileToScanPath, true);
-
-        std::ostringstream logMsg;
-        logMsg << failedToOpen(error) << escapedPath;
-
-        LOGERROR(logMsg.str());
-
-        return;
-    }
 
     unixsocket::ScanningClientSocket scanningSocket(m_socketPath);
     ClientSocketWrapper socketWrapper(scanningSocket, m_notifyPipe);
@@ -118,6 +106,6 @@ void ScanRequestHandler::run()
     {
         LOGINFO("m_scanRequestQueue->pop()");
         auto queueItem = m_scanRequestQueue->pop();
-        scan(queueItem, 1);
+        scan(queueItem.first, queueItem.second);
     }
 }
