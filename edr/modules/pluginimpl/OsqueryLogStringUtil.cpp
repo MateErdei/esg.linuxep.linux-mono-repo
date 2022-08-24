@@ -9,14 +9,13 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
-
 std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(const std::string& logLine)
 {
-    std::string lineToFind= "Executing scheduled query ";
+    std::string lineToFind = "Executing scheduled query ";
     if (Common::UtilityImpl::StringUtils::isSubstring(logLine, lineToFind))
     {
         std::vector<std::string> items = Common::UtilityImpl::StringUtils::splitString(logLine, lineToFind);
-        if(items.size() < 2)
+        if (items.size() < 2)
         {
             return {};
         }
@@ -28,7 +27,7 @@ std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForSchedul
         }
         std::string time;
         std::vector<std::string> timeString = Common::UtilityImpl::StringUtils::splitString(items[0].substr(first), " ");
-        if(timeString.size() < 2)
+        if (timeString.size() < 2)
         {
             return {};
         }
@@ -50,28 +49,23 @@ std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForSchedul
             queryName = nameString[0];
         }
 
-        std::stringstream lineReturned ;
-        lineReturned << "Executing query: " << queryName << " at: " << time ;
-        return  lineReturned.str();
+        std::stringstream lineReturned;
+        lineReturned << "Executing query: " << queryName;
+        return lineReturned.str();
     }
     return {};
 }
 
 bool OsqueryLogStringUtil::isGenericLogLine(const std::string& logLine)
 {
-    std::vector<std::string> interestingLines{
-        "Error executing",
-        "failed to parse config"
-    };
+    std::vector<std::string> interestingLines { "Error executing", "failed to parse config" };
 
-    for(auto& interestingLine : interestingLines)
+    for (auto& interestingLine : interestingLines)
     {
-        if(Common::UtilityImpl::StringUtils::isSubstring(logLine, interestingLine))
+        if (Common::UtilityImpl::StringUtils::isSubstring(logLine, interestingLine))
         {
             return true;
         }
     }
     return false;
 }
-
-

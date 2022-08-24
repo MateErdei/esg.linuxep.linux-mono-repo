@@ -17,8 +17,8 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesRet
         "    \"deI0310 16:50:56.705953 35257 scheduler.cpp:103] Executing scheduled query running_processes_linux_events: SELECT"   // due to invalid JSON in config file
     };
     std::vector<std::string> expected{
-        "Executing query: host_sensor_heartbeat_check at: 15:47:24.150650",
-        "Executing query: running_processes_linux_events at: 16:50:56.705953"
+        "Executing query: host_sensor_heartbeat_check",
+        "Executing query: running_processes_linux_events"
     };
 
     for (size_t index=0 ; index<lines.size() ; index++)
@@ -114,7 +114,6 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHan
         line << "a";
         expected << "a";
     }
-    expected << " at: 15:47:24.150650";
     std::optional<std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line.str());
     ASSERT_TRUE(actualResult);
     ASSERT_EQ(actualResult.value(), expected.str());
@@ -123,7 +122,7 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHan
 TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesHandlesNonAsciiChars) // NOLINT
 {
     std::string line =  "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query query_name_平仮名_片仮名: query ";
-    std::string expected = "Executing query: query_name_平仮名_片仮名 at: 15:47:24.150650";
+    std::string expected = "Executing query: query_name_平仮名_片仮名";
     std::optional<std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
     ASSERT_TRUE(actualResult);
     ASSERT_EQ(actualResult.value(), expected);
