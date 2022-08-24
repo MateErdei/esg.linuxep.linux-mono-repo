@@ -705,4 +705,3 @@ TEST_F(TestPolicyProcessor, processInvalidOnAccessPolicy)
 
     proc.processOnAccessPolicy(attributeMap);
 }
-#pragma clang diagnostic pop
