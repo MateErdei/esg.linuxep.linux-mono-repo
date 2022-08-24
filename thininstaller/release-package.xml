@@ -14,8 +14,7 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>
         <build-asset project="linuxep" repo="sul">
-            <release-version branch="release/2022-33"
-                             build-id="20220805145417-14d073eebbcbbda71a904f5689494b19dfae089c-uKK3ur"/>
+            <release-version branch="release/Version_1_0_1" build-id="20220822170900-3cc5f9a78dbbac072646d2b5379de43790212405-AR95mL"/>
             <development-version branch="develop"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
@@ -37,8 +36,7 @@
             <include artifact-path="cmake" dest-dir="/build/input/cmake"/>
         </build-asset>
         <build-asset project="thirdparty" repo="curl">
-            <release-version branch="release/sspl/Version_7_78_0"
-                             build-id="20220727094500-1f32ae7779dd5bca64c4d86ef7db17b03fbe78d7-eNZTYc"/>
+            <release-version branch="release/sspl/Version_7_84_0" build-id="20220822152212-f128f504bb954bd08e1b0f48fada7c5a73dc94f8-SnVSla"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="gcc">
