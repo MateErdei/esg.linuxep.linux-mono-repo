@@ -269,7 +269,7 @@ namespace Common::OSUtilitiesImpl
 
             std::string secondUrl = "http://169.254.169.254/latest/dynamic/instance-identity/document";
             Common::HttpRequests::Headers secondHeaders({{"X-aws-ec2-metadata-token", response.body}});
-            response = client->put(buildCloudMetadataRequest(secondUrl, secondHeaders));
+            response = client->get(buildCloudMetadataRequest(secondUrl, secondHeaders));
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -283,7 +283,7 @@ namespace Common::OSUtilitiesImpl
             Common::HttpRequests::Headers headers({{"Metadata-Flavor", "Google"}});
 
             std::string idUrl = "http://metadata.google.internal/computeMetadata/v1/instance/id";
-            Common::HttpRequests::Response response = client->put(buildCloudMetadataRequest(idUrl, headers));
+            Common::HttpRequests::Response response = client->get(buildCloudMetadataRequest(idUrl, headers));
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -291,7 +291,7 @@ namespace Common::OSUtilitiesImpl
             std::string id = response.body;
 
             std::string zoneUrl = "http://metadata.google.internal/computeMetadata/v1/instance/zone";
-            response = client->put(buildCloudMetadataRequest(zoneUrl, headers));
+            response = client->get(buildCloudMetadataRequest(zoneUrl, headers));
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -299,7 +299,7 @@ namespace Common::OSUtilitiesImpl
             std::string zone = response.body;
 
             std::string hostnameUrl = "http://metadata.google.internal/computeMetadata/v1/instance/hostname";
-            response = client->put(buildCloudMetadataRequest(hostnameUrl, headers));
+            response = client->get(buildCloudMetadataRequest(hostnameUrl, headers));
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -319,7 +319,7 @@ namespace Common::OSUtilitiesImpl
         {
             std::string url = "http://169.254.169.254/opc/v2/instance/";
             Common::HttpRequests::Headers headers({{"Authorization", "Bearer Oracle"}});
-            Common::HttpRequests::Response response = client->put(buildCloudMetadataRequest(url, headers));
+            Common::HttpRequests::Response response = client->get(buildCloudMetadataRequest(url, headers));
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -332,7 +332,7 @@ namespace Common::OSUtilitiesImpl
         {
             std::string initialUrl = "http://169.254.169.254/metadata/versions";
             Common::HttpRequests::Headers headers({{"Metadata", "True"}});
-            Common::HttpRequests::Response response = client->put(buildCloudMetadataRequest(initialUrl, headers));
+            Common::HttpRequests::Response response = client->get(buildCloudMetadataRequest(initialUrl, headers));
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -342,7 +342,7 @@ namespace Common::OSUtilitiesImpl
             std::string latestAzureApiVersion = firstResponseBody["apiVersions"][-1];
 
             std::string secondUrl = "http://169.254.169.254/metadata/instance?api-version=" + latestAzureApiVersion;
-            response = client->put(buildCloudMetadataRequest(secondUrl, headers));
+            response = client->get(buildCloudMetadataRequest(secondUrl, headers));
             if (!curlResponseIsOk200(response))
             {
                 return "";
