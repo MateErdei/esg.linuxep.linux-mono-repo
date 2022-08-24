@@ -26,13 +26,13 @@ namespace sophos_on_access_process::onaccessimpl
          * Add scan request and associated file descriptor to the queue ready for scanning
          * Returns true on success and false when queue already contains m_maxSize items
          */
-        bool push(ClientScanRequestPtr scanRequest, datatypes::AutoFd& fd);
+        bool push(ClientScanRequestPtr scanRequest, int fd);
 
         /**
          * Returns pair containing the first scan request and associated file descriptor in the queue (FIFO)
          * Waits to acquire m_lock before attempting to modify the queue
          */
-        std::pair<ClientScanRequestPtr, datatypes::AutoFd&> pop();
+        std::pair<ClientScanRequestPtr, int> pop();
 
         /**
          * Returns the current size of m_queue
@@ -40,7 +40,7 @@ namespace sophos_on_access_process::onaccessimpl
         size_t size();
 
     private:
-        std::queue<std::pair<ClientScanRequestPtr, datatypes::AutoFd&>> m_queue;
+        std::queue<std::pair<ClientScanRequestPtr, int>> m_queue;
         mutable std::mutex m_lock;
         std::condition_variable m_condition;
 
