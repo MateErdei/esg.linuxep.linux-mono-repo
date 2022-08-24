@@ -76,14 +76,14 @@ bool EventReaderThread::handleFanotifyEvent()
             return false;
         }
 
+        // TODO: Use AutoFd to ensure the file descriptor gets closed in all but the case where we add it to the queue
         if (metadata->fd < 0)
         {
             LOGDEBUG("Got fanotify metadata event without fd");
             continue;
         }
-        datatypes::AutoFd eventFd(metadata->fd);
 
-        auto path = getFilePathFromFd(eventFd.get());
+        auto path = getFilePathFromFd(metadata->fd);
         // Exclude events caused by AV logging to prevent recursive events
         if (path.rfind(m_pluginLogDir, 0) == 0)
         {
@@ -102,6 +102,7 @@ bool EventReaderThread::handleFanotifyEvent()
         if (metadata->mask & FAN_OPEN)
         {
             LOGINFO("On-open event for " << path << " from PID " << metadata->pid << " and UID " << uid);
+            ::close(metadata->fd);
         }
         else if (metadata->mask & FAN_CLOSE_WRITE)
         {
@@ -111,7 +112,8 @@ bool EventReaderThread::handleFanotifyEvent()
             scanRequest->setPath("");
             scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
             scanRequest->setUserID(std::to_string(uid));
-            if (!m_scanRequestQueue->push(scanRequest, eventFd))
+            // TODO: Extend ClientScanRequest to include the file descriptor
+            if (!m_scanRequestQueue->push(std::make_pair(scanRequest, metadata->fd)))
             {
                 LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
             }
@@ -119,6 +121,7 @@ bool EventReaderThread::handleFanotifyEvent()
         else
         {
             LOGDEBUG("unknown operation mask: " << std::hex << metadata->mask << std::dec);
+            ::close(metadata->fd);
         }
     }
     return true;
