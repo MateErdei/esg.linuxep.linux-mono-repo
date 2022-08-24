@@ -261,38 +261,6 @@ TEST_F(TestScanScheduler, scanNow)
     EXPECT_EQ(scanCompletion.m_count, 1);
 }
 
-
-/*TEST_F(TestScanScheduler, scanNowStopStart)
-{
-    FakeScanCompletion scanCompletion;
-
-    ScheduledScanConfiguration scheduledScanConfiguration(m_emptyPolicy);
-
-    auto scheduler = std::make_shared<ScanScheduler>(scanCompletion);
-    common::ThreadRunner schedulerThread(scheduler, "ScanScheduler", true);
-
-    scheduler->updateConfig(scheduledScanConfiguration);
-
-    UsingMemoryAppender holder(*this);
-
-    scheduler->scanNow();
-
-    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
-    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 500ms));
-    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 500ms));
-
-    schedulerThread.requestStopIfNotStopped();
-    schedulerThread.startIfNotStarted();
-
-    scheduler->scanNow();
-
-    ASSERT_TRUE(waitForLogMultiple("Evaluating Scan Now", 2, 500ms));
-    ASSERT_TRUE(waitForLogMultiple("Starting scan Scan Now", 2, 500ms));
-    ASSERT_TRUE(waitForLogMultiple("Completed scan Scan Now", 2, 500ms));
-
-    EXPECT_EQ(scanCompletion.m_count, 2);
-}*/
-
 TEST_F(TestScanScheduler, scanNowTwice)
 {
     FakeScanCompletion scanCompletion;
