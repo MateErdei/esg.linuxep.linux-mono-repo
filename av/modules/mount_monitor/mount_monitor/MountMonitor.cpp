@@ -133,7 +133,6 @@ namespace mount_monitor::mount_monitor
 
         announceThreadStarted();
 
-        LOGDEBUG("Entering Main Loop");
         while (!stopRequested())
         {
             int activity = m_sysCalls->ppoll(fds, num_fds, &m_pollTimeout, nullptr);
@@ -178,6 +177,5 @@ namespace mount_monitor::mount_monitor
                 markMounts(getIncludedMountpoints(getAllMountpoints()));
             }
         }
-        LOGDEBUG("Exiting main loop");
     }
 }
