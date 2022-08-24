@@ -147,13 +147,13 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
     fds[1].revents = POLLPRI;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(InvokeWithoutArgs(&clientWaitGuard, &WaitForEvent::waitDefault),
-                SetArrayArgument<0>(fds, fds+2), Return(1)))
+                        SetArrayArgument<0>(fds, fds+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&m_serverWaitGuard, &WaitForEvent::onEventNoArgs),
-            Return(-1)))
+                        Return(0)))
         .WillOnce(DoAll(InvokeWithoutArgs(&clientWaitGuard, &WaitForEvent::waitDefault),
-            SetArrayArgument<0>(fds, fds+2), Return(1)))
+                        SetArrayArgument<0>(fds, fds+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&m_serverWaitGuard, &WaitForEvent::onEventNoArgs),
-            Return(-1))
+                        Return(-1))
         );
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, FAN_NOFD, _)).WillRepeatedly(Return(0));
     auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, faNotifyFd);

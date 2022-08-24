@@ -139,12 +139,9 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata;
-    metadata.pid = 2345;
-    metadata.fd = 345;
-    metadata.mask = FAN_OPEN;
-    metadata.vers = FANOTIFY_METADATA_VERSION;
-    metadata.event_len = FAN_EVENT_METADATA_LEN;
+    struct fanotify_event_metadata metadata = {
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
+        .mask = FAN_OPEN, .fd = 345, .pid = 2345 };
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -155,7 +152,9 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).Times(2).WillRepeatedly(DoAll(AssignFanotifyEvent(metadata), Return(sizeof(metadata))));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).Times(2).WillRepeatedly(DoAll(
+        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
+        Return(sizeof(metadata))));
     const char* filePath1 = "/tmp/test";
     const char* filePath2 = "/tmp/test/test";
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
@@ -172,7 +171,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     std::stringstream logMsg1;
     logMsg1 << "On-open event for " << filePath1 << " from PID " << metadata.pid << " and UID " << statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg1.str()));
-    EXPECT_TRUE(waitForLog("Stopping the reading of FANotify events"));
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
 
     eventReaderThread.requestStopIfNotStopped();
     eventReaderThread.startIfNotStarted();
@@ -181,7 +180,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     logMsg2 << "On-open event for " << filePath2 << " from PID " << metadata.pid << " and UID " << statbuf.st_uid;
     EXPECT_TRUE(waitForLog("got event: size "));
     EXPECT_TRUE(waitForLog(logMsg2.str()));
-    EXPECT_TRUE(waitForLog("Stopping the reading of FANotify events"));
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
 }
 
 TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
