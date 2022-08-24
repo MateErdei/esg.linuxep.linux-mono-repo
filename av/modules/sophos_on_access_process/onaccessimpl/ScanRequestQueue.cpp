@@ -17,7 +17,7 @@ ScanRequestQueue::~ScanRequestQueue()
 
 }
 
-bool ScanRequestQueue::push(ClientScanRequestPtr scanRequest, datatypes::AutoFd& fd)
+bool ScanRequestQueue::push(ScanRequestQueueItem item)
 {
     size_t currentQueueSize = size();
     if (currentQueueSize >= m_maxSize)
@@ -28,13 +28,13 @@ bool ScanRequestQueue::push(ClientScanRequestPtr scanRequest, datatypes::AutoFd&
     else
     {
         std::lock_guard<std::mutex> lock(m_lock);
-        m_queue.emplace(scanRequest, fd);
+        m_queue.emplace(item);
         m_condition.notify_one();
         return true;
     }
 }
 
-std::pair<ClientScanRequestPtr, datatypes::AutoFd&> ScanRequestQueue::pop()
+ScanRequestQueueItem ScanRequestQueue::pop()
 {
     std::unique_lock<std::mutex> lock(m_lock);
     // release lock as long as the wait and re-aquire it afterwards.
@@ -44,7 +44,7 @@ std::pair<ClientScanRequestPtr, datatypes::AutoFd&> ScanRequestQueue::pop()
     return scanRequest;
 }
 
-size_t ScanRequestQueue::size()
+size_t ScanRequestQueue::size() const
 {
     return m_queue.size();
 }
