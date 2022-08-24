@@ -209,8 +209,8 @@ Scanner works after upgrade
     Check avscanner can detect eicar
 
     # check that the logs are still working (LINUXDAR-2535)
-    Sophos Threat Detector Log Contains With Offset   EICAR-AV-Test
-    AV Plugin Log Contains With Offset   EICAR-AV-Test
+    Wait Until Sophos Threat Detector Log Contains With Offset  EICAR-AV-Test
+    Wait Until AV Plugin Log Contains With Offset  EICAR-AV-Test
 
 AV Plugin gets customer id after upgrade
     Register Cleanup    Exclude Failed To connect To Warehouse Error
