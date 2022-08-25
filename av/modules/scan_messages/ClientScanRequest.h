@@ -1,7 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+//Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -21,22 +18,17 @@ namespace scan_messages
         /*
          * Sender side interface - set the fields, then serialise
          */
-        void setPath(const std::string& path);
+        void setPath(const std::string& path) { m_path = path; }
 
-        void setScanInsideArchives(bool a)
-        {
-            m_scanInsideArchives = a;
-        }
+        void setScanInsideArchives(bool scanArchive) { m_scanInsideArchives = scanArchive; }
 
-        void setScanInsideImages(bool a)
-        {
+        void setScanInsideImages(bool scanImage) { m_scanInsideImages = scanImage; }
 
-            m_scanInsideImages = a;
-        }
+        void setScanType(E_SCAN_TYPE scanType) { m_scanType = scanType; }
 
-        void setScanType(E_SCAN_TYPE scanType);
+        void setUserID(const std::string& userID) { m_userID = userID; }
 
-        void setUserID(const std::string& userID);
+        void setAutoFd(std::shared_ptr<datatypes::AutoFd> autoFd) { m_autoFd = autoFd; }
 
         [[nodiscard]] std::string serialise() const;
         [[nodiscard]] std::string getPath() const { return m_path; };
@@ -47,6 +39,7 @@ namespace scan_messages
         bool m_scanInsideImages = false;
         std::string m_userID;
         E_SCAN_TYPE m_scanType = E_SCAN_TYPE_UNKNOWN;
+        std::shared_ptr<datatypes::AutoFd> m_autoFd = nullptr;
     };
 
     using ClientScanRequestPtr = std::shared_ptr<ClientScanRequest>;
