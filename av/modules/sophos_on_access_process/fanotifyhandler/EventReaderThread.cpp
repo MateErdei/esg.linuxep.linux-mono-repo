@@ -76,14 +76,14 @@ bool EventReaderThread::handleFanotifyEvent()
             return false;
         }
 
-        // TODO: Use AutoFd to ensure the file descriptor gets closed in all but the case where we add it to the queue
-        if (metadata->fd < 0)
+        auto eventFd = std::make_shared<datatypes::AutoFd>(metadata->fd);
+        if (!eventFd->valid())
         {
             LOGDEBUG("Got fanotify metadata event without fd");
             continue;
         }
 
-        auto path = getFilePathFromFd(metadata->fd);
+        auto path = getFilePathFromFd(eventFd->fd());
         // Exclude events caused by AV logging to prevent recursive events
         if (path.rfind(m_pluginLogDir, 0) == 0)
         {
@@ -102,18 +102,16 @@ bool EventReaderThread::handleFanotifyEvent()
         if (metadata->mask & FAN_OPEN)
         {
             LOGINFO("On-open event for " << path << " from PID " << metadata->pid << " and UID " << uid);
-            ::close(metadata->fd);
         }
         else if (metadata->mask & FAN_CLOSE_WRITE)
         {
-            // TODO: optimize this by using emplace instead of push
             LOGINFO("On-close event for " << path << " from PID " << metadata->pid << " and UID " << uid);
             auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
             scanRequest->setPath("");
             scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
             scanRequest->setUserID(std::to_string(uid));
             // TODO: Extend ClientScanRequest to include the file descriptor
-            if (!m_scanRequestQueue->push(std::make_pair(scanRequest, metadata->fd)))
+            if (!m_scanRequestQueue->emplace(std::make_pair(scanRequest, std::move(eventFd))))
             {
                 LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
             }
@@ -121,7 +119,6 @@ bool EventReaderThread::handleFanotifyEvent()
         else
         {
             LOGDEBUG("unknown operation mask: " << std::hex << metadata->mask << std::dec);
-            ::close(metadata->fd);
         }
     }
     return true;
