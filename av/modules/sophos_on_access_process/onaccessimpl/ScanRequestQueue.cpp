@@ -17,7 +17,7 @@ ScanRequestQueue::~ScanRequestQueue()
 
 }
 
-bool ScanRequestQueue::push(ScanRequestQueueItem item)
+bool ScanRequestQueue::emplace(ScanRequestQueueItem item)
 {
     size_t currentQueueSize = size();
     if (currentQueueSize >= m_maxSize)

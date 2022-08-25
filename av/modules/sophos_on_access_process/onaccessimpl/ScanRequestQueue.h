@@ -16,7 +16,7 @@ const size_t MAX_SIZE = 1000;
 
 namespace sophos_on_access_process::onaccessimpl
 {
-    using ScanRequestQueueItem = std::pair<ClientScanRequestPtr, int>;
+    using ScanRequestQueueItem = std::pair<ClientScanRequestPtr, std::shared_ptr<datatypes::AutoFd>>;
 
     class ScanRequestQueue
     {
@@ -28,7 +28,7 @@ namespace sophos_on_access_process::onaccessimpl
          * Add scan request and associated file descriptor to the queue ready for scanning
          * Returns true on success and false when queue already contains m_maxSize items
          */
-        bool push(ScanRequestQueueItem item);
+        bool emplace(ScanRequestQueueItem item);
 
         /**
          * Returns pair containing the first scan request and associated file descriptor in the queue (FIFO)
