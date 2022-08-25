@@ -78,10 +78,12 @@ Sul Downloader Requests Fixed Version When Fixed Version In Policy
     ...   File Should Contain    ${sdds3_server_output}     ServerProtectionLinux-Plugin-MDR fixedVersion: 1.0.2 requested
 
 SDDS2 Is Used When No useSDDS3 Field In Update Config
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicy.xml
-    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Start Local Cloud Server
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files   port=8080
     Set Suite Variable    ${GL_handle}    ${handle}
-    Require Fresh Install
+
+    Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
@@ -109,13 +111,15 @@ SDDS2 Is Used When No useSDDS3 Field In Update Config
     Check Marked Sul Log Contains   Update failed, with code: 112
     Check Marked Sul Log Does Not Contain  Running in SDDS3 updating mode
 
-useSDDS3 wrong type
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicy.xml
-    ${handle}=  Start Local SDDS3 Server With Empty Repo
+set value of useSDDS3 to a non boolean in update config
+    Start Local Cloud Server
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files   port=8080
     Set Suite Variable    ${GL_handle}    ${handle}
-    Require Fresh Install
+
+    Setup Install SDDS3 Base
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
-    # should be purged before SDDS3 sync
+
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    5s
@@ -142,39 +146,7 @@ useSDDS3 wrong type
     Check Marked Sul Log Contains   Update failed, with code: 121
     Check Marked Sul Log Contains  Failed to process json message with error: INVALID_ARGUMENT:(useSDDS3): invalid value 1 for type TYPE_BOOL
 
-useSDDS3 invalid json
-    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicy.xml
-    ${handle}=  Start Local SDDS3 Server With Empty Repo
-    Set Suite Variable    ${GL_handle}    ${handle}
-    Require Fresh Install
-    Create File    ${MCS_DIR}/certs/ca_env_override_flag
-    # should be purged before SDDS3 sync
-    Register With Local Cloud Server
-    Wait Until Keyword Succeeds
-    ...    5s
-    ...    1s
-    ...    Log File    ${UPDATE_CONFIG}
-    ${content}=  Get File    ${UPDATE_CONFIG}
-    File Should Contain  ${UPDATE_CONFIG}     JWToken
 
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...    10s
-    ...    1s
-    ...    Check Marked Sul Log Contains   Generating the report file
-
-    set_useSDDS3_in_update_config_to_value  ${UPDATE_CONFIG}  @replaceme@
-    Run Shell Process  sed -i 's/"@replaceme@"/garbageValue/' ${UPDATE_CONFIG}     failed to insert garbage into update config
-    Log File  ${UPDATE_CONFIG}
-    Mark Sul Log
-    Run Shell Process  systemctl start sophos-spl-update      failed to start suldownloader
-    Wait Until Keyword Succeeds
-    ...    10s
-    ...    1s
-    ...    Check Marked Sul Log Contains   Generating the report file
-    Check Marked Sul Log Contains   Update failed, with code: 121
-    Check Marked Sul Log Contains  Failed to process json message with error: INVALID_ARGUMENT:Unexpected token
-    Log File  ${UPDATE_CONFIG}
 
 *** Keywords ***
 Create Dummy Local SDDS2 Cache Files
