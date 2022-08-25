@@ -85,7 +85,6 @@ source $SCRIPT_DIR/SupportFiles/jenkins/exportInputLocations.sh || failure 21 "f
 [[ -d $SYSTEMPRODUCT_TEST_INPUT ]] ||  tar xzf $SCRIPT_DIR/SystemProductTestInputs.tgz -C $(dirname $SYSTEMPRODUCT_TEST_INPUT)
 source $SCRIPT_DIR/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 22 "failed to validate input locations"
 
-find /opt/sspl -name devcerts | xargs cp /opt/sspl/SupportFiles/jenkins/sha384certs/*
 bash $SCRIPT_DIR/SupportFiles/jenkins/install_dependencies.sh
 
 echo "Running tests on $HOSTNAME"

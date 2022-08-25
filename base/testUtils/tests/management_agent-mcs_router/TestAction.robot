@@ -112,7 +112,10 @@ Verify Management Agent Handles CORE Health Reset Action When Received
     ...  5 secs
     ...  SHS Status File Contains  <item name="threat" value="1" />
 
-    Check Marked Mcsrouter Log Contains String N Times  Sending status for SHS adapter  1
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Marked Mcsrouter Log Contains String N Times  Sending status for SHS adapter  1
 
     Check Temp Folder Doesnt Contain Atomic Files
 

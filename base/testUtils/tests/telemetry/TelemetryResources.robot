@@ -24,7 +24,7 @@ ${TELEMETRY_CONFIG_FILE_SOURCE}  ${SUPPORT_FILES}/Telemetry/telemetry-config.jso
 ${TELEMETRY_CONFIG_FILE}   ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
 
 ${TELEMETRY_EXECUTABLE}    ${SOPHOS_INSTALL}/base/bin/telemetry
-${TEST_INTERVAL}  15
+${TEST_INTERVAL}  16
 ${TELEMETRY_EXE_CHECK_DELAY}  60  # this should match the scheduler's implementation
 ${TIMING_TOLERANCE}  10
 

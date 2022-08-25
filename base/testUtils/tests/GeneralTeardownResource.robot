@@ -12,8 +12,8 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/updatescheduler.log
     # new location
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/downgrade-backup/sophosspl/updatescheduler.log
+
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/wdctl.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
@@ -30,7 +30,7 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/tscheduler.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log
 
     Dump Teardown Log    ${UPDATE_CONFIG}
     Dump Teardown Log    ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
@@ -56,6 +56,7 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/logs/osquery.watcher.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/av.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/soapd.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/eventjournaler/log/eventjournaler.log
