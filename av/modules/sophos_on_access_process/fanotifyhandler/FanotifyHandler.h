@@ -15,7 +15,7 @@ namespace sophos_on_access_process::fanotifyhandler
             FanotifyHandler(const FanotifyHandler&) =delete;
             FanotifyHandler& operator=(const FanotifyHandler&) =delete;
 
-            int getFd();
+            [[nodiscard]] int getFd() const;
 
         private:
             datatypes::AutoFd m_fd;

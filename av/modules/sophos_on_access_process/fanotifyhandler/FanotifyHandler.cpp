@@ -28,7 +28,7 @@ FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCa
     LOGINFO("Fanotify FD set to " << m_fd.fd());
 }
 
-int FanotifyHandler::getFd()
+int FanotifyHandler::getFd() const
 {
     if (!m_fd.valid())
     {
