@@ -206,7 +206,7 @@ TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
     logMsg << "On-close event for " << filePath << " from PID " << metadata.pid << " and UID " << invalidUid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
-    EXPECT_EQ(scanRequestQueue->size(), 0);
+    EXPECT_EQ(scanRequestQueue->size(), 1);
 }
 
 TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
@@ -324,7 +324,6 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsInPluginLogDir)
 
     EXPECT_TRUE(waitForLog("got event: size "));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
-    EXPECT_TRUE(waitForLog("Skip event caused by soapd"));
     EXPECT_EQ(scanRequestQueue->size(), 0);
 }
 
