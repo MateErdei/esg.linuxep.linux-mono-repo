@@ -47,3 +47,4 @@ tmp/
 /cmake-build-debug-coverage/
 /cmake-build-fuzz-coverage/
 /tests/googletest
+/build-files/clion-config.sh

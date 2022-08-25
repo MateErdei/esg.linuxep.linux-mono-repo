@@ -705,3 +705,37 @@ TEST_F(TestPolicyProcessor, processInvalidOnAccessPolicy)
 
     proc.processOnAccessPolicy(attributeMap);
 }
+
+
+TEST_F(TestPolicyProcessor, testProcessFlagSettingsEnabled)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    PolicyProcessorUnitTestClass proc;
+
+    proc.processFlagSettings("{\"av.oa_enabled\":  true}");
+
+    EXPECT_TRUE(appenderContains("On-access is enabled in the FLAGS policy, notifying soapd to disable policy override"));
+}
+
+TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    PolicyProcessorUnitTestClass proc;
+
+    proc.processFlagSettings("{\"av.oa_enabled\":  false}");
+
+    EXPECT_TRUE(appenderContains("On-access is disabled in the FLAGS policy, notifying soapd to enable policy override"));
+}
+
+TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    PolicyProcessorUnitTestClass proc;
+
+    proc.processFlagSettings("{\"av.something_else\":  false}");
+
+    EXPECT_TRUE(appenderContains("No on-access flag found assuming policy settings"));
+}
