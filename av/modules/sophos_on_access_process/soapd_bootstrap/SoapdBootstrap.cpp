@@ -20,6 +20,7 @@
 #include "datatypes/SystemCallWrapper.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 // Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 // Std C++
@@ -77,12 +78,13 @@ void SoapdBootstrap::innerRun(
     auto eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader, "eventReader", false);
 
     std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
+    auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
 
     std::vector<std::shared_ptr<common::ThreadRunner>> scanHandlerThreads;
     for (int count = 0; count < MAX_SCAN_THREADS; ++count)
     {
         auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-            scanRequestQueue, scanRequestSocketPath);
+            scanRequestQueue, scanningSocket);
         std::stringstream threadName;
         threadName << "scanHandler" << count;
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);

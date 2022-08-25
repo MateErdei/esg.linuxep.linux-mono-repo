@@ -16,7 +16,7 @@ namespace sophos_on_access_process::onaccessimpl
     public:
         ScanRequestHandler(
             std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestQueue> scanRequestQueue,
-            const std::string& socketPath);
+            std::shared_ptr<unixsocket::IScanningClientSocket> socket);
 
         void run();
         void scan(std::shared_ptr<scan_messages::ClientScanRequest> scanRequest, datatypes::AutoFd& fd);
@@ -25,6 +25,6 @@ namespace sophos_on_access_process::onaccessimpl
         std::string failedToOpen(const int error);
 
         std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestQueue> m_scanRequestQueue;
-        std::string m_socketPath;
+        std::shared_ptr<unixsocket::IScanningClientSocket> m_socket;
     };
 }

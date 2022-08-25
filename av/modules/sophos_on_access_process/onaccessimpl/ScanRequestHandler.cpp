@@ -17,9 +17,9 @@ namespace fs = sophos_filesystem;
 
 ScanRequestHandler::ScanRequestHandler(
     std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestQueue> scanRequestQueue,
-    const std::string& socketPath)
+    std::shared_ptr<unixsocket::IScanningClientSocket> socket)
     : m_scanRequestQueue(scanRequestQueue)
-    , m_socketPath(socketPath)
+    , m_socket(socket)
 {
 
 }
@@ -51,8 +51,7 @@ void ScanRequestHandler::scan(std::shared_ptr<scan_messages::ClientScanRequest> 
 {
     std::string fileToScanPath = scanRequest->getPath();
 
-    unixsocket::ScanningClientSocket scanningSocket(m_socketPath);
-    ClientSocketWrapper socketWrapper(scanningSocket, m_notifyPipe);
+    ClientSocketWrapper socketWrapper(*m_socket, m_notifyPipe);
     auto response = socketWrapper.scan(fd, *scanRequest);
 
     std::string errorMsg = common::toUtf8(response.getErrorMsg());
@@ -99,7 +98,6 @@ void ScanRequestHandler::run()
 {
     announceThreadStarted();
 
-    unixsocket::ScanningClientSocket scanningSocket(m_socketPath);
     while (!stopRequested())
     {
         auto queueItem = m_scanRequestQueue->pop();
