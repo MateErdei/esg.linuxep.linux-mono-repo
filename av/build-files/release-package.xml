@@ -10,15 +10,15 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-33"
-                             build-id="20220805171151-714d3aacf10acdea28b8e78b3b633b59cab69e6c-ZYpqOn"/>
+            <release-version branch="release/Version_1_2_0"
+                             build-id="20220825162206-c6b0d55583a445f972159bc037a001a146cdc733-n6LGHQ"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/2022-30-linux"
-                             build-id="20220718094313-075cf24290659befc1ffbb5479d027b8d2a27b62-Ht70SG"/>
+            <release-version branch="release/sspl/Version_1_0_0"
+                             build-id="20220825150631-43a7c87ceb5905f316aef54df45de777a5961022-O0LZyf"/>
             <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="input/sdds3"/>
         </build-asset>
