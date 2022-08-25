@@ -19,7 +19,7 @@ namespace Common
             return obscurity.Reveal(Base64::Decode(srcData));
         }
 
-        std::string SECObfuscate(std::string& password)
+        std::string SECObfuscate(const std::string& password)
         {
             CObscurity obscurity;
             return Base64::Encode(obscurity.Conceal(password));

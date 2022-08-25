@@ -15,6 +15,6 @@ namespace Common
     namespace ObfuscationImpl
     {
         Common::ObfuscationImpl::SecureString SECDeobfuscate(const std::string& srcData);
-        std::string SECObfuscate(std::string& password);
+        std::string SECObfuscate(const std::string& password);
     }
 } // namespace Common

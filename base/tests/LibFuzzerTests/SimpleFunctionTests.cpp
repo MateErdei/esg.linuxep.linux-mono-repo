@@ -140,7 +140,8 @@ void verifyBase64(const std::string & input)
         abort();
     }
 }
-void verifyDeobfuscate(const std::string & input)
+
+void verifyDeobfuscate(const std::string& input)
 {
     try
     {
@@ -154,14 +155,44 @@ void verifyDeobfuscate(const std::string & input)
     {
         std::string reason = ex.what();
 
-        if ( reason.find("SECDeobfuscation Failed") != std::string::npos)
+        if (reason.find("SECDeobfuscation Failed") != std::string::npos)
         {
             return;
         }
         std::cerr << "Failed for the invalid reason: " << reason << std::endl;
         abort();
     }
+}
 
+void verifyObfuscate(const std::string& input)
+{
+    try
+    {
+        std::string obfuscatedInput = Common::ObfuscationImpl::SECObfuscate(input);
+        std::string deobfuscatedInput = Common::ObfuscationImpl::SECDeobfuscate(obfuscatedInput);
+        if (input != deobfuscatedInput)
+        {
+            std::cerr << "Input string does not match output string.\nInput: " << input
+                      << "\nOutput: " << deobfuscatedInput << std::endl;
+            abort();
+        }
+    }
+    catch (Common::Obfuscation::ICipherException& e)
+    {
+        return;
+    }
+    catch (std::exception& ex)
+    {
+        std::string reason = ex.what();
+
+        if (reason.find("SECObfuscation Failed") != std::string::npos ||
+            reason.find("SECDeobfuscation Failed") != std::string::npos)
+        {
+            return;
+        }
+        std::cerr << "Failed for the invalid reason: " << reason << std::endl;
+        abort();
+    }
 }
 
 void verifyMD5(const std::string & input)
@@ -276,6 +307,9 @@ void mainTest(const SimpleFunctionProto::TestCase& testCase)
         case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_deobfuscate:
             verifyDeobfuscate(testCase.payload());
             break;
+        case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_obfuscate:
+            verifyObfuscate(testCase.payload());
+            break;
         case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_md5:
             verifyMD5(testCase.payload());
             break;
@@ -285,7 +319,6 @@ void mainTest(const SimpleFunctionProto::TestCase& testCase)
         case SimpleFunctionProto::TestCase_FunctionTarget::TestCase_FunctionTarget_telemetryConfig:
             verifyTelemetryConfig(testCase.payload());
             break;
-
     }
 }
 
