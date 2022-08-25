@@ -806,9 +806,41 @@ namespace UpdateSchedulerImpl
             int exitCode = iProcess->exitCode();
             if (exitCode == 1)
             {
-                // pidof returns 1 if no process with the given name is found.
-                UpdateSchedulerUtils::cleanUpMarkerFile();
-                break;
+                // pidof returns 1 if no process with the given name is found, with a caveat.
+                // An update changed the behaviour such that by default process in D state
+                // (uninterruptible sleep, usually I/O) are not listed, unless the -z flag is specified
+                // https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=926896
+                // To allow older versions of pidof to work, we first check it without the flag, and if it fails to
+                // find it as it did here, we try it with the -z flag
+
+                // pidof -z returns 1 if it doesn't find it or if the
+
+                // TODO
+                // This safe to do
+
+                iProcess->exec(pidOfCommand, { "-z", pathOfSulDownloader });
+
+                state = iProcess->wait(Common::Process::milli(10), 1000);
+                if (state != Common::Process::ProcessStatus::FINISHED)
+                {
+                    LOGWARN("pidof -z (SulDownloader) Failed to exit after 10s");
+                    iProcess->kill();
+                }
+
+                exitCode = iProcess->exitCode();
+                if (exitCode == 1)
+                {
+                    // Both pidof and pidof -z
+                    // pidof -z returns 1 if no process with the given name is found.
+                    UpdateSchedulerUtils::cleanUpMarkerFile();
+                    break;
+                }
+                else if (exitCode != 0 && exitCode != SIGTERM)
+                {
+                    LOGWARN("pidof -z (SulDownloader) returned " << exitCode);
+                    UpdateSchedulerUtils::cleanUpMarkerFile();
+                    break;
+                }
             }
             else if (exitCode != 0 && exitCode != SIGTERM)
             {
