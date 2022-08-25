@@ -51,8 +51,17 @@ void ScanRequestHandler::scan(std::shared_ptr<scan_messages::ClientScanRequest> 
 {
     std::string fileToScanPath = scanRequest->getPath();
 
-    ClientSocketWrapper socketWrapper(*m_socket, m_notifyPipe);
-    auto response = socketWrapper.scan(*fd, *scanRequest);
+    ScanResponse response;
+    try
+    {
+        ClientSocketWrapper socketWrapper(*m_socket, m_notifyPipe);
+        response = socketWrapper.scan(*fd, *scanRequest);
+    }
+    catch (const std::exception& e)
+    {
+        LOGERROR("Failed to scan " << fileToScanPath << " : " << e.what());
+        return;
+    }
 
     std::string errorMsg = common::toUtf8(response.getErrorMsg());
     if (response.getDetections().empty())

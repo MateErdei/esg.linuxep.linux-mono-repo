@@ -91,6 +91,7 @@ On Access Log Rotates
     Verify on access log rotated
 
 On Access Process Parses Policy Config
+    Start AV
     Start On Access
 
     Start Fake Management If Required

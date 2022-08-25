@@ -1063,3 +1063,19 @@ Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Register Cleanup  Run IDE update with SUSI loaded
     Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update with SUSI loaded
+
+Start AV
+    ${result} =   ProcessUtils.pidof  ${PLUGIN_BINARY}
+
+    IF  ${result} == ${-1}
+        Remove Files   /tmp/av.stdout  /tmp/av.stderr
+        mark av log
+        mark sophos threat detector log
+        ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+        Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
+        Register Cleanup   Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+        ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+        Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
+        Register Cleanup   Terminate Process  ${AV_PLUGIN_HANDLE}
+        Check AV Plugin Installed With Offset
+    END
