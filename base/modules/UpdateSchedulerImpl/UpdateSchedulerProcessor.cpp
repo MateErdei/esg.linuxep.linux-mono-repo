@@ -773,6 +773,21 @@ namespace UpdateSchedulerImpl
 
         auto* iFileSystem = Common::FileSystem::fileSystem();
 
+        // To check if the SulDownloader is running, we will use pidof to find its process
+        // In 2019 pidof was updated so processes in D state (uninterruptable sleep, usually IO) are no longer detected
+        // https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=926896
+        // Instead, the flag '-z' must be used to enable old behaviour, but the flag doesn't exist on older versions
+        // Both versions return code 0 if process is found, and 1 if it is not.
+        // If the -z flag is run on old version, it gives exit code 1.
+
+        // Here we try pidof without the flag first, and if it fails to find the process, we try with the -z flag
+        // If either command finds the process, then we know for sure the process is still running.
+
+        // If neither command finds the process then we know for sure the process isn't running.
+        // This is because in both versions, one of the commands will always 'tell the truth'.
+        // In old version, the first one, and in the new version, the second one.
+        // But we must try both otherwise we won't be sure that the one we tried 'told the truth'.
+
         std::string pidOfCommand;
         for (std::string candidate : { "/bin/pidof", "/usr/sbin/pidof" })
         {
@@ -806,18 +821,6 @@ namespace UpdateSchedulerImpl
             int exitCode = iProcess->exitCode();
             if (exitCode == 1)
             {
-                // pidof returns 1 if no process with the given name is found, with a caveat.
-                // An update changed the behaviour such that by default process in D state
-                // (uninterruptible sleep, usually I/O) are not listed, unless the -z flag is specified
-                // https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=926896
-                // To allow older versions of pidof to work, we first check it without the flag, and if it fails to
-                // find it as it did here, we try it with the -z flag
-
-                // pidof -z returns 1 if it doesn't find it or if the
-
-                // TODO
-                // This safe to do
-
                 iProcess->exec(pidOfCommand, { "-z", pathOfSulDownloader });
 
                 state = iProcess->wait(Common::Process::milli(10), 1000);
@@ -830,8 +833,6 @@ namespace UpdateSchedulerImpl
                 exitCode = iProcess->exitCode();
                 if (exitCode == 1)
                 {
-                    // Both pidof and pidof -z
-                    // pidof -z returns 1 if no process with the given name is found.
                     UpdateSchedulerUtils::cleanUpMarkerFile();
                     break;
                 }
