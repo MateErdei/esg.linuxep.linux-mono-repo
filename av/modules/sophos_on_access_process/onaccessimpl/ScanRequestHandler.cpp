@@ -47,12 +47,12 @@ std::string ScanRequestHandler::failedToOpen(const int error)
     }
 }
 
-void ScanRequestHandler::scan(std::shared_ptr<scan_messages::ClientScanRequest> scanRequest, datatypes::AutoFd& fd)
+void ScanRequestHandler::scan(std::shared_ptr<scan_messages::ClientScanRequest> scanRequest, std::shared_ptr<datatypes::AutoFd> fd)
 {
     std::string fileToScanPath = scanRequest->getPath();
 
     ClientSocketWrapper socketWrapper(*m_socket, m_notifyPipe);
-    auto response = socketWrapper.scan(fd, *scanRequest);
+    auto response = socketWrapper.scan(*fd, *scanRequest);
 
     std::string errorMsg = common::toUtf8(response.getErrorMsg());
     if (response.getDetections().empty())
@@ -100,8 +100,10 @@ void ScanRequestHandler::run()
 
     while (!stopRequested())
     {
-        auto queueItem = m_scanRequestQueue->pop();
-        datatypes::AutoFd fd(queueItem.second);
-        scan(queueItem.first, fd);
+        ScanRequestQueueItem queueItem;
+        if(m_scanRequestQueue->pop(queueItem))
+        {
+            scan(queueItem.first, queueItem.second);
+        }
     }
 }

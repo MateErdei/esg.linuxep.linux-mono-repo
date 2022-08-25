@@ -41,18 +41,25 @@ TEST_F(TestScanRequestHandler, scanItem)
     EXPECT_TRUE(appenderContains(""));
 }
 
-//TEST_F(TestScanRequestHandler, scanThread)
-//{
-//    auto scanRequestQueue = std::make_shared<ScanRequestQueue>(1);
-//    auto pushRequest1 = std::make_shared<ClientScanRequest>();
-//    pushRequest1->setPath("/tmp/test");
-//    scanRequestQueue->push(pushRequest1, 1);
-//
-//    auto socket = std::make_shared<RecordingMockSocket>();
-//    auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-//        scanRequestQueue, socket);
-//    auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
-//
-//    ASSERT_EQ(socket->m_paths.size(), 1);
-//    EXPECT_EQ(socket->m_paths.at(0), "/tmp/test");
-//}
+TEST_F(TestScanRequestHandler, scanThread)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const char* filePath = "/tmp/test";
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
+    auto scanRequest = std::make_shared<ClientScanRequest>();
+    scanRequest->setPath(filePath);
+    auto fd = std::make_shared<datatypes::AutoFd>();
+    scanRequestQueue->emplace(std::make_pair(scanRequest, fd));
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
+        scanRequestQueue, socket);
+    auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
+
+    std::stringstream logMsg;
+    logMsg << "Detected \"" << filePath << "\" is infected with threatName";
+    EXPECT_TRUE(waitForLog(logMsg.str()));
+    ASSERT_EQ(socket->m_paths.size(), 1);
+    EXPECT_EQ(socket->m_paths.at(0), filePath);
+}

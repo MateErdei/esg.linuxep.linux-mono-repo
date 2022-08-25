@@ -34,7 +34,7 @@ namespace sophos_on_access_process::onaccessimpl
          * Returns pair containing the first scan request and associated file descriptor in the queue (FIFO)
          * Waits to acquire m_lock before attempting to modify the queue
          */
-        ScanRequestQueueItem pop();
+        bool pop(ScanRequestQueueItem& item);
 
         /**
          * Returns the current size of m_queue

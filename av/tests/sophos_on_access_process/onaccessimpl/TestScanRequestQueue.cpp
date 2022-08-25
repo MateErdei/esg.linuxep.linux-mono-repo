@@ -53,10 +53,12 @@ TEST_F(TestScanRequestQueue, push_FIFO)
 
     queue.emplace(std::make_pair(emplaceRequest1, fd1));
     queue.emplace(std::make_pair(emplaceRequest2, fd2));
-    auto popItem1 = queue.pop();
+    ScanRequestQueueItem popItem1;
+    EXPECT_TRUE(queue.pop(popItem1));
     EXPECT_EQ(popItem1.first->getPath(), "1");
     EXPECT_EQ(popItem1.second->fd(), 1);
-    auto popItem2 = queue.pop();
+    ScanRequestQueueItem popItem2;
+    EXPECT_TRUE(queue.pop(popItem2));
     EXPECT_EQ(popItem2.first->getPath(), "2");
     EXPECT_EQ(popItem2.second->fd(), 2);
 }
@@ -80,14 +82,17 @@ TEST_F(TestScanRequestQueue, queueCanProcessMoreItemsThanItsMaxSizeSequentially)
     EXPECT_TRUE(queue.emplace(std::make_pair(emplaceRequest1, fd1)));
     EXPECT_TRUE(queue.emplace(std::make_pair(emplaceRequest2, fd2)));
     EXPECT_FALSE(queue.emplace(std::make_pair(emplaceRequest3, fd3)));
-    auto popItem1 = queue.pop();
+    ScanRequestQueueItem popItem1;
+    EXPECT_TRUE(queue.pop(popItem1));
     EXPECT_EQ(popItem1.first->getPath(), "1");
     EXPECT_EQ(popItem1.second->fd(), 1);
     EXPECT_TRUE(queue.emplace(std::make_pair(emplaceRequest3, fd3)));
-    auto popItem2 = queue.pop();
+    ScanRequestQueueItem popItem2;
+    EXPECT_TRUE(queue.pop(popItem2));
     EXPECT_EQ(popItem2.first->getPath(), "2");
     EXPECT_EQ(popItem2.second->fd(), 2);
-    auto popItem3 = queue.pop();
+    ScanRequestQueueItem popItem3;
+    EXPECT_TRUE(queue.pop(popItem3));
     EXPECT_EQ(popItem3.first->getPath(), "3");
     EXPECT_EQ(popItem3.second->fd(), 3);
 }
