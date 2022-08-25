@@ -46,8 +46,8 @@ On Access Test Setup
 
 On Access Test Teardown
     List AV Plugin Path
-    run teardown functions
     Stop On Access
+    run teardown functions
 
     Check All Product Logs Do Not Contain Error
     Component Test TearDown
@@ -179,6 +179,7 @@ On Access Scans A File When It Is Closed Following A Write
     Start On Access
     Start Fake Management If Required
     FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
+    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
     Force SUSI to be initialized
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
