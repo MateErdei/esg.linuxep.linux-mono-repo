@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<package name="sspl-base" version="1.1.10">
+<package name="sspl-base" version="1.2.0">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -127,7 +127,7 @@
         </build-asset>
 
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/2022-33-linux" build-id="20220805145337-15ff49d1c10dfaee281962b1a9332dc1e326cd05-AYUB2C"/>
+            <release-version branch="release/sspl/Version_1_0_0" build-id="20220825150631-43a7c87ceb5905f316aef54df45de777a5961022-O0LZyf"/>
             <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
