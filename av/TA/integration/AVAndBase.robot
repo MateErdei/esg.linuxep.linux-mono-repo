@@ -367,7 +367,7 @@ AV Configures Single Scheduled Scan Correctly
     Mark AV Log
     Send Fixed Sav Policy
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated
+    Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan
     Wait Until AV Plugin Log Contains With Offset  Days: Monday
@@ -380,7 +380,7 @@ AV Configures Multiple Scheduled Scans Correctly
     Mark AV Log
     Send Sav Policy With Multiple Scheduled Scans
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated
+    Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 2
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan One
     Wait Until AV Plugin Log Contains With Offset  Days: Tuesday Saturday
@@ -398,7 +398,7 @@ AV Handles Scheduled Scan With Badly Configured Day
     Mark AV Log
     Send Sav Policy With Invalid Scan Day
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated
+    Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Invalid day from policy: blernsday
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains With Offset  Days: INVALID
@@ -410,7 +410,7 @@ AV Handles Scheduled Scan With No Configured Day
     Mark Watchdog Log
     Send Sav Policy With No Scan Day
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated
+    Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains With Offset  Days: \n
     Wait Until AV Plugin Log Contains With Offset  Times: 11:00:00
@@ -421,17 +421,18 @@ AV Handles Scheduled Scan With Badly Configured Time
     Mark Av Log
     Send Sav Policy With Invalid Scan Time
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated
+    Wait until scheduled scan updated With Offset
     AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains With Offset  Days: Monday
     Wait Until AV Plugin Log Contains With Offset  Times: 00:00:00
+    Dump Log    ${AV_LOG_PATH}
 
 AV Handles Scheduled Scan With No Configured Time
     Mark Watchdog Log
     Mark AV Log
     Send Sav Policy With No Scan Time
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated
+    Wait until scheduled scan updated With Offset
     AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
     Wait Until AV Plugin Log Contains With Offset  Days: Monday
     Wait Until AV Plugin Log Contains With Offset  Times: \n
