@@ -8,6 +8,7 @@ Library         String
 
 Library         ../Libs/AVScanner.py
 Library         ../Libs/CoreDumps.py
+Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/LockFile.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
@@ -41,15 +42,16 @@ On Access Test Setup
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
+    Register Cleanup  Exclude CustomerID Failed To Read Error
 
 On Access Test Teardown
     List AV Plugin Path
     run teardown functions
     Stop On Access
-    Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
 
     Check All Product Logs Do Not Contain Error
     Component Test TearDown
+    Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
 
 Start On Access
     Remove Files   /tmp/soapd.stdout  /tmp/soapd.stderr
@@ -76,6 +78,7 @@ Dump and Reset Logs
 *** Test Cases ***
 
 On Access Log Rotates
+    Register Cleanup    Exclude On Access Scan Errors
     Dump and Reset Logs
     # Ensure the log is created
     Start On Access
@@ -91,6 +94,7 @@ On Access Log Rotates
     Verify on access log rotated
 
 On Access Process Parses Policy Config
+    Register Cleanup    Exclude On Access Scan Errors
     Start AV
     Start On Access
 
@@ -105,6 +109,7 @@ On Access Process Parses Policy Config
     Wait Until On Access Log Contains  On-access exclusions: ["/mnt/","/uk-filer5/"]
 
 On Access Does Not Include Remote Files If Excluded In Policy
+    Register Cleanup    Exclude On Access Scan Errors
     [Tags]  NFS
     ${source} =       Set Variable  /tmp_test/nfsshare
     ${destination} =  Set Variable  /testmnt/nfsshare
@@ -131,6 +136,7 @@ On Access Does Not Include Remote Files If Excluded In Policy
     On Access Does Not Log Contain With Offset  Including mount point: /testmnt/nfsshare
 
 On Access Monitors Addition And Removal Of Mount Points
+    Register Cleanup    Exclude On Access Scan Errors
     [Tags]  NFS
     Mark On Access Log
     Start On Access
@@ -168,10 +174,12 @@ On Access Monitors Addition And Removal Of Mount Points
     Log  Number of Mount Points: ${totalNumMountsPostNFSumount}
     Should Be Equal As Integers  ${totalNumMountsPostNFSumount}  ${numMountsPreNFSmount}
 
-On Access Logs When A File Is Closed Following Write
+On Access Scans A File When It Is Closed Following A Write
     Mark On Access Log
     Start On Access
     Start Fake Management If Required
+    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
+    Force SUSI to be initialized
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
@@ -183,3 +191,4 @@ On Access Logs When A File Is Closed Following Write
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
     Wait Until On Access Log Contains  On-close event for ${filepath} from PID ${pid} and UID 0
+    Wait Until On Access Log Contains  is infected with

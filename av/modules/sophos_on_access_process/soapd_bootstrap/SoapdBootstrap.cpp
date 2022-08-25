@@ -9,21 +9,26 @@
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
+#include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 // Product
 #include "common/FDUtils.h"
+#include "common/PluginUtils.h"
 #include "common/SaferStrerror.h"
 #include "common/ThreadRunner.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 // Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 // Std C++
 #include <memory>
 // Std C
 #include <poll.h>
+
+#define MAX_SCAN_THREADS 1
 
 namespace fs = sophos_filesystem;
 
@@ -37,9 +42,7 @@ int SoapdBootstrap::runSoapd()
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
-    fs::path socketPath = pluginInstall / "var/soapd_controller";
+    fs::path socketPath = common::getPluginInstallPath() / "var/soapd_controller";
     LOGINFO("Socket is at: " << socketPath);
 
     Common::Threads::NotifyPipe onAccessConfigPipe;
@@ -48,7 +51,7 @@ int SoapdBootstrap::runSoapd()
 
     try
     {
-        innerRun(sigIntMonitor, sigTermMonitor, onAccessConfigPipe, pluginInstall);
+        innerRun(sigIntMonitor, sigTermMonitor, onAccessConfigPipe);
     }
     catch (const std::exception& e)
     {
@@ -63,8 +66,7 @@ int SoapdBootstrap::runSoapd()
 void SoapdBootstrap::innerRun(
     std::shared_ptr<common::signals::SigIntMonitor>& sigIntMonitor,
     std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor,
-    Common::Threads::NotifyPipe pipe,
-    const std::string& pluginInstall)
+    Common::Threads::NotifyPipe pipe)
 {
     mount_monitor::mount_monitor::OnAccessMountConfig config;
     auto scanRequestQueue = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestQueue>();
@@ -72,8 +74,22 @@ void SoapdBootstrap::innerRun(
     auto fanotifyHandler = std::make_unique<FanotifyHandler>(sysCallWrapper);
     auto mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, fanotifyHandler->getFd());
     auto mountMonitorThread = std::make_unique<common::ThreadRunner>(mountMonitor, "mountMonitor", true);
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyHandler->getFd(), sysCallWrapper, pluginInstall, scanRequestQueue);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyHandler->getFd(), sysCallWrapper, common::getPluginInstallPath(), scanRequestQueue);
     auto eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader, "eventReader", false);
+
+    std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
+    auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
+
+    std::vector<std::shared_ptr<common::ThreadRunner>> scanHandlerThreads;
+    for (int count = 0; count < MAX_SCAN_THREADS; ++count)
+    {
+        auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
+            scanRequestQueue, scanningSocket);
+        std::stringstream threadName;
+        threadName << "scanHandler" << count;
+        auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
+        scanHandlerThreads.push_back(scanHandlerThread);
+    }
 
     const int num_fds = 3;
     struct pollfd fds[num_fds];

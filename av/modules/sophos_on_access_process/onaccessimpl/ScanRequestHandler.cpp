@@ -57,6 +57,10 @@ void ScanRequestHandler::scan(std::shared_ptr<scan_messages::ClientScanRequest> 
         ClientSocketWrapper socketWrapper(*m_socket, m_notifyPipe);
         response = socketWrapper.scan(*fd, *scanRequest);
     }
+    catch (const ScanInterruptedException& e)
+    {
+        LOGWARN("Scan aborted: " << e.what());
+    }
     catch (const std::exception& e)
     {
         LOGERROR("Failed to scan " << fileToScanPath << " : " << e.what());
