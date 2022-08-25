@@ -1827,15 +1827,15 @@ AV Scanner stops promptly during a scan
     Wait Until File exists  ${LOG_FILE}
     Wait For File With Particular Contents   \ Scanning\   ${LOG_FILE}
 
+    #Stop Threat detector during a scan
     Stop AV
     register cleanup  Start AV
-    # On some platforms a system scan can complete in 5 seconds so need to keep this sleep short enough that it is still running
-    Sleep   3
 
     Send Signal To Process   SIGINT   handle=${HANDLE}
     ${result} =  Wait For Process  handle=${HANDLE}  timeout=5s
     Process Should Be Stopped  handle=${HANDLE}
 
     Dump Log   ${LOG_FILE}
-    File Log Contains   ${LOG_FILE}  Failed to receive scan response
+    #Depending on whether a scan is being processed or it is being requested one of these 2 errors should appear
+    File Log Contains One of   ${LOG_FILE}  0  Failed to receive scan response  Failed to send scan request
     Should Be Equal As Integers  ${result.rc}  ${MANUAL_INTERUPTION_RESULT}
