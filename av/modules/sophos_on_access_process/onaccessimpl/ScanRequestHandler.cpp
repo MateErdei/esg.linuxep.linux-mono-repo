@@ -64,7 +64,6 @@ void ScanRequestHandler::scan(std::shared_ptr<scan_messages::ClientScanRequest> 
         }
         else
         {
-            LOGINFO(">>> Clean: " << fileToScanPath);
             // Clean file
         }
     }

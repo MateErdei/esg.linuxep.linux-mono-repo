@@ -27,6 +27,8 @@
 // Std C
 #include <poll.h>
 
+#define MAX_SCAN_THREADS 10
+
 namespace fs = sophos_filesystem;
 
 using namespace sophos_on_access_process::soapd_bootstrap;
@@ -75,8 +77,17 @@ void SoapdBootstrap::innerRun(
     auto eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader, "eventReader", false);
 
     std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
-    auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(scanRequestQueue, scanRequestSocketPath);
-    auto scanHandlerThread = std::make_unique<common::ThreadRunner>(scanHandler, "scanHandler", true);
+
+    std::vector<std::shared_ptr<common::ThreadRunner>> scanHandlerThreads;
+    for (int count = 0; count < MAX_SCAN_THREADS; ++count)
+    {
+        auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
+            scanRequestQueue, scanRequestSocketPath);
+        std::stringstream threadName;
+        threadName << "scanHandler" << count;
+        auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
+        scanHandlerThreads.push_back(scanHandlerThread);
+    }
 
     const int num_fds = 3;
     struct pollfd fds[num_fds];
