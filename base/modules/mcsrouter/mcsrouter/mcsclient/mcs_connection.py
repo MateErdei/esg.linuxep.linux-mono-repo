@@ -1091,9 +1091,9 @@ class MCSConnection:
         send_migration_event
         """
         try:
-            self.send_message_with_id("/events/migrate/", event_xml, "PUT")
+            self.send_message_with_id("/events/endpoint/", event_xml, "POST")
         except mcsrouter.utils.xml_helper.XMLException:
-            LOGGER.warning("Event xml rejected")
+            LOGGER.warning("Migrate event XML rejected")
 
     def send_responses(self, responses):
         """

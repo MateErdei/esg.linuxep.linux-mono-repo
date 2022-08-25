@@ -140,7 +140,9 @@ class TestComputer(unittest.TestCase):
     @mock.patch('builtins.open', new_callable=mock_open, read_data="--group=bad<group'name")
     def testGroupStatusXmlWithMalformedGroupOptionInInstallOptionsFile(self, mo, *mockarg):
         def check_log(log):
-            assert log == 'Malformed --group= option, device group will not be set.'
+            if "Failed to parse ALC policy for Products" in log:
+                return
+            self.assertEqual(log, 'Malformed --group= option, device group will not be set.')
         with mock.patch("mcsrouter.adapters.agent_adapter.LOGGER.error", check_log):
             adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
             status_xml = adapter.get_common_status_xml()
@@ -154,7 +156,9 @@ class TestComputer(unittest.TestCase):
     @mock.patch('builtins.open', new_callable=mock_open, read_data="--group=")
     def test_group_status_xml_with_empty_group_option(self, mo, *mockarg):
         def check_log(log):
-            assert log == 'Malformed --group= option, device group will not be set.'
+            if "Failed to parse ALC policy for Products" in log:
+                return
+            self.assertEqual(log, 'Malformed --group= option, device group will not be set.')
         with mock.patch("mcsrouter.adapters.agent_adapter.LOGGER.error", check_log):
             adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
             status_xml = adapter.get_common_status_xml()
@@ -329,6 +333,68 @@ class TestComputer(unittest.TestCase):
                 with mock.patch("mcsrouter.computer.glob.glob", glog_action) as glob_i:
                     c.run_commands(commands)
             mock_i.assert_called_once_with(temp_file_name, final_file_name)
+
+    @mock.patch("subprocess.Popen", return_value=FakePopen())
+    @mock.patch("subprocess.check_output", return_value=b'some-hostname')
+    @mock.patch("os.path.isfile", return_value=True)
+    @mock.patch("mcsrouter.ip_address.get_non_local_ipv6", return_value=[])
+    @mock.patch("mcsrouter.ip_address.get_non_local_ipv4", return_value=[])
+    @mock.patch('builtins.open', new_callable=mock_open, read_data='<?xml version="1.0"?><AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig"><Products><Product id="antivirus"/><Product id="mdr"/><Product id="xdr"/></Products></AUConfigurations>')
+    def test_products_added_to_agent_status(self, mo, *mockarg):
+        adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
+        status_xml = adapter.get_common_status_xml()
+        self.assertIn('<products><product>antivirus</product><product>mdr</product><product>xdr</product></products>', status_xml)
+
+    @mock.patch("mcsrouter.adapters.agent_adapter.os.path.isfile", return_value=True)
+    @mock.patch("builtins.open", new_callable=mock_open, read_data="")
+    def test_get_products_handles_empty_file(self, *mock_args):
+        products = mcsrouter.adapters.agent_adapter.get_products()
+        self.assertEqual([], products)
+
+    @mock.patch("mcsrouter.adapters.agent_adapter.os.path.isfile", return_value=False)
+    def test_get_products_handles_handles_missing_file(self, *mock_args):
+        products = mcsrouter.adapters.agent_adapter.get_products()
+        self.assertEqual([], products)
+
+    def test_get_products_handles_handles_permissions_error(self):
+        def mocked_is_file(path):
+            return path == '/tmp/sophos-spl/base/mcs/policy/ALC-1_policy.xml'
+
+        def throw_permissions_error(_):
+            raise PermissionError()
+
+        def check_log(log):
+            self.assertEqual(log, 'Insufficient permissions to read /tmp/sophos-spl/base/mcs/policy/ALC-1_policy.xml file, products will not be set in agent status')
+
+        with mock.patch("mcsrouter.adapters.agent_adapter.os.path.isfile", mocked_is_file):
+            with mock.patch("builtins.open", throw_permissions_error):
+                with mock.patch("mcsrouter.adapters.agent_adapter.LOGGER.error", check_log):
+                    products = mcsrouter.adapters.agent_adapter.get_products()
+                    self.assertEqual([], products)
+
+    @mock.patch("subprocess.Popen", return_value=FakePopen())
+    @mock.patch("subprocess.check_output", return_value=b'some-hostname')
+    @mock.patch("os.path.isfile", return_value=True)
+    @mock.patch("mcsrouter.ip_address.get_non_local_ipv6", return_value=[])
+    @mock.patch("mcsrouter.ip_address.get_non_local_ipv4", return_value=[])
+    @mock.patch('builtins.open', new_callable=mock_open, read_data='<?xml garbage string ')
+    def test_get_products_handles_malformed_xml(self, mo, *mockarg):
+        adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
+        status_xml = adapter.get_common_status_xml()
+        self.assertIn('<commonComputerStatus>', status_xml)
+        self.assertNotIn('<products>', status_xml)
+
+    @mock.patch("subprocess.Popen", return_value=FakePopen())
+    @mock.patch("subprocess.check_output", return_value=b'some-hostname')
+    @mock.patch("os.path.isfile", return_value=True)
+    @mock.patch("mcsrouter.ip_address.get_non_local_ipv6", return_value=[])
+    @mock.patch("mcsrouter.ip_address.get_non_local_ipv4", return_value=[])
+    @mock.patch('builtins.open', new_callable=mock_open, read_data='<Products></Products>')
+    def test_get_products_handles_empty_products_node(self, mo, *mockarg):
+        adapter = mcsrouter.adapters.agent_adapter.AgentAdapter()
+        status_xml = adapter.get_common_status_xml()
+        self.assertIn('<commonComputerStatus>', status_xml)
+        self.assertNotIn('<products></products>', status_xml)
 
 if __name__ == '__main__':
     unittest.main()

@@ -845,6 +845,9 @@ class MCS:
 
                     if self.should_generate_new_jwt_token():
                         comms.set_jwt_token_settings()
+                        # Status needs to contain device ID and tenant ID
+                        self.__m_agent.set_device_id_for_status(comms.m_device_id)
+                        self.__m_agent.set_tenant_id_for_status(comms.m_tenant_id)
 
                     # get all pending datafeeds
                     gather_datafeed_files()

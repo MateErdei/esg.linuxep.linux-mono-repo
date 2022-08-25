@@ -9,6 +9,8 @@ import subprocess
 import sys
 import time
 
+import xml.parsers.expat
+
 import mcsrouter.adapters.adapter_base
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.target_system_manager
@@ -58,7 +60,7 @@ class ComputerCommonStatus:
     """
     # pylint: disable=too-many-instance-attributes, too-few-public-methods
 
-    def __init__(self, target_system):
+    def __init__(self, target_system, device_id: str, tenant_id: str):
         """
         __init__
         """
@@ -72,6 +74,9 @@ class ComputerCommonStatus:
         self.ipv6s = [format_ipv6(i) for i in self.ipv6s]
         # The group that was passed into the thin installer with --group=<group> during installation
         self.install_time_central_group = get_installation_device_group()
+        self.device_id = device_id
+        self.tenant_id = tenant_id
+        self.products = get_products()
 
         mac_addresses = []
         try:
@@ -126,6 +131,18 @@ class ComputerCommonStatus:
 
         if self.install_time_central_group:
             result.append(f"<deviceGroup>{self.install_time_central_group}</deviceGroup>")
+
+        if self.device_id:
+            result.append(f"<deviceId>{self.device_id}</deviceId>")
+
+        if self.tenant_id:
+            result.append(f"<tenantId>{self.tenant_id}</tenantId>")
+
+        if self.products is not None and len(self.products) > 0:
+            result.append("<products>")
+            for product in self.products:
+                result.append(f"<product>{product}</product>")
+            result.append("</products>")
 
         if self.ipv4s or self.ipv6s:
             result.append("<ipAddresses>")
@@ -216,6 +233,41 @@ def get_installation_device_group():
         LOGGER.error("Malformed --group= option, device group will not be set.")
     return None
 
+
+def get_products():
+    """
+    get_products
+    Parse the ALC policy and return the products which are needed in the agent status XML
+    """
+    alc_policy_file_path = path_manager.alc_policy_file()
+    product_names = []
+    try:
+        if os.path.isfile(alc_policy_file_path):
+            with open(alc_policy_file_path) as alc_policy_file:
+                xml_str = alc_policy_file.read()
+            xml_obj = mcsrouter.utils.xml_helper.parseString(xml_str)
+            products = xml_obj.getElementsByTagName("Products")
+            if len(products) != 1:
+                LOGGER.debug("No Products in ALC policy, cannot add Products to Agent status")
+                return None
+            products = products[0].getElementsByTagName("Product")
+            if len(products) < 1:
+                LOGGER.debug("No Product entries in Products node in ALC policy, cannot add Products to Agent status")
+                return None
+            for product in products:
+                product_id = product.getAttribute("id")
+                if product_id:
+                    product_names.append(product_id)
+                    LOGGER.debug(f"Adding {product_id} to Products in Agent status")
+    except xml.parsers.expat.ExpatError as ex:
+        LOGGER.error(f"Failed to parse ALC policy for Products, products will not be set in agent status. Exception: {ex}")
+    except PermissionError:
+        LOGGER.error(f"Insufficient permissions to read {alc_policy_file_path} file, products will not be set in agent status")
+    except Exception as ex:
+        LOGGER.error(f"Exception thrown when parsing ALC policy for Products, products will not be set in agent status. Exception: {ex}")
+    return product_names
+
+
 class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
     """
     AgentAdapter
@@ -231,6 +283,8 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             path_manager.INST = install_dir
         self.__m_common_status = None
         self.__m_created_time = None
+        self.__device_id = None
+        self.__tenant_id = None
 
     def get_app_id(self):
         """
@@ -277,6 +331,12 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         return """</ns:computerStatus>"""
 
+    def set_device_id_for_status(self, device_id: str):
+        self.__device_id = device_id
+
+    def set_tenant_id_for_status(self, tenant_id: str):
+        self.__tenant_id = tenant_id
+
     def __target_system(self):
         """
         __target_system
@@ -299,7 +359,7 @@ class AgentAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         target_system = self.__target_system()
         assert target_system is not None
         self.__m_created_time = time.time()
-        return ComputerCommonStatus(target_system)
+        return ComputerCommonStatus(target_system, self.__device_id, self.__tenant_id)
 
 
     def has_new_status(self):

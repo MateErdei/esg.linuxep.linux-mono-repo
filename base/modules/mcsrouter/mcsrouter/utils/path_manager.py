@@ -140,6 +140,13 @@ def mcs_policy_file():
     return os.path.join(policy_dir(), "MCS-25_policy.xml")
 
 
+def alc_policy_file():
+    """
+    alc_policy_file, this is the updating policy.
+    """
+    return os.path.join(policy_dir(), "ALC-1_policy.xml")
+
+
 def sophos_config_file():
     """
     sophos_config_file

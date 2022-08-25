@@ -140,7 +140,7 @@ class TestGenericAdapter(unittest.TestCase):
     @mock.patch('mcsrouter.adapters.agent_adapter.ComputerCommonStatus.get_mac_addresses', return_value=["12:34:56:78:12:34"])
     def testComputerStatus(self, *mockargs):
         target_system = mcsrouter.utils.target_system_manager.get_target_system('/tmp/sophos-spl')
-        status_xml = agent_adapter.ComputerCommonStatus(target_system).to_status_xml()
+        status_xml = agent_adapter.ComputerCommonStatus(target_system, "DeviceID", "TenantID").to_status_xml()
         self.assertNotIn("b'", status_xml)
 
     def test_convert_ttl_to_epoch_time_with_ttl_10000(self):
