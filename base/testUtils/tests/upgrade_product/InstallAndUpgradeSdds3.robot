@@ -180,25 +180,16 @@ SDDS3 updating with changed unused feature codes do not change version
     [Setup]    Test Setup With Ostia
     [Teardown]    Test Teardown With Ostia
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080  force_sdds3_post_install=${True}
 
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
-    Check Local SDDS2 Cache Has Contents
-
-    Create Local SDDS3 Override
-    Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
 
     ${BaseVersionBeforeUpdate} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     ${MtrVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
@@ -208,6 +199,7 @@ SDDS3 updating with changed unused feature codes do not change version
     ${RuntimeDetectionsVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
     ${EJVersionBeforeUpdate} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
 
+    Override LogConf File as Global Level  DEBUG
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_fake_feature_codes_policy.xml  wait_for_policy=${True}
     Trigger Update Now
     Wait Until Keyword Succeeds
@@ -231,7 +223,29 @@ SDDS3 updating with changed unused feature codes do not change version
     Should Be Equal As Strings  ${EJVersionBeforeUpdate}  ${EJVersionAfterUpdate}
     Should Be Equal As Strings  ${BaseVersionBeforeUpdate}  ${BaseVersionAfterUpdate}
 
+SDDS3 updating when warehouse files have not changed does not extract the zip files
+    [Setup]    Test Setup With Ostia
+    [Teardown]    Test Teardown With Ostia
 
+    Start Local Cloud Server
+    ${handle}=  Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080  force_sdds3_post_install=${True}
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  3
+    Check Log Contains String N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file  3
+
+    check_log_does_not_contain    extract_to  ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
 We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False Then Update Using SDDS3 When Flag Turns True
     [Setup]    Test Setup With Ostia
     [Teardown]    Test Teardown With Ostia

@@ -550,8 +550,10 @@ namespace SulDownloader
         }
     }
 
-    std::pair<bool, IRepositoryPtr> updateFromSDDS3Repository( const ConfigurationData& configurationData,
-                                                              bool supplementOnly)
+    std::pair<bool, IRepositoryPtr> updateFromSDDS3Repository(const ConfigurationData& configurationData,
+                                                              const bool supplementOnly,
+                                                              const suldownloaderdata::DownloadReport& previousDownloadReport,
+                                                              const bool forceReinstallAllProducts)
     {
 
         auto susCandidates = populateSdds3SUSConnectionCandidates(configurationData);
@@ -615,7 +617,23 @@ namespace SulDownloader
             LOGERROR("Failed to synchronize repository: " << repository->getError().Description);
             return std::make_pair(false, std::move(repository));
         }
+        if (forceReinstallAllProducts)
+        {
+            repository->setWillInstall(true);
+        }
+        else
+        {
+            auto products = repository->getProducts();
+            for (auto& product : products)
+            {
+                bool forceReinstallThisProduct = forceInstallOfProduct(product, previousDownloadReport);
 
+                if (forceReinstallThisProduct)
+                {
+                    repository->setWillInstall(true);
+                }
+            }
+        }
         repository->distribute();
         if(repository->hasError())
         {
@@ -750,7 +768,8 @@ namespace SulDownloader
             LOGINFO("Running in SDDS3 updating mode");
             // Make sure root directories are created
             createSdds3UpdateCacheFolders();
-            repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly);
+            repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly, previousDownloadReport,
+                                                         forceReinstallAllProducts);
         }
         else
         {

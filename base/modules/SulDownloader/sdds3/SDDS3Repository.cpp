@@ -452,6 +452,7 @@ namespace SulDownloader
                 if (packageToInstall.lineId_ == package.lineId_)
                 {
                     product.setProductHasChanged(true);
+                    m_willInstall = true;
                     break;
                 }
             }
@@ -460,6 +461,7 @@ namespace SulDownloader
             {
                 LOGDEBUG("Already downloaded product requires install: " << product.getLine());
                 product.setProductHasChanged(true);
+                m_willInstall = true;
             }
 
             if (m_supplementOnly)
@@ -473,7 +475,15 @@ namespace SulDownloader
                         break;
                     }
                 }
-                product.setProductHasChanged(product.productHasChanged() && packageContainsSupplement);
+                if (product.productHasChanged() && packageContainsSupplement)
+                {
+                    product.setProductHasChanged(true);
+                    m_willInstall = true;
+                }
+                else
+                {
+                    product.setProductHasChanged(false);
+                }
             }
 
             // Don't install features we don't want
@@ -508,9 +518,14 @@ namespace SulDownloader
         }
     }
 
+    void SDDS3Repository::setWillInstall(const bool willInstall)
+    {
+        m_willInstall = willInstall;
+    }
+
     void SDDS3Repository::distribute()
     {
-        if (hasError())
+        if (hasError()  || !m_willInstall)
         {
             return;
         }

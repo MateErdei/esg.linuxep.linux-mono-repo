@@ -26,6 +26,7 @@ public:
     MOCK_METHOD3(synchronize, bool(const suldownloaderdata::ConfigurationData& configurationData,const suldownloaderdata::ConnectionSetup& connectionSetup,const bool ignoreFailedSupplementRefresh));
     MOCK_METHOD0(distribute, void(void));
     MOCK_CONST_METHOD0(purge, void(void));
+    MOCK_METHOD1(setWillInstall, void(const bool willInstall));
     MOCK_CONST_METHOD0(getProducts, std::vector<suldownloaderdata::DownloadedProduct>(void));
     MOCK_CONST_METHOD0(getSourceURL, std::string(void));
 

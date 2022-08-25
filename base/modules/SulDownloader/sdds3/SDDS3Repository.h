@@ -46,7 +46,7 @@ namespace SulDownloader
             const suldownloaderdata::ConnectionSetup& connectionSetup,
             const bool ignoreFailedSupplementRefresh) override;
         void distribute() override;
-
+        void setWillInstall(const bool willInstall) override;
         /***
          * Updates the m_product 'vector' using the primaryRigidName value to determine
          * Which product should be first in the list.
@@ -79,5 +79,6 @@ namespace SulDownloader
         SDDS3::SusData m_dataToSync;
         std::string m_sourceUrl;
         std::vector<std::string> m_configFeatures;
+        bool m_willInstall = false;
     };
 } // namespace SulDownloader

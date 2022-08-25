@@ -47,6 +47,7 @@ namespace SulDownloader
                 const suldownloaderdata::ConnectionSetup& connectionSetup,
                 bool supplementOnly,
                 const suldownloaderdata::ConfigurationData& configurationData) = 0;
+            virtual void setWillInstall(const bool willInstall) = 0;
         };
 
         using ISDDS3RepositoryPtr = std::unique_ptr<ISdds3Repository>;
