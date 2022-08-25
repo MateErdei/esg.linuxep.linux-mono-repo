@@ -3,6 +3,7 @@
 #pragma once
 
 #include "mount_monitor/mount_monitor/MountMonitor.h"
+#include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
 
 #include "common/signals/SigIntMonitor.h"
 #include "common/signals/SigTermMonitor.h"
@@ -19,6 +20,10 @@ namespace sophos_on_access_process::soapd_bootstrap
             std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor,
             Common::Threads::NotifyPipe onAccessConfigPipe,
             Common::Threads::NotifyPipe usePolicyOverridePipe,
-            Common::Threads::NotifyPipe useFlagOverridePipe);
+            Common::Threads::NotifyPipe useFlagOverridePipe,
+            const std::string& pluginInstall);
+
+        static sophos_on_access_process::OnAccessConfig::OnAccessConfiguration getConfiguration(
+            std::shared_ptr<mount_monitor::mount_monitor::MountMonitor>& mountMonitor);
     };
 }
