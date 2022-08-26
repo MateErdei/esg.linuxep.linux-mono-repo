@@ -52,4 +52,4 @@ version:
 
   # For sprint builds, specify the sprint; automatically used in suite marketing versions
   # For non-sprint release builds, just comment this out or use 'null'
-  sprint: '2022.36'
+  #sprint: '2022.36'
