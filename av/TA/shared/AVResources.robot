@@ -1080,3 +1080,30 @@ Start AV
         Register Cleanup   Terminate Process  ${AV_PLUGIN_HANDLE}
         Check AV Plugin Installed With Offset
     END
+
+Copy And Extract Image
+    [Arguments]  ${imagename}
+    ${imagetarfile} =  Set Variable  ${RESOURCES_PATH}/filesystem_type_images/${imagename}.img.tgz
+
+    ${UNPACK_DIRECTORY} =  Set Variable  ${NORMAL_DIRECTORY}/${imagename}.IMG
+    Create Directory  ${UNPACK_DIRECTORY}
+    Register Cleanup  Remove Directory  ${UNPACK_DIRECTORY}  recursive=True
+    ${result} =  Run Process  tar  xvzf  ${imagetarfile}  -C  ${UNPACK_DIRECTORY}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+    [Return]  ${UNPACK_DIRECTORY}/${imagename}.img
+
+Unmount Image
+    [Arguments]  ${where}
+    Run Shell Process   umount ${where}   OnError=Failed to unmount local NFS share
+    Remove Directory    ${where}  recursive=True
+
+Mount Image
+    [Arguments]  ${where}  ${image}  ${type}  ${opts}=loop
+    Create Directory  ${where}
+    ${result} =  Run Process  mount  -t  ${type}  -o  ${opts}  ${image}  ${where}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+    Register Cleanup  Unmount Image  ${where}
