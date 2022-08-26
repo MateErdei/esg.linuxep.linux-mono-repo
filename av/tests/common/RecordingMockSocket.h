@@ -117,7 +117,7 @@ namespace
             return 0;
         }
 
-        bool sendRequest(datatypes::AutoFd&, const scan_messages::ClientScanRequest&) override
+        bool sendRequest(scan_messages::ClientScanRequestPtr) override
         {
             if (m_scanInterrupted)
             {

@@ -172,6 +172,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
     logMsg << "unknown operation mask: " << std::hex << metadata.mask;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_EQ(scanRequestQueue->size(), 0);
 }
 
 TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
@@ -361,5 +362,8 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
     eventReaderThread.requestStopIfNotStopped();
 
     EXPECT_EQ(scanRequestQueue->size(), 1);
-    EXPECT_NE(scanRequestQueue->pop()->getAutoFd()->fd(), -1);
+    auto popItem = scanRequestQueue->pop();
+    EXPECT_EQ(scanRequestQueue->size(), 0);
+    EXPECT_TRUE(popItem != nullptr);
+    EXPECT_NE(popItem->getAutoFd()->fd(), -1);
 }

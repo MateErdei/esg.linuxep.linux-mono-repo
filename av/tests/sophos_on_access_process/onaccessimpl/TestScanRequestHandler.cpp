@@ -27,18 +27,17 @@ TEST_F(TestScanRequestHandler, scan_fileDetected)
     const char* filePath = "/tmp/test";
     auto scanRequest = std::make_shared<ClientScanRequest>();
     scanRequest->setPath(filePath);
-    datatypes::AutoFd fd;
 
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
         nullptr, socket);
-    scanHandler->scan(scanRequest, fd);
+    scanHandler->scan(scanRequest);
 
     ASSERT_EQ(socket->m_paths.size(), 1);
     EXPECT_EQ(socket->m_paths.at(0), filePath);
     std::stringstream logMsg;
-    logMsg << "Detected " << filePath << " is infected with threatName";
-    EXPECT_TRUE(appenderContains(""));
+    logMsg << "Detected \"" << filePath << "\" is infected with threatName";
+    EXPECT_TRUE(appenderContains(logMsg.str()));
 }
 
 TEST_F(TestScanRequestHandler, scan_error)
@@ -48,12 +47,11 @@ TEST_F(TestScanRequestHandler, scan_error)
     const char* filePath = "/tmp/test";
     auto scanRequest = std::make_shared<ClientScanRequest>();
     scanRequest->setPath(filePath);
-    auto fd = std::shared_ptr<datatypes::AutoFd>();
 
     auto socket = std::make_shared<ExceptionThrowingTestSocket>(false);
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
         nullptr, socket);
-    scanHandler->scan(scanRequest, fd);
+    scanHandler->scan(scanRequest);
 
     std::stringstream logMsg;
     logMsg << "Failed to scan " << filePath << " : Failed to send scan request";
@@ -67,12 +65,11 @@ TEST_F(TestScanRequestHandler, scan_errorWhenShuttingDown)
     const char* filePath = "/tmp/test";
     auto scanRequest = std::make_shared<ClientScanRequest>();
     scanRequest->setPath(filePath);
-    auto fd = std::shared_ptr<datatypes::AutoFd>();
 
     auto socket = std::make_shared<ExceptionThrowingTestSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
         nullptr, socket);
-    scanHandler->scan(scanRequest, fd);
+    scanHandler->scan(scanRequest);
 
     EXPECT_TRUE(appenderContains("Scan aborted: Scanner received stop notification"));
 }
@@ -88,9 +85,8 @@ TEST_F(TestScanRequestHandler, scan_threadPopsAllItemsFromQueue)
     scanRequest1->setPath(filePath1);
     auto scanRequest2 = std::make_shared<ClientScanRequest>();
     scanRequest2->setPath(filePath2);
-    auto fd = std::make_shared<datatypes::AutoFd>();
-    scanRequestQueue->emplace(std::make_pair(scanRequest1, fd));
-    scanRequestQueue->emplace(std::make_pair(scanRequest2, fd));
+    scanRequestQueue->emplace(scanRequest1);
+    scanRequestQueue->emplace(scanRequest2);
 
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(

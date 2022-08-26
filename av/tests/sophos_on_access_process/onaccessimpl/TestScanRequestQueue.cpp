@@ -20,16 +20,12 @@ namespace
 TEST_F(TestScanRequestQueue, push_onlyEnqueuesUpToMaxSize)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto fd1 = std::make_shared<datatypes::AutoFd>(1);
-    auto fd2 = std::make_shared<datatypes::AutoFd>(2);
 
     ScanRequestQueue queue(1);
     auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
     emplaceRequest1->setUserID("1");
-    emplaceRequest1->setAutoFd(fd1);
     auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
     emplaceRequest2->setUserID("2");
-    emplaceRequest2->setAutoFd(fd2);
 
     EXPECT_EQ(queue.size(), 0);
     EXPECT_TRUE(queue.emplace(emplaceRequest1));
@@ -44,57 +40,45 @@ TEST_F(TestScanRequestQueue, push_FIFO)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto fd1 = std::make_shared<datatypes::AutoFd>(1);
-    auto fd2 = std::make_shared<datatypes::AutoFd>(2);
-
     ScanRequestQueue queue(2);
     auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
     emplaceRequest1->setPath("1");
-    emplaceRequest1->setAutoFd(fd1);
     auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
     emplaceRequest2->setPath("2");
-    emplaceRequest2->setAutoFd(fd2);
 
     queue.emplace(emplaceRequest1);
     queue.emplace(emplaceRequest2);
     auto popItem1 = queue.pop();
+    EXPECT_TRUE(popItem1 != nullptr);
     EXPECT_EQ(popItem1->getPath(), "1");
-    EXPECT_EQ(popItem1->getAutoFd()->fd(), 1);
     auto popItem2 = queue.pop();
+    EXPECT_TRUE(popItem2 != nullptr);
     EXPECT_EQ(popItem2->getPath(), "2");
-    EXPECT_EQ(popItem2->getAutoFd()->fd(), 2);
 }
 
 TEST_F(TestScanRequestQueue, queueCanProcessMoreItemsThanItsMaxSizeSequentially)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto fd1 = std::make_shared<datatypes::AutoFd>(1);
-    auto fd2 = std::make_shared<datatypes::AutoFd>(2);
-    auto fd3 = std::make_shared<datatypes::AutoFd>(3);
-
     ScanRequestQueue queue(2);
     auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
     emplaceRequest1->setPath("1");
-    emplaceRequest1->setAutoFd(fd1);
     auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
     emplaceRequest2->setPath("2");
-    emplaceRequest2->setAutoFd(fd2);
     auto emplaceRequest3 = std::make_shared<ClientScanRequest>();
     emplaceRequest3->setPath("3");
-    emplaceRequest3->setAutoFd(fd3);
 
     EXPECT_TRUE(queue.emplace(emplaceRequest1));
     EXPECT_TRUE(queue.emplace(emplaceRequest2));
     EXPECT_FALSE(queue.emplace(emplaceRequest3));
     auto popItem1 = queue.pop();
+    EXPECT_TRUE(popItem1 != nullptr);
     EXPECT_EQ(popItem1->getPath(), "1");
-    EXPECT_EQ(popItem1->getAutoFd()->fd(), 1);
     EXPECT_TRUE(queue.emplace(emplaceRequest3));
     auto popItem2 = queue.pop();
+    EXPECT_TRUE(popItem2 != nullptr);
     EXPECT_EQ(popItem2->getPath(), "2");
-    EXPECT_EQ(popItem2->getAutoFd()->fd(), 2);
     auto popItem3 = queue.pop();
+    EXPECT_TRUE(popItem3 != nullptr);
     EXPECT_EQ(popItem3->getPath(), "3");
-    EXPECT_EQ(popItem3->getAutoFd()->fd(), 3);
 }

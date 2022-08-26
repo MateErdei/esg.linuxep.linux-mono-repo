@@ -19,7 +19,7 @@ namespace sophos_on_access_process::onaccessimpl
             std::shared_ptr<unixsocket::IScanningClientSocket> socket);
 
         void run();
-        void scan(std::shared_ptr<scan_messages::ClientScanRequest> scanRequest, datatypes::AutoFd& fd);
+        void scan(scan_messages::ClientScanRequestPtr scanRequest);
 
     private:
         std::string failedToOpen(const int error);

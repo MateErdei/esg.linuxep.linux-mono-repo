@@ -5,6 +5,7 @@
 #include "Logger.h"
 
 using namespace sophos_on_access_process::onaccessimpl;
+using namespace std::chrono_literals;
 
 ScanRequestQueue::ScanRequestQueue(size_t maxSize)
     : m_maxSize(maxSize)
@@ -34,14 +35,20 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
     }
 }
 
-ClientScanRequestPtr ScanRequestQueue::pop()
+ ClientScanRequestPtr ScanRequestQueue::pop()
 {
     std::unique_lock<std::mutex> lock(m_lock);
     // release lock as long as the wait and re-aquire it afterwards.
-    m_condition.wait(lock, [this]{ return !m_queue.empty(); });
-    auto scanRequest = m_queue.front();
-    m_queue.pop();
-    return scanRequest;
+    if (m_condition.wait_for(lock, 100ms, [this]{ return !m_queue.empty(); }))
+    {
+        auto request = m_queue.front();
+        m_queue.pop();
+        return request;
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 size_t ScanRequestQueue::size() const
