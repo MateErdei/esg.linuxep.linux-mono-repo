@@ -181,6 +181,10 @@ void verifyObfuscate(const std::string& input)
     {
         return;
     }
+    catch (std::invalid_argument& e)
+    {
+        return;
+    }
     catch (std::exception& ex)
     {
         std::string reason = ex.what();
