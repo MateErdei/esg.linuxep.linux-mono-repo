@@ -13,6 +13,7 @@ Library         ../Libs/LockFile.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
 Library         ../Libs/LogUtils.py
+Library         ../Libs/ThreatReportUtils.py
 
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/ComponentSetup.robot
@@ -74,6 +75,12 @@ Dump and Reset Logs
     Register Cleanup   Remove File      ${AV_PLUGIN_PATH}/log/av.log*
     Register Cleanup   Remove File      ${AV_PLUGIN_PATH}/log/soapd.log*
     Register Cleanup   Dump log         ${AV_PLUGIN_PATH}/log/soapd.log
+
+Enable OA Scanning
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until On Access Log Contains  On-access enabled: "true"
+    Wait Until On Access Log Contains  Starting eventReader
 
 *** Test Cases ***
 
@@ -182,11 +189,8 @@ On Access Scans A File When It Is Closed Following A Write
     Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
     Force SUSI to be initialized
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains  On-access enabled: "true"
+    Enable OA Scanning
 
-    Wait Until On Access Log Contains  Starting eventReader
     ${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  /tmp_test/eicar.com
     Create File  ${filepath}  ${EICAR_STRING}
@@ -204,10 +208,7 @@ On Access Scans File Created By non-root User
 
     Create File  /tmp/eicar     ${EICAR_STRING}
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains  On-access enabled: "true"
-    Wait Until On Access Log Contains  Starting eventReader
+    Enable OA Scanning
 
     ${command} =    Set Variable    cp /tmp/eicar /tmp/eicar_oa_test
     ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
@@ -227,10 +228,7 @@ On Access Scans File Created Under A Long Path
     Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
     Force SUSI to be initialized
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains  On-access enabled: "true"
-    Wait Until On Access Log Contains  Starting eventReader
+    Enable OA Scanning
 
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  long_dir_eicar  ${EICAR_STRING}
 
@@ -242,4 +240,20 @@ On Access Scans File Created Under A Long Path
     Wait Until On Access Log Contains  Failed to get path from fd: File name too long
     On Access Does Not Log Contain     silly_long_dir_eicar
 
-    Dump Log   ${ON_ACCESS_LOG_PATH}
+
+On Access Scans Encoded Eicars
+    Mark On Access Log
+    Mark AV Log
+    Start On Access
+    Start Fake Management If Required
+    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
+    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+    Force SUSI to be initialized
+
+    Enable OA Scanning
+
+    Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
+    ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
+    Log Many  ${result.stdout}  ${result.stderr}
+
+    wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars    60
