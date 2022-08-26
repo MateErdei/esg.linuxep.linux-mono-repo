@@ -94,11 +94,13 @@ Exclude As Corrupted
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is corrupted
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is corrupted
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  as it is corrupted
+    mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}  as it is corrupted
 
 Exclude As Password Protected
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is password protected
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  as it is password protected
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  as it is password protected
+    mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}  as it is password protected
 
 Exclude As Zip Bomb
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  as it is a Zip Bomb

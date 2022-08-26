@@ -46,14 +46,13 @@ On Access Test Setup
     Register Cleanup  Exclude CustomerID Failed To Read Error
 
 On Access Test Teardown
-    Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
-    Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
     List AV Plugin Path
     Stop On Access
     run teardown functions
 
     Check All Product Logs Do Not Contain Error
     Component Test TearDown
+    Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
 
 Start On Access
     Remove Files   /tmp/soapd.stdout  /tmp/soapd.stderr
@@ -241,6 +240,7 @@ On Access Scans File Created Under A Long Path
     Wait Until On Access Log Contains  Failed to get path from fd: File name too long
     On Access Does Not Log Contain     silly_long_dir_eicar
 
+
 On Access Scans Encoded Eicars
     Mark On Access Log
     Mark AV Log
@@ -258,8 +258,11 @@ On Access Scans Encoded Eicars
 
     wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars    60
 
-On Access Scans File On BFS
+On Access Scans Password Protected Eicar
+    Register Cleanup    Exclude As Password Protected
+
     Mark On Access Log
+    Mark AV Log
     Start On Access
     Start Fake Management If Required
     FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
@@ -268,22 +271,16 @@ On Access Scans File On BFS
 
     Enable OA Scanning
 
-    ${image} =  Copy And Extract Image  bfsFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  bfs
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Register Cleanup   Remove File  /tmp/passwd-protected.xls
+    Copy File  ${RESOURCES_PATH}/file_samples/passwd-protected.xls  /tmp/
 
-    ${pid} =  Get Robot Pid
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains  passwd-protected.xls as it is password protected
 
-On Access Scans File On CRAMFS
-    [Tags]  MANUAL
-    # TODO: Fix this test
+On Access Scans Corrupted Eicar
+    Register Cleanup     Exclude As Corrupted
+
     Mark On Access Log
+    Mark AV Log
     Start On Access
     Start Fake Management If Required
     FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
@@ -292,245 +289,7 @@ On Access Scans File On CRAMFS
 
     Enable OA Scanning
 
-    ${image} =  Copy And Extract Image  cramfsFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  cramfs
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Register Cleanup   Remove File  /tmp/corrupted.xls
+    Copy File  ${RESOURCES_PATH}/file_samples/corrupted.xls  /tmp/
 
-    ${pid} =  Get Robot Pid
-    ${command} =    Set Variable    cat ${NORMAL_DIRECTORY}/mount/eicar.com > /dev/null
-    ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
-    ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
-    Log   ${output}
-
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID
-    Wait Until On Access Log Contains  is infected with
-
-On Access Scans File On EXT2
-    Mark On Access Log
-    Start On Access
-    Start Fake Management If Required
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Force SUSI to be initialized
-
-    Enable OA Scanning
-
-    ${image} =  Copy And Extract Image  ext2FileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  ext2
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
-
-On Access Scans File On EXT3
-    Mark On Access Log
-    Start On Access
-    Start Fake Management If Required
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Force SUSI to be initialized
-
-    Enable OA Scanning
-
-    ${image} =  Copy And Extract Image  ext3FileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  ext3
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
-
-On Access Scans File On EXT4
-    Mark On Access Log
-    Start On Access
-    Start Fake Management If Required
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Force SUSI to be initialized
-
-    Enable OA Scanning
-
-    ${image} =  Copy And Extract Image  ext4FileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  ext4
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
-
-On Access Scans File On MINIX
-    Mark On Access Log
-    Start On Access
-    Start Fake Management If Required
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Force SUSI to be initialized
-
-    Enable OA Scanning
-
-    ${image} =  Copy And Extract Image  minixFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  minix
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
-
-On Access Scans File On MSDOS
-    Mark On Access Log
-    Start On Access
-    Start Fake Management If Required
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Force SUSI to be initialized
-
-    Enable OA Scanning
-
-    ${image} =  Copy And Extract Image  msdosFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  msdos
-    ${opts} =  Set Variable  loop,umask=0000
-    Mount Image  ${where}  ${image}  ${type}  ${opts}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
-
-On Access Scans File On NTFS
-    Mark On Access Log
-    Start On Access
-    Start Fake Management If Required
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Force SUSI to be initialized
-
-    Enable OA Scanning
-
-    ${image} =  Copy And Extract Image  ntfsFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  ntfs
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
-
-On Access Scans File On ReiserFS
-    Mark On Access Log
-    Start On Access
-    Start Fake Management If Required
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Force SUSI to be initialized
-
-    Enable OA Scanning
-
-    ${image} =  Copy And Extract Image  reiserfsFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  reiserfs
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
-
-On Access Scans File On SquashFS
-    [Tags]  MANUAL
-    # TODO: Fix this test
-    Mark On Access Log
-    Start On Access
-    Start Fake Management If Required
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Force SUSI to be initialized
-
-    Enable OA Scanning
-
-    ${image} =  Copy And Extract Image  squashfsFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  squashfs
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    ${command} =    Set Variable    cat ${NORMAL_DIRECTORY}/mount/eicar.com > /dev/null
-    ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
-    ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
-    Log   ${output}
-
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
-
-On Access Scans File On VFAT
-    Mark On Access Log
-    Start On Access
-    Start Fake Management If Required
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Force SUSI to be initialized
-
-    Enable OA Scanning
-
-    ${image} =  Copy And Extract Image  vfatFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  vfat
-    ${opts} =  Set Variable  loop,umask=0000
-    Mount Image  ${where}  ${image}  ${type}  ${opts}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
-
-On Access Scans File On XFS
-    Mark On Access Log
-    Start On Access
-    Start Fake Management If Required
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Force SUSI to be initialized
-
-    Enable OA Scanning
-
-    ${image} =  Copy And Extract Image  xfsFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  xfs
-    ${opts} =  Set Variable  nouuid
-    Mount Image  ${where}  ${image}  ${type}  ${opts}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains  corrupted.xls as it is corrupted
