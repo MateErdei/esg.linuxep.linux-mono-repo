@@ -122,7 +122,7 @@
       <line id="ServerProtectionLinux-Base-component">
         <component importreference="ServerProtectionLinux-Base-component-1.2.0.2">
           <genericsupplement decodepath="."
-         line="SSPLFLAGS" tag="2021-2" warehousename="sspl_flags"/>
+         line="SSPLFLAGS" tag="2022-1" warehousename="sspl_flags"/>
         </component>
         <component importreference="ServerProtectionLinux-Base-component-1.1.10.49">
           <genericsupplement decodepath="."
