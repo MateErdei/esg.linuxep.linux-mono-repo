@@ -9,11 +9,12 @@
 
 // Standard C++
 #include <memory>
+#include <utility>
 // Standard C
-#include <errno.h>
-#include <limits.h>
+#include <cerrno>
+#include <climits>
 #include <poll.h>
-#include <string.h>
+#include <cstring>
 #include <sys/fanotify.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -30,9 +31,9 @@ EventReaderThread::EventReaderThread(
     const fs::path& pluginInstall,
     std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestQueue> scanRequestQueue)
     : m_fanotifyFd(fanotifyFD)
-    , m_sysCalls(sysCalls)
+    , m_sysCalls(std::move(sysCalls))
     , m_pluginLogDir(pluginInstall / "log")
-    , m_scanRequestQueue(scanRequestQueue)
+    , m_scanRequestQueue(std::move(scanRequestQueue))
     , m_pid(getpid())
 {
 }
@@ -66,7 +67,7 @@ bool EventReaderThread::handleFanotifyEvent()
         LOGDEBUG("got event: size " << len);
     }
 
-    struct fanotify_event_metadata* metadata = reinterpret_cast<struct fanotify_event_metadata*>(buf);
+    auto metadata = reinterpret_cast<struct fanotify_event_metadata*>(buf);
 
     for (; FAN_EVENT_OK(metadata, len); metadata = FAN_EVENT_NEXT(metadata, len))
     {
@@ -110,8 +111,8 @@ bool EventReaderThread::handleFanotifyEvent()
             scanRequest->setPath("");
             scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
             scanRequest->setUserID(std::to_string(uid));
-            // TODO: Extend ClientScanRequest to include the file descriptor
-            if (!m_scanRequestQueue->emplace(std::make_pair(scanRequest, std::move(eventFd))))
+            scanRequest->setAutoFd(std::move(eventFd));
+            if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
             {
                 LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
             }

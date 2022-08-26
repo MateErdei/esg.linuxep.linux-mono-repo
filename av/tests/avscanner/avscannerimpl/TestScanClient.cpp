@@ -27,7 +27,7 @@ namespace
         }
 
         MOCK_METHOD(int, connect, ());
-        MOCK_METHOD(bool, sendRequest, (datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request));
+        MOCK_METHOD(bool, sendRequest, (scan_messages::ClientScanRequestPtr request));
         MOCK_METHOD(bool, receiveResponse, (scan_messages::ScanResponse& response));
         MOCK_METHOD(int, socketFd, ());
 
@@ -82,7 +82,7 @@ TEST(TestScanClient, TestScanEtcPasswd)
         .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd)
         .Times(1);
-    EXPECT_CALL(mock_socket, sendRequest(_,_))
+    EXPECT_CALL(mock_socket, sendRequest(_))
         .Times(1)
         .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))
@@ -122,7 +122,7 @@ TEST(TestScanClient, TestScanArchive)
         .Times(1)
         .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
-    EXPECT_CALL(mock_socket, sendRequest(_,_))
+    EXPECT_CALL(mock_socket, sendRequest(_))
         .Times(1)
         .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))
@@ -161,7 +161,7 @@ TEST(TestScanClient, TestScanImage)
         .Times(1)
         .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
-    EXPECT_CALL(mock_socket, sendRequest(_,_))
+    EXPECT_CALL(mock_socket, sendRequest(_))
         .Times(1)
         .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))
@@ -197,7 +197,7 @@ TEST(TestScanClient, TestScanInfectedNoCallback)
         .Times(1)
         .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
-    EXPECT_CALL(mock_socket, sendRequest(_,_))
+    EXPECT_CALL(mock_socket, sendRequest(_))
         .Times(1)
         .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))
@@ -229,7 +229,7 @@ TEST(TestScanClient, TestScanInfected)
         .Times(1)
         .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
-    EXPECT_CALL(mock_socket, sendRequest(_,_))
+    EXPECT_CALL(mock_socket, sendRequest(_))
         .Times(1)
         .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))
@@ -265,7 +265,7 @@ TEST(TestScanClient, TestScanError)
         .Times(1)
         .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
-    EXPECT_CALL(mock_socket, sendRequest(_,_))
+    EXPECT_CALL(mock_socket, sendRequest(_))
         .Times(1)
         .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))
@@ -299,7 +299,7 @@ TEST(TestScanClient, TestScanErrorPasswordProtected)
         .Times(1)
         .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
-    EXPECT_CALL(mock_socket, sendRequest(_,_))
+    EXPECT_CALL(mock_socket, sendRequest(_))
         .Times(1)
         .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))
@@ -337,7 +337,7 @@ TEST(TestScanClient, TestScanErrorWithDetections)
         .Times(1)
         .WillOnce(Return(0));
     EXPECT_CALL(mock_socket, socketFd);
-    EXPECT_CALL(mock_socket, sendRequest(_,_))
+    EXPECT_CALL(mock_socket, sendRequest(_))
         .Times(1)
         .WillOnce(Return(true));
     EXPECT_CALL(mock_socket, receiveResponse(_))

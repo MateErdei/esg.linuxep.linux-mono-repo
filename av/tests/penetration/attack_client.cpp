@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
 
@@ -15,15 +11,16 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <fcntl.h>
 
-static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, datatypes::AutoFd& fd, const std::string& filename)
+static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, std::shared_ptr<datatypes::AutoFd> fd, const std::string& filename)
 {
-    scan_messages::ClientScanRequest request;
-    request.setPath(filename);
-    request.setScanInsideArchives(false);
-    request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
-    request.setUserID("root");
+    auto request = std::make_shared<scan_messages::ClientScanRequest>();
+    request->setPath(filename);
+    request->setScanInsideArchives(false);
+    request->setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    request->setUserID("root");
+    request->setAutoFd(fd);
     socket.connect();
-    socket.sendRequest(fd, request);
+    socket.sendRequest(request);
 
     scan_messages::ScanResponse response;
     auto ret = socket.receiveResponse(response);
@@ -56,13 +53,13 @@ int main(int argc, char* argv[])
     {
         oflags |= O_DIRECT;
     }
-    datatypes::AutoFd file_fd(open(filename.c_str(), static_cast<int>(oflags)));
+    auto file_fd = std::make_shared<datatypes::AutoFd>(open(filename.c_str(), static_cast<int>(oflags)));
     assert(file_fd >= 0);
 
     const std::string path = "/opt/sophos-spl/plugins/av/chroot/var/scanning_socket";
     unixsocket::ScanningClientSocket socket(path);
     auto response = scan(socket, file_fd, filename);
-    file_fd.close();
+    file_fd->close();
 
     if (response.allClean())
     {

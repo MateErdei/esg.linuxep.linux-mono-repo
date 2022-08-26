@@ -23,7 +23,7 @@ namespace sophos_on_access_process::fanotifyhandler
             const fs::path& pluginInstall,
             std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestQueue> scanRequestQueue);
 
-        void run();
+        void run() override;
 
     private:
         bool handleFanotifyEvent();

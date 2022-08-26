@@ -21,7 +21,7 @@ namespace sophos_on_access_process::onaccessimpl
         ~ClientSocketWrapper() override = default;
         ClientSocketWrapper& operator=(const ClientSocketWrapper&) = delete;
 
-        scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request) override;
+        scan_messages::ScanResponse scan(scan_messages::ClientScanRequestPtr request) override;
 
     private:
         void connect();

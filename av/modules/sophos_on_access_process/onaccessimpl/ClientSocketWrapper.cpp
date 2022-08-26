@@ -27,11 +27,9 @@ namespace sophos_on_access_process::onaccessimpl
         }
     }
 
-    scan_messages::ScanResponse ClientSocketWrapper::scan(
-        datatypes::AutoFd& fd,
-        const scan_messages::ClientScanRequest& request)
+    scan_messages::ScanResponse ClientSocketWrapper::scan(scan_messages::ClientScanRequestPtr request)
     {
-        if (!m_socket.sendRequest(fd, request))
+        if (!m_socket.sendRequest(request))
         {
             throw ClientSocketException("Failed to send scan request");
         }

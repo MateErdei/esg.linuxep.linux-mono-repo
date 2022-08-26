@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ScanRunnerMemoryAppenderUsingTests.h"
 
@@ -38,7 +34,7 @@ namespace
         }
 
         MOCK_METHOD(int, connect, ());
-        MOCK_METHOD(bool, sendRequest, (datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request));
+        MOCK_METHOD(bool, sendRequest, (scan_messages::ClientScanRequestPtr request));
         MOCK_METHOD(bool, receiveResponse, (scan_messages::ScanResponse& response));
         MOCK_METHOD(int, socketFd, ());
 
@@ -89,9 +85,7 @@ TEST_F(TestClientSocketWrapper, ConnectRetryLimit)
 
 TEST_F(TestClientSocketWrapper, Scan)
 {
-    datatypes::AutoFd fd {};
-
-    scan_messages::ClientScanRequest request;
+    auto request = std::make_shared<scan_messages::ClientScanRequest>();
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
@@ -102,7 +96,7 @@ TEST_F(TestClientSocketWrapper, Scan)
     {
         InSequence seq;
 
-        EXPECT_CALL(socket, sendRequest(_, _))
+        EXPECT_CALL(socket, sendRequest(_))
             .Times(1);
         EXPECT_CALL(socket, socketFd)
             .Times(1);
@@ -114,7 +108,7 @@ TEST_F(TestClientSocketWrapper, Scan)
                     ));
     }
 
-    auto gotResponse = csw.scan(fd, request);
+    auto gotResponse = csw.scan(request);
     EXPECT_TRUE(response.allClean());
 
     auto detections = response.getDetections();
@@ -123,9 +117,7 @@ TEST_F(TestClientSocketWrapper, Scan)
 
 TEST_F(TestClientSocketWrapper, ScanRetriesSend)
 {
-    datatypes::AutoFd fd {};
-
-    scan_messages::ClientScanRequest request;
+    auto request = std::make_shared<scan_messages::ClientScanRequest>();
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
@@ -136,12 +128,12 @@ TEST_F(TestClientSocketWrapper, ScanRetriesSend)
     {
         InSequence seq;
 
-        EXPECT_CALL(socket, sendRequest(_, _))
+        EXPECT_CALL(socket, sendRequest(_))
             .WillOnce(Return(false));
         EXPECT_CALL(socket, connect)
             .Times(1);
 
-        EXPECT_CALL(socket, sendRequest(_, _))
+        EXPECT_CALL(socket, sendRequest(_))
             .WillOnce(Return(true));
         EXPECT_CALL(socket, socketFd)
             .Times(1);
@@ -153,16 +145,14 @@ TEST_F(TestClientSocketWrapper, ScanRetriesSend)
                     ));
     }
 
-    auto gotResponse = csw.scan(fd, request);
+    auto gotResponse = csw.scan(request);
     EXPECT_TRUE(response.allClean());
 }
 
 TEST_F(TestClientSocketWrapper, ScanRetryLimit)
 {
-    datatypes::AutoFd fd {};
-
-    scan_messages::ClientScanRequest request;
-    request.setPath("/foo/bar");
+    auto request = std::make_shared<scan_messages::ClientScanRequest>();
+    request->setPath("/foo/bar");
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
@@ -175,25 +165,23 @@ TEST_F(TestClientSocketWrapper, ScanRetryLimit)
 
         for (int i=0; i<MAX_SCAN_RETRIES; ++i)
         {
-            EXPECT_CALL(socket, sendRequest(_, _)).WillOnce(Return(false));
+            EXPECT_CALL(socket, sendRequest(_)).WillOnce(Return(false));
             EXPECT_CALL(socket, connect).Times(1);
         }
 
-        EXPECT_CALL(socket, sendRequest(_, _))
+        EXPECT_CALL(socket, sendRequest(_))
             .Times(0);
     }
 
-    auto gotResponse = csw.scan(fd, request);
+    auto gotResponse = csw.scan(request);
     auto errMsg = gotResponse.getErrorMsg();
     EXPECT_EQ(errMsg, "Failed to scan file: /foo/bar after 60 retries");
 }
 
 TEST_F(TestClientSocketWrapper, ScanReconnectLimit)
 {
-    datatypes::AutoFd fd {};
-
-    scan_messages::ClientScanRequest request;
-    request.setPath("/foo/bar");
+    auto request = std::make_shared<scan_messages::ClientScanRequest>();
+    request->setPath("/foo/bar");
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
@@ -206,29 +194,27 @@ TEST_F(TestClientSocketWrapper, ScanReconnectLimit)
 
         for (int i=0; i<TOTAL_MAX_RECONNECTS; ++i)
         {
-            EXPECT_CALL(socket, sendRequest(_, _)).WillOnce(Return(false));
+            EXPECT_CALL(socket, sendRequest(_)).WillOnce(Return(false));
             EXPECT_CALL(socket, connect).Times(1);
         }
 
-        EXPECT_CALL(socket, sendRequest(_, _))
+        EXPECT_CALL(socket, sendRequest(_))
             .Times(0);
     }
 
     for (int i=0; i< TOTAL_MAX_RECONNECTS/MAX_SCAN_RETRIES; ++i)
     {
-        auto gotResponse = csw.scan(fd, request);
+        auto gotResponse = csw.scan(request);
         auto errMsg = gotResponse.getErrorMsg();
         EXPECT_EQ(errMsg, "Failed to scan file: /foo/bar after 60 retries");
     }
 
-    EXPECT_THROW(csw.scan(fd, request), common::AbortScanException);
+    EXPECT_THROW(csw.scan(request), common::AbortScanException);
 }
 
 TEST_F(TestClientSocketWrapper, ScanRetriesReceive)
 {
-    datatypes::AutoFd fd {};
-
-    scan_messages::ClientScanRequest request;
+    auto request = std::make_shared<scan_messages::ClientScanRequest>();
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
@@ -239,7 +225,7 @@ TEST_F(TestClientSocketWrapper, ScanRetriesReceive)
     {
         InSequence seq;
 
-        EXPECT_CALL(socket, sendRequest(_, _))
+        EXPECT_CALL(socket, sendRequest(_))
             .WillOnce(Return(true));
         EXPECT_CALL(socket, socketFd)
             .Times(1);
@@ -249,7 +235,7 @@ TEST_F(TestClientSocketWrapper, ScanRetriesReceive)
         EXPECT_CALL(socket, connect)
             .Times(1);
 
-        EXPECT_CALL(socket, sendRequest(_, _))
+        EXPECT_CALL(socket, sendRequest(_))
             .WillOnce(Return(true));
         EXPECT_CALL(socket, socketFd)
             .Times(1);
@@ -261,7 +247,7 @@ TEST_F(TestClientSocketWrapper, ScanRetriesReceive)
                     ));
     }
 
-    auto gotResponse = csw.scan(fd, request);
+    auto gotResponse = csw.scan(request);
     EXPECT_TRUE(response.allClean());
 
     auto detections = response.getDetections();

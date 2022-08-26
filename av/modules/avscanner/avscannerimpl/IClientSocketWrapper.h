@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -19,6 +15,6 @@ namespace avscanner::avscannerimpl
     public:
         virtual ~IClientSocketWrapper() = default;
 
-        virtual scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request) = 0;
+        virtual scan_messages::ScanResponse scan(scan_messages::ClientScanRequestPtr request) = 0;
     };
 }

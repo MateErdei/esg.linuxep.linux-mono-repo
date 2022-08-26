@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -26,7 +22,7 @@ namespace unixsocket
 
 
         int connect() override;
-        bool sendRequest(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request) override;
+        bool sendRequest(scan_messages::ClientScanRequestPtr) override;
         bool receiveResponse(scan_messages::ScanResponse& response) override;
         int socketFd() override;
 

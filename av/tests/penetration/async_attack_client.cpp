@@ -1,15 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "unixsocket/SocketUtils.h"
-#include <scan_messages/ClientScanRequest.h>
 
 #define AUTO_FD_IMPLICIT_INT
 #include "datatypes/AutoFd.h"
 #include <datatypes/Print.h>
+
+#include <scan_messages/ClientScanRequest.h>
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 

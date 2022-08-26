@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -25,11 +21,11 @@ namespace avscanner::avscannerimpl
         ~ClientSocketWrapper() override = default;
         ClientSocketWrapper& operator=(const ClientSocketWrapper&) = delete;
 
-        scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request) override;
+        scan_messages::ScanResponse scan(scan_messages::ClientScanRequestPtr request) override;
 
     private:
         void connect();
-        scan_messages::ScanResponse attemptScan(datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request);
+        scan_messages::ScanResponse attemptScan(const scan_messages::ClientScanRequestPtr& request);
         void waitForResponse();
         void interruptableSleep(const timespec* duration);
         void checkIfScanAborted();

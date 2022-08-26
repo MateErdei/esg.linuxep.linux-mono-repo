@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -20,11 +16,11 @@ namespace
     class ScanPathAccessor : public scan_messages::ClientScanRequest
     {
     public:
-        ScanPathAccessor(const ClientScanRequest& other) // NOLINT
+        ScanPathAccessor(const ClientScanRequest& other)
                 : scan_messages::ClientScanRequest(other)
         {}
 
-        operator std::string() const // NOLINT
+        operator std::string() const
         {
             return m_path;
         }
@@ -46,9 +42,9 @@ namespace
             return 0;
         }
 
-        bool sendRequest(datatypes::AutoFd&, const scan_messages::ClientScanRequest& request) override
+        bool sendRequest(scan_messages::ClientScanRequestPtr request) override
         {
-            std::string p = ScanPathAccessor(request);
+            std::string p = ScanPathAccessor(*request);
             m_paths.emplace_back(p);
             //            PRINT("Scanning " << p);
             return true;
@@ -87,7 +83,7 @@ namespace
             return 0;
         }
 
-        bool sendRequest(datatypes::AutoFd&, const scan_messages::ClientScanRequest&) override
+        bool sendRequest(scan_messages::ClientScanRequestPtr) override
         {
             m_abortCount++;
             throw common::AbortScanException("Deliberate Abort");

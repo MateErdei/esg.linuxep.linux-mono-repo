@@ -51,9 +51,7 @@ namespace avscanner::avscannerimpl
         m_reconnectAttempts = 0;
     }
 
-    scan_messages::ScanResponse ClientSocketWrapper::scan(
-        datatypes::AutoFd& fd,
-        const scan_messages::ClientScanRequest& request)
+    scan_messages::ScanResponse ClientSocketWrapper::scan(const scan_messages::ClientScanRequestPtr request)
     {
         bool retryErrorLogged = false;
         for (int attempt = 0; attempt < MAX_SCAN_RETRIES; attempt++)
@@ -67,7 +65,7 @@ namespace avscanner::avscannerimpl
 
             try
             {
-                scan_messages::ScanResponse response = attemptScan(fd, request);
+                scan_messages::ScanResponse response = attemptScan(request);
                 if (m_reconnectAttempts > 0)
                 {
                     checkIfScanAborted();
@@ -98,18 +96,17 @@ namespace avscanner::avscannerimpl
 
         scan_messages::ScanResponse response;
         std::stringstream errorMsg;
-        std::string escapedPath(common::escapePathForLogging(request.getPath(), true));
+        std::string escapedPath(common::escapePathForLogging(request->getPath(), true));
 
         errorMsg << "Failed to scan file: " << escapedPath << " after " << MAX_SCAN_RETRIES << " retries";
         response.setErrorMsg(errorMsg.str());
         return response;
     }
 
-    scan_messages::ScanResponse ClientSocketWrapper::attemptScan(
-        datatypes::AutoFd& fd,
-        const scan_messages::ClientScanRequest& request)
+    scan_messages::ScanResponse ClientSocketWrapper::attemptScan(const scan_messages::ClientScanRequestPtr& request)
     {
-        if (!m_socket.sendRequest(fd, request))
+        auto autoFd = request->getAutoFd();
+        if (!m_socket.sendRequest(request))
         {
             throw ReconnectScannerException("Failed to send scan request");
         }

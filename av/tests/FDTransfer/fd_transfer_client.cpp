@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 #include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
 #include "avscanner/avscannerimpl/ClientSocketWrapper.h"
@@ -14,15 +10,16 @@ Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, int file_fd, const std::string& filename)
 {
-    datatypes::AutoFd fd(file_fd);
-    scan_messages::ClientScanRequest request;
-    request.setPath(filename);
-    request.setScanInsideArchives(false);
-    request.setScanInsideImages(false);
-    request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
-    request.setUserID("root");
+    auto fd = std::make_shared<datatypes::AutoFd>(file_fd);
+    auto request = std::make_shared<scan_messages::ClientScanRequest>();
+    request->setPath(filename);
+    request->setScanInsideArchives(false);
+    request->setScanInsideImages(false);
+    request->setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    request->setUserID("root");
+    request->setAutoFd(fd);
     socket.connect();
-    socket.sendRequest(fd, request);
+    socket.sendRequest(request);
 
     scan_messages::ScanResponse response;
     auto ret = socket.receiveResponse(response);

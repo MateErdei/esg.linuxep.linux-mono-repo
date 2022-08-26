@@ -16,8 +16,6 @@ const size_t MAX_SIZE = 1000;
 
 namespace sophos_on_access_process::onaccessimpl
 {
-    using ScanRequestQueueItem = std::pair<ClientScanRequestPtr, std::shared_ptr<datatypes::AutoFd>>;
-
     class ScanRequestQueue
     {
     public:
@@ -28,13 +26,13 @@ namespace sophos_on_access_process::onaccessimpl
          * Add scan request and associated file descriptor to the queue ready for scanning
          * Returns true on success and false when queue already contains m_maxSize items
          */
-        bool emplace(ScanRequestQueueItem item);
+        bool emplace(ClientScanRequestPtr item);
 
         /**
          * Returns pair containing the first scan request and associated file descriptor in the queue (FIFO)
          * Waits to acquire m_lock before attempting to modify the queue
          */
-        ScanRequestQueueItem pop();
+        ClientScanRequestPtr pop();
 
         /**
          * Returns the current size of m_queue
@@ -42,7 +40,7 @@ namespace sophos_on_access_process::onaccessimpl
         size_t size() const;
 
     private:
-        std::queue<ScanRequestQueueItem> m_queue;
+        std::queue<ClientScanRequestPtr> m_queue;
         mutable std::mutex m_lock;
         std::condition_variable m_condition;
 

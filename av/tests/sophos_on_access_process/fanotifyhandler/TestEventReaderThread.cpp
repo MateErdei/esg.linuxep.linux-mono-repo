@@ -361,5 +361,5 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
     eventReaderThread.requestStopIfNotStopped();
 
     EXPECT_EQ(scanRequestQueue->size(), 1);
-    EXPECT_NE(scanRequestQueue->pop().second->fd(), -1);
+    EXPECT_NE(scanRequestQueue->pop()->getAutoFd()->fd(), -1);
 }

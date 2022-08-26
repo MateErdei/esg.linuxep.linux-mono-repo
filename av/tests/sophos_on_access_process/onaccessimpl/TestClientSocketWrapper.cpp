@@ -33,7 +33,7 @@ namespace
         }
 
         MOCK_METHOD(int, connect, ());
-        MOCK_METHOD(bool, sendRequest, (datatypes::AutoFd& fd, const scan_messages::ClientScanRequest& request));
+        MOCK_METHOD(bool, sendRequest, (scan_messages::ClientScanRequestPtr request));
         MOCK_METHOD(bool, receiveResponse, (scan_messages::ScanResponse& response));
         MOCK_METHOD(int, socketFd, ());
 
@@ -54,9 +54,7 @@ TEST_F(TestClientSocketWrapper, Construction)
 
 TEST_F(TestClientSocketWrapper, Scan)
 {
-    datatypes::AutoFd fd {};
-
-    scan_messages::ClientScanRequest request;
+    auto request = std::make_shared<scan_messages::ClientScanRequest>();
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
@@ -68,7 +66,7 @@ TEST_F(TestClientSocketWrapper, Scan)
     {
         InSequence seq;
 
-        EXPECT_CALL(socket, sendRequest(_, _))
+        EXPECT_CALL(socket, sendRequest(_))
             .Times(1);
         EXPECT_CALL(socket, socketFd)
             .Times(1);
@@ -80,7 +78,7 @@ TEST_F(TestClientSocketWrapper, Scan)
                     ));
     }
 
-    auto gotResponse = csw.scan(fd, request);
+    auto gotResponse = csw.scan(request);
     EXPECT_TRUE(response.allClean());
 
     auto detections = response.getDetections();
@@ -101,9 +99,7 @@ TEST_F(TestClientSocketWrapper, ConnectFails)
 
 TEST_F(TestClientSocketWrapper, SendFails)
 {
-    datatypes::AutoFd fd {};
-
-    scan_messages::ClientScanRequest request;
+    auto request = std::make_shared<scan_messages::ClientScanRequest>();
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
@@ -112,17 +108,15 @@ TEST_F(TestClientSocketWrapper, SendFails)
     EXPECT_CALL(socket, connect).Times(1);
     ClientSocketWrapper csw {socket, notifyPipe};
 
-    EXPECT_CALL(socket, sendRequest(_, _))
+    EXPECT_CALL(socket, sendRequest(_))
             .WillOnce(Return(false));
 
-    EXPECT_THROW(csw.scan(fd, request), ClientSocketException);
+    EXPECT_THROW(csw.scan(request), ClientSocketException);
 }
 
 TEST_F(TestClientSocketWrapper, ReceiveFails)
 {
-    datatypes::AutoFd fd {};
-
-    scan_messages::ClientScanRequest request;
+    auto request = std::make_shared<scan_messages::ClientScanRequest>();
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
@@ -134,7 +128,7 @@ TEST_F(TestClientSocketWrapper, ReceiveFails)
     {
         InSequence seq;
 
-        EXPECT_CALL(socket, sendRequest(_, _))
+        EXPECT_CALL(socket, sendRequest(_))
             .WillOnce(Return(true));
         EXPECT_CALL(socket, socketFd)
             .Times(1);
@@ -143,14 +137,12 @@ TEST_F(TestClientSocketWrapper, ReceiveFails)
             .WillOnce(Return(false));
     }
 
-    EXPECT_THROW(csw.scan(fd, request), ClientSocketException);
+    EXPECT_THROW(csw.scan(request), ClientSocketException);
 }
 
 TEST_F(TestClientSocketWrapper, ScanTerminates)
 {
-    datatypes::AutoFd fd {};
-
-    scan_messages::ClientScanRequest request;
+    auto request = std::make_shared<scan_messages::ClientScanRequest>();
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
@@ -164,7 +156,7 @@ TEST_F(TestClientSocketWrapper, ScanTerminates)
     {
         InSequence seq;
 
-        EXPECT_CALL(socket, sendRequest(_, _))
+        EXPECT_CALL(socket, sendRequest(_))
             .WillOnce(Return(true));
         EXPECT_CALL(socket, socketFd)
             .Times(1);
@@ -172,5 +164,5 @@ TEST_F(TestClientSocketWrapper, ScanTerminates)
     EXPECT_CALL(socket, receiveResponse(_))
         .Times(0);
 
-    EXPECT_THROW(csw.scan(fd, request), ScanInterruptedException);
+    EXPECT_THROW(csw.scan(request), ScanInterruptedException);
 }

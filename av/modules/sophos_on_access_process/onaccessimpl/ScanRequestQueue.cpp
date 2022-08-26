@@ -17,7 +17,7 @@ ScanRequestQueue::~ScanRequestQueue()
 
 }
 
-bool ScanRequestQueue::emplace(ScanRequestQueueItem item)
+bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
 {
     size_t currentQueueSize = size();
     if (currentQueueSize >= m_maxSize)
@@ -34,7 +34,7 @@ bool ScanRequestQueue::emplace(ScanRequestQueueItem item)
     }
 }
 
-ScanRequestQueueItem ScanRequestQueue::pop()
+ClientScanRequestPtr ScanRequestQueue::pop()
 {
     std::unique_lock<std::mutex> lock(m_lock);
     // release lock as long as the wait and re-aquire it afterwards.
