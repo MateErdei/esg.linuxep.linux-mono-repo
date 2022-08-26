@@ -84,6 +84,12 @@ bool EventReaderThread::handleFanotifyEvent()
         }
 
         auto path = getFilePathFromFd(eventFd->fd());
+        //Either path was too long or fd was invalid
+        if(path.empty())
+        {
+            continue;
+        }
+
         // Exclude events caused by AV logging to prevent recursive events
         if (path.rfind(m_pluginLogDir, 0) == 0)
         {
@@ -131,12 +137,17 @@ std::string EventReaderThread::getFilePathFromFd(int fd)
     ssize_t len;
 
     if (fd <= 0)
+    {
+        LOGWARN("Failed to get path from fd");
         return "";
+    }
+
 
     std::stringstream procFdPath;
     procFdPath << "/proc/self/fd/" << fd;
     if ((len = m_sysCalls->readlink(procFdPath.str().c_str(), buffer, PATH_MAX - 1)) < 0)
     {
+        LOGWARN("Failed to get path from fd: " << common::safer_strerror(errno));
         return "";
     }
 

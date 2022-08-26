@@ -193,3 +193,53 @@ On Access Scans A File When It Is Closed Following A Write
     Register Cleanup  Remove File  ${filepath}
     Wait Until On Access Log Contains  On-close event for ${filepath} from PID ${pid} and UID 0
     Wait Until On Access Log Contains  is infected with
+
+On Access Scans File Created By non-root User
+    Mark On Access Log
+    Start On Access
+    Start Fake Management If Required
+    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
+    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+    Force SUSI to be initialized
+
+    Create File  /tmp/eicar     ${EICAR_STRING}
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until On Access Log Contains  On-access enabled: "true"
+    Wait Until On Access Log Contains  Starting eventReader
+
+    ${command} =    Set Variable    cp /tmp/eicar /tmp/eicar_oa_test
+    ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
+    ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
+
+    Log   ${output}
+
+    Wait Until On Access Log Contains  On-close event for /tmp/eicar_oa_test from PID
+    Wait Until On Access Log Contains  Detected "/tmp/eicar_oa_test" is infected with EICAR-AV-Test
+    On Access Does Not Log Contain  On-close event for /tmp/eicar_oa_test from PID 0 and UID 0
+
+On Access Scans File Created Under A Long Path
+    Mark On Access Log
+    Start On Access
+    Start Fake Management If Required
+    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
+    Register Cleanup  FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+    Force SUSI to be initialized
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until On Access Log Contains  On-access enabled: "true"
+    Wait Until On Access Log Contains  Starting eventReader
+
+    ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  long_dir_eicar  ${EICAR_STRING}
+
+    Wait Until On Access Log Contains   long_dir_eicar" is infected with EICAR-AV-Test
+
+    Register Cleanup   Remove Directory   /home/vagrant/${LONG_DIRECTORY}   recursive=True
+    ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  silly_long_dir_eicar  ${EICAR_STRING}
+
+    Wait Until On Access Log Contains  Failed to get path from fd: File name too long
+    On Access Does Not Log Contain     silly_long_dir_eicar
+
+    Dump Log   ${ON_ACCESS_LOG_PATH}
