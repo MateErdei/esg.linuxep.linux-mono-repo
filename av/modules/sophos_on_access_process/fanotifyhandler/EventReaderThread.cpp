@@ -5,6 +5,7 @@
 #include "Logger.h"
 
 #include "common/SaferStrerror.h"
+#include "common/StringUtils.h"
 #include "datatypes/AutoFd.h"
 
 // Standard C++
@@ -99,16 +100,16 @@ bool EventReaderThread::handleFanotifyEvent()
 
         auto uid = getUidFromPid(metadata->pid);
         // TODO: Handle process exclusions
-
+        auto escapedPath = common::escapePathForLogging(path);
         if (metadata->mask & FAN_OPEN)
         {
-            LOGINFO("On-open event for " << path << " from PID " << metadata->pid << " and UID " << uid);
+            LOGINFO("On-open event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
         }
         else if (metadata->mask & FAN_CLOSE_WRITE)
         {
-            LOGINFO("On-close event for " << path << " from PID " << metadata->pid << " and UID " << uid);
+            LOGINFO("On-close event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
             auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
-            scanRequest->setPath("");
+            scanRequest->setPath(path);
             scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
             scanRequest->setUserID(std::to_string(uid));
             scanRequest->setAutoFd(std::move(eventFd));
