@@ -111,6 +111,7 @@ void ScanRequestHandler::run()
 {
     announceThreadStarted();
 
+    LOGDEBUG("Entering Main Loop");
     while (!stopRequested())
     {
         auto queueItem = m_scanRequestQueue->pop();

@@ -101,3 +101,18 @@ TEST_F(TestScanRequestHandler, scan_threadPopsAllItemsFromQueue)
     EXPECT_TRUE(waitForLog(logMsg2.str()));
     ASSERT_EQ(socket->m_paths.size(), 2);
 }
+
+
+TEST_F(TestScanRequestHandler, scan_threadCanExitWhileWaiting)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
+    auto socket = std::make_shared<RecordingMockSocket>();
+    auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
+        scanRequestQueue, socket);
+    auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
+    EXPECT_TRUE(waitForLog("Entering Main Loop"));
+    std::this_thread::sleep_for(50ms); //So scanHandler can get into the wait (100ms long)
+    scanHandlerThread->requestStopIfNotStopped();
+}

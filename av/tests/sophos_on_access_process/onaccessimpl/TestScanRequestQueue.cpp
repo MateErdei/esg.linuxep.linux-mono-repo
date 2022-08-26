@@ -56,6 +56,16 @@ TEST_F(TestScanRequestQueue, push_FIFO)
     EXPECT_EQ(popItem2->getPath(), "2");
 }
 
+TEST_F(TestScanRequestQueue, returnsNullptrOnPopTimeout)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    ScanRequestQueue queue(1);
+
+    auto popItem1 = queue.pop();
+    EXPECT_TRUE(popItem1 == nullptr);
+}
+
 TEST_F(TestScanRequestQueue, queueCanProcessMoreItemsThanItsMaxSizeSequentially)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
