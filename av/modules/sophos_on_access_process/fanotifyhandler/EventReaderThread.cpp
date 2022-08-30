@@ -30,7 +30,7 @@ EventReaderThread::EventReaderThread(
     int fanotifyFD,
     datatypes::ISystemCallWrapperSharedPtr sysCalls,
     const fs::path& pluginInstall,
-    sophos_on_access_process::onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue)
+    onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue)
     : m_fanotifyFd(fanotifyFD)
     , m_sysCalls(std::move(sysCalls))
     , m_pluginLogDir(pluginInstall / "log")

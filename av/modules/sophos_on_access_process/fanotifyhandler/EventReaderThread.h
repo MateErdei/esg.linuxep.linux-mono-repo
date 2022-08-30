@@ -11,6 +11,7 @@
 #include "Common/Threads/NotifyPipe.h"
 
 namespace fs = sophos_filesystem;
+namespace onaccessimpl = sophos_on_access_process::onaccessimpl;
 
 namespace sophos_on_access_process::fanotifyhandler
 {
@@ -21,7 +22,7 @@ namespace sophos_on_access_process::fanotifyhandler
             int fanotifyFD,
             datatypes::ISystemCallWrapperSharedPtr sysCalls,
             const fs::path& pluginInstall,
-            sophos_on_access_process::onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue);
+            onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue);
 
         void run() override;
 
@@ -33,7 +34,7 @@ namespace sophos_on_access_process::fanotifyhandler
         int m_fanotifyFd;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         fs::path m_pluginLogDir;
-        sophos_on_access_process::onaccessimpl::ScanRequestQueueSharedPtr m_scanRequestQueue;
+        onaccessimpl::ScanRequestQueueSharedPtr m_scanRequestQueue;
         pid_t m_pid;
     };
 }
