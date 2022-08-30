@@ -119,7 +119,11 @@ if(NOT DEFINED INPUT)
     set( INPUT ${CMAKE_SOURCE_DIR}/redist )
 endif()
 
-if(NOT EXISTS ${INPUT})
+if(NOT DEFINED REDIST)
+    set( REDIST ${CMAKE_SOURCE_DIR}/redist )
+endif()
+
+if(NOT EXISTS ${REDIST})
     string( APPEND ERRORMESSAGE
             "To build using CLion you first need to:\n"
             "1. Install CI tools\n"
@@ -131,11 +135,11 @@ if(NOT EXISTS ${INPUT})
 endif()
 
 if(NOT DEFINED PLUGINAPIPATH)
-    SET( PLUGINAPIPATH ${INPUT}/pluginapi)
+    SET( PLUGINAPIPATH ${REDIST}/pluginapi)
 endif()
 
 if(NOT DEFINED BOOSTPATH)
-    SET( BOOSTPATH ${INPUT})
+    SET( BOOSTPATH ${REDIST})
 endif()
 SET(Boost_NO_WARN_NEW_VERSIONS ON)
 
@@ -144,7 +148,7 @@ set(LOG4CPLUS_INCLUDE_DIR ${pluginapiinclude})
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
 set(testhelpersinclude ${PLUGINAPIPATH}/tests/include)
 set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
-set(GTEST_INPUT ${INPUT}/googletest)
+set(GTEST_INPUT ${REDIST}/googletest)
 
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*.*.*)
 file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*.*.*)
@@ -166,7 +170,7 @@ find_library(GMOCK_LIBRARY
         NO_DEFAULT_PATH)
 
 if(NOT DEFINED SUSIPATH)
-    SET( SUSIPATH ${INPUT}/susi_build)
+    SET( SUSIPATH ${REDIST}/susi_build)
 endif()
 SET(susi_include ${SUSIPATH}/include)
 SET(susi_libdir ${SUSIPATH}/lib)
@@ -176,11 +180,11 @@ if(NOT EXISTS ${susi_include})
             "Failed to find SUSI includes: ${SUSIPATH}")
     message( FATAL_ERROR ${ERRORMESSAGE})
 endif()
-SET(SUSI_SDDS_PATH ${INPUT}/susi_sdds)
+SET(SUSI_SDDS_PATH ${REDIST}/susi_sdds)
 
 INCLUDE(CAPN)
 
-set(CAPNPROTO_INPUT ${INPUT}/capnproto )
+set(CAPNPROTO_INPUT ${REDIST}/capnproto )
 set(CAPNPROTO_INCLUDE_DIR ${CAPNPROTO_INPUT}/include)
 set(CAPNPROTO_LIBRARY_DIR ${CAPNPROTO_INPUT}/lib64)
 set(CAPNPROTO_LIBRARIES "${CAPNPROTO_LIBRARY_DIR}/libcapnpc.a"
@@ -195,7 +199,7 @@ set( ENV{LD_LIBRARY_PATH} ${CAPNPROTO_LD_LIBRARY_PATH} )
 
 message(NOTICE CAPNPROTO_LD_LIBRARY_PATH=${CAPNPROTO_LD_LIBRARY_PATH})
 
-set(OPENSSL_INPUT ${INPUT}/openssl)
+set(OPENSSL_INPUT ${REDIST}/openssl)
 set(OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/include64)
 find_library(CRYPTO_LIBRARY
         NAMES crypto
