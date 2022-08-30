@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import re
 import shutil
 import stat
 
@@ -56,20 +55,15 @@ def copy_file_with_permissions(src, dest):
     raise Exception("Unable to copy " + src)
 
 
-def does_file_exist(path) -> bool:
-    return bool(os.path.exists(path))
+def set_old_timestamps(directory):
+    """
+    Set old timestamps for all files in a directory
+    :param directory:
+    :return:
+    """
+    atime = 99999
+    mtime = atime
 
-
-def does_file_not_exist(path) -> bool:
-    return not does_file_exist(path)
-
-
-def does_file_contain_word(path, word) -> bool:
-    with open(path) as f:
-        pattern = re.compile(r'\b({0})\b'.format(word), flags=re.IGNORECASE)
-        return bool(pattern.search(f.read()))
-    return False
-
-
-def does_file_not_contain(path, word) -> bool:
-    return not does_file_contain_word(path, word)
+    for (d, dirs, files) in os.walk(directory):
+        for f in files:
+            os.utime(os.path.join(d, f), times=(atime, mtime))

@@ -55,7 +55,7 @@ IDE update copies updated ide
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Run Shell Process  touch ${SOPHOS_INSTALL}/mark  OnError=failed to mark
-    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded  setOldTimestamps=${True}
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs ls -ilhd  OnError=find failed
