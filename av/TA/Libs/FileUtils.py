@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import shutil
 import stat
 
@@ -63,11 +64,12 @@ def does_file_not_exist(path) -> bool:
     return not does_file_exist(path)
 
 
-def does_file_contain(path, text) -> bool:
+def does_file_contain_word(path, word) -> bool:
     with open(path) as f:
-        return text in f.read()
+        pattern = re.compile(r'\b({0})\b'.format(word), flags=re.IGNORECASE)
+        return bool(pattern.search(f.read()))
     return False
 
 
-def does_file_not_contain(path, text) -> bool:
-    return not does_file_contain(path, text)
+def does_file_not_contain_word(path, word) -> bool:
+    return not does_file_contain_word(path, word)

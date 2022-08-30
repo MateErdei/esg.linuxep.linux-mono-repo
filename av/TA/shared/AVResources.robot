@@ -1124,7 +1124,7 @@ Require Filesystem
     [Arguments]   ${fs_type}
     ${file_exists} =  Does File Not Exist  /proc/filesystems
     Skip If    ${file_exists}  /proc/filesystems does not exist - cannot determine supported filesystems
-    ${contains} =  Does File Not Contain  /proc/filesystems  ${fs_type}
+    ${contains} =  Does File Not Contain Word  /proc/filesystems  ${fs_type}
     Skip If    ${contains}  ${fs_type} is not a supported filesystem with this kernel - skipping test
 
 Terminate And Wait until threat detector not running
