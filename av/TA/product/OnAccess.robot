@@ -56,7 +56,7 @@ On Access Test Teardown
     Check All Product Logs Do Not Contain Error
     Component Test TearDown
 
-Start On Access With Running Thread Detector
+Start On Access With Running Threat Detector
     Start On Access
     Start Fake Management If Required
     FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
@@ -195,7 +195,7 @@ On Access Monitors Addition And Removal Of Mount Points
 
 On Access Scans A File When It Is Closed Following A Write
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${pid} =  Get Robot Pid
@@ -207,7 +207,7 @@ On Access Scans A File When It Is Closed Following A Write
 
 On Access Scans File Created By non-root User
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
 
     Create File  /tmp/eicar     ${EICAR_STRING}
 
@@ -225,7 +225,7 @@ On Access Scans File Created By non-root User
 
 On Access Scans File Created Under A Long Path
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  long_dir_eicar  ${EICAR_STRING}
@@ -241,7 +241,7 @@ On Access Scans File Created Under A Long Path
 On Access Scans Encoded Eicars
     Mark On Access Log
     Mark AV Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
@@ -255,7 +255,7 @@ On Access Scans Password Protected Eicar
 
     Mark On Access Log
     Mark AV Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     Register Cleanup   Remove File  /tmp/passwd-protected.xls
@@ -268,7 +268,7 @@ On Access Scans Corrupted Eicar
 
     Mark On Access Log
     Mark AV Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     Register Cleanup   Remove File  /tmp/corrupted.xls
@@ -279,7 +279,7 @@ On Access Scans Corrupted Eicar
 On Access Scans File On BFS
     Require Filesystem  bfs
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
 
     Enable OA Scanning
 
@@ -300,7 +300,7 @@ On Access Scans File On CRAMFS
     # TODO: Fix this test
     Require Filesystem  cramfs
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${image} =  Copy And Extract Image  cramfsFileSystem
@@ -321,7 +321,7 @@ On Access Scans File On CRAMFS
 On Access Scans File On EXT2
     Require Filesystem  ext2
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${image} =  Copy And Extract Image  ext2FileSystem
@@ -339,7 +339,7 @@ On Access Scans File On EXT2
 On Access Scans File On EXT3
     Require Filesystem  ext3
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${image} =  Copy And Extract Image  ext3FileSystem
@@ -357,7 +357,7 @@ On Access Scans File On EXT3
 On Access Scans File On EXT4
     Require Filesystem  ext4
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${image} =  Copy And Extract Image  ext4FileSystem
@@ -375,7 +375,7 @@ On Access Scans File On EXT4
 On Access Scans File On MINIX
     Require Filesystem  minix
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${image} =  Copy And Extract Image  minixFileSystem
@@ -393,7 +393,7 @@ On Access Scans File On MINIX
 On Access Scans File On MSDOS
     Require Filesystem  msdos
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${image} =  Copy And Extract Image  msdosFileSystem
@@ -412,7 +412,7 @@ On Access Scans File On MSDOS
 On Access Scans File On NTFS
     Require Filesystem  ntfs
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${image} =  Copy And Extract Image  ntfsFileSystem
@@ -430,7 +430,7 @@ On Access Scans File On NTFS
 On Access Scans File On ReiserFS
     Require Filesystem  reiserfs
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${image} =  Copy And Extract Image  reiserfsFileSystem
@@ -450,7 +450,7 @@ On Access Scans File On SquashFS
     # TODO: Fix this test
     Require Filesystem  squashfs
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${image} =  Copy And Extract Image  squashfsFileSystem
@@ -471,7 +471,7 @@ On Access Scans File On SquashFS
 On Access Scans File On VFAT
     Require Filesystem  vfat
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${image} =  Copy And Extract Image  vfatFileSystem
@@ -490,7 +490,7 @@ On Access Scans File On VFAT
 On Access Scans File On XFS
     Require Filesystem  xfs
     Mark On Access Log
-    Start On Access With Running Thread Detector
+    Start On Access With Running Threat Detector
     Enable OA Scanning
 
     ${image} =  Copy And Extract Image  xfsFileSystem
