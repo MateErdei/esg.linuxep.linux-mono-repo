@@ -30,11 +30,11 @@ namespace scan_messages
 
         void setUserID(const std::string& userID) { m_userID = userID; }
 
-        void setAutoFd(std::shared_ptr<datatypes::AutoFd> autoFd) { m_autoFd = std::move(autoFd); }
+        void setFd(int fd) { m_autoFd.reset(fd); }
 
         [[nodiscard]] std::string serialise() const;
         [[nodiscard]] std::string getPath() const { return m_path; };
-        [[nodiscard]] std::shared_ptr<datatypes::AutoFd> getAutoFd() const { return m_autoFd; }
+        [[nodiscard]] int getFd() const { return m_autoFd.fd(); }
 
     protected:
         std::string m_path;
@@ -44,7 +44,7 @@ namespace scan_messages
         E_SCAN_TYPE m_scanType = E_SCAN_TYPE_UNKNOWN;
 
         //Not serialised
-        std::shared_ptr<datatypes::AutoFd> m_autoFd = nullptr;
+       datatypes::AutoFd m_autoFd;
     };
 
     using ClientScanRequestPtr = std::shared_ptr<ClientScanRequest>;

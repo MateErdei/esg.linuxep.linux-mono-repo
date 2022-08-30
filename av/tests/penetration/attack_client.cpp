@@ -11,14 +11,14 @@
 
 #include <fcntl.h>
 
-static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, std::shared_ptr<datatypes::AutoFd> fd, const std::string& filename)
+static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket,int fd, const std::string& filename)
 {
     auto request = std::make_shared<scan_messages::ClientScanRequest>();
     request->setPath(filename);
     request->setScanInsideArchives(false);
     request->setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     request->setUserID("root");
-    request->setAutoFd(fd);
+    request->setFd(fd);
     socket.connect();
     socket.sendRequest(request);
 
@@ -53,13 +53,12 @@ int main(int argc, char* argv[])
     {
         oflags |= O_DIRECT;
     }
-    auto file_fd = std::make_shared<datatypes::AutoFd>(open(filename.c_str(), static_cast<int>(oflags)));
+    auto file_fd = open(filename.c_str(), static_cast<int>(oflags));
     assert(file_fd >= 0);
 
     const std::string path = "/opt/sophos-spl/plugins/av/chroot/var/scanning_socket";
     unixsocket::ScanningClientSocket socket(path);
-    auto response = scan(socket, file_fd, filename);
-    file_fd->close();
+    auto response = scan(socket, file_fd, filename); // takes ownership of file_fd
 
     if (response.allClean())
     {

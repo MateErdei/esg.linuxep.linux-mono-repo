@@ -13,12 +13,13 @@
 
 namespace
 {
-    class ScanPathAccessor : public scan_messages::ClientScanRequest
+    class ScanPathAccessor : private scan_messages::ClientScanRequest
     {
     public:
         ScanPathAccessor(const ClientScanRequest& other)
-                : scan_messages::ClientScanRequest(other)
-        {}
+        {
+            m_path=other.getPath();
+        }
 
         operator std::string() const
         {

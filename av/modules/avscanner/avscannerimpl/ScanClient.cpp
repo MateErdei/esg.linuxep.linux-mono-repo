@@ -54,8 +54,8 @@ std::string ScanClient::failedToOpen(const int error)
 
 scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& fileToScanPath, bool isSymlink)
 {
-    auto file_fd = std::make_shared<datatypes::AutoFd>(::open(fileToScanPath.c_str(), O_RDONLY));
-    if (!file_fd->valid())
+    auto file_fd =::open(fileToScanPath.c_str(), O_RDONLY);
+    if (file_fd < 0)
     {
         int error = errno;
         std::string escapedPath = common::escapePathForLogging(fileToScanPath, true);
@@ -74,7 +74,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
     request->setScanInsideArchives(m_scanInArchives);
     request->setScanInsideImages(m_scanInImages);
     request->setScanType(m_scanType);
-    request->setAutoFd(file_fd);
+    request->setFd(file_fd);
     const char* user = std::getenv("USER");
     request->setUserID(user ? user : "root");
 

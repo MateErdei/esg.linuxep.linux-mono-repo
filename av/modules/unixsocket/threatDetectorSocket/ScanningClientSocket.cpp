@@ -43,7 +43,7 @@ namespace unixsocket
             return false;
         }
         std::string dataAsString = request->serialise();
-        auto autoFd = request->getAutoFd();
+        auto fd = request->getFd();
 
         try
         {
@@ -52,7 +52,7 @@ namespace unixsocket
                 return false;
             }
 
-            auto ret = send_fd(m_socket_fd, autoFd->get());
+            auto ret = send_fd(m_socket_fd, fd);
             if (ret < 0)
             {
                 return false;

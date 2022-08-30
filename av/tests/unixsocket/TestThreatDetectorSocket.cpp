@@ -83,7 +83,7 @@ TEST_F(TestThreatDetectorSocket, test_running) // NOLINT
 
 static scan_messages::ScanResponse scan(
     unixsocket::ScanningClientSocket& socket,
-    std::shared_ptr<datatypes::AutoFd> file_fd,
+    int file_fd,
     const std::string& filename)
 {
     scan_messages::ScanResponse response;
@@ -103,7 +103,7 @@ static scan_messages::ScanResponse scan(
     request->setScanInsideArchives(false);
     request->setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     request->setUserID("root");
-    request->setAutoFd(file_fd);
+    request->setFd(file_fd);
 
     auto sendResult = socket.sendRequest(request);
     if (!sendResult)
@@ -146,7 +146,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
     {
         unixsocket::ScanningClientSocket client_socket(socketPath);
         TestFile testFile("testfile");
-        auto fd = std::make_shared<datatypes::AutoFd>(testFile.open());
+        auto fd =testFile.open();
         auto response = scan(client_socket, fd, THREAT_PATH);
 
         EXPECT_FALSE(response.allClean());
@@ -184,7 +184,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
     {
         unixsocket::ScanningClientSocket client_socket(socketPath);
         TestFile testFile("testfile");
-        auto fd = std::make_shared<datatypes::AutoFd>(testFile.open());
+        auto fd = testFile.open();
         auto response = scan(client_socket, fd, THREAT_PATH);
 
         EXPECT_TRUE(response.allClean());
@@ -216,13 +216,13 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
     {
         unixsocket::ScanningClientSocket client_socket(socketPath);
         TestFile testFile("testfile");
-        auto fd = std::make_shared<datatypes::AutoFd>(testFile.open());
-        ASSERT_GE(fd->get(), 0);
+        auto fd = testFile.open();
+        ASSERT_GE(fd, 0);
         auto response = scan(client_socket, fd, THREAT_PATH);
         EXPECT_TRUE(response.allClean());
 
-        fd->reset(testFile.open());
-        ASSERT_GE(fd->get(), 0);
+        fd = testFile.open();
+        ASSERT_GE(fd, 0);
         response = scan(client_socket, fd, THREAT_PATH);
         EXPECT_TRUE(response.allClean());
     }
@@ -253,7 +253,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws)
     {
         unixsocket::ScanningClientSocket client_socket(socketPath);
         TestFile testFile("testfile");
-        auto fd = std::make_shared<datatypes::AutoFd>(testFile.open());
+        auto fd = testFile.open();
         auto response = scan(client_socket, fd, THREAT_PATH);
         EXPECT_NE(response.getErrorMsg(), "");
     }
@@ -303,7 +303,7 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused)
         assert(!client_sockets.empty()); // make cppcheck happy
         unixsocket::ScanningClientSocket& client_socket(client_sockets.back());
         TestFile testFile("testfile");
-        auto fd = std::make_shared<datatypes::AutoFd>(testFile.open());
+        auto fd = testFile.open();
 
         auto response = scan(client_socket, fd, THREAT_PATH);
         EXPECT_EQ(response.getErrorMsg(), "Failed to send scan request");

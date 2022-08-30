@@ -27,14 +27,14 @@ static void flip_odirect(const std::string& file_path, int file_fd)
     }
 }
 
-static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, std::shared_ptr<datatypes::AutoFd> fd, const std::string& filename)
+static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, int fd, const std::string& filename)
 {
     auto request = std::make_shared<scan_messages::ClientScanRequest>();
     request->setPath(filename);
     request->setScanInsideArchives(false);
     request->setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     request->setUserID("root");
-    request->setAutoFd(fd);
+    request->setFd(fd);
     socket.connect();
     socket.sendRequest(request);
 
@@ -57,13 +57,13 @@ int main(int argc, char* argv[])
         filename = argv[1];
     }
 
-    auto file_fd = std::make_shared<datatypes::AutoFd>(open(filename.c_str(), O_RDONLY));
-    assert(file_fd->get() >= 0);
+    auto file_fd = open(filename.c_str(), O_RDONLY);
+    assert(file_fd >= 0);
 
     const std::string path = "/tmp/fd_chroot/tmp/unix_socket";
     unixsocket::ScanningClientSocket socket(path);
 
-    std::thread flipper(&flip_odirect, filename, file_fd->get());
+    std::thread flipper(&flip_odirect, filename, file_fd);
 
     auto response = scan(socket, file_fd, filename); // takes ownership of file_fd
 
