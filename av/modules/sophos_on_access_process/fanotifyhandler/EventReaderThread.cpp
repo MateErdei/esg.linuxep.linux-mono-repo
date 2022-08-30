@@ -78,13 +78,14 @@ bool EventReaderThread::handleFanotifyEvent()
         }
 
         auto eventFd = metadata->fd;
-        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
-        scanRequest->setFd(eventFd);
         if (eventFd < 0)
         {
             LOGDEBUG("Got fanotify metadata event without fd");
             continue;
         }
+
+        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
+        scanRequest->setFd(eventFd);
 
         auto path = getFilePathFromFd(eventFd);
         // Exclude events caused by AV logging to prevent recursive events
