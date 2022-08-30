@@ -127,4 +127,5 @@ void SoapdBootstrap::innerRun(
             mountMonitor->setExcludeRemoteFiles(oaConfig.excludeRemoteFiles);
         }
     }
+    scanRequestQueue->stop();
 }

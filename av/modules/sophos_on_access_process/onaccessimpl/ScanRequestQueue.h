@@ -35,6 +35,11 @@ namespace sophos_on_access_process::onaccessimpl
         ClientScanRequestPtr pop();
 
         /**
+         * Releases threads which are waiting in the pop() method so that they can be terminated
+         */
+        void stop();
+
+        /**
          * Returns the current size of m_queue
          */
         size_t size() const;
@@ -45,5 +50,6 @@ namespace sophos_on_access_process::onaccessimpl
         std::condition_variable m_condition;
 
         size_t m_maxSize;
+        bool m_shuttingDown = false;
     };
 }

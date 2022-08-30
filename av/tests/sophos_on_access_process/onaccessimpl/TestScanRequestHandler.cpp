@@ -100,6 +100,7 @@ TEST_F(TestScanRequestHandler, scan_threadPopsAllItemsFromQueue)
     EXPECT_TRUE(waitForLog(logMsg1.str()));
     EXPECT_TRUE(waitForLog(logMsg2.str()));
     ASSERT_EQ(socket->m_paths.size(), 2);
+    scanRequestQueue->stop();
 }
 
 
@@ -113,6 +114,6 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileWaiting)
         scanRequestQueue, socket);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
     EXPECT_TRUE(waitForLog("Entering Main Loop"));
-    std::this_thread::sleep_for(50ms); //So scanHandler can get into the wait (100ms long)
+    scanRequestQueue->stop();
     scanHandlerThread->requestStopIfNotStopped();
 }

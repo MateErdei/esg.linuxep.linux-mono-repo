@@ -39,16 +39,20 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
 {
     std::unique_lock<std::mutex> lock(m_lock);
     // release lock as long as the wait and re-aquire it afterwards.
-    if (m_condition.wait_for(lock, 100ms, [this]{ return !m_queue.empty(); }))
+    m_condition.wait(lock, [this]{ return m_shuttingDown || !m_queue.empty(); });
+    ClientScanRequestPtr scanRequest = nullptr;
+    if (!m_shuttingDown)
     {
-        auto request = m_queue.front();
+        scanRequest = m_queue.front();
         m_queue.pop();
-        return request;
     }
-    else
-    {
-        return nullptr;
-    }
+    return scanRequest;
+}
+
+void ScanRequestQueue::stop()
+{
+    m_shuttingDown = true;
+    m_condition.notify_all();
 }
 
 size_t ScanRequestQueue::size() const
