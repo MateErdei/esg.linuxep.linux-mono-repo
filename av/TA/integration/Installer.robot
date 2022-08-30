@@ -486,6 +486,12 @@ Check installer corrects permissions of chroot files on upgrade
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/resolv.conf  sophos-spl-user  sophos-spl-group
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/ld.so.cache  sophos-spl-user  sophos-spl-group
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/hosts  sophos-spl-user  sophos-spl-group
+    stop sophos_threat_detector
+    wait until threat detector not running
+    Wait Until Sophos Threat Detector Log Contains With Offset  Closing lock file
+    ${tdPidFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/var/threat_detector.pid
+    Create file   ${tdPidFile}
+    Change Owner  ${tdPidFile}  sophos-spl-user  sophos-spl-group
     Modify manifest
 
     Mark Sophos Threat Detector Log
@@ -502,6 +508,8 @@ Check installer corrects permissions of chroot files on upgrade
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     threat detector log should not contain with offset  Failed to read customerID - using default value
+
+    wait until sophos threat detector log contains with offset  Lock taken on: ${tdPidFile}
 
 Check installer can handle versioned copied Virus Data from 1-0-0
     # Simulate the versioned copied Virus Data that exists in a 1.0.0 install
