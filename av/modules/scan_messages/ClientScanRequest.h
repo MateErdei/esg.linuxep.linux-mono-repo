@@ -30,6 +30,9 @@ namespace scan_messages
 
         void setUserID(const std::string& userID) { m_userID = userID; }
 
+        /*
+         * fd is donated in this call
+         */
         void setFd(int fd) { m_autoFd.reset(fd); }
 
         [[nodiscard]] std::string serialise() const;
