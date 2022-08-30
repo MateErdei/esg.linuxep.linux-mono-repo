@@ -13,20 +13,6 @@
 
 namespace
 {
-    class ScanPathAccessor : private scan_messages::ClientScanRequest
-    {
-    public:
-        ScanPathAccessor(const ClientScanRequest& other)
-        {
-            m_path=other.getPath();
-        }
-
-        operator std::string() const
-        {
-            return m_path;
-        }
-    };
-
     class RecordingMockSocket : public unixsocket::IScanningClientSocket {
     public:
         explicit RecordingMockSocket(const bool withDetections=true, const bool withErrors=false)
@@ -45,8 +31,7 @@ namespace
 
         bool sendRequest(scan_messages::ClientScanRequestPtr request) override
         {
-            std::string p = ScanPathAccessor(*request);
-            m_paths.emplace_back(p);
+            m_paths.emplace_back(request->getPath());
             //            PRINT("Scanning " << p);
             return true;
         }
