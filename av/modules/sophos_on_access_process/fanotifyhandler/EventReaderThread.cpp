@@ -5,7 +5,6 @@
 #include "Logger.h"
 
 #include "common/SaferStrerror.h"
-#include "common/StringUtils.h"
 #include "datatypes/AutoFd.h"
 
 // Standard C++
@@ -78,14 +77,16 @@ bool EventReaderThread::handleFanotifyEvent()
             return false;
         }
 
-        auto eventFd = datatypes::AutoFd(metadata->fd);
-        if (!eventFd.valid())
+        auto eventFd = metadata->fd;
+        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
+        scanRequest->setFd(eventFd);
+        if (eventFd < 0)
         {
             LOGDEBUG("Got fanotify metadata event without fd");
             continue;
         }
 
-        auto path = getFilePathFromFd(eventFd.fd());
+        auto path = getFilePathFromFd(eventFd);
         // Exclude events caused by AV logging to prevent recursive events
         if (path.rfind(m_pluginLogDir, 0) == 0)
         {
@@ -100,19 +101,18 @@ bool EventReaderThread::handleFanotifyEvent()
 
         auto uid = getUidFromPid(metadata->pid);
         // TODO: Handle process exclusions
-        auto escapedPath = common::escapePathForLogging(path);
+
         if (metadata->mask & FAN_OPEN)
         {
-            LOGINFO("On-open event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
+            LOGINFO("On-open event for " << path << " from PID " << metadata->pid << " and UID " << uid);
         }
         else if (metadata->mask & FAN_CLOSE_WRITE)
         {
-            LOGINFO("On-close event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
-            auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
-            scanRequest->setPath(path);
+            LOGINFO("On-close event for " << path << " from PID " << metadata->pid << " and UID " << uid);
+            scanRequest->setPath("");
             scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
             scanRequest->setUserID(std::to_string(uid));
-            scanRequest->setFd(eventFd.fd());
+
             if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
             {
                 LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
