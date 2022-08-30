@@ -280,7 +280,7 @@ On Access Scans Corrupted Eicar
     Wait Until On Access Log Contains  corrupted.xls as it is corrupted
 
 On Access Scans File On BFS
-    Require Filesystem  bts
+    Require Filesystem  bfs
     Mark On Access Log
     Start On Access With Running Threat Detector
 

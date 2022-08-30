@@ -126,7 +126,7 @@ def generate_manifest_new_api(dist, file_objects=None):
     env['OPENSSL_PATH'] = "/usr/bin/openssl"
     previous_contents = read(manifest_path)
     result = subprocess.run(
-        ['sb_manifest_sign', '-l', '--folder', dist, '--output', manifest_path, '--exclusions', exclusions]
+        ['sb_manifest_sign', '--folder', dist, '--output', manifest_path, '--exclusions', exclusions]
         , stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env,
         timeout=60
     )
