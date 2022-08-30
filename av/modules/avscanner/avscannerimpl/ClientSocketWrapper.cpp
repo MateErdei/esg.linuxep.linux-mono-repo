@@ -105,7 +105,6 @@ namespace avscanner::avscannerimpl
 
     scan_messages::ScanResponse ClientSocketWrapper::attemptScan(const scan_messages::ClientScanRequestPtr& request)
     {
-        auto autoFd = request->getAutoFd();
         if (!m_socket.sendRequest(request))
         {
             throw ReconnectScannerException("Failed to send scan request");
