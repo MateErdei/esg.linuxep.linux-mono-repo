@@ -253,7 +253,7 @@ On Access Scans Encoded Eicars
 
     wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars    60
 
-On Access Scans Password Protected Eicar
+On Access Scans Password Protected File
     Register Cleanup    Exclude As Password Protected
 
     Mark On Access Log
@@ -266,7 +266,7 @@ On Access Scans Password Protected Eicar
 
     Wait Until On Access Log Contains  passwd-protected.xls as it is password protected
 
-On Access Scans Corrupted Eicar
+On Access Scans Corrupted File
     Register Cleanup     Exclude As Corrupted
 
     Mark On Access Log

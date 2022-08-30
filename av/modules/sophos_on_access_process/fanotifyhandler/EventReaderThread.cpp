@@ -5,6 +5,7 @@
 #include "Logger.h"
 
 #include "common/SaferStrerror.h"
+#include "common/StringUtils.h"
 #include "datatypes/AutoFd.h"
 
 // Standard C++
@@ -88,6 +89,12 @@ bool EventReaderThread::handleFanotifyEvent()
         scanRequest->setFd(eventFd);
 
         auto path = getFilePathFromFd(eventFd);
+        //Either path was too long or fd was invalid
+        if(path.empty())
+        {
+            continue;
+        }
+
         // Exclude events caused by AV logging to prevent recursive events
         if (path.rfind(m_pluginLogDir, 0) == 0)
         {
@@ -102,15 +109,15 @@ bool EventReaderThread::handleFanotifyEvent()
 
         auto uid = getUidFromPid(metadata->pid);
         // TODO: Handle process exclusions
-
+        auto escapedPath = common::escapePathForLogging(path);
         if (metadata->mask & FAN_OPEN)
         {
-            LOGINFO("On-open event for " << path << " from PID " << metadata->pid << " and UID " << uid);
+            LOGINFO("On-open event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
         }
         else if (metadata->mask & FAN_CLOSE_WRITE)
         {
-            LOGINFO("On-close event for " << path << " from PID " << metadata->pid << " and UID " << uid);
-            scanRequest->setPath("");
+            LOGINFO("On-close event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
+            scanRequest->setPath(path);
             scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
             scanRequest->setUserID(std::to_string(uid));
 
@@ -134,12 +141,17 @@ std::string EventReaderThread::getFilePathFromFd(int fd)
     ssize_t len;
 
     if (fd <= 0)
+    {
+        LOGWARN("Failed to get path from fd");
         return "";
+    }
+
 
     std::stringstream procFdPath;
     procFdPath << "/proc/self/fd/" << fd;
     if ((len = m_sysCalls->readlink(procFdPath.str().c_str(), buffer, PATH_MAX - 1)) < 0)
     {
+        LOGWARN("Failed to get path from fd: " << common::safer_strerror(errno));
         return "";
     }
 

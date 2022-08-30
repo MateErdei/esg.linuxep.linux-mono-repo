@@ -49,10 +49,10 @@ TEST_F(TestScanRequestQueue, push_FIFO)
     queue.emplace(emplaceRequest1);
     queue.emplace(emplaceRequest2);
     auto popItem1 = queue.pop();
-    EXPECT_TRUE(popItem1 != nullptr);
+    ASSERT_TRUE(popItem1 != nullptr);
     EXPECT_EQ(popItem1->getPath(), "1");
     auto popItem2 = queue.pop();
-    EXPECT_TRUE(popItem2 != nullptr);
+    ASSERT_TRUE(popItem2 != nullptr);
     EXPECT_EQ(popItem2->getPath(), "2");
 }
 
@@ -72,13 +72,13 @@ TEST_F(TestScanRequestQueue, queueCanProcessMoreItemsThanItsMaxSizeSequentially)
     EXPECT_TRUE(queue.emplace(emplaceRequest2));
     EXPECT_FALSE(queue.emplace(emplaceRequest3));
     auto popItem1 = queue.pop();
-    EXPECT_TRUE(popItem1 != nullptr);
+    ASSERT_TRUE(popItem1 != nullptr);
     EXPECT_EQ(popItem1->getPath(), "1");
     EXPECT_TRUE(queue.emplace(emplaceRequest3));
     auto popItem2 = queue.pop();
-    EXPECT_TRUE(popItem2 != nullptr);
+    ASSERT_TRUE(popItem2 != nullptr);
     EXPECT_EQ(popItem2->getPath(), "2");
     auto popItem3 = queue.pop();
-    EXPECT_TRUE(popItem3 != nullptr);
+    ASSERT_TRUE(popItem3 != nullptr);
     EXPECT_EQ(popItem3->getPath(), "3");
 }
