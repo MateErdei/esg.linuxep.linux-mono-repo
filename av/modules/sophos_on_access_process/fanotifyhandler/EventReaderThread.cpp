@@ -78,14 +78,14 @@ bool EventReaderThread::handleFanotifyEvent()
             return false;
         }
 
-        auto eventFd = metadata->fd;
-        if (eventFd < 0)
+        auto eventFd = datatypes::AutoFd(metadata->fd);
+        if (!eventFd.valid())
         {
             LOGDEBUG("Got fanotify metadata event without fd");
             continue;
         }
 
-        auto path = getFilePathFromFd(eventFd);
+        auto path = getFilePathFromFd(eventFd.fd());
         // Exclude events caused by AV logging to prevent recursive events
         if (path.rfind(m_pluginLogDir, 0) == 0)
         {
@@ -112,7 +112,7 @@ bool EventReaderThread::handleFanotifyEvent()
             scanRequest->setPath(path);
             scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
             scanRequest->setUserID(std::to_string(uid));
-            scanRequest->setFd(eventFd);
+            scanRequest->setFd(eventFd.fd());
             if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
             {
                 LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
