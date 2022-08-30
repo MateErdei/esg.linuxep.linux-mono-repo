@@ -116,7 +116,7 @@ set(DIST "${CMAKE_BINARY_DIR}/${REL_DIST}")
 set(CMAKE_INSTALL_PREFIX "${REL_DIST}")
 
 if(NOT DEFINED INPUT)
-    set( INPUT ${CMAKE_SOURCE_DIR}/redist )
+    set( INPUT ${CMAKE_SOURCE_DIR}/input )
 endif()
 
 if(NOT DEFINED REDIST)
