@@ -16,7 +16,7 @@ using namespace sophos_on_access_process::onaccessimpl;
 namespace fs = sophos_filesystem;
 
 ScanRequestHandler::ScanRequestHandler(
-    std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestQueue> scanRequestQueue,
+   ScanRequestQueueSharedPtr scanRequestQueue,
     std::shared_ptr<unixsocket::IScanningClientSocket> socket)
     : m_scanRequestQueue(scanRequestQueue)
     , m_socket(socket)
