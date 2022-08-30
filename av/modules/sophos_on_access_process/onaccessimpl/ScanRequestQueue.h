@@ -52,4 +52,6 @@ namespace sophos_on_access_process::onaccessimpl
         size_t m_maxSize;
         bool m_shuttingDown = false;
     };
+
+    using ScanRequestQueueSharedPtr = std::shared_ptr<ScanRequestQueue>;
 }

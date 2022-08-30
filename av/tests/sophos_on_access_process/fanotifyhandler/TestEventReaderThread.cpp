@@ -23,7 +23,7 @@ protected:
     }
 
     std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
-    std::shared_ptr<ScanRequestQueue> m_scanRequestQueue;
+    ScanRequestQueueSharedPtr m_scanRequestQueue;
         fs::path m_pluginInstall = "/opt/sophos-spl/plugins/av";
 };
 
