@@ -3,6 +3,7 @@ Library         Process
 Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
+Library         ../Libs/CoreDumps.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
@@ -60,6 +61,7 @@ ${EICAR_PUA_STRING}     X5]+)D:)D<5N*PZ5[/EICAR-POTENTIALLY-UNWANTED-OBJECT-TEST
 ${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet>
 ${STATUS_XML}       ${MCS_PATH}/status/SAV_status.xml
 
+${LONG_DIRECTORY}   0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 ${IDE_DIR}          ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/update_source/vdl
 ${INSTALL_IDE_DIR}  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
 ${SCAN_DIRECTORY}   /home/vagrant/this/is/a/directory/for/scanning
@@ -99,6 +101,8 @@ Dump Threads And Fail
     Fail  ${ERROR_MESSAGE}
 
 Check AV Plugin Not Running
+    ${result} =  Run Process  ps  -ef   |    grep   sophos  stderr=STDOUT  shell=yes
+    Log  output is ${result.stdout}
     ${result} =   ProcessUtils.pidof  ${PLUGIN_BINARY}
     Run Keyword If  ${result} != ${-1}      Dump Threads And Fail    AV plugin still running: ${result}
 
@@ -398,6 +402,10 @@ Wait Until On Access Log Contains
     ...   1
     Wait Until File Log Contains  On Access Log Contains   ${input}   timeout=${timeout}  interval=${interval}
 
+Wait Until On Access Log Contains With Offset
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  On Access Log Contains With Offset  ${input}   timeout=${timeout}
+
 FakeManagement Log Contains
     [Arguments]  ${input}
     ${log_path} =   FakeManagementLog.get_fake_management_log_path
@@ -533,6 +541,8 @@ Install Base For Component Tests
     Run Process  chmod  +x  ${BASE_SDDS}/files/base/bin/*
     ${result} =   Run Process   bash  ${BASE_SDDS}/install.sh  timeout=600s    stderr=STDOUT
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install base.\noutput: \n${result.stdout}"
+
+    CoreDumps.Enable Core Files
     # Check watchdog running
     ProcessUtils.wait_for_pid  ${WATCHDOG_BINARY}  ${5}
     # Stop MCS router since we haven't configured Central
@@ -632,6 +642,7 @@ Restart AV Plugin And Clear The Logs For Integration Tests
     Dump Log  ${AV_LOG_PATH}
     Dump Log  ${THREAT_DETECTOR_LOG_PATH}
     Dump Log  ${SUSI_DEBUG_LOG_PATH}
+    Dump Log  ${ON_ACCESS_LOG_PATH}
     Dump Log  ${SCANNOW_LOG_PATH}
     Dump Log  ${CLOUDSCAN_LOG_PATH}
     Dump Log  ${WATCHDOG_LOG}
@@ -640,6 +651,7 @@ Restart AV Plugin And Clear The Logs For Integration Tests
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_INFO_LOG_PATH}
+    Remove File    ${ON_ACCESS_LOG_PATH}
     Remove File    ${WATCHDOG_LOG}
     Remove File    ${CLOUDSCAN_LOG_PATH}
     Remove File    ${UPDATE_SCHEDULER}
@@ -1065,6 +1077,55 @@ Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Register Cleanup  Run IDE update with SUSI loaded
     Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update with SUSI loaded
+
+Start AV
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    mark av log
+    mark sophos threat detector log
+    Check AV Plugin Not Running
+    Check Threat Detector Not Running
+    Check Threat Detector PID File Does Not Exist
+    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
+    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
+    Register Cleanup   Terminate And Wait until threat detector not running  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
+    Register Cleanup   Terminate And Wait until AV Plugin not running  ${AV_PLUGIN_HANDLE}
+    Check AV Plugin Installed With Offset
+
+Copy And Extract Image
+    [Arguments]  ${imagename}
+    ${imagetarfile} =  Set Variable  ${RESOURCES_PATH}/filesystem_type_images/${imagename}.img.tgz
+
+    ${UNPACK_DIRECTORY} =  Set Variable  ${NORMAL_DIRECTORY}/${imagename}.IMG
+    Create Directory  ${UNPACK_DIRECTORY}
+    Register Cleanup  Remove Directory  ${UNPACK_DIRECTORY}  recursive=True
+    ${result} =  Run Process  tar  xvzf  ${imagetarfile}  -C  ${UNPACK_DIRECTORY}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+    [Return]  ${UNPACK_DIRECTORY}/${imagename}.img
+
+Unmount Image
+    [Arguments]  ${where}
+    Run Shell Process   umount ${where}   OnError=Failed to unmount local NFS share
+    Remove Directory    ${where}  recursive=True
+
+Mount Image
+    [Arguments]  ${where}  ${image}  ${type}  ${opts}=loop
+    Create Directory  ${where}
+    ${result} =  Run Process  mount  -t  ${type}  -o  ${opts}  ${image}  ${where}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+    Register Cleanup  Unmount Image  ${where}
+
+Require Filesystem
+    [Arguments]   ${fs_type}
+    ${file_exists} =  Does File Not Exist  /proc/filesystems
+    Skip If    ${file_exists}  /proc/filesystems does not exist - cannot determine supported filesystems
+    ${contains} =  Does File Not Contain  /proc/filesystems  ${fs_type}
+    Skip If    ${contains}  ${fs_type} is not a supported filesystem with this kernel - skipping test
 
 Terminate And Wait until threat detector not running
     [Arguments]   ${handle}

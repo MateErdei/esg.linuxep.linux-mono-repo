@@ -55,3 +55,19 @@ def copy_file_with_permissions(src, dest):
     raise Exception("Unable to copy " + src)
 
 
+def does_file_exist(path) -> bool:
+    return bool(os.path.exists(path))
+
+
+def does_file_not_exist(path) -> bool:
+    return not does_file_exist(path)
+
+
+def does_file_contain(path, text) -> bool:
+    with open(path) as f:
+        return text in f.read()
+    return False
+
+
+def does_file_not_contain(path, text) -> bool:
+    return not does_file_contain(path, text)
