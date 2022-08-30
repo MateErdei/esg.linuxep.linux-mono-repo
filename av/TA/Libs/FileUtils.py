@@ -71,5 +71,5 @@ def does_file_contain_word(path, word) -> bool:
     return False
 
 
-def does_file_not_contain_word(path, word) -> bool:
+def does_file_not_contain(path, word) -> bool:
     return not does_file_contain_word(path, word)
