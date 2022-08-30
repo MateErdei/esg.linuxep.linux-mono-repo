@@ -251,7 +251,9 @@ def main(argv):
     BASE_DIR = os.path.dirname(BUILD_DIR)
     global INPUT_DIR
     global OUTPUT_DIR
-    INPUT_DIR = os.path.join(BASE_DIR, "input", "susi_input")
+    input_dir = os.path.join(BASE_DIR, "input")
+    input_dir = os.environ.get("INPUT", input_dir)
+    INPUT_DIR = os.path.join(input_dir, "susi_input")
     if not os.path.isdir(INPUT_DIR):
         print("Can't find INPUT_DIR", INPUT_DIR)
         subprocess.call(['ls', '-l', BUILD_DIR])
@@ -259,7 +261,8 @@ def main(argv):
         return 1
 
     print("Getting INPUT from %s" % INPUT_DIR)
-    OUTPUT_DIR = os.path.join(BASE_DIR, "redist")
+    default_output = os.path.join(BASE_DIR, "redist")
+    OUTPUT_DIR = os.environ.get("REDIST", default_output)
     shutil.rmtree(OUTPUT_DIR, ignore_errors=True)
     print("Putting OUTPUT to %s" % OUTPUT_DIR)
 

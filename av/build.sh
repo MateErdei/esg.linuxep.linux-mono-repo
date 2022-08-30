@@ -58,6 +58,7 @@ DUMP_LAST_TEST_ON_FAILURE=0
 RUN_CPPCHECK=0
 BUILD_SDDS3=1
 TAP=${TAP:-tap}
+[[ -n "$REDIST" ]] || REDIST=$BASE/redist
 
 while [[ $# -ge 1 ]]
 do
@@ -228,12 +229,12 @@ do
             BUILD_DIR=$1
             ;;
         --get-input|--get-input-new)
-            rm -rf input redist
+            rm -rf input "${REDIST}"
             export TAP_PARAMETER_MODE=release
             $TAP fetch av_plugin.build.normal_build
             ;;
         --setup)
-            rm -rf input redist
+            rm -rf input "${REDIST}"
             export TAP_PARAMETER_MODE=release
             $TAP fetch av_plugin.build.normal_build
             NO_BUILD=1
@@ -250,8 +251,8 @@ do
     shift
 done
 
+export REDIST
 [[ -n "$BUILD_DIR" ]] || BUILD_DIR=build64-${CMAKE_BUILD_TYPE}
-[[ -n "$REDIST" ]] || REDIST=$BASE/redist
 
 [[ -n "${PLUGIN_NAME}" ]] || PLUGIN_NAME=${DEFAULT_PRODUCT}
 [[ -n "${PRODUCT}" ]] || PRODUCT=${PLUGIN_NAME}
@@ -412,7 +413,7 @@ function build()
 
     cp -r $REDIST/googletest $BASE/tests
 
-    [[ -e ${REDIST}/sdds3 ]] || ln -s ../input/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
+    [[ -e ${REDIST}/sdds3 ]] || ln -s ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 
     if (( RUN_CPPCHECK == 1 ))
     then
@@ -475,7 +476,7 @@ function build()
     which cmake
     LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
         cmake \
-            -DINPUT="${REDIST}" \
+            -DINPUT="${INPUT}" \
             -DREDIST="${REDIST}" \
             -DPLUGIN_NAME="${PLUGIN_NAME}" \
             -DPRODUCT_NAME="${PRODUCT_NAME}" \
@@ -485,7 +486,7 @@ function build()
             -DCMAKE_CXX_COMPILER=$CXX \
             -DCMAKE_C_COMPILER=$CC \
             ${EXTRA_CMAKE_OPTIONS} \
-        .. || exitFailure 14 "Failed to configure $PRODUCT"
+        ${BASE} || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} "CXX=$CXX" "CC=$CC" "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" \
         || exitFailure 15 "Failed to build $PRODUCT"
 
@@ -531,7 +532,7 @@ function build()
         make dist_sdds3 CXX=$CXX CC=$CC || exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
     fi
     make sdds CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create sdds component $PRODUCT"
-    cd ..
+    cd ${BASE}
 
     echo "STARTINGDIR=$STARTINGDIR" >output/STARTINGDIR
     echo "BASE=$BASE" >output/BASE
@@ -546,40 +547,40 @@ function build()
     then
         echo "Separate SDDS component"
         [[ -f $SDDS/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
-        cp -rL "$SDDS" output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
+        cp -rL "$SDDS" ${OUTPUT}/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
         if (( BUILD_SDDS3 == 1 ))
         then
-            cp -rL "$SDDS3" output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS3 package to output"
-            cp -rL $SDDS/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3 package output"
+            cp -rL "$SDDS3" ${OUTPUT}/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS3 package to output"
+            cp -rL $SDDS/SDDS-Import.xml ${OUTPUT}/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3 package output"
         fi
     else
         exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to find SDDS component in build"
     fi
     if [[ -d "${INPUT}/base-sdds" ]]
     then
-        cp -rL "${INPUT}/base-sdds"  output/base-sdds \
+        cp -rL "${INPUT}/base-sdds"  ${OUTPUT}/base-sdds \
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy SSPL-Base SDDS component to output"
         chmod 755 output/base-sdds/{install.sh,files/bin/*,files/base/bin/*}
     fi
     if [[ -d ${BUILD_DIR}/componenttests ]]
     then
-        cp -rL ${BUILD_DIR}/componenttests output/componenttests \
+        cp -rL ${BUILD_DIR}/componenttests ${OUTPUT}/componenttests \
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     fi
     if [[ -x ${BUILD_DIR}/tools/avscanner/mountinfoimpl/PrintMounts ]]
     then
-        mkdir -p output/componenttests
+        mkdir -p ${OUTPUT}/componenttests
         cp -rL ${BUILD_DIR}/tools/avscanner/mountinfoimpl/PrintMounts  output/componenttests/ \
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy PrintMounts"
     fi
-    mkdir -p output/manualtests
-    cp -L TA/manual/*.sh TA/manual/*.py output/manualtests/
+    mkdir -p ${OUTPUT}/manualtests
+    cp -L TA/manual/*.sh TA/manual/*.py ${OUTPUT}/manualtests/
 
     python3 TA/process_capnp_files.py
 
     if [[ -d ${BUILD_DIR}/symbols ]]
     then
-        cp -a ${BUILD_DIR}/symbols output/
+        cp -a ${BUILD_DIR}/symbols ${OUTPUT}/
     fi
 
 
