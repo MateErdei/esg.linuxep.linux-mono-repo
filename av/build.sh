@@ -466,9 +466,9 @@ function build()
     rm -rf output
     mkdir -p output
 
-    [[ $CLEAN == 1 ]] && rm -rf build${BITS}
-    mkdir -p build${BITS}
-    cd build${BITS}
+    [[ $CLEAN == 1 ]] && rm -rf ${BUILD_DIR}
+    mkdir -p ${BUILD_DIR}
+    cd ${BUILD_DIR}
     which cmake
     LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
         cmake \
@@ -534,9 +534,9 @@ function build()
     echo "PATH=$PATH" >output/PATH
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >output/LD_LIBRARY_PATH
 
-    local INSTALLSET=build64/installset
-    local SDDS=build64/sdds
-    local SDDS3=build64/SDDS3-PACKAGE
+    local INSTALLSET=${BUILD_DIR}/installset
+    local SDDS=${BUILD_DIR}/sdds
+    local SDDS3=${BUILD_DIR}/SDDS3-PACKAGE
 
     if [[ -d $SDDS ]]
     then
@@ -557,15 +557,15 @@ function build()
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy SSPL-Base SDDS component to output"
         chmod 755 output/base-sdds/{install.sh,files/bin/*,files/base/bin/*}
     fi
-    if [[ -d build64/componenttests ]]
+    if [[ -d ${BUILD_DIR}/componenttests ]]
     then
-        cp -rL build64/componenttests output/componenttests \
+        cp -rL ${BUILD_DIR}/componenttests output/componenttests \
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     fi
-    if [[ -x build64/tools/avscanner/mountinfoimpl/PrintMounts ]]
+    if [[ -x ${BUILD_DIR}/tools/avscanner/mountinfoimpl/PrintMounts ]]
     then
         mkdir -p output/componenttests
-        cp -rL build64/tools/avscanner/mountinfoimpl/PrintMounts  output/componenttests/ \
+        cp -rL ${BUILD_DIR}/tools/avscanner/mountinfoimpl/PrintMounts  output/componenttests/ \
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy PrintMounts"
     fi
     mkdir -p output/manualtests
@@ -573,9 +573,9 @@ function build()
 
     python3 TA/process_capnp_files.py
 
-    if [[ -d build${BITS}/symbols ]]
+    if [[ -d ${BUILD_DIR}/symbols ]]
     then
-        cp -a build${BITS}/symbols output/
+        cp -a ${BUILD_DIR}/symbols output/
     fi
 
 
