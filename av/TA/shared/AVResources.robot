@@ -1122,10 +1122,10 @@ Mount Image
 
 Require Filesystem
     [Arguments]   ${fs_type}
-    ${file_exists} =  Does File Not Exist  /proc/filesystems
-    Skip If    ${file_exists}  /proc/filesystems does not exist - cannot determine supported filesystems
-    ${contains} =  Does File Not Contain Word  /proc/filesystems  ${fs_type}
-    Skip If    ${contains}  ${fs_type} is not a supported filesystem with this kernel - skipping test
+    ${file_does_not_exist} =  Does File Not Exist  /proc/filesystems
+    Skip If    ${file_does_not_exist}  /proc/filesystems does not exist - cannot determine supported filesystems
+    ${file_does_not_contain} =  Does File Not Contain  /proc/filesystems  ${fs_type}
+    Skip If    ${file_does_not_contain}  ${fs_type} is not a supported filesystem with this kernel - skipping test
 
 Terminate And Wait until threat detector not running
     [Arguments]   ${handle}

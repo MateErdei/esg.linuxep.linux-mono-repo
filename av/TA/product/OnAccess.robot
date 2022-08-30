@@ -46,6 +46,9 @@ On Access Test Setup
     Register Cleanup  Check Dmesg For Segfaults
     Register Cleanup  Exclude CustomerID Failed To Read Error
 
+    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
+    Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
+
 On Access Test Teardown
     Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
@@ -277,7 +280,7 @@ On Access Scans Corrupted Eicar
     Wait Until On Access Log Contains  corrupted.xls as it is corrupted
 
 On Access Scans File On BFS
-    Require Filesystem  bfs
+    Require Filesystem  bts
     Mark On Access Log
     Start On Access With Running Threat Detector
 
