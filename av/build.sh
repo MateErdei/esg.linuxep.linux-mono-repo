@@ -97,6 +97,9 @@ do
         --no-sdds3)
             BUILD_SDDS3=0
             ;;
+        --sdds3)
+            BUILD_SDDS3=1
+            ;;
         --centos7-local|--centos7|--centos)
             export ENABLE_STRIP=0
             CMAKE_BUILD_TYPE=Debug
