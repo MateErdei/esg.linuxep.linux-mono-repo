@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 DEFAULT_PRODUCT=av
-BUILD_DIR=sspl-plugin-anti-virus
 
 FAILURE_DIST_FAILED=18
 FAILURE_COPY_SDDS_FAILED=60
@@ -217,6 +216,14 @@ do
             shift
             TAP=$1
             ;;
+        --redist)
+            shift
+            REDIST=$1
+            ;;
+        --build-dir)
+            shift
+            BUILD_DIR=$1
+            ;;
         --get-input|--get-input-new)
             rm -rf input redist
             export TAP_PARAMETER_MODE=release
@@ -240,6 +247,8 @@ do
     shift
 done
 
+[[ -n "$BUILD_DIR" ]] || BUILD_DIR=build64-${CMAKE_BUILD_TYPE}
+[[ -n "$REDIST" ]] || REDIST=$BASE/redist
 
 [[ -n "${PLUGIN_NAME}" ]] || PLUGIN_NAME=${DEFAULT_PRODUCT}
 [[ -n "${PRODUCT}" ]] || PRODUCT=${PLUGIN_NAME}
@@ -253,17 +262,11 @@ PRODUCT_UC=$(echo $PRODUCT | tr 'a-z' 'A-Z')
 export NO_REMOVE_GCC=1
 
 INPUT=$BASE/input
-
 if [[ ! -d "$INPUT" ]]
 then
-    if [[ -d "$BASE/$BUILD_DIR" ]]
-    then
-        INPUT="$BASE/$BUILD_DIR/input"
-    else
-        MESSAGE_PART1="You need to run the following to setup your input folder: "
-        MESSAGE_PART2="./build.sh --setup"
-        exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
-    fi
+    MESSAGE_PART1="You need to run the following to setup your input folder: "
+    MESSAGE_PART2="./build.sh --setup"
+    exitFailure ${FAILURE_INPUT_NOT_AVAILABLE} "${MESSAGE_PART1}${MESSAGE_PART2}"
 fi
 
 function untar_input()
@@ -359,7 +362,7 @@ function cppcheck_build()
 
 function build()
 {
-    local BITS=$1
+    local BITS=64
 
     echo "STARTINGDIR=$STARTINGDIR"
     echo "BASE=$BASE"
@@ -370,8 +373,6 @@ function build()
     then
         exitFailure $FAILURE_INPUT_NOT_AVAILABLE "No input available"
     fi
-
-    REDIST=$BASE/redist
 
     if [[ -z "$NO_UNPACK" ]]
     then
@@ -447,8 +448,7 @@ function build()
     export CPATH=/build/input/gcc/include:/usr/include/x86_64-linux-gnu${CPATH:+:${CPATH}}
     echo "After setup: LIBRARY_PATH=${LIBRARY_PATH}"
 
-    BUILD_DIR=build${BITS}
-    export LD_LIBRARY_PATH=${LIBRARY_PATH}:$(pwd)/${BUILD_DIR}/libs
+    export LD_LIBRARY_PATH=${LIBRARY_PATH}:$(pwd)/${BUILD_DIR}/libs:${BUILD_DIR}/libs
     echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
 
     if [[ ! $USE_LIBFUZZER ]]
@@ -472,7 +472,8 @@ function build()
     which cmake
     LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
         cmake \
-             -DINPUT="${REDIST}" \
+            -DINPUT="${REDIST}" \
+            -DREDIST="${REDIST}" \
             -DPLUGIN_NAME="${PLUGIN_NAME}" \
             -DPRODUCT_NAME="${PRODUCT_NAME}" \
             -DPRODUCT_LINE_ID="${PRODUCT_LINE_ID}" \
@@ -606,7 +607,7 @@ function build()
     return 0
 }
 
-build 64 2>&1 | tee $LOG
+build 2>&1 | tee $LOG
 EXIT=$?
 mkdir -p $OUTPUT
 cp $LOG $OUTPUT/ || true

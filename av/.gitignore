@@ -8,6 +8,7 @@ cmake-build-gcc10/
 input/
 output/
 build64/
+build64-*/
 products/distribution/include/AutoVersioningHeaders/
 redist/
 tests/googletest/
