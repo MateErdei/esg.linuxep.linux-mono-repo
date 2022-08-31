@@ -238,8 +238,19 @@ do
             export TAP_PARAMETER_MODE=release
             $TAP fetch av_plugin.build.normal_build
             NO_BUILD=1
-            LOCAL_GCC=1
-            LOCAL_CMAKE=1
+            ;;
+        --venv|--setup-venv)
+            python3.7 -m venv ${BASE}/tapvenv
+            source $BASE/tapvenv/bin/activate
+            cat <<EOF >tapvenv/pip.conf
+[global]
+timeout=60
+index-url = https://artifactory.sophos-ops.com/api/pypi/pypi/simple
+EOF
+            pip install --upgrade pip
+            pip install --upgrade wheel build_scripts
+            pip install --upgrade tap keyrings.alt
+            NO_BUILD=1
             ;;
          --999)
             export VERSION_OVERRIDE=9.99.9.999
