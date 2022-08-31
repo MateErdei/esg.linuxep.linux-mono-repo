@@ -239,6 +239,10 @@
         <release-asset artifact-path="sspl-base-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060"/>
         <release-asset artifact-path="sspl-base-060/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="060"/>
 
+        <!-- debug -->
+        <build-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="debug"/>
+        <build-asset artifact-path="sspl-base/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="debug"/>
+
         <publishbranches>master,feature,release,develop,bugfix</publishbranches>
     </publish>
 </package>
