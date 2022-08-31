@@ -169,7 +169,7 @@
         </component>
       </line>
       <line id="ServerProtectionLinux-Plugin-AV">
-        <component importreference="ServerProtectionLinux-Plugin-AV-1.0.7.42">
+        <component importreference="ServerProtectionLinux-Plugin-AV-1.0.7.200">
           <releasetag baseversion="" tag="RECOMMENDED"/>
           <genericsupplement decodepath="files/plugins/av/chroot/susi/update_source/vdl" line="DataSetA" tag="LATEST_CLOUD_ENDPOINT" warehousename="ixdata"/>
           <genericsupplement decodepath="files/plugins/av/chroot/susi/update_source/reputation" line="LocalRepData" tag="LATEST_CLOUD_ENDPOINT" warehousename="ixdata"/>
