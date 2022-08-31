@@ -20,5 +20,10 @@ aws s3 cp $TEST_SCRIPTS/log.html s3://sspl-testbucket/test-results/$STACKNAME/$H
     aws s3 cp $TEST_SCRIPTS/report.html s3://sspl-testbucket/test-results/$STACKNAME/$HOSTNAME-report.html && \
     aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/$STACKNAME/$HOSTNAME-cloudFormationInit.log || UPLOAD_RESULT=0
 
+if [[ -d /opt/test/coredumps ]]
+then
+    echo "Upload core files to s3://sspl-testbucket/core-files/$STACKNAME/$HOSTNAME/"
+    aws s3 sync /opt/test/coredumps s3://sspl-testbucket/test-results/$STACKNAME/core-files/$HOSTNAME/
+fi
 
 [[ $RESULT == 0 ]] || sleep 100
