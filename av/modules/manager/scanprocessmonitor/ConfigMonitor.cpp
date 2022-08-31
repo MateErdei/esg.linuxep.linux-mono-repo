@@ -144,7 +144,6 @@ namespace plugin::manager::scanprocessmonitor
             return;
         }
 
-        LOGDEBUG("Config Monitor entering main loop");
         while (true)
         {
             bool running = inner_run(inotifyFD);

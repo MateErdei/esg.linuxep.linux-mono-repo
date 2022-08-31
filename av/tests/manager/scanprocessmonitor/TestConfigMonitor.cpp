@@ -191,43 +191,6 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfAnotherWrite)
     a.join();
 }
 
-TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfAnotherWriteAfterStopStart)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-
-    std::ofstream ofs("hosts");
-    ofs << "This is some text";
-    ofs.close();
-
-    Common::Threads::NotifyPipe configPipe;
-    auto a = std::make_shared<ConfigMonitor>(configPipe, m_systemCallWrapper, m_testDir);
-    auto aThread = common::ThreadRunner(a, "a", true);
-    EXPECT_TRUE(waitForLog("Config Monitor entering main loop"));
-
-    ofs.open("hosts");
-    ofs << "This is some different text";
-    ofs.close();
-
-    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
-    EXPECT_TRUE(appenderContains("System configuration updated for "));
-    EXPECT_FALSE(appenderContains("System configuration not changed for "));
-
-    clearMemoryAppender();
-
-    aThread.requestStopIfNotStopped();
-    aThread.startIfNotStarted();
-    EXPECT_TRUE(waitForLog("Config Monitor entering main loop"));
-
-    ofs.open("hosts");
-    ofs << "This is some text";
-    ofs.close();
-
-    EXPECT_TRUE(waitForPipe(configPipe, MONITOR_LATENCY));
-    EXPECT_TRUE(appenderContains("System configuration updated for "));
-    EXPECT_FALSE(appenderContains("System configuration not changed for "));
-}
-
 TEST_F(TestConfigMonitor, ConfigMonitorIsNotNotifiedOnCreateOutsideDir)
 {
     Common::Threads::NotifyPipe configPipe;
