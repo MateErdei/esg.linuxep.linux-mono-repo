@@ -11,6 +11,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "MessageReplayExtractor.h"
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Obfuscation/ICipherException.h"
 
 #include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
@@ -135,7 +136,21 @@ namespace CentralRegistration
             {
                 configOptions[MCS::MCS_PROXY_USERNAME] = values[0];
                 configOptions[MCS::MCS_PROXY_PASSWORD] = values[1];
-                configOptions[MCS::MCS_POLICY_PROXY_CREDENTIALS] = Common::ObfuscationImpl::SECObfuscate(proxyCredentials);
+                try
+                {
+                    configOptions[MCS::MCS_POLICY_PROXY_CREDENTIALS] = Common::ObfuscationImpl::SECObfuscate(proxyCredentials);
+                }
+                catch (Common::Obfuscation::IObfuscationException& e)
+                {
+                    LOGWARN("Failed to use Proxy Credentials due to: " << e.what());
+                    configOptions.erase(MCS::MCS_PROXY_USERNAME);
+                    configOptions.erase(MCS::MCS_PROXY_PASSWORD);
+                    configOptions.erase(MCS::MCS_POLICY_PROXY_CREDENTIALS);
+                }
+            }
+            else
+            {
+                LOGWARN("Unable to parse Proxy Credentials as they do not follow <username:password> format.");
             }
         }
 

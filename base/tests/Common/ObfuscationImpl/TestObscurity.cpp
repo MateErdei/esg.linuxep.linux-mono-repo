@@ -72,5 +72,12 @@ TEST_F(TestObscurity, testOversizedPasswordsHandled) // NOLINT
     Common::ObfuscationImpl::CObscurity cObscurity;
     std::string OneHundredTwentyEightCharPassword =
         "stWS4C5neUWqQSNUb3nvjCvgqu3oH79XxV0IjkLcATWPoUsgJG5L7zjhfYyJfkoGJamHlDU6NF6RsGbXJGNk2fZg5qFt5Np0yJuH8KbpKesqEZeBtGOYqUIcG12dOggo";
-    ASSERT_THROW(cObscurity.Conceal(OneHundredTwentyEightCharPassword), std::invalid_argument);
+    ASSERT_THROW(cObscurity.Conceal(OneHundredTwentyEightCharPassword), Common::Obfuscation::IObscurityException);
+}
+
+TEST_F(TestObscurity, testEmptyPasswordsHandled) // NOLINT
+{
+    Common::ObfuscationImpl::CObscurity cObscurity;
+    std::string emptyPassword = "";
+    ASSERT_THROW(cObscurity.Conceal(emptyPassword), Common::Obfuscation::IObscurityException);
 }
