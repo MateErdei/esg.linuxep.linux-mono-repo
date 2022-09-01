@@ -104,6 +104,8 @@ namespace Common
                 static constexpr size_t IVLength = BlockLength;
                 static constexpr size_t KeyIterations = 50000;
             };
+
+            const int maxPasswordSize = 128;
         }
     } // namespace ObfuscationImpl
 } // namespace Common

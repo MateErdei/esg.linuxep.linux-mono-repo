@@ -163,6 +163,28 @@ TEST_F(CipherTest, FailDecryptFinal) // NOLINT
     }
 }
 
+TEST_F(CipherTest, FailDecryptOversizedPassword) // NOLINT
+{
+    EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptInit_ex(_, _, _, _, _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptUpdate(_, _, _, _, _)).WillOnce(DoAll(SetArgPointee<2>(128), Return(1)));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_DecryptFinal_ex(_, _, _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_free(junk)).WillOnce(Invoke(EVP_CIPHER_CTX_free));
+    Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(33, '*');
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Decrypt(dummyBuffer, dummyBuffer);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "SECDeobfuscation failed, Decrypted string exceeds maximum length of: 128");
+    }
+}
+
 TEST_F(CipherTest, FailDecryptBecauseSaltLongerThanKey) // NOLINT
 {
     Common::ObfuscationImpl::SecureDynamicBuffer key(5, '*');
@@ -312,5 +334,28 @@ TEST_F(CipherTest, FailEncryptFinal) // NOLINT
     catch (const Common::Obfuscation::ICipherException& exception)
     {
         ASSERT_EQ(std::string(exception.what()), "SECDeobfuscation Failed due to: Failed to finalise EVP Encrypt");
+    }
+}
+
+TEST_F(CipherTest, FailEncryptOversizedPassword) // NOLINT
+{
+    EVP_CIPHER_CTX* junk = EVP_CIPHER_CTX_new(); // Junk is freed by the EvpCipherContext object
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_new()).WillOnce(Return(junk));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_EncryptInit_ex(_, _, _, _, _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_EncryptUpdate(_, _, _, _, _)).WillOnce(DoAll(SetArgPointee<2>(128), Return(1)));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_EncryptFinal_ex(_, _, _)).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockEvpCipherWrapperPtr, EVP_CIPHER_CTX_free(junk)).WillOnce(Invoke(EVP_CIPHER_CTX_free));
+    Common::ObfuscationImpl::SecureDynamicBuffer dummyBuffer(32, '*');
+    std::string dummyPassword = "password";
+    // First byte is treated as the salt length
+    dummyBuffer[0] = 32;
+    try
+    {
+        Common::ObfuscationImpl::Cipher::Encrypt(dummyBuffer, dummyBuffer, dummyPassword);
+        FAIL(); // Should not be allowed to get to here.
+    }
+    catch (const Common::Obfuscation::ICipherException& exception)
+    {
+        ASSERT_EQ(std::string(exception.what()), "SECObfuscation failed, Encrypted string of size: 256 Exceeds maximum length of: 160");
     }
 }

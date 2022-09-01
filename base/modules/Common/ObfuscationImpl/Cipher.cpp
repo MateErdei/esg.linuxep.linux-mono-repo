@@ -213,7 +213,7 @@ namespace Common
             /* Provide the message to be decrypted, and obtain the plaintext output.
              * EVP_DecryptUpdate can be called multiple times if necessary
              */
-            Common::ObfuscationImpl::SecureFixedBuffer<128> plaintextbuffer;
+            Common::ObfuscationImpl::SecureFixedBuffer<Cipher::maxPasswordSize> plaintextbuffer;
 
             int len = -1;
             evpCipherWrapper.DecryptUpdate(
@@ -231,6 +231,12 @@ namespace Common
              */
             evpCipherWrapper.DecryptFinal_ex(plaintextbuffer.data() + len, &len);
             plaintext_len += len;
+
+            if (plaintext_len >= Cipher::maxPasswordSize)
+            {
+                throw Common::Obfuscation::ICipherException(
+                    "SECDeobfuscation failed, Decrypted string exceeds maximum length of: " + std::to_string(Cipher::maxPasswordSize));
+            }
 
             Common::ObfuscationImpl::SecureString value(plaintextbuffer.data(), plaintextbuffer.data() + plaintext_len);
 
@@ -303,7 +309,7 @@ namespace Common
             /* Provide the message to be encrypted, and obtain the encrypted output.
              * EVP_EncryptUpdate can be called multiple times if necessary
              */
-            Common::ObfuscationImpl::SecureFixedBuffer<128> cipherTextBuffer;
+            Common::ObfuscationImpl::SecureFixedBuffer<Cipher::maxPasswordSize + Cipher::AES256ObfuscationImpl::SaltLength> cipherTextBuffer;
 
             int len = -1;
             evpCipherWrapper.EncryptUpdate(
@@ -321,6 +327,13 @@ namespace Common
              */
             evpCipherWrapper.EncryptFinal_ex(cipherTextBuffer.data() + len, &len);
             cipherTextLen += len;
+
+            if (static_cast<ulong>(cipherTextLen) >= Cipher::maxPasswordSize + Cipher::AES256ObfuscationImpl::SaltLength)
+            {
+                throw Common::Obfuscation::ICipherException(
+                    "SECObfuscation failed, Encrypted string of size: " + std::to_string(cipherTextLen) +
+                    " Exceeds maximum length of: " + std::to_string(Cipher::maxPasswordSize + Cipher::AES256ObfuscationImpl::SaltLength));
+            }
 
             std::string value(cipherTextBuffer.data(), cipherTextBuffer.data() + cipherTextLen);
 

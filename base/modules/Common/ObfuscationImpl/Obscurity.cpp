@@ -252,6 +252,10 @@ namespace Common
             {
                 throw std::invalid_argument("Obfuscate: plaintext is empty");
             }
+            if (plainPassword.size() >= Cipher::maxPasswordSize)
+            {
+                throw std::invalid_argument("Obfuscate: plaintext exceeds max size; " + std::to_string(Cipher::maxPasswordSize));
+            }
 
             ObfuscationImpl::SecureDynamicBuffer salt(Cipher::AES256ObfuscationImpl::SaltLength);
             randomSalt(salt);

@@ -65,5 +65,12 @@ TEST_F(TestObscurity, SECDeobfuscateBufferOverReadFoundByFuzzer) // NOLINT
     ASSERT_THROW(Common::ObfuscationImpl::SECDeobfuscate(
                      "CCJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHkDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXg="),
                      Common::Obfuscation::ICipherException);
+}
 
+TEST_F(TestObscurity, testOversizedPasswordsHandled) // NOLINT
+{
+    Common::ObfuscationImpl::CObscurity cObscurity;
+    std::string OneHundredTwentyEightCharPassword =
+        "stWS4C5neUWqQSNUb3nvjCvgqu3oH79XxV0IjkLcATWPoUsgJG5L7zjhfYyJfkoGJamHlDU6NF6RsGbXJGNk2fZg5qFt5Np0yJuH8KbpKesqEZeBtGOYqUIcG12dOggo";
+    ASSERT_THROW(cObscurity.Conceal(OneHundredTwentyEightCharPassword), std::invalid_argument);
 }
