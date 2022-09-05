@@ -400,13 +400,8 @@ function build()
         (( LOCAL_CMAKE == 0 )) && ln -snf $INPUT/cmake $REDIST/
         untar_input capnproto
         untar_input boost
-        if [[ -d "$INPUT/googletest" ]]
+        if [[ ! -d "$INPUT/googletest" ]]
         then
-            if [[ ! -d $REDIST/googletest ]]
-            then
-                ln -sf $INPUT/googletest $REDIST/googletest
-            fi
-        else
             echo "ERROR - googletest not found here: $INPUT/googletest"
             exit 1
         fi
@@ -421,8 +416,6 @@ function build()
       chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
       chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
     fi
-
-    cp -r $REDIST/googletest $BASE/tests
 
     [[ -e ${REDIST}/sdds3 ]] || ln -s ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 

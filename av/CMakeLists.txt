@@ -148,7 +148,7 @@ set(LOG4CPLUS_INCLUDE_DIR ${pluginapiinclude})
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
 set(testhelpersinclude ${PLUGINAPIPATH}/tests/include)
 set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
-set(GTEST_INPUT ${REDIST}/googletest)
+set(GTEST_INPUT ${INPUT}/googletest)
 
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*.*.*)
 file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*.*.*)
