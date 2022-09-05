@@ -381,14 +381,15 @@ namespace UpdateSchedulerImpl
 
         std::string UpdatePolicyTranslator::cacheID(const std::string& hostname) const
         {
-            Common::UtilityImpl::StringUtils::replaceAll(hostname, "https://", "");
-            if (Common::UtilityImpl::StringUtils::endswith(hostname, "/v3"))
+            std::string strippedHostname;
+            strippedHostname = Common::UtilityImpl::StringUtils::replaceAll(hostname, "https://", "");
+            if (Common::UtilityImpl::StringUtils::endswith(strippedHostname, "/v3"))
             {
-                Common::UtilityImpl::StringUtils::replaceAll(hostname, "/v3", "");
+                strippedHostname = Common::UtilityImpl::StringUtils::replaceAll(strippedHostname, "/v3", "");
             }
             for (auto& cache : m_Caches)
             {
-                if (cache.hostname == hostname)
+                if (cache.hostname == strippedHostname)
                 {
                     return cache.id;
                 }

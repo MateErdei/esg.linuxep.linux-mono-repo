@@ -512,6 +512,7 @@ TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
     auto config = settingsHolder.configurationData;
 
     EXPECT_EQ(translator.cacheID("maineng2.eng.sophos:8191"), "d4739ed5-b66a-4a21-9218-4fd0dfe4dcbd");
+    EXPECT_EQ(translator.cacheID("https://maineng2.eng.sophos:8191/v3"), "d4739ed5-b66a-4a21-9218-4fd0dfe4dcbd");
     EXPECT_TRUE(translator.cacheID("invalid_cache").empty());
     EXPECT_EQ(translator.revID(), "b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9");
 }
