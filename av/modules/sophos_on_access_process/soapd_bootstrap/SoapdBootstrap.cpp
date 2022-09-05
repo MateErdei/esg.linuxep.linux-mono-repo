@@ -119,7 +119,7 @@ void SoapdBootstrap::innerRun(
     };
 
     bool currentOaEnabledState = false;
-
+    bool policyOverride = true;
     while (true)
     {
         // wait for an activity on one of the fds
@@ -157,19 +157,26 @@ void SoapdBootstrap::innerRun(
         {
             onAccessConfigPipe.notified();
 
-            auto oaConfig = getConfiguration(mountMonitor);
-
-            bool oldOaEnabledState = currentOaEnabledState;
-            currentOaEnabledState = oaConfig.enabled;
-            if (currentOaEnabledState && !oldOaEnabledState)
+            if(policyOverride)
             {
-                LOGINFO("On-access scanning enabled");
-                eventReaderThread->startIfNotStarted();
+                LOGINFO("Policy override is enabled, on-access will be disabled");
             }
-            if (!currentOaEnabledState && oldOaEnabledState)
+            else
             {
-                LOGINFO("On-access scanning disabled");
-                eventReaderThread->requestStopIfNotStopped();
+                auto oaConfig = getConfiguration(mountMonitor);
+
+                bool oldOaEnabledState = currentOaEnabledState;
+                currentOaEnabledState = oaConfig.enabled;
+                if (currentOaEnabledState && !oldOaEnabledState)
+                {
+                    LOGINFO("On-access scanning enabled");
+                    eventReaderThread->startIfNotStarted();
+                }
+                if (!currentOaEnabledState && oldOaEnabledState)
+                {
+                    LOGINFO("On-access scanning disabled");
+                    eventReaderThread->requestStopIfNotStopped();
+                }
             }
         }
 
@@ -178,7 +185,7 @@ void SoapdBootstrap::innerRun(
             usePolicyOverridePipe.notified();
 
             LOGINFO("Using on-access settings from policy");
-
+            policyOverride = false;
             auto oaConfig = getConfiguration(mountMonitor);
             if(oaConfig.enabled)
             {
@@ -191,6 +198,7 @@ void SoapdBootstrap::innerRun(
         {
             useFlagOverridePipe.notified();
             LOGINFO("Overriding policy and disabling on-access");
+            policyOverride = true;
             eventReaderThread->requestStopIfNotStopped();
         }
     }

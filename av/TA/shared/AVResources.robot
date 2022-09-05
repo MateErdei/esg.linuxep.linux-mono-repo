@@ -185,11 +185,6 @@ File Log Contains With Offset
     ${content} =  Get File Contents From Offset  ${path}  ${offset}
     Should Contain  ${content}  ${input}
 
-File Log Contains With Offset Times
-    [Arguments]  ${path}  ${input}  ${times}=1  ${offset}=0
-    ${content} =  Get File Contents From Offset  ${path}  ${offset}
-    Should Contain X Times  ${content}  ${input}  ${times}
-
 File Log Contains One of
     [Arguments]  ${path}  ${offset}  @{inputs}
     ${content} =  Get File Contents From Offset  ${path}  ${offset}
@@ -223,13 +218,6 @@ Wait Until File Log Contains
     ...  ${interval} secs
     ...  ${logCheck}  ${input}
 
-Wait Until File Log Contains Times
-    [Arguments]  ${logCheck}  ${input}  ${times}=1  ${timeout}=15  ${interval}=3
-    Wait Until Keyword Succeeds
-    ...  ${timeout} secs
-    ...  ${interval} secs
-    ...  ${logCheck}  ${input}  ${times}
-
 File Log Does Not Contain
     [Arguments]  ${logCheck}  ${input}
     Run Keyword And Expect Error
@@ -257,21 +245,16 @@ On Access Log Contains
     [Arguments]  ${input}
     File Log Contains     ${ON_ACCESS_LOG_PATH}   ${input}
 
-On Access Does Not Log Contain
+On Access Log Does Not Contain
     [Arguments]  ${input}
-    File Log Should Not Contain  ${ON_ACCESS_LOG_PATH}   ${input}
+    LogUtils.Over next 15 seconds ensure log does not contain   ${ON_ACCESS_LOG_PATH}  ${input}
 
 On Access Log Contains With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${ON_ACCESS_LOG_MARK}  0
     File Log Contains With Offset     ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
 
-On Access Log Contains With Offset Times
-    [Arguments]  ${input}  ${times}
-    ${offset} =  Get Variable Value  ${ON_ACCESS_LOG_MARK}  0
-    File Log Contains With Offset Times    ${ON_ACCESS_LOG_PATH}   ${input}   ${times}   offset=${offset}
-
-On Access Does Not Log Contain With Offset
+On Access Log Does Not Contain With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${ON_ACCESS_LOG_MARK}  0
     File Log Should Not Contain With Offset  ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
@@ -422,15 +405,6 @@ Wait Until On Access Log Contains
 Wait Until On Access Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15
     Wait Until File Log Contains  On Access Log Contains With Offset  ${input}   timeout=${timeout}
-
-Wait Until On Access Log Contains With Offset Times
-    [Arguments]  ${input}  ${timeout}=15  ${times}=1
-    Wait Until File Log Contains Times  On Access Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
-
-On Access Log Does Not Contain With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
-    File Log Should Not Contain With Offset  ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
 
 FakeManagement Log Contains
     [Arguments]  ${input}
