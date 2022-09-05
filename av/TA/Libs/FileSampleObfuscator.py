@@ -16,13 +16,8 @@ def xor(data, pos):
         pos = pos % len(XOR)
     return pos, bytes(result)
 
-
-def main(argv):
-    src = argv[1]
-    dest = argv[2]
-
+def DeObfuscate_File(src, dest):
     pos = 0
-
     with open(dest, "wb") as outFile:
         with open(src, "rb") as srcFile:
             while True:
@@ -31,6 +26,13 @@ def main(argv):
                     break
                 pos, data = xor(data, pos)
                 outFile.write(data)
+
+
+def main(argv):
+    src = argv[1]
+    dest = argv[2]
+
+    DeObfuscate_File(src, dest)
 
     return 0
 

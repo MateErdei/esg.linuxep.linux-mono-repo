@@ -8,6 +8,7 @@ Library         DateTime
 Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FakeWatchdog.py
+Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/AVScanner.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
@@ -300,7 +301,7 @@ CLS Does not request TFTClassification from SUSI
 
 CLS Can Evaluate High Ml Score As A Threat
     run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
-    Copy File  ${RESOURCES_PATH}/file_samples/MLengHighScore.exe  ${NORMAL_DIRECTORY}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore.exe
     Mark Susi Debug Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
