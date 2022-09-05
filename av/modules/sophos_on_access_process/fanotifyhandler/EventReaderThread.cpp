@@ -7,7 +7,10 @@
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
 #include "datatypes/AutoFd.h"
-
+// Component
+#include "datatypes/sophos_filesystem.h"
+// Product
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 // Standard C++
 #include <memory>
 #include <utility>
@@ -20,6 +23,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+
+namespace fs = sophos_filesystem;
 
 using namespace sophos_on_access_process::fanotifyhandler;
 
@@ -37,6 +42,23 @@ EventReaderThread::EventReaderThread(
     , m_scanRequestQueue(std::move(scanRequestQueue))
     , m_pid(getpid())
 {
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    fs::path PLUGIN_INSTALL = appConfig.getData("PLUGIN_INSTALL");
+    m_processExclusionStem = PLUGIN_INSTALL.string() + "/";
+}
+
+static std::string get_executable_path_from_pid(pid_t pid)
+{
+    fs::path target = "/proc";
+    target /= std::to_string(pid);
+    target /= "exe";
+    std::error_code ec; // ec is ignored
+    return fs::read_symlink(target, ec); // Empty path on errors
+}
+
+static bool startswith(const std::string& buffer, const std::string& target)
+{
+    return buffer.find(target) == 0;
 }
 
 bool EventReaderThread::handleFanotifyEvent()
@@ -74,7 +96,7 @@ bool EventReaderThread::handleFanotifyEvent()
         LOGDEBUG("got event: size " << len);
     }
 
-    auto metadata = reinterpret_cast<struct fanotify_event_metadata*>(buf);
+    auto* metadata = reinterpret_cast<struct fanotify_event_metadata*>(buf);
 
     for (; FAN_EVENT_OK(metadata, len); metadata = FAN_EVENT_NEXT(metadata, len))
     {
@@ -92,7 +114,7 @@ bool EventReaderThread::handleFanotifyEvent()
         }
 
         auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
-        scanRequest->setFd(eventFd);
+        scanRequest->setFd(eventFd); // DONATED
 
         auto path = getFilePathFromFd(eventFd);
         //Either path was too long or fd was invalid
@@ -112,8 +134,17 @@ bool EventReaderThread::handleFanotifyEvent()
             LOGDEBUG("Skip event caused by soapd");
             continue;
         }
+        auto executablePath = get_executable_path_from_pid(metadata->pid);
+
+        if (!m_processExclusionStem.empty() && startswith(executablePath, m_processExclusionStem))
+        {
+            LOGDEBUG("Excluding SPL-AV process");
+            continue;
+        }
+
 
         auto uid = getUidFromPid(metadata->pid);
+
         // TODO: Handle process exclusions
         auto escapedPath = common::escapePathForLogging(path);
         if (metadata->mask & FAN_OPEN)

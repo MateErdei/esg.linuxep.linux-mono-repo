@@ -6,6 +6,8 @@
 #include "datatypes/MockSysCalls.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+
 #include <gtest/gtest.h>
 #include <sstream>
 
@@ -20,11 +22,14 @@ protected:
     {
         m_mockSysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
         m_scanRequestQueue = std::make_shared<ScanRequestQueue>();
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        const auto* pluginInstall = "/opt/sophos-spl/plugins/av";
+        appConfig.setData("PLUGIN_INSTALL", pluginInstall);
     }
 
     std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
     ScanRequestQueueSharedPtr m_scanRequestQueue;
-        fs::path m_pluginInstall = "/opt/sophos-spl/plugins/av";
+    fs::path m_pluginInstall = "/opt/sophos-spl/plugins/av";
 };
 
 TEST_F(TestEventReaderThread, TestReaderExitsUsingPipe)

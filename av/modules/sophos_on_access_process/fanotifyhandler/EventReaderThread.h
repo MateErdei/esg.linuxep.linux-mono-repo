@@ -36,5 +36,6 @@ namespace sophos_on_access_process::fanotifyhandler
         fs::path m_pluginLogDir;
         onaccessimpl::ScanRequestQueueSharedPtr m_scanRequestQueue;
         pid_t m_pid;
+        std::string m_processExclusionStem;
     };
 }
