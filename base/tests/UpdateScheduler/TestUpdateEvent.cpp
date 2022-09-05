@@ -126,6 +126,28 @@ TEST_F(TestSerializeEvent, SuccessEventWithUpdateCache) // NOLINT
     runTest(event, successEventXML);
 }
 
+TEST_F(TestSerializeEvent, SuccessEventWithSDDS3UpdateCache) // NOLINT
+{
+    static const std::string successEventXML{ R"sophos(<?xml version="1.0"?>
+<event xmlns="http://www.sophos.com/EE/AUEvent" type="sophos.mgt.entityAppEvent">
+  <timestamp>20180816 083654</timestamp>
+  <appInfo>
+    <number>0</number>
+  <updateSource>12345</updateSource>
+  </appInfo>
+  <entityInfo xmlns="http://www.sophos.com/EntityInfo">AGENT:WIN:1.0.0</entityInfo>
+</event>)sophos" };
+
+    MockMapHostCacheId* mockRevId{ new ::testing::StrictMock<MockMapHostCacheId>() };
+    EXPECT_CALL(*mockRevId, cacheID("https://cache.com:8182/v3")).WillOnce(Return("12345"));
+    replaceMapHostCacheIdMock(mockRevId);
+    DownloadReport goodReport =
+        DownloadReportTestBuilder::goodReport(DownloadReportTestBuilder::UseTime::Later, true, "https://cache.com:8182/v3");
+
+    UpdateEvent event = getEvent(goodReport);
+    runTest(event, successEventXML);
+}
+
 TEST_F(TestSerializeEvent, installFailedTwoProducts) // NOLINT
 {
     static const std::string installFailedEventXML{ R"sophos(<?xml version="1.0"?>
