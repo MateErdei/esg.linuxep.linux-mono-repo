@@ -7,8 +7,8 @@
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
 #include "datatypes/AutoFd.h"
-// Component
-#include "datatypes/sophos_filesystem.h"
+// Package
+#include "ProcUtils.h"
 // Product
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 // Standard C++
@@ -45,20 +45,6 @@ EventReaderThread::EventReaderThread(
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path PLUGIN_INSTALL = appConfig.getData("PLUGIN_INSTALL");
     m_processExclusionStem = PLUGIN_INSTALL.string() + "/";
-}
-
-static std::string get_executable_path_from_pid(pid_t pid)
-{
-    fs::path target = "/proc";
-    target /= std::to_string(pid);
-    target /= "exe";
-    std::error_code ec; // ec is ignored
-    return fs::read_symlink(target, ec); // Empty path on errors
-}
-
-static bool startswith(const std::string& buffer, const std::string& target)
-{
-    return buffer.find(target) == 0;
 }
 
 bool EventReaderThread::handleFanotifyEvent()

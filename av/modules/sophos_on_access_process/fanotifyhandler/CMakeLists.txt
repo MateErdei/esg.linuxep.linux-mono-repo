@@ -4,6 +4,8 @@ add_library(fanotifyhandler SHARED
         FanotifyHandler.h
         Logger.cpp
         Logger.h
+        ProcUtils.cpp
+        ProcUtils.h
         )
 
 target_include_directories(fanotifyhandler PUBLIC
