@@ -148,13 +148,9 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(InvokeWithoutArgs(&clientWaitGuard, &WaitForEvent::waitDefault),
                         SetArrayArgument<0>(fds, fds+2), Return(1)))
-        .WillOnce(DoAll(InvokeWithoutArgs(&m_serverWaitGuard, &WaitForEvent::onEventNoArgs),
-                        Return(0)))
-        .WillOnce(DoAll(InvokeWithoutArgs(&clientWaitGuard, &WaitForEvent::waitDefault),
-                        SetArrayArgument<0>(fds, fds+2), Return(1)))
-        .WillOnce(DoAll(InvokeWithoutArgs(&m_serverWaitGuard, &WaitForEvent::onEventNoArgs),
-                        Return(-1))
-        );
+        .WillRepeatedly(DoDefault());
+
+
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, FAN_NOFD, _)).WillRepeatedly(Return(0));
     auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, faNotifyFd);
     auto numMountPoints = mountMonitor->getIncludedMountpoints(mountMonitor->getAllMountpoints()).size();
@@ -165,20 +161,23 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
     EXPECT_TRUE(waitForLog(logMsg1.str()));
 
     clientWaitGuard.onEventNoArgs(); // Will allow the first call to complete
-    m_serverWaitGuard.wait(); // Waits for the second call to start
 
     EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 2));
 
     clientWaitGuard.clear();
-    m_serverWaitGuard.clear();
 
     mountMonitorThread.requestStopIfNotStopped();
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(DoAll(InvokeWithoutArgs(&clientWaitGuard, &WaitForEvent::waitDefault),
+                        SetArrayArgument<0>(fds, fds+2), Return(1)))
+        .WillRepeatedly(DoDefault());
+
     mountMonitorThread.startIfNotStarted();
 
     EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 3));
 
     clientWaitGuard.onEventNoArgs(); // Will allow the first call to complete
-    m_serverWaitGuard.wait(); // Waits for the second call to start
 
     EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 4));
 }

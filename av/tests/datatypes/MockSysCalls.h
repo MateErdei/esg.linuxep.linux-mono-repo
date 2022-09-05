@@ -8,11 +8,18 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <datatypes/SystemCallWrapper.h>
 #include <gmock/gmock.h>
 
+using namespace testing;
+
 namespace
 {
     class MockSystemCallWrapper : public datatypes::ISystemCallWrapper
     {
     public:
+        MockSystemCallWrapper()
+        {
+            ON_CALL(*this, ppoll).WillByDefault(Return(0));
+        }
+
         MOCK_METHOD((std::pair<const int, const long>), getSystemUpTime, ());
         MOCK_METHOD(int, _ioctl, (int __fd, unsigned long int __request, char* buffer));
         MOCK_METHOD(int, _statfs, (const char *__file, struct ::statfs *__buf));
