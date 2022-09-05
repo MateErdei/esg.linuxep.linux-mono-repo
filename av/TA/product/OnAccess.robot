@@ -514,6 +514,7 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     Mark On Access Log
     Start On Access
     Start Fake Management If Required
+    Exclude On Access Connect Failed
 
     ${enabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     ${disabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
