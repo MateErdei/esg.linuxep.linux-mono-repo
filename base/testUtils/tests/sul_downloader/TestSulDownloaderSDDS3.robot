@@ -202,6 +202,9 @@ Sul Downloader Installs SDDS3 Through update cache
     ...    5s
     ...    Check SulDownloader Log Contains  Update success
     Check Sul Downloader log does not contain    Connecting to update source directly
+    ${string}=  Check Log And Return Nth Occurence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  1
+    Should contain   ${string}   updateSource&gt;4092822d-0925-4deb-9146-fbc8532f8c55&lt
+
 
 Sul Downloader falls back to direct when proxy and UC do not work
     write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
