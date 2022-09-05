@@ -9,45 +9,57 @@
 #include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
+#include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
+#include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 // Product
 #include "common/FDUtils.h"
+#include "common/PidLockFile.h"
+#include "common/PluginUtils.h"
 #include "common/SaferStrerror.h"
 #include "common/ThreadRunner.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 // Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 // Std C++
+#include <fstream>
 #include <memory>
 // Std C
 #include <poll.h>
+
+#define MAX_SCAN_THREADS 1
 
 namespace fs = sophos_filesystem;
 
 using namespace sophos_on_access_process::soapd_bootstrap;
 using namespace sophos_on_access_process::fanotifyhandler;
+using namespace sophos_on_access_process::onaccessimpl;
+
 
 int SoapdBootstrap::runSoapd()
 {
     LOGINFO("Sophos on access process started");
 
+    // Take soapd lock file
+    fs::path lockfile = common::getPluginInstallPath() / "var/soapd.pid";
+    common::PidLockFile lock(lockfile);
+
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
-    fs::path socketPath = pluginInstall / "var/soapd_controller";
+    fs::path socketPath = common::getPluginInstallPath() / "var/soapd_controller";
     LOGINFO("Socket is at: " << socketPath);
 
     Common::Threads::NotifyPipe onAccessConfigPipe;
     Common::Threads::NotifyPipe usePolicyOverridePipe;
     Common::Threads::NotifyPipe useFlagOverridePipe;
     auto configMonitor = std::make_shared<OnAccessConfig::OnAccessConfigMonitor>(socketPath,
-                                                                                 onAccessConfigPipe,
-                                                                                 usePolicyOverridePipe,
-                                                                                 useFlagOverridePipe);
+                                                                         onAccessConfigPipe,
+                                                                         usePolicyOverridePipe,
+                                                                         useFlagOverridePipe);
     auto configMonitorThread = std::make_unique<common::ThreadRunner>(configMonitor, "configMonitor", true);
 
     try
@@ -56,8 +68,7 @@ int SoapdBootstrap::runSoapd()
                  sigTermMonitor,
                  onAccessConfigPipe,
                  usePolicyOverridePipe,
-                 useFlagOverridePipe,
-                 pluginInstall);
+                 useFlagOverridePipe);
     }
     catch (const std::exception& e)
     {
@@ -74,16 +85,30 @@ void SoapdBootstrap::innerRun(
     std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor,
     Common::Threads::NotifyPipe onAccessConfigPipe,
     Common::Threads::NotifyPipe usePolicyOverridePipe,
-    Common::Threads::NotifyPipe useFlagOverridePipe,
-    const std::string& pluginInstall)
+    Common::Threads::NotifyPipe useFlagOverridePipe)
 {
     mount_monitor::mount_monitor::OnAccessMountConfig config;
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
     auto fanotifyHandler = std::make_unique<FanotifyHandler>(sysCallWrapper);
     auto mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, fanotifyHandler->getFd());
     auto mountMonitorThread = std::make_unique<common::ThreadRunner>(mountMonitor, "mountMonitor", true);
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyHandler->getFd(), sysCallWrapper, pluginInstall);
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyHandler->getFd(), sysCallWrapper, common::getPluginInstallPath(), scanRequestQueue);
     auto eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader, "eventReader", false);
+
+    std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
+    auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
+
+    std::vector<std::shared_ptr<common::ThreadRunner>> scanHandlerThreads;
+    for (int count = 0; count < MAX_SCAN_THREADS; ++count)
+    {
+        auto scanHandler = std::make_shared<ScanRequestHandler>(
+            scanRequestQueue, scanningSocket);
+        std::stringstream threadName;
+        threadName << "scanHandler" << count;
+        auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
+        scanHandlerThreads.push_back(scanHandlerThread);
+    }
 
     struct pollfd fds[] {
         { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
@@ -152,7 +177,7 @@ void SoapdBootstrap::innerRun(
         {
             usePolicyOverridePipe.notified();
 
-            LOGINFO("Using on-access settings from policy...");
+            LOGINFO("Using on-access settings from policy");
 
             auto oaConfig = getConfiguration(mountMonitor);
             if(oaConfig.enabled)
@@ -169,6 +194,8 @@ void SoapdBootstrap::innerRun(
             eventReaderThread->requestStopIfNotStopped();
         }
     }
+
+    scanRequestQueue->stop();
 }
 
 sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::getConfiguration(

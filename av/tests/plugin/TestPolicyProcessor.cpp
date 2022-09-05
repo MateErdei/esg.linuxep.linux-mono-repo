@@ -715,7 +715,7 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsEnabled)
 
     proc.processFlagSettings("{\"av.oa_enabled\":  true}");
 
-    EXPECT_TRUE(appenderContains("On-access is enabled in the FLAGS policy, notifying soapd to disable policy override"));
+    EXPECT_TRUE(appenderContains("On-access is enabled in the FLAGS policy, notifying soapd to disable on-access policy override"));
 }
 
 TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
@@ -726,7 +726,7 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
 
     proc.processFlagSettings("{\"av.oa_enabled\":  false}");
 
-    EXPECT_TRUE(appenderContains("On-access is disabled in the FLAGS policy, notifying soapd to enable policy override"));
+    EXPECT_TRUE(appenderContains("On-access is disabled in the FLAGS policy, notifying soapd to enable on-access policy override"));
 }
 
 TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
