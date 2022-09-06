@@ -54,13 +54,15 @@ On Access Test Setup
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
 
 On Access Test Teardown
-    Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
-    Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
     List AV Plugin Path
     Stop On Access
     run teardown functions
 
     Check All Product Logs Do Not Contain Error
+
+    Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
+    Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
+
     Component Test TearDown
 
 Start On Access With Running Threat Detector

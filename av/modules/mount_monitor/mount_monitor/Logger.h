@@ -17,4 +17,5 @@ log4cplus::Logger& getMountMonitorLogger();
 #define LOGINFO(x) LOG4CPLUS_INFO(getMountMonitorLogger(), x)    // NOLINT
 #define LOGWARN(x) LOG4CPLUS_WARN(getMountMonitorLogger(), x)    // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getMountMonitorLogger(), x)  // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getMountMonitorLogger(), x)  // NOLINT
 

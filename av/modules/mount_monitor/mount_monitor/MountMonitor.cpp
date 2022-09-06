@@ -38,10 +38,18 @@ namespace mount_monitor::mount_monitor
     mountinfo::IMountPointSharedVector MountMonitor::getAllMountpoints()
     {
         auto pathsFactory = std::make_shared<mountinfoimpl::SystemPathsFactory>();
-        auto mountInfo = std::make_shared<mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
-        auto allMountpoints = mountInfo->mountPoints();
-        LOGINFO("Found " << allMountpoints.size() << " mount points on the system");
-        return allMountpoints;
+        try
+        {
+            auto mountInfo = std::make_shared<mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
+            auto allMountpoints = mountInfo->mountPoints();
+            LOGINFO("Found " << allMountpoints.size() << " mount points on the system");
+            return allMountpoints;
+        }
+        catch (std::runtime_error& e)
+        {
+            LOGFATAL(e.what());
+            throw;
+        }
     }
 
     mountinfo::IMountPointSharedVector MountMonitor::getIncludedMountpoints(mountinfo::IMountPointSharedVector allMountPoints)
