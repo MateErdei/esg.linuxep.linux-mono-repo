@@ -545,8 +545,8 @@ class MCS:
 
         # Remove flags
         wrapped_remove(path_manager.mcs_flags_file())
-        wrapped_remove(path_manager.warehouse_flags_file())
         wrapped_remove(path_manager.combined_flags_file())
+        # Don't remove warehouse flags file, it contains SDDS3 flag and we do not want updating to revert to SDDS2
 
     def attempt_migration(self, old_comms, live_config, root_config, push_client) -> bool:
         LOGGER.info("Attempting Central migration")
