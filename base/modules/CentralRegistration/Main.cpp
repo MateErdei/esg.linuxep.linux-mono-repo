@@ -8,8 +8,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "CentralRegistration.h"
 #include "Logger.h"
-#include "MessageRelayExtractor.h"
-#include "MessageRelaySorter.h"
+#include "MessageReplayExtractor.h"
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Obfuscation/ICipherException.h"
@@ -28,10 +27,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 namespace CentralRegistration
 {
-    void updateConfigOptions(
-        const std::string& key,
-        const std::string& value,
-        std::map<std::string, std::string>& configOptions)
+    void updateConfigOptions(const std::string& key, const std::string& value, std::map<std::string, std::string>& configOptions)
     {
         auto groupArgs = Common::UtilityImpl::StringUtils::splitString(value, "=");
         if (groupArgs.size() == 2)
@@ -47,9 +43,7 @@ namespace CentralRegistration
                    Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag());
     }
 
-    MCS::ConfigOptions processCommandLineOptions(
-        const std::vector<std::string>& args,
-        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils)
+    MCS::ConfigOptions processCommandLineOptions(const std::vector<std::string>& args, std::shared_ptr<OSUtilities::ISystemUtils> systemUtils)
     {
         std::map<std::string, std::string> configOptions;
         std::string proxyCredentials;
@@ -83,7 +77,7 @@ namespace CentralRegistration
         }
 
         // Optional args
-        for (size_t i = 2; i < argSize; ++i)
+        for (size_t i=2; i < argSize; ++i)
         {
             std::string currentArg(args[i]);
 
@@ -129,7 +123,7 @@ namespace CentralRegistration
         // defaulting here to make is clearer when they are being set.
         configOptions[MCS::MCS_ID] = "";
         configOptions[MCS::MCS_PASSWORD] = "";
-        configOptions[MCS::MCS_PRODUCT_VERSION] = "";
+        configOptions[MCS::MCS_PRODUCT_VERSION] ="";
 
         if (proxyCredentials.empty())
         {
@@ -144,8 +138,7 @@ namespace CentralRegistration
                 configOptions[MCS::MCS_PROXY_PASSWORD] = values[1];
                 try
                 {
-                    configOptions[MCS::MCS_POLICY_PROXY_CREDENTIALS] =
-                        Common::ObfuscationImpl::SECObfuscate(proxyCredentials);
+                    configOptions[MCS::MCS_POLICY_PROXY_CREDENTIALS] = Common::ObfuscationImpl::SECObfuscate(proxyCredentials);
                 }
                 catch (Common::Obfuscation::IObfuscationException& e)
                 {
@@ -175,9 +168,8 @@ namespace CentralRegistration
         }
 
         std::vector<MCS::MessageRelay> messageRelays = extractMessageRelays(messageRelaysAsString);
-        std::vector<MCS::MessageRelay> sortedMessageRelays = sortMessageRelays(messageRelays);
 
-        return MCS::ConfigOptions{ sortedMessageRelays, configOptions };
+        return MCS::ConfigOptions{ messageRelays, configOptions };
     }
 
     MCS::ConfigOptions registerAndObtainMcsOptions(MCS::ConfigOptions& configOptions)
@@ -185,16 +177,15 @@ namespace CentralRegistration
         CentralRegistration centralRegistration;
         std::shared_ptr<MCS::IAdapter> agentAdapter = std::make_shared<MCS::AgentAdapter>();
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
-            std::make_shared<Common::CurlWrapper::CurlWrapper>();
-        std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
-            std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+                std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
 
         centralRegistration.registerWithCentral(configOptions, client, agentAdapter);
         // return updated configOptions
         return configOptions;
     }
 
-    MCS::ConfigOptions innerCentralRegistration(const std::vector<std::string>& args, const std::string& mcsCertPath)
+    MCS::ConfigOptions innerCentralRegistration(const std::vector<std::string>& args)
     {
         std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
 
@@ -203,23 +194,16 @@ namespace CentralRegistration
         {
             throw std::runtime_error("Failed to process command line options");
         }
-
-        // When we call this function from the thin installer we need to specify the certificate we use in addition
-        // to any command line args being passed in.
-        if (!mcsCertPath.empty())
-        {
-            configOptions.config[MCS::MCS_CERT] = mcsCertPath;
-        }
-
         return registerAndObtainMcsOptions(configOptions);
     }
+
 
     int main_entry(int argc, char* argv[])
     {
         Common::Logging::ConsoleLoggingSetup loggerSetup;
         // convert args to vector for to remove the need to handle pointers.
         std::vector<std::string> args;
-        for (int i = 1; i < argc; ++i)
+        for (int i=1; i < argc; ++i)
         {
             args.emplace_back(argv[i]);
         }
@@ -235,4 +219,4 @@ namespace CentralRegistration
         return 0;
     }
 
-} // namespace CentralRegistration
+} // namespace CentralRegistrationImpl

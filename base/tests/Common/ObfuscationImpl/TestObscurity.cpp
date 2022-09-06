@@ -65,6 +65,7 @@ TEST_F(TestObscurity, SECDeobfuscateBufferOverReadFoundByFuzzer) // NOLINT
     ASSERT_THROW(Common::ObfuscationImpl::SECDeobfuscate(
                      "CCJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHkDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXg="),
                      Common::Obfuscation::ICipherException);
+
 }
 
 TEST_F(TestObscurity, testOversizedPasswordsHandled) // NOLINT
