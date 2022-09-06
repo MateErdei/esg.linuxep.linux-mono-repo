@@ -526,6 +526,31 @@ On Access Scans File On XFS
     Wait Until On Access Log Contains  is infected with
 
 
+On Access Logs When A File Is Closed Following Write After Being Disabled
+    Mark On Access Log
+    Start On Access
+    Start Fake Management If Required
+    Exclude On Access Connect Failed
+
+    ${enabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    ${disabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
+
+    #also enables the flag
+    Enable OA Scanning
+
+    Send Plugin Policy  av  sav  ${disabledPolicyContent}
+    Wait Until On Access Log Contains  On-access enabled: "false"
+
+    Send Plugin Policy  av  sav  ${enabledPolicyContent}
+    Wait Until On Access Log Contains  On-access enabled: "true"
+
+    Wait Until On Access Log Contains  Starting eventReader
+    ${pid} =  Get Robot Pid
+    ${filepath} =  Set Variable  /tmp_test/eicar.com
+    Create File  ${filepath}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${filepath}
+    Wait Until On Access Log Contains  On-close event for ${filepath} from PID ${pid} and UID 0
+
 On Access Process Handles Consecutive Process Control Requests
     Start On Access With Running Threat Detector
 
@@ -596,5 +621,7 @@ On Access Is Disabled After it Receives Disable Flags
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
     Wait Until On Access Log Contains   Sophos On Access Process received enable policy override request
+    Wait Until On Access Log Contains   Overriding policy and disabling on-access
+    Wait Until On Access Log Contains   Stopping the reading of Fanotify events
 
     On-access No Eicar Scan
