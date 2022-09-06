@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "OnAccessConfigurationUtils.h"
 
@@ -20,12 +16,16 @@ using json = nlohmann::json;
 
 namespace sophos_on_access_process::OnAccessConfig
 {
-    std::string readPolicyConfigFile()
+    fs::path policyConfigFilePath()
     {
-        auto* sophosFsAPI =  Common::FileSystem::fileSystem();
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
-        auto configPath = pluginInstall / "var/soapd_config.json";
+        return pluginInstall / "var/soapd_config.json";
+    }
+
+    std::string readPolicyConfigFile(const fs::path& configPath)
+    {
+        auto* sophosFsAPI = Common::FileSystem::fileSystem();
 
         try
         {
@@ -38,6 +38,11 @@ namespace sophos_on_access_process::OnAccessConfig
             LOGWARN("Failed to read on-access configuration, keeping existing configuration");
             return  "";
         }
+    }
+
+    std::string readPolicyConfigFile()
+    {
+        return readPolicyConfigFile(policyConfigFilePath());
     }
 
     std::string readFlagConfigFile()
@@ -98,7 +103,6 @@ namespace sophos_on_access_process::OnAccessConfig
             configuration.enabled = isSettingTrue(parsedConfig["enabled"]);
             configuration.excludeRemoteFiles = isSettingTrue(parsedConfig["excludeRemoteFiles"]);
             configuration.exclusions = parsedConfig["exclusions"].get<std::vector<std::string>>();
-
 
             std::string scanNetwork = isSettingTrue(parsedConfig["excludeRemoteFiles"]) ? "\"false\"" : "\"true\"";
             LOGINFO("On-access enabled: " << parsedConfig["enabled"]);

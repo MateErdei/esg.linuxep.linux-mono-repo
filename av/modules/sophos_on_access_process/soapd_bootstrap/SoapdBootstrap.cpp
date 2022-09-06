@@ -23,6 +23,7 @@
 // Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 // Std C++
+#include <filesystem>
 #include <fstream>
 #include <memory>
 // Std C
@@ -128,6 +129,8 @@ void SoapdBootstrap::innerRun(
         LOGINFO("Flag is set to " << setting);
     }
 
+    ProcessPolicy();
+
     while (true)
     {
         // wait for an activity on one of the fds
@@ -192,8 +195,8 @@ void SoapdBootstrap::ProcessPolicy()
 
         auto oaConfig = getPolicyConfiguration();
 
-        bool oldOaEnabledState = m_currentOaEnabledState;
-        m_currentOaEnabledState = oaConfig.enabled;
+        bool oldOaEnabledState = m_currentOaEnabledState.load();
+        m_currentOaEnabledState.store(oaConfig.enabled);
         if (m_currentOaEnabledState && !oldOaEnabledState)
         {
             LOGINFO("On-access scanning enabled");

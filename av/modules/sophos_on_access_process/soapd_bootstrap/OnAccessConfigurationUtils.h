@@ -1,10 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
+
+#include "datatypes/sophos_filesystem.h"
 
 #include <string>
 #include <vector>
@@ -30,9 +28,12 @@ namespace sophos_on_access_process::OnAccessConfig
         return !(lhs == rhs);
     }
 
+    sophos_filesystem::path policyConfigFilePath();
+    std::string readPolicyConfigFile(const sophos_filesystem::path&);
     std::string readPolicyConfigFile();
     OnAccessConfiguration parseOnAccessPolicySettingsFromJson(const std::string& jsonString);
     std::string readFlagConfigFile();
     bool parseFlagConfiguration(const std::string& jsonString);
+
     bool isSettingTrue(const std::string& settingString);
 }
