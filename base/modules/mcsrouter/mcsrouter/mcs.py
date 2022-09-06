@@ -780,9 +780,10 @@ class MCS:
                     if commands_to_run:
                         self.__m_computer.run_commands(commands_to_run)
 
+                    should_check_commands = force_mcs_server_command_processing or (
+                                time.time() > last_command_time_check + self.__m_command_check_interval.get())
 
-                    if force_mcs_server_command_processing or \
-                            (time.time() > last_command_time_check + self.__m_command_check_interval.get()):
+                    if should_check_commands:
                         appids = self.__m_computer.get_app_ids()
                         LOGGER.debug("Checking for commands for %s", str(appids))
                         commands = comms.query_commands(appids)
@@ -790,12 +791,28 @@ class MCS:
 
                         mcs_token_before_commands = self.__get_mcs_token()
 
+                        if commands:
+                            LOGGER.debug("Got commands")
+
                         if self.__m_computer.run_commands(commands):  # To run any pending commands as well
                             self.status_updated(reason="applying commands")
                             mcs_token_after_commands = self.__get_mcs_token()
                             if mcs_token_before_commands != mcs_token_after_commands:
                                 self.__update_user_agent()
 
+                        error_count = 0
+
+                    # check for new flags
+                    last_flag_time_check = self.get_flags(last_flag_time_check)
+                    flags.combine_flags_files()
+
+                    # Uncomment this line if we add endpoint flags that are MCS-relevant
+                    # flags.get_mcs_relevant_flags()
+
+                    # If we checked commands, we need to reset the check interval
+                    # This is separated from the segment above to get flags before attempting push server connection
+                    # Push server connection can take long due to a bad proxy
+                    if should_check_commands:
                         # If the push server is not connected, but has received mcs policy settings previously or
                         # If the settings have just changed, we need to attempt to connect to server.
                         if push_client.ensure_push_server_is_connected(self.__m_config,
@@ -805,13 +822,11 @@ class MCS:
                             self.__m_command_check_interval.set_use_fallback_polling_interval(True)
                         else:
                             self.__m_command_check_interval.set_use_fallback_polling_interval(False)
-                        if (self.__m_command_check_interval.get() != self.__m_config.get_int(
-                            "COMMAND_CHECK_INTERVAL_MINIMUM",0)):
-                            self.__m_command_check_interval = CommandCheckInterval(self.__m_config)
-                        if commands:
-                            LOGGER.debug("Got commands")
 
-                        error_count = 0
+                        if (self.__m_command_check_interval.get() != self.__m_config.get_int(
+                                "COMMAND_CHECK_INTERVAL_MINIMUM", 0)):
+                            self.__m_command_check_interval = CommandCheckInterval(self.__m_config)
+
                         self.__m_command_check_interval.set()
 
                         LOGGER.debug(
@@ -835,13 +850,6 @@ class MCS:
                         LOGGER.info("queuing response for %s", app_id)
                         add_response(file_path, app_id, correlation_id, timestamp.timestamp(
                             response_time), response_body)
-
-                    # check for new flags
-                    last_flag_time_check = self.get_flags(last_flag_time_check)
-                    flags.combine_flags_files()
-
-                    #Uncomment this line if we add endpoint flags that are MCS-relevant
-                    #flags.get_mcs_relevant_flags()
 
                     if self.should_generate_new_jwt_token():
                         comms.set_jwt_token_settings()
