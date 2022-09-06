@@ -11,10 +11,10 @@ namespace sophos_on_access_process::OnAccessConfig
 {
     struct OnAccessConfiguration
     {
+        std::vector<std::string> exclusions;
         bool enabled;
         bool excludeRemoteFiles;
-        std::vector<std::string> exclusions;
-    };
+    } __attribute__((aligned(32)));
 
     bool inline operator==(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)
     {
