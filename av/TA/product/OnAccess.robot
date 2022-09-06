@@ -98,16 +98,16 @@ Enable OA Scanning
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains  On-access enabled: "true"
-    Wait Until On Access Log Contains  Starting eventReader
+    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
+    Wait Until On Access Log Contains With Offset  Starting eventReader
 
 On-access Scan Eicar
     ${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  /tmp_test/eicar.com
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
-    Wait Until On Access Log Contains  On-close event for ${filepath} from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On-access No Eicar Scan
     ${pid} =  Get Robot Pid
@@ -143,10 +143,10 @@ On Access Process Parses Policy Config
 
     Enable OA Scanning
 
-    Wait Until On Access Log Contains  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
-    Wait Until On Access Log Contains  On-access enabled: "true"
-    Wait Until On Access Log Contains  On-access scan network: "true"
-    Wait Until On Access Log Contains  On-access exclusions: ["/mnt/","/uk-filer5/"]
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
+    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
+    Wait Until On Access Log Contains With Offset  On-access scan network: "true"
+    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/"]
 
 On Access Does Not Include Remote Files If Excluded In Policy
     Register Cleanup    Exclude On Access Scan Errors
@@ -159,7 +159,7 @@ On Access Does Not Include Remote Files If Excluded In Policy
     Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
 
     Start On Access
-    Wait Until On Access Log Contains  Including mount point: /testmnt/nfsshare
+    Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
 
     Start Fake Management If Required
 
@@ -170,12 +170,12 @@ On Access Does Not Include Remote Files If Excluded In Policy
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":["/mnt/","/uk-filer5/"]}
-    Wait Until On Access Log Contains  On-access enabled: "true"
-    Wait Until On Access Log Contains  On-access scan network: "false"
-    Wait Until On Access Log Contains  On-access exclusions: ["/mnt/","/uk-filer5/"]
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":["/mnt/","/uk-filer5/"]}
+    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
+    Wait Until On Access Log Contains With Offset  On-access scan network: "false"
+    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/"]
 
-    Wait Until On Access Log Contains  OA config changed, re-enumerating mount points
+    Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
     On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
 
 On Access Monitors Addition And Removal Of Mount Points
@@ -210,7 +210,7 @@ On Access Monitors Addition And Removal Of Mount Points
     Remove Local NFS Share   ${source}   ${destination}
     Deregister Cleanup  Remove Local NFS Share   ${source}   ${destination}
 
-    Wait Until On Access Log Contains  Mount points changed - re-evaluating
+    Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
     On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
     Sleep  1s
     ${totalNumMountsPostNFSumount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
@@ -238,8 +238,8 @@ On Access Scans File Created By non-root User
 
     Log   ${output}
 
-    Wait Until On Access Log Contains  On-close event for /tmp/eicar_oa_test from PID
-    Wait Until On Access Log Contains  Detected "/tmp/eicar_oa_test" is infected with EICAR-AV-Test
+    Wait Until On Access Log Contains With Offset  On-close event for /tmp/eicar_oa_test from PID
+    Wait Until On Access Log Contains With Offset  Detected "/tmp/eicar_oa_test" is infected with EICAR-AV-Test
     On Access Log Does Not Contain  On-close event for /tmp/eicar_oa_test from PID 0 and UID 0
 
 On Access Scans File Created Under A Long Path
@@ -249,12 +249,12 @@ On Access Scans File Created Under A Long Path
 
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  long_dir_eicar  ${EICAR_STRING}
 
-    Wait Until On Access Log Contains   long_dir_eicar" is infected with EICAR-AV-Test
+    Wait Until On Access Log Contains With Offset   long_dir_eicar" is infected with EICAR-AV-Test
 
     Register Cleanup   Remove Directory   /home/vagrant/${LONG_DIRECTORY}   recursive=True
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  silly_long_dir_eicar  ${EICAR_STRING}
 
-    Wait Until On Access Log Contains  Failed to get path from fd: File name too long
+    Wait Until On Access Log Contains With Offset  Failed to get path from fd: File name too long
     On Access Log Does Not Contain     silly_long_dir_eicar
 
 On Access Scans Encoded Eicars
@@ -280,7 +280,7 @@ On Access Scans Password Protected File
     Register Cleanup   Remove File  /tmp/passwd-protected.xls
     Copy File  ${RESOURCES_PATH}/file_samples/passwd-protected.xls  /tmp/
 
-    Wait Until On Access Log Contains  passwd-protected.xls as it is password protected
+    Wait Until On Access Log Contains With Offset  passwd-protected.xls as it is password protected
 
 On Access Scans Corrupted File
     Register Cleanup     Exclude As Corrupted
@@ -293,7 +293,7 @@ On Access Scans Corrupted File
     Register Cleanup   Remove File  /tmp/corrupted.xls
     Copy File  ${RESOURCES_PATH}/file_samples/corrupted.xls  /tmp/
 
-    Wait Until On Access Log Contains  corrupted.xls as it is corrupted
+    Wait Until On Access Log Contains With Offset  corrupted.xls as it is corrupted
 
 On Access Scans File On BFS
     Require Filesystem  bfs
@@ -306,13 +306,13 @@ On Access Scans File On BFS
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  bfs
     Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File On CRAMFS
     [Tags]  MANUAL
@@ -326,7 +326,7 @@ On Access Scans File On CRAMFS
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  cramfs
     Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     ${command} =    Set Variable    cat ${NORMAL_DIRECTORY}/mount/eicar.com > /dev/null
@@ -334,8 +334,8 @@ On Access Scans File On CRAMFS
     ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
     Log   ${output}
 
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File On EXT2
     Require Filesystem  ext2
@@ -347,13 +347,13 @@ On Access Scans File On EXT2
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  ext2
     Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File On EXT3
     Require Filesystem  ext3
@@ -365,13 +365,13 @@ On Access Scans File On EXT3
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  ext3
     Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File On EXT4
     Require Filesystem  ext4
@@ -383,13 +383,13 @@ On Access Scans File On EXT4
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  ext4
     Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File On MINIX
     Require Filesystem  minix
@@ -401,13 +401,13 @@ On Access Scans File On MINIX
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  minix
     Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File On MSDOS
     Require Filesystem  msdos
@@ -420,13 +420,13 @@ On Access Scans File On MSDOS
     ${type} =  Set Variable  msdos
     ${opts} =  Set Variable  loop,umask=0000
     Mount Image  ${where}  ${image}  ${type}  ${opts}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File On NTFS
     Require Filesystem  ntfs
@@ -438,13 +438,13 @@ On Access Scans File On NTFS
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  ntfs
     Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File On ReiserFS
     Require Filesystem  reiserfs
@@ -456,13 +456,13 @@ On Access Scans File On ReiserFS
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  reiserfs
     Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File On SquashFS
     [Tags]  MANUAL
@@ -476,7 +476,7 @@ On Access Scans File On SquashFS
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  squashfs
     Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     ${command} =    Set Variable    cat ${NORMAL_DIRECTORY}/mount/eicar.com > /dev/null
@@ -484,8 +484,8 @@ On Access Scans File On SquashFS
     ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
     Log   ${output}
 
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File On VFAT
     Require Filesystem  vfat
@@ -498,13 +498,13 @@ On Access Scans File On VFAT
     ${type} =  Set Variable  vfat
     ${opts} =  Set Variable  loop,umask=0000
     Mount Image  ${where}  ${image}  ${type}  ${opts}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File On XFS
     Require Filesystem  xfs
@@ -517,13 +517,13 @@ On Access Scans File On XFS
     ${type} =  Set Variable  xfs
     ${opts} =  Set Variable  nouuid
     Mount Image  ${where}  ${image}  ${type}  ${opts}
-    Wait Until On Access Log Contains  Including mount point: ${NORMAL_DIRECTORY}/mount
+    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 
 On Access Logs When A File Is Closed Following Write After Being Disabled
@@ -539,17 +539,17 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     Enable OA Scanning
 
     Send Plugin Policy  av  sav  ${disabledPolicyContent}
-    Wait Until On Access Log Contains  On-access enabled: "false"
+    Wait Until On Access Log Contains With Offset  On-access enabled: "false"
 
     Send Plugin Policy  av  sav  ${enabledPolicyContent}
-    Wait Until On Access Log Contains  On-access enabled: "true"
+    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
 
-    Wait Until On Access Log Contains  Starting eventReader
+    Wait Until On Access Log Contains With Offset  Starting eventReader
     ${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  /tmp_test/eicar.com
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
-    Wait Until On Access Log Contains  On-close event for ${filepath} from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from PID ${pid} and UID 0
 
 On Access Process Handles Consecutive Process Control Requests
     Start On Access With Running Threat Detector
@@ -568,12 +568,12 @@ On Access Process Handles Consecutive Process Control Requests
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    Wait Until On Access Log Contains  New on-access configuration: {"enabled":"true"
-    Wait Until On Access Log Contains  Sophos On Access Process received enable policy override request
-    Wait Until On Access Log Contains  Sophos On Access Process received disable policy override request
-    Wait Until On Access Log Contains  Enable pipe has been notified
-    Wait Until On Access Log Contains  Disable pipe has been notified
-    Wait Until On Access Log Contains  New on-access configuration: {"enabled":"false"
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
+    Wait Until On Access Log Contains With Offset  Sophos On Access Process received enable policy override request
+    Wait Until On Access Log Contains With Offset  Sophos On Access Process received disable policy override request
+    Wait Until On Access Log Contains With Offset  Enable pipe has been notified
+    Wait Until On Access Log Contains With Offset  Disable pipe has been notified
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"false"
 
 On Access Is Disabled By Default If No Flags Policy Arrives
     Start On Access With Running Threat Detector
@@ -596,9 +596,9 @@ On Access Is Enabled After it Receives Enable Flags
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains   Sophos On Access Process received disable policy override request
-    Wait Until On Access Log Contains   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
-    Wait Until On Access Log Contains   Disable pipe has been notified
+    Wait Until On Access Log Contains With Offset   Sophos On Access Process received disable policy override request
+    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
+    Wait Until On Access Log Contains With Offset   Disable pipe has been notified
 
     On-access Scan Eicar
 
@@ -610,18 +610,20 @@ On Access Is Disabled After it Receives Disable Flags
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains   Sophos On Access Process received disable policy override request
+    Wait Until On Access Log Contains With Offset   Sophos On Access Process received disable policy override request
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    Wait Until On Access Log Contains   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
+    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains   Sophos On Access Process received enable policy override request
-    Wait Until On Access Log Contains   Overriding policy and disabling on-access
-    Wait Until On Access Log Contains   Stopping the reading of Fanotify events
+    Wait Until On Access Log Contains With Offset   Sophos On Access Process received enable policy override request
+    Wait Until On Access Log Contains With Offset   Overriding policy and disabling on-access
+    Wait Until On Access Log Contains With Offset   Stopping the reading of Fanotify events
 
     On-access No Eicar Scan
+
+    Dump Log  ${on_access_log_path}
