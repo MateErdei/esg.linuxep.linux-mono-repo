@@ -139,6 +139,7 @@ static bool canConnectToCloud(const std::string& proxy = "")
     {
         curl_easy_setopt(curl, CURLOPT_URL, g_mcs_url.c_str());
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 120);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, function_pt);
         curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
@@ -401,6 +402,7 @@ int main(int argc, char** argv)
 
     try
     {
+
         if (!canConnectToCloudDirectOrProxies(relays))
         {
             // Exit 44 means cannot connect to Cloud - must correspond to handling in installer_header.sh
