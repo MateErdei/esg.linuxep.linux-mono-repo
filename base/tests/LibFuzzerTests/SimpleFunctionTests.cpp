@@ -177,7 +177,7 @@ void verifyObfuscate(const std::string& input)
             abort();
         }
     }
-    catch (Common::Obfuscation::ICipherException& e)
+    catch (Common::Obfuscation::IObfuscationException& e)
     {
         return;
     }
