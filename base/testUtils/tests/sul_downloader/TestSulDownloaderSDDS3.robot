@@ -202,8 +202,10 @@ Sul Downloader Installs SDDS3 Through update cache
     ...    5s
     ...    Check SulDownloader Log Contains  Update success
     Check Sul Downloader log does not contain    Connecting to update source directly
-    ${string}=  Check Log And Return Nth Occurence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  1
-    Should contain   ${string}   updateSource&gt;4092822d-0925-4deb-9146-fbc8532f8c55&lt
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check MCS Envelope Contains Event with Update cache   1
 
 
 Sul Downloader falls back to direct when proxy and UC do not work
@@ -275,6 +277,10 @@ Sul Downloader sdds3 sync Does not retry on curl errors
     check_log_contains    caught exception: Couldn't connect to server   ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
 
 *** Keywords ***
+Check MCS Envelope Contains Event with Update cache
+    [Arguments]  ${Event_Number}
+    ${string}=  Check Log And Return Nth Occurence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Event_Number}
+    Should contain   ${string}   updateSource&gt;4092822d-0925-4deb-9146-fbc8532f8c55&lt
 File Should Contain
     [Arguments]  ${file_path}  ${expected_contents}
     ${contents}=  Get File   ${file_path}
