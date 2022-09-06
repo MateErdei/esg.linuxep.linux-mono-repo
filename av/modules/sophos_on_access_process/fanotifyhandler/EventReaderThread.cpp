@@ -56,6 +56,12 @@ bool EventReaderThread::handleFanotifyEvent()
             return true;
         }
 
+        if (error == EMFILE)
+        {
+            LOGERROR("No more File Descriptors available. Restarting On Access");
+            exit(EXIT_FAILURE);
+        }
+
         // nothing actually there - maybe another thread got it
         LOGDEBUG(
             "no event or error: " << len <<
@@ -145,7 +151,6 @@ std::string EventReaderThread::getFilePathFromFd(int fd)
         LOGWARN("Failed to get path from fd");
         return "";
     }
-
 
     std::stringstream procFdPath;
     procFdPath << "/proc/self/fd/" << fd;
