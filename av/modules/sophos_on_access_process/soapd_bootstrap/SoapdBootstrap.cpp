@@ -80,6 +80,10 @@ void SoapdBootstrap::innerRun(
     mount_monitor::mount_monitor::OnAccessMountConfig config;
     auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+
+    const struct rlimit file_lim = { 4096, 4096 };
+    sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
+
     auto fanotifyHandler = std::make_unique<FanotifyHandler>(sysCallWrapper);
     auto mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config, sysCallWrapper, fanotifyHandler->getFd());
     auto mountMonitorThread = std::make_unique<common::ThreadRunner>(mountMonitor, "mountMonitor", true);

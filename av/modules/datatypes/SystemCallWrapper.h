@@ -61,5 +61,10 @@ namespace datatypes
         {
             return ::fcntl(__fd, __cmd, lock);
         }
+
+        int setrlimit(int __resource, const struct ::rlimit* __rlim) override
+        {
+            return ::setrlimit(__resource, __rlim);
+        }
     };
 }
