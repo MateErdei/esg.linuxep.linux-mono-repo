@@ -606,6 +606,9 @@ class MCS:
 
             old_comms.close()
 
+            # we want to resend the ALC update event on migration
+            self.resend_old_event()
+
             self.__m_config = migrate_config
             migration_success = True
 
