@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
@@ -50,11 +46,21 @@ namespace
     public:
         std::string m_socketPath;
     };
+
+    class MockCallback : public IProcessControlMessageCallback
+    {
+    public:
+        void processControlMessage(const scan_messages::E_COMMAND_TYPE& /*command*/) override
+        {
+
+        }
+    };
 }
 
 TEST_F(TestProcessControllerServerSocket, testConstructor) //NOLINT
 {
-    EXPECT_NO_THROW(unixsocket::ProcessControllerServerSocket processController(m_socketPath, 0660));
+    std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
+    EXPECT_NO_THROW(unixsocket::ProcessControllerServerSocket processController(m_socketPath, 0660, callback));
 }
 
 TEST_F(TestProcessControllerServerSocket, testSendMessageNoServer)
@@ -69,36 +75,6 @@ TEST_F(TestProcessControllerServerSocket, testSendMessageNoServer)
 
 TEST_F(TestProcessControllerServerSocket, testSocketConstruction) // NOLINT
 {
-    unixsocket::ProcessControllerServerSocket processController(m_socketPath, 0660);
-    EXPECT_FALSE(processController.triggeredShutdown());
-}
-
-TEST_F(TestProcessControllerServerSocket, testTriggerNotified) // NOLINT
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-    {
-        unixsocket::ProcessControllerServerSocket processControllerServer(m_socketPath, 0660);
-        processControllerServer.start();
-        EXPECT_GT(processControllerServer.monitorShutdownFd(), -1);
-
-        unixsocket::ProcessControllerClientSocket processControllerClient(m_socketPath);
-        scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_SHUTDOWN);
-        processControllerClient.sendProcessControlRequest(processControlRequest);
-
-        int retries = 0;
-        while (!processControllerServer.triggeredShutdown()) {
-            if (retries > 10) {
-                FAIL() << "Failed to received shutdown request within 10 attempts";
-            }
-            std::this_thread::sleep_for(10ms);
-            retries++;
-        }
-        EXPECT_TRUE(processControllerServer.triggeredShutdown());
-    }
-
-    EXPECT_TRUE(appenderContains("Process Controller Server starting listening on socket"));
-    EXPECT_TRUE(appenderContains("Process Controller Server accepting connection"));
-    EXPECT_TRUE(appenderContains("Process Controller Server thread got connection"));
-    EXPECT_TRUE(appenderContains("Closing Process Controller Server socket"));
-    //destructor will stop the thread
+    std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
+    unixsocket::ProcessControllerServerSocket processController(m_socketPath, 0660, callback);
 }

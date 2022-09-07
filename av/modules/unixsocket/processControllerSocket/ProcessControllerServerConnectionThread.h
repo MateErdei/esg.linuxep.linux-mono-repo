@@ -1,21 +1,19 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #define AUTO_FD_IMPLICIT_INT
+#include "unixsocket/BaseServerConnectionThread.h"
+#include "unixsocket/IProcessControlMessageCallback.h"
+
+#include "Common/Threads/AbstractThread.h"
+#include "Common/Threads/NotifyPipe.h"
+
 #include <datatypes/AutoFd.h>
 #include <scan_messages/ThreatDetected.h>
-#include "Common/Threads/NotifyPipe.h"
-#include "Common/Threads/AbstractThread.h"
 
 #include <cstdint>
 #include <string>
-#include <unixsocket/IMessageCallback.h>
-#include "unixsocket/BaseServerConnectionThread.h"
 
 namespace unixsocket
 {
@@ -26,10 +24,8 @@ namespace unixsocket
         ProcessControllerServerConnectionThread& operator=(const ProcessControllerServerConnectionThread&) = delete;
         explicit ProcessControllerServerConnectionThread(
             datatypes::AutoFd& fd,
-            std::shared_ptr<Common::Threads::NotifyPipe> shutdownPipe,
-            std::shared_ptr<Common::Threads::NotifyPipe> reloadPipe,
-            std::shared_ptr<Common::Threads::NotifyPipe> enablePipe,
-            std::shared_ptr<Common::Threads::NotifyPipe> disablePipe);
+            std::shared_ptr<IProcessControlMessageCallback> processControlCallback
+            );
 
         void run() override;
 
@@ -37,10 +33,7 @@ namespace unixsocket
         void inner_run();
 
         datatypes::AutoFd m_fd;
-        std::shared_ptr<Common::Threads::NotifyPipe> m_shutdownPipe;
-        std::shared_ptr<Common::Threads::NotifyPipe> m_reloadPipe;
-        std::shared_ptr<Common::Threads::NotifyPipe> m_enablePipe;
-        std::shared_ptr<Common::Threads::NotifyPipe> m_disablePipe;
+        std::shared_ptr<IProcessControlMessageCallback> m_controlMessageCallback;
     };
 }
 

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ProcessControllerServerConnectionThread.h"
 
@@ -25,39 +21,12 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 using namespace unixsocket;
 
 ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread(datatypes::AutoFd& fd,
-                                                                                 std::shared_ptr<Common::Threads::NotifyPipe> shutdownPipe,
-                                                                                 std::shared_ptr<Common::Threads::NotifyPipe> reloadPipe,
-                                                                                 std::shared_ptr<Common::Threads::NotifyPipe> enablePipe,
-                                                                                 std::shared_ptr<Common::Threads::NotifyPipe> disablePipe)
-        : m_fd(std::move(fd))
-        , m_shutdownPipe(std::move(shutdownPipe))
-        , m_reloadPipe(std::move(reloadPipe))
-        , m_enablePipe(std::move(enablePipe))
-        , m_disablePipe(std::move(disablePipe))
+                                                                                 std::shared_ptr<IProcessControlMessageCallback> threatReportCallback)
+        : m_fd(std::move(fd)), m_controlMessageCallback(std::move(threatReportCallback))
 {
     if (m_fd < 0)
     {
         throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with invalid socket fd");
-    }
-
-    if (m_shutdownPipe == nullptr)
-    {
-        throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null shutdown pipe");
-    }
-
-    if (m_reloadPipe == nullptr)
-    {
-        throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null update pipe");
-    }
-
-    if (m_enablePipe == nullptr)
-    {
-        throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null enable pipe");
-    }
-
-    if (m_disablePipe == nullptr)
-    {
-        throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with null disable pipe");
     }
 }
 
@@ -203,27 +172,7 @@ void ProcessControllerServerConnectionThread::inner_run()
             LOGDEBUG("Read capn of " << bytes_read);
             auto processControlReader = parseProcessControlRequest(proto_buffer, bytes_read);
 
-            switch(processControlReader.getCommandType())
-            {
-                case scan_messages::E_SHUTDOWN:
-                    m_shutdownPipe->notify();
-                    LOGDEBUG("Shutdown pipe has been notified");
-                    break;
-                case scan_messages::E_RELOAD:
-                    m_reloadPipe->notify();
-                    LOGDEBUG("Reload pipe has been notified");
-                    break;
-                case scan_messages::E_FORCE_ON_ACCESS_OFF:
-                    m_enablePipe->notify();
-                    LOGDEBUG("Enable pipe has been notified");
-                    break;
-                case scan_messages::E_ON_ACCESS_FOLLOW_CONFIG:
-                    m_disablePipe->notify();
-                    LOGDEBUG("Disable pipe has been notified");
-                    break;
-                default:
-                    LOGDEBUG("Received unknown signal on Process Controller: " << processControlReader.getCommandType());
-            }
+            m_controlMessageCallback->processControlMessage(processControlReader.getCommandType());
         }
     }
 }

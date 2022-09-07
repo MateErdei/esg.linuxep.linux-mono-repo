@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 #include "datatypes/Print.h"
 #include "unixsocket/SocketUtilsImpl.h"
@@ -21,6 +17,18 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <unistd.h>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
+
+namespace
+{
+    class MockCallback : public IProcessControlMessageCallback
+    {
+    public:
+        void processControlMessage(const scan_messages::E_COMMAND_TYPE& /*command*/) override
+        {
+
+        }
+    };
+}
 
 static void initializeLogging()
 {
@@ -41,15 +49,9 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
     datatypes::AutoFd clientFd(socket_fds[1]);
 
     //start a process controller socket
-    auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
-    auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
-    auto enablePipe = std::make_shared<Common::Threads::NotifyPipe>();
-    auto disablePipe = std::make_shared<Common::Threads::NotifyPipe>();
-    unixsocket::ProcessControllerServerConnectionThread connectionThread(serverFd,
-                                                                         shutdownPipe,
-                                                                         reloadPipe,
-                                                                         enablePipe,
-                                                                         disablePipe);
+
+    std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
+    unixsocket::ProcessControllerServerConnectionThread connectionThread(serverFd, callback);
     connectionThread.start();
 
     // send our request

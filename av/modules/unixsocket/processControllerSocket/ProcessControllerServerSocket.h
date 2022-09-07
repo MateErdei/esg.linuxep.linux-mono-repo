@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -18,26 +14,15 @@ namespace unixsocket
     public:
         ProcessControllerServerSocket(
             const std::string& path,
-            const mode_t mode);
+            const mode_t mode,
+            std::shared_ptr<IProcessControlMessageCallback> processControlCallback);
         ~ProcessControllerServerSocket() override;
-        int monitorShutdownFd();
-        int monitorReloadFd();
-        int monitorEnableFd();
-        int monitorDisableFd();
 
-        bool triggeredShutdown();
-        bool triggeredReload();
-        bool triggeredEnable();
-        bool triggeredDisable();
 
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            return std::make_unique<ProcessControllerServerConnectionThread>(fd,
-                                                                             m_shutdownPipe,
-                                                                             m_reloadPipe,
-                                                                             m_enablePipe,
-                                                                             m_disablePipe);
+            return std::make_unique<ProcessControllerServerConnectionThread>(fd, m_processControlCallback);
         }
         void logMaxConnectionsError() override
         {
@@ -45,15 +30,7 @@ namespace unixsocket
         }
 
     private:
-        std::shared_ptr<Common::Threads::NotifyPipe> m_shutdownPipe;
-        std::shared_ptr<Common::Threads::NotifyPipe> m_reloadPipe;
-        std::shared_ptr<Common::Threads::NotifyPipe> m_enablePipe;
-        std::shared_ptr<Common::Threads::NotifyPipe> m_disablePipe;
-
-        bool m_signalledShutdown = false;
-        bool m_signalledReload = false;
-        bool m_signalledEnable = false;
-        bool m_signalledDisable = false;
+        std::shared_ptr<IProcessControlMessageCallback> m_processControlCallback;
     };
 }
 
