@@ -46,7 +46,7 @@ namespace plugin::manager::scanprocessmonitor
         std::string processControllerSocket,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper) :
         m_sysCallWrapper(std::move(systemCallWrapper)),
-        m_processControllerSocket(std::move(processControllerSocket))
+        m_processControllerSocketPath(std::move(processControllerSocket))
     {
     }
 
@@ -55,7 +55,7 @@ namespace plugin::manager::scanprocessmonitor
     {
         try
         {
-            unixsocket::ProcessControllerClientSocket processController(m_processControllerSocket);
+            unixsocket::ProcessControllerClientSocket processController(m_processControllerSocketPath);
             scan_messages::ProcessControlSerialiser processControlRequest(requestType);
             processController.sendProcessControlRequest(processControlRequest);
         }
