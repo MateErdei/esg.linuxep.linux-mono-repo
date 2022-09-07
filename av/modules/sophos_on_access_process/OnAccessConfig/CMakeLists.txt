@@ -2,8 +2,8 @@
 add_library(onAccessConfigMonitor SHARED
         OnAccessConfigurationUtils.cpp
         OnAccessConfigurationUtils.h
-        OnAccessConfigMonitor.cpp
-        OnAccessConfigMonitor.h
+        OnAccessProcesControlCallbacks.cpp
+        OnAccessProcesControlCallbacks.h
         Logger.cpp
         Logger.h
         )

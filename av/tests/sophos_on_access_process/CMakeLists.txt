@@ -7,8 +7,7 @@ include(GoogleTest)
 
 SophosAddTest(TestSophosOnAccessProcessImpl
         ../common/LogInitializedTests.cpp
-        TestSoapdBootstrap.cpp
-        TestOnAccessConfigMonitor.cpp
+        TestOnAccessConfigUtils.cpp
         PROJECTS soapdbootstrap
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
