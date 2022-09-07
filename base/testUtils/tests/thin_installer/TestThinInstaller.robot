@@ -102,30 +102,12 @@ Thin Installer can download test file from warehouse and execute it
 
     Run Default Thininstaller  0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Successfully installed product
+    fail
 
 Thin Installer fails to download test file from warehouse if certificate is not installed
     [Teardown]  Cert Test Teardown
     Cleanup System Ca Certs
     Run Default Thininstaller    18  force_certs_dir=${SUPPORT_FILES}/sophos_certs
-
-Thin Installer Cannot Connect to Central
-    [Tags]  SMOKE  THIN_INSTALLER
-    [Setup]  Setup Thininstaller Test Without Local Cloud Server
-    Run Default Thininstaller    3    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
-    Check Thininstaller Log Contains   Cannot connect to Sophos Central - please check your network connections'
-
-Thin Installer Cannot Connect to Central timeout
-    [Tags]  SMOKE  THIN_INSTALLER  TESTFAILURE
-    [Setup]  Setup Thininstaller Test Without Local Cloud Server
-    Start Local Cloud Server  --timeout
-    Run Default Thininstaller    3    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
-
-Thin Installer handles broken jwt
-    [Tags]  SMOKE  THIN_INSTALLER
-    [Setup]  Setup Thininstaller Test Without Local Cloud Server
-    Start Local Cloud Server  --force-break-jwt
-    Run Default Thininstaller    51    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
-    Check Thininstaller Log Contains
 
 Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE  THIN_INSTALLER
@@ -147,6 +129,18 @@ Thin Installer With Space In Name Works
     Run Default Thininstaller With Different Name    SophosSetup (1).sh    0   force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Successfully installed product
 
+Thin Installer Cannot Connect to Central
+    [Tags]  SMOKE  THIN_INSTALLER
+    [Setup]  Setup Thininstaller Test Without Local Cloud Server
+    Run Default Thininstaller    3    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Check Thininstaller Log Contains   Cannot connect to Sophos Central - please check your network connections'
+
+Thin Installer handles broken jwt
+    [Tags]  SMOKE  THIN_INSTALLER
+    [Setup]  Setup Thininstaller Test Without Local Cloud Server
+    Start Local Cloud Server  --force-break-jwt
+    Run Default Thininstaller    52    https://localhost:4443/mcs  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Check Thininstaller Log Contains  Failed to get JWT from Sophos Central
 
 Thin Installer Registers Existing Installation
     [Tags]  THIN_INSTALLER  MCS_ROUTER
