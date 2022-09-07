@@ -117,7 +117,7 @@ bool EventReaderThread::handleFanotifyEvent()
 
         if (metadata->pid == m_pid)
         {
-            LOGDEBUG("Skip event caused by soapd");
+            LOGDEBUG("Event pid matches On Access pid, skipping event");
             continue;
         }
         auto executablePath = get_executable_path_from_pid(metadata->pid);
