@@ -102,7 +102,14 @@ namespace MCS
         }
         else
         {
-            LOGWARN("Error during registration: " << response.status);
+            if (!response.error.empty())
+            {
+                LOGWARN("Error during registration: " << response.error << ". Status: " << response.status);
+            }
+            else
+            {
+                LOGWARN("Registration failed with Status: " << response.status);
+            }
         }
         return false;
     }
