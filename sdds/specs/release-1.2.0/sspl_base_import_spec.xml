@@ -5,9 +5,9 @@
   </warehouses>
   <imports>
     <line id="ServerProtectionLinux-Base">
-		<componentsuite id="ServerProtectionLinux-Base-1.2.0.4"
-						version="1.2.0.4"
-						artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--Version_1_2_0/20220826143124-bb1a9391e80cc51e8e215d27afd8ef63fb62d54f-0VZrMJ/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
+		<componentsuite id="ServerProtectionLinux-Base-1.2.0.5"
+						version="1.2.0.5"
+						artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--Version_1_2_0/20220907085317-bb1a9391e80cc51e8e215d27afd8ef63fb62d54f-X2PtTT/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
 						longdic="Sophos Linux Base"
 						shortdic="Sophos Linux Base"/>
 		<componentsuite id="ServerProtectionLinux-Base-1.1.10.6"
@@ -89,9 +89,9 @@
                  shortdic="Sophos Live Discover Plugin"/>
     </line>
     <line id="ServerProtectionLinux-Base-component">
-		<component id="ServerProtectionLinux-Base-component-1.2.0.2"
-				   version="1.2.0.2"
-				   artifact="esg-releasable-candidate/linuxep.everest-base/release--Version_1_2_0/20220825162206-c6b0d55583a445f972159bc037a001a146cdc733-n6LGHQ/sspl-base/SDDS-COMPONENT/"
+		<component id="ServerProtectionLinux-Base-component-1.2.0.68"
+				   version="1.2.0.68"
+				   artifact="esg-releasable-candidate/linuxep.everest-base/release--Version_1_2_0/20220906211942-e727d07917760a9489454fc3ff63eda3bcca1f71-y2G05t/sspl-base/SDDS-COMPONENT/"
 				   longdic="Sophos Linux Base Component"
 				   shortdic="Sophos Linux Base Component"/>
 		<component id="ServerProtectionLinux-Base-component-1.1.10.49"
