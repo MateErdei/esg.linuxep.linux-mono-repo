@@ -213,11 +213,11 @@ void ProcessControllerServerConnectionThread::inner_run()
                     m_reloadPipe->notify();
                     LOGDEBUG("Reload pipe has been notified");
                     break;
-                case scan_messages::E_ENABLE:
+                case scan_messages::E_FORCE_ON_ACCESS_OFF:
                     m_enablePipe->notify();
                     LOGDEBUG("Enable pipe has been notified");
                     break;
-                case scan_messages::E_DISABLE:
+                case scan_messages::E_ON_ACCESS_FOLLOW_CONFIG:
                     m_disablePipe->notify();
                     LOGDEBUG("Disable pipe has been notified");
                     break;

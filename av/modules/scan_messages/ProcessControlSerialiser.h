@@ -17,8 +17,8 @@ namespace scan_messages
     {
         E_SHUTDOWN = 1,
         E_RELOAD = 2,
-        E_ENABLE = 3,
-        E_DISABLE = 4,
+        E_FORCE_ON_ACCESS_OFF = 3,
+        E_ON_ACCESS_FOLLOW_CONFIG = 4,
     };
 
     class ProcessControlSerialiser

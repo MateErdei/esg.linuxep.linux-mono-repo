@@ -67,6 +67,7 @@ Start On Access With Running Threat Detector
     Force SUSI to be initialized
 
 Start On Access
+    Mark On Access Log
     Remove Files   /tmp/soapd.stdout  /tmp/soapd.stderr
     ${handle} =  Start Process  ${ON_ACCESS_BIN}   stdout=/tmp/soapd.stdout  stderr=/tmp/soapd.stderr
     Set Test Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${handle}
@@ -181,7 +182,6 @@ On Access Does Not Include Remote Files If Excluded In Policy
 On Access Monitors Addition And Removal Of Mount Points
     Register Cleanup    Exclude On Access Scan Errors
     [Tags]  NFS
-    Mark On Access Log
     Start On Access
     Wait Until On Access Log Contains With Offset  Including mount point:
     On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
@@ -218,14 +218,12 @@ On Access Monitors Addition And Removal Of Mount Points
     Should Be Equal As Integers  ${totalNumMountsPostNFSumount}  ${numMountsPreNFSmount}
 
 On Access Scans A File When It Is Closed Following A Write
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
     On-access Scan Eicar
 
 On Access Scans File Created By non-root User
-    Mark On Access Log
     Start On Access With Running Threat Detector
 
     Create File  /tmp/eicar     ${EICAR_STRING}
@@ -243,7 +241,6 @@ On Access Scans File Created By non-root User
     On Access Log Does Not Contain  On-close event for /tmp/eicar_oa_test from PID 0 and UID 0
 
 On Access Scans File Created Under A Long Path
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -258,7 +255,6 @@ On Access Scans File Created Under A Long Path
     On Access Log Does Not Contain     silly_long_dir_eicar
 
 On Access Scans Encoded Eicars
-    Mark On Access Log
     Mark AV Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
@@ -272,7 +268,6 @@ On Access Scans Encoded Eicars
 On Access Scans Password Protected File
     Register Cleanup    Exclude As Password Protected
 
-    Mark On Access Log
     Mark AV Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
@@ -285,7 +280,6 @@ On Access Scans Password Protected File
 On Access Scans Corrupted File
     Register Cleanup     Exclude As Corrupted
 
-    Mark On Access Log
     Mark AV Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
@@ -297,7 +291,6 @@ On Access Scans Corrupted File
 
 On Access Scans File On BFS
     Require Filesystem  bfs
-    Mark On Access Log
     Start On Access With Running Threat Detector
 
     Enable OA Scanning
@@ -318,7 +311,6 @@ On Access Scans File On CRAMFS
     [Tags]  MANUAL
     # TODO: Fix this test
     Require Filesystem  cramfs
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -339,7 +331,6 @@ On Access Scans File On CRAMFS
 
 On Access Scans File On EXT2
     Require Filesystem  ext2
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -357,7 +348,6 @@ On Access Scans File On EXT2
 
 On Access Scans File On EXT3
     Require Filesystem  ext3
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -375,7 +365,6 @@ On Access Scans File On EXT3
 
 On Access Scans File On EXT4
     Require Filesystem  ext4
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -393,7 +382,6 @@ On Access Scans File On EXT4
 
 On Access Scans File On MINIX
     Require Filesystem  minix
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -411,7 +399,6 @@ On Access Scans File On MINIX
 
 On Access Scans File On MSDOS
     Require Filesystem  msdos
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -430,7 +417,6 @@ On Access Scans File On MSDOS
 
 On Access Scans File On NTFS
     Require Filesystem  ntfs
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -448,7 +434,6 @@ On Access Scans File On NTFS
 
 On Access Scans File On ReiserFS
     Require Filesystem  reiserfs
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -468,7 +453,6 @@ On Access Scans File On SquashFS
     [Tags]  MANUAL
     # TODO: Fix this test
     Require Filesystem  squashfs
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -489,7 +473,6 @@ On Access Scans File On SquashFS
 
 On Access Scans File On VFAT
     Require Filesystem  vfat
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -508,7 +491,6 @@ On Access Scans File On VFAT
 
 On Access Scans File On XFS
     Require Filesystem  xfs
-    Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -527,7 +509,6 @@ On Access Scans File On XFS
 
 
 On Access Logs When A File Is Closed Following Write After Being Disabled
-    Mark On Access Log
     Start On Access
     Start Fake Management If Required
     Exclude On Access Connect Failed

@@ -414,7 +414,7 @@ TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_reload_no
 
 TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_enable_notification) // NOLINT
 {
-    auto processControl = scan_messages::ProcessControlSerialiser(scan_messages::E_ENABLE);
+    auto processControl = scan_messages::ProcessControlSerialiser(scan_messages::E_FORCE_ON_ACCESS_OFF);
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();
@@ -436,7 +436,7 @@ TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_enable_no
 
 TEST_F(TestProcessControllerServerConnectionThreadWithSocketPair, send_disable_notification) // NOLINT
 {
-    auto processControl = scan_messages::ProcessControlSerialiser(scan_messages::E_DISABLE);
+    auto processControl = scan_messages::ProcessControlSerialiser(scan_messages::E_ON_ACCESS_FOLLOW_CONFIG);
 
     auto shutdownPipe = std::make_shared<Common::Threads::NotifyPipe>();
     auto reloadPipe = std::make_shared<Common::Threads::NotifyPipe>();

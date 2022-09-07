@@ -275,18 +275,18 @@ namespace Plugin
                 if (j[OA_FLAG] == true)
                 {
                     LOGINFO("On-access is enabled in the FLAGS policy, notifying soapd to disable on-access policy override");
-                    notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_DISABLE);
+                    notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_ON_ACCESS_FOLLOW_CONFIG);
                 }
                 else
                 {
                     LOGINFO("On-access is disabled in the FLAGS policy, notifying soapd to enable on-access policy override");
-                    notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_ENABLE);
+                    notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_FORCE_ON_ACCESS_OFF);
                 }
             }
             else
             {
                 LOGINFO("No on-access flag found assuming policy settings");
-                notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_DISABLE);
+                notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_ON_ACCESS_FOLLOW_CONFIG);
             }
         }
         catch (const json::parse_error& e)
