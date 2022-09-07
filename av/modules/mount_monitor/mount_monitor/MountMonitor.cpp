@@ -15,7 +15,7 @@
 #include <poll.h>
 #include <sys/fanotify.h>
 
-static uint64_t EVENT_MASK = FAN_CLOSE_WRITE;
+static uint64_t EVENT_MASK = (FAN_CLOSE_WRITE | FAN_OPEN);
 
 namespace mount_monitor::mount_monitor
 {
