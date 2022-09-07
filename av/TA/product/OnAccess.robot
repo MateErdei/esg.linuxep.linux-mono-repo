@@ -44,6 +44,9 @@ List AV Plugin Path
 On Access Test Setup
     Component Test Setup
     Mark Sophos Threat Detector Log
+    Mark On Access Log
+    Start On Access With Running Threat Detector
+    Enable OA Scanning
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
@@ -129,7 +132,6 @@ On Access Log Rotates
     Register Cleanup    Exclude On Access Scan Errors
     Dump and Reset Logs
     # Ensure the log is created
-    Start On Access
     Stop On Access
     Increase On Access Log To Max Size
     Start On Access
@@ -144,7 +146,6 @@ On Access Log Rotates
 On Access Process Parses Policy Config
     Register Cleanup    Exclude On Access Scan Errors
     Start AV
-    Start On Access
 
     Start Fake Management If Required
 
@@ -199,8 +200,8 @@ On Access Does Not Include Remote Files If Excluded In Policy
     Create Local NFS Share   ${source}   ${destination}
     Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
 
-    Start On Access
     Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
+    Wait Until On Access Log Contains  Including mount point: /testmnt/nfsshare
 
     Start Fake Management If Required
 
@@ -226,6 +227,7 @@ On Access Monitors Addition And Removal Of Mount Points
     ${type} =  Set Variable  ext2
     Mark On Access Log
     Start On Access
+
     Wait Until On Access Log Contains With Offset  Including mount point:
     On Access Log Does Not Contain With Offset  Including mount point: ${where}
     Sleep  1s
@@ -251,28 +253,20 @@ On Access Monitors Addition And Removal Of Mount Points
     Should Be Equal As Integers  ${totalNumMountsPostUmount}  ${numMountsPreMount}
 
 On Access Scans A File When It Is Closed Following A Write
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
-
+    Mark On Access Log
     On-access Scan Eicar
 
-On Access Scans A File When It Is Opened
-    Mark On Access Log
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
+On Access Scans A File When It Is Opened
     ${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  ${RESOURCES_PATH}/file_samples/eicar.iso
     ${Contents} =  Get File  ${filepath}  encoding_errors=ignore
-    Wait Until On Access Log Contains  On-open event for ${filepath} from PID ${pid} and UID 0
+    Wait Until On Access Log Contains  On-open event for ${filepath} from
     Wait Until On Access Log Contains  is infected with
 
 On Access Scans File Created By non-root User
-    Start On Access With Running Threat Detector
 
     Create File  /tmp/eicar     ${EICAR_STRING}
-
-    Enable OA Scanning
 
     ${command} =    Set Variable    cp /tmp/eicar /tmp/eicar_oa_test
     ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
@@ -282,7 +276,7 @@ On Access Scans File Created By non-root User
 
     Wait Until On Access Log Contains With Offset  On-close event for /tmp/eicar_oa_test from PID
     Wait Until On Access Log Contains With Offset  Detected "/tmp/eicar_oa_test" is infected with EICAR-AV-Test
-    On Access Log Does Not Contain  On-close event for /tmp/eicar_oa_test from PID 0 and UID 0
+    On Access Log Does Not Contain  On-close event for /tmp/eicar_oa_test from
 
 On Access Scans File Created Under A Long Path
     Start On Access With Running Threat Detector
@@ -291,6 +285,15 @@ On Access Scans File Created Under A Long Path
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  long_dir_eicar  ${EICAR_STRING}
 
     Wait Until On Access Log Contains With Offset   long_dir_eicar" is infected with EICAR-AV-Test
+    Wait Until On Access Log Contains With Offset  On-open event for /tmp/eicar_oa_test from PID
+    Wait Until On Access Log Contains With Offset Times Detected "/tmp/eicar_oa_test" is infected with EICAR-AV-Test  times=2
+    On Access Does Not Log Contain  On-close event for /tmp/eicar_oa_test from PID 0 and UID 0
+    On Access Does Not Log Contain  On-open event for /tmp/eicar_oa_test from PID 0 and UID 0
+
+On Access Scans File Created Under A Long Path
+    ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  long_dir_eicar  ${EICAR_STRING}
+
+    Wait Until On Access Log Contains With Offset Times  long_dir_eicar" is infected with EICAR-AV-Test   times=2
 
     Register Cleanup   Remove Directory   /home/vagrant/${LONG_DIRECTORY}   recursive=True
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  silly_long_dir_eicar  ${EICAR_STRING}
@@ -300,8 +303,6 @@ On Access Scans File Created Under A Long Path
 
 On Access Scans Encoded Eicars
     Mark AV Log
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
@@ -313,31 +314,25 @@ On Access Scans Password Protected File
     Register Cleanup    Exclude As Password Protected
 
     Mark AV Log
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     Register Cleanup   Remove File  /tmp/passwd-protected.xls
     Copy File  ${RESOURCES_PATH}/file_samples/passwd-protected.xls  /tmp/
 
-    Wait Until On Access Log Contains With Offset  passwd-protected.xls as it is password protected
+    Wait Until On Access Log Contains With Offset Times  passwd-protected.xls as it is password protected   times=2
 
 On Access Scans Corrupted File
     Register Cleanup     Exclude As Corrupted
 
     Mark AV Log
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     Register Cleanup   Remove File  /tmp/corrupted.xls
     Copy File  ${RESOURCES_PATH}/file_samples/corrupted.xls  /tmp/
 
-    Wait Until On Access Log Contains With Offset  corrupted.xls as it is corrupted
+    Wait Until On Access Log Contains With Offset  corrupted.xls as it is corrupted    times=2
+
 
 On Access Scans File On BFS
     Require Filesystem  bfs
-    Start On Access With Running Threat Detector
-
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  bfsFileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -348,15 +343,15 @@ On Access Scans File On BFS
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains With Offset  is infected with
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 On Access Scans File On CRAMFS
     [Tags]  MANUAL
     # TODO: Fix this test
     Require Filesystem  cramfs
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  cramfsFileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -370,13 +365,12 @@ On Access Scans File On CRAMFS
     ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
     Log   ${output}
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID
-    Wait Until On Access Log Contains With Offset  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 On Access Scans File On EXT2
     Require Filesystem  ext2
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  ext2FileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -387,13 +381,13 @@ On Access Scans File On EXT2
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains With Offset  is infected with
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 On Access Scans File On EXT3
     Require Filesystem  ext3
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  ext3FileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -404,13 +398,13 @@ On Access Scans File On EXT3
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains With Offset  is infected with
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 On Access Scans File On EXT4
     Require Filesystem  ext4
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  ext4FileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -421,13 +415,13 @@ On Access Scans File On EXT4
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains With Offset  is infected with
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 On Access Scans File On MINIX
     Require Filesystem  minix
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  minixFileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -438,13 +432,13 @@ On Access Scans File On MINIX
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains With Offset  is infected with
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 On Access Scans File On MSDOS
     Require Filesystem  msdos
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  msdosFileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -456,13 +450,13 @@ On Access Scans File On MSDOS
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains With Offset  is infected with
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 On Access Scans File On NTFS
     Require Filesystem  ntfs
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  ntfsFileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -473,13 +467,13 @@ On Access Scans File On NTFS
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains With Offset  is infected with
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 On Access Scans File On ReiserFS
     Require Filesystem  reiserfs
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  reiserfsFileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -490,15 +484,15 @@ On Access Scans File On ReiserFS
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains With Offset  is infected with
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 On Access Scans File On SquashFS
     [Tags]  MANUAL
     # TODO: Fix this test
     Require Filesystem  squashfs
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  squashfsFileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -512,13 +506,12 @@ On Access Scans File On SquashFS
     ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
     Log   ${output}
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains With Offset  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 On Access Scans File On VFAT
     Require Filesystem  vfat
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  vfatFileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -530,13 +523,13 @@ On Access Scans File On VFAT
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains With Offset  is infected with
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 On Access Scans File On XFS
     Require Filesystem  xfs
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
     ${image} =  Copy And Extract Image  xfsFileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
@@ -548,13 +541,13 @@ On Access Scans File On XFS
     ${pid} =  Get Robot Pid
     Create File  ${where}/eicar.com  ${EICAR_STRING}
     Register Cleanup  Remove File  ${where}/eicar.com
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from PID ${pid} and UID 0
-    Wait Until On Access Log Contains With Offset  is infected with
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with
+
 
 
 On Access Logs When A File Is Closed Following Write After Being Disabled
-    Register Cleanup    Exclude On Access Scan Errors
-    Start On Access
     Start Fake Management If Required
     Exclude On Access Connect Failed
 
@@ -575,7 +568,9 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     ${filepath} =  Set Variable  /tmp_test/eicar.com
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from PID ${pid} and UID 0
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from
+
 
 On Access Process Handles Consecutive Process Control Requests
     Start On Access With Running Threat Detector
