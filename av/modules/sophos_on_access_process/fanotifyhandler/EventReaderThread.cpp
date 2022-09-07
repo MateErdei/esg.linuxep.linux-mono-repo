@@ -133,13 +133,26 @@ bool EventReaderThread::handleFanotifyEvent()
 
         // TODO: Handle process exclusions
         auto escapedPath = common::escapePathForLogging(path);
+
+        bool validEvent = true;
+        std::string eventType = "";
         if (metadata->mask & FAN_OPEN)
         {
-            LOGINFO("On-open event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
+            eventType = "open";
         }
         else if (metadata->mask & FAN_CLOSE_WRITE)
         {
-            LOGINFO("On-close event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
+            eventType = "close";
+        }
+        else
+        {
+            LOGDEBUG("unknown operation mask: " << std::hex << metadata->mask << std::dec);
+            validEvent = false;
+        }
+
+        if (validEvent)
+        {
+            LOGINFO("On-" << eventType << " event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
             scanRequest->setPath(path);
             scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
             scanRequest->setUserID(std::to_string(uid));
@@ -148,10 +161,6 @@ bool EventReaderThread::handleFanotifyEvent()
             {
                 LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
             }
-        }
-        else
-        {
-            LOGDEBUG("unknown operation mask: " << std::hex << metadata->mask << std::dec);
         }
     }
     return true;

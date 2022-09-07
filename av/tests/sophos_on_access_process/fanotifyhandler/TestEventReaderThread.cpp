@@ -137,7 +137,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
     logMsg << "On-open event for " << filePath << " from PID " << metadata.pid << " and UID " << statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
-    EXPECT_EQ(m_scanRequestQueue->size(), 0);
+    EXPECT_EQ(m_scanRequestQueue->size(), 1);
 }
 
 TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
@@ -177,6 +177,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     logMsg1 << "On-open event for " << filePath1 << " from PID " << metadata.pid << " and UID " << statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg1.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_EQ(m_scanRequestQueue->size(), 1);
 
     eventReaderThread.requestStopIfNotStopped();
     eventReaderThread.startIfNotStarted();
@@ -186,6 +187,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     EXPECT_TRUE(waitForLog("got event: size "));
     EXPECT_TRUE(waitForLog(logMsg2.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_EQ(m_scanRequestQueue->size(), 2);
 }
 
 TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
