@@ -1,8 +1,5 @@
-/******************************************************************************************************
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 
 #include "datatypes/Print.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"

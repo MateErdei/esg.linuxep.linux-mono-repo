@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ThreatDetected.capnp.h"
 
@@ -51,7 +47,7 @@ namespace
     std::time_t m_detectionTimeStamp = 123;
 }
 
-TEST_F(TestStringUtils, TestgenerateThreatDetectedXml) // NOLINT
+TEST_F(TestStringUtils, TestgenerateThreatDetectedXml)
 {
     std::string threatName = "eicar";
     std::string threatPath = "path/to/threat";
@@ -84,7 +80,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXml) // NOLINT
     EXPECT_EQ(result, m_englishsXML);
 }
 
-TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats) // NOLINT
+TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats)
 {
     std::string threatName = "Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ";
     std::string threatPath = "/πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·";
@@ -116,7 +112,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats) // NOLINT
     EXPECT_EQ(result, m_umlatsXML);
 }
 
-TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters) // NOLINT
+TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters)
 {
     std::string threatName = "ありったけの夢をかき集め";
     std::string threatPath = "/捜し物を探しに行くのさ ONE PIECE";
@@ -175,7 +171,7 @@ static scan_messages::ServerThreatDetected createEvent(
     return scan_messages::ServerThreatDetected(deSerialisedData);
 }
 
-TEST_F(TestStringUtils, TestEmptyPathXML) // NOLINT
+TEST_F(TestStringUtils, TestEmptyPathXML)
 {
     scan_messages::ServerThreatDetected serverThreatDetectedMessage(createEvent());
     std::string result = generateThreatDetectedXml(serverThreatDetectedMessage);
@@ -192,7 +188,7 @@ TEST_F(TestStringUtils, TestEmptyPathXML) // NOLINT
     EXPECT_EQ(result, expectedXML);
 }
 
-TEST_F(TestStringUtils, TestEmptyThreatPathJSON) // NOLINT
+TEST_F(TestStringUtils, TestEmptyThreatPathJSON)
 {
     std::string threatName = "eicar";
     std::string userID = "User";
@@ -223,7 +219,7 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON) // NOLINT
     EXPECT_EQ(result, expectedJSON);
 }
 
-TEST_F(TestStringUtils, TestEmptyThreatNameJSON) // NOLINT
+TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
 {
 
     std::string threatPath = "path/to/threat";

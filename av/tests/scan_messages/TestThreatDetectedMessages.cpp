@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 #include "ThreatDetected.capnp.h"
 
@@ -41,7 +37,7 @@ public:
 };
 
 
-TEST_F(TestThreatDetectedMessages, CreateThreatDetected) //NOLINT
+TEST_F(TestThreatDetectedMessages, CreateThreatDetected)
 {
     std::string dataAsString = m_threatDetected.serialise();
 
@@ -64,7 +60,7 @@ TEST_F(TestThreatDetectedMessages, CreateThreatDetected) //NOLINT
     EXPECT_EQ(deSerialisedData.getSha256(), m_sha256);
 }
 
-TEST_F(TestThreatDetectedMessages, CreateThreatDetected_emptyThreatName) //NOLINT
+TEST_F(TestThreatDetectedMessages, CreateThreatDetected_emptyThreatName)
 {
     m_threatDetected.setThreatName("");
     std::string dataAsString = m_threatDetected.serialise();
