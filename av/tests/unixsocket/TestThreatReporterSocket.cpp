@@ -75,7 +75,7 @@ TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
         scan_messages::ThreatDetected threatDetected;
         threatDetected.setUserID(m_userID);
         threatDetected.setDetectionTime(detectionTimeStamp);
-        threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+        threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
         threatDetected.setThreatName(m_threatName);
         threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
         threatDetected.setFilePath(m_threatPath);
@@ -117,7 +117,7 @@ TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(m_userID);
     threatDetected.setDetectionTime(detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
     threatDetected.setThreatName(m_threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
     threatDetected.setFilePath(m_threatPath);

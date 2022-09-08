@@ -86,6 +86,8 @@ void ScanRequestHandler::scan(scan_messages::ClientScanRequestPtr scanRequest)
             LOGERROR(errorMsg);
         }
 
+        auto eventStr = scanRequest->getScanTypeAsStr();
+
         for(const auto& detection : response.getDetections())
         {
             std::string escapedPath(common::escapePathForLogging(detection.path));
@@ -97,11 +99,11 @@ void ScanRequestHandler::scan(scan_messages::ClientScanRequestPtr scanRequest)
                 std::string escapedTargetPath(common::escapePathForLogging(fs::canonical(detection.path)));
                 LOGWARN(
                     "Detected \"" << escapedPath << "\" (symlinked to " << escapedTargetPath << ") is infected with "
-                                  << threatName);
+                                  << threatName << eventStr);
             }
             else
             {
-                LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName);
+                LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName << eventStr);
             }
         }
     }

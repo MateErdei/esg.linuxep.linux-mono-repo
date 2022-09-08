@@ -94,7 +94,7 @@ static int writeSampleFile(std::string filename)
 
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(detectionTimeStamp);
-    threatDetected.setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP);
     threatDetected.setFilePath(threatPath);

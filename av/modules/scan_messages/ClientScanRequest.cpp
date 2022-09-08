@@ -25,3 +25,25 @@ std::string ClientScanRequest::serialise() const
     std::string dataAsString(bytes.begin(), bytes.end());
     return dataAsString;
 }
+
+
+std::string ClientScanRequest::getScanTypeAsStr() const
+{
+    switch (m_scanType)
+    {
+        case E_SCAN_TYPE_ON_ACCESS_OPEN:
+        {
+            return " (Open)";
+        }
+        break;
+        case E_SCAN_TYPE_ON_ACCESS_CLOSE:
+        {
+            return " (Closed)";
+        }
+        break;
+        default:
+        {
+            return " (On Demand)";
+        }
+    }
+}

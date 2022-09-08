@@ -23,7 +23,7 @@ public:
     {
         m_threatDetected.setUserID(m_userID);
         m_threatDetected.setDetectionTime(m_testTimeStamp);
-        m_threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+        m_threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
         m_threatDetected.setThreatName(m_threatName);
         m_threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
         m_threatDetected.setFilePath(m_filePath);
@@ -57,7 +57,7 @@ TEST_F(TestThreatDetectedMessages, CreateThreatDetected) //NOLINT
     EXPECT_EQ(deSerialisedData.getDetectionTime(), m_testTimeStamp);
     EXPECT_EQ(deSerialisedData.getThreatType(), E_VIRUS_THREAT_TYPE);
     EXPECT_EQ(deSerialisedData.getThreatName(), m_threatName);
-    EXPECT_EQ(deSerialisedData.getScanType(), E_SCAN_TYPE_ON_ACCESS);
+    EXPECT_EQ(deSerialisedData.getScanType(), E_SCAN_TYPE_ON_ACCESS_OPEN);
     EXPECT_EQ(deSerialisedData.getNotificationStatus(), E_NOTIFICATION_STATUS_CLEANED_UP);
     EXPECT_EQ(deSerialisedData.getFilePath(), m_filePath);
     EXPECT_EQ(deSerialisedData.getActionCode(), E_SMT_THREAT_ACTION_SHRED);
@@ -81,7 +81,7 @@ TEST_F(TestThreatDetectedMessages, CreateThreatDetected_emptyThreatName) //NOLIN
     EXPECT_EQ(deSerialisedData.getDetectionTime(), m_testTimeStamp);
     EXPECT_EQ(deSerialisedData.getThreatType(), E_VIRUS_THREAT_TYPE);
     EXPECT_EQ(deSerialisedData.getThreatName(), "");
-    EXPECT_EQ(deSerialisedData.getScanType(), E_SCAN_TYPE_ON_ACCESS);
+    EXPECT_EQ(deSerialisedData.getScanType(), E_SCAN_TYPE_ON_ACCESS_OPEN);
     EXPECT_EQ(deSerialisedData.getNotificationStatus(), E_NOTIFICATION_STATUS_CLEANED_UP);
     EXPECT_EQ(deSerialisedData.getFilePath(), m_filePath);
     EXPECT_EQ(deSerialisedData.getActionCode(), E_SMT_THREAT_ACTION_SHRED);

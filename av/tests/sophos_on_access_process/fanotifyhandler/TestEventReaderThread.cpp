@@ -212,10 +212,6 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
     const char* filePath = "/tmp/test";
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(DoAll(SetArrayArgument<1>(filePath, filePath + strlen(filePath) + 1), Return(strlen(filePath) + 1)));
 
-    struct ::stat statbuf{};
-    statbuf.st_uid = 1;
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(statbuf), Return(0)));
-
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 

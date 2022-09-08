@@ -60,7 +60,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXml) // NOLINT
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
     threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
@@ -93,7 +93,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats) // NOLINT
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
     threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
@@ -125,7 +125,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters) // NOLI
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
     threatDetected.setFilePath(threatPath);
@@ -156,7 +156,7 @@ static scan_messages::ServerThreatDetected createEvent(
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
     threatDetected.setFilePath(threatPath);
@@ -200,7 +200,7 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON) // NOLINT
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
     threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
@@ -232,7 +232,7 @@ TEST_F(TestStringUtils, TestEmptyThreatNameJSON) // NOLINT
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
     threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
     threatDetected.setFilePath(threatPath);

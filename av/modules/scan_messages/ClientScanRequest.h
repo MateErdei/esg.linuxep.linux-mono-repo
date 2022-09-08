@@ -38,6 +38,7 @@ namespace scan_messages
         [[nodiscard]] std::string serialise() const;
         [[nodiscard]] std::string getPath() const { return m_path; };
         [[nodiscard]] int getFd() const { return m_autoFd.fd(); }
+        [[nodiscard]] std::string getScanTypeAsStr() const;
 
     protected:
         std::string m_path;

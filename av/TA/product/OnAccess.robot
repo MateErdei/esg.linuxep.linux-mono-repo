@@ -44,6 +44,7 @@ On Access Test Setup
     Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
+    Mark On Access Log
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
@@ -97,8 +98,8 @@ Dump and Reset Logs
 Enable OA Scanning
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains  On-access enabled: "true"
-    Wait Until On Access Log Contains  Starting eventReader
+    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
+    Wait Until On Access Log Contains With Offset  Starting eventReader
 
 *** Test Cases ***
 
@@ -487,9 +488,6 @@ On Access Logs Events Following Write After Being Disabled
     ${enabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     ${disabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
 
-    Send Plugin Policy  av  sav  ${enabledPolicyContent}
-    Wait Until On Access Log Contains  On-access enabled: "true"
-
     Send Plugin Policy  av  sav  ${disabledPolicyContent}
     Wait Until On Access Log Contains  On-access enabled: "false"
 
@@ -504,3 +502,18 @@ On Access Logs Events Following Write After Being Disabled
 
     Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from PID ${pid} and UID 0
     Wait Until On Access Log Contains With Offset  On-open event for ${where}/eicar.com from PID ${pid} and UID 0
+
+
+On Access Doesnt Scan AV Process Events
+    ${AVPLUGIN_PID} =  Record AV Plugin PID
+
+    Create File  ${NORMAL_DIRECTORY}/eicar.com  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/eicar.com
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}
+
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain   ${output}    Detected "${NORMAL_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test
+
+    Wait Until On Access Log Contains With Offset  Excluding SPL-AV process
+    On Access Log Does Not Contain With Offset  from ${AVPLUGIN_PID}

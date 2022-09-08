@@ -25,7 +25,7 @@ int main()
 
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
     threatDetected.setFilePath(threatPath);
