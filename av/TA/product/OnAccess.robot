@@ -44,7 +44,6 @@ On Access Test Setup
     Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
-    Mark On Access Log
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
@@ -197,21 +196,27 @@ On Access Monitors Addition And Removal Of Mount Points
     Should Be Equal As Integers  ${totalNumMountsPostNFSumount}  ${numMountsPreNFSmount}
 
 On Access Scans A File When It Is Closed Following A Write
+    Mark On Access Log
+
     ${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  /tmp_test/eicar.com
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
-    Wait Until On Access Log Contains  On-close event for ${filepath} from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans A File When It Is Opened
+    Mark On Access Log
+
     ${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  ${RESOURCES_PATH}/file_samples/eicar.iso
     ${Contents} =  Get File  ${filepath}  encoding_errors=ignore
-    Wait Until On Access Log Contains  On-open event for ${filepath} from PID ${pid} and UID 0
-    Wait Until On Access Log Contains  is infected with
+    Wait Until On Access Log Contains With Offset  On-open event for ${filepath} from PID ${pid} and UID 0
+    Wait Until On Access Log Contains With Offset  is infected with
 
 On Access Scans File Created By non-root User
+    Mark On Access Log
+
     Create File  /tmp/eicar     ${EICAR_STRING}
 
     ${command} =    Set Variable    cp /tmp/eicar /tmp/eicar_oa_test
