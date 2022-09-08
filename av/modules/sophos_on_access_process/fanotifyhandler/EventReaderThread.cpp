@@ -122,45 +122,43 @@ bool EventReaderThread::handleFanotifyEvent()
         }
         auto executablePath = get_executable_path_from_pid(metadata->pid);
 
-        if (!m_processExclusionStem.empty() && startswith(executablePath, m_processExclusionStem))
+        auto eventType = E_SCAN_TYPE_UNKNOWN;
+        if (metadata->mask & FAN_OPEN)
         {
-            LOGDEBUG("Excluding SPL-AV process");
-            continue;
+            eventType = E_SCAN_TYPE_ON_ACCESS_OPEN;
+        }
+        else if (metadata->mask & FAN_CLOSE_WRITE)
+        {
+            eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
+        }
+        else
+        {
+            LOGDEBUG("unknown operation mask: " << std::hex << metadata->mask << std::dec);
+            return true;
         }
 
+        const std::string eventStr = eventType == E_SCAN_TYPE_ON_ACCESS_OPEN ? "open" : "close";
+
+        if (!m_processExclusionStem.empty() && startswith(executablePath, m_processExclusionStem))
+        {
+            LOGDEBUG("Excluding SPL-AV process: " << executablePath << " scantype: " << eventStr << " for path: " << path);
+            continue;
+        }
 
         auto uid = getUidFromPid(metadata->pid);
 
         // TODO: Handle process exclusions
         auto escapedPath = common::escapePathForLogging(path);
 
-        bool validEvent = true;
-        std::string eventType = "";
-        if (metadata->mask & FAN_OPEN)
-        {
-            eventType = "open";
-        }
-        else if (metadata->mask & FAN_CLOSE_WRITE)
-        {
-            eventType = "close";
-        }
-        else
-        {
-            LOGDEBUG("unknown operation mask: " << std::hex << metadata->mask << std::dec);
-            validEvent = false;
-        }
 
-        if (validEvent)
-        {
-            LOGINFO("On-" << eventType << " event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
-            scanRequest->setPath(path);
-            scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
-            scanRequest->setUserID(std::to_string(uid));
+        LOGINFO("On-" << eventStr << " event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
+        scanRequest->setPath(path);
+        scanRequest->setScanType(eventType);
+        scanRequest->setUserID(std::to_string(uid));
 
-            if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
-            {
-                LOGWARN("Failed to add scan request to queue. Path will not be scanned: " << path);
-            }
+        if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
+        {
+            LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
         }
     }
     return true;

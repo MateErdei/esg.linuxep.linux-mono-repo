@@ -47,6 +47,7 @@ On Access Test Setup
     Mark On Access Log
     Start On Access With Running Threat Detector
     Enable OA Scanning
+    Mark On Access Log
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
@@ -102,9 +103,6 @@ Dump and Reset Logs
     Register Cleanup   Dump log         ${AV_PLUGIN_PATH}/log/soapd.log
 
 Enable OA Scanning
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
-
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
@@ -125,6 +123,7 @@ On-access No Eicar Scan
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
     On Access Log Does Not Contain  On-close event for ${filepath} from PID ${pid} and UID 0
+
 
 *** Test Cases ***
 
@@ -667,38 +666,17 @@ On Access Does not Use Policy Setttings If Flags Have Overriden Policy
 
     Dump Log  ${on_access_log_path}
 
-On Access Process Reconnects To Threat Detector
-    Register Cleanup    Exclude On Access Scan Errors
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
 
-    Mark On Access Log
-    ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
-    ${script} =  Set Variable  ${BASH_SCRIPTS_PATH}/cleanFileWriter.sh
-    ${HANDLE} =  Start Process  bash  ${script}  stderr=STDOUT
-    Register Cleanup  Terminate Process  ${HANDLE}
-    Register Cleanup  Remove Directory  /tmp_test/clean_file_writer/  recursive=True
+On Access Doesnt Scan AV Process Events
+    ${AVPLUGIN_PID} =  Record AV Plugin PID
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
-    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Mark On Access Log
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
-    #Depending on whether a scan is being processed or it is being requested one of these 2 errors should appear
-    File Log Contains One of   ${ON_ACCESS_LOG_PATH}  0  Failed to receive scan response  Failed to send scan request
+    Create File  ${NORMAL_DIRECTORY}/eicar.com  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/eicar.com
 
-    On Access Log Does Not Contain With Offset  Failed to scan ${filepath}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}
 
-On Access Scan Times Out When Unable To Connect To Threat Detector
-    Register Cleanup    Exclude On Access Scan Errors
-    Start On Access
-    Enable OA Scanning
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    Should Contain   ${output}    Detected "${NORMAL_DIRECTORY}/eicar.com" is infected with EICAR-AV-Test
 
-    Mark On Access Log
-    ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
-    Create File  ${filepath}  clean
-    Register Cleanup  Remove File  ${filepath}
-
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
-    Wait Until On Access Log Contains With Offset  Failed to connect to Sophos Threat Detector - retrying after sleep
-    Wait Until On Access Log Contains With Offset  Reached total maximum number of connection attempts.  timeout=30
+    Wait Until On Access Log Contains With Offset  Excluding SPL-AV process
+    On Access Log Does Not Contain With Offset  from ${AVPLUGIN_PID}
