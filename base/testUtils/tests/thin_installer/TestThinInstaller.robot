@@ -102,7 +102,6 @@ Thin Installer can download test file from warehouse and execute it
 
     Run Default Thininstaller  0  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains    Successfully installed product
-    fail
 
 Thin Installer fails to download test file from warehouse if certificate is not installed
     [Teardown]  Cert Test Teardown
