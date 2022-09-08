@@ -550,11 +550,13 @@ On Access Process Handles Consecutive Process Control Requests
     Send Plugin Policy  av  sav  ${policyContent}
 
     Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
-    Wait Until On Access Log Contains With Offset  Sophos On Access Process received enable policy override request
-    Wait Until On Access Log Contains With Offset  Sophos On Access Process received disable policy override request
     Wait Until On Access Log Contains With Offset  Policy override is enabled, on-access will be disabled
-    Wait Until On Access Log Contains With Offset  Using on-access settings from policy
+    Wait Until On Access Log Contains With Offset  No policy override, following policy settings
+    Wait Until On Access Log Contains With Offset  Policy override is enabled, on-access will be disabled
+    On Access Log Does Not Contain  Using on-access settings from policy
     Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"false"
+
+    On-access No Eicar Scan
 
 On Access Is Disabled By Default If No Flags Policy Arrives
     Start On Access With Running Threat Detector
