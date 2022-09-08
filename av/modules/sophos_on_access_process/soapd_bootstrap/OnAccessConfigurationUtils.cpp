@@ -64,7 +64,6 @@ namespace sophos_on_access_process::OnAccessConfig
     {
         try
         {
-            LOGINFO("parseFlagConfiguration " << jsonString);
             json parsedConfig = json::parse(jsonString);
             return parsedConfig["oa_enabled"];
         }

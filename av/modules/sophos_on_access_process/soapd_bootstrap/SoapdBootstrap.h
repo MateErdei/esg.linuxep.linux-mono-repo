@@ -48,5 +48,6 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         std::mutex m_pendingConfigActionMutex;
         std::atomic<bool> m_currentOaEnabledState = false;
+        std::atomic<bool> m_onAccessEnabledFlag = false;
     };
 }

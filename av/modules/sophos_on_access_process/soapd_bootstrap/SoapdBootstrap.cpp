@@ -118,6 +118,16 @@ void SoapdBootstrap::innerRun(
         { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
     };
 
+    auto flagJsonString = OnAccessConfig::readFlagConfigFile();
+    //if flagJsonString is empty then readFlagConfigFile has already logged a WARN
+    if(!flagJsonString.empty())
+    {
+        LOGINFO("Found Flag config on startup");
+        m_onAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
+        std::string setting = m_onAccessEnabledFlag ? "not override policy" : "override policy";
+        LOGINFO("Flag is set to " << setting);
+    }
+
     while (true)
     {
         // wait for an activity on one of the fds
@@ -169,10 +179,9 @@ void SoapdBootstrap::ProcessPolicy()
     std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
 
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
-    LOGINFO("Process Policy " << flagJsonString);
-    auto onAccessEnabled = OnAccessConfig::parseFlagConfiguration(flagJsonString);
+    m_onAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
 
-    if(!onAccessEnabled)
+    if(m_onAccessEnabledFlag)
     {
         LOGINFO("Policy override is enabled, on-access will be disabled");
         m_eventReaderThread->requestStopIfNotStopped();

@@ -29,6 +29,7 @@ ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 ${TESTTMP}  /tmp_test/SSPLAVTests
 ${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}  ${SOPHOS_THREAT_DETECTOR_BINARY}_launcher
+${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
 
 *** Keywords ***
 
@@ -148,6 +149,22 @@ On Access Process Parses Policy Config
     Wait Until On Access Log Contains With Offset  On-access enabled: "true"
     Wait Until On Access Log Contains With Offset  On-access scan network: "true"
     Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/"]
+
+On Access Process Parses Flags Config On startup
+    Register Cleanup    Exclude On Access Scan Errors
+    Start AV
+
+    Start Fake Management If Required
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+    
+    Wait Until Created  ${ONACCESS_FLAG_CONFIG}
+    
+    Start On Access
+
+    Wait Until On Access Log Contains With Offset   Found Flag config on startup
+    Wait Until On Access Log Contains With Offset   Flag is set to not override policy
 
 On Access Does Not Include Remote Files If Excluded In Policy
     Register Cleanup    Exclude On Access Scan Errors
