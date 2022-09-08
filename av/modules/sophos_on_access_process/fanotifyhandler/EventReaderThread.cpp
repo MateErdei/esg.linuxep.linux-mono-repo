@@ -123,6 +123,7 @@ bool EventReaderThread::handleFanotifyEvent()
         auto executablePath = get_executable_path_from_pid(metadata->pid);
 
         auto eventType = E_SCAN_TYPE_UNKNOWN;
+
         //Some events have both bits set, we prioritise FAN_CLOSE_WRITE as the event tag. A copy event can cause this.
         if (metadata->mask & FAN_CLOSE_WRITE)
         {

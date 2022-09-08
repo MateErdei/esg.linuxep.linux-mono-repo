@@ -427,6 +427,11 @@ Wait Until On Access Log Contains Times With Offset
     [Arguments]  ${input}  ${timeout}=15  ${times}=1
     Wait Until File Log Contains Times  On Access Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
 
+On Access Log Does Not Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
+    File Log Should Not Contain With Offset  ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
+
 FakeManagement Log Contains
     [Arguments]  ${input}
     ${log_path} =   FakeManagementLog.get_fake_management_log_path
