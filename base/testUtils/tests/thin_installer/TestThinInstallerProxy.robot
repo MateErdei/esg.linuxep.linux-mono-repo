@@ -1,5 +1,6 @@
 *** Settings ***
-Test Setup      Setup Thininstaller Test
+Suite Setup  Setup Update Tests
+Test Setup      Setup Legacy Thininstaller Test Without Local Cloud Server
 Test Teardown   Teardown
 
 Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
@@ -26,13 +27,8 @@ Default Tags  THIN_INSTALLER
 
 *** Keywords ***
 
-Setup Legacy Thininstaller Test
-    Start Local Cloud Server
-    Setup Legacy Thininstaller Test Without Local Cloud Server
-
 Setup Legacy Thininstaller Test Without Local Cloud Server
-    Setup Update Tests
-
+    Start Local Cloud Server
     Require Uninstalled
     Set Environment Variable  CORRUPTINSTALL  no
     Get Legacy Thininstaller
@@ -63,30 +59,22 @@ Teardown
     Cleanup Files
     Require Uninstalled
     Remove Environment Variable  SOPHOS_INSTALL
-    Remove Directory  ${CUSTOM_TEMP_UNPACK_DIR}  recursive=True
     Remove Environment Variable  INSTALL_OPTIONS_FILE
     Cleanup Temporary Folders
 
 *** Variables ***
-${PROXY_LOG}  ./tmp/proxy_server.log
-${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
-${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
-@{FORCE_ARGUMENT} =  --force
-@{PRODUCT_MDR_ARGUMENT} =  --products\=mdr
 ${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
 
 *** Test Case ***
 Thin Installer Falls Back From Bad Env Proxy To Direct
     # NB we use the warehouse URL as the MCSUrl here as the thin installer just does a get over HTTPS that's all we need
     # the url to respond against
-    [Setup]  Setup Legacy Thininstaller Test
     Setup warehouse
     Run Default Thininstaller   expected_return_code=0  override_location=https://localhost:1233  proxy=http://notanaddress.sophos.com  force_certs_dir=${SUPPORT_FILES}/sophos_certs
     Check Thininstaller Log Contains  INSTALLER EXECUTED
     Check Thininstaller Log Contains  WARN: Could not connect using proxy
 
 Thin Installer Registering With Message Relays Is Not Impacted By Env Proxy
-    [Setup]  Setup Legacy Thininstaller Test
     Setup warehouse
     Start Message Relay
 
@@ -98,7 +86,6 @@ Thin Installer Registering With Message Relays Is Not Impacted By Env Proxy
     Check Thininstaller Log Contains  Successfully verified connection to Sophos Central via Message Relay: localhost:20000
 
 Thin Installer Attempts Install And Register Through Message Relays
-    [Setup]    Setup Legacy Thininstaller Test Without Local Cloud Server
     [Teardown]  Teardown With Temporary Directory Clean And Stopping Message Relays
     Setup For Test With Warehouse Containing Product
     Start Message Relay
@@ -163,9 +150,7 @@ Thin Installer Attempts Install And Register Through Message Relays
     Check Root Directory Permissions Are Not Changed
 
 Thin Installer Digest Proxy
-    [Setup]  Setup Legacy Thininstaller Test Without Local Cloud Server
     [Teardown]  Teardown With Temporary Directory Clean
-    Start Local Cloud Server
     Setup For Test With Warehouse Containing Product
     Check MCS Router Not Running
     ${result} =  Run Process    pgrep  -f  ${MANAGEMENT_AGENT}
@@ -194,9 +179,7 @@ Thin Installer Digest Proxy
     Check Log Does Not Contain  Try connection: Sophos at http://dci.sophosupd.com/update via proxy: http://localhost:10000\n\n  ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader log
 
 Thin Installer Environment Proxy
-    [Setup]  Setup Legacy Thininstaller Test Without Local Cloud Server
     [Teardown]  Teardown With Temporary Directory Clean
-    Start Local Cloud Server
     Setup For Test With Warehouse Containing Product
     Should Not Exist    ${SOPHOS_INSTALL}
     Check MCS Router Not Running
@@ -224,9 +207,7 @@ Thin Installer Environment Proxy
 
 
 Thin Installer Parses Update Caches Correctly
-    [Setup]  Setup Legacy Thininstaller Test Without Local Cloud Server
     [Teardown]  Teardown With Temporary Directory Clean
-    Start Local Cloud Server
     Setup For Test With Warehouse Containing Product
     Create Default Credentials File  update_caches=localhost:10000,1,1;localhost:20000,2,2;localhost:9999,1,3
     Build Default Creds Thininstaller From Sections
