@@ -63,19 +63,19 @@ TEST(TestScanMessages, CreateScanRequestObject)
 TEST(TestScanMessages, ScanRequestReturnsScanTypeStrCorrectly)
 {
     scan_messages::ClientScanRequest clientScanRequest;
-    EXPECT_EQ(" (Unknown)", clientScanRequest.getScanTypeAsStr());
+    EXPECT_EQ("Unknown", clientScanRequest.getScanTypeAsStr());
     clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN);
-    EXPECT_EQ(" (Open)", clientScanRequest.getScanTypeAsStr());
+    EXPECT_EQ("Open", clientScanRequest.getScanTypeAsStr());
     clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE);
-    EXPECT_EQ(" (Close-Write)", clientScanRequest.getScanTypeAsStr());
+    EXPECT_EQ("Close-Write", clientScanRequest.getScanTypeAsStr());
     clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
-    EXPECT_EQ(" (On Demand)", clientScanRequest.getScanTypeAsStr());
-    clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_UNKNOWN);
-    EXPECT_EQ(" (Unknown)", clientScanRequest.getScanTypeAsStr());
-    clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_MEMORY);
-    EXPECT_EQ(" (Unknown)", clientScanRequest.getScanTypeAsStr());
+    EXPECT_EQ("On Demand", clientScanRequest.getScanTypeAsStr());
     clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_SCHEDULED);
-    EXPECT_EQ(" (Unknown)", clientScanRequest.getScanTypeAsStr());
+    EXPECT_EQ("Scheduled", clientScanRequest.getScanTypeAsStr());
+    clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_MEMORY);
+    EXPECT_EQ("Unknown", clientScanRequest.getScanTypeAsStr());
+    clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_UNKNOWN);
+    EXPECT_EQ("Unknown", clientScanRequest.getScanTypeAsStr());
 }
 
 

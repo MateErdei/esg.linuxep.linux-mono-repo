@@ -29,11 +29,11 @@ void ScanCallbackImpl::infectedFile(const std::map<path, std::string>& detection
             std::string escapedTargetPath(common::escapePathForLogging(fs::canonical(realPath)));
             LOGWARN(
                 "Detected \"" << escapedPath << "\" (symlinked to " << escapedTargetPath << ") is infected with "
-                              << threatName << scanType);
+                              << threatName << " (" << scanType << ")");
         }
         else
         {
-            LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName << scanType);
+            LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName << " (" << scanType << ")");
         }
 
         addThreat(threatName);
