@@ -47,6 +47,7 @@ On Access Test Setup
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
     Register Cleanup  Exclude CustomerID Failed To Read Error
+    Register Cleanup  Exclude On Access Connect Failed
 
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
