@@ -43,7 +43,6 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         sophos_on_access_process::OnAccessConfig::OnAccessConfiguration getConfiguration();
 
-        //TODO: ensure thread safety
         std::unique_ptr<common::ThreadRunner> m_eventReaderThread;
         std::shared_ptr<mount_monitor::mount_monitor::MountMonitor> m_mountMonitor;
 
