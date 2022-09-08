@@ -18,5 +18,3 @@ aws s3 cp /opt/sspl/log.html s3://sspl-testbucket/test-results/$1/$HOSTNAME-log.
     aws s3 cp /opt/sspl/robot.xml s3://sspl-testbucket/test-results/$1/$HOSTNAME-robot.xml && \
     aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/$1/$HOSTNAME-cloudFormationInit.log || UPLOAD_RESULT=0
 
-
-[[ $RESULT == 0 ]] || sleep 100
