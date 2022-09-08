@@ -68,8 +68,6 @@
         "mkdir -p /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
         "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
         "tar xvzf /opt/sspl/pipCache.tar.gz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
-        "mkdir -p '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
-        "cp /opt/sspl/sav* '/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package' >> /tmp/cloudFormationInit.log 2>&1\n",
         "python3.7 -m venv /opt/sspl/tap-venv >> /tmp/cloudFormationInit.log 2>&1\n",
         "/opt/sspl/tap-venv/bin/python -m pip install --find-links=/opt/sspl/pipCache tap >> /tmp/cloudFormationInit.log 2>&1\n",
         "export TAP_VENV=/opt/sspl/tap-venv/bin/activate\n",

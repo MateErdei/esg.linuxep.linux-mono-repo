@@ -26,5 +26,3 @@ check_exists ${SSPL_LIVERESPONSE_PLUGIN_SDDS}
 check_exists ${WEBSOCKET_SERVER}
 
 check_exists ${OPENSSL_INPUT}
-
-check_exists ${SAV_INPUT}

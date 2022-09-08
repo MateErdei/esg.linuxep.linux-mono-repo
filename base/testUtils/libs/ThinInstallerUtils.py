@@ -475,56 +475,6 @@ class ThinInstallerUtils(object):
 
         self.run_thininstaller(command, expectedReturnCode, mcsurl=mcsurl, force_certs_dir=force_certs_dir)
 
-    def get_and_install_sav(self):
-        tar_path = self.get_SAV_installer()
-        self.install_SAV(tar_path)
-
-    def find_latest_sav_tar(self):
-        try:
-            folder = BuiltIn().get_variable_value("${SAV_INPUT}")
-        except robot.libraries.BuiltIn.RobotNotRunningError:
-            folder = os.environ.get("SAV_INPUT", None)
-
-        if not folder:
-            raise AssertionError("Could not resolve SAV_INPUT environment variable")
-        files = glob.glob(os.path.join(folder, 'sav-linux-x86-aggregated-10*.tgz'))
-        if len(files) < 1:
-            raise AssertionError("Could not find a SAV tar file in " + folder)
-        return files[0]
-
-    def get_SAV_installer(self):
-        SAV_source_path = self.find_latest_sav_tar()
-        shutil.copy(SAV_source_path, self.tmp_path)
-        tar_name = os.path.basename(SAV_source_path)
-        return os.path.join(self.tmp_path, tar_name)
-
-    def install_SAV(self, sav_tar_file_name):
-        # install the sav we have with arguments to make it non-interactive
-        # Untar the SAV tar file
-
-        os.system("tar -xvf ./{} -C {} > /dev/null".format(sav_tar_file_name, self.tmp_path))
-
-        sav_install_sh = os.path.join(self.tmp_path, "sophos-av", "install.sh")
-        sav_log_path = self.get_sav_log()
-        cmd = "{} --acceptlicence --automatic --ignore-existing-directory --instdir /opt/sophos-av --enableOnAccess=False > {}"\
-            .format(sav_install_sh, sav_log_path)
-
-        if os.system(cmd) != 0:
-           raise AssertionError("Could not install SAV")
-
-    def uninstall_SAV(self):
-        sav_dir = "/opt/sophos-av"
-        sav_uninstaller = os.path.join(sav_dir, "uninstall.sh")
-        if os.path.isfile(sav_uninstaller):
-            if os.system(sav_uninstaller + " --force > /dev/null") != 0:
-                raise AssertionError("Could not uninstall SAV")
-        if os.path.isdir(sav_dir):
-            shutil.rmtree(sav_dir)
-
-    def get_sav_log(self):
-        sav_log_path = os.path.join(self.tmp_path, "sav-install.log")
-        return sav_log_path
-
     def get_main_installer_temp_location(self):
         list_of_files = glob.glob(os.path.join("/tmp", "SophosCentralInstall_*"))
         if len(list_of_files) == 0:

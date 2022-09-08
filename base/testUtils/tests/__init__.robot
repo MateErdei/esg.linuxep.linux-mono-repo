@@ -29,9 +29,6 @@ Global Setup Tasks
     ${placeholder} =  Get Environment Variable  SYSTEMPRODUCT_TEST_INPUT  default=/tmp/system-product-test-inputs
     Set Global Variable  ${SYSTEMPRODUCT_TEST_INPUT}  ${placeholder}
 
-    ${placeholder} =  Get Environment Variable  SAV_INPUT  default=/uk-filer5/prodro/bir/savlinux9-package/10-5-0/217084/savlinux-package
-    Set Global Variable  ${SAV_INPUT}  ${placeholder}
-
     ${placeholder} =  Get Environment Variable  OPENSSL_INPUT  default=/uk-filer5/prodro/bir/openssllinux11/1-1-1c-16/216598/output
     Set Global Variable  ${OPENSSL_INPUT}  ${placeholder}
 
