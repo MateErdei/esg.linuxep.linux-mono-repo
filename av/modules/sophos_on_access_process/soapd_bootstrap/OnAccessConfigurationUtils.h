@@ -30,7 +30,9 @@ namespace sophos_on_access_process::OnAccessConfig
         return !(lhs == rhs);
     }
 
-    std::string readConfigFile();
-    OnAccessConfiguration parseOnAccessSettingsFromJson(const std::string& jsonString);
+    std::string readPolicyConfigFile();
+    OnAccessConfiguration parseOnAccessPolicySettingsFromJson(const std::string& jsonString);
+    std::string readFlagConfigFile();
+    bool parseFlagConfiguration(const std::string& jsonString);
     bool isSettingTrue(const std::string& settingString);
 }

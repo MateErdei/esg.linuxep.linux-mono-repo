@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     if (sophos_filesystem::is_regular_file(argv[1]))
     {
         std::string fuzzString = Common::FileSystem::fileSystem()->readFile(argv[1]);
-        sophos_on_access_process::OnAccessConfig::parseOnAccessSettingsFromJson(fuzzString);
+        sophos_on_access_process::OnAccessConfig::parseOnAccessPolicySettingsFromJson(fuzzString);
     }
     else
     {

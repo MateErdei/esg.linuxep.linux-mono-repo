@@ -41,13 +41,12 @@ namespace sophos_on_access_process::soapd_bootstrap
             std::shared_ptr<common::signals::SigIntMonitor>& sigIntMonitor,
             std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor);
 
-        sophos_on_access_process::OnAccessConfig::OnAccessConfiguration getConfiguration();
+        sophos_on_access_process::OnAccessConfig::OnAccessConfiguration getPolicyConfiguration();
 
         std::unique_ptr<common::ThreadRunner> m_eventReaderThread;
         std::shared_ptr<mount_monitor::mount_monitor::MountMonitor> m_mountMonitor;
 
         std::mutex m_pendingConfigActionMutex;
-        std::atomic<bool> m_policyOverride = true;
         std::atomic<bool> m_currentOaEnabledState = false;
     };
 }

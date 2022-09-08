@@ -38,6 +38,7 @@ namespace
             
             m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
             m_soapConfigPath = m_testDir / "var/soapd_config.json";
+            m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
             m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
         }
@@ -50,6 +51,7 @@ namespace
         std::string m_susiStartupConfigPath;
         std::string m_susiStartupConfigChrootPath;
         std::string m_soapConfigPath;
+        std::string m_soapFlagConfigPath;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
     };
 
@@ -711,6 +713,15 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsEnabled)
 {
     UsingMemoryAppender memAppend(*this);
 
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapFlagConfigPath,
+                                                           R"sophos({"oa_enabled":true})sophos",
+                                                           _,
+                                                           0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
     PolicyProcessorUnitTestClass proc;
 
     proc.processFlagSettings("{\"av.oa_enabled\":  true}");
@@ -721,6 +732,15 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsEnabled)
 TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
 {
     UsingMemoryAppender memAppend(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapFlagConfigPath,
+                                                           R"sophos({"oa_enabled":false})sophos",
+                                                           _,
+                                                           0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     PolicyProcessorUnitTestClass proc;
 
@@ -733,9 +753,39 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
 {
     UsingMemoryAppender memAppend(*this);
 
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapFlagConfigPath,
+                                                           R"sophos({"oa_enabled":true})sophos",
+                                                           _,
+                                                           0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
     PolicyProcessorUnitTestClass proc;
 
     proc.processFlagSettings("{\"av.something_else\":  false}");
 
     EXPECT_TRUE(appenderContains("No on-access flag found assuming policy settings"));
+}
+
+TEST_F(TestPolicyProcessor, testWriteFlagConfigFailed)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+
+    Common::FileSystem::IFileSystemException ex("error!");
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapFlagConfigPath,
+                                                           R"sophos({"oa_enabled":false})sophos",
+                                                           _,
+                                                           0640)).WillOnce(Throw(ex));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+
+    proc.processFlagSettings("{\"av.oa_enabled\":  false}");
+
+    EXPECT_TRUE(appenderContains("Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
 }

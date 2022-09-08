@@ -552,7 +552,7 @@ On Access Process Handles Consecutive Process Control Requests
     Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
     Wait Until On Access Log Contains With Offset  Sophos On Access Process received enable policy override request
     Wait Until On Access Log Contains With Offset  Sophos On Access Process received disable policy override request
-    Wait Until On Access Log Contains With Offset  Overriding policy and disabling on-access
+    Wait Until On Access Log Contains With Offset  Policy override is enabled, on-access will be disabled
     Wait Until On Access Log Contains With Offset  Using on-access settings from policy
     Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"false"
 
@@ -577,9 +577,8 @@ On Access Uses Policy Settings If Flags Dont Override Policy
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   Sophos On Access Process received disable policy override request
+    Wait Until On Access Log Contains With Offset   No policy override, following policy settings
     Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
-    Wait Until On Access Log Contains With Offset   Using on-access settings from policy
 
     On-access Scan Eicar
 
@@ -591,7 +590,7 @@ On Access Is Disabled After it Receives Disable Flags
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   Sophos On Access Process received disable policy override request
+    Wait Until On Access Log Contains With Offset   No policy override, following policy settings
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
@@ -601,8 +600,7 @@ On Access Is Disabled After it Receives Disable Flags
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   Sophos On Access Process received enable policy override request
-    Wait Until On Access Log Contains With Offset   Overriding policy and disabling on-access
+    Wait Until On Access Log Contains With Offset   Policy override is enabled, on-access will be disabled
     Wait Until On Access Log Contains With Offset   Stopping the reading of Fanotify events
 
     On-access No Eicar Scan
@@ -618,10 +616,9 @@ On Access Does not Use Policy Setttings If Flags Have Overriden Policy
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   Sophos On Access Process received enable policy override request
-    Wait Until On Access Log Contains With Offset   Sophos On Access Process received enable policy override request
-    Wait Until On Access Log Contains With Offset   Overriding policy and disabling on-access
+    Wait Until On Access Log Contains With Offset  Policy override is enabled, on-access will be disabled
 
+    Mark On Access Log
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 

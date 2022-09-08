@@ -155,51 +155,33 @@ void SoapdBootstrap::innerRun(
     scanRequestQueue->stop();
 }
 
-sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::getConfiguration()
+sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::getPolicyConfiguration()
 {
-    auto jsonString = OnAccessConfig::readConfigFile();
-    OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessSettingsFromJson(jsonString);
+    auto jsonString = OnAccessConfig::readPolicyConfigFile();
+    OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessPolicySettingsFromJson(jsonString);
     m_mountMonitor->setExcludeRemoteFiles(oaConfig.excludeRemoteFiles);
 
     return oaConfig;
-}
-
-void SoapdBootstrap::OverridePolicy()
-{
-    std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
-
-    LOGINFO("Overriding policy and disabling on-access");
-    m_policyOverride = true;
-    m_eventReaderThread->requestStopIfNotStopped();
-}
-
-void SoapdBootstrap::UsePolicySettings()
-{
-    std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
-
-    LOGINFO("Using on-access settings from policy");
-    m_policyOverride = false;
-
-    auto oaConfig = getConfiguration();
-    if(oaConfig.enabled)
-    {
-        LOGINFO("On-access scanning enabled");
-        m_eventReaderThread->startIfNotStarted();
-    }
-
 }
 
 void SoapdBootstrap::ProcessPolicy()
 {
     std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
 
-    if(m_policyOverride)
+    auto flagJsonString = OnAccessConfig::readFlagConfigFile();
+    LOGINFO("Process Policy " << flagJsonString);
+    auto onAccessEnabled = OnAccessConfig::parseFlagConfiguration(flagJsonString);
+
+    if(!onAccessEnabled)
     {
         LOGINFO("Policy override is enabled, on-access will be disabled");
+        m_eventReaderThread->requestStopIfNotStopped();
     }
     else
     {
-        auto oaConfig = getConfiguration();
+        LOGINFO("No policy override, following policy settings");
+
+        auto oaConfig = getPolicyConfiguration();
 
         bool oldOaEnabledState = m_currentOaEnabledState;
         m_currentOaEnabledState = oaConfig.enabled;

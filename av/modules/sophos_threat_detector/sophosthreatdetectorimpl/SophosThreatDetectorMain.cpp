@@ -288,10 +288,6 @@ namespace sspl::sophosthreatdetectorimpl
                     case scan_messages::E_RELOAD:
                         m_mainInstance.reloadSUSIGlobalConfiguration();
                         break;
-                    case scan_messages::E_FORCE_ON_ACCESS_OFF:
-                    case scan_messages::E_ON_ACCESS_FOLLOW_CONFIG:
-                        LOGWARN("Sophos Threat Detector received uninteresting control message");
-                        break;
                     default:
                         LOGWARN("Sophos On Access Process received unknown process control message");
                 }

@@ -56,6 +56,12 @@ namespace Plugin
             auto  pluginInstall = getPluginInstall();
             return  pluginInstall + "/var/soapd_config.json";
         }
+
+        std::string getSoapFlagConfigPath()
+        {
+            auto  pluginInstall = getPluginInstall();
+            return  pluginInstall + "/var/oa_flag.json";
+        }
     }
 
     PolicyProcessor::PolicyProcessor()
@@ -269,24 +275,41 @@ namespace Plugin
         try
         {
             nlohmann::json j = nlohmann::json::parse(flagsJson);
+            bool enabled = false;
 
             if (j.find(OA_FLAG) != j.end())
             {
                 if (j[OA_FLAG] == true)
                 {
                     LOGINFO("On-access is enabled in the FLAGS policy, notifying soapd to disable on-access policy override");
-                    notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_ON_ACCESS_FOLLOW_CONFIG);
+                    enabled = true;
                 }
                 else
                 {
                     LOGINFO("On-access is disabled in the FLAGS policy, notifying soapd to enable on-access policy override");
-                    notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_FORCE_ON_ACCESS_OFF);
                 }
             }
             else
             {
                 LOGINFO("No on-access flag found assuming policy settings");
-                notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_ON_ACCESS_FOLLOW_CONFIG);
+                enabled = true;
+            }
+
+            json config;
+            config["oa_enabled"] = enabled;
+
+            try
+            {
+                auto* fs = Common::FileSystem::fileSystem();
+                auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+                fs->writeFileAtomically(getSoapFlagConfigPath(), config.dump(), tempDir, 0640);
+
+                notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+            }
+            catch (const Common::FileSystem::IFileSystemException& e)
+            {
+                LOGERROR("Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)" << e.what());
+                return;
             }
         }
         catch (const json::parse_error& e)

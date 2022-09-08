@@ -47,13 +47,13 @@ protected:
     std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
 };
 
-TEST_F(TestOnAccessConfigUtils, readConfigFile)
+TEST_F(TestOnAccessConfigUtils, readPolicyConfigFile)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapConfigPath)).WillOnce(Return("x"));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    ASSERT_EQ(readConfigFile(), "x");
+    ASSERT_EQ(readPolicyConfigFile(), "x");
 }
 
 TEST_F(TestOnAccessConfigUtils, readConfigFileReadThrows)
@@ -63,10 +63,10 @@ TEST_F(TestOnAccessConfigUtils, readConfigFileReadThrows)
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    ASSERT_EQ(readConfigFile(), "");
+    ASSERT_EQ(readPolicyConfigFile(), "");
 }
 
-TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJson)
+TEST_F(TestOnAccessConfigUtils, parseOnAccessPolicySettingsFromJson)
 {
     std::string jsonString = R"({"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]})";
 
@@ -75,13 +75,13 @@ TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJson)
     expectedResult.excludeRemoteFiles = false;
     expectedResult.exclusions = {"/mnt/", "/uk-filer5/"};
 
-    ASSERT_EQ(parseOnAccessSettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
 
     expectedResult.enabled = false;
     expectedResult.excludeRemoteFiles = true;
     expectedResult.exclusions = {"/uk-filer5/", "/mnt/"};
 
-    ASSERT_NE(parseOnAccessSettingsFromJson(jsonString), expectedResult);
+    ASSERT_NE(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
 }
 
 TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJsonInvalidJson)
@@ -93,7 +93,7 @@ TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJsonInvalidJson)
     expectedResult.excludeRemoteFiles = false;
     expectedResult.exclusions = {"I", "am"};
 
-    ASSERT_EQ(parseOnAccessSettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
 }
 
 TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJsonInvalidJsonSyntax)
@@ -102,5 +102,21 @@ TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJsonInvalidJsonSyntax)
 
     OnAccessConfiguration expectedResult {};
 
-    ASSERT_EQ(parseOnAccessSettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+}
+
+TEST_F(TestOnAccessConfigUtils, parseFlagConfiguration)
+{
+    std::string jsonString = R"({"oa_enabled":false})";
+    EXPECT_FALSE(parseFlagConfiguration(jsonString));
+
+    jsonString = R"({"oa_enabled":true})";
+    EXPECT_TRUE(parseFlagConfiguration(jsonString));
+}
+
+TEST_F(TestOnAccessConfigUtils, parseFlagConfigurationFromJsonInvalidJsonSyntax)
+{
+    std::string jsonString = R"(this is going to break)";
+
+    EXPECT_FALSE(parseFlagConfiguration(jsonString));
 }
