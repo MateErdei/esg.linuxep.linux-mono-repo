@@ -271,229 +271,262 @@ namespace sspl::sophosthreatdetectorimpl
             ofs.close();
         }
 
-        int inner_main()
+        class ThreatDetectorControlCallbacks : public IProcessControlMessageCallback
         {
-            common::signals::SigTermMonitor sigTermMonitor{true};
+        public:
+            explicit ThreatDetectorControlCallbacks(SophosThreatDetectorMain& mainInstance)
+                : m_mainInstance(mainInstance)
+            {}
 
-            // Ignore SIGPIPE. send*() or write() on a broken pipe will now fail with errno=EPIPE rather than crash.
-            struct sigaction ignore {};
-            ignore.sa_handler = SIG_IGN;
-            ::sigaction(SIGPIPE, &ignore, nullptr);
+            void processControlMessage(const scan_messages::E_COMMAND_TYPE& command) override
+            {
+                switch (command)
+                {
+                    case scan_messages::E_SHUTDOWN:
+                        m_mainInstance.shutdownThreatDetector();
+                        break;
+                    case scan_messages::E_RELOAD:
+                        m_mainInstance.reloadSUSIGlobalConfiguration();
+                        break;
+                    case scan_messages::E_FORCE_ON_ACCESS_OFF:
+                    case scan_messages::E_ON_ACCESS_FOLLOW_CONFIG:
+                        LOGWARN("Sophos Threat Detector received uninteresting control message");
+                        break;
+                    default:
+                        LOGWARN("Sophos On Access Process received unknown process control message");
+                }
+            }
 
-            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-            fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
-            fs::path chrootPath = pluginInstall / "chroot";
+        private:
+            SophosThreatDetectorMain& m_mainInstance;
+        };
+    } // namespace
 
-            LOGDEBUG("Preparing to enter chroot at: " << chrootPath);
+    void SophosThreatDetectorMain::shutdownThreatDetector()
+    {
+        LOGINFO("Sophos Threat Detector received shutdown request");
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
+        create_shutdown_notice_file(pluginInstall);
+        std::exit(0);
+    }
+
+    void SophosThreatDetectorMain::reloadSUSIGlobalConfiguration()
+    {
+        //thread safe atomic bool
+        if (m_scannerFactory->susiIsInitialized())
+        {
+            LOGINFO("Sophos Threat Detector received reload request");
+            //This ends up calling SusiGlobalHandler::reload which ensures thread safety for SUSI_UpdateGlobalConfiguration
+            m_reloader->reload();
+        }
+        else
+        {
+            LOGDEBUG("Skipping susi reload because susi is not initialised");
+        }
+    }
+
+    int SophosThreatDetectorMain::inner_main()
+    {
+        common::signals::SigTermMonitor sigTermMonitor{true};
+
+        // Ignore SIGPIPE. send*() or write() on a broken pipe will now fail with errno=EPIPE rather than crash.
+        struct sigaction ignore {};
+        ignore.sa_handler = SIG_IGN;
+        ::sigaction(SIGPIPE, &ignore, nullptr);
+
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
+        fs::path chrootPath = pluginInstall / "chroot";
+
+        LOGDEBUG("Preparing to enter chroot at: " << chrootPath);
 #ifdef USE_CHROOT
-            // attempt DNS query
-            attempt_dns_query();
+        // attempt DNS query
+        attempt_dns_query();
 
-            // ensure zlib library is loaded
-            (void) zlibVersion();
+        // ensure zlib library is loaded
+        (void) zlibVersion();
 
-            // ensure all charsets are loaded from boost::locale before entering chroot
-            boost::locale::generator gen;
-            std::locale localeEUC_JP = gen("EUC-JP");
-            boost::locale::conv::to_utf<char>("", localeEUC_JP);
-            std::locale localeShift_JIS = gen("Shift-JIS");
-            boost::locale::conv::to_utf<char>("", localeShift_JIS);
-            std::locale localeSJIS = gen("SJIS");
-            boost::locale::conv::to_utf<char>("", localeSJIS);
-            std::locale localeLatin1 = gen("Latin1");
-            boost::locale::conv::to_utf<char>("", localeLatin1);
+        // ensure all charsets are loaded from boost::locale before entering chroot
+        boost::locale::generator gen;
+        std::locale localeEUC_JP = gen("EUC-JP");
+        boost::locale::conv::to_utf<char>("", localeEUC_JP);
+        std::locale localeShift_JIS = gen("Shift-JIS");
+        boost::locale::conv::to_utf<char>("", localeShift_JIS);
+        std::locale localeSJIS = gen("SJIS");
+        boost::locale::conv::to_utf<char>("", localeSJIS);
+        std::locale localeLatin1 = gen("Latin1");
+        boost::locale::conv::to_utf<char>("", localeLatin1);
 
-            // Copy logger config from base
-            fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
-            copyRequiredFiles(sophosInstall, chrootPath);
+        // Copy logger config from base
+        fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
+        copyRequiredFiles(sophosInstall, chrootPath);
 
-            // Copy etc files for DNS
-            copy_etc_files_for_dns(chrootPath);
+        // Copy etc files for DNS
+        copy_etc_files_for_dns(chrootPath);
 
 #if _BullseyeCoverage
 #pragma BullseyeCoverage save off
-            copy_bullseye_files(chrootPath);
+        copy_bullseye_files(chrootPath);
 #pragma BullseyeCoverage restore
 #endif
 
-            int ret = ::chroot(chrootPath.c_str());
+        int ret = ::chroot(chrootPath.c_str());
+        if (ret != 0)
+        {
+            LOGERROR("Failed to chroot to " << chrootPath.c_str() << " (" << errno << "): Check permissions");
+            exit(EXIT_FAILURE);
+        }
+
+        if (getuid() != 0)
+        {
+            ret = dropCapabilities();
             if (ret != 0)
             {
-                LOGERROR("Failed to chroot to " << chrootPath.c_str() << " (" << errno << "): Check permissions");
+                LOGERROR("Failed to drop capabilities after entering chroot (" << ret << ")");
                 exit(EXIT_FAILURE);
             }
 
-            if (getuid() != 0)
-            {
-                ret = dropCapabilities();
-                if (ret != 0)
-                {
-                    LOGERROR("Failed to drop capabilities after entering chroot (" << ret << ")");
-                    exit(EXIT_FAILURE);
-                }
-
-                ret = lockCapabilities();
-                if (ret != 0)
-                {
-                    LOGERROR("Failed to lock capabilities after entering chroot (" << ret << ")");
-                    exit(EXIT_FAILURE);
-                }
-            }
-            else
-            {
-                LOGINFO("Running as root - Skip dropping of capabilities");
-            }
-
-            ret = ::chdir("/");
+            ret = lockCapabilities();
             if (ret != 0)
             {
-                LOGERROR("Failed to chdir / after entering chroot (" << ret << ")");
+                LOGERROR("Failed to lock capabilities after entering chroot (" << ret << ")");
                 exit(EXIT_FAILURE);
             }
+        }
+        else
+        {
+            LOGINFO("Running as root - Skip dropping of capabilities");
+        }
 
-            fs::path scanningSocketPath = "/var/scanning_socket";
+        ret = ::chdir("/");
+        if (ret != 0)
+        {
+            LOGERROR("Failed to chdir / after entering chroot (" << ret << ")");
+            exit(EXIT_FAILURE);
+        }
+
+        fs::path scanningSocketPath = "/var/scanning_socket";
 #else
-            fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
+        fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
 #endif
 
-            remove_shutdown_notice_file(pluginInstall);
-            fs::path lockfile = pluginInstall / "chroot/var/threat_detector.pid";
-            common::PidLockFile lock(lockfile);
+        remove_shutdown_notice_file(pluginInstall);
+        fs::path lockfile = pluginInstall / "chroot/var/threat_detector.pid";
+        common::PidLockFile lock(lockfile);
 
-            threat_scanner::IThreatReporterSharedPtr threatReporter =
-                std::make_shared<sspl::sophosthreatdetectorimpl::ThreatReporter>(threat_reporter_socket(pluginInstall));
+        threat_scanner::IThreatReporterSharedPtr threatReporter =
+            std::make_shared<sspl::sophosthreatdetectorimpl::ThreatReporter>(threat_reporter_socket(pluginInstall));
 
-            threat_scanner::IScanNotificationSharedPtr shutdownTimer =
-                std::make_shared<ShutdownTimer>(threat_detector_config(pluginInstall));
+        threat_scanner::IScanNotificationSharedPtr shutdownTimer =
+            std::make_shared<ShutdownTimer>(threat_detector_config(pluginInstall));
 
-            threat_scanner::IThreatScannerFactorySharedPtr scannerFactory =
-                std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer);
+        m_scannerFactory =
+            std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer);
 
-            if (sigTermMonitor.triggered())
+        if (sigTermMonitor.triggered())
+        {
+            LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
+            return common::E_CLEAN_SUCCESS;
+        }
+        m_scannerFactory->update(); // always force an update during start-up
+
+        m_reloader = std::make_shared<Reloader>(m_scannerFactory);
+
+        unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, m_scannerFactory);
+        server.start();
+
+        LOGINFO("Starting USR1 monitor");
+        common::signals::SigUSR1Monitor usr1Monitor(m_reloader); // Create monitor before loading SUSI
+
+        //Always create processController after m_reloader is initialized
+        fs::path processControllerSocketPath = "/var/process_control_socket";
+        std::shared_ptr<ThreatDetectorControlCallbacks> callbacks = std::make_shared<ThreatDetectorControlCallbacks>(*this);
+        unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0660, callbacks);
+        processController.start();
+
+        int returnCode = common::E_CLEAN_SUCCESS;
+
+        fd_set readFDs;
+        FD_ZERO(&readFDs);
+        int max = -1;
+
+        max = FDUtils::addFD(&readFDs, sigTermMonitor.monitorFd(), max);
+        max = FDUtils::addFD(&readFDs, usr1Monitor.monitorFd(), max);
+
+        while (true)
+        {
+            fd_set tempRead = readFDs;
+
+            struct timespec timeout {};
+            timeout.tv_sec = shutdownTimer->timeout();
+            LOGDEBUG("Setting shutdown timeout to " << timeout.tv_sec << " seconds");
+            // wait for an activity on one of the sockets
+            int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
+
+            if (activity < 0)
+            {
+                // error in pselect
+                int error = errno;
+                if (error == EINTR)
+                {
+                    LOGDEBUG("Ignoring EINTR from pselect");
+                    continue;
+                }
+
+                LOGERROR("Failed to read from socket - shutting down. Error: "
+                         << common::safer_strerror(error) << " (" << error << ')');
+                returnCode = common::E_GENERIC_FAILURE;
+                break;
+            }
+            else if (activity == 0)
+            {
+                // no activity on the fds, must be a timeout
+                if (m_scannerFactory->susiIsInitialized())
+                {
+                    long currentTimeout = shutdownTimer->timeout();
+                    if (currentTimeout <= 0)
+                    {
+                        LOGDEBUG("No scans requested for " << timeout.tv_sec << " seconds - shutting down.");
+                        create_shutdown_notice_file(pluginInstall);
+                        break;
+                    }
+                    else
+                    {
+                        LOGDEBUG("Scan requested less than " << timeout.tv_sec << " seconds ago - continuing");
+                        continue;
+                    }
+                }
+                else
+                {
+                    LOGDEBUG("SUSI is not initialised - resetting shutdown timer");
+                    shutdownTimer->reset();
+                    continue;
+                }
+            }
+
+            if (FDUtils::fd_isset(sigTermMonitor.monitorFd(), &tempRead))
             {
                 LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
-                return common::E_CLEAN_SUCCESS;
+                sigTermMonitor.triggered();
+                returnCode = common::E_CLEAN_SUCCESS;
+                break;
             }
-            scannerFactory->update(); // always force an update during start-up
 
-            auto reloader = std::make_shared<Reloader>(scannerFactory);
-
-            unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, scannerFactory);
-            server.start();
-
-            LOGINFO("Starting USR1 monitor");
-            common::signals::SigUSR1Monitor usr1Monitor(reloader); // Create monitor before loading SUSI
-
-            fs::path processControllerSocketPath = "/var/process_control_socket";
-            unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0660);
-            processController.start();
-
-            int returnCode = common::E_CLEAN_SUCCESS;
-
-            fd_set readFDs;
-            FD_ZERO(&readFDs);
-            int max = -1;
-
-            max = FDUtils::addFD(&readFDs, sigTermMonitor.monitorFd(), max);
-            max = FDUtils::addFD(&readFDs, usr1Monitor.monitorFd(), max);
-            max = FDUtils::addFD(&readFDs, processController.monitorShutdownFd(), max);
-            max = FDUtils::addFD(&readFDs, processController.monitorReloadFd(), max);
-            while (true)
+            if (FDUtils::fd_isset(usr1Monitor.monitorFd(), &tempRead))
             {
-                fd_set tempRead = readFDs;
-
-                struct timespec timeout {};
-                timeout.tv_sec = shutdownTimer->timeout();
-                LOGDEBUG("Setting shutdown timeout to " << timeout.tv_sec << " seconds");
-                // wait for an activity on one of the sockets
-                int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
-
-                if (activity < 0)
-                {
-                    // error in pselect
-                    int error = errno;
-                    if (error == EINTR)
-                    {
-                        LOGDEBUG("Ignoring EINTR from pselect");
-                        continue;
-                    }
-
-                    LOGERROR("Failed to read from socket - shutting down. Error: "
-                             << common::safer_strerror(error) << " (" << error << ')');
-                    returnCode = common::E_GENERIC_FAILURE;
-                    break;
-                }
-                else if (activity == 0)
-                {
-                    // no activity on the fds, must be a timeout
-                    if (scannerFactory->susiIsInitialized())
-                    {
-                        long currentTimeout = shutdownTimer->timeout();
-                        if (currentTimeout <= 0)
-                        {
-                            LOGDEBUG("No scans requested for " << timeout.tv_sec << " seconds - shutting down.");
-                            create_shutdown_notice_file(pluginInstall);
-                            break;
-                        }
-                        else
-                        {
-                            LOGDEBUG("Scan requested less than " << timeout.tv_sec << " seconds ago - continuing");
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        LOGDEBUG("SUSI is not initialised - resetting shutdown timer");
-                        shutdownTimer->reset();
-                        continue;
-                    }
-                }
-
-                if (FDUtils::fd_isset(sigTermMonitor.monitorFd(), &tempRead))
-                {
-                    LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
-                    sigTermMonitor.triggered();
-                    returnCode = common::E_CLEAN_SUCCESS;
-                    break;
-                }
-
-                if (FDUtils::fd_isset(processController.monitorShutdownFd(), &tempRead))
-                {
-                    LOGINFO("Sophos Threat Detector received shutdown request");
-                    create_shutdown_notice_file(pluginInstall);
-                    processController.triggeredShutdown();
-                    break;
-                }
-
-                if (FDUtils::fd_isset(usr1Monitor.monitorFd(), &tempRead))
-                {
-                    LOGINFO("Sophos Threat Detector received SIGUSR1 - reloading");
-                    usr1Monitor.triggered();
-                }
-
-                if (FDUtils::fd_isset(processController.monitorReloadFd(), &tempRead))
-                {
-                    processController.triggeredReload();
-                    if (scannerFactory->susiIsInitialized())
-                    {
-                        LOGINFO("Sophos Threat Detector received reload request");
-                        reloader->reload();
-                    }
-                    else
-                    {
-                        LOGDEBUG("Skipping susi reload because susi is not initialised");
-                    }
-                }
+                LOGINFO("Sophos Threat Detector received SIGUSR1 - reloading");
+                usr1Monitor.triggered();
             }
-
-            scannerFactory->shutdown();
-
-            LOGINFO("Sophos Threat Detector is exiting with return code " << returnCode);
-            return returnCode;
         }
-    } // namespace
 
-    int sophos_threat_detector_main()
+        m_scannerFactory->shutdown();
+
+        LOGINFO("Sophos Threat Detector is exiting with return code " << returnCode);
+        return returnCode;
+    }
+
+    int SophosThreatDetectorMain::sophos_threat_detector_main()
     {
         try
         {

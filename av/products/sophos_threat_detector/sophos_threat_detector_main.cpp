@@ -27,5 +27,6 @@ int main()
 
     LogSetup logging;
     ::umask(023);
-    return sspl::sophosthreatdetectorimpl::sophos_threat_detector_main();
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    return treatDetectorMain.sophos_threat_detector_main();
 }

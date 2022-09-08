@@ -9,7 +9,7 @@ SophosAddTest(TestScanProcessMonitor
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
         )
 
-add_dependencies(TestScanProcessMonitor copy_libs)
+add_dependencies(TestScanProcessMonitor copy_libs unixsocket)
 
 SET_TARGET_PROPERTIES(TestScanProcessMonitor
         PROPERTIES
