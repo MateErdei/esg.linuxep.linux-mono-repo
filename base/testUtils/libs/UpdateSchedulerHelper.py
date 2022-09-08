@@ -432,18 +432,3 @@ class UpdateSchedulerHelper(object):
             for product in report_json["products"]:
                 assert product["productStatus"] == "UPTODATE", f"expected product: {product} to be UPTODATE"
 
-    def remove_useSDDS3_from_update_config(self, path_to_update_config):
-        with open(path_to_update_config, "r+") as update_config:
-            update_config_json = json.loads(update_config.read())
-            assert "useSDDS3" in update_config_json
-            update_config_json.pop("useSDDS3")
-            update_config.write(json.dumps(update_config_json))
-
-    def set_useSDDS3_in_update_config_to_value(self, path_to_update_config, value):
-        with open(path_to_update_config, "r+") as update_config:
-            update_config_json = json.loads(update_config.read())
-            assert "useSDDS3" in update_config_json
-            update_config_json["useSDDS3"] = value
-            update_config.seek(0)
-            update_config.write(json.dumps(update_config_json))
-            update_config.truncate()
