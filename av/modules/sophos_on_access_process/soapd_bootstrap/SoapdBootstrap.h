@@ -2,8 +2,9 @@
 
 #pragma once
 
+#include "OnAccessConfigurationUtils.h"
+
 #include "mount_monitor/mount_monitor/MountMonitor.h"
-#include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
 
 #include "common/ThreadRunner.h"
 #include "common/signals/SigIntMonitor.h"

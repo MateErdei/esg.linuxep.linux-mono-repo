@@ -4,12 +4,11 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
-
 #include "datatypes/sophos_filesystem.h"
+#include "sophos_on_access_process/soapd_bootstrap/OnAccessConfigurationUtils.h"
 
-#include "Common/Logging/ConsoleLoggingSetup.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include <cstring>
 #include <fstream>

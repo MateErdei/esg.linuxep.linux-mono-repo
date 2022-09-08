@@ -4,13 +4,13 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "common/LogInitializedTests.h"
 #include "datatypes/sophos_filesystem.h"
-#include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
+#include "sophos_on_access_process/soapd_bootstrap/OnAccessConfigurationUtils.h"
 
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
+#include "common/LogInitializedTests.h"
 
 #include <gtest/gtest.h>
 

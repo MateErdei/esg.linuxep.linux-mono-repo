@@ -1,6 +1,9 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "sophos_on_access_process/soapd_bootstrap/SoapdBootstrap.h"
+#pragma once
+
+#include "SoapdBootstrap.h"
+
 #include "unixsocket/IProcessControlMessageCallback.h"
 
 namespace sophos_on_access_process::OnAccessConfig

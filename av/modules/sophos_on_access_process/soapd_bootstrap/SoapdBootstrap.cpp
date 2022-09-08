@@ -4,9 +4,8 @@
 #include "SoapdBootstrap.h"
 // Package
 #include "Logger.h"
+#include "OnAccessProcesControlCallbacks.h"
 // Component
-#include "sophos_on_access_process/OnAccessConfig/OnAccessProcesControlCallbacks.h"
-#include "sophos_on_access_process/OnAccessConfig/OnAccessConfigurationUtils.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"

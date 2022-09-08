@@ -1,5 +1,4 @@
 
-add_subdirectory(OnAccessConfig)
 add_subdirectory(onaccessimpl)
 add_subdirectory(soapd_bootstrap)
 add_subdirectory(fanotifyhandler)

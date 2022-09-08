@@ -9,12 +9,11 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include "datatypes/sophos_filesystem.h"
+#include "thirdparty/nlohmann-json/json.hpp"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
-
-#include <thirdparty/nlohmann-json/json.hpp>
 
 namespace fs = sophos_filesystem;
 using json = nlohmann::json;

@@ -18,14 +18,14 @@ namespace sophos_on_access_process::OnAccessConfig
         std::vector<std::string> exclusions;
     };
 
-    bool operator ==(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)
+    bool inline operator==(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)
     {
         return lhs.enabled == rhs.enabled
                && lhs.excludeRemoteFiles == rhs.excludeRemoteFiles
                && lhs.exclusions == rhs.exclusions;
     }
 
-    bool operator !=(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)
+    bool inline operator!=(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)
     {
         return !(lhs == rhs);
     }

@@ -4,6 +4,10 @@ add_library(soapdbootstrap SHARED
         Logger.h
         SoapdBootstrap.cpp
         SoapdBootstrap.h
+        OnAccessProcesControlCallbacks.h
+        OnAccessProcesControlCallbacks.cpp
+        OnAccessConfigurationUtils.h
+        OnAccessConfigurationUtils.cpp
         )
 
 target_link_libraries(soapdbootstrap  PUBLIC
@@ -11,7 +15,6 @@ target_link_libraries(soapdbootstrap  PUBLIC
         datatypes
         fanotifyhandler
         mountmonitor
-        onAccessConfigMonitor
         unixsocket
         )
 

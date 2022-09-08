@@ -29,7 +29,7 @@ add_executable(OnAccessConfigReaderFuzzer
         OnAccessConfigReaderFuzzer.cpp)
 
 target_link_libraries(OnAccessConfigReaderFuzzer  PUBLIC
-        onAccessConfigMonitor
+        soapdbootstrap
         datatypes
         )
 
