@@ -13,7 +13,6 @@ Setup Update Tests
     Regenerate HTTPS Certificates
     Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
     Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
-    Uninstall SAV
     Regenerate Certificates
     Set Local CA Environment Variable
 
