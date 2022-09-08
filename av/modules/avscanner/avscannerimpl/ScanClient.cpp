@@ -75,6 +75,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
     request->setScanInsideImages(m_scanInImages);
     request->setScanType(m_scanType);
     request->setFd(file_fd);
+    request->setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     const char* user = std::getenv("USER");
     request->setUserID(user ? user : "root");
 
