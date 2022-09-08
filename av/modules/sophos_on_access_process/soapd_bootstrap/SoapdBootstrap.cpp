@@ -166,6 +166,8 @@ sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::
 
 void SoapdBootstrap::OverridePolicy()
 {
+    std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
+
     LOGINFO("Overriding policy and disabling on-access");
     m_policyOverride = true;
     m_eventReaderThread->requestStopIfNotStopped();
@@ -173,6 +175,8 @@ void SoapdBootstrap::OverridePolicy()
 
 void SoapdBootstrap::UsePolicySettings()
 {
+    std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
+
     LOGINFO("Using on-access settings from policy");
     m_policyOverride = false;
 
@@ -187,6 +191,8 @@ void SoapdBootstrap::UsePolicySettings()
 
 void SoapdBootstrap::ProcessPolicy()
 {
+    std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
+
     if(m_policyOverride)
     {
         LOGINFO("Policy override is enabled, on-access will be disabled");

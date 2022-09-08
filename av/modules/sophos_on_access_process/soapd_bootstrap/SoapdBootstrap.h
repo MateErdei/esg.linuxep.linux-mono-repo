@@ -16,8 +16,24 @@ namespace sophos_on_access_process::soapd_bootstrap
     {
     public:
         static int runSoapd();
+        /**
+         * Performs all necessary actions for disabling the policy override.
+         * Reads the policy settings from soapd_config.json and enables/disables OA accordingly.
+         * Called by OnAccessProcessControlCallback.
+         * The function blocks on m_pendingConfigActionMutex to ensure that all actions it takes are thread safe.
+         */
         void UsePolicySettings();
+        /**
+         * Disables on-access despite the policy setting.
+         * Called by OnAccessProcessControlCallback.
+         * The function blocks on m_pendingConfigActionMutex to ensure that all actions it takes are thread safe.
+         */
         void OverridePolicy();
+        /**
+         * Reads and uses the policy settings if m_policyOverride is false.
+         * Called by OnAccessProcessControlCallback.
+         * The function blocks on m_pendingConfigActionMutex to ensure that all actions it takes are thread safe.
+         */
         void ProcessPolicy();
 
     private:
@@ -31,6 +47,7 @@ namespace sophos_on_access_process::soapd_bootstrap
         std::unique_ptr<common::ThreadRunner> m_eventReaderThread;
         std::shared_ptr<mount_monitor::mount_monitor::MountMonitor> m_mountMonitor;
 
+        std::mutex m_pendingConfigActionMutex;
         std::atomic<bool> m_policyOverride = true;
         std::atomic<bool> m_currentOaEnabledState = false;
     };
