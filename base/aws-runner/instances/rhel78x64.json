@@ -52,8 +52,6 @@
         "python3 -m pip install nest_asyncio 2>&1 >>/tmp/cloudFormationInit.log\n",
         "python3 -m pip install --upgrade robotframework 2>&1 >>/tmp/cloudFormationInit.log\n",
         "getenforce >>/tmp/cloudFormationInit.log\n",
-        "export OVERRIDE_CLOUD_IP=", {"Ref": "cloudIpAddress"}, "\n",
-        "echo ", {"Ref": "cloudIpAddress"}, " >/root/OVERRIDE_CLOUD_IP\n",
         "echo 'Created aws config. Now grabbing tests...' >> /tmp/cloudFormationInit.log\n",
         "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
         "aws s3 cp s3://sspl-testbucket/sspl/sspl-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
