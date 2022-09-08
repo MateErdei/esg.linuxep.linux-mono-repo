@@ -29,7 +29,7 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
     }
 }
 
- ClientScanRequestPtr ScanRequestQueue::pop()
+ClientScanRequestPtr ScanRequestQueue::pop()
 {
     std::unique_lock<std::mutex> lock(m_lock);
     // release lock as long as the wait and re-acquire it afterwards.

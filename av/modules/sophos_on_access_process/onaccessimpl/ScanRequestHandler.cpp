@@ -8,18 +8,17 @@
 #include "common/StringUtils.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
-#include <Common/Logging/LoggerConfig.h>
-
 #include <memory>
 #include <sstream>
-#include <chrono>
+#include <utility>
 
+#include <fcntl.h>
 
 using namespace sophos_on_access_process::onaccessimpl;
 
 ScanRequestHandler::ScanRequestHandler(
    ScanRequestQueueSharedPtr scanRequestQueue,
-    std::shared_ptr<unixsocket::IScanningClientSocket> socket,
+    IScanningClientSocketSharedPtr socket,
     fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler)
     : m_scanRequestQueue(std::move(scanRequestQueue))
     , m_socket(std::move(socket))
@@ -71,6 +70,7 @@ void ScanRequestHandler::scan(
                 if (ret < 0)
                 {
                     int error = errno;
+                    std::ignore = error; // Fuzz builds compile out LOGDEBUG
                     std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
                     LOGWARN("Caching " << escapedPath << " failed: " << common::safer_strerror(error));
                 }
@@ -96,29 +96,14 @@ void ScanRequestHandler::run()
     announceThreadStarted();
 
     LOGDEBUG("Starting ScanRequestHandler");
-    auto logLevel = getOnAccessImplLogger().getChainedLogLevel();
     try
     {
         while (!stopRequested())
         {
             auto queueItem = m_scanRequestQueue->pop();
-            if(queueItem)
+            if (queueItem)
             {
-                if(logLevel == Common::Logging::TRACE)
-                {
-                    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-
-                    scan(queueItem);
-                    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-                    long scanDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-
-                    std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
-                    LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms");
-                }
-                else
-                {
-                    scan(queueItem);
-                }
+                scan(queueItem);
             }
         }
     }

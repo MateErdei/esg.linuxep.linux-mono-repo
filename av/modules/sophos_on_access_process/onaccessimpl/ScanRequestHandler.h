@@ -15,10 +15,12 @@ namespace sophos_on_access_process::onaccessimpl
     class ScanRequestHandler : public common::AbstractThreadPluginInterface
     {
     public:
+        using IScanningClientSocketSharedPtr = std::shared_ptr<unixsocket::IScanningClientSocket>;
         ScanRequestHandler(
             ScanRequestQueueSharedPtr scanRequestQueue,
-            std::shared_ptr<unixsocket::IScanningClientSocket> socket,
-            fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler);
+            IScanningClientSocketSharedPtr socket,
+            fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler
+            );
 
         void run() override;
         void scan(const scan_messages::ClientScanRequestPtr& scanRequest,
@@ -27,7 +29,7 @@ namespace sophos_on_access_process::onaccessimpl
     private:
 
         ScanRequestQueueSharedPtr m_scanRequestQueue;
-        std::shared_ptr<unixsocket::IScanningClientSocket> m_socket;
+        IScanningClientSocketSharedPtr m_socket;
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
         std::unique_ptr<ClientSocketWrapper> m_socketWrapper;
     };
