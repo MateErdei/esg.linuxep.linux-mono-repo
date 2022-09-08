@@ -8,7 +8,7 @@ Test Teardown    Run Keywords
 ...                Test Teardown
 
 Test Timeout  10 mins
-
+Force Tags  LOAD9
 Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py

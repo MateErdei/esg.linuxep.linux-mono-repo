@@ -66,7 +66,7 @@ class CentralRegistrationTests : public LogInitializedTests
             {"Authorization", "Basic " + Common::ObfuscationImpl::Base64::Encode(configOptions.config[MCS::MCS_ID] + ":" + configOptions.config[MCS::MCS_PASSWORD] + ":" + configOptions.config[MCS::MCS_TOKEN])},
             {"Content-Type","application/xml; charset=utf-8"}
         };
-        Common::HttpRequests::RequestConfig request{ .url = configOptions.config[MCS::MCS_URL] + registerUrlSuffix, .headers = headers, .data = statusXml, .certPath = configOptions.config[MCS::MCS_CERT]};
+        Common::HttpRequests::RequestConfig request{ .url = configOptions.config[MCS::MCS_URL] + registerUrlSuffix, .headers = headers, .data = statusXml, .certPath = configOptions.config[MCS::MCS_CERT], .timeout = 60};
         return request;
     }
 
@@ -77,7 +77,7 @@ class CentralRegistrationTests : public LogInitializedTests
             {"Authorization", "Basic " + Common::ObfuscationImpl::Base64::Encode(configOptions.config[MCS::MCS_CUSTOMER_TOKEN])},
             {"Content-Type","application/json;charset=UTF-8"}
         };
-        Common::HttpRequests::RequestConfig request{ .url = configOptions.config[MCS::MCS_URL] + preregisterUrlSuffix, .headers = headers, .data = statusXml, .certPath = configOptions.config[MCS::MCS_CERT]};
+        Common::HttpRequests::RequestConfig request{ .url = configOptions.config[MCS::MCS_URL] + preregisterUrlSuffix, .headers = headers, .data = statusXml, .certPath = configOptions.config[MCS::MCS_CERT], .timeout = 60};
         return request;
     }
 

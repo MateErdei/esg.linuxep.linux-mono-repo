@@ -13,7 +13,7 @@ Suite Teardown   Suite Teardown
 Test Setup       Test Setup
 Test Teardown    Test Teardown
 
-
+Force Tags  LOAD7
 *** Variables ***
 ${BaseOnlyVUTPolicy}                  ${GeneratedWarehousePolicies}/base_only_VUT.xml
 ${BaseOnlyFixedVersionVUTPolicy}      ${GeneratedWarehousePolicies}/base_only_fixed_version_VUT.xml

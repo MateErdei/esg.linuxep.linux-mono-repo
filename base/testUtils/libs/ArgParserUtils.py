@@ -78,7 +78,12 @@ def add_cloudserver_args(parser):
     parser.add_argument("--force-fail-jwt", action="store_true", dest="failjwt",
                         default=False,
                         help="force authentication to fail")
-
+    parser.add_argument("--force-break-jwt", action="store_true", dest="breakjwt",
+                        default=False,
+                        help="force authentication to be missing parts")
+    parser.add_argument("--timeout", action="store_true", dest="timeout",
+                        default=False,
+                        help="force server to make connections hang")
     libs_dir = PathManager.get_libs_path()
     support_file_dir = PathManager.get_support_file_path()
     parser.add_argument("--port", help="define the port the server will listen to", default=4443, dest="port")

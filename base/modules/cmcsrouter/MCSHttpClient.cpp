@@ -23,7 +23,7 @@ namespace MCS
                 {"Content-Type","application/xml; charset=utf-8"}
             };
 
-        Common::HttpRequests::RequestConfig request{ .url = m_base_url + "/register", .headers = requestHeaders, .data = statusXml};
+        Common::HttpRequests::RequestConfig request{ .url = m_base_url + "/register", .headers = requestHeaders, .data = statusXml, .timeout = HTTP_MAX_TIMEOUT};
         updateProxyInfo(request);
         updateCertPath(request);
 
@@ -39,7 +39,7 @@ namespace MCS
                 {"Content-Type","application/json;charset=UTF-8"}
             };
 
-        Common::HttpRequests::RequestConfig request{ .url = m_base_url + "/install/deployment-info/2", .headers = requestHeaders, .data = statusXml};
+        Common::HttpRequests::RequestConfig request{ .url = m_base_url + "/install/deployment-info/2", .headers = requestHeaders, .data = statusXml, .timeout = HTTP_MAX_TIMEOUT};
         updateProxyInfo(request);
         updateCertPath(request);
 
@@ -60,7 +60,7 @@ namespace MCS
             requestHeaders.insert({head.first,head.second});
         }
 
-        Common::HttpRequests::RequestConfig request{ .url = m_base_url + url ,.headers = requestHeaders};
+        Common::HttpRequests::RequestConfig request{ .url = m_base_url + url ,.headers = requestHeaders, .timeout = HTTP_MAX_TIMEOUT};
         updateProxyInfo(request);
         updateCertPath(request);
 

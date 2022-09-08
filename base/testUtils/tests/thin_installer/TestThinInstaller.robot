@@ -108,6 +108,11 @@ Thin Installer fails to download test file from warehouse if certificate is not 
     Cleanup System Ca Certs
     Run Default Thininstaller    18  force_certs_dir=${SUPPORT_FILES}/sophos_certs
 
+Thin Installer Cannot Connect to Central timeout
+    [Setup]  Setup Thininstaller Test Without Local Cloud Server
+    Start Local Cloud Server  --timeout
+    Run Default Thininstaller    3    https://localhost:4443  force_certs_dir=${SUPPORT_FILES}/sophos_certs
+
 Thin Installer Will Not Connect to Central If Connection Has TLS below TLSv1_2
     [Tags]  SMOKE  THIN_INSTALLER
     Start Local Cloud Server   --tls   tlsv1_1

@@ -1192,6 +1192,8 @@ def reset_cookies():
 REREGISTER_NEXT = False
 REGISTER_401 = False
 FAIL_JWT = False
+JWT_BROKEN = False
+TIMEOUT = False
 
 
 class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
@@ -1356,14 +1358,24 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             return self.ret("Event for unknown endpoint", 400)
 
         token = f"JWT_TOKEN-{endpoint.id()}"
-        JWT = {
-            "access_token":token,
-            "token_type":"Bearer",
-            "expires_in":630,
-            "role":"endpoint",
-            "device_id":"example-device-id",
-            "tenant_id":"example-tenant-id"
-        }
+        if JWT_BROKEN:
+            JWT = {
+                "access_token":token,
+                "token_type":"Bearer",
+                "expires_in":630,
+                "role":"endpoint",
+                "device_id":"example-device-id",
+                "tenant_id":"example-tenant-id"
+            }
+        else:
+            JWT = {
+                "access_token":token,
+                "token_type":"Bearer",
+                "expires_in":630,
+                "role":"endpoint",
+                "device_id":"example-device-id",
+                "tenant_id":"example-tenant-id"
+            }
 
         return self.ret(json.dumps(JWT, sort_keys=True))
 
@@ -1617,6 +1629,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         global SERVER_401
         if SERVER_401:
             return self.send_401()
+        if TIMEOUT:
+            time.sleep(6000)
         if self.path.startswith("/frontend/api/"):
             return self.do_GET_frontend()
         elif self.path.startswith("/mcs"):
@@ -2126,6 +2140,12 @@ def main(argv):
         if options.failjwt:
             global FAIL_JWT
             FAIL_JWT = True
+        if options.breakjwt:
+            global JWT_BROKEN
+            JWT_BROKEN = True
+        if options.timeout:
+            global TIMEOUT
+            TIMEOUT = True
         global HEARTBEAT_ENABLED
         HEARTBEAT_ENABLED = options.heartbeat
 

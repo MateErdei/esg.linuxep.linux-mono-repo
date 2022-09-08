@@ -24,7 +24,7 @@ Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
 Resource    ../sul_downloader/SulDownloaderResources.robot
 
 Default Tags   EDR_PLUGIN   OSTIA  FAKE_CLOUD   THIN_INSTALLER  INSTALLER
-Force Tags  LOAD1
+Force Tags  LOAD4
 
 
 *** Variables ***

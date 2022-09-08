@@ -45,6 +45,7 @@ namespace MCS
         std::string m_proxyUser;
         std::string m_proxyPassword;
         std::string m_certPath;
+        uint16_t HTTP_MAX_TIMEOUT = 60;
 
     };
 }
