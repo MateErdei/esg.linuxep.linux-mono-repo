@@ -220,41 +220,37 @@ On Access Does Not Include Remote Files If Excluded In Policy
 
 On Access Monitors Addition And Removal Of Mount Points
     Register Cleanup    Exclude On Access Scan Errors
-    [Tags]  NFS
+    Require Filesystem  ext2
+    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
+    ${type} =  Set Variable  ext2
+    Mark On Access Log
     Start On Access
     Wait Until On Access Log Contains With Offset  Including mount point:
-    On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
+    On Access Does Not Log Contain With Offset  Including mount point: ${where}
     Sleep  1s
-    ${numMountsPreNFSmount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
-    Log  Number of Mount Points: ${numMountsPreNFSmount}
+    ${numMountsPreMount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
+    Log  Number of Mount Points before mount: ${numMountsPreMount}
 
     Mark On Access Log
-    ${source} =       Set Variable  /tmp_test/nfsshare
-    ${destination} =  Set Variable  /testmnt/nfsshare
-    Create Directory  ${source}
-    Create Directory  ${destination}
-    Create Local NFS Share   ${source}   ${destination}
-    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
+    ${image} =  Copy And Extract Image  ext2FileSystem
+    Mount Image  ${where}  ${image}  ${type}
 
     Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
-    Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
+    Wait Until On Access Log Contains  Including mount point: ${where}
     Sleep  1s
-    ${totalNumMountsPostNFSmount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
-    Log  Number of Mount Points: ${totalNumMountsPostNFSmount}
-    Should Be Equal As Integers  ${totalNumMountsPostNFSmount}  ${numMountsPreNFSmount+1}
-
-    Start Fake Management If Required
+    ${totalNumMountsPostMount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
+    Log  Number of Mount Points after mount: ${totalNumMountsPostMount}
+    Should Be Equal As Integers  ${totalNumMountsPostMount}  ${numMountsPreMount+1}
 
     Mark On Access Log
-    Remove Local NFS Share   ${source}   ${destination}
-    Deregister Cleanup  Remove Local NFS Share   ${source}   ${destination}
+    Unmount Image  ${where}
 
     Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
-    On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
+    On Access Does Not Log Contain With Offset  Including mount point: ${where}
     Sleep  1s
-    ${totalNumMountsPostNFSumount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
-    Log  Number of Mount Points: ${totalNumMountsPostNFSumount}
-    Should Be Equal As Integers  ${totalNumMountsPostNFSumount}  ${numMountsPreNFSmount}
+    ${totalNumMountsPostUmount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
+    Log  Number of Mount Points after umount: ${totalNumMountsPostUmount}
+    Should Be Equal As Integers  ${totalNumMountsPostUmount}  ${numMountsPreMount}
 
 On Access Scans A File When It Is Closed Following A Write
     Start On Access With Running Threat Detector

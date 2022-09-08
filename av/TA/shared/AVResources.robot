@@ -1111,6 +1111,11 @@ Copy And Extract Image
 
 Unmount Image
     [Arguments]  ${where}
+    Unmount Image Internal  ${where}
+    deregister cleanup  Unmount Image Internal  ${where}
+
+Unmount Image Internal
+    [Arguments]  ${where}
     Run Shell Process   umount ${where}   OnError=Failed to unmount local NFS share
     Remove Directory    ${where}  recursive=True
 
@@ -1121,7 +1126,7 @@ Mount Image
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
-    Register Cleanup  Unmount Image  ${where}
+    Register Cleanup  Unmount Image Internal  ${where}
 
 Require Filesystem
     [Arguments]   ${fs_type}
