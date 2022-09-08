@@ -15,7 +15,7 @@ void ScanCallbackImpl::cleanFile(const path&)
     incrementCleanFileCount();
 }
 
-void ScanCallbackImpl::infectedFile(const std::map<path, std::string>& detections, const fs::path& realPath, bool isSymlink)
+void ScanCallbackImpl::infectedFile(const std::map<path, std::string>& detections, const fs::path& realPath, const std::string& scanType, bool isSymlink)
 {
     incrementInfectedFileCount();
 
@@ -29,11 +29,11 @@ void ScanCallbackImpl::infectedFile(const std::map<path, std::string>& detection
             std::string escapedTargetPath(common::escapePathForLogging(fs::canonical(realPath)));
             LOGWARN(
                 "Detected \"" << escapedPath << "\" (symlinked to " << escapedTargetPath << ") is infected with "
-                              << threatName);
+                              << threatName << scanType);
         }
         else
         {
-            LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName);
+            LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName << scanType);
         }
 
         addThreat(threatName);

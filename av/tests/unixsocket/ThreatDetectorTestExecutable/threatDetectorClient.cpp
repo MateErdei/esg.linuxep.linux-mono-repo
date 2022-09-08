@@ -31,7 +31,7 @@ public:
     FakeCallbacks() = default;
 private:
     void cleanFile(const avscanner::avscannerimpl::path& ) override {}
-    void infectedFile(const std::map<fs::path, std::string>&, const sophos_filesystem::path&, bool) override {}
+    void infectedFile(const std::map<fs::path, std::string>&, const sophos_filesystem::path&, const std::string&, bool) override {}
     void scanError(const std::string&, std::error_code) override {}
     void scanStarted() override {}
     void logSummary() override {}

@@ -26,7 +26,7 @@ TEST_F(TestScanCallbackImpl, TestInfectedReturnCode)
     ScanCallbackImpl scanCallback;
     std::map<path, std::string> detections;
 
-    scanCallback.infectedFile(detections, "", false);
+    scanCallback.infectedFile(detections, "", "", false);
     EXPECT_EQ(scanCallback.returnCode(), E_VIRUS_FOUND);
 }
 
@@ -45,7 +45,7 @@ TEST_F(TestScanCallbackImpl, TestInfectedOverCleanReturnCode)
     for (int i=0; i<5; i++)
     {
         scanCallback.cleanFile("");
-        scanCallback.infectedFile(detections, "", false);
+        scanCallback.infectedFile(detections, "", "", false);
     }
 
     scanCallback.cleanFile("");
@@ -77,7 +77,7 @@ TEST_F(TestScanCallbackImpl, TestInfectedOverErrorReturnCode)
 
     for (int i=0; i<5; i++)
     {
-        scanCallback.infectedFile(detections, "", false);
+        scanCallback.infectedFile(detections, "", "", false);
         scanCallback.scanError("An error occurred.", ec);
     }
 

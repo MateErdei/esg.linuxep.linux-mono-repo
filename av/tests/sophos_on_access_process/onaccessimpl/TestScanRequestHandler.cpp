@@ -27,6 +27,7 @@ TEST_F(TestScanRequestHandler, scan_fileDetected)
     const char* filePath = "/tmp/test";
     auto scanRequest = std::make_shared<ClientScanRequest>();
     scanRequest->setPath(filePath);
+    scanRequest->setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE);
 
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
@@ -36,7 +37,7 @@ TEST_F(TestScanRequestHandler, scan_fileDetected)
     ASSERT_EQ(socket->m_paths.size(), 1);
     EXPECT_EQ(socket->m_paths.at(0), filePath);
     std::stringstream logMsg;
-    logMsg << "Detected \"" << filePath << "\" is infected with threatName";
+    logMsg << "Detected \"" << filePath << "\" is infected with threatName (Close-Write)";
     EXPECT_TRUE(appenderContains(logMsg.str()));
 }
 
@@ -47,6 +48,7 @@ TEST_F(TestScanRequestHandler, scan_error)
     const char* filePath = "/tmp/test";
     auto scanRequest = std::make_shared<ClientScanRequest>();
     scanRequest->setPath(filePath);
+    scanRequest->setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE);
 
     auto socket = std::make_shared<ExceptionThrowingTestSocket>(false);
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
@@ -83,8 +85,10 @@ TEST_F(TestScanRequestHandler, scan_threadPopsAllItemsFromQueue)
     auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
     auto scanRequest1 = std::make_shared<ClientScanRequest>();
     scanRequest1->setPath(filePath1);
+    scanRequest1->setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN);
     auto scanRequest2 = std::make_shared<ClientScanRequest>();
     scanRequest2->setPath(filePath2);
+    scanRequest2->setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE);
     scanRequestQueue->emplace(scanRequest1);
     scanRequestQueue->emplace(scanRequest2);
 
@@ -94,9 +98,9 @@ TEST_F(TestScanRequestHandler, scan_threadPopsAllItemsFromQueue)
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
 
     std::stringstream logMsg1;
-    logMsg1 << "Detected \"" << filePath1 << "\" is infected with threatName";
+    logMsg1 << "Detected \"" << filePath1 << "\" is infected with threatName (Open)";
     std::stringstream logMsg2;
-    logMsg2 << "Detected \"" << filePath2 << "\" is infected with threatName";
+    logMsg2 << "Detected \"" << filePath2 << "\" is infected with threatName (Close-Write)";
     EXPECT_TRUE(waitForLog(logMsg1.str()));
     EXPECT_TRUE(waitForLog(logMsg2.str()));
     ASSERT_EQ(socket->m_paths.size(), 2);

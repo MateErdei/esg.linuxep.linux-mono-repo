@@ -39,7 +39,7 @@ namespace
     {
     public:
         MOCK_METHOD(void, cleanFile, (const path&));
-        MOCK_METHOD(void, infectedFile, ((const std::map<path, std::string>& detections), const fs::path& realPath,  bool isSymlink));
+        MOCK_METHOD(void, infectedFile, ((const std::map<path, std::string>& detections), const fs::path& realPath,  const std::string& scanType, bool isSymlink));
         MOCK_METHOD(void, scanError, (const std::string&, std::error_code), (override));
         MOCK_METHOD(void, scanStarted, ());
         MOCK_METHOD(void, logSummary, ());
@@ -136,7 +136,7 @@ TEST(TestScanClient, TestScanArchive)
         new StrictMock<MockIScanCallbacks>()
     );
 
-    EXPECT_CALL(*mock_callbacks, infectedFile(detections, _, false))
+    EXPECT_CALL(*mock_callbacks, infectedFile(detections, _, _, false))
         .Times(1);
 
     ScanClient s(mock_socket, mock_callbacks, true, false, E_SCAN_TYPE_ON_DEMAND);
@@ -175,7 +175,7 @@ TEST(TestScanClient, TestScanImage)
             new StrictMock<MockIScanCallbacks>()
     );
 
-    EXPECT_CALL(*mock_callbacks, infectedFile(detections, _, false))
+    EXPECT_CALL(*mock_callbacks, infectedFile(detections, _, _, false))
             .Times(1);
 
     ScanClient s(mock_socket, mock_callbacks, false, true, E_SCAN_TYPE_ON_DEMAND);
@@ -243,7 +243,7 @@ TEST(TestScanClient, TestScanInfected)
             new StrictMock<MockIScanCallbacks>()
     );
 
-    EXPECT_CALL(*mock_callbacks, infectedFile(Eq(detections), _, false))
+    EXPECT_CALL(*mock_callbacks, infectedFile(Eq(detections), _, _, false))
             .Times(1);
 
     ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
@@ -349,7 +349,7 @@ TEST(TestScanClient, TestScanErrorWithDetections)
 
     auto mock_callbacks = std::make_shared<StrictMock<MockIScanCallbacks> >();
 
-    EXPECT_CALL(*mock_callbacks, infectedFile(Eq(detections), _, false))
+    EXPECT_CALL(*mock_callbacks, infectedFile(Eq(detections), _, _, false))
         .Times(1);
     EXPECT_CALL(*mock_callbacks, scanError(Eq(errorMsg), _))
         .Times(1);

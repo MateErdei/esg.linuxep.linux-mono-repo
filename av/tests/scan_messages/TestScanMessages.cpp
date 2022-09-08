@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 #include "ScanRequest.capnp.h"
 
@@ -14,7 +10,7 @@ Copyright 2019-2021, Sophos Limited.  All rights reserved.
 
 #include <ctime>
 
-TEST(TestScanMessages, CreateScanRequestSerialisation) // NOLINT
+TEST(TestScanMessages, CreateScanRequestSerialisation)
 {
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::FileScanRequest::Builder requestBuilder =
@@ -45,7 +41,7 @@ TEST(TestScanMessages, CreateScanRequestSerialisation) // NOLINT
     EXPECT_TRUE(requestReader.getScanInsideArchives());
 }
 
-TEST(TestScanMessages, CreateScanRequestObject) // NOLINT
+TEST(TestScanMessages, CreateScanRequestObject)
 {
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::FileScanRequest::Builder requestBuilder =
@@ -53,18 +49,37 @@ TEST(TestScanMessages, CreateScanRequestObject) // NOLINT
 
     requestBuilder.setPathname("/etc/fstab");
     requestBuilder.setScanInsideArchives(false);
-    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE);
 
     Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
 
     auto scanRequest = std::make_unique<scan_messages::ScanRequest>(requestReader);
 
     EXPECT_EQ(scanRequest->path(), "/etc/fstab");
-    EXPECT_EQ(scanRequest->getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+    EXPECT_EQ(scanRequest->getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE);
     EXPECT_FALSE(scanRequest->scanInsideArchives());
 }
 
-TEST(TestScanMessages, ReuseScanRequestObject) // NOLINT
+TEST(TestScanMessages, ScanRequestReturnsScanTypeStrCorrectly)
+{
+    scan_messages::ClientScanRequest clientScanRequest;
+    EXPECT_EQ(" (Unknown)", clientScanRequest.getScanTypeAsStr());
+    clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN);
+    EXPECT_EQ(" (Open)", clientScanRequest.getScanTypeAsStr());
+    clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE);
+    EXPECT_EQ(" (Close-Write)", clientScanRequest.getScanTypeAsStr());
+    clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    EXPECT_EQ(" (On Demand)", clientScanRequest.getScanTypeAsStr());
+    clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_UNKNOWN);
+    EXPECT_EQ(" (Unknown)", clientScanRequest.getScanTypeAsStr());
+    clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_MEMORY);
+    EXPECT_EQ(" (Unknown)", clientScanRequest.getScanTypeAsStr());
+    clientScanRequest.setScanType(scan_messages::E_SCAN_TYPE_SCHEDULED);
+    EXPECT_EQ(" (Unknown)", clientScanRequest.getScanTypeAsStr());
+}
+
+
+TEST(TestScanMessages, ReuseScanRequestObject)
 {
     auto scanRequest = std::make_unique<scan_messages::ScanRequest>();
 
@@ -75,13 +90,13 @@ TEST(TestScanMessages, ReuseScanRequestObject) // NOLINT
         requestBuilder.setPathname("/etc/fstab");
         requestBuilder.setScanInsideArchives(true);
         requestBuilder.setScanInsideImages(true);
-        requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+        requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN);
         Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
         scanRequest->resetRequest(requestReader);
     }
 
     EXPECT_EQ(scanRequest->path(), "/etc/fstab");
-    EXPECT_EQ(scanRequest->getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+    EXPECT_EQ(scanRequest->getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN);
     EXPECT_TRUE(scanRequest->scanInsideArchives());
     EXPECT_TRUE(scanRequest->scanInsideImages());
 

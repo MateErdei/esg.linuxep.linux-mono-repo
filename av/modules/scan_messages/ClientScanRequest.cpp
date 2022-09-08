@@ -35,15 +35,17 @@ std::string ClientScanRequest::getScanTypeAsStr() const
         {
             return " (Open)";
         }
-        break;
         case E_SCAN_TYPE_ON_ACCESS_CLOSE:
         {
-            return " (Closed)";
+            return " (Close-Write)";
         }
-        break;
-        default:
+        case E_SCAN_TYPE_ON_DEMAND:
         {
             return " (On Demand)";
+        }
+        default:
+        {
+            return " (Unknown)";
         }
     }
 }

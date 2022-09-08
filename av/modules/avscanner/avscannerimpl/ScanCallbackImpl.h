@@ -21,7 +21,7 @@ namespace avscanner::avscannerimpl
         ScanCallbackImpl() = default;
 
         void cleanFile(const path&) override;
-        void infectedFile(const std::map<path, std::string>& detections, const sophos_filesystem::path&, bool isSymlink=false) override;
+        void infectedFile(const std::map<path, std::string>& detections, const sophos_filesystem::path&, const std::string& scanType, bool isSymlink=false) override;
         void scanError(const std::string& errorMsg, std::error_code) override;
         common::E_ERROR_CODES returnCode();
         void scanStarted() override { m_startTime = time(nullptr); }
