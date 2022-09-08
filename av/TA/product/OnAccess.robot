@@ -122,7 +122,6 @@ On Access Log Rotates
 
 On Access Process Parses Policy Config
     Register Cleanup    Exclude On Access Scan Errors
-    Start AV
 
     Start Fake Management If Required
 
