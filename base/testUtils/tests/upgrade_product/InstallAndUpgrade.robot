@@ -256,7 +256,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
-    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
+    Check SulDownloader Log Contains String N Times   Update success  1
 
     Check Current Release Installed Correctly
     ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
@@ -565,7 +565,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
 
     Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
-    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
+    Check SulDownloader Log Contains String N Times   Update success  1
 
     Check Current Release Installed Correctly
     ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
@@ -799,7 +799,7 @@ Check Installed Version In Status Message Is Correctly Reported Based On Version
     Wait Until Keyword Succeeds
     ...   180 secs
     ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   1
+    ...   Check SulDownloader Log Contains String N Times   Update success   1
 
     # Trigger update to make sure everything has settle down for test, i.e. we do not want files to be updated
     # when the actual test update is being performed.
@@ -807,7 +807,7 @@ Check Installed Version In Status Message Is Correctly Reported Based On Version
     Wait Until Keyword Succeeds
     ...   120 secs
     ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   2
+    ...   Check SulDownloader Log Contains String N Times   Update success   2
 
     # Run test to simulate installedVersion content is correctly generated in status file.
     # First modify Base, live response and MTR version ini files
@@ -833,7 +833,7 @@ Check Installed Version In Status Message Is Correctly Reported Based On Version
     Wait Until Keyword Succeeds
     ...   240 secs
     ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success   3
+    ...   Check SulDownloader Log Contains String N Times   Update success   3
 
     # Check content of ALC_status.xml file contsins the expected installedVersion values.
     Check Status File Component Installed Version Is Correct  ServerProtectionLinux-Base-component  1.0.123.123  ${status_file}

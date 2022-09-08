@@ -26,7 +26,6 @@ Default Tags  SULDOWNLOADER
 *** Variables ***
 ${sdds2_primary}                            ${SOPHOS_INSTALL}/base/update/cache/primary
 ${sdds2_primary_warehouse}                  ${SOPHOS_INSTALL}/base/update/cache/primarywarehouse
-${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
 ${sdds3_server_output}                      /tmp/sdds3_server.log
 
 *** Test Cases ***
@@ -111,7 +110,7 @@ Sul Downloader Uses Current Proxy File for SUS Requests
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    Log File  ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
+    Log File    ${SDDS3_OVERRIDE_FILE}
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    5s

@@ -56,6 +56,7 @@ Global Setup Tasks
     Set Global Variable  ${UPDATE_CONFIG}               ${UPDATE_DIR}/var/updatescheduler/update_config.json
     Set Global Variable  ${UPDATECACHE_CERT_PATH}       ${UPDATE_DIR}/updatecachecerts/cache_certificates.crt
     Set Global Variable  ${UPDATE_ROOTCERT_DIR}         ${UPDATE_DIR}/rootcerts
+    Set Global Variable  ${SDDS3_OVERRIDE_FILE}         ${UPDATE_DIR}/var/sdds3_override_settings.ini
     Set Global Variable  ${UPGRADING_MARKER_FILE}       ${SOPHOS_INSTALL}/var/sophosspl/upgrade_marker_file
     Set Global Variable  ${CURRENT_PROXY_FILE}          ${ETC_DIR}/sophosspl/current_proxy
     Set Global Variable  ${SHS_STATUS_FILE}             ${MCS_DIR}/status/SHS_status.xml

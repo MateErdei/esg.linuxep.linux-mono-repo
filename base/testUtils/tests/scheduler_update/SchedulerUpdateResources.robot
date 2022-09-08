@@ -535,3 +535,10 @@ Convert report to success
     ${contents} =  Replace String  ${contents}  "status": "CONNECTIONERROR",  "status": "SUCCESS",
     ${contents} =  Replace String  ${contents}  "errorDescription": "Failed to connect to warehouse",  "errorDescription": "",
     Create File   ${reportPath}  ${contents}
+
+
+Check Update Config Contains Expected useSDDS3 Value
+    [Arguments]   ${expectedValue}
+    ${updateConfigJson} =  Get File  ${UPDATE_CONFIG}
+    Log File   ${UPDATE_CONFIG}
+    Should Contain  ${updateConfigJson}   useSDDS3": ${expectedValue}

@@ -43,7 +43,6 @@ ${fixed_version_policy}                     ${SUPPORT_FILES}/CentralXml/ALC_Fixe
 
 ${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
-${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
 ${sdds3_server_output}                      /tmp/sdds3_server.log
 
 *** Test Cases ***

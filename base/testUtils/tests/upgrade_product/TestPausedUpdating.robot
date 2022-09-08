@@ -83,13 +83,13 @@ Perform Update And Check Expected Version Is Installed
     Wait Until Keyword Succeeds
     ...   240 secs
     ...   10 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   ${updateResult}   ${updateSuccessLogCount}
+    ...   Check SulDownloader Log Contains String N Times   ${updateResult}   ${updateSuccessLogCount}
 
     #  This is to make sure the update has finished in case the previous report check is does not match a string that is produced at end of the update process.
     Wait Until Keyword Succeeds
     ...   240 secs
     ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file   ${updateSuccessLogCount}
+    ...   Check SulDownloader Log Contains String N Times   Generating the report file   ${updateSuccessLogCount}
 
 Perform Failed Update And Check Log for Expected Error
     [Arguments]   ${policyFile}  ${generatingReportLogCount}  ${updateResultOccurenceLogCount}    ${updateResult}=Update success
@@ -106,13 +106,13 @@ Perform Failed Update And Check Log for Expected Error
     Wait Until Keyword Succeeds
     ...   30 secs
     ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   ${updateResult}   ${updateResultOccurenceLogCount}
+    ...   Check SulDownloader Log Contains String N Times   ${updateResult}   ${updateResultOccurenceLogCount}
 
     #  This is to make sure the update has finished in case the previous report check is does not match a string that is produced at end of the update process.
     Wait Until Keyword Succeeds
     ...   240 secs
     ...   2 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Generating the report file   ${generatingReportLogCount}
+    ...   Check SulDownloader Log Contains String N Times   Generating the report file   ${generatingReportLogCount}
 
 Test Teardown And Replace Policy
     Test Teardown

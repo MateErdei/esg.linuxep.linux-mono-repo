@@ -180,7 +180,7 @@ Create Local SDDS3 Override
     ...  URLS = ${URLS}
     ...  CDN_URL = ${CDN_URL}
     ...  USE_SDDS3 = ${USE_SDDS3_OVERRIDE}
-    Create File    ${sdds3_override_file}    content=${override_file_contents}
+    Create File    ${SDDS3_OVERRIDE_FILE}    content=${override_file_contents}
 
 Start Local SDDS3 Server
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true

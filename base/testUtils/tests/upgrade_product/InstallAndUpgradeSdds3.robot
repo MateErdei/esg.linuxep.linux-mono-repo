@@ -47,9 +47,6 @@ ${UpdateSchedulerLog}                       ${SOPHOS_INSTALL}/logs/base/sophossp
 ${Sophos_Scheduled_Query_Pack}              ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 ${status_file}                              ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
-${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
-
-
 ${sdds2_primary}                            ${SOPHOS_INSTALL}/base/update/cache/primary
 ${sdds2_primary_warehouse}                  ${SOPHOS_INSTALL}/base/update/cache/primarywarehouse
 ${sdds3_primary}                            ${SOPHOS_INSTALL}/base/update/cache/sdds3primary

@@ -320,7 +320,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
     Wait for first update
 
-    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  1
+    Check SulDownloader Log Contains String N Times   Update success  1
 
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdrAV999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
@@ -555,7 +555,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut using SDDS2
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
-    ...   Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
 
     Wait Until MDR Installed
 
@@ -607,7 +607,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut using SDDS2
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    ...  Check SulDownloader Log Contains String N Times   Update success  2
 
     # ensure EDR still running after update
     EDR Plugin Is Running

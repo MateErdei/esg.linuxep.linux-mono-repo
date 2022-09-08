@@ -68,6 +68,7 @@ class LogUtils(object):
         self.marked_edr_log = 0
         self.marked_edr_osquery_log = 0
         self.marked_livequery_log = 0
+        self.marked_update_scheduler_logs = 0
 
     def log_contains_in_order(self, log_location, log_name, args, log_finds=True):
         return log_contains_in_order(log_location, log_name, args, log_finds)
@@ -629,6 +630,11 @@ class LogUtils(object):
         contents = get_log_contents(managementagent_log)
         self.marked_managementagent_logs = len(contents)
 
+    def mark_update_scheduler_log(self):
+        update_scheduler_log = self.update_scheduler_log
+        contents = get_log_contents(update_scheduler_log)
+        self.marked_update_scheduler_logs = len(contents)
+
     def check_marked_av_log_contains(self, string_to_contain):
         av_log = self.av_log
         contents = get_log_contents(av_log)
@@ -722,6 +728,16 @@ class LogUtils(object):
             raise AssertionError(
                 f"Marked Management Agent Log Contains: \"{string_to_contain}\" - {num_occurrences} times not the requested {expected_occurrence} times")
 
+    def check_marked_update_scheduler_log_contains(self, string_to_contain):
+        update_scheduler_log = self.update_scheduler_log
+        contents = get_log_contents(update_scheduler_log)
+
+        contents = contents[self.marked_update_scheduler_logs:]
+
+        if string_to_contain not in contents:
+            self.dump_log(update_scheduler_log)
+            raise AssertionError(f"Marked update scheduler log did not contain: {string_to_contain}")
+
     def check_log_contains_string_at_least_n_times(self, log_path, log_name, string_to_contain, expected_occurence):
         contents = get_log_contents(log_path)
 
@@ -774,6 +790,13 @@ class LogUtils(object):
             raise AssertionError("updateschedulerg Log Contains: \"{}\" - {} times not the requested {} times".format(string_to_contain, num_occurences, expected_occurence))
 
 
+    def check_suldownloader_log_contains_string_n_times(self, string_to_contain, expected_occurence):
+        contents = get_log_contents(self.suldownloader_log)
+
+        num_occurences = self.get_number_of_occurences_of_substring_in_string(contents, string_to_contain, use_regex=False)
+        if num_occurences != int(expected_occurence):
+            raise AssertionError(f"suldownloader Log Contains: \"{string_to_contain}\" - {num_occurences} times not the requested {expected_occurence} times")
+
     def check_mcs_envelope_log_contains_regex_string_n_times(self, string_to_contain, expected_occurence):
         self.check_mcs_envelope_log_contains_string_n_times(string_to_contain, expected_occurence, True)
 
@@ -789,6 +812,9 @@ class LogUtils(object):
         updatescheduler_log = self.update_scheduler_log
         self.check_log_contains(string_to_contain, updatescheduler_log, "UpdateScheduler")
         logger.info(updatescheduler_log)
+
+    def check_updatescheduler_log_contains_in_order(self, *args):
+        log_contains_in_order(self.update_scheduler_log, "UpdateScheduler", args)
 
     def check_management_agent_log_contains(self, string_to_contain):
         log = self.managementagent_log()

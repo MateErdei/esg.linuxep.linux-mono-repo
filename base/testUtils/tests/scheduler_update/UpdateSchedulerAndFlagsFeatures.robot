@@ -8,18 +8,27 @@ Default Tags   SULDOWNLOADER  UPDATE_SCHEDULER
 Force Tags  LOAD6
 
 *** Test Cases ***
-SDDS3 Enabled Flag is Set to False by Default When Not Present in Flags Json
+useSDDS3 is False by Default When Flags Policy is Missing
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Check Log Contains    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json does not exist, performing a short wait for Central flags    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
-    Check Update Config Contains Expected useSDDS3 Value    false
+    ...  Check UpdateScheduler Log Contains In Order
+         ...  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json does not exist, performing a short wait for Central flags
+         ...  FLAGS policy has not been sent to the plugin
+         ...  Return from waitForPolicy
+         ...  Processing Flags
+         ...  Flags:
 
+    Check Update Config Contains Expected useSDDS3 Value    false
+    Check UpdateScheduler Log Does Not Contain    Received sdds3.enabled flag value:
+
+useSDDS3 is False by When SDDS3 Enabled Flag Is Not Present in Flags Policy
     Send Mock Flags Policy    {"livequery.network-tables.available": true, "scheduled_queries.next": true}
     Wait Until Keyword Succeeds
-        ...  30 secs
-        ...  1 secs
-        ...  Check Log Contains    Flags: {"livequery.network-tables.available": true, "scheduled_queries.next": true}    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
+    ...  30 secs
+    ...  1 secs
+    ...  Check UpdateScheduler Log Contains    Flags: {"livequery.network-tables.available": true, "scheduled_queries.next": true}
+
     Check Update Config Contains Expected useSDDS3 Value    false
 
 UpdateScheduler Will Not Trigger SULDownloader Until Flags Policy is Read
@@ -27,11 +36,11 @@ UpdateScheduler Will Not Trigger SULDownloader Until Flags Policy is Read
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Check Log Contains    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json does not exist, performing a short wait for Central flags    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
+    ...  Check UpdateScheduler Log Contains    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json does not exist, performing a short wait for Central flags
     Check Update Config Contains Expected useSDDS3 Value    false
 
     Send Mock Flags Policy    {"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": true}
-    Check Log Contains    Received sdds3.enabled flag value: 1    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
+    Check UpdateScheduler Log Contains    Received sdds3.enabled flag value: 1
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  10 secs
@@ -52,7 +61,7 @@ SDDS3 Enabled Flag is Read By UpdateScheduler
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Check Log Contains    Received sdds3.enabled flag value: 0    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
+    ...  Check UpdateScheduler Log Contains    Received sdds3.enabled flag value: 0
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  10 secs
@@ -62,15 +71,8 @@ SDDS3 Enabled Flag is Read By UpdateScheduler
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Check Log Contains    Received sdds3.enabled flag value: 1    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log    updatescheduler.log
+    ...  Check UpdateScheduler Log Contains    Received sdds3.enabled flag value: 1
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  10 secs
     ...  Check Update Config Contains Expected useSDDS3 Value    true
-
-*** Keywords ***
-Check Update Config Contains Expected useSDDS3 Value
-    [Arguments]   ${expectedValue}
-    ${updateConfigJson} =  Get File  ${UPDATE_CONFIG}
-    Log File   ${UPDATE_CONFIG}
-    Should Contain  ${updateConfigJson}   useSDDS3": ${expectedValue}

@@ -1,11 +1,7 @@
 """Keywords for FaultInjection tests """
-import errno
-import filecmp
-import glob
+import json
 import os
-import re
-import shutil
-import subprocess
+
 
 class FaultInjectionTools(object):
 
@@ -30,14 +26,34 @@ class FaultInjectionTools(object):
                     processes_to_look_for[procname] = pid
         not_running = [procname for procname, pid in processes_to_look_for.items() if pid == 0]
         if not_running:
-            raise AssertionError(
-                'Processes Expected to be Running but are not: {}'.format(not_running)
-            )
+            raise AssertionError(f'Processes Expected to be Running but are not: {not_running}')
 
     def ipc_file_should_exists(self, ipc_path):
         if not os.path.exists(ipc_path):
-            raise AssertionError("IPC path does not exist, path: {}".format(ipc_path))
+            raise AssertionError(f"IPC path does not exist, path: {ipc_path}")
 
     def ipc_file_should_not_exists(self, ipc_path):
         if os.path.exists(ipc_path):
-            raise AssertionError("IPC path exists, path: {}".format(ipc_path))
+            raise AssertionError(f"IPC path exists, path: {ipc_path}")
+
+    def remove_key_from_json_file(self, key, json_file):
+        if not os.path.isfile(json_file):
+            raise AssertionError(f"File not found {json_file}")
+        with open(json_file, "r") as f:
+            content = json.load(f)
+            if key in content:
+                content.pop(key)
+
+        with open(json_file, "w") as f:
+            json.dump(content, f)
+
+    def modify_value_in_json_file(self, key, new_value, json_file):
+        if not os.path.isfile(json_file):
+            raise AssertionError(f"File not found {json_file}")
+        with open(json_file, "r") as f:
+            content = json.load(f)
+            if key in content:
+                content[key] = new_value
+
+        with open(json_file, "w") as f:
+            json.dump(content, f)
