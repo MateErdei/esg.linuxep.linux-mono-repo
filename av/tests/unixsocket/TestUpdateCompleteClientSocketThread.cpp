@@ -97,3 +97,40 @@ TEST_F(TestUpdateCompleteClientSocketThread, notificationPassedToClient)
     client.join();
     server.join();
 }
+
+TEST_F(TestUpdateCompleteClientSocketThread, clientConnectsIfStartedFirst)
+{
+    WaitForEvent callbackGuard;
+    auto callback = std::make_shared<StrictMock<MockIUpdateCompleteCallback>>();
+    EXPECT_CALL(*callback, updateComplete()).WillOnce(
+        InvokeWithoutArgs(&callbackGuard, &WaitForEvent::onEventNoArgs));
+
+    // Start client
+    UpdateCompleteClientSocketThread client(m_socketPath, callback);
+    client.start();
+
+    // Start server
+    UpdateCompleteServerSocket server(m_socketPath, 0700);
+    server.start();
+
+    int count = 20;
+    while (count > 0 && (server.clientCount() == 0 || !client.connected()))
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        count--;
+    }
+
+    EXPECT_TRUE(client.connected());
+    EXPECT_EQ(server.clientCount(), 1);
+
+    server.publishUpdateComplete();
+
+    // wait for callback
+    callbackGuard.wait(5*1000);
+
+    client.tryStop();
+    server.tryStop();
+
+    client.join();
+    server.join();
+}
