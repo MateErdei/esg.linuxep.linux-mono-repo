@@ -21,8 +21,8 @@
 using namespace unixsocket;
 
 ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread(datatypes::AutoFd& fd,
-                                                                                 std::shared_ptr<IProcessControlMessageCallback> threatReportCallback)
-        : m_fd(std::move(fd)), m_controlMessageCallback(std::move(threatReportCallback))
+                                                                                 std::shared_ptr<IProcessControlMessageCallback> processControlCallback)
+        : m_fd(std::move(fd)), m_controlMessageCallback(std::move(processControlCallback))
 {
     if (m_fd < 0)
     {

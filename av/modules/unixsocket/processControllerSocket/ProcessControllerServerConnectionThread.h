@@ -4,7 +4,7 @@
 
 #define AUTO_FD_IMPLICIT_INT
 #include "unixsocket/BaseServerConnectionThread.h"
-#include "unixsocket/IProcessControlMessageCallback.h"
+#include "IProcessControlMessageCallback.h"
 
 #include "Common/Threads/AbstractThread.h"
 #include "Common/Threads/NotifyPipe.h"

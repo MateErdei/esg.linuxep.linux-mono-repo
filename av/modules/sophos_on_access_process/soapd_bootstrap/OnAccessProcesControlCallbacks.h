@@ -4,11 +4,11 @@
 
 #include "SoapdBootstrap.h"
 
-#include "unixsocket/IProcessControlMessageCallback.h"
+#include "unixsocket/processControllerSocket/IProcessControlMessageCallback.h"
 
 namespace sophos_on_access_process::OnAccessConfig
 {
-    class OnAccessProcessControlCallback : public IProcessControlMessageCallback
+    class OnAccessProcessControlCallback : public unixsocket::IProcessControlMessageCallback
     {
     public:
         explicit OnAccessProcessControlCallback(sophos_on_access_process::soapd_bootstrap::SoapdBootstrap& soapd)

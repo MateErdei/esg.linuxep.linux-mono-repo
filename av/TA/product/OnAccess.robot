@@ -556,17 +556,17 @@ On Access Process Handles Consecutive Process Control Requests
 
     Start Fake Management If Required
 
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
-
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
-
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
 
     Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
     Wait Until On Access Log Contains With Offset  Policy override is enabled, on-access will be disabled

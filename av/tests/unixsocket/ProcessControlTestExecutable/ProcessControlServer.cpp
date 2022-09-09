@@ -20,7 +20,7 @@
 
 namespace
 {
-    class MockCallback : public IProcessControlMessageCallback
+    class MockCallback : public unixsocket::IProcessControlMessageCallback
     {
     public:
         void processControlMessage(const scan_messages::E_COMMAND_TYPE& /*command*/) override

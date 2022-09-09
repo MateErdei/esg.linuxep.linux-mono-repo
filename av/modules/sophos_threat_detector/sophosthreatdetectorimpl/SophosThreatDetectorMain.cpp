@@ -271,7 +271,7 @@ namespace sspl::sophosthreatdetectorimpl
             ofs.close();
         }
 
-        class ThreatDetectorControlCallbacks : public IProcessControlMessageCallback
+        class ThreatDetectorControlCallbacks : public unixsocket::IProcessControlMessageCallback
         {
         public:
             explicit ThreatDetectorControlCallbacks(SophosThreatDetectorMain& mainInstance)
