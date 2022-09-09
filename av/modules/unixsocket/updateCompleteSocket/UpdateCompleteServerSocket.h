@@ -4,27 +4,34 @@
 
 #include "unixsocket/BaseServerSocket.h"
 
+#include <mutex>
+
 namespace unixsocket::updateCompleteSocket
 {
     class UpdateCompleteServerSocket : public BaseServerSocket
     {
     public:
+        using ConnectionVector = std::vector<datatypes::AutoFd>;
         explicit UpdateCompleteServerSocket(const sophos_filesystem::path& path, mode_t mode);
         /**
          * Publish that we have completed an update
          */
         void publishUpdateComplete();
 
-        [[nodiscard]] int clientCount() const;
+        [[nodiscard]] ConnectionVector::size_type clientCount() const;
 
     protected:
-        void killThreads() override
-        {}
 
         bool handleConnection(datatypes::AutoFd& fd) override;
 
+        /**
+         * No actual threads, but we want to clear connections.
+         */
+        void killThreads() override;
+
     private:
         bool trySendUpdateComplete(datatypes::AutoFd& fd);
-        std::vector<datatypes::AutoFd> m_connections;
+        ConnectionVector m_connections;
+        mutable std::mutex m_connectionsLock;
     };
 }

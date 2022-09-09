@@ -106,14 +106,16 @@ TEST_F(TestUpdateCompleteClientSocketThread, clientConnectsIfStartedFirst)
         InvokeWithoutArgs(&callbackGuard, &WaitForEvent::onEventNoArgs));
 
     // Start client
-    UpdateCompleteClientSocketThread client(m_socketPath, callback);
+    UpdateCompleteClientSocketThread client(m_socketPath, callback, {0, 5000000});
     client.start();
+
+    EXPECT_FALSE(client.connected());
 
     // Start server
     UpdateCompleteServerSocket server(m_socketPath, 0700);
     server.start();
 
-    int count = 20;
+    int count = 50;
     while (count > 0 && (server.clientCount() == 0 || !client.connected()))
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -126,11 +128,54 @@ TEST_F(TestUpdateCompleteClientSocketThread, clientConnectsIfStartedFirst)
     server.publishUpdateComplete();
 
     // wait for callback
-    callbackGuard.wait(5*1000);
+    callbackGuard.wait(2*1000);
 
     client.tryStop();
     server.tryStop();
 
     client.join();
     server.join();
+}
+
+TEST_F(TestUpdateCompleteClientSocketThread, clientReconnects)
+{
+    WaitForEvent callbackGuard;
+    auto callback = std::make_shared<StrictMock<MockIUpdateCompleteCallback>>();
+    EXPECT_CALL(*callback, updateComplete()).WillOnce(
+        InvokeWithoutArgs(&callbackGuard, &WaitForEvent::onEventNoArgs));
+
+    // Start server
+    UpdateCompleteServerSocket server(m_socketPath, 0700);
+    server.start();
+
+    // Start client
+    UpdateCompleteClientSocketThread client(m_socketPath, callback, {0, 5000000});
+    client.start();
+
+    server.tryStop();
+    server.join();
+
+    UpdateCompleteServerSocket server2(m_socketPath, 0700);
+    server2.start();
+
+    int count = 20;
+    while (count > 0 && (server2.clientCount() == 0 || !client.connected()))
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        count--;
+    }
+
+    EXPECT_TRUE(client.connected());
+    EXPECT_EQ(server2.clientCount(), 1);
+
+    server2.publishUpdateComplete();
+
+    // wait for callback
+    callbackGuard.wait(5*1000);
+
+    client.tryStop();
+    server2.tryStop();
+
+    client.join();
+    server2.join();
 }

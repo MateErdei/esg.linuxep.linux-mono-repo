@@ -12,10 +12,12 @@
 
 unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::UpdateCompleteClientSocketThread(
     std::string socket_path,
-    unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::IUpdateCompleteCallbackPtr callback)
+    unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::IUpdateCompleteCallbackPtr callback,
+    struct timespec reconnectInterval)
     :
     BaseClient(std::move(socket_path)),
-    m_callback(std::move(callback))
+    m_callback(std::move(callback)),
+    m_reconnectInterval(reconnectInterval)
 {
 }
 
@@ -28,14 +30,10 @@ void unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::run()
         { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
     };
 
-    const struct timespec RECONNECT_TIMEOUT{1,0};
-    const struct timespec* timeout = &RECONNECT_TIMEOUT;
+    const struct timespec* timeout = &m_reconnectInterval;
 
     // Try to connect if we don't have a valid connection
-    if (!m_socket_fd.valid())
-    {
-        attemptConnect();
-    }
+    connectIfNotConnected();
 
     // Only announce start once we've tried once to connect
     announceThreadStarted();
@@ -43,13 +41,10 @@ void unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::run()
     while (true)
     {
         // Try to connect if we don't have a valid connection
-        if (!m_socket_fd.valid())
-        {
-            attemptConnect();
-        }
+        connectIfNotConnected();
 
         // If we have a connection the wait for events, otherwise timeout for reconnection
-        if (m_socket_fd.valid())
+        if (connected())
         {
             fds[SOCKET].fd = m_socket_fd.get();
             timeout = nullptr;
@@ -57,7 +52,7 @@ void unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::run()
         else
         {
             fds[SOCKET].fd = -1;
-            timeout = &RECONNECT_TIMEOUT;
+            timeout = &m_reconnectInterval;
         }
 
         auto ret = ::ppoll(fds, std::size(fds), timeout, nullptr);
@@ -100,13 +95,21 @@ void unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::run()
             {
                 // Some kind of error - POLLERR, POLLHUP, POLLNVAL
                 m_socket_fd.close();
+                m_connectStatus = -1;
             }
         }
     }
-
 }
 
 bool unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::connected()
 {
-    return m_socket_fd.valid();
+    return m_socket_fd.valid() && m_connectStatus == 0;
+}
+
+void unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::connectIfNotConnected()
+{
+    if (!connected())
+    {
+        m_connectStatus = attemptConnect();
+    }
 }

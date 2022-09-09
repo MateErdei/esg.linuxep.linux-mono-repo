@@ -17,11 +17,17 @@ namespace unixsocket::updateCompleteSocket
     {
     public:
         using IUpdateCompleteCallbackPtr = std::shared_ptr<IUpdateCompleteCallback>;
-        UpdateCompleteClientSocketThread(std::string socket_path, IUpdateCompleteCallbackPtr callback);
+        UpdateCompleteClientSocketThread(std::string socket_path,
+                                         IUpdateCompleteCallbackPtr callback,
+                                         struct timespec reconnectInterval={1,0}
+            );
 
         void run() override;
         bool connected();
     private:
+        void connectIfNotConnected();
+
         IUpdateCompleteCallbackPtr m_callback;
+        struct timespec m_reconnectInterval;
     };
 }

@@ -2,20 +2,24 @@
 
 #include "UpdateCompleteServerSocket.h"
 
-unixsocket::updateCompleteSocket::UpdateCompleteServerSocket::UpdateCompleteServerSocket(
+using namespace unixsocket::updateCompleteSocket;
+
+UpdateCompleteServerSocket::UpdateCompleteServerSocket(
     const sophos_filesystem::path& path,
     mode_t mode) :
     BaseServerSocket(path, mode)
 {
 }
 
-bool unixsocket::updateCompleteSocket::UpdateCompleteServerSocket::handleConnection(datatypes::AutoFd& fd)
+bool UpdateCompleteServerSocket::handleConnection(datatypes::AutoFd& fd)
 {
+    std::scoped_lock lock(m_connectionsLock);
     m_connections.push_back(std::move(fd));
     return false;
 }
-void unixsocket::updateCompleteSocket::UpdateCompleteServerSocket::publishUpdateComplete()
+void UpdateCompleteServerSocket::publishUpdateComplete()
 {
+    std::scoped_lock lock(m_connectionsLock);
     for (auto it = m_connections.begin(); it != m_connections.end() ;)
     {
         // try to send to connection
@@ -31,13 +35,21 @@ void unixsocket::updateCompleteSocket::UpdateCompleteServerSocket::publishUpdate
     }
 }
 
-bool unixsocket::updateCompleteSocket::UpdateCompleteServerSocket::trySendUpdateComplete(datatypes::AutoFd& fd)
+bool UpdateCompleteServerSocket::trySendUpdateComplete(datatypes::AutoFd& fd)
 {
     auto ret = ::write(fd.get(), "1", 1);
     return ret == 1;
 }
 
-int unixsocket::updateCompleteSocket::UpdateCompleteServerSocket::clientCount() const
+void UpdateCompleteServerSocket::killThreads()
 {
+    std::scoped_lock lock(m_connectionsLock);
+    m_connections.clear();
+}
+
+using ConnectionVector = UpdateCompleteServerSocket::ConnectionVector;
+ConnectionVector::size_type UpdateCompleteServerSocket::clientCount() const
+{
+    std::scoped_lock lock(m_connectionsLock);
     return m_connections.size();
 }
