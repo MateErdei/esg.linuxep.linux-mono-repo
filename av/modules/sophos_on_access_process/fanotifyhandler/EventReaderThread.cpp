@@ -222,6 +222,7 @@ void EventReaderThread::run()
         if ((fds[0].revents & POLLIN) != 0)
         {
             LOGDEBUG("Stopping the reading of Fanotify events");
+            m_notifyPipe.notified();
             break;
         }
 
@@ -229,7 +230,7 @@ void EventReaderThread::run()
         {
             if (!handleFanotifyEvent())
             {
-                LOGDEBUG("Stopping the reading of Fanotify events");
+                LOGDEBUG("Failed to handle Fanotify event, stopping the reading of more events");
                 break;
             }
         }

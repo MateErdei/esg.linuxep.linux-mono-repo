@@ -57,6 +57,8 @@ On Access Test Teardown
     Stop On Access
     run teardown functions
 
+    Remove File     ${ONACCESS_FLAG_CONFIG}
+
     Check All Product Logs Do Not Contain Error
     Component Test TearDown
 
@@ -625,7 +627,6 @@ On Access Is Disabled After it Receives Disable Flags
     On-access No Eicar Scan
 
     Dump Log  ${on_access_log_path}
-
 
 On Access Does not Use Policy Setttings If Flags Have Overriden Policy
     Start On Access With Running Threat Detector

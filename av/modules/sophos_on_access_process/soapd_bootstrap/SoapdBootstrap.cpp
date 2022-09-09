@@ -181,7 +181,7 @@ void SoapdBootstrap::ProcessPolicy()
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
     m_onAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
 
-    if(m_onAccessEnabledFlag)
+    if(!m_onAccessEnabledFlag)
     {
         LOGINFO("Policy override is enabled, on-access will be disabled");
         m_eventReaderThread->requestStopIfNotStopped();
