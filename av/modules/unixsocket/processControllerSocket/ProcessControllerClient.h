@@ -18,7 +18,6 @@ namespace unixsocket
     {
     public:
         explicit ProcessControllerClientSocket(std::string  socket_path, const struct timespec& sleepTime={1,0});
-        ~ProcessControllerClientSocket() = default;
 
         void sendProcessControlRequest(const scan_messages::ProcessControlSerialiser& processControl);
     };

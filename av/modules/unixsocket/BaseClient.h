@@ -13,7 +13,7 @@ namespace unixsocket
     public:
         BaseClient& operator=(const BaseClient&) = delete;
         BaseClient(const BaseClient&) = delete;
-        explicit BaseClient(std::string  socket_path, const struct timespec& sleepTime={1,0});
+        explicit BaseClient(std::string socket_path, const struct timespec& sleepTime={1,0});
         virtual ~BaseClient() = default;
 
     protected:

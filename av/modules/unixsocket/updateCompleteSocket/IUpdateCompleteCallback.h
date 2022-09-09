@@ -8,6 +8,9 @@ namespace unixsocket::updateCompleteSocket
     {
     public:
         virtual ~IUpdateCompleteCallback() = default;
-        virtual updateComplete() = 0;
+        /**
+         * Called when Sophos Threat Detector has completed a SUSI update
+         */
+        virtual void updateComplete() = 0;
     };
 }
