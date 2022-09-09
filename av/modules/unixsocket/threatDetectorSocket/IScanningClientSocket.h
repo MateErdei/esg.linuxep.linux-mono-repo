@@ -13,6 +13,9 @@ namespace unixsocket
     class IScanningClientSocket
     {
     public:
+        IScanningClientSocket& operator=(const IScanningClientSocket&) = delete;
+        IScanningClientSocket(const IScanningClientSocket&) = delete;
+        IScanningClientSocket() = default;
         virtual ~IScanningClientSocket() = default;
 
         virtual int connect() = 0;

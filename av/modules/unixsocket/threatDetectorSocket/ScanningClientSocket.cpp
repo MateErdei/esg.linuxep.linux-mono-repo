@@ -19,21 +19,13 @@
 namespace unixsocket
 {
     ScanningClientSocket::ScanningClientSocket(std::string socket_path) :
-        m_socketPath(std::move(socket_path))
+        BaseClient(std::move(socket_path))
     {
     }
 
     int ScanningClientSocket::connect()
     {
-        m_socket_fd.reset(socket(AF_UNIX, SOCK_STREAM, 0));
-        assert(m_socket_fd >= 0);
-
-        struct sockaddr_un addr = {};
-        addr.sun_family = AF_UNIX;
-        ::strncpy(addr.sun_path, m_socketPath.c_str(), sizeof(addr.sun_path));
-        addr.sun_path[sizeof(addr.sun_path) - 1] = '\0';
-
-        return ::connect(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
+        return attemptConnect();
     }
 
     bool ScanningClientSocket::sendRequest(const scan_messages::ClientScanRequestPtr request)
