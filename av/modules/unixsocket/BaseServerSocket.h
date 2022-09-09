@@ -63,9 +63,8 @@ namespace unixsocket
          * @param fd
          * @return True if we should terminate.
          */
-
         virtual bool handleConnection(datatypes::AutoFd& fd) = 0;
-        virtual void killThreads() = 0;
+
         virtual void logMaxConnectionsError() = 0;
         void logError(const std::string&);
         void logDebug(const std::string&);
@@ -73,6 +72,11 @@ namespace unixsocket
         datatypes::AutoFd m_socket_fd;
         static const int m_max_threads = MAX_CLIENT_CONNECTIONS;
         std::string m_socketName = "Base Server Socket";
+
+        /**
+         * Kill any extra threads started to handle incoming connections
+         */
+        virtual void killThreads() = 0;
     };
 
 
@@ -127,7 +131,7 @@ namespace unixsocket
             return false;
         }
 
-        void killThreads() override
+        virtual void killThreads()
         {
             for (auto& thread : m_threadVector)
             {

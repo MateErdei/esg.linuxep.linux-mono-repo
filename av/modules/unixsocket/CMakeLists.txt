@@ -1,6 +1,8 @@
 add_library(unixsocket SHARED
         Logger.cpp
         Logger.h
+        BaseClient.cpp
+        BaseClient.h
         BaseServerConnectionThread.cpp
         BaseServerConnectionThread.h
         BaseServerSocket.cpp
@@ -29,7 +31,13 @@ add_library(unixsocket SHARED
         threatReporterSocket/ThreatReporterServerConnectionThread.cpp
         threatReporterSocket/ThreatReporterServerConnectionThread.h
         threatReporterSocket/ThreatReporterClient.cpp
-        threatReporterSocket/ThreatReporterClient.h)
+        threatReporterSocket/ThreatReporterClient.h
+        updateCompleteSocket/IUpdateCompleteCallback.h
+        updateCompleteSocket/UpdateCompleteClientSocketThread.cpp
+        updateCompleteSocket/UpdateCompleteClientSocketThread.h
+        updateCompleteSocket/UpdateCompleteServerSocket.cpp
+        updateCompleteSocket/UpdateCompleteServerSocket.h
+        )
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
