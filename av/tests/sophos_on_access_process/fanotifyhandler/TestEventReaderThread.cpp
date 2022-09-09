@@ -64,7 +64,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorIfFanotifySendsNoEvent)
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("no event or error: 0"));
-    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_TRUE(waitForLog("Failed to handle Fanotify event, stopping the reading of more events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
 
@@ -279,7 +279,7 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
     std::stringstream logMsg;
     logMsg << "fanotify wrong protocol version " << metadata.vers;
     EXPECT_TRUE(waitForLog(logMsg.str()));
-    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_TRUE(waitForLog("Failed to handle Fanotify event, stopping the reading of more events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
 
