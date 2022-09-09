@@ -558,22 +558,20 @@ On Access Process Handles Consecutive Process Control Requests
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
+    On Access Log Does Not Contain  Using on-access settings from policy
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until On Access Log Contains With Offset  No policy override, following policy settings
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"false"
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
-
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
     Wait Until On Access Log Contains With Offset  Policy override is enabled, on-access will be disabled
-    Wait Until On Access Log Contains With Offset  No policy override, following policy settings
-    Wait Until On Access Log Contains With Offset  Policy override is enabled, on-access will be disabled
-    On Access Log Does Not Contain  Using on-access settings from policy
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"false"
 
     On-access No Eicar Scan
 
