@@ -1,6 +1,14 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "UpdateCompleteServerSocket.h"
+
+unixsocket::updateCompleteSocket::UpdateCompleteServerSocket::UpdateCompleteServerSocket(
+    const sophos_filesystem::path& path,
+    mode_t mode) :
+    BaseServerSocket(path, mode)
+{
+}
+
 bool unixsocket::updateCompleteSocket::UpdateCompleteServerSocket::handleConnection(datatypes::AutoFd& fd)
 {
     m_connections.push_back(std::move(fd));
@@ -27,4 +35,9 @@ bool unixsocket::updateCompleteSocket::UpdateCompleteServerSocket::trySendUpdate
 {
     auto ret = ::write(fd.get(), "1", 1);
     return ret == 1;
+}
+
+int unixsocket::updateCompleteSocket::UpdateCompleteServerSocket::clientCount() const
+{
+    return m_connections.size();
 }

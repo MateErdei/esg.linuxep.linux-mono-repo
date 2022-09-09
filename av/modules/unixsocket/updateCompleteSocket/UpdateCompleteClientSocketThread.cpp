@@ -2,7 +2,14 @@
 
 #include "UpdateCompleteClientSocketThread.h"
 
+#include "../Logger.h"
+
+#include "common/SaferStrerror.h"
+
 #include <utility>
+
+#include <poll.h>
+
 unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::UpdateCompleteClientSocketThread(
     std::string socket_path,
     unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::IUpdateCompleteCallbackPtr callback)
@@ -14,5 +21,92 @@ unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::UpdateComple
 
 void unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::run()
 {
+    const int SOCKET = 0;
+
+    struct pollfd fds[] {
+        { .fd = -1, .events = POLLIN, .revents = 0 }, // socket FD
+        { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
+    };
+
+    const struct timespec RECONNECT_TIMEOUT{1,0};
+    const struct timespec* timeout = &RECONNECT_TIMEOUT;
+
+    // Try to connect if we don't have a valid connection
+    if (!m_socket_fd.valid())
+    {
+        attemptConnect();
+    }
+
+    // Only announce start once we've tried once to connect
     announceThreadStarted();
+
+    while (true)
+    {
+        // Try to connect if we don't have a valid connection
+        if (!m_socket_fd.valid())
+        {
+            attemptConnect();
+        }
+
+        // If we have a connection the wait for events, otherwise timeout for reconnection
+        if (m_socket_fd.valid())
+        {
+            fds[SOCKET].fd = m_socket_fd.get();
+            timeout = nullptr;
+        }
+        else
+        {
+            fds[SOCKET].fd = -1;
+            timeout = &RECONNECT_TIMEOUT;
+        }
+
+        auto ret = ::ppoll(fds, std::size(fds), timeout, nullptr);
+
+        if (ret < 0)
+        {
+            if (errno == EINTR)
+            {
+                continue;
+            }
+
+            LOGFATAL("Error from ppoll: " << common::safer_strerror(errno));
+            return;
+        }
+
+        else if (ret > 0)
+        {
+            if ((fds[1].revents & POLLIN) != 0)
+            {
+                while (m_notifyPipe.notified())
+                {
+                }
+                return;
+            }
+
+            if ((fds[SOCKET].revents & POLLIN) != 0)
+            {
+                char buffer[1];
+                auto charsRead = ::read(m_socket_fd.get(), buffer, 1);
+                if (charsRead == 1 && buffer[0] == '1')
+                {
+                    m_callback->updateComplete();
+                }
+                else
+                {
+                    m_socket_fd.close();
+                }
+            }
+            else if (fds[SOCKET].revents > 0)
+            {
+                // Some kind of error - POLLERR, POLLHUP, POLLNVAL
+                m_socket_fd.close();
+            }
+        }
+    }
+
+}
+
+bool unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::connected()
+{
+    return m_socket_fd.valid();
 }

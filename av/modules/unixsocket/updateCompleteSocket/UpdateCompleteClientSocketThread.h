@@ -20,6 +20,7 @@ namespace unixsocket::updateCompleteSocket
         UpdateCompleteClientSocketThread(std::string socket_path, IUpdateCompleteCallbackPtr callback);
 
         void run() override;
+        bool connected();
     private:
         IUpdateCompleteCallbackPtr m_callback;
     };

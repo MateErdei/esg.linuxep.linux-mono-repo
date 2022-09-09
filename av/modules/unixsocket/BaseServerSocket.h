@@ -37,7 +37,6 @@ namespace unixsocket
          * Constructor used by implementation classes
          * @param path
          * @param mode
-         * @param monitorable Optional object to monitor and trigger in pselect
          */
         explicit BaseServerSocket(const sophos_filesystem::path& path, mode_t mode);
 
@@ -65,7 +64,6 @@ namespace unixsocket
          */
         virtual bool handleConnection(datatypes::AutoFd& fd) = 0;
 
-        virtual void logMaxConnectionsError() = 0;
         void logError(const std::string&);
         void logDebug(const std::string&);
 
@@ -91,6 +89,7 @@ namespace unixsocket
         using TPtr = std::unique_ptr<T>;
 
         virtual TPtr makeThread(datatypes::AutoFd& fd) = 0;
+        virtual void logMaxConnectionsError() = 0;
 
         bool handleConnection(datatypes::AutoFd& fd) override
         {
