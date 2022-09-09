@@ -10,6 +10,11 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+unixsocket::BaseClient::BaseClient(std::string socket_path, const timespec& sleepTime)
+    : m_socketPath(std::move(socket_path)),
+      m_sleepTime(sleepTime)
+{}
+
 int unixsocket::BaseClient::attemptConnect()
 {
     m_socket_fd.reset(socket(AF_UNIX, SOCK_STREAM, 0));
