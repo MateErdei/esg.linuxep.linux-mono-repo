@@ -226,7 +226,7 @@ On Access Monitors Addition And Removal Of Mount Points
     Mark On Access Log
     Start On Access
     Wait Until On Access Log Contains With Offset  Including mount point:
-    On Access Does Not Log Contain With Offset  Including mount point: ${where}
+    On Access Log Does Not Contain With Offset  Including mount point: ${where}
     Sleep  1s
     ${numMountsPreMount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
     Log  Number of Mount Points before mount: ${numMountsPreMount}
