@@ -246,7 +246,7 @@ On Access Monitors Addition And Removal Of Mount Points
     Unmount Image  ${where}
 
     Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
-    On Access Does Not Log Contain With Offset  Including mount point: ${where}
+    On Access Log Does Not Contain With Offset  Including mount point: ${where}
     Sleep  1s
     ${totalNumMountsPostUmount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
     Log  Number of Mount Points after umount: ${totalNumMountsPostUmount}
