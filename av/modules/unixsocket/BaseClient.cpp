@@ -31,6 +31,11 @@ int unixsocket::BaseClient::attemptConnect()
 
 void unixsocket::BaseClient::connectWithRetries()
 {
+    connectWithRetries(m_socketPath);
+}
+
+void unixsocket::BaseClient::connectWithRetries(const std::string& socketName)
+{
     const int MAX_CONN_RETRIES = 10;
 
     int count = 0;
@@ -44,11 +49,10 @@ void unixsocket::BaseClient::connectWithRetries()
             return;
         }
 
-        LOGDEBUG("Failed to connect to " << m_socketPath << " - retrying after sleep");
+        LOGDEBUG("Failed to connect to " << socketName << " - retrying after sleep");
         nanosleep(&m_sleepTime, nullptr);
 
         m_connectStatus = attemptConnect();
     }
 
-    assert(m_connectStatus == 0);
-}
+    assert(m_connectStatus == 0);}

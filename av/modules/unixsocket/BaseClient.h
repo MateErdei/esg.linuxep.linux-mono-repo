@@ -19,6 +19,7 @@ namespace unixsocket
     protected:
         int attemptConnect();
         void connectWithRetries();
+        void connectWithRetries(const std::string& socketName);
         int m_connectStatus = -1;
         datatypes::AutoFd m_socket_fd;
         std::string m_socketPath;
