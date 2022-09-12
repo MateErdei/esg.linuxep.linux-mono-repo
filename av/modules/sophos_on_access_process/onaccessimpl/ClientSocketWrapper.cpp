@@ -2,32 +2,104 @@
 
 #include "ClientSocketWrapper.h"
 #include "Logger.h"
+#include "ReconnectSettings.h"
 
+#include "common/AbortScanException.h"
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
+
+#include <thread>
 
 #include <poll.h>
 
 namespace sophos_on_access_process::onaccessimpl
 {
-    ClientSocketWrapper::ClientSocketWrapper(unixsocket::IScanningClientSocket& socket, Common::Threads::NotifyPipe& notifyPipe)
-        : m_socket(socket),
-        m_notifyPipe(notifyPipe)
+    ClientSocketWrapper::ClientSocketWrapper(
+        unixsocket::IScanningClientSocket& socket,
+        Common::Threads::NotifyPipe& notifyPipe,
+        std::chrono::seconds sleepTime)
+        : m_socket(socket)
+        , m_notifyPipe(notifyPipe)
+        , m_sleepTime(sleepTime)
     {
         ClientSocketWrapper::connect();
     }
 
     void ClientSocketWrapper::connect()
     {
+        int count = 0;
         int ret = m_socket.connect();
 
-        if (ret != 0)
+        while (ret != 0)
         {
-            throw ClientSocketException("Connect failed");
+            if (++count >= MAX_CONN_RETRIES)
+            {
+                LOGDEBUG("Reached total maximum number of connection attempts.");
+                return;
+            }
+
+            LOGDEBUG("Failed to connect to Sophos Threat Detector - retrying after sleep");
+            std::this_thread::sleep_for(m_sleepTime);
+
+            ret = m_socket.connect();
         }
+
+        m_reconnectAttempts = 0;
     }
 
-    scan_messages::ScanResponse ClientSocketWrapper::scan(scan_messages::ClientScanRequestPtr request)
+    scan_messages::ScanResponse ClientSocketWrapper::scan(const scan_messages::ClientScanRequestPtr request)
+    {
+        bool retryErrorLogged = false;
+        for (int attempt = 0; attempt < MAX_SCAN_RETRIES; attempt++)
+        {
+            if (m_reconnectAttempts >= TOTAL_MAX_RECONNECTS)
+            {
+                throw common::AbortScanException("Reached total maximum number of reconnection attempts. Aborting scan.");
+            }
+
+            checkIfScanAborted();
+
+            try
+            {
+                scan_messages::ScanResponse response = attemptScan(request);
+                if (m_reconnectAttempts > 0)
+                {
+                    checkIfScanAborted();
+                    LOGINFO("Reconnected to Sophos Threat Detector after " << m_reconnectAttempts << " attempts");
+                    m_reconnectAttempts = 0;
+                }
+                return response;
+            }
+            catch (const ClientSocketException& e)
+            {
+                if (!retryErrorLogged) // NOLINT
+                {
+                    checkIfScanAborted();
+                    LOGWARN(e.what() << " - retrying after sleep");
+                }
+                std::this_thread::sleep_for(m_sleepTime);
+                if (!m_socket.connect())
+                {
+                    if (!retryErrorLogged)
+                    {
+                        LOGWARN("Failed to reconnect to Sophos Threat Detector - retrying...");
+                    }
+                }
+                retryErrorLogged = true;
+                m_reconnectAttempts++;
+            }
+        }
+
+        scan_messages::ScanResponse response;
+        std::stringstream errorMsg;
+        std::string escapedPath(common::escapePathForLogging(request->getPath(), true));
+
+        errorMsg << "Failed to scan file: " << escapedPath << " after " << MAX_SCAN_RETRIES << " retries";
+        response.setErrorMsg(errorMsg.str());
+        return response;
+    }
+
+    scan_messages::ScanResponse ClientSocketWrapper::attemptScan(scan_messages::ClientScanRequestPtr request)
     {
         if (!m_socket.sendRequest(request))
         {

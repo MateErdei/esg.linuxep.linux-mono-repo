@@ -659,3 +659,37 @@ On Access Does not Use Policy Setttings If Flags Have Overriden Policy
     On-access No Eicar Scan
 
     Dump Log  ${on_access_log_path}
+
+On Access Process Reconnects To Threat Detector
+    Start On Access With Running Threat Detector
+    Enable OA Scanning
+
+    Mark On Access Log
+    ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
+    ${script} =  Set Variable  ${BASH_SCRIPTS_PATH}/cleanFileWriter.sh
+    ${HANDLE} =  Start Process  bash  ${script}  stderr=STDOUT
+    Register Cleanup  Terminate Process  ${HANDLE}
+    Register Cleanup  Remove Directory  /tmp_test/clean_file_writer/  recursive=True
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
+    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+    Mark On Access Log
+    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
+    #Depending on whether a scan is being processed or it is being requested one of these 2 errors should appear
+    File Log Contains One of   ${ON_ACCESS_LOG_PATH}  0  Failed to receive scan response  Failed to send scan request
+
+    On Access Log Does Not Contain With Offset  Failed to scan ${filepath}
+
+On Access Scan Times Out When Unable To Connect To Threat Detector
+    Start On Access
+    Enable OA Scanning
+
+    Mark On Access Log
+    ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
+    Create File  ${filepath}  clean
+    Register Cleanup  Remove File  ${filepath}
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
+    Wait Until On Access Log Contains With Offset  Failed to connect to Sophos Threat Detector - retrying after sleep
+    Wait Until On Access Log Contains With Offset  Reached total maximum number of connection attempts.  timeout=30
