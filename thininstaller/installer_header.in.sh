@@ -524,6 +524,18 @@ then
     fi
 fi
 
+# Read Products from credentials file if the customer has not used the installer option.
+INSTALLER_PRODUCTS=$(grep 'PRODUCTS=' credentials.txt | sed 's/PRODUCTS=//')
+if [ -n "$INSTALLER_PRODUCTS" ] && [ -z "$PRODUCT_ARGUMENTS" ]
+then
+    PRODUCT_ARGUMENTS="$INSTALLER_PRODUCTS"
+    CMCSROUTER_PRODUCT_ARGUMENTS=$(grep 'PRODUCTS=' credentials.txt)
+    if [ -n "$DEBUG_THIN_INSTALLER" ]
+    then
+        echo "List of products to install: $PRODUCT_ARGUMENTS"
+    fi
+fi
+
 REGISTER_CENTRAL="${SOPHOS_INSTALL}/base/bin/registerCentral"
 
 # Check if the sophos-spl service is installed, if it is find the install path.
