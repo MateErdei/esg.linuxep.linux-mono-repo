@@ -17,7 +17,7 @@ namespace sophos_on_access_process::onaccessimpl
     ClientSocketWrapper::ClientSocketWrapper(
         unixsocket::IScanningClientSocket& socket,
         Common::Threads::NotifyPipe& notifyPipe,
-        std::chrono::seconds sleepTime)
+        std::chrono::milliseconds sleepTime)
         : m_socket(socket)
         , m_notifyPipe(notifyPipe)
         , m_sleepTime(sleepTime)

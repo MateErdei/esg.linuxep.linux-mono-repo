@@ -23,7 +23,7 @@ namespace sophos_on_access_process::onaccessimpl
         ClientSocketWrapper(ClientSocketWrapper&&) = default;
         explicit ClientSocketWrapper(unixsocket::IScanningClientSocket& socket,
                                      Common::Threads::NotifyPipe& notifyPipe,
-                                     std::chrono::seconds sleepTime=1s);
+                                     std::chrono::milliseconds sleepTime=1000ms);
         ~ClientSocketWrapper() override = default;
         ClientSocketWrapper& operator=(const ClientSocketWrapper&) = delete;
 
@@ -38,6 +38,6 @@ namespace sophos_on_access_process::onaccessimpl
         unixsocket::IScanningClientSocket& m_socket;
         Common::Threads::NotifyPipe& m_notifyPipe;
         int m_reconnectAttempts;
-        std::chrono::seconds m_sleepTime;
+        std::chrono::milliseconds m_sleepTime;
     };
 }

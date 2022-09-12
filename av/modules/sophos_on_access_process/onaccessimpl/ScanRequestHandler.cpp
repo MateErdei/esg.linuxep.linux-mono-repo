@@ -47,14 +47,16 @@ std::string ScanRequestHandler::failedToOpen(const int error)
     }
 }
 
-void ScanRequestHandler::scan(scan_messages::ClientScanRequestPtr scanRequest)
+void ScanRequestHandler::scan(
+    scan_messages::ClientScanRequestPtr scanRequest,
+    std::chrono::milliseconds sleepTime)
 {
     std::string fileToScanPath = scanRequest->getPath();
 
     ScanResponse response;
     try
     {
-        ClientSocketWrapper socketWrapper(*m_socket, m_notifyPipe);
+        ClientSocketWrapper socketWrapper(*m_socket, m_notifyPipe, sleepTime);
         response = socketWrapper.scan(scanRequest);
     }
     catch (const ScanInterruptedException& e)

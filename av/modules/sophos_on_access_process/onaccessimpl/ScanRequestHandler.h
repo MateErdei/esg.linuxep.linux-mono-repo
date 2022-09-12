@@ -19,7 +19,8 @@ namespace sophos_on_access_process::onaccessimpl
             std::shared_ptr<unixsocket::IScanningClientSocket> socket);
 
         void run();
-        void scan(scan_messages::ClientScanRequestPtr scanRequest);
+        void scan(scan_messages::ClientScanRequestPtr scanRequest,
+                  std::chrono::milliseconds sleepTime=1ms);
 
     private:
         std::string failedToOpen(const int error);

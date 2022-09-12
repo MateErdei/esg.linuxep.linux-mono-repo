@@ -3,6 +3,7 @@
 #include "OnAccessImplMemoryAppenderUsingTests.h"
 
 #include "common/ThreadRunner.h"
+#include "sophos_on_access_process/onaccessimpl/ReconnectSettings.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 #include "common/RecordingMockSocket.h"
 
@@ -53,10 +54,10 @@ TEST_F(TestScanRequestHandler, scan_error)
     auto socket = std::make_shared<ExceptionThrowingTestSocket>(false);
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
         nullptr, socket);
-    scanHandler->scan(scanRequest);
+    scanHandler->scan(scanRequest, 1ms);
 
     std::stringstream logMsg;
-    logMsg << "Failed to scan " << filePath << " : Failed to send scan request";
+    logMsg << "Failed to scan file: " << filePath << " after " << MAX_SCAN_RETRIES << " retries";
     EXPECT_TRUE(appenderContains(logMsg.str()));
 }
 
