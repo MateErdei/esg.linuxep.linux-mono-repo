@@ -1,6 +1,6 @@
 *** Settings ***
 Suite Setup  Setup Update Tests
-Test Setup      Setup Legacy Thininstaller Test Without Local Cloud Server
+Test Setup      Setup Legacy Thininstaller Test
 Test Teardown   Teardown
 
 Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
@@ -27,7 +27,7 @@ Default Tags  THIN_INSTALLER
 
 *** Keywords ***
 
-Setup Legacy Thininstaller Test Without Local Cloud Server
+Setup Legacy Thininstaller Test
     Start Local Cloud Server
     Require Uninstalled
     Set Environment Variable  CORRUPTINSTALL  no
