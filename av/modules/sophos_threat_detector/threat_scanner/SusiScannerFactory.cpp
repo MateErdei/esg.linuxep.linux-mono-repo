@@ -1,15 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "SusiScannerFactory.h"
 
-#include <utility>
-
+#include "Logger.h"
 #include "SusiScanner.h"
 #include "SusiWrapperFactory.h"
+
+#include <utility>
 
 namespace threat_scanner
 {
@@ -47,7 +44,12 @@ namespace threat_scanner
         bool updated = m_wrapperFactory->update();
         if (updated && m_updateCompleteCallback)
         {
+            LOGDEBUG("Notify clients that the update has completed");
             m_updateCompleteCallback->updateComplete();
+        }
+        else
+        {
+            LOGWARN("Update failed");
         }
         return updated;
     }

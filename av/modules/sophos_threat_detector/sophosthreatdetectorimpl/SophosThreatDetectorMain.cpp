@@ -423,6 +423,7 @@ namespace sspl::sophosthreatdetectorimpl
             updateCompletePath,
             0700
             );
+        m_updateCompleteNotifier->start();
 
         m_scannerFactory =
             std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer, m_updateCompleteNotifier);
@@ -524,6 +525,7 @@ namespace sspl::sophosthreatdetectorimpl
         }
 
         m_scannerFactory->shutdown();
+        m_updateCompleteNotifier->tryStop();
 
         LOGINFO("Sophos Threat Detector is exiting with return code " << returnCode);
         return returnCode;

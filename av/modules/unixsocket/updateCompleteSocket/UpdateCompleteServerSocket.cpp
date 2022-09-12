@@ -2,6 +2,8 @@
 
 #include "UpdateCompleteServerSocket.h"
 
+#include "../Logger.h"
+
 using namespace unixsocket::updateCompleteSocket;
 
 UpdateCompleteServerSocket::UpdateCompleteServerSocket(
@@ -14,6 +16,7 @@ UpdateCompleteServerSocket::UpdateCompleteServerSocket(
 bool UpdateCompleteServerSocket::handleConnection(datatypes::AutoFd& fd)
 {
     std::scoped_lock lock(m_connectionsLock);
+    LOGINFO("New connection on "<<fd.get() << " to be notified about SUSI updates");
     m_connections.push_back(std::move(fd));
     return false;
 }
@@ -25,11 +28,13 @@ void UpdateCompleteServerSocket::publishUpdateComplete()
         // try to send to connection
         if (trySendUpdateComplete(*it))
         {
+            LOGINFO("Send SUSI updated to " << (*it).get());
             ++it;
         }
         else
         {
             // Connection broken
+            LOGINFO("Connection " << (*it).get() << " has disconnected");
             it = m_connections.erase(it);
         }
     }
