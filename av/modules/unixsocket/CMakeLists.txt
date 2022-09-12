@@ -8,11 +8,11 @@ add_library(unixsocket SHARED
         BaseServerSocket.cpp
         BaseServerSocket.h
         IMessageCallback.h
-        processControllerSocket/IProcessControlMessageCallback.h
         SocketUtils.cpp
         SocketUtils.h
         SocketUtilsImpl.cpp
         SocketUtilsImpl.h
+        processControllerSocket/IProcessControlMessageCallback.h
         processControllerSocket/ProcessControllerServerSocket.cpp
         processControllerSocket/ProcessControllerServerSocket.h
         processControllerSocket/ProcessControllerServerConnectionThread.cpp
@@ -32,6 +32,7 @@ add_library(unixsocket SHARED
         threatReporterSocket/ThreatReporterServerConnectionThread.h
         threatReporterSocket/ThreatReporterClient.cpp
         threatReporterSocket/ThreatReporterClient.h
+        ../sophos_threat_detector/threat_scanner/IUpdateCompleteCallback.h
         updateCompleteSocket/IUpdateCompleteCallback.h
         updateCompleteSocket/UpdateCompleteClientSocketThread.cpp
         updateCompleteSocket/UpdateCompleteClientSocketThread.h

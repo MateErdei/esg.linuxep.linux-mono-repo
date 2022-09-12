@@ -403,8 +403,10 @@ namespace sspl::sophosthreatdetectorimpl
         }
 
         fs::path scanningSocketPath = "/var/scanning_socket";
+        fs::path updateCompletePath = "/var/update_complete_socket";
 #else
         fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
+        fs::path updateCompletePath = chrootPath / "var/update_complete_socket";
 #endif
 
         remove_shutdown_notice_file(pluginInstall);
@@ -417,8 +419,13 @@ namespace sspl::sophosthreatdetectorimpl
         threat_scanner::IScanNotificationSharedPtr shutdownTimer =
             std::make_shared<ShutdownTimer>(threat_detector_config(pluginInstall));
 
+        m_updateCompleteNotifier = std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(
+            updateCompletePath,
+            0700
+            );
+
         m_scannerFactory =
-            std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer);
+            std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer, m_updateCompleteNotifier);
 
         if (sigTermMonitor.triggered())
         {

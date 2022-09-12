@@ -8,6 +8,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Reloader.h"
 
+#include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
+#include "unixsocket/updateCompleteSocket/IUpdateCompleteCallback.h"
+
 namespace sspl::sophosthreatdetectorimpl
 {
     class SophosThreatDetectorMain
@@ -26,5 +29,6 @@ namespace sspl::sophosthreatdetectorimpl
 
         std::shared_ptr<Reloader> m_reloader;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
+        std::shared_ptr<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket> m_updateCompleteNotifier;
     };
 }

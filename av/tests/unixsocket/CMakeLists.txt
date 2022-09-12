@@ -85,6 +85,13 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             unixsocket)
     target_include_directories(threatReporterClientExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
     target_include_directories(threatReporterClientExecutable SYSTEM PRIVATE ${BOOSTPATH})
+
+
+    add_executable(UpdateCompleteClient
+            ../unixsocket/UpdateCompleteTestExecutable/UpdateCompleteClient.cpp)
+    target_link_libraries(UpdateCompleteClient  PUBLIC
+            unixsocket)
+
 endif (NOT DEFINED ENV{USE_LIBFUZZER})
 
 add_executable(ProcessControlServerExecutable

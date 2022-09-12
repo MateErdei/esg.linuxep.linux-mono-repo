@@ -184,7 +184,7 @@ static int scan(const char* filename, const char* chroot)
     auto shutdownTimer = std::make_shared<FakeShutdownTimer>();
 
     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
-        = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer);
+        = std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer, nullptr);
 
     auto scanner = scannerFactory->createScanner(true, true);
 

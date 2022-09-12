@@ -21,26 +21,35 @@ namespace threat_scanner
     SusiScannerFactory::SusiScannerFactory(
         ISusiWrapperFactorySharedPtr wrapperFactory,
         IThreatReporterSharedPtr reporter,
-        IScanNotificationSharedPtr shutdownTimer)
+        IScanNotificationSharedPtr shutdownTimer,
+        IUpdateCompleteCallbackPtr updateCompleteCallback)
         : m_wrapperFactory(std::move(wrapperFactory))
         , m_reporter(std::move(reporter))
         , m_shutdownTimer(std::move(shutdownTimer))
+        , m_updateCompleteCallback(std::move(updateCompleteCallback))
     {
     }
 
     SusiScannerFactory::SusiScannerFactory(
         IThreatReporterSharedPtr reporter,
-        IScanNotificationSharedPtr shutdownTimer)
+        IScanNotificationSharedPtr shutdownTimer,
+        IUpdateCompleteCallbackPtr updateCompleteCallback)
         : SusiScannerFactory(
             std::make_shared<SusiWrapperFactory>(),
             std::move(reporter),
-            std::move(shutdownTimer))
+            std::move(shutdownTimer),
+            std::move(updateCompleteCallback))
     {
     }
 
     bool SusiScannerFactory::update()
     {
-        return m_wrapperFactory->update();
+        bool updated = m_wrapperFactory->update();
+        if (updated && m_updateCompleteCallback)
+        {
+            m_updateCompleteCallback->updateComplete();
+        }
+        return updated;
     }
 
     bool SusiScannerFactory::reload()

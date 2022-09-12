@@ -4,11 +4,14 @@
 
 #include "unixsocket/BaseServerSocket.h"
 
+#include "sophos_threat_detector/threat_scanner/IUpdateCompleteCallback.h"
+
 #include <mutex>
 
 namespace unixsocket::updateCompleteSocket
 {
-    class UpdateCompleteServerSocket : public BaseServerSocket
+    class UpdateCompleteServerSocket : public BaseServerSocket,
+                                       public threat_scanner::IUpdateCompleteCallback
     {
     public:
         using ConnectionVector = std::vector<datatypes::AutoFd>;
@@ -16,6 +19,7 @@ namespace unixsocket::updateCompleteSocket
         /**
          * Publish that we have completed an update
          */
+        void updateComplete() override;
         void publishUpdateComplete();
 
         [[nodiscard]] ConnectionVector::size_type clientCount() const;

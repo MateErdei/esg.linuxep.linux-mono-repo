@@ -53,3 +53,8 @@ ConnectionVector::size_type UpdateCompleteServerSocket::clientCount() const
     std::scoped_lock lock(m_connectionsLock);
     return m_connections.size();
 }
+
+void UpdateCompleteServerSocket::updateComplete()
+{
+    publishUpdateComplete();
+}
