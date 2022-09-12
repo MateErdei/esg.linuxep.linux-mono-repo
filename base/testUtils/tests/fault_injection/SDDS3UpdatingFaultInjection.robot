@@ -41,6 +41,7 @@ SulDownloader Updates Via SDDS2 When useSDDS3 is Missing In Update Config
     ...    Check Marked Sul Log Contains    Update success
 
 SulDownloader Fails Update When SDDS3 Enabled Flag Is Not A Bool
+    [Timeout]  10 minutes
     Start Local Cloud Server    --initial-alc-policy    ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
