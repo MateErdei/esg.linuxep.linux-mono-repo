@@ -110,6 +110,7 @@ exclude \!input/
 exclude \!redist/
 exclude \!tests/
 exclude \!tools/
+exclude \!build64-*/
 
 echo "Exclusions:"
 covselect --list --no-banner
