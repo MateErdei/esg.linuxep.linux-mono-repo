@@ -77,7 +77,7 @@ void SoapdBootstrap::innerRun(
 
     m_mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config,
                                                                                      sysCallWrapper,
-                                                                                     fanotifyHandler->getFd());
+                                                                                     fanotifyHandler);
     auto mountMonitorThread = std::make_unique<common::ThreadRunner>(m_mountMonitor,
                                                                      "mountMonitor",
                                                                      true);
@@ -107,7 +107,7 @@ void SoapdBootstrap::innerRun(
     for (int count = 0; count < MAX_SCAN_THREADS; ++count)
     {
         auto scanHandler = std::make_shared<ScanRequestHandler>(
-            scanRequestQueue, scanningSocket);
+            scanRequestQueue, scanningSocket, fanotifyHandler);
         std::stringstream threadName;
         threadName << "scanHandler" << count;
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);

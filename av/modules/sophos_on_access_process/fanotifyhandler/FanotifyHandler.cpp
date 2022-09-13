@@ -9,7 +9,6 @@
 #include <sstream>
 
 #include <fcntl.h>
-#include <sys/fanotify.h>
 
 using namespace sophos_on_access_process::fanotifyhandler;
 
@@ -36,6 +35,31 @@ int FanotifyHandler::getFd() const
     }
 
     return m_fd.fd();
+}
+
+int FanotifyHandler::markMount(const unsigned int& flags, const uint64_t& mask, const int& dfd, const std::string& path) const
+{
+     int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, dfd, path.c_str());
+     if (result < 0)
+     {
+         processFaMarkError("markMount");
+     }
+     return result;
+}
+
+int FanotifyHandler::cacheFd(const unsigned int& flags, const uint64_t& mask, const int& dfd, const std::string& path) const
+{
+    int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, dfd, path.c_str());
+    if (result < 0)
+    {
+        processFaMarkError("cacheFd");
+    }
+    return result;
+}
+
+void FanotifyHandler::processFaMarkError(const std::string& function) const
+{
+    LOGERROR("fanotify_mark failed: " << function << " : " << common::safer_strerror(errno));
 }
 
 FanotifyHandler::~FanotifyHandler()

@@ -5,14 +5,12 @@
 #include "MountMonitorMemoryAppenderUsingTests.h"
 
 #include "avscanner/avscannerimpl/MockMountPoint.h"
+#include "common/ThreadRunner.h"
 #include "common/WaitForEvent.h"
 #include "datatypes/MockSysCalls.h"
-
-#include "common/ThreadRunner.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
-
-#include <sys/fanotify.h>
+#include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
 
 using namespace mount_monitor::mount_monitor;
 using namespace testing;
@@ -26,10 +24,12 @@ namespace
         {
             m_sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
             m_mockSysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+            m_mockFanotifyHandler = std::make_shared<NiceMock<MockFanotifyHandler>>();
         }
 
         std::shared_ptr<datatypes::SystemCallWrapper> m_sysCallWrapper;
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
+        std::shared_ptr<NiceMock<MockFanotifyHandler>> m_mockFanotifyHandler;
         WaitForEvent m_serverWaitGuard;
     };
 }
@@ -79,11 +79,9 @@ TEST_F(TestMountMonitor, TestGetIncludedMountpoints)
     allMountpoints.push_back(removableDevice);
     allMountpoints.push_back(specialDevice);
 
-    int faNotifyFd = 123;
-
     EXPECT_CALL(*specialDevice, mountPoint()).WillOnce(Return("testSpecialMountPoint"));
 
-    MountMonitor mountMonitor(config, m_sysCallWrapper, faNotifyFd);
+    MountMonitor mountMonitor(config, m_sysCallWrapper, m_mockFanotifyHandler);
     EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 4);
 }
 
@@ -96,7 +94,6 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
     config.m_scanNetwork = true;
     config.m_scanOptical = true;
     config.m_scanRemovable = true;
-    int faNotifyFd = 124;
 
     WaitForEvent clientWaitGuard;
 
@@ -114,8 +111,8 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
             Return(-1)
             )
           );
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, FAN_NOFD, _)).WillRepeatedly(Return(0));
-    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, faNotifyFd);
+    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_, _, _, _)).WillRepeatedly(Return(0));
+    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler);
     auto numMountPoints = mountMonitor->getIncludedMountpoints(mountMonitor->getAllMountpoints()).size();
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 
@@ -139,7 +136,6 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
     config.m_scanNetwork = true;
     config.m_scanOptical = true;
     config.m_scanRemovable = true;
-    int faNotifyFd = 124;
 
     WaitForEvent clientWaitGuard;
 
@@ -151,8 +147,8 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
         .WillRepeatedly(DoDefault());
 
 
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, FAN_NOFD, _)).WillRepeatedly(Return(0));
-    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, faNotifyFd);
+    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_, _, _, _)).WillRepeatedly(Return(0));
+    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler);
     auto numMountPoints = mountMonitor->getIncludedMountpoints(mountMonitor->getAllMountpoints()).size();
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 
@@ -182,7 +178,7 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
     EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 4));
 }
 
-TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe) // NOLINT
+TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -191,20 +187,19 @@ TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe) // NOLINT
     config.m_scanNetwork = true;
     config.m_scanOptical = true;
     config.m_scanRemovable = true;
-    int faNotifyFd = 125;
 
     struct pollfd fds[2]{};
     fds[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, FAN_NOFD, _)).WillRepeatedly(Return(0));
-    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, faNotifyFd);
+    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_, _, _, _)).WillRepeatedly(Return(0));
+    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler);
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 
     EXPECT_TRUE(waitForLog("Stopping monitoring of mounts"));
 }
 
-TEST_F(TestMountMonitor, TestMonitorLogsErrorIfMarkingFails) // NOLINT
+TEST_F(TestMountMonitor, TestMonitorLogsErrorIfMarkingFails)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -213,25 +208,16 @@ TEST_F(TestMountMonitor, TestMonitorLogsErrorIfMarkingFails) // NOLINT
     config.m_scanNetwork = true;
     config.m_scanOptical = true;
     config.m_scanRemovable = true;
-    int faNotifyFd = 125;
 
     struct pollfd fds[2]{};
     fds[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(faNotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, _, FAN_NOFD, _)).WillOnce(Return(-1));
-    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, faNotifyFd);
+    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_, _, _, _)).WillOnce(Return(-1));
+    auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler);
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 
     EXPECT_TRUE(waitForLog("Unable to mark fanotify for mount point "));
     EXPECT_TRUE(waitForLog("On Access Scanning disabled"));
     EXPECT_TRUE(waitForLog("Stopping monitoring of mounts"));
-}
-
-TEST_F(TestMountMonitor, TestConstructThrowsIfFanotifyFdInvalid) // NOLINT
-{
-    OnAccessMountConfig config;
-    int faNotifyFd = -1;
-
-    EXPECT_THROW(MountMonitor mountMonitor(config, m_mockSysCallWrapper, faNotifyFd), std::runtime_error);
 }

@@ -10,16 +10,17 @@
 #include "datatypes/sophos_filesystem.h"
 
 #include <sstream>
-#include <fcntl.h>
 
 using namespace sophos_on_access_process::onaccessimpl;
 namespace fs = sophos_filesystem;
 
 ScanRequestHandler::ScanRequestHandler(
    ScanRequestQueueSharedPtr scanRequestQueue,
-    std::shared_ptr<unixsocket::IScanningClientSocket> socket)
+    std::shared_ptr<unixsocket::IScanningClientSocket> socket,
+    fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler)
     : m_scanRequestQueue(scanRequestQueue)
     , m_socket(socket)
+    , m_fanotifyHandler(std::move(fanotifyHandler))
 {
 
 }
@@ -106,6 +107,19 @@ void ScanRequestHandler::scan(
             else
             {
                 LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName << " (" << scanType << ")");
+            }
+        }
+
+        if (scanRequest->isOpenEvent())
+        {
+            int ret = m_fanotifyHandler->cacheFd(FAN_MARK_ADD | FAN_MARK_IGNORED_MASK, FAN_OPEN, scanRequest->getFd(), "");
+            if (ret < 0)
+            {
+                LOGDEBUG("adding cache mark failed: " << ret);
+            }
+            else
+            {
+                LOGDEBUG("fanotify ignored mask set for: " << scanRequest->getFd());
             }
         }
     }

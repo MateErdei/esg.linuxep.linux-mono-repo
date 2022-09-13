@@ -2,11 +2,12 @@
 add_library(fanotifyhandler SHARED
         FanotifyHandler.cpp
         FanotifyHandler.h
+        IFanotifyHandler.h
         Logger.cpp
         Logger.h
         ProcUtils.cpp
         ProcUtils.h
-        )
+        IFanotifyHandler.h)
 
 target_include_directories(fanotifyhandler PUBLIC
         ${CMAKE_SOURCE_DIR}/modules

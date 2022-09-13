@@ -3,12 +3,15 @@
 #pragma once
 
 #include "datatypes/ISystemCallWrapper.h"
-#include "mount_monitor/mount_monitor/OnAccessConfig.h"
 #include "mount_monitor/mountinfo/IMountInfo.h"
+#include "mount_monitor/mount_monitor/OnAccessMountConfig.h"
+#include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
 
 #include "common/AbstractThreadPluginInterface.h"
 
 #include <map>
+
+namespace fanotifyhandler = sophos_on_access_process::fanotifyhandler;
 
 namespace mount_monitor::mount_monitor
 {
@@ -16,9 +19,9 @@ namespace mount_monitor::mount_monitor
     {
     public:
         MountMonitor(
-            OnAccessConfig& config,
+            OnAccessMountConfig& config,
             datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
-            int fanotifyFd,
+            fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
             struct timespec pollTimeout = {2,0});
 
         void setExcludeRemoteFiles(bool excludeRemoteFiles);
@@ -29,9 +32,9 @@ namespace mount_monitor::mount_monitor
         void run() override;
         void markMounts(mountinfo::IMountPointSharedVector mounts);
 
-        OnAccessConfig& m_config;
+        OnAccessMountConfig& m_config;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
-        int m_fanotifyFd;
+        fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
         const struct timespec m_pollTimeout;
     };
 }

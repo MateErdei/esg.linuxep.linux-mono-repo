@@ -39,6 +39,7 @@ namespace scan_messages
         [[nodiscard]] std::string getPath() const { return m_path; };
         [[nodiscard]] int getFd() const { return m_autoFd.fd(); }
         [[nodiscard]] std::string getScanTypeAsStr() const;
+        [[nodiscard]] bool isOpenEvent() const { return m_scanType == E_SCAN_TYPE_ON_ACCESS_OPEN; }
 
     protected:
         std::string m_path;
