@@ -11,6 +11,7 @@ Library         ../Libs/CoreDumps.py
 Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LockFile.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
 Library         ../Libs/LogUtils.py
@@ -228,8 +229,7 @@ On Access Monitors Addition And Removal Of Mount Points
     Wait Until On Access Log Contains With Offset  Including mount point:
     On Access Log Does Not Contain With Offset  Including mount point: ${where}
     Sleep  1s
-    ${numMountsPreMount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
-    Log  Number of Mount Points before mount: ${numMountsPreMount}
+    ${numMountsPreMount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
 
     Mark On Access Log
     ${image} =  Copy And Extract Image  ext2FileSystem
@@ -238,8 +238,7 @@ On Access Monitors Addition And Removal Of Mount Points
     Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
     Wait Until On Access Log Contains  Including mount point: ${where}
     Sleep  1s
-    ${totalNumMountsPostMount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
-    Log  Number of Mount Points after mount: ${totalNumMountsPostMount}
+    ${totalNumMountsPostMount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
     Should Be Equal As Integers  ${totalNumMountsPostMount}  ${numMountsPreMount+1}
 
     Mark On Access Log
@@ -248,8 +247,7 @@ On Access Monitors Addition And Removal Of Mount Points
     Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
     On Access Log Does Not Contain With Offset  Including mount point: ${where}
     Sleep  1s
-    ${totalNumMountsPostUmount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
-    Log  Number of Mount Points after umount: ${totalNumMountsPostUmount}
+    ${totalNumMountsPostUmount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
     Should Be Equal As Integers  ${totalNumMountsPostUmount}  ${numMountsPreMount}
 
 On Access Scans A File When It Is Closed Following A Write

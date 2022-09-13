@@ -1,6 +1,6 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (C) 2021 Sophos Ltd
+# Copyright (C) 2021-2022 Sophos Ltd
 # All rights reserved.
 import os
 import glob
@@ -103,6 +103,7 @@ class LogUtils(object):
         self.marked_managementagent_logs = 0
         self.marked_av_log = 0
         self.marked_sophos_threat_detector_log = 0
+        self.__m_marked_log_position = {}
 
         self.__m_pending_mark_expected_errors = {}
 
@@ -509,6 +510,9 @@ File Log Contains
     def scheduled_scan_log(self, scanname="MyScan"):
         return os.path.join(self.av_plugin_logs_dir, scanname+".log")
 
+    def soapd_log(self):
+        return os.path.join(self.av_plugin_logs_dir, "soapd.log")
+
     def dump_mcsrouter_log(self):
         mcsrouter_log = self.mcs_router_log()
         self.dump_log(mcsrouter_log)
@@ -868,6 +872,22 @@ File Log Contains
             return files[0]
         else:
             return logger_conf_pattern + '0'
+
+    def get_latest_mount_inclusion_count_from_on_access_log(self, markLines):
+        contents = _get_log_contents(self.soapd_log())
+        contents = contents.splitlines(False)
+        if len(contents) > markLines:
+            contents = contents[markLines:]
+
+        LOG_RE = re.compile(r".*Including (\d+) mount points in on-access scanning.*")
+        contents.reverse()  # Search for the latest
+        for line in contents:
+            mo = LOG_RE.match(line)
+            if mo:
+                return int(mo.group(1))
+
+        return None
+
 
 def __main(argv):
     #write your tests here
