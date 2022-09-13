@@ -542,6 +542,7 @@ On Access Scans File On XFS
 
 
 On Access Logs When A File Is Closed Following Write After Being Disabled
+    Register Cleanup    Exclude On Access Scan Errors
     Start On Access
     Start Fake Management If Required
     Exclude On Access Connect Failed
@@ -661,6 +662,7 @@ On Access Does not Use Policy Setttings If Flags Have Overriden Policy
     Dump Log  ${on_access_log_path}
 
 On Access Process Reconnects To Threat Detector
+    Register Cleanup    Exclude On Access Scan Errors
     Start On Access With Running Threat Detector
     Enable OA Scanning
 
@@ -682,6 +684,7 @@ On Access Process Reconnects To Threat Detector
     On Access Log Does Not Contain With Offset  Failed to scan ${filepath}
 
 On Access Scan Times Out When Unable To Connect To Threat Detector
+    Register Cleanup    Exclude On Access Scan Errors
     Start On Access
     Enable OA Scanning
 
