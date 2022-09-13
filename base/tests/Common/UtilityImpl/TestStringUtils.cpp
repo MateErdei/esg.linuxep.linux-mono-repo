@@ -4,12 +4,12 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "../Helpers/FileSystemReplaceAndRestore.h"
+#include "../Helpers/LogInitializedTests.h"
+#include "../Helpers/MockFileSystem.h"
+
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/UtilityImpl/StringUtils.h>
-
-#include "../Helpers/MockFileSystem.h"
-#include "../Helpers/FileSystemReplaceAndRestore.h"
-
 #include <gtest/gtest.h>
 
 using namespace Common::UtilityImpl;
@@ -244,7 +244,7 @@ TEST(TestStringUtils, isVersionOlder) // NOLINT
 
 }
 
-TEST(TestStringUtils, stringToIntPositiveValuesReturnCorrentlyWithoutError) // NOLINT
+TEST(TestStringUtils, stringToIntPositiveValuesReturnCorrectlyWithoutError) // NOLINT
 {
     std::pair<int, std::string> result;
 
@@ -266,7 +266,7 @@ TEST(TestStringUtils, stringToInt_StringStartingWithNumberReturnsNumberWithoutEr
     EXPECT_EQ(result.first, 123);
 }
 
-TEST(TestStringUtils, stringToIntNegitiveValuesReturnCorrentlyWithoutError) // NOLINT
+TEST(TestStringUtils, stringToIntNegitiveValuesReturnCorrectlyWithoutError) // NOLINT
 {
     std::pair<int, std::string> result;
 
@@ -279,7 +279,7 @@ TEST(TestStringUtils, stringToIntNegitiveValuesReturnCorrentlyWithoutError) // N
     EXPECT_EQ(result.first, INT_LEAST32_MIN);
 }
 
-TEST(TestStringUtils, stringToInt_StringValuesReturnCorrentlyWithError) // NOLINT
+TEST(TestStringUtils, stringToInt_StringValuesReturnCorrectlyWithError) // NOLINT
 {
     std::pair<int, std::string> result;
 
@@ -292,7 +292,7 @@ TEST(TestStringUtils, stringToInt_StringValuesReturnCorrentlyWithError) // NOLIN
     EXPECT_EQ(result.first, 0);
 }
 
-TEST(TestStringUtils, stringToInt_OutofRangeValuesReturnCorrentlyWithError) // NOLINT
+TEST(TestStringUtils, stringToInt_OutofRangeValuesReturnCorrectlyWithError) // NOLINT
 {
     std::pair<int, std::string> result;
 
@@ -301,7 +301,7 @@ TEST(TestStringUtils, stringToInt_OutofRangeValuesReturnCorrentlyWithError) // N
     EXPECT_EQ(result.first, 0);
 }
 
-TEST(TestStringUtils, stringToLongPositiveValuesReturnCorrentlyWithoutError) // NOLINT
+TEST(TestStringUtils, stringToLongPositiveValuesReturnCorrectlyWithoutError) // NOLINT
 {
     std::pair<long, std::string> result;
 
@@ -323,7 +323,7 @@ TEST(TestStringUtils, stringToLong_StringStartingWithNumberReturnsNumberWithoutE
     EXPECT_EQ(result.first, 123);
 }
 
-TEST(TestStringUtils, stringToLongNegitiveValuesReturnCorrentlyWithoutError) // NOLINT
+TEST(TestStringUtils, stringToLongNegitiveValuesReturnCorrectlyWithoutError) // NOLINT
 {
     std::pair<long, std::string> result;
 
@@ -336,7 +336,7 @@ TEST(TestStringUtils, stringToLongNegitiveValuesReturnCorrentlyWithoutError) // 
     EXPECT_EQ(result.first, INT_LEAST64_MIN);
 }
 
-TEST(TestStringUtils, stringToLong_StringValuesReturnCorrentlyWithError) // NOLINT
+TEST(TestStringUtils, stringToLong_StringValuesReturnCorrectlyWithError) // NOLINT
 {
     std::pair<long, std::string> result;
 
@@ -349,13 +349,43 @@ TEST(TestStringUtils, stringToLong_StringValuesReturnCorrentlyWithError) // NOLI
     EXPECT_EQ(result.first, 0);
 }
 
-TEST(TestStringUtils, stringToLong_OutofRangeValuesReturnCorrentlyWithError) // NOLINT
+TEST(TestStringUtils, stringToLong_OutofRangeValuesReturnCorrectlyWithError) // NOLINT
 {
     std::pair<int, std::string> result;
 
     EXPECT_NO_THROW(result = StringUtils::stringToLong(std::to_string(UINT_LEAST64_MAX)));
     EXPECT_EQ(result.second, "Failed to find integer from output: 18446744073709551615. Error message: stol");
     EXPECT_EQ(result.first, 0);
+}
+
+TEST(TestStringUtils, stringToULongReturnCorrectlyWithoutError) // NOLINT
+{
+    unsigned long result;
+    
+    EXPECT_NO_THROW(result = StringUtils::stringToULong("0"));
+    EXPECT_EQ(result, 0);
+
+    EXPECT_NO_THROW(result = StringUtils::stringToULong(std::to_string(ULONG_MAX)));
+    EXPECT_EQ(result, ULONG_MAX);
+}
+
+TEST(TestStringUtils, stringToULong_StringStartingWithNumberReturnsNumberWithoutError) // NOLINT
+{
+    unsigned long result;
+
+    // The follow demos that stoul will return a valid value if the string starts with a number.
+    EXPECT_NO_THROW(result = StringUtils::stringToULong("123hello"));
+    EXPECT_EQ(result, 123);
+}
+
+TEST(TestStringUtils, stringToULong_StringValuesReturnCorrectlyWithError) // NOLINT
+{
+    EXPECT_THROW(StringUtils::stringToULong("hello"), std::runtime_error);
+}
+
+TEST(TestStringUtils, stringToULong_OutofRangeValuesReturnCorrectlyWithError) // NOLINT
+{
+    EXPECT_THROW(StringUtils::stringToULong("999999999999999999999999999999999999"), std::runtime_error);
 }
 
 TEST(TestStringUtils, rTrimRemovesWhiteSpaceFromRightSideOfString) // NOLINT

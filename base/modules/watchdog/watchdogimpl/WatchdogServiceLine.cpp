@@ -5,7 +5,14 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "WatchdogServiceLine.h"
 
+#include "IProcessException.h"
 #include "Logger.h"
+
+#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "CommsComponent/Configurator.h"
+#include "UtilityImpl/StrError.h"
+#include "UtilityImpl/StringUtils.h"
+#include "UtilityImpl/SystemExecutableUtils.h"
 
 #include <Common/PluginApi/IPluginCallbackApi.h>
 #include <Common/PluginApiImpl/PluginResourceManagement.h>
@@ -124,6 +131,24 @@ namespace
                     watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(pluginName), 0UL);
             }
             Common::Telemetry::TelemetryHelper::getInstance().set("health", 0UL);
+
+            try
+            {
+                Common::Telemetry::TelemetryHelper::getInstance().set("product-disk-usage", getProductDiskUsage());
+            }
+            catch (Common::Process::IProcessException& e)
+            {
+                LOGWARN("Command to get product-disk-usage failed due to " << e.what());
+            }
+            catch (const std::invalid_argument& e)
+            {
+                LOGWARN("Failed to get product-disk-usage due to " << e.what());
+            }
+            catch (const std::runtime_error& e)
+            {
+                LOGWARN("Failed to get product-disk-usage due to " << e.what());
+            }
+
             return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
         }
 
@@ -131,6 +156,46 @@ namespace
         {
             LOGDEBUG("Received health request");
             return "{}";
+        }
+
+        static unsigned long getProductDiskUsage()
+        {
+            auto path = Common::UtilityImpl::SystemExecutableUtils::getSystemExecutablePath("du");
+
+            auto process = Common::Process::createProcess();
+            const auto& commandExecutablePath = path;
+            std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+            std::string excludePath = CommsComponent::CommsConfigurator::chrootPathForSSPL(installPath);
+
+            process->exec(commandExecutablePath,{ "-B", "1000", "-sx", "--exclude=" + excludePath, installPath });
+            process->setOutputLimit(1024 * 10);
+
+            auto status = process->wait(Common::Process::Milliseconds(1000), 120);
+            if (status != Common::Process::ProcessStatus::FINISHED)
+            {
+                process->kill();
+                throw Common::Process::IProcessException("Process execution timed out running 'du'");
+            }
+
+            int exitCode = process->exitCode();
+            if (exitCode != 0)
+            {
+                throw Common::Process::IProcessException(
+                    "Process execution returned non-zero exit code, 'Exit Code: [" + std::to_string(exitCode) + "] " +
+                    Common::UtilityImpl::StrError(exitCode) + "'");
+            }
+
+            auto output = process->output();
+            std::string strippedOutput = Common::UtilityImpl::StringUtils::trim(Common::UtilityImpl::StringUtils::splitString(output, " ")[0]);
+
+            try
+            {
+                return Common::UtilityImpl::StringUtils::stringToULong(output);
+            }
+            catch (std::runtime_error& e)
+            {
+                throw std::runtime_error("Failed to convert string to unsigned long: " + output + ". Error: " + e.what());
+            }
         }
 
         std::function<std::vector<std::string>(void)> m_getListOfPluginsFunc;

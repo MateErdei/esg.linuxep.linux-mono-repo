@@ -309,6 +309,22 @@ namespace Common
                 return std::make_pair(0, errorMessage.str());
             }
 
+            static unsigned long stringToULong(const std::string& stringToConvert)
+            {
+                try
+                {
+                    return std::stoul(stringToConvert);
+                }
+                catch (const std::invalid_argument& e)
+                {
+                    throw std::runtime_error("Failed to find unsigned long from output :" + stringToConvert + ". Error message: " + e.what());
+                }
+                catch (const std::out_of_range& e)
+                {
+                    throw std::runtime_error("Value is out of range :" + stringToConvert + ". Error message: " + e.what());
+                }
+            }
+
             /*
              * Remove whitespace from the right side of a string.
              * Or if trimComparator is set then it will use that comparator to trim characters from the right.

@@ -5,6 +5,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "MockIWatchdogRequest.h"
+#include "IProcessException.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
@@ -140,9 +141,138 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedData) // NOLINT
 {
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto pluginProxy = getPluginProxyToTest();
-    EXPECT_EQ(pluginProxy.getTelemetry(),
-              "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0}");
+
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    EXPECT_CALL(*mockFileSystem, isExecutable("/usr/bin/du")).WillOnce(Return(true));
+
+    ProcessReplacement processReplacement([]() {
+        auto mockProcess = new StrictMock<MockProcess>();
+        std::vector<std::string> args{"-B", "1000", "-sx", "--exclude=/opt/sophos-spl/var/sophos-spl-comms", "/opt/sophos-spl"};
+
+        EXPECT_CALL(*mockProcess, exec(HasSubstr("du"), args)).Times(1);
+        EXPECT_CALL(*mockProcess, setOutputLimit(_));
+        EXPECT_CALL(*mockProcess, wait(Common::Process::Milliseconds(1000), 120)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, output()).WillOnce(Return("900000      /opt/sophos-spl"));
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+    });
+
+    EXPECT_EQ(pluginProxy.getTelemetry(), "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0,\"product-disk-usage\":900000}");
 }
+
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandFails) // NOLINT
+{
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
+    auto pluginProxy = getPluginProxyToTest();
+
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    EXPECT_CALL(*mockFileSystem, isExecutable("/usr/bin/du")).WillOnce(Return(true));
+
+    ProcessReplacement processReplacement([]() {
+        auto mockProcess = new StrictMock<MockProcess>();
+        std::vector<std::string> args{"-B", "1000", "-sx", "--exclude=/opt/sophos-spl/var/sophos-spl-comms", "/opt/sophos-spl"};
+
+        EXPECT_CALL(*mockProcess, exec(HasSubstr("du"), args)).Times(1);
+        EXPECT_CALL(*mockProcess, setOutputLimit(_));
+        EXPECT_CALL(*mockProcess, wait(Common::Process::Milliseconds(1000), 120)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
+        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+    });
+
+    EXPECT_EQ(pluginProxy.getTelemetry(), "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0}");
+}
+
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandReturnsSingleString) // NOLINT
+{
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
+    auto pluginProxy = getPluginProxyToTest();
+
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    EXPECT_CALL(*mockFileSystem, isExecutable("/usr/bin/du")).WillOnce(Return(true));
+
+    ProcessReplacement processReplacement([]() {
+        auto mockProcess = new StrictMock<MockProcess>();
+        std::vector<std::string> args{"-B", "1000", "-sx", "--exclude=/opt/sophos-spl/var/sophos-spl-comms", "/opt/sophos-spl"};
+
+        EXPECT_CALL(*mockProcess, exec(HasSubstr("du"), args)).Times(1);
+        EXPECT_CALL(*mockProcess, setOutputLimit(_));
+        EXPECT_CALL(*mockProcess, wait(Common::Process::Milliseconds(1000), 120)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, output()).WillOnce(Return("blank"));
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+    });
+
+    EXPECT_EQ(pluginProxy.getTelemetry(), "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0}");
+}
+
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandReturnsString) // NOLINT
+{
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
+    auto pluginProxy = getPluginProxyToTest();
+
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    EXPECT_CALL(*mockFileSystem, isExecutable("/usr/bin/du")).WillOnce(Return(true));
+
+    ProcessReplacement processReplacement([]() {
+        auto mockProcess = new StrictMock<MockProcess>();
+        std::vector<std::string> args{"-B", "1000", "-sx", "--exclude=/opt/sophos-spl/var/sophos-spl-comms", "/opt/sophos-spl"};
+
+        EXPECT_CALL(*mockProcess, exec(HasSubstr("du"), args)).Times(1);
+        EXPECT_CALL(*mockProcess, setOutputLimit(_));
+        EXPECT_CALL(*mockProcess, wait(Common::Process::Milliseconds(1000), 120)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, output()).WillOnce(Return("operation not permitted"));
+        EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+    });
+
+    EXPECT_EQ(pluginProxy.getTelemetry(), "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0}");
+}
+
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandTimesOut) // NOLINT
+{
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
+    auto pluginProxy = getPluginProxyToTest();
+
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    EXPECT_CALL(*mockFileSystem, isExecutable("/usr/bin/du")).WillOnce(Return(true));
+
+    ProcessReplacement processReplacement([]() {
+        auto mockProcess = new StrictMock<MockProcess>();
+        std::vector<std::string> args{"-B", "1000", "-sx", "--exclude=/opt/sophos-spl/var/sophos-spl-comms", "/opt/sophos-spl"};
+
+        EXPECT_CALL(*mockProcess, exec(HasSubstr("du"), args)).Times(1);
+        EXPECT_CALL(*mockProcess, setOutputLimit(_));
+        EXPECT_CALL(*mockProcess, wait(Common::Process::Milliseconds(1000), 120)).WillOnce(Return(Common::Process::ProcessStatus::TIMEOUT));
+        EXPECT_CALL(*mockProcess, kill());
+        return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+    });
+
+    EXPECT_EQ(pluginProxy.getTelemetry(), "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0}");
+};
+
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandCannotBeRan) // NOLINT
+{
+    watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
+    auto pluginProxy = getPluginProxyToTest();
+
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    EXPECT_CALL(*mockFileSystem, isExecutable(_)).WillRepeatedly(Return(false));
+
+    EXPECT_EQ(pluginProxy.getTelemetry(), "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0}");
+};
+
 
 TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosSplUpdateWorksWithTheFactory) // NOLINT
 {
