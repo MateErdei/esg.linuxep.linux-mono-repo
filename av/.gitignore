@@ -1,10 +1,6 @@
 .idea/
 .vscode/
-cmake-build-clang-fuzzer/
-cmake-build-debug/
-cmake-build-relwithdebinfo/
-cmake-build-gcc8/
-cmake-build-gcc10/
+cmake-build-*/
 *.pyc
 input/
 output/
