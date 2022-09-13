@@ -482,7 +482,14 @@ namespace UpdateSchedulerImpl
 
     void UpdatePolicyTelemetry::addSubscription(const std::string& rigidname, const std::string& tag, const std::string& fixedVersion)
     {
-        warehouseTelemetry.m_subscriptions.emplace_back(rigidname, tag, fixedVersion);
+        if (fixedVersion.empty())
+        {
+            Common::Telemetry::TelemetryHelper::getInstance().set(rigidname, tag);
+        }
+        else
+        {
+            Common::Telemetry::TelemetryHelper::getInstance().set(rigidname, fixedVersion);
+        }
     }
 
 
