@@ -55,4 +55,5 @@ void unixsocket::BaseClient::connectWithRetries(const std::string& socketName)
         m_connectStatus = attemptConnect();
     }
 
-    assert(m_connectStatus == 0);}
+    assert(m_connectStatus == 0);
+}

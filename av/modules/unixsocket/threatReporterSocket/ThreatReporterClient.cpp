@@ -42,3 +42,8 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
     }
 }
 
+void unixsocket::ThreatReporterClientSocket::connectWithRetries(const std::string& socketName)
+{
+    BaseClient::connectWithRetries(socketName);
+    LOGDEBUG("Successfully connected to Threat Reporter");
+}
