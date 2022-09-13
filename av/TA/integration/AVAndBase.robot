@@ -758,7 +758,7 @@ AV Plugin tries to restart threat detector on susi startup settings change
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Reloading susi as policy configuration has changed   timeout=60
-    AV Plugin Log Contains With Offset  Failed to connect to Sophos Threat Detector Controller - retrying after sleep
+    AV Plugin Log Contains With Offset  Failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying after sleep
     Wait Until AV Plugin Log Contains With Offset  Reached total maximum number of connection attempts.
 
     start sophos_threat_detector
@@ -779,7 +779,7 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Wait Until AV Plugin Log Contains With Offset   Reloading susi as policy configuration has changed   timeout=60
     AV Plugin Log Does Not Contain With Offset  Failed to send shutdown request: Failed to connect to unix socket
-    AV Plugin Log Does Not Contain With Offset  Failed to connect to Sophos Threat Detector Controller - retrying after sleep
+    AV Plugin Log Does Not Contain With Offset  Failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying after sleep
     Check Sophos Threat Detector has same PID   ${pid}
 
     # scan eicar to trigger susi to be loaded
