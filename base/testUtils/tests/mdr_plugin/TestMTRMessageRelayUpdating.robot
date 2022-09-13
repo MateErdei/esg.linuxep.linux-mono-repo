@@ -63,8 +63,8 @@ Teardown MTR Message Relay Updating Test
 Wait Message Relay Structure Is Correct And Contains Port
     [Arguments]    ${PORT}    ${MCSID}=1001
     Wait Until Keyword Succeeds
-    ...  1 min
-    ...  20 secs
+    ...  120 secs
+    ...  10 secs
     ...  Check Message Relay Structure Is Correct And Contains Port    ${PORT}   ${MCSID}
 
 Check Message Relay Structure Is Correct And Contains Port
