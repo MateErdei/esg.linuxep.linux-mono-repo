@@ -526,7 +526,7 @@ fi
 
 # Read Products from credentials file if the customer has not used the installer option.
 INSTALLER_PRODUCTS=$(grep 'PRODUCTS=' credentials.txt | sed 's/PRODUCTS=//')
-if [ -n "$INSTALLER_PRODUCTS" ] && [ -z "$PRODUCT_ARGUMENTS" ] && [ "$INSTALLER_PRODUCTS" == "all" ]
+if [ -n "$INSTALLER_PRODUCTS" ] && [ -z "$PRODUCT_ARGUMENTS" ] && [ "$INSTALLER_PRODUCTS" != "all" ]
 then
     PRODUCT_ARGUMENTS="$INSTALLER_PRODUCTS"
     CMCSROUTER_PRODUCT_ARGUMENTS=$(grep 'PRODUCTS=' credentials.txt | sed 's/PRODUCTS=/--products=/')
