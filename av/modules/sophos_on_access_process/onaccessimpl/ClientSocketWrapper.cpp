@@ -17,10 +17,10 @@ namespace sophos_on_access_process::onaccessimpl
     ClientSocketWrapper::ClientSocketWrapper(
         unixsocket::IScanningClientSocket& socket,
         Common::Threads::NotifyPipe& notifyPipe,
-        std::chrono::milliseconds sleepTime)
+        const struct timespec& retryInterval)
         : m_socket(socket)
         , m_notifyPipe(notifyPipe)
-        , m_sleepTime(sleepTime)
+        , m_retryInterval(retryInterval)
     {
         ClientSocketWrapper::connect();
     }
@@ -39,7 +39,7 @@ namespace sophos_on_access_process::onaccessimpl
             }
 
             LOGDEBUG("Failed to connect to Sophos Threat Detector - retrying after sleep");
-            std::this_thread::sleep_for(m_sleepTime);
+            interruptableSleep();
 
             ret = m_socket.connect();
         }
@@ -77,7 +77,7 @@ namespace sophos_on_access_process::onaccessimpl
                     checkIfScanAborted();
                     LOGWARN(e.what() << " - retrying after sleep");
                 }
-                std::this_thread::sleep_for(m_sleepTime);
+                interruptableSleep();
                 if (!m_socket.connect())
                 {
                     if (!retryErrorLogged)
@@ -152,6 +152,40 @@ namespace sophos_on_access_process::onaccessimpl
         {
             LOGDEBUG("Received stop notification");
             throw ScanInterruptedException("Scanner received stop notification");
+        }
+    }
+
+    void ClientSocketWrapper::interruptableSleep()
+    {
+        struct pollfd fds[] {
+            { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
+        };
+
+        while (true)
+        {
+            auto ret = ::ppoll(fds, std::size(fds), &m_retryInterval, nullptr);
+
+            if (ret < 0)
+            {
+                if (errno == EINTR)
+                {
+                    continue;
+                }
+
+                LOGERROR("Error from ppoll: " << common::safer_strerror(errno));
+                throw ClientSocketException("Error while sleeping");
+            }
+
+            else if (ret == 0)
+            {
+                // timeout
+                return;
+            }
+
+            else // if (ret > 0)
+            {
+                checkIfScanAborted();
+            }
         }
     }
 }

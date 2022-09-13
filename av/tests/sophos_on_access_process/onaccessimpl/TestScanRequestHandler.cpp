@@ -19,6 +19,8 @@ namespace
     class TestScanRequestHandler : public OnAccessImplMemoryAppenderUsingTests
     {
     };
+
+    const struct timespec& oneMillisecond = { 0, 1000000 }; // 1ms
 }
 
 TEST_F(TestScanRequestHandler, scan_fileDetected)
@@ -54,7 +56,7 @@ TEST_F(TestScanRequestHandler, scan_error)
     auto socket = std::make_shared<ExceptionThrowingTestSocket>(false);
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
         nullptr, socket);
-    scanHandler->scan(scanRequest, 1ms);
+    scanHandler->scan(scanRequest, oneMillisecond);
 
     std::stringstream logMsg;
     logMsg << "Failed to scan file: " << filePath << " after " << MAX_SCAN_RETRIES << " retries";

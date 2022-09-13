@@ -20,7 +20,7 @@ namespace sophos_on_access_process::onaccessimpl
 
         void run();
         void scan(scan_messages::ClientScanRequestPtr scanRequest,
-                  std::chrono::milliseconds sleepTime=1ms);
+                  const struct timespec& retryInterval = { 1, 0 });
 
     private:
         std::string failedToOpen(const int error);

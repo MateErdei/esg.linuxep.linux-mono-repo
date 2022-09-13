@@ -42,6 +42,8 @@ namespace
     private:
         datatypes::AutoFd m_socketFd;
     };
+
+    const struct timespec& oneMillisecond = { 0, 1000000 }; // 1ms
 }
 
 TEST_F(TestClientSocketWrapper, Construction)
@@ -101,7 +103,7 @@ TEST_F(TestClientSocketWrapper, RetriesConnect)
         .Times(1)
         .WillOnce(Return(0));
 
-    ClientSocketWrapper csw {socket, notifyPipe, 1ms };
+    ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
 }
 
 TEST_F(TestClientSocketWrapper, ConnectRetryLimit)
@@ -116,7 +118,7 @@ TEST_F(TestClientSocketWrapper, ConnectRetryLimit)
     EXPECT_CALL(socket, connect())
         .Times(0);
 
-    ClientSocketWrapper csw {socket, notifyPipe, 1ms };
+    ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
 }
 
 TEST_F(TestClientSocketWrapper, ScanRetriesSend)
@@ -128,7 +130,7 @@ TEST_F(TestClientSocketWrapper, ScanRetriesSend)
     Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect).Times(1);
-    ClientSocketWrapper csw {socket, notifyPipe, 1ms};
+    ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
 
     {
         InSequence seq;
@@ -164,7 +166,7 @@ TEST_F(TestClientSocketWrapper, ScanRetryLimit)
     Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect).Times(1);
-    ClientSocketWrapper csw {socket, notifyPipe, 1ms};
+    ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
 
     {
         InSequence seq;
@@ -194,7 +196,7 @@ TEST_F(TestClientSocketWrapper, ScanReconnectLimit)
     Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect).Times(1);
-    ClientSocketWrapper csw {socket, notifyPipe, 1ms};
+    ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
 
     {
         InSequence seq;
@@ -228,7 +230,7 @@ TEST_F(TestClientSocketWrapper, ScanRetriesReceive)
     Common::Threads::NotifyPipe notifyPipe {};
 
     EXPECT_CALL(socket, connect).Times(1);
-    ClientSocketWrapper csw {socket, notifyPipe, 1ms};
+    ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
 
     {
         InSequence seq;

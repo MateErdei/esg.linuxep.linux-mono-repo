@@ -49,14 +49,14 @@ std::string ScanRequestHandler::failedToOpen(const int error)
 
 void ScanRequestHandler::scan(
     scan_messages::ClientScanRequestPtr scanRequest,
-    std::chrono::milliseconds sleepTime)
+    const struct timespec& retryInterval)
 {
     std::string fileToScanPath = scanRequest->getPath();
 
     ScanResponse response;
     try
     {
-        ClientSocketWrapper socketWrapper(*m_socket, m_notifyPipe, sleepTime);
+        ClientSocketWrapper socketWrapper(*m_socket, m_notifyPipe, retryInterval);
         response = socketWrapper.scan(scanRequest);
     }
     catch (const ScanInterruptedException& e)
