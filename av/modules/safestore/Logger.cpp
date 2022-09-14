@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #include "Logger.h"
 
 #include <Common/Logging/LoggerConfig.h>
