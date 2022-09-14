@@ -15,12 +15,9 @@ int Main::run()
     LOGINFO("SafeStore started");
     auto instance = Main();
 
-    auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
-    auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };
-
     try
     {
-        instance.innerRun(sigIntMonitor, sigTermMonitor);
+        instance.innerRun();
     }
     catch (const std::exception& e)
     {
@@ -32,16 +29,15 @@ int Main::run()
     return 0;
 }
 
-void Main::innerRun(
-    std::shared_ptr<common::signals::SigIntMonitor>& sigIntMonitor,
-    std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor)
+void Main::innerRun()
 {
+    auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
+    auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };
+
     struct pollfd fds[]
     {
         { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-        {
-            .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0
-        }
+        { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
     };
 
     while (true)

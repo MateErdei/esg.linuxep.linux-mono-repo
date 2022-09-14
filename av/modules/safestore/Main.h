@@ -13,8 +13,6 @@ namespace safestore
         static int run();
 
     private:
-        void innerRun(
-            std::shared_ptr<common::signals::SigIntMonitor>& sigIntMonitor,
-            std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor);
+        void innerRun();
     };
 } // namespace safestore
