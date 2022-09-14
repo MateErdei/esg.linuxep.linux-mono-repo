@@ -7,7 +7,7 @@ from robot.libraries.BuiltIn import BuiltIn
 from robot.api import logger
 
 def get_content_lines(path, mark):
-    contents = open(path).readlines()
+    contents = open(path, encoding="utf-8", errors="backslashreplace").readlines()
     return contents[mark:]
 
 def get_sophos_threat_detector_pid_or_none():
