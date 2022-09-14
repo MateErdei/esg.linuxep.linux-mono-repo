@@ -46,6 +46,7 @@ namespace Common
         log4cplus::Logger getInstance(const std::string& loggername) noexcept;
         enum SophosLogLevel : log4cplus::LogLevel
         {
+            TRACE = log4cplus::TRACE_LOG_LEVEL,
             DEBUG = log4cplus::DEBUG_LOG_LEVEL,
             SUPPORT = log4cplus::DEBUG_LOG_LEVEL + 1,
             INFO = log4cplus::INFO_LOG_LEVEL,
