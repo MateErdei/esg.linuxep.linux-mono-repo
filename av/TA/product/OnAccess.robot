@@ -698,19 +698,3 @@ On Access Scan Times Out When Unable To Connect To Threat Detector
     Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
     Wait Until On Access Log Contains With Offset  Failed to connect to Sophos Threat Detector - retrying after sleep
     Wait Until On Access Log Contains With Offset  Reached total maximum number of connection attempts.  timeout=30
-
-On Access Logs Unknown When It Cannot Determine The UID
-    Start On Access With Running Threat Detector
-    Enable OA Scanning
-
-    Mark On Access Log
-    ${filepath} =  Set Variable  /tmp_test/clean.txt
-    ${rc}  ${output} =  Run And Return Rc And Output  bash -c "echo clean > ${filepath}"
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${0}
-    Wait Until File exists  ${filepath}
-    Register Cleanup  Remove File  ${filepath}
-
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
-    Wait Until On Access Log Contains With Offset  and UID unknown
-    On Access Log Does Not Contain With Offset  and UID 4294967295
