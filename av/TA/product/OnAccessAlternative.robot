@@ -2,20 +2,6 @@
 Documentation   Product tests for SOAP
 Force Tags      PRODUCT  SOAP
 
-Library         Process
-Library         OperatingSystem
-Library         String
-
-Library         ../Libs/AVScanner.py
-Library         ../Libs/CoreDumps.py
-Library         ../Libs/FakeWatchdog.py
-Library         ../Libs/FileUtils.py
-Library         ../Libs/LockFile.py
-Library         ../Libs/OnFail.py
-Library         ../Libs/OSUtils.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/ThreatReportUtils.py
-
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
@@ -51,6 +37,7 @@ On Access Test Setup
     Mark On Access Log
     Enable OA Scanning
 
+    Register Cleanup  Clear Logs
     Register Cleanup  Remove File     ${ONACCESS_FLAG_CONFIG}
     Register Cleanup  Check All Product Logs Do Not Contain Error
     Register Cleanup  Exclude On Access Scan Errors
@@ -90,6 +77,7 @@ On Access Log Rotates
     # Ensure the log is created
 
     Start AV and On Access
+
     Terminate On Access And AV
     Increase On Access Log To Max Size
 
@@ -207,9 +195,6 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     Register Cleanup  Remove File  ${filepath}
 
     Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from  timeout=${timeout}
-    #Wait Until On Access Log Contains With Offset  (PID ${pid}) and UID 0
-    Wait Until On Access Log Contains With Offset  On-open event for ${filepath} from
-    #Wait Until On Access Log Contains With Offset  (PID ${pid}) and UID 0
 
 
 On Access Process Handles Consecutive Process Control Requests
@@ -310,6 +295,7 @@ On Access Process Reconnects To Threat Detector
     On Access Log Does Not Contain With Offset  Failed to scan ${filepath}
 
 On Access Scan Times Out When Unable To Connect To Threat Detector
+    [Tags]  MANUAL
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
     Restart On Access
 

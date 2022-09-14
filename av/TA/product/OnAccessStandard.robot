@@ -2,7 +2,6 @@
 Documentation   Product tests for SOAP
 Force Tags      PRODUCT  SOAP
 
-
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
@@ -44,6 +43,7 @@ On Access Test Setup
     Start On Access If Not Running
     Start Av Plugin If Not Running
     Start Sophos Threat Detector If Not Running
+    Register Cleanup  Clear Logs
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults

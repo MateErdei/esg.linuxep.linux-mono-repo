@@ -212,6 +212,7 @@ Exclude SUSI Illegal seek error
 
 Exclude On Access Scan Errors
     mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           OnAccessImpl <> Failed to scan
+    mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           fanotifyhandler <> Failed to add scan request to queue
 
 #Todo required until LINUXDAR-5569 is fixed
 Exclude On Access Connect Failed

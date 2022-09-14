@@ -16,10 +16,15 @@ Library         ../Libs/ThreatReportUtils.py
 
 ** Variables ***
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
-${timeout}  ${300}
+${timeout}  ${240}
 
 
 *** Keywords ***
+Clear Logs
+    Dump Log  ${ON_ACCESS_LOG_PATH}
+    Remove File    ${ON_ACCESS_LOG_PATH}
+
+
 List AV Plugin Path
     Create Directory  ${TESTTMP}
     ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}  stdout=${TESTTMP}/lsstdout  stderr=STDOUT
@@ -43,6 +48,7 @@ Start On Access
     Remove Files   /tmp/soapd.stdout  /tmp/soapd.stderr
     ${handle} =  Start Process  ${ON_ACCESS_BIN}   stdout=/tmp/soapd.stdout  stderr=/tmp/soapd.stderr
     Wait Until On Access running
+    Wait Until On Access Log Contains With Offset  Fanotify successfully initialised
 
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
