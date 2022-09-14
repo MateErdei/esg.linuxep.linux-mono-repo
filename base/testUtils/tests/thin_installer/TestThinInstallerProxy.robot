@@ -63,6 +63,8 @@ Teardown
     Cleanup Temporary Folders
 
 *** Variables ***
+${PROXY_LOG}  ./tmp/proxy_server.log
+${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 ${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
 
 *** Test Case ***
