@@ -79,7 +79,7 @@ bool EventReaderThread::handleFanotifyEvent()
     }
     else
     {
-        LOGDEBUG("got event: size " << len);
+        //LOGDEBUG("got event: size " << len);
     }
 
     auto* metadata = reinterpret_cast<struct fanotify_event_metadata*>(buf);
@@ -123,13 +123,14 @@ bool EventReaderThread::handleFanotifyEvent()
         auto executablePath = get_executable_path_from_pid(metadata->pid);
 
         auto eventType = E_SCAN_TYPE_UNKNOWN;
-        if (metadata->mask & FAN_OPEN)
-        {
-            eventType = E_SCAN_TYPE_ON_ACCESS_OPEN;
-        }
-        else if (metadata->mask & FAN_CLOSE_WRITE)
+        //Some events have both bits set, we prioritise FAN_CLOSE_WRITE as the event tag. A copy event can cause this.
+        if (metadata->mask & FAN_CLOSE_WRITE)
         {
             eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
+        }
+        else if (metadata->mask & FAN_OPEN)
+        {
+            eventType = E_SCAN_TYPE_ON_ACCESS_OPEN;
         }
         else
         {
@@ -141,7 +142,7 @@ bool EventReaderThread::handleFanotifyEvent()
 
         if (!m_processExclusionStem.empty() && startswith(executablePath, m_processExclusionStem))
         {
-            LOGDEBUG("Excluding SPL-AV process: " << executablePath << " scantype: " << eventStr << " for path: " << path);
+            //LOGDEBUG("Excluding SPL-AV process: " << executablePath << " scantype: " << eventStr << " for path: " << path);
             continue;
         }
 
@@ -150,8 +151,8 @@ bool EventReaderThread::handleFanotifyEvent()
         // TODO: Handle process exclusions
         auto escapedPath = common::escapePathForLogging(path);
 
+        LOGINFO("On-" << eventStr << " event for " << escapedPath << " from Process " << executablePath << " (PID=" << metadata->pid << ") " << "and UID " << uid);
 
-        LOGINFO("On-" << eventStr << " event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uid);
         scanRequest->setPath(path);
         scanRequest->setScanType(eventType);
         scanRequest->setUserID(std::to_string(uid));

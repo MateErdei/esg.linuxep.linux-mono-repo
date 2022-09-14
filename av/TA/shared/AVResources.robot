@@ -266,7 +266,6 @@ On Access Log Contains With Offset
     ${offset} =  Get Variable Value  ${ON_ACCESS_LOG_MARK}  0
     File Log Contains With Offset     ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
 
-
 On Access Log Contains With Offset Times
     [Arguments]  ${input}  ${times}
     ${offset} =  Get Variable Value  ${ON_ACCESS_LOG_MARK}  0
@@ -424,14 +423,9 @@ Wait Until On Access Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15
     Wait Until File Log Contains  On Access Log Contains With Offset  ${input}   timeout=${timeout}
 
-Wait Until On Access Log Contains With Offset Times
+Wait Until On Access Log Contains Times With Offset
     [Arguments]  ${input}  ${timeout}=15  ${times}=1
     Wait Until File Log Contains Times  On Access Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
-
-On Access Log Does Not Contain With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
-    File Log Should Not Contain With Offset  ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
 
 FakeManagement Log Contains
     [Arguments]  ${input}
@@ -1143,8 +1137,16 @@ Unmount Image
 
 Unmount Image Internal
     [Arguments]  ${where}
-    Run Shell Process   umount ${where}   OnError=Failed to unmount local NFS share
-    Remove Directory    ${where}  recursive=True
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Run Shell Process   umount ${where}   OnError=Failed to unmount local NFS share
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Remove Directory    ${where}  recursive=True
+
 
 Mount Image
     [Arguments]  ${where}  ${image}  ${type}  ${opts}=loop
@@ -1158,9 +1160,9 @@ Mount Image
 Require Filesystem
     [Arguments]   ${fs_type}
     ${file_does_not_exist} =  Does File Not Exist  /proc/filesystems
-    Pass Execution If    ${file_does_not_exist}  /proc/filesystems does not exist - cannot determine supported filesystems
+    Skip If    ${file_does_not_exist}  /proc/filesystems does not exist - cannot determine supported filesystems
     ${file_does_not_contain} =  Does File Not Contain  /proc/filesystems  ${fs_type}
-    Pass Execution If    ${file_does_not_contain}  ${fs_type} is not a supported filesystem with this kernel - skipping test
+    Skip If    ${file_does_not_contain}  ${fs_type} is not a supported filesystem with this kernel - skipping test
 
 Terminate And Wait until threat detector not running
     [Arguments]   ${handle}

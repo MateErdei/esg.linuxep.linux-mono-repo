@@ -46,6 +46,10 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
         scanRequest = m_queue.front();
         m_queue.pop();
     }
+    if (m_queue.empty())
+    {
+        LOGDEBUG("Scan Queue is empty");
+    }
     return scanRequest;
 }
 
