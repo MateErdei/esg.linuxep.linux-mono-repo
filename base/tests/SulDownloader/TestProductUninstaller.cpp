@@ -150,6 +150,7 @@ TEST_F( // NOLINT
     std::vector<std::string> fileList = createDefaultFileList(3);
     std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(2);
     EXPECT_CALL(*m_fileSystemMock, isDirectory(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary/product")).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(fileList));
     EXPECT_CALL(*m_fileSystemMock, removeFileOrDirectory(_)).Times(1);
     ProductUninstaller uninstallManager;
@@ -166,6 +167,36 @@ TEST_F( // NOLINT
     EXPECT_NO_THROW(  // NOLINT
         actualProductList = uninstallManager.removeProductsNotDownloaded(
                         productList, m_mockWarehouseRepository));
+    ASSERT_EQ(actualProductList.size(), 1);
+    EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
+
+    EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
+}
+
+TEST_F( // NOLINT
+    ProductUninstallerTest,
+    removeProductsNotDownloaded_DoNotTryToRemoveDistributeDirWhenItDoesntExist)
+{
+    std::vector<std::string> fileList = createDefaultFileList(3);
+    std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(2);
+    EXPECT_CALL(*m_fileSystemMock, isDirectory(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary/product")).WillOnce(Return(false));
+    EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(fileList));
+
+    ProductUninstaller uninstallManager;
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator([&fileList]() {
+                                                                       auto* mockProcess = new StrictMock<MockProcess>();
+                                                                       EXPECT_CALL(*mockProcess, exec(fileList[2], _, _)).Times(1);
+                                                                       EXPECT_CALL(*mockProcess, output()).WillOnce(Return("uninstalling product"));
+                                                                       EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+                                                                       return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+                                                                   });
+    EXPECT_CALL(m_mockWarehouseRepository, getProductDistributionPath(_)).WillOnce(Return(m_defaultDistributionPath));
+    std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
+    EXPECT_NO_THROW(  // NOLINT
+        actualProductList = uninstallManager.removeProductsNotDownloaded(
+            productList, m_mockWarehouseRepository));
     ASSERT_EQ(actualProductList.size(), 1);
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
 

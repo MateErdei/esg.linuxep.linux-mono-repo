@@ -146,6 +146,7 @@ SDDS3 updating respects ALC feature codes
 
     Create Local SDDS3 Override
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
+    Mark Sul Log
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...   120 secs
@@ -160,6 +161,7 @@ SDDS3 updating respects ALC feature codes
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/edr
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/liveresponse
     Directory Should Not Exist   ${SOPHOS_INSTALL}/plugins/mtr
+    Check Marked Sul Log Does Not Contain   Failed to remove path. Reason: Failed to delete file: /opt/sophos-spl/base/update/cache/sdds3primary/
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_ALC_policy.xml  wait_for_policy=${True}
     Trigger Update Now
     Wait Until Keyword Succeeds

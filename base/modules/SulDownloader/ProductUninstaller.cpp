@@ -185,7 +185,11 @@ namespace SulDownloader
                             "Received a path to remove that is not a local distribution repository sub directory: " +
                             distributePath);
                     }
-                    Common::FileSystem::fileSystem()->removeFileOrDirectory(distributePath);
+                    auto fs = Common::FileSystem::fileSystem();
+                    if (fs->isDirectory(distributePath))
+                    {
+                        Common::FileSystem::fileSystem()->removeFileOrDirectory(distributePath);
+                    }
                 }
                 catch (Common::FileSystem::IFileSystemException& ex)
                 {
