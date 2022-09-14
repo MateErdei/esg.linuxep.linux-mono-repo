@@ -22,6 +22,7 @@ namespace UpdateSchedulerImpl
         void addSubscription(const std::string& rigidname, const std::string& tag, const std::string& fixedVersion);
         void setSDDSid(const std::string & );
         void resetTelemetry(Common::Telemetry::TelemetryHelper& );
+        void setSubscriptions(Common::Telemetry::TelemetryHelper& );
     private:
         struct WarehouseTelemetry
         {

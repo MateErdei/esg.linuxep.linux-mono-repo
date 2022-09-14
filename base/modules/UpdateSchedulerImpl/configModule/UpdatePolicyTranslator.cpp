@@ -458,22 +458,30 @@ namespace UpdateSchedulerImpl
     void UpdatePolicyTelemetry::resetTelemetry(Common::Telemetry::TelemetryHelper& telemetryToSet)
     {
         Common::Telemetry::TelemetryObject updateTelemetry;
+        Common::Telemetry::TelemetryValue ssd(warehouseTelemetry.m_sddsid);
+        updateTelemetry.set("sddsid", ssd);
+        telemetryToSet.set("warehouse", updateTelemetry, true);
+
+        setSubscriptions(telemetryToSet);
+        Common::Telemetry::TelemetryHelper::getInstance().unregisterResetCallback("subscriptions");
+        Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback("subscriptions", [this](Common::Telemetry::TelemetryHelper& telemetry){ setSubscriptions(telemetry); });
+
+    }
+
+    void UpdatePolicyTelemetry::setSubscriptions(Common::Telemetry::TelemetryHelper& telemetryToSet)
+    {
         for (auto& subscription : warehouseTelemetry.m_subscriptions)
         {
             if (std::get<2>(subscription).empty())
             {
-                Common::Telemetry::TelemetryHelper::getInstance().set("subscriptions-"+std::get<0>(subscription), std::get<1>(subscription));
+                telemetryToSet.set("subscriptions-"+std::get<0>(subscription), std::get<1>(subscription));
             }
             else
             {
-                Common::Telemetry::TelemetryHelper::getInstance().set("subscriptions-"+std::get<0>(subscription), std::get<2>(subscription));
+                telemetryToSet.set("subscriptions-"+std::get<0>(subscription), std::get<2>(subscription));
             }
 
         }
-        Common::Telemetry::TelemetryValue ssd;
-        ssd.set(warehouseTelemetry.m_sddsid);
-        updateTelemetry.set("sddsid", ssd);
-        telemetryToSet.set("warehouse", updateTelemetry, true);
     }
 
     void UpdatePolicyTelemetry::clearSubscriptions()
