@@ -4,20 +4,21 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
+#include "SoapMemoryAppenderUsingTests.h"
+
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_on_access_process/soapd_bootstrap/OnAccessConfigurationUtils.h"
 
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
-#include "common/LogInitializedTests.h"
 
 #include <gtest/gtest.h>
 
 using namespace sophos_on_access_process::OnAccessConfig;
 namespace fs = sophos_filesystem;
 
-class TestOnAccessConfigUtils : public LogInitializedTests
+class TestOnAccessConfigUtils : public SoapMemoryAppenderUsingTests
 {
 protected:
     fs::path m_testDir;
@@ -98,11 +99,14 @@ TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJsonInvalidJson)
 
 TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJsonInvalidJsonSyntax)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     std::string jsonString = R"(this is going to break)";
 
     OnAccessConfiguration expectedResult {};
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration, keeping existing settings"));
 }
 
 TEST_F(TestOnAccessConfigUtils, parseFlagConfiguration)
@@ -116,7 +120,10 @@ TEST_F(TestOnAccessConfigUtils, parseFlagConfiguration)
 
 TEST_F(TestOnAccessConfigUtils, parseFlagConfigurationFromJsonInvalidJsonSyntax)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     std::string jsonString = R"(this is going to break)";
 
     EXPECT_FALSE(parseFlagConfiguration(jsonString));
+    EXPECT_TRUE(appenderContains("Failed to parse flag configuration, keeping existing settings"));
 }

@@ -14,7 +14,7 @@ namespace
     {
     public:
         SoapMemoryAppenderUsingTests()
-            : MemoryAppenderUsingTests("av")
+            : MemoryAppenderUsingTests("soapd_bootstrap")
         {}
     };
 }
