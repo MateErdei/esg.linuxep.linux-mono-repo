@@ -419,14 +419,14 @@ namespace sspl::sophosthreatdetectorimpl
         threat_scanner::IScanNotificationSharedPtr shutdownTimer =
             std::make_shared<ShutdownTimer>(threat_detector_config(pluginInstall));
 
-        m_updateCompleteNotifier = std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(
+        auto updateCompleteNotifier = std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(
             updateCompletePath,
             0700
             );
-        m_updateCompleteNotifier->start();
+        updateCompleteNotifier->start();
 
         m_scannerFactory =
-            std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer, m_updateCompleteNotifier);
+            std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer, updateCompleteNotifier);
 
         if (sigTermMonitor.triggered())
         {
@@ -525,7 +525,7 @@ namespace sspl::sophosthreatdetectorimpl
         }
 
         m_scannerFactory->shutdown();
-        m_updateCompleteNotifier->tryStop();
+        updateCompleteNotifier->tryStop();
 
         LOGINFO("Sophos Threat Detector is exiting with return code " << returnCode);
         return returnCode;

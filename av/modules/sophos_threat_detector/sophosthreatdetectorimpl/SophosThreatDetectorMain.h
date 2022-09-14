@@ -29,6 +29,5 @@ namespace sspl::sophosthreatdetectorimpl
 
         std::shared_ptr<Reloader> m_reloader;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
-        std::shared_ptr<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket> m_updateCompleteNotifier;
     };
 }
