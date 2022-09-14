@@ -251,7 +251,6 @@ TEST_F(TestEventReaderThread, TestReaderSetUnknownPathIfReadlinkails)
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("got event: size "));
     std::stringstream logMsg;
     logMsg << "On-close event for unknown from PID " << metadata.pid << " and UID 1";
     EXPECT_TRUE(waitForLog(logMsg.str()));
