@@ -8,9 +8,6 @@ add_library(safestoreimpl SHARED
 
 target_link_libraries(safestoreimpl PUBLIC
         common
-#        datatypes
-#        mountmonitor
-#        unixsocket
         )
 
 install(TARGETS safestoreimpl
