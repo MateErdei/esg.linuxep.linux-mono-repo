@@ -177,10 +177,10 @@ namespace common
     std::string fromLogLevelToString(const log4cplus::LogLevel& logLevel)
     {
         using sp = Common::Logging::SophosLogLevel;
-        static std::vector<std::string> LogNames{ { "OFF" },     { "DEBUG" }, { "INFO" },
+        static std::vector<std::string> LogNames{ { "OFF" }, { "TRACE" }, { "DEBUG" }, { "INFO" },
                                                   { "SUPPORT" }, { "WARN" },  { "ERROR" } };
 
-        static std::vector<sp> LogLevels{ sp::OFF, sp::DEBUG, sp::INFO, sp::SUPPORT, sp::WARN, sp::ERROR };
+        static std::vector<sp> LogLevels{ sp::OFF, sp::TRACE, sp::DEBUG, sp::INFO, sp::SUPPORT, sp::WARN, sp::ERROR };
 
         auto ind_it = std::find(LogLevels.begin(), LogLevels.end(), logLevel);
         if (ind_it == LogLevels.end())

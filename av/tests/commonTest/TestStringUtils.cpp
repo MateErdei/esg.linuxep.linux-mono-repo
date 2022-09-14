@@ -177,6 +177,7 @@ TEST_F(TestStringUtils, TestSha256Hash) // NOLINT
 TEST_F(TestStringUtils, TestFromLogLevelToStringReturnsExpectedString) // NOLINT
 {
     EXPECT_EQ(fromLogLevelToString(log4cplus::OFF_LOG_LEVEL), "OFF");
+    EXPECT_EQ(fromLogLevelToString(log4cplus::TRACE_LOG_LEVEL), "TRACE");
     EXPECT_EQ(fromLogLevelToString(log4cplus::DEBUG_LOG_LEVEL), "DEBUG");
     EXPECT_EQ(fromLogLevelToString(log4cplus::INFO_LOG_LEVEL), "INFO");
     EXPECT_EQ(fromLogLevelToString(log4cplus::SUPPORT_LOG_LEVEL), "SUPPORT");
