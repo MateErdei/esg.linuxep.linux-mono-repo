@@ -17,6 +17,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <thread>
 #include <unistd.h>
 
+#define LOGTRACE(x) LOG4CPLUS_TRACE(logger, x)     // NOLINT
 #define LOGDEBUG(x) LOG4CPLUS_DEBUG(logger, x)     // NOLINT
 #define LOGINFO(x) LOG4CPLUS_INFO(logger, x)       // NOLINT
 #define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(logger, x) // NOLINT
@@ -37,6 +38,7 @@ struct TestInput
 };
 enum LogLevels : int
 {
+    TRACE = 0x00,
     DEBUG = 0x01,
     INFO = 0x02,
     SUPPORT = 0x04,
@@ -92,12 +94,14 @@ public:
 
         Common::Logging::FileLoggingSetup setup(productName, false);
         auto logger = Common::Logging::getInstance(productName);
+        LOGTRACE("productname trace");
         LOGDEBUG("productname debug");
         LOGINFO("productname info");
         LOGSUPPORT("productname support");
         LOGWARN("productname warn");
         LOGERROR("productname error");
         logger = Common::Logging::getInstance(componentName);
+        LOGTRACE("componentname trace");
         LOGDEBUG("componentname debug");
         LOGINFO("componentname info");
         LOGSUPPORT("componentname support");
@@ -163,6 +167,10 @@ public:
 private:
     void logShouldContain(const std::string& content, const std::string& logname, int logLevels)
     {
+        if (logLevels & LogLevels::TRACE)
+        {
+            EXPECT_TRUE(contains(content, logname + " trace"));
+        }
         if (logLevels & LogLevels::DEBUG)
         {
             EXPECT_TRUE(contains(content, logname + " debug"));
@@ -188,6 +196,10 @@ private:
 
     void logShouldNotContain(const std::string& content, const std::string& logname, int logLevels)
     {
+        if (logLevels & LogLevels::TRACE)
+        {
+            EXPECT_FALSE(contains(content, logname + " trace"));
+        }
         if (logLevels & LogLevels::DEBUG)
         {
             EXPECT_FALSE(contains(content, logname + " debug"));
@@ -272,6 +284,42 @@ VERBOSITY=INFO
                          .rootPath = TestLoggerConfig::testRunPath->dirPath() };
     EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
 }
+
+TEST_F(TestLoggerConfig, GlobalTraceLogWrittenToFile) // NOLINT
+{
+    TestInput testInput{ .logConfig = R"(
+[global]
+VERBOSITY=TRACE
+)",
+                         .localLogConfig = "",
+                         .productContainLogs = LogLevels::TRACE | LogLevels::INFO | LogLevels::ERROR |
+                                               LogLevels::WARN | LogLevels::DEBUG | LogLevels::SUPPORT,
+                         .productDoesNotContainLogs = 0,
+                         .moduleContainLogs = LogLevels::TRACE | LogLevels::INFO | LogLevels::ERROR |
+                                              LogLevels::WARN | LogLevels::DEBUG | LogLevels::SUPPORT,
+                         .moduleDoesNotContainLogs = 0,
+                         .rootPath = TestLoggerConfig::testRunPath->dirPath() };
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+}
+
+TEST_F(TestLoggerConfig, ComponentCanBeTraceWhenGlobalIsSomethingElse) // NOLINT
+{
+    TestInput testInput{ .logConfig = R"(
+[testlogging]
+VERBOSITY=TRACE
+[global]
+VERBOSITY=DEBUG
+)",
+                         .localLogConfig = "",
+                         .productContainLogs = LogLevels::INFO | LogLevels::ERROR | LogLevels::WARN | LogLevels::DEBUG | LogLevels::SUPPORT,
+                         .productDoesNotContainLogs = LogLevels::TRACE,
+                         .moduleContainLogs =   LogLevels::TRACE | LogLevels::INFO | LogLevels::ERROR |
+                                                LogLevels::WARN | LogLevels::DEBUG | LogLevels::SUPPORT,
+                         .moduleDoesNotContainLogs = 0,
+                         .rootPath = TestLoggerConfig::testRunPath->dirPath() };
+    EXPECT_EXIT({ runTest(testInput); }, ::testing::ExitedWithCode(0), "Success"); // NOLINT
+}
+
 
 TEST_F(TestLoggerConfig, TargetProductAndModuleDifferently) // NOLINT
 {
