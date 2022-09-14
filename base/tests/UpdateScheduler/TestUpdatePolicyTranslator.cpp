@@ -701,7 +701,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStill
     UpdatePolicyTranslator translator;
     (void)translator.translatePolicy(updatePolicyWithScheduledUpdate);
     std::string expectedTelemetry{
-        R"sophos({"warehouse":{"sddsid":"QA940267","subscriptions":[{"fixedversion":"","rigidname":"ServerProtectionLinux-Base","tag":"RECOMMENDED"},{"fixedversion":"","rigidname":"ServerProtectionLinux-Base9","tag":"RECOMMENDED"}]}})sophos"
+        R"sophos({"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Base9":"RECOMMENDED","warehouse":{"sddsid":"QA940267"}})sophos"
     };
     std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     EXPECT_EQ(telemetry, expectedTelemetry);
@@ -727,7 +727,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionNotEmpty) // NOLINT
     UpdatePolicyTranslator translator;
     (void)translator.translatePolicy(updatePolicyWithCache);
     std::string expectedTelemetry{
-        R"sophos({"warehouse":{"sddsid":"W2YJXI6FED","subscriptions":[{"fixedversion":"11","rigidname":"ServerProtectionLinux-Base","tag":"RECOMMENDED"},{"fixedversion":"8","rigidname":"ServerProtectionLinux-Base9","tag":"RECOMMENDED"}]}})sophos"
+        R"sophos({"subscriptions-ServerProtectionLinux-Base":"11","subscriptions-ServerProtectionLinux-Base9":"8","warehouse":{"sddsid":"W2YJXI6FED"}})sophos"
     };
     std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     EXPECT_EQ(telemetry, expectedTelemetry);

@@ -458,20 +458,21 @@ namespace UpdateSchedulerImpl
     void UpdatePolicyTelemetry::resetTelemetry(Common::Telemetry::TelemetryHelper& telemetryToSet)
     {
         Common::Telemetry::TelemetryObject updateTelemetry;
-        std::list<Common::Telemetry::TelemetryObject> listSubscriptions;
         for (auto& subscription : warehouseTelemetry.m_subscriptions)
         {
-            auto telemetryObject = Common::Telemetry::TelemetryObject::fromVectorOfKeyValues(
-                { { "rigidname", std::get<0>(subscription) },
-                  { "tag", std::get<1>(subscription) },
-                  { "fixedversion", std::get<2>(subscription) } });
-            listSubscriptions.push_back(telemetryObject);
+            if (std::get<2>(subscription).empty())
+            {
+                Common::Telemetry::TelemetryHelper::getInstance().set("subscriptions-"+std::get<0>(subscription), std::get<1>(subscription));
+            }
+            else
+            {
+                Common::Telemetry::TelemetryHelper::getInstance().set("subscriptions-"+std::get<0>(subscription), std::get<2>(subscription));
+            }
 
         }
         Common::Telemetry::TelemetryValue ssd;
         ssd.set(warehouseTelemetry.m_sddsid);
         updateTelemetry.set("sddsid", ssd);
-        updateTelemetry.set("subscriptions", listSubscriptions);
         telemetryToSet.set("warehouse", updateTelemetry, true);
     }
 
@@ -482,14 +483,7 @@ namespace UpdateSchedulerImpl
 
     void UpdatePolicyTelemetry::addSubscription(const std::string& rigidname, const std::string& tag, const std::string& fixedVersion)
     {
-        if (fixedVersion.empty())
-        {
-            Common::Telemetry::TelemetryHelper::getInstance().set(rigidname, tag);
-        }
-        else
-        {
-            Common::Telemetry::TelemetryHelper::getInstance().set(rigidname, fixedVersion);
-        }
+        warehouseTelemetry.m_subscriptions.emplace_back(rigidname, tag, fixedVersion);
     }
 
 
