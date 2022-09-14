@@ -47,9 +47,13 @@ namespace threat_scanner
             LOGDEBUG("Notify clients that the update has completed");
             m_updateCompleteCallback->updateComplete();
         }
-        else
+        else if (!updated)
         {
-            LOGWARN("Update failed");
+            LOGWARN("SUSI Update failed");
+        }
+        else if (!m_updateCompleteCallback)
+        {
+            LOGDEBUG("No callback to notify update complete");
         }
         return updated;
     }
