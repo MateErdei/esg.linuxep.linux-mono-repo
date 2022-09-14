@@ -267,7 +267,9 @@ ScanNow Test Setup
     Check AV Plugin Log exists
     Mark AV Log
     Mark Sophos Threat Detector Log
+
     Register Cleanup      Check All Product Logs Do Not Contain Error
+    Register Cleanup      Exclude On Access Scan Errors
     Register Cleanup      Exclude CustomerID Failed To Read Error
     Register Cleanup      Require No Unhandled Exception
     Register Cleanup      Check For Coredumps  ${TEST NAME}

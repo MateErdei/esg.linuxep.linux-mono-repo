@@ -53,7 +53,6 @@ On Access Test Setup
 
     Register Cleanup  Remove File     ${ONACCESS_FLAG_CONFIG}
     Register Cleanup  Check All Product Logs Do Not Contain Error
-    Register Cleanup  Wait Until On Access Log Contains With Offset  Scan Queue is empty    timeout=${timeout}
     Register Cleanup  Exclude On Access Scan Errors
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
@@ -86,17 +85,21 @@ Verify on access log rotated
 *** Test Cases ***
 
 On Access Log Rotates
+    deregister cleanup  Wait Until On Access Log Contains With Offset  Scan Queue is empty    timeout=${timeout}
     Dump and Reset Logs
     # Ensure the log is created
-    OnAccessResources.Start AV
-    Terminate AV
+
+    Start AV and On Access
+    Terminate On Access And AV
     Increase On Access Log To Max Size
-    OnAccessResources.Start AV
+
+    Start AV and On Access
     Wait Until Created   ${AV_PLUGIN_PATH}/log/soapd.log.1   timeout=10s
-    Terminate AV
+    Terminate On Access And AV
+
     ${result} =  Run Process  ls  -altr  ${AV_PLUGIN_PATH}/log/
     Log  ${result.stdout}
-    deregister cleanup  Wait Until On Access Log Contains With Offset  Scan Queue is empty    timeout=${timeout}
+
     Verify on access log rotated
 
 On Access Process Parses Policy Config
@@ -149,8 +152,7 @@ On Access Monitors Addition And Removal Of Mount Points
     Wait Until On Access Log Contains With Offset  Including mount point:
     On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
     Sleep  1s
-    ${numMountsPreNFSmount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
-    Log  Number of Mount Points: ${numMountsPreNFSmount}
+    ${numMountsPreMount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
 
     Mark On Access Log
     ${source} =       Set Variable  /tmp_test/nfsshare
@@ -165,10 +167,9 @@ On Access Monitors Addition And Removal Of Mount Points
     Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
     Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
     Sleep  1s
-    ${totalNumMountsPostNFSmount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
-    Log  Number of Mount Points: ${totalNumMountsPostNFSmount}
+    ${totalNumMountsPostNFSmount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
     #TODO Why does it record two mount updates in quick succession
-    Should Be True  ${totalNumMountsPostNFSmount} >= ${numMountsPreNFSmount+1}
+    Should Be True  ${totalNumMountsPostNFSmount} >= ${numMountsPreMount+1}
 
     Mark On Access Log
     Remove Local NFS Share   ${source}   ${destination}
@@ -177,10 +178,9 @@ On Access Monitors Addition And Removal Of Mount Points
     Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
     On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
     Sleep  1s
-    ${totalNumMountsPostNFSumount} =  Count Lines In Log With Offset  ${ON_ACCESS_LOG_PATH}  Including mount point:  ${ON_ACCESS_LOG_MARK}
-    Log  Number of Mount Points: ${totalNumMountsPostNFSumount}
+    ${totalNumMountsPostNFSumount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
     #TODO Why does it record two mount updates in quick succession
-    Should Be True  ${totalNumMountsPostNFSmount} >= ${numMountsPreNFSmount}
+    Should Be True  ${totalNumMountsPostNFSmount} >= ${numMountsPreMount}
 
 
 On Access Logs When A File Is Closed Following Write After Being Disabled
@@ -290,3 +290,33 @@ On Access Does not Use Policy Setttings If Flags Have Overriden Policy
     On-access No Eicar Scan
 
     Dump Log  ${on_access_log_path}
+
+
+On Access Process Reconnects To Threat Detector
+    ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
+    ${script} =  Set Variable  ${BASH_SCRIPTS_PATH}/cleanFileWriter.sh
+    ${HANDLE} =  Start Process  bash  ${script}  stderr=STDOUT
+    Register Cleanup  Terminate Process  ${HANDLE}
+    Register Cleanup  Remove Directory  /tmp_test/clean_file_writer/  recursive=True
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
+    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+    Mark On Access Log
+    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
+    #Depending on whether a scan is being processed or it is being requested one of these 2 errors should appear
+    File Log Contains One of   ${ON_ACCESS_LOG_PATH}  0  Failed to receive scan response  Failed to send scan request
+
+    On Access Log Does Not Contain With Offset  Failed to scan ${filepath}
+
+On Access Scan Times Out When Unable To Connect To Threat Detector
+    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+    Restart On Access
+
+    ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
+    Create File  ${filepath}  clean
+    Register Cleanup  Remove File  ${filepath}
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
+    Wait Until On Access Log Contains With Offset  Failed to connect to Sophos Threat Detector - retrying after sleep
+    Wait Until On Access Log Contains With Offset  Reached total maximum number of connection attempts.  timeout=${timeout}

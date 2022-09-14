@@ -16,7 +16,7 @@ Library         ../Libs/ThreatReportUtils.py
 
 ** Variables ***
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
-${timeout}  ${60}
+${timeout}  ${300}
 
 
 *** Keywords ***
@@ -52,6 +52,14 @@ Restart On Access
     Terminate On Access
     Start On Access
 
+Restart AV
+    Terminate AV
+    Start AV
+
+Restart On Access And AV
+    Terminate On Access And AV
+    Start AV and On Access
+
 Start AV and On Access
     OnAccessResources.Start AV
     Start On Access
@@ -75,7 +83,7 @@ Disable OA Scanning
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset  On-access enabled: "false"
+    Wait Until On Access Log Contains With Offset  "oa_enabled":false
     Wait Until On Access Log Contains With Offset  Joining eventReader
 
 
@@ -86,7 +94,7 @@ Enable OA Scanning
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
+    Wait Until On Access Log Contains With Offset  "oa_enabled":true
     Wait Until On Access Log Contains With Offset  Starting eventReader
 
 On-access Scan Eicar Close

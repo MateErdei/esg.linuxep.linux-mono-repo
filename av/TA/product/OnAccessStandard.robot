@@ -41,6 +41,9 @@ On Access Suite Teardown
 On Access Test Setup
     Component Test Setup
     Mark On Access Log
+    Start On Access If Not Running
+    Start Av Plugin If Not Running
+    Start Sophos Threat Detector If Not Running
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults

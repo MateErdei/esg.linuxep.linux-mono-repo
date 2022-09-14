@@ -36,6 +36,23 @@ TEST_F(TestScanRequestQueue, push_onlyEnqueuesUpToMaxSize)
     EXPECT_TRUE(waitForLog("Unable to add scan request to queue as it is"));
 }
 
+TEST_F(TestScanRequestQueue, reportsWhenEmptied)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    ScanRequestQueue queue(1);
+    auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
+    emplaceRequest1->setUserID("1");
+
+    EXPECT_EQ(queue.size(), 0);
+    EXPECT_TRUE(queue.emplace(emplaceRequest1));
+    EXPECT_EQ(queue.size(), 1);
+    EXPECT_NE(queue.pop(), nullptr);
+
+
+    EXPECT_TRUE(waitForLog("Scan Queue is empty"));
+}
+
 TEST_F(TestScanRequestQueue, push_FIFO)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);

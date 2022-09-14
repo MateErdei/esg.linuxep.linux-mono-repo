@@ -54,6 +54,17 @@ def start_av_plugin_if_not_running():
     return pid
 
 
+def start_on_access_if_not_running():
+    PLUGIN_INSTALL = get_plugin_install()
+    oa_exe = os.path.join(PLUGIN_INSTALL, "sbin", "soapd")
+    pid = ProcessUtils.pidof(oa_exe)
+    if pid == -1:
+        BuiltIn().run_keyword("Mark On Access Log")
+        __start_plugin("soapd")
+        ProcessUtils.wait_for_pid(oa_exe, 15)
+        BuiltIn().run_keyword("Wait Until On Access running with offset")
+    return pid
+
 def start_sophos_threat_detector_if_not_running():
     PLUGIN_INSTALL = get_plugin_install()
     threat_detector_exe = os.path.join(PLUGIN_INSTALL, "sbin", "sophos_threat_detector")

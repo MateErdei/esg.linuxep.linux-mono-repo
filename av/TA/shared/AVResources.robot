@@ -495,6 +495,13 @@ Wait Until On Access running
         ...  2 secs
         ...  On Access Log Contains  Sophos on access process started
 
+Wait Until On Access running with offset
+    ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
+    Wait Until Keyword Succeeds
+        ...  60 secs
+        ...  2 secs
+        ...  Wait Until On Access Log Contains With Offset  Sophos on access process started
+
 Wait until threat detector running
     # wait for sophos_threat_detector to initialize
     ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
@@ -1160,9 +1167,9 @@ Mount Image
 Require Filesystem
     [Arguments]   ${fs_type}
     ${file_does_not_exist} =  Does File Not Exist  /proc/filesystems
-    Skip If    ${file_does_not_exist}  /proc/filesystems does not exist - cannot determine supported filesystems
+    Pass Execution If    ${file_does_not_exist}  /proc/filesystems does not exist - cannot determine supported filesystems
     ${file_does_not_contain} =  Does File Not Contain  /proc/filesystems  ${fs_type}
-    Skip If    ${file_does_not_contain}  ${fs_type} is not a supported filesystem with this kernel - skipping test
+    Pass Execution If    ${file_does_not_contain}  ${fs_type} is not a supported filesystem with this kernel - skipping test
 
 Terminate And Wait until threat detector not running
     [Arguments]   ${handle}
