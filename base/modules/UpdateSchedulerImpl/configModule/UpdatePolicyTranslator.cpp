@@ -443,10 +443,12 @@ namespace UpdateSchedulerImpl
             m_revID{},
             m_updatePolicy{ }
         {
+            Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback("subscriptions", [this](Common::Telemetry::TelemetryHelper& telemetry){ m_updatePolicy.setSubscriptions(telemetry); });
         }
 
         UpdatePolicyTranslator::~UpdatePolicyTranslator()
         {
+            Common::Telemetry::TelemetryHelper::getInstance().unregisterResetCallback("subscriptions");
         }
     } // namespace configModule
 
@@ -463,8 +465,8 @@ namespace UpdateSchedulerImpl
         telemetryToSet.set("warehouse", updateTelemetry, true);
 
         setSubscriptions(telemetryToSet);
-        Common::Telemetry::TelemetryHelper::getInstance().unregisterResetCallback("subscriptions");
-        Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback("subscriptions", [this](Common::Telemetry::TelemetryHelper& telemetry){ setSubscriptions(telemetry); });
+
+
 
     }
 
