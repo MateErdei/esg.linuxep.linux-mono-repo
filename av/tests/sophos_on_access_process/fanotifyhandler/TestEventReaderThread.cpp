@@ -95,9 +95,8 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("got event: size "));
     std::stringstream logMsg;
-    logMsg << "On-close event for " << filePath << " from PID " << metadata.pid << " and UID " << statbuf.st_uid;
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -132,9 +131,8 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("got event: size "));
     std::stringstream logMsg;
-    logMsg << "On-open event for " << filePath << " from PID " << metadata.pid << " and UID " << statbuf.st_uid;
+    logMsg << "On-open event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -172,9 +170,8 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("got event: size "));
     std::stringstream logMsg1;
-    logMsg1 << "On-open event for " << filePath1 << " from PID " << metadata.pid << " and UID " << statbuf.st_uid;
+    logMsg1 << "On-open event for " << filePath1 << " from Process (PID=" << metadata.pid << ") and UID " << statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg1.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -183,8 +180,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     eventReaderThread.startIfNotStarted();
 
     std::stringstream logMsg2;
-    logMsg2 << "On-open event for " << filePath2 << " from PID " << metadata.pid << " and UID " << statbuf.st_uid;
-    EXPECT_TRUE(waitForLog("got event: size "));
+    logMsg2 << "On-open event for " << filePath2 << " from Process (PID=" << metadata.pid << ") and UID " << statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg2.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 2);
@@ -215,7 +211,6 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("got event: size "));
     std::stringstream logMsg;
     logMsg << "unknown operation mask: " << std::hex << metadata.mask;
     EXPECT_TRUE(waitForLog(logMsg.str()));
@@ -247,10 +242,9 @@ TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("got event: size "));
     uid_t invalidUid = static_cast<uid_t>(-1);
     std::stringstream logMsg;
-    logMsg << "On-close event for " << filePath << " from PID " << metadata.pid << " and UID " << invalidUid;
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << invalidUid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -275,7 +269,6 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("got event: size "));
     std::stringstream logMsg;
     logMsg << "fanotify wrong protocol version " << metadata.vers;
     EXPECT_TRUE(waitForLog(logMsg.str()));
@@ -305,7 +298,6 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithoutFD)
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("got event: size "));
     EXPECT_TRUE(waitForLog("Got fanotify metadata event without fd"));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
@@ -335,7 +327,6 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPid)
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("got event: size "));
     EXPECT_TRUE(waitForLog("Event pid matches On Access pid, skipping event"));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
@@ -365,7 +356,6 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsInPluginLogDir)
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("got event: size "));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
@@ -398,7 +388,6 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("got event: size "));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     eventReaderThread.requestStopIfNotStopped();
 

@@ -151,7 +151,7 @@ bool EventReaderThread::handleFanotifyEvent()
         // TODO: Handle process exclusions
         auto escapedPath = common::escapePathForLogging(path);
 
-        LOGINFO("On-" << eventStr << " event for " << escapedPath << " from Process " << executablePath << " (PID=" << metadata->pid << ") " << "and UID " << uid);
+        LOGINFO("On-" << eventStr << " event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
 
         scanRequest->setPath(path);
         scanRequest->setScanType(eventType);
