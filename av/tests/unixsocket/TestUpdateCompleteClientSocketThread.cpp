@@ -22,7 +22,7 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class MockIUpdateCompleteCallback : public IUpdateCompleteCallback
+    class MockIUpdateCompleteCallback : public threat_scanner::IUpdateCompleteCallback
     {
     public:
         MOCK_METHOD(void, updateComplete, (), (override));

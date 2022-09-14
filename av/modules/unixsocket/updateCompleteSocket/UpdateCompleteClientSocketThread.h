@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "IUpdateCompleteCallback.h"
+#include "sophos_threat_detector/threat_scanner/IUpdateCompleteCallback.h"
 
 #include "unixsocket/BaseClient.h"
 
@@ -16,6 +16,7 @@ namespace unixsocket::updateCompleteSocket
                                              public common::AbstractThreadPluginInterface
     {
     public:
+        using IUpdateCompleteCallback = threat_scanner::IUpdateCompleteCallback;
         using IUpdateCompleteCallbackPtr = std::shared_ptr<IUpdateCompleteCallback>;
         UpdateCompleteClientSocketThread(std::string socket_path,
                                          IUpdateCompleteCallbackPtr callback,

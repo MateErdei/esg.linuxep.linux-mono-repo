@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+using namespace threat_scanner;
 using namespace unixsocket::updateCompleteSocket;
 
 namespace

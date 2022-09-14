@@ -32,8 +32,6 @@ add_library(unixsocket SHARED
         threatReporterSocket/ThreatReporterServerConnectionThread.h
         threatReporterSocket/ThreatReporterClient.cpp
         threatReporterSocket/ThreatReporterClient.h
-        ../sophos_threat_detector/threat_scanner/IUpdateCompleteCallback.h
-        updateCompleteSocket/IUpdateCompleteCallback.h
         updateCompleteSocket/UpdateCompleteClientSocketThread.cpp
         updateCompleteSocket/UpdateCompleteClientSocketThread.h
         updateCompleteSocket/UpdateCompleteServerSocket.cpp
