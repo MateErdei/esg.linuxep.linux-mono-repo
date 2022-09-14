@@ -18,8 +18,7 @@ namespace UpdateSchedulerImpl
     class UpdatePolicyTelemetry
     {
     public:
-        void clearSubscriptions();
-        void addSubscription(const std::string& rigidname, const std::string& tag, const std::string& fixedVersion);
+        void updateSubscriptions(std::vector<std::tuple<std::string, std::string, std::string>> subscriptions);
         void setSDDSid(const std::string & );
         void resetTelemetry(Common::Telemetry::TelemetryHelper& );
         void setSubscriptions(Common::Telemetry::TelemetryHelper& );

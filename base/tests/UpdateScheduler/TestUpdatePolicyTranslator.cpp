@@ -755,6 +755,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredCo
 {
     UpdatePolicyTranslator translator;
     (void)translator.translatePolicy(mdrSSPLBasePolicy);
+    Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     auto thread1 = std::async(std::launch::async, []() {
         for (int i = 0; i < 1000; i++)
         {

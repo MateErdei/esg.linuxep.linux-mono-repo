@@ -292,14 +292,16 @@ namespace UpdateSchedulerImpl
             std::vector<SulDownloader::suldownloaderdata::ProductSubscription> productsSubscription;
 
             bool ssplBaseIncluded = false;
-            m_updatePolicy.clearSubscriptions();
+
+            std::vector<std::tuple<std::string, std::string, std::string>> subscriptions;
             for (const auto& cloudSubscription : cloudSubscriptions)
             {
                 auto subscriptionDetails = attributesMap.lookup(cloudSubscription);
                 std::string rigidName = subscriptionDetails.value("RigidName");
                 std::string tag = subscriptionDetails.value("Tag");
                 std::string fixedVersion = subscriptionDetails.value(FixedVersion);
-                m_updatePolicy.addSubscription(rigidName, tag, fixedVersion);
+
+                subscriptions.emplace_back(rigidName, tag, fixedVersion);
                 if (rigidName != SulDownloader::suldownloaderdata::SSPLBaseName)
                 {
                     productsSubscription.emplace_back(SulDownloader::suldownloaderdata::ProductSubscription(
@@ -318,6 +320,8 @@ namespace UpdateSchedulerImpl
                     ssplBaseIncluded = true;
                 }
             }
+            m_updatePolicy.updateSubscriptions(subscriptions);
+            m_updatePolicy.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
             config.setProductsSubscription(productsSubscription);
 
             if (!ssplBaseIncluded)
@@ -375,7 +379,7 @@ namespace UpdateSchedulerImpl
                     periodInt = value.first;
                 }
             }
-            m_updatePolicy.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
+
             return SettingsHolder{ config, certificateFileContent, std::chrono::minutes(periodInt), weeklySchedule};
         }
 
@@ -466,8 +470,6 @@ namespace UpdateSchedulerImpl
 
         setSubscriptions(telemetryToSet);
 
-
-
     }
 
     void UpdatePolicyTelemetry::setSubscriptions(Common::Telemetry::TelemetryHelper& telemetryToSet)
@@ -486,14 +488,10 @@ namespace UpdateSchedulerImpl
         }
     }
 
-    void UpdatePolicyTelemetry::clearSubscriptions()
-    {
-        warehouseTelemetry.m_subscriptions.clear();
-    }
 
-    void UpdatePolicyTelemetry::addSubscription(const std::string& rigidname, const std::string& tag, const std::string& fixedVersion)
+    void UpdatePolicyTelemetry::updateSubscriptions(std::vector<std::tuple<std::string, std::string, std::string>> subscriptions)
     {
-        warehouseTelemetry.m_subscriptions.emplace_back(rigidname, tag, fixedVersion);
+        warehouseTelemetry.m_subscriptions = subscriptions;
     }
 
 
