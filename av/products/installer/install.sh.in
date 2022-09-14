@@ -309,6 +309,15 @@ function apply_permissions()
     chown root:${GROUP_NAME} "${CHROOT}"
 }
 
+function create_registration_file()
+{
+  local NAME=$1
+  local TEMP_REG_FILE=${SOPHOS_INSTALL}/tmp/${NAME}.json
+  sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/${NAME}.json" > "${TEMP_REG_FILE}"
+  "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_REG_FILE}"
+  rm -f ${TEMP_REG_FILE}
+}
+
 function install_product()
 {
     local GETENT=/usr/bin/getent
@@ -335,19 +344,11 @@ function install_product()
         timeout 10 tail --pid=$(pgrep -G ${GROUP_NAME} sophos_threat_d) -f /dev/null 2> /dev/null
     fi
 
-    #Create plugin registration file
-    local TEMP_PLUGIN_REG_FILE=${SOPHOS_INSTALL}/tmp/${PLUGIN_NAME}.json
-    local TEMP_THREAT_DETECTOR_REG_FILE=${SOPHOS_INSTALL}/tmp/threat_detector.json
-    local TEMP_ONACCESS_PROCESS_REG_FILE=${SOPHOS_INSTALL}/tmp/on_access_process.json
-    sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/${PLUGIN_NAME}.json"  > "${TEMP_PLUGIN_REG_FILE}"
-    sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/threat_detector.json" > "${TEMP_THREAT_DETECTOR_REG_FILE}"
-    sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/on_access_process.json" > "${TEMP_ONACCESS_PROCESS_REG_FILE}"
-    "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_PLUGIN_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_PLUGIN_REG_FILE}"
-    "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_THREAT_DETECTOR_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_THREAT_DETECTOR_REG_FILE}"
-    "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_ONACCESS_PROCESS_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_ONACCESS_PROCESS_REG_FILE}"
-    rm -f ${TEMP_PLUGIN_REG_FILE}
-    rm -f ${TEMP_THREAT_DETECTOR_REG_FILE}
-    rm -f ${TEMP_ONACCESS_PROCESS_REG_FILE}
+    #Create plugin registration files
+    create_registration_file ${PLUGIN_NAME}
+    create_registration_file "threat_detector"
+    create_registration_file "on_access_process"
+    create_registration_file "safestore"
 
     #Install files using versioned copy (apart from SUSI)
     find "$DIST/files/plugins" -type f -not -path "$DIST/files/plugins/av/chroot/susi/*" -print0 \
@@ -398,10 +399,10 @@ function install_product()
     #After install start AV Plugin
     "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
 
-    #Then start sophos_threat_detector
+    #Then start relevant processes
     "${SOPHOS_INSTALL}/bin/wdctl" start threat_detector || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos_threat_detector"
-
     "${SOPHOS_INSTALL}/bin/wdctl" start on_access_process || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos on-access process"
+    "${SOPHOS_INSTALL}/bin/wdctl" start safestore || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start SafeStore"
 
     cp "$DIST/manifest.dat" "${VAR}/manifest.dat" || failure ${EXIT_FAIL_COPY_MANIFEST} "Failed to copy manifest from install-set to installation"
 }
