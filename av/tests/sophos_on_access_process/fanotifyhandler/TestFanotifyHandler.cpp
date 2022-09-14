@@ -49,6 +49,7 @@ TEST_F(TestFanotifyHandler, construction_logsErrorIfFanotifyInitFails)
     EXPECT_THROW(sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper), std::runtime_error);
 }
 
+/*
 TEST_F(TestFanotifyHandler, errorWhenMarkFails)
 {
     int fanotifyFd = -1;
@@ -62,3 +63,4 @@ TEST_F(TestFanotifyHandler, errorWhenMarkFails)
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
     EXPECT_EQ(-1, handler.cacheFd(FAN_MARK_ADD | FAN_MARK_IGNORED_MASK, FAN_OPEN, 123, ""));
 }
+*/

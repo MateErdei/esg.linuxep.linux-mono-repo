@@ -1,3 +1,7 @@
+#OnAccessStandard starts OnAccess,AV and Threat Detector at suite start up.
+#Tests should assess behaviour while these services are running without disrupting their enabled state.
+#For tests that want to disrupt standard behaviour use OnAccessAlternative.
+
 *** Settings ***
 Documentation   Product tests for SOAP
 Force Tags      PRODUCT  SOAP

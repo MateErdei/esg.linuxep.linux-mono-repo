@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include "ScanRequest.h"
 
@@ -57,9 +53,4 @@ bool ScanRequest::scanInsideArchives() const
 bool ScanRequest::scanInsideImages() const
 {
     return m_scanInsideImages;
-}
-
-E_SCAN_TYPE ScanRequest::getScanType() const
-{
-    return m_scanType;
 }

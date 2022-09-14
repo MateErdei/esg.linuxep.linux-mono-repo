@@ -48,10 +48,6 @@ namespace scan_messages
          */
         [[nodiscard]] std::string path() const;
 
-        /**
-         * The type of scan
-         */
-        [[nodiscard]] E_SCAN_TYPE getScanType() const;
     private:
         void close();
         void setRequestFromMessage(Reader& requestMessage);

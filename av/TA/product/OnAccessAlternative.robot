@@ -1,3 +1,7 @@
+#OnAccessAlternative starts and stops OnAccess,AV and Threat Detector each test.
+#Tests should assess behaviour while disrupting their enabled, normal state.
+#For tests that want to assess behaviour during standard running use OnAccessStandard
+
 *** Settings ***
 Documentation   Product tests for SOAP
 Force Tags      PRODUCT  SOAP

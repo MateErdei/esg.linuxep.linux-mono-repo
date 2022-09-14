@@ -20,6 +20,7 @@
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
+
 // Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 // Std C++
@@ -73,7 +74,11 @@ void SoapdBootstrap::innerRun(
     auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
 
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
-    auto fanotifyHandler = std::make_unique<FanotifyHandler>(sysCallWrapper);
+
+    const struct rlimit file_lim = { 4096, 4096 };
+    sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
+
+    auto fanotifyHandler = std::make_shared<FanotifyHandler>(sysCallWrapper);
 
     m_mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config,
                                                                                      sysCallWrapper,

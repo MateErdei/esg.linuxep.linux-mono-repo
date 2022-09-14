@@ -8,6 +8,7 @@
 
 using namespace scan_messages;
 
+
 std::string ClientScanRequest::serialise() const
 {
     ::capnp::MallocMessageBuilder message;
@@ -23,33 +24,6 @@ std::string ClientScanRequest::serialise() const
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
     kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
     std::string dataAsString(bytes.begin(), bytes.end());
+
     return dataAsString;
-}
-
-
-std::string ClientScanRequest::getScanTypeAsStr() const
-{
-    switch (m_scanType)
-    {
-        case E_SCAN_TYPE_ON_ACCESS_OPEN:
-        {
-            return "Open";
-        }
-        case E_SCAN_TYPE_ON_ACCESS_CLOSE:
-        {
-            return "Close-Write";
-        }
-        case E_SCAN_TYPE_ON_DEMAND:
-        {
-            return "On Demand";
-        }
-        case E_SCAN_TYPE_SCHEDULED:
-        {
-            return "Scheduled";
-        }
-        default:
-        {
-            return "Unknown";
-        }
-    }
 }

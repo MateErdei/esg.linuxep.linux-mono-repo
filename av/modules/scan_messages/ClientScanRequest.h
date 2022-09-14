@@ -11,6 +11,34 @@
 
 namespace scan_messages
 {
+
+    [[maybe_unused]] static std::string getScanTypeAsStr(const E_SCAN_TYPE& scanType)
+    {
+        switch (scanType)
+        {
+            case E_SCAN_TYPE_ON_ACCESS_OPEN:
+            {
+                return "Open";
+            }
+            case E_SCAN_TYPE_ON_ACCESS_CLOSE:
+            {
+                return "Close-Write";
+            }
+            case E_SCAN_TYPE_ON_DEMAND:
+            {
+                return "On Demand";
+            }
+            case E_SCAN_TYPE_SCHEDULED:
+            {
+                return "Scheduled";
+            }
+            default:
+            {
+                return "Unknown";
+            }
+        }
+    }
+
     class ClientScanRequest
     {
     public:
@@ -38,7 +66,7 @@ namespace scan_messages
         [[nodiscard]] std::string serialise() const;
         [[nodiscard]] std::string getPath() const { return m_path; };
         [[nodiscard]] int getFd() const { return m_autoFd.fd(); }
-        [[nodiscard]] std::string getScanTypeAsStr() const;
+        [[nodiscard]] E_SCAN_TYPE getScanType() const { return m_scanType; }
         [[nodiscard]] bool isOpenEvent() const { return m_scanType == E_SCAN_TYPE_ON_ACCESS_OPEN; }
 
     protected:

@@ -113,7 +113,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
                 detections.emplace(detection.path, detection.name);
             }
 
-            m_callbacks->infectedFile(detections, fileToScanPath, request->getScanTypeAsStr(), isSymlink);
+            m_callbacks->infectedFile(detections, fileToScanPath, scan_messages::getScanTypeAsStr(request->getScanType()), isSymlink);
         }
     }
     return response;

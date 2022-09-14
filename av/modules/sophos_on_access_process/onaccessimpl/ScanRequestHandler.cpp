@@ -89,7 +89,7 @@ void ScanRequestHandler::scan(
             LOGERROR(errorMsg);
         }
 
-        auto scanType = scanRequest->getScanTypeAsStr();
+        auto scanType = scan_messages::getScanTypeAsStr(scanRequest->getScanType());
 
         for(const auto& detection : response.getDetections())
         {
