@@ -978,6 +978,10 @@ Record Sophos Threat Detector PID
     ${PID} =  ProcessUtils.wait for pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
     [Return]   ${PID}
 
+Record Soapd Plugin PID
+    ${PID} =  ProcessUtils.wait for pid  ${ON_ACCESS_BIN}  ${5}
+    [Return]   ${PID}
+
 Get Sophos Threat Detector PID From File
     ${PID} =  Get File    ${SOPHOS_THREAT_DETECTOR_PID_FILE_PATH}
     [Return]   ${PID}
@@ -990,6 +994,11 @@ Check AV Plugin has same PID
 Check Sophos Threat Detector has same PID
     [Arguments]  ${PID}
     ${currentPID} =  Record Sophos Threat Detector PID
+    Should Be Equal As Integers  ${PID}  ${currentPID}
+
+Check Soapd Plugin has same PID
+    [Arguments]  ${PID}
+    ${currentPID} =  Record Soapd Plugin PID
     Should Be Equal As Integers  ${PID}  ${currentPID}
 
 Check Sophos Threat Detector has different PID

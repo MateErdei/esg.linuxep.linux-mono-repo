@@ -2,27 +2,27 @@
 
 #pragma once
 
-#include "IFanotifyHandler.h"
-
 #include "datatypes/AutoFd.h"
 #include "datatypes/ISystemCallWrapper.h"
+#include "sophos_threat_detector/threat_scanner/IUpdateCompleteCallback.h"
 
 namespace sophos_on_access_process::fanotifyhandler
 {
-    class FanotifyHandler : public IFanotifyHandler
+    class FanotifyHandler : public threat_scanner::IUpdateCompleteCallback
     {
         public:
             explicit FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
-            ~FanotifyHandler() override;
+            ~FanotifyHandler();
             FanotifyHandler(const FanotifyHandler&) =delete;
             FanotifyHandler& operator=(const FanotifyHandler&) =delete;
 
-            [[nodiscard]] int getFd() const override;
-            [[nodiscard]] int markMount(const std::string& path) const override;
-            [[nodiscard]] int cacheFd(const int& dfd, const std::string& path) const override;
+            [[nodiscard]] int getFd() const;
+
+            void updateComplete() override;
 
         private:
-            static void processFaMarkError(const std::string& function, const std::string& path);
+            int clearCachedFiles() const;
+            void processFaMarkError(const std::string& function) const;
 
             datatypes::AutoFd m_fd;
             datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;

@@ -7,7 +7,9 @@
 #include "OnAccessProcesControlCallbacks.h"
 // Component
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
+#include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
+#include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 // Product
 #include "common/FDUtils.h"
 #include "common/PidLockFile.h"
@@ -18,6 +20,7 @@
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
+#include "unixsocket/updateCompleteSocket/UpdateCompleteClientSocketThread.h"
 
 // Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -35,38 +38,14 @@ namespace fs = sophos_filesystem;
 using namespace sophos_on_access_process::soapd_bootstrap;
 using namespace sophos_on_access_process::fanotifyhandler;
 using namespace sophos_on_access_process::onaccessimpl;
+using namespace unixsocket::updateCompleteSocket;
 
 
 int SoapdBootstrap::runSoapd()
 {
     LOGINFO("Sophos on access process started");
     auto SoapdInstance = SoapdBootstrap();
-    return SoapdInstance.outerRun();
-}
 
-int SoapdBootstrap::outerRun()
-{
-    try
-    {
-        innerRun();
-    }
-    catch (const std::exception& e)
-    {
-        LOGFATAL("Exception caught at top-level: " << e.what());
-        return 1;
-    }
-    catch (...)
-    {
-        LOGFATAL("Non-std::exeption caught at top-level");
-        return 2;
-    }
-
-    LOGINFO("Exiting soapd");
-    return 0;
-}
-
-void SoapdBootstrap::innerRun()
-{
     // Take soapd lock file
     fs::path lockfile = common::getPluginInstallPath() / "var/soapd.pid";
     common::PidLockFile lock(lockfile);
@@ -74,30 +53,53 @@ void SoapdBootstrap::innerRun()
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
+    try
+    {
+        SoapdInstance.innerRun(sigIntMonitor,
+                 sigTermMonitor);
+    }
+    catch (const std::exception& e)
+    {
+        LOGFATAL(e.what());
+        return 1;
+    }
+
+    LOGINFO("Exiting soapd");
+    return 0;
+}
+
+void SoapdBootstrap::innerRun(
+    std::shared_ptr<common::signals::SigIntMonitor>& sigIntMonitor,
+    std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor)
+{
     mount_monitor::mount_monitor::OnAccessMountConfig config;
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
 
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
 
     const struct rlimit file_lim = { 4096, 4096 };
     sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
 
-    m_fanotifyHandler = std::make_shared<FanotifyHandler>(sysCallWrapper);
+    auto fanotifyHandler = std::make_shared<FanotifyHandler>(sysCallWrapper);
 
     m_mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config,
-                                                                                  sysCallWrapper,
-                                                                                  m_fanotifyHandler);
-    m_mountMonitorThread = std::make_unique<common::ThreadRunner>(m_mountMonitor,
-                                                                  "mountMonitor",
-                                                                  false);
+                                                                                     sysCallWrapper,
+                                                                                     fanotifyHandler->getFd());
+    auto mountMonitorThread = std::make_unique<common::ThreadRunner>(m_mountMonitor,
+                                                                     "mountMonitor",
+                                                                     true);
 
-    m_scanRequestQueue = std::make_shared<ScanRequestQueue>();
-    auto eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler->getFd(),
+    fs::path updateSocketPath = common::getPluginInstallPath() / "chroot/var/update_complete_socket";
+    auto updateClient = std::make_shared<UpdateCompleteClientSocketThread>(updateSocketPath, fanotifyHandler);
+    auto updateClientThread = std::make_unique<common::ThreadRunner>(updateClient, "updateClient", true);
+
+    auto eventReader = std::make_shared<EventReaderThread>(fanotifyHandler->getFd(),
                                                            sysCallWrapper,
                                                            common::getPluginInstallPath(),
-                                                           m_scanRequestQueue);
-    m_eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader,
-                                                                 "eventReader",
-                                                                 false);
+                                                           scanRequestQueue);
+     m_eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader,
+                                                                    "eventReader",
+                                                                    false);
 
     fs::path socketPath = common::getPluginInstallPath() / "var/soapd_controller";
     LOGDEBUG("Control Server Socket is at: " << socketPath);
@@ -106,8 +108,22 @@ void SoapdBootstrap::innerRun()
                                                                                                0666,
                                                                                                processControlCallbacks);
     auto processControllerServerThread = std::make_unique<common::ThreadRunner>(processControllerServer,
-                                                                                "eventReader",
-                                                                                true);
+                                                                                    "eventReader",
+                                                                                    true);
+
+    std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
+    auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
+
+    std::vector<std::shared_ptr<common::ThreadRunner>> scanHandlerThreads;
+    for (int count = 0; count < MAX_SCAN_THREADS; ++count)
+    {
+        auto scanHandler = std::make_shared<ScanRequestHandler>(
+            scanRequestQueue, scanningSocket);
+        std::stringstream threadName;
+        threadName << "scanHandler" << count;
+        auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
+        scanHandlerThreads.push_back(scanHandlerThread);
+    }
 
     struct pollfd fds[] {
         { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
@@ -124,7 +140,7 @@ void SoapdBootstrap::innerRun()
         LOGINFO("Flag is set to " << setting);
     }
 
-    ProcessPolicy(true);
+    ProcessPolicy();
 
     while (true)
     {
@@ -160,7 +176,7 @@ void SoapdBootstrap::innerRun()
         }
     }
 
-    disableOnAccess(true);
+    scanRequestQueue->stop();
 }
 
 sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::getPolicyConfiguration()
@@ -172,20 +188,17 @@ sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::
     return oaConfig;
 }
 
-void SoapdBootstrap::ProcessPolicy(bool onStart)
+void SoapdBootstrap::ProcessPolicy()
 {
     std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
-    LOGDEBUG("ProcessPolicy " << onStart);
 
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
-    auto newOnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
-    bool flagChanged = onStart || (m_onAccessEnabledFlag != newOnAccessEnabledFlag);
-    m_onAccessEnabledFlag = newOnAccessEnabledFlag;
+    m_onAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
 
     if(!m_onAccessEnabledFlag)
     {
         LOGINFO("Policy override is enabled, on-access will be disabled");
-        disableOnAccess(flagChanged);
+        m_eventReaderThread->requestStopIfNotStopped();
     }
     else
     {
@@ -193,69 +206,17 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
 
         auto oaConfig = getPolicyConfiguration();
 
-        bool newOaEnabledState = oaConfig.enabled;
         bool oldOaEnabledState = m_currentOaEnabledState.load();
-        m_currentOaEnabledState.store(newOaEnabledState);
-        bool changed = onStart || (oldOaEnabledState != newOaEnabledState);
-
-        if (newOaEnabledState)
+        m_currentOaEnabledState.store(oaConfig.enabled);
+        if (m_currentOaEnabledState && !oldOaEnabledState)
         {
-            enableOnAccess(changed);
+            LOGINFO("On-access scanning enabled");
+            m_eventReaderThread->startIfNotStarted();
         }
-        else
+        if (!m_currentOaEnabledState && oldOaEnabledState)
         {
-            disableOnAccess(changed);
+            LOGINFO("On-access scanning disabled");
+            m_eventReaderThread->requestStopIfNotStopped();
         }
-    }
-    LOGDEBUG("Finished ProcessPolicy " << onStart);
-}
-
-void SoapdBootstrap::disableOnAccess(bool changed)
-{
-    if (changed)
-    {
-        LOGINFO("On-access scanning disabled");
-    }
-    m_eventReaderThread->requestStopIfNotStopped();
-    LOGDEBUG("DEBUG m_eventReaderThread stopped");
-    m_mountMonitorThread->requestStopIfNotStopped();
-    LOGDEBUG("DEBUG m_mountMonitorThread stopped");
-    m_scanRequestQueue->stop();
-    LOGDEBUG("DEBUG m_scanRequestQueue stopped");
-
-    for (const auto& scanThread: m_scanHandlerThreads)
-    {
-        scanThread->requestStopIfNotStopped();
-    }
-    LOGDEBUG("DEBUG m_scanHandlerThreads stopped");
-    m_scanHandlerThreads.clear();
-    LOGDEBUG("DEBUG m_scanHandlerThreads clear");
-}
-
-void SoapdBootstrap::enableOnAccess(bool changed)
-{
-    if (!changed)
-    {
-        return;
-    }
-
-    LOGINFO("On-access scanning enabled");
-    m_eventReaderThread->startIfNotStarted();
-    m_mountMonitorThread->startIfNotStarted();
-
-    m_scanRequestQueue->restart();
-
-    std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
-
-    for (int count = 0; count < MAX_SCAN_THREADS; ++count)
-    {
-        std::stringstream threadName;
-        threadName << "scanHandler " << count;
-
-        auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
-        auto scanHandler = std::make_shared<ScanRequestHandler>(
-            m_scanRequestQueue, scanningSocket, m_fanotifyHandler);
-        auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
-        m_scanHandlerThreads.push_back(scanHandlerThread);
     }
 }

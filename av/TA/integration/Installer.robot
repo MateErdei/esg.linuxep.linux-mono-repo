@@ -38,9 +38,14 @@ AV Plugin Installs With Version Ini File
 IDE update doesnt restart av processes
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
+    ${SOAPD_PID} =  Record Soapd Plugin PID
     Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+    Check Soapd Plugin has same PID  ${SOAPD_PID}
+
+    Wait Until Sophos Threat Detector Log Contains With Offset  Notify clients that the update has completed
+    Wait Until On Access Log Contains With Offset  Clearing on-access cache
 
     # Check we can detect EICAR following update
     Check avscanner can detect eicar
