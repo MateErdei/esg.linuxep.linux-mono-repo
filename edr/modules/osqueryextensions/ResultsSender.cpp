@@ -74,10 +74,12 @@ std::string ResultsSender::PrepareSingleResult(const std::string& result)
             {
                 logLine["name"] = correctQueryNameAndTag.first;
             }
-            if (!correctQueryNameAndTag.second.empty())
+            if (correctQueryNameAndTag.second.empty())
             {
-                logLine["tag"] = correctQueryNameAndTag.second;
+                LOGDEBUG("Query "<< queryName << " is untagged we will discard the data for this query");
+                return "";
             }
+            logLine["tag"] = correctQueryNameAndTag.second;
         }
     }
     catch (const std::exception& e)

@@ -80,10 +80,6 @@ namespace Plugin
                     "query": "select count(*) as selinux_events_count from selinux_events;",
                     "interval": 3600
                 },
-                "socket_events": {
-                    "query": "select count(*) as socket_events_count from socket_events;",
-                    "interval": 3600
-                },
                 "syslog_events": {
                     "query": "select count(*) as syslog_events_count from syslog_events;",
                     "interval": 3600

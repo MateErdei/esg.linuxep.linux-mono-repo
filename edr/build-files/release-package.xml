@@ -47,7 +47,7 @@
         <build-asset project="thirdparty" repo="cmake">
             <release-version branch="release/sophos/v3.22.1"
                              build-id="20220412085321-29886e1a6f8ae2867207fa5c4873eaac5c6075a7-VxG3sr"/>
-            <include artifact-path="cmake" dest-dir="/build/input/cmake"/>
+            <include artifact-path="cmake" dest-dir="/build/redist/cmake"/>
         </build-asset>
         <build-asset project="thirdparty" repo="capnproto">
             <release-version branch="release/sspl/Version_0_8_0"

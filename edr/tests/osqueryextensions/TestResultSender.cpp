@@ -719,7 +719,7 @@ TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
     std::string correctedNameResult1 = "{\"name\":\"pack_query_no_tag\"}";
 
     EXPECT_EQ(resultsSender.PrepareSingleResult(testResult), correctedNameResult);
-    EXPECT_EQ(resultsSender.PrepareSingleResult(testResult1), correctedNameResult1);
+    EXPECT_EQ(resultsSender.PrepareSingleResult(testResult1), "");
 }
 
 TEST_F(TestResultSender, prepareBatchResultsAppendsBracketAndReturnsJsonObject) // NOLINT
