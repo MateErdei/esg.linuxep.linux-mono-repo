@@ -708,7 +708,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStill
     // second time with additional 'extra' value
     Common::Telemetry::TelemetryHelper::getInstance().set("extra", "newvalue");
     std::string expectedTelemetryWithExtra{
-        R"sophos({"extra":"newvalue","warehouse":{"sddsid":"QA940267","subscriptions":[{"fixedversion":"","rigidname":"ServerProtectionLinux-Base","tag":"RECOMMENDED"},{"fixedversion":"","rigidname":"ServerProtectionLinux-Base9","tag":"RECOMMENDED"}]}})sophos"
+        R"sophos({"extra":"newvalue","subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Base9":"RECOMMENDED","warehouse":{"sddsid":"QA940267"}})sophos"
     };
     telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     EXPECT_EQ(telemetry, expectedTelemetryWithExtra);
@@ -743,7 +743,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionCallSerialiseAndRese
     UpdatePolicyTranslator translator;
     (void)translator.translatePolicy(updatePolicyWithCache);
     std::string expectedTelemetry{
-        R"sophos({"warehouse":{"sddsid":"W2YJXI6FED","subscriptions":[{"fixedversion":"11","rigidname":"ServerProtectionLinux-Base","tag":"RECOMMENDED"},{"fixedversion":"8","rigidname":"ServerProtectionLinux-Base9","tag":"RECOMMENDED"}]}})sophos"
+        R"sophos({"subscriptions-ServerProtectionLinux-Base":"11","subscriptions-ServerProtectionLinux-Base9":"8","warehouse":{"sddsid":"W2YJXI6FED"}})sophos"
     };
     std::string telemetry1 = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     std::string telemetry2 = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
@@ -759,7 +759,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredCo
         for (int i = 0; i < 1000; i++)
         {
             std::string expectedTelemetry{
-                R"sophos({"warehouse":{"sddsid":"CSP190408113225","subscriptions":[{"fixedversion":"","rigidname":"ServerProtectionLinux-Base","tag":"RECOMMENDED"},{"fixedversion":"","rigidname":"ServerProtectionLinux-Plugin-MDR","tag":"RECOMMENDED"}]}})sophos"
+                R"sophos({"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Plugin-MDR":"RECOMMENDED","warehouse":{"sddsid":"CSP190408113225"}})sophos"
             };
             std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
             EXPECT_EQ(telemetry, expectedTelemetry) << "Iteration: " << i;
