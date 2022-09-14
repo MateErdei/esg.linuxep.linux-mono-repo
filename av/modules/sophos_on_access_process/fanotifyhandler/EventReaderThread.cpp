@@ -77,6 +77,10 @@ bool EventReaderThread::handleFanotifyEvent()
         );
         return false;
     }
+    else
+    {
+        LOGDEBUG("got event: size " << len);
+    }
 
     auto* metadata = reinterpret_cast<struct fanotify_event_metadata*>(buf);
 
@@ -98,11 +102,6 @@ bool EventReaderThread::handleFanotifyEvent()
         auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
         scanRequest->setFd(eventFd); // DONATED
 
-        if (metadata->pid == m_pid)
-        {
-            continue;
-        }
-
         auto path = getFilePathFromFd(eventFd);
         //Either path was too long or fd was invalid
         if(path.empty())
@@ -116,49 +115,43 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
+        if (metadata->pid == m_pid)
+        {
+            LOGDEBUG("Event pid matches On Access pid, skipping event");
+            continue;
+        }
         auto executablePath = get_executable_path_from_pid(metadata->pid);
+
         if (!m_processExclusionStem.empty() && startswith(executablePath, m_processExclusionStem))
         {
-            //LOGDEBUG("Excluding SPL-AV process: " << executablePath << " scantype: " << eventStr << " for path: " << path);
+            LOGDEBUG("Excluding SPL-AV process");
             continue;
         }
 
-        auto uid = getUidFromPid(metadata->pid);
+
+        std::string uidStr = getUidFromPid(metadata->pid);
+
+        // TODO: Handle process exclusions
         auto escapedPath = common::escapePathForLogging(path);
-
-        auto eventType = E_SCAN_TYPE_UNKNOWN;
-
-        //Some events have both bits set, we prioritise FAN_CLOSE_WRITE as the event tag. A copy event can cause this.
-        if ((metadata->mask & FAN_CLOSE_WRITE) && (metadata->mask & FAN_OPEN))
+        if (metadata->mask & FAN_OPEN)
         {
-            LOGDEBUG("On-open event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
-            LOGDEBUG("On-close event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
-            eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
+            LOGINFO("On-open event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uidStr);
         }
         else if (metadata->mask & FAN_CLOSE_WRITE)
         {
-            LOGDEBUG("On-close event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
-            eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
-        }
-        else if (metadata->mask & FAN_OPEN)
-        {
-            LOGDEBUG("On-open event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
-            eventType = E_SCAN_TYPE_ON_ACCESS_OPEN;
+            LOGINFO("On-close event for " << escapedPath << " from PID " << metadata->pid << " and UID " << uidStr);
+            scanRequest->setPath(path);
+            scanRequest->setScanType(E_SCAN_TYPE_ON_ACCESS);
+            scanRequest->setUserID(uidStr);
+
+            if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
+            {
+                LOGWARN("Failed to add scan request to queue. Path will not be scanned: " << path);
+            }
         }
         else
         {
-            LOGERROR("unknown operation mask: " << std::hex << metadata->mask << std::dec);
-            continue;
-        }
-
-
-        scanRequest->setPath(path);
-        scanRequest->setScanType(eventType);
-        scanRequest->setUserID(std::to_string(uid));
-
-        if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
-        {
-            LOGERROR("Failed to add scan request to queue. Path will not be scanned: " << path);
+            LOGDEBUG("unknown operation mask: " << std::hex << metadata->mask << std::dec);
         }
     }
     return true;
@@ -173,7 +166,7 @@ std::string EventReaderThread::getFilePathFromFd(int fd)
     if (fd <= 0)
     {
         LOGWARN("Failed to get path from fd");
-        return "";
+        return "unknown";
     }
 
     std::stringstream procFdPath;
@@ -181,14 +174,14 @@ std::string EventReaderThread::getFilePathFromFd(int fd)
     if ((len = m_sysCalls->readlink(procFdPath.str().c_str(), buffer, PATH_MAX - 1)) < 0)
     {
         LOGWARN("Failed to get path from fd: " << common::safer_strerror(errno));
-        return "";
+        return "unknown";
     }
 
     buffer[len] = '\0';
     return buffer;
 }
 
-uid_t EventReaderThread::getUidFromPid(pid_t pid)
+std::string EventReaderThread::getUidFromPid(pid_t pid)
 {
     std::stringstream procPidPath;
     procPidPath << "/proc/" << pid;
@@ -197,11 +190,9 @@ uid_t EventReaderThread::getUidFromPid(pid_t pid)
     int ret = m_sysCalls->_stat(procPidPath.str().c_str(), &statbuf);
     if (ret == 0)
     {
-        return statbuf.st_uid;
+        return std::to_string(statbuf.st_uid);
     }
-
-    // return invalid UID
-    return static_cast<uid_t>(-1);
+    return "unknown";
 }
 
 void EventReaderThread::run()

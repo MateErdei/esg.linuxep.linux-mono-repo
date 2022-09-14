@@ -29,7 +29,7 @@ namespace sophos_on_access_process::fanotifyhandler
     private:
         bool handleFanotifyEvent();
         std::string getFilePathFromFd(int fd);
-        uid_t getUidFromPid(pid_t pid);
+        std::string getUidFromPid(pid_t pid);
 
         int m_fanotifyFd;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
