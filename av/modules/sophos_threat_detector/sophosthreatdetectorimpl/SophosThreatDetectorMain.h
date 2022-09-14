@@ -1,15 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include "Reloader.h"
 
 #include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
-#include "unixsocket/updateCompleteSocket/IUpdateCompleteCallback.h"
 
 namespace sspl::sophosthreatdetectorimpl
 {
