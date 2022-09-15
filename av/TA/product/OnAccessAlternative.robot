@@ -137,42 +137,37 @@ On Access Does Not Include Remote Files If Excluded In Policy
     Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
     On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
 
+
 On Access Monitors Addition And Removal Of Mount Points
-    [Tags]  NFS
+    Register Cleanup    Exclude On Access Scan Errors
+    Require Filesystem  ext2
+    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
+    ${type} =  Set Variable  ext2
     Mark On Access Log
-    Restart On Access
+    Start On Access
     Wait Until On Access Log Contains With Offset  Including mount point:
-    On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
+    On Access Log Does Not Contain With Offset  Including mount point: ${where}
     Sleep  1s
     ${numMountsPreMount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
 
     Mark On Access Log
-    ${source} =       Set Variable  /tmp_test/nfsshare
-    ${destination} =  Set Variable  /testmnt/nfsshare
-    Create Directory  ${source}
-    Create Directory  ${destination}
-    Register Cleanup  Remove Directory  ${source}  recursive=True
-    Register Cleanup  Remove Directory  ${destination}  recursive=True
-    Create Local NFS Share   ${source}   ${destination}
-    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
+    ${image} =  Copy And Extract Image  ext2FileSystem
+    Mount Image  ${where}  ${image}  ${type}
 
     Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
-    Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
+    Wait Until On Access Log Contains  Including mount point: ${where}
     Sleep  1s
-    ${totalNumMountsPostNFSmount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
-    #TODO Why does it record two mount updates in quick succession
-    Should Be True  ${totalNumMountsPostNFSmount} >= ${numMountsPreMount+1}
+    ${totalNumMountsPostMount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
+    Should Be Equal As Integers  ${totalNumMountsPostMount}  ${numMountsPreMount+1}
 
     Mark On Access Log
-    Remove Local NFS Share   ${source}   ${destination}
-    Deregister Cleanup  Remove Local NFS Share   ${source}   ${destination}
+    Unmount Image  ${where}
 
     Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
-    On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
+    On Access Log Does Not Contain With Offset  Including mount point: ${where}
     Sleep  1s
-    ${totalNumMountsPostNFSumount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
-    #TODO Why does it record two mount updates in quick succession
-    Should Be True  ${totalNumMountsPostNFSmount} >= ${numMountsPreMount}
+    ${totalNumMountsPostUmount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
+    Should Be Equal As Integers  ${totalNumMountsPostUmount}  ${numMountsPreMount}
 
 
 On Access Logs When A File Is Closed Following Write After Being Disabled
