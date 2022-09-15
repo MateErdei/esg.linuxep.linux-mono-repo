@@ -37,6 +37,8 @@
         "#!/bin/bash\n",
         "echo 'Testing ", {"Ref": "BuildName"},"'\n",
         "echo 'Setting up the system for tests ...' >>/tmp/cloudFormationInit.log\n",
+        "systemctl stop apt-daily.timer\n",
+        "systemctl stop apt-daily-upgrade.timer\n",
         "export HOSTNAME=@HOSTNAMEGOESHERE@", "\n",
         "hostnamectl set-hostname ${HOSTNAME}\n",
         "hostname ${HOSTNAME}\n",
