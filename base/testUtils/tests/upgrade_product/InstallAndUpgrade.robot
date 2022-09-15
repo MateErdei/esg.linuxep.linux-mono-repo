@@ -222,9 +222,11 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     # This will turn health bad because "Check AV Plugin Can Scan Files" scans an eicar.
     Check AV Plugin Can Scan Files
+    ## MA waits up to 120 seconds after an update before it starts generating SHS status again
+    ## this is so it doesn't report bad health for plugin services that are starting up again
     Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  3 secs
+    ...  130 secs
+    ...  20 secs
     ...  SHS Status File Contains  <item name="threat" value="2" />
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors

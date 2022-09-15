@@ -674,7 +674,7 @@ class LogUtils(object):
 
         if string_to_not_contain  in contents:
             self.dump_log(sul_log)
-            raise AssertionError("SUL downloader log contains: " + string_to_contain)
+            raise AssertionError("SUL downloader log contains: " + string_to_not_contain)
 
 
     def check_marked_mcs_envelope_log_contains(self, string_to_contain):
