@@ -15,6 +15,7 @@ using namespace sophos_on_access_process::fanotifyhandler;
 FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
     : m_systemCallWrapper(std::move(systemCallWrapper))
 {
+    assert(m_systemCallWrapper);
     int fanotifyFd = m_systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
     if (fanotifyFd == -1)
     {
@@ -40,11 +41,10 @@ int FanotifyHandler::getFd() const
 
 int FanotifyHandler::markMount(const std::string& path) const
 {
-    static uint64_t EVENT_MASK = (FAN_CLOSE_WRITE | FAN_OPEN);
-
+    assert(m_systemCallWrapper);
     constexpr unsigned int flags = FAN_MARK_ADD | FAN_MARK_MOUNT;
-    const uint64_t mask = EVENT_MASK;
-    const int dfd = FAN_NOFD;
+    constexpr uint64_t mask = FAN_CLOSE_WRITE | FAN_OPEN;
+    constexpr int dfd = FAN_NOFD;
     int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, dfd, path.c_str());
     if (result < 0)
     {
@@ -55,6 +55,7 @@ int FanotifyHandler::markMount(const std::string& path) const
 
 int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
 {
+    assert(m_systemCallWrapper);
     const unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
     const uint64_t mask = FAN_OPEN;
     int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, fd, nullptr);
