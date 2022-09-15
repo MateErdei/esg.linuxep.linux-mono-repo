@@ -20,12 +20,11 @@ namespace sophos_on_access_process::onaccessimpl
             std::shared_ptr<unixsocket::IScanningClientSocket> socket,
             fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler);
 
-        void run();
-        void scan(scan_messages::ClientScanRequestPtr scanRequest,
+        void run() override;
+        void scan(const scan_messages::ClientScanRequestPtr& scanRequest,
                   const struct timespec& retryInterval = { 1, 0 });
 
     private:
-        std::string failedToOpen(const int error);
 
         ScanRequestQueueSharedPtr m_scanRequestQueue;
         std::shared_ptr<unixsocket::IScanningClientSocket> m_socket;

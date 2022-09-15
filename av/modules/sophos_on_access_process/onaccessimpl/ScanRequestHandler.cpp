@@ -18,38 +18,14 @@ ScanRequestHandler::ScanRequestHandler(
    ScanRequestQueueSharedPtr scanRequestQueue,
     std::shared_ptr<unixsocket::IScanningClientSocket> socket,
     fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler)
-    : m_scanRequestQueue(scanRequestQueue)
-    , m_socket(socket)
+    : m_scanRequestQueue(std::move(scanRequestQueue))
+    , m_socket(std::move(socket))
     , m_fanotifyHandler(std::move(fanotifyHandler))
 {
-
-}
-
-std::string ScanRequestHandler::failedToOpen(const int error)
-{
-    switch (error)
-    {
-        case EACCES:
-            return "Failed to open as permission denied: ";
-        case ENAMETOOLONG:
-            return "Failed to open as the path is too long: ";
-        case ELOOP:
-            return "Failed to open as couldn't follow the symlink further: ";
-        case ENODEV:
-            return "Failed to open as path is a device special file and no corresponding device exists: ";
-        case ENOENT:
-            return "Failed to open as path is a dangling symlink or a directory component is missing: ";
-        case ENOMEM:
-            return "Failed to open due to a lack of kernel memory: ";
-        case EOVERFLOW:
-            return "Failed to open as the file is too large: ";
-        default:
-            return "Failed to open with error " + std::to_string(error) + ": ";
-    }
 }
 
 void ScanRequestHandler::scan(
-    scan_messages::ClientScanRequestPtr scanRequest,
+    const scan_messages::ClientScanRequestPtr& scanRequest,
     const struct timespec& retryInterval)
 {
     std::string fileToScanPath = scanRequest->getPath();

@@ -101,7 +101,7 @@ namespace sophos_on_access_process::onaccessimpl
 
     scan_messages::ScanResponse ClientSocketWrapper::attemptScan(scan_messages::ClientScanRequestPtr request)
     {
-        if (!m_socket.sendRequest(request))
+        if (!m_socket.sendRequest(std::move(request)))
         {
             throw ClientSocketException("Failed to send scan request");
         }
