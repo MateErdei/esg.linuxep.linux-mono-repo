@@ -19,7 +19,7 @@ namespace sophos_on_access_process::fanotifyhandler
 
             [[nodiscard]] int getFd() const override;
             [[nodiscard]] int markMount(const std::string& path) const override;
-            [[nodiscard]] int cacheFd(const unsigned int& flags, const uint64_t& mask, const int& dfd, const std::string& path) const override;
+            [[nodiscard]] int cacheFd(const int& dfd, const std::string& path) const override;
 
         private:
             static void processFaMarkError(const std::string& function, const std::string& path);

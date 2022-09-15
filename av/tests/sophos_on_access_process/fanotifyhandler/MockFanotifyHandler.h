@@ -20,6 +20,6 @@ namespace
         }
         MOCK_METHOD(int, getFd, (), (const, override));
         MOCK_METHOD(int, markMount, (const std::string& path), (const, override));
-        MOCK_METHOD(int, cacheFd, (const unsigned int& flags, const uint64_t& mask, const int& dfd, const std::string& path), (const, override));
+        MOCK_METHOD(int, cacheFd, (const int& fd, const std::string& path), (const, override));
     };
 }

@@ -53,9 +53,11 @@ int FanotifyHandler::markMount(const std::string& path) const
     return result;
 }
 
-int FanotifyHandler::cacheFd(const unsigned int& flags, const uint64_t& mask, const int& dfd, const std::string& path) const
+int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
 {
-    int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, dfd, nullptr);
+    const unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
+    const uint64_t mask = FAN_OPEN;
+    int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, fd, nullptr);
     if (result < 0)
     {
         processFaMarkError("cacheFd", path);

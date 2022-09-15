@@ -112,7 +112,7 @@ void ScanRequestHandler::scan(
 
         if (scanRequest->isOpenEvent())
         {
-            int ret = m_fanotifyHandler->cacheFd(FAN_MARK_ADD | FAN_MARK_IGNORED_MASK, FAN_OPEN, scanRequest->getFd(), scanRequest->getPath());
+            int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
             if (ret < 0)
             {
                 LOGDEBUG("adding cache mark failed: " << ret);
