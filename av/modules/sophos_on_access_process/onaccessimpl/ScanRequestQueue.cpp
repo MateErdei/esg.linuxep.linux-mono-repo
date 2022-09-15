@@ -32,24 +32,28 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
  ClientScanRequestPtr ScanRequestQueue::pop()
 {
     std::unique_lock<std::mutex> lock(m_lock);
-    // release lock as long as the wait and re-aquire it afterwards.
+    // release lock as long as the wait and re-acquire it afterwards.
     m_condition.wait(lock, [this]{ return m_shuttingDown.load() || !m_queue.empty(); });
-    ClientScanRequestPtr scanRequest = nullptr;
-    if (!m_shuttingDown)
+    ClientScanRequestPtr scanRequest;
+    if (!m_shuttingDown.load())
     {
         scanRequest = m_queue.front();
         m_queue.pop();
+        assert(scanRequest);
     }
-    if (m_queue.empty())
-    {
-        LOGDEBUG("Scan Queue is empty");
-    }
+    assert(m_shuttingDown.load() || scanRequest);
+
     return scanRequest;
 }
 
 void ScanRequestQueue::stop()
 {
     m_shuttingDown.store(true);
+
+    std::unique_lock<std::mutex> lock(m_lock);
+    typeof(m_queue) empty;
+    m_queue.swap(empty);
+
     m_condition.notify_all();
 }
 
@@ -60,5 +64,12 @@ size_t ScanRequestQueue::size() const
 
 void ScanRequestQueue::restart()
 {
+    std::unique_lock<std::mutex> lock(m_lock);
+    if (!m_queue.empty())
+    {
+        typeof(m_queue) empty;
+        m_queue.swap(empty);
+    }
+
     m_shuttingDown.store(false);
 }

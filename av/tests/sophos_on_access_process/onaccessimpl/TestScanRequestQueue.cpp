@@ -36,6 +36,7 @@ TEST_F(TestScanRequestQueue, push_onlyEnqueuesUpToMaxSize)
     EXPECT_TRUE(waitForLog("Unable to add scan request to queue as it is"));
 }
 
+/*
 TEST_F(TestScanRequestQueue, reportsWhenEmptied)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -52,6 +53,7 @@ TEST_F(TestScanRequestQueue, reportsWhenEmptied)
 
     EXPECT_TRUE(waitForLog("Scan Queue is empty"));
 }
+*/
 
 TEST_F(TestScanRequestQueue, push_FIFO)
 {
