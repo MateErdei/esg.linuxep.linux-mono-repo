@@ -103,6 +103,7 @@ class LogUtils(object):
         self.marked_watchdog_logs = 0
         self.marked_managementagent_logs = 0
         self.marked_av_log = 0
+        self.marked_oa_log = 0
         self.marked_sophos_threat_detector_log = 0
         self.__m_marked_log_position = {}
 
