@@ -277,11 +277,222 @@ Sul Downloader sdds3 sync Does not retry on curl errors
     check_log_contains    caught exception: Couldn't connect to server   ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
 
 
+SUS Fault Injection Server Hangs
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Set Environment Variable  COMMAND   sus_hang
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    Log File    ${SDDS3_OVERRIDE_FILE}
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    Override LogConf File as Global Level  DEBUG
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+
+    # Make sure there isn't some old update report hanging around
+    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
+    Create Directory  ${TEST_TEMP_DIR}
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: SUS request failed with error: Timeout was reached
+        ...  Update failed, with code: 112
+
+
+SUS Fault Injection Server Responds With Unauthorised
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Set Environment Variable  COMMAND   sus_401
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    Log File    ${SDDS3_OVERRIDE_FILE}
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    Override LogConf File as Global Level  DEBUG
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+
+    # Make sure there isn't some old update report hanging around
+    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
+    Create Directory  ${TEST_TEMP_DIR}
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: SUS request received HTTP response code: 401 but was expecting: 200
+        ...  Update failed, with code: 112
+
+
+SUS Fault Injection Server Responds With Not Found
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Set Environment Variable  COMMAND   sus_404
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    Log File    ${SDDS3_OVERRIDE_FILE}
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    Override LogConf File as Global Level  DEBUG
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+
+    # Make sure there isn't some old update report hanging around
+    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
+    Create Directory  ${TEST_TEMP_DIR}
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: SUS request received HTTP response code: 404 but was expecting: 200
+        ...  Update failed, with code: 112
+
+
+SUS Fault Injection Server Responds With Internal Server Error
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Set Environment Variable  COMMAND   sus_500
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    Log File    ${SDDS3_OVERRIDE_FILE}
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    Override LogConf File as Global Level  DEBUG
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+
+    # Make sure there isn't some old update report hanging around
+    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
+    Create Directory  ${TEST_TEMP_DIR}
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: SUS request received HTTP response code: 500 but was expecting: 200
+        ...  Update failed, with code: 112
+
+
+SUS Fault Injection Server Responds With Service Unavailable
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Set Environment Variable  COMMAND   sus_503
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    Log File    ${SDDS3_OVERRIDE_FILE}
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    Override LogConf File as Global Level  DEBUG
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+
+    # Make sure there isn't some old update report hanging around
+    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
+    Create Directory  ${TEST_TEMP_DIR}
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: SUS request received HTTP response code: 503 but was expecting: 200
+        ...  Update failed, with code: 112
+
+
+SUS Fault Injection Server Responds With Invalid JSON
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Set Environment Variable  COMMAND   sus_invalid_json
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    Log File    ${SDDS3_OVERRIDE_FILE}
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    Override LogConf File as Global Level  DEBUG
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+
+    # Make sure there isn't some old update report hanging around
+    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
+    Create Directory  ${TEST_TEMP_DIR}
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: SUS request caused exception: Failed to parse SUS response
+        ...  Update failed, with code: 112
+
+
+SUS Fault Injection Server Responds With Large JSON
+    Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
+    Set Environment Variable  COMMAND   sus_large_json
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    Log File    ${SDDS3_OVERRIDE_FILE}
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    Override LogConf File as Global Level  DEBUG
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+
+    # Make sure there isn't some old update report hanging around
+    Run Keyword And Ignore Error   Remove File   ${TEST_TEMP_DIR}/update_report.json
+    Create Directory  ${TEST_TEMP_DIR}
+
+    Wait Until Keyword Succeeds
+    ...   30 secs
+    ...   1 secs
+    ...   Check Suldownloader Log Contains In Order
+        ...  Failed to connect to repository: SUS request failed with error: Transferred a partial file
+        ...  Update failed, with code: 112
+
+
 *** Keywords ***
 Check MCS Envelope Contains Event with Update cache
     [Arguments]  ${Event_Number}
     ${string}=  Check Log And Return Nth Occurence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Event_Number}
     Should contain   ${string}   updateSource&gt;4092822d-0925-4deb-9146-fbc8532f8c55&lt
+
 File Should Contain
     [Arguments]  ${file_path}  ${expected_contents}
     ${contents}=  Get File   ${file_path}

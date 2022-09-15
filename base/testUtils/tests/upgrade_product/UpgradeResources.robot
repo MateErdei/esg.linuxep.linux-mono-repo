@@ -193,6 +193,6 @@ Start Local SDDS3 Server With Empty Repo
     [Return]  ${handle}
 
 Stop Local SDDS3 Server
-     terminate process  ${GL_handle}  True
-     Dump Teardown Log    ${sdds3_server_output}
-     terminate all processes  True
+    terminate process  ${GL_handle}  True
+    Dump Teardown Log    ${sdds3_server_output}
+    terminate all processes  True

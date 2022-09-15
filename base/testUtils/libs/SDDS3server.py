@@ -167,7 +167,7 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
 
     def retry_5_times_get_request(self):
         if self.path in dictOfRequests.keys():
-            dictOfRequests[self.path] = dictOfRequests[self.path] +1
+            dictOfRequests[self.path] += 1
         else:
             dictOfRequests[self.path] = 1
 
@@ -180,7 +180,7 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
 
     def return_202s_then_404(self):
         if self.path in dictOfRequests.keys():
-            dictOfRequests[self.path] = dictOfRequests[self.path] +1
+            dictOfRequests[self.path] += 1
         else:
             dictOfRequests[self.path] = 1
 
@@ -203,7 +203,7 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
             self.retry_5_times_get_request()
         elif os.environ.get("COMMAND") == "failure":
             self.return_202s_then_404()
-        elif os.environ.get("EXITCODE") != None:
+        elif os.environ.get("EXITCODE") is not None:
             self.return_exitCode(int(os.environ.get("EXITCODE")))
         else:
             self.normal_handle_get_request()
@@ -212,21 +212,36 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         """Read the SUS request from the client, and log it
         Return either mock_sus_response_winep.json or mock_sus_response_winsrv.json"""
 
-        request_body = self.rfile.read(int(self.headers['Content-Length']))
-        self.log_message('Received SUS request: %s', request_body)
+        if os.environ.get("COMMAND") == "sus_hang":
+            self.sus_hang()
+        elif os.environ.get("COMMAND") == "sus_invalid_json":
+            self.sus_invalid_json()
+        elif os.environ.get("COMMAND") == "sus_large_json":
+            self.sus_large_json()
+        elif os.environ.get("COMMAND") == "sus_401":
+            self.sus_http_code(401)
+        elif os.environ.get("COMMAND") == "sus_404":
+            self.sus_http_code(404)
+        elif os.environ.get("COMMAND") == "sus_500":
+            self.sus_http_code(500)
+        elif os.environ.get("COMMAND") == "sus_503":
+            self.sus_http_code(503)
+        else:
+            request_body = self.rfile.read(int(self.headers['Content-Length']))
+            self.log_message('Received SUS request: %s', request_body)
 
-        doc = json.loads(request_body)
-        if 'product' not in doc:
-            self.send_error(HTTPStatus.BAD_REQUEST, "Product not specified :-(")
-            return
+            doc = json.loads(request_body)
+            if 'product' not in doc:
+                self.send_error(HTTPStatus.BAD_REQUEST, "Product not specified :-(")
+                return
 
-        if self.mode == 'launchdarkly':
-            self.log_message('launchdarkly')
-            self.respond_launchdarkly(doc)
-            return
+            if self.mode == 'launchdarkly':
+                self.log_message('launchdarkly')
+                self.respond_launchdarkly(doc)
+                return
 
-        self.log_message('respond_mock_sus')
-        self.respond_mock_sus(doc)
+            self.log_message('respond_mock_sus')
+            self.respond_mock_sus(doc)
 
     def respond_mock_sus(self, doc):
         product = doc['product']
@@ -307,6 +322,41 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
         self.send_header('X-Content-Signature', sig)
         self.end_headers()
         self.wfile.write(data)
+
+    def sus_hang(self):
+        secs_to_hang = 60
+        self.log_message(f'SUS POST request will now hang for {secs_to_hang/60} mins...')
+        time.sleep(secs_to_hang)
+        self.log_message('SUS POST request finished and will not send a response')
+
+    def sus_invalid_json(self):
+        response = "this is not { json }"
+        self.log_message(f"Responding to SUS POST request with invalid JSON payload")
+        self.send_response(HTTPStatus.OK)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', len(response))
+        self.end_headers()
+        self.wfile.write(response.encode('utf-8'))
+
+    def sus_large_json(self):
+        arbitrary_data_array = ["some data"] * 10000
+
+        response = json.dumps({
+            'suites': arbitrary_data_array,
+            'release-groups': ['0'],
+        }).encode('utf-8')
+        self.log_message(f"Responding to SUS POST request with invalid JSON payload")
+        self.send_response(HTTPStatus.OK)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', len(response))
+        self.end_headers()
+        self.wfile.write(response.encode('utf-8'))
+
+    def sus_http_code(self, http_code):
+        self.log_message(f"Responding to SUS POST request with {http_code}")
+        self.send_response(http_code)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
 
 def make_request_handler(args):     # noqa: C901
