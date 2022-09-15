@@ -39,14 +39,14 @@ class applicationPathManager;
 namespace SulDownloader
 {
     SDDS3Repository::SDDS3Repository(const std::string& repoDir, const std::string& certsDir)
-        : m_session(std::make_shared<sdds3::Session>(certsDir))
+        : m_session(std::make_shared<sdds3::Session>(std::vector<std::filesystem::path>{certsDir}))
         , m_repo(repoDir)
         , m_supplementOnly(false)
     {
         setupSdds3LibLogger();
     }
     SDDS3Repository::SDDS3Repository()
-        : m_session(std::make_shared<sdds3::Session>(""))
+        : m_session(std::make_shared<sdds3::Session>(std::vector<std::filesystem::path>{}))
         , m_repo("")
         , m_supplementOnly(false)
     {
@@ -258,8 +258,8 @@ namespace SulDownloader
             LOGDEBUG("Release Group: '" << releaseGroup << "' is available to be downloaded." );
         }
 
-        m_session = std::make_shared<sdds3::Session>(
-            Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath());
+        m_session = std::make_shared<sdds3::Session>(std::vector<std::filesystem::path>{
+            Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath()});
         std::string srcUrl = connectionSetup.getUpdateLocationURL();
 
         m_session->httpConfig.connectTimeoutMs = 10000;
@@ -303,9 +303,8 @@ namespace SulDownloader
 
         m_session->httpConfig.userAgent = generateUserAgentString(configurationData.getTenantId(), configurationData.getDeviceId());
 
-        m_config.suites = suites;
-        m_config.release_groups_filter = releaseGroups;
-
+        m_config.sus_response.suites = suites;
+        m_config.sus_response.release_groups_filter = releaseGroups;
 
         try
         {

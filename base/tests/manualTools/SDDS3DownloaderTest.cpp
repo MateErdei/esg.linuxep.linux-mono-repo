@@ -212,13 +212,14 @@ int main(int argc, char* argv[])
 
     // CDN sync....
 
-    sdds3::Session session(certs_dir);
+    std::vector<std::filesystem::path> cert_dirs {certs_dir};
+    sdds3::Session session(cert_dirs);
     sdds3::Repo repo(repo_dir);
     sdds3::Config config;
 
     session.httpConfig.userAgent = getUserAgent(tenant_id, device_id);
-    config.suites = suites;
-    config.release_groups_filter = releaseGroups;
+    config.sus_response.suites = suites;
+    config.sus_response.release_groups_filter = releaseGroups;
 
     try
     {
