@@ -38,6 +38,7 @@ void ScanRequestHandler::scan(
     catch (const ScanInterruptedException& e)
     {
         LOGWARN("Scan aborted: " << e.what());
+        return;
     }
     catch (const std::exception& e)
     {
@@ -47,13 +48,15 @@ void ScanRequestHandler::scan(
     }
 
     std::string errorMsg = common::toUtf8(response.getErrorMsg());
-    if (response.getDetections().empty())
+    if (!errorMsg.empty())
     {
-        if (!errorMsg.empty())
-        {
-            LOGERROR(errorMsg);
-        }
-        else
+        LOGERROR(errorMsg);
+    }
+
+    auto detections = response.getDetections();
+    if (detections.empty())
+    {
+        if (errorMsg.empty())
         {
             // Clean file
             if (scanRequest->isOpenEvent())
@@ -70,14 +73,9 @@ void ScanRequestHandler::scan(
     }
     else
     {
-        if (!errorMsg.empty())
-        {
-            LOGERROR(errorMsg);
-        }
-
         auto scanType = scan_messages::getScanTypeAsStr(scanRequest->getScanType());
 
-        for(const auto& detection : response.getDetections())
+        for(const auto& detection : detections)
         {
             std::string escapedPath(common::escapePathForLogging(detection.path));
             std::string threatName = detection.name;

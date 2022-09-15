@@ -31,6 +31,14 @@ namespace
 
         bool sendRequest(scan_messages::ClientScanRequestPtr request) override
         {
+            if (request->getPath() == "THROW_SCAN_INTERRUPTED")
+            {
+                throw ScanInterruptedException("THROW_SCAN_INTERRUPTED");
+            }
+            else if (request->getPath() == "THROW_BAD_ALLOC")
+            {
+                throw std::bad_alloc();
+            }
             m_paths.emplace_back(request->getPath());
             //            PRINT("Scanning " << p);
             return true;

@@ -33,7 +33,7 @@ namespace
         [[maybe_unused]] HandlerPtr buildDefaultHandler();
 
         static scan_messages::ClientScanRequestPtr buildRequest(
-            scan_messages::E_SCAN_TYPE type=scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN
+            scan_messages::E_SCAN_TYPE type = scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN
             )
         {
             scan_messages::ClientScanRequestPtr request = std::make_shared<scan_messages::ClientScanRequest>();
@@ -218,5 +218,75 @@ TEST_F(TestScanRequestHandler, infectedScanClose)
     scanHandler->scan(request);
 
     EXPECT_EQ(socket->m_paths.size(), 1);
+    EXPECT_TRUE(appenderContains("Detected \"/expected\" is infected with threatName (Close-Write)"));
+}
+
+TEST_F(TestScanRequestHandler, socketScanThrowsScanInterrupted)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto socket = std::make_shared<RecordingMockSocket>(false, true);
+    auto scanHandler = buildDefaultHandler(socket);
+    scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
+    request->setPath("THROW_SCAN_INTERRUPTED");
+    scanHandler->scan(request);
+    EXPECT_TRUE(appenderContains("Scan aborted: THROW_SCAN_INTERRUPTED"));
+}
+
+TEST_F(TestScanRequestHandler, socketScanThrowsStdException)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto socket = std::make_shared<RecordingMockSocket>(false, true);
+    auto scanHandler = buildDefaultHandler(socket);
+    scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
+    request->setPath("THROW_BAD_ALLOC");
+    scanHandler->scan(request);
+    EXPECT_TRUE(appenderContains("Failed to scan THROW_BAD_ALLOC : std::bad_alloc"));
+}
+
+TEST_F(TestScanRequestHandler, scanError)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto socket = std::make_shared<RecordingMockSocket>(false, true);
+    auto scanHandler = buildDefaultHandler(socket);
+
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+
+    scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
+    scanHandler->scan(request);
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
+    EXPECT_TRUE(appenderContains("Scan Error"));
+}
+
+TEST_F(TestScanRequestHandler, cacheFdError)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto socket = std::make_shared<RecordingMockSocket>(false, false);
+    auto scanHandler = buildDefaultHandler(socket);
+
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).WillOnce(
+        SetErrnoAndReturn(EPERM, -1)
+        );
+
+    scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN));
+    scanHandler->scan(request);
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
+    EXPECT_TRUE(appenderContains("Caching /expected failed: Operation not permitted"));
+}
+
+TEST_F(TestScanRequestHandler, scanErrorAndDetection)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto socket = std::make_shared<RecordingMockSocket>(true, true);
+    auto scanHandler = buildDefaultHandler(socket);
+
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+
+    scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
+    scanHandler->scan(request);
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
+    EXPECT_TRUE(appenderContains("Scan Error"));
     EXPECT_TRUE(appenderContains("Detected \"/expected\" is infected with threatName (Close-Write)"));
 }
