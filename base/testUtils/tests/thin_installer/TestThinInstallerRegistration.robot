@@ -47,7 +47,7 @@ Thin Installer Exits Without Installing If Registration Fails
 Thin Installer Exits Without Installing If JWT Acquisition Fails
     Start Local Cloud Server  --force-fail-jwt
     Run Default Thininstaller  52
-    Check Thininstaller Log Contains    Successfully registered with Sophos Central
+    Check Thininstaller Log Contains    Successfully verified connection to Sophos Central
     Check Thininstaller Log Contains    Failed to authenticate with Sophos Central, aborting installation
     Should Not Exist   ${SOPHOS_INSTALL}
 

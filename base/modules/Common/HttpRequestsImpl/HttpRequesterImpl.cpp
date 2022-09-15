@@ -272,7 +272,11 @@ namespace Common::HttpRequestsImpl
         // Handle setting certs, either user specified or we try known system locations.
         if (request.certPath.has_value())
         {
-            LOGINFO("Using client specified CA path: " << request.certPath.value());
+            if (request.certPath.value() != "./mcs_rootca.crt")
+            {
+                LOGWARN("Using client specified CA path: " << request.certPath.value());
+            }
+
             curlOptions.emplace_back("Path for CA bundle - CURLOPT_CAINFO", CURLOPT_CAINFO, request.certPath.value());
         }
         else
