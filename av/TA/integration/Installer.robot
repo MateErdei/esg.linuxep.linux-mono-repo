@@ -7,7 +7,6 @@ Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/BaseResources.robot
 Resource    ../shared/ErrorMarkers.robot
-Resource    ../shared/OnAccessResources.robot
 
 Library         Collections
 Library         Process
@@ -65,9 +64,9 @@ IDE update copies updated ide
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded  setOldTimestamps=${True}
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs ls -ilhd  OnError=find failed   timeout=60s
+    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs ls -ilhd  OnError=find failed
     Log  ${result.stdout}
-    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs du -cb  OnError=find failed   timeout=60s
+    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs du -cb  OnError=find failed
     Log  ${result.stdout}
     ${lastline} =  Fetch From Right    ${result.stdout}  \n
     ${WRITTEN_TO_DISK_DURING} =  Fetch From Left    ${lastline}  \t
@@ -92,12 +91,12 @@ Restart then Update Sophos Threat Detector
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 IDE update during command line scan
-    # Assumes that /usr/share/ takes long enough to scan, and that all files take well under one second to be scanned.
+    # Assumes that /usr takes long enough to scan, and that all files take well under one second to be scanned.
     # If this proves to be false on any of our test systems, we'll need to create a dummy fileset to scan instead.
     Mark Sophos Threat Detector Log
 
     ${scan_log} =   Set Variable  /tmp/cli.log
-    ${cls_handle} =   Start Process  ${CLI_SCANNER_PATH}  /usr/share/  stdout=${scan_log}  stderr=STDOUT
+    ${cls_handle} =   Start Process  ${CLI_SCANNER_PATH}  /usr/  stdout=${scan_log}  stderr=STDOUT
     Register Cleanup  Remove File  ${scan_log}
     Register Cleanup  Dump Log  ${scan_log}
     Register Cleanup  Terminate Process  ${cls_handle}
@@ -105,7 +104,7 @@ IDE update during command line scan
     # ensure scan is running
     Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested of
 
-    ${start_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
+    ${start_time} =   Get Current Date   exclude_millis=True
     Sleep  1 second   Allow some scans to occur before the update
 
     # do virus data update, wait for log mesages
@@ -116,7 +115,7 @@ IDE update during command line scan
     Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested of
 
     Sleep  1 second   Allow some scans to occur after the update
-    ${end_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
+    ${end_time} =   Get Current Date   exclude_millis=True
 
     Process should Be Running   handle=${cls_handle}
     ${result} =   Terminate Process   handle=${cls_handle}
@@ -128,57 +127,6 @@ IDE update during command line scan
     FOR   ${offset}   IN RANGE   ${time_diff}
         ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
         ${line_count} =  Count Lines In Log  ${scan_log}  [${timestamp}] Scanning \
-        Should Be True   10 <= ${line_count}
-    END
-
-On access gets IDE update
-    Send Policies to enable on-access
-    Wait Until On Access Log Contains With Offset   On-open event for
-
-    Mark On Access Log
-    On-access Scan Eicar Close
-    On-access Scan Peend no detect
-
-    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
-
-    On-access Scan Eicar Close
-    On-access Scan Peend
-
-On access continues during update
-    Send Policies to enable on-access
-    Wait Until On Access Log Contains With Offset   On-open event for
-
-    ${test_dir} =   Set Variable   /tmp/testdir
-    Create Directory   ${test_dir}
-    Register Cleanup   Remove Directory   ${test_dir}   recursive=True
-
-    ${handle} =   Start Process
-    ...   while :; do echo foo >$(date -u +%H:%M:%S); sleep 0.01; done
-    ...   shell=True   cwd=${test_dir}
-
-    Mark Sophos Threat Detector Log
-    Wait Until Sophos Threat Detector Log Contains With Offset     Scan requested of ${test_dir}/
-
-    ${start_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
-    Sleep   1s   let on-access do its thing
-
-    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
-
-    Mark Sophos Threat Detector Log
-    Wait Until Sophos Threat Detector Log Contains With Offset     Scan requested of ${test_dir}/
-
-    Sleep   1s   let on-access do its thing
-    ${end_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
-
-    Process should Be Running   handle=${handle}
-    ${result} =   Terminate Process   handle=${handle}
-
-    # do some magic to check that we were scanning without interruption (at least 10 scans every second)
-    ${time_diff} =   Subtract Date From Date   ${end_time}   ${start_time}   exclude_millis=True
-    FOR   ${offset}   IN RANGE   ${time_diff}
-        ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
-        ${lines} =   Grep File   ${THREAT_DETECTOR_LOG_PATH}   T${timestamp}.* Scan requested of /tmp/testdir/
-        ${line_count} =   Get Line Count   ${lines}
         Should Be True   10 <= ${line_count}
     END
 
@@ -263,8 +211,8 @@ Update before Init then Restart Threat Detector
     Process Should Be Running   ${cls_handle}
     Mark Log   ${LOG_FILE}
     Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  2 secs
+    ...  10 secs
+    ...  1 secs
     ...  File Log Contains With Offset   ${LOG_FILE}   Scanning   ${LOG_MARK}
 
     # Stop CLS
@@ -338,6 +286,8 @@ AV Plugin gets customer id after upgrade
     # modify the manifest to force the installer to perform a full product update
     Modify manifest
     Run Installer From Install Set
+    #Todo Remove after LINUXDAR-5655 is removed.
+    Wait Until Sophos Threat Detector Log Contains With Offset     Starting USR1 monitor
 
     #A max of 10 seconds might pass before the threatDetector starts
     Wait Until Created   ${customerIdFile}   timeout=12sec
@@ -748,7 +698,8 @@ Check AV installer sets correct home directory for the users it creates
     Should Be Equal As Strings  ${homedir}  /opt/sophos-spl
 
 IDE Update Invalidates On Access Cache
-    Send Policies to enable on-access
+    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
     Wait Until On Access Log Contains With Offset   On-open event for
 
     Register Cleanup  Exclude On Access Scan Errors
@@ -763,7 +714,7 @@ IDE Update Invalidates On Access Cache
     Install IDE without reload check  ${IDE_NAME}
     Wait Until On Access Log Contains With Offset  Clearing on-access cache
     # Allow time for cache to be cleared
-    Sleep  5s
+    Sleep  2s
 
     Mark On Access Log
     Generate Only Open Event  ${srcfile}
