@@ -82,18 +82,7 @@ void ScanRequestHandler::scan(
             std::string escapedPath(common::escapePathForLogging(detection.path));
             std::string threatName = detection.name;
 
-            fs::file_status symlinkStatus = fs::symlink_status(common::PathUtils::removeForwardSlashFromPath(detection.path));
-            if (fs::is_symlink(symlinkStatus))
-            {
-                std::string escapedTargetPath(common::escapePathForLogging(fs::canonical(detection.path)));
-                LOGWARN(
-                    "Detected \"" << escapedPath << "\" (symlinked to " << escapedTargetPath << ") is infected with "
-                                  << threatName << " (" << scanType << ")");
-            }
-            else
-            {
-                LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName << " (" << scanType << ")");
-            }
+            LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName << " (" << scanType << ")");
         }
     }
 }
