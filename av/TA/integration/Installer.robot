@@ -11,7 +11,6 @@ Resource    ../shared/ErrorMarkers.robot
 Library         Collections
 Library         Process
 Library         ../Libs/CoreDumps.py
-Library         ../Libs/FileUtils.py
 Library         ../Libs/FullInstallerUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
@@ -39,14 +38,9 @@ AV Plugin Installs With Version Ini File
 IDE update doesnt restart av processes
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    ${SOAPD_PID} =  Record Soapd Plugin PID
     Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-    Check Soapd Plugin has same PID  ${SOAPD_PID}
-
-    Wait Until Sophos Threat Detector Log Contains With Offset  Notify clients that the update has completed
-    Wait Until On Access Log Contains With Offset  Clearing on-access cache
 
     # Check we can detect EICAR following update
     Check avscanner can detect eicar
@@ -64,9 +58,9 @@ IDE update copies updated ide
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded  setOldTimestamps=${True}
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs ls -ilhd  OnError=find failed   timeout=60s
+    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs ls -ilhd  OnError=find failed
     Log  ${result.stdout}
-    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs du -cb  OnError=find failed   timeout=60s
+    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs du -cb  OnError=find failed
     Log  ${result.stdout}
     ${lastline} =  Fetch From Right    ${result.stdout}  \n
     ${WRITTEN_TO_DISK_DURING} =  Fetch From Left    ${lastline}  \t
@@ -104,7 +98,7 @@ IDE update during command line scan
     # ensure scan is running
     Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested of
 
-    ${start_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
+    ${start_time} =   Get Current Date   exclude_millis=True
     Sleep  1 second   Allow some scans to occur before the update
 
     # do virus data update, wait for log mesages
@@ -115,7 +109,7 @@ IDE update during command line scan
     Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested of
 
     Sleep  1 second   Allow some scans to occur after the update
-    ${end_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
+    ${end_time} =   Get Current Date   exclude_millis=True
 
     Process should Be Running   handle=${cls_handle}
     ${result} =   Terminate Process   handle=${cls_handle}
@@ -286,8 +280,6 @@ AV Plugin gets customer id after upgrade
     # modify the manifest to force the installer to perform a full product update
     Modify manifest
     Run Installer From Install Set
-    #Todo Remove after LINUXDAR-5655 is removed.
-    Wait Until Sophos Threat Detector Log Contains With Offset     Starting USR1 monitor
 
     #A max of 10 seconds might pass before the threatDetector starts
     Wait Until Created   ${customerIdFile}   timeout=12sec
@@ -696,29 +688,6 @@ Check AV installer sets correct home directory for the users it creates
     User Should Exist  sophos-spl-threat-detector
     ${rc}  ${homedir} =  Run And Return Rc And Output  getent passwd sophos-spl-threat-detector | cut -d: -f6
     Should Be Equal As Strings  ${homedir}  /opt/sophos-spl
-
-IDE Update Invalidates On Access Cache
-    Send Flags Policy To Base  flags_policy/flags_enabled.json
-    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
-    Wait Until On Access Log Contains With Offset   On-open event for
-
-    Register Cleanup  Exclude On Access Scan Errors
-    ${srcfile} =  Set Variable  /tmp_test/clean.txt
-    Create File  ${srcfile}  clean
-    Generate Only Open Event  ${srcfile}
-    Register Cleanup  Remove File  ${srcfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from
-    # Allow time for file to be added to cache
-    Sleep  1s
-
-    Install IDE without reload check  ${IDE_NAME}
-    Wait Until On Access Log Contains With Offset  Clearing on-access cache
-    # Allow time for cache to be cleared
-    Sleep  2s
-
-    Mark On Access Log
-    Generate Only Open Event  ${srcfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from  timeout=60
 
 
 *** Variables ***
