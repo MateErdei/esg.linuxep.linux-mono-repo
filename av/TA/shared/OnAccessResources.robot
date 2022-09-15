@@ -20,9 +20,15 @@ ${timeout}  ${240}
 
 
 *** Keywords ***
-Clear Logs
-    Dump Log  ${ON_ACCESS_LOG_PATH}
-    Remove File    ${ON_ACCESS_LOG_PATH}
+Clear On Access Log When Nearly Full
+    ${OA_LOG_SIZE}=  Get File Size in MB   ${ON_ACCESS_LOG_PATH}
+
+    ${oa_evaluation}=  Evaluate  ${OA_LOG_SIZE} > ${0.5}
+    IF    ${oa_evaluation}
+          Dump Log  ${ON_ACCESS_LOG_PATH}
+          Remove File    ${ON_ACCESS_LOG_PATH}
+          Restart On Access
+    END
 
 
 List AV Plugin Path

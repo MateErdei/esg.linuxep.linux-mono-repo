@@ -41,7 +41,7 @@ On Access Test Setup
     Mark On Access Log
     Enable OA Scanning
 
-    Register Cleanup  Clear Logs
+    Register Cleanup  Clear On Access Log When Nearly Full
     Register Cleanup  Remove File     ${ONACCESS_FLAG_CONFIG}
     Register Cleanup  Check All Product Logs Do Not Contain Error
     Register Cleanup  Exclude On Access Scan Errors

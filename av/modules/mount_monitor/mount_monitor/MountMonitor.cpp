@@ -13,8 +13,6 @@
 
 #include <poll.h>
 
-static uint64_t EVENT_MASK = (FAN_CLOSE_WRITE | FAN_OPEN);
-
 namespace mount_monitor::mount_monitor
 {
     MountMonitor::MountMonitor(
@@ -91,13 +89,13 @@ namespace mount_monitor::mount_monitor
         }
     }
 
-    void MountMonitor::markMounts(mountinfo::IMountPointSharedVector mounts)
+    void MountMonitor::markMounts(const mountinfo::IMountPointSharedVector& mounts)
     {
         LOGDEBUG("Including " << mounts.size() << " mount points in on-access scanning");
         for (const auto& mount: mounts)
         {
             std::string mountPointStr = mount->mountPoint();
-            int ret = m_fanotifyHandler->markMount(FAN_MARK_ADD | FAN_MARK_MOUNT, EVENT_MASK, FAN_NOFD, mountPointStr);
+            int ret = m_fanotifyHandler->markMount(mountPointStr);
             if (ret == -1)
             {
                 LOGWARN("Unable to mark fanotify for mount point " << mountPointStr << ": " << common::safer_strerror(errno) << ". On Access Scanning disabled on the mount");

@@ -427,11 +427,6 @@ Wait Until On Access Log Contains Times With Offset
     [Arguments]  ${input}  ${timeout}=15  ${times}=1
     Wait Until File Log Contains Times  On Access Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
 
-On Access Log Does Not Contain With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
-    File Log Should Not Contain With Offset  ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
-
 FakeManagement Log Contains
     [Arguments]  ${input}
     ${log_path} =   FakeManagementLog.get_fake_management_log_path
@@ -498,14 +493,14 @@ Wait Until On Access running
     Wait Until Keyword Succeeds
         ...  60 secs
         ...  2 secs
-        ...  On Access Log Contains  Sophos on access process started
+        ...  On Access Log Contains  Fanotify successfully initialised
 
 Wait Until On Access running with offset
     ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
     Wait Until Keyword Succeeds
         ...  60 secs
         ...  2 secs
-        ...  Wait Until On Access Log Contains With Offset  Sophos on access process started
+        ...  Wait Until On Access Log Contains With Offset  Fanotify successfully initialised
 
 Wait until threat detector running
     # wait for sophos_threat_detector to initialize

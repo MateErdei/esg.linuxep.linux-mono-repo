@@ -30,7 +30,7 @@ namespace mount_monitor::mount_monitor
         mountinfo::IMountPointSharedVector getIncludedMountpoints(mountinfo::IMountPointSharedVector allMountPoints);
     private:
         void run() override;
-        void markMounts(mountinfo::IMountPointSharedVector mounts);
+        void markMounts(const mountinfo::IMountPointSharedVector& mounts);
 
         OnAccessMountConfig& m_config;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;

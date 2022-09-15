@@ -111,7 +111,7 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
             Return(-1)
             )
           );
-    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_, _, _, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(0));
     auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler);
     auto numMountPoints = mountMonitor->getIncludedMountpoints(mountMonitor->getAllMountpoints()).size();
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
@@ -147,7 +147,7 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
         .WillRepeatedly(DoDefault());
 
 
-    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_, _, _, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(0));
     auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler);
     auto numMountPoints = mountMonitor->getIncludedMountpoints(mountMonitor->getAllMountpoints()).size();
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
@@ -192,7 +192,7 @@ TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe)
     fds[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
-    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_, _, _, _)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(0));
     auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler);
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 
@@ -213,7 +213,7 @@ TEST_F(TestMountMonitor, TestMonitorLogsErrorIfMarkingFails)
     fds[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
-    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_, _, _, _)).WillOnce(Return(-1));
+    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillOnce(Return(-1));
     auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler);
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 

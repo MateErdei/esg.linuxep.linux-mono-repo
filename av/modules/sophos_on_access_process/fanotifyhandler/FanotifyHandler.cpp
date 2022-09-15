@@ -13,8 +13,9 @@
 using namespace sophos_on_access_process::fanotifyhandler;
 
 FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
+    : m_systemCallWrapper(std::move(systemCallWrapper))
 {
-    int fanotifyFd = systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
+    int fanotifyFd = m_systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
     if (fanotifyFd == -1)
     {
         std::stringstream errMsg;
@@ -37,29 +38,34 @@ int FanotifyHandler::getFd() const
     return m_fd.fd();
 }
 
-int FanotifyHandler::markMount(const unsigned int& flags, const uint64_t& mask, const int& dfd, const std::string& path) const
+int FanotifyHandler::markMount(const std::string& path) const
 {
-     int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, dfd, path.c_str());
-     if (result < 0)
-     {
-         processFaMarkError("markMount");
-     }
-     return result;
-}
+    static uint64_t EVENT_MASK = (FAN_CLOSE_WRITE | FAN_OPEN);
 
-int FanotifyHandler::cacheFd(const unsigned int& flags, const uint64_t& mask, const int& dfd, const std::string& path) const
-{
+    constexpr unsigned int flags = FAN_MARK_ADD | FAN_MARK_MOUNT;
+    const uint64_t mask = EVENT_MASK;
+    const int dfd = FAN_NOFD;
     int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, dfd, path.c_str());
     if (result < 0)
     {
-        processFaMarkError("cacheFd");
+     processFaMarkError("markMount", path);
     }
     return result;
 }
 
-void FanotifyHandler::processFaMarkError(const std::string& function) const
+int FanotifyHandler::cacheFd(const unsigned int& flags, const uint64_t& mask, const int& dfd, const std::string& path) const
 {
-    LOGERROR("fanotify_mark failed: " << function << " : " << common::safer_strerror(errno));
+    int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, dfd, nullptr);
+    if (result < 0)
+    {
+        processFaMarkError("cacheFd", path);
+    }
+    return result;
+}
+
+void FanotifyHandler::processFaMarkError(const std::string& function, const std::string& path)
+{
+    LOGERROR("fanotify_mark failed: " << function << " : " << common::safer_strerror(errno) << " Path: " << path);
 }
 
 FanotifyHandler::~FanotifyHandler()

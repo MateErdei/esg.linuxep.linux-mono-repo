@@ -121,16 +121,28 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
         auto executablePath = get_executable_path_from_pid(metadata->pid);
+        auto uid = getUidFromPid(metadata->pid);
+        // TODO: Handle process exclusions
+        auto escapedPath = common::escapePathForLogging(path);
+
 
         auto eventType = E_SCAN_TYPE_UNKNOWN;
 
         //Some events have both bits set, we prioritise FAN_CLOSE_WRITE as the event tag. A copy event can cause this.
-        if (metadata->mask & FAN_CLOSE_WRITE)
+        if ((metadata->mask & FAN_CLOSE_WRITE) && (metadata->mask & FAN_OPEN))
         {
+            LOGINFO("On-open event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
+            LOGINFO("On-close event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
+            eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
+        }
+        else if (metadata->mask & FAN_CLOSE_WRITE)
+        {
+            LOGINFO("On-close event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
             eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
         }
         else if (metadata->mask & FAN_OPEN)
         {
+            LOGINFO("On-open event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
             eventType = E_SCAN_TYPE_ON_ACCESS_OPEN;
         }
         else
@@ -139,20 +151,12 @@ bool EventReaderThread::handleFanotifyEvent()
             return true;
         }
 
-        const std::string eventStr = eventType == E_SCAN_TYPE_ON_ACCESS_OPEN ? "open" : "close";
 
         if (!m_processExclusionStem.empty() && startswith(executablePath, m_processExclusionStem))
         {
             //LOGDEBUG("Excluding SPL-AV process: " << executablePath << " scantype: " << eventStr << " for path: " << path);
             continue;
         }
-
-        auto uid = getUidFromPid(metadata->pid);
-
-        // TODO: Handle process exclusions
-        auto escapedPath = common::escapePathForLogging(path);
-
-        LOGINFO("On-" << eventStr << " event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
 
         scanRequest->setPath(path);
         scanRequest->setScanType(eventType);
