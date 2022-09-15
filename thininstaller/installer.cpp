@@ -321,10 +321,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        log4cplus::Logger::getRoot().setLogLevel(log4cplus::INFO_LOG_LEVEL);
-        std::stringstream initMessage;
-        initMessage << "Logger configured for level: INFO" << std::endl;
-        log4cplus::Logger::getRoot().log(log4cplus::INFO_LOG_LEVEL, initMessage.str());
+        log4cplus::Logger::getRoot().setLogLevel(log4cplus::WARN_LOG_LEVEL);
     }
 
 
@@ -443,7 +440,6 @@ int main(int argc, char** argv)
         {
             return 51;
         }
-        log("Successfully registered with Sophos Central");
 
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
             std::make_shared<Common::CurlWrapper::CurlWrapper>();
