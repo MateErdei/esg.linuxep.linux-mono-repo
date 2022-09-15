@@ -156,8 +156,6 @@ On Access Scans File On BFS
     Wait Until On Access Log Contains With Offset   Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with  timeout=${timeout}
 
 On Access Scans File On CRAMFS
-    [Tags]  MANUAL
-    # TODO: Fix this test
     Require Filesystem  cramfs
 
     ${image} =  Copy And Extract Image  cramfsFileSystem
@@ -168,13 +166,10 @@ On Access Scans File On CRAMFS
     Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
 
     ${pid} =  Get Robot Pid
-    ${command} =    Set Variable    cat ${NORMAL_DIRECTORY}/mount/eicar.com > /dev/null
-    ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
-    Mark On Access Log
-    ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
-    Log   ${output}
+    ${contents} =  Get Binary File  ${NORMAL_DIRECTORY}/mount/eicar.com
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  On-open event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  (PID=${pid}) and UID 0
     Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with  timeout=${timeout}
 
 On Access Scans File On EXT2
