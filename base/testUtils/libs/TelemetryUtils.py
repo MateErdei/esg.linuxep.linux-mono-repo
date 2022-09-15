@@ -204,16 +204,19 @@ class TelemetryUtils:
         if successful_update_time is not None:
             telemetry["successful-update-time"] = int(successful_update_time)
 
-        subscriptions = [{"fixedversion": base_fixed_version, "tag": base_tag, "rigidname": "ServerProtectionLinux-Base"},
-                         {"fixedversion": mtr_fixed_version, "tag": mtr_tag, "rigidname": "ServerProtectionLinux-Plugin-MDR"}]
+        if base_fixed_version is not None:
+            telemetry["subscriptions-ServerProtectionLinux-Base"] = base_tag
+
+        if mtr_fixed_version is not None:
+            telemetry["subscriptions-ServerProtectionLinux-Plugin-MDR"] = mtr_tag
+
         if set_edr:
-            edr = {"fixedversion": "", "tag": "RECOMMENDED", "rigidname": "ServerProtectionLinux-Plugin-EDR"}
-            subscriptions.append(edr)
+            telemetry["subscriptions-ServerProtectionLinux-Plugin-EDR"] = "RECOMMENDED"
 
         if set_av:
-            av = {"fixedversion": "", "tag": "RECOMMENDED", "rigidname": "ServerProtectionLinux-Plugin-AV"}
-            subscriptions.append(av)
-        warehouse = {"sddsid": sddsid, "subscriptions": subscriptions}
+            telemetry["subscriptions-ServerProtectionLinux-Plugin-AV"] = "RECOMMENDED"
+
+        warehouse = {"sddsid": sddsid}
 
         telemetry["warehouse"] = warehouse
 
