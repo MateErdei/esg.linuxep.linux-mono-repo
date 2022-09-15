@@ -1651,6 +1651,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received
 
     Register Cleanup  Exclude Scan Errors From File Samples
 
+    Mark Sophos Threat Detector Log
     ${cls_handle} =     Start Process
         ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
         ...   stdout=${SCAN_OUT}  stderr=STDOUT
