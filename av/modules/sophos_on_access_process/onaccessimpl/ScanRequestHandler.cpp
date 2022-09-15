@@ -4,16 +4,14 @@
 
 #include "Logger.h"
 
-#include "common/PathUtils.h"
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
-#include "datatypes/sophos_filesystem.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
+#include <memory>
 #include <sstream>
 
 using namespace sophos_on_access_process::onaccessimpl;
-namespace fs = sophos_filesystem;
 
 ScanRequestHandler::ScanRequestHandler(
    ScanRequestQueueSharedPtr scanRequestQueue,
@@ -32,8 +30,11 @@ void ScanRequestHandler::scan(
     ScanResponse response;
     try
     {
-        ClientSocketWrapper socketWrapper(*m_socket, m_notifyPipe, retryInterval);
-        response = socketWrapper.scan(scanRequest);
+        if (!m_socketWrapper)
+        {
+            m_socketWrapper = std::make_unique<ClientSocketWrapper>(*m_socket, m_notifyPipe, retryInterval);
+        }
+        response = m_socketWrapper->scan(scanRequest);
     }
     catch (const ScanInterruptedException& e)
     {
@@ -44,6 +45,7 @@ void ScanRequestHandler::scan(
     {
         std::string fileToScanPath(common::escapePathForLogging(scanRequest->getPath()));
         LOGERROR("Failed to scan " << fileToScanPath << " : " << e.what());
+        m_socketWrapper.reset();
         return;
     }
 
@@ -98,4 +100,5 @@ void ScanRequestHandler::run()
             scan(queueItem);
         }
     }
+    m_socketWrapper.reset();
 }

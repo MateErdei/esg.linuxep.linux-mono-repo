@@ -29,5 +29,6 @@ namespace sophos_on_access_process::onaccessimpl
         ScanRequestQueueSharedPtr m_scanRequestQueue;
         std::shared_ptr<unixsocket::IScanningClientSocket> m_socket;
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
+        std::unique_ptr<ClientSocketWrapper> m_socketWrapper;
     };
 }
