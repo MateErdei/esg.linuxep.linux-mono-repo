@@ -16,7 +16,7 @@ Library         ../Libs/ThreatReportUtils.py
 
 ** Variables ***
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
-${timeout}  ${240}
+${timeout}  ${60}
 
 
 *** Keywords ***
