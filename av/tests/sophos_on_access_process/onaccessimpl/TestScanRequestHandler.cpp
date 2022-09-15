@@ -167,7 +167,6 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileWaiting)
 
 TEST_F(TestScanRequestHandler, cleanScanOpen)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     auto socket = std::make_shared<RecordingMockSocket>(false, false);
     auto scanHandler = buildDefaultHandler(socket);
 
@@ -181,7 +180,6 @@ TEST_F(TestScanRequestHandler, cleanScanOpen)
 
 TEST_F(TestScanRequestHandler, cleanScanClose)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     auto socket = std::make_shared<RecordingMockSocket>(false, false);
     auto scanHandler = buildDefaultHandler(socket);
 
@@ -191,4 +189,34 @@ TEST_F(TestScanRequestHandler, cleanScanClose)
     scanHandler->scan(request);
 
     EXPECT_EQ(socket->m_paths.size(), 1);
+}
+
+TEST_F(TestScanRequestHandler, infectedScanOpen)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto socket = std::make_shared<RecordingMockSocket>(true, false);
+    auto scanHandler = buildDefaultHandler(socket);
+
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+
+    scan_messages::ClientScanRequestPtr request(buildRequest());
+    scanHandler->scan(request);
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
+    EXPECT_TRUE(appenderContains("Detected \"/expected\" is infected with threatName (Open)"));
+}
+
+TEST_F(TestScanRequestHandler, infectedScanClose)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto socket = std::make_shared<RecordingMockSocket>(true, false);
+    auto scanHandler = buildDefaultHandler(socket);
+
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+
+    scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
+    scanHandler->scan(request);
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
+    EXPECT_TRUE(appenderContains("Detected \"/expected\" is infected with threatName (Close-Write)"));
 }
