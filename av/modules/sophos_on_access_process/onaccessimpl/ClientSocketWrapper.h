@@ -38,7 +38,7 @@ namespace sophos_on_access_process::onaccessimpl
 
         unixsocket::IScanningClientSocket& m_socket;
         Common::Threads::NotifyPipe& m_notifyPipe;
-        int m_reconnectAttempts;
+        int m_reconnectAttempts = 0;
         const struct timespec& m_retryInterval;
     };
 }
