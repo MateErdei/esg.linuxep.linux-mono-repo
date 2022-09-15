@@ -96,6 +96,7 @@ class LogUtils(object):
         self.osquery_watcher_log = os.path.join(self.install_path, "plugins", "mtr", "dbos", "data", "logs", "osquery.watcher.log")
         self.sophos_threat_detector_log = os.path.join(self.install_path, "plugins", "av", "chroot", "log", "sophos_threat_detector.log")
         self.av_log = os.path.join(self.av_plugin_logs_dir, "av.log")
+        self.oa_log = os.path.join(self.av_plugin_logs_dir, "soapd.log")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.marked_mcsrouter_logs = 0
         self.marked_mcs_envelope_logs = 0
@@ -112,6 +113,12 @@ class LogUtils(object):
 
     def get_register_central_log(self):
         return self.register_log
+
+    def dump_logs(self):
+        self.dump_log(self.oa_log)
+        self.dump_log(self.av_log)
+        self.dump_watchdog_log()
+        self.dump_wdctl_log()
 
     def dump_log(self, filename):
         if os.path.isfile(filename):
