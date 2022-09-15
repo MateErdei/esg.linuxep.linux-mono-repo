@@ -65,9 +65,9 @@ IDE update copies updated ide
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded  setOldTimestamps=${True}
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs ls -ilhd  OnError=find failed
+    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs ls -ilhd  OnError=find failed   timeout=60s
     Log  ${result.stdout}
-    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs du -cb  OnError=find failed
+    ${result} =  Run Shell Process  find ${SOPHOS_INSTALL} -type f -newer ${SOPHOS_INSTALL}/mark | xargs du -cb  OnError=find failed   timeout=60s
     Log  ${result.stdout}
     ${lastline} =  Fetch From Right    ${result.stdout}  \n
     ${WRITTEN_TO_DISK_DURING} =  Fetch From Left    ${lastline}  \t
@@ -105,7 +105,7 @@ IDE update during command line scan
     # ensure scan is running
     Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested of
 
-    ${start_time} =   Get Current Date   exclude_millis=True
+    ${start_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
     Sleep  1 second   Allow some scans to occur before the update
 
     # do virus data update, wait for log mesages
@@ -116,7 +116,7 @@ IDE update during command line scan
     Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested of
 
     Sleep  1 second   Allow some scans to occur after the update
-    ${end_time} =   Get Current Date   exclude_millis=True
+    ${end_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
 
     Process should Be Running   handle=${cls_handle}
     ${result} =   Terminate Process   handle=${cls_handle}
