@@ -80,9 +80,8 @@ On Access Log Rotates
     Dump and Reset Logs
     # Ensure the log is created
 
-    Start AV and On Access
-
     Terminate On Access And AV
+    Wait Until On Access Log Contains With Offset  Scan Queue is empty
     Increase On Access Log To Max Size
 
     Start AV and On Access

@@ -103,15 +103,15 @@ def increase_threat_detector_log_to_max_size_by_path(log_path, remaining=1):
     extra = extra_text * copies
 
     last_additional_required = additional_required - len(extra)
-    assert last_additional_required >= 0
+    assert last_additional_required >= 0, "length of extra text being added is greater than that required"
     if last_additional_required > 0:
         extra += "." * (last_additional_required - 1) + "\n"
-    assert len(extra) == additional_required
+    assert len(extra) == additional_required, "length of extra text being added is not equal to that required"
 
     open(log_path, "ab").write(extra.encode("UTF-8"))
     statbuf = os.stat(log_path)
     current_size = statbuf.st_size
-    assert current_size == max_size
+    assert current_size == max_size, f"current size of log ({current_size}) is not greater than or equal to the max size ({max_size})"
 
 
 def count_eicars_in_directory(d):
