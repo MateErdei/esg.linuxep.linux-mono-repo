@@ -36,6 +36,7 @@ void unixsocket::BaseClient::connectWithRetries()
 
 void unixsocket::BaseClient::connectWithRetries(const std::string& socketName)
 {
+    std::ignore = socketName; // Fuzz builds compile out LOGDEBUG
     const int MAX_CONN_RETRIES = 10;
 
     int count = 0;
