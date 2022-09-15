@@ -716,7 +716,6 @@ TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
     std::string testResult = R"({"name":"pack_mtr_pack_query"})";
     std::string correctedNameResult = "{\"name\":\"pack_query\",\"tag\":\"stream\"}";
     std::string testResult1 = R"({"name":"pack_mtr_pack_query_no_tag"})";
-    std::string correctedNameResult1 = "{\"name\":\"pack_query_no_tag\"}";
 
     EXPECT_EQ(resultsSender.PrepareSingleResult(testResult), correctedNameResult);
     EXPECT_EQ(resultsSender.PrepareSingleResult(testResult1), "");
