@@ -324,13 +324,10 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPid)
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
         Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
         Return(sizeof(metadata))));
-    const char* filePath = "/tmp/test";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(DoAll(SetArrayArgument<1>(filePath, filePath + strlen(filePath) + 1), Return(strlen(filePath) + 1)));
 
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Event pid matches On Access pid, skipping event"));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }

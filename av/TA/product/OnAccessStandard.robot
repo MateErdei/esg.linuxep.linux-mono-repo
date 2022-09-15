@@ -114,8 +114,7 @@ On Access Scans Encoded Eicars
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
     Log Many  ${result.stdout}  ${result.stderr}
 
-    wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars    300
-
+    wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars    60
 
 On Access Scans Password Protected File
     Register Cleanup    Exclude As Password Protected
@@ -314,7 +313,6 @@ On Access Scans File On ReiserFS
 
 On Access Scans File On SquashFS
     [Tags]  MANUAL
-    # TODO: Fix this test
     Require Filesystem  squashfs
 
     ${image} =  Copy And Extract Image  squashfsFileSystem
@@ -331,7 +329,7 @@ On Access Scans File On SquashFS
     ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
     Log   ${output}
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
+    Wait Until On Access Log Contains With Offset  On-open event for ${where}/eicar.com from
     Wait Until On Access Log Contains With Offset  (PID=${pid}) and UID 0
     Wait Until On Access Log Contains With Offset   Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with   timeout=${timeout}
 

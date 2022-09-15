@@ -119,7 +119,6 @@ class LogUtils(object):
         self.dump_log(self.oa_log)
         self.dump_log(self.av_log)
         self.dump_watchdog_log()
-        self.dump_wdctl_log()
 
     def dump_log(self, filename):
         if os.path.isfile(filename):
