@@ -10,12 +10,6 @@ using namespace std::chrono_literals;
 ScanRequestQueue::ScanRequestQueue(size_t maxSize)
     : m_maxSize(maxSize)
 {
-
-}
-
-ScanRequestQueue::~ScanRequestQueue()
-{
-
 }
 
 bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
@@ -29,7 +23,7 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
     else
     {
         std::lock_guard<std::mutex> lock(m_lock);
-        m_queue.emplace(item);
+        m_queue.emplace(std::move(item));
         m_condition.notify_one();
         return true;
     }
@@ -39,7 +33,7 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
 {
     std::unique_lock<std::mutex> lock(m_lock);
     // release lock as long as the wait and re-aquire it afterwards.
-    m_condition.wait(lock, [this]{ return m_shuttingDown || !m_queue.empty(); });
+    m_condition.wait(lock, [this]{ return m_shuttingDown.load() || !m_queue.empty(); });
     ClientScanRequestPtr scanRequest = nullptr;
     if (!m_shuttingDown)
     {
@@ -55,11 +49,16 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
 
 void ScanRequestQueue::stop()
 {
-    m_shuttingDown = true;
+    m_shuttingDown.store(true);
     m_condition.notify_all();
 }
 
 size_t ScanRequestQueue::size() const
 {
     return m_queue.size();
+}
+
+void ScanRequestQueue::restart()
+{
+    m_shuttingDown.store(false);
 }

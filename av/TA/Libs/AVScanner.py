@@ -111,7 +111,7 @@ def increase_threat_detector_log_to_max_size_by_path(log_path, remaining=1):
     open(log_path, "ab").write(extra.encode("UTF-8"))
     statbuf = os.stat(log_path)
     current_size = statbuf.st_size
-    assert current_size == max_size, f"current size of log ({current_size}) is not greater than or equal to the max size ({max_size})"
+    assert current_size == max_size, f"current size of log ({current_size}) is not equal to the max size ({max_size})"
 
 
 def count_eicars_in_directory(d):

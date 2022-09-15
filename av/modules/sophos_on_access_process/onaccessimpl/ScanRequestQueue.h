@@ -1,10 +1,11 @@
-//Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include "datatypes/AutoFd.h"
 #include "scan_messages/ClientScanRequest.h"
 
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
 #include <queue>
@@ -19,8 +20,7 @@ namespace sophos_on_access_process::onaccessimpl
     class ScanRequestQueue
     {
     public:
-        ScanRequestQueue(size_t maxSize = MAX_SIZE);
-        ~ScanRequestQueue();
+        explicit ScanRequestQueue(size_t maxSize = MAX_SIZE);
 
         /**
          * Add scan request and associated file descriptor to the queue ready for scanning
@@ -40,6 +40,11 @@ namespace sophos_on_access_process::onaccessimpl
         void stop();
 
         /**
+         * Resets the state so that we can continue using the queue
+         */
+        void restart();
+
+        /**
          * Returns the current size of m_queue
          */
         size_t size() const;
@@ -49,8 +54,8 @@ namespace sophos_on_access_process::onaccessimpl
         mutable std::mutex m_lock;
         std::condition_variable m_condition;
 
-        size_t m_maxSize;
-        bool m_shuttingDown = false;
+        const size_t m_maxSize;
+        std::atomic_bool m_shuttingDown = false;
     };
 
     using ScanRequestQueueSharedPtr = std::shared_ptr<ScanRequestQueue>;

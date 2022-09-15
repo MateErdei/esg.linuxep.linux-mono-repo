@@ -5,10 +5,15 @@
 #include "OnAccessConfigurationUtils.h"
 
 #include "mount_monitor/mount_monitor/MountMonitor.h"
+#include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
+#include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 
 #include "common/ThreadRunner.h"
 #include "common/signals/SigIntMonitor.h"
 #include "common/signals/SigTermMonitor.h"
+
+#include <atomic>
+#include <vector>
 
 namespace sophos_on_access_process::soapd_bootstrap
 {
@@ -17,37 +22,36 @@ namespace sophos_on_access_process::soapd_bootstrap
     public:
         static int runSoapd();
         /**
-         * Performs all necessary actions for disabling the policy override.
-         * Reads the policy settings from soapd_config.json and enables/disables OA accordingly.
-         * Called by OnAccessProcessControlCallback.
-         * The function blocks on m_pendingConfigActionMutex to ensure that all actions it takes are thread safe.
-         */
-        void UsePolicySettings();
-        /**
-         * Disables on-access despite the policy setting.
-         * Called by OnAccessProcessControlCallback.
-         * The function blocks on m_pendingConfigActionMutex to ensure that all actions it takes are thread safe.
-         */
-        void OverridePolicy();
-        /**
          * Reads and uses the policy settings if m_policyOverride is false.
          * Called by OnAccessProcessControlCallback.
          * The function blocks on m_pendingConfigActionMutex to ensure that all actions it takes are thread safe.
+         *
+         * @param onStart - true when we are starting soapd - log if disabling on-access when disabled
+         *
          */
-        void ProcessPolicy();
+        void ProcessPolicy(bool onStart=false);
 
     private:
-        void innerRun(
-            std::shared_ptr<common::signals::SigIntMonitor>& sigIntMonitor,
-            std::shared_ptr<common::signals::SigTermMonitor>& sigTermMonitor);
+        int outerRun();
+
+        void innerRun();
+
+        void enableOnAccess(bool changed);
+        void disableOnAccess(bool changed);
 
         sophos_on_access_process::OnAccessConfig::OnAccessConfiguration getPolicyConfiguration();
 
         std::unique_ptr<common::ThreadRunner> m_eventReaderThread;
+        std::shared_ptr<sophos_on_access_process::fanotifyhandler::FanotifyHandler> m_fanotifyHandler;
         std::shared_ptr<mount_monitor::mount_monitor::MountMonitor> m_mountMonitor;
+        std::shared_ptr<common::ThreadRunner> m_mountMonitorThread;
 
         std::mutex m_pendingConfigActionMutex;
-        std::atomic<bool> m_currentOaEnabledState = false;
-        std::atomic<bool> m_onAccessEnabledFlag = false;
+        std::atomic_bool m_currentOaEnabledState = false;
+        std::atomic_bool m_onAccessEnabledFlag = false;
+
+
+        std::shared_ptr<onaccessimpl::ScanRequestQueue> m_scanRequestQueue;
+        std::vector<std::shared_ptr<common::ThreadRunner>> m_scanHandlerThreads;
     };
 }
