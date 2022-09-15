@@ -27,10 +27,36 @@ namespace
             m_mockFanotifyHandler = std::make_shared<NiceMock<MockFanotifyHandler>>();
         }
 
+        using HandlerPtr = std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestHandler>;
+
+        HandlerPtr buildDefaultHandler(std::shared_ptr<unixsocket::IScanningClientSocket> socket);
+        [[maybe_unused]] HandlerPtr buildDefaultHandler();
+
+        scan_messages::ClientScanRequestPtr buildRequest()
+        {
+            scan_messages::ClientScanRequestPtr request = std::make_shared<scan_messages::ClientScanRequest>();
+            request->setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN);
+            request->setPath("/expected");
+            return request;
+        }
+
         std::shared_ptr<NiceMock<MockFanotifyHandler>> m_mockFanotifyHandler;
     };
 
     const struct timespec& oneMillisecond = { 0, 1000000 }; // 1ms
+}
+
+TestScanRequestHandler::HandlerPtr TestScanRequestHandler::buildDefaultHandler(std::shared_ptr<unixsocket::IScanningClientSocket> socket)
+{
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
+    return std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
+        scanRequestQueue, std::move(socket), m_mockFanotifyHandler);
+}
+
+[[maybe_unused]] TestScanRequestHandler::HandlerPtr TestScanRequestHandler::buildDefaultHandler()
+{
+    auto socket = std::make_shared<RecordingMockSocket>();
+    return buildDefaultHandler(socket);
 }
 
 TEST_F(TestScanRequestHandler, scan_fileDetected)
@@ -135,4 +161,18 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileWaiting)
     EXPECT_TRUE(waitForLog("Entering Main Loop"));
     scanRequestQueue->stop();
     scanHandlerThread->requestStopIfNotStopped();
+}
+
+TEST_F(TestScanRequestHandler, cleanScanOpen)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto socket = std::make_shared<RecordingMockSocket>(false, false);
+    auto scanHandler = buildDefaultHandler(socket);
+
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).WillOnce(Return(0));
+
+    scan_messages::ClientScanRequestPtr request(buildRequest());
+    scanHandler->scan(request);
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
 }

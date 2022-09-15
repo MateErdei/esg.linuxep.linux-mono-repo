@@ -3,11 +3,12 @@
 #include "ScanRequestHandler.h"
 
 #include "Logger.h"
-#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
 #include "common/PathUtils.h"
+#include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
 #include "datatypes/sophos_filesystem.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
 #include <sstream>
 
@@ -28,8 +29,6 @@ void ScanRequestHandler::scan(
     const scan_messages::ClientScanRequestPtr& scanRequest,
     const struct timespec& retryInterval)
 {
-    std::string fileToScanPath = scanRequest->getPath();
-
     ScanResponse response;
     try
     {
@@ -42,6 +41,7 @@ void ScanRequestHandler::scan(
     }
     catch (const std::exception& e)
     {
+        std::string fileToScanPath(common::escapePathForLogging(scanRequest->getPath()));
         LOGERROR("Failed to scan " << fileToScanPath << " : " << e.what());
         return;
     }
@@ -56,6 +56,16 @@ void ScanRequestHandler::scan(
         else
         {
             // Clean file
+            if (scanRequest->isOpenEvent())
+            {
+                int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
+                if (ret < 0)
+                {
+                    int error = errno;
+                    std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
+                    LOGWARN("Caching " << escapedPath << " failed: " << common::safer_strerror(error));
+                }
+            }
         }
     }
     else
@@ -83,19 +93,6 @@ void ScanRequestHandler::scan(
             else
             {
                 LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName << " (" << scanType << ")");
-            }
-        }
-
-        if (scanRequest->isOpenEvent())
-        {
-            int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
-            if (ret < 0)
-            {
-                LOGDEBUG("adding cache mark failed: " << ret);
-            }
-            else
-            {
-                LOGDEBUG("fanotify ignored mask set for: " << scanRequest->getFd());
             }
         }
     }
