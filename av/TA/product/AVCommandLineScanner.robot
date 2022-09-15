@@ -178,7 +178,7 @@ CLS Can Scan Relative Path
     Log  output is ${output}
     Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/testdir/clean_file was aborted
     Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/testdir/naughty_eicar was aborted
-    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/testdir/naughty_eicar (On Demand)
+    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/testdir/naughty_eicar
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 
@@ -199,7 +199,7 @@ CLS Can Scan Infected File
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar (On Demand)
+    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
 
 
 CLS Can Scan Shallow Archive But not Deep Archive
@@ -301,7 +301,7 @@ CLS Does not request TFTClassification from SUSI
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}   Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain   ${output}   Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test
     Threat Detector Log Should Not Contain With Offset  TFTClassifications
 
 
@@ -315,7 +315,7 @@ CLS Can Evaluate High Ml Score As A Threat
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A (On Demand)
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A
 
     ${contents}  Get File Contents From Offset   ${SUSI_DEBUG_LOG_PATH}   ${SUSI_DEBUG_LOG_MARK}
     ${primary_score}  ${secondary_score} =  Find Integers After Phrase  ML Scores:  ${contents}
@@ -351,9 +351,9 @@ CLS Can Scan Archive File
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test (On Demand)
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test (On Demand)
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
 
 CLS Doesnt Detect eicar in zip without archive option
@@ -364,7 +364,7 @@ CLS Doesnt Detect eicar in zip without archive option
     Log  return code is ${rc}
     Log  output is ${output}
     Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
-    Should Not Contain  ${output}  is infected with EICAR-AV-Test (On Demand)
+    Should Not Contain  ${output}  is infected with EICAR-AV-Test
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
@@ -389,15 +389,15 @@ CLS Can Scan Multiple Archive Files
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test (On Demand)
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test (On Demand)
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test (On Demand)
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test (On Demand)
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test (On Demand)
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test (On Demand)
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test (On Demand)
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test (On Demand)
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
 
 
 CLS Reports Reason for Scan Error on Zip Bomb
@@ -454,7 +454,7 @@ CLS Can Report Scan Error And Detection For Archive
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/EncryptedSpreadsheet.xlsx as it is password protected
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/eicar.com" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/eicar.com" is infected with EICAR-AV-Test
 
 
 
@@ -564,7 +564,7 @@ CLS Long Threat Paths Are Not Truncated
     Log  return code is ${rc}
     Log  output is ${output}
 
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/a-long-path-name-long-enough-for-this-test/i-am-a-deep-seated/dir1/dir2/dir3/dir4/dir5/dir6/dir7/dir8/dir9/dir0/dira/dirb/dirc/dird/1_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/a-long-path-name-long-enough-for-this-test/i-am-a-deep-seated/dir1/dir2/dir3/dir4/dir5/dir6/dir7/dir8/dir9/dir0/dira/dirb/dirc/dird/1_eicar" is infected with EICAR-AV-Test
 
 
 CLS Can Scan Zero Byte File
@@ -1445,9 +1445,9 @@ CLS scans dir with name similar to excluded mount
     Log                 output is ${output}
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain      ${output}   Detected "${testdir1}/process/eicar.com" is infected with EICAR-AV-Test (On Demand)
-    Should Contain      ${output}   Detected "${testdir1}/process_eicar.com" is infected with EICAR-AV-Test (On Demand)
-    Should Contain      ${output}   Detected "${testdir1}/process_symlink" (symlinked to ${testdir2}/eicar.com) is infected with EICAR-AV-Test (On Demand)
+    Should Contain      ${output}   Detected "${testdir1}/process/eicar.com" is infected with EICAR-AV-Test
+    Should Contain      ${output}   Detected "${testdir1}/process_eicar.com" is infected with EICAR-AV-Test
+    Should Contain      ${output}   Detected "${testdir1}/process_symlink" (symlinked to ${testdir2}/eicar.com) is infected with EICAR-AV-Test
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${testdir2}
     Log                 return code is ${rc}
@@ -1455,7 +1455,7 @@ CLS scans dir with name similar to excluded mount
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain      ${output}   Detected "${testdir2}/eicar.com" is infected with EICAR-AV-Test
-    Should Contain      ${output}   Detected "${testdir2}/file_link" (symlinked to ${testdir1}/process_eicar.com) is infected with EICAR-AV-Test (On Demand)
+    Should Contain      ${output}   Detected "${testdir2}/file_link" (symlinked to ${testdir1}/process_eicar.com) is infected with EICAR-AV-Test
     Should Contain      ${output}   Detected "${testdir2}/dir_link/eicar.com" is infected with EICAR-AV-Test
 
 
@@ -1475,7 +1475,7 @@ CLS scan with ISO mount
     Log  output is ${output}
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}   Detected "${destination}/directory/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
+    Should Contain   ${output}   Detected "${destination}/directory/subdir/eicar.com" is infected with EICAR-AV-Test
 
 
 CLS scan two mounts same inode numbers
@@ -1505,8 +1505,8 @@ CLS scan two mounts same inode numbers
     Log  output is ${output}
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}   Detected "${destination}/directory/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
-    Should Contain   ${output}   Detected "${destination2}/directory/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
+    Should Contain   ${output}   Detected "${destination}/directory/subdir/eicar.com" is infected with EICAR-AV-Test
+    Should Contain   ${output}   Detected "${destination2}/directory/subdir/eicar.com" is infected with EICAR-AV-Test
 
 
 CLS Can Scan Infected And Error Files
@@ -1583,33 +1583,21 @@ CLS Return Codes Are Correct
 CLS Can Append Summary To Log When SigTerm Occurs
     ${SCAN_LOG} =    Set Variable    /tmp/sigterm_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
-    Register On Fail  Dump Log  ${SCAN_LOG}
-    Remove File  ${SCAN_LOG}
-
-    ${SCAN_OUT} =    Set Variable    /tmp/sigterm_out.log
-    Register Cleanup  Remove File  ${SCAN_OUT}
-    Register On Fail   Dump Log   ${SCAN_OUT}
-    Remove File  ${SCAN_OUT}
-
     Register Cleanup  Exclude Scan Errors From File Samples
-
-    ${cls_handle} =     Start Process
-        ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
-        ...   stdout=${SCAN_OUT}  stderr=STDOUT
-    ${cls_pid} =   Get Process Id   handle=${cls_handle}
-    Log  PID: ${cls_pid}
+    Remove File  ${SCAN_LOG}
+    ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
+    ${cls_process} =    Get Process Object  ${cls_handle}
+    Log  PID: ${cls_process.pid}
+    dump_threads_from_pid  ${cls_process.pid}
     Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
+    register on fail  Dump Log  ${SCAN_LOG}
+    register on fail  dump_threads_from_pid  ${cls_process.pid}
 
     Wait Until File exists  ${SCAN_LOG}
-    Wait For File With Particular Contents   \ Scanning\    ${SCAN_LOG}
     Dump Log  ${SCAN_LOG}
 
-    dump_threads_from_pid  ${cls_pid}
-    register on fail  dump_threads_from_pid  ${cls_pid}
-
     Send Signal To Process  SIGTERM  handle=${cls_handle}
-    ${result} =  Wait For Process    handle=${cls_handle}  timeout=10  on_timeout=continue
-    Process Should Be Stopped   handle=${cls_handle}
+    ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=continue
 
     Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=1
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
@@ -1641,34 +1629,22 @@ CLS Can Append Summary To Log When SigTerm Occurs Strace
 CLS Can Append Summary To Log When SIGHUP Is Received
     ${SCAN_LOG} =    Set Variable    /tmp/sighup_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
-    Register On Fail  Dump Log  ${SCAN_LOG}
+    Register Cleanup     Exclude Scan Errors From File Samples
     Remove File  ${SCAN_LOG}
 
-    ${SCAN_OUT} =    Set Variable    /tmp/sighup_out.log
-    Register Cleanup  Remove File  ${SCAN_OUT}
-    Register On Fail   Dump Log   ${SCAN_OUT}
-    Remove File  ${SCAN_OUT}
-
-    Register Cleanup  Exclude Scan Errors From File Samples
-
     Mark Sophos Threat Detector Log
-    ${cls_handle} =     Start Process
-        ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
-        ...   stdout=${SCAN_OUT}  stderr=STDOUT
-    ${cls_pid} =   Get Process Id   handle=${cls_handle}
-    Log  PID: ${cls_pid}
-    Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
+    ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
+    ${cls_process} =    Get Process Object  ${cls_handle}
+    Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
+    register on fail  Dump Log  ${SCAN_LOG}
+    register on fail  dump_threads_from_pid  ${cls_process.pid}
 
     Wait Until File exists  ${SCAN_LOG}
-    Wait For File With Particular Contents   \ Scanning\    ${SCAN_LOG}
-    Dump Log  ${SCAN_LOG}
-
-    dump_threads_from_pid  ${cls_pid}
-    register on fail  dump_threads_from_pid  ${cls_pid}
+    Wait For File With Particular Contents   \ Scanning\   ${SCAN_LOG}
 
     Send Signal To Process  SIGHUP  handle=${cls_handle}
-    ${result} =  Wait For Process    handle=${cls_handle}  timeout=10  on_timeout=continue
-    Process Should Be Stopped   handle=${cls_handle}
+    ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=continue
+    Dump Log  ${SCAN_LOG}
 
     Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
@@ -1715,7 +1691,7 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    File Log Contains  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test (On Demand)
+    File Log Contains  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
     Mark AV Log
