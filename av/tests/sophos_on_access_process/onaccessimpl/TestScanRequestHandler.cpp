@@ -32,10 +32,12 @@ namespace
         HandlerPtr buildDefaultHandler(std::shared_ptr<unixsocket::IScanningClientSocket> socket);
         [[maybe_unused]] HandlerPtr buildDefaultHandler();
 
-        scan_messages::ClientScanRequestPtr buildRequest()
+        static scan_messages::ClientScanRequestPtr buildRequest(
+            scan_messages::E_SCAN_TYPE type=scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN
+            )
         {
             scan_messages::ClientScanRequestPtr request = std::make_shared<scan_messages::ClientScanRequest>();
-            request->setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN);
+            request->setScanType(type);
             request->setPath("/expected");
             return request;
         }
@@ -172,6 +174,20 @@ TEST_F(TestScanRequestHandler, cleanScanOpen)
     EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).WillOnce(Return(0));
 
     scan_messages::ClientScanRequestPtr request(buildRequest());
+    scanHandler->scan(request);
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
+}
+
+TEST_F(TestScanRequestHandler, cleanScanClose)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto socket = std::make_shared<RecordingMockSocket>(false, false);
+    auto scanHandler = buildDefaultHandler(socket);
+
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+
+    scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
     scanHandler->scan(request);
 
     EXPECT_EQ(socket->m_paths.size(), 1);
