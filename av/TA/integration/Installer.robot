@@ -91,6 +91,46 @@ Restart then Update Sophos Threat Detector
     # Extra log dump to check we have the right events happening
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
+IDE update during command line scan
+    # Assumes that /usr takes long enough to scan, and that all files take well under one second to be scanned.
+    # If this proves to be false on any of our test systems, we'll need to create a dummy fileset to scan instead.
+    Mark Sophos Threat Detector Log
+
+    ${scan_log} =   Set Variable  /tmp/cli.log
+    ${cls_handle} =   Start Process  ${CLI_SCANNER_PATH}  /usr/  stdout=${scan_log}  stderr=STDOUT
+    Register Cleanup  Remove File  ${scan_log}
+    Register Cleanup  Dump Log  ${scan_log}
+    Register Cleanup  Terminate Process  ${cls_handle}
+
+    # ensure scan is running
+    Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested of
+
+    ${start_time} =   Get Current Date   exclude_millis=True
+    Sleep  1 second   Allow some scans to occur before the update
+
+    # do virus data update, wait for log mesages
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
+
+    # ensure scan is still running
+    Mark Sophos Threat Detector Log
+    Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested of
+
+    Sleep  1 second   Allow some scans to occur after the update
+    ${end_time} =   Get Current Date   exclude_millis=True
+
+    Process should Be Running   handle=${cls_handle}
+    ${result} =   Terminate Process   handle=${cls_handle}
+
+    Dump Log  ${scan_log}
+
+    # do some magic to check that we were scanning without interruption (at least 10 files scanned every second)
+    ${time_diff} =   Subtract Date From Date   ${end_time}   ${start_time}   exclude_millis=True
+    FOR   ${offset}   IN RANGE   ${time_diff}
+        ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
+        ${line_count} =  Count Lines In Log  ${scan_log}  [${timestamp}] Scanning \
+        Should Be True   10 <= ${line_count}
+    END
+
 Concurrent scans get pending update
     Check file clean   peend.exe
 
