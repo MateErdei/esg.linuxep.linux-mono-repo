@@ -117,7 +117,7 @@ def generate_manifest_old_api(dist, file_objects):
     return True
 
 
-def generate_manifest_new_api(dist, file_objects=None):
+def generate_manifest_new_api(dist, file_objects=None, with_minus_l=True):
     MANIFEST_NAME = os.environ.get("MANIFEST_NAME", "manifest.dat")
     manifest_path = os.path.join(dist, MANIFEST_NAME)
     exclusions = 'SDDS-Import.xml,'+MANIFEST_NAME  # comma separated string
@@ -125,11 +125,13 @@ def generate_manifest_new_api(dist, file_objects=None):
     env['LD_LIBRARY_PATH'] = "/usr/lib:/usr/lib64"
     env['OPENSSL_PATH'] = "/usr/bin/openssl"
     previous_contents = read(manifest_path)
-    result = subprocess.run(
-        ['sb_manifest_sign', '-l', '--folder', dist, '--output', manifest_path, '--exclusions', exclusions]
-        , stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env,
-        timeout=60
-    )
+    command = ['sb_manifest_sign']
+    if with_minus_l:
+        command.append("-l")
+    command += ['--folder', dist, '--output', manifest_path, '--exclusions', exclusions]
+    result = subprocess.run(command,
+                            stderr=subprocess.STDOUT, stdout=subprocess.PIPE,
+                            env=env, timeout=60)
     result.check_returncode()
     new_contents = read(manifest_path)
     return previous_contents != new_contents
@@ -141,6 +143,13 @@ def generate_manifest(dist, file_objects=None):
     except subprocess.CalledProcessError as ex:
         print("Unable to generate manifest.dat file with new-api: ", ex.returncode, str(ex))
         print("Output:", ex.output.decode("UTF-8", errors='replace'))
+
+    try:
+        return generate_manifest_new_api(dist, file_objects, with_minus_l=False)
+    except subprocess.CalledProcessError as ex:
+        print("Unable to generate manifest.dat file with new-api without -l: ", ex.returncode, str(ex))
+        print("Output:", ex.output.decode("UTF-8", errors='replace'))
+
     return generate_manifest_old_api(dist, file_objects)
 
 
