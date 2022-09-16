@@ -112,7 +112,7 @@ void SoapdBootstrap::innerRun()
                                                                                                0666,
                                                                                                processControlCallbacks);
     auto processControllerServerThread = std::make_unique<common::ThreadRunner>(processControllerServer,
-                                                                                "eventReader",
+                                                                                "processControlServer",
                                                                                 true);
 
     struct pollfd fds[] {
