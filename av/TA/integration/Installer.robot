@@ -675,7 +675,7 @@ IDE Update Invalidates On Access Cache
 
     Mark On Access Log
     Copy File    ${srcfile}  ${destpath}
-    Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from
+    Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from  timeout=60
 
 
 *** Variables ***
