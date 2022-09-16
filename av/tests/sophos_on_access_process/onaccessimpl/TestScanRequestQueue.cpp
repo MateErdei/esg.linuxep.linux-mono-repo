@@ -32,8 +32,6 @@ TEST_F(TestScanRequestQueue, push_onlyEnqueuesUpToMaxSize)
     EXPECT_EQ(queue.size(), 1);
     EXPECT_FALSE(queue.emplace(emplaceRequest2));
     EXPECT_EQ(queue.size(), 1);
-
-    EXPECT_TRUE(waitForLog("Unable to add scan request to queue as it is"));
 }
 
 TEST_F(TestScanRequestQueue, push_FIFO)
