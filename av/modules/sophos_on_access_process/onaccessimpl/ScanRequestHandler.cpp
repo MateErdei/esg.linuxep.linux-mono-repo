@@ -100,7 +100,6 @@ void ScanRequestHandler::run()
             if (queueItem)
             {
                 scan(queueItem);
-                LOGDEBUG("Finished scan");
             }
         }
     }
