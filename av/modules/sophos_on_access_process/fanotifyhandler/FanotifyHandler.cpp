@@ -16,7 +16,6 @@ FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCa
     : m_systemCallWrapper(std::move(systemCallWrapper))
 {
     assert(m_systemCallWrapper);
-    init();
 }
 
 FanotifyHandler::~FanotifyHandler()
@@ -49,7 +48,7 @@ int FanotifyHandler::getFd() const
 {
     if (!m_fd.valid())
     {
-        LOGDEBUG("Fanotify FD not valid " << m_fd.fd());
+        LOGERROR("Fanotify FD not valid " << m_fd.fd());
     }
 
     return m_fd.fd();

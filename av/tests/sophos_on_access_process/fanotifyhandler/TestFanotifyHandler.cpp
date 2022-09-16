@@ -27,12 +27,19 @@ namespace
 
 TEST_F(TestFanotifyHandler, construction)
 {
+    sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
+    EXPECT_EQ(handler.getFd(), -1);
+}
+
+TEST_F(TestFanotifyHandler, testInit)
+{
     int fanotifyFd = 0;
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
+    handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
 
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
@@ -42,14 +49,13 @@ TEST_F(TestFanotifyHandler, construction)
     EXPECT_FALSE(appenderContains("Unable to initialise fanotify:"));
 }
 
-TEST_F(TestFanotifyHandler, construction_logsErrorIfFanotifyInitFails)
+TEST_F(TestFanotifyHandler, init_logsErrorIfFanotifyInitFails)
 {
     int fanotifyFd = -1;
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
 
-    EXPECT_THROW(sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper), std::runtime_error);
+    sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
+    EXPECT_THROW(handler.init(), std::runtime_error);
 }
 
 TEST_F(TestFanotifyHandler, cacheFdReturnsZeroForSuccess)
@@ -63,6 +69,7 @@ TEST_F(TestFanotifyHandler, cacheFdReturnsZeroForSuccess)
         SetErrnoAndReturn(0, 0));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
+    handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 
@@ -80,6 +87,7 @@ TEST_F(TestFanotifyHandler, errorWhenCacheFdFails)
         SetErrnoAndReturn(EEXIST, -1));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
+    handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 
@@ -98,6 +106,7 @@ TEST_F(TestFanotifyHandler, markMountReturnsZeroForSuccess)
         SetErrnoAndReturn(0, 0));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
+    handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 
@@ -115,6 +124,7 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFails)
         SetErrnoAndReturn(EEXIST, -1));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
+    handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 

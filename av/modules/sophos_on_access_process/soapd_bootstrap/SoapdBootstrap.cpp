@@ -224,19 +224,16 @@ void SoapdBootstrap::disableOnAccess(bool changed)
         LOGINFO("On-access scanning disabled");
     }
     m_eventReaderThread->requestStopIfNotStopped();
-    LOGDEBUG("DEBUG m_eventReaderThread stopped");
     m_mountMonitorThread->requestStopIfNotStopped();
-    LOGDEBUG("DEBUG m_mountMonitorThread stopped");
     m_scanRequestQueue->stop();
-    LOGDEBUG("DEBUG m_scanRequestQueue stopped");
 
     for (const auto& scanThread: m_scanHandlerThreads)
     {
         scanThread->requestStopIfNotStopped();
     }
-    LOGDEBUG("DEBUG m_scanHandlerThreads stopped");
     m_scanHandlerThreads.clear();
-    LOGDEBUG("DEBUG m_scanHandlerThreads clear");
+
+    m_fanotifyHandler->close();
 }
 
 void SoapdBootstrap::enableOnAccess(bool changed)
@@ -247,6 +244,9 @@ void SoapdBootstrap::enableOnAccess(bool changed)
     }
 
     LOGINFO("On-access scanning enabled");
+
+    m_fanotifyHandler->init();
+
     m_eventReaderThread->startIfNotStarted();
     m_mountMonitorThread->startIfNotStarted();
 
