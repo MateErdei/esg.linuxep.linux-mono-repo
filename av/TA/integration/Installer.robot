@@ -671,7 +671,7 @@ IDE Update Invalidates On Access Cache
     Install IDE without reload check  ${IDE_NAME}
     Wait Until On Access Log Contains With Offset  Clearing on-access cache
     # Allow time for cache to be cleared
-    Sleep  1s
+    Sleep  2s
 
     Mark On Access Log
     Copy File    ${srcfile}  ${destpath}

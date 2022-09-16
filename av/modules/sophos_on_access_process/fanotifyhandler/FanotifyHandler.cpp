@@ -9,13 +9,13 @@
 #include <sstream>
 
 #include <fcntl.h>
-#include <sys/fanotify.h>
 
 using namespace sophos_on_access_process::fanotifyhandler;
 
 FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
-: m_systemCallWrapper(systemCallWrapper)
+    : m_systemCallWrapper(std::move(systemCallWrapper))
 {
+    assert(m_systemCallWrapper);
     int fanotifyFd = m_systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
     if (fanotifyFd == -1)
     {
@@ -39,25 +39,52 @@ int FanotifyHandler::getFd() const
     return m_fd.fd();
 }
 
-int FanotifyHandler::clearCachedFiles() const
+int FanotifyHandler::markMount(const std::string& path) const
 {
-    int result = m_systemCallWrapper->fanotify_mark(getFd(), FAN_MARK_FLUSH, 0, 0, "");
+    assert(m_systemCallWrapper);
+    constexpr unsigned int flags = FAN_MARK_ADD | FAN_MARK_MOUNT;
+    constexpr uint64_t mask = FAN_CLOSE_WRITE | FAN_OPEN;
+    constexpr int dfd = FAN_NOFD;
+    int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, dfd, path.c_str());
     if (result < 0)
     {
-        processFaMarkError("cacheFd");
+     processFaMarkError("markMount", path);
     }
     return result;
 }
 
-void FanotifyHandler::processFaMarkError(const std::string& function) const
+int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
 {
-    LOGERROR("fanotify_mark failed: " << function << " : " << common::safer_strerror(errno));
+    assert(m_systemCallWrapper);
+    const unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
+    const uint64_t mask = FAN_OPEN;
+    int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, fd, nullptr);
+    if (result < 0)
+    {
+        processFaMarkError("cacheFd", path);
+    }
+    return result;
+}
+
+int FanotifyHandler::clearCachedFiles() const
+{
+    int result = m_systemCallWrapper->fanotify_mark(getFd(), FAN_MARK_FLUSH, 0, FAN_NOFD, nullptr);
+    if (result < 0)
+    {
+        processFaMarkError("clearCachedFiles", "");
+    }
+    return result;
 }
 
 void FanotifyHandler::updateComplete()
 {
     LOGINFO("Clearing on-access cache");
     clearCachedFiles();
+}
+
+void FanotifyHandler::processFaMarkError(const std::string& function, const std::string& path)
+{
+    LOGERROR("fanotify_mark failed: " << function << " : " << common::safer_strerror(errno) << " Path: " << path);
 }
 
 FanotifyHandler::~FanotifyHandler()
