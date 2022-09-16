@@ -502,14 +502,14 @@ Wait Until On Access running
     Wait Until Keyword Succeeds
         ...  60 secs
         ...  2 secs
-        ...  On Access Log Contains  Fanotify successfully initialised
+        ...  On Access Log Contains  ProcessPolicy 1
 
 Wait Until On Access running with offset
     ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
     Wait Until Keyword Succeeds
         ...  60 secs
         ...  2 secs
-        ...  Wait Until On Access Log Contains With Offset  Fanotify successfully initialised
+        ...  Wait Until On Access Log Contains With Offset  ProcessPolicy 1
 
 Wait Until Safestore running
     ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${30}
