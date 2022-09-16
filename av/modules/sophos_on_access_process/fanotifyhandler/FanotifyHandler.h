@@ -18,6 +18,16 @@ namespace sophos_on_access_process::fanotifyhandler
 
             [[nodiscard]] int getFd() const;
 
+            /**
+             * Initialise fanotify
+             */
+            void init() final;
+
+            /**
+             * Close fanotify descriptor
+             */
+            void close() final;
+
             void updateComplete() override;
 
         private:

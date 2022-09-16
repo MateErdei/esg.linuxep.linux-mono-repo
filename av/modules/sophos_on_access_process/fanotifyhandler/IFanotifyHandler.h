@@ -17,6 +17,16 @@ namespace sophos_on_access_process::fanotifyhandler
         [[nodiscard]] virtual int getFd() const = 0;
         [[nodiscard]] virtual int markMount(const std::string& path) const = 0;
         [[nodiscard]] virtual int cacheFd(const int& fd, const std::string& path) const = 0;
+
+        /**
+         * Initialise fanotify
+         */
+        virtual void init() = 0;
+
+        /**
+         * Close fanotify descriptor
+         */
+        virtual void close() = 0;
     };
 
     using IFanotifyHandlerSharedPtr = std::shared_ptr<IFanotifyHandler>;

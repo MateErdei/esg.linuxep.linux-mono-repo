@@ -16,6 +16,17 @@ FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCa
     : m_systemCallWrapper(std::move(systemCallWrapper))
 {
     assert(m_systemCallWrapper);
+    init();
+}
+
+FanotifyHandler::~FanotifyHandler()
+{
+    close();
+}
+
+void FanotifyHandler::init()
+{
+    assert(m_systemCallWrapper);
     int fanotifyFd = m_systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
     if (fanotifyFd == -1)
     {
@@ -26,7 +37,12 @@ FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCa
     LOGINFO("Fanotify successfully initialised");
 
     m_fd.reset(fanotifyFd);
-    LOGINFO("Fanotify FD set to " << m_fd.fd());
+    LOGDEBUG("Fanotify FD set to " << m_fd.fd());
+}
+
+void FanotifyHandler::close()
+{
+    m_fd.close();
 }
 
 int FanotifyHandler::getFd() const
@@ -85,9 +101,4 @@ void FanotifyHandler::updateComplete()
 void FanotifyHandler::processFaMarkError(const std::string& function, const std::string& path)
 {
     LOGERROR("fanotify_mark failed: " << function << " : " << common::safer_strerror(errno) << " Path: " << path);
-}
-
-FanotifyHandler::~FanotifyHandler()
-{
-    m_fd.close();
 }

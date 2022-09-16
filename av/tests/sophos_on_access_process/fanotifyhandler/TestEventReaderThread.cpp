@@ -22,6 +22,8 @@ namespace
     class FakeFanotify : public IFanotifyHandler
     {
     public:
+        void init() override {}
+        void close() override {}
 
         [[nodiscard]] int getFd() const override
         {
