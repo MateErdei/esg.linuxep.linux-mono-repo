@@ -21,18 +21,18 @@ namespace avscanner::avscannerimpl
         ScanCallbackImpl() = default;
 
         void cleanFile(const path&) override;
-        void infectedFile(const std::map<path, std::string>& detections, const sophos_filesystem::path&, const std::string& scanType, bool isSymlink=false) override;
+        void infectedFile(const std::map<path, std::string>& detections, const sophos_filesystem::path&, const std::string& scanType, bool isSymlink) override;
         void scanError(const std::string& errorMsg, std::error_code) override;
         common::E_ERROR_CODES returnCode();
         void scanStarted() override { m_startTime = time(nullptr); }
         void logSummary() override;
 
     protected:
-        [[nodiscard]] time_t  getStartTime() { return m_startTime; }
-        [[nodiscard]] int getNoOfInfectedFiles() { return m_noOfInfectedFiles; }
-        [[nodiscard]] int getNoOfScanErrors() { return m_noOfErrors; }
-        [[nodiscard]] int getNoOfCleanFiles() { return m_noOfCleanFiles; }
-        [[nodiscard]] int getNoOfScannedFiles() { return m_noOfCleanFiles + m_noOfInfectedFiles; }
+        [[nodiscard]] time_t  getStartTime() const { return m_startTime; }
+        [[nodiscard]] int getNoOfInfectedFiles() const { return m_noOfInfectedFiles; }
+        [[nodiscard]] int getNoOfScanErrors() const { return m_noOfErrors; }
+        [[nodiscard]] int getNoOfCleanFiles() const { return m_noOfCleanFiles; }
+        [[nodiscard]] int getNoOfScannedFiles() const { return m_noOfCleanFiles + m_noOfInfectedFiles; }
         [[nodiscard]] std::map<std::string, int> getThreatTypes() { return m_threatCounter; }
 
         void incrementInfectedFileCount() { m_noOfInfectedFiles++; }

@@ -14,7 +14,7 @@ namespace avscanner::avscannerimpl
     {
     public:
         TimeDuration() = delete;
-        explicit TimeDuration(const int totalScanTime);
+        explicit TimeDuration(int totalScanTime);
         std::string toString();
 
     private:
