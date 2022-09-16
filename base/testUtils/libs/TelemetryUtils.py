@@ -204,11 +204,15 @@ class TelemetryUtils:
         if successful_update_time is not None:
             telemetry["successful-update-time"] = int(successful_update_time)
 
-        if base_fixed_version is not None:
+        if not base_fixed_version:
             telemetry["subscriptions-ServerProtectionLinux-Base"] = base_tag
+        else:
+            telemetry["subscriptions-ServerProtectionLinux-Base"] = base_fixed_version
 
-        if mtr_fixed_version is not None:
+        if not mtr_fixed_version:
             telemetry["subscriptions-ServerProtectionLinux-Plugin-MDR"] = mtr_tag
+        else:
+            telemetry["subscriptions-ServerProtectionLinux-Plugin-MDR"] = mtr_fixed_version
 
         if set_edr:
             telemetry["subscriptions-ServerProtectionLinux-Plugin-EDR"] = "RECOMMENDED"
