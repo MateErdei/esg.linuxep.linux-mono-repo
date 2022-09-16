@@ -656,6 +656,27 @@ Check AV installer sets correct home directory for the users it creates
     ${rc}  ${homedir} =  Run And Return Rc And Output  getent passwd sophos-spl-threat-detector | cut -d: -f6
     Should Be Equal As Strings  ${homedir}  /opt/sophos-spl
 
+IDE Update Invalidates On Access Cache
+    Register Cleanup  Exclude On Access Scan Errors
+    ${srcfile} =  Set Variable  /tmp_test_two/clean.txt
+    ${destpath} =  Set Variable  /tmp_test/
+    Create File  ${srcfile}  clean
+    ${destfile} =  Copy File    ${srcfile}  ${destpath}
+    Register Cleanup  Remove File  ${destfile}
+    Register Cleanup  Remove Directory  /tmp_test_two  recursive=True
+    Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from
+    # Allow time for file to be added to cache
+    Sleep  1s
+
+    Install IDE without reload check  ${IDE_NAME}
+    Wait Until On Access Log Contains With Offset  Clearing on-access cache
+    # Allow time for cache to be cleared
+    Sleep  1s
+
+    Mark On Access Log
+    Copy File    ${srcfile}  ${destpath}
+    Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from
+
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
