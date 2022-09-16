@@ -56,7 +56,6 @@ On Access Test Setup
 
 On Access Test Teardown
     List AV Plugin Path
-    #Wait Until On Access Log Contains With Offset  Scan Queue is empty    timeout=${timeout}
     run teardown functions
     Check All Product Logs Do Not Contain Error
 

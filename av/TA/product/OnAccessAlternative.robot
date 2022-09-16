@@ -80,12 +80,10 @@ Verify on access log rotated
 *** Test Cases ***
 
 On Access Log Rotates
-    #deregister cleanup  Wait Until On Access Log Contains With Offset  Scan Queue is empty    timeout=${timeout}
     Dump and Reset Logs
     # Ensure the log is created
 
     Terminate On Access
-    #Wait Until On Access Log Contains With Offset  Scan Queue is empty
     Increase On Access Log To Max Size
 
     Start On Access without Log check
