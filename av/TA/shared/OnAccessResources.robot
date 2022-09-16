@@ -119,13 +119,12 @@ On-access Scan Eicar Close
 
 On-access Scan Eicar Open
     ${pid} =  Get Robot Pid
-    ${srcfile} =  Set Variable  /tmp_test_two/eicar.com
-    ${destpath} =  Set Variable  /tmp_test/
-    Create File  ${srcfile}  ${EICAR_STRING}
-    Copy File    ${srcfile}  ${destpath}
-    Register Cleanup  Remove File  ${destpath}/eicar.com
-    Register Cleanup  Remove Directory  /tmp_test_two  recursive=True
+    ${srcfile} =  Set Variable  /tmp_test/eicar.com
 
+    Create File  ${srcfile}  ${EICAR_STRING}
+
+    Mark On Access Log
+    Generate Only Open Event   ${srcfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from    timeout=${timeout}
     Wait Until On Access Log Contains With Offset  "${srcfile}" is infected with    timeout=${timeout}
 
