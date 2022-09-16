@@ -112,7 +112,7 @@ TEST_F(TestScanRequestHandler, scan_errorWhenShuttingDown)
     auto socket = std::make_shared<ExceptionThrowingTestSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
         nullptr, socket, m_mockFanotifyHandler);
-    EXPECT_THROW(scanHandler->scan(scanRequest);, ScanInterruptedException);
+    EXPECT_THROW(scanHandler->scan(scanRequest), ScanInterruptedException);
 
     EXPECT_TRUE(appenderContains("Scan aborted: Scanner received stop notification"));
 }
