@@ -124,7 +124,7 @@ void SoapdBootstrap::innerRun()
         LOGINFO("Flag is set to " << setting);
     }
 
-    ProcessPolicy();
+    ProcessPolicy(true);
 
     while (true)
     {
@@ -175,6 +175,7 @@ sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::
 void SoapdBootstrap::ProcessPolicy(bool onStart)
 {
     std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
+    LOGDEBUG("ProcessPolicy " << onStart);
 
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
     auto newOnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
@@ -206,6 +207,7 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
             disableOnAccess(changed);
         }
     }
+    LOGDEBUG("Finished ProcessPolicy " << onStart);
 }
 
 void SoapdBootstrap::disableOnAccess(bool changed)
@@ -215,14 +217,19 @@ void SoapdBootstrap::disableOnAccess(bool changed)
         LOGINFO("On-access scanning disabled");
     }
     m_eventReaderThread->requestStopIfNotStopped();
+    LOGDEBUG("DEBUG m_eventReaderThread stopped");
     m_mountMonitorThread->requestStopIfNotStopped();
+    LOGDEBUG("DEBUG m_mountMonitorThread stopped");
     m_scanRequestQueue->stop();
+    LOGDEBUG("DEBUG m_scanRequestQueue stopped");
 
     for (const auto& scanThread: m_scanHandlerThreads)
     {
         scanThread->requestStopIfNotStopped();
     }
+    LOGDEBUG("DEBUG m_scanHandlerThreads stopped");
     m_scanHandlerThreads.clear();
+    LOGDEBUG("DEBUG m_scanHandlerThreads clear");
 }
 
 void SoapdBootstrap::enableOnAccess(bool changed)
@@ -242,11 +249,12 @@ void SoapdBootstrap::enableOnAccess(bool changed)
 
     for (int count = 0; count < MAX_SCAN_THREADS; ++count)
     {
+        std::stringstream threadName;
+        threadName << "scanHandler " << count;
+
         auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
         auto scanHandler = std::make_shared<ScanRequestHandler>(
             m_scanRequestQueue, scanningSocket, m_fanotifyHandler);
-        std::stringstream threadName;
-        threadName << "scanHandler " << count;
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }

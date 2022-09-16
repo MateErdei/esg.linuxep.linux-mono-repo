@@ -112,7 +112,7 @@ TEST_F(TestScanRequestHandler, scan_errorWhenShuttingDown)
     auto socket = std::make_shared<ExceptionThrowingTestSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
         nullptr, socket, m_mockFanotifyHandler);
-    scanHandler->scan(scanRequest);
+    EXPECT_THROW(scanHandler->scan(scanRequest);, ScanInterruptedException);
 
     EXPECT_TRUE(appenderContains("Scan aborted: Scanner received stop notification"));
 }
@@ -160,9 +160,10 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileWaiting)
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
         scanRequestQueue, socket, m_mockFanotifyHandler);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
-    EXPECT_TRUE(waitForLog("Entering Main Loop"));
+    EXPECT_TRUE(waitForLog("Starting ScanRequestHandler"));
     scanRequestQueue->stop();
     scanHandlerThread->requestStopIfNotStopped();
+    EXPECT_TRUE(waitForLog("Finished ScanRequestHandler"));
 }
 
 TEST_F(TestScanRequestHandler, cleanScanOpen)
@@ -228,7 +229,7 @@ TEST_F(TestScanRequestHandler, socketScanThrowsScanInterrupted)
     auto scanHandler = buildDefaultHandler(socket);
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
     request->setPath("THROW_SCAN_INTERRUPTED");
-    scanHandler->scan(request);
+    EXPECT_ANY_THROW(scanHandler->scan(request););
     EXPECT_TRUE(appenderContains("Scan aborted: THROW_SCAN_INTERRUPTED"));
 }
 

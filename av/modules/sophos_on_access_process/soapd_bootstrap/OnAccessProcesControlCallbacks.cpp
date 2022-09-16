@@ -15,10 +15,21 @@ namespace sophos_on_access_process::OnAccessConfig
                 break;
             case scan_messages::E_RELOAD:
                 LOGINFO("Sophos On Access Process received configuration reload request");
-                m_soapd.ProcessPolicy();
+                ProcessPolicy();
                 break;
             default:
                 LOGWARN("Sophos On Access Process received unknown process control message");
+        }
+    }
+    void OnAccessProcessControlCallback::ProcessPolicy()
+    {
+        try
+        {
+            m_soapd.ProcessPolicy();
+        }
+        catch (const std::exception& ex)
+        {
+            LOGFATAL("Exception while trying to ProcessPolicy! " << ex.what());
         }
     }
 }

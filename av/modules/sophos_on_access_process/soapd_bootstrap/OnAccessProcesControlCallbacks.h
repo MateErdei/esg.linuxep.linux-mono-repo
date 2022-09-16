@@ -18,6 +18,8 @@ namespace sophos_on_access_process::OnAccessConfig
         void processControlMessage(const scan_messages::E_COMMAND_TYPE& command) override;
 
     private:
+        void ProcessPolicy();
+
         sophos_on_access_process::soapd_bootstrap::SoapdBootstrap& m_soapd;
     };
 }

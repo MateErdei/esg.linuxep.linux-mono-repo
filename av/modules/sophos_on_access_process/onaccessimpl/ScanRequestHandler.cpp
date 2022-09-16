@@ -39,7 +39,7 @@ void ScanRequestHandler::scan(
     catch (const ScanInterruptedException& e)
     {
         LOGWARN("Scan aborted: " << e.what());
-        return;
+        throw;
     }
     catch (const std::exception& e)
     {
@@ -91,14 +91,24 @@ void ScanRequestHandler::run()
 {
     announceThreadStarted();
 
-    LOGDEBUG("Entering Main Loop");
-    while (!stopRequested())
+    LOGDEBUG("Starting ScanRequestHandler");
+    try
     {
-        auto queueItem = m_scanRequestQueue->pop();
-        if(queueItem)
+        while (!stopRequested())
         {
-            scan(queueItem);
+            auto queueItem = m_scanRequestQueue->pop();
+            if (queueItem)
+            {
+                scan(queueItem);
+                LOGDEBUG("Finished scan");
+            }
         }
     }
+    catch (const ScanInterruptedException& e)
+    {
+        // Aborting the scan thread - stop requested while scan waiting for response
+        // Already logged
+    }
     m_socketWrapper.reset();
+    LOGDEBUG("Finished ScanRequestHandler");
 }
