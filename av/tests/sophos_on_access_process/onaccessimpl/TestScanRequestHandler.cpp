@@ -229,7 +229,7 @@ TEST_F(TestScanRequestHandler, socketScanThrowsScanInterrupted)
     auto scanHandler = buildDefaultHandler(socket);
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
     request->setPath("THROW_SCAN_INTERRUPTED");
-    EXPECT_ANY_THROW(scanHandler->scan(request););
+    EXPECT_ANY_THROW(scanHandler->scan(request));
     EXPECT_TRUE(appenderContains("Scan aborted: THROW_SCAN_INTERRUPTED"));
 }
 
