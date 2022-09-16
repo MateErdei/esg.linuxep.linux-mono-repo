@@ -9,6 +9,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "scan_messages/ProcessControlSerialiser.h"
 
 #include <Common/XmlUtilities/AttributesMap.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 namespace Plugin
 {
@@ -46,6 +47,9 @@ namespace Plugin
         virtual void notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE requestType);
 
     private:
+        void processOnAccessFlagSettings(const nlohmann::json& flagsJson);
+        void processSafeStoreFlagSettings(const nlohmann::json& flagsJson);
+
         std::string m_customerId;
         bool m_lookupEnabled = true;
         static std::vector<std::string> extractListFromXML(
@@ -53,5 +57,6 @@ namespace Plugin
             const std::string& entityFullPath);
 
         inline static const std::string OA_FLAG = "av.oa_enabled";
+        inline static const std::string SS_FLAG = "safestore.enabled";
     };
 }

@@ -62,6 +62,12 @@ namespace Plugin
             auto  pluginInstall = getPluginInstall();
             return  pluginInstall + "/var/oa_flag.json";
         }
+
+        std::string getSafestoreFlagConfigPath()
+        {
+            auto  pluginInstall = getPluginInstall();
+            return  pluginInstall + "/var/ss_flag.json";
+        }
     }
 
     PolicyProcessor::PolicyProcessor()
@@ -271,50 +277,91 @@ namespace Plugin
     void PolicyProcessor::processFlagSettings(const std::string& flagsJson)
     {
         LOGDEBUG("Processing FLAGS settings");
-
         try
         {
             nlohmann::json j = nlohmann::json::parse(flagsJson);
-            bool enabled = false;
-
-            if (j.find(OA_FLAG) != j.end())
-            {
-                if (j[OA_FLAG] == true)
-                {
-                    LOGINFO("On-access is enabled in the FLAGS policy, notifying soapd to disable on-access policy override");
-                    enabled = true;
-                }
-                else
-                {
-                    LOGINFO("On-access is disabled in the FLAGS policy, notifying soapd to enable on-access policy override");
-                }
-            }
-            else
-            {
-                LOGINFO("No on-access flag found assuming policy settings");
-                enabled = true;
-            }
-
-            json config;
-            config["oa_enabled"] = enabled;
-
-            try
-            {
-                auto* fs = Common::FileSystem::fileSystem();
-                auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-                fs->writeFileAtomically(getSoapFlagConfigPath(), config.dump(), tempDir, 0640);
-
-                notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
-            }
-            catch (const Common::FileSystem::IFileSystemException& e)
-            {
-                LOGERROR("Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)" << e.what());
-                return;
-            }
+            processOnAccessFlagSettings(j);
+            processSafeStoreFlagSettings(j);
         }
         catch (const json::parse_error& e)
         {
             LOGWARN("Failed to parse FLAGS policy due to parse error, reason: " << e.what());
+        }
+    }
+
+    void PolicyProcessor::processOnAccessFlagSettings(const nlohmann::json& flagsJson)
+    {
+        bool oaEnabled = false;
+
+        if (flagsJson.find(OA_FLAG) != flagsJson.end())
+        {
+            if (flagsJson[OA_FLAG] == true)
+            {
+                LOGINFO("On-access is enabled in the FLAGS policy, notifying soapd to disable on-access policy "
+                        "override");
+                oaEnabled = true;
+            }
+            else
+            {
+                LOGINFO("On-access is disabled in the FLAGS policy, notifying soapd to enable on-access policy "
+                        "override");
+            }
+        }
+        else
+        {
+            LOGINFO("No on-access flag found assuming policy settings");
+            oaEnabled = true;
+        }
+
+        json oaConfig;
+        oaConfig["oa_enabled"] = oaEnabled;
+
+        try
+        {
+            auto* fs = Common::FileSystem::fileSystem();
+            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+            fs->writeFileAtomically(getSoapFlagConfigPath(), oaConfig.dump(), tempDir, 0640);
+
+            notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR(
+                "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access "
+                "disabled)"
+                << e.what());
+        }
+    }
+
+    void PolicyProcessor::processSafeStoreFlagSettings(const nlohmann::json& flagsJson)
+    {
+        bool ssEnabled = flagsJson.value(SS_FLAG, false);
+        if (ssEnabled)
+        {
+            LOGINFO("Safestore flag set. Setting Safestore to enabled.");
+        }
+        else
+        {
+            LOGINFO("Safestore flag not set. Setting Safestore to disabled.");
+        }
+
+        try
+        {
+            json ssConfig;
+            ssConfig["ss_enabled"] = ssEnabled;
+
+            auto* fs = Common::FileSystem::fileSystem();
+            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+            fs->writeFileAtomically(getSafestoreFlagConfigPath(), ssConfig.dump(), tempDir, 0640);
+
+            // TODO: LINUXDAR-5632 -- Need to notify TD + SS to check new config here, like with OA above
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR(
+                "Failed to write Flag Config, Sophos SafeStore Process will use the default settings (safestore "
+                "disabled)"
+                << e.what());
         }
     }
 }

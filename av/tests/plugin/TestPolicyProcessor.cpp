@@ -39,6 +39,7 @@ namespace
             m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
             m_soapConfigPath = m_testDir / "var/soapd_config.json";
             m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
+            m_safestoreFlagConfigPath = m_testDir / "var/ss_flag.json";
             m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
         }
@@ -52,6 +53,7 @@ namespace
         std::string m_susiStartupConfigChrootPath;
         std::string m_soapConfigPath;
         std::string m_soapFlagConfigPath;
+        std::string m_safestoreFlagConfigPath;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
     };
 
@@ -708,25 +710,29 @@ TEST_F(TestPolicyProcessor, processInvalidOnAccessPolicy)
     proc.processOnAccessPolicy(attributeMap);
 }
 
-
 TEST_F(TestPolicyProcessor, testProcessFlagSettingsEnabled)
 {
     UsingMemoryAppender memAppend(*this);
 
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapFlagConfigPath,
-                                                           R"sophos({"oa_enabled":true})sophos",
-                                                           _,
-                                                           0640));
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":true})sophos", _, 0640));
+
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_safestoreFlagConfigPath, R"sophos({"ss_enabled":true})sophos", _, 0640));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     PolicyProcessorUnitTestClass proc;
 
-    proc.processFlagSettings("{\"av.oa_enabled\":  true}");
+    proc.processFlagSettings("{\"av.oa_enabled\": true, \"safestore.enabled\": true}");
 
-    EXPECT_TRUE(appenderContains("On-access is enabled in the FLAGS policy, notifying soapd to disable on-access policy override"));
+    EXPECT_TRUE(appenderContains(
+        "On-access is enabled in the FLAGS policy, notifying soapd to disable on-access policy override"));
+    EXPECT_TRUE(appenderContains("Safestore flag set. Setting Safestore to enabled."));
 }
 
 TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
@@ -735,18 +741,23 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
 
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapFlagConfigPath,
-                                                           R"sophos({"oa_enabled":false})sophos",
-                                                           _,
-                                                           0640));
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640));
+
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_safestoreFlagConfigPath, R"sophos({"ss_enabled":false})sophos", _, 0640));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     PolicyProcessorUnitTestClass proc;
 
-    proc.processFlagSettings("{\"av.oa_enabled\":  false}");
+    proc.processFlagSettings("{\"av.oa_enabled\": false, \"safestore.enabled\": false}");
 
-    EXPECT_TRUE(appenderContains("On-access is disabled in the FLAGS policy, notifying soapd to enable on-access policy override"));
+    EXPECT_TRUE(appenderContains(
+        "On-access is disabled in the FLAGS policy, notifying soapd to enable on-access policy override"));
+    EXPECT_TRUE(appenderContains("Safestore flag not set. Setting Safestore to disabled."));
 }
 
 TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
@@ -755,10 +766,13 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
 
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapFlagConfigPath,
-                                                           R"sophos({"oa_enabled":true})sophos",
-                                                           _,
-                                                           0640));
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":true})sophos", _, 0640));
+
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_safestoreFlagConfigPath, R"sophos({"ss_enabled":false})sophos", _, 0640));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -767,25 +781,72 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
     proc.processFlagSettings("{\"av.something_else\":  false}");
 
     EXPECT_TRUE(appenderContains("No on-access flag found assuming policy settings"));
+    EXPECT_TRUE(appenderContains("Safestore flag not set. Setting Safestore to disabled."));
 }
 
-TEST_F(TestPolicyProcessor, testWriteFlagConfigFailed)
+TEST_F(TestPolicyProcessor, testWriteFlagConfigFailedOnAccess)
 {
     UsingMemoryAppender memAppend(*this);
 
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
 
     Common::FileSystem::IFileSystemException ex("error!");
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapFlagConfigPath,
-                                                           R"sophos({"oa_enabled":false})sophos",
-                                                           _,
-                                                           0640)).WillOnce(Throw(ex));
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640))
+        .WillOnce(Throw(ex));
+
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_safestoreFlagConfigPath, R"sophos({"ss_enabled":true})sophos", _, 0640));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     PolicyProcessorUnitTestClass proc;
 
-    proc.processFlagSettings("{\"av.oa_enabled\":  false}");
+    proc.processFlagSettings("{\"av.oa_enabled\": false, \"safestore.enabled\": true}");
 
-    EXPECT_TRUE(appenderContains("Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
+    EXPECT_TRUE(appenderContains(
+        "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
+    EXPECT_TRUE(appenderContains("Safestore flag set. Setting Safestore to enabled."));
+}
+
+TEST_F(TestPolicyProcessor, testWriteFlagConfigFailedSafeStore)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+
+    Common::FileSystem::IFileSystemException ex("error!");
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":true})sophos", _, 0640));
+
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_safestoreFlagConfigPath, R"sophos({"ss_enabled":false})sophos", _, 0640))
+        .WillOnce(Throw(ex));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+
+    proc.processFlagSettings("{\"av.oa_enabled\": true}");
+
+    EXPECT_TRUE(appenderContains(
+        "On-access is enabled in the FLAGS policy, notifying soapd to disable on-access policy override"));
+    EXPECT_TRUE(appenderContains(
+        "Failed to write Flag Config, Sophos SafeStore Process will use the default settings (safestore disabled)"));
+}
+
+TEST_F(TestPolicyProcessor, testProcessFlagSettingCatchesBadJson)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    PolicyProcessorUnitTestClass proc;
+
+    proc.processFlagSettings("{\"bad\" \"json\": true and false}");
+
+    EXPECT_TRUE(appenderContains(
+        "Failed to parse FLAGS policy due to parse error, reason: "));
 }

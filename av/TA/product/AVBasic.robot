@@ -37,6 +37,7 @@ ${TESTSYSPATH}  /etc/${TESTSYSFILE}
 ${SOMETIMES_SYMLINKED_SYSFILE}  resolv.conf
 ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}  /etc/${SOMETIMES_SYMLINKED_SYSFILE}backup
 ${SOMETIMES_SYMLINKED_SYSPATH}  /etc/${SOMETIMES_SYMLINKED_SYSFILE}
+${SAFESTORE_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/ss_flag.json
 
 
 *** Test Cases ***
@@ -523,6 +524,24 @@ Threat Detector Does Not Restart If Sometimes-symlinked System File Contents Do 
     Revert Sometimes-symlinked System File To Original
 
     AV Plugin Log Should Not Contain With Offset  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}
+
+
+AV Plugin Can Process SafeStore Flag Enabled
+    Start Fake Management If Required
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    Remove File    ${SAFESTORE_FLAG_CONFIG}
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+    Wait Until Created  ${SAFESTORE_FLAG_CONFIG}
+    AV Plugin Log Contains With Offset  Safestore flag set. Setting Safestore to enabled.
+
+
+AV Plugin Can Process SafeStore Flag Disabled
+    Start Fake Management If Required
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
+    Remove File    ${SAFESTORE_FLAG_CONFIG}
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+    Wait Until Created  ${SAFESTORE_FLAG_CONFIG}
+    AV Plugin Log Contains With Offset  Safestore flag not set. Setting Safestore to disabled.
 
 
 *** Keywords ***
