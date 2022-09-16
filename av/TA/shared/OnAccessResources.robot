@@ -31,12 +31,6 @@ Clear On Access Log When Nearly Full
     END
 
 
-List AV Plugin Path
-    Create Directory  ${TESTTMP}
-    ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}  stdout=${TESTTMP}/lsstdout  stderr=STDOUT
-    Log  ls -lR: ${result.stdout}
-    Remove File  ${TESTTMP}/lsstdout
-
 Dump and Reset Logs
     Register Cleanup   Remove File      ${AV_PLUGIN_PATH}/log/av.log*
     Register Cleanup   Remove File      ${AV_PLUGIN_PATH}/log/soapd.log*
@@ -141,4 +135,3 @@ On-access No Eicar Scan
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
     On Access Log Does Not Contain  On-close event for ${filepath} from
-    #PID ${pid} and UID 0
