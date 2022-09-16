@@ -7,9 +7,9 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 #pragma once
 
 #include <Config.h>
+#include <ConfigXml.h>
 #include <PackageRef.h>
 #include <SyncLogic.h>
-
 
 namespace SulDownloader
 {
@@ -56,4 +56,4 @@ namespace SulDownloader
     * @return BORROWED ISdds3Wrapper pointer
     */
     ISdds3Wrapper* sdds3Wrapper();
-}
+} // namespace SulDownloader

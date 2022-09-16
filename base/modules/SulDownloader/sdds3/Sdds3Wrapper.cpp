@@ -64,12 +64,12 @@ namespace SulDownloader
     void Sdds3Wrapper::saveConfig(sdds3::Config& config, std::string& path)
     {
         std::filesystem::path configFilePath(path);
-        sdds3::save_config(config, configFilePath);
+        sdds3::ConfigXml::save(config, configFilePath);
     }
     sdds3::Config Sdds3Wrapper::loadConfig(std::string& path)
     {
         std::filesystem::path configFilePath(path);
-        return sdds3::load_config(configFilePath);
+        return sdds3::ConfigXml::load(configFilePath);
     }
     std::unique_ptr<ISdds3Wrapper>& sdds3WrapperStaticPointer()
     {
