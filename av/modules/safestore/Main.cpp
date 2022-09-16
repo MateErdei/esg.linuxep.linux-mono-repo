@@ -5,6 +5,8 @@
 #include "Logger.h"
 
 #include "common/SaferStrerror.h"
+#include "common/signals/SigIntMonitor.h"
+#include "common/signals/SigTermMonitor.h"
 
 #include <poll.h>
 

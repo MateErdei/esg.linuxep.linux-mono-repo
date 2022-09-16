@@ -25,21 +25,10 @@ Test Setup     On Access Test Setup
 Test Teardown  On Access Test Teardown
 
 *** Variables ***
-${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
-${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
-${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
-${TESTTMP}  /tmp_test/SSPLAVTests
-${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}  ${SOPHOS_THREAT_DETECTOR_BINARY}_launcher
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
 ${ONACCESS_CONFIG}  ${AV_PLUGIN_PATH}/var/soapd_config.json
 
 *** Keywords ***
-
-List AV Plugin Path
-    Create Directory  ${TESTTMP}
-    ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}  stdout=${TESTTMP}/lsstdout  stderr=STDOUT
-    Log  ls -lR: ${result.stdout}
-    Remove File  ${TESTTMP}/lsstdout
 
 On Access Test Setup
     Component Test Setup
@@ -85,8 +74,8 @@ Start On Access
     Wait Until On Access running
 
 Stop On Access
-    Run Keyword If  ${AV_PLUGIN_HANDLE}  Terminate Process  ${ON_ACCESS_PLUGIN_HANDLE}
-    Run Keyword If  ${ON_ACCESS_PLUGIN_HANDLE}  Terminate Process  ${AV_PLUGIN_HANDLE}
+    Run Keyword If  ${ON_ACCESS_PLUGIN_HANDLE}  Terminate Process  ${ON_ACCESS_PLUGIN_HANDLE}
+    Run Keyword If  ${AV_PLUGIN_HANDLE}  Terminate Process  ${AV_PLUGIN_HANDLE}
 
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}

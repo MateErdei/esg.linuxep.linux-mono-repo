@@ -19,20 +19,7 @@ Resource    ../shared/AVResources.robot
 Test Setup     Threat Detector Test Setup
 Test Teardown  Threat Detector Test Teardown
 
-*** Variables ***
-${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
-${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
-${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
-${TESTTMP}  /tmp_test/SSPLAVTests
-${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}  ${SOPHOS_THREAT_DETECTOR_BINARY}_launcher
-
 *** Keywords ***
-
-List AV Plugin Path
-    Create Directory  ${TESTTMP}
-    ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}  stdout=${TESTTMP}/lsstdout  stderr=STDOUT
-    Log  ls -lR: ${result.stdout}
-    Remove File  ${TESTTMP}/lsstdout
 
 Threat Detector Test Setup
     Component Test Setup

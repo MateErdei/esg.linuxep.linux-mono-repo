@@ -2,9 +2,6 @@
 
 #pragma once
 
-#include "common/signals/SigIntMonitor.h"
-#include "common/signals/SigTermMonitor.h"
-
 namespace safestore
 {
     class Main

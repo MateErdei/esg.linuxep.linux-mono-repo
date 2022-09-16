@@ -27,6 +27,7 @@ ${AV_LOG_PATH}                                  ${AV_PLUGIN_PATH}/log/${COMPONEN
 ${SOPHOS_THREAT_DETECTOR_SHUTDOWN_FILE_PATH}    ${AV_PLUGIN_PATH}/chroot/var/threat_detector_expected_shutdown
 ${SOPHOS_THREAT_DETECTOR_PID_FILE_PATH}         ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
 ${ON_ACCESS_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/soapd.log
+${SAFESTORE_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/safestore.log
 ${THREAT_DETECTOR_LOG_PATH}                     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
 ${THREAT_DETECTOR_INFO_LOG_PATH}                ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.info.log
 ${SUSI_DEBUG_LOG_PATH}                          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
@@ -44,6 +45,7 @@ ${AV_SDDS}                                      ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}                                  ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
 ${ON_ACCESS_BIN}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/soapd
+${SAFESTORE_BIN}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/safestore
 ${SOPHOS_THREAT_DETECTOR_BINARY}                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector
 ${SOPHOS_THREAT_DETECTOR_LAUNCHER}              ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
 ${EXPORT_FILE}                                  /etc/exports
@@ -53,6 +55,7 @@ ${AV_BACKUP_DIR}                                ${SOPHOS_INSTALL}/tmp/av_downgra
 ${AV_RESTORED_LOGS_DIRECTORY}                   ${AV_PLUGIN_PATH}/log/downgrade-backup/
 ${NORMAL_DIRECTORY}                             /home/vagrant/this/is/a/directory/for/scanning
 ${MCS_DIR}                                      ${SOPHOS_INSTALL}/base/mcs
+${TESTTMP}                                      /tmp_test/SSPLAVTests
 
 ${CLEAN_STRING}         not an eicar
 ${EICAR_STRING}         X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
@@ -105,6 +108,10 @@ Check AV Plugin Not Running
     Log  output is ${result.stdout}
     ${result} =   ProcessUtils.pidof  ${PLUGIN_BINARY}
     Run Keyword If  ${result} != ${-1}      Dump Threads And Fail    AV plugin still running: ${result}
+
+Check Safestore Not Running
+    ${result} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
+    Should Be Equal As Integers  ${result}  ${-1}
 
 Check Threat Detector Not Running
     ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
@@ -501,6 +508,13 @@ Wait Until On Access running with offset
         ...  60 secs
         ...  2 secs
         ...  Wait Until On Access Log Contains With Offset  Fanotify successfully initialised
+
+Wait Until Safestore running
+    ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${30}
+    Wait Until Keyword Succeeds
+        ...  60 secs
+        ...  2 secs
+        ...  Safestore Log Contains  SafeStore started
 
 Wait until threat detector running
     # wait for sophos_threat_detector to initialize
@@ -1180,3 +1194,9 @@ Terminate And Wait until AV Plugin not running
     [Arguments]   ${handle}
     Terminate Process  ${handle}
     Wait until AV Plugin not running
+
+List AV Plugin Path
+    Create Directory  ${TESTTMP}
+    ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}  stdout=${TESTTMP}/lsstdout  stderr=STDOUT
+    Log  ls -lR: ${result.stdout}
+    Remove File  ${TESTTMP}/lsstdout
