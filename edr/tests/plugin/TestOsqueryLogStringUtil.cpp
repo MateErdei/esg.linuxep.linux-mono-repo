@@ -39,6 +39,15 @@ TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesRet
     EXPECT_EQ(actualResult.has_value(), false);
 }
 
+TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsFalseForFlushqueries) // NOLINT
+{
+    std::string line = "I0215 15:47:24.150650  8842 scheduler.cpp:102] Executing scheduled query flush_process_events: SELECT";
+
+    std::optional<std::string> actualResult = OsqueryLogStringUtil::processOsqueryLogLineForScheduledQueries(line);
+
+    EXPECT_EQ(actualResult.has_value(), false);
+}
+
 TEST_F(TestOsqueryLogStringUtil, testProcessOsqueryLogLineForScheduledQueriesReturnsFalseOnMalformedLine) // NOLINT
 {
     std::vector<std::string> badLines{

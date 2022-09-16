@@ -68,19 +68,19 @@ namespace Plugin
                 "schedule_splay_percent": 10
             },
             "schedule": {
-                "process_events": {
+                "flush_process_events": {
                     "query": "select count(*) as process_events_count from process_events;",
                     "interval": 3600
                 },
-                "user_events": {
+                "flush_user_events": {
                     "query": "select count(*) as user_events_count from user_events;",
                     "interval": 3600
                 },
-                "selinux_events": {
+                "flush_selinux_events": {
                     "query": "select count(*) as selinux_events_count from selinux_events;",
                     "interval": 3600
                 },
-                "syslog_events": {
+                "flush_syslog_events": {
                     "query": "select count(*) as syslog_events_count from syslog_events;",
                     "interval": 3600
                 }

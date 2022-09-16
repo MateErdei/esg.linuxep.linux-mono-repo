@@ -48,7 +48,11 @@ std::optional<std::string> OsqueryLogStringUtil::processOsqueryLogLineForSchedul
         {
             queryName = nameString[0];
         }
-
+        std::vector<std::string> listOfFlushQueries= {"flush_process_events","flush_user_events","flush_selinux_events","flush_syslog_events"};
+        if (std::find(std::begin(listOfFlushQueries), std::end(listOfFlushQueries), queryName) != std::end(listOfFlushQueries))
+        {
+            return {};
+        }
         std::stringstream lineReturned;
         lineReturned << "Executing query: " << queryName;
         return lineReturned.str();
