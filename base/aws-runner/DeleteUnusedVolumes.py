@@ -17,6 +17,6 @@ volumes = ec2.get_all_volumes(filters={
     })
 
 for volume in volumes:
-    print volume
+    print(volume)
     volume.delete()
 
