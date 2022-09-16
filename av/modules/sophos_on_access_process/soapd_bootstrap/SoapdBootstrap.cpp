@@ -97,11 +97,12 @@ void SoapdBootstrap::innerRun()
     auto updateClientThread = std::make_unique<common::ThreadRunner>(updateClient, "updateClient", true);
 
     m_scanRequestQueue = std::make_shared<ScanRequestQueue>();
-    auto eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler->getFd(),
+
+    auto eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
                                                            sysCallWrapper,
                                                            common::getPluginInstallPath(),
                                                            m_scanRequestQueue);
-    m_eventReaderThread = std::make_unique<common::ThreadRunner>(eventReader,
+    m_eventReaderThread = std::make_unique<common::ThreadRunner>(std::move(eventReader),
                                                                  "eventReader",
                                                                  false);
 

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "IFanotifyHandler.h"
+
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 
 #include "common/AbstractThreadPluginInterface.h"
@@ -19,7 +21,7 @@ namespace sophos_on_access_process::fanotifyhandler
     {
     public:
         EventReaderThread(
-            int fanotifyFD,
+            IFanotifyHandlerSharedPtr fanotify,
             datatypes::ISystemCallWrapperSharedPtr sysCalls,
             const fs::path& pluginInstall,
             onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue);
@@ -31,7 +33,7 @@ namespace sophos_on_access_process::fanotifyhandler
         std::string getFilePathFromFd(int fd);
         std::string getUidFromPid(pid_t pid);
 
-        int m_fanotifyFd;
+        IFanotifyHandlerSharedPtr m_fanotify;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         fs::path m_pluginLogDir;
         onaccessimpl::ScanRequestQueueSharedPtr m_scanRequestQueue;

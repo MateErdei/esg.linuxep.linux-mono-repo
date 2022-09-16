@@ -32,16 +32,17 @@ using namespace sophos_on_access_process::fanotifyhandler;
 static constexpr size_t FAN_BUFFER_SIZE = 4096;
 
 EventReaderThread::EventReaderThread(
-    int fanotifyFD,
+    IFanotifyHandlerSharedPtr fanotify,
     datatypes::ISystemCallWrapperSharedPtr sysCalls,
     const fs::path& pluginInstall,
     onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue)
-    : m_fanotifyFd(fanotifyFD)
+    : m_fanotify(std::move(fanotify))
     , m_sysCalls(std::move(sysCalls))
     , m_pluginLogDir(pluginInstall / "log")
     , m_scanRequestQueue(std::move(scanRequestQueue))
     , m_pid(getpid())
 {
+    assert(m_fanotify);
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path PLUGIN_INSTALL = appConfig.getData("PLUGIN_INSTALL");
     m_processExclusionStem = PLUGIN_INSTALL.string() + "/";
@@ -52,7 +53,7 @@ bool EventReaderThread::handleFanotifyEvent()
     char buf[FAN_BUFFER_SIZE];
 
     errno = 0;
-    ssize_t len = m_sysCalls->read(m_fanotifyFd, buf, sizeof(buf));
+    ssize_t len = m_sysCalls->read(m_fanotify->getFd(), buf, sizeof(buf));
 
     // Verify we got something.
     if (len <= 0)
@@ -206,7 +207,7 @@ void EventReaderThread::run()
 {
     struct pollfd fds[] {
         { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
-        { .fd = m_fanotifyFd, .events = POLLIN, .revents = 0 },
+        { .fd = m_fanotify->getFd(), .events = POLLIN, .revents = 0 },
     };
 
     announceThreadStarted();
