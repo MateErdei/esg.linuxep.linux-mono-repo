@@ -49,16 +49,21 @@ Start On Access And AV With Running Threat Detector
     FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
     Force SUSI to be initialized
 
-Start On Access
-    Mark On Access Log
+Start On Access without Log check
     Remove Files   /tmp/soapd.stdout  /tmp/soapd.stderr
     ${handle} =  Start Process  ${ON_ACCESS_BIN}   stdout=/tmp/soapd.stdout  stderr=/tmp/soapd.stderr
+    Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${handle}
+
+Start On Access
+    Mark On Access Log
+    Start On Access without Log check
     Wait Until On Access running
     Wait Until On Access Log Contains With Offset  Fanotify successfully initialised
 
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
+    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
 
 Restart On Access
     Terminate On Access

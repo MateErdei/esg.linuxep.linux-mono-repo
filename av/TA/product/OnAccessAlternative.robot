@@ -11,6 +11,7 @@ Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/OnAccessResources.robot
 
+Suite Setup     On Access Alternative Suite Setup
 Suite Teardown  On Access Suite Teardown
 
 Test Setup     On Access Test Setup
@@ -28,15 +29,20 @@ ${timeout}  ${60}
 *** Keywords ***
 #Restart On Access/AV/Threat Detector each test
 
+On Access Alternative Suite Setup
+    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
+    Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
+
 On Access Suite Teardown
+    Terminate On Access And AV
     Remove Files    ${ONACCESS_FLAG_CONFIG}  /tmp/av.stdout  /tmp/av.stderr  /tmp/soapd.stdout  /tmp/soapd.stderr
 
 On Access Test Setup
     Component Test Setup
     Mark Sophos Threat Detector Log
     Mark On Access Log
-    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
-    Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
+
+    Terminate On Access And AV
     Start On Access And AV With Running Threat Detector
     Mark On Access Log
     Enable OA Scanning
@@ -58,8 +64,6 @@ On Access Test Teardown
 
     run teardown functions
 
-    Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
-    Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
     Remove File      ${AV_PLUGIN_PATH}/log/soapd.log*
     Component Test TearDown
 
@@ -80,11 +84,11 @@ On Access Log Rotates
     Dump and Reset Logs
     # Ensure the log is created
 
-    Terminate On Access And AV
+    Terminate On Access
     #Wait Until On Access Log Contains With Offset  Scan Queue is empty
     Increase On Access Log To Max Size
 
-    Start AV and On Access
+    Start On Access without Log check
     Wait Until Created   ${AV_PLUGIN_PATH}/log/soapd.log.1   timeout=10s
     Terminate On Access And AV
 
