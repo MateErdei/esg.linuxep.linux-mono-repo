@@ -91,3 +91,7 @@ def set_old_timestamps(directory):
 def generate_only_open_event(path):
     assert os.path.isfile(path), f"path doesnt exist: {path}"
     open(path, 'r')
+
+
+def copy_file_no_temp_directory(src, dest):
+    shutil.copy2(src, dest)

@@ -70,8 +70,3 @@ def find_sdiskpart(path):
 
 def get_robot_pid():
     return os.getpid()
-
-
-def generate_only_open_event(path):
-    assert os.path.isfile(path)
-    f = open(path, 'r')

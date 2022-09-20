@@ -379,3 +379,61 @@ On Access Doesnt Scan AV Process Events
 
     Wait Until AV Plugin Log Contains With Offset  Found 'EICAR-AV-Test' in '${filepath}
     On Access Log Does Not Contain With Offset  from ${AVPLUGIN_PID}
+
+
+On Access Caches Open Events Without Detections
+    ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
+
+    Create File   ${cleanfile}   ${CLEAN_STRING}
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup   Run Process   rm   ${cleanfile}
+    Register Cleanup   Run Process   rm   ${dirtyfile}
+
+    Mark On Access Log
+    Generate Only Open Event   ${cleanfile}
+    Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
+
+    Mark On Access Log
+    Sleep   1  #Let the event be cached
+    Generate Only Open Event   ${cleanfile}
+
+    #Generate another event we can expect in logs
+    Generate Only Open Event   ${dirtyfile}
+    Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}
+    On Access Log Does Not Contain With Offset   On-open event for ${cleanfile} from
+
+
+On Access Doesnt Cache Open Events With Detections
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
+
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup   Run Process   rm   ${dirtyfile}
+
+    Mark On Access Log
+    Generate Only Open Event   ${dirtyfile}
+
+    Sleep   1  #Let the event be cached
+
+    Generate Only Open Event   ${dirtyfile}
+
+    Wait Until On Access Log Contains Times With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}    times=2
+    Wait Until On Access Log Contains Times With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}    times=2
+
+
+On Access Doesnt Cache Close Events
+    ${srcfile} =  Set Variable  /tmp_test/cleanfile.txt
+    ${destfile} =  Set Variable  /tmp_test_two/cleanfile.txt
+
+    Create File  ${srcfile}  ${CLEAN_STRING}
+    Register Cleanup   Run Process   rm   ${srcfile}
+
+    Mark On Access Log
+    Copy File No Temp Directory   ${srcfile}   ${destfile}
+    Register Cleanup   Run Process   rm   ${destfile}
+
+    Sleep   1  #Let the event (hopefully not) be cached
+
+    Copy File No Temp Directory   ${srcfile}   ${destfile}
+    Wait Until On Access Log Contains Times With Offset  On-close event for ${destfile} from    timeout=${timeout}  times=2
+    dump_logs
