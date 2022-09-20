@@ -413,7 +413,7 @@ On Access Doesnt Cache Open Events With Detections
     Generate Only Open Event   ${dirtyfile}
 
     Wait Until On Access Log Contains Times With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}    times=2
-    Wait Until On Access Log Contains Times With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}    times=2
+    Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
 
 
 On Access Doesnt Cache Close Events
