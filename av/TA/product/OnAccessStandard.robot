@@ -432,4 +432,3 @@ On Access Doesnt Cache Close Events
 
     Copy File No Temp Directory   ${srcfile}   ${destdir}
     Wait Until On Access Log Contains Times With Offset  On-close event for ${destfile} from    timeout=${timeout}  times=2
-
