@@ -283,8 +283,9 @@ On Access Process Reconnects To Threat Detector
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     ${script} =  Set Variable  ${BASH_SCRIPTS_PATH}/cleanFileWriter.sh
     ${HANDLE} =  Start Process  bash  ${script}  stderr=STDOUT
-    Register Cleanup  Terminate Process  ${HANDLE}
+    #Register cleanups are First In Last Out, register Terminate Process last
     Register Cleanup  Remove Directory  /tmp_test/clean_file_writer/  recursive=True
+    Register Cleanup  Terminate Process  ${HANDLE}
 
     Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
