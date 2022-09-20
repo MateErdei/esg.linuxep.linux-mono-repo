@@ -390,12 +390,9 @@ On Access Caches Open Events Without Detections
     Register Cleanup   Run Process   rm   ${cleanfile}
     Register Cleanup   Run Process   rm   ${dirtyfile}
 
-    Mark On Access Log
-    Generate Only Open Event   ${cleanfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
+    Sleep   1  #Let the event be cached
 
     Mark On Access Log
-    Sleep   1  #Let the event be cached
     Generate Only Open Event   ${cleanfile}
 
     #Generate another event we can expect in logs
@@ -407,11 +404,9 @@ On Access Caches Open Events Without Detections
 On Access Doesnt Cache Open Events With Detections
     ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
+    Mark On Access Log
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup   Run Process   rm   ${dirtyfile}
-
-    Mark On Access Log
-    Generate Only Open Event   ${dirtyfile}
 
     Sleep   1  #Let the event be cached
 
@@ -423,17 +418,17 @@ On Access Doesnt Cache Open Events With Detections
 
 On Access Doesnt Cache Close Events
     ${srcfile} =  Set Variable  /tmp_test/cleanfile.txt
-    ${destfile} =  Set Variable  /tmp_test_two/cleanfile.txt
+    ${destdir} =  Set Variable  /tmp_test_two
+    ${destfile} =  Set Variable  ${destdir}/cleanfile.txt
 
+    Mark On Access Log
     Create File  ${srcfile}  ${CLEAN_STRING}
     Register Cleanup   Run Process   rm   ${srcfile}
 
-    Mark On Access Log
-    Copy File No Temp Directory   ${srcfile}   ${destfile}
+    Copy File No Temp Directory   ${srcfile}   ${destdir}
     Register Cleanup   Run Process   rm   ${destfile}
 
     Sleep   1  #Let the event (hopefully not) be cached
 
-    Copy File No Temp Directory   ${srcfile}   ${destfile}
+    Copy File No Temp Directory   ${srcfile}   ${destdir}
     Wait Until On Access Log Contains Times With Offset  On-close event for ${destfile} from    timeout=${timeout}  times=2
-    dump_logs
