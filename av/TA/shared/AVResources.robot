@@ -44,6 +44,7 @@ ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}            ${COMPONENT_ROOT_PATH}/chroot/${
 ${AV_SDDS}                                      ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}                                  ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
+${SCHEDULED_FILE_WALKER_LAUNCHER}               ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/scheduled_file_walker_launcher
 ${ON_ACCESS_BIN}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/soapd
 ${SAFESTORE_BIN}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/safestore
 ${SOPHOS_THREAT_DETECTOR_BINARY}                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector

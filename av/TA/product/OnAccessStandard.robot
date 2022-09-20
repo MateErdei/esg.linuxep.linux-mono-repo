@@ -6,9 +6,11 @@
 Documentation   Product tests for SOAP
 Force Tags      PRODUCT  SOAP
 
-Resource    ../shared/ErrorMarkers.robot
-Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
+Resource    ../shared/ComponentSetup.robot
+Resource    ../shared/ErrorMarkers.robot
+Resource    ../shared/FakeManagementResources.robot
+
 Resource    ../shared/OnAccessResources.robot
 
 Suite Setup     On Access Suite Setup
@@ -56,6 +58,7 @@ On Access Test Setup
 
 On Access Test Teardown
     List AV Plugin Path
+    #Wait Until On Access Log Contains With Offset  Scan Queue is empty    timeout=${timeout}
     run teardown functions
     Check All Product Logs Do Not Contain Error
 
@@ -66,10 +69,12 @@ On Access Test Teardown
 *** Test Cases ***
 
 On Access Scans A File When It Is Closed Following A Write
+    Mark On Access Log
     On-access Scan Eicar Close
 
 
 On Access Scans A File When It Is Opened
+    Mark On Access Log
     On-access Scan Eicar Open
 
 
@@ -361,11 +366,23 @@ On Access Scans File On XFS
     Wait Until On Access Log Contains With Offset   Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with  timeout=${timeout}
 
 
-On Access Doesnt Scan AV Process Events
-    ${AVPLUGIN_PID} =  Record AV Plugin PID
+On Access Doesnt Scan Threat Detector Events
+    ${TD_PID} =  Record Sophos Threat Detector PID
     ${filepath} =  Set Variable  ${NORMAL_DIRECTORY}/eicar.com
 
-    Mark AV Log
+    Mark On Access Log
+
+    Create File  ${filepath}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${filepath}
+
+    Wait Until On Access Log Contains With Offset   Detected "${filepath}" is infected with EICAR-AV-Test  timeout=${timeout}
+    On Access Log Does Not Contain With Offset   from Process ${SOPHOS_THREAT_DETECTOR_BINARY}(PID=${TD_PID})
+
+
+On Access Doesnt Scan CommandLine Scanner Events
+    ${filepath} =  Set Variable  ${NORMAL_DIRECTORY}/eicar.com
+
+    Mark On Access Log
 
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
@@ -375,116 +392,29 @@ On Access Doesnt Scan AV Process Events
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}    Detected "${filepath}" is infected with EICAR-AV-Test
 
-    Wait Until AV Plugin Log Contains With Offset  Found 'EICAR-AV-Test' in '${filepath}
-    On Access Log Does Not Contain With Offset  from ${AVPLUGIN_PID}
+    Wait Until On Access Log Contains With Offset   Detected "${filepath}" is infected with EICAR-AV-Test  timeout=${timeout}
+    On Access Log Does Not Contain With Offset  from Process ${CLI_SCANNER_PATH}
 
 
-On Access Caches Open Events Without Detections
-    ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
-    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
+On Access Doesnt Scan Named Scanner Events
+    Register Cleanup   Dump Log On Failure   ${AV_LOG_PATH}
+    ${AVPLUGIN_PID} =  Record AV Plugin PID
 
-    Create File   ${cleanfile}   ${CLEAN_STRING}
-    Create File  ${dirtyfile}  ${EICAR_STRING}
-    Register Cleanup   Remove File   ${cleanfile}
-    Register Cleanup   Remove File   ${dirtyfile}
-
-    Generate Only Open Event   ${cleanfile}
-    Sleep   1  #Let the event be cached
+    ${filepath} =  Set Variable  ${NORMAL_DIRECTORY}/eicar.com
 
     Mark On Access Log
-    Generate Only Open Event   ${cleanfile}
+    Mark AV Log
 
-    #Generate another event we can expect in logs
-    Generate Only Open Event   ${dirtyfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}
-    On Access Log Does Not Contain With Offset   On-open event for ${cleanfile} from
+    Run Scheduled Scan With On Access Enabled
+    Wait Until AV Plugin Log Contains With Offset    Completed scan   timeout=${timeout}
+
+    On Access Log Does Not Contain With Offset  from Process ${PLUGIN_BINARY}(PID=${AVPLUGIN_PID})
+    On Access Log Does Not Contain With Offset  from Process ${SCHEDULED_FILE_WALKER_LAUNCHER}
+    On Access Log Does Not Contain With Offset  from Process ${CLI_SCANNER_PATH}
 
 
-On Access Doesnt Cache Open Events With Detections
-    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
-
+On Access Doesnt Scan On Access Events
     Mark On Access Log
-    Create File  ${dirtyfile}  ${EICAR_STRING}
-    Register Cleanup   Remove File   ${dirtyfile}
+    On-access Scan Eicar Open
 
-    Sleep   1  #Let the event be cached
-
-    Generate Only Open Event   ${dirtyfile}
-
-    Wait Until On Access Log Contains Times With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}    times=2
-    Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
-
-
-On Access Doesnt Cache Close Events Without Detections
-    ${srcfile} =  Set Variable  /tmp_test/cleanfile.txt
-    ${destdir} =  Set Variable  /tmp_test_two
-    ${destfile} =  Set Variable  ${destdir}/cleanfile.txt
-
-    Mark On Access Log
-    Create File  ${srcfile}  ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${srcfile}
-
-    Copy File No Temp Directory   ${srcfile}   ${destdir}
-    Register Cleanup   Remove File   ${destfile}
-
-    Sleep   1  #Let the event (hopefully not) be cached
-
-    Copy File No Temp Directory   ${srcfile}   ${destdir}
-    Wait Until On Access Log Contains Times With Offset  On-close event for ${destfile} from    timeout=${timeout}  times=2
-
-
-On Access Doesnt Cache Close Events With Detections
-    ${srcfile} =  Set Variable  /tmp_test/dirtyfile.txt
-    ${destdir} =  Set Variable  /tmp_test_two
-    ${destfile} =  Set Variable  ${destdir}/dirtyfile.txt
-
-    Mark On Access Log
-    Create File  ${srcfile}  ${EICAR_STRING}
-    Register Cleanup   Remove File   ${srcfile}
-
-    Copy File No Temp Directory   ${srcfile}   ${destdir}
-    Register Cleanup   Remove File   ${destfile}
-
-    Sleep   1  #Let the event (hopefully not) be cached
-
-    Copy File No Temp Directory   ${srcfile}   ${destdir}
-
-    Wait Until On Access Log Contains Times With Offset  On-close event for ${destfile} from    timeout=${timeout}  times=2
-    Wait Until On Access Log Contains Times With Offset  Detected "${destfile}" is infected with EICAR-AV-Test (Close-Write)   timeout=${timeout}  times=2
-
-
-On Access Processes New File With Same Attributes And Contents As Old File
-    ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
-
-    Mark On Access Log
-    Create File   ${cleanfile}   ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${cleanfile}
-
-    Generate Only Open Event   ${cleanfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
-    Sleep   1  #Let the event be cached, Create File can create a combined event which wont be cached
-
-    Remove File   ${cleanfile}
-
-    Mark On Access Log
-    Create File   ${cleanfile}   ${CLEAN_STRING}
-    Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
-
-
-On Access Detects A Clean File Replaced By Dirty File With Same Attributes
-    ${dustyfile} =  Set Variable  /tmp_test/notcleanforlongfile.txt
-    Mark On Access Log
-    Create File   ${dustyfile}   ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${dustyfile}
-
-    Generate Only Open Event   ${dustyfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
-    Sleep   1  #Let the event be cached,
-
-    Remove File   ${dustyfile}
-
-    Mark On Access Log
-    Create File   ${dustyfile}   ${EICAR_STRING}
-    Generate Only Open Event   ${dustyfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
-    Wait Until On Access Log Contains With Offset  Detected "${dustyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
+    On Access Log Does Not Contain With Offset  from Process ${ON_ACCESS_BIN}
