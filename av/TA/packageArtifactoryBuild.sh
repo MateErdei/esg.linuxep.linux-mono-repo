@@ -8,7 +8,8 @@ BASE=$(pwd)
 REPO_PATH=$1
 if [[ -z $REPO_PATH ]]
 then
-	echo Please pass an artifactory repository path
+	echo Please pass an artifactory repository path like esg-build-tested/linuxep.sspl-plugin-anti-virus/develop/20220920115213-a74084511be8327fba69897c92852d2e1eb37a35-vYMroO/
+
 	exit 1
 fi
 DEST_BASE=/tmp/av
@@ -44,6 +45,12 @@ mv "$OUTPUT/base-sdds/"      "$AV/base-sdds"
 chmod 700 "$AV/base-sdds/install.sh"
 rm -rf "$AV/test-resources"
 mv "$OUTPUT/test-resources"  "$AV/"
+
+if [[ -n $SYMBOLS ]]
+then
+    rm -rf "$INPUTS/symbols"
+    mv "$OUTPUT/symbols"  "$INPUTS/symbols"
+fi
 
 PYTHON=${PYTHON:-python3}
 ${PYTHON} ${BASE}/manual/downloadSupplements.py "$INPUTS"

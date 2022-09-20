@@ -2,13 +2,14 @@
 
 set -ex
 
-while getopts t:u:b:f flag
+while getopts t:u:bfa flag
 do
     case "${flag}" in
         t) MCS_TOKEN=${OPTARG};;
         u) MCS_URL=${OPTARG};;
         b) BREAK_UPDATING=true;;
         f) FLAGS=true;;
+        a) ALC=true;;
         ?) echo "Error: Invalid option was specified -$OPTARG use -t for token -u for url and -b for breaking updating"
           failure 1;;
     esac
@@ -74,6 +75,11 @@ fi
 if [[ $FLAGS ]]
 then
   cp ${TEST_SUITE}/resources/flags_policy/flags_enabled.json ${SOPHOS_INSTALL}/base/mcs/policy/
+fi
+
+if [[ $ALC ]]
+then
+  cp ${TEST_SUITE}/resources/ALC_Policy.xml ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
 fi
 
 ## Install AV
