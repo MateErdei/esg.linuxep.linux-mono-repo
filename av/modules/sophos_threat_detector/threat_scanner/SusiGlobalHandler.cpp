@@ -75,7 +75,7 @@ namespace threat_scanner
     {
         my_susi_callbacks.token = this;
         auto log_level = std::min(getThreatScannerLogger().getLogLevel(), getSusiDebugLogger().getLogLevel());
-
+        LOGINFO("level " << log_level);
         if (log_level >= Common::Logging::WARN)
         {
             GL_log_callback.minLogLevel = SUSI_LOG_LEVEL_WARNING;

@@ -73,7 +73,7 @@ fi
 
 if [[ $FLAGS ]]
 then
-  cp ${TEST_SUITE}/resources/flags_policy/flags.json ${SOPHOS_INSTALL}/base/mcs/policy/
+  cp ${TEST_SUITE}/resources/flags_policy/flags_enabled.json ${SOPHOS_INSTALL}/base/mcs/policy/
 fi
 
 ## Install AV

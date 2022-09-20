@@ -305,3 +305,14 @@ On Access Scan Times Out When Unable To Connect To Threat Detector
     Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
     Wait Until On Access Log Contains With Offset  Failed to connect to Sophos Threat Detector - retrying after sleep
     Wait Until On Access Log Contains With Offset  Reached total maximum number of connection attempts.  timeout=${timeout}
+
+On Access Logs Scan time in TRACE
+    Set Log Level  TRACE
+    Register Cleanup  Set Log Level  DEBUG
+    Restart On Access
+
+    ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
+    Create File  ${filepath}  clean
+    Register Cleanup  Remove File  ${filepath}
+
+    Wait Until On Access Log Contains With Offset  Scan for /tmp_test/clean_file_writer/clean.txt completed in

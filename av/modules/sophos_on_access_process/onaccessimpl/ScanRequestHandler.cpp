@@ -8,6 +8,8 @@
 #include "common/StringUtils.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
+#include <Common/Logging/LoggerConfig.h>
+
 #include <memory>
 #include <sstream>
 #include <chrono>
@@ -94,7 +96,7 @@ void ScanRequestHandler::run()
     announceThreadStarted();
 
     LOGDEBUG("Starting ScanRequestHandler");
-    auto logLevel = log4cplus::Logger::getRoot().getLogLevel();
+    auto logLevel = getOnAccessImplLogger().getChainedLogLevel();
     try
     {
         while (!stopRequested())
@@ -102,7 +104,7 @@ void ScanRequestHandler::run()
             auto queueItem = m_scanRequestQueue->pop();
             if(queueItem)
             {
-                if(logLevel == log4cplus::TRACE_LOG_LEVEL)
+                if(logLevel == Common::Logging::TRACE)
                 {
                     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
