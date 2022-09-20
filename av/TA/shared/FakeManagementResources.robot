@@ -23,6 +23,14 @@ Run Scheduled Scan
     Wait until scheduled scan updated
 
 
+Run Scheduled Scan With On Access Enabled
+    ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
+    Create Sav Policy With Scheduled Scan And On Access Enabled  ${TEMP_SAV_POLICY_FILENAME}  ${time}
+    ${policy_contents} =  Get File  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
+    Send Plugin Policy  av  sav  ${policy_contents}
+    Wait until scheduled scan updated
+
+
 Configure Scan Now Scan
     ${policy_contents} =  Get Complete Sav Policy
     Send Plugin Policy  av  sav  ${policy_contents}

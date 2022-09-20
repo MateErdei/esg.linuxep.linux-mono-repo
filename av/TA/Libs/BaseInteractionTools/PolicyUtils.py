@@ -25,6 +25,20 @@ def create_sav_policy_with_scheduled_scan(filename, timestamp):
     sav_policy_builder.set_posix_exclusions(["*/test_scripts/*"])
     sav_policy_builder.send_sav_policy()
 
+def create_sav_policy_with_scheduled_scan_and_on_access_enabled(filename, timestamp):
+    parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
+    scan_time = parsed_timestamp + timedelta(seconds=20)
+    day = calendar.day_name[scan_time.weekday()].lower()
+    parsed_timestamp = scan_time.strftime("%H:%M:%S")
+
+    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
+    sav_policy_builder.set_scheduled_scan_day(day)
+    sav_policy_builder.set_scheduled_scan_time(parsed_timestamp)
+    sav_policy_builder.set_posix_exclusions(["*/test_scripts/*"])
+    sav_policy_builder.set_on_access_on()
+    sav_policy_builder.send_sav_policy()
+
+
 def create_sav_policy_with_multiple_scheduled_scans(filename, timestamp, no_of_scans=2):
     timestamp_builder = ""
     parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
@@ -163,4 +177,7 @@ class _SavPolicyBuilder:
         for thing in object_list:
             line += "<" + tag + ">" + thing + "</" + tag + ">\n"
         return line
+
+    def set_on_access_on(self):
+        self.replacement_map["{{onAccessEnabled}}"] = 'true'
 
