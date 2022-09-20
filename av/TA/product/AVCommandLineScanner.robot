@@ -5,6 +5,7 @@ Library         Process
 Library         Collections
 Library         OperatingSystem
 Library         DateTime
+Library         ../Libs/CoreDumps.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FakeWatchdog.py
@@ -12,6 +13,7 @@ Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/AVScanner.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
+Library         ../Libs/ProcessUtils.py
 Library         ../Libs/SystemFileWatcher.py
 Library         ../Libs/ThreatReportUtils.py
 
@@ -81,6 +83,9 @@ AVCommandLineScanner Test TearDown
     Run Keyword If Test Failed  Reset AVCommandLineScanner Suite
 
 Clear logs
+    ${result} =  Run Process  ps  -ef   |    grep   sophos  stderr=STDOUT  shell=yes
+    Log  output is ${result.stdout}
+
     Stop AV
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -108,10 +113,12 @@ Mark logs
     Mark Susi Debug Log
 
 Stop AV Plugin process
-   ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
-   Log  ${result.stderr}
-   Log  ${result.stdout}
-   Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    ${proc} =  Get Process Object  ${AV_PLUGIN_HANDLE}
+    Log  Stopping AV Plugin Process PID=${proc.pid}
+    ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
+    Log  ${result.stderr}
+    Log  ${result.stdout}
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
 
 Start AV Plugin process
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
@@ -141,7 +148,6 @@ Stop AV
 ${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${CLEAN_STRING}     not an eicar
 ${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
-${LONG_DIRECTORY}   0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 ${UKNOWN_OPTION_RESULT}      ${2}
 ${FILE_NOT_FOUND_RESULT}     ${2}
 ${PERMISSION_DENIED_RESULT}  ${13}
@@ -260,7 +266,7 @@ CLS Duration Summary is Displayed Correctly
     Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/    stdout=/tmp/stdout
 
     Sleep  65s
-    Send Signal To Process  2
+    Send Signal To Process  SIGINT
     ${result} =  Wait For Process  timeout=10s
     Process Should Be Stopped
     Should Contain   ${result.stdout}  files scanned in 1 minute
@@ -1383,7 +1389,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     # After the log message, only wait ten seconds for avscanner to exit
     ${result} =  Wait For Process  handle=${HANDLE}  timeout=10s  on_timeout=kill
 
-    ${line_count} =  Count Lines In Log  ${LOG_FILE}  Failed to send scan request to Sophos Threat Detector (Environment interruption) - retrying after sleep
+    ${line_count} =  Count Lines In Log  ${LOG_FILE}  Failed to scan file
 
     Should Be True  ${0} < ${line_count} < ${10}
 
@@ -1577,17 +1583,32 @@ CLS Return Codes Are Correct
 CLS Can Append Summary To Log When SigTerm Occurs
     ${SCAN_LOG} =    Set Variable    /tmp/sigterm_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
-    Register Cleanup  Exclude Scan Errors From File Samples
+    Register On Fail  Dump Log  ${SCAN_LOG}
     Remove File  ${SCAN_LOG}
-    ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
+
+    ${SCAN_OUT} =    Set Variable    /tmp/sigterm_out.log
+    Register Cleanup  Remove File  ${SCAN_OUT}
+    Register On Fail   Dump Log   ${SCAN_OUT}
+    Remove File  ${SCAN_OUT}
+
+    Register Cleanup  Exclude Scan Errors From File Samples
+
+    ${cls_handle} =     Start Process
+        ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
+        ...   stdout=${SCAN_OUT}  stderr=STDOUT
+    Log  PID: ${cls_handle.pid}
     Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
-    register on fail  Dump Log  ${SCAN_LOG}
 
     Wait Until File exists  ${SCAN_LOG}
+    Wait For File With Particular Contents   \ Scanning\    ${SCAN_LOG}
     Dump Log  ${SCAN_LOG}
 
+    dump_threads_from_pid  ${cls_handle.pid}
+    register on fail  dump_threads_from_pid  ${cls_handle.pid}
+
     Send Signal To Process  SIGTERM  handle=${cls_handle}
-    ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=terminate
+    ${result} =  Wait For Process    handle=${cls_handle}  timeout=10  on_timeout=continue
+    Process Should Be Stopped   handle=${cls_handle}
 
     Wait For File With Particular Contents  Scan aborted due to environment interruption  ${SCAN_LOG}  timeout=1
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
@@ -1619,20 +1640,32 @@ CLS Can Append Summary To Log When SigTerm Occurs Strace
 CLS Can Append Summary To Log When SIGHUP Is Received
     ${SCAN_LOG} =    Set Variable    /tmp/sighup_test.log
     Register Cleanup  Remove File  ${SCAN_LOG}
-    Register Cleanup     Exclude Scan Errors From File Samples
+    Register On Fail  Dump Log  ${SCAN_LOG}
     Remove File  ${SCAN_LOG}
 
-    Mark Sophos Threat Detector Log
-    ${cls_handle} =     Start Process    ${CLI_SCANNER_PATH}  /  -o  ${SCAN_LOG}  /  -x  /mnt/
-    Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
-    register on fail  Dump Log  ${SCAN_LOG}
+    ${SCAN_OUT} =    Set Variable    /tmp/sighup_out.log
+    Register Cleanup  Remove File  ${SCAN_OUT}
+    Register On Fail   Dump Log   ${SCAN_OUT}
+    Remove File  ${SCAN_OUT}
+
+    Register Cleanup  Exclude Scan Errors From File Samples
+
+    ${cls_handle} =     Start Process
+        ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
+        ...   stdout=${SCAN_OUT}  stderr=STDOUT
+    Log  PID: ${cls_handle.pid}
+    Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
 
     Wait Until File exists  ${SCAN_LOG}
-    Wait For File With Particular Contents   \ Scanning\   ${SCAN_LOG}
+    Wait For File With Particular Contents   \ Scanning\    ${SCAN_LOG}
+    Dump Log  ${SCAN_LOG}
+
+    dump_threads_from_pid  ${cls_handle.pid}
+    register on fail  dump_threads_from_pid  ${cls_handle.pid}
 
     Send Signal To Process  SIGHUP  handle=${cls_handle}
-    ${result} =  Wait For Process    handle=${cls_handle}  timeout=30  on_timeout=terminate
-    Dump Log  ${SCAN_LOG}
+    ${result} =  Wait For Process    handle=${cls_handle}  timeout=10  on_timeout=continue
+    Process Should Be Stopped   handle=${cls_handle}
 
     Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
@@ -1739,8 +1772,11 @@ CLS Can Scan Special File That Cannot Be Read
     Register On Fail  Log  ip netns add avtest output is ${result.stdout}
     Should Be equal As Integers  ${result.rc}  0
     Wait Until File exists  /run/netns/avtest
+    ${catrc}   ${catoutput} =    Run And Return Rc And Output    cat /run/netns/avtest
+    Register On Fail  Log  cat result: = ${catrc} output = ${catoutput}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /run/netns/avtest
     Register On Fail  Log  avscanner output is ${output}
+    Dump Log  ${SUSI_DEBUG_LOG_PATH}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
 Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
@@ -1766,3 +1802,61 @@ Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
     AV Plugin Log Contains With Offset  <item file="eicar_file"
     AV Plugin Log Contains With Offset  path="${NORMAL_DIRECTORY}/"/>
     AV Plugin Log Contains With Offset  <action action="101"/>
+
+
+AV Scanner waits for threat detector process
+    Create File     ${NORMAL_DIRECTORY}/eicar_file    ${EICAR_STRING}
+
+    Stop AV
+    register on fail  Start AV
+
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   ${NORMAL_DIRECTORY}   -x   /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
+
+    ## cannot wait for messages in the log as it is buffered and not written syncronously.
+    Sleep   10s
+    Start AV
+    ${result} =  Wait For Process  handle=${HANDLE}  timeout=180s
+    Process Should Be Stopped  handle=${HANDLE}
+
+    Dump Log   ${LOG_FILE}
+    File Log Contains   ${LOG_FILE}  Failed to connect to Sophos Threat Detector
+    Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
+
+
+AV Scanner stops promptly while trying to connect
+    Create File     ${NORMAL_DIRECTORY}/eicar_file    ${EICAR_STRING}
+
+    Stop AV
+    register cleanup  Start AV
+
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   ${NORMAL_DIRECTORY}   -x   /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
+
+    ## cannot wait for messages in the log as it is buffered and not written syncronously.
+    Sleep   5s
+    Send Signal To Process   SIGINT   handle=${HANDLE}
+    ${result} =  Wait For Process  handle=${HANDLE}  timeout=5s
+    Process Should Be Stopped  handle=${HANDLE}
+
+    Dump Log   ${LOG_FILE}
+    File Log Contains   ${LOG_FILE}  Failed to connect to Sophos Threat Detector
+    File Log Contains   ${LOG_FILE}  Scan manually aborted
+    Should Be Equal As Integers  ${result.rc}  ${1}
+
+
+AV Scanner stops promptly during a scan
+    ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
+    Wait Until File exists  ${LOG_FILE}
+    Wait For File With Particular Contents   \ Scanning\   ${LOG_FILE}
+
+    #Stop Threat detector during a scan
+    Stop AV
+    register cleanup  Start AV
+
+    Send Signal To Process   SIGINT   handle=${HANDLE}
+    ${result} =  Wait For Process  handle=${HANDLE}  timeout=5s
+    Process Should Be Stopped  handle=${HANDLE}
+
+    Dump Log   ${LOG_FILE}
+    #Depending on whether a scan is being processed or it is being requested one of these 2 errors should appear
+    File Log Contains One of   ${LOG_FILE}  0  Failed to receive scan response  Failed to send scan request
+    Should Be Equal As Integers  ${result.rc}  ${MANUAL_INTERUPTION_RESULT}
