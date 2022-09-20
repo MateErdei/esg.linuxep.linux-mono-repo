@@ -94,6 +94,7 @@ void ScanRequestHandler::run()
     announceThreadStarted();
 
     LOGDEBUG("Starting ScanRequestHandler");
+    auto logLevel = log4cplus::Logger::getRoot().getLogLevel();
     try
     {
         while (!stopRequested())
@@ -101,14 +102,21 @@ void ScanRequestHandler::run()
             auto queueItem = m_scanRequestQueue->pop();
             if(queueItem)
             {
-                std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-                scan(queueItem);
+                if(logLevel == log4cplus::TRACE_LOG_LEVEL)
+                {
+                    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-                std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-                long scanDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+                    scan(queueItem);
+                    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                    long scanDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 
-                std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
-                LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms");
+                    std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
+                    LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms");
+                }
+                else
+                {
+                    scan(queueItem);
+                }
             }
         }
     }
