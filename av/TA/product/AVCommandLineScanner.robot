@@ -1596,15 +1596,16 @@ CLS Can Append Summary To Log When SigTerm Occurs
     ${cls_handle} =     Start Process
         ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
         ...   stdout=${SCAN_OUT}  stderr=STDOUT
-    Log  PID: ${cls_handle.pid}
+    ${cls_pid} =   Get Process Id   handle=${cls_handle}
+    Log  PID: ${cls_pid}
     Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
 
     Wait Until File exists  ${SCAN_LOG}
     Wait For File With Particular Contents   \ Scanning\    ${SCAN_LOG}
     Dump Log  ${SCAN_LOG}
 
-    dump_threads_from_pid  ${cls_handle.pid}
-    register on fail  dump_threads_from_pid  ${cls_handle.pid}
+    dump_threads_from_pid  ${cls_pid}
+    register on fail  dump_threads_from_pid  ${cls_pid}
 
     Send Signal To Process  SIGTERM  handle=${cls_handle}
     ${result} =  Wait For Process    handle=${cls_handle}  timeout=10  on_timeout=continue
@@ -1653,15 +1654,16 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     ${cls_handle} =     Start Process
         ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
         ...   stdout=${SCAN_OUT}  stderr=STDOUT
-    Log  PID: ${cls_handle.pid}
+    ${cls_pid} =   Get Process Id   handle=${cls_handle}
+    Log  PID: ${cls_pid}
     Register cleanup  Run Keyword And Ignore Error   Terminate Process  handle=${cls_handle}  kill=True
 
     Wait Until File exists  ${SCAN_LOG}
     Wait For File With Particular Contents   \ Scanning\    ${SCAN_LOG}
     Dump Log  ${SCAN_LOG}
 
-    dump_threads_from_pid  ${cls_handle.pid}
-    register on fail  dump_threads_from_pid  ${cls_handle.pid}
+    dump_threads_from_pid  ${cls_pid}
+    register on fail  dump_threads_from_pid  ${cls_pid}
 
     Send Signal To Process  SIGHUP  handle=${cls_handle}
     ${result} =  Wait For Process    handle=${cls_handle}  timeout=10  on_timeout=continue
