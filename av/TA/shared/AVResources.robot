@@ -516,6 +516,13 @@ Wait Until Safestore running
         ...  2 secs
         ...  Safestore Log Contains  SafeStore started
 
+Wait Until Safestore not running
+    [Arguments]  ${timeout}=30
+    Wait Until Keyword Succeeds
+    ...  ${timeout} secs
+    ...  3 secs
+    ...  Check Safestore Not Running
+
 Wait until threat detector running
     # wait for sophos_threat_detector to initialize
     ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}

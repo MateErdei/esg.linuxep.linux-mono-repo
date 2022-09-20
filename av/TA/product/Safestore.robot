@@ -52,13 +52,13 @@ Wait Until Safestore Log Contains
 Safestore is killed gracefully
     Start Safestore
     Send signal to Safestore  signal.SIGTERM
-    Check Safestore Not Running
+    Wait Until Safestore not running
     Safestore Log Contains  SafeStore received SIGTERM - shutting down
     Safestore Log Contains  Exiting SafeStore
 
 Safestore exits on interrupt signal
     Start Safestore
     Send signal to Safestore  signal.SIGINT
-    Check Safestore Not Running
+    Wait Until Safestore not running
     Safestore Log Contains  SafeStore received SIGINT - shutting down
     Safestore Log Contains  Exiting SafeStore
