@@ -108,30 +108,27 @@ Enable OA Scanning
     Wait Until On Access Log Contains With Offset  "oa_enabled":true
     Wait Until On Access Log Contains With Offset  Starting eventReader
 
-
 On-access Scan Eicar Close
     ${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  /tmp_test/eicar.com
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
     Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from    timeout=${timeout}
+    #PID ${pid} and UID 0
     Wait Until On Access Log Contains With Offset  "${filepath}" is infected with    timeout=${timeout}
-
 
 On-access Scan Eicar Open
     ${pid} =  Get Robot Pid
-    ${srcfile} =  Set Variable  /tmp_test/eicar.com
-
+    ${srcfile} =  Set Variable  /tmp_test_two/eicar.com
     Create File  ${srcfile}  ${EICAR_STRING}
+    Generate Only Open Event    ${srcfile}
     Register Cleanup  Remove File  ${srcfile}
 
-    Mark On Access Log
-    Generate Only Open Event   ${srcfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from    timeout=${timeout}
     Wait Until On Access Log Contains With Offset  "${srcfile}" is infected with    timeout=${timeout}
 
-
 On-access No Eicar Scan
+    ${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  /tmp_test/uncaught_eicar.com
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
