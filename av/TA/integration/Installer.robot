@@ -246,8 +246,6 @@ AV Plugin gets customer id after upgrade
     # modify the manifest to force the installer to perform a full product update
     Modify manifest
     Run Installer From Install Set
-    #Todo Remove after LINUXDAR-5655 is removed.
-    Wait Until Sophos Threat Detector Log Contains With Offset     Starting USR1 monitor
 
     #A max of 10 seconds might pass before the threatDetector starts
     Wait Until Created   ${customerIdFile}   timeout=12sec
