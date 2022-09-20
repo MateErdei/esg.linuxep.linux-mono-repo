@@ -75,6 +75,10 @@ Send Alc Policy To Base
     [Arguments]  ${policyFile}
     Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/ALC-1_policy.xml
 
+Send Flags Policy To Base
+    [Arguments]  ${policyFile}
+    Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/flags.json
+
 Send Sav Policy To Base With Exclusions Filled In
     [Arguments]  ${policyFile}
     ExclusionHelper.Fill In On Demand Posix Exclusions  ${RESOURCES_PATH}/${policyFile}  ${RESOURCES_PATH}/FilledIn.xml

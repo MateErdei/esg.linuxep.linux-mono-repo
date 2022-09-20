@@ -11,6 +11,7 @@ Resource    ../shared/ErrorMarkers.robot
 Library         Collections
 Library         Process
 Library         ../Libs/CoreDumps.py
+Library         ../Libs/FileUtils.py
 Library         ../Libs/FullInstallerUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
@@ -657,13 +658,15 @@ Check AV installer sets correct home directory for the users it creates
     Should Be Equal As Strings  ${homedir}  /opt/sophos-spl
 
 IDE Update Invalidates On Access Cache
+    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
+    Wait Until On Access Log Contains With Offset   On-open event for
+
     Register Cleanup  Exclude On Access Scan Errors
-    ${srcfile} =  Set Variable  /tmp_test_two/clean.txt
-    ${destpath} =  Set Variable  /tmp_test/
+    ${srcfile} =  Set Variable  /tmp_test/clean.txt
     Create File  ${srcfile}  clean
-    ${destfile} =  Copy File    ${srcfile}  ${destpath}
-    Register Cleanup  Remove File  ${destfile}
-    Register Cleanup  Remove Directory  /tmp_test_two  recursive=True
+    Generate Only Open Event  ${srcfile}
+    Register Cleanup  Remove File  ${srcfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from
     # Allow time for file to be added to cache
     Sleep  1s
@@ -674,7 +677,7 @@ IDE Update Invalidates On Access Cache
     Sleep  2s
 
     Mark On Access Log
-    Copy File    ${srcfile}  ${destpath}
+    Generate Only Open Event  ${srcfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from  timeout=60
 
 
