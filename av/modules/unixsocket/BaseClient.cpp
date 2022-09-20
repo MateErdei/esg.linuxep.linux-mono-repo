@@ -7,6 +7,7 @@
 // Std C++
 #include <cassert>
 // Std C
+#include <tuple>
 #include <sys/socket.h>
 #include <sys/un.h>
 

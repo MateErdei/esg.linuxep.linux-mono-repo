@@ -130,7 +130,7 @@ namespace unixsocket
             return false;
         }
 
-        virtual void killThreads()
+        void killThreads() override
         {
             for (auto& thread : m_threadVector)
             {

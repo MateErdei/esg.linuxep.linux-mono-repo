@@ -67,6 +67,7 @@ void ScanRequestHandler::scan(
                 if (ret < 0)
                 {
                     int error = errno;
+                    std::ignore = error; // Fuzz builds compile out LOGDEBUG
                     std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
                     LOGWARN("Caching " << escapedPath << " failed: " << common::safer_strerror(error));
                 }
