@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <importspec>
   <warehouses>
-    <warehouse id="sspl" name="DNR_SSPL_SPRINT_2022_33"/>
+    <warehouse id="sspl" name="DNR_SSPL_SPRINT_2022_39"/>
   </warehouses>
   <imports>
     <line id="ServerProtectionLinux-Base">
@@ -220,11 +220,11 @@
                  shortdic="Sophos Linux Event Journaler"/>
     </line>
     <line id="ServerProtectionLinux-Plugin-RuntimeDetections">
-      <component id="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.0.235"
-                 version="5.0.0.235"
-                 artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--2022-39/20220920125207-bb96c6fe91159ccc4445aed1706addf6e3038f81-T6awSO/SDDS-COMPONENT/"
-                 longdic="Sophos Linux Runtime Detection Plugin"
-                 shortdic="Sophos Linux Runtime Detection Plugin"/>
+<!--      <component id="ServerProtectionLinux-Plugin-RuntimeDetections-5.0.0.235"-->
+<!--                 version="5.0.0.235"-->
+<!--                 artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release&#45;&#45;2022-39/20220920125207-bb96c6fe91159ccc4445aed1706addf6e3038f81-T6awSO/SDDS-COMPONENT/"-->
+<!--                 longdic="Sophos Linux Runtime Detection Plugin"-->
+<!--                 shortdic="Sophos Linux Runtime Detection Plugin"/>-->
       <component id="ServerProtectionLinux-Plugin-RuntimeDetections-5.1.0.19"
                  version="5.1.0.19"
                  artifact="esg-releasable-candidate/linuxep.capsule8-sensor/release--sensor--version_5_1_0/20220826141214-bdc433d19bc8bb820631301a200144ba0afb4032-IAlICR/SDDS-COMPONENT/"
