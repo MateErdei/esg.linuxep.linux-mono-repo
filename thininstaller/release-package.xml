@@ -6,8 +6,8 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/Version_1_2_0"
-                             build-id="20220906211942-e727d07917760a9489454fc3ff63eda3bcca1f71-y2G05t"/>
+            <release-version branch="release/2022-39"
+                             build-id="20220920080453-6a5a0c6601e8c1988f7c9311f638a657d3990747-NtZgBC"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
