@@ -69,12 +69,10 @@ On Access Test Teardown
 *** Test Cases ***
 
 On Access Scans A File When It Is Closed Following A Write
-    Mark On Access Log
     On-access Scan Eicar Close
 
 
 On Access Scans A File When It Is Opened
-    Mark On Access Log
     On-access Scan Eicar Open
 
 
