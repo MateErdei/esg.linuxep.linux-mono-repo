@@ -3,7 +3,7 @@
     <inputs>
         <workingdir>/tmp/system-product-test-inputs</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-5462-add-oracle-7-to-nightly-spl-tests"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="sspl-base"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/SDDS3-PACKAGE" dest-dir="sspl-base-sdds3"/>
             <include mode="system-test,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-base/system_test" dest-dir="SystemProductTestOutput"/>
