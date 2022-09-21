@@ -5,9 +5,9 @@
   </warehouses>
   <imports>
     <line id="ServerProtectionLinux-Base">
-      <componentsuite id="ServerProtectionLinux-Base-1.2.0.6"
-                      version="1.2.0.6"
-                      artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--2022-39/20220920152042-bb1a9391e80cc51e8e215d27afd8ef63fb62d54f-HGrBTn/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
+      <componentsuite id="ServerProtectionLinux-Base-1.2.0.7"
+                      version="1.2.0.7"
+                      artifact="esg-releasable-candidate/linuxep.sspl-plugin-edr-componentsuite/release--2022-39/20220921163257-bb1a9391e80cc51e8e215d27afd8ef63fb62d54f-VWZ3NJ/sspl-componentsuite/SDDS-SSPL-COMPONENT-SUITE/"
                       longdic="Sophos Linux Base"
                       shortdic="Sophos Linux Base"/>
       <componentsuite id="ServerProtectionLinux-Base-1.2.0.5"
