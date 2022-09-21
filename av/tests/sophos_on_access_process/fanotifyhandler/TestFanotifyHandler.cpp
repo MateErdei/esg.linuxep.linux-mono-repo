@@ -92,7 +92,7 @@ TEST_F(TestFanotifyHandler, errorWhenCacheFdFails)
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 
     EXPECT_EQ(-1, handler.cacheFd(fileFd, "/expected"));
-    EXPECT_TRUE(waitForLog("fanotify_mark failed: cacheFd : File exists Path: /expected"));
+    EXPECT_TRUE(waitForLog("fanotify_mark failed in cacheFd: File exists for: /expected"));
 }
 
 TEST_F(TestFanotifyHandler, markMountReturnsZeroForSuccess)
@@ -129,5 +129,13 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFails)
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 
     EXPECT_EQ(-1, handler.markMount(path));
-    EXPECT_TRUE(waitForLog("fanotify_mark failed: markMount : File exists Path: /expected"));
+    EXPECT_TRUE(waitForLog("fanotify_mark failed in markMount: File exists for: /expected"));
+}
+
+TEST_F(TestFanotifyHandler, clearCacheWithoutInit)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
+
+    EXPECT_NO_THROW(handler.updateComplete());
 }
