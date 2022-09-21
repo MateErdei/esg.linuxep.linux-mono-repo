@@ -214,7 +214,7 @@ namespace Plugin
 
     void PluginAdapter::processFlags(const std::string& flagsJson)
     {
-        LOGINFO("Flags! " << flagsJson);
+        LOGDEBUG("Flags Policy received: " << flagsJson);
         m_policyProcessor.processFlagSettings(flagsJson);
     }
 
