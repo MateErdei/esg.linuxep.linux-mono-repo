@@ -259,6 +259,6 @@
         </build-asset>
         <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="debug"/>
 
-        <publishbranches>master,feature,release,develop,bugfix</publishbranches>
+        <publishbranches>master,feature,release,develop,bugfix,debug</publishbranches>
     </publish>
 </package>
