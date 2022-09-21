@@ -171,8 +171,8 @@ Update before Init then Restart Threat Detector
     Process Should Be Running   ${cls_handle}
     Mark Log   ${LOG_FILE}
     Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
+    ...  20 secs
+    ...  2 secs
     ...  File Log Contains With Offset   ${LOG_FILE}   Scanning   ${LOG_MARK}
 
     # Stop CLS
@@ -672,7 +672,7 @@ IDE Update Invalidates On Access Cache
     Install IDE without reload check  ${IDE_NAME}
     Wait Until On Access Log Contains With Offset  Clearing on-access cache
     # Allow time for cache to be cleared
-    Sleep  2s
+    Sleep  5s
 
     Mark On Access Log
     Generate Only Open Event  ${srcfile}
