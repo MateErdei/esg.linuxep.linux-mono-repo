@@ -211,7 +211,7 @@ On Access Process Handles Consecutive Process Control Requests
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
-    Wait Until On Access Log Contains With Offset  Policy override is enabled, on-access will be disabled
+    Wait Until On Access Log Contains With Offset  Overriding policy, on-access will be disabled
 
     On-access No Eicar Scan
 
@@ -251,7 +251,7 @@ On Access Is Disabled After it Receives Disable Flags
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   Policy override is enabled, on-access will be disabled
+    Wait Until On Access Log Contains With Offset   Overriding policy, on-access will be disabled
     Wait Until On Access Log Contains With Offset   Stopping the reading of Fanotify events
 
     On-access No Eicar Scan
@@ -259,17 +259,17 @@ On Access Is Disabled After it Receives Disable Flags
     Dump Log  ${on_access_log_path}
 
 
-On Access Does not Use Policy Setttings If Flags Have Overriden Policy
+On Access Does not Use Policy Settings If Flags Have Overriden Policy
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset  Policy override is enabled, on-access will be disabled
+    Wait Until On Access Log Contains With Offset  Overriding policy, on-access will be disabled
 
     Mark On Access Log
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   Policy override is enabled, on-access will be disable
+    Wait Until On Access Log Contains With Offset   Overriding policy, on-access will be disabled
     On-access No Eicar Scan
 
     Dump Log  ${on_access_log_path}
