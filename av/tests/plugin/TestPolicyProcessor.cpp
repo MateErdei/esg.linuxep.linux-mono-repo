@@ -731,7 +731,7 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsEnabled)
     proc.processFlagSettings("{\"av.oa_enabled\": true, \"safestore.enabled\": true}");
 
     EXPECT_TRUE(appenderContains(
-        "On-access is enabled in the FLAGS policy, notifying soapd to disable on-access policy override"));
+        "On-access is enabled in the FLAGS policy, assuming on-access policy settings"));
     EXPECT_TRUE(appenderContains("Safestore flag set. Setting Safestore to enabled."));
 }
 
@@ -756,7 +756,7 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
     proc.processFlagSettings("{\"av.oa_enabled\": false, \"safestore.enabled\": false}");
 
     EXPECT_TRUE(appenderContains(
-        "On-access is disabled in the FLAGS policy, notifying soapd to enable on-access policy override"));
+        "On-access is disabled in the FLAGS policy, overriding on-access policy settings"));
     EXPECT_TRUE(appenderContains("Safestore flag not set. Setting Safestore to disabled."));
 }
 
@@ -834,7 +834,7 @@ TEST_F(TestPolicyProcessor, testWriteFlagConfigFailedSafeStore)
     proc.processFlagSettings("{\"av.oa_enabled\": true}");
 
     EXPECT_TRUE(appenderContains(
-        "On-access is enabled in the FLAGS policy, notifying soapd to disable on-access policy override"));
+        "On-access is enabled in the FLAGS policy, assuming on-access policy settings"));
     EXPECT_TRUE(appenderContains(
         "Failed to write Flag Config, Sophos SafeStore Process will use the default settings (safestore disabled)"));
 }

@@ -297,14 +297,12 @@ namespace Plugin
         {
             if (flagsJson[OA_FLAG] == true)
             {
-                LOGINFO("On-access is enabled in the FLAGS policy, notifying soapd to disable on-access policy "
-                        "override");
+                LOGINFO("On-access is enabled in the FLAGS policy, assuming on-access policy settings");
                 oaEnabled = true;
             }
             else
             {
-                LOGINFO("On-access is disabled in the FLAGS policy, notifying soapd to enable on-access policy "
-                        "override");
+                LOGINFO("On-access is disabled in the FLAGS policy, overriding on-access policy settings");
             }
         }
         else
