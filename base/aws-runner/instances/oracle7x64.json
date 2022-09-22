@@ -27,13 +27,7 @@
         {"Key" : "Name", "Value" : "oracle7x64" },
         {"Key" : "RootStackname", "Value" : "SSPL" }
       ],
-      "NetworkInterfaces" : [{
-        "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
-        "AssociatePublicIpAddress" : "true",
-        "DeviceIndex"              : "0",
-        "DeleteOnTermination"      : "true",
-        "SubnetId"                 : { "Ref" : "Subnet1" }
-      }],
+      "SecurityGroupIds": ["sg-09bb5dbd7eb4ec5fb"],
       "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
         "#!/bin/bash\n",
         "echo 'Testing ", {"Ref": "BuildName"},"'\n",
@@ -53,7 +47,7 @@
         "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
         "yum install -y make iptables openssl python3 zip >> /tmp/cloudFormationInit.log 2>&1\n",
         "python3 -m pip install --upgrade nest_asyncio awscli robotframework psutil zmq protobuf paramiko watchdog cryptography==3.3.1 python-dateutil requests enum34 packaging 2>&1 >>/tmp/cloudFormationInit.log\n",
-        "python3 -m awscli s3 cp s3://sspl-testbucket/sspl/sspl-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
+        "python3 -m awscli s3 cp s3://sspl-testbucket/sspl/sspl-test-clara.tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
         "mkdir -p /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
         "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
         "tar xvzf /opt/sspl/pipCache.tar.gz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
@@ -62,8 +56,7 @@
         "export TAP_VENV=/opt/sspl/tap-venv/bin/activate\n",
         "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ >> /tmp/cloudFormationInit.log 2>&1\n",
         "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
-        "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
-        "poweroff\n"
+        "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n"
       ]]}}
     }
   }
