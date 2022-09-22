@@ -50,6 +50,8 @@ On Access Test Setup
     Start Av Plugin If Not Running
     Start Sophos Threat Detector If Not Running
     Register Cleanup  Clear On Access Log When Nearly Full
+    Register Cleanup  Check All Product Logs Do Not Contain Error
+    Register Cleanup  Exclude On Access Scan Errors
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
@@ -60,7 +62,6 @@ On Access Test Teardown
     List AV Plugin Path
     #Wait Until On Access Log Contains With Offset  Scan Queue is empty    timeout=${timeout}
     run teardown functions
-    Check All Product Logs Do Not Contain Error
 
     Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
