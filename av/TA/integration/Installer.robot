@@ -664,7 +664,7 @@ IDE Update Invalidates On Access Cache
     Register Cleanup  Exclude On Access Scan Errors
     ${srcfile} =  Set Variable  /tmp_test/clean.txt
     Create File  ${srcfile}  clean
-    Generate Only Open Event  ${srcfile}
+    Get File  ${srcfile}
     Register Cleanup  Remove File  ${srcfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from
     # Allow time for file to be added to cache
@@ -676,7 +676,7 @@ IDE Update Invalidates On Access Cache
     Sleep  5s
 
     Mark On Access Log
-    Generate Only Open Event  ${srcfile}
+    Get File  ${srcfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from  timeout=60
 
 

@@ -25,8 +25,6 @@ ${TESTTMP}  /tmp_test/SSPLAVTests
 
 
 *** Keywords ***
-
-#Keep On Access/AV/ThreatDetector running throughout suite
 On Access Suite Setup
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
@@ -60,7 +58,6 @@ On Access Test Setup
 
 On Access Test Teardown
     List AV Plugin Path
-    #Wait Until On Access Log Contains With Offset  Scan Queue is empty    timeout=${timeout}
     run teardown functions
 
     Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
@@ -417,3 +414,114 @@ On Access Doesnt Scan On Access Events
     On-access Scan Eicar Open
 
     On Access Log Does Not Contain With Offset  from Process ${ON_ACCESS_BIN}
+
+
+On Access Caches Open Events Without Detections
+    ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
+
+    Create File   ${cleanfile}   ${CLEAN_STRING}
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup   Remove File   ${cleanfile}
+    Register Cleanup   Remove File   ${dirtyfile}
+
+    Get File   ${cleanfile}
+    Sleep   1  #Let the event be cached
+
+    Mark On Access Log
+    Get File   ${cleanfile}
+
+    #Generate another event we can expect in logs
+    Get File   ${dirtyfile}
+    Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}
+    On Access Log Does Not Contain With Offset   On-open event for ${cleanfile} from
+
+
+On Access Doesnt Cache Open Events With Detections
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
+
+    Mark On Access Log
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup   Remove File   ${dirtyfile}
+
+    Sleep   1  #Let the event be cached
+
+    Get File   ${dirtyfile}
+
+    Wait Until On Access Log Contains Times With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}    times=2
+    Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
+
+
+On Access Doesnt Cache Close Events Without Detections
+    ${srcfile} =  Set Variable  /tmp_test/cleanfile.txt
+    ${destdir} =  Set Variable  /tmp_test_two
+    ${destfile} =  Set Variable  ${destdir}/cleanfile.txt
+
+    Mark On Access Log
+    Create File  ${srcfile}  ${CLEAN_STRING}
+    Register Cleanup   Remove File   ${srcfile}
+
+    Copy File No Temp Directory   ${srcfile}   ${destdir}
+    Register Cleanup   Remove File   ${destfile}
+
+    Sleep   1  #Let the event (hopefully not) be cached
+
+    Copy File No Temp Directory   ${srcfile}   ${destdir}
+    Wait Until On Access Log Contains Times With Offset  On-close event for ${destfile} from    timeout=${timeout}  times=2
+
+
+On Access Doesnt Cache Close Events With Detections
+    ${srcfile} =  Set Variable  /tmp_test/dirtyfile.txt
+    ${destdir} =  Set Variable  /tmp_test_two
+    ${destfile} =  Set Variable  ${destdir}/dirtyfile.txt
+
+    Mark On Access Log
+    Create File  ${srcfile}  ${EICAR_STRING}
+    Register Cleanup   Remove File   ${srcfile}
+
+    Copy File No Temp Directory   ${srcfile}   ${destdir}
+    Register Cleanup   Remove File   ${destfile}
+
+    Sleep   1  #Let the event (hopefully not) be cached
+
+    Copy File No Temp Directory   ${srcfile}   ${destdir}
+
+    Wait Until On Access Log Contains Times With Offset  On-close event for ${destfile} from    timeout=${timeout}  times=2
+    Wait Until On Access Log Contains Times With Offset  Detected "${destfile}" is infected with EICAR-AV-Test (Close-Write)   timeout=${timeout}  times=2
+
+
+On Access Processes New File With Same Attributes And Contents As Old File
+    ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
+
+    Mark On Access Log
+    Create File   ${cleanfile}   ${CLEAN_STRING}
+    Register Cleanup   Remove File   ${cleanfile}
+
+    Get File   ${cleanfile}
+    Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
+    Sleep   1  #Let the event be cached, Create File can create a combined event which wont be cached
+
+    Remove File   ${cleanfile}
+
+    Mark On Access Log
+    Create File   ${cleanfile}   ${CLEAN_STRING}
+    Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
+
+
+On Access Detects A Clean File Replaced By Dirty File With Same Attributes
+    ${dustyfile} =  Set Variable  /tmp_test/notcleanforlongfile.txt
+    Mark On Access Log
+    Create File   ${dustyfile}   ${CLEAN_STRING}
+    Register Cleanup   Remove File   ${dustyfile}
+
+    Get File   ${dustyfile}
+    Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
+    Sleep   1  #Let the event be cached,
+
+    Remove File   ${dustyfile}
+
+    Mark On Access Log
+    Create File   ${dustyfile}   ${EICAR_STRING}
+    Get File   ${dustyfile}
+    Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
+    Wait Until On Access Log Contains With Offset  Detected "${dustyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}

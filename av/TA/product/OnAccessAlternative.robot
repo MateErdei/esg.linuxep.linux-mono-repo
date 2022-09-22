@@ -27,8 +27,6 @@ ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
 ${timeout}  ${60}
 
 *** Keywords ***
-#Restart On Access/AV/Threat Detector each test
-
 On Access Alternative Suite Setup
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
