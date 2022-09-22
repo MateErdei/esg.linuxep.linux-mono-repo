@@ -39,9 +39,8 @@ export PATH="$REDIST/gcc/bin:${PATH}"
 export LIBRARY_PATH=$REDIST/gcc/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
 export CPLUS_INCLUDE_PATH=$REDIST/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
 
-if [[ -f "$INPUT/cmake/bin/cmake" ]]
+if [[ -f "$REDIST/cmake/bin/cmake" ]]
 then
-    ln -sf $INPUT/cmake $REDIST/cmake
     CMAKE=${REDIST}/cmake/bin/cmake
 else
     echo "WARNING: using system cmake"
