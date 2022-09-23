@@ -1,17 +1,18 @@
-from os.path import normpath, isfile, isdir, join
-import sys
-from os import environ, mkdir, makedirs
+import base64
 import os
 import subprocess
-import base64
+import sys
+from os import environ, mkdir, makedirs
+from os.path import isfile, isdir, join
+
 
 class Sign:
 
-    def __init__( self, logger ):
+    def __init__(self, logger):
         self.logger = logger
 
-    def signManifest( self, chksumfile, signPrivKey, signPubCert,
-                      manifest, opensslExe, interCert ):
+    def signManifest(self, chksumfile, signPrivKey, signPubCert,
+                     manifest, opensslExe, interCert):
 
         signPubCertData = None
         interCertData = None
@@ -20,43 +21,42 @@ class Sign:
         self.forceUnlink(manifest)
         self.dos2unix(chksumfile, manifest)
 
-        self.logger.statusMessage( "Preparing to sign manifest" )
+        self.logger.statusMessage("Preparing to sign manifest")
 
         sig = self.sign(chksumfile, signPrivKey, opensslExe)
 
         append = open(manifest, "a+b")
-        append.write("-----BEGIN SIGNATURE-----\012")
+        append.write(b"-----BEGIN SIGNATURE-----\n")
         append.write(sig)
-        append.write("-----END SIGNATURE-----\012")
+        append.write(b"-----END SIGNATURE-----\n")
         append.close()
         signPubCertData = self.dos2unix2(signPubCert, manifest)
         interCertData = self.dos2unix2(interCert, manifest)
 
         return sig, signPubCertData, interCertData
 
-    def sign( self, datafile, certfile, opensslExe ):
-        cmd = [opensslExe,'sha1','-sign',certfile,datafile]
-        #~ cmd = '%s sha1 -sign "%s" "%s" | %s base64' % \
-                #~ (opensslExe, certfile, datafile, opensslExe)
-        self.logger.statusMessage( "Using command: '%s'" % ( str(cmd) ) )
-        proc = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        (stdout,error) = proc.communicate()
+    def sign(self, datafile, certfile, opensslExe):
+        cmd = [opensslExe, 'sha1', '-sign', certfile, datafile]
+        # ~ cmd = f'{opensslExe} sha1 -sign "{certfile}" "{datafile}" | {opensslExe} base64'
+        self.logger.statusMessage(f"Using command: '{str(cmd)}'")
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout, error) = proc.communicate()
         exitStatus = proc.wait()
 
-        if error != "" or exitStatus > 0:
-            self.logger.errorMessage( "Failed to sign manifest with exit=%d error='%s'" % ( exitStatus,error ) )
-            self.logger.errorMessage( "LD_LIBRARY_PATH='%s'" % (os.environ.get("LD_LIBRARY_PATH","<NONE>")))
-            self.logger.errorMessage( "PATH='%s'" % (os.environ.get("PATH","<NONE>") ) )
-            raise Exception("Failed to run openssl exit=%d error=%s"%(exitStatus,error))
+        if error.decode() != "" or exitStatus > 0:
+            self.logger.errorMessage(f"Failed to sign manifest with exit={exitStatus} error='{error}'")
+            self.logger.errorMessage(f"LD_LIBRARY_PATH='{os.environ.get('LD_LIBRARY_PATH', '<NONE>')}'")
+            self.logger.errorMessage(f"PATH='{os.environ.get('PATH', '<NONE>')}'")
+            raise Exception(f"Failed to run openssl exit={exitStatus} error={error}")
         else:
-            self.logger.statusMessage( "Success" )
+            self.logger.statusMessage("Success")
             return base64.b64encode(stdout)
 
-    def forceUnlink( self, file ):
-        if os.path.exists(file) :
+    def forceUnlink(self, file):
+        if os.path.exists(file):
             os.unlink(file)
 
-    def dos2unix( self, filename, output, append = 1 ):
+    def dos2unix(self, filename, output, append=1):
         try:
             os.makedirs(os.path.dirname(output))
         except EnvironmentError:
@@ -66,26 +66,27 @@ class Sign:
             out = open(output, "a+b")
         else:
             out = open(output, "w+b")
-        for line in open(filename,'rb').readlines():
-            out.write(line[:-1] + '\012')
-            output = output + line
+        for line in open(filename, 'rb').readlines():
+            out.write(line[:-1] + b'\n')
+            output = output + line.decode()
 
         return output
 
-    def dos2unix2( self, filename ,output, append = 1 ):
+    def dos2unix2(self, filename, output, append=1):
         if append:
             out = open(output, "a+b")
         else:
             out = open(output, "w+b")
-        for line in open(filename, 'r').readlines():
-            out.write(line[:-1] + '\012')
-            output = output + line
+        for line in open(filename, 'rb').readlines():
+            out.write(line[:-1] + b'\n')
+            output = output + line.decode()
 
         return output
 
+
 class sdds_platform_class:
 
-    def __init__( self ):
+    def __init__(self):
 
         self.cwd = os.getcwd()
         self.scriptdir = os.path.dirname(sys.argv[0])
@@ -98,16 +99,16 @@ class sdds_platform_class:
         self.TEMP_DIR = self._getTempDir()
         self.OPENSSL = self._getOpenSSL()
 
-    def examine( self, path ):
-        p = os.path.normpath(os.path.join(self.cwd,path))
+    def examine(self, path):
+        p = os.path.normpath(os.path.join(self.cwd, path))
         if os.path.exists(p): return p
 
-        p2 = os.path.normpath(os.path.join(self.scriptdir,path))
+        p2 = os.path.normpath(os.path.join(self.scriptdir, path))
         if os.path.exists(p2): return p2
 
         return p
 
-    def __setattr__( self, name, value ):
+    def __setattr__(self, name, value):
         '''
         Make sure directory structure is prepared for Data files
         '''
@@ -115,10 +116,10 @@ class sdds_platform_class:
         if name is 'DATA_DIRECTORY':
             try:
                 makedirs(value)
-            except Exception, e:
+            except Exception as e:
                 pass
 
-    def _getTempDir( self ):
+    def _getTempDir(self):
         '''
         Gets temp directory location (creates it if necessary)
         Default directory is environ(TMPDIR) or environ(TMP) or environ(TEMP)
@@ -143,8 +144,7 @@ class sdds_platform_class:
 
         return tmpdir
 
-
-    def _getOpenSSL( self ):
+    def _getOpenSSL(self):
         '''
         Get platform dependent location of OpenSSL
         '''
@@ -165,5 +165,6 @@ class sdds_platform_class:
             except KeyError:
                 # fallback to default openssl
                 return 'openssl'
+
 
 sdds_platform = sdds_platform_class()

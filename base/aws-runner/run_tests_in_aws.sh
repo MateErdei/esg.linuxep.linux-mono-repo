@@ -79,7 +79,8 @@ if [[ -z "$SKIP_TAR_COPY" ]]
 then
     aws s3 cp "$TEST_TAR" ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME} || failure "Unable to copy test tarfile to s3"
 fi
-rm $TEST_TAR
+# Don't remove tar if $STACK is provided (for local testing)
+[[ -n $STACK ]] || rm $TEST_TAR
 
 function delete_stack()
 {
@@ -342,6 +343,7 @@ combineResults()
   python3 -m robot.rebot --merge -o ./results-combine-workspace/oracle8x64-output.xml -l none -r none -N oracle8x64  ./results/oracle8x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel78x64-output.xml -l none -r none -N rhel78x64  ./results/rhel78x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel81x64-output.xml -l none -r none -N rhel81x64  ./results/rhel81x64*
+  python3 -m robot.rebot --merge -o ./results-combine-workspace/rhel9x64-output.xml -l none -r none -N rhel9x64  ./results/rhel9x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu1804minimal-output.xml -l none -r none -N ubuntu1804minimal  ./results/ubuntu1804minimal*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu1804x64-output.xml -l none -r none -N ubuntu1804x64  ./results/ubuntu1804x64*
   python3 -m robot.rebot --merge -o ./results-combine-workspace/ubuntu2004-output.xml -l none -r none -N ubuntu2004  ./results/ubuntu2004*
@@ -358,6 +360,7 @@ combineResults()
   python3 -m robot.rebot -l ./results/oracle8x64-log.html -r ./results/oracle8x64-report.html -N combined ./results-combine-workspace/oracle8x64-output.xml
   python3 -m robot.rebot -l ./results/rhel78x64-log.html -r ./results/rhel78x64-report.html -N combined ./results-combine-workspace/rhel78x64-output.xml
   python3 -m robot.rebot -l ./results/rhel81x64-log.html -r ./results/rhel81x64-report.html -N combined ./results-combine-workspace/rhel81x64-output.xml
+  python3 -m robot.rebot -l ./results/rhel9x64-log.html -r ./results/rhel9x64-report.html -N combined ./results-combine-workspace/rhel9x64-output.xml
   python3 -m robot.rebot -l ./results/ubuntu1804minimal-log.html -r ./results/ubuntu1804minimal-report.html -N combined ./results-combine-workspace/ubuntu1804minimal-output.xml
   python3 -m robot.rebot -l ./results/ubuntu1804x64-log.html -r ./results/ubuntu1804x64-report.html -N combined ./results-combine-workspace/ubuntu1804x64-output.xml
   python3 -m robot.rebot -l ./results/ubuntu2004-log.html -r ./results/ubuntu2004-report.html -N combined ./results-combine-workspace/ubuntu2004-output.xml

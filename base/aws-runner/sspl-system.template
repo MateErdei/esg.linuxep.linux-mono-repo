@@ -124,6 +124,11 @@
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "rhel81x64"]}
         ]},
+    "RunRhel9x64" : {"Fn::Or": [
+            {"Condition" : "RunRhel"},
+            {"Condition" : "RunAll"},
+            {"Fn::Equals" : [{"Ref" : "RunOne"}, "rhel9x64"]}
+            ]},
     "RunUbuntu1804Minimal" : {"Fn::Or": [
         {"Condition" : "RunUbuntu"},
         {"Condition" : "RunAll"},

@@ -21,6 +21,7 @@ instances = {
     "oracle8x64": getInstanceJsonAsString("oracle8x64"),
     "rhel78x64": getInstanceJsonAsString("rhel78x64"),
     "rhel81x64": getInstanceJsonAsString("rhel81x64"),
+    "rhel9x64": getInstanceJsonAsString("rhel9x64"),
     "ubuntu1804minimal": getInstanceJsonAsString("ubuntu1804minimal"),
     "ubuntu1804x64": getInstanceJsonAsString("ubuntu1804x64"),
     "ubuntu2004": getInstanceJsonAsString("ubuntu2004"),

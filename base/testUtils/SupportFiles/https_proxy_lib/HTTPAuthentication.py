@@ -54,7 +54,7 @@ class AuthHandler(object):
             self.message = message
 
     def send_407(self, message="Proxy Authentication Required"):
-        print >>sys.stderr,'AuthHandler:send_407'
+        print('AuthHandler:send_407', file=sys.stderr)
         self.code = 407
         self.message = message
 
@@ -62,7 +62,7 @@ class AuthHandler(object):
         self.outHeader[keyword] = value
 
     def end_headers(self):
-        print >>sys.stderr,'AuthHandler:end_headers'
+        print('AuthHandler:end_headers', file=sys.stderr)
         body = ("<html><head><title>Error</title></head>" +
                 "<body><h1>%s %s.</h1></body>"%(self.code,self.message) +
                 "</html>")

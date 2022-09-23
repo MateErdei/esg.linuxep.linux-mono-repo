@@ -48,6 +48,8 @@ def get_platform():
                     return "centos"
                 if "MIRACLE LINUX release" in contents:
                     return "miraclelinux"
+                if "Red Hat Enterprise Linux" in contents:
+                    return "rhel"
         except FileNotFoundError:
             pass
         try:
@@ -72,7 +74,7 @@ def get_expected_files_for_platform():
     elif "ubuntu" == platform:
         return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release"]
     elif "rhel" == platform:
-        return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release", "boot.log", "selinux-config"]
+        return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release", "selinux-config"]
     elif "debian" == platform:
         return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release"]
     elif "oracle" == platform:

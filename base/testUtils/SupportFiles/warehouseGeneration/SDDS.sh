@@ -47,7 +47,7 @@ function failure()
 function runPython()
 {
     announceFunction $FUNCNAME "$@"
-    python  "$@"
+    python3  "$@"
     local RETCODE=$?
     return $RETCODE
 }

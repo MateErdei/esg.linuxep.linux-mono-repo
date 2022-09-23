@@ -1,7 +1,6 @@
 from ManagementAgentController import ManagementAgentController
 from common.messages import *
 
-
 # Globals
 CONTROLLER = ManagementAgentController(b"ipc://{}/fake_management_controller.ipc".format(IPC_DIR))
 
@@ -30,33 +29,33 @@ def get_control_message_enum(command):
             return enum
     return None
 
+
 def print_usage():
-    print "Usage"
-    print "{} <APPID> <PluginName>".format(Commands.LINK_APPID_PLUGIN.value)
-    print "{} <APPID> <PluginName>".format(Commands.REQUEST_STATUS.value)
-    print "{} <PluginName> <Action>".format(Commands.DO_ACTION.value)
-    print "{} <APPID> <PolicyString>".format(Commands.APPLY_POLICY.value)
-    print "{} <APPID> <PolicyFile>".format(Commands.APPLY_POLICY_FILE.value)
-    print "{} <PluginName>".format(Commands.REQUEST_TELEMETRY.value)
-    print "{}".format(Commands.GET_REGISTERED_PLUGINS.value)
-    print "{} <APPID> <PolicyString>".format(Commands.SET_POLICY.value)
-    print "{} <APPID> <PolicyFile>".format(Commands.SET_POLICY_FILE.value)
-    print "{}".format(Commands.DEREGISTER_PLUGINS.value)
-    print "{} <PluginAPICommand> <Response> <Payload> <APPID>".format(Commands.QUEUE_REPLY.value)
-    print "{} <PluginName> <ContentsA> <ContentsB> <Contents...>".format(Commands.CUSTOM_MESSAGE_TO_PLUGIN.value)
-    print "{}".format(Commands.STOP.value)
+    print("Usage")
+    print(f"{Commands.LINK_APPID_PLUGIN.value} <APPID> <PluginName>")
+    print(f"{Commands.REQUEST_STATUS.value} <APPID> <PluginName>")
+    print(f"{Commands.DO_ACTION.value} <PluginName> <Action>")
+    print(f"{Commands.APPLY_POLICY.value} <APPID> <PolicyString>")
+    print(f"{Commands.APPLY_POLICY_FILE.value} <APPID> <PolicyFile>")
+    print(f"{Commands.REQUEST_TELEMETRY.value} <PluginName>")
+    print(f"{Commands.GET_REGISTERED_PLUGINS.value}")
+    print(f"{Commands.SET_POLICY.value} <APPID> <PolicyString>")
+    print(f"{Commands.SET_POLICY_FILE.value} <APPID> <PolicyFile>")
+    print(f"{Commands.DEREGISTER_PLUGINS.value}")
+    print(f"{Commands.QUEUE_REPLY.value} <PluginAPICommand> <Response> <Payload> <APPID>")
+    print(f"{Commands.CUSTOM_MESSAGE_TO_PLUGIN.value} <PluginName> <ContentsA> <ContentsB> <Contents...>")
+    print(f"{Commands.STOP.value}")
 
 
 def handle_actions(action, contents):
-
     # Must always be an action
     if action is None:
-        print "Action to handle is None"
+        print("Action to handle is None")
         return 1
 
     if action == Commands.REQUEST_STATUS:
         if len(contents) < 2:
-            print "Please an APPID and plugin name"
+            print("Please an APPID and plugin name")
             return
         app_id = contents[0]
         plugin_name = contents[1]
@@ -64,7 +63,7 @@ def handle_actions(action, contents):
 
     elif action == Commands.DO_ACTION:
         if len(contents) < 3:
-            print "Please provide APPID, plugin name and action XML."
+            print("Please provide APPID, plugin name and action XML.")
             return
         app_id = contents[0]
         plugin_name = contents[1]
@@ -73,7 +72,7 @@ def handle_actions(action, contents):
 
     elif action == Commands.APPLY_POLICY:
         if len(contents) < 2:
-            print "Please provide APPID, plugin name and policy XML."
+            print("Please provide APPID, plugin name and policy XML.")
             return
         app_id = contents[0]
         policy = contents[1]
@@ -81,21 +80,21 @@ def handle_actions(action, contents):
 
     elif action == Commands.APPLY_POLICY_FILE:
         if len(contents) < 2:
-            print "Please provide APPID, plugin name and policy XML file path."
+            print("Please provide APPID, plugin name and policy XML file path.")
             return
 
         app_id = contents[0]
         filename = contents[1]
         if not os.path.isfile(filename):
-            print "Policy file does not exist: {}".format(filename)
+            print(f"Policy file does not exist: {filename}")
             return
         with open(filename, "r") as f:
-                policy = f.read()
+            policy = f.read()
         return CONTROLLER.apply_policy(app_id, policy)
 
     elif action == Commands.REQUEST_TELEMETRY:
         if len(contents) < 1:
-            print "Please provide plugin name."
+            print("Please provide plugin name.")
             return
         return CONTROLLER.request_telemetry(contents[0])
 
@@ -104,7 +103,7 @@ def handle_actions(action, contents):
 
     elif action == Commands.SET_POLICY:
         if len(contents) < 2:
-            print "Please provide APPID and policy XML."
+            print("Please provide APPID and policy XML.")
             return
         app_id = contents[0]
         policy = contents[1]
@@ -112,12 +111,12 @@ def handle_actions(action, contents):
 
     elif action == Commands.SET_POLICY_FILE:
         if len(contents) < 2:
-            print "Please provide APPID and policy XML file path."
+            print("Please provide APPID and policy XML file path.")
             return
         app_id = contents[0]
         filename = contents[1]
         if not os.path.isfile(filename):
-            print "Policy file does not exist: {}".format(filename)
+            print(f"Policy file does not exist: {filename}")
             return
         with open(filename, "r") as f:
             policy = f.read()
@@ -159,13 +158,13 @@ def handle_actions(action, contents):
         CONTROLLER.stop()
     elif action == Commands.LINK_APPID_PLUGIN:
         if len(contents) < 2:
-            print "Please provide APPID and plugin name."
+            print("Please provide APPID and plugin name.")
             return 1
         app_id = contents[0]
         plugin_name = contents[1]
         CONTROLLER.link_appid_plugin(app_id, plugin_name)
     else:
-        print "Unrecognised action to handle: {}".format(action)
+        print(f"Unrecognised action to handle: {action}")
         return 1
 
 
@@ -180,11 +179,11 @@ def main(argv):
         action_raw = argv[1]
         action_enum = get_control_message_enum(action_raw)
         if action_enum is None:
-            print "Unrecognised action: {}".format(action_raw)
+            print(f"Unrecognised action: {action_raw}")
             exit(1)
 
     contents = argv[2:]
-    print contents
+    print(contents)
 
     return handle_actions(action_enum, contents)
 

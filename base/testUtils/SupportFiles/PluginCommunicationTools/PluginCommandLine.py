@@ -28,28 +28,28 @@ def get_control_message_enum(command):
             return enum
     return None
 
+
 def print_usage():
-    print "Usage"
-    print "<PluginName> {}".format(Commands.DO_REGISTRATION.value)
-    print "<PluginName> {}".format(Commands.DO_REQUEST_POLICY.value)
-    print "<PluginName> {} <APPID> <EventXmlString>".format(Commands.DO_SEND_EVENT.value)
-    print "<PluginName> {} <APPID> <EventXmlFile>".format(Commands.DO_SEND_EVENT_FILE.value)
-    print "<PluginName> {} <APPID> <StatusXmlString> <StatusWithoutXmlString>".format(Commands.DO_SEND_STATUS.value)
-    print "<PluginName> {} <APPID> <StatusXmlFile> <StatusWithoutXmlString>".format(Commands.DO_SEND_STATUS_FILE.value)
-    print "<PluginName> {} <APPID> <StatusXmlString> <StatusWithoutXmlString>".format(Commands.DO_SET_STATUS.value)
-    print "<PluginName> {} <APPID> <StatusXmlFile> <StatusWithoutXmlString>".format(Commands.DO_SET_STATUS_FILE.value)
-    print "<PluginName> {} <TelemetryString>".format(Commands.DO_SET_TELEMETRY.value)
-    print "<PluginName> {} <TelemetryFile>".format(Commands.DO_SET_TELEMETRY_FILE.value)
-    print "<PluginName> {} <PluginAPICommand> <Response> <Payload> <APPID>".format(Commands.QUEUE_REPLY.value)
-    print "<PluginName> {} <ContentsA> <ContentsB> <Contents...>".format(Commands.CUSTOM_MESSAGE_TO_AGENT.value)
-    print "{}".format(Commands.STOP.value)
+    print("Usage")
+    print(f"<PluginName> {Commands.DO_REGISTRATION.value}")
+    print(f"<PluginName> {Commands.DO_REQUEST_POLICY.value}")
+    print(f"<PluginName> {Commands.DO_SEND_EVENT.value} <APPID> <EventXmlString>")
+    print(f"<PluginName> {Commands.DO_SEND_EVENT_FILE.value} <APPID> <EventXmlFile>")
+    print(f"<PluginName> {Commands.DO_SEND_STATUS.value} <APPID> <StatusXmlString> <StatusWithoutXmlString>")
+    print(f"<PluginName> {Commands.DO_SEND_STATUS_FILE.value} <APPID> <StatusXmlFile> <StatusWithoutXmlString>")
+    print(f"<PluginName> {Commands.DO_SET_STATUS.value} <APPID> <StatusXmlString> <StatusWithoutXmlString>")
+    print(f"<PluginName> {Commands.DO_SET_STATUS_FILE.value} <APPID> <StatusXmlFile> <StatusWithoutXmlString>")
+    print(f"<PluginName> {Commands.DO_SET_TELEMETRY.value} <TelemetryString>")
+    print(f"<PluginName> {Commands.DO_SET_TELEMETRY_FILE.value} <TelemetryFile>")
+    print(f"<PluginName> {Commands.QUEUE_REPLY.value} <PluginAPICommand> <Response> <Payload> <APPID>")
+    print(f"<PluginName> {Commands.CUSTOM_MESSAGE_TO_AGENT.value} <ContentsA> <ContentsB> <Contents...>")
+    print(f"{Commands.STOP.value}")
 
 
 def handle_actions(action, contents):
-
     # Must always be an action
     if action is None:
-        print "Action to handle is None"
+        print("Action to handle is None")
         return 1
 
     if action == Commands.DO_REGISTRATION:
@@ -60,10 +60,10 @@ def handle_actions(action, contents):
 
     elif action == Commands.DO_SEND_EVENT:
         if len(contents) < 1:
-            print "Please provide event APPID."
+            print("Please provide event APPID.")
             return
         if len(contents) < 2:
-            print "Please provide event XML."
+            print("Please provide event XML.")
             return
         app_id = contents[0]
         event = contents[1]
@@ -71,17 +71,17 @@ def handle_actions(action, contents):
 
     elif action == Commands.DO_SEND_EVENT_FILE:
         if len(contents) < 1:
-            print "Please provide event APPID."
+            print("Please provide event APPID.")
             return
         if len(contents) < 2:
-            print "Please provide event XML file path."
+            print("Please provide event XML file path.")
             return
 
         app_id = contents[0]
         filename = contents[1]
 
         if not os.path.isfile(filename):
-            print "Event file does not exist: {}".format(filename)
+            print(f"Event file does not exist: {filename}")
             return
 
         with open(filename, "r") as f:
@@ -91,7 +91,7 @@ def handle_actions(action, contents):
 
     elif action == Commands.DO_SEND_STATUS:
         if len(contents) < 3:
-            print "Please provide APPID, status XML and status without xml."
+            print("Please provide APPID, status XML and status without xml.")
             return
         app_id = contents[0]
         status_xml = contents[1]
@@ -100,12 +100,12 @@ def handle_actions(action, contents):
 
     elif action == Commands.DO_SEND_STATUS_FILE:
         if len(contents) < 3:
-            print "Please provide APPID, status XML file path and status without xml."
+            print("Please provide APPID, status XML file path and status without xml.")
             return
         app_id = contents[0]
         filename = contents[1]
         if not os.path.isfile(filename):
-            print "Event file does not exist: {}".format(filename)
+            print(f"Event file does not exist: {filename}")
             return
         with open(filename, "r") as f:
             status_xml = f.read()
@@ -114,7 +114,7 @@ def handle_actions(action, contents):
 
     elif action == Commands.DO_SET_STATUS:
         if len(contents) < 3:
-            print "Please provide APPID, status XML and status without xml."
+            print("Please provide APPID, status XML and status without xml.")
             return
         app_id = contents[0]
         status_xml = contents[1]
@@ -123,12 +123,12 @@ def handle_actions(action, contents):
 
     elif action == Commands.DO_SET_STATUS_FILE:
         if len(contents) < 3:
-            print "Please provide APPID, status XML file path and status without xml."
+            print("Please provide APPID, status XML file path and status without xml.")
             return
         app_id = contents[0]
         filename = contents[1]
         if not os.path.isfile(filename):
-            print "Event file does not exist: {}".format(filename)
+            print(f"Event file does not exist: {filename}")
             return
         with open(filename, "r") as f:
             status_xml = f.read()
@@ -137,7 +137,7 @@ def handle_actions(action, contents):
 
     elif action == Commands.DO_SET_TELEMETRY:
         if len(contents) < 2:
-            print "Please provide telemetry."
+            print("Please provide telemetry.")
             return
         status_xml = contents[0]
         status_without_xml = contents[1]
@@ -145,11 +145,11 @@ def handle_actions(action, contents):
 
     elif action == Commands.DO_SET_TELEMETRY_FILE:
         if len(contents) < 2:
-            print "Please provide telemetry file."
+            print("Please provide telemetry file.")
             return
         filename = contents[0]
         if not os.path.isfile(filename):
-            print "Event file does not exist: {}".format(filename)
+            print(f"Event file does not exist: {filename}")
             return
         with open(filename, "r") as f:
             status_xml = f.read()
@@ -190,7 +190,7 @@ def handle_actions(action, contents):
     elif action == Commands.STOP:
         CONTROLLER.stop()
     else:
-        print "Unrecognised action to handle: {}".format(action)
+        print(f"Unrecognised action to handle: {action}")
         return 1
 
 
@@ -206,11 +206,11 @@ def main(argv):
     action_raw = argv[2]
     action_enum = get_control_message_enum(action_raw)
     if action_enum is None:
-        print "Unrecognised action: {}".format(action_raw)
+        print(f"Unrecognised action: {action_raw}")
         exit(1)
 
     contents = argv[3:]
-    print contents
+    print(contents)
 
     return handle_actions(action_enum, contents)
 

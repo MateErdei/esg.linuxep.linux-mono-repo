@@ -21,11 +21,16 @@ then
 elif [[ -f /etc/redhat-release ]]
 then
     current_release=$(cat /etc/redhat-release)
-    release_pattern="Red Hat.*8.*"
+    release_patternRhel8="Red Hat.*8.*"
+    release_patternRhel9="Red Hat.*9.*"
 
-    if [[ ${current_release} =~ ${release_pattern} ]]
+    if [[ ${current_release} =~ ${release_patternRhel8} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_RHEL8"
+    elif [[ ${current_release} =~ ${release_patternRhel9} ]]
+    then
+        export OPENSSL_ENABLE_SHA1_SIGNATURES=1
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_RHEL9"
     else
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_RHEL"
     fi

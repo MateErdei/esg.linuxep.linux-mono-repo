@@ -1,26 +1,24 @@
 import json
 import traceback
-from common.messages import *
-from common.SetupLogger import *
-from ManagementAgentController import ManagementAgentController
-from PluginController import PluginController
+
 from FakeManagementAgent import Agent
 from FakePlugin import FakePlugin
+from ManagementAgentController import ManagementAgentController
+from PluginController import PluginController
+from common.messages import *
 
 
 def assert_equal(expected, actual):
     if expected != actual:
-        raise AssertionError("Not equal, expected:{}, actual:{}".format(expected, actual))
+        raise AssertionError(f"Not equal, expected:{expected}, actual:{actual}")
 
 
 def assert_not_equal(left, right):
     if left == right:
-        raise AssertionError("Expected not equal, left:{}, right:{}".format(left, right))
+        raise AssertionError(f"Expected not equal, left:{left}, right:{right}")
 
 
 def main(argv):
-
-
     logger = setup_logging("PluginAndAgentTests", "PluginAndAgentTests")
     agent = Agent(logger)
     agent_controller = ManagementAgentController(MANAGEMENT_AGENT_CONTROLLER_SOCKET_PATH)
@@ -88,8 +86,8 @@ def main(argv):
         assert_equal(telemetry, agent_controller.request_telemetry(sav_plugin.name)[0])
 
         assert_equal(ack, agent_controller.queue_reply(str(Messages.REQUEST_POLICY.value), "ALC", ["policy1"])[0])
-        assert_equal(ack,  agent_controller.queue_reply(str(Messages.REQUEST_POLICY.value), "ALC", ["policy2"])[0])
-        assert_equal(ack,  agent_controller.queue_reply(str(Messages.REQUEST_POLICY.value), "ALC", [Messages.ERROR.value, "no policy for you"])[0])
+        assert_equal(ack, agent_controller.queue_reply(str(Messages.REQUEST_POLICY.value), "ALC", ["policy2"])[0])
+        assert_equal(ack, agent_controller.queue_reply(str(Messages.REQUEST_POLICY.value), "ALC", [Messages.ERROR.value, "no policy for you"])[0])
         assert_equal("policy1", update_plugin_controller.request_policy("ALC")[0])
         assert_equal("policy2", update_plugin_controller.request_policy("ALC")[0])
         assert_equal(Messages.ERROR.value, update_plugin_controller.request_policy("ALC")[0])
@@ -104,10 +102,9 @@ def main(argv):
         update_plugin_2.stop()
         sav_plugin.stop()
         agent.stop()
-        print ex
+        print(ex)
         traceback.print_exc()
         exit(1)
-
 
     update_plugin.stop()
     update_plugin_2.stop()

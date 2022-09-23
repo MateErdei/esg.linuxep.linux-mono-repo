@@ -1,19 +1,20 @@
-import md5
-import getopt
+import argparse
+import datetime
+import hashlib
 import os
 import sys
-import datetime
-import argparse
 from xml.dom.minidom import Document
+
 
 ## https://confluence.green.sophos/display/OPM/DCI+file+-+existing+%28old%29+format
 ## https://confluence.green.sophos/display/OPM/DCI+file+-+new+format
 
+
 class Options(object):
     pass
 
-def createCustomerFile( args ):
 
+def createCustomerFile(args):
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--destination', default=None, help='destination of created customer file')
@@ -57,12 +58,12 @@ def createCustomerFile( args ):
     assert options.username is not None
     assert options.password is not None
 
-    filename = md5.new(options.username + ":" + options.password).hexdigest()
-    dirpath = options.destination + "/" + filename[0] + "/" + filename[1:3]
+    filename = hashlib.md5(f"{options.username}:{options.password}".encode()).hexdigest()
+    dirpath = os.path.join(options.destination, filename[0], filename[1:3])
     if options.signingkey is None:
-        filepath = dirpath + "/" + filename + ".xml"
+        filepath = os.path.join(dirpath, f"{filename}.xml")
     else:
-        filepath = dirpath + "/" + filename + ".dat"
+        filepath = os.path.join(dirpath, f"{filename}.dat")
 
     if options.check:
         if os.path.isfile(filepath):
@@ -84,10 +85,10 @@ def createCustomerFile( args ):
         assert options.signingcert is not None
         assert len(options.warehouses) > 0
 
-    filename = md5.new(options.username + ":" + options.password).hexdigest()
+    filename = hashlib.md5(f"{options.username}:{options.password}".encode()).hexdigest()
 
     if options.verbose:
-        print("Writing customer file %s for '%s:%s'"%(filename,options.username,options.password))
+        print(f"Writing customer file {filename} for '{options.username}:{options.password}'")
 
     description = "SAV Linux Regression Suite"
 
@@ -136,7 +137,7 @@ def createCustomerFile( args ):
             WarehouseEntry = doc.createElement("WarehouseEntry")
             Name = doc.createElement("Name")
             if not "sdds." in warehouse:
-                warehouse = "sdds." + warehouse
+                warehouse = f"sdds.{warehouse}"
             Name.appendChild(doc.createTextNode(warehouse))
             WarehouseEntry.appendChild(Name)
             Warehouses.appendChild(WarehouseEntry)
@@ -147,43 +148,43 @@ def createCustomerFile( args ):
         RedirectsNode = doc.createElement("Redirects")
         Warehouse.appendChild(RedirectsNode)
         for redirect in redirects:
-            assert "=" in redirect,"%s doesn't contain ="%redirect
-            source,replacement = redirect.split("=",1)
+            assert "=" in redirect, f"{redirect} doesn't contain ="
+            source, replacement = redirect.split("=", 1)
             RedirectNode = doc.createElement("Redirect")
-            RedirectNode.setAttribute("Pattern",source)
-            RedirectNode.setAttribute("Substitution",replacement)
+            RedirectNode.setAttribute("Pattern", source)
+            RedirectNode.setAttribute("Substitution", replacement)
             RedirectsNode.appendChild(RedirectNode)
     elif options.malformed_redirect == "MISSING-PATTERN":
         RedirectsNode = doc.createElement("Redirects")
         Warehouse.appendChild(RedirectsNode)
         RedirectNode = doc.createElement("Redirect")
         RedirectsNode.appendChild(RedirectNode)
-        RedirectNode.setAttribute("Substitution","FOOBAR")
+        RedirectNode.setAttribute("Substitution", "FOOBAR")
     elif options.malformed_redirect == "BAD-XML":
         RedirectsNode = doc.createElement("Redirects")
         Warehouse.appendChild(RedirectsNode)
         RedirectNode = doc.createElement("Redirect")
         RedirectsNode.appendChild(RedirectNode)
-        RedirectNode.setAttribute("Substitution","REPLACETARGET")
+        RedirectNode.setAttribute("Substitution", "REPLACETARGET")
 
     doc.appendChild(Warehouse)
 
-    text = doc.toprettyxml(indent=" ",newl="\n",encoding="UTF-8")
+    text = doc.toprettyxml(indent=" ", newl="\n", encoding="UTF-8")
 
     if options.malformed_redirect == "BAD-XML":
-        text = text.replace("REPLACETARGET",'"><<<<')
+        text = text.replace("REPLACETARGET", '"><<<<')
 
     try:
         xmlFile = open(filepath, "wb")
     except IOError:
-        print "XML file failed to save correctly."
+        print("XML file failed to save correctly.")
         return None
     else:
         xmlFile.write(text)
         xmlFile.close()
 
-    print "Signing key"
-    print options.signingkey
+    print("Signing key")
+    print(options.signingkey)
 
     if options.signingkey is not None:
         import Signer
@@ -192,15 +193,15 @@ def createCustomerFile( args ):
         cwd = os.getcwd()
         signer.m_options.key = options.signingkey
         signer.password = options.signingpass
-        certs = open( os.path.join(cwd,options.signingcert)).read()
+        certs = open(os.path.join(cwd, options.signingcert)).read()
 
         ## Get signature
         signature = signer.encodedSignatureForFile(filepath)
 
         try:
-            d = open(filepath,"a")
+            d = open(filepath, "a")
         except IOError:
-            print "XML file failed to save correctly."
+            print("XML file failed to save correctly.")
             return None
         else:
             d.write(signature)
@@ -210,10 +211,10 @@ def createCustomerFile( args ):
 
             d.close()
 
-            print "Wrote signed customer file to %s"%filepath
+            print(f"Wrote signed customer file to {filepath}")
 
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(createCustomerFile( sys.argv ))
+    sys.exit(createCustomerFile(sys.argv))
