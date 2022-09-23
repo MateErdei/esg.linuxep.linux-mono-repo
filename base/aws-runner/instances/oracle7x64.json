@@ -27,7 +27,13 @@
         {"Key" : "Name", "Value" : "oracle7x64" },
         {"Key" : "RootStackname", "Value" : "SSPL" }
       ],
-      "SecurityGroupIds": ["sg-09bb5dbd7eb4ec5fb"],
+      "NetworkInterfaces" : [{
+        "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
+        "AssociatePublicIpAddress" : "true",
+        "DeviceIndex"              : "0",
+        "DeleteOnTermination"      : "true",
+        "SubnetId"                 : { "Ref" : "Subnet1" }
+      }],
       "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
         "#!/bin/bash\n",
         "echo 'Testing ", {"Ref": "BuildName"},"'\n",
@@ -56,7 +62,8 @@
         "export TAP_VENV=/opt/sspl/tap-venv/bin/activate\n",
         "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ >> /tmp/cloudFormationInit.log 2>&1\n",
         "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
-        "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n"
+        "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
+        "poweroff\n"
       ]]}}
     }
   }
