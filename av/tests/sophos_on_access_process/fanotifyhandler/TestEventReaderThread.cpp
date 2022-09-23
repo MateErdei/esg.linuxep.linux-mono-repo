@@ -74,7 +74,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 2345 };
+        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
     struct pollfd fds2[2]{};
@@ -108,7 +108,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_OPEN, .fd = 345, .pid = 2345 };
+        .mask = FAN_OPEN, .fd = 345, .pid = 1999999999 };
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -144,7 +144,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_OPEN, .fd = 345, .pid = 2345 };
+        .mask = FAN_OPEN, .fd = 345, .pid = 1999999999 };
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -192,7 +192,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_ONDIR, .fd = 345, .pid = 2345 };
+        .mask = FAN_ONDIR, .fd = 345, .pid = 1999999999 };
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -227,7 +227,7 @@ TEST_F(TestEventReaderThread, TestReaderSetUnknownPathIfReadLinkFails)
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 2345 };
+        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -260,7 +260,7 @@ TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 2345 };
+        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -292,7 +292,7 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = 2, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 2345 };
+        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
 
     struct pollfd fds[2]{};
     fds[1].revents = POLLIN;
@@ -318,7 +318,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithoutFD)
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = -1, .pid = 2345 };
+        .mask = FAN_CLOSE, .fd = -1, .pid = 1999999999 };
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -371,7 +371,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsInPluginLogDir)
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 2345 };
+        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -399,7 +399,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE_WRITE, .fd = 345, .pid = 2345 };
+        .mask = FAN_CLOSE_WRITE, .fd = 345, .pid = 1999999999 };
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
