@@ -167,7 +167,7 @@ def unified_artifact(context: tap.PipelineContext, component: str, branch: str, 
 
 def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str):
     test_inputs = None
-    if mode == 'release':
+    if mode == 'release' or mode == 'debug':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./testUtils'),
             base_sdds=base_build / 'sspl-base/SDDS-COMPONENT',
