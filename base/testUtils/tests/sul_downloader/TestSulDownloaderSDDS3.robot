@@ -487,6 +487,119 @@ SUS Fault Injection Server Responds With Large JSON
         ...  Update failed, with code: 112
 
 
+CDN Fault Injection Does Not Contain Location Given By SUS
+    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files   port=8080
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override   CDN_URL=https://localhost:8080
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+
+    Replace Local Launchdarkly Json Content With Fake Suite
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Update failed
+    Check SulDownloader Log Contains    Failed to synchronize repository
+    Check SulDownloader Log Contains    : 404
+
+
+CDN Fault Injection Server Responds With Unauthorised Error
+    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Set Environment Variable  COMMAND   cdn_401
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files   port=8080
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Update failed
+    Check SulDownloader Log Contains    Failed to synchronize repository
+    Check SulDownloader Log Contains    : 401
+
+
+CDN Fault Injection Server Responds With Not Found Error
+    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Set Environment Variable  COMMAND   cdn_404
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files   port=8080
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Update failed
+    Check SulDownloader Log Contains    Failed to synchronize repository
+    Check SulDownloader Log Contains    : 404
+
+
+CDN Fault Injection Server Responds With Generic Error
+    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Set Environment Variable  COMMAND   cdn_500
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files   port=8080
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Setup Install SDDS3 Base
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    5s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Update failed
+    Check SulDownloader Log Contains    Failed to synchronize repository
+    Check SulDownloader Log Contains    : 500
+
+
 *** Keywords ***
 Check MCS Envelope Contains Event with Update cache
     [Arguments]  ${Event_Number}

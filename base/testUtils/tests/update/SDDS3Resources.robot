@@ -121,3 +121,8 @@ Start Local SDDS3 server with fake files
     [Arguments]  ${port}=8080  ${cert}=${SUPPORT_FILES}/https/server-private.pem
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${SDDS3_FAKEFLAGS} --sdds3 ${SDDS3_FAKEREPO} --port ${port} --cert ${cert}  shell=true
     [Return]  ${handle}
+
+Replace Local Launchdarkly Json Content With Fake Suite
+    ${Files} =  List Files In Directory  ${SDDS3_FAKEFLAGS}
+    Remove File  ${SDDS3_FAKEFLAGS}/${Files[0]}
+    Create File  ${SDDS3_FAKEFLAGS}/${Files[0]}  { "RECOMMENDED": { "suite": "sdds3.ServerProtectionLinux-Base_0000.0.0.0.0.dat", "version": "0.0.0.0" } }
