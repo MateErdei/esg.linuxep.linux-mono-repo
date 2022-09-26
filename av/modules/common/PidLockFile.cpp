@@ -4,18 +4,18 @@
 
 #include "Logger.h"
 #include "PidLockFileException.h"
+#include "SaferStrerror.h"
 
-#include "common/SaferStrerror.h"
 #include "datatypes/AutoFd.h"
 #include "datatypes/sophos_filesystem.h"
 
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
 #include <sstream>
 
-#include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -27,46 +27,53 @@ PidLockFile::PidLockFile(const std::string& pidfile)
     : m_pidfile(pidfile),m_fd(-1)
 {
     // open for write
-    int localfd = open(pidfile.c_str(), O_RDWR | O_CREAT
-#ifdef O_CLOEXEC
-                                            | O_CLOEXEC
-#endif
-                       , S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
+    datatypes::AutoFd localfd(open(pidfile.c_str(), O_RDWR | O_CREAT | O_CLOEXEC
+                       , S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH)
+    );
 
-    if (localfd == -1)
+    if (!localfd.valid())
     {
-        std::ostringstream ost;
-        ost << "Unable to open lock file " << pidfile << " because " <<strerror(errno) << "(" << errno << ")";
+        int error = errno;
 
-        LOGERROR("ERROR:" << ost.str());
+        std::ostringstream ost;
+        ost << "Unable to open lock file " << pidfile << " because " << common::safer_strerror(error) << "(" << error << ")";
+
+        LOGERROR(ost.str());
         throw PidLockFileException(ost.str());
     }
     fs::permissions(pidfile.c_str(), fs::perms::group_read | fs::perms::others_read,
                     fs::perm_options::add);
 
     // lock
-    struct flock fl;
+    struct flock fl{};
     fl.l_type = F_WRLCK;
     fl.l_whence = SEEK_SET;
     fl.l_start = 0;
     fl.l_len = 0;
 
-    if (fcntl(localfd, F_SETLKW, &fl) == -1)
+    if (fcntl(localfd.get(), F_SETLKW, &fl) == -1)
     {
+        int error = errno;
+        localfd.close();
+
         std::ostringstream ost;
-        ost << "Unable to lock lock file "<< pidfile << " because " << strerror(errno) << "(" << errno << ")";
+        ost << "Unable to lock lock file "<< pidfile << " because " << common::safer_strerror(error) << "(" << error << ")";
 
         // unable to lock the file
-        LOGERROR("ERROR:" << ost.str());
-        close(localfd);
+        LOGFATAL(ost.str());
         throw PidLockFileException(ost.str());
     }
 
     // truncate and write new PID
-    if (ftruncate(localfd,0) != 0)
+    if (ftruncate(localfd.get(),0) != 0)
     {
-        LOGDEBUG("Failed to truncate pidfile: " << errno);
-        close(localfd);
+        int error = errno;
+        localfd.close();
+
+        std::ostringstream ost;
+        ost << "Failed to truncate pidfile: " << common::safer_strerror(error) << "(" << error << ")";
+
+        LOGFATAL(ost.str());
         throw PidLockFileException("Unabled to truncate lock file");
     }
 
@@ -76,27 +83,27 @@ PidLockFile::PidLockFile(const std::string& pidfile)
     pid[14] = 0;
     size_t pidLen = strlen(pid);
 
-    ssize_t written = write(localfd,pid,pidLen);
+    ssize_t written = write(localfd.get(), pid, pidLen);
     if (written < 0 || static_cast<size_t>(written) != pidLen)
     {
-        LOGDEBUG("Failed to write pid to pidfile: " << errno);
-        close(localfd);
+        int error = errno;
+        localfd.close();
+        LOGFATAL("Failed to write pid to pidfile: " << common::safer_strerror(error));
         throw PidLockFileException("Unabled to pid to pid lock file");
     }
 
-    m_fd = localfd;
+    m_fd = std::move(localfd);
     LOGINFO("Lock taken on: " << pidfile);
 }
 
 PidLockFile::~PidLockFile()
 {
     LOGINFO("Closing lock file");
-    if (m_fd >= 0)
+    if (m_fd.valid())
     {
-        close(m_fd);
-        m_fd = -1;
         unlink(m_pidfile.c_str());
     }
+    m_fd.reset();
 }
 
 bool PidLockFile::isPidFileLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
@@ -109,7 +116,7 @@ bool PidLockFile::isPidFileLocked(const std::string& pidfile, const std::shared_
         return false;
     }
 
-    struct flock fl;
+    struct flock fl{};
     fl.l_type    = F_RDLCK;   /* Test for any lock on any part of file. */
     fl.l_whence  = SEEK_SET;
     fl.l_start   = 0;

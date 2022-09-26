@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -31,5 +27,6 @@ log4cplus::Logger& getCommonLogger();
 #define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getCommonLogger(), x) // NOLINT
 #define LOGWARN(x) LOG4CPLUS_WARN(getCommonLogger(), x)    // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getCommonLogger(), x)  // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getCommonLogger(), x)  // NOLINT
 
 #endif

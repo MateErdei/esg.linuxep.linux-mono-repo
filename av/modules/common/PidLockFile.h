@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "datatypes/AutoFd.h"
 #include "datatypes/ISystemCallWrapper.h"
 
 #include <string>
@@ -22,6 +23,6 @@ namespace common
 
     private:
         std::string m_pidfile;
-        int m_fd;
+        datatypes::AutoFd m_fd;
     };
 }

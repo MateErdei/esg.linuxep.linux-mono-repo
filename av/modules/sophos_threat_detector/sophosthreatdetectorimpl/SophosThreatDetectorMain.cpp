@@ -539,12 +539,12 @@ namespace sspl::sophosthreatdetectorimpl
         }
         catch (std::exception& ex)
         {
-            LOGERROR("Caught std::exception: " << ex.what() << " at top level");
+            LOGFATAL("Caught std::exception: " << ex.what() << " at top level");
             return 101;
         }
         catch (...)
         {
-            LOGERROR("Caught unknown exception at top-level");
+            LOGFATAL("Caught unknown exception at top-level");
             return 100;
         }
     }
