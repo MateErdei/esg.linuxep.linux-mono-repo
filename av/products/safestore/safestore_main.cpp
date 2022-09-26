@@ -1,14 +1,22 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "../common/config.h"
+#include "datatypes/sophos_filesystem.h"
 #include "safestore/Main.h"
 
 #include "Common/Logging/PluginLoggingSetup.h"
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+
+namespace fs = sophos_filesystem;
 
 int main()
 {
     Common::Logging::PluginLoggingSetup setupFileLoggingWithPath(PLUGIN_NAME, "safestore");
-
+    // PLUGIN_INSTALL
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
+    fs::path pluginInstall = sophosInstall / "plugins" / PLUGIN_NAME;
+    appConfig.setData("PLUGIN_INSTALL", pluginInstall);
     // TODO appConfig
 
     return safestore::Main::run();
