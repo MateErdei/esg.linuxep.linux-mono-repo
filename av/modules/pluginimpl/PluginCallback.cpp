@@ -5,6 +5,7 @@
 // Package
 #include "Logger.h"
 #include "PolicyProcessor.h"
+#include "PolicyProcessor.cpp"
 // Component
 #include "common/PluginUtils.h"
 #include "common/PidLockFile.h"
@@ -375,6 +376,18 @@ namespace Plugin
         if (!common::PidLockFile::isPidFileLocked(soapdPidFile, sysCalls))
         {
             return E_HEALTH_STATUS_BAD;
+        }
+
+        Path safestorePidFile = common::getPluginInstallPath() / "var/safestore.pid";
+        if (!common::PidLockFile::isPidFileLocked(safestorePidFile, sysCalls))
+        {
+            auto ssFlagsJson = Common::FileSystem::fileSystem()->readFile(Plugin::getSafestoreFlagConfigPath());
+            auto parsedSSFlag = nlohmann::json::parse(ssFlagsJson);
+
+            if (parsedSSFlag.value("ss_enabled", false))
+            {
+                return E_HEALTH_STATUS_BAD;
+            }
         }
 
         return E_HEALTH_STATUS_GOOD;
