@@ -62,7 +62,7 @@ int FanotifyHandler::markMount(const std::string& path) const
     int fanotify_fd = getFd();
     if (fanotify_fd < 0)
     {
-        LOGERROR("Skipping cacheFd as fanotify disabled");
+        LOGERROR("Skipping markMount for " << path << " as fanotify disabled");
         return 0;
     }
 
@@ -83,7 +83,7 @@ int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
     int fanotify_fd = getFd();
     if (fanotify_fd < 0)
     {
-        LOGERROR("Skipping cacheFd as fanotify disabled");
+        LOGERROR("Skipping cacheFd for " << path << " as fanotify disabled");
         return 0;
     }
 
