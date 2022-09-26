@@ -6,6 +6,11 @@
   <imports>
     <line id="ServerProtectionLinux-Plugin-MDR">
       <component
+              id="ServerProtectionLinux-Plugin-MDR-2022.3.0.3"
+              version="2022.3.0.3"
+              artifact="esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--version_1_0_13_force-sdds3/20220926113838-a840f698157b6fb58ef019e486662f28f464937a-7UMv4B/mdr/SDDS-COMPONENT/"
+              longdic="Sophos Server Protection for Linux MTR" shortdic="Sophos Server Protection for Linux MTR"/>
+      <component
           id="ServerProtectionLinux-Plugin-MDR-1.0.13.2"
           version="1.0.13.2"
           artifact="esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--version_1_0_13/20220825200952-d8c9ca9b916b36ee837ba8a2ccf2d14fad0a1874-FOBXxW/mdr/SDDS-COMPONENT/"
