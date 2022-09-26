@@ -18,60 +18,44 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <csignal>
-
 using namespace testing;
 using namespace threat_scanner;
 
-static SetupTestLogging consoleLoggingSetup;
+static const std::string cleanSusiResponseStr =
+    "{\n"
+    "    \"time\":\"/...\",\n"
+    "    \"results\":\n"
+    "    [\n"
+    "    ]\n"
+    "}";
 
-static const std::string susiResponseStr =
-        "{\n"
-        "    \"results\":\n"
-        "    [\n"
-        "        {\n"
-        "            \"detections\": [\n"
-        "               {\n"
-        "                   \"threatName\": \"MAL/malware-A\",\n"
-        "                   \"threatType\": \"malware/trojan/PUA/...\",\n"
-        "                   \"threatPath\": \"...\",\n"
-        "                   \"longName\": \"...\",\n"
-        "                   \"identityType\": 0,\n"
-        "                   \"identitySubtype\": 0\n"
-        "               }\n"
-        "            ],\n"
-        "            \"Local\": {\n"
-        "                \"LookupType\": 1,\n"
-        "                \"Score\": 20,\n"
-        "                \"SignerStrength\": 30\n"
-        "            },\n"
-        "            \"Global\": {\n"
-        "                \"LookupType\": 1,\n"
-        "                \"Score\": 40\n"
-        "            },\n"
-        "            \"ML\": {\n"
-        "                \"ml-pe\": 50\n"
-        "            },\n"
-        "            \"properties\": {\n"
-        "                \"GENES/SUPPRESSML\": 1\n"
-        "            },\n"
-        "            \"telemetry\": [\n"
-        "                {\n"
-        "                    \"identityName\": \"xxx\",\n"
-        "                    \"dataHex\": \"6865646765686f67\"\n"
-        "                }\n"
-        "            ],\n"
-        "            \"mlscores\": [\n"
-        "                {\n"
-        "                    \"score\": 12,\n"
-        "                    \"secScore\": 34,\n"
-        "                    \"featuresHex\": \"6865646765686f67\",\n"
-        "                    \"mlDataVersion\": 56\n"
-        "                }\n"
-        "            ]\n"
-        "        }\n"
-        "    ]\n"
-        "}";
+static const std::string singleDetectionSusiResponseStr =
+    "{\n"
+    "    \"time\":\"/...\",\n"
+    "    \"results\":\n"
+    "    [\n"
+    "        {\n"
+    "            \"base64path\":\"L3RtcC9laWNhci5pc28vMS9kaXJlY3Rvcnkvc3ViZGlyL2VpY2FyLmNvbQ==\",\n"
+    "            \"detections\":[\n"
+    "               {\n"
+    "                   \"threatName\":\"MAL/malware-A\",\n"
+    "                   \"threatType\":\"malware/trojan/PUA/...\"\n"
+    "               }\n"
+    "            ],\n"
+    "           \"path\":\"/tmp/eicar.txt\",\n"
+    "           \"sha256\":\"...\",\n"
+    "           \"TFTclassification\": {\n"
+    "                \"fileType\":\"...\",\n"
+    "                \"fileTypeDescription\":\"...\",\n"
+    "                \"typeId\":\"...\"\n"
+    "            },\n"
+    "           \"submitToAnalysis\": {\n"
+    "                \"identity\":\"...\",\n"
+    "                \"revision\":\"...\"\n"
+    "            }\n"
+    "        }\n"
+    "    ]\n"
+    "}";
 
 namespace
 {
@@ -87,19 +71,19 @@ namespace
             const std::string& userID,
             std::time_t detectionTimeStamp) = 0;
          */
-        MOCK_METHOD6(sendThreatReport, void(const std::string& threatPath,
-            const std::string& threatName,
-            const std::string& sha256,
-            int64_t scanType,
-            const std::string& userID,
-            std::time_t detectionTimeStamp));
+        MOCK_METHOD(void, sendThreatReport, (const std::string& threatPath,
+                                             const std::string& threatName,
+                                             const std::string& sha256,
+                                             int64_t scanType,
+                                             const std::string& userID,
+                                             std::time_t detectionTimeStamp));
     };
 
     class MockShutdownTimer : public threat_scanner::IScanNotification
     {
     public:
-        MOCK_METHOD0(reset, void());
-        MOCK_METHOD0(timeout, time_t());
+        MOCK_METHOD(void, reset, ());
+        MOCK_METHOD(time_t, timeout, ());
     };
 }
 
@@ -242,11 +226,12 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean)
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
     SusiResult susiResult = SUSI_S_OK;
-    SusiScanResult* scanResult = nullptr;
+    SusiScanResult scanResult;
+    scanResult.scanResultJson = const_cast<char*>(cleanSusiResponseStr.c_str());
     std::string filePath = "/tmp/clean_file.txt";
 
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(Return(susiResult));
-    EXPECT_CALL(*susiWrapper, freeResult(scanResult));
+    EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
     EXPECT_CALL(*mock_timer, reset()).Times(1);
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, mock_timer);
@@ -276,7 +261,7 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat)
     SusiResult susiResult = SUSI_I_THREATPRESENT;
     SusiScanResult scanResult;
     scanResult.version = 1;
-    scanResult.scanResultJson = const_cast<char*>(susiResponseStr.c_str());
+    scanResult.scanResultJson = const_cast<char*>(singleDetectionSusiResponseStr.c_str());
     std::string filePath = "/tmp/eicar.txt";
 
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
