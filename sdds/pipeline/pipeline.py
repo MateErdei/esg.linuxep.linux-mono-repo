@@ -90,19 +90,19 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         branch = context.branch
         is_release_branch = branch.startswith('release-') or branch.startswith('hotfix-')
         if not is_release_branch:
-            build = build_dev_warehouse(stage=stage, name="release-package")
+            build = build_dev_warehouse(stage=stage, name="sdds2")
             if base999:
-                build_dev_warehouse(stage=stage, name="release-package-base-999")
+                build_dev_warehouse(stage=stage, name="sdds2-base-999")
             if query_pack:
-                build_dev_warehouse(stage=stage, name="release-package-query-pack")
+                build_dev_warehouse(stage=stage, name="sdds2-query-pack")
             if edr999:
-                build_dev_warehouse(stage=stage, name="release-package-edr-999")
+                build_dev_warehouse(stage=stage, name="sdds2-edr-999")
             if mdr999:
-                build_dev_warehouse(stage=stage, name="release-package-mdr-999")
+                build_dev_warehouse(stage=stage, name="sdds2-mdr-999")
             if edr999 and mdr999:
-                build_dev_warehouse(stage=stage, name="release-package-edr-mdr-999")
+                build_dev_warehouse(stage=stage, name="sdds2-edr-mdr-999")
             if zero_six_zero:
-                build_dev_warehouse(stage=stage, name="release-package-060")
+                build_dev_warehouse(stage=stage, name="sdds2-060")
             build_dev_warehouse(stage=stage, name="localwarehouse", image='JenkinsLinuxTemplate7')
             run_tests
         else:
