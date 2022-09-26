@@ -7,6 +7,7 @@
 #include "SusiLogger.h"
 
 #include "pluginimpl/ObfuscationImpl/Base64.h"
+#include "scan_messages/ClientScanRequest.h"
 
 #include <common/StringUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
@@ -229,9 +230,11 @@ SusiScanner::scan(
 
                 if (result.contains("detections"))
                 {
+                    auto scanTypeStr = scan_messages::getScanTypeAsStr(static_cast<scan_messages::E_SCAN_TYPE>(scanType));
+
                     for (auto detection : result["detections"])
                     {
-                        LOGWARN("Detected " << detection["threatName"] << " in " << escapedPath);
+                        LOGWARN("Detected " << detection["threatName"] << " in " << escapedPath << " (" << scanTypeStr << ")");
                         std::string tempReportingPath = Common::ObfuscationImpl::Base64::Decode(result["base64path"]);
                         if (tempReportingPath.size() < file_path.size())
                         {
