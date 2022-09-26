@@ -86,6 +86,11 @@ namespace Plugin
             }
             std::this_thread::sleep_for(50ms);
         }
+        if (!isRunning())
+        {
+            // Successful exit
+            return;
+        }
         LOGFATAL("AV Plugin has hung: main thread has not exited");
         if (testing)
         {
@@ -332,12 +337,12 @@ namespace Plugin
 
     void PluginCallback::setRunning(bool running)
     {
-        m_running = running;
+        m_running.store(running);
     }
 
     bool PluginCallback::isRunning()
     {
-        return m_running;
+        return m_running.load();
     }
 
     std::string PluginCallback::extractValueFromProcStatus(const std::string& procStatusContent, const std::string& key)
