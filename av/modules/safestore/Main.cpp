@@ -4,6 +4,10 @@
 
 #include "Logger.h"
 
+#include "datatypes/sophos_filesystem.h"
+
+#include "common/PidLockFile.h"
+#include "common/PluginUtils.h"
 #include "common/SaferStrerror.h"
 #include "common/signals/SigIntMonitor.h"
 #include "common/signals/SigTermMonitor.h"
@@ -11,6 +15,7 @@
 #include <poll.h>
 
 using namespace safestore;
+namespace fs = sophos_filesystem;
 
 int Main::run()
 {
@@ -33,6 +38,10 @@ int Main::run()
 
 void Main::innerRun()
 {
+    // Take safestore lock file
+    fs::path lockfile = common::getPluginInstallPath() / "var/safestore.pid";
+    common::PidLockFile lock(lockfile);
+
     auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
     auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };
 
