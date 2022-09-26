@@ -18,12 +18,16 @@
 #include <datatypes/SystemCallWrapper.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 // Std C++
+#include <cstdlib>
 #include <fstream>
+#include <thread>
+#include <chrono>
 // Std C
 #include <unistd.h>
 
 namespace fs = sophos_filesystem;
 
+using namespace std::chrono_literals;
 
 namespace Plugin
 {
@@ -61,13 +65,37 @@ namespace Plugin
     {
         LOGSUPPORT("Shutdown signal received");
         m_task->pushStop();
-        int timeoutCounter = 0;
-        int shutdownTimeout = 30;
-        while(isRunning() && timeoutCounter < shutdownTimeout)
+
+        struct stat statbuf{};
+        int ret = stat("/opt/test/inputs", &statbuf);
+        bool testing = (ret == 0);
+
+        auto deadline = std::chrono::steady_clock::now() + 30s;
+        if (testing)
         {
-            LOGSUPPORT("Shutdown waiting for all processes to complete");
-            sleep(1);
-            timeoutCounter++;
+            deadline = std::chrono::steady_clock::now() + 8s;
+        }
+        auto nextLog = std::chrono::steady_clock::now() + 1s;
+
+        while(isRunning() && std::chrono::steady_clock::now() < deadline)
+        {
+            if ( std::chrono::steady_clock::now() > nextLog )
+            {
+                nextLog = std::chrono::steady_clock::now() + 1s;
+                LOGSUPPORT("Shutdown waiting for all processes to complete");
+            }
+            std::this_thread::sleep_for(50ms);
+        }
+        LOGFATAL("AV Plugin has hung: main thread has not exited");
+        if (testing)
+        {
+            // Will cause a SIGABRT, and the default action for that is generating a Core File
+            abort();
+        }
+        else
+        {
+            // Force exit
+            exit(30);
         }
     }
 
