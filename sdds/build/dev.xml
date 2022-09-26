@@ -17,7 +17,7 @@
     <inputs>
       <workingdir>.</workingdir>
 
-      <build-asset project="linuxep" repo="everest-base" >
+      <build-asset project="linuxep" repo="everest-base" mode="sdds2,sdds2-query-pack,sdds2-base-999,sdds2-edr-999,sdds2-mdr-999,sdds2-edr-mdr-999,sdds2-060,dev,999">
         <development-version branch="develop"/>
         <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="sdds2,sdds2-edr-999,sdds2-mdr-999,sdds2-query-pack"/>
         <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="sdds2-base-999,sdds2-edr-mdr-999"/>
@@ -26,7 +26,7 @@
           <include artifact-path="sspl-base-999/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64" mode="999"/>
       </build-asset>
 
-      <build-asset project="linuxep" repo="capsule8-sensor" >
+      <build-asset project="linuxep" repo="capsule8-sensor" mode="sdds2,sdds2-query-pack,sdds2-base-999,sdds2-edr-999,sdds2-mdr-999,sdds2-edr-mdr-999,sdds2-060,dev,999">
         <development-version branch="master"/>
           <include artifact-path="SDDS-COMPONENT" dest-dir="redist/runtimedetections" mode="sdds2-edr-999,sdds2,sdds2-base-999,sdds2-mdr-999,sdds2-060,sdds2-query-pack"/>
           <include artifact-path="SDDS-COMPONENT-999" dest-dir="redist/runtimedetections" mode="sdds2-edr-mdr-999"/>
@@ -34,7 +34,7 @@
           <include artifact-path="SDDS3-COMPONENT-999" dest-dir="redist/runtimedetections/latest/x64" mode="999"/>
       </build-asset>
       
-      <build-asset project="linuxep" repo="sspl-plugin-heartbeat" >
+      <build-asset project="linuxep" repo="sspl-plugin-heartbeat" mode="sdds2,sdds2-query-pack,sdds2-base-999,sdds2-edr-999,sdds2-mdr-999,sdds2-edr-mdr-999,sdds2-060,dev,999">
         <development-version branch="develop"/>
         <include artifact-path="sspl-plugin-heartbeat/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-heartbeat" mode="sdds2-edr-999,sdds2,sdds2-base-999,sdds2-mdr-999,sdds2-060,sdds2-query-pack"/>
         <include artifact-path="sspl-plugin-heartbeat-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-heartbeat-999" mode="sdds2-edr-mdr-999"/>
@@ -42,7 +42,7 @@
           <include artifact-path="sspl-plugin-heartbeat-999/SDDS3-PACKAGE" dest-dir="redist/heartbeat/latest/x64" mode="999"/>
       </build-asset>
 
-      <build-asset project="winep" repo="liveterminal" >
+      <build-asset project="winep" repo="liveterminal" mode="sdds2,sdds2-query-pack,sdds2-base-999,sdds2-edr-999,sdds2-mdr-999,sdds2-edr-mdr-999,sdds2-060,dev,999">
         <development-version branch="develop"/>
         <include artifact-path="liveterminal/sdds" dest-dir="redist/liveterminal" mode="sdds2,sdds2-base-999,sdds2-edr-999,sdds2-mdr-999,sdds2-060,sdds2-query-pack"/>
         <include artifact-path="liveterminal-999/sdds" dest-dir="redist/liveterminal" mode="sdds2-edr-mdr-999"/>
@@ -50,7 +50,7 @@
           <include artifact-path="liveterminal-999/SDDS3-PACKAGE" dest-dir="redist/liveresponse/latest/x64" mode="999"/>
       </build-asset>
 
-      <build-asset project="linuxep" repo="sspl-plugin-edr-component">
+      <build-asset project="linuxep" repo="sspl-plugin-edr-component" mode="sdds2,sdds2-query-pack,sdds2-base-999,sdds2-edr-999,sdds2-mdr-999,sdds2-edr-mdr-999,sdds2-060,dev,999">
         <development-version branch="develop"/>
         <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component" mode="sdds2,sdds2-base-999,sdds2-mdr-999,sdds2-060,sdds2-query-pack"/>
         <include artifact-path="edr-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component" mode="sdds2-edr-999,sdds2-edr-mdr-999"/>
@@ -58,7 +58,7 @@
           <include artifact-path="edr-999/SDDS3-PACKAGE" dest-dir="redist/edr/latest/x64" mode="999"/>
       </build-asset>
 
-    <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
+    <build-asset project="linuxep" repo="sspl-plugin-event-journaler" mode="sdds2,sdds2-query-pack,sdds2-base-999,sdds2-edr-999,sdds2-mdr-999,sdds2-edr-mdr-999,sdds2-060,dev,999">
         <development-version branch="develop"/>
         <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-event-journaler" mode="sdds2-edr-999,sdds2,sdds2-base-999,sdds2-mdr-999,sdds2-060,sdds2-query-pack"/>
         <include artifact-path="eventjournaler-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-event-journaler" mode="sdds2-edr-mdr-999"/>
@@ -66,7 +66,7 @@
         <include artifact-path="eventjournaler-999/SDDS3-PACKAGE" dest-dir="redist/event-journaler/latest/x64" mode="999"/>
     </build-asset>
 
-      <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
+      <build-asset project="linuxep" repo="sspl-plugin-mdr-component" mode="sdds2,sdds2-query-pack,sdds2-base-999,sdds2-edr-999,sdds2-mdr-999,sdds2-edr-mdr-999,sdds2-060,dev,999">
           <development-version branch="develop"/>
           <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-component" mode="sdds2,sdds2-base-999,sdds2-edr-999,sdds2-query-pack"/>
           <include artifact-path="mdr-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-component" mode="sdds2-mdr-999,sdds2-edr-mdr-999"/>
@@ -75,7 +75,7 @@
           <include artifact-path="mdr-999/SDDS3-PACKAGE" dest-dir="redist/mdr/latest/x64" mode="999"/>
       </build-asset>
 
-      <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
+      <build-asset project="linuxep" repo="sspl-plugin-anti-virus" mode="sdds2,sdds2-query-pack,sdds2-base-999,sdds2-edr-999,sdds2-mdr-999,sdds2-edr-mdr-999,sdds2-060,dev,999">
         <development-version branch="develop"/>
         <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus" mode="sdds2,sdds2-mdr-999,sdds2-edr-999,sdds2-base-999,sdds2-query-pack"/>
         <include artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus" mode="sdds2-edr-mdr-999"/>
