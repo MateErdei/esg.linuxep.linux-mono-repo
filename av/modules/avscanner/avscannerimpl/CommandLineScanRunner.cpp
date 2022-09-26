@@ -31,7 +31,7 @@ namespace avscanner::avscannerimpl
             explicit CommandLineWalkerCallbackImpl(
                 std::shared_ptr<IScanClient> scanner,
                 std::vector<fs::path> mountExclusions,
-                std::vector<Exclusion> cmdExclusions) :
+                std::vector<common::Exclusion> cmdExclusions) :
                 BaseFileWalkCallbacks(std::move(scanner))
             {
                 m_mountExclusions = std::move(mountExclusions);
@@ -101,7 +101,7 @@ namespace avscanner::avscannerimpl
             }
         }
 
-        std::vector<Exclusion> cmdExclusions;
+        std::vector<common::Exclusion> cmdExclusions;
         cmdExclusions.reserve(m_exclusions.size());
 
         std::ostringstream oss;

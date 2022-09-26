@@ -2,6 +2,8 @@ add_library(common SHARED
         AbortScanException.h
         ErrorCodes.h
         ErrorCodesC.h
+        Exclusion.cpp
+        Exclusion.h
         Logger.cpp
         Logger.h
         PidLockFile.cpp

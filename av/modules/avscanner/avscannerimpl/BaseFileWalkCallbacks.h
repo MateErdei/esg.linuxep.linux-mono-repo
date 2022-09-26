@@ -2,11 +2,12 @@
 
 #pragma once
 
-#include "Exclusion.h"
 #include "IScanClient.h"
 
 #include "common/ErrorCodes.h"
+#include "common/Exclusion.h"
 #include "common/PathUtils.h"
+
 #include <filewalker/IFileWalkCallbacks.h>
 
 namespace avscanner::avscannerimpl
@@ -23,8 +24,8 @@ namespace avscanner::avscannerimpl
         std::shared_ptr<IScanClient> m_scanner;
         std::vector<fs::path> m_mountExclusions;
         // m_currentExclusions are the exclusions that are going to be relevant to the specific scan currently running
-        std::vector<Exclusion>  m_currentExclusions;
-        std::vector<Exclusion>  m_userDefinedExclusions;
+        std::vector<common::Exclusion>  m_currentExclusions;
+        std::vector<common::Exclusion>  m_userDefinedExclusions;
         int m_returnCode = common::E_CLEAN_SUCCESS;
 
     public:

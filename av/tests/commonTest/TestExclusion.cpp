@@ -1,10 +1,10 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
+#include "common/Exclusion.h"
+
 #include <gtest/gtest.h>
 
-#include "avscanner/avscannerimpl/Exclusion.h"
-
-using namespace avscanner::avscannerimpl;
+using namespace common;
 
 TEST(Exclusion, TestStemTypes)
 {

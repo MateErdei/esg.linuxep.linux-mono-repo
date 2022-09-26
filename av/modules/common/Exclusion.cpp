@@ -6,7 +6,7 @@
 
 #include <regex>
 
-using namespace avscanner::avscannerimpl;
+using namespace common;
 
 
 Exclusion::Exclusion(const std::string& path):

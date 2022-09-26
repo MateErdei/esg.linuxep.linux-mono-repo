@@ -5,8 +5,6 @@ add_library(avscannerimpl SHARED
         BaseRunner.h
         CommandLineScanRunner.cpp
         CommandLineScanRunner.h
-        Exclusion.cpp
-        Exclusion.h
         Logger.cpp
         Logger.h
         IRunner.h

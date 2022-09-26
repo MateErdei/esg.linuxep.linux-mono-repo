@@ -4,7 +4,6 @@ SophosAddTest(TestAVScannerImpl
         ../../common/LogInitializedTests.cpp
         MockMountPoint.h
         TestCommandLineScanRunner.cpp
-        TestExclusion.cpp
         TestNamedScanRunner.cpp
         TestOptions.cpp
         TestScanCallbackImpl.cpp

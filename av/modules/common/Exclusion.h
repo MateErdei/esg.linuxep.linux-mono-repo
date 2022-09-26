@@ -21,7 +21,7 @@ enum ExclusionType
     INVALID
 };
 
-namespace avscanner::avscannerimpl
+namespace common
 {
     class Exclusion
     {

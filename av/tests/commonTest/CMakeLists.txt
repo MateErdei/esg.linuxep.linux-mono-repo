@@ -11,6 +11,7 @@ find_package( Boost REQUIRED COMPONENTS system locale)
 
 SophosAddTest(TestCommon
         ../common/LogInitializedTests.cpp
+        TestExclusion.cpp
         TestPathUtils.cpp
         TestSaferStrerror.cpp
         TestStringUtils.cpp

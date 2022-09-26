@@ -5,7 +5,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Exclusion.h"
+#include "common/Exclusion.h"
 
 #include <NamedScan.capnp.h>
 
@@ -19,7 +19,7 @@ namespace avscanner::avscannerimpl
     public:
         explicit NamedScanConfig(const Sophos::ssplav::NamedScan::Reader& namedScanConfig);
         std::string m_scanName;
-        std::vector<Exclusion> m_excludePaths;
+        std::vector<common::Exclusion> m_excludePaths;
         bool m_scanArchives;
         bool m_scanImages;
         bool m_scanHardDisc;
