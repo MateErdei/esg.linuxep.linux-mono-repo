@@ -413,7 +413,7 @@ namespace Plugin
             return E_HEALTH_STATUS_BAD;
         }
 
-        if (!common::PidLockFile::isPidFileLocked(Plugin::getSafeStorePidPath(), sysCalls) && !safeStoreEnabled())
+        if (!common::PidLockFile::isPidFileLocked(Plugin::getSafeStorePidPath(), sysCalls) && safeStoreEnabled())
         {
             return E_HEALTH_STATUS_BAD;
         }
