@@ -146,6 +146,14 @@ Start soapd
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  on_access_process
     Should Be Equal As Integers    ${result.rc}    0
 
+Stop SafeStore
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   safestore
+    Should Be Equal As Integers    ${result.rc}    0
+
+Start SafeStore
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  safestore
+    Should Be Equal As Integers    ${result.rc}    0
+
 Restart sophos_threat_detector
     Stop sophos_threat_detector
     Start sophos_threat_detector

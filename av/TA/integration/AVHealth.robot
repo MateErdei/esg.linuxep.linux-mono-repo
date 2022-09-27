@@ -37,6 +37,12 @@ SHS Status File Contains
     ${shsStatus} =  Get File   ${MCS_DIR}/status/SHS_status.xml
     Log  ${shsStatus}
     Should Contain  ${shsStatus}  ${content_to_contain}
+
+SafeStore Flag File Contains Expected Value
+    [Arguments]   ${expectedValue}
+    ${ssFlagFile} =  Get File  ${SAFESTORE_FLAG_CONFIG}
+    Log  ${ssFlagFile}
+    Should Contain  ${ssFlagFile}   ss_enabled":${expectedValue}
     
 Check Status Health is Reporting Correctly
     [Arguments]    ${healthStatus}
@@ -121,6 +127,50 @@ Sophos On-Access PID File Existence Does Not Cause Good Status Health When Not L
 
     Remove File  ${PID_FILE}
     Start soapd
+    Wait until threat detector running
+    Check Status Health is Reporting Correctly    0
+
+Sophos SafeStore Process Not Running Does Not Trigger Bad Status Health When SafeStore Is Not Enabled
+    Send Flags Policy To Base  flags_policy/flags.json
+    Check Status Health is Reporting Correctly    0
+
+    Stop SafeStore
+    SafeStore Flag File Contains Expected Value   false
+    Check Status Health is Reporting Correctly    0
+
+    Start SafeStore
+    Wait until threat detector running
+    Check Status Health is Reporting Correctly    0
+
+Sophos SafeStore Process Not Running Triggers Bad Status Health
+    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Check Status Health is Reporting Correctly    0
+
+    Stop SafeStore
+    SafeStore Flag File Contains Expected Value   true
+    Check Status Health is Reporting Correctly    1
+
+    Start SafeStore
+    Wait until threat detector running
+    Check Status Health is Reporting Correctly    0
+
+Sophos SafeStore PID File Existence Does Not Cause Good Status Health When Not Locked
+    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Wait Until Keyword Succeeds
+    ...  60s
+    ...  2s
+    ...  SafeStore Flag File Contains Expected Value    true
+
+    Check Status Health is Reporting Correctly    0
+
+    Stop SafeStore
+    ${PID_FILE} =  Set Variable  ${AV_PLUGIN_PATH}/var/safestore.pid
+    Create File  123  ${PID_FILE}
+    Run  chmod 644 ${PID_FILE}
+    Check Status Health is Reporting Correctly    1
+
+    Remove File  ${PID_FILE}
+    Start SafeStore
     Wait until threat detector running
     Check Status Health is Reporting Correctly    0
 
