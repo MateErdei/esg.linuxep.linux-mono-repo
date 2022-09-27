@@ -513,7 +513,7 @@ Avscanner runs as non-root
    Log   ${output}
 
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-   Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/naugthy_eicar" is infected with EICAR-AV-Test
+   Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/naugthy_eicar" is infected with EICAR-AV-Test (On Demand)
 
    Should Not Contain    ${output}    Failed to read the config file
    Should Not Contain    ${output}    All settings will be set to their default value
@@ -901,7 +901,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     Wait Until AV Plugin Log Contains With Offset  Sending scan complete
     Log File  ${SCANNOW_LOG_PATH}
-    File Log Contains  ${SCANNOW_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
+    File Log Contains  ${SCANNOW_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test (Scheduled)
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
 
     ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
@@ -945,7 +945,7 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=250
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=18
     Log File  ${CLOUDSCAN_LOG_PATH}
-    File Log Contains  ${CLOUDSCAN_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test
+    File Log Contains  ${CLOUDSCAN_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test (Scheduled)
 
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
 

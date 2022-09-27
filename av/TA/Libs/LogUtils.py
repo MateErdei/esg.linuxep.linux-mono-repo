@@ -118,6 +118,7 @@ class LogUtils(object):
     def dump_logs(self):
         self.dump_log(self.oa_log)
         self.dump_log(self.av_log)
+        self.dump_log(self.sophos_threat_detector_log)
         self.dump_watchdog_log()
 
     def dump_log(self, filename):

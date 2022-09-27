@@ -410,7 +410,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
     Mark Sophos Threat Detector Log
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
-    Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
+    Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar (On Demand)
 
     Run  chmod 444 ${THREAT_DETECTOR_LOG_PATH}
     Register Cleanup  Run  chmod 600 ${THREAT_DETECTOR_LOG_PATH}
@@ -429,6 +429,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
 
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
     Threat Detector Log Should Not Contain With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
+
 
 SUSI Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
@@ -471,7 +472,7 @@ SUSI Debug Log Does Not Contain Info Level Logs By Default
     Wait Until File exists  ${SUSI_DEBUG_LOG_PATH}
     Mark Susi Debug Log
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar.com
-    Wait Until Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/eicar.com
+    Wait Until Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/eicar.com (On Demand)
 
     # Confirm that no info-level SUSI log messages were printed (ie. those starting with "I")
     ${contents}  Get File Contents From Offset   ${SUSI_DEBUG_LOG_PATH}   ${SUSI_DEBUG_LOG_MARK}

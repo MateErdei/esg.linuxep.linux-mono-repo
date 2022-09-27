@@ -178,7 +178,7 @@ CLS Can Scan Relative Path
     Log  output is ${output}
     Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/testdir/clean_file was aborted
     Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/testdir/naughty_eicar was aborted
-    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/testdir/naughty_eicar
+    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/testdir/naughty_eicar (On Demand)
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 
@@ -199,7 +199,7 @@ CLS Can Scan Infected File
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
+    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar (On Demand)
 
 
 CLS Can Scan Shallow Archive But not Deep Archive
@@ -301,7 +301,7 @@ CLS Does not request TFTClassification from SUSI
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}   Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test
+    Should Contain   ${output}   Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test (On Demand)
     Threat Detector Log Should Not Contain With Offset  TFTClassifications
 
 
@@ -315,7 +315,7 @@ CLS Can Evaluate High Ml Score As A Threat
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A (On Demand)
 
     ${contents}  Get File Contents From Offset   ${SUSI_DEBUG_LOG_PATH}   ${SUSI_DEBUG_LOG_MARK}
     ${primary_score}  ${secondary_score} =  Find Integers After Phrase  ML Scores:  ${contents}
@@ -351,9 +351,9 @@ CLS Can Scan Archive File
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test (On Demand)
 
 
 CLS Doesnt Detect eicar in zip without archive option
@@ -364,7 +364,7 @@ CLS Doesnt Detect eicar in zip without archive option
     Log  return code is ${rc}
     Log  output is ${output}
     Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/eicar.zip/eicar" is infected with EICAR-AV-Test
-    Should Not Contain  ${output}  is infected with EICAR-AV-Test
+    Should Not Contain  ${output}  is infected with EICAR-AV-Test (On Demand)
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
@@ -389,15 +389,15 @@ CLS Can Scan Multiple Archive Files
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test
-    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tgz/Gzip${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/1_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/3_eicar" is infected with EICAR-AV-Test (On Demand)
+    Should Contain  ${output}  Detected "${SCAN_DIR}/test.tar.bz2/Bzip2${ARCHIVE_DIR}/5_eicar" is infected with EICAR-AV-Test (On Demand)
 
 
 CLS Reports Reason for Scan Error on Zip Bomb
@@ -454,7 +454,7 @@ CLS Can Report Scan Error And Detection For Archive
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/EncryptedSpreadsheet.xlsx as it is password protected
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/eicar.com" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/eicar.com" is infected with EICAR-AV-Test (On Demand)
 
 
 
@@ -564,7 +564,7 @@ CLS Long Threat Paths Are Not Truncated
     Log  return code is ${rc}
     Log  output is ${output}
 
-    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/a-long-path-name-long-enough-for-this-test/i-am-a-deep-seated/dir1/dir2/dir3/dir4/dir5/dir6/dir7/dir8/dir9/dir0/dira/dirb/dirc/dird/1_eicar" is infected with EICAR-AV-Test
+    Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar${ARCHIVE_DIR}/a-long-path-name-long-enough-for-this-test/i-am-a-deep-seated/dir1/dir2/dir3/dir4/dir5/dir6/dir7/dir8/dir9/dir0/dira/dirb/dirc/dird/1_eicar" is infected with EICAR-AV-Test (On Demand)
 
 
 CLS Can Scan Zero Byte File
@@ -1445,9 +1445,9 @@ CLS scans dir with name similar to excluded mount
     Log                 output is ${output}
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain      ${output}   Detected "${testdir1}/process/eicar.com" is infected with EICAR-AV-Test
-    Should Contain      ${output}   Detected "${testdir1}/process_eicar.com" is infected with EICAR-AV-Test
-    Should Contain      ${output}   Detected "${testdir1}/process_symlink" (symlinked to ${testdir2}/eicar.com) is infected with EICAR-AV-Test
+    Should Contain      ${output}   Detected "${testdir1}/process/eicar.com" is infected with EICAR-AV-Test (On Demand)
+    Should Contain      ${output}   Detected "${testdir1}/process_eicar.com" is infected with EICAR-AV-Test (On Demand)
+    Should Contain      ${output}   Detected "${testdir1}/process_symlink" (symlinked to ${testdir2}/eicar.com) is infected with EICAR-AV-Test (On Demand)
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --follow-symlinks ${testdir2}
     Log                 return code is ${rc}
@@ -1455,7 +1455,7 @@ CLS scans dir with name similar to excluded mount
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain      ${output}   Detected "${testdir2}/eicar.com" is infected with EICAR-AV-Test
-    Should Contain      ${output}   Detected "${testdir2}/file_link" (symlinked to ${testdir1}/process_eicar.com) is infected with EICAR-AV-Test
+    Should Contain      ${output}   Detected "${testdir2}/file_link" (symlinked to ${testdir1}/process_eicar.com) is infected with EICAR-AV-Test (On Demand)
     Should Contain      ${output}   Detected "${testdir2}/dir_link/eicar.com" is infected with EICAR-AV-Test
 
 
@@ -1475,7 +1475,7 @@ CLS scan with ISO mount
     Log  output is ${output}
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}   Detected "${destination}/directory/subdir/eicar.com" is infected with EICAR-AV-Test
+    Should Contain   ${output}   Detected "${destination}/directory/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
 
 
 CLS scan two mounts same inode numbers
@@ -1505,8 +1505,8 @@ CLS scan two mounts same inode numbers
     Log  output is ${output}
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}   Detected "${destination}/directory/subdir/eicar.com" is infected with EICAR-AV-Test
-    Should Contain   ${output}   Detected "${destination2}/directory/subdir/eicar.com" is infected with EICAR-AV-Test
+    Should Contain   ${output}   Detected "${destination}/directory/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
+    Should Contain   ${output}   Detected "${destination2}/directory/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
 
 
 CLS Can Scan Infected And Error Files
@@ -1714,7 +1714,7 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    File Log Contains  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test
+    File Log Contains  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test (On Demand)
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
 
     Mark AV Log
