@@ -32,7 +32,7 @@ class OnAccessUtils:
                     logger.info("On Access enabled with " + line)
                     return
 
-                if "On-cloe event for" in line:
+                if "On-close event for" in line:
                     logger.info("On Access enabled with " + line)
                     return
 
