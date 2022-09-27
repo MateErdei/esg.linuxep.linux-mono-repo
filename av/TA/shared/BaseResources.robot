@@ -64,6 +64,10 @@ Send Fixed Sav Policy
     Create Fixed Sav Policy  ${TEMP_SAV_POLICY_FILENAME}
     Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
 
+Send Policies to enable on-access
+    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
+
 Send Sav Policy To Base
     [Arguments]  ${policyFile}
     Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/SAV-2_policy.xml

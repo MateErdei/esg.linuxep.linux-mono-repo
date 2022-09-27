@@ -36,11 +36,11 @@ def _log_contains_in_order(log_location, log_name, args, log_finds=True):
             raise AssertionError("Remainder of {} log doesn't contain {}".format(log_name, string))
 
 
-def _get_variable(varName, defaultValue=None):
+def _get_variable(var_name, default_value=None):
     try:
-        return robot.libraries.BuiltIn.BuiltIn().get_variable_value("${%s}" % varName) or defaultValue
+        return robot.libraries.BuiltIn.BuiltIn().get_variable_value("${%s}" % var_name) or default_value
     except robot.libraries.BuiltIn.RobotNotRunningError:
-        return os.environ.get(varName, defaultValue)
+        return os.environ.get(var_name, default_value)
 
 
 def _get_sophos_install():
@@ -75,6 +75,7 @@ def _mark_expected_errors_in_log(log_location, *error_messages):
             logger.info("Marking: " + logfile)
             with open(logfile, "w") as log:
                 log.write(contents)
+
 
 class LogUtils(object):
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
@@ -127,7 +128,7 @@ class LogUtils(object):
                 with open(filename, "rb") as f:
                     logger.info("file: " + str(filename))
                     lines = f.readlines()
-                    lines = [ line.decode("UTF-8", errors="backslashreplace") for line in lines ]
+                    lines = [line.decode("UTF-8", errors="backslashreplace") for line in lines]
                     logger.info(u''.join(lines))
             except Exception as e:
                 logger.info("Failed to read file: {}".format(e))
@@ -141,17 +142,17 @@ class LogUtils(object):
         server_log = self.cloud_server_log
         self.dump_log(server_log)
 
-    def check_log_contains(self, string_to_contain, pathToLog, log_name=None):
+    def check_log_contains(self, string_to_contain, path_to_log, log_name=None):
         if log_name is None:
-            log_name = os.path.basename(pathToLog)
+            log_name = os.path.basename(path_to_log)
 
-        if not (os.path.isfile(pathToLog)):
-            raise AssertionError("Log file {} at location {} does not exist ".format(log_name, pathToLog))
+        if not (os.path.isfile(path_to_log)):
+            raise AssertionError("Log file {} at location {} does not exist ".format(log_name, path_to_log))
 
-        contents = _get_log_contents(pathToLog)
+        contents = _get_log_contents(path_to_log)
         if string_to_contain not in contents:
-            self.dump_log(pathToLog)
-            raise AssertionError("{} Log at \"{}\" does not contain '{}'".format(log_name, pathToLog, string_to_contain))
+            self.dump_log(path_to_log)
+            raise AssertionError("{} Log at \"{}\" does not contain '{}'".format(log_name, path_to_log, string_to_contain))
 
     def file_log_contains_once(self, path, expected):
         """
@@ -192,24 +193,24 @@ File Log Contains
         """
         return self.check_log_contains(expected, path)
 
-    def Over_next_15_seconds_ensure_log_does_not_contain(self, pathToLog, unexpected, period=15, log_name=None):
-        log_name = log_name or os.path.basename(pathToLog)
+    def over_next_15_seconds_ensure_log_does_not_contain(self, path_to_log, unexpected, period=15, log_name=None):
+        log_name = log_name or os.path.basename(path_to_log)
         end = time.time() + period
         while time.time() < end:
-            contents = _get_log_contents(pathToLog) or ""
+            contents = _get_log_contents(path_to_log) or ""
             if unexpected in contents:
-                raise AssertionError("{} Log at \"{}\" contains: {}".format(log_name, pathToLog, unexpected))
+                raise AssertionError("{} Log at \"{}\" contains: {}".format(log_name, path_to_log, unexpected))
             time.sleep(1)
-        logger.info("{} Log at \"{}\" does not contain: {}".format(log_name, pathToLog, unexpected))
+        logger.info("{} Log at \"{}\" does not contain: {}".format(log_name, path_to_log, unexpected))
 
-    def check_log_and_return_nth_occurrence_between_strings(self, string_to_contain_start, string_to_contain_end, pathToLog,
-                                                           occurs=1):
-        if not (os.path.isfile(pathToLog)):
-            raise AssertionError("Log file {} does not exist".format(pathToLog))
+    def check_log_and_return_nth_occurrence_between_strings(self, string_to_contain_start, string_to_contain_end, path_to_log,
+                                                            occurs=1):
+        if not (os.path.isfile(path_to_log)):
+            raise AssertionError("Log file {} does not exist".format(path_to_log))
 
         occurs_int = int(occurs)
 
-        contents = _get_log_contents(pathToLog)
+        contents = _get_log_contents(path_to_log)
 
         index2 = 0
         while True:
@@ -225,9 +226,9 @@ File Log Contains
             if occurs_int == 0:
                 return contents[index1:index2]
 
-        self.dump_log(pathToLog)
+        self.dump_log(path_to_log)
         raise AssertionError(
-            "Log at \"{}\" does not contain following string pair {} - {} times : {}".format(pathToLog,
+            "Log at \"{}\" does not contain following string pair {} - {} times : {}".format(path_to_log,
                                                                                              string_to_contain_start,
                                                                                              string_to_contain_end,
                                                                                              occurs))
@@ -236,7 +237,7 @@ File Log Contains
         # status_numbers should be integers
         # will check all statuses in order given to see if they are res=same
         # will pass when res=same is found
-        # will fail on a status where res is neither same or noref
+        # will fail on a status where res is neither same nor noref
         # the purpose of this function is to solve a race condition in a flakey test
         statuses = []
         for status_number in status_numbers:
@@ -258,45 +259,44 @@ File Log Contains
             count += 1
         raise AssertionError("Failed to find {} in statuses: {}".format(status_same, status_numbers))
 
+    def check_log_does_not_contain(self, string_not_to_contain, path_to_log, log_name):
+        if not (os.path.isfile(path_to_log)):
+            raise AssertionError("Log file {} at location {} does not exist ".format(log_name, path_to_log))
 
-    def check_log_does_not_contain(self, string_not_to_contain, pathToLog, log_name):
-        if not (os.path.isfile(pathToLog)):
-            raise AssertionError("Log file {} at location {} does not exist ".format(log_name, pathToLog))
-
-        contents = _get_log_contents(pathToLog)
+        contents = _get_log_contents(path_to_log)
         if string_not_to_contain in contents:
-            self.dump_log(pathToLog)
-            raise AssertionError("{} Log at \"{}\" does contain: {}".format(log_name, pathToLog, string_not_to_contain))
+            self.dump_log(path_to_log)
+            raise AssertionError("{} Log at \"{}\" does contain: {}".format(log_name, path_to_log, string_not_to_contain))
 
-    def check_log_contains_more_than_one_pair_of_strings_in_order(self, stringOne, stringTwo, pathToLog, log_name):
-        logger.info("Strings are {} {}".format(stringOne, stringTwo))
-        if not (os.path.isfile(pathToLog)):
-            raise AssertionError("Log file {} at location {} does not exist ".format(log_name, pathToLog))
+    def check_log_contains_more_than_one_pair_of_strings_in_order(self, string_one, string_two, path_to_log, log_name):
+        logger.info("Strings are {} {}".format(string_one, string_two))
+        if not (os.path.isfile(path_to_log)):
+            raise AssertionError("Log file {} at location {} does not exist ".format(log_name, path_to_log))
 
-        contents = _get_log_contents(pathToLog)
+        contents = _get_log_contents(path_to_log)
 
         first = True
         index2 = 0
         while True:
-            index1 = contents.find(stringOne, index2)
+            index1 = contents.find(string_one, index2)
             logger.info("Index1 = {}".format(index1))
             if index1 == -1:
                 if first:
                     raise AssertionError(
-                        "{} Log at \"{}\" does contain first string in pair at all: {} - {}".format(log_name, pathToLog,
-                                                                                                    stringOne,
-                                                                                                    stringTwo))
+                        "{} Log at \"{}\" does contain first string in pair at all: {} - {}".format(log_name, path_to_log,
+                                                                                                    string_one,
+                                                                                                    string_two))
                 else:
                     break
-            index1 = index1 + len(stringOne)
-            index2 = contents.find(stringTwo, index1)
+            index1 = index1 + len(string_one)
+            index2 = contents.find(string_two, index1)
             logger.info("Index2 = {}".format(index2))
             if index2 == -1:
-                self.dump_log(pathToLog)
+                self.dump_log(path_to_log)
                 raise AssertionError(
-                    "{} Log at \"{}\" does contain pair of strings in order: {} - {}".format(log_name, pathToLog,
-                                                                                             stringOne, stringTwo))
-            index2 = index2 + len(stringTwo)
+                    "{} Log at \"{}\" does contain pair of strings in order: {} - {}".format(log_name, path_to_log,
+                                                                                             string_one, string_two))
+            index2 = index2 + len(string_two)
             first = False
 
     def check_log_contains_data_from_multisend(self, log_root, subscriber, publisher_num, data_items, channel_name):
@@ -306,10 +306,10 @@ File Log Contains
                 data.append(
                     "Sub {} received message: ['{}', 'Data From publisher {} Num {}']".format(subscriber, channel_name,
                                                                                               publisher_id, datum))
-            _log_contains_in_order(os.path.join(log_root, "fake_multi_subscriber.log")
-                                   , "Fake Multi-Subscriber Log"
-                                   , data
-                                   , False)
+            _log_contains_in_order(os.path.join(log_root, "fake_multi_subscriber.log"),
+                                   "Fake Multi-Subscriber Log",
+                                   data,
+                                   False)
 
     def check_multiple_logs_contains_data_from_multisend(self, log_root, publisher_num, subscriber_num, data_items,
                                                          channel_name_log, channel_name):
@@ -320,10 +320,10 @@ File Log Contains
                     data.append("Sub Subscriber_{}_{} received message: ['{}', 'Data From publisher {} Num {}']".format(
                         subscriber_id, channel_name_log, channel_name, publisher_id, datum))
                 _log_contains_in_order(
-                    os.path.join(log_root, "Subscriber_{}_{}.log".format(subscriber_id, channel_name_log))
-                    , "Fake Subscriber {} {} Log".format(subscriber_id, channel_name_log)
-                    , data
-                    , False)
+                    os.path.join(log_root, "Subscriber_{}_{}.log".format(subscriber_id, channel_name_log)),
+                    "Fake Subscriber {} {} Log".format(subscriber_id, channel_name_log),
+                    data,
+                    False)
 
     def check_multiple_logs_do_not_contain_data_from_multisend(self, log_root, publisher_num, subscriber_num,
                                                                channel_name_listened_to, channel_name_not_listened_to):
@@ -333,17 +333,17 @@ File Log Contains
                     "Sub Subscriber_{}_{} received message: ['{}', 'Data From publisher {} Num".format(subscriber_id,
                                                                                                        channel_name_listened_to,
                                                                                                        channel_name_not_listened_to,
-                                                                                                       publisher_id)
-                    , os.path.join(log_root, "Subscriber_{}_{}.log".format(subscriber_id, channel_name_listened_to))
-                    , "Fake Subscriber {} {} Log".format(subscriber_id, channel_name_listened_to))
+                                                                                                       publisher_id),
+                    os.path.join(log_root, "Subscriber_{}_{}.log".format(subscriber_id, channel_name_listened_to)),
+                    "Fake Subscriber {} {} Log".format(subscriber_id, channel_name_listened_to))
 
-    def log_string_if_found(self, string_to_contain, pathToLog):
-        with open(pathToLog, "rb") as file:
+    def log_string_if_found(self, string_to_contain, path_to_log):
+        with open(path_to_log, "rb") as file:
             contents = file.read()
             contents = contents.decode("UTF-8", errors='backslashreplace').splitlines()
             for line in contents:
                 if string_to_contain in line:
-                    logger.info("{} contains: {} in {}".format(os.path.basename(pathToLog), string_to_contain, line))
+                    logger.info("{} contains: {} in {}".format(os.path.basename(path_to_log), string_to_contain, line))
 
     def replace_all_in_file(self, log_location, target, replacement):
         contents = _get_log_contents(log_location)
@@ -452,7 +452,7 @@ File Log Contains
     def cloud_server_log_should_not_contain(self, string_to_contain):
         self.check_log_does_not_contain(string_to_contain, self.cloud_server_log, "cloud server log")
 
-    def remove_thininstaller_log(self, *args):
+    def remove_thininstaller_log(self):
         if os.path.isfile(self.thin_install_log):
             os.remove(self.thin_install_log)
 
@@ -604,16 +604,14 @@ File Log Contains
 
     def check_marked_av_log_contains(self, string_to_contain, mark):
         """
-        :param string_to_contain:
+        :param string_to_contain: string to look for
         :param mark: IGNORED - number of lines to skip
         :return: True if string_to_contain in marked log
         """
-        av_log = self.av_log
-        contents = _get_log_contents(av_log)
-        contents = contents[self.marked_av_log:]
+        contents = self.get_marked_av_log()
 
         if string_to_contain not in contents:
-            self.dump_log(av_log)
+            self.dump_marked_av_log()
             raise AssertionError("av.log log did not contain: '" +
                                  string_to_contain+"', starting from '"+contents[:50]+"'")
 
@@ -621,14 +619,14 @@ File Log Contains
         contents = self.get_marked_sophos_threat_detector_log()
 
         if string_to_contain not in contents:
-            self.dump_log(contents)
+            self.dump_marked_sophos_threat_detector_log()
             raise AssertionError("sophos_threat_detector.log log did not contain: " + string_to_contain)
         return contents
 
     def verify_sophos_threat_detector_log_line_is_level(self, expected_level, string_to_check):
         contents = self.check_marked_sophos_threat_detector_log_contains(string_to_check)
         # 9296    [2022-07-29T08:45:34.335]    WARN [9369807616] ThreatScanner <> Failed to scan /home/vagrant/this/is/a/directory/for/scanning/password_protected.7z/eicar.com as it is password protected
-        line_re = re.compile(r"^\d+\s+\[\S+\]\s+(\w+)\s+.*?"+re.escape(string_to_check)+r".*?$", flags=re.MULTILINE)
+        line_re = re.compile(r"^\d+\s+\[\S+]\s+(\w+)\s+.*?"+re.escape(string_to_check)+r".*?$", flags=re.MULTILINE)
         found = False
         for mo in line_re.finditer(contents):
             found = True
@@ -663,7 +661,6 @@ File Log Contains
     def check_marked_mcs_envelope_log_contains(self, string_to_contain):
         mcs_envelope_log = self.mcs_envelope_log()
         contents = _get_log_contents(mcs_envelope_log)
-
         contents = contents[self.marked_mcs_envelope_logs:]
 
         if string_to_contain not in contents:
@@ -673,7 +670,6 @@ File Log Contains
     def check_marked_mcsrouter_log_contains(self, string_to_contain):
         mcsrouter_log = self.mcs_router_log()
         contents = _get_log_contents(mcsrouter_log)
-
         contents = contents[self.marked_mcsrouter_logs:]
 
         if string_to_contain not in contents:
@@ -734,7 +730,6 @@ File Log Contains
                                                                                    string_to_contain,
                                                                                    num_occurrences,
                                                                                    expected_occurrence))
-
 
     def check_mcs_envelope_log_contains_regex_string_n_times(self, string_to_contain, expected_occurrence):
         self.check_mcs_envelope_log_contains_string_n_times(string_to_contain, expected_occurrence, True)
@@ -866,7 +861,6 @@ File Log Contains
     def all_should_be_equal(*args):
         assert len(args) > 1, "Error: should have more than 1 argument"
         master = args[0]
-        all_equal = True
         for arg in args[1:]:
             if arg != master:
                 raise AssertionError("Not all items are equal in: {}".format(args))
@@ -898,7 +892,7 @@ File Log Contains
 
 
 def __main(argv):
-    #write your tests here
+    # write your tests here
     return 0
 
 

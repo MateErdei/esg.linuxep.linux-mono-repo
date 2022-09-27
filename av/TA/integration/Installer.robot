@@ -7,6 +7,7 @@ Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/BaseResources.robot
 Resource    ../shared/ErrorMarkers.robot
+Resource    ../shared/OnAccessResources.robot
 
 Library         Collections
 Library         Process
@@ -14,7 +15,6 @@ Library         ../Libs/CoreDumps.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/FullInstallerUtils.py
 Library         ../Libs/LogUtils.py
-Library         ../Libs/OnAccessUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
 Library         ../Libs/ProcessUtils.py
@@ -92,12 +92,12 @@ Restart then Update Sophos Threat Detector
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 IDE update during command line scan
-    # Assumes that /usr takes long enough to scan, and that all files take well under one second to be scanned.
+    # Assumes that /usr/share/ takes long enough to scan, and that all files take well under one second to be scanned.
     # If this proves to be false on any of our test systems, we'll need to create a dummy fileset to scan instead.
     Mark Sophos Threat Detector Log
 
     ${scan_log} =   Set Variable  /tmp/cli.log
-    ${cls_handle} =   Start Process  ${CLI_SCANNER_PATH}  /usr/  stdout=${scan_log}  stderr=STDOUT
+    ${cls_handle} =   Start Process  ${CLI_SCANNER_PATH}  /usr/share/  stdout=${scan_log}  stderr=STDOUT
     Register Cleanup  Remove File  ${scan_log}
     Register Cleanup  Dump Log  ${scan_log}
     Register Cleanup  Terminate Process  ${cls_handle}
@@ -128,6 +128,57 @@ IDE update during command line scan
     FOR   ${offset}   IN RANGE   ${time_diff}
         ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
         ${line_count} =  Count Lines In Log  ${scan_log}  [${timestamp}] Scanning \
+        Should Be True   10 <= ${line_count}
+    END
+
+On access gets IDE update
+    Send Policies to enable on-access
+    Wait Until On Access Log Contains With Offset   On-open event for
+
+    Mark On Access Log
+    On-access Scan Eicar Close
+    On-access Scan Peend no detect
+
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
+
+    On-access Scan Eicar Close
+    On-access Scan Peend
+
+On access continues during update
+    Send Policies to enable on-access
+    Wait Until On Access Log Contains With Offset   On-open event for
+
+    ${test_dir} =   Set Variable   /tmp/testdir
+    Create Directory   ${test_dir}
+    Register Cleanup   Remove Directory   ${test_dir}   recursive=True
+
+    ${handle} =   Start Process
+    ...   while :; do echo foo >$(date -u +%H:%M:%S); sleep 0.01; done
+    ...   shell=True   cwd=${test_dir}
+
+    Mark Sophos Threat Detector Log
+    Wait Until Sophos Threat Detector Log Contains With Offset     Scan requested of ${test_dir}/
+
+    ${start_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
+    Sleep   1s   let on-access do its thing
+
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
+
+    Mark Sophos Threat Detector Log
+    Wait Until Sophos Threat Detector Log Contains With Offset     Scan requested of ${test_dir}/
+
+    Sleep   1s   let on-access do its thing
+    ${end_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
+
+    Process should Be Running   handle=${handle}
+    ${result} =   Terminate Process   handle=${handle}
+
+    # do some magic to check that we were scanning without interruption (at least 10 scans every second)
+    ${time_diff} =   Subtract Date From Date   ${end_time}   ${start_time}   exclude_millis=True
+    FOR   ${offset}   IN RANGE   ${time_diff}
+        ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
+        ${lines} =   Grep File   ${THREAT_DETECTOR_LOG_PATH}   T${timestamp}.* Scan requested of /tmp/testdir/
+        ${line_count} =   Get Line Count   ${lines}
         Should Be True   10 <= ${line_count}
     END
 
@@ -697,18 +748,17 @@ Check AV installer sets correct home directory for the users it creates
     Should Be Equal As Strings  ${homedir}  /opt/sophos-spl
 
 IDE Update Invalidates On Access Cache
-    Send Flags Policy To Base  flags_policy/flags_enabled.json
-    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
-    wait for on access to be enabled
+    Send Policies to enable on-access
+    Wait Until On Access Log Contains With Offset   On-open event for
 
     Register Cleanup  Exclude On Access Scan Errors
     ${srcfile} =  Set Variable  /tmp_test/clean.txt
     Create File  ${srcfile}  clean
-    Get File  ${srcfile}
+    Generate Only Open Event  ${srcfile}
     Register Cleanup  Remove File  ${srcfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from
     # Allow time for file to be added to cache
-    Sleep  5s
+    Sleep  1s
 
     Install IDE without reload check  ${IDE_NAME}
     Wait Until On Access Log Contains With Offset  Clearing on-access cache
@@ -716,7 +766,7 @@ IDE Update Invalidates On Access Cache
     Sleep  5s
 
     Mark On Access Log
-    Get File  ${srcfile}
+    Generate Only Open Event  ${srcfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from  timeout=60
 
 

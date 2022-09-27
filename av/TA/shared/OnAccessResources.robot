@@ -14,17 +14,15 @@ Library         ../Libs/LogUtils.py
 Library         ../Libs/ThreatReportUtils.py
 
 
-** Variables ***
+*** Variables ***
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
-${timeout}  ${60}
+${timeout}  ${20}
 
 
 *** Keywords ***
 Clear On Access Log When Nearly Full
     ${OA_LOG_SIZE}=  Get File Size in MB   ${ON_ACCESS_LOG_PATH}
-
-    ${oa_evaluation}=  Evaluate  ${OA_LOG_SIZE} > ${0.5}
-    IF    ${oa_evaluation}
+    IF    ${OA_LOG_SIZE} > ${0.5}
           Dump Log  ${ON_ACCESS_LOG_PATH}
           Remove File    ${ON_ACCESS_LOG_PATH}
           Restart On Access
@@ -46,13 +44,13 @@ Start On Access And AV With Running Threat Detector
 Start On Access without Log check
     Remove Files   /tmp/soapd.stdout  /tmp/soapd.stderr
     ${handle} =  Start Process  ${ON_ACCESS_BIN}   stdout=/tmp/soapd.stdout  stderr=/tmp/soapd.stderr
-    ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${handle}
 
 Start On Access
     Mark On Access Log
     Start On Access without Log check
-    Wait Until On Access running with offset
+    Wait Until On Access running
+    Wait Until On Access Log Contains With Offset  Fanotify successfully initialised
 
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
@@ -110,30 +108,57 @@ Enable OA Scanning
 
 
 On-access Scan Eicar Close
-    ${pid} =  Get Robot Pid
+    #${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  /tmp_test/eicar.com
     Mark On Access Log
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from    timeout=${timeout}
-    Wait Until On Access Log Contains With Offset  "${filepath}" is infected with    timeout=${timeout}
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from \   timeout=${timeout}
+    Wait Until On Access Log Contains With Offset  "${filepath}" is infected with EICAR-AV-Test \   timeout=${timeout}
 
 
 On-access Scan Eicar Open
-    ${pid} =  Get Robot Pid
-    ${srcfile} =  Set Variable  /tmp_test/eicar.com
+    #${pid} =  Get Robot Pid
+    ${filepath} =  Set Variable  /tmp_test/eicar.com
+    Create File  ${filepath}  ${EICAR_STRING}
+    Get Binary File  ${filepath}
+    Register Cleanup  Remove File  ${filepath}
 
-    Create File  ${srcfile}  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${srcfile}
-
-    Mark On Access Log
-    Get File   ${srcfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from    timeout=${timeout}
-    Wait Until On Access Log Contains With Offset  "${srcfile}" is infected with    timeout=${timeout}
+    Wait Until On Access Log Contains With Offset  On-open event for ${filepath} from \   timeout=${timeout}
+    Wait Until On Access Log Contains With Offset  "${filepath}" is infected with EICAR-AV-Test \   timeout=${timeout}
 
 
 On-access No Eicar Scan
+    #${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  /tmp_test/uncaught_eicar.com
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
-    On Access Log Does Not Contain  On-close event for ${filepath} from
+    # TODO - needs a "wait for On Access Log Does Not Contain With Offset" function
+    Sleep   15s   Wait for on-access logging to catch up
+    On Access Log Does Not Contain With Offset  On-close event for ${filepath} from
+
+On-access Scan Peend
+    ${threat_file} =   Set Variable   ${RESOURCES_PATH}/file_samples/peend.exe
+    ${threat_name} =   Set Variable   PE/ENDTEST
+    ${peend} =   Get Binary File  ${threat_file}
+
+    ${filepath} =  Set Variable  /tmp_test/peend.exe
+    Create Binary File   ${filepath}   ${peend}
+    Register Cleanup  Remove File  ${filepath}
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from \   timeout=${timeout}
+    Wait Until On Access Log Contains With Offset  "${filepath}" is infected with ${threat_name} \   timeout=${timeout}
+
+On-access Scan Peend no detect
+    ${threat_file} =   Set Variable   ${RESOURCES_PATH}/file_samples/peend.exe
+    ${threat_name} =   Set Variable   PE/ENDTEST
+    ${peend} =   Get Binary File  ${threat_file}
+
+    ${filepath} =  Set Variable  /tmp_test/peend.exe
+    Create Binary File   ${filepath}   ${peend}
+    Register Cleanup  Remove File  ${filepath}
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from \   timeout=${timeout}
+    Sleep   15s   Wait for on-access logging to catch up
+    On Access Log Does Not Contain With Offset  "${filepath}" is infected with ${threat_name} \
+

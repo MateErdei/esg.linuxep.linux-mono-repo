@@ -25,6 +25,8 @@ ${TESTTMP}  /tmp_test/SSPLAVTests
 
 
 *** Keywords ***
+
+#Keep On Access/AV/ThreatDetector running throughout suite
 On Access Suite Setup
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
@@ -402,7 +404,7 @@ On Access Doesnt Scan Named Scanner Events
     Mark AV Log
 
     Run Scheduled Scan With On Access Enabled
-    Wait Until AV Plugin Log Contains With Offset    Completed scan   timeout=${timeout}
+    Wait Until AV Plugin Log Contains With Offset    Completed scan   timeout=60
 
     On Access Log Does Not Contain With Offset  from Process ${PLUGIN_BINARY}(PID=${AVPLUGIN_PID})
     On Access Log Does Not Contain With Offset  from Process ${SCHEDULED_FILE_WALKER_LAUNCHER}
@@ -425,14 +427,14 @@ On Access Caches Open Events Without Detections
     Register Cleanup   Remove File   ${cleanfile}
     Register Cleanup   Remove File   ${dirtyfile}
 
-    Get File   ${cleanfile}
+    Generate Only Open Event   ${cleanfile}
     Sleep   1  #Let the event be cached
 
     Mark On Access Log
-    Get File   ${cleanfile}
+    Generate Only Open Event   ${cleanfile}
 
     #Generate another event we can expect in logs
-    Get File   ${dirtyfile}
+    Generate Only Open Event   ${dirtyfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}
     On Access Log Does Not Contain With Offset   On-open event for ${cleanfile} from
 
@@ -446,7 +448,7 @@ On Access Doesnt Cache Open Events With Detections
 
     Sleep   1  #Let the event be cached
 
-    Get File   ${dirtyfile}
+    Generate Only Open Event   ${dirtyfile}
 
     Wait Until On Access Log Contains Times With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}    times=2
     Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
@@ -497,7 +499,7 @@ On Access Processes New File With Same Attributes And Contents As Old File
     Create File   ${cleanfile}   ${CLEAN_STRING}
     Register Cleanup   Remove File   ${cleanfile}
 
-    Get File   ${cleanfile}
+    Generate Only Open Event   ${cleanfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
     Sleep   1  #Let the event be cached, Create File can create a combined event which wont be cached
 
@@ -513,15 +515,17 @@ On Access Detects A Clean File Replaced By Dirty File With Same Attributes
     Mark On Access Log
     Create File   ${dustyfile}   ${CLEAN_STRING}
     Register Cleanup   Remove File   ${dustyfile}
+    Sleep   0.1s
 
-    Get File   ${dustyfile}
+    Generate Only Open Event   ${dustyfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
-    Sleep   1  #Let the event be cached,
+    Sleep   1s   Let the event be cached,
 
     Remove File   ${dustyfile}
+    Create File   ${dustyfile}   ${EICAR_STRING}
+    Sleep   0.1s
 
     Mark On Access Log
-    Create File   ${dustyfile}   ${EICAR_STRING}
-    Get File   ${dustyfile}
+    Generate Only Open Event   ${dustyfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
     Wait Until On Access Log Contains With Offset  Detected "${dustyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
