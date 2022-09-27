@@ -7,6 +7,7 @@ Documentation   Product tests for SOAP
 Force Tags      PRODUCT  SOAP
 
 Resource    ../shared/ErrorMarkers.robot
+Resource    ../shared/FakeManagementResources.robot
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/OnAccessResources.robot
@@ -137,6 +138,28 @@ On Access Does Not Include Remote Files If Excluded In Policy
 
     Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
     On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
+
+
+On Access Does Not Scan Files If Excluded By Path In Policy
+    Register Cleanup  Dump Log  ${ON_ACCESS_LOG_PATH}
+    ${filepath1} =  Set Variable  /tmp_test/eicar.com
+    ${filepath2} =  Set Variable  /tmp_test/eicar2.com
+    ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/"]  True
+    Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/tmp_test/"]
+
+    Mark On Access Log
+    Create File  ${filepath1}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${filepath1}
+    On Access Log Does Not Contain With Offset  On-close event for ${filepath1} from
+
+    ${policyContent} =  Get Complete Sav Policy  []  True
+    Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until On Access Log Contains With Offset  On-access exclusions: []
+
+    Create File  ${filepath2}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${filepath2}
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath2} from  timeout=60
 
 
 On Access Monitors Addition And Removal Of Mount Points

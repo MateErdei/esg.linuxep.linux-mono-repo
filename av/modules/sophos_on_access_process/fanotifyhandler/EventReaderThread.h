@@ -7,6 +7,7 @@
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 
 #include "common/AbstractThreadPluginInterface.h"
+#include "common/Exclusion.h"
 #include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 
@@ -28,6 +29,8 @@ namespace sophos_on_access_process::fanotifyhandler
 
         void run() override;
 
+        void setExclusions(std::vector<common::Exclusion> exclusions);
+
     private:
         bool handleFanotifyEvent();
         std::string getFilePathFromFd(int fd);
@@ -39,5 +42,6 @@ namespace sophos_on_access_process::fanotifyhandler
         onaccessimpl::ScanRequestQueueSharedPtr m_scanRequestQueue;
         pid_t m_pid;
         std::string m_processExclusionStem;
+        std::vector<common::Exclusion> m_exclusions;
     };
 }

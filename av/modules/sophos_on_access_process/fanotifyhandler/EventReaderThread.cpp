@@ -124,6 +124,21 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
+        bool exclusionApplied = false;
+        for (const auto& exclusion: m_exclusions)
+        {
+            if (exclusion.appliesToPath(path))
+            {
+                LOGTRACE("File access on " << path << " will not be scanned due to exclusion: "  << exclusion.displayPath());
+                exclusionApplied = true;
+                continue;
+            }
+        }
+        if (exclusionApplied)
+        {
+            continue;
+        }
+
         auto uid = getUidFromPid(metadata->pid);
         auto escapedPath = common::escapePathForLogging(path);
 
@@ -240,5 +255,14 @@ void EventReaderThread::run()
                 break;
             }
         }
+    }
+}
+
+void EventReaderThread::setExclusions(std::vector<common::Exclusion> exclusions)
+{
+    if (exclusions != m_exclusions)
+    {
+        LOGDEBUG("Updating on-access exclusions");
+        m_exclusions = exclusions;
     }
 }

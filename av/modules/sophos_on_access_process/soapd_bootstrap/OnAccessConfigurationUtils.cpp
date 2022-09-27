@@ -104,7 +104,10 @@ namespace sophos_on_access_process::OnAccessConfig
             OnAccessConfiguration configuration{};
             configuration.enabled = isSettingTrue(parsedConfig["enabled"]);
             configuration.excludeRemoteFiles = isSettingTrue(parsedConfig["excludeRemoteFiles"]);
-            configuration.exclusions = parsedConfig["exclusions"].get<std::vector<std::string>>();
+            for (const auto& exclusion: parsedConfig["exclusions"])
+            {
+                configuration.exclusions.emplace_back(exclusion);
+            }
 
             std::string scanNetwork = isSettingTrue(parsedConfig["excludeRemoteFiles"]) ? "\"false\"" : "\"true\"";
             LOGINFO("On-access enabled: " << parsedConfig["enabled"]);

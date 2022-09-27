@@ -37,6 +37,8 @@ protected:
 
         m_soapConfigPath = m_testDir / "var/soapd_config.json";
         m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+        m_defaultTestExclusions.emplace_back("/mnt/");
+        m_defaultTestExclusions.emplace_back("/uk-filer5/");
     }
 
     void TearDown() override
@@ -46,6 +48,7 @@ protected:
 
     std::string m_soapConfigPath;
     std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
+    std::vector<common::Exclusion> m_defaultTestExclusions;
 };
 
 TEST_F(TestOnAccessConfigUtils, readPolicyConfigFile)
@@ -74,13 +77,13 @@ TEST_F(TestOnAccessConfigUtils, parseOnAccessPolicySettingsFromJson)
     OnAccessConfiguration expectedResult;
     expectedResult.enabled = true;
     expectedResult.excludeRemoteFiles = false;
-    expectedResult.exclusions = {"/mnt/", "/uk-filer5/"};
+    expectedResult.exclusions = m_defaultTestExclusions;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
 
     expectedResult.enabled = false;
     expectedResult.excludeRemoteFiles = true;
-    expectedResult.exclusions = {"/uk-filer5/", "/mnt/"};
+    expectedResult.exclusions = m_defaultTestExclusions;
 
     ASSERT_NE(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
 }
@@ -92,7 +95,8 @@ TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJsonInvalidJson)
     OnAccessConfiguration expectedResult;
     expectedResult.enabled = false;
     expectedResult.excludeRemoteFiles = false;
-    expectedResult.exclusions = {"I", "am"};
+    expectedResult.exclusions.emplace_back("I");
+    expectedResult.exclusions.emplace_back("am");
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
 }

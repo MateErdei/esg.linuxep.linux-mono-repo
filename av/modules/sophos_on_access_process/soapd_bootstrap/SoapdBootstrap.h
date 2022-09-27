@@ -5,6 +5,7 @@
 #include "OnAccessConfigurationUtils.h"
 
 #include "mount_monitor/mount_monitor/MountMonitor.h"
+#include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 
@@ -50,8 +51,8 @@ namespace sophos_on_access_process::soapd_bootstrap
         std::atomic_bool m_currentOaEnabledState = false;
         std::atomic_bool m_onAccessEnabledFlag = false;
 
-
         std::shared_ptr<onaccessimpl::ScanRequestQueue> m_scanRequestQueue;
         std::vector<std::shared_ptr<common::ThreadRunner>> m_scanHandlerThreads;
+        std::shared_ptr<::fanotifyhandler::EventReaderThread> m_eventReader;
     };
 }

@@ -96,11 +96,15 @@ def create_complete_sav_policy(filename):
     sav_policy_builder.send_sav_policy()
 
 
-def get_complete_sav_policy():
+def get_complete_sav_policy(
+        exclusion_list=["*.glob", "globExample?.txt", "/stemexample/*"],
+        on_access_enabled=False):
     sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, None)
     sav_policy_builder.set_scheduled_scan_day("monday")
     sav_policy_builder.set_scheduled_scan_time("11:00:00")
-    sav_policy_builder.set_posix_exclusions(["*.glob", "globExample?.txt", "/stemexample/*"])
+    if on_access_enabled:
+        sav_policy_builder.set_on_access_on()
+    sav_policy_builder.set_posix_exclusions(exclusion_list)
     sav_policy_builder.set_sophos_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3"])
     sav_policy_builder.set_user_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3", "exclusion4"])
     return sav_policy_builder.get_sav_policy()

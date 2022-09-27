@@ -34,6 +34,8 @@ namespace common
         [[nodiscard]] std::string displayPath() const;
         [[nodiscard]] ExclusionType type() const;
 
+        bool operator==(const Exclusion& rhs) const;
+
     private:
         static std::regex convertGlobToRegex(const std::string& glob);
         static void escapeRegexMetaCharacters(std::string& text);

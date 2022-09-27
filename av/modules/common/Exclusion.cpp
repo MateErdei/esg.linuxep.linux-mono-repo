@@ -218,3 +218,10 @@ std::regex Exclusion::convertGlobToRegex(const std::string& glob)
 
     return std::regex(regexStr);
 }
+
+bool Exclusion::operator==(const Exclusion& rhs) const
+{
+    return m_exclusionPath == rhs.path() &&
+           m_exclusionDisplayPath == rhs.displayPath() &&
+           m_type == rhs.type();
+}

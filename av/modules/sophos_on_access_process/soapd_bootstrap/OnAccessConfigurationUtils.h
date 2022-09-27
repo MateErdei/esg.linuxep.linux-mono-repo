@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "common/Exclusion.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include <string>
@@ -11,7 +12,7 @@ namespace sophos_on_access_process::OnAccessConfig
 {
     struct OnAccessConfiguration
     {
-        std::vector<std::string> exclusions;
+        std::vector<common::Exclusion> exclusions;
         bool enabled;
         bool excludeRemoteFiles;
     } __attribute__((aligned(32)));

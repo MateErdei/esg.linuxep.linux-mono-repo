@@ -6,7 +6,6 @@
 #include "Logger.h"
 #include "OnAccessProcesControlCallbacks.h"
 // Component
-#include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 // Product
 #include "common/FDUtils.h"
@@ -29,7 +28,7 @@
 // Std C
 #include <poll.h>
 
-#define MAX_SCAN_THREADS 10
+#define MAX_SCAN_THREADS 1
 
 namespace fs = sophos_filesystem;
 
@@ -97,12 +96,11 @@ void SoapdBootstrap::innerRun()
     auto updateClientThread = std::make_unique<common::ThreadRunner>(updateClient, "updateClient", true);
 
     m_scanRequestQueue = std::make_shared<ScanRequestQueue>();
-
-    auto eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
+    m_eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler->getFd(),
                                                            sysCallWrapper,
                                                            common::getPluginInstallPath(),
                                                            m_scanRequestQueue);
-    m_eventReaderThread = std::make_unique<common::ThreadRunner>(std::move(eventReader),
+    m_eventReaderThread = std::make_unique<common::ThreadRunner>(m_eventReader,
                                                                  "eventReader",
                                                                  false);
 
@@ -113,7 +111,7 @@ void SoapdBootstrap::innerRun()
                                                                                                0666,
                                                                                                processControlCallbacks);
     auto processControllerServerThread = std::make_unique<common::ThreadRunner>(processControllerServer,
-                                                                                "processControlServer",
+                                                                                "eventReader",
                                                                                 true);
 
     struct pollfd fds[] {
@@ -191,7 +189,7 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
 
     if(!m_onAccessEnabledFlag)
     {
-        LOGINFO("Overriding policy, on-access will be disabled");
+        LOGINFO("Policy override is enabled, on-access will be disabled");
         disableOnAccess(flagChanged);
     }
     else
@@ -213,6 +211,7 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
         {
             disableOnAccess(changed);
         }
+        m_eventReader->setExclusions(oaConfig.exclusions);
     }
     LOGDEBUG("Finished ProcessPolicy " << onStart);
 }
@@ -224,16 +223,19 @@ void SoapdBootstrap::disableOnAccess(bool changed)
         LOGINFO("On-access scanning disabled");
     }
     m_eventReaderThread->requestStopIfNotStopped();
+    LOGDEBUG("DEBUG m_eventReaderThread stopped");
     m_mountMonitorThread->requestStopIfNotStopped();
+    LOGDEBUG("DEBUG m_mountMonitorThread stopped");
     m_scanRequestQueue->stop();
+    LOGDEBUG("DEBUG m_scanRequestQueue stopped");
 
     for (const auto& scanThread: m_scanHandlerThreads)
     {
         scanThread->requestStopIfNotStopped();
     }
+    LOGDEBUG("DEBUG m_scanHandlerThreads stopped");
     m_scanHandlerThreads.clear();
-
-    m_fanotifyHandler->close();
+    LOGDEBUG("DEBUG m_scanHandlerThreads clear");
 }
 
 void SoapdBootstrap::enableOnAccess(bool changed)
@@ -244,9 +246,6 @@ void SoapdBootstrap::enableOnAccess(bool changed)
     }
 
     LOGINFO("On-access scanning enabled");
-
-    m_fanotifyHandler->init();
-
     m_eventReaderThread->startIfNotStarted();
     m_mountMonitorThread->startIfNotStarted();
 
@@ -254,14 +253,14 @@ void SoapdBootstrap::enableOnAccess(bool changed)
 
     std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
 
-    for (int threadCount = 0; threadCount < MAX_SCAN_THREADS; ++threadCount)
+    for (int count = 0; count < MAX_SCAN_THREADS; ++count)
     {
         std::stringstream threadName;
-        threadName << "scanHandler " << threadCount;
+        threadName << "scanHandler " << count;
 
         auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
         auto scanHandler = std::make_shared<ScanRequestHandler>(
-            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, threadCount);
+            m_scanRequestQueue, scanningSocket, m_fanotifyHandler);
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }
