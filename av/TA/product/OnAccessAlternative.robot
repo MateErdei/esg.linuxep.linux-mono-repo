@@ -147,6 +147,7 @@ On Access Does Not Scan Files If Excluded By Path In Policy
     ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/"]  True
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until On Access Log Contains With Offset  On-access exclusions: ["/tmp_test/"]
+    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
 
     Mark On Access Log
     Create File  ${filepath1}  ${EICAR_STRING}
@@ -156,10 +157,20 @@ On Access Does Not Scan Files If Excluded By Path In Policy
     ${policyContent} =  Get Complete Sav Policy  []  True
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until On Access Log Contains With Offset  On-access exclusions: []
+    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
 
     Create File  ${filepath2}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath2}
     Wait Until On Access Log Contains With Offset  On-close event for ${filepath2} from  timeout=60
+
+
+On Access Does Not Monitor A Mount Point If It Matches An Exclusion In Policy
+    Register Cleanup  Dump Log  ${ON_ACCESS_LOG_PATH}
+    ${policyContent} =  Get Complete Sav Policy  ["/"]  True
+    Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/"]
+    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
+    Wait Until On Access Log Contains With Offset  Mount point / matches an exclusion in the policy and will be excluded from the scan
 
 
 On Access Monitors Addition And Removal Of Mount Points

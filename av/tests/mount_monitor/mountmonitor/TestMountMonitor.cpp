@@ -85,6 +85,40 @@ TEST_F(TestMountMonitor, TestGetIncludedMountpoints)
     EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 4);
 }
 
+TEST_F(TestMountMonitor, TestSetExclusions)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const char* excludedMount = "/test";
+    std::vector<common::Exclusion> exclusions;
+    exclusions.emplace_back(excludedMount);
+
+    OnAccessMountConfig config;
+    config.m_scanHardDisc = true;
+    config.m_scanNetwork = false;
+    config.m_scanOptical = false;
+    config.m_scanRemovable = false;
+
+    std::shared_ptr<StrictMock<MockMountPoint>> localFixedDevice = std::make_shared<StrictMock<MockMountPoint>>();
+    EXPECT_CALL(*localFixedDevice, isHardDisc()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*localFixedDevice, isNetwork()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*localFixedDevice, isOptical()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*localFixedDevice, isRemovable()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*localFixedDevice, isSpecial()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*localFixedDevice, mountPoint()).WillRepeatedly(Return(excludedMount));
+
+    mount_monitor::mountinfo::IMountPointSharedVector allMountpoints;
+    allMountpoints.push_back(localFixedDevice);
+
+    MountMonitor mountMonitor(config, m_sysCallWrapper, m_mockFanotifyHandler);
+    EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 1);
+    mountMonitor.setExclusions(exclusions);
+    std::stringstream logMsg;
+    logMsg << "Mount point " << excludedMount << " matches an exclusion in the policy and will be excluded from the scan";
+    waitForLog(logMsg.str());
+    EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 0);
+}
+
 TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);

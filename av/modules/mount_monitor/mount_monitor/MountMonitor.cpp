@@ -58,7 +58,20 @@ namespace mount_monitor::mount_monitor
                 }
                 else
                 {
-                    includedMountpoints.push_back(mp);
+                    bool mountExcluded = false;
+                    for (const auto& exclusion: m_exclusions)
+                    {
+                        if (exclusion.path() == mp->mountPoint())
+                        {
+                            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " matches an exclusion in the policy and will be excluded from the scan");
+                            mountExcluded = true;
+                            continue;
+                        }
+                    }
+                    if (!mountExcluded)
+                    {
+                        includedMountpoints.push_back(mp);
+                    }
                 }
             }
             else if (mp->isSpecial())
@@ -80,6 +93,21 @@ namespace mount_monitor::mount_monitor
         {
             LOGINFO("OA config changed, re-enumerating mount points");
             m_config.m_scanNetwork = scanNetwork;
+            auto includedMountpoints = getIncludedMountpoints(getAllMountpoints());
+            LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
+            for (const auto& mp : includedMountpoints)
+            {
+                LOGDEBUG("Including mount point: " << mp->mountPoint());
+            }
+        }
+    }
+
+    void MountMonitor::setExclusions(std::vector<common::Exclusion> exclusions)
+    {
+        if (exclusions != m_exclusions)
+        {
+            LOGINFO("OA config changed, re-enumerating mount points");
+            m_exclusions = exclusions;
             auto includedMountpoints = getIncludedMountpoints(getAllMountpoints());
             LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
             for (const auto& mp : includedMountpoints)
