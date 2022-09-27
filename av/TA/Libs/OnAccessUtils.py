@@ -36,9 +36,9 @@ class OnAccessUtils:
                     logger.info("On Access enabled with " + line)
                     return
 
-            time.sleep(1)
+            time.sleep(0.1)
             tempfile = "/tmp/%f" % time.time()
             open(tempfile, "w")
             os.unlink(tempfile)
 
-        BuiltIn().Fail("On-Access not enabled within %d seconds: Logs: %s" % (timeout, "\n".join(logContents)))
+        raise AssertionError("On-Access not enabled within %d seconds: Logs: %s" % (timeout, "\n".join(logContents)))
