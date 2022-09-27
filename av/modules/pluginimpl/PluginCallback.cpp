@@ -94,6 +94,7 @@ namespace Plugin
         LOGFATAL("AV Plugin has hung: main thread has not exited");
         if (testing)
         {
+            std::this_thread::sleep_for(50ms);  // To allow logging to complete
             // Will cause a SIGABRT, and the default action for that is generating a Core File
             abort();
         }

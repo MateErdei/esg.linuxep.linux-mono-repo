@@ -99,6 +99,7 @@ void manager::scheduler::ScanScheduler::run()
             runNextScan(m_nextScheduledScan);
         }
     }
+    LOGDEBUG("Requesting running scans to stop");
     for (auto& item : m_runningScans)
     {
         if (item.second)
@@ -106,6 +107,7 @@ void manager::scheduler::ScanScheduler::run()
             item.second->requestStop();
         }
     }
+    LOGDEBUG("Waiting for running scans to stop");
     for (auto& item : m_runningScans)
     {
         if (item.second)

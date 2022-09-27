@@ -15,6 +15,7 @@
 #include <Common/UtilityImpl/StringUtils.h> // String replacer
 // 3rd party
 // C++ std
+#include <chrono>
 #include <fstream>
 #include <algorithm>
 // C std
@@ -72,7 +73,20 @@ void ScanRunner::run()
     process->setOutputLimit(512);
     process->exec(m_scanExecutable, {m_scanExecutable, "--config", config_file});
 
-    // TODO: Wait for stop request or file walker process exit, which ever comes first
+    while(true)
+    {
+        using namespace std::chrono_literals;
+        if (process->wait(100ms, 1) == Common::Process::ProcessStatus::FINISHED)
+        {
+            break;
+        }
+        if (m_notifyPipe.notified())
+        {
+            LOGWARN("Scan " << m_name << " terminated before finishing");
+            process->kill();
+            // Continue waiting for proper kills
+        }
+    }
     process->waitUntilProcessEnds();
     int exitCode = process->exitCode();
 
