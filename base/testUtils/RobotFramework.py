@@ -9,6 +9,8 @@ from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 def main():
     tags = {'include': ['TAP_TESTS'], 'exclude': ["OSTIA", "CENTRAL", "AMAZON_LINUX", "EXAMPLE_PLUGIN", "MANUAL", "MESSAGE_RELAY", "PUB_SUB", "SAV", "SLOW", "TESTFAILURE", "UPDATE_CACHE", "FUZZ", "MDR_REGRESSION_TESTS", "FAULTINJECTION"]}
+    if os.environ['DEBUG']:
+        tags['exclude'].append('BREAKS_DEBUG')
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {

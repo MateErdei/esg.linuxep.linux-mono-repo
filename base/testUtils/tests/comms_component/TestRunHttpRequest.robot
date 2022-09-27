@@ -99,6 +99,7 @@ Test RunHttpRequest without Jail can perform a PUT request with pinned Certifica
 
 
 Test RunHttpRequest with Jail can perform a GET request with pinned Certificate
+    [Tags]  BREAKS_DEBUG
     Copy File And Set Permissions   ${CERT_PATH}  ${MCS_CERTS_DIR}
     Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${JAIL_PINNED_CERT_PATH}
     Run Jailed Https Request
@@ -118,6 +119,7 @@ Test RunHttpRequest With Strace to See the Internals Of it
 
 
 Test RunHttpRequest with Jail can perform a GET request with pinned Certificate Using Proxy
+    [Tags]  BREAKS_DEBUG
     Start Proxy Server With Basic Auth    3000    username    password
     Copy File And Set Permissions   ${CERT_PATH}  ${MCS_CERTS_DIR}
     Create Http Json Request  ${FileNameRequest1}  requestType=GET  server=localhost  port=${PORT}   certPath=${JAIL_PINNED_CERT_PATH}    
@@ -132,6 +134,7 @@ Test RunHttpRequest with Jail can perform a GET request with pinned Certificate 
 
 
 Test RunHttpRequest with Jail can perform a PUT request with pinned Certificate
+    [Tags]  BREAKS_DEBUG
     ${headers} =   Create List   info1: header1  info2: header2
     Create Http Json Request  ${FileNameRequest1}  requestType=PUT  server=localhost  port=${PORT}   certPath=${JAIL_PINNED_CERT_PATH}   headers=${headers}  bodyContent=test RunHttpRequest
     Run Jailed Https Request

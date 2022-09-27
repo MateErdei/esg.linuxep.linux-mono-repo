@@ -46,7 +46,7 @@ Verify that the full installer works correctly
 ## WARNING:
 ## ENSURE THAT THE CHANGES YOU SEE IN THE COMMIT DIFF ARE WHAT YOU WANT
 ## -----------------------------------------------------------------------------------------------------
-    [Tags]    DEBUG  INSTALLER  SMOKE  TAP_TESTS
+    [Tags]    DEBUG  INSTALLER  SMOKE  TAP_TESTS  BREAKS_DEBUG
     [Teardown]  Install Tests Teardown With Installed File Replacement
     Require Fresh Install
     Check Expected Base Processes Are Running

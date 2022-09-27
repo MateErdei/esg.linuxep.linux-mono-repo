@@ -85,12 +85,16 @@ def install_requirements(machine: tap.Machine):
         # the previous command will fail if user already exists. But this is not an error
         print("On adding installing requirements: {}".format(ex))
 
-def robot_task(machine: tap.Machine):
+def robot_task(machine: tap.Machine, debug: bool):
     try:
         if machine.run('which', 'apt-get', return_exit_code=True) == 0:
             package_install(machine, 'python3.7-dev')
         install_requirements(machine)
-        machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
+        if debug:
+            machine.run('DEBUG=true', 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
+                        timeout=3600)
+        else:
+            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
                     timeout=3600)
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
@@ -286,4 +290,4 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
             stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux), branch=context.branch)
         else:
             for template_name, machine in machines:
-                stage.task(task_name=template_name, func=task_func, machine=machine)
+                stage.task(task_name=template_name, func=task_func, machine=machine, debug=(mode == DEBUG_MODE))
