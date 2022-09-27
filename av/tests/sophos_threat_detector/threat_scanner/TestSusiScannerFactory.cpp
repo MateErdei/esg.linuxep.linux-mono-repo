@@ -8,18 +8,27 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "../../common/LogInitializedTests.h"
+
 #define TEST_PUBLIC public
+
 #include "sophos_threat_detector/threat_scanner/SusiScannerFactory.h"
 
 using namespace threat_scanner;
 
-TEST(TestSusiScannerFactory, testWithoutPLUGIN_INSTALL)
+namespace{
+    class TestSusiScannerFactory : public LogInitializedTests
+    {
+    };
+}
+
+TEST_F(TestSusiScannerFactory, testWithoutPLUGIN_INSTALL)
 {
     // SUSI initialization config is now deferred, so constructor won't fail.
     SusiScannerFactory factory(nullptr, nullptr, nullptr);
 }
 
-TEST(TestSusiScannerFactory, throwsDuringInitializeWithoutPLUGIN_INSTALL)
+TEST_F(TestSusiScannerFactory, throwsDuringInitializeWithoutPLUGIN_INSTALL)
 {
     // SUSI initialization is now deferred, so constructor won't fail.
     SusiScannerFactory factory(nullptr, nullptr, nullptr);
@@ -35,7 +44,7 @@ TEST(TestSusiScannerFactory, throwsDuringInitializeWithoutPLUGIN_INSTALL)
     }
 }
 
-TEST(TestSusiScannerFactory, testConstruction)
+TEST_F(TestSusiScannerFactory, testConstruction)
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     appConfig.setData("PLUGIN_INSTALL", "/opt/not-sophos-spl/plugins/av");
@@ -44,7 +53,7 @@ TEST(TestSusiScannerFactory, testConstruction)
     SusiScannerFactory factory(nullptr, nullptr, nullptr);
 }
 
-TEST(TestSusiScannerFactory, throwsDuringInitialize) //NOLINT
+TEST_F(TestSusiScannerFactory, throwsDuringInitialize) //NOLINT
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     appConfig.setData("PLUGIN_INSTALL", "/opt/not-sophos-spl/plugins/av");
@@ -63,13 +72,13 @@ TEST(TestSusiScannerFactory, throwsDuringInitialize) //NOLINT
     }
 }
 
-TEST(TestSusiScannerFactory, testConstructionWithMockSusiWrapper)
+TEST_F(TestSusiScannerFactory, testConstructionWithMockSusiWrapper)
 {
     ISusiWrapperFactorySharedPtr wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
     EXPECT_NO_THROW(SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr));
 }
 
-TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesAndImagesFalse)
+TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesAndImagesFalse)
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
@@ -106,7 +115,7 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesAndImag
 }
 
 
-TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue)
+TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue)
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
@@ -143,7 +152,7 @@ TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue)
 }
 
 
-TEST(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperImagesTrue)
+TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperImagesTrue)
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
@@ -188,7 +197,7 @@ namespace
     };
 }
 
-TEST(TestSusiScannerFactory, callbackAfterSuccessfulUpdate)
+TEST_F(TestSusiScannerFactory, callbackAfterSuccessfulUpdate)
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
     auto mockCallback = std::make_shared<::testing::StrictMock<MockUpdateCallback>>();
@@ -201,7 +210,7 @@ TEST(TestSusiScannerFactory, callbackAfterSuccessfulUpdate)
 }
 
 
-TEST(TestSusiScannerFactory, noCallbackAfterSuccessfulUpdate)
+TEST_F(TestSusiScannerFactory, noCallbackAfterSuccessfulUpdate)
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
     auto mockCallback = std::make_shared<::testing::StrictMock<MockUpdateCallback>>();
