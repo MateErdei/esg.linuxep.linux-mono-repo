@@ -1,5 +1,5 @@
 {
-  "av.oa_enabled": true,
+  "av.onaccess.enabled": true,
   "installer_download.enabled": false,
   "scheduled_queries.next": false,
   "alc_obfuscation.enabled": false,

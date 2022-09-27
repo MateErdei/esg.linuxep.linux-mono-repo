@@ -56,7 +56,7 @@ namespace Plugin
             const Common::XmlUtilities::AttributesMap& policy,
             const std::string& entityFullPath);
 
-        inline static const std::string OA_FLAG = "av.oa_enabled";
+        inline static const std::string OA_FLAG = "av.onaccess.enabled";
         inline static const std::string SS_FLAG = "safestore.enabled";
     };
 }

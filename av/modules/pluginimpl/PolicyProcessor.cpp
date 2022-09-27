@@ -307,8 +307,7 @@ namespace Plugin
         }
         else
         {
-            LOGINFO("No on-access flag found assuming policy settings");
-            oaEnabled = true;
+            LOGINFO("No on-access flag found, overriding on-access policy settings");
         }
 
         json oaConfig;

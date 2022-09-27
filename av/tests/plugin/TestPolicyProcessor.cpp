@@ -728,7 +728,7 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsEnabled)
 
     PolicyProcessorUnitTestClass proc;
 
-    proc.processFlagSettings("{\"av.oa_enabled\": true, \"safestore.enabled\": true}");
+    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": true, "safestore.enabled": true})sophos");
 
     EXPECT_TRUE(appenderContains(
         "On-access is enabled in the FLAGS policy, assuming on-access policy settings"));
@@ -753,7 +753,7 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
 
     PolicyProcessorUnitTestClass proc;
 
-    proc.processFlagSettings("{\"av.oa_enabled\": false, \"safestore.enabled\": false}");
+    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": false, "safestore.enabled": false})sophos");
 
     EXPECT_TRUE(appenderContains(
         "On-access is disabled in the FLAGS policy, overriding on-access policy settings"));
@@ -768,7 +768,7 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
 
     EXPECT_CALL(
         *m_mockIFileSystemPtr,
-        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":true})sophos", _, 0640));
+        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640));
 
     EXPECT_CALL(
         *m_mockIFileSystemPtr,
@@ -780,7 +780,7 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
 
     proc.processFlagSettings("{\"av.something_else\":  false}");
 
-    EXPECT_TRUE(appenderContains("No on-access flag found assuming policy settings"));
+    EXPECT_TRUE(appenderContains("No on-access flag found, overriding on-access policy settings"));
     EXPECT_TRUE(appenderContains("Safestore flag not set. Setting Safestore to disabled."));
 }
 
@@ -804,7 +804,7 @@ TEST_F(TestPolicyProcessor, testWriteFlagConfigFailedOnAccess)
 
     PolicyProcessorUnitTestClass proc;
 
-    proc.processFlagSettings("{\"av.oa_enabled\": false, \"safestore.enabled\": true}");
+    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": false, "safestore.enabled": true})sophos");
 
     EXPECT_TRUE(appenderContains(
         "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
@@ -831,7 +831,7 @@ TEST_F(TestPolicyProcessor, testWriteFlagConfigFailedSafeStore)
 
     PolicyProcessorUnitTestClass proc;
 
-    proc.processFlagSettings("{\"av.oa_enabled\": true}");
+    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": true})sophos");
 
     EXPECT_TRUE(appenderContains(
         "On-access is enabled in the FLAGS policy, assuming on-access policy settings"));
