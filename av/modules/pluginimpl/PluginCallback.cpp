@@ -5,11 +5,12 @@
 // Package
 #include "Logger.h"
 #include "PolicyProcessor.h"
-#include "PolicyProcessor.cpp"
 // Component
 #include "common/PluginUtils.h"
 #include "common/PidLockFile.h"
 #include "common/StringUtils.h"
+// Plugin
+#include "common/ApplicationPaths.h"
 // Product
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -296,6 +297,21 @@ namespace Plugin
         return valid;
     }
 
+    bool PluginCallback::safeStoreEnabled()
+    {
+        bool enabled = false;
+        auto fileSystem = Common::FileSystem::fileSystem();
+
+        auto ssFlagsJson = fileSystem->readFile(Plugin::getSafeStoreFlagPath());
+        auto parsedSSFlag = nlohmann::json::parse(ssFlagsJson);
+
+        if (parsedSSFlag.value("ss_enabled", false))
+        {
+           enabled = true;
+        }
+        return enabled;
+    }
+
     std::string PluginCallback::generateSAVStatusXML()
     {
         std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
@@ -378,16 +394,10 @@ namespace Plugin
             return E_HEALTH_STATUS_BAD;
         }
 
-        Path safestorePidFile = common::getPluginInstallPath() / "var/safestore.pid";
-        if (!common::PidLockFile::isPidFileLocked(safestorePidFile, sysCalls))
+        Path safeStorePidFile = common::getPluginInstallPath() / "var/safestore.pid";
+        if (!common::PidLockFile::isPidFileLocked(safeStorePidFile, sysCalls) && !safeStoreEnabled())
         {
-            auto ssFlagsJson = Common::FileSystem::fileSystem()->readFile(Plugin::getSafestoreFlagConfigPath());
-            auto parsedSSFlag = nlohmann::json::parse(ssFlagsJson);
-
-            if (parsedSSFlag.value("ss_enabled", false))
-            {
-                return E_HEALTH_STATUS_BAD;
-            }
+            return E_HEALTH_STATUS_BAD;
         }
 
         return E_HEALTH_STATUS_GOOD;

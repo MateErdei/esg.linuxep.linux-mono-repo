@@ -64,6 +64,7 @@ namespace Plugin
 
         static int getProcessPidFromFile(Common::FileSystem::IFileSystem* fileSystem, const Path&);
         [[nodiscard]] bool shutdownFileValid() const;
+        static bool safeStoreEnabled() ;
 
         /**
          * Takes a linux process status file's contents and returns a value at of a
