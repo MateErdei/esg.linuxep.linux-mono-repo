@@ -29,6 +29,15 @@ static const std::string cleanSusiResponseStr =
     "    ]\n"
     "}";
 
+
+static const std::string badJsonSusiResponseStr =
+    "{\n"
+    "    \"time\":\"/...\",\n"
+    "    \"results\":\n"
+    "    \n"
+    "    ]\n"
+    "}";
+
 static const std::string singleDetectionSusiResponseStr =
     "{\n"
     "    \"time\":\"/...\",\n"
@@ -83,7 +92,7 @@ static const std::string multipleDetectionSusiResponseStr =
     "            }\n"
     "        },\n"
     "        {\n"
-    "            \"path\":\"/tmp/eicar.com\",\n"
+    "            \"path\":\"/tmp/eicar.txt\",\n"
     "            \"sha256\":\"...\",\n"
     "            \"base64path\":\"L3RtcC9laWNhci5pc28vMS9kaXJlY3Rvcnkvc3ViZGlyL2VpY2FyLmNvbQ==\",\n"
     "            \"detections\":[\n"
@@ -295,7 +304,7 @@ TEST_F(TestThreatScanner, test_SusiScannerConstructionWithScanImages)
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, true, nullptr, nullptr);
 }
 
-TEST_F(TestThreatScanner, test_SusiScanner_scanFile_clean)
+TEST_F(TestThreatScanner, test_SusiScanner_CleanScan_And_NoScanError_And_SusiOK)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -325,7 +334,7 @@ TEST_F(TestThreatScanner, test_SusiScanner_scanFile_clean)
     EXPECT_EQ(response.allClean(), true);
 }
 
-TEST_F(TestThreatScanner, test_SusiScanner_scanFile_threat)
+TEST_F(TestThreatScanner, test_SusiScanner_ThreatDetected_And_NoScanError_SusiThreatPresent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -364,12 +373,85 @@ TEST_F(TestThreatScanner, test_SusiScanner_scanFile_threat)
     EXPECT_EQ(response.allClean(), false);
 }
 
-TEST_F(TestThreatScanner, Test_SusiScanner_MultipleThreats)
+TEST_F(TestThreatScanner, Test_SusiScanner_ThreatDetected_And_NoScanError_And_SusiError)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
+    setupFakeSophosThreatDetectorConfig();
+
+    WaitForEvent serverWaitGuard;
+    auto susiWrapper = std::make_shared<MockSusiWrapper>("");
+    auto susiWrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
+    auto mock_reporter = std::make_shared<StrictMock<MockIThreatReporter>>();
+    auto mock_timer = std::make_shared<StrictMock<MockShutdownTimer>>();
+
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
+    EXPECT_CALL(*mock_timer, reset()).Times(1);
+
+    SusiResult susiResult = SUSI_E_OUTOFMEMORY;
+    SusiScanResult scanResult;
+    scanResult.version = 1;
+    scanResult.scanResultJson = const_cast<char*>(singleDetectionSusiResponseStr.c_str());
+    std::string filePath = "/tmp/eicar.txt";
+
+    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
+    EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
+
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
+    datatypes::AutoFd fd(101);
+    scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
+    static_cast<void>(fd.release()); // Not a real file descriptor
+
+    EXPECT_FALSE(appenderContains("Failed to parse SUSI response:"));
+    EXPECT_TRUE(appenderContains("Detected \"MAL/malware-A\" in /tmp/eicar.txt (On Demand)"));
+    EXPECT_EQ(response.allClean(), false);
+    EXPECT_EQ(response.getErrorMsg(), "Failed to scan /tmp/eicar.txt due to a susi out of memory error");
 }
 
-TEST_F(TestThreatScanner, Test_SusiScanner_Scan_Error_And_Clean_Scan_And_No_SUSI_Error)
+TEST_F(TestThreatScanner, Test_SusiScanner_MultipleThreats_And_NoScanError_And_SusiThreatPresent)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    setupFakeSophosThreatDetectorConfig();
+
+    WaitForEvent serverWaitGuard;
+    WaitForEvent serverWaitGuard2;
+
+    auto susiWrapper = std::make_shared<MockSusiWrapper>("");
+    auto susiWrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
+    auto mock_reporter = std::make_shared<StrictMock<MockIThreatReporter>>();
+    auto mock_timer = std::make_shared<StrictMock<MockShutdownTimer>>();
+
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
+
+    EXPECT_CALL(*mock_reporter, sendThreatReport(_, _, _, _, _, _)).Times(2)
+        .WillOnce(Return())
+        .WillOnce(InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
+
+    EXPECT_CALL(*mock_timer, reset()).Times(1);
+
+    SusiResult susiResult = SUSI_I_THREATPRESENT;
+    SusiScanResult scanResult;
+    scanResult.version = 1;
+    scanResult.scanResultJson = const_cast<char*>(multipleDetectionSusiResponseStr.c_str());
+    std::string filePath = "/tmp/eicar.txt";
+
+    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
+    EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
+
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
+    datatypes::AutoFd fd(101);
+    scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_SCHEDULED, "root");
+    static_cast<void>(fd.release()); // Not a real file descriptor
+
+    serverWaitGuard.wait();
+    EXPECT_FALSE(appenderContains("Failed to parse SUSI response:"));
+    EXPECT_TRUE(appenderContains("Detected \"MAL/malware-A\" in /tmp/eicar.txt (Scheduled)"));
+    EXPECT_TRUE(appenderContains("Detected \"EICAR-AV-Test\" in /tmp/eicar.txt (Scheduled)"));
+    EXPECT_EQ(response.allClean(), false);
+}
+
+TEST_F(TestThreatScanner, Test_SusiScanner_ScanError_And_CleanScan_And_SusiOK)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -404,7 +486,7 @@ TEST_F(TestThreatScanner, Test_SusiScanner_Scan_Error_And_Clean_Scan_And_No_SUSI
     EXPECT_EQ(response.getErrorMsg(), "Failed to scan /tmp/eicar.txt as it is password protected");
 }
 
-TEST_F(TestThreatScanner, Test_SusiScanner_Scan_Error_And_Clean_Scan_And_SUSI_Error)
+TEST_F(TestThreatScanner, Test_SusiScanner_CleanScan_And_ScanError_And_SusiError)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -440,7 +522,7 @@ TEST_F(TestThreatScanner, Test_SusiScanner_Scan_Error_And_Clean_Scan_And_SUSI_Er
     EXPECT_TRUE(appenderContains("Failed to scan /tmp/eicar.txt due to a susi out of memory error"));
 }
 
-TEST_F(TestThreatScanner, Test_SusiScanner_Scan_Error_And_Threat_Present_And_No_Susi_Error)
+TEST_F(TestThreatScanner, Test_SusiScanner_ThreatPresent_And_ScanError_And_NoSusiError)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -483,9 +565,37 @@ TEST_F(TestThreatScanner, Test_SusiScanner_Scan_Error_And_Threat_Present_And_No_
     EXPECT_EQ(response.getErrorMsg(), "Failed to scan /tmp/eicar.txt as it is password protected");
 }
 
-TEST_F(TestThreatScanner, Test_SusiScanner_BadXML)
-{
 
+TEST_F(TestThreatScanner, Test_SusiScanner_Bad_Json)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    setupFakeSophosThreatDetectorConfig();
+
+    auto susiWrapper = std::make_shared<MockSusiWrapper>("");
+    auto susiWrapperFactory = std::make_shared<MockSusiWrapperFactory>();
+    auto mock_timer = std::make_shared<StrictMock<MockShutdownTimer>>();
+
+    EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
+
+    SusiResult susiResult = SUSI_S_OK;
+    SusiScanResult scanResult;
+    scanResult.scanResultJson = const_cast<char*>(badJsonSusiResponseStr.c_str());
+    std::string filePath = "/tmp/clean_file.txt";
+
+    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
+    EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
+    EXPECT_CALL(*mock_timer, reset()).Times(1);
+
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, mock_timer);
+    datatypes::AutoFd fd(100);
+    scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
+    static_cast<void>(fd.release()); // not a real file descriptor
+
+    EXPECT_TRUE(appenderContains("Failed to parse SUSI response:"));
+    EXPECT_FALSE(appenderContains("Detected "));
+    EXPECT_EQ(response.getErrorMsg(), "");
+    EXPECT_EQ(response.allClean(), true);
 }
 
 TEST_F(TestThreatScanner, TestsusiResultErrorToReadableErrorUnknown)
