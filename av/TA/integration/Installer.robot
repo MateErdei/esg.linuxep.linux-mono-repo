@@ -14,6 +14,7 @@ Library         ../Libs/CoreDumps.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/FullInstallerUtils.py
 Library         ../Libs/LogUtils.py
+Library         ../Libs/OnAccessUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
 Library         ../Libs/ProcessUtils.py
@@ -658,7 +659,7 @@ Check AV installer sets correct home directory for the users it creates
 IDE Update Invalidates On Access Cache
     Send Flags Policy To Base  flags_policy/flags_enabled.json
     Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
-    Wait Until On Access Log Contains With Offset   On-open event for
+    wait for on access to be enabled
 
     Register Cleanup  Exclude On Access Scan Errors
     ${srcfile} =  Set Variable  /tmp_test/clean.txt
