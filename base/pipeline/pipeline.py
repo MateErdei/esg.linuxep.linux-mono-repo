@@ -250,6 +250,8 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                     build_060(stage, component)
                 elif mode == DEBUG_MODE:
                     base_build = build_debug(stage, component)
+                    build_999(stage, component)
+                    build_060(stage, component)
                 elif mode == COVERAGE_MODE:
                     base_build = build_coverage(stage, component)
                     build_release(stage, component)
