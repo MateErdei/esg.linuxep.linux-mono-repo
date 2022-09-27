@@ -23,7 +23,7 @@ namespace mount_monitor::mountinfo
         inline virtual ~IMountInfo() = default;
 
         /**
-         * Iterator for the list of mount points.
+         * @return Iterator for the list of mount points. Entries are std::shared_ptr<IMountPoint>
          */
         virtual IMountPointSharedVector mountPoints() = 0;
 

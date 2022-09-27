@@ -81,7 +81,7 @@ namespace
 TEST_F(TestMounts, TestMountInfoFile_DoesNotExist) // NOLINT
 {
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_testDir / "nonexistent.txt"));
-    EXPECT_THROW(std::make_shared<Mounts>(m_systemPaths), std::runtime_error);
+    EXPECT_THROW(std::make_shared<Mounts>(m_systemPaths), std::system_error);
 }
 
 TEST_F(TestMounts, Empty_Mount_Info_Path) // NOLINT

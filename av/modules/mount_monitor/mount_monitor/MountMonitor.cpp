@@ -37,7 +37,7 @@ namespace mount_monitor::mount_monitor
             LOGINFO("Found " << allMountpoints.size() << " mount points on the system");
             return allMountpoints;
         }
-        catch (std::runtime_error& e)
+        catch (const std::runtime_error& e)
         {
             LOGFATAL(e.what());
             throw;

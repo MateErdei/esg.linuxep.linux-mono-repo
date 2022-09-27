@@ -94,7 +94,7 @@ void Mounts::parseProcMounts()
 
     if (!mountstream)
     {
-        throw std::runtime_error("Unable to access /proc/mounts");
+        throw std::system_error(errno, std::system_category(), "Unable to access /proc/mounts, reason: ");
     }
 
     while (!mountstream.eof())
