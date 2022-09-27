@@ -5,6 +5,7 @@
 #include "MockSusiWrapper.h"
 #include "MockSusiWrapperFactory.h"
 
+#include "../../common/MemoryAppender.h"
 #include "../../common/Common.h"
 #include "../../common/WaitForEvent.h"
 #include "sophos_threat_detector/threat_scanner/SusiScanner.h"
@@ -129,6 +130,15 @@ static const std::string errorSusiResponseStr =
 
 namespace
 {
+
+    class TestThreatScanner : public MemoryAppenderUsingTests
+    {
+    public:
+        TestThreatScanner() : MemoryAppenderUsingTests("ThreatScanner") {}
+
+    };
+
+
     class MockIThreatReporter : public threat_scanner::IThreatReporter
     {
     public:
@@ -157,7 +167,7 @@ namespace
     };
 }
 
-TEST(TestThreatScanner, test_SusiScannerConstruction)
+TEST_F(TestThreatScanner, test_SusiScannerConstruction)
 {
     setupFakeSophosThreatDetectorConfig();
 
@@ -199,7 +209,7 @@ TEST(TestThreatScanner, test_SusiScannerConstruction)
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, nullptr);
 }
 
-TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives)
+TEST_F(TestThreatScanner, test_SusiScannerConstructionWithScanArchives)
 {
     setupFakeSophosThreatDetectorConfig();
 
@@ -242,7 +252,7 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives)
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, true, false, nullptr, nullptr);
 }
 
-TEST(TestThreatScanner, test_SusiScannerConstructionWithScanImages)
+TEST_F(TestThreatScanner, test_SusiScannerConstructionWithScanImages)
 {
     setupFakeSophosThreatDetectorConfig();
 
@@ -285,8 +295,10 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanImages)
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, true, nullptr, nullptr);
 }
 
-TEST(TestThreatScanner, test_SusiScanner_scanFile_clean)
+TEST_F(TestThreatScanner, test_SusiScanner_scanFile_clean)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     setupFakeSophosThreatDetectorConfig();
 
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
@@ -309,11 +321,14 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_clean)
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
     static_cast<void>(fd.release()); // not a real file descriptor
 
+    //EXPECT_TRUE(appenderContains("Excluding file: /testfile"));
     EXPECT_EQ(response.allClean(), true);
 }
 
-TEST(TestThreatScanner, test_SusiScanner_scanFile_threat)
+TEST_F(TestThreatScanner, test_SusiScanner_scanFile_threat)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     setupFakeSophosThreatDetectorConfig();
 
     WaitForEvent serverWaitGuard;
@@ -344,10 +359,11 @@ TEST(TestThreatScanner, test_SusiScanner_scanFile_threat)
 
     serverWaitGuard.wait();
 
+    EXPECT_TRUE(appenderContains("Detected \"MAL/malware-A\" in /tmp/eicar.txt (On Demand)"));
     EXPECT_EQ(response.allClean(), false);
 }
 
-TEST(TestThreatScanner, TestsusiResultErrorToReadableErrorUnknown)
+TEST_F(TestThreatScanner, TestsusiResultErrorToReadableErrorUnknown)
 {
     auto loglevel = log4cplus::DEBUG_LOG_LEVEL;
     EXPECT_EQ(threat_scanner::SusiScanner::susiResultErrorToReadableError("test.file", static_cast<SusiResult>(17), loglevel), "Failed to scan test.file due to an unknown susi error [17]");
