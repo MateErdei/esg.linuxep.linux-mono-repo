@@ -37,12 +37,11 @@ On Access Suite Teardown
 
 On Access Test Setup
     Component Test Setup
-    Mark Sophos Threat Detector Log
-    Mark On Access Log
 
     Terminate On Access And AV
-    Start On Access And AV With Running Threat Detector
+    Mark Sophos Threat Detector Log
     Mark On Access Log
+    Start On Access And AV With Running Threat Detector
     Enable OA Scanning
 
     Register Cleanup  Clear On Access Log When Nearly Full
@@ -198,7 +197,7 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
 On Access Process Handles Consecutive Process Control Requests
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
-    On Access Log Does Not Contain  Using on-access settings from policy
+    On Access Log Does Not Contain With Offset  Using on-access settings from policy
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}

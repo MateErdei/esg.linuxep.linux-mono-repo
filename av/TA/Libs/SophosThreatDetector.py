@@ -6,9 +6,11 @@ import time
 from robot.libraries.BuiltIn import BuiltIn
 from robot.api import logger
 
+
 def get_content_lines(path, mark):
     contents = open(path, encoding="utf-8", errors="backslashreplace").readlines()
     return contents[mark:]
+
 
 def get_sophos_threat_detector_pid_or_none():
     """
@@ -26,11 +28,14 @@ def get_sophos_threat_detector_pid_or_none():
             return int(pid)
     return None
 
+
 class SophosThreatDetectorException(Exception):
     pass
 
+
 class SophosThreatDetectorRestartedException(SophosThreatDetectorException):
     pass
+
 
 class SophosThreatDetectorFailedToLogException(SophosThreatDetectorException):
     pass
@@ -46,12 +51,13 @@ def get_sophos_threat_detector_pid():
         return pid
     raise SophosThreatDetectorException("sophos_threat_detector not running")
 
+
 class SophosThreatDetector(object):
     def __init__(self):
         self.__m_ides_for_uninstall = []
 
     @staticmethod
-    def Wait_Until_Sophos_Threat_Detector_Logs_On_Of_Or_Restarts(original_pid, mark, texts, timeout=15, interval=3):
+    def Wait_Until_Sophos_Threat_Detector_Logs_On_Off_Or_Restarts(original_pid, mark, texts, timeout=15, interval=3):
         """
         Waits for sophos_threat_detector to log one of <texts> or to restart, or to stop
         :param original_pid:
@@ -86,10 +92,9 @@ class SophosThreatDetector(object):
 
             time.sleep(interval)
 
-        contents = "\n".join(contents)
+        contents = "".join(contents)
         logger.info("Failed to find any of texts in contents: %s" % contents)
         return False
-
 
     @staticmethod
     def Wait_Until_Sophos_Threat_Detector_Logs_Or_Restarts(original_pid, mark, text, timeout=15, interval=3):
@@ -128,8 +133,8 @@ class SophosThreatDetector(object):
 
             time.sleep(interval)
 
-        contents = "\n".join(contents)
-        logger.error("Contents: %s" % contents)
+        contents = "".join(contents)
+        logger.info("Contents: %s" % contents)
         raise SophosThreatDetectorFailedToLogException("Failed to find text %s in log" % text)
 
     def register_ide_for_uninstall(self, idename):
@@ -175,7 +180,7 @@ class SophosThreatDetector(object):
             return
 
         # wait for "Sophos Threat Detector received SIGUSR1 - reloading"
-        ret = SophosThreatDetector.Wait_Until_Sophos_Threat_Detector_Logs_On_Of_Or_Restarts(
+        ret = SophosThreatDetector.Wait_Until_Sophos_Threat_Detector_Logs_On_Off_Or_Restarts(
             pid,
             mark,
             ["Sophos Threat Detector received SIGUSR1 - reloading"],
@@ -192,7 +197,7 @@ class SophosThreatDetector(object):
             return
 
         # wait for reload to finish or be marked as pending
-        ret = SophosThreatDetector.Wait_Until_Sophos_Threat_Detector_Logs_On_Of_Or_Restarts(
+        ret = SophosThreatDetector.Wait_Until_Sophos_Threat_Detector_Logs_On_Off_Or_Restarts(
                 pid,
                 mark,
                 ["Threat scanner successfully updated",

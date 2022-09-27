@@ -282,7 +282,11 @@ On Access Log Contains With Offset Times
 On Access Log Does Not Contain With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${ON_ACCESS_LOG_MARK}  0
-    File Log Should Not Contain With Offset  ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
+    # retry for 15s
+    FOR   ${i}   IN RANGE   5
+        File Log Should Not Contain With Offset  ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
+        Sleep   3s
+    END
 
 Threat Detector Log Contains
     [Arguments]  ${input}

@@ -104,7 +104,7 @@ On Access Scans File Created Under A Long Path
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  silly_long_dir_eicar  ${EICAR_STRING}
 
     Wait Until On Access Log Contains With Offset  Failed to get path from fd: File name too long  timeout=${timeout}
-    On Access Log Does Not Contain     silly_long_dir_eicar
+    On Access Log Does Not Contain With Offset     silly_long_dir_eicar
 
 
 On Access Scans Encoded Eicars
