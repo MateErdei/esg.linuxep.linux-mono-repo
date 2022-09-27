@@ -1,5 +1,7 @@
 add_library(common SHARED
         AbortScanException.h
+        ApplicationPaths.h
+        ApplicationPaths.cpp
         ErrorCodes.h
         ErrorCodesC.h
         Exclusion.cpp

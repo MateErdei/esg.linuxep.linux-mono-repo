@@ -6,10 +6,10 @@
 #include "Logger.h"
 #include "StringUtils.h"
 // Plugin
+#include "common/ApplicationPaths.h"
 #include "unixsocket/processControllerSocket/ProcessControllerClient.h"
 // Product
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <Common/FileSystem/IFileSystem.h>
@@ -27,12 +27,6 @@ namespace Plugin
 {
     namespace
     {
-        std::string getPluginInstall()
-        {
-            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-            return appConfig.getData("PLUGIN_INSTALL");
-        }
-
         std::string getNonChrootCustomerIdPath()
         {
             auto pluginInstall = getPluginInstall();
@@ -61,12 +55,6 @@ namespace Plugin
         {
             auto  pluginInstall = getPluginInstall();
             return  pluginInstall + "/var/oa_flag.json";
-        }
-
-        std::string getSafestoreFlagConfigPath()
-        {
-            auto  pluginInstall = getPluginInstall();
-            return  pluginInstall + "/var/ss_flag.json";
         }
     }
 
@@ -349,7 +337,7 @@ namespace Plugin
 
             auto* fs = Common::FileSystem::fileSystem();
             auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-            fs->writeFileAtomically(getSafestoreFlagConfigPath(), ssConfig.dump(), tempDir, 0640);
+            fs->writeFileAtomically(Plugin::getSafeStoreFlagPath(), ssConfig.dump(), tempDir, 0640);
 
             // TODO: LINUXDAR-5632 -- Need to notify TD + SS to check new config here, like with OA above
         }
