@@ -312,7 +312,7 @@ TEST_F(TestThreatScanner, test_SusiScanner_scanFile_clean)
     scanResult.scanResultJson = const_cast<char*>(cleanSusiResponseStr.c_str());
     std::string filePath = "/tmp/clean_file.txt";
 
-    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(Return(susiResult));
+    EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
     EXPECT_CALL(*mock_timer, reset()).Times(1);
 
@@ -321,7 +321,7 @@ TEST_F(TestThreatScanner, test_SusiScanner_scanFile_clean)
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
     static_cast<void>(fd.release()); // not a real file descriptor
 
-    //EXPECT_TRUE(appenderContains("Excluding file: /testfile"));
+    EXPECT_FALSE(appenderContains("Failed to parse SUSI response:"));
     EXPECT_EQ(response.allClean(), true);
 }
 
@@ -359,8 +359,24 @@ TEST_F(TestThreatScanner, test_SusiScanner_scanFile_threat)
 
     serverWaitGuard.wait();
 
+    EXPECT_FALSE(appenderContains("Failed to parse SUSI response:"));
     EXPECT_TRUE(appenderContains("Detected \"MAL/malware-A\" in /tmp/eicar.txt (On Demand)"));
     EXPECT_EQ(response.allClean(), false);
+}
+
+TEST_F(TestThreatScanner, Test_SusiScanner_MultipleThreats)
+{
+
+}
+
+TEST_F(TestThreatScanner, Test_SusiScanner_Error)
+{
+
+}
+
+TEST_F(TestThreatScanner, Test_SusiScanner_BadXML)
+{
+
 }
 
 TEST_F(TestThreatScanner, TestsusiResultErrorToReadableErrorUnknown)
