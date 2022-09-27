@@ -12,6 +12,11 @@ namespace Plugin
         return appConfig.getData("PLUGIN_INSTALL");
     }
 
+    std::string getSafeStorePidPath()
+    {
+        return getPluginInstall() +  "/var/safestore.pid";
+    }
+
     std::string getSafeStoreFlagPath()
     {
         return getPluginInstall() + "/var/ss_flag.json";

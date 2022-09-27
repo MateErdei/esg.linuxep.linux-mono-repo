@@ -6,7 +6,6 @@
 namespace Plugin
 {
     std::string getPluginInstall();
-    std::string getChrootDir();
-    std::string getSafeStoreFlagPathWithinChroot();
+    std::string getSafeStorePidPath();
     std::string getSafeStoreFlagPath();
 } // namespace Plugin

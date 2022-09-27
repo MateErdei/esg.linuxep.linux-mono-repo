@@ -301,14 +301,33 @@ namespace Plugin
     {
         bool enabled = false;
         auto fileSystem = Common::FileSystem::fileSystem();
-
         auto ssFlagsJson = fileSystem->readFile(Plugin::getSafeStoreFlagPath());
-        auto parsedSSFlag = nlohmann::json::parse(ssFlagsJson);
 
-        if (parsedSSFlag.value("ss_enabled", false))
+        try
         {
-           enabled = true;
+            auto parsedConfig = nlohmann::json::parse(ssFlagsJson);
+            if (parsedConfig.value("ss_enabled", false))
+            {
+                enabled = true;
+            }
         }
+        catch (const nlohmann::json::parse_error& e)
+        {
+            LOGDEBUG("Failed to parse json configuration of SafeStore flag due to parse error, reason: " << e.what());
+        }
+        catch (const nlohmann::json::out_of_range & e)
+        {
+            LOGDEBUG("Failed to parse json configuration of SafeStore flag due to out of range error, reason: " << e.what());
+        }
+        catch (const nlohmann::json::type_error & e)
+        {
+            LOGDEBUG("Failed to parse json configuration of SafeStore flag due to type error, reason: " << e.what());
+        }
+        catch (const nlohmann::json::other_error & e)
+        {
+            LOGDEBUG("Failed to parse json configuration of SafeStore flag, reason: " << e.what());
+        }
+
         return enabled;
     }
 
@@ -394,8 +413,7 @@ namespace Plugin
             return E_HEALTH_STATUS_BAD;
         }
 
-        Path safeStorePidFile = common::getPluginInstallPath() / "var/safestore.pid";
-        if (!common::PidLockFile::isPidFileLocked(safeStorePidFile, sysCalls) && !safeStoreEnabled())
+        if (!common::PidLockFile::isPidFileLocked(Plugin::getSafeStorePidPath(), sysCalls) && !safeStoreEnabled())
         {
             return E_HEALTH_STATUS_BAD;
         }

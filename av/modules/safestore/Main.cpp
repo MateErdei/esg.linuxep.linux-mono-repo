@@ -6,6 +6,7 @@
 
 #include "datatypes/sophos_filesystem.h"
 
+#include "common/ApplicationPaths.h"
 #include "common/PidLockFile.h"
 #include "common/PluginUtils.h"
 #include "common/SaferStrerror.h"
@@ -39,8 +40,7 @@ int Main::run()
 void Main::innerRun()
 {
     // Take safestore lock file
-    fs::path lockfile = common::getPluginInstallPath() / "var/safestore.pid";
-    common::PidLockFile lock(lockfile);
+    common::PidLockFile lock(Plugin::getSafeStorePidPath());
 
     auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
     auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };
