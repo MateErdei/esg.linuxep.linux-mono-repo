@@ -46,21 +46,18 @@ TEST(TestIPUtils, verifyIP4CanbeconstructedByString) // NOLINT
 {
     auto dns = dnsLookup();
     ListInputOutput url_ip = {
-        { "uk-filer6.eng.sophos", { "10.101.200.100", "100.78.0.19" } },
-        { "uk-filer5.prod.sophos", { "10.192.1.100", "100.78.0.27" } }
+        { "localhost", { "127.0.0.1" } }
     };
 
-    for (const auto& map : url_ip)
+    for (const auto& [domain, ipList] : url_ip)
     {
-        auto ips = dns->lookup(map.first);
+        auto ips = dns->lookup(domain);
         auto answerip = ips.ip4collection.at(0);
-
-        auto it = std::find(map.second.begin(), map.second.end(), answerip.stringAddress());
-        ASSERT_NE(it, map.second.end())
-            << "ip of " << map.first << " differ. Expected: " << ipsToString(map.second) << " but got: " << answerip.stringAddress();
+        auto it = std::find(ipList.begin(), ipList.end(), answerip.stringAddress());
+        ASSERT_NE(it, ipList.end())
+            << "ip of " << domain << " differ. Expected: " << ipsToString(ipList) << " but got: " << answerip.stringAddress();
 
         IP4 expected(*it);
-
         EXPECT_EQ(expected.stringAddress(), answerip.stringAddress());
         EXPECT_EQ(expected.ipAddress(), answerip.ipAddress())
             << std::hex << expected.ipAddress() << " " << answerip.ipAddress() << std::dec;
