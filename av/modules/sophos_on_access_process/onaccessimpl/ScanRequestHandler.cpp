@@ -58,20 +58,18 @@ void ScanRequestHandler::scan(
     auto detections = response.getDetections();
     if (detections.empty())
     {
-        if (errorMsg.empty())
+        if (errorMsg.empty() && scanRequest->isOpenEvent())
         {
             // Clean file
-            if (scanRequest->isOpenEvent())
+            int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
+            if (ret < 0)
             {
-                int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
-                if (ret < 0)
-                {
-                    int error = errno;
-                    std::ignore = error; // Fuzz builds compile out LOGDEBUG
-                    std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
-                    LOGWARN("Caching " << escapedPath << " failed: " << common::safer_strerror(error));
-                }
+                int error = errno;
+                std::ignore = error; // Fuzz builds compile out LOGDEBUG
+                std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
+                LOGWARN("Caching " << escapedPath << " failed: " << common::safer_strerror(error));
             }
+
         }
     }
     else
