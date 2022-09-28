@@ -194,7 +194,7 @@ AV Plugin Scans local secondary mount only once
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${scanName}     timeout=90
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${scanName}    timeout=60
     File Should Exist  ${scanName_log}
-    File Log Contains  ${scanName_log}  "${destination}/eicar.com" is infected with EICAR  (Scheduled)
+    File Log Contains  ${scanName_log}  "${destination}/eicar.com" is infected with EICAR (Scheduled)
 
     ${content} =  Get File   ${scanName_log}  encoding_errors=replace
     ${lines} =  Get Lines Containing String     ${content}  "${destination}/eicar.com" is infected with EICAR
@@ -271,7 +271,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     File Log Should Not Contain  ${myscan_log}  "${eicar_path2}" is infected with EICAR-AV-Test
     File Log Should Not Contain  ${myscan_log}  "${eicar_path3}" is infected with EICAR-AV-Test
     File Log Should Not Contain  ${myscan_log}  "${eicar_path4}" is infected with EICAR-AV-Test
-    File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test  (Scheduled)
+    File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test (Scheduled)
 
 
 AV Plugin Scan of Infected File Increases Threat Eicar Count And Reports Suspicious Threat Health
