@@ -151,16 +151,14 @@ On access continues during update
     Send Policies to enable on-access
     Wait for on access to be enabled
 
-    ${test_dir} =   Set Variable   /tmp/testdir
-    Create Directory   ${test_dir}
-    Register Cleanup   Remove Directory   ${test_dir}   recursive=True
+    ${test_file} =   Set Variable   /tmp/testfile
+    Register Cleanup   Remove File   ${test_file}
 
-    ${handle} =   Start Process
-    ...   while :; do echo foo >$(date -u +%H:%M:%S); sleep 0.01; done
-    ...   shell=True   cwd=${test_dir}
+    # start a background process to cause ~100 on-access events per second
+    ${handle} =   Start Process   while :; do echo foo >${test_file}; sleep 0.01; done   shell=True
 
     Mark Sophos Threat Detector Log
-    Wait Until Sophos Threat Detector Log Contains With Offset     Scan requested of ${test_dir}/
+    Wait Until Sophos Threat Detector Log Contains With Offset     Scan requested of ${test_file}
 
     ${start_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
     Sleep   1s   let on-access do its thing
@@ -168,11 +166,12 @@ On access continues during update
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
     Mark Sophos Threat Detector Log
-    Wait Until Sophos Threat Detector Log Contains With Offset     Scan requested of ${test_dir}/
+    Wait Until Sophos Threat Detector Log Contains With Offset     Scan requested of ${test_file}
 
     Sleep   1s   let on-access do its thing
     ${end_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
 
+    # check the background process didn't stop prematurely, then terminate it.
     Process should Be Running   handle=${handle}
     ${result} =   Terminate Process   handle=${handle}
 
@@ -180,7 +179,7 @@ On access continues during update
     ${time_diff} =   Subtract Date From Date   ${end_time}   ${start_time}   exclude_millis=True
     FOR   ${offset}   IN RANGE   ${time_diff}
         ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
-        ${lines} =   Grep File   ${THREAT_DETECTOR_LOG_PATH}   T${timestamp}.* Scan requested of /tmp/testdir/
+        ${lines} =   Grep File   ${THREAT_DETECTOR_LOG_PATH}   T${timestamp}.* Scan requested of ${test_file}
         ${line_count} =   Get Line Count   ${lines}
         Should Be True   10 <= ${line_count}
     END
@@ -758,11 +757,11 @@ IDE Update Invalidates On Access Cache
     Register Cleanup  Exclude On Access Scan Errors
     ${srcfile} =  Set Variable  /tmp_test/clean.txt
     Create File  ${srcfile}  clean
-    Generate Only Open Event  ${srcfile}
+    Get File  ${srcfile}
     Register Cleanup  Remove File  ${srcfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from
     # Allow time for file to be added to cache
-    Sleep  1s
+    Sleep  5s
 
     Install IDE without reload check  ${IDE_NAME}
     Wait Until On Access Log Contains With Offset  Clearing on-access cache
@@ -770,7 +769,7 @@ IDE Update Invalidates On Access Cache
     Sleep  5s
 
     Mark On Access Log
-    Generate Only Open Event  ${srcfile}
+    Get File  ${srcfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from  timeout=60
 
 
