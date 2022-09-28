@@ -203,12 +203,6 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
             self.retry_5_times_get_request()
         elif os.environ.get("COMMAND") == "failure":
             self.return_202s_then_404()
-        elif os.environ.get("COMMAND") == "cdn_401":
-            self.cdn_http_code(401)
-        elif os.environ.get("COMMAND") == "cdn_404":
-            self.cdn_http_code(404)
-        elif os.environ.get("COMMAND") == "cdn_500":
-            self.cdn_http_code(500)
         elif os.environ.get("EXITCODE") is not None:
             self.return_exitCode(int(os.environ.get("EXITCODE")))
         else:
@@ -360,12 +354,6 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
 
     def sus_http_code(self, http_code):
         self.log_message(f"Responding to SUS POST request with {http_code}")
-        self.send_response(http_code)
-        self.send_header("Content-Length", "0")
-        self.end_headers()
-
-    def cdn_http_code(self, http_code):
-        self.log_message(f"Responding to CDN GET request with {http_code}")
         self.send_response(http_code)
         self.send_header("Content-Length", "0")
         self.end_headers()
