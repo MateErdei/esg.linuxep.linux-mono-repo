@@ -92,6 +92,10 @@ source $SCRIPT_DIR/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failur
 
 bash $SCRIPT_DIR/SupportFiles/jenkins/install_dependencies.sh
 
+find $SCRIPT_DIR -name requirements.txt
+find . -name requirements.txt
+exit 0
+
 echo "Running tests on $HOSTNAME"
 RESULT=0
 EXCLUSIONS='-e MANUAL -e PUB_SUB -e EXCLUDE_AWS -e CUSTOM_LOCATION -e TESTFAILURE -e FUZZ -e MCS_FUZZ -e MDR_REGRESSION_TESTS -e EXAMPLE_PLUGIN'
