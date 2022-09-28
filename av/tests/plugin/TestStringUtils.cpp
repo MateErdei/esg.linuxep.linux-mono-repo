@@ -56,7 +56,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXml)
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
     threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
@@ -89,7 +89,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats)
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
     threatDetected.setThreatType(E_VIRUS_THREAT_TYPE);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
@@ -121,7 +121,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters)
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
     threatDetected.setFilePath(threatPath);
@@ -152,7 +152,7 @@ static scan_messages::ServerThreatDetected createEvent(
     scan_messages::ThreatDetected threatDetected;
     threatDetected.setUserID(userID);
     threatDetected.setDetectionTime(m_detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
+    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS);
     threatDetected.setThreatName(threatName);
     threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
     threatDetected.setFilePath(threatPath);
