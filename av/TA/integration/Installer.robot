@@ -668,7 +668,7 @@ IDE Update Invalidates On Access Cache
     Register Cleanup  Remove File  ${srcfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from
     # Allow time for file to be added to cache
-    Sleep  1s
+    Sleep  5s
 
     Install IDE without reload check  ${IDE_NAME}
     Wait Until On Access Log Contains With Offset  Clearing on-access cache
