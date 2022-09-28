@@ -4,11 +4,8 @@
 
 #include "Logger.h"
 
-#include "datatypes/sophos_filesystem.h"
-
 #include "common/ApplicationPaths.h"
 #include "common/PidLockFile.h"
-#include "common/PluginUtils.h"
 #include "common/SaferStrerror.h"
 #include "common/signals/SigIntMonitor.h"
 #include "common/signals/SigTermMonitor.h"
@@ -16,7 +13,6 @@
 #include <poll.h>
 
 using namespace safestore;
-namespace fs = sophos_filesystem;
 
 int Main::run()
 {
