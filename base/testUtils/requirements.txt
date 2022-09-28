@@ -4,7 +4,8 @@ pytest-html
 psutil
 sseclient
 asyncio
-aiohttp
+#https://github.com/aio-libs/aiohttp/issues/6719
+aiohttp==3.8.1
 aiohttp_sse
 python-dateutil
 websockets
