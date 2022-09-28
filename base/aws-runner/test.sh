@@ -92,9 +92,7 @@ source $SCRIPT_DIR/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failur
 
 bash $SCRIPT_DIR/SupportFiles/jenkins/install_dependencies.sh
 
-find $SCRIPT_DIR -name requirements.txt
-find . -name requirements.txt
-exit 0
+python3 -m pip install -r requirements.txt
 
 echo "Running tests on $HOSTNAME"
 RESULT=0
