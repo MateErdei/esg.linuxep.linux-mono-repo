@@ -18,6 +18,7 @@
 #include <sys/syscall.h>
 #include <iomanip>
 
+using namespace scan_messages;
 using namespace threat_scanner;
 using json = nlohmann::json;
 
@@ -213,7 +214,9 @@ SusiScanner::scan(
     LOG_SUSI_DEBUG("D " << timeAfterScan << " T" << paddedThreadId.str() << " Finished scanning " << file_path << " result: " << std::hex << res << std::dec);
 
     LOGTRACE("Scanning " << file_path.c_str() << " result: " << std::hex << res << std::dec);
+
     bool loggedErrorFromResult = false;
+    auto e_ScanType = static_cast<E_SCAN_TYPE>(scanType);
     if (scanResult != nullptr)
     {
         try
@@ -230,7 +233,7 @@ SusiScanner::scan(
 
                 if (result.contains("detections"))
                 {
-                    auto scanTypeStr = scan_messages::getScanTypeAsStr(static_cast<scan_messages::E_SCAN_TYPE>(scanType));
+                    auto scanTypeStr = getScanTypeAsStr(e_ScanType);
 
                     for (auto detection : result["detections"])
                     {
@@ -284,18 +287,19 @@ SusiScanner::scan(
     }
     else if (res == SUSI_I_THREATPRESENT)
     {
+        auto centralScanType = convertToCentralScanType(e_ScanType);
         std::vector<scan_messages::Detection> detections = response.getDetections();
         if (detections.empty())
         {
             // Failed to parse SUSI scan report but the return code shows that we detected a threat
             response.addDetection(file_path, "unknown","unknown");
-            sendThreatReport(file_path, "unknown", "unknown", scanType, userID);
+            sendThreatReport(file_path, "unknown", "unknown", centralScanType, userID);
         }
         else
         {
             for (const auto& detection: detections)
             {
-                sendThreatReport(detection.path, detection.name, detection.sha256, scanType, userID);
+                sendThreatReport(detection.path, detection.name, detection.sha256, centralScanType, userID);
             }
         }
     }
@@ -309,4 +313,25 @@ SusiScanner::scan(
     }
 
     return response;
+}
+
+E_SCAN_TYPE SusiScanner::convertToCentralScanType(const E_SCAN_TYPE& e_ScanType)
+{
+    switch (e_ScanType)
+    {
+        case E_SCAN_TYPE_ON_ACCESS_OPEN:
+        case E_SCAN_TYPE_ON_ACCESS_CLOSE:
+        {
+            return E_SCAN_TYPE_ON_ACCESS;
+        }
+        case E_SCAN_TYPE_ON_ACCESS:
+        case E_SCAN_TYPE_SCHEDULED:
+        case E_SCAN_TYPE_MEMORY:
+        case E_SCAN_TYPE_ON_DEMAND:
+        case E_SCAN_TYPE_UNKNOWN:
+        default:
+        {
+            return e_ScanType;
+        }
+    }
 }

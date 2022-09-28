@@ -14,6 +14,7 @@
 
 #include <datatypes/AutoFd.h>
 #include <scan_messages/ScanResponse.h>
+#include <scan_messages/ScanType.h>
 
 #include <log4cplus/loglevel.h>
 
@@ -53,6 +54,8 @@ namespace threat_scanner
             const std::string& sha256,
             int64_t scanType,
             const std::string& userID);
+
+        scan_messages::E_SCAN_TYPE convertToCentralScanType(const scan_messages::E_SCAN_TYPE& scanType);
 
         std::shared_ptr<ISusiWrapper> m_susi;
         IThreatReporterSharedPtr m_threatReporter;
