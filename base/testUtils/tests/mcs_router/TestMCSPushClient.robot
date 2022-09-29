@@ -479,10 +479,6 @@ Push Connection Does Not Hang Forever If Proxy Does Not Respond
     Send Message To Push Server And Expect It In MCSRouter Log   Single Message
 
 Push Connection Closes Cleanly When MCSRouter Is Stopped
-
-    ${result} =  Run Process    python3  -m  pip  freeze
-    Log  ${result.stdout}
-
     Remove File  ./tmp/push_server_log.log
     Start MCS Push Server
     Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
