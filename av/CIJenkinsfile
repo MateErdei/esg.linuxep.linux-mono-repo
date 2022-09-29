@@ -13,4 +13,16 @@ def params = [
     booleanParam(name: 'do_999_build', defaultValue: true, description: 'Do 999 build (default everywhere)'),
 ]
 
-CIPipeline { pipelineEntryPoint = 'av_plugin'; buildParameters = params; skipInitialBuild = 'true' }
+try
+{
+    CIPipeline { pipelineEntryPoint = 'av_plugin'; buildParameters = params; skipInitialBuild = 'true' }
+}
+catch (e) {
+    emailext(
+        subject:"Develop build failed",
+        body:"Develop build failed - ${JOB_URL}",
+        to:'0a93a912.sophosapps.onmicrosoft.com@emea.teams.ms'
+    )
+    throw e
+}
+
