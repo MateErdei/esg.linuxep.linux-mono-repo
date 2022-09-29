@@ -27,19 +27,13 @@ namespace
 
 TEST_F(TestFanotifyHandler, construction)
 {
-    sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
-    EXPECT_EQ(handler.getFd(), -1);
-}
-
-TEST_F(TestFanotifyHandler, testInit)
-{
     int fanotifyFd = 0;
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS,
+                                                     O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
-    handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
 
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
@@ -49,13 +43,15 @@ TEST_F(TestFanotifyHandler, testInit)
     EXPECT_FALSE(appenderContains("Unable to initialise fanotify:"));
 }
 
-TEST_F(TestFanotifyHandler, init_logsErrorIfFanotifyInitFails)
+TEST_F(TestFanotifyHandler, construction_logsErrorIfFanotifyInitFails)
 {
     int fanotifyFd = -1;
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
-    EXPECT_THROW(handler.init(), std::runtime_error);
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS,
+                                                     O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
+
+    EXPECT_THROW(sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper), std::runtime_error);
 }
 
 TEST_F(TestFanotifyHandler, cacheFdReturnsZeroForSuccess)
@@ -64,12 +60,13 @@ TEST_F(TestFanotifyHandler, cacheFdReturnsZeroForSuccess)
     int fileFd = 54;
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(fanotifyFd, FAN_MARK_ADD | FAN_MARK_IGNORED_MASK, FAN_OPEN, fileFd, nullptr)).WillOnce(
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS,
+                                                     O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(fanotifyFd, FAN_MARK_ADD | FAN_MARK_IGNORED_MASK,
+                                                     FAN_OPEN, fileFd, nullptr)).WillOnce(
         SetErrnoAndReturn(0, 0));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
-    handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 
@@ -82,17 +79,18 @@ TEST_F(TestFanotifyHandler, errorWhenCacheFdFails)
     int fileFd = 54;
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(fanotifyFd, FAN_MARK_ADD | FAN_MARK_IGNORED_MASK, FAN_OPEN, fileFd, nullptr)).WillOnce(
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS,
+                                                     O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(fanotifyFd, FAN_MARK_ADD | FAN_MARK_IGNORED_MASK,
+                                                     FAN_OPEN, fileFd, nullptr)).WillOnce(
         SetErrnoAndReturn(EEXIST, -1));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
-    handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 
     EXPECT_EQ(-1, handler.cacheFd(fileFd, "/expected"));
-    EXPECT_TRUE(waitForLog("fanotify_mark failed in cacheFd: File exists for: /expected"));
+    EXPECT_TRUE(waitForLog("fanotify_mark failed: cacheFd : File exists Path: /expected"));
 }
 
 TEST_F(TestFanotifyHandler, markMountReturnsZeroForSuccess)
@@ -101,12 +99,13 @@ TEST_F(TestFanotifyHandler, markMountReturnsZeroForSuccess)
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::string path = "/expected";
 
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(fanotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, FAN_CLOSE_WRITE | FAN_OPEN, FAN_NOFD, path.c_str())).WillOnce(
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS,
+                                                     O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(fanotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT,
+                                                     FAN_CLOSE_WRITE | FAN_OPEN, FAN_NOFD, path.c_str())).WillOnce(
         SetErrnoAndReturn(0, 0));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
-    handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 
@@ -119,23 +118,16 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFails)
     std::string path = "/expected";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
-    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(fanotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT, FAN_CLOSE_WRITE | FAN_OPEN, FAN_NOFD, path.c_str())).WillOnce(
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS,
+                                                     O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
+    EXPECT_CALL(*m_mockSysCallWrapper, fanotify_mark(fanotifyFd, FAN_MARK_ADD | FAN_MARK_MOUNT,
+                                                     FAN_CLOSE_WRITE | FAN_OPEN, FAN_NOFD, path.c_str())).WillOnce(
         SetErrnoAndReturn(EEXIST, -1));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
-    handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 
     EXPECT_EQ(-1, handler.markMount(path));
-    EXPECT_TRUE(waitForLog("fanotify_mark failed in markMount: File exists for: /expected"));
-}
-
-TEST_F(TestFanotifyHandler, clearCacheWithoutInit)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-    sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
-
-    EXPECT_NO_THROW(handler.updateComplete());
+    EXPECT_TRUE(waitForLog("fanotify_mark failed: markMount : File exists Path: /expected"));
 }
