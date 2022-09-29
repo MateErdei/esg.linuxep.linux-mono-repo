@@ -164,9 +164,9 @@ bool EventReaderThread::handleFanotifyEvent()
             }
             m_EventsWhileQueueFull++;
         }
-        if (m_EventsWhileQueueFull > 0)
+        else if (m_EventsWhileQueueFull > 0)
         {
-            LOGINFO("Queue is now empty, " << m_EventsWhileQueueFull << " events dropped");
+            LOGINFO("Queue is now empty. Number of events dropped: " << m_EventsWhileQueueFull);
             m_EventsWhileQueueFull = 0;
         }
     }
