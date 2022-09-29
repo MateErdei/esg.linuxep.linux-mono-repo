@@ -53,6 +53,7 @@ On Access Test Setup
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
     Register Cleanup  Exclude CustomerID Failed To Read Error
+    Register On Fail  Dump log  ${AV_PLUGIN_PATH}/log/soapd.log
 
 
 On Access Test Teardown
@@ -142,7 +143,6 @@ On Access Does Not Include Remote Files If Excluded In Policy
 
 On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Policy
     Mark On Access Log
-    Register Cleanup  Dump Log  ${ON_ACCESS_LOG_PATH}
     ${filepath1} =  Set Variable  /tmp_test/eicar.com
     ${filepath2} =  Set Variable  /tmp_test/eicar2.com
     ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/"]  True
@@ -172,7 +172,6 @@ On Access Does Not Scan Files If They Match Relative Directory Exclusion In Poli
     Wait Until On Access Log Contains With Offset  Logger soapd configured for level: TRACE
 
     Mark On Access Log
-    Register Cleanup  Dump Log  ${ON_ACCESS_LOG_PATH}
     ${policyContent} =  Get Complete Sav Policy  ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  True
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until On Access Log Contains With Offset  On-access exclusions: ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]
@@ -210,7 +209,6 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
     Restart On Access
     Wait Until On Access Log Contains With Offset  Logger soapd configured for level: TRACE
 
-    Register Cleanup  Dump Log  ${ON_ACCESS_LOG_PATH}
     ${TEST_DIR} =   Set Variable  /tmp_test/globExclDir
     Create Directory  ${TEST_DIR}
     Register Cleanup  Remove Directory  ${TEST_DIR}  recursive=True
@@ -251,12 +249,29 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
 
 
 On Access Does Not Monitor A Mount Point If It Matches An Exclusion In Policy
-    Register Cleanup  Dump Log  ${ON_ACCESS_LOG_PATH}
     ${policyContent} =  Get Complete Sav Policy  ["/"]  True
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until On Access Log Contains With Offset  On-access exclusions: ["/"]
     Wait Until On Access Log Contains With Offset  Updating on-access exclusions
     Wait Until On Access Log Contains With Offset  Mount point / matches an exclusion in the policy and will be excluded from the scan
+
+
+On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In Policy
+    ${source} =       Set Variable  /tmp_test/src_file
+    ${destination} =  Set Variable  /tmp_test/bind_mount
+    Register Cleanup  Remove Directory   /tmp_test   recursive=true
+    Remove Directory  /tmp_test   recursive=true
+    Create File  ${source}
+    Create File  ${destination}
+
+    Run Shell Process   mount --bind ${source} ${destination}     OnError=Failed to create bind mount
+    Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release bind mount
+
+    ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/bind_mount"]  True
+    Send Plugin Policy  av  sav  ${policyContent}
+    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/tmp_test/bind_mount"]
+    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
+    Wait Until On Access Log Contains With Offset  Mount point /tmp_test/bind_mount matches an exclusion in the policy and will be excluded from the scan
 
 
 On Access Monitors Addition And Removal Of Mount Points
@@ -380,8 +395,6 @@ On Access Is Disabled After it Receives Disable Flags
 
     On-access No Eicar Scan
 
-    Dump Log  ${on_access_log_path}
-
 
 On Access Does not Use Policy Settings If Flags Have Overriden Policy
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
@@ -395,8 +408,6 @@ On Access Does not Use Policy Settings If Flags Have Overriden Policy
 
     Wait Until On Access Log Contains With Offset   Overriding policy, on-access will be disabled
     On-access No Eicar Scan
-
-    Dump Log  ${on_access_log_path}
 
 
 On Access Process Reconnects To Threat Detector

@@ -44,43 +44,55 @@ namespace mount_monitor::mount_monitor
         }
     }
 
+    bool MountMonitor::isIncludedMountpoint(mountinfo::IMountPointSharedPtr mp)
+    {
+        if (mp->mountPoint().rfind("/opt/sophos-spl/", 0) == 0)
+        {
+            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is a Sophos SPL bind mount and will be excluded from the scan");
+            return false;
+        }
+        else
+        {
+            for (const auto& exclusion: m_exclusions)
+            {
+                bool isDir = mp->isDirectory();
+                if (exclusion.appliesToPath(mp->mountPoint(), isDir, !isDir))
+                {
+                    LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " matches an exclusion in the policy and will be excluded from the scan");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    bool MountMonitor::isIncludedFilesystemType(mountinfo::IMountPointSharedPtr mp)
+    {
+        if ((mp->isHardDisc() && m_config.m_scanHardDisc) || (mp->isNetwork() && m_config.m_scanNetwork) ||
+            (mp->isOptical() && m_config.m_scanOptical) || (mp->isRemovable() && m_config.m_scanRemovable))
+        {
+            return true;
+        }
+        else if (mp->isSpecial())
+        {
+            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is system and will be excluded from the scan");
+            return false;
+        }
+        else
+        {
+            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " has been excluded from the scan");
+            return false;
+        }
+    }
+
     mountinfo::IMountPointSharedVector MountMonitor::getIncludedMountpoints(mountinfo::IMountPointSharedVector allMountPoints)
     {
         mountinfo::IMountPointSharedVector includedMountpoints;
         for (const auto& mp : allMountPoints)
         {
-            if ((mp->isHardDisc() && m_config.m_scanHardDisc) || (mp->isNetwork() && m_config.m_scanNetwork) ||
-                (mp->isOptical() && m_config.m_scanOptical) || (mp->isRemovable() && m_config.m_scanRemovable))
+            if (isIncludedFilesystemType(mp) && isIncludedMountpoint(mp))
             {
-                if (mp->mountPoint().rfind("/opt/sophos-spl/", 0) == 0)
-                {
-                    LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is a Sophos SPL bind mount and will be excluded from the scan");
-                }
-                else
-                {
-                    bool mountExcluded = false;
-                    for (const auto& exclusion: m_exclusions)
-                    {
-                        if (exclusion.path() == mp->mountPoint())
-                        {
-                            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " matches an exclusion in the policy and will be excluded from the scan");
-                            mountExcluded = true;
-                            continue;
-                        }
-                    }
-                    if (!mountExcluded)
-                    {
-                        includedMountpoints.push_back(mp);
-                    }
-                }
-            }
-            else if (mp->isSpecial())
-            {
-                LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is system and will be excluded from the scan");
-            }
-            else
-            {
-                LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " has been excluded from the scan");
+                includedMountpoints.push_back(mp);
             }
         }
         return includedMountpoints;

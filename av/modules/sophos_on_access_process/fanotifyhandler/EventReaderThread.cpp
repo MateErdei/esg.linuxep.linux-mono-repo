@@ -19,7 +19,6 @@
 #include <climits>
 #include <poll.h>
 #include <cstring>
-#include <sys/fanotify.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -46,6 +45,58 @@ EventReaderThread::EventReaderThread(
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path PLUGIN_INSTALL = appConfig.getData("PLUGIN_INSTALL");
     m_processExclusionStem = PLUGIN_INSTALL.string() + "/";
+}
+
+bool EventReaderThread::skipScanningOfEvent(
+    struct fanotify_event_metadata* eventMetadata, std::string& filePath, std::string& exePath)
+{
+    if (eventMetadata->vers != FANOTIFY_METADATA_VERSION)
+    {
+        LOGERROR("fanotify wrong protocol version " << eventMetadata->vers);
+        return true;
+    }
+
+    auto eventFd = eventMetadata->fd;
+    if (eventFd < 0)
+    {
+        LOGDEBUG("Got fanotify metadata event without fd");
+        return true;
+    }
+
+    if (eventMetadata->pid == m_pid)
+    {
+        return true;
+    }
+
+    filePath = getFilePathFromFd(eventFd);
+    //Either path was too long or fd was invalid
+    if(filePath.empty())
+    {
+        return true;
+    }
+
+    // Exclude events caused by AV logging to prevent recursive events
+    if (filePath.rfind(m_pluginLogDir, 0) == 0)
+    {
+        return true;
+    }
+
+    exePath = get_executable_path_from_pid(eventMetadata->pid);
+    if (!m_processExclusionStem.empty() && startswith(exePath, m_processExclusionStem))
+    {
+        //LOGDEBUG("Excluding SPL-AV process: " << executablePath << " scantype: " << eventStr << " for path: " << path);
+        return true;
+    }
+
+    for (const auto& exclusion: m_exclusions)
+    {
+        if (exclusion.appliesToPath(filePath))
+        {
+            LOGTRACE("File access on " << filePath << " will not be scanned due to exclusion: "  << exclusion.displayPath());
+            return true;
+        }
+    }
+    return false;
 }
 
 bool EventReaderThread::handleFanotifyEvent()
@@ -83,64 +134,15 @@ bool EventReaderThread::handleFanotifyEvent()
 
     for (; FAN_EVENT_OK(metadata, len); metadata = FAN_EVENT_NEXT(metadata, len))
     {
-        if (metadata->vers != FANOTIFY_METADATA_VERSION)
-        {
-            LOGERROR("fanotify wrong protocol version " << metadata->vers);
-            return false;
-        }
-
-        auto eventFd = metadata->fd;
-        if (eventFd < 0)
-        {
-            LOGDEBUG("Got fanotify metadata event without fd");
-            continue;
-        }
-
-        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
-        scanRequest->setFd(eventFd); // DONATED
-
-        if (metadata->pid == m_pid)
-        {
-            continue;
-        }
-
-        auto path = getFilePathFromFd(eventFd);
-        //Either path was too long or fd was invalid
-        if(path.empty())
-        {
-            continue;
-        }
-
-        // Exclude events caused by AV logging to prevent recursive events
-        if (path.rfind(m_pluginLogDir, 0) == 0)
-        {
-            continue;
-        }
-
-        auto executablePath = get_executable_path_from_pid(metadata->pid);
-        if (!m_processExclusionStem.empty() && startswith(executablePath, m_processExclusionStem))
-        {
-            //LOGDEBUG("Excluding SPL-AV process: " << executablePath << " scantype: " << eventStr << " for path: " << path);
-            continue;
-        }
-
-        bool exclusionApplied = false;
-        for (const auto& exclusion: m_exclusions)
-        {
-            if (exclusion.appliesToPath(path))
-            {
-                LOGTRACE("File access on " << path << " will not be scanned due to exclusion: "  << exclusion.displayPath());
-                exclusionApplied = true;
-                continue;
-            }
-        }
-        if (exclusionApplied)
+        std::string filePath;
+        std::string executablePath;
+        if (skipScanningOfEvent(metadata, filePath, executablePath))
         {
             continue;
         }
 
         auto uid = getUidFromPid(metadata->pid);
-        auto escapedPath = common::escapePathForLogging(path);
+        auto escapedPath = common::escapePathForLogging(filePath);
 
         auto eventType = E_SCAN_TYPE_UNKNOWN;
 
@@ -167,14 +169,15 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
-
-        scanRequest->setPath(path);
+        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
+        scanRequest->setFd(metadata->fd); // DONATED
+        scanRequest->setPath(filePath);
         scanRequest->setScanType(eventType);
         scanRequest->setUserID(uid);
 
         if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
         {
-            LOGERROR("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: " << path);
+            LOGERROR("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: " << filePath);
         }
     }
     return true;

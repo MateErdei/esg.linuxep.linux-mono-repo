@@ -12,8 +12,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 // Standard C++
 #include <cstdlib>
-#include <sstream>
+#include <filesystem>
 #include <fstream>
+#include <sstream>
 
 // Standard C
 #include <fstab.h>
@@ -116,7 +117,7 @@ void Mounts::parseProcMounts()
 
         device = realMountPoint(device);
         //LOGDEBUG("dev " << device << " on " << mountPoint << " type " << type);
-        m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type));
+        m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type, std::filesystem::is_directory(device)));
     }
 
     if (device("/").empty())
@@ -140,10 +141,12 @@ void Mounts::parseProcMounts()
                 }
             }
 
+            std::string devicePath = fixDeviceWithMount(mountpoint->fs_spec);
             m_devices.push_back(std::make_shared<Drive>(
-                        fixDeviceWithMount(mountpoint->fs_spec),
-                        mountpoint->fs_file,
-                        mountpoint->fs_type));
+                devicePath,
+                mountpoint->fs_file,
+                mountpoint->fs_type,
+                std::filesystem::is_directory(devicePath)));
         }
     }
 }
@@ -421,11 +424,12 @@ static DeviceUtilSharedPtr getDeviceUtil()
  * @param mountPoint
  * @param type
  */
-Mounts::Drive::Drive(std::string device, std::string mountPoint, std::string type)
+Mounts::Drive::Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory)
     : m_deviceUtil(getDeviceUtil())
     , m_mountPoint(std::move(mountPoint))
     , m_device(std::move(device))
     , m_fileSystem(std::move(type))
+    , m_isDirectory(isDirectory)
 {
 }
 
@@ -473,3 +477,7 @@ bool Mounts::Drive::isSpecial() const
     return m_deviceUtil->isSystem(device(),mountPoint(),filesystemType());
 }
 
+bool Mounts::Drive::isDirectory() const
+{
+    return m_isDirectory;
+}

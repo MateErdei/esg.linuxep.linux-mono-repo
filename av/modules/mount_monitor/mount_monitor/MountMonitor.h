@@ -33,6 +33,8 @@ namespace mount_monitor::mount_monitor
     private:
         void run() override;
         void markMounts(const mountinfo::IMountPointSharedVector& mounts);
+        bool isIncludedFilesystemType(mountinfo::IMountPointSharedPtr mount);
+        bool isIncludedMountpoint(mountinfo::IMountPointSharedPtr mount);
 
         OnAccessMountConfig& m_config;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;

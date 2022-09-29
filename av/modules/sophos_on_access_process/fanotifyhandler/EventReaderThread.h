@@ -13,6 +13,8 @@
 
 #include "Common/Threads/NotifyPipe.h"
 
+#include <sys/fanotify.h>
+
 namespace fs = sophos_filesystem;
 namespace onaccessimpl = sophos_on_access_process::onaccessimpl;
 
@@ -33,6 +35,7 @@ namespace sophos_on_access_process::fanotifyhandler
 
     private:
         bool handleFanotifyEvent();
+        bool skipScanningOfEvent(struct fanotify_event_metadata* eventMetadata, std::string& filePath, std::string& exePath);
         std::string getFilePathFromFd(int fd);
         std::string getUidFromPid(pid_t pid);
 

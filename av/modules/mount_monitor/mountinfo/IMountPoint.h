@@ -39,6 +39,8 @@ namespace mount_monitor::mountinfo
 
         [[nodiscard]] virtual std::string mountPoint() const = 0;
 
+        [[nodiscard]] virtual bool isDirectory() const = 0;
+
     };
 
     using IMountPointSharedPtr = std::shared_ptr<IMountPoint>;

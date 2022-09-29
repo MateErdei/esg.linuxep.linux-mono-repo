@@ -89,7 +89,7 @@ TEST_F(TestMountMonitor, TestSetExclusions)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const char* excludedMount = "/test";
+    const char* excludedMount = "/test/";
     std::vector<common::Exclusion> exclusions;
     exclusions.emplace_back(excludedMount);
 
@@ -105,6 +105,7 @@ TEST_F(TestMountMonitor, TestSetExclusions)
     EXPECT_CALL(*localFixedDevice, isOptical()).WillRepeatedly(Return(false));
     EXPECT_CALL(*localFixedDevice, isRemovable()).WillRepeatedly(Return(false));
     EXPECT_CALL(*localFixedDevice, isSpecial()).WillRepeatedly(Return(false));
+    EXPECT_CALL(*localFixedDevice, isDirectory()).WillRepeatedly(Return(true));
     EXPECT_CALL(*localFixedDevice, mountPoint()).WillRepeatedly(Return(excludedMount));
 
     mount_monitor::mountinfo::IMountPointSharedVector allMountpoints;

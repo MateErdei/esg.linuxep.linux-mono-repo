@@ -35,7 +35,7 @@ namespace mount_monitor::mountinfoimpl
              * @param mountPoint
              * @param type
              */
-            Drive(std::string device, std::string mountPoint, std::string type);
+            Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory);
 
             ~Drive() override = default;
 
@@ -59,12 +59,14 @@ namespace mount_monitor::mountinfoimpl
              */
             [[nodiscard]] bool isSpecial() const override;
 
+            [[nodiscard]] bool isDirectory() const override;
+
         private:
             mountinfoimpl::DeviceUtilSharedPtr m_deviceUtil;
             std::string m_mountPoint;
             std::string m_device;
             std::string m_fileSystem;
-
+            bool m_isDirectory;
         };
 
         /**

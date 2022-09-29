@@ -26,6 +26,7 @@ namespace
         MOCK_CONST_METHOD0(isOptical, bool());
         MOCK_CONST_METHOD0(isRemovable, bool());
         MOCK_CONST_METHOD0(isSpecial, bool());
+        MOCK_CONST_METHOD0(isDirectory, bool());
         MOCK_CONST_METHOD0(mountPoint, std::string());
     };
 
@@ -74,6 +75,11 @@ namespace
         [[nodiscard]] bool isSpecial() const override
         {
             return m_type == type::special;
+        }
+
+        [[nodiscard]] bool isDirectory() const override
+        {
+            return true;
         }
 
         [[nodiscard]] std::string mountPoint() const override
