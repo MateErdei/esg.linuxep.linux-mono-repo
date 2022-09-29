@@ -22,6 +22,6 @@ fi
 
 
 curl -X POST "http://sspl-perf-mon:9200/sspl_install_size/_doc" -H "Content-Type: application/json" -d \
-    '{"hostname":"'$HOSTNAME'", "size_kB":'$SIZE', "datetime":"'"$DATETIME"'"}'
+    '{"hostname":"'$HOSTNAME'", "size_kB":'$SIZE', "datetime":"'"$DATETIME"'"}' || exit 1
 
 

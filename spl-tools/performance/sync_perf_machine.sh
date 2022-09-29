@@ -51,16 +51,19 @@ echo "Copying MCS certs to /root"
 cp -r /mnt/filer6/linux/SSPL/tools/setup_sspl/certs /root/
 
 echo "Installing needed python3 modules"
-python3 -m pip install requests watchdog websockets nest_asyncio || failure "Could not install requests"
+python3 -m pip install requests watchdog websockets nest_asyncio || failure "Could not install python modules"
+
+echo "Install java for Jenkins"
+yum install -y java-11-openjdk || failure "Could not install java"
 
 echo ""
 echo "Add the following crontab and then reboot the machine to complete sync:"
 echo ""
 echo "@reboot /root/metricbeat-7.1.1-linux-x86_64/metricbeat -c /root/metricbeat-7.1.1-linux-x86_64/metricbeat.yml"
-echo "0 16 * * * /root/performance/ssplDogfoodFeedback.sh"
 echo ""
 
 echo "The performance machine will also require python 3.7 to be installed for some tests to run"
+echo "To enable sudo without a password (required for Jenkins to trigger tests) run 'sudo visudo' and add 'pair    ALL = (ALL) NOPASSWD: ALL' to the file'"
 
 echo "Done"
 

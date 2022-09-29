@@ -45,21 +45,6 @@ fi
 
 [[ -d $PERF_DIR ]] || failure "Could not access: $PERF_DIR"
 
-copy_file PerformanceResources.py
-copy_file RTD.sh
-copy_file RunCentralLiveQuery.py
-copy_file RunEventJournalerIngestionTest.py
-copy_file RunLocalLiveQuery.py
-copy_file RunPerfTests.py
-copy_file build-gcc-only.sh
-copy_file install-edr-mtr.sh
-copy_file install-edr.sh
-copy_file record_sspl_install_size.sh
-copy_file run-test-gcc.sh
-copy_file save-osquery-db-file-count.sh
-copy_file sync_perf_machine.sh
-copy_file ssplDogfoodFeedback.sh
-
 copy_file ../everest-base/testUtils/SupportFiles/CloudAutomation/cloudClient.py
 copy_file ../everest-base/testUtils/SupportFiles/CloudAutomation/SophosHTTPSClient.py
 
@@ -67,8 +52,6 @@ copy_file ../sspl-plugin-event-journaler/output/manualTools/JournalReader
 copy_file ../sspl-plugin-event-journaler/output/manualTools/EventPubSub
 
 # Live Response terminal tests
-copy_file RunLocalLiveTerminal.py
-copy_file 1000Chars
 copy_dir ../liveterminal/ta/scripts/utils/websocket_server
 
 echo -e "\nDone copying to: $PERF_DIR"

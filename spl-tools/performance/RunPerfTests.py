@@ -118,6 +118,7 @@ def record_result(event_name, date_time, start_time, end_time, custom_data=None)
         if r.status_code not in [200, 201]:
             logging.error(f"Failed to store test result: {str(result)}")
             logging.error(f"Status code: {r.status_code}, text: {r.text}")
+            exit(1)
         else:
             logging.info(f"Stored result for: {event_name}")
             logging.info(f"Content: {result}")
@@ -135,14 +136,17 @@ def run_gcc_perf_test():
 
     date_time = get_current_date_time_string()
     start_time = get_current_unix_epoch_in_seconds()
-    subprocess.run(['bash', build_gcc_script], timeout=10000)
+    result = subprocess.run(['bash', build_gcc_script], timeout=10000)
     end_time = get_current_unix_epoch_in_seconds()
 
     record_result("GCC Build", date_time, start_time, end_time)
 
+    if result.returncode != 0:
+        exit(1)
 
 def run_local_live_query_perf_test():
     logging.info("Running Local Live Query performance test")
+    failed_queries = 0
     this_dir = os.path.dirname(os.path.realpath(__file__))
     local_live_query_script = os.path.join(this_dir, "RunLocalLiveQuery.py")
 
@@ -167,15 +171,24 @@ def run_local_live_query_perf_test():
         if process_result.returncode != 0:
             logging.error(f"Running local live query failed. return code: {process_result.returncode}, "
                           f"stdout: {process_result.stdout}, stderr: {process_result.stderr}")
+            failed_queries += 1
             continue
 
         result = json.loads(process_result.stdout)
         event_name = f"local-query_{name}_x{str(times_to_run)}"
         record_result(event_name, date_time, result["start_time"], result["end_time"])
 
+    if failed_queries == len(queries_to_run):
+        logging.error("Running all local live queries failed")
+        exit(1)
+    elif failed_queries > 0:
+        logging.warning("Running some local live queries failed")
+        exit(2)
+
 
 def run_local_live_query_detections_perf_test():
     logging.info("Running Local Live Query Detections performance test")
+    failed_queries = 0
     this_dir = os.path.dirname(os.path.realpath(__file__))
     local_live_query_script = os.path.join(this_dir, "RunLocalLiveQuery.py")
 
@@ -208,6 +221,7 @@ def run_local_live_query_detections_perf_test():
             if process_result.returncode != 0:
                 logging.error(f"Running local live query detections failed. return code: {process_result.returncode}, "
                               f"stdout: {process_result.stdout}, stderr: {process_result.stderr}")
+                failed_queries += 1
                 continue
 
             result = json.loads(process_result.stdout)
@@ -220,17 +234,25 @@ def run_local_live_query_detections_perf_test():
 
         start_sspl_process('eventjournaler')
 
+    if failed_queries == len(queries_to_run):
+        logging.error("Running all local live detection queries failed")
+        exit(1)
+    elif failed_queries > 0:
+        logging.warning("Running some local live detection queries failed")
+        exit(2)
+
 
 def run_central_live_query_perf_test(client_id, email, password, region):
     if client_id is None and email is None:
         logging.error("Please enter API client ID or email, use -h for help.")
-        return
+        exit(1)
     if not password:
         logging.error("Please enter password, use -h for help.")
-        return
+        exit(1)
 
     wait_for_plugin_to_be_installed('edr')
-    logging.info("Running Local Live Query performance test")
+    logging.info("Running Central Live Query performance test")
+    failed_queries = 0
     this_dir = os.path.dirname(os.path.realpath(__file__))
     central_live_query_script = os.path.join(this_dir, "RunCentralLiveQuery.py")
 
@@ -266,11 +288,19 @@ def run_central_live_query_perf_test(client_id, email, password, region):
         if process_result.returncode != 0:
             logging.error(f"Running live query through central failed. return code: {process_result.returncode}, "
                           f"stdout: {process_result.stdout}, stderr: {process_result.stderr}")
+            failed_queries += 1
             continue
 
         result = json.loads(process_result.stdout)
         event_name = f"central-live-query_{name}"
         record_result(event_name, date_time, result["start_time"], result["end_time"])
+
+    if failed_queries == len(queries_to_run):
+        logging.error("Running all central live queries failed")
+        exit(1)
+    elif failed_queries > 0:
+        logging.warning("Running some central live queries failed")
+        exit(2)
 
 
 def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
@@ -301,7 +331,7 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
 
     if not result:
         logging.error("No result from RunLocalLiveTerminal.py")
-        return
+        exit(1)
 
     # Have to handle the two variety of tests here:
     # 1) Test plan wants a session to remain open for 5 mins to check for resource usage during that time
@@ -361,7 +391,7 @@ def run_event_journaler_ingestion_test():
 
         if not result:
             logging.error("No result from RunEventJournalerIngestionTest.py")
-            return
+            exit(1)
 
         print(result)
         event_name = f"event-journaler-ingestion_{test_args['name']}"
