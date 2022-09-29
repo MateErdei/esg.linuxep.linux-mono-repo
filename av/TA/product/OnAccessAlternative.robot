@@ -309,7 +309,10 @@ On Access Scan Times Out When Unable To Connect To Threat Detector
 On Access Logs Scan time in TRACE
     Set Log Level  TRACE
     Register Cleanup  Set Log Level  DEBUG
+
+    Mark On Access Log
     Restart On Access
+    Wait Until On Access Log Contains With Offset  Starting eventReader
 
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     Create File  ${filepath}  clean
