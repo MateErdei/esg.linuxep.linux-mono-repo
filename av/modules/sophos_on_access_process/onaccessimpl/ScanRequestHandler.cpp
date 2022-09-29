@@ -66,11 +66,12 @@ void ScanRequestHandler::scan(
             // Clean file
             if (scanRequest->isOpenEvent())
             {
+                LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()));
                 int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
                 if (ret < 0)
                 {
                     int error = errno;
-                    std::ignore = error; // Fuzz builds compile out LOGDEBUG
+                    std::ignore = error; // Fuzz builds compile out LOG*
                     std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
                     LOGWARN("Caching " << escapedPath << " failed: " << common::safer_strerror(error));
                 }

@@ -126,10 +126,10 @@ On-access Scan Eicar Open
     Register Cleanup  Remove File  ${filepath}
 
     Mark On Access Log
-    Get Binary File  ${filepath}
+    Get File   ${filepath}
 
-    Wait Until On Access Log Contains With Offset  On-open event for ${filepath} from \   timeout=${timeout}
-    Wait Until On Access Log Contains With Offset  "${filepath}" is infected with EICAR-AV-Test \   timeout=${timeout}
+    Wait Until On Access Log Contains With Offset  On-open event for ${filepath} from    timeout=${timeout}
+    Wait Until On Access Log Contains With Offset  "${filepath}" is infected with    timeout=${timeout}
 
 
 On-access No Eicar Scan
