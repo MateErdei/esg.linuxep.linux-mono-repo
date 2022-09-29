@@ -175,6 +175,7 @@ Install EDR Directly from SDDS With mocked scheduled queries
     Replace Query Bodies With Sql That Always Gives Results  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
     Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
     Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
+    Copy File  ${EXAMPLE_DATA_PATH}/testoptions.conf   ${EDR_SDDS}/etc/osquery.conf.d/testoptions.conf
     ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
     [Return]  ${result.stdout}\n${result.stderr}
