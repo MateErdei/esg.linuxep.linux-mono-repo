@@ -57,7 +57,6 @@ ${AV_RESTORED_LOGS_DIRECTORY}                   ${AV_PLUGIN_PATH}/log/downgrade-
 ${NORMAL_DIRECTORY}                             /home/vagrant/this/is/a/directory/for/scanning
 ${MCS_DIR}                                      ${SOPHOS_INSTALL}/base/mcs
 ${TESTTMP}                                      /tmp_test/SSPLAVTests
-${SAFESTORE_FLAG_CONFIG}                        ${AV_PLUGIN_PATH}/var/ss_flag.json
 
 ${CLEAN_STRING}         not an eicar
 ${EICAR_STRING}         X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*

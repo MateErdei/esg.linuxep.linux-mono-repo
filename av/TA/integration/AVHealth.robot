@@ -37,12 +37,6 @@ SHS Status File Contains
     ${shsStatus} =  Get File   ${MCS_DIR}/status/SHS_status.xml
     Log  ${shsStatus}
     Should Contain  ${shsStatus}  ${content_to_contain}
-
-SafeStore Flag File Contains Expected Value
-    [Arguments]   ${expectedValue}
-    ${ssFlagFile} =  Get File  ${SAFESTORE_FLAG_CONFIG}
-    Log  ${ssFlagFile}
-    Should Contain  ${ssFlagFile}   ss_enabled":${expectedValue}
     
 Check Status Health is Reporting Correctly
     [Arguments]    ${healthStatus}
@@ -131,11 +125,12 @@ Sophos On-Access PID File Existence Does Not Cause Good Status Health When Not L
     Check Status Health is Reporting Correctly    0
 
 Sophos SafeStore Process Not Running Does Not Trigger Bad Status Health When SafeStore Is Not Enabled
+    Mark AV Log
     Send Flags Policy To Base  flags_policy/flags.json
     Check Status Health is Reporting Correctly    0
 
     Stop SafeStore
-    SafeStore Flag File Contains Expected Value   false
+    AV Plugin Log Contains With Offset  Safestore flag not set. Setting Safestore to disabled.
     Check Status Health is Reporting Correctly    0
 
     Start SafeStore
@@ -143,11 +138,12 @@ Sophos SafeStore Process Not Running Does Not Trigger Bad Status Health When Saf
     Check Status Health is Reporting Correctly    0
 
 Sophos SafeStore Process Not Running Triggers Bad Status Health
+    Mark AV Log
     Send Flags Policy To Base  flags_policy/flags_enabled.json
     Check Status Health is Reporting Correctly    0
 
     Stop SafeStore
-    SafeStore Flag File Contains Expected Value   true
+    AV Plugin Log Contains With Offset  Safestore flag set. Setting Safestore to enabled.
     Check Status Health is Reporting Correctly    1
 
     Start SafeStore
@@ -155,11 +151,11 @@ Sophos SafeStore Process Not Running Triggers Bad Status Health
     Check Status Health is Reporting Correctly    0
 
 Sophos SafeStore PID File Existence Does Not Cause Good Status Health When Not Locked
+    Mark AV Log
     Send Flags Policy To Base  flags_policy/flags_enabled.json
-    Wait Until Keyword Succeeds
-    ...  60s
-    ...  2s
-    ...  SafeStore Flag File Contains Expected Value    true
+    Wait Until AV Plugin Log Contains With Offset
+    ...   Safestore flag set. Setting Safestore to enabled.
+    ...   timeout=60
 
     Check Status Health is Reporting Correctly    0
 

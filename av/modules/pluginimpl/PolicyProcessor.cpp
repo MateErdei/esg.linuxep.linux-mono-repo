@@ -329,24 +329,11 @@ namespace Plugin
         {
             LOGINFO("Safestore flag not set. Setting Safestore to disabled.");
         }
+        m_safeStoreEnabled = ssEnabled;
+    }
 
-        try
-        {
-            json ssConfig;
-            ssConfig["ss_enabled"] = ssEnabled;
-
-            auto* fs = Common::FileSystem::fileSystem();
-            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-            fs->writeFileAtomically(Plugin::getSafeStoreFlagPath(), ssConfig.dump(), tempDir, 0640);
-
-            // TODO: LINUXDAR-5632 -- Need to notify TD + SS to check new config here, like with OA above
-        }
-        catch (const Common::FileSystem::IFileSystemException& e)
-        {
-            LOGERROR(
-                "Failed to write Flag Config, Sophos SafeStore Process will use the default settings (safestore "
-                "disabled)"
-                << e.what());
-        }
+    bool PolicyProcessor::isSafeStoreEnabled() const
+    {
+        return m_safeStoreEnabled;
     }
 }

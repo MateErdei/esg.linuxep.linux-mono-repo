@@ -216,6 +216,8 @@ namespace Plugin
     {
         LOGDEBUG("Flags Policy received: " << flagsJson);
         m_policyProcessor.processFlagSettings(flagsJson);
+
+        m_callback->setSafeStoreEnabled(m_policyProcessor.isSafeStoreEnabled());
     }
 
     void PluginAdapter::processPolicy(const std::string& policyXml, bool& policyUpdated, std::string& appId)

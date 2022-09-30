@@ -297,40 +297,6 @@ namespace Plugin
         return valid;
     }
 
-    bool PluginCallback::safeStoreEnabled()
-    {
-        bool enabled = false;
-        auto fileSystem = Common::FileSystem::fileSystem();
-        auto ssFlagsJson = fileSystem->readFile(Plugin::getSafeStoreFlagPath());
-
-        try
-        {
-            auto parsedConfig = nlohmann::json::parse(ssFlagsJson);
-            if (parsedConfig.value("ss_enabled", false))
-            {
-                enabled = true;
-            }
-        }
-        catch (const nlohmann::json::parse_error& e)
-        {
-            LOGDEBUG("Failed to parse json configuration of SafeStore flag due to parse error, reason: " << e.what());
-        }
-        catch (const nlohmann::json::out_of_range & e)
-        {
-            LOGDEBUG("Failed to parse json configuration of SafeStore flag due to out of range error, reason: " << e.what());
-        }
-        catch (const nlohmann::json::type_error & e)
-        {
-            LOGDEBUG("Failed to parse json configuration of SafeStore flag due to type error, reason: " << e.what());
-        }
-        catch (const nlohmann::json::other_error & e)
-        {
-            LOGDEBUG("Failed to parse json configuration of SafeStore flag, reason: " << e.what());
-        }
-
-        return enabled;
-    }
-
     std::string PluginCallback::generateSAVStatusXML()
     {
         std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
@@ -413,7 +379,7 @@ namespace Plugin
             return E_HEALTH_STATUS_BAD;
         }
 
-        if (!common::PidLockFile::isPidFileLocked(Plugin::getSafeStorePidPath(), sysCalls) && safeStoreEnabled())
+        if (!common::PidLockFile::isPidFileLocked(Plugin::getSafeStorePidPath(), sysCalls) && m_safeStoreEnabled)
         {
             return E_HEALTH_STATUS_BAD;
         }
@@ -524,6 +490,11 @@ namespace Plugin
         }
 
         return pid;
+    }
+
+    void PluginCallback::setSafeStoreEnabled(bool isEnabled)
+    {
+        m_safeStoreEnabled = isEnabled;
     }
 
 } // namespace Plugin

@@ -42,6 +42,7 @@ namespace Plugin
         static void setOnAccessConfiguredTelemetry(bool enabled);
 
         void processFlagSettings(const std::string& flagsJson);
+        [[nodiscard]] bool isSafeStoreEnabled() const;
 
     protected:
         virtual void notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE requestType);
@@ -52,6 +53,7 @@ namespace Plugin
 
         std::string m_customerId;
         bool m_lookupEnabled = true;
+        bool m_safeStoreEnabled = false;
         static std::vector<std::string> extractListFromXML(
             const Common::XmlUtilities::AttributesMap& policy,
             const std::string& entityFullPath);

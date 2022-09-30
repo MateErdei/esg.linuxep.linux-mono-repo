@@ -49,6 +49,7 @@ namespace Plugin
         void setSXL4Lookups(bool sxl4Lookup);
         void setThreatHealth(E_HEALTH_STATUS threatStatus);
         [[nodiscard]] long getThreatHealth() const;
+        void setSafeStoreEnabled(bool isEnabled);
 
     private:
         std::string generateSAVStatusXML();
@@ -64,7 +65,6 @@ namespace Plugin
 
         static int getProcessPidFromFile(Common::FileSystem::IFileSystem* fileSystem, const Path&);
         [[nodiscard]] bool shutdownFileValid() const;
-        static bool safeStoreEnabled() ;
 
         /**
          * Takes a linux process status file's contents and returns a value at of a
@@ -89,6 +89,7 @@ namespace Plugin
         Common::PluginApi::StatusInfo m_statusInfo;
         std::string m_revID;
         std::atomic_bool m_running = false;
+        std::atomic_bool m_safeStoreEnabled = false;
         bool m_lookupEnabled = true;
         int m_allowedShutdownTime = 60;
         long m_threatStatus = E_THREAT_HEALTH_STATUS_GOOD;

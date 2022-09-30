@@ -526,19 +526,19 @@ Threat Detector Does Not Restart If Sometimes-symlinked System File Contents Do 
 AV Plugin Can Process SafeStore Flag Enabled
     Start Fake Management If Required
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
-    Remove File    ${SAFESTORE_FLAG_CONFIG}
     Send Plugin Policy  av  FLAGS  ${policyContent}
-    Wait Until Created  ${SAFESTORE_FLAG_CONFIG}
-    AV Plugin Log Contains With Offset  Safestore flag set. Setting Safestore to enabled.
+    Wait Until AV Plugin Log Contains With Offset
+    ...   Safestore flag set. Setting Safestore to enabled.
+    ...   timeout=60
 
 
 AV Plugin Can Process SafeStore Flag Disabled
     Start Fake Management If Required
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    Remove File    ${SAFESTORE_FLAG_CONFIG}
     Send Plugin Policy  av  FLAGS  ${policyContent}
-    Wait Until Created  ${SAFESTORE_FLAG_CONFIG}
-    AV Plugin Log Contains With Offset  Safestore flag not set. Setting Safestore to disabled.
+    Wait Until AV Plugin Log Contains With Offset
+    ...   Safestore flag not set. Setting Safestore to disabled.
+    ...   timeout=60
 
 
 *** Keywords ***
