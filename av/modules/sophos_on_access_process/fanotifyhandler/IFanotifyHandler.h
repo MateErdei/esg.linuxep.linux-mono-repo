@@ -17,6 +17,7 @@ namespace sophos_on_access_process::fanotifyhandler
         [[nodiscard]] virtual int getFd() const = 0;
         [[nodiscard]] virtual int markMount(const std::string& path) const = 0;
         [[nodiscard]] virtual int cacheFd(const int& fd, const std::string& path) const = 0;
+        [[nodiscard]] virtual int clearCachedFiles() const = 0;
 
         /**
          * Initialise fanotify

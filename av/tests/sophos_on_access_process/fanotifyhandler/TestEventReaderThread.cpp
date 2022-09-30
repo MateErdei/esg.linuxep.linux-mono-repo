@@ -37,6 +37,10 @@ namespace
         {
             return 0;
         }
+        [[nodiscard]] int clearCachedFiles() const override
+        {
+            return 0;
+        }
     };
 
     class TestEventReaderThread : public FanotifyHandlerMemoryAppenderUsingTests

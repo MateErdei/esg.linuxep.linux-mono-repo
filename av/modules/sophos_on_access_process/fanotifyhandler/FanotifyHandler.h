@@ -34,8 +34,9 @@ namespace sophos_on_access_process::fanotifyhandler
 
             void updateComplete() override;
 
+            [[nodiscard]] int clearCachedFiles() const override;
+
         private:
-            [[nodiscard]] int clearCachedFiles() const;
             static void processFaMarkError(const std::string& function, const std::string& path);
 
             datatypes::AutoFd m_fd;

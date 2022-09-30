@@ -88,6 +88,7 @@ bool EventReaderThread::skipScanningOfEvent(
         return true;
     }
 
+    std::lock_guard<std::mutex> lock(m_lock);
     for (const auto& exclusion: m_exclusions)
     {
         if (exclusion.appliesToPath(filePath))
@@ -266,6 +267,8 @@ void EventReaderThread::setExclusions(std::vector<common::Exclusion> exclusions)
     if (exclusions != m_exclusions)
     {
         LOGDEBUG("Updating on-access exclusions");
+        std::ignore = m_fanotify->clearCachedFiles();
+        std::lock_guard<std::mutex> lock(m_lock);
         m_exclusions = exclusions;
     }
 }

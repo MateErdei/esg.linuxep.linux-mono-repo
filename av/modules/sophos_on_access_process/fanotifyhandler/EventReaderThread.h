@@ -13,6 +13,7 @@
 
 #include "Common/Threads/NotifyPipe.h"
 
+#include <mutex>
 #include <sys/fanotify.h>
 
 namespace fs = sophos_filesystem;
@@ -46,5 +47,6 @@ namespace sophos_on_access_process::fanotifyhandler
         pid_t m_pid;
         std::string m_processExclusionStem;
         std::vector<common::Exclusion> m_exclusions;
+        mutable std::mutex m_lock;
     };
 }
