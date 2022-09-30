@@ -489,6 +489,7 @@ SUS Fault Injection Server Responds With Large JSON
 
 CDN Fault Injection Does Not Contain Location Given By SUS
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Set Environment Variable  COMMAND   none
     Generate Warehouse From Local Base Input
     ${Files} =  List Files In Directory  ${SDDS3_FAKEPACKAGES}
     Remove File  ${SDDS3_FAKEPACKAGES}/${Files[0]}
@@ -519,6 +520,7 @@ CDN Fault Injection Does Not Contain Location Given By SUS
 
 CDN Fault Injection Server Responds With Unauthorised Error
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Set Environment Variable  COMMAND   none
     Set Environment Variable  EXITCODE   401
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files   port=8080
@@ -547,6 +549,7 @@ CDN Fault Injection Server Responds With Unauthorised Error
 
 CDN Fault Injection Server Responds With Not Found Error
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Set Environment Variable  COMMAND   none
     Set Environment Variable  EXITCODE   404
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files   port=8080
@@ -575,6 +578,7 @@ CDN Fault Injection Server Responds With Not Found Error
 
 CDN Fault Injection Server Responds With Generic Error
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Set Environment Variable  COMMAND   none
     Set Environment Variable  EXITCODE   500
     Generate Warehouse From Local Base Input
     ${handle}=  Start Local SDDS3 server with fake files   port=8080
