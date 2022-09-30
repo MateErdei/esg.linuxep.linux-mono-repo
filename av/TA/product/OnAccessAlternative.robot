@@ -109,7 +109,7 @@ On Access Process Parses Flags Config On startup
 
     Wait Until Created  ${ONACCESS_FLAG_CONFIG}
 
-    Start On Access
+    Restart On Access
 
     Wait Until On Access Log Contains With Offset   Found Flag config on startup
     Wait Until On Access Log Contains With Offset   Flag is set to not override policy
@@ -280,7 +280,7 @@ On Access Monitors Addition And Removal Of Mount Points
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  ext2
     Mark On Access Log
-    Start On Access
+    Restart On Access
     Wait Until On Access Log Contains With Offset  Including mount point:
     On Access Log Does Not Contain With Offset  Including mount point: ${where}
     Sleep  1s
