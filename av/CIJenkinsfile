@@ -15,7 +15,7 @@ def params = [
 
 
 CIPipeline { pipelineEntryPoint = 'av_plugin'; buildParameters = params; skipInitialBuild = 'true';
-             failureWebhook = 'https://sophosapps.webhook.office.com/webhookb2/862a2768-c861-4c7f-844a-16e1ecd3e91c@358a41ff-46d9-49d3-a297-370d894eae6a/IncomingWebhook/37095109e0ed460580239e39a4b27c25/2bbffcbb-722d-45eb-9345-5588e03d0ca5';
+             failureWebhook = 'https://sophosapps.webhook.office.com/webhookb2/bbfe96d7-efd4-41d6-ad31-63b6d35b586d@358a41ff-46d9-49d3-a297-370d894eae6a/IncomingWebhook/18fcf19c673140f0a37eceefb2e52a99/d44ac291-19eb-4e6a-aa6a-e45d9e574bb4';
              failureWebhookBranchRegex = '^develop$' }
 
 
