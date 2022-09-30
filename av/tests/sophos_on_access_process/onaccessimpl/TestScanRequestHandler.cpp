@@ -265,15 +265,13 @@ TEST_F(TestScanRequestHandler, cacheFdError)
     auto socket = std::make_shared<RecordingMockSocket>(false, false);
     auto scanHandler = buildDefaultHandler(socket);
 
-    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).WillOnce(
-        SetErrnoAndReturn(EPERM, -1)
-        );
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).WillOnce(Return(-1));
 
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN));
     scanHandler->scan(request);
 
     EXPECT_EQ(socket->m_paths.size(), 1);
-    EXPECT_TRUE(appenderContains("Caching /expected failed: Operation not permitted"));
+    EXPECT_TRUE(appenderContains("Caching /expected failed"));
 }
 
 TEST_F(TestScanRequestHandler, scanErrorAndDetection)
