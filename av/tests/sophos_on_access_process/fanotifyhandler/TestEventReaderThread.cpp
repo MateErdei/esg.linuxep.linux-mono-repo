@@ -481,7 +481,6 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFull)
     fds2[0].revents = POLLIN;
 
     const char* filePath1 = "/tmp/test";
-    const char* filePath2 = "/tmp/test/test";
 
     struct ::stat statbuf{};
     statbuf.st_uid = 1;
@@ -496,15 +495,14 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFull)
         Return(sizeof(metadata))));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
-        .WillOnce(DoAll(SetArrayArgument<1>(filePath2, filePath2 + strlen(filePath2) + 1), Return(strlen(filePath2) + 1)));
+        .WillRepeatedly(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)));
 
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillRepeatedly(DoAll(SetArgPointee<1>(statbuf), Return(0)));
 
     auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_SmallScanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test/test"));
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test"));
     EXPECT_EQ(m_SmallScanRequestQueue->size(), 1);
 }
 
@@ -566,7 +564,6 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTIme)
     fds2[0].revents = POLLIN;
 
     const char* filePath1 = "/tmp/test";
-    const char* filePath2 = "/tmp/test/test";
 
     struct ::stat statbuf{};
     statbuf.st_uid = 1;
@@ -583,9 +580,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTIme)
         Return(sizeof(metadata))));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .Times(2).WillRepeatedly(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .Times(2).WillRepeatedly(DoAll(SetArrayArgument<1>(filePath2, filePath2 + strlen(filePath2) + 1), Return(strlen(filePath2) + 1)));
+        .WillRepeatedly(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)));
 
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillRepeatedly(DoAll(SetArgPointee<1>(statbuf), Return(0)));
 
@@ -595,9 +590,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTIme)
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test"));
     m_SmallScanRequestQueue->restart();
     eventReaderGuard.onEventNoArgs();
-    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test/test"));
+    EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test", 2, 100ms));
     EXPECT_TRUE(appenderContains("Queue is now empty. Number of events dropped: 1"));
-    EXPECT_EQ(m_SmallScanRequestQueue->size(), 1);
 }
 
 TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
@@ -614,7 +608,6 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
     fds2[0].revents = POLLIN;
 
     const char* filePath1 = "/tmp/test";
-    const char* filePath2 = "/tmp/test/test";
 
     struct ::stat statbuf{};
     statbuf.st_uid = 1;
@@ -630,10 +623,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
         Return(sizeof(metadata))));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
-        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
-        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
-        .WillOnce(DoAll(SetArrayArgument<1>(filePath2, filePath2 + strlen(filePath2) + 1), Return(strlen(filePath2) + 1)));
+        .WillRepeatedly(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)));
 
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillRepeatedly(DoAll(SetArgPointee<1>(statbuf), Return(0)));
 
@@ -641,12 +631,10 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test"));
-    EXPECT_EQ(m_SmallScanRequestQueue->pop()->getPath(), "/tmp/test");
     m_SmallScanRequestQueue->restart();
 
     eventReaderGuard.onEventNoArgs();
     EXPECT_TRUE(waitForLog("Queue is now empty. Number of events dropped: 2", 100ms));
-    EXPECT_EQ(m_SmallScanRequestQueue->pop()->getPath(), "/tmp/test/test");
 }
 
 
