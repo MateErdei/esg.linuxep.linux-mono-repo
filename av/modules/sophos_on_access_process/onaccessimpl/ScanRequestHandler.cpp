@@ -22,12 +22,10 @@ using namespace sophos_on_access_process::onaccessimpl;
 ScanRequestHandler::ScanRequestHandler(
    ScanRequestQueueSharedPtr scanRequestQueue,
     IScanningClientSocketSharedPtr socket,
-    fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
-    int handlerId)
+    fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler)
     : m_scanRequestQueue(std::move(scanRequestQueue))
     , m_socket(std::move(socket))
     , m_fanotifyHandler(std::move(fanotifyHandler))
-    , m_handlerId(handlerId)
 {
 }
 
@@ -68,16 +66,13 @@ void ScanRequestHandler::scan(
     {
         if (errorMsg.empty() && scanRequest->isOpenEvent())
         {
-            // Clean file
-            LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()));
+            // Clean file, ret either 0 or 1 errno is logged by m_fanotifyHandler->cacheFd
             int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
             if (ret < 0)
             {
-                int error = errno;
                 std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
-                LOGWARN("Caching " << escapedPath << " failed: " << common::safer_strerror(error));
+                LOGWARN("Caching " << escapedPath << " failed");
             }
-
         }
     }
     else
