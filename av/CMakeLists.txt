@@ -207,6 +207,13 @@ find_library(CRYPTO_LIBRARY
         NO_DEFAULT_PATH
         )
 
+set(SAFESTORE_INPUT ${INPUT}/safestore_input)
+find_library(SAFESTORE_LIB
+        NAMES safestore
+        PATHS ${SAFESTORE_INPUT}
+        NO_DEFAULT_PATH
+        )
+
 GET_FILENAME_COMPONENT(OPENSSLCRYPTO_LIBRARY_ABSOLUTE ${CRYPTO_LIBRARY} REALPATH)
 
 add_subdirectory(modules)

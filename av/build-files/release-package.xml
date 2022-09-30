@@ -94,6 +94,12 @@
             <include artifact-path="release/centos7/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
         </build-asset>
 
+        <build-asset project="core" repo="safestore">
+            <development-version branch="feature/publish-interface" />
+            <include artifact-path="safestore/linux-x64/lib" dest-dir="input/safestore_input"/>
+            <include artifact-path="safestore/linux-x64/interface" dest-dir="input/safestore_input"/>
+        </build-asset>
+
         <!-- external dependencies -->
         <build-asset project="thirdparty" repo="icu">
             <release-version branch="release--sophos--susi--70.1"
