@@ -388,6 +388,10 @@ TEST_F(TestThreatScanner, Test_SusiScanner_ThreatDetected_And_NoScanError_And_Su
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
     EXPECT_CALL(*mock_timer, reset()).Times(1);
 
+    //Todo LINUXDAR-5752: We should send a threat report if we log a detection.
+    //EXPECT_CALL(*mock_reporter, sendThreatReport(_, _, _, _, _, _)).Times(1).WillOnce(
+     //   InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
+
     SusiResult susiResult = SUSI_E_OUTOFMEMORY;
     SusiScanResult scanResult;
     scanResult.version = 1;
