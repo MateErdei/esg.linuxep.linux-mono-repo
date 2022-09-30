@@ -8,11 +8,14 @@
 #include "common/StringUtils.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
+#include <Common/Logging/LoggerConfig.h>
+
+#include <chrono>
 #include <memory>
 #include <sstream>
 #include <utility>
-
 #include <fcntl.h>
+
 
 using namespace sophos_on_access_process::onaccessimpl;
 
@@ -61,21 +64,19 @@ void ScanRequestHandler::scan(
     auto detections = response.getDetections();
     if (detections.empty())
     {
-        if (errorMsg.empty())
+        if (errorMsg.empty() && scanRequest->isOpenEvent())
         {
             // Clean file
-            if (scanRequest->isOpenEvent())
+            LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()));
+            int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
+            if (ret < 0)
             {
-                LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()));
-                int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
-                if (ret < 0)
-                {
-                    int error = errno;
-                    std::ignore = error; // Fuzz builds compile out LOG*
-                    std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
-                    LOGWARN("Caching " << escapedPath << " failed: " << common::safer_strerror(error));
-                }
+                int error = errno;
+                std::ignore = error; // Fuzz builds compile out LOG*
+                std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
+                LOGWARN("Caching " << escapedPath << " failed: " << common::safer_strerror(error));
             }
+
         }
     }
     else
@@ -97,14 +98,29 @@ void ScanRequestHandler::run()
     announceThreadStarted();
 
     LOGDEBUG("Starting ScanRequestHandler");
+    auto logLevel = getOnAccessImplLogger().getChainedLogLevel();
     try
     {
         while (!stopRequested())
         {
             auto queueItem = m_scanRequestQueue->pop();
-            if (queueItem)
+            if(queueItem)
             {
-                scan(queueItem);
+                if(logLevel == Common::Logging::TRACE)
+                {
+                    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+                    scan(queueItem);
+                    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                    long scanDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+
+                    std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
+                    LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms");
+                }
+                else
+                {
+                    scan(queueItem);
+                }
             }
         }
     }
