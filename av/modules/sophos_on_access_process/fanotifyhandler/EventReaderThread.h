@@ -36,7 +36,8 @@ namespace sophos_on_access_process::fanotifyhandler
 
     private:
         bool handleFanotifyEvent();
-        bool skipScanningOfEvent(struct fanotify_event_metadata* eventMetadata, std::string& filePath, std::string& exePath);
+        bool skipScanningOfEvent(
+            struct fanotify_event_metadata* eventMetadata, std::string& filePath, std::string& exePath, int eventFd);
         std::string getFilePathFromFd(int fd);
         std::string getUidFromPid(pid_t pid);
 
@@ -47,6 +48,6 @@ namespace sophos_on_access_process::fanotifyhandler
         pid_t m_pid;
         std::string m_processExclusionStem;
         std::vector<common::Exclusion> m_exclusions;
-        mutable std::mutex m_lock;
+        mutable std::mutex m_exclusionsLock;
     };
 }

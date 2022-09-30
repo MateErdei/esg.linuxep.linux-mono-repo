@@ -172,8 +172,7 @@ sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::
 {
     auto jsonString = OnAccessConfig::readPolicyConfigFile();
     OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessPolicySettingsFromJson(jsonString);
-    m_mountMonitor->setExcludeRemoteFiles(oaConfig.excludeRemoteFiles);
-    m_mountMonitor->setExclusions(oaConfig.exclusions);
+    m_mountMonitor->updateConfig(oaConfig.exclusions, oaConfig.excludeRemoteFiles);
 
     return oaConfig;
 }

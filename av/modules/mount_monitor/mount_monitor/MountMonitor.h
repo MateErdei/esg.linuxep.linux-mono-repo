@@ -25,16 +25,17 @@ namespace mount_monitor::mount_monitor
             fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
             struct timespec pollTimeout = {2,0});
 
-        void setExcludeRemoteFiles(bool excludeRemoteFiles);
-        void setExclusions(std::vector<common::Exclusion> exclusions);
+        void updateConfig(std::vector<common::Exclusion> exclusions, bool excludeRemoteFiles);
 
         mountinfo::IMountPointSharedVector getAllMountpoints();
-        mountinfo::IMountPointSharedVector getIncludedMountpoints(mountinfo::IMountPointSharedVector allMountPoints);
+        mountinfo::IMountPointSharedVector getIncludedMountpoints(const mountinfo::IMountPointSharedVector& allMountPoints);
     private:
         void run() override;
         void markMounts(const mountinfo::IMountPointSharedVector& mounts);
-        bool isIncludedFilesystemType(mountinfo::IMountPointSharedPtr mount);
-        bool isIncludedMountpoint(mountinfo::IMountPointSharedPtr mount);
+        bool isIncludedFilesystemType(const mountinfo::IMountPointSharedPtr& mount);
+        bool isIncludedMountpoint(const mountinfo::IMountPointSharedPtr& mount);
+        bool setExcludeRemoteFiles(bool excludeRemoteFiles);
+        bool setExclusions(std::vector<common::Exclusion> exclusions);
 
         OnAccessMountConfig& m_config;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;

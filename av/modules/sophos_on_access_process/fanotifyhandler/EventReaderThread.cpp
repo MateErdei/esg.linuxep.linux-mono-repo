@@ -48,15 +48,8 @@ EventReaderThread::EventReaderThread(
 }
 
 bool EventReaderThread::skipScanningOfEvent(
-    struct fanotify_event_metadata* eventMetadata, std::string& filePath, std::string& exePath)
+    struct fanotify_event_metadata* eventMetadata, std::string& filePath, std::string& exePath, int eventFd)
 {
-    if (eventMetadata->vers != FANOTIFY_METADATA_VERSION)
-    {
-        LOGERROR("fanotify wrong protocol version " << eventMetadata->vers);
-        return true;
-    }
-
-    auto eventFd = eventMetadata->fd;
     if (eventFd < 0)
     {
         LOGDEBUG("Got fanotify metadata event without fd");
@@ -88,7 +81,7 @@ bool EventReaderThread::skipScanningOfEvent(
         return true;
     }
 
-    std::lock_guard<std::mutex> lock(m_lock);
+    std::lock_guard<std::mutex> lock(m_exclusionsLock);
     for (const auto& exclusion: m_exclusions)
     {
         if (exclusion.appliesToPath(filePath))
@@ -135,9 +128,24 @@ bool EventReaderThread::handleFanotifyEvent()
 
     for (; FAN_EVENT_OK(metadata, len); metadata = FAN_EVENT_NEXT(metadata, len))
     {
+        if (metadata->vers != FANOTIFY_METADATA_VERSION)
+        {
+            LOGERROR("fanotify wrong protocol version " << metadata->vers);
+            return false;
+        }
+
+        auto eventFd = metadata->fd;
+        if (eventFd < 0)
+        {
+            LOGDEBUG("Got fanotify metadata event without fd");
+            continue;
+        }
+        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
+        scanRequest->setFd(eventFd); // DONATED
+
         std::string filePath;
         std::string executablePath;
-        if (skipScanningOfEvent(metadata, filePath, executablePath))
+        if (skipScanningOfEvent(metadata, filePath, executablePath, eventFd))
         {
             continue;
         }
@@ -170,8 +178,6 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
-        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
-        scanRequest->setFd(metadata->fd); // DONATED
         scanRequest->setPath(filePath);
         scanRequest->setScanType(eventType);
         scanRequest->setUserID(uid);
@@ -268,7 +274,7 @@ void EventReaderThread::setExclusions(std::vector<common::Exclusion> exclusions)
     {
         LOGDEBUG("Updating on-access exclusions");
         std::ignore = m_fanotify->clearCachedFiles();
-        std::lock_guard<std::mutex> lock(m_lock);
+        std::lock_guard<std::mutex> lock(m_exclusionsLock);
         m_exclusions = exclusions;
     }
 }

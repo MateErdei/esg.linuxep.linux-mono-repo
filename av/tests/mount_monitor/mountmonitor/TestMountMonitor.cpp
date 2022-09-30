@@ -113,7 +113,7 @@ TEST_F(TestMountMonitor, TestSetExclusions)
 
     MountMonitor mountMonitor(config, m_sysCallWrapper, m_mockFanotifyHandler);
     EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 1);
-    mountMonitor.setExclusions(exclusions);
+    mountMonitor.updateConfig(exclusions, config.m_scanNetwork);
     std::stringstream logMsg;
     logMsg << "Mount point " << excludedMount << " matches an exclusion in the policy and will be excluded from the scan";
     waitForLog(logMsg.str());

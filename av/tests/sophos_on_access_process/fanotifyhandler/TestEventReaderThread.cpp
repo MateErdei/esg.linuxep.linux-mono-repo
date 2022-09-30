@@ -323,11 +323,8 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
 
     struct pollfd fds[2]{};
     fds[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
+        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
         Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
         Return(sizeof(metadata))));
@@ -338,7 +335,7 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
     std::stringstream logMsg;
     logMsg << "fanotify wrong protocol version " << metadata.vers;
     EXPECT_TRUE(waitForLog(logMsg.str()));
-    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_TRUE(waitForLog("Failed to handle Fanotify event, stopping the reading of more events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
 

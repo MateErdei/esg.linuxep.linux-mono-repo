@@ -44,7 +44,7 @@ namespace mount_monitor::mount_monitor
         }
     }
 
-    bool MountMonitor::isIncludedMountpoint(mountinfo::IMountPointSharedPtr mp)
+    bool MountMonitor::isIncludedMountpoint(const mountinfo::IMountPointSharedPtr& mp)
     {
         if (mp->mountPoint().rfind("/opt/sophos-spl/", 0) == 0)
         {
@@ -66,7 +66,7 @@ namespace mount_monitor::mount_monitor
         return true;
     }
 
-    bool MountMonitor::isIncludedFilesystemType(mountinfo::IMountPointSharedPtr mp)
+    bool MountMonitor::isIncludedFilesystemType(const mountinfo::IMountPointSharedPtr& mp)
     {
         if ((mp->isHardDisc() && m_config.m_scanHardDisc) || (mp->isNetwork() && m_config.m_scanNetwork) ||
             (mp->isOptical() && m_config.m_scanOptical) || (mp->isRemovable() && m_config.m_scanRemovable))
@@ -85,7 +85,7 @@ namespace mount_monitor::mount_monitor
         }
     }
 
-    mountinfo::IMountPointSharedVector MountMonitor::getIncludedMountpoints(mountinfo::IMountPointSharedVector allMountPoints)
+    mountinfo::IMountPointSharedVector MountMonitor::getIncludedMountpoints(const mountinfo::IMountPointSharedVector& allMountPoints)
     {
         mountinfo::IMountPointSharedVector includedMountpoints;
         for (const auto& mp : allMountPoints)
@@ -98,28 +98,32 @@ namespace mount_monitor::mount_monitor
         return includedMountpoints;
     }
 
-    void MountMonitor::setExcludeRemoteFiles(bool excludeRemoteFiles)
+    bool MountMonitor::setExcludeRemoteFiles(bool excludeRemoteFiles)
     {
         bool scanNetwork = !excludeRemoteFiles;
         if (scanNetwork != m_config.m_scanNetwork)
         {
-            LOGINFO("OA config changed, re-enumerating mount points");
             m_config.m_scanNetwork = scanNetwork;
-            auto includedMountpoints = getIncludedMountpoints(getAllMountpoints());
-            LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
-            for (const auto& mp : includedMountpoints)
-            {
-                LOGDEBUG("Including mount point: " << mp->mountPoint());
-            }
+            return true;
         }
+        return false;
     }
 
-    void MountMonitor::setExclusions(std::vector<common::Exclusion> exclusions)
+    bool MountMonitor::setExclusions(std::vector<common::Exclusion> exclusions)
     {
         if (exclusions != m_exclusions)
         {
-            LOGINFO("OA config changed, re-enumerating mount points");
             m_exclusions = exclusions;
+            return true;
+        }
+        return false;
+    }
+
+    void MountMonitor::updateConfig(std::vector<common::Exclusion> exclusions, bool excludeRemoteFiles)
+    {
+        if (setExclusions(exclusions) || setExcludeRemoteFiles(excludeRemoteFiles))
+        {
+            LOGINFO("OA config changed, re-enumerating mount points");
             auto includedMountpoints = getIncludedMountpoints(getAllMountpoints());
             LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
             for (const auto& mp : includedMountpoints)
