@@ -29,8 +29,13 @@ protected:
         appConfig.setData("PLUGIN_INSTALL", pluginInstall);
     }
 
-
-
+    fanotify_event_metadata getMetaData(uint64_t _mask = FAN_CLOSE_WRITE, uint8_t _ver = FANOTIFY_METADATA_VERSION, int32_t _fd = 345, int32_t _pid = 1999999999)
+    {
+        struct fanotify_event_metadata metadata = {
+            .event_len = FAN_EVENT_METADATA_LEN, .vers = _ver, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
+            .mask = _mask, .fd = _fd, .pid = _pid };
+        return metadata;
+    }
 
     std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
     ScanRequestQueueSharedPtr m_scanRequestQueue;
@@ -79,9 +84,9 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
+
+    auto metadata = getMetaData();
+
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
     struct pollfd fds2[2]{};
@@ -117,9 +122,8 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_OPEN, .fd = 345, .pid = 1999999999 };
+
+    auto metadata = getMetaData(FAN_OPEN);
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -157,9 +161,8 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_OPEN, .fd = 345, .pid = 1999999999 };
+
+    auto metadata = getMetaData(FAN_OPEN);
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -211,9 +214,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_ONDIR, .fd = 345, .pid = 1999999999 };
+
+    auto metadata = getMetaData(FAN_ONDIR);
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -248,9 +250,8 @@ TEST_F(TestEventReaderThread, TestReaderSetUnknownPathIfReadLinkFails)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
+
+    auto metadata = getMetaData();
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -286,9 +287,8 @@ TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
+
+    auto metadata = getMetaData();
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -321,9 +321,8 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = 2, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
+
+    auto metadata = getMetaData(FAN_CLOSE, 2);
 
     struct pollfd fds[2]{};
     fds[1].revents = POLLIN;
@@ -348,9 +347,8 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithoutFD)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = -1, .pid = 1999999999 };
+
+    auto metadata = getMetaData(FAN_CLOSE, FANOTIFY_METADATA_VERSION, -1);
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -376,9 +374,8 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPid)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = getpid() };
+
+    auto metadata = getMetaData(FAN_CLOSE, FANOTIFY_METADATA_VERSION, 345, getpid());
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -403,9 +400,8 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsInPluginLogDir)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
+
+    auto metadata = getMetaData();
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -434,9 +430,8 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE_WRITE, .fd = 345, .pid = 1999999999 };
+
+    auto metadata = getMetaData();
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -477,9 +472,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFull)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE_WRITE, .fd = 345, .pid = 1999999999 };
+
+    auto metadata = getMetaData();
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -493,7 +487,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFull)
     statbuf.st_uid = 1;
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .Times(2).WillRepeatedly(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
 
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillRepeatedly(DoAll(
@@ -518,9 +513,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE_WRITE, .fd = 345, .pid = 1999999999 };
+    auto metadata = getMetaData();
 
     const char* filePath1 = "/tmp/test";
     const char* filePath2 = "/tmp/test/test";
@@ -534,7 +527,9 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
     statbuf.st_uid = 1;
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .Times(3).WillRepeatedly(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
 
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).Times(3).WillRepeatedly(DoAll(
@@ -542,7 +537,8 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
         Return(sizeof(metadata))));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .Times(2).WillRepeatedly(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
+        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
+        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
         .WillOnce(DoAll(SetArrayArgument<1>(filePath2, filePath2 + strlen(filePath2) + 1), Return(strlen(filePath2) + 1)));
 
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillRepeatedly(DoAll(SetArgPointee<1>(statbuf), Return(0)));
@@ -562,9 +558,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTIme)
     WaitForEvent eventReaderGuard;
 
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE_WRITE, .fd = 345, .pid = 1999999999 };
+    auto metadata = getMetaData();
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -578,7 +572,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTIme)
     statbuf.st_uid = 1;
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .Times(2).WillRepeatedly(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
@@ -588,7 +583,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTIme)
         Return(sizeof(metadata))));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .Times(2).WillRepeatedly(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
+        .Times(2).WillRepeatedly(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
         .Times(2).WillRepeatedly(DoAll(SetArrayArgument<1>(filePath2, filePath2 + strlen(filePath2) + 1), Return(strlen(filePath2) + 1)));
 
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillRepeatedly(DoAll(SetArgPointee<1>(statbuf), Return(0)));
@@ -610,9 +606,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
     WaitForEvent eventReaderGuard;
 
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE_WRITE, .fd = 345, .pid = 1999999999 };
+    auto metadata = getMetaData();
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -626,7 +620,9 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
     statbuf.st_uid = 1;
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .Times(3).WillRepeatedly(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillRepeatedly(DoAll(
@@ -634,7 +630,9 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
         Return(sizeof(metadata))));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .Times(3).WillRepeatedly(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
+        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
+        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
+        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
         .WillOnce(DoAll(SetArrayArgument<1>(filePath2, filePath2 + strlen(filePath2) + 1), Return(strlen(filePath2) + 1)));
 
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillRepeatedly(DoAll(SetArgPointee<1>(statbuf), Return(0)));
@@ -658,9 +656,7 @@ TEST_F(TestEventReaderThread, TestReaderResetsMissedEventCountAfterStopStart)
     WaitForEvent eventReaderGuard;
 
     int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE_WRITE, .fd = 345, .pid = 1999999999 };
+    auto metadata = getMetaData();
 
     const char* filePath1 = "/tmp/test";
 
@@ -673,9 +669,11 @@ TEST_F(TestEventReaderThread, TestReaderResetsMissedEventCountAfterStopStart)
     statbuf.st_uid = 1;
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .Times(2).WillRepeatedly(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),SetArrayArgument<0>(fds2, fds2+2), Return(1)))
-        .Times(2).WillRepeatedly(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),SetArrayArgument<0>(fds2, fds2+2), Return(1)));
 
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillRepeatedly(DoAll(
