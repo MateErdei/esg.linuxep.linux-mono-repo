@@ -15,7 +15,6 @@ Library         ../Libs/CoreDumps.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/FullInstallerUtils.py
 Library         ../Libs/LogUtils.py
-Library         ../Libs/OnAccessUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
 Library         ../Libs/ProcessUtils.py
@@ -215,11 +214,12 @@ Update then Restart Sophos Threat Detector
     check avscanner can detect eicar
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
-    Mark Sophos Threat Detector Log
+    Mark Susi Debug Log
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Wait Until SUSI DEBUG Log Contains With Offset   Performing SUSI update
 
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+    Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait Until Sophos Threat Detector Log Contains With Offset

@@ -8,6 +8,7 @@ Library         ../Libs/CoreDumps.py
 Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LockFile.py
+Library         ../Libs/OnAccessUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
 Library         ../Libs/LogUtils.py

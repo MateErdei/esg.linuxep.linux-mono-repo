@@ -29,6 +29,7 @@ AVAndBase Suite Setup
     Install With Base SDDS
     Send Alc Policy
     Send Sav Policy With No Scheduled Scans
+    Send Flags Policy
 
 AVAndBase Suite Teardown
     Uninstall All

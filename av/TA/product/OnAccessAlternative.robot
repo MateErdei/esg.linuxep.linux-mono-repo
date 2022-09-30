@@ -59,7 +59,10 @@ On Access Test Teardown
     Terminate On Access And AV
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
 
-    run teardown functions
+    Run Teardown Functions
+
+    Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
+    Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
 
     Remove File      ${AV_PLUGIN_PATH}/log/soapd.log*
     Component Test TearDown
@@ -181,14 +184,16 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     Send Plugin Policy  av  sav  ${disabledPolicyContent}
     Wait Until On Access Log Contains With Offset  On-access enabled: "false"
     Wait Until On Access Log Contains With Offset  Joining eventReader
+    Sleep   1s
 
     Mark On Access Log
     Send Plugin Policy  av  sav  ${enabledPolicyContent}
     Wait Until On Access Log Contains With Offset  On-access enabled: "true"
     Wait Until On Access Log Contains With Offset  Starting eventReader
+    Wait for on access to be enabled
 
     Mark On Access Log
-    Create File  ${filepath}  ${EICAR_STRING}
+    Create File  ${filepath}  ${CLEAN_STRING}
     Register Cleanup  Remove File  ${filepath}
 
     Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from  timeout=${timeout}
