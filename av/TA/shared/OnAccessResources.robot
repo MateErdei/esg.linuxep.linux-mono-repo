@@ -25,7 +25,7 @@ Clear On Access Log When Nearly Full
     IF    ${OA_LOG_SIZE} > ${0.5}
           Dump Log  ${ON_ACCESS_LOG_PATH}
           Remove File    ${ON_ACCESS_LOG_PATH}
-          Restart On Access
+          Run Keyword If   ${ON_ACCESS_PLUGIN_HANDLE}   Restart On Access
     END
 
 

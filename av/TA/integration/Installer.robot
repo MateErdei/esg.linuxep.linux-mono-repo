@@ -124,12 +124,12 @@ IDE update during command line scan
 
     Dump Log  ${scan_log}
 
-    # do some magic to check that we were scanning without interruption (at least 10 files scanned every second)
+    # do some magic to check that we were scanning without interruption (at least 5 files scanned every second)
     ${time_diff} =   Subtract Date From Date   ${end_time}   ${start_time}   exclude_millis=True
     FOR   ${offset}   IN RANGE   ${time_diff}
         ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
         ${line_count} =  Count Lines In Log  ${scan_log}  [${timestamp}] Scanning \
-        Should Be True   10 <= ${line_count}
+        Should Be True   5 <= ${line_count}
     END
 
 On access gets IDE update
@@ -175,13 +175,13 @@ On access continues during update
     Process should Be Running   handle=${handle}
     ${result} =   Terminate Process   handle=${handle}
 
-    # do some magic to check that we were scanning without interruption (at least 10 scans every second)
+    # do some magic to check that we were scanning without interruption (at least 5 scans every second)
     ${time_diff} =   Subtract Date From Date   ${end_time}   ${start_time}   exclude_millis=True
     FOR   ${offset}   IN RANGE   ${time_diff}
         ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
         ${lines} =   Grep File   ${THREAT_DETECTOR_LOG_PATH}   T${timestamp}.* Scan requested of ${test_file}
         ${line_count} =   Get Line Count   ${lines}
-        Should Be True   10 <= ${line_count}
+        Should Be True   5 <= ${line_count}
     END
 
 Concurrent scans get pending update
