@@ -668,7 +668,7 @@ AV And Base Teardown
 
     Run Cleanup Functions
 
-    Empty Directory   ${SCAN_DIRECTORY}
+    Run Keyword And Ignore Error   Empty Directory   ${SCAN_DIRECTORY}
 
     #mark errors related to scheduled scans being forcefully terminated at the end of a test
     Exclude Failed To Scan Multiple Files Cloud
