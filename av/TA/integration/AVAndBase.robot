@@ -926,6 +926,41 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${SCAN_NOW_LOG_MARK}
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
 
+
+Scheduled Scan Doesnt Run If Policy Is Invalid And Is First SAV Policy
+    Register Cleanup    Exclude Invalid Day From Policy
+    Remove File   ${MCS_PATH}/policy/SAV-2_policy.xml
+    File Should Not Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
+    Restart AV Plugin
+    Mark AV Log
+    Send Invalid Sav Policy
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
+    Wait Until AV Plugin Log Contains With Offset  SAV policy received for the first time.
+
+    #Todo remove when something better to look for in the log
+    Sleep  1s
+
+    AV Plugin Log Does Not Contain With Offset  Starting ConfigMonitor
+    AV Plugin Log Does Not Contain With Offset  Starting scanProcessMonitor
+    AV Plugin Log Does Not Contain With Offset  Starting scan scheduler
+    AV Plugin Log Does Not Contain With Offset  Starting sophos_threat_detector monitor
+
+
+Invalid Scheduled Scan Policy Is Not Counted As A Configured Scheduled Scan
+    Register Cleanup    Exclude Invalid Day From Policy
+    Mark AV Log
+    Send Invalid Sav Policy
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
+
+    Wait Until AV Plugin Log Contains With Offset  Received new policy with revision ID
+
+    #Todo remove when something better to look for in the log
+    Sleep  1s
+
+    AV Plugin Log Does Not Contain With Offset  Configured number of Scheduled Scans: 1
+
+
+
 Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
     Register Cleanup    Remove File  ${CLOUDSCAN_LOG_PATH}
