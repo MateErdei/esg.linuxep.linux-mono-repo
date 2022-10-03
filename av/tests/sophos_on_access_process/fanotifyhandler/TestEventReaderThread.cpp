@@ -526,7 +526,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFull)
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_SmallScanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test"));
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     EXPECT_EQ(m_SmallScanRequestQueue->size(), 1);
 }
 
@@ -569,8 +569,8 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
-    EXPECT_TRUE(appenderContains("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test"));
-    EXPECT_FALSE(appenderContains("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test/test"));
+    EXPECT_TRUE(appenderContains("Failed to add scan request to queue, on-access scanning queue is full."));
+    EXPECT_FALSE(appenderContainsCount("Failed to add scan request to queue, on-access scanning queue is full.", 2));
     EXPECT_EQ(m_SmallScanRequestQueue->size(), 1);
 }
 
@@ -611,10 +611,10 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTIme)
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_SmallScanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test"));
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     m_SmallScanRequestQueue->restart();
     eventReaderGuard.onEventNoArgs();
-    EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test", 2, 100ms));
+    EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full.", 2, 100ms));
     EXPECT_TRUE(appenderContains("Queue is now empty. Number of events dropped: 1"));
 }
 
@@ -654,7 +654,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_SmallScanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test"));
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     m_SmallScanRequestQueue->restart();
 
     eventReaderGuard.onEventNoArgs();
@@ -702,7 +702,7 @@ TEST_F(TestEventReaderThread, TestReaderResetsMissedEventCountAfterStopStart)
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     //Wait for queue to fill before restarting
-    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test"));
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
 
     //Restart
     eventReaderGuard.onEventNoArgs();
@@ -713,7 +713,7 @@ TEST_F(TestEventReaderThread, TestReaderResetsMissedEventCountAfterStopStart)
     eventReaderThread.startIfNotStarted();
 
     //Wait for queue to fill again and make critical observation
-    EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: /tmp/test", 2));
+    EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full.", 2));
     EXPECT_FALSE(appenderContains("Queue is now empty. Number of events dropped: 1"));
 
     //End test

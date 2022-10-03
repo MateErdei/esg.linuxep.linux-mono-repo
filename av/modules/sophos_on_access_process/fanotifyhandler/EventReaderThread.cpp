@@ -160,7 +160,7 @@ bool EventReaderThread::handleFanotifyEvent()
         {
             if (m_EventsWhileQueueFull == 0)
             {
-                LOGERROR("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: " << path);
+                LOGERROR("Failed to add scan request to queue, on-access scanning queue is full.");
             }
             m_EventsWhileQueueFull++;
         }
