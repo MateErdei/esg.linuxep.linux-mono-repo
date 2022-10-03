@@ -22,12 +22,10 @@ using namespace sophos_on_access_process::onaccessimpl;
 ScanRequestHandler::ScanRequestHandler(
    ScanRequestQueueSharedPtr scanRequestQueue,
     IScanningClientSocketSharedPtr socket,
-    fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
-    int handlerId)
+    fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler)
     : m_scanRequestQueue(std::move(scanRequestQueue))
     , m_socket(std::move(socket))
     , m_fanotifyHandler(std::move(fanotifyHandler))
-    , m_handlerId(handlerId)
 {
 }
 
@@ -117,7 +115,7 @@ void ScanRequestHandler::run()
                     long scanDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 
                     std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
-                    LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms by scanHandler-" << m_handlerId);
+                    LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms");
                 }
                 else
                 {
