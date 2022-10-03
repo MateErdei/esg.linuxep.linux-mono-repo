@@ -243,7 +243,7 @@ bool DeviceUtil::isSystem(
         filesystemType == "usbfs" ||
         filesystemType == "tracefs" ||
         filesystemType == "fuse.lxcfs" ||
-        filesystemType == "gvfs"
+        filesystemType == "fuse.gvfsd-fuse"
     )
     {
         return true;
