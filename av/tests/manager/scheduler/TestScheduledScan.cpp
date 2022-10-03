@@ -1,16 +1,22 @@
-/******************************************************************************************************
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 
 #include "manager/scheduler/ScheduledScan.h"
+
+#include "tests/common/LogInitializedTests.h"
 
 #include <gtest/gtest.h>
 
 using namespace manager::scheduler;
 
-TEST(ScheduledScan, TestConstructionInvalid) //NOLINT
+namespace {
+    class TestScheduledScan : public LogInitializedTests
+    {
+
+    };
+}
+
+TEST_F(TestScheduledScan, TestConstructionInvalid)
 {
     auto invalidScan = ScheduledScan();
 
@@ -25,7 +31,7 @@ TEST(ScheduledScan, TestConstructionInvalid) //NOLINT
     EXPECT_EQ(invalidScan.calculateNextTime(time_t(nullptr)), static_cast<time_t>(-1));
 }
 
-TEST(ScheduledScan, TestConstructionScanNow) //NOLINT
+TEST_F(TestScheduledScan, TestConstructionScanNow)
 {
     std::string name = "Scan Now";
     auto scanNowScan = ScheduledScan(name);
@@ -41,7 +47,7 @@ TEST(ScheduledScan, TestConstructionScanNow) //NOLINT
     EXPECT_EQ(scanNowScan.calculateNextTime(time_t(nullptr)), static_cast<time_t>(-1));
 }
 
-TEST(ScheduledScan, TestConstructionScheduledScan) //NOLINT
+TEST_F(TestScheduledScan, TestConstructionScheduledScan)
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(
@@ -78,9 +84,62 @@ TEST(ScheduledScan, TestConstructionScheduledScan) //NOLINT
     EXPECT_EQ(scheduledScan.times().times()[0].minute(),0);
 }
 
-TEST(ScheduledScan, DaySet) // NOLINT
-{
 
+TEST_F(TestScheduledScan, Invalid_Day)
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+        R"MULTILINE(
+      <scanId>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <schedule>
+          <daySet>
+            <!-- for day in {{scheduledScanDays}} -->
+            <day>imnotaday</day>
+          </daySet>
+          <timeSet>
+            <time>00:00:00</time>
+          </timeSet>
+        </schedule>
+      </scanId>
+)MULTILINE");
+
+    std::basic_string id = "scanId";
+    auto scheduledScan = ScheduledScan(attributeMap, id);
+
+    EXPECT_FALSE(scheduledScan.valid());
+
+    ASSERT_EQ(scheduledScan.days().size(), 0);
+}
+
+TEST_F(TestScheduledScan, Invalid_Time)
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+        R"MULTILINE(
+      <scanId>
+        <name>Sophos Cloud Scheduled Scan</name>
+        <schedule>
+          <daySet>
+            <!-- for day in {{scheduledScanDays}} -->
+            <day>sunday</day>
+          </daySet>
+          <timeSet>
+            <time>imnotatime</time>
+          </timeSet>
+        </schedule>
+      </scanId>
+)MULTILINE");
+
+    std::basic_string id = "scanId";
+    auto scheduledScan = ScheduledScan(attributeMap, id);
+
+    EXPECT_FALSE(scheduledScan.valid());
+
+    ASSERT_EQ(scheduledScan.times().size(), 0);
+}
+
+
+TEST_F(TestScheduledScan, DaySet) // NOLINT
+{
     auto attributeMap = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
@@ -121,7 +180,7 @@ TEST(ScheduledScan, DaySet) // NOLINT
 
 }
 
-TEST(ScheduledScan, DaySetEmpty) // NOLINT
+TEST_F(TestScheduledScan, DaySetEmpty) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
         R"MULTILINE(<?xml version="1.0"?>
@@ -166,7 +225,7 @@ TEST(ScheduledScan, DaySetEmpty) // NOLINT
 }
 
 
-TEST(ScheduledScan, TimeSetEmpty) // NOLINT
+TEST_F(TestScheduledScan, TimeSetEmpty) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
         R"MULTILINE(<?xml version="1.0"?>
