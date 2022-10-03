@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -18,14 +14,9 @@ namespace sspl::sophosthreatdetectorimpl
         using path = sophos_filesystem::path;
         explicit ThreatReporter(path threatReporterSocketPath);
 
-        void sendThreatReport(
-            const std::string& threatPath,
-            const std::string& threatName,
-            const std::string& sha256,
-            int64_t scanType,
-            const std::string& userID,
-            std::time_t detectionTimeStamp) override;
+        void sendThreatReport(const scan_messages::ThreatDetected& threatDetected) override;
+
     private:
         sophos_filesystem::path m_threatReporterSocketPath;
     };
-}
+} // namespace sspl::sophosthreatdetectorimpl

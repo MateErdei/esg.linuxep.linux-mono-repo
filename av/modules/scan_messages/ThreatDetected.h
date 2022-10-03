@@ -1,13 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include "ScanType.h"
+
+#include "datatypes/AutoFd.h"
 
 #include <string>
 
@@ -51,7 +48,18 @@ namespace scan_messages
     class ThreatDetected
     {
     public:
-        explicit ThreatDetected();
+        explicit ThreatDetected(
+            std::string userID,
+            std::int64_t detectionTime,
+            E_THREAT_TYPE threatType,
+            std::string threatName,
+            E_SCAN_TYPE scanType,
+            E_NOTIFCATION_STATUS notificationStatus,
+            std::string filePath,
+            E_ACTION_CODE actionCode,
+            std::string sha256,
+            std::string threatId,
+            datatypes::AutoFd autoFd);
 
         void setUserID(const std::string& userID);
         void setDetectionTime(const std::int64_t& detectionTime);
@@ -62,8 +70,13 @@ namespace scan_messages
         void setFilePath(const std::string& filePath);
         void setActionCode(E_ACTION_CODE actionCode);
         void setSha256(const std::string& sha256);
+        void setThreatId(const std::string& threatId);
+        void setAutoFd(datatypes::AutoFd&& autoFd);
 
         [[nodiscard]] std::string serialise() const;
+
+        [[nodiscard]] int getFd() const; // does not transfer ownership of fd, use moveAutoFd if that's needed
+        [[nodiscard]] datatypes::AutoFd moveAutoFd();
 
     protected:
         std::string m_userID;
@@ -75,5 +88,9 @@ namespace scan_messages
         std::string m_filePath;
         E_ACTION_CODE m_actionCode;
         std::string m_sha256;
+        std::string m_threatId;
+
+        // Not serialised, sent over socket using send_fd
+        datatypes::AutoFd m_autoFd;
     };
-}
+} // namespace scan_messages

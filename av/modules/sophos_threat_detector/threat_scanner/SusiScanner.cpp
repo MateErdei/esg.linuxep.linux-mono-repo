@@ -8,6 +8,7 @@
 
 #include "pluginimpl/ObfuscationImpl/Base64.h"
 #include "scan_messages/ClientScanRequest.h"
+#include "scan_messages/ThreatDetected.h"
 
 #include <common/StringUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
@@ -39,24 +40,6 @@ SusiScanner::SusiScanner(
     std::string scannerInfo = create_scanner_info(scanArchives, scanImages);
     std::string scannerConfig = create_scanner_config(scannerInfo);
     m_susi = susiWrapperFactory->createSusiWrapper(scannerConfig);
-}
-
-void SusiScanner::sendThreatReport(
-        const std::string& threatPath,
-        const std::string& threatName,
-        const std::string& sha256,
-        int64_t scanType,
-        const std::string& userID)
-{
-    assert(m_threatReporter);
-    m_threatReporter->sendThreatReport(
-        threatPath,
-        threatName,
-        sha256,
-        scanType,
-        userID,
-        std::time(nullptr)
-        );
 }
 
 std::string SusiScanner::susiErrorToReadableError(const std::string& filePath, const std::string& susiError, log4cplus::LogLevel& level)
@@ -288,20 +271,48 @@ SusiScanner::scan(
     else if (res == SUSI_I_THREATPRESENT)
     {
         auto centralScanType = convertToCentralScanType(e_ScanType);
+
+        std::string filePath;
+        std::string threatName;
+        std::string sha256;
+
         std::vector<scan_messages::Detection> detections = response.getDetections();
         if (detections.empty())
         {
             // Failed to parse SUSI scan report but the return code shows that we detected a threat
-            response.addDetection(file_path, "unknown","unknown");
-            sendThreatReport(file_path, "unknown", "unknown", centralScanType, userID);
+            filePath = file_path;
+            threatName = "unknown";
+            sha256 = "unknown";
+            response.addDetection(filePath, threatName, sha256);
         }
         else
         {
-            for (const auto& detection: detections)
-            {
-                sendThreatReport(detection.path, detection.name, detection.sha256, centralScanType, userID);
-            }
+            // We can only send one detection per file to Central.
+            // Currently, we expect all detections on a file to be viruses, so we can just pick the first detection.
+            // Windows has threat source and type prioritisation, so for example VDL malware detections are sent in
+            // preference to VDL PUA detections.
+            // Threat type can be gotten through detection["threatType"]
+            const auto& detection = detections.at(0);
+            filePath = detection.path;
+            threatName = detection.name;
+            sha256 = detection.sha256;
         }
+
+        scan_messages::ThreatDetected threatDetected = ThreatDetected(
+            userID,
+            std::time(nullptr),
+            scan_messages::E_VIRUS_THREAT_TYPE, // For now this is always 1 (Virus)
+            threatName,
+            centralScanType,
+            scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
+            filePath,
+            scan_messages::E_SMT_THREAT_ACTION_NONE,
+            sha256,
+            "T" + common::sha256_hash(filePath + threatName),
+            std::move(fd));
+
+        assert(m_threatReporter);
+        m_threatReporter->sendThreatReport(threatDetected);
     }
 
     // If we haven't logged an error, but SUSI logged an error message anyway, then report the filepath
@@ -309,7 +320,7 @@ SusiScanner::scan(
     {
         std::string escapedPath = file_path;
         common::escapeControlCharacters(escapedPath);
-        LOGERROR("Error logged from SUSI while scanning "<<escapedPath);
+        LOGERROR("Error logged from SUSI while scanning " << escapedPath);
     }
 
     return response;

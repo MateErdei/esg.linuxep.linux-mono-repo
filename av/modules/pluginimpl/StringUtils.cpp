@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "StringUtils.h"
 
@@ -40,9 +36,6 @@ std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ServerThr
     std::string fileName = fs::path(utf8Path).filename();
     std::string threatName =  detection.getThreatName();
 
-    std::string threatIDinput = utf8Path + threatName;
-    std::string threatID = "T" + common::sha256_hash(threatIDinput);
-
     std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
             R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <notification description="Found '@@THREAT_NAME@@' in '@@THREAT_PATH@@'" timestamp="@@DETECTION_TIME@@" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
@@ -56,7 +49,7 @@ std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ServerThr
                     {"@@THREAT_PATH@@", utf8Path},
                     {"@@DETECTION_TIME@@", datatypes::Time::epochToCentralTime(detection.getDetectionTime())},
                     {"@@USER@@", detection.getUserID()},
-                    {"@@THREAT_ID@@", threatID},
+                    {"@@THREAT_ID@@", detection.getThreatId()},
                     {"@@ID_SOURCE@@", "Tsha256(path,name)"},
                     {"@@THREAT_NAME@@",threatName},
                     {"@@SMT_SCAN_TYPE@@",  std::to_string(detection.getScanType())},

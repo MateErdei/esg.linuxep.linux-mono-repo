@@ -15,16 +15,20 @@ using namespace scan_messages;
 class TestThreatDetectedMessages : public ::testing::Test
 {
 public:
-    void SetUp() override
+    TestThreatDetectedMessages() :
+        m_threatDetected(
+            m_userID,
+            m_testTimeStamp,
+            E_VIRUS_THREAT_TYPE,
+            m_threatName,
+            E_SCAN_TYPE_ON_ACCESS_OPEN,
+            E_NOTIFICATION_STATUS_CLEANED_UP,
+            m_filePath,
+            E_SMT_THREAT_ACTION_SHRED,
+            m_sha256,
+            m_threatId,
+            datatypes::AutoFd())
     {
-        m_threatDetected.setUserID(m_userID);
-        m_threatDetected.setDetectionTime(m_testTimeStamp);
-        m_threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
-        m_threatDetected.setThreatName(m_threatName);
-        m_threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
-        m_threatDetected.setFilePath(m_filePath);
-        m_threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
-        m_threatDetected.setSha256(m_sha256);
     }
 
     std::string m_userID = "TestUser";
@@ -32,6 +36,7 @@ public:
     std::string m_filePath = "/this/is/a/path/to/an/eicar";
     std::string m_sha256 = "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def";
     std::time_t m_testTimeStamp = std::time(nullptr);
+    std::string m_threatId = "Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350";
 
     scan_messages::ThreatDetected m_threatDetected;
 };
@@ -58,6 +63,7 @@ TEST_F(TestThreatDetectedMessages, CreateThreatDetected)
     EXPECT_EQ(deSerialisedData.getFilePath(), m_filePath);
     EXPECT_EQ(deSerialisedData.getActionCode(), E_SMT_THREAT_ACTION_SHRED);
     EXPECT_EQ(deSerialisedData.getSha256(), m_sha256);
+    EXPECT_EQ(deSerialisedData.getThreatId(), m_threatId);
 }
 
 TEST_F(TestThreatDetectedMessages, CreateThreatDetected_emptyThreatName)
@@ -81,4 +87,6 @@ TEST_F(TestThreatDetectedMessages, CreateThreatDetected_emptyThreatName)
     EXPECT_EQ(deSerialisedData.getNotificationStatus(), E_NOTIFICATION_STATUS_CLEANED_UP);
     EXPECT_EQ(deSerialisedData.getFilePath(), m_filePath);
     EXPECT_EQ(deSerialisedData.getActionCode(), E_SMT_THREAT_ACTION_SHRED);
+    EXPECT_EQ(deSerialisedData.getSha256(), m_sha256);
+    EXPECT_EQ(deSerialisedData.getThreatId(), m_threatId);
 }

@@ -1,28 +1,40 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ThreatDetected.h"
 
-#include "ThreatDetected.capnp.h"
 #include "Logger.h"
+#include "ThreatDetected.capnp.h"
+
+#include "datatypes/AutoFd.h"
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
 using namespace scan_messages;
 
-
-ThreatDetected::ThreatDetected()
-        :
-          m_detectionTime(0),
-          m_threatType(E_VIRUS_THREAT_TYPE),
-          m_scanType(E_SCAN_TYPE_UNKNOWN),
-          m_notificationStatus(E_NOTIFICATION_STATUS_NOT_CLEANUPABLE),
-          m_actionCode(E_SMT_THREAT_ACTION_UNKNOWN),
-          m_sha256()
+ThreatDetected::ThreatDetected(
+    std::string userID,
+    std::int64_t detectionTime,
+    E_THREAT_TYPE threatType,
+    std::string threatName,
+    E_SCAN_TYPE scanType,
+    E_NOTIFCATION_STATUS notificationStatus,
+    std::string filePath,
+    E_ACTION_CODE actionCode,
+    std::string sha256,
+    std::string threatId,
+    datatypes::AutoFd autoFd) :
+    m_userID(std::move(userID)),
+    m_detectionTime(detectionTime),
+    m_threatType(threatType),
+    m_threatName(std::move(threatName)),
+    m_scanType(scanType),
+    m_notificationStatus(notificationStatus),
+    m_filePath(std::move(filePath)),
+    m_actionCode(actionCode),
+    m_sha256(std::move(sha256)),
+    m_threatId(std::move(threatId)),
+    m_autoFd(std::move(autoFd))
 {
 }
 
@@ -76,6 +88,16 @@ void ThreatDetected::setSha256(const std::string& sha256)
     m_sha256 = sha256;
 }
 
+void ThreatDetected::setThreatId(const std::string& threatId)
+{
+    m_threatId = threatId;
+}
+
+void ThreatDetected::setAutoFd(datatypes::AutoFd&& autoFd)
+{
+    m_autoFd = std::move(autoFd);
+}
+
 std::string ThreatDetected::serialise() const
 {
     ::capnp::MallocMessageBuilder message;
@@ -90,6 +112,7 @@ std::string ThreatDetected::serialise() const
     threatDetectedBuilder.setFilePath(m_filePath);
     threatDetectedBuilder.setActionCode(m_actionCode);
     threatDetectedBuilder.setSha256(m_sha256);
+    threatDetectedBuilder.setThreatId(m_threatId);
 
     if (m_filePath.empty())
     {
@@ -109,3 +132,12 @@ std::string ThreatDetected::serialise() const
     return dataAsString;
 }
 
+int ThreatDetected::getFd() const
+{
+    return m_autoFd.get();
+}
+
+datatypes::AutoFd ThreatDetected::moveAutoFd()
+{
+    return std::move(m_autoFd);
+}

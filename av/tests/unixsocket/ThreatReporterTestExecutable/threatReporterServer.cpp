@@ -1,12 +1,9 @@
-//Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "datatypes/Print.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include <boost/assert.hpp>
-#include <unixsocket/SocketUtils.h>
 #include <unixsocket/SocketUtilsImpl.h>
 
 #include <cstring>
@@ -15,7 +12,6 @@
 
 #include <fcntl.h>
 #include <sys/socket.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
@@ -86,16 +82,21 @@ static int writeSampleFile(std::string filename)
     std::string threatPath = "/path/to/test-eicar";
     std::time_t detectionTimeStamp = std::time(nullptr);
     std::string userID = std::getenv("USER");
+    std::string sha256 = "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def";
+    std::string threatId = "Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350";
 
-    scan_messages::ThreatDetected threatDetected;
-
-    threatDetected.setUserID(userID);
-    threatDetected.setDetectionTime(detectionTimeStamp);
-    threatDetected.setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN);
-    threatDetected.setThreatName(threatName);
-    threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP);
-    threatDetected.setFilePath(threatPath);
-    threatDetected.setActionCode(scan_messages::E_SMT_THREAT_ACTION_SHRED);
+    scan_messages::ThreatDetected threatDetected(
+        userID,
+        detectionTimeStamp,
+        scan_messages::E_VIRUS_THREAT_TYPE,
+        threatName,
+        scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN,
+        scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP,
+        threatPath,
+        scan_messages::E_SMT_THREAT_ACTION_SHRED,
+        sha256,
+        threatId,
+        datatypes::AutoFd(::open("/dev/null", O_RDONLY)));
 
     std::string request_str = threatDetected.serialise();
 

@@ -147,25 +147,13 @@ namespace
 
     };
 
-
     class MockIThreatReporter : public threat_scanner::IThreatReporter
     {
     public:
-        /**
-         *
-        virtual void sendThreatReport(
-            const std::string& threatPath,
-            const std::string& threatName,
-            int64_t scanType,
-            const std::string& userID,
-            std::time_t detectionTimeStamp) = 0;
-         */
-        MOCK_METHOD(void, sendThreatReport, (const std::string& threatPath,
-                                             const std::string& threatName,
-                                             const std::string& sha256,
-                                             int64_t scanType,
-                                             const std::string& userID,
-                                             std::time_t detectionTimeStamp));
+        MOCK_METHOD(
+            void,
+            sendThreatReport,
+            (const scan_messages::ThreatDetected& threatDetected));
     };
 
     class MockShutdownTimer : public threat_scanner::IScanNotification
@@ -326,9 +314,8 @@ TEST_F(TestThreatScanner, test_SusiScanner_CleanScan_And_NoScanError_And_SusiOK)
     EXPECT_CALL(*mock_timer, reset()).Times(1);
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, mock_timer);
-    datatypes::AutoFd fd(100);
+    datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
-    static_cast<void>(fd.release()); // not a real file descriptor
 
     EXPECT_FALSE(appenderContains("Failed to parse SUSI response:"));
     EXPECT_EQ(response.allClean(), true);
@@ -348,7 +335,7 @@ TEST_F(TestThreatScanner, test_SusiScanner_ThreatDetected_And_NoScanError_SusiTh
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
-    EXPECT_CALL(*mock_reporter, sendThreatReport(_, _, _, _, _, _)).Times(1).WillOnce(
+    EXPECT_CALL(*mock_reporter, sendThreatReport(_)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
     EXPECT_CALL(*mock_timer, reset()).Times(1);
 
@@ -362,9 +349,8 @@ TEST_F(TestThreatScanner, test_SusiScanner_ThreatDetected_And_NoScanError_SusiTh
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
-    datatypes::AutoFd fd(101);
+    datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
-    static_cast<void>(fd.release()); // Not a real file descriptor
 
     serverWaitGuard.wait();
 
@@ -402,9 +388,8 @@ TEST_F(TestThreatScanner, Test_SusiScanner_ThreatDetected_And_NoScanError_And_Su
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
-    datatypes::AutoFd fd(101);
+    datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
-    static_cast<void>(fd.release()); // Not a real file descriptor
 
     EXPECT_FALSE(appenderContains("Failed to parse SUSI response:"));
     EXPECT_TRUE(appenderContains("Detected \"MAL/malware-A\" in /tmp/eicar.txt (On Demand)"));
@@ -419,7 +404,6 @@ TEST_F(TestThreatScanner, Test_SusiScanner_MultipleThreats_And_NoScanError_And_S
     setupFakeSophosThreatDetectorConfig();
 
     WaitForEvent serverWaitGuard;
-    WaitForEvent serverWaitGuard2;
 
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
     auto susiWrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
@@ -428,9 +412,8 @@ TEST_F(TestThreatScanner, Test_SusiScanner_MultipleThreats_And_NoScanError_And_S
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
-    EXPECT_CALL(*mock_reporter, sendThreatReport(_, _, _, _, _, _)).Times(2)
-        .WillOnce(Return())
-        .WillOnce(InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
+    EXPECT_CALL(*mock_reporter, sendThreatReport(_)).Times(1).WillOnce(
+        InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
 
     EXPECT_CALL(*mock_timer, reset()).Times(1);
 
@@ -444,14 +427,12 @@ TEST_F(TestThreatScanner, Test_SusiScanner_MultipleThreats_And_NoScanError_And_S
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
-    datatypes::AutoFd fd(101);
+    datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_SCHEDULED, "root");
-    static_cast<void>(fd.release()); // Not a real file descriptor
 
     serverWaitGuard.wait();
     EXPECT_FALSE(appenderContains("Failed to parse SUSI response:"));
     EXPECT_TRUE(appenderContains("Detected \"MAL/malware-A\" in /tmp/eicar.txt (Scheduled)"));
-    EXPECT_TRUE(appenderContains("Detected \"EICAR-AV-Test\" in /tmp/eicar.txt (Scheduled)"));
     EXPECT_EQ(response.allClean(), false);
 }
 
@@ -480,9 +461,8 @@ TEST_F(TestThreatScanner, Test_SusiScanner_ScanError_And_CleanScan_And_SusiOK)
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
-    datatypes::AutoFd fd(101);
+    datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
-    static_cast<void>(fd.release()); // Not a real file descriptor
 
     EXPECT_FALSE(appenderContains("Failed to parse SUSI response:"));
     EXPECT_FALSE(appenderContains("Detected "));
@@ -515,9 +495,8 @@ TEST_F(TestThreatScanner, Test_SusiScanner_CleanScan_And_ScanError_And_SusiError
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
-    datatypes::AutoFd fd(101);
+    datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
-    static_cast<void>(fd.release()); // Not a real file descriptor
 
     EXPECT_FALSE(appenderContains("Failed to parse SUSI response:"));
     EXPECT_FALSE(appenderContains("Detected "));
@@ -540,7 +519,7 @@ TEST_F(TestThreatScanner, Test_SusiScanner_ThreatPresent_And_ScanError_And_NoSus
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
-    EXPECT_CALL(*mock_reporter, sendThreatReport(_, _, _, _, _, _)).Times(1).WillOnce(
+    EXPECT_CALL(*mock_reporter, sendThreatReport(_)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
     EXPECT_CALL(*mock_timer, reset()).Times(1);
 
@@ -554,9 +533,8 @@ TEST_F(TestThreatScanner, Test_SusiScanner_ThreatPresent_And_ScanError_And_NoSus
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
-    datatypes::AutoFd fd(101);
+    datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
-    static_cast<void>(fd.release()); // Not a real file descriptor
 
     serverWaitGuard.wait();
 
@@ -592,9 +570,8 @@ TEST_F(TestThreatScanner, Test_SusiScanner_Bad_Json)
     EXPECT_CALL(*mock_timer, reset()).Times(1);
 
     threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, nullptr, mock_timer);
-    datatypes::AutoFd fd(100);
+    datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
-    static_cast<void>(fd.release()); // not a real file descriptor
 
     EXPECT_TRUE(appenderContains("Failed to parse SUSI response:"));
     EXPECT_FALSE(appenderContains("Detected "));

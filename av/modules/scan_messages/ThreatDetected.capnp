@@ -10,6 +10,7 @@ using Cxx = import "capnp/c++.capnp";
 
 $Cxx.namespace("Sophos::ssplav");
 
+# A ThreatDetected also has a file descriptor sent over the socket using send_fd
 struct ThreatDetected {
     userID                          @0  :Text;
     detectionTime                   @1  :Int64;
@@ -20,6 +21,7 @@ struct ThreatDetected {
     filePath                        @6  :Text;
     actionCode                      @7  :Int64;
     sha256                          @8  :Text;
+    threatId                        @9  :Text;
 }
 
 

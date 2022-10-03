@@ -1,25 +1,23 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ServerThreatDetected.h"
 
 using namespace scan_messages;
 
-
-ServerThreatDetected::ServerThreatDetected(Sophos::ssplav::ThreatDetected::Reader& reader)
+ServerThreatDetected::ServerThreatDetected(Sophos::ssplav::ThreatDetected::Reader& reader) :
+    ThreatDetected(
+        reader.getUserID(),
+        reader.getDetectionTime(),
+        static_cast<E_THREAT_TYPE>(reader.getThreatType()),
+        reader.getThreatName(),
+        static_cast<E_SCAN_TYPE>(reader.getScanType()),
+        static_cast<E_NOTIFCATION_STATUS>(reader.getNotificationStatus()),
+        reader.getFilePath(),
+        static_cast<E_ACTION_CODE>(reader.getActionCode()),
+        reader.getSha256(),
+        reader.getThreatId(),
+        datatypes::AutoFd())
 {
-    m_filePath = reader.getFilePath();
-    m_threatName = reader.getThreatName();
-    m_detectionTime = reader.getDetectionTime();
-    m_userID = reader.getUserID();
-    m_scanType = static_cast<E_SCAN_TYPE>(reader.getScanType());
-    m_notificationStatus = static_cast<E_NOTIFCATION_STATUS>(reader.getNotificationStatus());
-    m_threatType = static_cast<E_THREAT_TYPE>(reader.getThreatType());
-    m_actionCode = static_cast<E_ACTION_CODE>(reader.getActionCode());
-    m_sha256 = reader.getSha256();
 }
 
 std::string ServerThreatDetected::getFilePath() const
@@ -70,4 +68,9 @@ E_ACTION_CODE ServerThreatDetected::getActionCode() const
 std::string ServerThreatDetected::getSha256() const
 {
     return m_sha256;
+}
+
+std::string ServerThreatDetected::getThreatId() const
+{
+    return m_threatId;
 }

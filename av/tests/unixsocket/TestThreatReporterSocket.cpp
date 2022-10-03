@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -14,6 +11,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
 #include <unixsocket/threatReporterSocket/ThreatReporterClient.h>
+#include <sys/fcntl.h>
 
 using namespace scan_messages;
 using namespace testing;
@@ -31,6 +29,8 @@ namespace
             m_userID = std::getenv("USER");
             m_threatName = "unit-test-eicar";
             m_threatPath = "/path/to/unit-test-eicar";
+            m_sha256 = "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def";
+            m_threatId = "Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350";
         }
 
         void TearDown() override
@@ -42,6 +42,8 @@ namespace
         std::string m_threatName;
         std::string m_userID;
         std::string m_socketPath;
+        std::string m_sha256;
+        std::string m_threatId;
     };
 
     class MockIThreatReportCallbacks : public IMessageCallback
@@ -72,14 +74,18 @@ TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
         // connect after we start
         unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath);
 
-        scan_messages::ThreatDetected threatDetected;
-        threatDetected.setUserID(m_userID);
-        threatDetected.setDetectionTime(detectionTimeStamp);
-        threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
-        threatDetected.setThreatName(m_threatName);
-        threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
-        threatDetected.setFilePath(m_threatPath);
-        threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+        scan_messages::ThreatDetected threatDetected(
+            m_userID,
+            detectionTimeStamp,
+            E_VIRUS_THREAT_TYPE,
+            m_threatName,
+            E_SCAN_TYPE_ON_ACCESS_OPEN,
+            E_NOTIFICATION_STATUS_CLEANED_UP,
+            m_threatPath,
+            E_SMT_THREAT_ACTION_SHRED,
+            m_sha256,
+            m_threatId,
+            datatypes::AutoFd(open("/dev/zero", O_RDONLY)));
 
         threatReporterSocket.sendThreatDetection(threatDetected);
 
@@ -114,14 +120,18 @@ TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
     // connect after we start
     unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath);
 
-    scan_messages::ThreatDetected threatDetected;
-    threatDetected.setUserID(m_userID);
-    threatDetected.setDetectionTime(detectionTimeStamp);
-    threatDetected.setScanType(E_SCAN_TYPE_ON_ACCESS_OPEN);
-    threatDetected.setThreatName(m_threatName);
-    threatDetected.setNotificationStatus(E_NOTIFICATION_STATUS_CLEANED_UP);
-    threatDetected.setFilePath(m_threatPath);
-    threatDetected.setActionCode(E_SMT_THREAT_ACTION_SHRED);
+    scan_messages::ThreatDetected threatDetected(
+        m_userID,
+        detectionTimeStamp,
+        E_VIRUS_THREAT_TYPE,
+        m_threatName,
+        E_SCAN_TYPE_ON_ACCESS_OPEN,
+        E_NOTIFICATION_STATUS_CLEANED_UP,
+        m_threatPath,
+        E_SMT_THREAT_ACTION_SHRED,
+        m_sha256,
+        m_threatId,
+        datatypes::AutoFd(open("/dev/zero", O_RDONLY)));
 
     threatReporterSocket.sendThreatDetection(threatDetected);
     serverWaitGuard.wait();

@@ -26,14 +26,20 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
 {
     assert(m_socket_fd >= 0);
     std::string dataAsString = detection.serialise();
+    int fd = detection.getFd();
 
     try
     {
-        if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
+        if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
-                std::stringstream errMsg;
-                errMsg << "Failed to write Threat Report to socket [" << errno << "]";
-                throw std::runtime_error(errMsg.str());
+            std::stringstream errMsg;
+            errMsg << "Failed to write Threat Report to socket [" << errno << "]";
+            throw std::runtime_error(errMsg.str());
+        }
+
+        if (send_fd(m_socket_fd, fd) < 0)
+        {
+            throw std::runtime_error("Failed to write file descriptor to Threat Reporter socket");
         }
     }
     catch (unixsocket::environmentInterruption& e)

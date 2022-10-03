@@ -1,15 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include <memory>
-#include <cstdint>
-#include <ctime>
-#include <string>
+
+#include "scan_messages/ThreatDetected.h"
 
 namespace threat_scanner
 {
@@ -17,13 +12,7 @@ namespace threat_scanner
     {
     public:
         virtual ~IThreatReporter() = default;
-        virtual void sendThreatReport(
-            const std::string& threatPath,
-            const std::string& threatName,
-            const std::string& sha256,
-            int64_t scanType,
-            const std::string& userID,
-            std::time_t detectionTimeStamp) = 0;
+        virtual void sendThreatReport(const scan_messages::ThreatDetected& threatDetected) = 0;
     };
     using IThreatReporterSharedPtr = std::shared_ptr<IThreatReporter>;
 }

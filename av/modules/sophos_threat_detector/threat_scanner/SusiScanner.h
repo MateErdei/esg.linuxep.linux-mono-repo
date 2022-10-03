@@ -48,13 +48,6 @@ namespace threat_scanner
             log4cplus::LogLevel& level);
 
     private:
-        void sendThreatReport(
-            const std::string& threatPath,
-            const std::string& threatName,
-            const std::string& sha256,
-            int64_t scanType,
-            const std::string& userID);
-
         scan_messages::E_SCAN_TYPE convertToCentralScanType(const scan_messages::E_SCAN_TYPE& scanType);
 
         std::shared_ptr<ISusiWrapper> m_susi;

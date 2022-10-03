@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ThreatReporterServerConnectionThread.h"
 
@@ -197,6 +193,16 @@ void ThreatReporterServerConnectionThread::inner_run()
 
             LOGDEBUG("Read capn of " << bytes_read);
             auto detectionReader = parseDetection(proto_buffer, bytes_read);
+
+            // read fd
+            datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
+            if (file_fd.get() < 0)
+            {
+                LOGERROR("Aborting Threat Reporter connection thread: failed to read fd");
+                break;
+            }
+            LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
+            detectionReader.setAutoFd(std::move(file_fd));
 
             if (!detectionReader.hasFilePath())
             {

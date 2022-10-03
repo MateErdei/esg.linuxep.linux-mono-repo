@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 #include "../../common/WaitForEvent.h"
 #include "../../common/Common.h"
@@ -15,6 +11,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <fcntl.h>
 
 using namespace ::testing;
 
@@ -46,8 +43,9 @@ TEST_F(TestThreatReporter, testReport) // NOLINT
 
     auto mockThreatReportCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
 
-    EXPECT_CALL(*mockThreatReportCallback, processMessage(_)).Times(1).WillOnce(
-        InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
+    EXPECT_CALL(*mockThreatReportCallback, processMessage(_))
+        .Times(1)
+        .WillOnce(InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
 
     fs::path socket_path = pluginInstall() / "chroot/var/threat_report_socket";
     unixsocket::ThreatReporterServerSocket threatReporterServer(
@@ -58,7 +56,20 @@ TEST_F(TestThreatReporter, testReport) // NOLINT
 
     sspl::sophosthreatdetectorimpl::ThreatReporter reporterClient(socket_path);
 
-    reporterClient.sendThreatReport("/path", "threatName", "sha256", 1, "root", 1);
+    scan_messages::ThreatDetected threatDetected(
+        "root",
+        1,
+        scan_messages::E_VIRUS_THREAT_TYPE,
+        "threatName",
+        scan_messages::E_SCAN_TYPE_UNKNOWN,
+        scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
+        "/path",
+        scan_messages::E_SMT_THREAT_ACTION_UNKNOWN,
+        "sha256",
+        "threatId",
+        datatypes::AutoFd(open("/dev/zero", O_RDONLY)));
+
+    reporterClient.sendThreatReport(threatDetected);
 
     serverWaitGuard.wait();
     threatReporterServer.requestStop();
