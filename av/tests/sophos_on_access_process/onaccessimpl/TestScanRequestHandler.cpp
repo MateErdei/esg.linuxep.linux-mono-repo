@@ -259,19 +259,22 @@ TEST_F(TestScanRequestHandler, scanError)
     EXPECT_TRUE(appenderContains("Scan Error"));
 }
 
-TEST_F(TestScanRequestHandler, cacheFdError)
+// Follow naming convention https://github.com/google/googletest/blob/main/docs/advanced.md#death-test-naming
+using TestScanRequestHandlerDeathTest = TestScanRequestHandler;
+
+TEST_F(TestScanRequestHandlerDeathTest, cacheFdError)
 {
+    //starts test in a new child process and tries to ensure safety of the main test process
+   (void)(::testing::GTEST_FLAG(death_test_style) = "threadsafe");
     UsingMemoryAppender memoryAppenderHolder(*this);
     auto socket = std::make_shared<RecordingMockSocket>(false, false);
     auto scanHandler = buildDefaultHandler(socket);
 
-    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).WillOnce(Return(-1));
-
+    //WillRepeatedly allows us to set the return code and gmock doesn't have to verify how many times we called cacheFd
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).WillRepeatedly(Return(-1));
+    testing::Mock::AllowLeak(m_mockFanotifyHandler.get());
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN));
-    scanHandler->scan(request);
-
-    EXPECT_EQ(socket->m_paths.size(), 1);
-    EXPECT_TRUE(appenderContains("Caching /expected failed"));
+    EXPECT_EXIT(scanHandler->scan(request), ::testing::ExitedWithCode(1),"");
 }
 
 TEST_F(TestScanRequestHandler, scanErrorAndDetection)

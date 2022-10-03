@@ -12,6 +12,7 @@ log4cplus::Logger& getOnAccessImplLogger();
 #define LOGINFO(x) LOG4CPLUS_INFO(getOnAccessImplLogger(), x)    // NOLINT
 #define LOGWARN(x) LOG4CPLUS_WARN(getOnAccessImplLogger(), x)    // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getOnAccessImplLogger(), x)  // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getOnAccessImplLogger(), x)  // NOLINT
 #define LOGTRACE(x) LOG4CPLUS_TRACE(getOnAccessImplLogger(), x)  // NOLINT
 #else
 //Discard logs in fuzz mode

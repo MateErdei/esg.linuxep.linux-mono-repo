@@ -106,7 +106,7 @@ bool EventReaderThread::handleFanotifyEvent()
 
         if (error == EMFILE)
         {
-            LOGERROR("No more File Descriptors available. Restarting On Access");
+            LOGFATAL("No more File Descriptors available. Restarting On Access");
             exit(EXIT_FAILURE);
         }
 

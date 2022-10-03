@@ -71,7 +71,8 @@ void ScanRequestHandler::scan(
             if (ret < 0)
             {
                 std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
-                LOGWARN("Caching " << escapedPath << " failed");
+                LOGFATAL("Caching " << escapedPath << " failed. Restarting On Access");
+                std::exit(EXIT_FAILURE);
             }
         }
     }
