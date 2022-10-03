@@ -5,4 +5,7 @@
 #include <string>
 namespace safestore
 {
+    class QuarantineManager
+    {
+    };
 }

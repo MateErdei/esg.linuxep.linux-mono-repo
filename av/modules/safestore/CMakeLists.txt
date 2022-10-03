@@ -1,10 +1,14 @@
 
 add_library(safestoreimpl SHARED
+        ISafeStoreWrapper.h
+        SafeStoreWrapperImpl.h
+        SafeStoreWrapperImpl.cpp
         Logger.cpp
         Logger.h
         Main.cpp
         Main.h
-        IQuarantineManager.h)
+        SafeStoreRunner.h
+        SafeStoreRunner.cpp)
 
 
 message(${SAFESTORE_LIB})

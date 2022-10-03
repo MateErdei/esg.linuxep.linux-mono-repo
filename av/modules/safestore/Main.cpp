@@ -3,6 +3,8 @@
 #include "Main.h"
 
 #include "Logger.h"
+#include "SafeStoreRunner.h"
+#include "SafeStoreWrapperImpl.h"
 
 #include "common/ApplicationPaths.h"
 #include "common/PidLockFile.h"
@@ -46,6 +48,10 @@ void Main::innerRun()
         { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
         { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
     };
+
+//    std::unique_ptr<ISafeStoreWrapper> quarantineManager = std::make_unique<SafeStoreWrapperImpl>();
+//    auto ssRunner = SafeStoreRunner(std::move(quarantineManager));
+//    ssRunner.start();
 
     while (true)
     {

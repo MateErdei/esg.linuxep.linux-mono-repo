@@ -21,4 +21,19 @@ namespace Plugin
     {
         return getPluginInstall() + "/var/ss_flag.json";
     }
+
+    std::string getSafeStoreDbDirPath()
+    {
+        return getPluginInstall() + "/safestore";
+    }
+
+    std::string getSafeStoreDbFileName()
+    {
+        return "safestore.db";
+    }
+
+    std::string getSafeStorePasswordFilePath()
+    {
+        return getSafeStoreDbDirPath() + "/SafeStore.pw";
+    }
 } // namespace Plugin

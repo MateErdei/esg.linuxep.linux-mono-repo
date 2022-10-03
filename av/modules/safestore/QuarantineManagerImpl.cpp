@@ -1,8 +1,8 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#pragma once
+#include "QuarantineManagerImpl.h"
 
-#include <string>
 namespace safestore
 {
+
 }
