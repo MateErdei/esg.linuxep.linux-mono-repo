@@ -663,6 +663,8 @@ AV And Base Teardown
 
     Run Cleanup Functions
 
+    Run Keyword And Ignore Error   Empty Directory   ${SCAN_DIRECTORY}
+
     #mark errors related to scheduled scans being forcefully terminated at the end of a test
     Exclude Failed To Scan Multiple Files Cloud
     Exclude UnixSocket Interrupted System Call Error Cloud Scan
@@ -855,7 +857,7 @@ Policy Fragment FS Types
 Create EICAR files
     [Arguments]  ${eicar_files_to_create}  ${dir_name}
      FOR    ${INDEX}    IN RANGE    1    ${eicar_files_to_create}
-         ${eicar_file}=    create file  ${dir_name}/eicar-${INDEX}  ${EICAR_STRING}
+         Create File   ${dir_name}/eicar-${INDEX}  ${EICAR_STRING}
      END
 
 Add IDE to install set
@@ -1093,6 +1095,7 @@ Check avscanner can detect eicar in
 Check avscanner can detect eicar
     [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
     Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com   ${LOCAL_AVSCANNER}
 
 Force SUSI to be initialized
