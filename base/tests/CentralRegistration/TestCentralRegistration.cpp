@@ -94,6 +94,7 @@ class CentralRegistrationTests : public LogInitializedTests
         Common::HttpRequests::Response response;
         response.status = 200;
         response.body = Common::ObfuscationImpl::Base64::Encode("mcs_id:mcs_password");
+        response.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
         return response;
     }
 
@@ -157,7 +158,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationFails) // NOLINT
 
     std::string logMessage = internal::GetCapturedStderr();
 
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Error during registration: Test 400 Error. Status: 400"));
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Connection error during registration: Test 400"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product registration failed"));
 }
 
@@ -210,7 +211,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxyFails) // NOLINT
 
     std::string logMessage = internal::GetCapturedStderr();
 
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Error during registration: Test 400 Error. Status: 400"));
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Connection error during registration: Test 400"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product registration failed"));
 }
 
@@ -252,7 +253,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithFailsOnProxiesAndThenDirec
     ASSERT_THAT(logMessage, ::testing::Not(::testing::HasSubstr("Product successfully registered via proxy: Address1:Port1")));
     ASSERT_THAT(logMessage, ::testing::Not(::testing::HasSubstr("Product successfully registered via proxy: Address2:Port2")));
     ASSERT_THAT(logMessage, ::testing::Not(::testing::HasSubstr("Product successfully registered via proxy: MCS_Proxy")));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Error during registration: Test 400 Error. Status: 400"));
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Connection error during registration: Test 400 Error"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered"));
 }
 
@@ -308,7 +309,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysSucceedsOnSec
 
     ASSERT_TRUE(configOptions.config[MCS::MCS_CONNECTED_PROXY] == "Address2:Port2");
     ASSERT_THAT(logMessage, ::testing::Not(::testing::HasSubstr("Product successfully registered via proxy: Address1:Port1")));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Error during registration: Test 400 Error. Status: 400"));
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Connection error during registration: Test 400 Error"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered via proxy: Address2:Port2"));
 }
 
@@ -347,7 +348,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysFailsThenProx
     ASSERT_TRUE(configOptions.config[MCS::MCS_CONNECTED_PROXY] == configOptions.config[MCS::MCS_PROXY]);
     ASSERT_THAT(logMessage, ::testing::Not(::testing::HasSubstr("Product successfully registered via proxy: Address1:Port1")));
     ASSERT_THAT(logMessage, ::testing::Not(::testing::HasSubstr("Product successfully registered via proxy: Address2:Port2")));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Error during registration: Test 400 Error. Status: 400"));
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("Connection error during registration: Test 400 Error"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered via proxy: MCS_Proxy"));
 }
 

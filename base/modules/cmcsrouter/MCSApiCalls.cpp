@@ -8,6 +8,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include <Common/ObfuscationImpl/Base64.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/HttpRequests/IHttpRequester.h>
 
 #include <sstream>
 
@@ -87,29 +88,29 @@ namespace MCS
         
         client.setProxyInfo(proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
         Common::HttpRequests::Response response = client.sendRegistration(statusXml, configOptions.config[MCS::MCS_TOKEN]);
-        if (response.status == 200)
+        if (response.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
         {
-            std::string messageBody = Common::ObfuscationImpl::Base64::Decode(response.body);
-            std::vector<std::string> responseValues = Common::UtilityImpl::StringUtils::splitString(messageBody, ":");
-            if (responseValues.size() == 2)
+            if (response.status == Common::HttpRequests::HTTP_STATUS_OK)
             {
-                // Note that updating the configOptions here should be propagated back to the caller as it is all
-                // passed by reference.
-                configOptions.config[MCS::MCS_ID] = responseValues[0]; // endpointId
-                configOptions.config[MCS::MCS_PASSWORD] = responseValues[1]; //MCS Password
-                return true;
+                std::string messageBody = Common::ObfuscationImpl::Base64::Decode(response.body);
+                std::vector<std::string> responseValues = Common::UtilityImpl::StringUtils::splitString(messageBody, ":");
+                if (responseValues.size() == 2)
+                {
+                    // Note that updating the configOptions here should be propagated back to the caller as it is all
+                    // passed by reference.
+                    configOptions.config[MCS::MCS_ID] = responseValues[0]; // endpointId
+                    configOptions.config[MCS::MCS_PASSWORD] = responseValues[1]; //MCS Password
+                    return true;
+                }
+            }
+            else
+            {
+                LOGWARN("Unexpected status returned during registration: " << response.status << ".");
             }
         }
         else
         {
-            if (!response.error.empty())
-            {
-                LOGWARN("Error during registration: " << response.error << ". Status: " << response.status);
-            }
-            else
-            {
-                LOGWARN("Registration failed with Status: " << response.status);
-            }
+            LOGWARN("Connection error during registration: " << response.error);
         }
         return false;
     }

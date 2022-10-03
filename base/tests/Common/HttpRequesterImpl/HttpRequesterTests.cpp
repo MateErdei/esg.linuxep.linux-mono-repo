@@ -16,6 +16,7 @@ using namespace Common::HttpRequestsImpl;
 namespace
 {
     const std::string URL = "https://sophos.com";
+    const std::string proxyURL = "https://sophos-proxy.com";
     void* fakeCurlHandle = reinterpret_cast<void*>(0xdeadbeef);
     std::variant<std::string, long> requestTypeGet = "GET";
     std::variant<std::string, long> requestTypePut = "PUT";
@@ -66,6 +67,7 @@ TEST_F(HttpRequesterImplTests, clientPerformsGetRequest)
     HttpRequesterImpl client(curlWrapper);
     Response response = client.get(RequestConfig{ .url = URL });
     ASSERT_EQ(response.status, 200);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::OK);
 }
 
 TEST_F(HttpRequesterImplTests, clientPerformsGetRequestWithPort)
@@ -98,6 +100,7 @@ TEST_F(HttpRequesterImplTests, clientPerformsGetRequestWithPort)
         .port = 9000
     });
     ASSERT_EQ(response.status, 200);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::OK);
 }
 
 
@@ -129,6 +132,7 @@ TEST_F(HttpRequesterImplTests, clientPerformsGetRequestWithBandwidthLimit)
         .bandwidthLimit = 123
     });
     ASSERT_EQ(response.status, 200);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::OK);
 }
 
 TEST_F(HttpRequesterImplTests, clientPerformsGetRequestWithRedirectsEnabled)
@@ -160,6 +164,7 @@ TEST_F(HttpRequesterImplTests, clientPerformsGetRequestWithRedirectsEnabled)
         .allowRedirects = true
     });
     ASSERT_EQ(response.status, 200);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::OK);
 }
 
 TEST_F(HttpRequesterImplTests, clientPerformsGetRequestSendingHeaders)
@@ -198,6 +203,7 @@ TEST_F(HttpRequesterImplTests, clientPerformsGetRequestSendingHeaders)
         .headers = Common::HttpRequests::Headers {{"header1", "value1"}}
     });
     ASSERT_EQ(response.status, 200);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::OK);
 
     // Doesn't really matter about this test only free not being run if there's a failure, it's just here to make sure
     // the sanitizers are happy and don't report a leak which is due to the test only variable curlHeaders being used.
@@ -233,6 +239,7 @@ TEST_F(HttpRequesterImplTests, clientPerformsGetRequestToDownloadFileToNamedFile
        .fileDownloadLocation = "/save/to/here/please.txt"
     });
     ASSERT_EQ(response.status, 200);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::OK);
 }
 
 
@@ -264,6 +271,7 @@ TEST_F(HttpRequesterImplTests, clientPerformsPostRequest)
     HttpRequesterImpl client(curlWrapper);
     Response response = client.post(RequestConfig{ .url = URL });
     ASSERT_EQ(response.status, 200);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::OK);
 }
 
 
@@ -295,6 +303,7 @@ TEST_F(HttpRequesterImplTests, clientPerformsPutRequest)
     HttpRequesterImpl client(curlWrapper);
     Response response = client.put(RequestConfig{ .url = URL });
     ASSERT_EQ(response.status, 200);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::OK);
 }
 
 
@@ -326,6 +335,7 @@ TEST_F(HttpRequesterImplTests, clientPerformsDeleteRequest)
     HttpRequesterImpl client(curlWrapper);
     Response response = client.del(RequestConfig{ .url = URL });
     ASSERT_EQ(response.status, 200);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::OK);
 }
 
 
@@ -357,4 +367,69 @@ TEST_F(HttpRequesterImplTests, clientPerformsOptionsRequest)
     HttpRequesterImpl client(curlWrapper);
     Response response = client.options(RequestConfig{ .url = URL });
     ASSERT_EQ(response.status, 200);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::OK);
+}
+
+
+// Proxy tests
+
+TEST_F(HttpRequesterImplTests, clientPerformsGetRequestWithProxy)
+{
+    auto curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
+    setCommonExpectations(curlWrapper);
+
+    std::variant<std::string, long> urlVariant = URL;
+    std::variant<std::string, long> proxyVariant = proxyURL;
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_URL, urlVariant)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_PROXY, proxyVariant)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_SSLVERSION, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_TIMEOUT, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CUSTOMREQUEST, requestTypeGet)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_VERBOSE, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CAINFO, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CAPATH, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_PROXYAUTH, _)).WillOnce(Return(CURLE_OK));
+
+    EXPECT_CALL(*curlWrapper, curlEasyPerform(fakeCurlHandle)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasyCleanup(fakeCurlHandle));
+
+    EXPECT_CALL(*curlWrapper, curlGetResponseCode(fakeCurlHandle, _))
+        .WillOnce(DoAll(SetArgPointee<1>(200), Return(CURLE_OK)));
+    EXPECT_CALL(*curlWrapper, curlGlobalCleanup());
+
+    HttpRequesterImpl client(curlWrapper);
+    Response response = client.get(RequestConfig{ .url = URL, .proxy =  proxyURL });
+    ASSERT_EQ(response.status, 200);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::OK);
+}
+
+
+TEST_F(HttpRequesterImplTests, clientPerformsGetRequestWithProxyFailsAndReturnsError)
+{
+    auto curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
+    setCommonExpectations(curlWrapper);
+
+    std::variant<std::string, long> urlVariant = URL;
+    std::variant<std::string, long> proxyVariant = proxyURL;
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_URL, urlVariant)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_PROXY, proxyVariant)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_SSLVERSION, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_TIMEOUT, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CUSTOMREQUEST, requestTypeGet)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_VERBOSE, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CAINFO, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_CAPATH, _)).WillOnce(Return(CURLE_OK));
+    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, CURLOPT_PROXYAUTH, _)).WillOnce(Return(CURLE_OK));
+
+    EXPECT_CALL(*curlWrapper, curlEasyPerform(fakeCurlHandle)).WillOnce(Return(CURLE_COULDNT_RESOLVE_PROXY));
+    EXPECT_CALL(*curlWrapper, curlEasyStrError(CURLE_COULDNT_RESOLVE_PROXY)).WillOnce(Return("Proxy error"));
+    EXPECT_CALL(*curlWrapper, curlEasyCleanup(fakeCurlHandle));
+
+    EXPECT_CALL(*curlWrapper, curlGlobalCleanup());
+
+    HttpRequesterImpl client(curlWrapper);
+    Response response = client.get(RequestConfig{ .url = URL, .proxy =  proxyURL });
+    ASSERT_EQ(response.status, -1);
+    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_PROXY);
+    ASSERT_EQ(response.error, "Proxy error — https://sophos-proxy.com");
 }
