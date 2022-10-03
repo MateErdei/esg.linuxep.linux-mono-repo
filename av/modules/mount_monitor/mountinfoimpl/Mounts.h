@@ -134,11 +134,5 @@ namespace mount_monitor::mountinfoimpl
          * Try and parse /proc/mounts.
          */
         void parseProcMounts();
-
-        /**
-         * @param mountPoint
-         * @return true if mountPoint is a directory or an exception was thrown, otherwise false
-         */
-        bool isDirectory(const std::string& mountPoint);
     };
 }

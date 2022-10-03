@@ -19,15 +19,15 @@ namespace
     class MockMountPoint : public mount_monitor::mountinfo::IMountPoint
     {
     public:
-        MOCK_CONST_METHOD0(device, std::string());
-        MOCK_CONST_METHOD0(filesystemType, std::string());
-        MOCK_CONST_METHOD0(isHardDisc, bool());
-        MOCK_CONST_METHOD0(isNetwork, bool());
-        MOCK_CONST_METHOD0(isOptical, bool());
-        MOCK_CONST_METHOD0(isRemovable, bool());
-        MOCK_CONST_METHOD0(isSpecial, bool());
-        MOCK_CONST_METHOD0(isDirectory, bool());
-        MOCK_CONST_METHOD0(mountPoint, std::string());
+        MOCK_METHOD(std::string, device, (), (const));
+        MOCK_METHOD(std::string, filesystemType, (), (const));
+        MOCK_METHOD(bool, isHardDisc, (), (const));
+        MOCK_METHOD(bool, isNetwork, (), (const));
+        MOCK_METHOD(bool, isOptical, (), (const));
+        MOCK_METHOD(bool, isRemovable, (), (const));
+        MOCK_METHOD(bool, isSpecial, (), (const));
+        MOCK_METHOD(bool, isDirectory, (), (const));
+        MOCK_METHOD(std::string, mountPoint, (), (const));
     };
 
     class FakeMountPoint : public mount_monitor::mountinfo::IMountPoint

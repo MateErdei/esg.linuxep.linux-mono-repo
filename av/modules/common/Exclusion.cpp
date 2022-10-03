@@ -221,7 +221,7 @@ std::regex Exclusion::convertGlobToRegex(const std::string& glob)
 
 bool Exclusion::operator==(const Exclusion& rhs) const
 {
-    return m_exclusionPath == rhs.path() &&
-           m_exclusionDisplayPath == rhs.displayPath() &&
-           m_type == rhs.type();
+    return m_exclusionPath == rhs.m_exclusionPath &&
+           m_exclusionDisplayPath == rhs.m_exclusionDisplayPath &&
+           m_type == rhs.m_type;
 }

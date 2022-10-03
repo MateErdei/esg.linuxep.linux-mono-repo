@@ -80,20 +80,6 @@ Mounts::Mounts(ISystemPathsSharedPtr systemPaths)
     parseProcMounts();
 }
 
-bool Mounts::isDirectory(const std::string& mountPoint)
-{
-    bool isDir = true;
-    try
-    {
-        isDir = std::filesystem::is_directory(mountPoint);
-    }
-    catch (const std::filesystem::filesystem_error& e)
-    {
-        LOGDEBUG("Failed to determine if " << mountPoint << " is a directory or not, assuming it is: " << e.what());
-    }
-    return isDir;
-}
-
 /**
  * Try and parse /proc/mounts.
  */
@@ -131,7 +117,15 @@ void Mounts::parseProcMounts()
 
         device = realMountPoint(device);
         //LOGDEBUG("dev " << device << " on " << mountPoint << " type " << type);
-        m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type, isDirectory(device)));
+        try
+        {
+            bool isDir = std::filesystem::is_directory(device);
+            m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type, isDir));
+        }
+        catch (const std::filesystem::filesystem_error& e)
+        {
+            LOGDEBUG("Failed to determine if " << mountPoint << " is a directory or not, skipping: " << e.what());
+        }
     }
 
     if (device("/").empty())
@@ -156,11 +150,19 @@ void Mounts::parseProcMounts()
             }
 
             std::string devicePath = fixDeviceWithMount(mountpoint->fs_spec);
-            m_devices.push_back(std::make_shared<Drive>(
-                devicePath,
-                mountpoint->fs_file,
-                mountpoint->fs_type,
-                isDirectory(devicePath)));
+            try
+            {
+                bool isDir = std::filesystem::is_directory(devicePath);
+                m_devices.push_back(std::make_shared<Drive>(
+                    devicePath,
+                    mountpoint->fs_file,
+                    mountpoint->fs_type,
+                    isDir));
+            }
+            catch (const std::filesystem::filesystem_error& e)
+            {
+                LOGDEBUG("Failed to determine if " << devicePath << " is a directory or not, skipping: " << e.what());
+            }
         }
     }
 }
