@@ -49,7 +49,7 @@ protected:
         m_mockSysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
         m_scanRequestQueue = std::make_shared<ScanRequestQueue>();
         m_fakeFanotify = std::make_shared<FakeFanotify>();
-        m_SmallScanRequestQueue = std::make_shared<ScanRequestQueue>(1);
+        m_SmallScanRequestQueue = std::make_shared<ScanRequestQueue>(3);
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         const auto* pluginInstall = "/opt/sophos-spl/plugins/av";
         appConfig.setData("PLUGIN_INSTALL", pluginInstall);
@@ -512,6 +512,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFull)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
 
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillRepeatedly(DoAll(
@@ -527,7 +529,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFull)
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
-    EXPECT_EQ(m_SmallScanRequestQueue->size(), 1);
+    EXPECT_EQ(m_SmallScanRequestQueue->size(), 3);
 }
 
 TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
@@ -538,7 +540,6 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
     auto metadata = getMetaData();
 
     const char* filePath1 = "/tmp/test";
-    const char* filePath2 = "/tmp/test/test";
 
     struct pollfd fds1[2]{};
     fds1[1].revents = POLLIN;
@@ -552,16 +553,16 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).Times(3).WillRepeatedly(DoAll(
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillRepeatedly(DoAll(
         Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
         Return(sizeof(metadata))));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
-        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
-        .WillOnce(DoAll(SetArrayArgument<1>(filePath2, filePath2 + strlen(filePath2) + 1), Return(strlen(filePath2) + 1)));
+        .WillRepeatedly(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)));
 
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillRepeatedly(DoAll(SetArgPointee<1>(statbuf), Return(0)));
 
@@ -571,7 +572,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_TRUE(appenderContains("Failed to add scan request to queue, on-access scanning queue is full."));
     EXPECT_FALSE(appenderContainsCount("Failed to add scan request to queue, on-access scanning queue is full.", 2));
-    EXPECT_EQ(m_SmallScanRequestQueue->size(), 1);
+    EXPECT_EQ(m_SmallScanRequestQueue->size(), 3);
 }
 
 TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTIme)
@@ -595,11 +596,15 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTIme)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).Times(4).WillRepeatedly(DoAll(
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillRepeatedly(DoAll(
         Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
         Return(sizeof(metadata))));
 
@@ -615,7 +620,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTIme)
     m_SmallScanRequestQueue->restart();
     eventReaderGuard.onEventNoArgs();
     EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full.", 2, 100ms));
-    EXPECT_TRUE(appenderContains("Queue is now empty. Number of events dropped: 1"));
+    EXPECT_TRUE(appenderContains("Queue is no longer full. Number of events dropped: 1"));
 }
 
 TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
@@ -640,8 +645,11 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
+
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillRepeatedly(DoAll(
         Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
         Return(sizeof(metadata))));
@@ -658,7 +666,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
     m_SmallScanRequestQueue->restart();
 
     eventReaderGuard.onEventNoArgs();
-    EXPECT_TRUE(waitForLog("Queue is now empty. Number of events dropped: 2", 100ms));
+    EXPECT_TRUE(waitForLog("Queue is no longer full. Number of events dropped: 2", 100ms));
 }
 
 
@@ -683,7 +691,11 @@ TEST_F(TestEventReaderThread, TestReaderResetsMissedEventCountAfterStopStart)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),SetArrayArgument<0>(fds2, fds2+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
         .WillOnce(DoAll(InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),SetArrayArgument<0>(fds2, fds2+2), Return(1)));
@@ -714,7 +726,7 @@ TEST_F(TestEventReaderThread, TestReaderResetsMissedEventCountAfterStopStart)
 
     //Wait for queue to fill again and make critical observation
     EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full.", 2));
-    EXPECT_FALSE(appenderContains("Queue is now empty. Number of events dropped: 1"));
+    EXPECT_FALSE(appenderContains("Queue is no longer full. Number of events dropped: 1"));
 
     //End test
     eventReaderGuard.onEventNoArgs();
