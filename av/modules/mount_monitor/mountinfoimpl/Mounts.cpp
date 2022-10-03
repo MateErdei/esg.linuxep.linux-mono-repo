@@ -80,6 +80,20 @@ Mounts::Mounts(ISystemPathsSharedPtr systemPaths)
     parseProcMounts();
 }
 
+bool Mounts::isDirectory(const std::string& mountPoint)
+{
+    bool isDir = true;
+    try
+    {
+        isDir = std::filesystem::is_directory(mountPoint);
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        LOGDEBUG("Failed to determine if " << mountPoint << " is a directory or not, assuming it is: " << e.what());
+    }
+    return isDir;
+}
+
 /**
  * Try and parse /proc/mounts.
  */
@@ -117,7 +131,7 @@ void Mounts::parseProcMounts()
 
         device = realMountPoint(device);
         //LOGDEBUG("dev " << device << " on " << mountPoint << " type " << type);
-        m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type, std::filesystem::is_directory(device)));
+        m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type, isDirectory(device)));
     }
 
     if (device("/").empty())
@@ -146,7 +160,7 @@ void Mounts::parseProcMounts()
                 devicePath,
                 mountpoint->fs_file,
                 mountpoint->fs_type,
-                std::filesystem::is_directory(devicePath)));
+                isDirectory(devicePath)));
         }
     }
 }
