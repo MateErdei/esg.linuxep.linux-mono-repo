@@ -37,10 +37,6 @@ namespace
         {
             return 0;
         }
-        [[nodiscard]] int clearCachedFiles() const override
-        {
-            return 0;
-        }
     };
 
     class TestEventReaderThread : public FanotifyHandlerMemoryAppenderUsingTests
@@ -414,37 +410,6 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsInPluginLogDir)
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(DoAll(SetArrayArgument<1>(filePath, filePath + strlen(filePath) + 1), Return(strlen(filePath) + 1)));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
-
-    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
-    EXPECT_EQ(m_scanRequestQueue->size(), 0);
-}
-
-TEST_F(TestEventReaderThread, TestReaderSkipsExcludedPaths)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-    std::vector<common::Exclusion> exclusions;
-    exclusions.emplace_back("/excluded/");
-    int fanotifyFD = 123;
-    struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
-
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
-    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
-    const char* filePath = "/excluded/eicar.com";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(DoAll(SetArrayArgument<1>(filePath, filePath + strlen(filePath) + 1), Return(strlen(filePath) + 1)));
-
-    auto eventReader = std::make_shared<EventReaderThread>(fanotifyFD, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
-    eventReader->setExclusions(exclusions);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));

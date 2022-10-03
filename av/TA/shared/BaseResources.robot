@@ -71,8 +71,7 @@ Send Policies to enable on-access
 
 Send Policies to disable on-access
     Send Sav Policy To Base  SAV-2_policy_OA_disabled.xml
-    #TODO: LINUXDAR-5723 re-enable after ticket is fixed
-    #Send Flags Policy To Base  flags_policy/flags.json
+    Send Flags Policy To Base  flags_policy/flags.json
 
 Send Sav Policy To Base
     [Arguments]  ${policyFile}

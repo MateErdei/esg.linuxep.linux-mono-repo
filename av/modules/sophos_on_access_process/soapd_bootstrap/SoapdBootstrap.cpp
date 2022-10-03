@@ -6,6 +6,7 @@
 #include "Logger.h"
 #include "OnAccessProcesControlCallbacks.h"
 // Component
+#include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 // Product
 #include "common/FDUtils.h"
@@ -96,11 +97,12 @@ void SoapdBootstrap::innerRun()
     auto updateClientThread = std::make_unique<common::ThreadRunner>(updateClient, "updateClient", true);
 
     m_scanRequestQueue = std::make_shared<ScanRequestQueue>();
-    m_eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler->getFd(),
+
+    auto eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
                                                            sysCallWrapper,
                                                            common::getPluginInstallPath(),
                                                            m_scanRequestQueue);
-    m_eventReaderThread = std::make_unique<common::ThreadRunner>(m_eventReader,
+    m_eventReaderThread = std::make_unique<common::ThreadRunner>(std::move(eventReader),
                                                                  "eventReader",
                                                                  false);
 
@@ -111,7 +113,7 @@ void SoapdBootstrap::innerRun()
                                                                                                0666,
                                                                                                processControlCallbacks);
     auto processControllerServerThread = std::make_unique<common::ThreadRunner>(processControllerServer,
-                                                                                "eventReader",
+                                                                                "processControlServer",
                                                                                 true);
 
     struct pollfd fds[] {
@@ -172,7 +174,7 @@ sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::
 {
     auto jsonString = OnAccessConfig::readPolicyConfigFile();
     OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessPolicySettingsFromJson(jsonString);
-    m_mountMonitor->updateConfig(oaConfig.exclusions, oaConfig.excludeRemoteFiles);
+    m_mountMonitor->setExcludeRemoteFiles(oaConfig.excludeRemoteFiles);
 
     return oaConfig;
 }
@@ -189,7 +191,7 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
 
     if(!m_onAccessEnabledFlag)
     {
-        LOGINFO("Policy override is enabled, on-access will be disabled");
+        LOGINFO("Overriding policy, on-access will be disabled");
         disableOnAccess(flagChanged);
     }
     else
@@ -211,7 +213,6 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
         {
             disableOnAccess(changed);
         }
-        m_eventReader->setExclusions(oaConfig.exclusions);
     }
     LOGDEBUG("Finished ProcessPolicy " << onStart);
 }
@@ -223,19 +224,16 @@ void SoapdBootstrap::disableOnAccess(bool changed)
         LOGINFO("On-access scanning disabled");
     }
     m_eventReaderThread->requestStopIfNotStopped();
-    LOGDEBUG("DEBUG m_eventReaderThread stopped");
     m_mountMonitorThread->requestStopIfNotStopped();
-    LOGDEBUG("DEBUG m_mountMonitorThread stopped");
     m_scanRequestQueue->stop();
-    LOGDEBUG("DEBUG m_scanRequestQueue stopped");
 
     for (const auto& scanThread: m_scanHandlerThreads)
     {
         scanThread->requestStopIfNotStopped();
     }
-    LOGDEBUG("DEBUG m_scanHandlerThreads stopped");
     m_scanHandlerThreads.clear();
-    LOGDEBUG("DEBUG m_scanHandlerThreads clear");
+
+    m_fanotifyHandler->close();
 }
 
 void SoapdBootstrap::enableOnAccess(bool changed)
@@ -246,6 +244,9 @@ void SoapdBootstrap::enableOnAccess(bool changed)
     }
 
     LOGINFO("On-access scanning enabled");
+
+    m_fanotifyHandler->init();
+
     m_eventReaderThread->startIfNotStarted();
     m_mountMonitorThread->startIfNotStarted();
 

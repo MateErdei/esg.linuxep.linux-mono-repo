@@ -45,13 +45,13 @@ Start On Access And AV With Running Threat Detector
 Start On Access without Log check
     Remove Files   /tmp/soapd.stdout  /tmp/soapd.stderr
     ${handle} =  Start Process  ${ON_ACCESS_BIN}   stdout=/tmp/soapd.stdout  stderr=/tmp/soapd.stderr
+    ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${handle}
 
 Start On Access
     Mark On Access Log
     Start On Access without Log check
-    Wait Until On Access running
-    Wait Until On Access Log Contains With Offset  Fanotify successfully initialised
+    Wait Until On Access running with offset
 
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
@@ -121,13 +121,12 @@ On-access Scan Eicar Close
 
 
 On-access Scan Eicar Open
-    Mark On Access Log
-
     #${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  /tmp_test/eicar.com
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
 
+    Mark On Access Log
     Get File   ${filepath}
 
     Wait Until On Access Log Contains With Offset  On-open event for ${filepath} from    timeout=${timeout}

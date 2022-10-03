@@ -25,8 +25,6 @@ ${TESTTMP}  /tmp_test/SSPLAVTests
 
 
 *** Keywords ***
-
-#Keep On Access/AV/ThreatDetector running throughout suite
 On Access Suite Setup
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
@@ -427,14 +425,14 @@ On Access Caches Open Events Without Detections
     Register Cleanup   Remove File   ${cleanfile}
     Register Cleanup   Remove File   ${dirtyfile}
 
-    Generate Only Open Event   ${cleanfile}
+    Get File   ${cleanfile}
     Sleep   1  #Let the event be cached
 
     Mark On Access Log
-    Generate Only Open Event   ${cleanfile}
+    Get File   ${cleanfile}
 
     #Generate another event we can expect in logs
-    Generate Only Open Event   ${dirtyfile}
+    Get File   ${dirtyfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}
     On Access Log Does Not Contain With Offset   On-open event for ${cleanfile} from
 
@@ -448,7 +446,7 @@ On Access Doesnt Cache Open Events With Detections
 
     Sleep   1  #Let the event be cached
 
-    Generate Only Open Event   ${dirtyfile}
+    Get File   ${dirtyfile}
 
     Wait Until On Access Log Contains Times With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}    times=2
     Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
@@ -499,7 +497,7 @@ On Access Processes New File With Same Attributes And Contents As Old File
     Create File   ${cleanfile}   ${CLEAN_STRING}
     Register Cleanup   Remove File   ${cleanfile}
 
-    Generate Only Open Event   ${cleanfile}
+    Get File   ${cleanfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
     Sleep   1  #Let the event be cached, Create File can create a combined event which wont be cached
 
@@ -517,7 +515,7 @@ On Access Detects A Clean File Replaced By Dirty File With Same Attributes
     Register Cleanup   Remove File   ${dustyfile}
     Sleep   0.1s
 
-    Generate Only Open Event   ${dustyfile}
+    Get File   ${dustyfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
     Sleep   1s   Let the event be cached,
 
@@ -526,6 +524,6 @@ On Access Detects A Clean File Replaced By Dirty File With Same Attributes
     Sleep   0.1s
 
     Mark On Access Log
-    Generate Only Open Event   ${dustyfile}
+    Get File   ${dustyfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
     Wait Until On Access Log Contains With Offset  Detected "${dustyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}

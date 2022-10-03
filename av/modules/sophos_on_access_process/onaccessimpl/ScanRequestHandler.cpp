@@ -10,20 +10,24 @@
 
 #include <Common/Logging/LoggerConfig.h>
 
+#include <chrono>
 #include <memory>
 #include <sstream>
-#include <chrono>
+#include <utility>
+#include <fcntl.h>
 
 
 using namespace sophos_on_access_process::onaccessimpl;
 
 ScanRequestHandler::ScanRequestHandler(
    ScanRequestQueueSharedPtr scanRequestQueue,
-    std::shared_ptr<unixsocket::IScanningClientSocket> socket,
-    fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler)
+    IScanningClientSocketSharedPtr socket,
+    fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
+    int handlerId)
     : m_scanRequestQueue(std::move(scanRequestQueue))
     , m_socket(std::move(socket))
     , m_fanotifyHandler(std::move(fanotifyHandler))
+    , m_handlerId(handlerId)
 {
 }
 
@@ -65,11 +69,12 @@ void ScanRequestHandler::scan(
         if (errorMsg.empty() && scanRequest->isOpenEvent())
         {
             // Clean file
+            LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()));
             int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
             if (ret < 0)
             {
                 int error = errno;
-                std::ignore = error; // Fuzz builds compile out LOGDEBUG
+                std::ignore = error; // Fuzz builds compile out LOG*
                 std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
                 LOGWARN("Caching " << escapedPath << " failed: " << common::safer_strerror(error));
             }
@@ -112,7 +117,6 @@ void ScanRequestHandler::run()
                     long scanDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 
                     std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
-                    std::ignore = scanDuration; // Fuzz builds compile out LOGTRACE
                     LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms");
                 }
                 else

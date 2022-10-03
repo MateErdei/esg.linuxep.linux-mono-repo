@@ -7,6 +7,7 @@
 #include "common/SaferStrerror.h"
 
 #include <sstream>
+#include <tuple>
 
 #include <fcntl.h>
 
@@ -14,6 +15,16 @@ using namespace sophos_on_access_process::fanotifyhandler;
 
 FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
     : m_systemCallWrapper(std::move(systemCallWrapper))
+{
+    assert(m_systemCallWrapper);
+}
+
+FanotifyHandler::~FanotifyHandler()
+{
+    close();
+}
+
+void FanotifyHandler::init()
 {
     assert(m_systemCallWrapper);
     int fanotifyFd = m_systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
@@ -26,14 +37,19 @@ FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCa
     LOGINFO("Fanotify successfully initialised");
 
     m_fd.reset(fanotifyFd);
-    LOGINFO("Fanotify FD set to " << m_fd.fd());
+    LOGDEBUG("Fanotify FD set to " << m_fd.fd());
+}
+
+void FanotifyHandler::close()
+{
+    m_fd.close();
 }
 
 int FanotifyHandler::getFd() const
 {
     if (!m_fd.valid())
     {
-        LOGDEBUG("Fanotify FD not valid " << m_fd.fd());
+        LOGERROR("Fanotify FD not valid " << m_fd.fd());
     }
 
     return m_fd.fd();
@@ -42,13 +58,21 @@ int FanotifyHandler::getFd() const
 int FanotifyHandler::markMount(const std::string& path) const
 {
     assert(m_systemCallWrapper);
+
+    int fanotify_fd = getFd();
+    if (fanotify_fd < 0)
+    {
+        LOGERROR("Skipping markMount for " << path << " as fanotify disabled");
+        return 0;
+    }
+
     constexpr unsigned int flags = FAN_MARK_ADD | FAN_MARK_MOUNT;
     constexpr uint64_t mask = FAN_CLOSE_WRITE | FAN_OPEN;
     constexpr int dfd = FAN_NOFD;
-    int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, dfd, path.c_str());
+    int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, dfd, path.c_str());
     if (result < 0)
     {
-     processFaMarkError("markMount", path);
+        processFaMarkError("markMount", path);
     }
     return result;
 }
@@ -56,9 +80,17 @@ int FanotifyHandler::markMount(const std::string& path) const
 int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
 {
     assert(m_systemCallWrapper);
+    int fanotify_fd = getFd();
+    if (fanotify_fd < 0)
+    {
+        LOGERROR("Skipping cacheFd for " << path << " as fanotify disabled");
+        return 0;
+    }
+
+
     const unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
     const uint64_t mask = FAN_OPEN;
-    int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, fd, nullptr);
+    int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, fd, nullptr);
     if (result < 0)
     {
         processFaMarkError("cacheFd", path);
@@ -68,6 +100,13 @@ int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
 
 int FanotifyHandler::clearCachedFiles() const
 {
+    int fd = m_fd.fd(); // Don't call getFd() since it will log an error
+    if (fd < 0)
+    {
+        LOGINFO("Clearing cache skipped as fanotify disabled");
+        return 0;
+    }
+
     int result = m_systemCallWrapper->fanotify_mark(getFd(), FAN_MARK_FLUSH, 0, FAN_NOFD, nullptr);
     if (result < 0)
     {
@@ -79,16 +118,11 @@ int FanotifyHandler::clearCachedFiles() const
 void FanotifyHandler::updateComplete()
 {
     LOGINFO("Clearing on-access cache");
-    clearCachedFiles();
+    std::ignore = clearCachedFiles();
     LOGDEBUG("Cleared on-access cache");
 }
 
 void FanotifyHandler::processFaMarkError(const std::string& function, const std::string& path)
 {
-    LOGERROR("fanotify_mark failed: " << function << " : " << common::safer_strerror(errno) << " Path: " << path);
-}
-
-FanotifyHandler::~FanotifyHandler()
-{
-    m_fd.close();
+    LOGERROR("fanotify_mark failed in " << function << ": " << common::safer_strerror(errno) << " for: " << path);
 }
