@@ -227,14 +227,19 @@ time_t ScanScheduler::get_current_time(bool)
 
 void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration config)
 {
-    assert(config.isValid());
+    if(config.isValid())
     {
         const std::lock_guard lock(m_pendingConfigMutex);
         m_pendingConfig = std::move(config);
         assert(m_pendingConfig.isValid());
         m_configIsPending = true;
+        m_updateConfigurationPipe.notify();
     }
-    m_updateConfigurationPipe.notify();
+    else
+    {
+        LOGWARN("Unable to accept policy as scan information is invalid. Following scans wont be run: \n" << config.scanSummary());
+    }
+
 }
 
 void ScanScheduler::updateConfigFromPending()

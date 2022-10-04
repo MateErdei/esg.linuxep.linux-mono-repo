@@ -59,6 +59,8 @@ namespace manager::scheduler
 
         [[nodiscard]] bool isValid() const;
 
+        [[nodiscard]] std::string scanSummary() const;
+
     private:
         std::vector<std::string> m_exclusions;
         std::vector<std::string> m_sophosExtensionExclusions;
