@@ -42,4 +42,4 @@ class OnAccessUtils:
             open(tempfile, "w")
             os.unlink(tempfile)
 
-        raise AssertionError("On-Access not enabled within %d seconds: Logs: %s" % (timeout, "\n".join(log_contents)))
+        raise AssertionError("On-Access not enabled within %d seconds: Logs: %s" % (timeout, "".join(log_contents)))

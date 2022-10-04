@@ -456,11 +456,18 @@ On Access Logs Scan time in TRACE
     Wait Until On Access Log Contains With Offset  Scan for /tmp_test/clean_file_writer/clean.txt completed in
 
 On-access logs if the kernel queue overflows
-    ${soapd_pid} =  Record Soapd Plugin PID
+    # set loglevel to INFO to avoid log rotation due to large number of events
+    Set Log Level  INFO
+    Register Cleanup  Set Log Level  DEBUG
+    Mark On Access Log
+    Terminate On Access
+    Start On Access without Log check
+    Wait Until On Access Log Contains With Offset   Starting scanHandler
+    Sleep  1s
 
     Mark On Access Log
-
     # suspend soapd, so that we stop reading from the kernel queue
+    ${soapd_pid} =  Record Soapd Plugin PID
     Evaluate  os.kill(${soapd_pid}, signal.SIGSTOP)  modules=os, signal
 
     # create 16384 + 1 file events
