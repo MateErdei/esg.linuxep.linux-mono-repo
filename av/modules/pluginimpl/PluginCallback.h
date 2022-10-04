@@ -102,5 +102,9 @@ TEST_PUBLIC:
         long m_threatDetectorServiceStatus = E_HEALTH_STATUS_GOOD;
         long m_soapServiceStatus = E_HEALTH_STATUS_GOOD;
         long m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
+
+        void calculateThreatDetectorHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
+        void calculateSoapHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
+        void calculateSafestoreHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
     };
 } // namespace Plugin

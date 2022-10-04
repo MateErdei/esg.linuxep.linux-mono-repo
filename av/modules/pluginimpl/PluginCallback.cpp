@@ -367,35 +367,13 @@ namespace Plugin
 
     long PluginCallback::calculateHealth(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
-        Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
-        E_HEALTH_STATUS newHealth = E_HEALTH_STATUS_GOOD;
-        if (!common::PidLockFile::isPidFileLocked(threatDetectorPidFile, sysCalls) && !shutdownFileValid())
-        {
-            if(m_threatDetectorServiceStatus == E_HEALTH_STATUS_GOOD)
-            {
-                LOGWARN("Sophos Threat Detector Process is not running, turning service health to red");
-            }
-            newHealth = E_HEALTH_STATUS_BAD;
-        }
+        calculateThreatDetectorHealthStatus(sysCalls);
+        calculateSoapHealthStatus(sysCalls);
+        calculateSafestoreHealthStatus(sysCalls);
 
-        Path soapdPidFile = common::getPluginInstallPath() / "var/soapd.pid";
-        if (!common::PidLockFile::isPidFileLocked(soapdPidFile, sysCalls))
-        {
-            if(m_soapServiceStatus == E_HEALTH_STATUS_GOOD)
-            {
-                LOGWARN("Sophos On Access Process is not running, turning service health to red");
-            }
-            newHealth = E_HEALTH_STATUS_BAD;
-        }
-
-        if (!common::PidLockFile::isPidFileLocked(Plugin::getSafeStorePidPath(), sysCalls) && m_safeStoreEnabled)
-        {
-            if(m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
-            {
-                LOGWARN("Sophos Safestore Process is not running, turning service health to red");
-            }
-            newHealth = E_HEALTH_STATUS_BAD;
-        }
+        auto newHealth = m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD &&
+                         m_soapServiceStatus == E_HEALTH_STATUS_GOOD &&
+                         m_threatDetectorServiceStatus == E_HEALTH_STATUS_GOOD ? E_HEALTH_STATUS_GOOD : E_HEALTH_STATUS_BAD;
 
         if (m_serviceHealth != newHealth)
         {
@@ -403,7 +381,73 @@ namespace Plugin
             LOGINFO("Service Health has changed to: " << message);
         }
 
+        m_serviceHealth = newHealth;
         return newHealth;
+    }
+
+    void PluginCallback::calculateSafestoreHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    {
+        if (!common::PidLockFile::isPidFileLocked(getSafeStorePidPath(), sysCalls) && m_safeStoreEnabled)
+        {
+            if(m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
+            {
+                LOGWARN("Sophos Safestore Process is not running, turning service health to red");
+            }
+            m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
+        }
+        else
+        {
+            if(m_safestoreServiceStatus == E_HEALTH_STATUS_BAD)
+            {
+                LOGINFO("Sophos Safestore Process is running");
+            }
+
+            m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
+        }
+    }
+
+    void PluginCallback::calculateSoapHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    {
+        Path soapdPidFile = common::getPluginInstallPath() / "var/soapd.pid";
+        if (!common::PidLockFile::isPidFileLocked(soapdPidFile, sysCalls))
+        {
+            if(m_soapServiceStatus == E_HEALTH_STATUS_GOOD)
+            {
+                LOGWARN("Sophos On Access Process is not running, turning service health to red");
+            }
+            m_soapServiceStatus = E_HEALTH_STATUS_BAD;
+        }
+        else
+        {
+            if(m_soapServiceStatus == E_HEALTH_STATUS_BAD)
+            {
+                LOGINFO("Sophos On Access Process is running");
+            }
+
+            m_soapServiceStatus = E_HEALTH_STATUS_GOOD;
+        }
+    }
+
+    void PluginCallback::calculateThreatDetectorHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    {
+        Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
+        if (!common::PidLockFile::isPidFileLocked(threatDetectorPidFile, sysCalls) && !shutdownFileValid())
+        {
+            if(m_threatDetectorServiceStatus == E_HEALTH_STATUS_GOOD)
+            {
+                LOGWARN("Sophos Threat Detector Process is not running, turning service health to red");
+            }
+            m_threatDetectorServiceStatus = E_HEALTH_STATUS_BAD;
+        }
+        else
+        {
+            if(m_threatDetectorServiceStatus == E_HEALTH_STATUS_BAD)
+            {
+                LOGINFO("Sophos Threat Detector Process is running");
+            }
+
+            m_threatDetectorServiceStatus = E_HEALTH_STATUS_GOOD;
+        }
     }
 
     std::string PluginCallback::getHealth()

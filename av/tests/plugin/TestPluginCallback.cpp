@@ -854,7 +854,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenA
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, dontLogServiceHealthStatusChangesIfHealthIsAlreadyBad)
+TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
 {
     testing::internal::CaptureStderr();
 
@@ -863,8 +863,8 @@ TEST_F(TestPluginCallback, dontLogServiceHealthStatusChangesIfHealthIsAlreadyBad
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
-    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillRepeatedly(Throw(
         Common::FileSystem::IFileSystemException("Shutdown file read error.")));
 
     int fileDescriptor = 123;
@@ -880,7 +880,6 @@ TEST_F(TestPluginCallback, dontLogServiceHealthStatusChangesIfHealthIsAlreadyBad
         .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)))
         .WillOnce(DoAll(SetArgPointee<2>(safestoreFLock), Return(0)));
 
-    long expectedResult = E_HEALTH_STATUS_BAD;
     m_pluginCallback->setSafeStoreEnabled(true);
     m_pluginCallback->m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
     m_pluginCallback->m_soapServiceStatus = E_HEALTH_STATUS_BAD;
@@ -895,5 +894,27 @@ TEST_F(TestPluginCallback, dontLogServiceHealthStatusChangesIfHealthIsAlreadyBad
     EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Sophos On Access Process is not running, turning service health to red")));
     EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Sophos Threat Detector Process is not running, turning service health to red")));
     EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Service Health has changed to")));
-    ASSERT_EQ(result, expectedResult);
+    ASSERT_EQ(result, E_HEALTH_STATUS_BAD);
+
+    //Now test that we log that service health has been reset
+    testing::internal::CaptureStderr();
+
+    threatDetectorFlock.l_type    = F_RDLCK;
+    soapdFlock.l_type    = F_RDLCK;
+    safestoreFLock.l_type    = F_RDLCK;
+    EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _))
+        .WillOnce(DoAll(SetArgPointee<2>(threatDetectorFlock), Return(0)))
+        .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)))
+        .WillOnce(DoAll(SetArgPointee<2>(safestoreFLock), Return(0)));
+
+    ASSERT_EQ(m_pluginCallback->m_serviceHealth, E_HEALTH_STATUS_BAD);
+    result = m_pluginCallback->calculateHealth(m_mockSysCalls);
+    logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Safestore Process is running"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos On Access Process is running"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Threat Detector Process is running"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Service Health has changed to: green"));
+    ASSERT_EQ(result, E_HEALTH_STATUS_GOOD);
+    //if this succeeds all process service healths are E_HEALTH_STATUS_GOOD
+    ASSERT_EQ(m_pluginCallback->m_serviceHealth, E_HEALTH_STATUS_GOOD);
 }
