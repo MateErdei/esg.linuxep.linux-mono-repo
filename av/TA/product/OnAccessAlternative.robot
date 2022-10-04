@@ -7,7 +7,6 @@ Documentation   Product tests for SOAP
 Force Tags      PRODUCT  SOAP
 
 Resource    ../shared/ErrorMarkers.robot
-Resource    ../shared/FakeManagementResources.robot
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/OnAccessResources.robot
@@ -53,7 +52,6 @@ On Access Test Setup
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
     Register Cleanup  Exclude CustomerID Failed To Read Error
-    Register On Fail  Dump log  ${AV_PLUGIN_PATH}/log/soapd.log
 
 
 On Access Test Teardown
@@ -98,10 +96,10 @@ On Access Log Rotates
     Verify on access log rotated
 
 On Access Process Parses Policy Config
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/","*excluded*"]}
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
     Wait Until On Access Log Contains With Offset  On-access enabled: "true"
     Wait Until On Access Log Contains With Offset  On-access scan network: "true"
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/","*excluded*"]
+    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/"]
 
 On Access Process Parses Flags Config On startup
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
@@ -109,7 +107,7 @@ On Access Process Parses Flags Config On startup
 
     Wait Until Created  ${ONACCESS_FLAG_CONFIG}
 
-    Restart On Access
+    Start On Access
 
     Wait Until On Access Log Contains With Offset   Found Flag config on startup
     Wait Until On Access Log Contains With Offset   Flag is set to not override policy
@@ -132,146 +130,51 @@ On Access Does Not Include Remote Files If Excluded In Policy
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":["/mnt/","/uk-filer5/","*excluded*"]}
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":["/mnt/","/uk-filer5/"]}
     Wait Until On Access Log Contains With Offset  On-access enabled: "true"
     Wait Until On Access Log Contains With Offset  On-access scan network: "false"
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/","*excluded*"]
+    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/"]
 
     Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
     On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
 
 
-On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Policy
+On Access Applies Config Changes When The Mounts Change
+    [Tags]  NFS
+    ${source} =       Set Variable  /tmp_test/nfsshare
+    ${destination} =  Set Variable  /testmnt/nfsshare
+    Create Directory  ${source}
+    Create Directory  ${destination}
+    Create Local NFS Share   ${source}   ${destination}
+    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
+
+    Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
+    ${filepath} =  Set Variable  /testmnt/nfsshare/clean.txt
+    Create File  ${filepath}  clean
+    Register Cleanup  Remove File  ${filepath}
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from Process
     Mark On Access Log
-    ${filepath1} =  Set Variable  /tmp_test/eicar.com
-    ${filepath2} =  Set Variable  /tmp_test/eicar2.com
-    ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/"]  True
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/tmp_test/"]
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":["/mnt/","/uk-filer5/"]}
+    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
+    Wait Until On Access Log Contains With Offset  On-access scan network: "false"
+    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/"]
+
+    Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
+    On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
 
     Mark On Access Log
-    Create File  ${filepath1}  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${filepath1}
-    On Access Log Does Not Contain With Offset  On-close event for ${filepath1} from
-
-    ${policyContent} =  Get Complete Sav Policy  []  True
-    Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: []
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
-
-    Create File  ${filepath2}  ${EICAR_STRING}
+    ${filepath2} =  Set Variable  /testmnt/nfsshare/clean2.txt
+    Create File  ${filepath2}  clean
     Register Cleanup  Remove File  ${filepath2}
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath2} from  timeout=60
 
-
-On Access Does Not Scan Files If They Match Relative Directory Exclusion In Policy
-    Set Log Level  TRACE
-    Register Cleanup       Set Log Level  DEBUG
-    Restart On Access
-    Wait Until On Access Log Contains With Offset  Logger soapd configured for level: TRACE
-
-    Mark On Access Log
-    ${policyContent} =  Get Complete Sav Policy  ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  True
-    Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
-    ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_without_wildcard
-    ${TEST_DIR_WITH_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_with_wildcard
-    Create Directory  ${TEST_DIR_WITHOUT_WILDCARD}
-    Register Cleanup  Remove Directory  ${TEST_DIR_WITHOUT_WILDCARD}  recursive=True
-    Create Directory  ${TEST_DIR_WITH_WILDCARD}
-    Register Cleanup  Remove Directory  ${TEST_DIR_WITH_WILDCARD}  recursive=True
-
-    Mark On Access Log
-    #Relative path to directory
-    Create File     ${TEST_DIR_WITHOUT_WILDCARD}/clean_file                                       ${CLEAN_STRING}
-    Create File     ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar                       ${EICAR_STRING}
-    Create File     ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar_folder/eicar                         ${CLEAN_STRING}
-    #Relative path to directory with wildcard
-    Create File     ${TEST_DIR_WITH_WILDCARD}/dir/subpart/subdir/eicar.com                        ${EICAR_STRING}
-    Create File     ${TEST_DIR_WITH_WILDCARD}/ddir/subpart/subdir/eicar.com                       ${CLEAN_STRING}
-    Create File     ${TEST_DIR_WITH_WILDCARD}/documents/test/subfolder/eicar.com                  ${EICAR_STRING}
-    Create File     ${TEST_DIR_WITH_WILDCARD}/ddocuments/test/subfolder/eicar.com                 ${CLEAN_STRING}
-
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR_WITHOUT_WILDCARD}/clean_file will not be scanned due to exclusion: testdir/folder_without_wildcard/
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar will not be scanned due to exclusion: testdir/folder_without_wildcard/
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar_folder/eicar will not be scanned due to exclusion: testdir/folder_without_wildcard/
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR_WITH_WILDCARD}/dir/subpart/subdir/eicar.com will not be scanned due to exclusion: dir/su*ir/
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR_WITH_WILDCARD}/ddir/subpart/subdir/eicar.com
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR_WITH_WILDCARD}/documents/test/subfolder/eicar.com will not be scanned due to exclusion: do*er/
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR_WITH_WILDCARD}/ddocuments/test/subfolder/eicar.com
-
-
-On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
-    Set Log Level  TRACE
-    Register Cleanup       Set Log Level  DEBUG
-    Restart On Access
-    Wait Until On Access Log Contains With Offset  Logger soapd configured for level: TRACE
-
-    ${TEST_DIR} =   Set Variable  /tmp_test/globExclDir
-    Create Directory  ${TEST_DIR}
-    Register Cleanup  Remove Directory  ${TEST_DIR}  recursive=True
-
-    Mark On Access Log
-    ${exclusionList} =  Set Variable  ["eicar","${TEST_DIR}/eicar.???","${TEST_DIR}/hi_i_am_dangerous.*","${TEST_DIR}/*.js"]
-    ${policyContent} =  Get Complete Sav Policy  ${exclusionList}  True
-    Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ${exclusionList}
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
-
-    Mark On Access Log
-    Create File     ${TEST_DIR}/clean_file.txt             ${CLEAN_STRING}
-    Create File     ${TEST_DIR}/eicar                      ${EICAR_STRING}
-    #Absolute path with character suffix
-    Create File     ${TEST_DIR}/eicar.com                  ${EICAR_STRING}
-    Create File     ${TEST_DIR}/eicar.comm                 ${CLEAN_STRING}
-    Create File     ${TEST_DIR}/eicar.co                   ${CLEAN_STRING}
-    #Absolute path with filename prefix
-    Create File     ${TEST_DIR}/hi_i_am_dangerous.txt      ${EICAR_STRING}
-    Create File     ${TEST_DIR}/hi_i_am_dangerous.exe      ${EICAR_STRING}
-    Create File     ${TEST_DIR}/hi_i_am_dangerous          ${CLEAN_STRING}
-    #Absolute path with filename suffix
-    Create File     ${TEST_DIR}/bird.js                    ${EICAR_STRING}
-    Create File     ${TEST_DIR}/exe.js                     ${EICAR_STRING}
-    Create File     ${TEST_DIR}/clean_file.jss             ${CLEAN_STRING}
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR}/clean_file.txt
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/eicar will not be scanned due to exclusion: eicar
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/eicar.com will not be scanned due to exclusion: ${TEST_DIR}/eicar.???
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR}/eicar.comm
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR}/eicar.co
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/hi_i_am_dangerous.txt will not be scanned due to exclusion: ${TEST_DIR}/hi_i_am_dangerous.*
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/hi_i_am_dangerous.exe will not be scanned due to exclusion: ${TEST_DIR}/hi_i_am_dangerous.*
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR}/hi_i_am_dangerous
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/bird.js will not be scanned due to exclusion: ${TEST_DIR}/*.js
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/exe.js will not be scanned due to exclusion: ${TEST_DIR}/*.js
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR}/clean_file.jss
-
-
-On Access Does Not Monitor A Mount Point If It Matches An Exclusion In Policy
-    ${policyContent} =  Get Complete Sav Policy  ["/"]  True
-    Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/"]
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
-    Wait Until On Access Log Contains With Offset  Mount point / matches an exclusion in the policy and will be excluded from the scan
-
-
-On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In Policy
-    ${source} =       Set Variable  /tmp_test/src_file
-    ${destination} =  Set Variable  /tmp_test/bind_mount
-    Register Cleanup  Remove Directory   /tmp_test   recursive=true
-    Remove Directory  /tmp_test   recursive=true
-    Create File  ${source}
-    Create File  ${destination}
-
-    Run Shell Process   mount --bind ${source} ${destination}     OnError=Failed to create bind mount
-    Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release bind mount
-
-    ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/bind_mount"]  True
-    Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/tmp_test/bind_mount"]
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
-    Wait Until On Access Log Contains With Offset  Mount point /tmp_test/bind_mount matches an exclusion in the policy and will be excluded from the scan
+    On Access Log Does Not Contain With Offset  On-close event for ${filepath2} from Process
 
 
 On Access Monitors Addition And Removal Of Mount Points
@@ -280,10 +183,10 @@ On Access Monitors Addition And Removal Of Mount Points
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  ext2
     Mark On Access Log
-    Restart On Access
+    Start On Access
     Wait Until On Access Log Contains With Offset  Including mount point:
     On Access Log Does Not Contain With Offset  Including mount point: ${where}
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    Sleep  1s
     ${numMountsPreMount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
 
     Mark On Access Log
@@ -371,7 +274,7 @@ On Access Uses Policy Settings If Flags Dont Override Policy
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
     Wait Until On Access Log Contains With Offset   No policy override, following policy settings
-    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/","*excluded*"]}
+    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
 
     On-access Scan Eicar Close
 
@@ -385,7 +288,7 @@ On Access Is Disabled After it Receives Disable Flags
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/","*excluded*"]}
+    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
@@ -394,6 +297,8 @@ On Access Is Disabled After it Receives Disable Flags
     Wait Until On Access Log Contains With Offset   Stopping the reading of Fanotify events
 
     On-access No Eicar Scan
+
+    Dump Log  ${on_access_log_path}
 
 
 On Access Does not Use Policy Settings If Flags Have Overriden Policy
@@ -408,6 +313,8 @@ On Access Does not Use Policy Settings If Flags Have Overriden Policy
 
     Wait Until On Access Log Contains With Offset   Overriding policy, on-access will be disabled
     On-access No Eicar Scan
+
+    Dump Log  ${on_access_log_path}
 
 
 On Access Process Reconnects To Threat Detector
@@ -454,30 +361,3 @@ On Access Logs Scan time in TRACE
     Register Cleanup  Remove File  ${filepath}
 
     Wait Until On Access Log Contains With Offset  Scan for /tmp_test/clean_file_writer/clean.txt completed in
-
-On-access logs if the kernel queue overflows
-    # set loglevel to INFO to avoid log rotation due to large number of events
-    Set Log Level  INFO
-    Register Cleanup  Set Log Level  DEBUG
-    Mark On Access Log
-    Terminate On Access
-    Start On Access without Log check
-    Wait Until On Access Log Contains With Offset   Starting scanHandler
-    Sleep  1s
-
-    Mark On Access Log
-    # suspend soapd, so that we stop reading from the kernel queue
-    ${soapd_pid} =  Record Soapd Plugin PID
-    Evaluate  os.kill(${soapd_pid}, signal.SIGSTOP)  modules=os, signal
-
-    # create 16384 + 1 file events
-    Create Directory   /tmp_test
-    Register Cleanup   Remove Directory   /tmp_test   recursive=True
-    Run Shell Process
-    ...   for i in `seq 0 1 16384`; do echo clean > /tmp_test/clean_file_\$i; done
-    ...   OnError=Failed to create clean files
-
-    # resume soapd
-    Evaluate  os.kill(${soapd_pid}, signal.SIGCONT)  modules=os, signal
-
-    Wait Until On Access Log Contains With Offset   Fanotify queue overflowed, some files will not be scanned.

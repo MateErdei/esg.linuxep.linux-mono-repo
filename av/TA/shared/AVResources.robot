@@ -877,7 +877,7 @@ Remove ext2 mount
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}
     Copy File If Destination Missing  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp
-    Ensure List appears once   ${EXPORT_FILE}  ${source} localhost(rw,sync,no_subtree_check)\n
+    Ensure List appears once   ${EXPORT_FILE}  ${source} localhost(rw,sync,no_subtree_check,no_root_squash)\n
     Register On Fail  Run Process  systemctl  status  nfs-server
     Run Shell Process   systemctl restart nfs-server            OnError=Failed to restart NFS server
     Run Shell Process   mount -t nfs localhost:${source} ${destination}   OnError=Failed to mount local NFS share
