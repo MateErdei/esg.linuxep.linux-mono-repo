@@ -216,7 +216,7 @@ Update then Restart Sophos Threat Detector
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Mark Susi Debug Log
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
-    Wait Until SUSI DEBUG Log Contains With Offset   Performing SUSI update
+    Wait Until SUSI DEBUG Log Contains With Offset   Performing SUSI update  30
 
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     Mark Sophos Threat Detector Log
