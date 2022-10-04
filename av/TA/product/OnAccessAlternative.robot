@@ -141,6 +141,7 @@ On Access Does Not Include Remote Files If Excluded In Policy
 
 On Access Applies Config Changes When The Mounts Change
     [Tags]  NFS
+    Wait Until On Access Log Contains With Offset  Fanotify successfully initialised
     ${source} =       Set Variable  /tmp_test/nfsshare
     ${destination} =  Set Variable  /testmnt/nfsshare
     Create Directory  ${source}
@@ -158,14 +159,8 @@ On Access Applies Config Changes When The Mounts Change
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
-
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":["/mnt/","/uk-filer5/"]}
     Wait Until On Access Log Contains With Offset  On-access enabled: "true"
     Wait Until On Access Log Contains With Offset  On-access scan network: "false"
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/"]
-
     Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
     On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
 
@@ -175,6 +170,22 @@ On Access Applies Config Changes When The Mounts Change
     Register Cleanup  Remove File  ${filepath2}
 
     On Access Log Does Not Contain With Offset  On-close event for ${filepath2} from Process
+
+    Mark On Access Log
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
+    Wait Until On Access Log Contains With Offset  On-access scan network: "true"
+    Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
+    Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
+
+    Mark On Access Log
+    ${filepath3} =  Set Variable  /testmnt/nfsshare/clean3.txt
+    Create File  ${filepath3}  clean
+    Register Cleanup  Remove File  ${filepath3}
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${filepath3} from Process
 
 
 On Access Monitors Addition And Removal Of Mount Points

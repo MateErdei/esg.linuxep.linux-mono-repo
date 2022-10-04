@@ -12,6 +12,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 log4cplus::Logger& getMountMonitorLogger();
 
+#define LOGTRACE(x) LOG4CPLUS_TRACE(getMountMonitorLogger(), x)  // NOLINT
 #define LOGDEBUG(x) LOG4CPLUS_DEBUG(getMountMonitorLogger(), x)  // NOLINT
 #define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getMountMonitorLogger(), x) // NOLINT
 #define LOGINFO(x) LOG4CPLUS_INFO(getMountMonitorLogger(), x)    // NOLINT

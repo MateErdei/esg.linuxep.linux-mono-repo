@@ -41,6 +41,11 @@ void FanotifyHandler::init()
     LOGDEBUG("Fanotify FD set to " << fanotify_autofd->fd());
 }
 
+bool FanotifyHandler::isInitialised() const
+{
+    return m_fd.valid();
+}
+
 void FanotifyHandler::close()
 {
     auto fanotify_autofd = m_fd.lock();
@@ -76,6 +81,28 @@ int FanotifyHandler::markMount(const std::string& path) const
     constexpr int dfd = FAN_NOFD;
     int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, dfd, path.c_str());
     return processFaMarkError(result, "markMount", path);
+}
+
+int FanotifyHandler::unmarkMount(const std::string& path) const
+{
+    assert(m_systemCallWrapper);
+
+    int fanotify_fd = getFd();
+    if (fanotify_fd < 0)
+    {
+        LOGERROR("Skipping unmarkMount for " << path << " as fanotify disabled");
+        return 0;
+    }
+
+    constexpr unsigned int flags = FAN_MARK_REMOVE | FAN_MARK_MOUNT;
+    constexpr uint64_t mask = FAN_CLOSE_WRITE | FAN_OPEN;
+    constexpr int dfd = FAN_NOFD;
+    int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, dfd, path.c_str());
+    if (result < 0 && errno != ENOENT)
+    {
+        processFaMarkError("unmarkMount", path);
+    }
+    return result;
 }
 
 int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const

@@ -34,6 +34,10 @@ namespace
         {
             return 0;
         }
+        [[nodiscard]] int unmarkMount(const std::string&) const override
+        {
+            return 0;
+        }
         [[nodiscard]] int cacheFd(const int&, const std::string&) const override
         {
             return 0;
@@ -41,6 +45,10 @@ namespace
         [[nodiscard]] int clearCachedFiles() const override
         {
             return 0;
+        }
+        [[nodiscard]] bool isInitialised() const override
+        {
+            return true;
         }
     };
 }

@@ -7,6 +7,7 @@
 #include "common/SaferStrerror.h"
 #include "datatypes/AutoFd.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
+#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 
 #include <sstream>
 
@@ -18,21 +19,20 @@ namespace mount_monitor::mount_monitor
         OnAccessMountConfig& config,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
         fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
-        mountinfo::ISystemPathsFactorySharedPtr sysPathsFactory,
         struct timespec pollTimeout)
     : m_config(config)
     , m_sysCalls(std::move(systemCallWrapper))
     , m_fanotifyHandler(std::move(fanotifyHandler))
-    , m_sysPathsFactory(sysPathsFactory)
     , m_pollTimeout(pollTimeout)
     {
     }
 
     mountinfo::IMountPointSharedVector MountMonitor::getAllMountpoints()
     {
+        auto pathsFactory = std::make_shared<mountinfoimpl::SystemPathsFactory>();
         try
         {
-            auto mountInfo = std::make_shared<mountinfoimpl::Mounts>(m_sysPathsFactory->createSystemPaths());
+            auto mountInfo = std::make_shared<mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
             auto allMountpoints = mountInfo->mountPoints();
             LOGINFO("Found " << allMountpoints.size() << " mount points on the system");
             return allMountpoints;
@@ -121,38 +121,48 @@ namespace mount_monitor::mount_monitor
 
     void MountMonitor::updateConfig(std::vector<common::Exclusion> exclusions, bool excludeRemoteFiles)
     {
-        if (setExclusions(exclusions) || setExcludeRemoteFiles(excludeRemoteFiles))
+        bool exclusionsChanged = setExclusions(exclusions);
+        bool remoteFileScanningChanged = setExcludeRemoteFiles(excludeRemoteFiles);
+        if (m_fanotifyHandler->isInitialised() && (exclusionsChanged || remoteFileScanningChanged))
         {
             LOGINFO("OA config changed, re-enumerating mount points");
-            auto includedMountpoints = getIncludedMountpoints(getAllMountpoints());
-            for (const auto& mp : includedMountpoints)
-            {
-                LOGDEBUG("Including mount point: " << mp->mountPoint());
-            }
-            LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
+            markMounts(getAllMountpoints());
         }
     }
 
-    void MountMonitor::markMounts(const mountinfo::IMountPointSharedVector& mounts)
+    void MountMonitor::markMounts(const mountinfo::IMountPointSharedVector& allMounts)
     {
-        LOGDEBUG("Including " << mounts.size() << " mount points in on-access scanning");
-        for (const auto& mount: mounts)
+        int count = 0;
+        for (const auto& mount: allMounts)
         {
             std::string mountPointStr = mount->mountPoint();
-            int ret = m_fanotifyHandler->markMount(mountPointStr);
-            if (ret == -1)
+            if (isIncludedFilesystemType(mount) && isIncludedMountpoint(mount))
             {
-                LOGWARN("Unable to mark fanotify for mount point " << mountPointStr << ": " << common::safer_strerror(errno) << ". On Access Scanning disabled on the mount");
-                return;
+                int ret = m_fanotifyHandler->markMount(mountPointStr);
+                if (ret == -1)
+                {
+                    LOGWARN(
+                        "Unable to mark fanotify for mount point " << mountPointStr << ": "
+                                                                   << common::safer_strerror(errno)
+                                                                   << ". On Access Scanning disabled on the mount");
+                    continue;
+                }
+                count++;
+                LOGDEBUG("Including mount point: " << mountPointStr);
             }
-            LOGDEBUG("Including mount point: " << mountPointStr);
+            else
+            {
+                m_fanotifyHandler->unmarkMount(mountPointStr);
+                LOGTRACE("Excluding mount point: " << mountPointStr);
+            }
         }
+        LOGDEBUG("Including " << count << " mount points in on-access scanning");
     }
 
     void MountMonitor::run()
     {
         // work out which filesystems are included based of config and mount information
-        markMounts(getIncludedMountpoints(getAllMountpoints()));
+        markMounts(getAllMountpoints());
 
         LOGDEBUG("Setting poll timeout to " << m_pollTimeout.tv_sec << " seconds");
 
@@ -217,7 +227,7 @@ namespace mount_monitor::mount_monitor
                 // Will override previous marks for same mounts
                 // Fanotify automatically unmarks mounts that are unmounted
                 LOGINFO("Mount points changed - re-evaluating");
-                markMounts(getIncludedMountpoints(getAllMountpoints()));
+                markMounts(getAllMountpoints());
             }
         }
     }
