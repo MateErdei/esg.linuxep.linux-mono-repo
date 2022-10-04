@@ -59,7 +59,7 @@ namespace manager::scheduler
 
         [[nodiscard]] bool isValid() const
         {
-            return !m_scanNowScan.name().empty();
+            return m_scanNowScan.valid();
         }
 
     private:
