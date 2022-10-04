@@ -57,10 +57,7 @@ namespace manager::scheduler
             return m_scanNowScan;
         }
 
-        [[nodiscard]] bool isValid() const
-        {
-            return m_scanNowScan.valid();
-        }
+        [[nodiscard]] bool isValid() const;
 
     private:
         std::vector<std::string> m_exclusions;

@@ -356,6 +356,130 @@ TEST_F(TestScheduledScanConfiguration, justOndemandPolicy) // NOLINT
     EXPECT_EQ(exclusions.at(0),"Exclusion1");
 }
 
+
+TEST_F(TestScheduledScanConfiguration, invalidTimeMakesScanConfigInvalid) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+        R"MULTILINE(<?xml version="1.0"?>
+        <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+          <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+          <onDemandScan>
+           <scanSet>
+                <!-- if {{scheduledScanEnabled}} -->
+                <scan>
+                    <name>Sophos Cloud Scheduled Scan</name>
+                <schedule>
+                <daySet>
+                    <!-- for day in {{scheduledScanDays}} -->
+                    <day>monday</day>
+                </daySet>
+                <timeSet>
+                    <time>{{scheduledScanTime}}</time>
+                </timeSet>
+                </schedule>
+                <settings>
+                <scanObjectSet>
+                <CDDVDDrives>false</CDDVDDrives>
+                <hardDrives>true</hardDrives>
+                <networkDrives>false</networkDrives>
+                <removableDrives>false</removableDrives>
+                <kernelMemory>true</kernelMemory>
+                </scanObjectSet>
+                <scanBehaviour>
+                <level>normal</level>
+                <archives>{{scheduledScanArchives}}</archives>
+                <pua>true</pua>
+                <suspiciousFileDetection>false</suspiciousFileDetection>
+                <scanForMacViruses>false</scanForMacViruses>
+                <anti-rootkits>true</anti-rootkits>
+                </scanBehaviour>
+                <actions>
+                    <disinfect>true</disinfect>
+                    <puaRemoval>false</puaRemoval>
+                    <fileAction>doNothing</fileAction>
+                    <destination/>
+                    <suspiciousFiles>
+                      <fileAction>doNothing</fileAction>
+                      <destination/>
+                    </suspiciousFiles>
+                </actions>
+                <on-demand-options>
+                <minimise-scan-impact>true</minimise-scan-impact>
+                </on-demand-options>
+                </settings>
+                </scan>
+                </scanSet>
+          </onDemandScan>
+        </config>
+        )MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    EXPECT_EQ(m->scans().size(), 1);
+    EXPECT_FALSE(m->isValid());
+}
+
+
+TEST_F(TestScheduledScanConfiguration, invalidDayMakesScanConfigInvalid) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+        R"MULTILINE(<?xml version="1.0"?>
+        <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+          <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+          <onDemandScan>
+           <scanSet>
+                <!-- if {{scheduledScanEnabled}} -->
+                <scan>
+                    <name>Sophos Cloud Scheduled Scan</name>
+                <schedule>
+                <daySet>
+                    <!-- for day in {{scheduledScanDays}} -->
+                    <day>{{day}}</day>
+                </daySet>
+                <timeSet>
+                    <time>00:00:00</time>
+                </timeSet>
+                </schedule>
+                <settings>
+                <scanObjectSet>
+                <CDDVDDrives>false</CDDVDDrives>
+                <hardDrives>true</hardDrives>
+                <networkDrives>false</networkDrives>
+                <removableDrives>false</removableDrives>
+                <kernelMemory>true</kernelMemory>
+                </scanObjectSet>
+                <scanBehaviour>
+                <level>normal</level>
+                <archives>{{scheduledScanArchives}}</archives>
+                <pua>true</pua>
+                <suspiciousFileDetection>false</suspiciousFileDetection>
+                <scanForMacViruses>false</scanForMacViruses>
+                <anti-rootkits>true</anti-rootkits>
+                </scanBehaviour>
+                <actions>
+                    <disinfect>true</disinfect>
+                    <puaRemoval>false</puaRemoval>
+                    <fileAction>doNothing</fileAction>
+                    <destination/>
+                    <suspiciousFiles>
+                      <fileAction>doNothing</fileAction>
+                      <destination/>
+                    </suspiciousFiles>
+                </actions>
+                <on-demand-options>
+                <minimise-scan-impact>true</minimise-scan-impact>
+                </on-demand-options>
+                </settings>
+                </scan>
+                </scanSet>
+          </onDemandScan>
+        </config>
+        )MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    EXPECT_EQ(m->scans().size(), 1);
+    EXPECT_FALSE(m->isValid());
+}
+
 TEST_F(TestScheduledScanConfiguration, multipleExclusions) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(

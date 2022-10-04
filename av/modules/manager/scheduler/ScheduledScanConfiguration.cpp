@@ -6,6 +6,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScheduledScanConfiguration.h"
 
+#include <algorithm>
+
 using namespace manager::scheduler;
 
 /*
@@ -352,4 +354,14 @@ ScheduledScanConfiguration::ScheduledScanConfiguration(Common::XmlUtilities::Att
     }
 
     m_scanNowScan = ScheduledScan("Scan Now");
+}
+
+
+
+ bool ScheduledScanConfiguration::isValid() const
+{
+    auto invalidScanConfig = std::find_if(m_scans.cbegin(), m_scans.cend(), [](ScheduledScan scheduledScan){
+                                              return !scheduledScan.valid();});
+
+    return m_scanNowScan.valid() && invalidScanConfig == m_scans.cend();
 }

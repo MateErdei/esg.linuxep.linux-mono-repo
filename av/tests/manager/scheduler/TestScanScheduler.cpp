@@ -67,6 +67,57 @@ namespace
                             </config>
                             )MULTILINE");
 
+        Common::XmlUtilities::AttributesMap m_invalidDayScheduledScanPolicy = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+                            <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+                              <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+                              <onDemandScan>
+                                <scanSet>
+                                  <!-- if {{scheduledScanEnabled}} -->
+                                  <scan>
+                                    <name>Another scan!</name>
+                                    <schedule>
+                                      <daySet>
+                                        <!-- for day in {{scheduledScanDays}} -->
+                                        <day>holiday</day>
+                                      </daySet>
+                                      <timeSet>
+                                        <time>20:00:00</time>
+                                      </timeSet>
+                                    </schedule>
+                                   </scan>
+                                </scanSet>
+                                <fileReputation>{{fileReputationCollectionDuringOnDemandScan}}</fileReputation>
+                              </onDemandScan>
+                            </config>
+                            )MULTILINE");
+
+
+        Common::XmlUtilities::AttributesMap m_invalidTimeScheduledScanPolicy = Common::XmlUtilities::parseXml(
+            R"MULTILINE(<?xml version="1.0"?>
+                            <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+                              <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+                              <onDemandScan>
+                                <scanSet>
+                                  <!-- if {{scheduledScanEnabled}} -->
+                                  <scan>
+                                    <name>Another scan!</name>
+                                    <schedule>
+                                      <daySet>
+                                        <!-- for day in {{scheduledScanDays}} -->
+                                        <day>friday</day>
+                                      </daySet>
+                                      <timeSet>
+                                        <time>whatisthismadness</time>
+                                      </timeSet>
+                                    </schedule>
+                                   </scan>
+                                </scanSet>
+                                <fileReputation>{{fileReputationCollectionDuringOnDemandScan}}</fileReputation>
+                              </onDemandScan>
+                            </config>
+                            )MULTILINE");
+
         Common::XmlUtilities::AttributesMap m_emptyPolicy = Common::XmlUtilities::parseXml(
                 R"MULTILINE(<?xml version="1.0"?>
                             <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
@@ -415,4 +466,22 @@ TEST_F(TestScanScheduler, runsScheduledScanAndScanNow)
     // Check the actual script only ran twice
     auto log_lines = fileWalker.readLog();
     EXPECT_THAT(log_lines, testing::SizeIs(2));
+}
+
+TEST_F(TestScanScheduler, invalidTime)
+{
+    FakeScanCompletion scanCompletion;
+    ScanScheduler scheduler{scanCompletion};
+
+    ScheduledScanConfiguration scheduledScanConfiguration(m_invalidTimeScheduledScanPolicy);
+    scheduler.updateConfig(scheduledScanConfiguration);
+}
+
+TEST_F(TestScanScheduler, invalidDay)
+{
+    FakeScanCompletion scanCompletion;
+    ScanScheduler scheduler{scanCompletion};
+
+    ScheduledScanConfiguration scheduledScanConfiguration(m_invalidDayScheduledScanPolicy);
+    scheduler.updateConfig(scheduledScanConfiguration);
 }
