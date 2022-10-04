@@ -41,6 +41,12 @@ namespace
                         <day>not a day</day>
                     </daySet>)MULTILINE");
 
+            Common::XmlUtilities::AttributesMap m_one_invalid_day = Common::XmlUtilities::parseXml(
+                R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
+                    <daySet>
+                        <day>not a day</day>
+                    </daySet>)MULTILINE");
+
             Common::XmlUtilities::AttributesMap m_sunday = Common::XmlUtilities::parseXml(
                     R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
                     <daySet>
@@ -106,4 +112,25 @@ TEST_F(TestDaySet, getNextScanTimeDeltaNoDays) // NOLINT
     ::localtime_r(&now, &now_struct);
 
     EXPECT_THROW(set.getNextScanTimeDelta(now_struct, true), std::out_of_range);
+}
+
+TEST_F(TestDaySet, returnsInvalidIfDaySetHasAInvalidEntry)
+{
+    DaySet set(m_days_invalid, "daySet/day");
+    EXPECT_EQ(set.size(), 8);
+    EXPECT_EQ(set.isValid(), false);
+}
+
+TEST_F(TestDaySet, returnsInvalidIfDaySetSizeOneIsInvalid)
+{
+    DaySet set(m_one_invalid_day, "daySet/day");
+    EXPECT_EQ(set.size(), 1);
+    EXPECT_EQ(set.isValid(), false);
+}
+
+TEST_F(TestDaySet, returnsValidWhenDaysAreValid)
+{
+    DaySet set(m_days, "daySet/day");
+    EXPECT_EQ(set.size(), 7);
+    EXPECT_EQ(set.isValid(), true);
 }

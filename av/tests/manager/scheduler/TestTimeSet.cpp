@@ -26,6 +26,24 @@ namespace
                             <time>23:00:00</time>
                         </timeSet>)MULTILINE");
 
+            Common::XmlUtilities::AttributesMap m_a_invalid_time = Common::XmlUtilities::parseXml(
+                R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
+                        <timeSet>
+                            <time>imnotatime</time>
+                            <time>01:00:00</time>
+                            <time>03:00:00</time>
+                            <time>04:00:00</time>
+                            <time>18:00:00</time>
+                            <time>22:00:00</time>
+                            <time>23:00:00</time>
+                        </timeSet>)MULTILINE");
+
+            Common::XmlUtilities::AttributesMap m_just_invalid_time = Common::XmlUtilities::parseXml(
+                R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
+                        <timeSet>
+                            <time>imnotatime</time>
+                        </timeSet>)MULTILINE");
+
         Common::XmlUtilities::AttributesMap m_time_empty = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
                         <timeSet />)MULTILINE");
@@ -187,4 +205,25 @@ TEST_F(TestTimeSet, stillDueTodaySecondComparisonReturnsFalse) //NOLINT
     now_struct.tm_min = 35;
     now_struct.tm_sec = 54;
     ASSERT_FALSE(fakeScanTime.stillDueToday(now_struct));
+}
+
+TEST_F(TestTimeSet, onlyInvalidTime)
+{
+    TimeSet set(m_just_invalid_time, "timeSet/time");
+    EXPECT_EQ(set.size(), 1);
+    ASSERT_EQ(set.isValid(), false);
+}
+
+TEST_F(TestTimeSet, mixValidInvalidTimes)
+{
+    TimeSet set(m_a_invalid_time, "timeSet/time");
+    EXPECT_EQ(set.size(), 7);
+    ASSERT_EQ(set.isValid(), false);
+}
+
+TEST_F(TestTimeSet, validTimes)
+{
+    TimeSet set(m_time, "timeSet/time");
+    EXPECT_EQ(set.size(), 7);
+    ASSERT_EQ(set.isValid(), true);
 }

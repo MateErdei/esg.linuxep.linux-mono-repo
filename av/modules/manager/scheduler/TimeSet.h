@@ -22,10 +22,12 @@ namespace manager::scheduler
         [[nodiscard]] int second() const { return m_second;}
         bool operator<(const Time& rhs) const;
         [[nodiscard]] bool stillDueToday(const struct tm& now) const;
+        [[nodiscard]] bool isValid() const { return m_isValid; }
     private:
         int m_hour;
         int m_minute;
         int m_second;
+        bool m_isValid = true;
     };
 
     class TimeSet
@@ -46,6 +48,8 @@ namespace manager::scheduler
         Time getNextTime(const struct tm& now, bool& forceTomorrow) const;
 
         [[nodiscard]] std::string str() const;
+
+        [[nodiscard]] bool isValid() const;
 
     private:
         std::vector<Time> m_times;

@@ -30,6 +30,10 @@ Time::Time(const std::string& time)
     std::stringstream ist(time);
     std::tm time_buffer{};
     ist >> std::get_time(&time_buffer, "%H:%M:%S");
+    if (ist.fail())
+    {
+        m_isValid = false;
+    }
     m_hour = time_buffer.tm_hour; // NOLINT(cppcoreguidelines-prefer-member-initializer)
     m_minute = time_buffer.tm_min; // NOLINT(cppcoreguidelines-prefer-member-initializer)
     m_second = time_buffer.tm_sec; // NOLINT(cppcoreguidelines-prefer-member-initializer)
@@ -108,4 +112,10 @@ std::string TimeSet::str() const
         returnString += time.str() + " ";
     }
     return returnString;
+}
+
+bool TimeSet::isValid() const
+{
+    auto foundInvalid = std::find_if(m_times.begin(), m_times.end(), [](Time _t) { return !_t.isValid();});
+    return foundInvalid != m_times.cend() ? false : true;
 }

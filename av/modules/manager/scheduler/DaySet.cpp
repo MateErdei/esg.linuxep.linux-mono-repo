@@ -136,3 +136,9 @@ std::string DaySet::str() const
     }
     return returnString;
 }
+
+bool DaySet::isValid() const
+{
+    auto foundInvalid = std::find_if(m_days.begin(), m_days.end(), [](Day _d) { return _d == INVALID;});
+    return foundInvalid != m_days.cend() ? false : true;
+}

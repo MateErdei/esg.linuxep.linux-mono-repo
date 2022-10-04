@@ -42,6 +42,8 @@ namespace manager::scheduler
 
         [[nodiscard]] std::string str() const;
 
+        [[nodiscard]] bool isValid() const;
+
     private:
         std::vector<Day> m_days;
     };
