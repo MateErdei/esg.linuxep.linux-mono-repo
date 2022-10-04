@@ -6,6 +6,10 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 #include "HealthStatus.h"
 #include "QueueTask.h"
 
@@ -93,5 +97,10 @@ namespace Plugin
         bool m_lookupEnabled = true;
         int m_allowedShutdownTime = 60;
         long m_threatStatus = E_THREAT_HEALTH_STATUS_GOOD;
+TEST_PUBLIC:
+        long m_serviceHealth = E_HEALTH_STATUS_GOOD;
+        long m_threatDetectorServiceStatus = E_HEALTH_STATUS_GOOD;
+        long m_soapServiceStatus = E_HEALTH_STATUS_GOOD;
+        long m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
     };
 } // namespace Plugin

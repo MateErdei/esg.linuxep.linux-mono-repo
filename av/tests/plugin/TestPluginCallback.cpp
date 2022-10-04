@@ -1,5 +1,7 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
+# define TEST_PUBLIC public
+
 #include "pluginimpl/PluginCallback.h"
 #include "pluginimpl/QueueTask.h"
 
@@ -493,10 +495,17 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnThreatDete
     EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
         Common::FileSystem::IFileSystemException("Shutdown file read error.")));
     int fileDescriptor = 123;
-    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillOnce(Return(fileDescriptor));
-    struct flock fl;
-    fl.l_type    = F_UNLCK;
-    EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _)).WillOnce(DoAll(SetArgPointee<2>(fl), Return(0)));
+    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
+    struct flock threatDetectorFlock;
+    threatDetectorFlock.l_type    = F_UNLCK;
+    struct flock soapdFlock;
+    soapdFlock.l_type    = F_RDLCK;
+    struct flock safestoreFLock;
+    safestoreFLock.l_type    = F_RDLCK;
+    EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _))
+        .WillOnce(DoAll(SetArgPointee<2>(threatDetectorFlock), Return(0)))
+        .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)))
+        .WillOnce(DoAll(SetArgPointee<2>(safestoreFLock), Return(0)));
 
     long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
@@ -504,6 +513,8 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnThreatDete
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Lock acquired on PID file "));
     EXPECT_THAT(logMessage, ::testing::HasSubstr(" assume process not running"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Threat Detector Process is not running, turning service health to red"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Service Health has changed to: red"));
     ASSERT_EQ(result, expectedResult);
 }
 
@@ -522,9 +533,12 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSoapdPidFi
     threatDetectorFlock.l_type    = F_RDLCK;
     struct flock soapdFlock;
     soapdFlock.l_type    = F_UNLCK;
+    struct flock safestoreFLock;
+    safestoreFLock.l_type    = F_RDLCK;
     EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _))
         .WillOnce(DoAll(SetArgPointee<2>(threatDetectorFlock), Return(0)))
-        .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)));
+        .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)))
+        .WillOnce(DoAll(SetArgPointee<2>(safestoreFLock), Return(0)));
 
     long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
@@ -532,6 +546,42 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSoapdPidFi
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Lock acquired on PID file "));
     EXPECT_THAT(logMessage, ::testing::HasSubstr(" assume process not running"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos On Access Process is not running, turning service health to red"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Service Health has changed to: red"));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSafestorePidFile)
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    int fileDescriptor = 123;
+    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
+    struct flock threatDetectorFlock;
+    threatDetectorFlock.l_type    = F_RDLCK;
+    struct flock soapdFlock;
+    soapdFlock.l_type    = F_RDLCK;
+    struct flock safestoreFLock;
+    safestoreFLock.l_type    = F_UNLCK;
+    EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _))
+        .WillOnce(DoAll(SetArgPointee<2>(threatDetectorFlock), Return(0)))
+        .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)))
+        .WillOnce(DoAll(SetArgPointee<2>(safestoreFLock), Return(0)));
+
+    long expectedResult = E_HEALTH_STATUS_BAD;
+    m_pluginCallback->setSafeStoreEnabled(true);
+    long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Lock acquired on PID file "));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr(" assume process not running"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Safestore Process is not running, turning service health to red"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Service Health has changed to: red"));
     ASSERT_EQ(result, expectedResult);
 }
 
@@ -801,5 +851,49 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenA
 
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Error reading threat detector stat proc file due to: "));
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, logServiceHealthGoneBadOnlyIfCurrentHealthIsGood)
+{
+    testing::internal::CaptureStderr();
+
+    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
+        Common::FileSystem::IFileSystemException("Shutdown file read error.")));
+
+    int fileDescriptor = 123;
+    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
+    struct flock threatDetectorFlock;
+    threatDetectorFlock.l_type    = F_UNLCK;
+    struct flock soapdFlock;
+    soapdFlock.l_type    = F_UNLCK;
+    struct flock safestoreFLock;
+    safestoreFLock.l_type    = F_UNLCK;
+    EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _))
+        .WillOnce(DoAll(SetArgPointee<2>(threatDetectorFlock), Return(0)))
+        .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)))
+        .WillOnce(DoAll(SetArgPointee<2>(safestoreFLock), Return(0)));
+
+    long expectedResult = E_HEALTH_STATUS_BAD;
+    m_pluginCallback->setSafeStoreEnabled(true);
+    m_pluginCallback->m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
+    m_pluginCallback->m_soapServiceStatus = E_HEALTH_STATUS_BAD;
+    m_pluginCallback->m_threatDetectorServiceStatus = E_HEALTH_STATUS_BAD;
+    m_pluginCallback->m_serviceHealth = E_HEALTH_STATUS_BAD;
+    long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Lock acquired on PID file "));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr(" assume process not running"));
+    EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Sophos Safestore Process is not running, turning service health to red")));
+    EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Sophos On Access Process is not running, turning service health to red")));
+    EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Sophos Threat Detector Process is not running, turning service health to red")));
+    EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Service Health has changed to: red")));
     ASSERT_EQ(result, expectedResult);
 }
