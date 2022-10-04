@@ -5,6 +5,7 @@ add_subdirectory(ObfuscationImpl)
 sophos_add_library(pluginimpl SHARED
         HealthStatus.cpp
         HealthStatus.h
+        IDetectionReportProcessor.h
         PolicyProcessor.cpp
         PolicyProcessor.h
         PolicyWaiter.cpp
@@ -13,10 +14,14 @@ sophos_add_library(pluginimpl SHARED
         PluginCallback.h
         QueueTask.cpp
         QueueTask.h
+        QueueSafeStoreTask.cpp
+        QueueSafeStoreTask.h
         Logger.h
         Logger.cpp
         PluginAdapter.cpp
         PluginAdapter.h
+        SafeStoreWorker.cpp
+        SafeStoreWorker.h
         StringUtils.cpp
         StringUtils.h
         ../common/config.h

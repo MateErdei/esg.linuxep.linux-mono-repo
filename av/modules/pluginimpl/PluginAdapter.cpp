@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include "PolicyWaiter.h"
 #include "StringUtils.h"
+#include "QueueSafeStoreTask.h"
 
 #include "common/PluginUtils.h"
 #include "datatypes/sophos_filesystem.h"
@@ -34,6 +35,13 @@ namespace Plugin
             return common::getPluginInstallPath() / "chroot/var/process_control_socket";
         }
 
+        // safestore_socket
+
+        fs::path safestore_socket()
+        {
+            return common::getPluginInstallPath() / "var/safestore_socket";
+        }
+
         class ThreatReportCallbacks : public IMessageCallback
         {
         public:
@@ -41,11 +49,19 @@ namespace Plugin
                 : m_adapter(adapter)
             {}
 
+            // TODO: LINUXDAR-5657 - detection will need to change from const as other end of m_safeStoreQueue will need to modify it
             void processMessage(const scan_messages::ServerThreatDetected& detection) override
             {
-                m_adapter.processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
-                m_adapter.publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
-                m_adapter.publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+                if (!m_adapter.isSafeStoreEnabled() || m_adapter.getSafeStoreQueue()->isFull())
+                {
+                    m_adapter.getSafeStoreQueue()->push(detection);
+                }
+                else
+                {
+                    // TODO: LINUXDAR-5657 - Modify report to include no quarantine happened
+                    // reportNoQuarantine(detection);
+                    m_adapter.processDetectionReport(detection);
+                }
             }
 
         private:
@@ -55,11 +71,13 @@ namespace Plugin
 
     PluginAdapter::PluginAdapter(
         std::shared_ptr<QueueTask> queueTask,
+        std::shared_ptr<QueueSafeStoreTask> queueSafeStoreTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback,
         const std::string& threatEventPublisherSocketPath,
         int waitForPolicyTimeout) :
         m_queueTask(std::move(queueTask)),
+        m_queueSafeStoreTask(std::move(queueSafeStoreTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(std::make_shared<manager::scheduler::ScanScheduler>(*this)),
@@ -67,6 +85,7 @@ namespace Plugin
                                std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
+        m_safeStoreQueueWorker(std::make_shared<SafeStoreWorker>(*this, queueSafeStoreTask, safestore_socket())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
         m_threatEventPublisher(m_zmqContext->getPublisher())
@@ -113,6 +132,8 @@ namespace Plugin
         LOGSUPPORT("Stopping the main program loop");
         m_schedulerThread.reset();
         m_threatDetectorThread.reset();
+        m_queueSafeStoreTask->requestStop();
+        m_safeStoreQueueWorkerThread.reset();
         LOGSUPPORT("Finished the main program loop");
     }
 
@@ -120,6 +141,7 @@ namespace Plugin
     {
         m_schedulerThread = std::make_unique<common::ThreadRunner>(m_scanScheduler, "scanScheduler", true);
         m_threatDetectorThread = std::make_unique<common::ThreadRunner>(m_threatDetector, "scanProcessMonitor", true);
+        m_safeStoreQueueWorkerThread = std::make_unique<common::ThreadRunner>(m_safeStoreQueueWorker, "safeStoreQueueWorker", true);
         connectToThreatPublishingSocket(
             Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
     }
@@ -175,6 +197,10 @@ namespace Plugin
                     case Task::TaskType::SendStatus:
                         m_baseService->sendStatus("SAV", task.Content, task.Content);
                         break;
+//                  TODO: Add this case for SafeStore worker to respond to
+//                    case Task::TaskType::ProcessSafeStoreResponse:
+//                        processDetectionReport(task.Content);
+//                        break;
                 }
 
                 processSUSIRestartRequest();
@@ -307,6 +333,13 @@ namespace Plugin
         m_queueTask->push(Task { .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });
     }
 
+    void PluginAdapter::processDetectionReport(const scan_messages::ServerThreatDetected& detection)
+    {
+        processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
+        publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
+        publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+    }
+
     void PluginAdapter::processThreatReport(const std::string& threatDetectedXML)
     {
         LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
@@ -358,5 +391,15 @@ namespace Plugin
     void PluginAdapter::connectToThreatPublishingSocket(const std::string& pubSubSocketAddress)
     {
         m_threatEventPublisher->connect("ipc://" + pubSubSocketAddress);
+    }
+
+    bool PluginAdapter::isSafeStoreEnabled()
+    {
+        return m_policyProcessor.isSafeStoreEnabled();
+    }
+
+    std::shared_ptr<QueueSafeStoreTask> PluginAdapter::getSafeStoreQueue() const
+    {
+        return m_queueSafeStoreTask;
     }
 }

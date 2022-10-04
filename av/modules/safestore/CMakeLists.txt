@@ -1,33 +1,23 @@
 
 add_library(safestoreimpl SHARED
-        ISafeStoreWrapper.h
-        IQuarantineManager.h
         Logger.cpp
         Logger.h
         Main.cpp
         Main.h
-        QuarantineManagerImpl.h
-        QuarantineManagerImpl.cpp
-        SafeStoreWrapperImpl.h
-        SafeStoreWrapperImpl.cpp
-        StateMonitor.cpp
-        StateMonitor.h
         )
 
 target_link_libraries(safestoreimpl PUBLIC
-        ${SAFESTORE_LIB}
         common
-        ${log4cpluslib}
         )
 
-target_include_directories(safestoreimpl PUBLIC ${SAFESTORE_INPUT})
-
+target_include_directories(safestoreimpl PUBLIC
+        ${CMAKE_SOURCE_DIR}/modules)
 
 install(TARGETS safestoreimpl
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
 SET_TARGET_PROPERTIES(safestoreimpl
         PROPERTIES
-        BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "$ORIGIN"
         INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64"
         )

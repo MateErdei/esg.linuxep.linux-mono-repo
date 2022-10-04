@@ -12,6 +12,12 @@ add_library(unixsocket SHARED
         SocketUtils.h
         SocketUtilsImpl.cpp
         SocketUtilsImpl.h
+        safeStoreSocket/SafeStoreServerSocket.cpp
+        safeStoreSocket/SafeStoreServerSocket.h
+        safeStoreSocket/SafeStoreServerConnectionThread.cpp
+        safeStoreSocket/SafeStoreServerConnectionThread.h
+        safeStoreSocket/SafeStoreClientSocket.cpp
+        safeStoreSocket/SafeStoreClientSocket.h
         processControllerSocket/IProcessControlMessageCallback.h
         processControllerSocket/ProcessControllerServerSocket.cpp
         processControllerSocket/ProcessControllerServerSocket.h
