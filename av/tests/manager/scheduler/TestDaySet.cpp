@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 #include <datatypes/Print.h>
@@ -59,13 +55,13 @@ namespace
     };
 }
 
-TEST_F(TestDaySet, construction) // NOLINT
+TEST_F(TestDaySet, construction)
 {
     DaySet set(m_days_invalid, "daySet/day");
     ASSERT_EQ(set.str(), "Days: INVALID Sunday Monday Tuesday Wednesday Thursday Friday Saturday ");
 }
 
-TEST_F(TestDaySet, getNextScanTimeDeltaTommorow) // NOLINT
+TEST_F(TestDaySet, getNextScanTimeDeltaTommorow)
 {
     DaySet set(m_days, "daySet/day");
     time_t now = ::time(nullptr);
@@ -75,7 +71,7 @@ TEST_F(TestDaySet, getNextScanTimeDeltaTommorow) // NOLINT
     ASSERT_EQ(set.getNextScanTimeDelta(now_struct, true), 1);
 }
 
-TEST_F(TestDaySet, getNextScanTimeDeltaToday) // NOLINT
+TEST_F(TestDaySet, getNextScanTimeDeltaToday)
 {
     DaySet set(m_days, "daySet/day");
     time_t now = ::time(nullptr);
@@ -85,7 +81,7 @@ TEST_F(TestDaySet, getNextScanTimeDeltaToday) // NOLINT
     ASSERT_EQ(set.getNextScanTimeDelta(now_struct, false), 0);
 }
 
-TEST_F(TestDaySet, getNextScanTimeDeltaMondaytoSunday) // NOLINT
+TEST_F(TestDaySet, getNextScanTimeDeltaMondaytoSunday)
 {
     DaySet set(m_sunday, "daySet/day");
     struct tm now_struct{};
@@ -94,7 +90,7 @@ TEST_F(TestDaySet, getNextScanTimeDeltaMondaytoSunday) // NOLINT
     ASSERT_EQ(set.getNextScanTimeDelta(now_struct, true), 6);
 }
 
-TEST_F(TestDaySet, getNextScanTimeDeltaSundaytoSunday) // NOLINT
+TEST_F(TestDaySet, getNextScanTimeDeltaSundaytoSunday)
 {
     DaySet set(m_sunday, "daySet/day");
     struct tm now_struct{};
@@ -103,7 +99,7 @@ TEST_F(TestDaySet, getNextScanTimeDeltaSundaytoSunday) // NOLINT
     ASSERT_EQ(set.getNextScanTimeDelta(now_struct, true), 7);
 }
 
-TEST_F(TestDaySet, getNextScanTimeDeltaNoDays) // NOLINT
+TEST_F(TestDaySet, getNextScanTimeDeltaNoDays)
 {
     DaySet set(m_days_empty, "daySet/day");
     ASSERT_EQ(set.size(), 0);

@@ -1,8 +1,5 @@
-/******************************************************************************************************
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #include <gtest/gtest.h>
 #include "manager/scheduler/TimeSet.h"
 #include <tests/common/LogInitializedTests.h>
@@ -51,13 +48,13 @@ namespace
     };
 }
 
-TEST_F(TestTimeSet, construction) // NOLINT
+TEST_F(TestTimeSet, construction)
 {
     TimeSet set(m_time, "timeSet/time");
     ASSERT_EQ(set.str(), "Times: 00:00:00 01:00:00 03:00:00 04:00:00 18:00:00 22:00:00 23:00:00 ");
 }
 
-TEST_F(TestTimeSet, getNextTimeIsToday) // NOLINT
+TEST_F(TestTimeSet, getNextTimeIsToday)
 {
     TimeSet set(m_time, "timeSet/time");
 
@@ -71,7 +68,7 @@ TEST_F(TestTimeSet, getNextTimeIsToday) // NOLINT
     EXPECT_EQ(forceTomorrow, false);
 }
 
-TEST_F(TestTimeSet, getNextTimeIsTomorrow) // NOLINT
+TEST_F(TestTimeSet, getNextTimeIsTomorrow)
 {
     TimeSet set(m_time, "timeSet/time");
 
@@ -86,7 +83,7 @@ TEST_F(TestTimeSet, getNextTimeIsTomorrow) // NOLINT
     EXPECT_EQ(forceTomorrow, true);
 }
 
-TEST_F(TestTimeSet, getNextTimeWithNoTimes) // NOLINT
+TEST_F(TestTimeSet, getNextTimeWithNoTimes)
 {
     TimeSet set(m_time_empty, "timeSet/time");
     ASSERT_EQ(set.size(), 0);
@@ -97,7 +94,7 @@ TEST_F(TestTimeSet, getNextTimeWithNoTimes) // NOLINT
     EXPECT_THROW(set.getNextTime(now, forceTomorrow), std::out_of_range);
 }
 
-TEST_F(TestTimeSet, lessOperatorEqualValues) // NOLINT
+TEST_F(TestTimeSet, lessOperatorEqualValues)
 {
     Time lhs("00:00:00");
     Time rhs("00:00:00");
@@ -105,7 +102,7 @@ TEST_F(TestTimeSet, lessOperatorEqualValues) // NOLINT
     ASSERT_FALSE(lhs < rhs);
 }
 
-TEST_F(TestTimeSet, lessOperatorLhsMoreHours) // NOLINT
+TEST_F(TestTimeSet, lessOperatorLhsMoreHours)
 {
     Time lhs("01:00:00");
     Time rhs("00:00:00");
@@ -113,7 +110,7 @@ TEST_F(TestTimeSet, lessOperatorLhsMoreHours) // NOLINT
     ASSERT_FALSE(lhs < rhs);
 }
 
-TEST_F(TestTimeSet, lessOperatorLhsMoreMinutes) // NOLINT
+TEST_F(TestTimeSet, lessOperatorLhsMoreMinutes)
 {
     Time lhs("00:01:00");
     Time rhs("00:00:00");
@@ -121,7 +118,7 @@ TEST_F(TestTimeSet, lessOperatorLhsMoreMinutes) // NOLINT
     ASSERT_FALSE(lhs < rhs);
 }
 
-TEST_F(TestTimeSet, lessOperatorLhsMoreSeconds) // NOLINT
+TEST_F(TestTimeSet, lessOperatorLhsMoreSeconds)
 {
     Time lhs("00:00:01");
     Time rhs("00:00:00");
@@ -129,7 +126,7 @@ TEST_F(TestTimeSet, lessOperatorLhsMoreSeconds) // NOLINT
     ASSERT_FALSE(lhs < rhs);
 }
 
-TEST_F(TestTimeSet, lessOperatorRhsMoreHours) // NOLINT
+TEST_F(TestTimeSet, lessOperatorRhsMoreHours)
 {
     Time lhs("00:00:00");
     Time rhs("01:00:00");
@@ -137,7 +134,7 @@ TEST_F(TestTimeSet, lessOperatorRhsMoreHours) // NOLINT
     ASSERT_TRUE(lhs < rhs);
 }
 
-TEST_F(TestTimeSet, lessOperatorRhsMoreMinutes) // NOLINT
+TEST_F(TestTimeSet, lessOperatorRhsMoreMinutes)
 {
     Time lhs("00:00:00");
     Time rhs("00:01:00");
@@ -145,7 +142,7 @@ TEST_F(TestTimeSet, lessOperatorRhsMoreMinutes) // NOLINT
     ASSERT_TRUE(lhs < rhs);
 }
 
-TEST_F(TestTimeSet, lessOperatorrhsMoreSeconds) // NOLINT
+TEST_F(TestTimeSet, lessOperatorrhsMoreSeconds)
 {
     Time lhs("00:00:00");
     Time rhs("00:00:01");
@@ -161,7 +158,7 @@ TEST_F(TestTimeSet, stillDueTodayReturnsTrue)
     ASSERT_TRUE(fakeScanTime.stillDueToday(now_struct));
 }
 
-TEST_F(TestTimeSet, stillDueTodayReturnsFalse) //NOLINT
+TEST_F(TestTimeSet, stillDueTodayReturnsFalse)
 {
     Time fakeScanTime("10:00:00");
     struct tm now_struct{};
@@ -169,7 +166,7 @@ TEST_F(TestTimeSet, stillDueTodayReturnsFalse) //NOLINT
     ASSERT_FALSE(fakeScanTime.stillDueToday(now_struct));
 }
 
-TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsTrue) //NOLINT
+TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsTrue)
 {
     Time fakeScanTime("10:35:00");
     struct tm now_struct{};
@@ -178,7 +175,7 @@ TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsTrue) //NOLINT
     ASSERT_TRUE(fakeScanTime.stillDueToday(now_struct));
 }
 
-TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsFalse) //NOLINT
+TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsFalse)
 {
     Time fakeScanTime("10:35:00");
     struct tm now_struct{};
@@ -187,7 +184,7 @@ TEST_F(TestTimeSet, stillDueTodayMinuteComparisonReturnsFalse) //NOLINT
     ASSERT_FALSE(fakeScanTime.stillDueToday(now_struct));
 }
 
-TEST_F(TestTimeSet, stillDueTodaySecondComparisonReturnsTrue) //NOLINT
+TEST_F(TestTimeSet, stillDueTodaySecondComparisonReturnsTrue)
 {
     Time fakeScanTime("10:35:54");
     struct tm now_struct{};
@@ -197,7 +194,7 @@ TEST_F(TestTimeSet, stillDueTodaySecondComparisonReturnsTrue) //NOLINT
     ASSERT_TRUE(fakeScanTime.stillDueToday(now_struct));
 }
 
-TEST_F(TestTimeSet, stillDueTodaySecondComparisonReturnsFalse) //NOLINT
+TEST_F(TestTimeSet, stillDueTodaySecondComparisonReturnsFalse)
 {
     Time fakeScanTime("10:35:54");
     struct tm now_struct{};
