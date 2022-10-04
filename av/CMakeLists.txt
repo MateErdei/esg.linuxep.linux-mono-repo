@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 project(sspl-plugin-mav)
-Intentional_syntax_error_to_test_email_notification_for_failing_build()
 
 if (POLICY CMP0115) # Visibility
     cmake_policy(SET CMP0115 NEW)
