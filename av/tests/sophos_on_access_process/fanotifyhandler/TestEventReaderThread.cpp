@@ -54,12 +54,14 @@ namespace
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             const auto* pluginInstall = "/opt/sophos-spl/plugins/av";
             appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+            m_statbuf.st_uid = 321;
         }
 
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
         ScanRequestQueueSharedPtr m_scanRequestQueue;
         fs::path m_pluginInstall = "/opt/sophos-spl/plugins/av";
         IFanotifyHandlerSharedPtr m_fakeFanotify;
+        struct ::stat m_statbuf {};
     };
 }
 
@@ -67,10 +69,8 @@ TEST_F(TestEventReaderThread, TestReaderExitsUsingPipe)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    struct pollfd fds[2]{};
-    fds[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
@@ -83,10 +83,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorIfFanotifySendsNoEvent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    struct pollfd fds[2]{};
-    fds[1].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN));
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _)).WillOnce(Return(0));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
@@ -101,30 +99,26 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
+
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .WillOnce(readReturnsStruct(metadata));
 
     const char* filePath = "/tmp/test";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(DoAll(SetArrayArgument<1>(filePath, filePath + strlen(filePath) + 1), Return(strlen(filePath) + 1)));
-    struct ::stat statbuf{};
-    statbuf.st_uid = 1;
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(statbuf), Return(0)));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .WillOnce(readlinkReturnPath(filePath));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
+        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << statbuf.st_uid;
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -134,32 +128,26 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_OPEN, .fd = 345, .pid = 1999999999 };
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_OPEN, .fd = 345, .pid = 1999999999 };
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .WillOnce(readReturnsStruct(metadata));
+
 
     const char* filePath = "/tmp/test";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(DoAll(SetArrayArgument<1>(filePath, filePath + strlen(filePath) + 1), Return(strlen(filePath) + 1)));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
 
-    struct ::stat statbuf{};
-    statbuf.st_uid = 1;
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(statbuf), Return(0)));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "On-open event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << statbuf.st_uid;
+    logMsg << "On-open event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -170,35 +158,29 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = FANOTIFY_FD;
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_OPEN, .fd = 345, .pid = 1999999999 };
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_OPEN, .fd = 345, .pid = 1999999999 };
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).Times(2).WillRepeatedly(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).Times(2)
+        .WillRepeatedly(readReturnsStruct(metadata));
     const char* filePath1 = "/tmp/test";
     const char* filePath2 = "/tmp/test/test";
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .WillOnce(DoAll(SetArrayArgument<1>(filePath1, filePath1 + strlen(filePath1) + 1), Return(strlen(filePath1) + 1)))
-        .WillOnce(DoAll(SetArrayArgument<1>(filePath2, filePath2 + strlen(filePath2) + 1), Return(strlen(filePath2) + 1)));
-    struct ::stat statbuf{};
-    statbuf.st_uid = 1;
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).Times(2).WillRepeatedly(DoAll(SetArgPointee<1>(statbuf), Return(0)));
+        .WillOnce(readlinkReturnPath(filePath1))
+        .WillOnce(readlinkReturnPath(filePath2));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).Times(2)
+        .WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg1;
-    logMsg1 << "On-open event for " << filePath1 << " from Process (PID=" << metadata.pid << ") and UID " << statbuf.st_uid;
+    logMsg1 << "On-open event for " << filePath1 << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg1.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -207,7 +189,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     eventReaderThread.startIfNotStarted();
 
     std::stringstream logMsg2;
-    logMsg2 << "On-open event for " << filePath2 << " from Process (PID=" << metadata.pid << ") and UID " << statbuf.st_uid;
+    logMsg2 << "On-open event for " << filePath2 << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg2.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 2);
@@ -218,25 +200,17 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = FANOTIFY_FD;
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_ONDIR, .fd = 345, .pid = 1999999999 };
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_ONDIR, .fd = 345, .pid = 1999999999 };
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    struct ::stat statbuf{};
-    statbuf.st_uid = 1;
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(statbuf), Return(0)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
 
     const char* filePath = "/tmp/test";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(DoAll(SetArrayArgument<1>(filePath, filePath + strlen(filePath) + 1), Return(strlen(filePath) + 1)));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
@@ -253,29 +227,21 @@ TEST_F(TestEventReaderThread, TestReaderSetUnknownPathIfReadLinkFails)
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = FANOTIFY_FD;
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(Return(-1));
-    struct ::stat statbuf{};
-    statbuf.st_uid = 1;
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(statbuf), Return(0)));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "On-close event for unknown from Process (PID=" << metadata.pid << ") and UID 1";
+    logMsg << "On-close event for unknown from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -286,21 +252,15 @@ TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = FANOTIFY_FD;
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
     const char* filePath = "/tmp/test";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(DoAll(SetArrayArgument<1>(filePath, filePath + strlen(filePath) + 1), Return(strlen(filePath) + 1)));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(Return(-1));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
@@ -318,16 +278,12 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = FANOTIFY_FD;
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = 2, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = 2, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
 
-    struct pollfd fds[2]{};
-    fds[1].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
@@ -344,19 +300,13 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithoutFD)
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = FANOTIFY_FD;
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = -1, .pid = 1999999999 };
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_CLOSE, .fd = -1, .pid = 1999999999 };
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
@@ -371,19 +321,13 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPid)
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = FANOTIFY_FD;
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = getpid() };
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_CLOSE, .fd = 345, .pid = getpid() };
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
@@ -397,21 +341,15 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsInPluginLogDir)
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = FANOTIFY_FD;
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
     const char* filePath = "/opt/sophos-spl/plugins/av/log/soapd.log";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(DoAll(SetArrayArgument<1>(filePath, filePath + strlen(filePath) + 1), Return(strlen(filePath) + 1)));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
@@ -427,21 +365,15 @@ TEST_F(TestEventReaderThread, TestReaderSkipsExcludedPaths)
     exclusions.emplace_back("/excluded/");
     int fanotifyFD = 123;
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_CLOSE, .fd = 345, .pid = 1999999999 };
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
     const char* filePath = "/excluded/eicar.com";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(DoAll(SetArrayArgument<1>(filePath, filePath + strlen(filePath) + 1), Return(strlen(filePath) + 1)));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     eventReader->setExclusions(exclusions);
@@ -456,24 +388,16 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
     UsingMemoryAppender memoryAppenderHolder(*this);
     constexpr int fanotifyFD = FANOTIFY_FD;
     struct fanotify_event_metadata metadata = {
-        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0, .metadata_len = FAN_EVENT_METADATA_LEN,
-        .mask = FAN_CLOSE_WRITE, .fd = 345, .pid = 1999999999 };
+        .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
+        .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_CLOSE_WRITE, .fd = 345, .pid = 1999999999 };
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
     const char* filePath = "/tmp/test";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(DoAll(SetArrayArgument<1>(filePath, filePath + strlen(filePath) + 1), Return(strlen(filePath) + 1)));
-    struct ::stat statbuf{};
-    statbuf.st_uid = 1;
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(statbuf), Return(0)));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
 
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
@@ -497,16 +421,11 @@ TEST_F(TestEventReaderThread, TestReaderLogsFanotifyQueueOverflow)
         .event_len = FAN_EVENT_METADATA_LEN, .vers = FANOTIFY_METADATA_VERSION, .reserved = 0,
         .metadata_len = FAN_EVENT_METADATA_LEN, .mask = FAN_Q_OVERFLOW, .fd = FAN_NOFD, .pid = 1999999999 };
 
-    struct pollfd fds1[2]{};
-    fds1[1].revents = POLLIN;
-    struct pollfd fds2[2]{};
-    fds2[0].revents = POLLIN;
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds1, fds1+2), Return(1)))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds2, fds2+2), Return(1)));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(DoAll(
-        Invoke([metadata] (int, void* arg2, size_t) { *static_cast<struct fanotify_event_metadata*>(arg2) = metadata; }),
-        Return(sizeof(metadata))));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _))
+        .WillOnce(readReturnsStruct(metadata));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);

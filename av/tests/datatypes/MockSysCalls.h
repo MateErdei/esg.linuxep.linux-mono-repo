@@ -41,3 +41,7 @@ namespace
         MOCK_METHOD(int, setrlimit, (int __resource, const struct ::rlimit* __rlim));
     };
 }
+
+ACTION_P2(pollReturnsWithRevents, index, revents) { arg0[index].revents = revents; return 1; }
+ACTION_P(readReturnsStruct, data) { *static_cast<data_type *>(arg1) = data; return sizeof(data); }
+ACTION_P(readlinkReturnPath, path) { strncpy(arg1, path, arg2); return strnlen(arg1, arg2 - 1) + 1; }
