@@ -6,7 +6,6 @@
 
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
-#include "datatypes/AutoFd.h"
 // Package
 #include "ProcUtils.h"
 // Product
@@ -18,8 +17,6 @@
 #include <cerrno>
 #include <climits>
 #include <poll.h>
-#include <cstring>
-#include <sys/fanotify.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -32,19 +29,62 @@ using namespace sophos_on_access_process::fanotifyhandler;
 static constexpr size_t FAN_BUFFER_SIZE = 4096;
 
 EventReaderThread::EventReaderThread(
-    int fanotifyFD,
+    IFanotifyHandlerSharedPtr fanotify,
     datatypes::ISystemCallWrapperSharedPtr sysCalls,
     const fs::path& pluginInstall,
     onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue)
-    : m_fanotifyFd(fanotifyFD)
+    : m_fanotify(std::move(fanotify))
     , m_sysCalls(std::move(sysCalls))
     , m_pluginLogDir(pluginInstall / "log")
     , m_scanRequestQueue(std::move(scanRequestQueue))
     , m_pid(getpid())
 {
+    assert(m_fanotify);
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path PLUGIN_INSTALL = appConfig.getData("PLUGIN_INSTALL");
     m_processExclusionStem = PLUGIN_INSTALL.string() + "/";
+}
+
+bool EventReaderThread::skipScanningOfEvent(
+    struct fanotify_event_metadata* eventMetadata, std::string& filePath, std::string& exePath, int eventFd)
+{
+    assert(eventFd >= 0);
+
+    if (eventMetadata->pid == m_pid)
+    {
+        return true;
+    }
+
+    filePath = getFilePathFromFd(eventFd);
+    //Either path was too long or fd was invalid
+    if(filePath.empty())
+    {
+        return true;
+    }
+
+    // Exclude events caused by AV logging to prevent recursive events
+    if (filePath.rfind(m_pluginLogDir, 0) == 0)
+    {
+        return true;
+    }
+
+    exePath = get_executable_path_from_pid(eventMetadata->pid);
+    if (!m_processExclusionStem.empty() && startswith(exePath, m_processExclusionStem))
+    {
+        //LOGDEBUG("Excluding SPL-AV process: " << executablePath << " scan type: " << eventStr << " for path: " << path);
+        return true;
+    }
+
+    std::lock_guard<std::mutex> lock(m_exclusionsLock);
+    for (const auto& exclusion: m_exclusions)
+    {
+        if (exclusion.appliesToPath(filePath))
+        {
+            LOGTRACE("File access on " << filePath << " will not be scanned due to exclusion: "  << exclusion.displayPath());
+            return true;
+        }
+    }
+    return false;
 }
 
 bool EventReaderThread::handleFanotifyEvent()
@@ -52,7 +92,7 @@ bool EventReaderThread::handleFanotifyEvent()
     char buf[FAN_BUFFER_SIZE];
 
     errno = 0;
-    ssize_t len = m_sysCalls->read(m_fanotifyFd, buf, sizeof(buf));
+    ssize_t len = m_sysCalls->read(m_fanotify->getFd(), buf, sizeof(buf));
 
     // Verify we got something.
     if (len <= 0)
@@ -88,43 +128,31 @@ bool EventReaderThread::handleFanotifyEvent()
             return false;
         }
 
+        if (metadata->mask & FAN_Q_OVERFLOW)
+        {
+            // The in kernel event queue exceeded the limit of 16384 entries.
+            LOGWARN("Fanotify queue overflowed, some files will not be scanned.");
+            continue;
+        }
+
         auto eventFd = metadata->fd;
         if (eventFd < 0)
         {
-            LOGDEBUG("Got fanotify metadata event without fd");
+            LOGERROR("Got fanotify metadata event without fd");
             continue;
         }
-
         auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
         scanRequest->setFd(eventFd); // DONATED
 
-        if (metadata->pid == m_pid)
+        std::string filePath;
+        std::string executablePath;
+        if (skipScanningOfEvent(metadata, filePath, executablePath, eventFd))
         {
-            continue;
-        }
-
-        auto path = getFilePathFromFd(eventFd);
-        //Either path was too long or fd was invalid
-        if(path.empty())
-        {
-            continue;
-        }
-
-        // Exclude events caused by AV logging to prevent recursive events
-        if (path.rfind(m_pluginLogDir, 0) == 0)
-        {
-            continue;
-        }
-
-        auto executablePath = get_executable_path_from_pid(metadata->pid);
-        if (!m_processExclusionStem.empty() && startswith(executablePath, m_processExclusionStem))
-        {
-            //LOGDEBUG("Excluding SPL-AV process: " << executablePath << " scantype: " << eventStr << " for path: " << path);
             continue;
         }
 
         auto uid = getUidFromPid(metadata->pid);
-        auto escapedPath = common::escapePathForLogging(path);
+        auto escapedPath = common::escapePathForLogging(filePath);
 
         auto eventType = E_SCAN_TYPE_UNKNOWN;
 
@@ -151,23 +179,13 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
-
-        scanRequest->setPath(path);
+        scanRequest->setPath(filePath);
         scanRequest->setScanType(eventType);
         scanRequest->setUserID(uid);
 
         if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
         {
-            if (m_EventsWhileQueueFull == 0)
-            {
-                LOGERROR("Failed to add scan request to queue, on-access scanning queue is full.");
-            }
-            m_EventsWhileQueueFull++;
-        }
-        else if (m_EventsWhileQueueFull > 0)
-        {
-            LOGINFO("Queue is no longer full. Number of events dropped: " << m_EventsWhileQueueFull);
-            m_EventsWhileQueueFull = 0;
+            LOGERROR("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: " << filePath);
         }
     }
     return true;
@@ -215,11 +233,10 @@ void EventReaderThread::run()
 {
     struct pollfd fds[] {
         { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
-        { .fd = m_fanotifyFd, .events = POLLIN, .revents = 0 },
+        { .fd = m_fanotify->getFd(), .events = POLLIN, .revents = 0 },
     };
 
     announceThreadStarted();
-    m_EventsWhileQueueFull = 0;
 
     while (true)
     {
@@ -249,5 +266,16 @@ void EventReaderThread::run()
                 break;
             }
         }
+    }
+}
+
+void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& exclusions)
+{
+    if (exclusions != m_exclusions)
+    {
+        LOGDEBUG("Updating on-access exclusions");
+        std::ignore = m_fanotify->clearCachedFiles();
+        std::lock_guard<std::mutex> lock(m_exclusionsLock);
+        m_exclusions = exclusions;
     }
 }

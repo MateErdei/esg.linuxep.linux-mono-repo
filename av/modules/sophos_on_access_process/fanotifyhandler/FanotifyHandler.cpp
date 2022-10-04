@@ -88,8 +88,8 @@ int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
     }
 
 
-    const unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
-    const uint64_t mask = FAN_OPEN;
+    constexpr unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
+    constexpr uint64_t mask = FAN_OPEN;
     int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, fd, nullptr);
     if (result < 0)
     {

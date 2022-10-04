@@ -454,3 +454,23 @@ On Access Logs Scan time in TRACE
     Register Cleanup  Remove File  ${filepath}
 
     Wait Until On Access Log Contains With Offset  Scan for /tmp_test/clean_file_writer/clean.txt completed in
+
+On-access logs if the kernel queue overflows
+    ${soapd_pid} =  Record Soapd Plugin PID
+
+    Mark On Access Log
+
+    # suspend soapd, so that we stop reading from the kernel queue
+    Evaluate  os.kill(${soapd_pid}, signal.SIGSTOP)  modules=os, signal
+
+    # create 16384 + 1 file events
+    Create Directory   /tmp_test
+    Register Cleanup   Remove Directory   /tmp_test   recursive=True
+    Run Shell Process
+    ...   for i in `seq 0 1 16384`; do echo clean > /tmp_test/clean_file_\$i; done
+    ...   OnError=Failed to create clean files
+
+    # resume soapd
+    Evaluate  os.kill(${soapd_pid}, signal.SIGCONT)  modules=os, signal
+
+    Wait Until On Access Log Contains With Offset   Fanotify queue overflowed, some files will not be scanned.
