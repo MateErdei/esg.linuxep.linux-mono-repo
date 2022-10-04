@@ -227,10 +227,6 @@ void SoapdBootstrap::disableOnAccess(bool changed)
     m_mountMonitorThread->requestStopIfNotStopped();
     m_scanRequestQueue->stop();
 
-    for (const auto& scanThread: m_scanHandlerThreads)
-    {
-        scanThread->requestStopIfNotStopped();
-    }
     m_scanHandlerThreads.clear();
 
     m_fanotifyHandler->close();
