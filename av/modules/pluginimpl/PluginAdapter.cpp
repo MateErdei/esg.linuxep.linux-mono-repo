@@ -236,63 +236,75 @@ namespace Plugin
     void PluginAdapter::processPolicy(const std::string& policyXml, bool& policyUpdated, std::string& appId)
     {
         LOGINFO("Received Policy");
-        auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
 
-        // Work out whether it's ALC or SAV policy
-        auto alc_comp = attributeMap.lookup("AUConfigurations/csc:Comp");
-        auto policyType = alc_comp.value("policyType", "unknown");
-        if (policyType != "unknown")
+        try
         {
-            if (policyType == "1")
+            auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+
+            // Work out whether it's ALC or SAV policy
+            auto alc_comp = attributeMap.lookup("AUConfigurations/csc:Comp");
+            auto policyType = alc_comp.value("policyType", "unknown");
+            if (policyType != "unknown")
             {
-                // ALC policy
-                LOGINFO("Processing ALC Policy");
-                LOGDEBUG("Processing policy: " << policyXml);
-                bool updated = m_policyProcessor.processAlcPolicy(attributeMap);
-                if (!m_gotAlcPolicy)
+                if (policyType == "1")
                 {
-                    LOGINFO("ALC policy received for the first time.");
-                    m_gotAlcPolicy = true;
+                    // ALC policy
+                    LOGINFO("Processing ALC Policy");
+                    LOGDEBUG("Processing policy: " << policyXml);
+                    bool updated = m_policyProcessor.processAlcPolicy(attributeMap);
+                    if (!m_gotAlcPolicy)
+                    {
+                        LOGINFO("ALC policy received for the first time.");
+                        m_gotAlcPolicy = true;
+                    }
+                    policyUpdated = updated;
+                    appId = "ALC";
+                    return;
                 }
-                policyUpdated = updated;
-                appId = "ALC";
+                else
+                {
+                    LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
+                }
+                policyUpdated = false;
+                appId = "";
                 return;
             }
-            else
+
+            // SAV policy
+            policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
+            if (policyType != "2")
             {
                 LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
+                policyUpdated = false;
+                appId = "";
+                return;
             }
-            policyUpdated = false;
-            appId = "";
-            return;
-        }
 
-        // SAV policy
-        policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
-        if (policyType != "2")
+            LOGINFO("Processing SAV Policy");
+            LOGDEBUG("Processing policy: " << policyXml);
+
+            bool savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap, m_gotSavPolicy);
+            m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
+            m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
+
+            std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
+            m_callback->sendStatus(revID);
+            if (!m_gotSavPolicy)
+            {
+                LOGINFO("SAV policy received for the first time.");
+                m_gotSavPolicy = true;
+            }
+            policyUpdated = savPolicyHasChanged;
+            appId = "SAV";
+        }
+        catch(const Common::XmlUtilities::XmlUtilitiesException& e)
         {
-            LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
-            policyUpdated = false;
-            appId = "";
-            return;
+            LOGERROR("Exception encountered while parsing AV policy XML: " << e.what());
         }
-
-        LOGINFO("Processing SAV Policy");
-        LOGDEBUG("Processing policy: " << policyXml);
-
-        bool savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap, m_gotSavPolicy);
-        m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
-        m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
-
-        std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
-        m_callback->sendStatus(revID);
-        if (!m_gotSavPolicy)
+        catch(const std::exception& e)
         {
-            LOGINFO("SAV policy received for the first time.");
-            m_gotSavPolicy = true;
+            LOGERROR("Exception encountered while processing AV policy: " << e.what());
         }
-        policyUpdated = savPolicyHasChanged;
-        appId = "SAV";
     }
 
     void PluginAdapter::processAction(const std::string& actionXml)
