@@ -78,10 +78,12 @@ TEST_F(TestScheduledScan, TestConstructionScheduledScan)
     ASSERT_EQ(scheduledScan.days().size(), 2);
     EXPECT_EQ(scheduledScan.days().days()[0], THURSDAY);
     EXPECT_EQ(scheduledScan.days().days()[1], SATURDAY);
+    ASSERT_TRUE(scheduledScan.days().isValid());
 
     ASSERT_EQ(scheduledScan.times().size(), 1);
     EXPECT_EQ(scheduledScan.times().times()[0].hour(),0);
     EXPECT_EQ(scheduledScan.times().times()[0].minute(),0);
+    ASSERT_TRUE(scheduledScan.times().isValid());
 }
 
 
