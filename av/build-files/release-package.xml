@@ -95,7 +95,7 @@
         </build-asset>
 
         <build-asset project="core" repo="safestore">
-            <development-version branch="feature/publish-interface" />
+            <development-version branch="develop" />
             <include artifact-path="safestore/linux-x64/lib" dest-dir="input/safestore_input"/>
             <include artifact-path="safestore/linux-x64/interface" dest-dir="input/safestore_input"/>
         </build-asset>
