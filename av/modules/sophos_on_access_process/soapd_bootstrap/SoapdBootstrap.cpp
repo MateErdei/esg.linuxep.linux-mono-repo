@@ -28,7 +28,7 @@
 // Std C
 #include <poll.h>
 
-#define MAX_SCAN_THREADS 1
+#define MAX_SCAN_THREADS 10
 
 namespace fs = sophos_filesystem;
 
@@ -253,14 +253,14 @@ void SoapdBootstrap::enableOnAccess(bool changed)
 
     std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
 
-    for (int count = 0; count < MAX_SCAN_THREADS; ++count)
+    for (int threadCount = 0; threadCount < MAX_SCAN_THREADS; ++threadCount)
     {
         std::stringstream threadName;
-        threadName << "scanHandler " << count;
+        threadName << "scanHandler " << threadCount;
 
         auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
         auto scanHandler = std::make_shared<ScanRequestHandler>(
-            m_scanRequestQueue, scanningSocket, m_fanotifyHandler);
+            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, threadCount);
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }
