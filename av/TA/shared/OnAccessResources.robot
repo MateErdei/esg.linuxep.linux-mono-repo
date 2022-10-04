@@ -121,12 +121,13 @@ On-access Scan Eicar Close
 
 
 On-access Scan Eicar Open
+    Mark On Access Log
+
     #${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  /tmp_test/eicar.com
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
 
-    Mark On Access Log
     Get File   ${filepath}
 
     Wait Until On Access Log Contains With Offset  On-open event for ${filepath} from    timeout=${timeout}
