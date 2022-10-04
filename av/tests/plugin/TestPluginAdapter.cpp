@@ -412,6 +412,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
     EXPECT_TRUE(waitForLog("Stop task received"));
+    EXPECT_TRUE(appenderContains("Threat Reporter Server starting listening on socket"));
     EXPECT_FALSE(appenderContains("Starting sophos_threat_detector monitor"));
     EXPECT_FALSE(appenderContains("Starting scanScheduler"));
     EXPECT_FALSE(appenderContains("Starting scan scheduler"));
@@ -420,6 +421,96 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
 
     pluginThread.join();
 }
+
+TEST_F(TestPluginAdapter, testPluginAdaptorDoesntStartProcessesWithInvalidEntry)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger threadRunnerLogger = Common::Logging::getInstance("Common");
+    threadRunnerLogger.addAppender(m_sharedAppender);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+
+    std::string invalidPolicyXml =
+        R"sophos(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="12345678901" policyType="2"/>
+     <scanSet>
+       <!-- if {{scheduledScanEnabled}} -->
+       <scan>
+           <name>Sophos Cloud Scheduled Scan</name>
+           <schedule>
+               <daySet>
+                   <!-- for day in {{scheduledScanDays}} -->
+                   <day>{{day}}</day>
+               </daySet>
+               <timeSet>
+                   <time>{{scheduledScanTime}}</time>
+               </timeSet>
+           </schedule>
+           <settings>
+               <scanObjectSet>
+                   <CDDVDDrives>false</CDDVDDrives>
+                   <hardDrives>true</hardDrives>
+                   <networkDrives>false</networkDrives>
+                   <removableDrives>false</removableDrives>
+                   <kernelMemory>true</kernelMemory>
+               </scanObjectSet>
+               <scanBehaviour>
+                   <level>normal</level>
+                   <archives>{{scheduledScanArchives}}</archives>
+                   <pua>true</pua>
+                   <suspiciousFileDetection>false</suspiciousFileDetection>
+                   <scanForMacViruses>false</scanForMacViruses>
+                   <anti-rootkits>true</anti-rootkits>
+               </scanBehaviour>
+               <actions>
+                   <disinfect>true</disinfect>
+                   <puaRemoval>false</puaRemoval>
+                   <fileAction>doNothing</fileAction>
+                   <destination/>
+                   <suspiciousFiles>
+                       <fileAction>doNothing</fileAction>
+                       <destination/>
+                   </suspiciousFiles>
+               </actions>
+               <on-demand-options>
+                   <minimise-scan-impact>true</minimise-scan-impact>
+               </on-demand-options>
+           </settings>
+       </scan>
+   </scanSet>
+</config>
+)sophos";
+
+    Task policyTask = {Task::TaskType::Policy, invalidPolicyXml};
+    m_queueTask->push(policyTask);
+
+    //EXPECT_TRUE(waitForLog("Exception encountered while parsing AV policy XML: Error parsing xml"));
+
+    Task stopTask = {Task::TaskType::Stop, ""};
+    m_queueTask->push(stopTask);
+    EXPECT_TRUE(waitForLog("Stop task received"));
+    EXPECT_TRUE(appenderContains("Threat Reporter Server starting listening on socket"));
+    EXPECT_FALSE(appenderContains("Starting sophos_threat_detector monitor"));
+    EXPECT_FALSE(appenderContains("Starting scanScheduler"));
+    EXPECT_FALSE(appenderContains("Starting scan scheduler"));
+    EXPECT_FALSE(appenderContains("Starting scanProcessMonitor"));
+    EXPECT_FALSE(appenderContains("Starting ConfigMonitor"));
+
+    pluginThread.join();
+}
+
 
 TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
 {
