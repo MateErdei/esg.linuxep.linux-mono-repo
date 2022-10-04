@@ -854,7 +854,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenA
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, logServiceHealthGoneBadOnlyIfCurrentHealthIsGood)
+TEST_F(TestPluginCallback, dontLogServiceHealthStatusChangesIfHealthIsAlreadyBad)
 {
     testing::internal::CaptureStderr();
 
@@ -894,6 +894,6 @@ TEST_F(TestPluginCallback, logServiceHealthGoneBadOnlyIfCurrentHealthIsGood)
     EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Sophos Safestore Process is not running, turning service health to red")));
     EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Sophos On Access Process is not running, turning service health to red")));
     EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Sophos Threat Detector Process is not running, turning service health to red")));
-    EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Service Health has changed to: red")));
+    EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Service Health has changed to")));
     ASSERT_EQ(result, expectedResult);
 }
