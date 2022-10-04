@@ -108,7 +108,7 @@ TEST_F(TestScheduledScan, Invalid_Day)
 
     EXPECT_FALSE(scheduledScan.valid());
 
-    ASSERT_EQ(scheduledScan.days().size(), 0);
+    ASSERT_EQ(scheduledScan.days().size(), 1);
 }
 
 TEST_F(TestScheduledScan, Invalid_Time)
@@ -134,7 +134,7 @@ TEST_F(TestScheduledScan, Invalid_Time)
 
     EXPECT_FALSE(scheduledScan.valid());
 
-    ASSERT_EQ(scheduledScan.times().size(), 0);
+    ASSERT_EQ(scheduledScan.times().size(), 1);
 }
 
 
