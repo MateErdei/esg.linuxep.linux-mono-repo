@@ -371,6 +371,56 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     EXPECT_TRUE(appenderContains("Processing policy: " + policyXml));
 }
 
+TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger threadRunnerLogger = Common::Logging::getInstance("Common");
+    threadRunnerLogger.addAppender(m_sharedAppender);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+
+    std::string brokenPolicyXml = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        R"sophos(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="@@REV_ID@@" policyType="@@POLICY_ID@@"/>
+     <detectionFeedback>
+        <sendData>@@SXL@@</sendData>
+        <sendFiles>false</sendFiles>
+        true</onDemandEnable>
+      </detectionFeedback>
+</config>
+)sophos", {{"@@REV_ID@@", "12345678901"},
+          {"@@POLICY_ID@@", "2"},
+          {"@@SXL@@", "false"}});
+
+    Task policyTask = {Task::TaskType::Policy, brokenPolicyXml};
+    m_queueTask->push(policyTask);
+
+    EXPECT_TRUE(waitForLog("Exception encountered while parsing AV policy XML: Error parsing xml"));
+
+    Task stopTask = {Task::TaskType::Stop, ""};
+    m_queueTask->push(stopTask);
+    EXPECT_TRUE(waitForLog("Stop task received"));
+    EXPECT_FALSE(appenderContains("Starting sophos_threat_detector monitor"));
+    EXPECT_FALSE(appenderContains("Starting scanScheduler"));
+    EXPECT_FALSE(appenderContains("Starting scan scheduler"));
+    EXPECT_FALSE(appenderContains("Starting scanProcessMonitor"));
+    EXPECT_FALSE(appenderContains("Starting ConfigMonitor"));
+
+    pluginThread.join();
+}
+
 TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);

@@ -296,6 +296,7 @@ namespace Plugin
             }
             policyUpdated = savPolicyHasChanged;
             appId = "SAV";
+            return;
         }
         catch(const Common::XmlUtilities::XmlUtilitiesException& e)
         {
@@ -305,6 +306,9 @@ namespace Plugin
         {
             LOGERROR("Exception encountered while processing AV policy: " << e.what());
         }
+        policyUpdated = false;
+        appId = "";
+        return;
     }
 
     void PluginAdapter::processAction(const std::string& actionXml)
