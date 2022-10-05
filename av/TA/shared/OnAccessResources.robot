@@ -121,12 +121,11 @@ On-access Scan Eicar Close
 
 
 On-access Scan Eicar Open
+    #TODO: LINUXDAR-5740 - improve this before closing 5740, more comments on ticekt
+    Mark On Access Log
     ${filepath} =  Set Variable  /tmp_test/eicar.com
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
-
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from \   timeout=${timeout}
-    Mark On Access Log
 
     Get File   ${filepath}
 
