@@ -69,9 +69,6 @@ namespace Plugin
         PolicyProcessor m_policyProcessor;
         bool m_restartSophosThreatDetector = false;
 
-        bool m_gotSavPolicy = false;
-        bool m_gotAlcPolicy = false;
-
         std::unique_ptr<common::ThreadRunner> m_schedulerThread;
         std::unique_ptr<common::ThreadRunner> m_threatDetectorThread;
         void processFlags(const std::string& flagsJson);

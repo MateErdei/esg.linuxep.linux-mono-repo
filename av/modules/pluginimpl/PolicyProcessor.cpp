@@ -78,6 +78,13 @@ namespace Plugin
     {
         auto oldCustomerId = m_customerId;
         m_customerId = getCustomerId(policy);
+
+        if (!m_gotFirstAlcPolicy)
+        {
+            LOGINFO("ALC policy received for the first time.");
+            m_gotFirstAlcPolicy = true;
+        }
+
         if (m_customerId.empty())
         {
             LOGWARN("Failed to find customer ID from ALC policy");
@@ -200,16 +207,23 @@ namespace Plugin
         telemetry.set("onAccessConfigured", onAccessEnabledTelemetry, true);
     }
 
-    bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed)
+    bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
         processOnAccessPolicy(policy);
 
         bool oldLookupEnabled = m_lookupEnabled;
         m_lookupEnabled = isLookupEnabled(policy);
-        if (isSAVPolicyAlreadyProcessed && m_lookupEnabled == oldLookupEnabled)
+
+        if (!m_gotFirstSavPolicy)
+        {
+            LOGINFO("SAV policy received for the first time.");
+            m_gotFirstSavPolicy = true;
+            return false;
+        }
+
+        if (m_lookupEnabled == oldLookupEnabled)
         {
             // Only restart sophos_threat_detector if it is the first policy or it has changed
-
             return false;
         }
 

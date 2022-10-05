@@ -171,9 +171,8 @@ namespace Plugin
                             if (policyUpdated)
                             {
                                 policyWaiter.gotPolicy(appId);
+                                m_restartSophosThreatDetector = true;
                             }
-
-                            m_restartSophosThreatDetector = policyUpdated || m_restartSophosThreatDetector;
                         }
 
                         break;
@@ -254,11 +253,6 @@ namespace Plugin
                     LOGINFO("Processing ALC Policy");
                     LOGDEBUG("Processing policy: " << policyXml);
                     bool updated = m_policyProcessor.processAlcPolicy(attributeMap);
-                    if (!m_gotAlcPolicy)
-                    {
-                        LOGINFO("ALC policy received for the first time.");
-                        m_gotAlcPolicy = true;
-                    }
                     appId = "ALC";
                     return updated;
                 }
@@ -283,24 +277,28 @@ namespace Plugin
             LOGDEBUG("Processing policy: " << policyXml);
 
             //savPolicyHasChanged = have we updated the policy
-            //m_gotSavPolicy = set to true after the first policy is received
+            //m_gotFirstSavPolicy = set to true after the first policy is received
             //configIsValid = When we update config we check if the scheduled scan has name,valid day & time
             //policyUpdated = used in  innermain to determine whether TD should restart
             //m_restartSophosThreatDetector - whether to restart td
 
-            bool updated = m_policyProcessor.processSavPolicy(attributeMap, m_gotSavPolicy);
-            m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
-            bool configIsValid = m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
+            bool policyIsValid = m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
+            if (policyIsValid)
+            {
+                bool updated = m_policyProcessor.processSavPolicy(attributeMap);
+                if (updated)
+                {
+                    m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
+                }
+
+            }
+
 
             std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
             m_callback->sendStatus(revID);
-            if (!m_gotSavPolicy && configIsValid)
-            {
-                LOGINFO("SAV policy received for the first time.");
-                m_gotSavPolicy = true;
-            }
+
             appId = "SAV";
-            return updated;
+            return policyIsValid;
         }
         catch(const Common::XmlUtilities::XmlUtilitiesException& e)
         {

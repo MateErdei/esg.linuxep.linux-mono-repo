@@ -31,7 +31,7 @@ namespace Plugin
          * @param policy
          * @return True if the Enable SXL Lookup setting has changed - if sophos_threat_detector needs to be restarted
          */
-        bool processSavPolicy(const Common::XmlUtilities::AttributesMap& policy, bool isSAVPolicyAlreadyProcessed = true);
+        bool processSavPolicy(const Common::XmlUtilities::AttributesMap& policy);
 
         void processOnAccessPolicy(const Common::XmlUtilities::AttributesMap& policy);
 
@@ -57,6 +57,9 @@ namespace Plugin
         static std::vector<std::string> extractListFromXML(
             const Common::XmlUtilities::AttributesMap& policy,
             const std::string& entityFullPath);
+
+        bool m_gotFirstSavPolicy = false;
+        bool m_gotFirstAlcPolicy = false;
 
         inline static const std::string OA_FLAG = "av.onaccess.enabled";
         inline static const std::string SS_FLAG = "safestore.enabled";
