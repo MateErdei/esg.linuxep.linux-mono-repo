@@ -933,41 +933,6 @@ Run IDE update without SUSI loaded
     # Require SUSI hasn't been initialized, so won't actually update
     Run IDE update with expected text  Threat scanner update is pending  timeout=10
 
-Install IDE with install func
-    [Arguments]  ${ide_name}  ${ide_update_func}
-    SophosThreatDetector.register ide for uninstall  ${ide_name}
-    Register cleanup if unique  cleanup ides
-
-    Add IDE to install set  ${ide_name}
-    Run Keyword  ${ide_update_func}
-    Check IDE present in installation  ${ide_name}
-
-Install IDE with SUSI loaded
-    [Arguments]  ${ide_name}
-    Install IDE with install func  ${ide_name}  Run IDE update with SUSI loaded
-
-Install IDE without SUSI loaded
-    [Arguments]  ${ide_name}
-    Install IDE with install func  ${ide_name}  Run IDE update without SUSI loaded
-
-Install IDE without reload check
-    [Arguments]  ${ide_name}
-    Install IDE with install func  ${ide_name}  Run installer from install set
-
-Install IDE
-    [Arguments]  ${ide_name}
-    Install IDE with SUSI loaded  ${ide_name}
-
-Uninstall IDE
-    [Arguments]  ${ide_name}  ${ide_update_func}=Run IDE update
-    # We don't know how the cleanup was registered
-    Deregister Optional Cleanup   Uninstall IDE  ${ide_name}  ${ide_update_func}
-    Deregister Optional Cleanup   Uninstall IDE  ${ide_name}
-    SophosThreatDetector.deregister ide for uninstall  ${ide_name}
-    Remove IDE From Install Set  ${ide_name}
-    Run Keyword  ${ide_update_func}
-    Check IDE Absent From Installation  ${ide_name}
-
 
 Get Pid
     [Arguments]  ${EXEC}
@@ -1130,20 +1095,29 @@ Replace Virus Data With Test Dataset A
     Log  VDL after replacement: ${result.stdout}
 
 Revert Virus Data To Live Dataset A
+    Directory Should Exist   /tmp/vdl-tmp/    No backup virus data, cannot revert
     Empty Directory  ${IDE_DIR}
     Copy Files  /tmp/vdl-tmp/*   ${IDE_DIR}/
     Remove Directory  /tmp/vdl-tmp  recursive=True
 
+Revert Virus Data and Run Update if Required
+    ${exists} =   Run Keyword And Return Status
+    ...   Directory Should Exist   /tmp/vdl-tmp/
+    IF   ${exists}
+        Revert Virus Data To Live Dataset A
+        Run IDE update
+    END
+
 Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Replace Virus Data With Test Dataset A
-    Register Cleanup  Run IDE update with SUSI loaded
+    Register Cleanup  Run IDE update
     Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update without SUSI loaded
 
 Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     [Arguments]  ${setOldTimestamps}=${False}
     Replace Virus Data With Test Dataset A  ${setOldTimestamps}
-    Register Cleanup  Run IDE update with SUSI loaded
+    Register Cleanup  Run IDE update
     Register Cleanup  Revert Virus Data To Live Dataset A
     Run IDE update with SUSI loaded
 

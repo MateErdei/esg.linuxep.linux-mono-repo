@@ -726,7 +726,6 @@ AV Plugin does not restart threat detector on customer id change
 
 
 AV Plugin tries to restart threat detector on susi startup settings change
-    Register Cleanup    Exclude Threat Detector Launcher Died
     Register Cleanup    Exclude Failed To Write To UnixSocket Environment Interuption
     Register Cleanup    Exclude Invalid Settings No Primary Product
     Register Cleanup    Exclude Configuration Data Invalid

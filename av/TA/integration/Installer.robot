@@ -216,7 +216,7 @@ Update then Restart Sophos Threat Detector
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Mark Susi Debug Log
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
-    Wait Until SUSI DEBUG Log Contains With Offset   Performing SUSI update  30
+    Wait Until SUSI DEBUG Log Contains With Offset   Performing SUSI update
 
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     Mark Sophos Threat Detector Log
@@ -352,10 +352,6 @@ AV Plugin gets customer id after upgrade
     Should Be Equal   ${customerId2}   ${expectedId}
 
 IDE can be removed
-    #TODO: LINUXDAR-5775 re-enable once the bug is closed the issue has been identified
-    [Tags]  DISABLED
-    #Our "fake" IDE update might cause a SIGTERM to STD
-    Register Cleanup  Exclude Threat Detector Launcher Died
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
@@ -365,10 +361,14 @@ IDE can be removed
     File should not exist  ${INSTALL_IDE_DIR}/${ide_name}
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
 
-    Install IDE without SUSI loaded  ${IDE_NAME}
+    Replace Virus Data With Test Dataset A
+    Register Cleanup  Revert Virus Data and Run Update if Required
+    Run IDE update without SUSI loaded
     File should exist  ${INSTALL_IDE_DIR}/${ide_name}
 
-    Uninstall IDE  ${IDE_NAME}
+    Revert Virus Data To Live Dataset A
+    Run IDE update without SUSI loaded
+
     File should not exist  ${INSTALL_IDE_DIR}/${ide_name}
     File should not exist  ${INSTALL_IDE_DIR}/${ide_name}.0
     File Should Not Exist   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/libsusi.so
@@ -378,7 +378,6 @@ IDE can be removed
 sophos_threat_detector can start after multiple IDE updates
     [Timeout]  10 minutes
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Register Cleanup  Installer Suite Setup
 
     Force SUSI to be initialized
     # can't check for SUSI in logs, as it may have already been initialized
@@ -386,7 +385,7 @@ sophos_threat_detector can start after multiple IDE updates
     mark sophos threat detector log
 
     Replace Virus Data With Test Dataset A
-    Register Cleanup  Revert Virus Data To Live Dataset A
+    Register Cleanup  Revert Virus Data and Run Update if Required
     Run IDE update with SUSI loaded
     Sophos Threat Detector Log Contains With Offset  Threat scanner successfully updated
     Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
@@ -515,7 +514,7 @@ Check no duplicate virus data files
     Check no duplicate files in directory  ${vdlInUse}
     Check no duplicate files in directory  ${vdlUpdate}
 
-    Install IDE without SUSI loaded  ${IDE_NAME}
+    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
 
     # Check there are still no symlinks or .0 duplicate files
     Check no symlinks in directory  ${vdlUpdate}
@@ -634,6 +633,10 @@ AV Plugin Can Send Telemetry After IDE Update
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
 
+    # TODO - workaround for LINUXDAR-5661 / LINUXDAR-5671, delete these lines once service health is working
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  on_access_process
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  on_access_process
+
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
@@ -643,7 +646,7 @@ AV Plugin Can Send Telemetry After IDE Update
     Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Install IDE without SUSI loaded  ${IDE_NAME}
+    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
@@ -755,20 +758,18 @@ IDE Update Invalidates On Access Cache
     Mark On Access Log
     Send Policies to enable on-access
     Wait for on access to be enabled
-
     Register Cleanup  Exclude On Access Scan Errors
+
     ${srcfile} =  Set Variable  /tmp_test/clean.txt
     Create File  ${srcfile}  clean
-    Get File  ${srcfile}
     Register Cleanup  Remove File  ${srcfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from
-    # Allow time for file to be added to cache
-    Sleep  5s
+    Wait Until On Access Log Contains With Offset  On-close event for ${srcfile} from
+    Get File  ${srcfile}
+    Wait Until On Access Log Contains With Offset   Caching ${srcfile}
 
-    Install IDE without reload check  ${IDE_NAME}
+    Mark On Access Log
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Wait Until On Access Log Contains With Offset  Clearing on-access cache
-    # Allow time for cache to be cleared
-    Sleep  5s
 
     Mark On Access Log
     Get File  ${srcfile}
