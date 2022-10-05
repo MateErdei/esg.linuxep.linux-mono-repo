@@ -110,7 +110,7 @@ int FanotifyHandler::clearCachedFiles() const
     int result = m_systemCallWrapper->fanotify_mark(getFd(), FAN_MARK_FLUSH, 0, FAN_NOFD, nullptr);
     if (result < 0)
     {
-        processFaMarkError("clearCachedFiles", "");
+        processFaMarkError("clearCachedFiles", "fanotify fd");
     }
     return result;
 }

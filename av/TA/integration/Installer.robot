@@ -352,6 +352,8 @@ AV Plugin gets customer id after upgrade
     Should Be Equal   ${customerId2}   ${expectedId}
 
 IDE can be removed
+    #TODO: LINUXDAR-5775 re-enable once the bug is closed the issue has been identified
+    [Tags]  DISABLED
     #Our "fake" IDE update might cause a SIGTERM to STD
     Register Cleanup  Exclude Threat Detector Launcher Died
     Mark Sophos Threat Detector Log
