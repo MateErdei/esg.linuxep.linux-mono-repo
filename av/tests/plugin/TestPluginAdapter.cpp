@@ -392,17 +392,17 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
 
     std::string brokenPolicyXml = Common::UtilityImpl::StringUtils::orderedStringReplace(
         R"sophos(<?xml version="1.0"?>
-<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
-  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="@@REV_ID@@" policyType="@@POLICY_ID@@"/>
-     <detectionFeedback>
-        <sendData>@@SXL@@</sendData>
-        <sendFiles>false</sendFiles>
-        true</onDemandEnable>
-      </detectionFeedback>
-</config>
-)sophos", {{"@@REV_ID@@", "12345678901"},
-          {"@@POLICY_ID@@", "2"},
-          {"@@SXL@@", "false"}});
+        <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+          <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="@@REV_ID@@" policyType="@@POLICY_ID@@"/>
+             <detectionFeedback>
+                <sendData>@@SXL@@</sendData>
+                <sendFiles>false</sendFiles>
+                true</onDemandEnable>
+              </detectionFeedback>
+        </config>
+        )sophos", {{"@@REV_ID@@", "12345678901"},
+                    {"@@POLICY_ID@@", "2"},
+                    {"@@SXL@@", "false"}});
 
     Task policyTask = {Task::TaskType::Policy, brokenPolicyXml};
     m_queueTask->push(policyTask);
@@ -439,52 +439,54 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntStartProcessesWithInvalidEntry)
     std::string invalidPolicyXml =
         R"sophos(<?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
-  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="12345678901" policyType="2"/>
-     <scanSet>
-       <!-- if {{scheduledScanEnabled}} -->
-       <scan>
-           <name>Sophos Cloud Scheduled Scan</name>
-           <schedule>
-               <daySet>
-                   <!-- for day in {{scheduledScanDays}} -->
-                   <day>{{day}}</day>
-               </daySet>
-               <timeSet>
-                   <time>{{scheduledScanTime}}</time>
-               </timeSet>
-           </schedule>
-           <settings>
-               <scanObjectSet>
-                   <CDDVDDrives>false</CDDVDDrives>
-                   <hardDrives>true</hardDrives>
-                   <networkDrives>false</networkDrives>
-                   <removableDrives>false</removableDrives>
-                   <kernelMemory>true</kernelMemory>
-               </scanObjectSet>
-               <scanBehaviour>
-                   <level>normal</level>
-                   <archives>{{scheduledScanArchives}}</archives>
-                   <pua>true</pua>
-                   <suspiciousFileDetection>false</suspiciousFileDetection>
-                   <scanForMacViruses>false</scanForMacViruses>
-                   <anti-rootkits>true</anti-rootkits>
-               </scanBehaviour>
-               <actions>
-                   <disinfect>true</disinfect>
-                   <puaRemoval>false</puaRemoval>
-                   <fileAction>doNothing</fileAction>
-                   <destination/>
-                   <suspiciousFiles>
-                       <fileAction>doNothing</fileAction>
-                       <destination/>
-                   </suspiciousFiles>
-               </actions>
-               <on-demand-options>
-                   <minimise-scan-impact>true</minimise-scan-impact>
-               </on-demand-options>
-           </settings>
-       </scan>
-   </scanSet>
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+   <scanSet>
+        <!-- if {{scheduledScanEnabled}} -->
+        <scan>
+            <name>Sophos Cloud Scheduled Scan</name>
+        <schedule>
+        <daySet>
+            <!-- for day in {{scheduledScanDays}} -->
+            <day>{{day}}</day>
+        </daySet>
+        <timeSet>
+            <time>{{scheduledScanTime}}</time>
+        </timeSet>
+        </schedule>
+        <settings>
+        <scanObjectSet>
+        <CDDVDDrives>false</CDDVDDrives>
+        <hardDrives>true</hardDrives>
+        <networkDrives>false</networkDrives>
+        <removableDrives>false</removableDrives>
+        <kernelMemory>true</kernelMemory>
+        </scanObjectSet>
+        <scanBehaviour>
+        <level>normal</level>
+        <archives>{{scheduledScanArchives}}</archives>
+        <pua>true</pua>
+        <suspiciousFileDetection>false</suspiciousFileDetection>
+        <scanForMacViruses>false</scanForMacViruses>
+        <anti-rootkits>true</anti-rootkits>
+        </scanBehaviour>
+        <actions>
+            <disinfect>true</disinfect>
+            <puaRemoval>false</puaRemoval>
+            <fileAction>doNothing</fileAction>
+            <destination/>
+            <suspiciousFiles>
+              <fileAction>doNothing</fileAction>
+              <destination/>
+            </suspiciousFiles>
+        </actions>
+        <on-demand-options>
+        <minimise-scan-impact>true</minimise-scan-impact>
+        </on-demand-options>
+        </settings>
+        </scan>
+        </scanSet>
+  </onDemandScan>
 </config>
 )sophos";
 
@@ -497,6 +499,7 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntStartProcessesWithInvalidEntry)
     m_queueTask->push(stopTask);
     EXPECT_TRUE(waitForLog("Stop task received"));
     EXPECT_FALSE(appenderContains("SAV policy received for the first time."));
+    EXPECT_FALSE(appenderContains("Processing request to restart sophos threat detector"));
 
     pluginThread.join();
 }
