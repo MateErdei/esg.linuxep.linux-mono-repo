@@ -35,6 +35,7 @@
       <filePathSet>
         <filePath>/mnt/</filePath>
         <filePath>/uk-filer5/</filePath>
+        <filePath>*excluded*</filePath>
       </filePathSet>
       <excludeRemoteFiles>false</excludeRemoteFiles>
     </linuxExclusions>

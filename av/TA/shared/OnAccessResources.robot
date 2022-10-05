@@ -121,20 +121,22 @@ On-access Scan Eicar Close
 
 
 On-access Scan Eicar Open
-    #TODO: LINUXDAR-5740 - improve this before closing 5740, more comments on ticekt
-    Mark On Access Log
+    ${create-filepath} =  Set Variable  /tmp_test/excluded-eicar.com
+    Create File  ${create-filepath}  ${EICAR_STRING}
+
     ${filepath} =  Set Variable  /tmp_test/eicar.com
-    Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
+
+    Move File   ${create-filepath}  ${filepath}
+
+    Mark On Access Log
 
     Get File   ${filepath}
 
     Wait Until On Access Log Contains With Offset  On-open event for ${filepath} from    timeout=${timeout}
     Wait Until On Access Log Contains With Offset  "${filepath}" is infected with    timeout=${timeout}
 
-
 On-access No Eicar Scan
-    #${pid} =  Get Robot Pid
     ${filepath} =  Set Variable  /tmp_test/uncaught_eicar.com
 
     Mark On Access Log
