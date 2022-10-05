@@ -2,6 +2,8 @@
 
 # define TEST_PUBLIC public
 
+#include "PluginMemoryAppenderUsingTests.h"
+
 #include "pluginimpl/PluginCallback.h"
 #include "pluginimpl/QueueTask.h"
 
@@ -14,7 +16,6 @@
 #include <Common/UtilityImpl/StringUtils.h>
 #include <gtest/gtest.h>
 #include <pluginimpl/HealthStatus.h>
-#include <tests/common/MemoryAppender.h>
 #include <tests/datatypes/MockSysCalls.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
@@ -26,13 +27,9 @@ using json = nlohmann::json;
 
 namespace
 {
-    class TestPluginCallback : public MemoryAppenderUsingTests
+    class TestPluginCallback : public PluginMemoryAppenderUsingTests
     {
     public:
-        TestPluginCallback()
-                : MemoryAppenderUsingTests("av")
-        {}
-
         void SetUp() override
         {
             const ::testing::TestInfo* const test_info =
@@ -413,7 +410,9 @@ TEST_F(TestPluginCallback, getHealthReturnsZeroWhenPidfileExistsButIsNotLocked)
 
 TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdownFileHasExpired)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
@@ -427,16 +426,17 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_sysCalls);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
     std::stringstream errMsg;
     errMsg << "Unable to open PID file " << threatDetectorPidFile << " (No such file or directory), assume process not running";
-    EXPECT_THAT(logMessage, ::testing::HasSubstr(errMsg.str()));
+    EXPECT_TRUE(appenderContains(errMsg.str()));
     ASSERT_EQ(result, expectedResult);
 }
 
 TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdownHasAFileSystemException)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
@@ -451,18 +451,15 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_sysCalls);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing threat detector expected shutdown file: "));
+    EXPECT_TRUE(appenderContains("Error accessing threat detector expected shutdown file: "));
     std::stringstream errMsg;
     errMsg << "Unable to open PID file " << threatDetectorPidFile << " (No such file or directory), assume process not running";
-    EXPECT_THAT(logMessage, ::testing::HasSubstr(errMsg.str()));
+    EXPECT_TRUE(appenderContains(errMsg.str()));
     ASSERT_EQ(result, expectedResult);
 }
 
 TEST_F(TestPluginCallback, calculateHealthReturnsZeroIfLockCanBeTakenOnPidFiles)
 {
-    testing::internal::CaptureStderr();
-
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
 
@@ -483,7 +480,9 @@ TEST_F(TestPluginCallback, calculateHealthReturnsZeroIfLockCanBeTakenOnPidFiles)
 
 TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnThreatDetectorPidFile)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
@@ -510,17 +509,18 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnThreatDete
     long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Lock acquired on PID file "));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr(" assume process not running"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Threat Detector Process is not running, turning service health to red"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Service Health has changed to: red"));
+    EXPECT_TRUE(appenderContains("Lock acquired on PID file "));
+    EXPECT_TRUE(appenderContains(" assume process not running"));
+    EXPECT_TRUE(appenderContains("Sophos Threat Detector Process is not running, turning service health to red"));
+    EXPECT_TRUE(appenderContains("Service Health has changed to: red"));
     ASSERT_EQ(result, expectedResult);
 }
 
 TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSoapdPidFile)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
 
@@ -543,17 +543,18 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSoapdPidFi
     long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Lock acquired on PID file "));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr(" assume process not running"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos On Access Process is not running, turning service health to red"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Service Health has changed to: red"));
+    EXPECT_TRUE(appenderContains("Lock acquired on PID file "));
+    EXPECT_TRUE(appenderContains(" assume process not running"));
+    EXPECT_TRUE(appenderContains("Sophos On Access Process is not running, turning service health to red"));
+    EXPECT_TRUE(appenderContains("Service Health has changed to: red"));
     ASSERT_EQ(result, expectedResult);
 }
 
 TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSafestorePidFile)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
 
@@ -577,11 +578,10 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSafestoreP
     m_pluginCallback->setSafeStoreEnabled(true);
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Lock acquired on PID file "));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr(" assume process not running"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Safestore Process is not running, turning service health to red"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Service Health has changed to: red"));
+    EXPECT_TRUE(appenderContains("Lock acquired on PID file "));
+    EXPECT_TRUE(appenderContains(" assume process not running"));
+    EXPECT_TRUE(appenderContains("Sophos Safestore Process is not running, turning service health to red"));
+    EXPECT_TRUE(appenderContains("Service Health has changed to: red"));
     ASSERT_EQ(result, expectedResult);
 }
 
@@ -627,7 +627,9 @@ TEST_F(TestPluginCallback, getTelemetry_ProductInfo)
 
 TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesWhenPidFileDoesNotExist)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
 
@@ -641,14 +643,16 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesWhenPidFileDoesNotExist)
     std::pair<long, long> expectedResult(0, 0);
     std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(sysCallsMock);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing pid file: "));
+    EXPECT_TRUE(appenderContains("Error accessing pid file: "));
     ASSERT_EQ(result, expectedResult);
 }
 
 TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidFileContentsAreMalformed)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
+
 
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
     std::string badPidContents = "notanint";
@@ -662,15 +666,16 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidFileContentsAreMalfor
     std::pair<long, long> expectedResult(0, 0);
     std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(sysCallsMock);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed to read Pid file to int due to: "));
+    EXPECT_TRUE(appenderContains("Failed to read Pid file to int due to: "));
     ASSERT_EQ(result, expectedResult);
 }
 
 
 TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidDirectoryInProcIsMissing)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
     std::string pidFileContents = "1234";
@@ -686,15 +691,16 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfPidDirectoryInProcIsMiss
     std::pair<long, long> expectedResult(0,0);
     std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(sysCallsMock);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Process no longer running: "));
+    EXPECT_TRUE(appenderContains("Process no longer running: "));
     ASSERT_EQ(result, expectedResult);
 }
 
 
 TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfAccessingPidDirectoryHasAFileSystemException)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
     std::string pidFileContents = "1234";
@@ -711,14 +717,15 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfAccessingPidDirectoryHas
     std::pair<long, long> expectedResult(0,0);
     std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(sysCallsMock);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error accessing proc directory of pid: 1234 due to: "));
+    EXPECT_TRUE(appenderContains("Error accessing proc directory of pid: 1234 due to: "));
     ASSERT_EQ(result, expectedResult);
 }
 
 TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfStatFileSizeIsIncorrect)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
     std::string pidFileContents = "1234";
@@ -737,14 +744,15 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfStatFileSizeIsIncorrect)
     std::pair<long, long> expectedResult(0,0);
     std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(sysCallsMock);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("The proc stat for 1234 is not of expected size"));
+    EXPECT_TRUE(appenderContains("The proc stat for 1234 is not of expected size"));
     ASSERT_EQ(result, expectedResult);
 }
 
 TEST_F(TestPluginCallback, getProcessInfoReturnsMemoryCorrectAgeZeroWithInvalidSysInfoCall)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
     std::string pidFileContents = "1234";
@@ -768,8 +776,7 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsMemoryCorrectAgeZeroWithInvalidS
     std::pair<long, long> expectedResult(expectedMemoryValue,expectedAgeValue);
     std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(sysCallsMock);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed to retrieve system info, cant calculate process duration."));
+    EXPECT_TRUE(appenderContains("Failed to retrieve system info, cant calculate process duration."));
 
     ASSERT_EQ(result, expectedResult);
 }
@@ -802,7 +809,9 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsCorrectValuesWhenSuccessful)
 
 TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfProcStatFileFailsToBeRead)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
     std::string pidFileContents = "1234";
@@ -821,14 +830,15 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesIfProcStatFileFailsToBeRea
     std::pair<long, long> expectedResult(0,0);
     std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(sysCallsMock);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Stat file of Pid: 1234 is empty. Cannot report on Threat Detector Process to Telemetry: "));
+    EXPECT_TRUE(appenderContains("Stat file of Pid: 1234 is empty. Cannot report on Threat Detector Process to Telemetry: "));
     ASSERT_EQ(result, expectedResult);
 }
 
 TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenAccessingStatProcFile)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
     std::string pidFileContents = "1234";
@@ -849,14 +859,15 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenA
     std::pair<long, long> expectedResult(0,0);
     std::pair<long, long> result = m_pluginCallback->getThreatScannerProcessinfo(sysCallsMock);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Error reading threat detector stat proc file due to: "));
+    EXPECT_TRUE(appenderContains("Error reading threat detector stat proc file due to: "));
     ASSERT_EQ(result, expectedResult);
 }
 
 TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
+    commonLogger.addAppender(m_sharedAppender);
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
 
@@ -887,17 +898,13 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
     m_pluginCallback->m_serviceHealth = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
 
-    std::string logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Lock acquired on PID file "));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr(" assume process not running"));
-    EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Sophos Safestore Process is not running, turning service health to red")));
-    EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Sophos On Access Process is not running, turning service health to red")));
-    EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Sophos Threat Detector Process is not running, turning service health to red")));
-    EXPECT_THAT(logMessage, Not(::testing::HasSubstr("Service Health has changed to")));
+    EXPECT_TRUE(appenderContains("Lock acquired on PID file"));
+    EXPECT_TRUE(appenderContains("assume process not running"));
+    EXPECT_FALSE(appenderContains("Sophos Safestore Process is not running, turning service health to red"));
+    EXPECT_FALSE(appenderContains("Sophos On Access Process is not running, turning service health to red"));
+    EXPECT_FALSE(appenderContains("Sophos Threat Detector Process is not running, turning service health to red"));
+    EXPECT_FALSE(appenderContains("Service Health has changed to"));
     ASSERT_EQ(result, E_HEALTH_STATUS_BAD);
-
-    //Now test that we log that service health has been reset
-    testing::internal::CaptureStderr();
 
     threatDetectorFlock.l_type    = F_RDLCK;
     soapdFlock.l_type    = F_RDLCK;
@@ -909,11 +916,11 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
 
     ASSERT_EQ(m_pluginCallback->m_serviceHealth, E_HEALTH_STATUS_BAD);
     result = m_pluginCallback->calculateHealth(m_mockSysCalls);
-    logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Safestore Process is now running"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos On Access Process is now running"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Threat Detector Process is now running"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Service Health has changed to: green"));
+
+    EXPECT_TRUE(appenderContains("Sophos Safestore Process is now running"));
+    EXPECT_TRUE(appenderContains("Sophos On Access Process is now running"));
+    EXPECT_TRUE(appenderContains("Sophos Threat Detector Process is now running"));
+    EXPECT_TRUE(appenderContains("Service Health has changed to: green"));
     ASSERT_EQ(result, E_HEALTH_STATUS_GOOD);
     //if this succeeds all process service healths are E_HEALTH_STATUS_GOOD
     ASSERT_EQ(m_pluginCallback->m_serviceHealth, E_HEALTH_STATUS_GOOD);
