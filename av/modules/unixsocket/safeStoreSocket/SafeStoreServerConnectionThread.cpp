@@ -9,7 +9,7 @@
 
 #include <capnp/serialize.h>
 #include <common/FDUtils.h>
-#include <scan_messages/ServerThreatDetected.h>
+#include <scan_messages/ThreatDetected.h>
 
 #include <cassert>
 #include <stdexcept>
@@ -20,19 +20,12 @@
 
 using namespace unixsocket;
 
-SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(datatypes::AutoFd& fd,
-                                                                           std::shared_ptr<IMessageCallback> threatReportCallback)
+SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(datatypes::AutoFd& fd)
         : m_fd(std::move(fd))
-        , m_threatReportCallback(std::move(threatReportCallback))
 {
     if (m_fd < 0)
     {
         throw std::runtime_error("Attempting to construct SafeStoreServerConnectionThread with invalid socket fd");
-    }
-
-    if (!m_threatReportCallback)
-    {
-        throw std::runtime_error("Attempting to construct SafeStoreServerConnectionThread with null callback");
     }
 }
 
@@ -56,7 +49,7 @@ SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(datatypes::Auto
  * @param bytes_read
  * @return
  */
-static scan_messages::ServerThreatDetected parseDetection(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
+static scan_messages::ThreatDetected parseDetection(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
 {
     auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
 
@@ -68,7 +61,7 @@ static scan_messages::ServerThreatDetected parseDetection(kj::Array<capnp::word>
     {
         LOGERROR("Missing file path while parsing report ( size=" << bytes_read << " )");
     }
-    return scan_messages::ServerThreatDetected(requestReader);
+    return scan_messages::ThreatDetected(requestReader);
 }
 
 void SafeStoreServerConnectionThread::run()
@@ -220,7 +213,6 @@ void SafeStoreServerConnectionThread::inner_run()
             LOGINFO(message.str());
 
             // TODO send to Quarantine Manager
-
             // TODO: HANDLE ANY SOCKET ERRORS
         }
     }

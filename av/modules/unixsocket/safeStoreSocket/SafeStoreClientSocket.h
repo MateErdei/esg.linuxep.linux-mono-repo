@@ -18,7 +18,5 @@ namespace unixsocket
         explicit SafeStoreClientSocket(std::string socket_path, const struct timespec& sleepTime = { 1, 0 });
 
         void sendQuarantineRequest(const scan_messages::ThreatDetected& detection);
-
-        void connectWithRetries(const std::string& socketName) override;
     };
 } // namespace unixsocket

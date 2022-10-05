@@ -9,14 +9,14 @@ namespace Plugin
         m_maxSize = newMaxSize;
     }
 
-    void QueueSafeStoreTask::push(scan_messages::ServerThreatDetected task)
+    void QueueSafeStoreTask::push(scan_messages::ThreatDetected task)
     {
         std::lock_guard<std::mutex> lck(m_mutex);
         m_list.push(std::move(task));
         m_cond.notify_one();
     }
 
-    std::optional<scan_messages::ServerThreatDetected> QueueSafeStoreTask::pop()
+    std::optional<scan_messages::ThreatDetected> QueueSafeStoreTask::pop()
     {
         std::unique_lock<std::mutex> lck(m_mutex);
         m_cond.wait(lck, [this] { return (!isEmpty() || m_stopRequested.load()); });
@@ -24,7 +24,7 @@ namespace Plugin
         {
             return std::nullopt;
         }
-        scan_messages::ServerThreatDetected val = m_list.front();
+        scan_messages::ThreatDetected val = std::move(m_list.front());
         m_list.pop();
         return val;
     }

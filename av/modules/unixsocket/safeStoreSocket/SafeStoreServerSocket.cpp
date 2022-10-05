@@ -6,10 +6,8 @@ using namespace unixsocket;
 
 SafeStoreServerSocket::SafeStoreServerSocket(
     const std::string& path,
-    const mode_t mode,
-    std::shared_ptr<IMessageCallback> threatReportCallback)
+    const mode_t mode)
     : SafeStoreServerSocketBase(path, mode)
-    , m_threatReportCallback(std::move(threatReportCallback))
 {
     m_socketName = "SafeStore Socket Server";
 }

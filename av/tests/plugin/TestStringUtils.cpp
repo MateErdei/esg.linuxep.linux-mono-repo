@@ -79,9 +79,9 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXml)
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
             messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
-    scan_messages::ServerThreatDetected serverThreatDetectedMessage(deSerialisedData);
+    scan_messages::ThreatDetected threatDetectedMessage(deSerialisedData);
 
-    std::string result = generateThreatDetectedXml(serverThreatDetectedMessage);
+    std::string result = generateThreatDetectedXml(threatDetectedMessage);
 
     EXPECT_EQ(result, m_englishsXML);
 }
@@ -115,8 +115,8 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats)
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
             messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
-    scan_messages::ServerThreatDetected serverThreatDetectedMessage(deSerialisedData);
-    std::string result = generateThreatDetectedXml(serverThreatDetectedMessage);
+    scan_messages::ThreatDetected threatDetectedMessage(deSerialisedData);
+    std::string result = generateThreatDetectedXml(threatDetectedMessage);
 
     EXPECT_EQ(result, m_umlatsXML);
 }
@@ -150,13 +150,13 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters)
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
             messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
-    scan_messages::ServerThreatDetected serverThreatDetectedMessage(deSerialisedData);
-    std::string result = generateThreatDetectedXml(serverThreatDetectedMessage);
+    scan_messages::ThreatDetected threatDetectedMessage(deSerialisedData);
+    std::string result = generateThreatDetectedXml(threatDetectedMessage);
 
     EXPECT_EQ(result, m_japaneseXML);
 }
 
-static scan_messages::ServerThreatDetected createEvent(
+static scan_messages::ThreatDetected createEvent(
     const std::string& threatName = "",
     const std::string& threatPath = "",
     const std::string& userID = "",
@@ -187,13 +187,13 @@ static scan_messages::ServerThreatDetected createEvent(
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
         messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
-    return scan_messages::ServerThreatDetected(deSerialisedData);
+    return scan_messages::ThreatDetected(deSerialisedData);
 }
 
 TEST_F(TestStringUtils, TestEmptyPathXML)
 {
-    scan_messages::ServerThreatDetected serverThreatDetectedMessage(createEvent());
-    std::string result = generateThreatDetectedXml(serverThreatDetectedMessage);
+    scan_messages::ThreatDetected threatDetectedMessage(createEvent());
+    std::string result = generateThreatDetectedXml(threatDetectedMessage);
 
     static const std::string expectedXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <notification description="Found '' in ''" timestamp="19700101 000203" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
@@ -234,7 +234,7 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON)
     capnp::FlatArrayMessageReader messageInput(view);
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
         messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
-    std::string result = generateThreatDetectedJson(scan_messages::ServerThreatDetected(deSerialisedData));
+    std::string result = generateThreatDetectedJson(scan_messages::ThreatDetected(deSerialisedData));
 
     static const std::string expectedJSON = R"sophos({"details":{"filePath":"","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":"eicar"},"items":{"1":{"path":"","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"threatType":1,"time":123})sophos";
 
@@ -269,7 +269,7 @@ TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
     capnp::FlatArrayMessageReader messageInput(view);
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
         messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
-    std::string result = generateThreatDetectedJson(scan_messages::ServerThreatDetected(deSerialisedData));
+    std::string result = generateThreatDetectedJson(scan_messages::ThreatDetected(deSerialisedData));
 
     static const std::string expectedJSON = R"sophos({"details":{"filePath":"path/to/threat","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":""},"items":{"1":{"path":"path/to/threat","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"threatType":1,"time":123})sophos";
 

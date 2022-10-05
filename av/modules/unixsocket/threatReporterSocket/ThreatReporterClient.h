@@ -20,7 +20,5 @@ namespace unixsocket
         explicit ThreatReporterClientSocket(std::string  socket_path, const struct timespec& sleepTime={1,0});
 
         void sendThreatDetection(const scan_messages::ThreatDetected& detection);
-
-        void connectWithRetries(const std::string& socketName) override;
     };
 }

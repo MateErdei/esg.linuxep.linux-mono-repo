@@ -22,7 +22,7 @@
 using json = nlohmann::json;
 namespace fs = sophos_filesystem;
 
-std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection)
+std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ThreatDetected& detection)
 {
     std::string path = detection.getFilePath();
     if (path.size() == 0)
@@ -93,7 +93,7 @@ std::string pluginimpl::generateOnAccessConfig(const std::string& isEnabled,
     return config.dump();
 }
 
-std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ServerThreatDetected& detection)
+std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ThreatDetected& detection)
 {
     json threatEvent;
     json details;

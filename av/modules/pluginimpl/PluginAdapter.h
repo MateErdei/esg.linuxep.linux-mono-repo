@@ -52,15 +52,15 @@ namespace Plugin
             int waitForPolicyTimeout = 5);
         void mainLoop();
         void processScanComplete(std::string& scanCompletedXml, int exitCode) override;
-        void processDetectionReport(const scan_messages::ServerThreatDetected&);
-        void processThreatReport(const std::string& threatDetectedXML);
-        void publishThreatEvent(const std::string& threatDetectedJSON);
+        void processDetectionReport(const scan_messages::ThreatDetected&) const override;
+        void processThreatReport(const std::string& threatDetectedXML) const;
+        void publishThreatEvent(const std::string& threatDetectedJSON) const;
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
         bool isSafeStoreEnabled();
-        std::shared_ptr<QueueSafeStoreTask> getSafeStoreQueue() const;
+        [[nodiscard]] std::shared_ptr<QueueSafeStoreTask> getSafeStoreQueue() const;
 
     PLUGIN_INTERNAL:
-        void publishThreatHealth(E_HEALTH_STATUS threatStatus);
+        void publishThreatHealth(E_HEALTH_STATUS threatStatus) const;
     private:
         /**
          *

@@ -10,6 +10,7 @@ SophosAddTest(TestPlugin
         TestPluginAdapter.cpp
         TestPluginCallback.cpp
         TestPolicyWaiter.cpp
+        TestSafeStoreQueue.cpp
         TestStringUtils.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} rt pthread

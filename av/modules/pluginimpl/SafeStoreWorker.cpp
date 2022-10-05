@@ -2,22 +2,19 @@
 
 #include "SafeStoreWorker.h"
 
-#include <utility>
-
-#include "safestore/Logger.h"
+#include "Logger.h"
 
 #include "common/ThreadRunner.h"
 
+#include <utility>
 
 using namespace Plugin;
 
 SafeStoreWorker::SafeStoreWorker(
-    const IDetectionReportProcessor&  pluginAdapter,
-    std::shared_ptr<QueueSafeStoreTask>  safeStoreQueue,
+    const IDetectionReportProcessor& pluginAdapter,
+    std::shared_ptr<QueueSafeStoreTask> safeStoreQueue,
     const fs::path& safeStoreSocket) :
-    m_pluginAdapter(pluginAdapter),
-    m_safeStoreQueue(std::move(safeStoreQueue)),
-    m_safeStoreClientSocket(safeStoreSocket)
+    m_pluginAdapter(pluginAdapter), m_safeStoreQueue(std::move(safeStoreQueue)), m_safeStoreSocket(safeStoreSocket)
 {
     LOGDEBUG("SafeStore socket path " << safeStoreSocket);
 }
@@ -27,10 +24,12 @@ void SafeStoreWorker::run()
     LOGDEBUG("Starting SafeStoreWorker");
 
     announceThreadStarted();
+    LOGDEBUG("Thread start announced");
 
     while (true)
     {
-        std::optional<scan_messages::ServerThreatDetected> task = m_safeStoreQueue->pop();
+        std::optional<scan_messages::ThreatDetected> task = m_safeStoreQueue->pop();
+        LOGDEBUG("QUEUE POPPED");
 
         if (!task.has_value())
         {
@@ -38,23 +37,24 @@ void SafeStoreWorker::run()
             break;
         }
 
-        scan_messages::ServerThreatDetected threatDetected = std::move(task).value();
+        scan_messages::ThreatDetected threatDetected = std::move(task).value();
 
         if (!stopRequested()) // PM Question -- do we want this?
         {
-            m_safeStoreClientSocket.sendQuarantineRequest(threatDetected);
+            unixsocket::SafeStoreClientSocket safeStoreClientSocket(m_safeStoreSocket);
+            safeStoreClientSocket.sendQuarantineRequest(threatDetected);
         }
 
-//        Reponse resp = socket.read(timeout);
+        //        Reponse resp = socket.read(timeout);
 
-//        if (resp != good)
-//        {
-//            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP);
-//        }
-//        else
-//        {
-//            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
-//        }
-        m_pluginAdapter->processDetectionReport(threatDetected);
+        //        if (resp != good)
+        //        {
+        //            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP);
+        //        }
+        //        else
+        //        {
+        //            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
+        //        }
+        m_pluginAdapter.processDetectionReport(threatDetected);
     }
 }

@@ -9,7 +9,7 @@
 
 #include <capnp/serialize.h>
 #include <common/FDUtils.h>
-#include <scan_messages/ServerThreatDetected.h>
+#include <scan_messages/ThreatDetected.h>
 
 #include <cassert>
 #include <stdexcept>
@@ -56,7 +56,7 @@ ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(datat
  * @param bytes_read
  * @return
  */
-static scan_messages::ServerThreatDetected parseDetection(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
+static scan_messages::ThreatDetected parseDetection(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
 {
     auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
 
@@ -68,7 +68,7 @@ static scan_messages::ServerThreatDetected parseDetection(kj::Array<capnp::word>
     {
         LOGERROR("Missing file path while parsing report ( size=" << bytes_read << " )");
     }
-    return scan_messages::ServerThreatDetected(requestReader);
+    return scan_messages::ThreatDetected(requestReader);
 }
 
 void ThreatReporterServerConnectionThread::run()
@@ -212,7 +212,7 @@ void ThreatReporterServerConnectionThread::inner_run()
             {
                 LOGERROR("Missing file path in detection report: empty file path");
             }
-            m_threatReportCallback->processMessage(detectionReader);
+            m_threatReportCallback->processMessage(std::move(detectionReader));
             // TODO: HANDLE ANY SOCKET ERRORS
         }
     }

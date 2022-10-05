@@ -1,12 +1,13 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 #pragma once
 
-#include "PluginAdapter.h"
 #include "IDetectionReportProcessor.h"
+#include "QueueSafeStoreTask.h"
 
 #include "unixsocket/safeStoreSocket/SafeStoreClientSocket.h"
 
 #include "common/AbstractThreadPluginInterface.h"
+#include "datatypes/sophos_filesystem.h"
 
 #include <atomic>
 #include <optional>
@@ -29,6 +30,6 @@ namespace Plugin
     private:
         const IDetectionReportProcessor& m_pluginAdapter;
         std::shared_ptr<QueueSafeStoreTask> m_safeStoreQueue;
-        unixsocket::SafeStoreClientSocket m_safeStoreClientSocket;
+        fs::path m_safeStoreSocket;
     };
 }

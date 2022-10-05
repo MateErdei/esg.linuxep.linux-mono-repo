@@ -56,3 +56,7 @@ int AutoFd::release()
     m_fd = -1;
     return fd;
 }
+bool AutoFd::operator==(const AutoFd& other) const
+{
+    return m_fd == other.m_fd;
+}

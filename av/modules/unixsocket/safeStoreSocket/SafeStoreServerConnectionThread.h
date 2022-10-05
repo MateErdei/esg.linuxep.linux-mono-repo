@@ -21,15 +21,13 @@ namespace unixsocket
         SafeStoreServerConnectionThread(const SafeStoreServerConnectionThread&) = delete;
         SafeStoreServerConnectionThread& operator=(const SafeStoreServerConnectionThread&) = delete;
         explicit SafeStoreServerConnectionThread(
-            datatypes::AutoFd& fd,
-            std::shared_ptr<IMessageCallback> threatReportCallback);
+            datatypes::AutoFd& fd);
         void run() override;
 
     private:
         void inner_run();
 
         datatypes::AutoFd m_fd;
-        std::shared_ptr<IMessageCallback> m_threatReportCallback;
     };
 }
 

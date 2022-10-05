@@ -17,7 +17,7 @@ unixsocket::SafeStoreClientSocket::SafeStoreClientSocket(
     const struct timespec& sleepTime) :
     BaseClient(std::move(socket_path), sleepTime)
 {
-    connectWithRetries("SafeStore");
+    BaseClient::connectWithRetries("SafeStore");
 }
 
 void unixsocket::SafeStoreClientSocket::sendQuarantineRequest(const scan_messages::ThreatDetected& detection)
@@ -45,10 +45,4 @@ void unixsocket::SafeStoreClientSocket::sendQuarantineRequest(const scan_message
     {
         LOGERROR("Failed to write to SafeStore socket. Exception caught: " << e.what());
     }
-}
-
-void unixsocket::SafeStoreClientSocket::connectWithRetries(const std::string& socketName)
-{
-    BaseClient::connectWithRetries(socketName);
-    LOGDEBUG("Successfully connected to SafeStore socket");
 }

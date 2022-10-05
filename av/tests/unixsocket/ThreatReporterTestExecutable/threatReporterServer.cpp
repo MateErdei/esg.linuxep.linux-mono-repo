@@ -21,7 +21,7 @@ namespace
     class MessageCallbacks : public IMessageCallback
     {
     public:
-        void processMessage(const scan_messages::ServerThreatDetected&) override
+        void processMessage(scan_messages::ThreatDetected) override
         {
             // noop
         }

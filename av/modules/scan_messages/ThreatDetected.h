@@ -8,6 +8,8 @@
 
 #include <string>
 
+#include <ThreatDetected.capnp.h>
+
 namespace scan_messages
 {
     enum E_THREAT_TYPE: int
@@ -61,6 +63,10 @@ namespace scan_messages
             std::string threatId,
             datatypes::AutoFd autoFd);
 
+        explicit ThreatDetected(Sophos::ssplav::ThreatDetected::Reader& reader);
+
+        bool operator==(const ThreatDetected& other) const;
+
         void setUserID(const std::string& userID);
         void setDetectionTime(const std::int64_t& detectionTime);
         void setThreatType(E_THREAT_TYPE threatType);
@@ -74,6 +80,18 @@ namespace scan_messages
         void setAutoFd(datatypes::AutoFd&& autoFd);
 
         [[nodiscard]] std::string serialise() const;
+
+        [[nodiscard]] std::string getFilePath() const;
+        [[nodiscard]] std::string getThreatName() const;
+        [[nodiscard]] bool hasFilePath() const;
+        [[nodiscard]] std::int64_t getDetectionTime() const;
+        [[nodiscard]] std::string getUserID() const;
+        [[nodiscard]] E_SCAN_TYPE getScanType() const;
+        [[nodiscard]] E_NOTIFCATION_STATUS getNotificationStatus() const;
+        [[nodiscard]] E_THREAT_TYPE getThreatType() const;
+        [[nodiscard]] E_ACTION_CODE getActionCode() const;
+        [[nodiscard]] std::string getSha256() const;
+        [[nodiscard]] std::string getThreatId() const;
 
         [[nodiscard]] int getFd() const; // does not transfer ownership of fd, use moveAutoFd if that's needed
         [[nodiscard]] datatypes::AutoFd moveAutoFd();

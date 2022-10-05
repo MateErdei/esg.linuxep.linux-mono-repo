@@ -8,6 +8,8 @@
 #include "SafeStoreWrapperImpl.h"
 #include "StateMonitor.h"
 
+#include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
+
 #include "common/ApplicationPaths.h"
 #include "common/PidLockFile.h"
 #include "common/SaferStrerror.h"
@@ -17,6 +19,7 @@
 #include <poll.h>
 
 using namespace safestore;
+namespace fs = sophos_filesystem;
 
 int Main::run()
 {
@@ -41,6 +44,10 @@ void Main::innerRun()
 {
     // Take safestore lock file
     common::PidLockFile lock(Plugin::getSafeStorePidPath());
+
+    fs::path safeStoreSocketPath = "/var/safestore_socket";
+    unixsocket::SafeStoreServerSocket server(safeStoreSocketPath, 0666);
+    server.start();
 
     auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
     auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };

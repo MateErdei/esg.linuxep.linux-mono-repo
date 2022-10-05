@@ -30,6 +30,7 @@ void setupFakeSophosThreatDetectorConfig()
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path base = tmpdir();
     appConfig.setData("PLUGIN_INSTALL", base);
+    fs::create_directories(base / "var");
     fs::path f = base;
     fs::create_directories(f / "chroot/var");
     f /= "sbin";
@@ -37,6 +38,11 @@ void setupFakeSophosThreatDetectorConfig()
     f /= "sophos_threat_detector_launcher";
     std::ofstream ost(f);
     ost.close();
+}
+
+void setupVarDirectory()
+{
+
 }
 
 fs::path pluginInstall()

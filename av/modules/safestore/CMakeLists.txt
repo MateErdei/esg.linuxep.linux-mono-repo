@@ -8,11 +8,8 @@ add_library(safestoreimpl SHARED
 
 target_link_libraries(safestoreimpl PUBLIC
         common
+        unixsocket
         )
-
-target_include_directories(safestoreimpl PUBLIC
-        ${CMAKE_SOURCE_DIR}/modules)
-
 install(TARGETS safestoreimpl
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 

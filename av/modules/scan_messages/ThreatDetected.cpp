@@ -38,6 +38,22 @@ ThreatDetected::ThreatDetected(
 {
 }
 
+ThreatDetected::ThreatDetected(Sophos::ssplav::ThreatDetected::Reader& reader) :
+    ThreatDetected(
+        reader.getUserID(),
+        reader.getDetectionTime(),
+        static_cast<E_THREAT_TYPE>(reader.getThreatType()),
+        reader.getThreatName(),
+        static_cast<E_SCAN_TYPE>(reader.getScanType()),
+        static_cast<E_NOTIFCATION_STATUS>(reader.getNotificationStatus()),
+        reader.getFilePath(),
+        static_cast<E_ACTION_CODE>(reader.getActionCode()),
+        reader.getSha256(),
+        reader.getThreatId(),
+        datatypes::AutoFd())
+{
+}
+
 void ThreatDetected::setUserID(const std::string& userID)
 {
     m_userID = userID;
@@ -132,6 +148,61 @@ std::string ThreatDetected::serialise() const
     return dataAsString;
 }
 
+std::string ThreatDetected::getFilePath() const
+{
+    return m_filePath;
+}
+
+std::string ThreatDetected::getThreatName() const
+{
+    return m_threatName;
+}
+
+bool ThreatDetected::hasFilePath() const
+{
+    return !m_filePath.empty();
+}
+
+std::int64_t ThreatDetected::getDetectionTime() const
+{
+    return m_detectionTime;
+}
+
+std::string ThreatDetected::getUserID() const
+{
+    return m_userID;
+}
+
+E_SCAN_TYPE ThreatDetected::getScanType() const
+{
+    return m_scanType;
+}
+
+E_NOTIFCATION_STATUS ThreatDetected::getNotificationStatus() const
+{
+    return m_notificationStatus;
+}
+
+E_THREAT_TYPE ThreatDetected::getThreatType() const
+{
+    return m_threatType;
+}
+
+E_ACTION_CODE ThreatDetected::getActionCode() const
+{
+    return m_actionCode;
+}
+
+std::string ThreatDetected::getSha256() const
+{
+    return m_sha256;
+}
+
+std::string ThreatDetected::getThreatId() const
+{
+    return m_threatId;
+}
+
 int ThreatDetected::getFd() const
 {
     return m_autoFd.get();
@@ -140,4 +211,20 @@ int ThreatDetected::getFd() const
 datatypes::AutoFd ThreatDetected::moveAutoFd()
 {
     return std::move(m_autoFd);
+}
+
+bool ThreatDetected::operator==(const ThreatDetected& other) const
+{
+    return
+        m_userID == other.m_userID &&
+        m_detectionTime == other.m_detectionTime &&
+        m_threatType == other.m_threatType &&
+        m_threatName == other.m_threatName &&
+        m_scanType == other.m_scanType &&
+        m_notificationStatus == other.m_notificationStatus &&
+        m_filePath == other.m_filePath &&
+        m_actionCode == other.m_actionCode &&
+        m_sha256 == other.m_sha256 &&
+        m_threatId == other.m_threatId &&
+        m_autoFd == other.m_autoFd;
 }

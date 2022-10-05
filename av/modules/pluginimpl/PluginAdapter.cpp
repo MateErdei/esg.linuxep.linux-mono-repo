@@ -49,12 +49,11 @@ namespace Plugin
                 : m_adapter(adapter)
             {}
 
-            // TODO: LINUXDAR-5657 - detection will need to change from const as other end of m_safeStoreQueue will need to modify it
-            void processMessage(const scan_messages::ServerThreatDetected& detection) override
+            void processMessage(scan_messages::ThreatDetected detection) override
             {
                 if (!m_adapter.isSafeStoreEnabled() || m_adapter.getSafeStoreQueue()->isFull())
                 {
-                    m_adapter.getSafeStoreQueue()->push(detection);
+                    m_adapter.getSafeStoreQueue()->push(std::move(detection));
                 }
                 else
                 {
@@ -333,14 +332,14 @@ namespace Plugin
         m_queueTask->push(Task { .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });
     }
 
-    void PluginAdapter::processDetectionReport(const scan_messages::ServerThreatDetected& detection)
+    void PluginAdapter::processDetectionReport(const scan_messages::ThreatDetected& detection) const
     {
         processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
         publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
         publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     }
 
-    void PluginAdapter::processThreatReport(const std::string& threatDetectedXML)
+    void PluginAdapter::processThreatReport(const std::string& threatDetectedXML) const
     {
         LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
         auto attributeMap = Common::XmlUtilities::parseXml(threatDetectedXML);
@@ -348,7 +347,7 @@ namespace Plugin
         m_queueTask->push(Task { .taskType = Task::TaskType::ThreatDetected, .Content = threatDetectedXML });
     }
 
-    void PluginAdapter::publishThreatEvent(const std::string& threatDetectedJSON)
+    void PluginAdapter::publishThreatEvent(const std::string& threatDetectedJSON) const
     {
         try
         {
@@ -361,7 +360,7 @@ namespace Plugin
         }
     }
 
-    void PluginAdapter::publishThreatHealth(E_HEALTH_STATUS threatStatus)
+    void PluginAdapter::publishThreatHealth(E_HEALTH_STATUS threatStatus) const
     {
         try
         {

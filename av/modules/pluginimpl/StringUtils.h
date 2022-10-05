@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 //TO DO: move this somewhere common
 #pragma once
 
-#include "scan_messages/ServerThreatDetected.h"
+#include "scan_messages/ThreatDetected.h"
 
 #include <vector>
 #include <string>
@@ -14,8 +14,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace pluginimpl
 {
-    std::string generateThreatDetectedXml(const scan_messages::ServerThreatDetected& detection);
-    std::string generateThreatDetectedJson(const scan_messages::ServerThreatDetected& detection);
+    std::string generateThreatDetectedXml(const scan_messages::ThreatDetected& detection);
+    std::string generateThreatDetectedJson(const scan_messages::ThreatDetected& detection);
     std::string generateOnAccessConfig(const std::string&,
                                        const std::vector<std::string>& exclusionList,
                                        const std::string& excludeRemoteFiles);

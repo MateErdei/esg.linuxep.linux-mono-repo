@@ -5,21 +5,17 @@
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/Logger.h"
 #include "scan_messages/ThreatDetected.h"
-#include <ScanResponse.capnp.h>
 
 #include <string>
-#include <cstdio>
-#include <cstdlib>
 #include <cassert>
 
 #include <sys/socket.h>
-#include <sys/un.h>
 #include <sstream>
 
 unixsocket::ThreatReporterClientSocket::ThreatReporterClientSocket(std::string socket_path, const struct timespec& sleepTime)
     : BaseClient(std::move(socket_path), sleepTime)
 {
-    connectWithRetries("Threat reporter");
+    BaseClient::connectWithRetries("Threat reporter");
 }
 
 void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_messages::ThreatDetected& detection)
@@ -46,10 +42,4 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
     {
         LOGERROR("Failed to write Threat Report Client to socket. Exception caught: " << e.what());
     }
-}
-
-void unixsocket::ThreatReporterClientSocket::connectWithRetries(const std::string& socketName)
-{
-    BaseClient::connectWithRetries(socketName);
-    LOGDEBUG("Successfully connected to Threat Reporter");
 }

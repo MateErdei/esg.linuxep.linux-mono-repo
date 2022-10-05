@@ -21,8 +21,6 @@ add_library(scanmessages SHARED
         ProcessControlSerialiser.h
         ProcessControlDeserialiser.cpp
         ProcessControlDeserialiser.h
-        ServerThreatDetected.cpp
-        ServerThreatDetected.h
         ThreatDetected.cpp
         ThreatDetected.h)
 

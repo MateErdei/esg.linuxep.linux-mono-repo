@@ -20,7 +20,7 @@ namespace
     class MockIThreatReportCallbacks : public IMessageCallback
     {
     public:
-        MOCK_METHOD1(processMessage, void(const scan_messages::ServerThreatDetected& detection));
+        MOCK_METHOD1(processMessage, void(scan_messages::ThreatDetected detection));
     };
 
     class TestThreatReporter : public LogInitializedTests
