@@ -480,6 +480,51 @@ TEST_F(TestScheduledScanConfiguration, invalidDayMakesScanConfigInvalid) // NOLI
     EXPECT_FALSE(m->isValid());
 }
 
+TEST_F(TestScheduledScanConfiguration, policyWithNoOnDemandScanIsValid) // NOLINT
+{
+    auto attributeMap = Common::XmlUtilities::parseXml(
+        R"MULTILINE(<?xml version="1.0"?>
+        <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+          <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+          <onDemandScan>
+            <extensions>
+                <allFiles>false</allFiles>
+                <excludeSophosDefined/>
+                <userDefined/>
+                <noExtensions>true</noExtensions>
+            </extensions>
+            <exclusions>
+                <filePathSet/>
+                <excludeRemoteFiles>false</excludeRemoteFiles>
+            </exclusions>
+            <posixExclusions>
+                <filePathSet>
+                    <filePath>/home/ubuntu/basicRegression/*</filePath>
+                </filePathSet>
+                <excludeRemoteFiles>false</excludeRemoteFiles>
+            </posixExclusions>
+            <virtualExclusions>
+                <filePathSet/>
+                <excludeRemoteFiles>false</excludeRemoteFiles>
+            </virtualExclusions>
+            <macExclusions>
+                <filePathSet>
+                    <filePath>/home/ubuntu/basicRegression/*</filePath>
+                </filePathSet>
+                <excludeRemoteFiles>false</excludeRemoteFiles>
+            </macExclusions>
+            <scanSet/>
+            <fileReputation>true</fileReputation>
+            </onDemandScan>
+        </config>
+        )MULTILINE");
+
+    auto m = std::make_unique<ScheduledScanConfiguration>(attributeMap);
+    EXPECT_EQ(m->scans().size(), 0);
+    EXPECT_TRUE(m->isValid());
+}
+
+
 TEST_F(TestScheduledScanConfiguration, multipleExclusions) // NOLINT
 {
     auto attributeMap = Common::XmlUtilities::parseXml(
