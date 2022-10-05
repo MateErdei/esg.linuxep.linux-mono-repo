@@ -412,12 +412,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
     EXPECT_TRUE(waitForLog("Stop task received"));
-    EXPECT_TRUE(appenderContains("Threat Reporter Server starting listening on socket"));
-    EXPECT_FALSE(appenderContains("Starting sophos_threat_detector monitor"));
-    EXPECT_FALSE(appenderContains("Starting scanScheduler"));
-    EXPECT_FALSE(appenderContains("Starting scan scheduler"));
-    EXPECT_FALSE(appenderContains("Starting scanProcessMonitor"));
-    EXPECT_FALSE(appenderContains("Starting ConfigMonitor"));
+    EXPECT_FALSE(appenderContains("SAV policy received for the first time."));
 
     pluginThread.join();
 }
@@ -501,12 +496,7 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntStartProcessesWithInvalidEntry)
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
     EXPECT_TRUE(waitForLog("Stop task received"));
-    EXPECT_TRUE(appenderContains("Threat Reporter Server starting listening on socket"));
-    EXPECT_FALSE(appenderContains("Starting sophos_threat_detector monitor"));
-    EXPECT_FALSE(appenderContains("Starting scanScheduler"));
-    EXPECT_FALSE(appenderContains("Starting scan scheduler"));
-    EXPECT_FALSE(appenderContains("Starting scanProcessMonitor"));
-    EXPECT_FALSE(appenderContains("Starting ConfigMonitor"));
+    EXPECT_FALSE(appenderContains("SAV policy received for the first time."));
 
     pluginThread.join();
 }
