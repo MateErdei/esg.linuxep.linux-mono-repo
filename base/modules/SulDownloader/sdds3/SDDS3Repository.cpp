@@ -373,6 +373,7 @@ namespace SulDownloader
             packagesWithSupplements =
                 SulDownloader::sdds3Wrapper()->getPackagesIncludingSupplements(*m_session.get(), m_repo, m_config);
         }
+        m_oldConfig.platform_filter = std::nullopt;
         std::vector<sdds3::PackageRef> packagesToInstall =
             SulDownloader::sdds3Wrapper()->getPackagesToInstall(*m_session.get(), m_repo, m_config, m_oldConfig);
 

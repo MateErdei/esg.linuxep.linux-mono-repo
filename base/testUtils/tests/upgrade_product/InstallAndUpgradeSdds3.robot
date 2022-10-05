@@ -223,8 +223,6 @@ SDDS3 updating with changed unused feature codes do not change version
     Should Be Equal As Strings  ${BaseVersionBeforeUpdate}  ${BaseVersionAfterUpdate}
 
 SDDS3 updating when warehouse files have not changed does not extract the zip files
-    #TODO LINUXDAR-5659 enable test when defect is fixed
-    [Tags]  TESTFAILURE
     [Setup]    Test Setup With Ostia
     [Teardown]    Test Teardown With Ostia
 
@@ -353,8 +351,6 @@ We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True T
 
 
 Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installations of Components
-    #TODO LINUXDAR-5659 enable test when defect is fixed
-    [Tags]  TESTFAILURE
     [Setup]    Test Setup With Ostia
     [Teardown]    Test Teardown With Ostia
 

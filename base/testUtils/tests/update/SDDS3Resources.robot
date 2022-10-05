@@ -31,6 +31,10 @@ Generate Warehouse From Local Base Input
     ${Files} =  List Files In Directory  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-sdds3  *.zip
     Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-sdds3/${Files[0]}  ${SDDS3_FAKEPACKAGES}/
     Generate Suite dat File  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-sdds3/${Files[0]}
+    # get base from here to debug update issues faster
+    #${base} =  get_sdds3_base
+    #Copy File  ${base}  ${SDDS3_FAKEPACKAGES}/
+    #Generate Suite dat File  ${base}
     Generate Fake Supplement
     #launch darkly flag
     write_sdds3_flag

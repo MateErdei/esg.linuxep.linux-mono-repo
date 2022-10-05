@@ -92,11 +92,39 @@ def get_full_installer():
         return installer
     paths_tried.append(installer)
 
-    raise Exception("Failed to find installer at: "+str(paths_tried))
+    raise Exception("Failed to find installer at: " + str(paths_tried))
+
+
+def get_sdds3_base():
+    OUTPUT = os.environ.get("OUTPUT")
+    BASE_DIST = os.environ.get("SDDS3_BASE_DIST")
+
+    logger.debug("Getting installer SDDS3_BASE_DIST: {}, OUTPUT: {}".format(BASE_DIST, OUTPUT))
+
+    paths_tried = []
+
+    local_build = "/vagrant/everest-base/output/SDDS3-PACKAGE"
+    if os.path.isdir(local_build):
+        for (base, dirs, files) in os.walk(local_build):
+            for f in files:
+                if f.startswith("SPL-Base-Component_"):
+                    if f.endswith(".zip"):
+                        return os.path.join(local_build, f)
+        paths_tried.append(local_build)
+    if BASE_DIST is not None:
+        for (base, dirs, files) in os.walk(BASE_DIST):
+            for f in files:
+                if f.startswith("SPL-Base-Component_"):
+                    if f.endswith(".zip"):
+                        return os.path.join(BASE_DIST, f)
+        paths_tried.append(BASE_DIST)
+
+    raise Exception("Failed to find installer at: " + str(paths_tried))
 
 
 def get_folder_with_installer():
     return os.path.dirname(get_full_installer())
+
 
 def get_plugin_sdds(plugin_name, environment_variable_name, candidates=None):
     # Check if an environment variable has been set pointing to the example plugin sdds
