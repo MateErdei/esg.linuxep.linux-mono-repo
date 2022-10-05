@@ -910,9 +910,9 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
     ASSERT_EQ(m_pluginCallback->m_serviceHealth, E_HEALTH_STATUS_BAD);
     result = m_pluginCallback->calculateHealth(m_mockSysCalls);
     logMessage = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Safestore Process is running"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos On Access Process is running"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Threat Detector Process is running"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Safestore Process is now running"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos On Access Process is now running"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Sophos Threat Detector Process is now running"));
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Service Health has changed to: green"));
     ASSERT_EQ(result, E_HEALTH_STATUS_GOOD);
     //if this succeeds all process service healths are E_HEALTH_STATUS_GOOD

@@ -379,9 +379,10 @@ namespace Plugin
         {
             std::string message = newHealth == E_HEALTH_STATUS_GOOD ? "green" : "red";
             LOGINFO("Service Health has changed to: " << message);
+
+            m_serviceHealth = newHealth;
         }
 
-        m_serviceHealth = newHealth;
         return newHealth;
     }
 
@@ -399,7 +400,7 @@ namespace Plugin
         {
             if(m_safestoreServiceStatus == E_HEALTH_STATUS_BAD)
             {
-                LOGINFO("Sophos Safestore Process is running");
+                LOGINFO("Sophos Safestore Process is now running");
             }
 
             m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
@@ -421,7 +422,7 @@ namespace Plugin
         {
             if(m_soapServiceStatus == E_HEALTH_STATUS_BAD)
             {
-                LOGINFO("Sophos On Access Process is running");
+                LOGINFO("Sophos On Access Process is now running");
             }
 
             m_soapServiceStatus = E_HEALTH_STATUS_GOOD;
@@ -443,7 +444,7 @@ namespace Plugin
         {
             if(m_threatDetectorServiceStatus == E_HEALTH_STATUS_BAD)
             {
-                LOGINFO("Sophos Threat Detector Process is running");
+                LOGINFO("Sophos Threat Detector Process is now running");
             }
 
             m_threatDetectorServiceStatus = E_HEALTH_STATUS_GOOD;
