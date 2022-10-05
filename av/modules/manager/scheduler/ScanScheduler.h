@@ -19,7 +19,12 @@ namespace manager::scheduler
         explicit ScanScheduler(IScanComplete& completionNotifier);
         void run() override;
 
-        void updateConfig(ScheduledScanConfiguration);
+        /**
+         * Update pending config to be config
+         * @param config new config
+         * @return bool of whether it is valid or not
+         */
+        bool updateConfig(ScheduledScanConfiguration config);
 
         void scanNow();
 

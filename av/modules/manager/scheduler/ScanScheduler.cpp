@@ -225,7 +225,7 @@ time_t ScanScheduler::get_current_time(bool)
     return ::time(nullptr);
 }
 
-void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration config)
+bool ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration config)
 {
     if(config.isValid())
     {
@@ -234,12 +234,11 @@ void ScanScheduler::updateConfig(manager::scheduler::ScheduledScanConfiguration 
         assert(m_pendingConfig.isValid());
         m_configIsPending = true;
         m_updateConfigurationPipe.notify();
-    }
-    else
-    {
-        LOGWARN("Unable to accept policy as scan information is invalid. Following scans wont be run: \n" << config.scanSummary());
+        return true;
     }
 
+    LOGWARN("Unable to accept policy as scan information is invalid. Following scans wont be run:\n" << config.scanSummary());
+    return false;
 }
 
 void ScanScheduler::updateConfigFromPending()
@@ -252,4 +251,3 @@ void ScanScheduler::updateConfigFromPending()
         m_configIsPending = false;
     }
 }
-
