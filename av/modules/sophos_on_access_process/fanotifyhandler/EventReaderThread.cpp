@@ -185,7 +185,16 @@ bool EventReaderThread::handleFanotifyEvent()
 
         if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
         {
-            LOGERROR("Failed to add scan request to queue, on-access scanning queue is full. Path will not be scanned: " << filePath);
+            if (m_EventsWhileQueueFull == 0)
+            {
+                LOGERROR("Failed to add scan request to queue, on-access scanning queue is full.");
+            }
+            m_EventsWhileQueueFull++;
+        }
+        else if (m_EventsWhileQueueFull > 0)
+        {
+            LOGINFO("Queue is no longer full. Number of events dropped: " << m_EventsWhileQueueFull);
+            m_EventsWhileQueueFull = 0;
         }
     }
     return true;
@@ -237,6 +246,7 @@ void EventReaderThread::run()
     };
 
     announceThreadStarted();
+    m_EventsWhileQueueFull = 0;
 
     while (true)
     {
