@@ -24,7 +24,7 @@ namespace Plugin
 
     std::string getSafeStoreDbDirPath()
     {
-        return getPluginInstall() + "/safestore";
+        return getPluginInstall() + "/var";
     }
 
     std::string getSafeStoreDbFileName()
