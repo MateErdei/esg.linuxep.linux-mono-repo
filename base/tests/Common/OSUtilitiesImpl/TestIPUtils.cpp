@@ -45,23 +45,16 @@ std::string ipsToString(const std::vector<std::string>& ips)
 TEST(TestIPUtils, verifyIP4CanbeconstructedByString) // NOLINT
 {
     auto dns = dnsLookup();
-    ListInputOutput url_ip = {
-        { "localhost", { "127.0.0.1" } }
-    };
 
-    for (const auto& [domain, ipList] : url_ip)
-    {
-        auto ips = dns->lookup(domain);
-        auto answerip = ips.ip4collection.at(0);
-        auto it = std::find(ipList.begin(), ipList.end(), answerip.stringAddress());
-        ASSERT_NE(it, ipList.end())
-            << "ip of " << domain << " differ. Expected: " << ipsToString(ipList) << " but got: " << answerip.stringAddress();
+    auto ips = dns->lookup("localhost");
+    auto answerip = ips.ip4collection.at(0);
+    ASSERT_EQ( "127.0.0.1",answerip.stringAddress()) << "ip of localhost differ. Expected: 127.0.0.1 but got: " << answerip.stringAddress();
 
-        IP4 expected(*it);
-        EXPECT_EQ(expected.stringAddress(), answerip.stringAddress());
-        EXPECT_EQ(expected.ipAddress(), answerip.ipAddress())
-            << std::hex << expected.ipAddress() << " " << answerip.ipAddress() << std::dec;
-    }
+    IP4 expected("127.0.0.1");
+    EXPECT_EQ(expected.stringAddress(), answerip.stringAddress());
+    EXPECT_EQ(expected.ipAddress(), answerip.ipAddress())
+        << std::hex << expected.ipAddress() << " " << answerip.ipAddress() << std::dec;
+
 }
 
 TEST(TestIPUtils, IP4CannotBeConstructedByInvalidIPString) // NOLINT
