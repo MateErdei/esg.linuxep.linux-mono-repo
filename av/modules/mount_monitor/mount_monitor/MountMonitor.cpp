@@ -13,10 +13,12 @@
 
 #include <poll.h>
 
+using namespace sophos_on_access_process::OnAccessConfig;
+
 namespace mount_monitor::mount_monitor
 {
     MountMonitor::MountMonitor(
-        OnAccessMountConfig& config,
+        OnAccessConfiguration& config,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
         fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
         struct timespec pollTimeout)
@@ -53,7 +55,7 @@ namespace mount_monitor::mount_monitor
         }
         else
         {
-            for (const auto& exclusion: m_exclusions)
+            for (const auto& exclusion: m_config.exclusions)
             {
                 bool isDir = mp->isDirectory();
                 if (exclusion.appliesToPath(mp->mountPoint(), isDir, !isDir))
@@ -68,8 +70,7 @@ namespace mount_monitor::mount_monitor
 
     bool MountMonitor::isIncludedFilesystemType(const mountinfo::IMountPointSharedPtr& mp)
     {
-        if ((mp->isHardDisc() && m_config.m_scanHardDisc) || (mp->isNetwork() && m_config.m_scanNetwork) ||
-            (mp->isOptical() && m_config.m_scanOptical) || (mp->isRemovable() && m_config.m_scanRemovable))
+        if (mp->isHardDisc() || (mp->isNetwork() && !m_config.excludeRemoteFiles) || mp->isRemovable() || mp->isOptical())
         {
             return true;
         }
@@ -98,33 +99,11 @@ namespace mount_monitor::mount_monitor
         return includedMountpoints;
     }
 
-    bool MountMonitor::setExcludeRemoteFiles(bool excludeRemoteFiles)
+    void MountMonitor::updateConfig(const OnAccessConfiguration& config)
     {
-        bool scanNetwork = !excludeRemoteFiles;
-        if (scanNetwork != m_config.m_scanNetwork)
+        if (m_fanotifyHandler->isInitialised() && config != m_config)
         {
-            m_config.m_scanNetwork = scanNetwork;
-            return true;
-        }
-        return false;
-    }
-
-    bool MountMonitor::setExclusions(std::vector<common::Exclusion> exclusions)
-    {
-        if (exclusions != m_exclusions)
-        {
-            m_exclusions = exclusions;
-            return true;
-        }
-        return false;
-    }
-
-    void MountMonitor::updateConfig(std::vector<common::Exclusion> exclusions, bool excludeRemoteFiles)
-    {
-        bool exclusionsChanged = setExclusions(exclusions);
-        bool remoteFileScanningChanged = setExcludeRemoteFiles(excludeRemoteFiles);
-        if (m_fanotifyHandler->isInitialised() && (exclusionsChanged || remoteFileScanningChanged))
-        {
+            m_config = config;
             LOGINFO("OA config changed, re-enumerating mount points");
             markMounts(getAllMountpoints());
         }

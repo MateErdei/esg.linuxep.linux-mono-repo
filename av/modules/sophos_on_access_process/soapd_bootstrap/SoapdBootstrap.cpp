@@ -15,7 +15,6 @@
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
-#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteClientSocketThread.h"
@@ -76,7 +75,7 @@ void SoapdBootstrap::innerRun()
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
-    mount_monitor::mount_monitor::OnAccessMountConfig config;
+    OnAccessConfig::OnAccessConfiguration config;
 
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
 
@@ -85,11 +84,9 @@ void SoapdBootstrap::innerRun()
 
     m_fanotifyHandler = std::make_shared<FanotifyHandler>(sysCallWrapper);
 
-    auto sysPathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
     m_mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config,
                                                                                   sysCallWrapper,
-                                                                                  m_fanotifyHandler,
-                                                                                  sysPathsFactory);
+                                                                                  m_fanotifyHandler);
     m_mountMonitorThread = std::make_unique<common::ThreadRunner>(m_mountMonitor,
                                                                   "mountMonitor",
                                                                   false);
@@ -169,10 +166,6 @@ void SoapdBootstrap::innerRun()
         }
     }
 
-    processControllerServer->tryStop();
-    updateClient->tryStop();
-    processControllerServerThread.reset();
-    updateClientThread.reset();
     disableOnAccess(true);
 }
 
@@ -180,6 +173,8 @@ sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::
 {
     auto jsonString = OnAccessConfig::readPolicyConfigFile();
     OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessPolicySettingsFromJson(jsonString);
+    m_mountMonitor->updateConfig(oaConfig);
+
     return oaConfig;
 }
 
@@ -203,8 +198,6 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
         LOGINFO("No policy override, following policy settings");
 
         auto oaConfig = getPolicyConfiguration();
-        m_mountMonitor->updateConfig(oaConfig.exclusions, oaConfig.excludeRemoteFiles);
-
 
         bool newOaEnabledState = oaConfig.enabled;
         bool oldOaEnabledState = m_currentOaEnabledState.load();
@@ -226,37 +219,20 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
 
 void SoapdBootstrap::disableOnAccess(bool changed)
 {
-    // Log if on-access was enabled before
     if (changed)
     {
         LOGINFO("On-access scanning disabled");
     }
-
-    /*
-     * EventReader and scanHandler threads are not thread-safe with
-     * fanotify handler being closed.
-     *
-     * mount monitor should be thread-safe vs. fanotify handler being closed
-     * but isn't worth running when fanotify is turned off.
-     */
-
-    std::lock_guard<std::mutex> guard(m_onAccessChangeStateLock);
-
-    // Async stop event reader and mount monitor
-    m_eventReader->tryStop();
-    m_mountMonitor->tryStop();
-
-    // sync stop event reader and mount monitor
     m_eventReaderThread->requestStopIfNotStopped();
     m_mountMonitorThread->requestStopIfNotStopped();
+    m_scanRequestQueue->stop();
 
-    // stop scan threads, and clear queue
-    m_scanRequestQueue->stop(); // Clears queue
-
-    // Join all scan threads
+    for (const auto& scanThread: m_scanHandlerThreads)
+    {
+        scanThread->requestStopIfNotStopped();
+    }
     m_scanHandlerThreads.clear();
 
-    // Disable fanotify and close fanotify descriptor
     m_fanotifyHandler->close();
 }
 
@@ -268,8 +244,6 @@ void SoapdBootstrap::enableOnAccess(bool changed)
     }
 
     LOGINFO("On-access scanning enabled");
-
-    std::lock_guard<std::mutex> guard(m_onAccessChangeStateLock);
 
     m_fanotifyHandler->init();
 

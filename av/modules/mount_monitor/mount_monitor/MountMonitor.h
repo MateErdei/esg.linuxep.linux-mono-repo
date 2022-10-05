@@ -4,8 +4,7 @@
 
 #include "datatypes/ISystemCallWrapper.h"
 #include "mount_monitor/mountinfo/IMountInfo.h"
-#include "mount_monitor/mount_monitor/OnAccessMountConfig.h"
-#include "mount_monitor/mountinfo/ISystemPathsFactory.h"
+#include "sophos_on_access_process/soapd_bootstrap/OnAccessConfigurationUtils.h"
 #include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
 
 #include "common/AbstractThreadPluginInterface.h"
@@ -14,6 +13,7 @@
 #include <map>
 
 namespace fanotifyhandler = sophos_on_access_process::fanotifyhandler;
+using namespace sophos_on_access_process::OnAccessConfig;
 
 namespace mount_monitor::mount_monitor
 {
@@ -21,13 +21,12 @@ namespace mount_monitor::mount_monitor
     {
     public:
         MountMonitor(
-            OnAccessMountConfig& config,
+            OnAccessConfiguration& config,
             datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
             fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
-            mountinfo::ISystemPathsFactorySharedPtr sysPathsFactory,
             struct timespec pollTimeout = {2,0});
 
-        void updateConfig(std::vector<common::Exclusion> exclusions, bool excludeRemoteFiles);
+        void updateConfig(const OnAccessConfiguration& config);
 
         mountinfo::IMountPointSharedVector getAllMountpoints();
         mountinfo::IMountPointSharedVector getIncludedMountpoints(const mountinfo::IMountPointSharedVector& allMountPoints);
@@ -36,14 +35,10 @@ namespace mount_monitor::mount_monitor
         void markMounts(const mountinfo::IMountPointSharedVector& mounts);
         bool isIncludedFilesystemType(const mountinfo::IMountPointSharedPtr& mount);
         bool isIncludedMountpoint(const mountinfo::IMountPointSharedPtr& mount);
-        bool setExcludeRemoteFiles(bool excludeRemoteFiles);
-        bool setExclusions(std::vector<common::Exclusion> exclusions);
 
-        OnAccessMountConfig& m_config;
+        OnAccessConfiguration& m_config;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
-        mountinfo::ISystemPathsFactorySharedPtr m_sysPathsFactory;
         const struct timespec m_pollTimeout;
-        std::vector<common::Exclusion> m_exclusions;
     };
 }
