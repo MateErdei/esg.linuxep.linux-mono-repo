@@ -109,7 +109,14 @@ std::string TimeSet::str() const
     std::string returnString = "Times: ";
     for (const auto& time : m_times)
     {
-        returnString += time.str() + " ";
+        if (time.isValid())
+        {
+            returnString += time.str() + " ";
+        }
+        else
+        {
+            returnString += "INVALID ";
+        }
     }
     return returnString;
 }

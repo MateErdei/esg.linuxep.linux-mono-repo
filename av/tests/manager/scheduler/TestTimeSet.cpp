@@ -209,6 +209,8 @@ TEST_F(TestTimeSet, onlyInvalidTime)
     TimeSet set(m_just_invalid_time, "timeSet/time");
     EXPECT_EQ(set.size(), 1);
     ASSERT_EQ(set.isValid(), false);
+
+    EXPECT_EQ(set.str(), "Times: INVALID ");
 }
 
 TEST_F(TestTimeSet, mixValidInvalidTimes)
@@ -216,6 +218,9 @@ TEST_F(TestTimeSet, mixValidInvalidTimes)
     TimeSet set(m_a_invalid_time, "timeSet/time");
     EXPECT_EQ(set.size(), 7);
     ASSERT_EQ(set.isValid(), false);
+
+    auto str = set.str();
+    EXPECT_TRUE(str.find("INVALID") != str.npos);
 }
 
 TEST_F(TestTimeSet, validTimes)
@@ -223,4 +228,7 @@ TEST_F(TestTimeSet, validTimes)
     TimeSet set(m_time, "timeSet/time");
     EXPECT_EQ(set.size(), 7);
     ASSERT_EQ(set.isValid(), true);
+
+    auto str = set.str();
+    EXPECT_TRUE(str.find("INVALID") == str.npos);
 }
