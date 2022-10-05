@@ -166,10 +166,13 @@ namespace Plugin
                         }
                         else
                         {
-                            bool policyUpdated = false;
                             std::string appId;
-                            processPolicy(task.Content, policyUpdated, appId);
-                            policyWaiter.gotPolicy(appId);
+                            bool policyUpdated = processPolicy(task.Content, appId);
+                            if (policyUpdated)
+                            {
+                                policyWaiter.gotPolicy(appId);
+                            }
+
                             m_restartSophosThreatDetector = policyUpdated || m_restartSophosThreatDetector;
                         }
 
@@ -233,10 +236,9 @@ namespace Plugin
         m_callback->setSafeStoreEnabled(m_policyProcessor.isSafeStoreEnabled());
     }
 
-    void PluginAdapter::processPolicy(const std::string& policyXml, bool& policyUpdated, std::string& appId)
+    bool PluginAdapter::processPolicy(const std::string& policyXml, std::string& appId)
     {
         LOGINFO("Received Policy");
-
         try
         {
             auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
@@ -257,17 +259,15 @@ namespace Plugin
                         LOGINFO("ALC policy received for the first time.");
                         m_gotAlcPolicy = true;
                     }
-                    policyUpdated = updated;
                     appId = "ALC";
-                    return;
+                    return updated;
                 }
                 else
                 {
                     LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
                 }
-                policyUpdated = false;
                 appId = "";
-                return;
+                return false;
             }
 
             // SAV policy
@@ -275,28 +275,32 @@ namespace Plugin
             if (policyType != "2")
             {
                 LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
-                policyUpdated = false;
                 appId = "";
-                return;
+                return false;
             }
 
             LOGINFO("Processing SAV Policy");
             LOGDEBUG("Processing policy: " << policyXml);
 
-            bool savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap, m_gotSavPolicy);
+            //savPolicyHasChanged = have we updated the policy
+            //m_gotSavPolicy = set to true after the first policy is received
+            //configIsValid = When we update config we check if the scheduled scan has name,valid day & time
+            //policyUpdated = used in  innermain to determine whether TD should restart
+            //m_restartSophosThreatDetector - whether to restart td
+
+            bool updated = m_policyProcessor.processSavPolicy(attributeMap, m_gotSavPolicy);
             m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
-            m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
+            bool configIsValid = m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
 
             std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
             m_callback->sendStatus(revID);
-            if (!m_gotSavPolicy)
+            if (!m_gotSavPolicy && configIsValid)
             {
                 LOGINFO("SAV policy received for the first time.");
                 m_gotSavPolicy = true;
             }
-            policyUpdated = savPolicyHasChanged;
             appId = "SAV";
-            return;
+            return updated;
         }
         catch(const Common::XmlUtilities::XmlUtilitiesException& e)
         {
@@ -306,15 +310,15 @@ namespace Plugin
         {
             LOGERROR("Exception encountered while processing AV policy: " << e.what());
         }
-        policyUpdated = false;
         appId = "";
-        return;
+        return false;
     }
 
     void PluginAdapter::processAction(const std::string& actionXml)
     {
         LOGDEBUG("Process action: " << actionXml);
 
+//TODO try catch on this parsexml
         auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
 
         if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
