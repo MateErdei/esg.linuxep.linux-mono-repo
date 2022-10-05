@@ -10,8 +10,7 @@ target_link_libraries(${SAFESTORE_EXE_NAME} PUBLIC
         ${SAFESTORE_LIB}
         )
 target_include_directories(${SAFESTORE_EXE_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/modules)
-message("asdasdasd")
-message(${CMAKE_BINARY_DIR}/libs)
+
 SET_TARGET_PROPERTIES(${SAFESTORE_EXE_NAME}
         PROPERTIES
         BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"

@@ -2,9 +2,11 @@
 
 #include "Main.h"
 
+#include "IQuarantineManager.h"
 #include "Logger.h"
-#include "SafeStoreRunner.h"
+#include "QuarantineManagerImpl.h"
 #include "SafeStoreWrapperImpl.h"
+#include "StateMonitor.h"
 
 #include "common/ApplicationPaths.h"
 #include "common/PidLockFile.h"
@@ -46,12 +48,20 @@ void Main::innerRun()
     struct pollfd fds[]
     {
         { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-        { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
+        {
+            .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0
+        }
     };
 
-//    std::unique_ptr<ISafeStoreWrapper> quarantineManager = std::make_unique<SafeStoreWrapperImpl>();
-//    auto ssRunner = SafeStoreRunner(std::move(quarantineManager));
-//    ssRunner.start();
+    std::unique_ptr<ISafeStoreWrapper> safeStoreWrapper = std::make_unique<SafeStoreWrapperImpl>();
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(safeStoreWrapper));
+    quarantineManager->initialise();
+
+    StateMonitor qmStateMonitorThread(quarantineManager);
+    qmStateMonitorThread.run();
+
+    //    quarantineManager->quarantineFile(....);
 
     while (true)
     {

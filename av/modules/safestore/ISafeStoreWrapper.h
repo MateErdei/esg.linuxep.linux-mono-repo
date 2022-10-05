@@ -8,19 +8,20 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 
 namespace safestore
 {
     // Return codes from SafeStore initialisation
-    enum InitReturnCode
+    enum class InitReturnCode
     {
         // SafeStore initialised ok
         OK,
         // ...add comments to all  codes here:
         INVALID_ARG,
         UNSUPPORTED_OS,
-        UNSUPPORTED_VERSION ,
+        UNSUPPORTED_VERSION,
         OUT_OF_MEMORY,
         DB_OPEN_FAILED,
         DB_ERROR,
@@ -29,32 +30,112 @@ namespace safestore
         FAILED
     };
 
-    enum SaveFileReturnCode
+    enum class SaveFileReturnCode
     {
         // SafeStore initialised ok
         OK,
-        // ...add comments to all  codes here:
         INVALID_ARG,
-        UNSUPPORTED_OS,
-        UNSUPPORTED_VERSION ,
+        INTERNAL_ERROR,
         OUT_OF_MEMORY,
-        DB_OPEN_FAILED,
+        FILE_OPEN_FAILED,
+        FILE_READ_FAILED,
+        FILE_WRITE_FAILED,
+        MAX_OBJECT_SIZE_EXCEEDED,
+        MAX_STORE_SIZE_EXCEEDED,
         DB_ERROR,
-
-        // Failed to initialise for unknown reason
+        // Failed to save for unknown reason
         FAILED
     };
 
-//    class SafeStoreContext
-//    {
-//
-//
-//    private:
-//        void* m_ctx;
-//    };
+    enum class ConfigOption
+    {
+        // Maximum allowed size of SafeStore (database and stored blob files) in bytes, uint64_t
+        MAX_SAFESTORE_SIZE,
+
+        // Maximum allowed size of a saved object in bytes, uint64_t
+        MAX_OBJECT_SIZE,
+
+        // Maximum allowed number of objects in a saved registry subtree, uint64_t
+        MAX_REG_OBJECT_COUNT,
+
+        // If set to true (non-zero): automatically purge SafeStore of the oldest saved objects, bool
+        AUTO_PURGE,
+
+        // Maximum allowed number of object stored in SafeStore simultaneously. Must be at least as big as
+        // SC_MAX_REG_OBJECT_COUNT, uint64_t
+        MAX_STORED_OBJECT_COUNT
+    };
+
+    enum class ObjectType
+    {
+        ANY,
+        UNKNOWN = ANY,
+        FILE,
+        REGKEY,
+        REGVALUE,
+        LAST = REGVALUE
+    };
+
+    enum class ObjectStatus
+    {
+        ANY,
+        UNDEFINED = ANY,
+        STORED,
+        QUARANTINED,
+        RESTORE_FAILED,
+        RESTORED_AS,
+        RESTORED,
+        LAST = RESTORED
+    };
 
     using SafeStoreContext = void*;
     using SafeStoreObjectHandle = void*;
+    using SafeStoreSearchHandle = void*;
+
+    // Contains information used to get filtered data from SafeStore.
+    struct SafeStoreFilter
+    {
+        // A combination of one or more SafeStore_FilterField_t flags.
+        int activeFields;
+
+        // Threat id the object was saved with.
+        std::string threatId;
+
+        // Threat name the object was saved with.
+        std::string threatName;
+
+        // Time interval in which objects were saved. UNIX timestamp in seconds.
+        int64_t startTime;
+        int64_t endTime;
+
+        // Type of the objects to consider.
+        ObjectType objectType;
+
+        // Status of the objects to consider.
+        ObjectStatus objectStatus;
+
+        // Location of the objects to consider.
+        // For a file this is the full path of the directory containing the file.
+        std::string objectLocation;
+
+        // Name of the objects to consider.
+        // For a file this is the name of the file.
+        std::string objectName;
+    };
+
+    class SafeStoreObjectHandleHolder
+    {
+    public:
+        virtual ~SafeStoreObjectHandleHolder() = default;
+        virtual SafeStoreObjectHandle* get() = 0;
+    };
+
+    class SafeStoreSearchHandleHolder
+    {
+    public:
+        virtual ~SafeStoreSearchHandleHolder() = default;
+        virtual SafeStoreSearchHandle* get() = 0;
+    };
 
     class ISafeStoreWrapper
     {
@@ -65,68 +146,39 @@ namespace safestore
          * Initialise SafeStore and setup any resources needed.
          * Returns: InitReturnCode, to indicate if the operation was successful or not.
          */
+        virtual InitReturnCode initialise(
+            const std::string& dbDirName,
+            const std::string& dbName,
+            const std::string& password) = 0;
 
-//        _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_Init(
-//            _Deref_out_ SafeStore_t* ctx,
-//            _In_z_ const SsPlatChar* dbDirectory,
-//            _In_z_ const SsPlatChar* dbFileName,
-//            _In_count_(passwordSize) const uint8_t* password,
-//            _In_ size_t passwordSize,
-//            _In_ int flags);
+        /*
+         * Saves a file to SafeStore.
+         * objectHandle is set to point to stored object.
+         */
+        virtual SaveFileReturnCode saveFile(
+            const std::string& directory,
+            const std::string& filename,
+            const std::string& threatId,
+            const std::string& threatName,
+            SafeStoreObjectHandleHolder& objectHandle) = 0;
 
-        virtual InitReturnCode initialise(SafeStoreContext ctx, const std::string& dbDirName, const std::string& dbName, const std::string& password) = 0;
+        /*
+         * TODO 5675
+         */
+        virtual std::optional<uint64_t> getConfigIntValue(ConfigOption option) = 0;
 
-        virtual void deinitialise(SafeStoreContext ctx) = 0;
+        /*
+         * TODO 5675
+         */
+        virtual bool setConfigIntValue(ConfigOption option, uint64_t value) = 0;
 
-        ///* Saves a file to SafeStore.
-        // *
-        // * Parameters:
-        // *   ctx (in) - initialized SafeStore context handle
-        // *   directory (in) - absolute path of the directory where the file is located
-        // *   fileName (in) - name of the file to store
-        // *   threatId (in) - identifier of the threat the file is to be associated with
-        // *   threatName (in) - name of the threat the file is to be associated with
-        // *   objectHandle (out, optional) - SafeStore handle of the stored object
-        // *
-        // * Return value:
-        // *   Success:
-        // *     SR_OK
-        // *   Failure:
-        // *     SR_INVALID_ARG - an invalid argument was passed to the function
-        // *     SR_INTERNAL_ERROR - an internal error has occurred
-        // *     SR_OUT_OF_MEMORY - not enough memory is available to complete the operation
-        // *     SR_FILE_OPEN_FAILED - failed to open the file (or the blob file)
-        // *     SR_FILE_READ_FAILED - failed to read the file
-        // *     SR_FILE_WRITE_FAILED - failed to write the blob file
-        // *     SR_MAX_OBJECT_SIZE_EXCEEDED - size of the file is greater than the maximum
-        // *       allowed object size (SC_MAX_OBJECT_SIZE config option)
-        // *     SR_MAX_STORE_SIZE_EXCEEDED - saving the file would grow SafeStore above
-        // *       the maximum allowed size (SC_MAX_SAFESTORE_SIZE config option)
-        // *     SR_DB_ERROR - database operation failed
-        // *
-        // * Remarks:
-        // *   The object gets the SOS_STORED status after it is saved.
-        // *   Use SafeStore_ReleaseObjectHandle to release the object handle.
-        // *   SafeStore stores the directory path it receives as argument in order to
-        // *   later be able to restore the file to its original location (if needed).
-        // *   The directory argument needs to be an absolute path so the file can always
-        // *   be restored to the same location, even if the current directory changes
-        // *   between the save and the restore operations.
-        // *   A blob file in the context of SafeStore is a compressed and encrypted
-        // *   file an object is stored in.
-        // *   This function invokes database change operations that invalidate existing
-        // *   object handles. The behaviour when using invalidated object handles is
-        // *   undefined.
-        // */
-        //_Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_SaveFile(
-        //    _In_ SafeStore_t ctx,
-        //    _In_z_ const SsPlatChar* directory,
-        //    _In_z_ const SsPlatChar* fileName,
-        //    _In_ const SafeStore_Id_t* threatId,
-        //    _In_z_ const SsPlatChar* threatName,
-        //    _Deref_opt_out_ SafeStore_Handle_t* objectHandle);
-
-        virtual void saveFile(SafeStoreContext ctx, std::string directory, std::string filename, std::string threatId, std::string threatName, SafeStoreObjectHandle objectHandle);
-
+        /*
+         * TODO 5675
+         */
+        virtual bool findFirst(
+            SafeStoreFilter filter,
+            SafeStoreSearchHandleHolder& searchHandle,
+            SafeStoreObjectHandleHolder& objectHandle) = 0;
     };
-}
+
+} // namespace safestore

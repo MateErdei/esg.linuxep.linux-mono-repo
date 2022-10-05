@@ -219,4 +219,5 @@ GET_FILENAME_COMPONENT(OPENSSLCRYPTO_LIBRARY_ABSOLUTE ${CRYPTO_LIBRARY} REALPATH
 add_subdirectory(modules)
 add_subdirectory(products)
 add_subdirectory(tests)
+add_subdirectory(tools)
 add_subdirectory(tools/avscanner/mountinfoimpl)
