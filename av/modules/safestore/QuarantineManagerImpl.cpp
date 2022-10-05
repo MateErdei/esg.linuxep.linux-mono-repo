@@ -25,7 +25,7 @@ namespace safestore
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
-            LOGERROR("Failed to save SafeStore Database Password to " << passwordFilePath << "due to: " << ex.what());
+            LOGERROR("Failed to save SafeStore Database Password to " << passwordFilePath << " due to: " << ex.what());
             return false;
         }
     }
@@ -34,7 +34,6 @@ namespace safestore
     {
         // TODO 5675
         std::string pw = "TEMP PASSWORD";
-        //        .....
         return pw;
     }
 
@@ -135,6 +134,7 @@ namespace safestore
 
     bool QuarantineManagerImpl::deleteDatabase()
     {
+        std::lock_guard<std::mutex> lock(m_interfaceMutex);
         LOGWARN("Deleting Quarantine database");
         LOGINFO("TODO 5675 - NOT IMPLEMENTED YET");
         return false;

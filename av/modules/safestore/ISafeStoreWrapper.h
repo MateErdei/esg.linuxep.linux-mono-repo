@@ -179,6 +179,19 @@ namespace safestore
             SafeStoreFilter filter,
             SafeStoreSearchHandleHolder& searchHandle,
             SafeStoreObjectHandleHolder& objectHandle) = 0;
+
+//        _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_FindNext(
+//            _In_ SafeStore_t ctx,
+//            _In_ SafeStore_Search_t searchHandle,
+//            _Deref_out_ SafeStore_Handle_t* objectHandle);
+
+        /*
+         * TODO 5675
+         */
+        virtual bool findNext(
+            SafeStoreSearchHandleHolder& searchHandle,
+            SafeStoreObjectHandleHolder& objectHandle) = 0;
+
     };
 
 } // namespace safestore

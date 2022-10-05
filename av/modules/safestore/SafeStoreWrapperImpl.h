@@ -54,6 +54,7 @@ namespace safestore
             SafeStoreFilter filter,
             SafeStoreSearchHandleHolder& searchHandle,
             SafeStoreObjectHandleHolder& objectHandle) override;
+        bool findNext(SafeStoreSearchHandleHolder& searchHandle, SafeStoreObjectHandleHolder& objectHandle) override;
 
     private:
         SafeStoreContext m_safeStoreCtx;

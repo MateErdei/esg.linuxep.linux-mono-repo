@@ -286,4 +286,11 @@ namespace safestore
         return (SafeStore_FindFirst(m_safeStoreCtx, &ssFilter, searchHandle.get(), objectHandle.get()) == SR_OK);
     }
 
+    bool SafeStoreWrapperImpl::findNext(
+        SafeStoreSearchHandleHolder& searchHandle,
+        SafeStoreObjectHandleHolder& objectHandle)
+    {
+        return (SafeStore_FindNext(m_safeStoreCtx,  searchHandle.get(), objectHandle.get()) == SR_OK);
+    }
+
 } // namespace safestore
