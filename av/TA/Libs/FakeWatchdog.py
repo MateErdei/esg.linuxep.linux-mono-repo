@@ -96,7 +96,11 @@ class FakeWatchdogThread(object):
             if not self.process_is_running():
                 if self.__m_proc is not None:
                     return_code = self.__m_proc.wait()
-                    self.warn("Restarting Sophos Threat Detector! ExitCode=%d" % return_code)
+                    if return_code < 0:
+                        # A negative value -N indicates that the child was terminated by signal N
+                        self.warn("Restarting Sophos Threat Detector! Killed by signal = %d" % -return_code)
+                    else:
+                        self.warn("Restarting Sophos Threat Detector! Exit code = %d" % return_code)
                 sleep = self.start_process()
                 time.sleep(sleep)
             time.sleep(0.1)
