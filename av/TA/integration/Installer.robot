@@ -92,9 +92,6 @@ Restart then Update Sophos Threat Detector
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 IDE update during command line scan
-    [Tags]  DISABLED
-    # TODO - re-enable once we have multiple scan threads (LINUXDAR-5406)
-
     # Assumes that /usr/share/ takes long enough to scan, and that all files take well under one second to be scanned.
     # If this proves to be false on any of our test systems, we'll need to create a dummy fileset to scan instead.
     Mark Sophos Threat Detector Log
@@ -149,9 +146,6 @@ On access gets IDE update
     On-access Scan Peend
 
 On access continues during update
-    [Tags]  DISABLED
-    # TODO - re-enable once we have multiple scan threads (LINUXDAR-5406)
-
     Mark On Access Log
     Send Policies to enable on-access
     Wait for on access to be enabled
@@ -222,7 +216,7 @@ Update then Restart Sophos Threat Detector
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Mark Susi Debug Log
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
-    Wait Until SUSI DEBUG Log Contains With Offset   Performing SUSI update
+    Wait Until SUSI DEBUG Log Contains With Offset   Performing SUSI update  30
 
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     Mark Sophos Threat Detector Log
@@ -358,6 +352,8 @@ AV Plugin gets customer id after upgrade
     Should Be Equal   ${customerId2}   ${expectedId}
 
 IDE can be removed
+    #TODO: LINUXDAR-5775 re-enable once the bug is closed the issue has been identified
+    [Tags]  DISABLED
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
@@ -636,9 +632,6 @@ Check installer can handle versioned copied Virus Data from 1-0-0
 AV Plugin Can Send Telemetry After IDE Update
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
-    # TODO - workaround for LINUXDAR-5661 / LINUXDAR-5671, remove restarting of soapd once service health is working
-    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  on_access_process
-    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  on_access_process
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
 
