@@ -401,7 +401,6 @@ On Access Process Handles Consecutive Process Control Requests
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
     Mark On Access Log
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
