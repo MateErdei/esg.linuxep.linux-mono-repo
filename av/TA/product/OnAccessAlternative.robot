@@ -148,7 +148,7 @@ On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Poli
     ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/"]  True
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until On Access Log Contains With Offset  On-access exclusions: ["/tmp_test/"]
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
+    Wait Until On Access Log Contains With Offset  Updating on-access exclusions with: ["/tmp_test/"]
 
     Mark On Access Log
     Create File  ${filepath1}  ${EICAR_STRING}
@@ -175,7 +175,7 @@ On Access Does Not Scan Files If They Match Relative Directory Exclusion In Poli
     ${policyContent} =  Get Complete Sav Policy  ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  True
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until On Access Log Contains With Offset  On-access exclusions: ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
+    Wait Until On Access Log Contains With Offset  Updating on-access exclusions with: ["/testdir/folder_without_wildcard/"] ["*/dir/su*ir/*"] ["*/do*er/*"]
     ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_without_wildcard
     ${TEST_DIR_WITH_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_with_wildcard
     Create Directory  ${TEST_DIR_WITHOUT_WILDCARD}
@@ -218,7 +218,7 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
     ${policyContent} =  Get Complete Sav Policy  ${exclusionList}  True
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until On Access Log Contains With Offset  On-access exclusions: ${exclusionList}
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
+    Wait Until On Access Log Contains With Offset  Updating on-access exclusions with: ["/eicar"] ["/tmp_test/globExclDir/eicar.???"] ["/tmp_test/globExclDir/hi_i_am_dangerous.*"] ["/tmp_test/globExclDir/*.js"]
 
     Mark On Access Log
     Create File     ${TEST_DIR}/clean_file.txt             ${CLEAN_STRING}
