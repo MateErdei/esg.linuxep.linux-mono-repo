@@ -1,10 +1,12 @@
 
 add_library(safestoreimpl SHARED
+        IQuarantineManager.h
         Logger.cpp
         Logger.h
         Main.cpp
         Main.h
-        )
+        QuarantineManager.cpp
+        QuarantineManager.h)
 
 target_link_libraries(safestoreimpl PUBLIC
         common

@@ -4,7 +4,7 @@
 
 #include "PluginAdapter.h"
 
-#include "DetectionsQueue.h"
+#include "DetectionQueue.h"
 #include "HealthStatus.h"
 #include "Logger.h"
 #include "PolicyWaiter.h"
@@ -51,9 +51,9 @@ namespace Plugin
 
             void processMessage(scan_messages::ThreatDetected detection) override
             {
-                if (m_adapter.isSafeStoreEnabled() && !m_adapter.getSafeStoreQueue()->isFull())
+                if (!m_adapter.isSafeStoreEnabled() || m_adapter.getDetectionQueue()->isFull())
                 {
-                    m_adapter.getSafeStoreQueue()->push(std::move(detection));
+                    m_adapter.getDetectionQueue()->push(std::move(detection));
                 }
                 else
                 {
@@ -75,7 +75,7 @@ namespace Plugin
         const std::string& threatEventPublisherSocketPath,
         int waitForPolicyTimeout) :
         m_taskQueue(std::move(taskQueue)),
-        m_queueSafeStoreTask(std::make_shared<DetectionsQueue>()),
+        m_detectionQueue(std::make_shared<DetectionQueue>()),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(std::make_shared<manager::scheduler::ScanScheduler>(*this)),
@@ -83,7 +83,7 @@ namespace Plugin
                                std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
-        m_safeStoreQueueWorker(std::make_shared<SafeStoreWorker>(*this, m_queueSafeStoreTask, safestore_socket())),
+        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this, m_detectionQueue, safestore_socket())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
         m_threatEventPublisher(m_zmqContext->getPublisher())
@@ -131,8 +131,8 @@ namespace Plugin
         m_schedulerThread.reset();
         m_threatDetectorThread.reset();
         // This queue blocks on pop, so must be notified
-        m_queueSafeStoreTask->requestStop();
-        m_safeStoreQueueWorkerThread.reset();
+        m_detectionQueue->requestStop();
+        m_safeStoreWorkerThread.reset();
         LOGSUPPORT("Finished the main program loop");
     }
 
@@ -140,7 +140,7 @@ namespace Plugin
     {
         m_schedulerThread = std::make_unique<common::ThreadRunner>(m_scanScheduler, "scanScheduler", true);
         m_threatDetectorThread = std::make_unique<common::ThreadRunner>(m_threatDetector, "scanProcessMonitor", true);
-        m_safeStoreQueueWorkerThread = std::make_unique<common::ThreadRunner>(m_safeStoreQueueWorker, "safeStoreQueueWorker", true);
+        m_safeStoreWorkerThread = std::make_unique<common::ThreadRunner>(m_safeStoreWorker, "safeStoreWorker", true);
         connectToThreatPublishingSocket(
             Common::ApplicationConfiguration::applicationPathManager().getEventSubscriberSocketFile());
     }
@@ -397,8 +397,8 @@ namespace Plugin
         return m_policyProcessor.isSafeStoreEnabled();
     }
 
-    std::shared_ptr<DetectionsQueue> PluginAdapter::getSafeStoreQueue() const
+    std::shared_ptr<DetectionQueue> PluginAdapter::getDetectionQueue() const
     {
-        return m_queueSafeStoreTask;
+        return m_detectionQueue;
     }
 }

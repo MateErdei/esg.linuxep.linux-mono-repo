@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -30,7 +30,6 @@ void setupFakeSophosThreatDetectorConfig()
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path base = tmpdir();
     appConfig.setData("PLUGIN_INSTALL", base);
-    fs::create_directories(base / "var");
     fs::path f = base;
     fs::create_directories(f / "chroot/var");
     f /= "sbin";
@@ -40,9 +39,12 @@ void setupFakeSophosThreatDetectorConfig()
     ost.close();
 }
 
-void setupVarDirectory()
+void setupFakeSafeStoreConfig()
 {
-
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    fs::path base = tmpdir();
+    appConfig.setData("PLUGIN_INSTALL", base);
+    fs::create_directories(base / "var");
 }
 
 fs::path pluginInstall()

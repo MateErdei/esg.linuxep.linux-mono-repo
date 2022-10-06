@@ -12,10 +12,10 @@
 
 namespace unixsocket
 {
-    class SafeStoreClientSocket : unixsocket::BaseClient
+    class SafeStoreClient : unixsocket::BaseClient
     {
     public:
-        explicit SafeStoreClientSocket(std::string socket_path, const struct timespec& sleepTime = { 1, 0 });
+        explicit SafeStoreClient(std::string socket_path, const struct timespec& sleepTime = { 1, 0 });
 
         void sendQuarantineRequest(const scan_messages::ThreatDetected& detection);
     };

@@ -12,9 +12,9 @@ using namespace Plugin;
 
 SafeStoreWorker::SafeStoreWorker(
     const IDetectionReportProcessor& pluginAdapter,
-    std::shared_ptr<DetectionsQueue> safeStoreQueue,
+    std::shared_ptr<DetectionQueue> detectionQueue,
     const fs::path& safeStoreSocket) :
-    m_pluginAdapter(pluginAdapter), m_safeStoreQueue(std::move(safeStoreQueue)), m_safeStoreSocket(safeStoreSocket)
+    m_pluginAdapter(pluginAdapter), m_detectionQueue(std::move(detectionQueue)), m_safeStoreSocket(safeStoreSocket)
 {
     LOGDEBUG("SafeStore socket path " << safeStoreSocket);
 }
@@ -24,12 +24,10 @@ void SafeStoreWorker::run()
     LOGDEBUG("Starting SafeStoreWorker");
 
     announceThreadStarted();
-    LOGDEBUG("Thread start announced");
 
     while (true)
     {
-        std::optional<scan_messages::ThreatDetected> task = m_safeStoreQueue->pop();
-        LOGDEBUG("QUEUE POPPED");
+        std::optional<scan_messages::ThreatDetected> task = m_detectionQueue->pop();
 
         if (!task.has_value())
         {
@@ -41,8 +39,8 @@ void SafeStoreWorker::run()
 
         if (!stopRequested()) // PM Question -- do we want this?
         {
-            unixsocket::SafeStoreClientSocket safeStoreClientSocket(m_safeStoreSocket);
-            safeStoreClientSocket.sendQuarantineRequest(threatDetected);
+            unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket);
+            safeStoreClient.sendQuarantineRequest(threatDetected);
         }
 
         //        Reponse resp = socket.read(timeout);

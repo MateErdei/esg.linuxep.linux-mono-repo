@@ -3,8 +3,8 @@
 add_subdirectory(ObfuscationImpl)
 
 sophos_add_library(pluginimpl SHARED
-        DetectionsQueue.cpp
-        DetectionsQueue.h
+        DetectionQueue.cpp
+        DetectionQueue.h
         HealthStatus.cpp
         HealthStatus.h
         IDetectionReportProcessor.h

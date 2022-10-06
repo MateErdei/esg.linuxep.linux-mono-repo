@@ -1,6 +1,6 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "pluginimpl/DetectionsQueue.h"
+#include "pluginimpl/DetectionQueue.h"
 #include "scan_messages/ThreatDetected.h"
 
 #include <Common/Helpers/LogInitializedTests.h>
@@ -9,7 +9,7 @@
 #include <future>
 #include <thread>
 
-class TestDetectionsQueue : public LogOffInitializedTests
+class TestDetectionQueue : public LogOffInitializedTests
 {
 };
 
@@ -30,9 +30,9 @@ scan_messages::ThreatDetected basicDetection()
     return basicDetection;
 }
 
-TEST_F(TestDetectionsQueue, TestDetectionsQueueSizeFunctions) // NOLINT
+TEST_F(TestDetectionQueue, TestDetectionsQueueSizeFunctions) // NOLINT
 {
-    Plugin::DetectionsQueue queue;
+    Plugin::DetectionQueue queue;
     queue.setMaxSize(2);
 
     auto detection1 = basicDetection();
@@ -61,10 +61,10 @@ TEST_F(TestDetectionsQueue, TestDetectionsQueueSizeFunctions) // NOLINT
     ASSERT_FALSE(queue.isFull());
 }
 
-TEST_F(TestDetectionsQueue, TestDetectionsQueuePopBlocksUntilToldToStop) // NOLINT
+TEST_F(TestDetectionQueue, TestDetectionsQueuePopBlocksUntilToldToStop) // NOLINT
 {
-    Plugin::DetectionsQueue queue;
-    auto result = std::async(std::launch::async, &Plugin::DetectionsQueue::pop, &queue);
+    Plugin::DetectionQueue queue;
+    auto result = std::async(std::launch::async, &Plugin::DetectionQueue::pop, &queue);
 
     std::chrono::milliseconds before =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -79,10 +79,10 @@ TEST_F(TestDetectionsQueue, TestDetectionsQueuePopBlocksUntilToldToStop) // NOLI
     EXPECT_NEAR(duration, 500, 5);
 }
 
-TEST_F(TestDetectionsQueue, TestDetectionsQueuePopReturnsImmediately) // NOLINT
+TEST_F(TestDetectionQueue, TestDetectionsQueuePopReturnsImmediately) // NOLINT
 {
-    Plugin::DetectionsQueue queue;
-    auto result = std::async(std::launch::async, &Plugin::DetectionsQueue::pop, &queue);
+    Plugin::DetectionQueue queue;
+    auto result = std::async(std::launch::async, &Plugin::DetectionQueue::pop, &queue);
     auto detection = basicDetection();
 
     std::chrono::milliseconds before =
@@ -97,9 +97,9 @@ TEST_F(TestDetectionsQueue, TestDetectionsQueuePopReturnsImmediately) // NOLINT
     EXPECT_LE(duration, 5);
 }
 
-TEST_F(TestDetectionsQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped) // NOLINT
+TEST_F(TestDetectionQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped) // NOLINT
 {
-    Plugin::DetectionsQueue queue;
+    Plugin::DetectionQueue queue;
 
     auto detectionToPush = basicDetection();
     auto detectionPopped = basicDetection();

@@ -2,21 +2,20 @@
 
 #pragma once
 
-#include "datatypes/AutoFd.h"
-
-#include <string>
+#include "IQuarantineManager.h"
 
 namespace safestore
 {
-    class IQuarantineManager
+    class QuarantineManager : public IQuarantineManager
     {
     public:
-        virtual ~IQuarantineManager() = default;
-        virtual bool quarantineFile(
+        QuarantineManager();
+        bool quarantineFile(
             const std::string& filePath,
             const std::string& threatId,
             const std::string& threatName,
             const std::string& sha256,
-            datatypes::AutoFd autoFd) = 0;
+            datatypes::AutoFd autoFd) override;
     };
 }
+

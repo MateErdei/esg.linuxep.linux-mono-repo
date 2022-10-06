@@ -2,14 +2,17 @@
 
 #include "SafeStoreServerSocket.h"
 
+#include <utility>
+
 using namespace unixsocket;
 
 SafeStoreServerSocket::SafeStoreServerSocket(
     const std::string& path,
-    const mode_t mode)
-    : SafeStoreServerSocketBase(path, mode)
+    const mode_t mode,
+    std::shared_ptr<safestore::IQuarantineManager> quarantineManager) :
+    SafeStoreServerSocketBase(path, mode), m_quarantineManager(std::move(quarantineManager))
 {
-    m_socketName = "SafeStore Socket Server";
+    m_socketName = "SafeStore Server";
 }
 
 SafeStoreServerSocket::~SafeStoreServerSocket()

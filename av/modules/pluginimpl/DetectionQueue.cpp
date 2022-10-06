@@ -1,22 +1,22 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "DetectionsQueue.h"
+#include "DetectionQueue.h"
 
 namespace Plugin
 {
-    void DetectionsQueue::setMaxSize(uint newMaxSize)
+    void DetectionQueue::setMaxSize(uint newMaxSize)
     {
         m_maxSize = newMaxSize;
     }
 
-    void DetectionsQueue::push(scan_messages::ThreatDetected task)
+    void DetectionQueue::push(scan_messages::ThreatDetected task)
     {
         std::lock_guard<std::mutex> lck(m_mutex);
         m_list.push(std::move(task));
         m_cond.notify_one();
     }
 
-    std::optional<scan_messages::ThreatDetected> DetectionsQueue::pop()
+    std::optional<scan_messages::ThreatDetected> DetectionQueue::pop()
     {
         std::unique_lock<std::mutex> lck(m_mutex);
         m_cond.wait(lck, [this] { return (!isEmpty() || m_stopRequested.load()); });
@@ -29,17 +29,17 @@ namespace Plugin
         return val;
     }
 
-    bool DetectionsQueue::isEmpty()
+    bool DetectionQueue::isEmpty()
     {
         return m_list.empty();
     }
 
-    bool DetectionsQueue::isFull()
+    bool DetectionQueue::isFull()
     {
         return m_list.size() >= m_maxSize;
     }
 
-    void DetectionsQueue::requestStop()
+    void DetectionQueue::requestStop()
     {
         m_stopRequested = true;
         m_cond.notify_all();

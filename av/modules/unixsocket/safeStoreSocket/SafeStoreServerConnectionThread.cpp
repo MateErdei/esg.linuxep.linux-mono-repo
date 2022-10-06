@@ -20,8 +20,10 @@
 
 using namespace unixsocket;
 
-SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(datatypes::AutoFd& fd)
-        : m_fd(std::move(fd))
+SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
+    datatypes::AutoFd& fd,
+    std::shared_ptr<safestore::IQuarantineManager> quarantineManager) :
+    m_fd(std::move(fd)), m_quarantineManager(quarantineManager)
 {
     if (m_fd < 0)
     {
@@ -30,7 +32,7 @@ SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(datatypes::Auto
 }
 
 //
-//static void throwOnError(int ret, const std::string& message)
+// static void throwOnError(int ret, const std::string& message)
 //{
 //    if (ret == 0)
 //    {
@@ -54,8 +56,7 @@ static scan_messages::ThreatDetected parseDetection(kj::Array<capnp::word>& prot
     auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
 
     capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::ThreatDetected::Reader requestReader =
-            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+    Sophos::ssplav::ThreatDetected::Reader requestReader = messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
     if (!requestReader.hasFilePath())
     {
@@ -78,14 +79,15 @@ void SafeStoreServerConnectionThread::run()
         if (ex.getType() == kj::Exception::Type::UNIMPLEMENTED)
         {
             // Fatal since this means we have a coding error that calls something unimplemented in kj.
-            LOGFATAL("Terminated SafeStoreServerConnectionThread with serialisation unimplemented exception: "
-                         << ex.getDescription().cStr());
+            LOGFATAL(
+                "Terminated SafeStoreServerConnectionThread with serialisation unimplemented exception: "
+                << ex.getDescription().cStr());
         }
         else
         {
             LOGERROR(
                 "Terminated SafeStoreServerConnectionThread with serialisation exception: "
-                    << ex.getDescription().cStr());
+                << ex.getDescription().cStr());
         }
     }
     catch (const std::exception& ex)
@@ -103,7 +105,7 @@ void SafeStoreServerConnectionThread::run()
 void SafeStoreServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_fd));
-    LOGDEBUG("Threat Reporter Server thread got connection " << socket_fd.fd());
+    LOGDEBUG("SafeStore Server thread got connection " << socket_fd.fd());
     uint32_t buffer_size = 512;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
@@ -124,14 +126,13 @@ void SafeStoreServerConnectionThread::inner_run()
 
         if (activity < 0)
         {
-
-            LOGERROR("Closing Threat Reporter connection thread, error: " << errno);
+            LOGERROR("Closing SafeStore connection thread, error: " << errno);
             break;
         }
 
         if (FDUtils::fd_isset(exitFD, &tempRead))
         {
-            LOGSUPPORT("Closing Threat Reporter connection thread");
+            LOGSUPPORT("Closing SafeStore connection thread");
             break;
         }
         else
@@ -146,12 +147,12 @@ void SafeStoreServerConnectionThread::inner_run()
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
-                LOGDEBUG("Threat Reporter connection thread closed: EOF");
+                LOGDEBUG("SafeStore connection thread closed: EOF");
                 break;
             }
             else if (length < 0)
             {
-                LOGERROR("Aborting Threat Reporter connection thread: failed to read length");
+                LOGERROR("Aborting SafeStore connection thread: failed to read length");
                 break;
             }
             else if (length == 0)
@@ -175,12 +176,12 @@ void SafeStoreServerConnectionThread::inner_run()
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
             if (bytes_read < 0)
             {
-                LOGERROR("Aborting Threat Reporter connection thread: " << errno);
+                LOGERROR("Aborting SafeStore connection thread: " << errno);
                 break;
             }
             else if (bytes_read != length)
             {
-                LOGERROR("Aborting Threat Reporter connection thread: failed to read entire message");
+                LOGERROR("Aborting SafeStore connection thread: failed to read entire message");
                 break;
             }
 
@@ -191,7 +192,7 @@ void SafeStoreServerConnectionThread::inner_run()
             datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
             if (file_fd.get() < 0)
             {
-                LOGERROR("Aborting Threat Reporter connection thread: failed to read fd");
+                LOGERROR("Aborting SafeStore connection thread: failed to read fd");
                 break;
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
@@ -206,13 +207,23 @@ void SafeStoreServerConnectionThread::inner_run()
                 LOGERROR("Missing file path in detection report: empty file path");
             }
 
-            std::stringstream message;
-            message << "Received Threat:\nThreat name: " << threatDetected.getThreatName() << "\nFile path: "
-                    << threatDetected.getFilePath() << "\nsha256: " << threatDetected.getSha256() << "\nThreat ID: "
-                    << threatDetected.getThreatId() << "\nFile descriptor: " << threatDetected.getFd();
-            LOGINFO(message.str());
+            LOGINFO(
+                "Received Threat:\n  File path: "
+                << threatDetected.getFilePath() << "\n  Threat ID: " << threatDetected.getThreatId()
+                << "\n  Threat name: " << threatDetected.getThreatName() << "\n  SHA256: " << threatDetected.getSha256()
+                << "\n  File descriptor: " << threatDetected.getFd());
 
-            // TODO send to Quarantine Manager
+            bool isQuarantineSuccessful = m_quarantineManager->quarantineFile(
+                threatDetected.getFilePath(),
+                threatDetected.getThreatId(),
+                threatDetected.getThreatName(),
+                threatDetected.getSha256(),
+                threatDetected.moveAutoFd());
+
+            std::ignore = isQuarantineSuccessful;
+
+            // TODO: send a response back
+
             // TODO: HANDLE ANY SOCKET ERRORS
         }
     }

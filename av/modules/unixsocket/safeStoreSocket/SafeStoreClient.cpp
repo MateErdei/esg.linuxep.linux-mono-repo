@@ -1,6 +1,6 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "SafeStoreClientSocket.h"
+#include "SafeStoreClient.h"
 
 #include "scan_messages/ThreatDetected.h"
 #include "unixsocket/Logger.h"
@@ -12,7 +12,7 @@
 
 #include <sys/socket.h>
 
-unixsocket::SafeStoreClientSocket::SafeStoreClientSocket(
+unixsocket::SafeStoreClient::SafeStoreClient(
     std::string socket_path,
     const struct timespec& sleepTime) :
     BaseClient(std::move(socket_path), sleepTime)
@@ -20,9 +20,9 @@ unixsocket::SafeStoreClientSocket::SafeStoreClientSocket(
     BaseClient::connectWithRetries("SafeStore");
 }
 
-void unixsocket::SafeStoreClientSocket::sendQuarantineRequest(const scan_messages::ThreatDetected& detection)
+void unixsocket::SafeStoreClient::sendQuarantineRequest(const scan_messages::ThreatDetected& detection)
 {
-    assert(m_socket_fd >= 0);
+    assert(m_socket_fd.valid());
     std::string dataAsString = detection.serialise();
     auto fd = detection.getFd();
 

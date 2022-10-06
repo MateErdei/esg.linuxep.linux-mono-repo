@@ -2,11 +2,8 @@
 
 #include "Main.h"
 
-#include "IQuarantineManager.h"
 #include "Logger.h"
-#include "QuarantineManagerImpl.h"
-#include "SafeStoreWrapperImpl.h"
-#include "StateMonitor.h"
+#include "QuarantineManager.h"
 
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
@@ -45,8 +42,10 @@ void Main::innerRun()
     // Take safestore lock file
     common::PidLockFile lock(Plugin::getSafeStorePidPath());
 
+    std::shared_ptr<IQuarantineManager> quarantineManager = std::make_shared<QuarantineManager>();
+
     fs::path safeStoreSocketPath = "/var/safestore_socket";
-    unixsocket::SafeStoreServerSocket server(safeStoreSocketPath, 0666);
+    unixsocket::SafeStoreServerSocket server(safeStoreSocketPath, 0666, quarantineManager);
     server.start();
 
     auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
@@ -55,19 +54,8 @@ void Main::innerRun()
     struct pollfd fds[]
     {
         { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-        {
-            .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0
-        }
+        { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
     };
-    
-    std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper = std::make_shared<SafeStoreWrapperImpl>();
-    std::shared_ptr<IQuarantineManager> quarantineManager = std::make_shared<QuarantineManagerImpl>(safeStoreWrapper);
-    quarantineManager->initialise();
-
-    StateMonitor qmStateMonitorThread(quarantineManager);
-    qmStateMonitorThread.run();
-
-    //    quarantineManager->quarantineFile(....);
 
     while (true)
     {

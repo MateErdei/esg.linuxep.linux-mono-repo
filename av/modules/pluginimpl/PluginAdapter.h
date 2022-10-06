@@ -6,7 +6,7 @@
 # define PLUGIN_INTERNAL private
 #endif
 
-#include "DetectionsQueue.h"
+#include "DetectionQueue.h"
 #include "HealthStatus.h"
 #include "IDetectionReportProcessor.h"
 #include "PluginCallback.h"
@@ -30,13 +30,13 @@ namespace Plugin
     {
     private:
         std::shared_ptr<TaskQueue> m_taskQueue;
-        std::shared_ptr<DetectionsQueue> m_queueSafeStoreTask;
+        std::shared_ptr<DetectionQueue> m_detectionQueue;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<PluginCallback> m_callback;
         std::shared_ptr<manager::scheduler::ScanScheduler> m_scanScheduler;
         std::shared_ptr<unixsocket::ThreatReporterServerSocket> m_threatReporterServer;
         std::shared_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_threatDetector;
-        std::shared_ptr<SafeStoreWorker> m_safeStoreQueueWorker;
+        std::shared_ptr<SafeStoreWorker> m_safeStoreWorker;
         int m_waitForPolicyTimeout = 0;
 
         Common::ZMQWrapperApi::IContextSharedPtr m_zmqContext;
@@ -56,7 +56,7 @@ namespace Plugin
         void publishThreatEvent(const std::string& threatDetectedJSON) const;
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
         bool isSafeStoreEnabled();
-        [[nodiscard]] std::shared_ptr<DetectionsQueue> getSafeStoreQueue() const;
+        [[nodiscard]] std::shared_ptr<DetectionQueue> getDetectionQueue() const;
 
     PLUGIN_INTERNAL:
         void publishThreatHealth(E_HEALTH_STATUS threatStatus) const;
@@ -80,7 +80,7 @@ namespace Plugin
         bool m_gotSavPolicy = false;
         bool m_gotAlcPolicy = false;
 
-        std::unique_ptr<common::ThreadRunner> m_safeStoreQueueWorkerThread;
+        std::unique_ptr<common::ThreadRunner> m_safeStoreWorkerThread;
         std::unique_ptr<common::ThreadRunner> m_schedulerThread;
         std::unique_ptr<common::ThreadRunner> m_threatDetectorThread;
         void processFlags(const std::string& flagsJson);

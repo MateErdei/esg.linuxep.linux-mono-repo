@@ -72,6 +72,19 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
             )
 
+    SophosAddTest(TestSafeStoreSocket
+            ../common/LogInitializedTests.cpp
+            TestSafeStoreSocket.cpp
+            PROJECTS unixsocket
+            INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
+            LIBS pthread
+            )
+    SET_TARGET_PROPERTIES(TestSafeStoreSocket
+            PROPERTIES
+            INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+            BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+            )
+
     add_executable(ProcessControlClientExecutable
             ../unixsocket/ProcessControlTestExecutable/ProcessControllClient.cpp)
     target_link_libraries(ProcessControlClientExecutable  PUBLIC
