@@ -14,8 +14,8 @@
 #include <cstring>
 #include <sstream>
 
-#include <fcntl.h>
 #include <unistd.h>
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -27,11 +27,11 @@ PidLockFile::PidLockFile(const std::string& pidfile)
     : m_pidfile(pidfile),m_fd(-1)
 {
     // open for write
-    datatypes::AutoFd localfd(open(pidfile.c_str(), O_RDWR | O_CREAT | O_CLOEXEC
+    datatypes::AutoFd local_fd(open(pidfile.c_str(), O_RDWR | O_CREAT | O_CLOEXEC
                        , S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH)
     );
 
-    if (!localfd.valid())
+    if (!local_fd.valid())
     {
         int error = errno;
 
@@ -45,16 +45,10 @@ PidLockFile::PidLockFile(const std::string& pidfile)
                     fs::perm_options::add);
 
     // lock
-    struct flock fl{};
-    fl.l_type = F_WRLCK;
-    fl.l_whence = SEEK_SET;
-    fl.l_start = 0;
-    fl.l_len = 0;
-
-    if (fcntl(localfd.get(), F_SETLKW, &fl) == -1)
+    if (flock(local_fd.get(), LOCK_EX) == -1)
     {
         int error = errno;
-        localfd.close();
+        local_fd.close();
 
         std::ostringstream ost;
         ost << "Unable to lock lock file "<< pidfile << " because " << common::safer_strerror(error) << "(" << error << ")";
@@ -65,16 +59,16 @@ PidLockFile::PidLockFile(const std::string& pidfile)
     }
 
     // truncate and write new PID
-    if (ftruncate(localfd.get(),0) != 0)
+    if (ftruncate(local_fd.get(),0) != 0)
     {
         int error = errno;
-        localfd.close();
+        local_fd.close();
 
         std::ostringstream ost;
         ost << "Failed to truncate pidfile: " << common::safer_strerror(error) << "(" << error << ")";
 
         LOGFATAL(ost.str());
-        throw PidLockFileException("Unabled to truncate lock file");
+        throw PidLockFileException("Unable to truncate lock file");
     }
 
     // write new PID
@@ -83,16 +77,16 @@ PidLockFile::PidLockFile(const std::string& pidfile)
     pid[14] = 0;
     size_t pidLen = strlen(pid);
 
-    ssize_t written = write(localfd.get(), pid, pidLen);
+    ssize_t written = write(local_fd.get(), pid, pidLen);
     if (written < 0 || static_cast<size_t>(written) != pidLen)
     {
         int error = errno;
-        localfd.close();
+        local_fd.close();
         LOGFATAL("Failed to write pid to pidfile: " << common::safer_strerror(error));
-        throw PidLockFileException("Unabled to pid to pid lock file");
+        throw PidLockFileException("Unable to write pid to pid lock file");
     }
 
-    m_fd = std::move(localfd);
+    m_fd = std::move(local_fd);
     LOGINFO("Lock taken on: " << pidfile);
 }
 
@@ -116,25 +110,22 @@ bool PidLockFile::isPidFileLocked(const std::string& pidfile, const std::shared_
         return false;
     }
 
-    struct flock fl{};
-    fl.l_type    = F_RDLCK;   /* Test for any lock on any part of file. */
-    fl.l_whence  = SEEK_SET;
-    fl.l_start   = 0;
-    fl.l_len     = 50;
-    sysCalls->fcntl(fd.get(), F_GETLK, &fl);  /* Overwrites lock structure with preventors. */
-    if (fl.l_type == F_WRLCK)
+    auto ret = sysCalls->flock(fd.get(), LOCK_EX | LOCK_NB);
+    if (ret == 0)
     {
-        LOGDEBUG("Unable to acquire lock on " << pidfile << " as process " << fl.l_pid << " already has a write lock");
-        return true;
+        LOGDEBUG("Lock acquired on PID file " << pidfile << ", assume process not running");
+        return false;
     }
-    else if (fl.l_type == F_RDLCK)
+
+    int error = errno;
+    if (error == EWOULDBLOCK)
     {
-        LOGDEBUG("Unable to acquire lock on " << pidfile << " as process " << fl.l_pid << " already has a read lock");
+        LOGDEBUG("Unable to acquire lock on " << pidfile << " as it is already locked");
         return true;
     }
     else
     {
-        LOGDEBUG("Lock acquired on PID file " << pidfile << ", assume process not running");
+        LOGERROR("Failed to test lock on " << pidfile << " because " << common::safer_strerror(error) << "(" << error << ")");
+        return false;
     }
-    return false;
 }

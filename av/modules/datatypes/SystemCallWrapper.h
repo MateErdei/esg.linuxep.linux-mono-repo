@@ -8,8 +8,11 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ISystemCallWrapper.h"
 
+#include <sys/fanotify.h>
+#include <sys/file.h>
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>
+#include <unistd.h>
 
 namespace datatypes
 {
@@ -26,6 +29,11 @@ namespace datatypes
             return ::statfs(file, buf);
         }
 
+        int _stat(const char* file, struct ::stat* buf) override
+        {
+            return ::stat(file, buf);
+        }
+
         int _open(const char *file, int oflag, mode_t mode) override
         {
             return ::open(file, oflag, mode);
@@ -33,7 +41,7 @@ namespace datatypes
 
         std::pair<const int, const long> getSystemUpTime() override
         {
-            struct sysinfo systemInfo;
+            struct sysinfo systemInfo {};
             int res = sysinfo(&systemInfo);
             long upTime = res == -1 ? 0 : systemInfo.uptime;
             return std::pair(res, upTime);
@@ -57,9 +65,34 @@ namespace datatypes
             return ::ppoll(fd, num_fds, timeout, ss);
         }
 
-        int fcntl(int __fd, int __cmd, struct ::flock* lock) override
+        int fanotify_init(unsigned int __flags,
+                          unsigned int __event_f_flags) override
         {
-            return ::fcntl(__fd, __cmd, lock);
+            return ::fanotify_init(__flags, __event_f_flags);
+        }
+
+        int fanotify_mark(int __fanotify_fd,
+                          unsigned int __flags,
+                          uint64_t __mask,
+                          int __dfd,
+                          const char *__pathname) override
+        {
+            return ::fanotify_mark(__fanotify_fd, __flags, __mask, __dfd, __pathname);
+        }
+
+        ssize_t read(int __fd, void *__buf, size_t __nbytes) override
+        {
+            return ::read (__fd, __buf, __nbytes);
+        }
+
+        ssize_t readlink(const char* __path, char* __buf, size_t __len) override
+        {
+            return ::readlink(__path, __buf, __len);
+        }
+
+        int flock(int fd, int operation) override
+        {
+            return ::flock(fd, operation);
         }
 
         int setrlimit(int __resource, const struct ::rlimit* __rlim) override

@@ -28,7 +28,7 @@ namespace
                                  nfds_t num_fds,
                                  const struct timespec* timeout,
                                  const __sigset_t* ss));
-        MOCK_METHOD(int, fcntl, (int __fd, int __cmd, struct ::flock* lock));
+        MOCK_METHOD(int, flock, (int fd, int operation));
         MOCK_METHOD(int, fanotify_init, (unsigned int __flags,
                                          unsigned int __event_f_flags));
         MOCK_METHOD(int, fanotify_mark, (int __fanotify_fd,

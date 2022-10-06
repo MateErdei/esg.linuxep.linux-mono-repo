@@ -35,7 +35,7 @@ namespace datatypes
                     nfds_t num_fds,
                     const struct timespec* timeout,
                     const __sigset_t* ss) = 0;
-        virtual int fcntl(int __fd, int __cmd, struct ::flock* lock) = 0;
+        virtual int flock(int fd, int operation) = 0;
         virtual int fanotify_init(unsigned int __flags,
                                   unsigned int __event_f_flags) = 0;
         virtual int fanotify_mark(int __fanotify_fd,

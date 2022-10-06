@@ -13,7 +13,7 @@
 #include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/UtilityImpl/StringUtils.h>
+
 #include <gtest/gtest.h>
 #include <pluginimpl/HealthStatus.h>
 #include <tests/datatypes/MockSysCalls.h>
@@ -395,7 +395,7 @@ TEST_F(TestPluginCallback, getTelemetry_threatHealth_fileDoesNotExist)
     EXPECT_EQ(telemetry["threatHealth"], E_THREAT_HEALTH_STATUS_GOOD);
 }
 
-TEST_F(TestPluginCallback, getHealthReturnsZeroWhenPidfileExistsButIsNotLocked)
+TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidfileExistsButIsNotLocked)
 {
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
     std::ofstream(threatDetectorPidFile).close();
@@ -408,7 +408,7 @@ TEST_F(TestPluginCallback, getHealthReturnsZeroWhenPidfileExistsButIsNotLocked)
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdownFileHasExpired)
+TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidFileDoesNotExistAndShutdownFileHasExpired)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
@@ -432,7 +432,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdownHasAFileSystemException)
+TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidFileDoesNotExistAndShutdownHasAFileSystemException)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
@@ -458,7 +458,7 @@ TEST_F(TestPluginCallback, getHealthReturnsOneWhenPidFileDoesNotExistAndShutdown
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsZeroIfLockCanBeTakenOnPidFiles)
+TEST_F(TestPluginCallback, calculateHealthReturnsGoodIfLockCannotBeTakenOnPidFiles)
 {
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
@@ -468,9 +468,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsZeroIfLockCanBeTakenOnPidFiles)
 
     int fileDescriptor = 123;
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
-    struct flock fl;
-    fl.l_type    = F_WRLCK;
-    EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _)).WillRepeatedly(DoAll(SetArgPointee<2>(fl), Return(0)));
+    EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
 
     long expectedResult = E_HEALTH_STATUS_GOOD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
@@ -478,14 +476,14 @@ TEST_F(TestPluginCallback, calculateHealthReturnsZeroIfLockCanBeTakenOnPidFiles)
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnThreatDetectorPidFile)
+TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnThreatDetectorPidFile)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
     commonLogger.addAppender(m_sharedAppender);
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
-    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    // Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
 
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -493,18 +491,15 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnThreatDete
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
         Common::FileSystem::IFileSystemException("Shutdown file read error.")));
-    int fileDescriptor = 123;
-    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
-    struct flock threatDetectorFlock;
-    threatDetectorFlock.l_type    = F_UNLCK;
-    struct flock soapdFlock;
-    soapdFlock.l_type    = F_RDLCK;
-    struct flock safestoreFLock;
-    safestoreFLock.l_type    = F_RDLCK;
-    EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _))
-        .WillOnce(DoAll(SetArgPointee<2>(threatDetectorFlock), Return(0)))
-        .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)))
-        .WillOnce(DoAll(SetArgPointee<2>(safestoreFLock), Return(0)));
+
+    int other_fd = 123;
+    int threat_detector_fd = 321;
+
+    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(other_fd));
+    EXPECT_CALL(*m_mockSysCalls, _open(::testing::EndsWith("/threat_detector.pid"), O_RDONLY, 0644)).WillOnce(Return(threat_detector_fd));
+
+    EXPECT_CALL(*m_mockSysCalls, flock(other_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
+    EXPECT_CALL(*m_mockSysCalls, flock(threat_detector_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));
 
     long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
@@ -516,7 +511,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnThreatDete
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSoapdPidFile)
+TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFile)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
@@ -527,18 +522,14 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSoapdPidFi
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
-    int fileDescriptor = 123;
-    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
-    struct flock threatDetectorFlock;
-    threatDetectorFlock.l_type    = F_RDLCK;
-    struct flock soapdFlock;
-    soapdFlock.l_type    = F_UNLCK;
-    struct flock safestoreFLock;
-    safestoreFLock.l_type    = F_RDLCK;
-    EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _))
-        .WillOnce(DoAll(SetArgPointee<2>(threatDetectorFlock), Return(0)))
-        .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)))
-        .WillOnce(DoAll(SetArgPointee<2>(safestoreFLock), Return(0)));
+    int other_fd = 123;
+    int soapd_fd = 321;
+
+    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(other_fd));
+    EXPECT_CALL(*m_mockSysCalls, _open(::testing::EndsWith("/soapd.pid"), O_RDONLY, 0644)).WillOnce(Return(soapd_fd));
+
+    EXPECT_CALL(*m_mockSysCalls, flock(other_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
+    EXPECT_CALL(*m_mockSysCalls, flock(soapd_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));
 
     long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
@@ -550,7 +541,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSoapdPidFi
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSafestorePidFile)
+TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSafestorePidFile)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
@@ -561,18 +552,14 @@ TEST_F(TestPluginCallback, calculateHealthReturnsOneIfLockCanBeTakenOnSafestoreP
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
-    int fileDescriptor = 123;
-    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
-    struct flock threatDetectorFlock;
-    threatDetectorFlock.l_type    = F_RDLCK;
-    struct flock soapdFlock;
-    soapdFlock.l_type    = F_RDLCK;
-    struct flock safestoreFLock;
-    safestoreFLock.l_type    = F_UNLCK;
-    EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _))
-        .WillOnce(DoAll(SetArgPointee<2>(threatDetectorFlock), Return(0)))
-        .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)))
-        .WillOnce(DoAll(SetArgPointee<2>(safestoreFLock), Return(0)));
+    int other_fd = 123;
+    int soapd_fd = 321;
+
+    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(other_fd));
+    EXPECT_CALL(*m_mockSysCalls, _open(::testing::EndsWith("/safestore.pid"), O_RDONLY, 0644)).WillOnce(Return(soapd_fd));
+
+    EXPECT_CALL(*m_mockSysCalls, flock(other_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
+    EXPECT_CALL(*m_mockSysCalls, flock(soapd_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));
 
     long expectedResult = E_HEALTH_STATUS_BAD;
     m_pluginCallback->setSafeStoreEnabled(true);
@@ -880,16 +867,7 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
 
     int fileDescriptor = 123;
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
-    struct flock threatDetectorFlock;
-    threatDetectorFlock.l_type    = F_UNLCK;
-    struct flock soapdFlock;
-    soapdFlock.l_type    = F_UNLCK;
-    struct flock safestoreFLock;
-    safestoreFLock.l_type    = F_UNLCK;
-    EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _))
-        .WillOnce(DoAll(SetArgPointee<2>(threatDetectorFlock), Return(0)))
-        .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)))
-        .WillOnce(DoAll(SetArgPointee<2>(safestoreFLock), Return(0)));
+    EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));
 
     m_pluginCallback->setSafeStoreEnabled(true);
     m_pluginCallback->m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
@@ -906,13 +884,7 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
     EXPECT_FALSE(appenderContains("Service Health has changed to"));
     ASSERT_EQ(result, E_HEALTH_STATUS_BAD);
 
-    threatDetectorFlock.l_type    = F_RDLCK;
-    soapdFlock.l_type    = F_RDLCK;
-    safestoreFLock.l_type    = F_RDLCK;
-    EXPECT_CALL(*m_mockSysCalls, fcntl(fileDescriptor, F_GETLK, _))
-        .WillOnce(DoAll(SetArgPointee<2>(threatDetectorFlock), Return(0)))
-        .WillOnce(DoAll(SetArgPointee<2>(soapdFlock), Return(0)))
-        .WillOnce(DoAll(SetArgPointee<2>(safestoreFLock), Return(0)));
+    EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
 
     ASSERT_EQ(m_pluginCallback->m_serviceHealth, E_HEALTH_STATUS_BAD);
     result = m_pluginCallback->calculateHealth(m_mockSysCalls);
