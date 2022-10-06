@@ -36,7 +36,7 @@ namespace Plugin
 
     bool DetectionsQueue::isFull()
     {
-        return m_list.size() > m_maxSize;
+        return m_list.size() >= m_maxSize;
     }
 
     void DetectionsQueue::requestStop()
