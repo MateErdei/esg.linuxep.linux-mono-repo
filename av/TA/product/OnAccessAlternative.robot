@@ -203,6 +203,7 @@ On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Poli
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until On Access Log Contains With Offset  On-access exclusions: ["/tmp_test/"]
     Wait Until On Access Log Contains With Offset  Updating on-access exclusions
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
     Mark On Access Log
     Create File  ${filepath1}  ${EICAR_STRING}
@@ -224,6 +225,7 @@ On Access Does Not Scan Files If They Match Relative Directory Exclusion In Poli
     Register Cleanup       Set Log Level  DEBUG
     Restart On Access
     Wait Until On Access Log Contains With Offset  Logger soapd configured for level: TRACE
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
     Mark On Access Log
     ${policyContent} =  Get Complete Sav Policy  ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  True
@@ -262,6 +264,7 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
     Register Cleanup       Set Log Level  DEBUG
     Restart On Access
     Wait Until On Access Log Contains With Offset  Logger soapd configured for level: TRACE
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
     ${TEST_DIR} =   Set Variable  /tmp_test/globExclDir
     Create Directory  ${TEST_DIR}
@@ -337,6 +340,7 @@ On Access Monitors Addition And Removal Of Mount Points
     Restart On Access
     Wait Until On Access Log Contains With Offset  Including mount point:
     On Access Log Does Not Contain With Offset  Including mount point: ${where}
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
     Sleep  1s
     ${numMountsPreMount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
 
@@ -389,6 +393,7 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
 
 
 On Access Process Handles Consecutive Process Control Requests
+    Mark On Access Log
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
     On Access Log Does Not Contain With Offset  Using on-access settings from policy
@@ -396,7 +401,9 @@ On Access Process Handles Consecutive Process Control Requests
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
+    Mark On Access Log
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
     Wait Until On Access Log Contains With Offset  No policy override, following policy settings
@@ -405,6 +412,7 @@ On Access Process Handles Consecutive Process Control Requests
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
     Wait Until On Access Log Contains With Offset  Overriding policy, on-access will be disabled
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
     On-access No Eicar Scan
 
@@ -486,6 +494,7 @@ On Access Scan Times Out When Unable To Connect To Threat Detector
     [Tags]  MANUAL
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
     Restart On Access
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     Create File  ${filepath}  clean
@@ -502,6 +511,7 @@ On Access Logs Scan time in TRACE
     Mark On Access Log
     Restart On Access
     Wait Until On Access Log Contains With Offset  Starting eventReader
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     Create File  ${filepath}  clean

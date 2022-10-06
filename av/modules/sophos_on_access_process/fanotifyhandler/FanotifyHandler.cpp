@@ -155,7 +155,7 @@ void FanotifyHandler::processFaMarkError(const std::string& function, const std:
     std::stringstream logMsg;
     int error = errno;
     logMsg << "fanotify_mark failed in " << function << ": " << common::safer_strerror(error) << " for: " << path;
-    if (error == EBADF || error == ENOENT)
+    if (error == EBADF || error == ENOENT || error == EINVAL)
     {
         LOGWARN(logMsg.str());
     }
