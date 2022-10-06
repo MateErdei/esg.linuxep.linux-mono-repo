@@ -455,7 +455,7 @@ On Access Logs Scan time in TRACE
 
     Wait Until On Access Log Contains With Offset  Scan for /tmp_test/clean_file_writer/clean.txt completed in
 
-On-access logs if the kernel queue overflows
+On Access logs if the kernel queue overflows
     # set loglevel to INFO to avoid log rotation due to large number of events
     Set Log Level  INFO
     Register Cleanup  Set Log Level  DEBUG
@@ -482,10 +482,29 @@ On-access logs if the kernel queue overflows
 
     Wait Until On Access Log Contains With Offset   Fanotify queue overflowed, some files will not be scanned.
 
-On-access Can Handle Unlimited Marks
-    # set loglevel to INFO to avoid log rotation due to large number of events
-    Set Log Level  INFO
+On Access Uses Multiple Scanners
+    Set Log Level  TRACE
     Register Cleanup  Set Log Level  DEBUG
+    Mark On Access Log
+    Terminate On Access
+    Start On Access without Log check
+    Wait Until On Access Log Contains With Offset   Starting scanHandler
+    Sleep  1s
+
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/fanotifyMarkSpammer.sh  timeout=10s    on_timeout=continue
+
+    Wait Until On Access Log Contains  by scanHandler-0
+    Wait Until On Access Log Contains  by scanHandler-1
+    Wait Until On Access Log Contains  by scanHandler-2
+    Wait Until On Access Log Contains  by scanHandler-3
+    Wait Until On Access Log Contains  by scanHandler-4
+    Wait Until On Access Log Contains  by scanHandler-5
+    Wait Until On Access Log Contains  by scanHandler-6
+    Wait Until On Access Log Contains  by scanHandler-7
+    Wait Until On Access Log Contains  by scanHandler-8
+    Wait Until On Access Log Contains  by scanHandler-9
+
+On Access Can Handle Unlimited Marks
     Mark On Access Log
     Terminate On Access
     Start On Access without Log check
@@ -494,7 +513,13 @@ On-access Can Handle Unlimited Marks
 
     Mark On Access Log
 
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/fanotifyMarkSpammer.sh  timeout=2min    on_timeout=continue
+    #Default MARK limit is 8192 marks https://man7.org/linux/man-pages/man2/fanotify_init.2.html
+    Create Directory   /tmp_test
+    Register Cleanup   Remove Directory   /tmp_test   recursive=True
+    Run Shell Process
+        ...   for i in `seq 0 1 8500`; do echo clean > /tmp_test/clean_file_\$i; done
+        ...   OnError=Failed to create clean files
 
-    On Access Log Does Not Contain With Offset      fanotify_mark failed: cacheFd : No space left on device
-    dump log  ${ON_ACCESS_LOG_PATH}
+    Wait Until On Access Log Contains  On-open event for /tmp_test/clean_file_8500
+    On Access Log Does Not Contain     fanotify_mark failed: cacheFd : No space left on device
+
