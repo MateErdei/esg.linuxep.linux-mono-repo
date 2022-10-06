@@ -36,6 +36,7 @@
         <filePath>/mnt/</filePath>
         <filePath>/uk-filer5/</filePath>
         <filePath>*excluded*</filePath>
+        <filePath>/opt/test/inputs/test_scripts/</filePath>
       </filePathSet>
       <excludeRemoteFiles>true</excludeRemoteFiles>
     </linuxExclusions>

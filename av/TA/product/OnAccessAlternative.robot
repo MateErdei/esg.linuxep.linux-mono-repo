@@ -26,6 +26,7 @@ ${TESTTMP}  /tmp_test/SSPLAVTests
 ${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}  ${SOPHOS_THREAT_DETECTOR_BINARY}_launcher
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
 ${timeout}  ${60}
+${DEFAULT_EXCLUSIONS}   ["/mnt/","/uk-filer5/","*excluded*","/opt/test/inputs/test_scripts/"]
 
 *** Keywords ***
 On Access Alternative Suite Setup
@@ -98,10 +99,10 @@ On Access Log Rotates
     Verify on access log rotated
 
 On Access Process Parses Policy Config
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/","*excluded*"]}
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}
     Wait Until On Access Log Contains With Offset  On-access enabled: "true"
     Wait Until On Access Log Contains With Offset  On-access scan network: "true"
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/","*excluded*"]
+    Wait Until On Access Log Contains With Offset  On-access exclusions: ${DEFAULT_EXCLUSIONS}
 
 On Access Process Parses Flags Config On startup
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
@@ -132,10 +133,10 @@ On Access Does Not Include Remote Files If Excluded In Policy
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":["/mnt/","/uk-filer5/","*excluded*"]}
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":${DEFAULT_EXCLUSIONS}}
     Wait Until On Access Log Contains With Offset  On-access enabled: "true"
     Wait Until On Access Log Contains With Offset  On-access scan network: "false"
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/","*excluded*"]
+    Wait Until On Access Log Contains With Offset  On-access exclusions: ${DEFAULT_EXCLUSIONS}
 
     Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
     On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
@@ -371,7 +372,7 @@ On Access Uses Policy Settings If Flags Dont Override Policy
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
     Wait Until On Access Log Contains With Offset   No policy override, following policy settings
-    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/","*excluded*"]}
+    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}
 
     On-access Scan Eicar Close
 
@@ -385,7 +386,7 @@ On Access Is Disabled After it Receives Disable Flags
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/","*excluded*"]}
+    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
