@@ -223,8 +223,8 @@ void SoapdBootstrap::disableOnAccess(bool changed)
     {
         LOGINFO("On-access scanning disabled");
     }
-    m_eventReaderThread->requestStopIfNotStopped();
     m_mountMonitorThread->requestStopIfNotStopped();
+    m_eventReaderThread->requestStopIfNotStopped();
     m_scanRequestQueue->stop();
 
     for (const auto& scanThread: m_scanHandlerThreads)

@@ -101,7 +101,7 @@ namespace mount_monitor::mount_monitor
 
     void MountMonitor::updateConfig(const OnAccessConfiguration& config)
     {
-        if (m_fanotifyHandler->isInitialised() && config != m_config)
+        if (config != m_config)
         {
             m_config = config;
             LOGINFO("OA config changed, re-enumerating mount points");
@@ -114,6 +114,11 @@ namespace mount_monitor::mount_monitor
         int count = 0;
         for (const auto& mount: allMounts)
         {
+            if (stopRequested() || !m_fanotifyHandler->isInitialised())
+            {
+                break;
+            }
+
             std::string mountPointStr = mount->mountPoint();
             if (isIncludedFilesystemType(mount) && isIncludedMountpoint(mount))
             {

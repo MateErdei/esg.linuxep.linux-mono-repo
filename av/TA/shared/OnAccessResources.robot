@@ -106,6 +106,7 @@ Enable OA Scanning
 
     Wait Until On Access Log Contains With Offset  "oa_enabled":true
     Wait Until On Access Log Contains With Offset  Starting eventReader
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
 
 On-access Scan Eicar Close

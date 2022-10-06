@@ -98,7 +98,7 @@ TEST_F(TestMountMonitor, TestSetExclusions)
     MountMonitor mountMonitor(m_config, m_sysCallWrapper, m_mockFanotifyHandler);
     EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 1);
 
-    EXPECT_CALL(*m_mockFanotifyHandler, isInitialised()).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFanotifyHandler, isInitialised()).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(0));
 
     sophos_on_access_process::OnAccessConfig::OnAccessConfiguration config;
@@ -132,7 +132,7 @@ TEST_F(TestMountMonitor, TestUpdateConfigSetsAllConfigBeforeReenumeratingMounts)
     EXPECT_CALL(*networkDevice, isDirectory()).WillRepeatedly(Return(true));
     EXPECT_CALL(*networkDevice, mountPoint()).WillRepeatedly(Return("network"));
 
-    EXPECT_CALL(*m_mockFanotifyHandler, isInitialised()).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFanotifyHandler, isInitialised()).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(0));
 
     mount_monitor::mountinfo::IMountPointSharedVector allMountpoints;
@@ -174,6 +174,7 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
             )
           );
     EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_mockFanotifyHandler, isInitialised()).WillRepeatedly(Return(true));
     auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler);
     auto numMountPoints = mountMonitor->getIncludedMountpoints(mountMonitor->getAllMountpoints()).size();
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
@@ -203,6 +204,7 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
 
 
     EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_mockFanotifyHandler, isInitialised()).WillRepeatedly(Return(true));
     auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler);
     auto numMountPoints = mountMonitor->getIncludedMountpoints(mountMonitor->getAllMountpoints()).size();
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
@@ -257,6 +259,7 @@ TEST_F(TestMountMonitor, TestMonitorLogsErrorIfMarkingFails)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
     EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(-1));
+    EXPECT_CALL(*m_mockFanotifyHandler, isInitialised()).WillRepeatedly(Return(true));
     auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler);
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 

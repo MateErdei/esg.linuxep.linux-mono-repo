@@ -109,7 +109,6 @@ On Access Process Parses Flags Config On startup
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
     Wait Until Created  ${ONACCESS_FLAG_CONFIG}
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
     Mark On Access Log
     Restart On Access
@@ -120,14 +119,15 @@ On Access Process Parses Flags Config On startup
 
 On Access Does Not Include Remote Files If Excluded In Policy
     [Tags]  NFS
+    Mark On Access Log
     ${source} =       Set Variable  /tmp_test/nfsshare
     ${destination} =  Set Variable  /testmnt/nfsshare
     Create Directory  ${source}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
     Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
-
     Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
     Mark On Access Log
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
@@ -140,31 +140,32 @@ On Access Does Not Include Remote Files If Excluded In Policy
     Wait Until On Access Log Contains With Offset  On-access enabled: "true"
     Wait Until On Access Log Contains With Offset  On-access scan network: "false"
     Wait Until On Access Log Contains With Offset  On-access exclusions: ["/mnt/","/uk-filer5/"]
-
     Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
     On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
 
 On Access Applies Config Changes When The Mounts Change
     [Tags]  NFS
-    Wait Until On Access Log Contains With Offset  Fanotify successfully initialised
+    Mark On Access Log
     ${source} =       Set Variable  /tmp_test/nfsshare
     ${destination} =  Set Variable  /testmnt/nfsshare
     Create Directory  ${source}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
     Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
-
     Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
+    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+
+    Mark On Access Log
     ${filepath} =  Set Variable  /testmnt/nfsshare/clean.txt
     Create File  ${filepath}  clean
     Register Cleanup  Remove File  ${filepath}
-
     Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from Process
+
     Mark On Access Log
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
     Send Plugin Policy  av  sav  ${policyContent}
-
     Wait Until On Access Log Contains With Offset  On-access enabled: "true"
     Wait Until On Access Log Contains With Offset  On-access scan network: "false"
     Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
