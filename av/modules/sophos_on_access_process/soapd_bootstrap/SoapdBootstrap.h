@@ -32,14 +32,15 @@ namespace sophos_on_access_process::soapd_bootstrap
          */
         void ProcessPolicy(bool onStart=false);
 
+        static bool checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting);
+
     private:
         int outerRun();
 
         void innerRun();
 
-        std::mutex m_onAccessChangeStateLock;
-        void enableOnAccess(bool changed);
-        void disableOnAccess(bool changed);
+        void enableOnAccess();
+        void disableOnAccess();
 
         sophos_on_access_process::OnAccessConfig::OnAccessConfiguration getPolicyConfiguration();
 
@@ -50,7 +51,6 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         std::mutex m_pendingConfigActionMutex;
         std::atomic_bool m_currentOaEnabledState = false;
-        std::atomic_bool m_onAccessEnabledFlag = false;
 
         std::shared_ptr<onaccessimpl::ScanRequestQueue> m_scanRequestQueue;
         std::vector<std::shared_ptr<common::ThreadRunner>> m_scanHandlerThreads;

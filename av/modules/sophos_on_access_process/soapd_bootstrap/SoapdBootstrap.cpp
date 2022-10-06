@@ -19,9 +19,6 @@
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteClientSocketThread.h"
 
-// Auto version headers
-#include "AutoVersioningHeaders/AutoVersion.h"
-
 // Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 // Std C++
@@ -43,7 +40,7 @@ using namespace unixsocket::updateCompleteSocket;
 
 int SoapdBootstrap::runSoapd()
 {
-    LOGINFO("Sophos on access process " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
+    LOGINFO("Sophos on access process started");
     auto SoapdInstance = SoapdBootstrap();
     return SoapdInstance.outerRun();
 }
@@ -78,7 +75,7 @@ void SoapdBootstrap::innerRun()
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
-    OnAccessConfig::OnAccessConfiguration config;
+    mount_monitor::mount_monitor::OnAccessMountConfig config;
 
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
 
@@ -112,9 +109,8 @@ void SoapdBootstrap::innerRun()
     LOGDEBUG("Control Server Socket is at: " << socketPath);
     auto processControlCallbacks = std::make_shared<sophos_on_access_process::OnAccessConfig::OnAccessProcessControlCallback>(*this);
     auto processControllerServer = std::make_shared<unixsocket::ProcessControllerServerSocket>(socketPath,
-                                                                                               0600,
+                                                                                               0666,
                                                                                                processControlCallbacks);
-    processControllerServer->setUserAndGroup("sophos-spl-av", "sophos-spl-group");
     auto processControllerServerThread = std::make_unique<common::ThreadRunner>(processControllerServer,
                                                                                 "processControlServer",
                                                                                 true);
@@ -129,8 +125,7 @@ void SoapdBootstrap::innerRun()
     if(!flagJsonString.empty())
     {
         LOGINFO("Found Flag config on startup");
-        m_onAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
-        std::string setting = m_onAccessEnabledFlag ? "not override policy" : "override policy";
+        std::string setting = OnAccessConfig::parseFlagConfiguration(flagJsonString) ? "not override policy" : "override policy";
         LOGINFO("Flag is set to " << setting);
     }
 
@@ -170,14 +165,14 @@ void SoapdBootstrap::innerRun()
         }
     }
 
-    disableOnAccess(true);
+    disableOnAccess();
 }
 
 sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::getPolicyConfiguration()
 {
     auto jsonString = OnAccessConfig::readPolicyConfigFile();
     OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessPolicySettingsFromJson(jsonString);
-    m_mountMonitor->updateConfig(oaConfig);
+    m_mountMonitor->updateConfig(oaConfig.exclusions, oaConfig.excludeRemoteFiles);
 
     return oaConfig;
 }
@@ -188,62 +183,72 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
     LOGDEBUG("ProcessPolicy " << onStart);
 
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
-    auto newOnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
-    bool flagChanged = onStart || (m_onAccessEnabledFlag != newOnAccessEnabledFlag);
-    m_onAccessEnabledFlag = newOnAccessEnabledFlag;
+    auto OnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
 
-    if(!m_onAccessEnabledFlag)
+    auto oaConfig = getPolicyConfiguration();
+    bool OnAccessEnabledPolicySetting = oaConfig.enabled;
+
+    if(checkIfOAShouldBeEnabled(OnAccessEnabledFlag, OnAccessEnabledPolicySetting))
+    {
+        enableOnAccess();
+        m_eventReader->setExclusions(oaConfig.exclusions);
+    }
+    else
+    {
+        disableOnAccess();
+    }
+
+    LOGDEBUG("Finished ProcessPolicy " << onStart);
+}
+
+bool SoapdBootstrap::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting)
+{
+    if(!OnAccessEnabledFlag)
     {
         LOGINFO("Overriding policy, on-access will be disabled");
-        disableOnAccess(flagChanged);
+        return false;
     }
     else
     {
         LOGINFO("No policy override, following policy settings");
 
-        auto oaConfig = getPolicyConfiguration();
-
-        bool newOaEnabledState = oaConfig.enabled;
-        bool oldOaEnabledState = m_currentOaEnabledState.load();
-        m_currentOaEnabledState.store(newOaEnabledState);
-        bool changed = onStart || (oldOaEnabledState != newOaEnabledState);
-
-        if (newOaEnabledState)
+        if (OnAccessEnabledPolicySetting)
         {
-            enableOnAccess(changed);
+            return true;
         }
         else
         {
-            disableOnAccess(changed);
+            return false;
         }
-        m_eventReader->setExclusions(oaConfig.exclusions);
     }
-    LOGDEBUG("Finished ProcessPolicy " << onStart);
 }
 
-void SoapdBootstrap::disableOnAccess(bool changed)
+void SoapdBootstrap::disableOnAccess()
 {
-    if (changed)
+    if (!m_currentOaEnabledState)
     {
-        LOGINFO("On-access scanning disabled");
+        LOGINFO("On-access scanning already disabled");
+        return;
     }
-    m_mountMonitorThread->requestStopIfNotStopped();
+
+    LOGINFO("Disabling on-access scanning");
     m_eventReaderThread->requestStopIfNotStopped();
+    m_mountMonitorThread->requestStopIfNotStopped();
     m_scanRequestQueue->stop();
 
-    for (const auto& scanThread: m_scanHandlerThreads)
-    {
-        scanThread->requestStopIfNotStopped();
-    }
     m_scanHandlerThreads.clear();
 
     m_fanotifyHandler->close();
+
+    LOGINFO("On-access scanning disabled");
+    m_currentOaEnabledState.store(false);
 }
 
-void SoapdBootstrap::enableOnAccess(bool changed)
+void SoapdBootstrap::enableOnAccess()
 {
-    if (!changed)
+    if (m_currentOaEnabledState)
     {
+        LOGINFO("On Access already enabled");
         return;
     }
 
@@ -269,4 +274,6 @@ void SoapdBootstrap::enableOnAccess(bool changed)
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }
+
+    m_currentOaEnabledState.store(true);
 }
