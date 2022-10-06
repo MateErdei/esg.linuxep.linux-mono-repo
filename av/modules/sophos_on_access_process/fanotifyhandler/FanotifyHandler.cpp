@@ -77,15 +77,7 @@ int FanotifyHandler::markMount(const std::string& path) const
     int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, dfd, path.c_str());
     if (result < 0)
     {
-        // Ignore errors related to the mount already going away
-        if (errno == EBADF)
-        {
-            LOGDEBUG("fanotify_mark failed in markMount: " << common::safer_strerror(errno) << " for: " << path);
-        }
-        else
-        {
-            processFaMarkError("markMount", path);
-        }
+        processFaMarkError("markMount", path);
     }
     return result;
 }
@@ -107,15 +99,7 @@ int FanotifyHandler::unmarkMount(const std::string& path) const
     int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, dfd, path.c_str());
     if (result < 0)
     {
-        // Ignore errors related to the mount already going away
-        if (errno == ENOENT || errno == EBADF)
-        {
-            LOGDEBUG("fanotify_mark failed in unmarkMount: " << common::safer_strerror(errno) << " for: " << path);
-        }
-        else
-        {
-            processFaMarkError("unmarkMount", path);
-        }
+        processFaMarkError("unmarkMount", path);
     }
     return result;
 }
@@ -167,5 +151,16 @@ void FanotifyHandler::updateComplete()
 
 void FanotifyHandler::processFaMarkError(const std::string& function, const std::string& path)
 {
-    LOGERROR("fanotify_mark failed in " << function << ": " << common::safer_strerror(errno) << " for: " << path);
+    // LINUXDAR-5776: Suppress errors related to soapd shutting down until LINUXDAR-5776 is fixed
+    std::stringstream logMsg;
+    int error = errno;
+    logMsg << "fanotify_mark failed in " << function << ": " << common::safer_strerror(error) << " for: " << path;
+    if (error == EBADF || error == ENOENT)
+    {
+        LOGWARN(logMsg.str());
+    }
+    else
+    {
+        LOGERROR(logMsg.str());
+    }
 }
