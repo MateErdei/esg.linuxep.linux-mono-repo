@@ -70,13 +70,12 @@ namespace Plugin
 
     PluginAdapter::PluginAdapter(
         std::shared_ptr<QueueTask> queueTask,
-        std::shared_ptr<QueueSafeStoreTask> queueSafeStoreTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback,
         const std::string& threatEventPublisherSocketPath,
         int waitForPolicyTimeout) :
         m_queueTask(std::move(queueTask)),
-        m_queueSafeStoreTask(std::move(queueSafeStoreTask)),
+        m_queueSafeStoreTask(std::make_shared<QueueSafeStoreTask>()),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(std::make_shared<manager::scheduler::ScanScheduler>(*this)),
@@ -84,7 +83,7 @@ namespace Plugin
                                std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
-        m_safeStoreQueueWorker(std::make_shared<SafeStoreWorker>(*this, queueSafeStoreTask, safestore_socket())),
+        m_safeStoreQueueWorker(std::make_shared<SafeStoreWorker>(*this, m_queueSafeStoreTask, safestore_socket())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
         m_threatEventPublisher(m_zmqContext->getPublisher())
@@ -131,6 +130,7 @@ namespace Plugin
         LOGSUPPORT("Stopping the main program loop");
         m_schedulerThread.reset();
         m_threatDetectorThread.reset();
+        // This queue blocks on pop, so must be notified
         m_queueSafeStoreTask->requestStop();
         m_safeStoreQueueWorkerThread.reset();
         LOGSUPPORT("Finished the main program loop");

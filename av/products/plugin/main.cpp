@@ -41,7 +41,6 @@ int main()
         Common::PluginApi::createPluginResourceManagement();
 
     auto queueTask = std::make_shared<QueueTask>();
-    auto queueSafeStoreTask = std::make_shared<QueueSafeStoreTask>();
     auto sharedPluginCallBack = std::make_shared<PluginCallback>(queueTask);
 
     std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
@@ -79,7 +78,7 @@ int main()
     }
 
     fs::path threatEventPublisherSocketPath = pluginInstall / "var/threatEventPublisherSocketPath";
-    PluginAdapter pluginAdapter(queueTask, queueSafeStoreTask, std::move(baseService), sharedPluginCallBack, threatEventPublisherSocketPath);
+    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, threatEventPublisherSocketPath);
 
 
     try
