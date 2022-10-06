@@ -4,18 +4,18 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "QueueTask.h"
+#include "TaskQueue.h"
 
 namespace Plugin
 {
-    void QueueTask::push(Task task)
+    void TaskQueue::push(Task task)
     {
         std::lock_guard<std::mutex> lck(m_mutex);
         m_list.emplace_back(std::move(task));
         m_cond.notify_one();
     }
 
-    Task QueueTask::pop()
+    Task TaskQueue::pop()
     {
         std::unique_lock<std::mutex> lck(m_mutex);
         m_cond.wait(lck, [this] { return !m_list.empty(); });
@@ -24,13 +24,13 @@ namespace Plugin
         return val;
     }
 
-    void QueueTask::pushStop()
+    void TaskQueue::pushStop()
     {
         Task stopTask{ .taskType = Task::TaskType::Stop, .Content = "" };
         push(std::move(stopTask));
     }
 
-    bool QueueTask::pop(Task& task, const std::chrono::time_point<std::chrono::steady_clock>& timeout_time)
+    bool TaskQueue::pop(Task& task, const std::chrono::time_point<std::chrono::steady_clock>& timeout_time)
     {
         std::unique_lock<std::mutex> lck(m_mutex);
 
@@ -45,13 +45,13 @@ namespace Plugin
         return found;
     }
 
-    bool QueueTask::empty()
+    bool TaskQueue::empty()
     {
         std::unique_lock<std::mutex> lck(m_mutex);
         return m_list.empty();
     }
 
-    bool QueueTask::queueContainsPolicyTask()
+    bool TaskQueue::queueContainsPolicyTask()
     {
         std::unique_lock<std::mutex> lck(m_mutex);
 

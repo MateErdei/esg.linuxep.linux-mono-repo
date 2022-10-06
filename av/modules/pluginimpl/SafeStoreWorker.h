@@ -1,13 +1,13 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 #pragma once
 
+#include "DetectionsQueue.h"
 #include "IDetectionReportProcessor.h"
-#include "QueueSafeStoreTask.h"
 
+#include "datatypes/sophos_filesystem.h"
 #include "unixsocket/safeStoreSocket/SafeStoreClientSocket.h"
 
 #include "common/AbstractThreadPluginInterface.h"
-#include "datatypes/sophos_filesystem.h"
 
 #include <atomic>
 #include <optional>
@@ -22,14 +22,14 @@ namespace Plugin
     public:
         explicit SafeStoreWorker(
             const IDetectionReportProcessor& pluginAdapter,
-            std::shared_ptr<QueueSafeStoreTask> safeStoreQueue,
+            std::shared_ptr<DetectionsQueue> safeStoreQueue,
             const fs::path& safeStoreSocket
         );
         void run() override;
 
     private:
         const IDetectionReportProcessor& m_pluginAdapter;
-        std::shared_ptr<QueueSafeStoreTask> m_safeStoreQueue;
+        std::shared_ptr<DetectionsQueue> m_safeStoreQueue;
         fs::path m_safeStoreSocket;
     };
 }

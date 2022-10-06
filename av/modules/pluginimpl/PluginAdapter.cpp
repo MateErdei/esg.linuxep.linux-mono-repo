@@ -4,20 +4,20 @@
 
 #include "PluginAdapter.h"
 
+#include "DetectionsQueue.h"
 #include "HealthStatus.h"
 #include "Logger.h"
 #include "PolicyWaiter.h"
 #include "StringUtils.h"
-#include "QueueSafeStoreTask.h"
 
-#include "common/PluginUtils.h"
-#include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
+#include "datatypes/sophos_filesystem.h"
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/ZeroMQWrapper/IIPCException.h"
+#include "common/PluginUtils.h"
 
 namespace fs = sophos_filesystem;
 
@@ -69,13 +69,13 @@ namespace Plugin
     }
 
     PluginAdapter::PluginAdapter(
-        std::shared_ptr<QueueTask> queueTask,
+        std::shared_ptr<TaskQueue> taskQueue,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback,
         const std::string& threatEventPublisherSocketPath,
         int waitForPolicyTimeout) :
-        m_queueTask(std::move(queueTask)),
-        m_queueSafeStoreTask(std::make_shared<QueueSafeStoreTask>()),
+        m_taskQueue(std::move(taskQueue)),
+        m_queueSafeStoreTask(std::make_shared<DetectionsQueue>()),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(std::make_shared<manager::scheduler::ScanScheduler>(*this)),
@@ -157,7 +157,7 @@ namespace Plugin
         while (true)
         {
             Task task{};
-            bool gotTask = m_queueTask->pop(task, policyWaiter.timeout());
+            bool gotTask = m_taskQueue->pop(task, policyWaiter.timeout());
             if (gotTask)
             {
                 switch (task.taskType)
@@ -228,7 +228,7 @@ namespace Plugin
         if (m_restartSophosThreatDetector)
         {
             LOGDEBUG("Processing request to restart sophos threat detector");
-            if(!m_queueTask->queueContainsPolicyTask())
+            if(!m_taskQueue->queueContainsPolicyTask())
             {
                 LOGDEBUG("Requesting scan monitor to reload susi");
                 m_threatDetector->policy_configuration_changed();
@@ -329,7 +329,7 @@ namespace Plugin
 
         LOGDEBUG("Sending scan complete notification to central: " << scanCompletedXml);
 
-        m_queueTask->push(Task { .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });
+        m_taskQueue->push(Task { .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });
     }
 
     void PluginAdapter::processDetectionReport(const scan_messages::ThreatDetected& detection) const
@@ -344,7 +344,7 @@ namespace Plugin
         LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
         auto attributeMap = Common::XmlUtilities::parseXml(threatDetectedXML);
         incrementTelemetryThreatCount(attributeMap.lookupMultiple("notification/threat")[0].value("name"));
-        m_queueTask->push(Task { .taskType = Task::TaskType::ThreatDetected, .Content = threatDetectedXML });
+        m_taskQueue->push(Task { .taskType = Task::TaskType::ThreatDetected, .Content = threatDetectedXML });
     }
 
     void PluginAdapter::publishThreatEvent(const std::string& threatDetectedJSON) const
@@ -397,7 +397,7 @@ namespace Plugin
         return m_policyProcessor.isSafeStoreEnabled();
     }
 
-    std::shared_ptr<QueueSafeStoreTask> PluginAdapter::getSafeStoreQueue() const
+    std::shared_ptr<DetectionsQueue> PluginAdapter::getSafeStoreQueue() const
     {
         return m_queueSafeStoreTask;
     }

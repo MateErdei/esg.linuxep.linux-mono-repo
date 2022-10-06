@@ -14,7 +14,7 @@
 
 namespace Plugin
 {
-    class QueueSafeStoreTask
+    class DetectionsQueue
     {
         uint m_maxSize = 1024;
         std::mutex m_mutex;

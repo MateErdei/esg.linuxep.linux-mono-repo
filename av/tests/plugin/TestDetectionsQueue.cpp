@@ -1,15 +1,14 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <gtest/gtest.h>
-#include <Common/Helpers/LogInitializedTests.h>
-
-#include "pluginimpl/QueueSafeStoreTask.h"
+#include "pluginimpl/DetectionsQueue.h"
 #include "scan_messages/ThreatDetected.h"
+
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/Helpers/LogInitializedTests.h>
+#include <gtest/gtest.h>
 
 #include <future>
 #include <thread>
-
 
 class TestSafeStoreQueue : public LogOffInitializedTests{};
 
@@ -122,7 +121,7 @@ class TestSafeStoreQueue : public LogOffInitializedTests{};
 
 TEST_F(TestSafeStoreQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped) // NOLINT
 {
-    Plugin::QueueSafeStoreTask queue;
+    Plugin::DetectionsQueue queue;
 
     scan_messages::ThreatDetected data1(
         "root",

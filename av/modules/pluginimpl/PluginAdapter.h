@@ -6,13 +6,13 @@
 # define PLUGIN_INTERNAL private
 #endif
 
+#include "DetectionsQueue.h"
 #include "HealthStatus.h"
+#include "IDetectionReportProcessor.h"
 #include "PluginCallback.h"
 #include "PolicyProcessor.h"
-#include "QueueSafeStoreTask.h"
-#include "QueueTask.h"
 #include "SafeStoreWorker.h"
-#include "IDetectionReportProcessor.h"
+#include "TaskQueue.h"
 
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "manager/scheduler/ScanScheduler.h"
@@ -29,8 +29,8 @@ namespace Plugin
     class PluginAdapter : public IScanComplete, public IDetectionReportProcessor
     {
     private:
-        std::shared_ptr<QueueTask> m_queueTask;
-        std::shared_ptr<QueueSafeStoreTask> m_queueSafeStoreTask;
+        std::shared_ptr<TaskQueue> m_taskQueue;
+        std::shared_ptr<DetectionsQueue> m_queueSafeStoreTask;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<PluginCallback> m_callback;
         std::shared_ptr<manager::scheduler::ScanScheduler> m_scanScheduler;
@@ -44,7 +44,7 @@ namespace Plugin
 
     public:
         PluginAdapter(
-            std::shared_ptr<QueueTask> queueTask,
+            std::shared_ptr<TaskQueue> taskQueue,
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
             std::shared_ptr<PluginCallback> callback,
             const std::string& threatEventPublisherSocketPath,
@@ -56,7 +56,7 @@ namespace Plugin
         void publishThreatEvent(const std::string& threatDetectedJSON) const;
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
         bool isSafeStoreEnabled();
-        [[nodiscard]] std::shared_ptr<QueueSafeStoreTask> getSafeStoreQueue() const;
+        [[nodiscard]] std::shared_ptr<DetectionsQueue> getSafeStoreQueue() const;
 
     PLUGIN_INTERNAL:
         void publishThreatHealth(E_HEALTH_STATUS threatStatus) const;

@@ -12,7 +12,7 @@ using namespace Plugin;
 
 SafeStoreWorker::SafeStoreWorker(
     const IDetectionReportProcessor& pluginAdapter,
-    std::shared_ptr<QueueSafeStoreTask> safeStoreQueue,
+    std::shared_ptr<DetectionsQueue> safeStoreQueue,
     const fs::path& safeStoreSocket) :
     m_pluginAdapter(pluginAdapter), m_safeStoreQueue(std::move(safeStoreQueue)), m_safeStoreSocket(safeStoreSocket)
 {

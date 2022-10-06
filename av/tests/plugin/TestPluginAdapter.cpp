@@ -47,7 +47,7 @@ namespace
 
             setupFakeSophosThreatDetectorConfig();
 
-            m_queueTask = std::make_shared<QueueTask>();
+            m_queueTask = std::make_shared<TaskQueue>();
             m_callback = std::make_shared<Plugin::PluginCallback>(m_queueTask);
         }
 
@@ -115,7 +115,7 @@ namespace
                     });
         }
 
-        std::shared_ptr<QueueTask> m_queueTask;
+        std::shared_ptr<TaskQueue> m_queueTask;
         std::shared_ptr<Plugin::PluginCallback> m_callback;
         fs::path m_threatEventPublisherSocketPath;
     };

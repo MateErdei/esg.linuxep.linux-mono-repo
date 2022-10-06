@@ -33,7 +33,7 @@ using namespace std::chrono_literals;
 
 namespace Plugin
 {
-    PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task)
+    PluginCallback::PluginCallback(std::shared_ptr<TaskQueue> task)
     : m_task(std::move(task))
     , m_revID(std::string())
     {

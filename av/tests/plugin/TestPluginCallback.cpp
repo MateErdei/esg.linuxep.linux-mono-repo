@@ -5,13 +5,13 @@
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "pluginimpl/PluginCallback.h"
-#include "pluginimpl/QueueTask.h"
+#include "pluginimpl/TaskQueue.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/MockFilePermissions.h>
+#include <Common/Helpers/MockFileSystem.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <gtest/gtest.h>
@@ -109,7 +109,7 @@ namespace
             //creating ide files
             createIdes(m_initialExpectedVdlIdeCount, m_vdlDirPath);
 
-            std::shared_ptr<Plugin::QueueTask> task = nullptr;
+            std::shared_ptr<Plugin::TaskQueue> task = nullptr;
             m_pluginCallback = std::make_shared<Plugin::PluginCallback>(task);
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
             m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();

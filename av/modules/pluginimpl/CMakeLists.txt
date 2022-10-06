@@ -3,6 +3,8 @@
 add_subdirectory(ObfuscationImpl)
 
 sophos_add_library(pluginimpl SHARED
+        DetectionsQueue.cpp
+        DetectionsQueue.h
         HealthStatus.cpp
         HealthStatus.h
         IDetectionReportProcessor.h
@@ -12,18 +14,16 @@ sophos_add_library(pluginimpl SHARED
         PolicyWaiter.h
         PluginCallback.cpp
         PluginCallback.h
-        QueueTask.cpp
-        QueueTask.h
-        QueueSafeStoreTask.cpp
-        QueueSafeStoreTask.h
-        Logger.h
         Logger.cpp
+        Logger.h
         PluginAdapter.cpp
         PluginAdapter.h
         SafeStoreWorker.cpp
         SafeStoreWorker.h
         StringUtils.cpp
         StringUtils.h
+        TaskQueue.cpp
+        TaskQueue.h
         ../common/config.h
         EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules
         EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib} scanscheduler unixsocket scanprocessmonitor obfuscationimpl
