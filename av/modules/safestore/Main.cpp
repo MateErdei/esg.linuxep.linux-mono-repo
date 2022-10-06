@@ -44,8 +44,7 @@ void Main::innerRun()
 
     std::shared_ptr<IQuarantineManager> quarantineManager = std::make_shared<QuarantineManager>();
 
-    fs::path safeStoreSocketPath = "/var/safestore_socket";
-    unixsocket::SafeStoreServerSocket server(safeStoreSocketPath, 0666, quarantineManager);
+    unixsocket::SafeStoreServerSocket server(Plugin::safestoreSocket(), 0666, quarantineManager);
     server.start();
 
     auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };

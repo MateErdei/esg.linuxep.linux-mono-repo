@@ -172,7 +172,6 @@ TEST_F(TestSafeStoreSocket, TestSendThreatReport) // NOLINT
 //
 //     auto mockThreatReportCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
 //
-l
 
 TEST_F(TestSafeStoreSocket, testClientSocketTriesToReconnect) // NOLINT
 {

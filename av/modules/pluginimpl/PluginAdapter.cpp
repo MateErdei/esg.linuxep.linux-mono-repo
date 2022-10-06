@@ -18,6 +18,7 @@
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/ZeroMQWrapper/IIPCException.h"
 #include "common/PluginUtils.h"
+#include "common/ApplicationPaths.h"
 
 namespace fs = sophos_filesystem;
 
@@ -35,12 +36,6 @@ namespace Plugin
             return common::getPluginInstallPath() / "chroot/var/process_control_socket";
         }
 
-        // safestore_socket
-
-        fs::path safestore_socket()
-        {
-            return common::getPluginInstallPath() / "var/safestore_socket";
-        }
 
         class ThreatReportCallbacks : public IMessageCallback
         {
@@ -83,7 +78,7 @@ namespace Plugin
                                std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
-        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this, m_detectionQueue, safestore_socket())),
+        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this, m_detectionQueue, safestoreSocket())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
         m_threatEventPublisher(m_zmqContext->getPublisher())
