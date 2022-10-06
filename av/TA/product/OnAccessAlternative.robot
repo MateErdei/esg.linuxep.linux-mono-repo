@@ -481,3 +481,20 @@ On-access logs if the kernel queue overflows
     Evaluate  os.kill(${soapd_pid}, signal.SIGCONT)  modules=os, signal
 
     Wait Until On Access Log Contains With Offset   Fanotify queue overflowed, some files will not be scanned.
+
+On-access Can Handle Unlimited Marks
+    # set loglevel to INFO to avoid log rotation due to large number of events
+    Set Log Level  INFO
+    Register Cleanup  Set Log Level  DEBUG
+    Mark On Access Log
+    Terminate On Access
+    Start On Access without Log check
+    Wait Until On Access Log Contains With Offset   Starting scanHandler
+    Sleep  1s
+
+    Mark On Access Log
+
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/fanotifyMarkSpammer.sh  timeout=2min    on_timeout=continue
+
+    On Access Log Does Not Contain With Offset      fanotify_mark failed: cacheFd : No space left on device
+    dump log  ${ON_ACCESS_LOG_PATH}
