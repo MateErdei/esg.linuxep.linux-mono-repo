@@ -4,6 +4,8 @@
 #include "IQuarantineManager.h"
 
 #include "common/AbstractThreadPluginInterface.h"
+
+using namespace std::chrono_literals;
 namespace safestore
 {
     class StateMonitor : public common::AbstractThreadPluginInterface
@@ -14,5 +16,6 @@ namespace safestore
 
     private:
         std::shared_ptr<IQuarantineManager> m_quarantineManager;
+        const std::chrono::seconds m_maxReinitialiseBackoff = 86400s;
     };
 } // namespace safestore

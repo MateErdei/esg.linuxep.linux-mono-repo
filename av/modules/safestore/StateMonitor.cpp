@@ -12,25 +12,63 @@ namespace safestore
     {
         announceThreadStarted();
         LOGINFO("Starting Quarantine Manager state monitor");
-        // nextTimeToCheckState
+        auto lastCheck = std::chrono::system_clock::now().time_since_epoch();
+        std::chrono::seconds reinitialiseBackoff = 60s;
+
         while (!stopRequested())
         {
-            auto state = m_quarantineManager->getState();
-            // TODO check state of QM, if not in good state try to fix it etc...
-            // When done verifying this set this time to 100ms and then make sure there is no logging done unless state
-            // changes.
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            switch (state)
+            auto now = std::chrono::system_clock::now().time_since_epoch();
+            auto nextTimeToCheckState = std::min(lastCheck + reinitialiseBackoff, lastCheck + m_maxReinitialiseBackoff);
+
+            if (nextTimeToCheckState < now)
             {
-                case QuarantineManagerState::INITIALISED:
-                    LOGINFO("Quarantine Manager is INITIALISED");
-                    break;
-                case QuarantineManagerState::UNINITIALISED:
-                    LOGINFO("Quarantine Manager is UNINITIALISED");
-                    break;
-                case QuarantineManagerState::CORRUPT:
-                    LOGINFO("Quarantine Manager is CORRUPT");
-                    break;
+                lastCheck = std::chrono::system_clock::now().time_since_epoch();
+
+                auto state = m_quarantineManager->getState();
+                switch (state)
+                {
+                    case QuarantineManagerState::INITIALISED:
+                        LOGINFO("Quarantine Manager is INITIALISED");
+                        break;
+                    case QuarantineManagerState::UNINITIALISED:
+                        LOGINFO("Quarantine Manager is UNINITIALISED");
+                        reinitialiseBackoff = reinitialiseBackoff * 2;
+
+                        try
+                        {
+                            m_quarantineManager->initialise();
+                        }
+                        catch (const std::exception& ex)
+                        {
+                            LOGERROR("Failed to initialise SafeStore database: " << ex.what());
+                        }
+
+                        break;
+                    case QuarantineManagerState::CORRUPT:
+                        LOGINFO("Quarantine Manager is CORRUPT");
+                        try
+                        {
+                            bool removedSafeStoreDb = m_quarantineManager->deleteDatabase();
+
+                            if (removedSafeStoreDb)
+                            {
+                                LOGDEBUG("Successfully removed corrupt SafeStore database");
+                                m_quarantineManager->initialise();
+                                break;
+                            }
+
+                            LOGERROR("Failed to remove corrupt SafeStore database");
+                        }
+                        catch (const std::exception& ex)
+                        {
+                            LOGERROR("Failed to clean up corrupt SafeStore database: " << ex.what());
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             }
         }
     }
