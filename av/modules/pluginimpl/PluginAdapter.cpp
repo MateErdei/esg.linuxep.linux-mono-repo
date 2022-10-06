@@ -51,7 +51,7 @@ namespace Plugin
 
             void processMessage(scan_messages::ThreatDetected detection) override
             {
-                if (!m_adapter.isSafeStoreEnabled() || m_adapter.getSafeStoreQueue()->isFull())
+                if (m_adapter.isSafeStoreEnabled() && !m_adapter.getSafeStoreQueue()->isFull())
                 {
                     m_adapter.getSafeStoreQueue()->push(std::move(detection));
                 }

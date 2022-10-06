@@ -28,6 +28,7 @@ ${SOPHOS_THREAT_DETECTOR_SHUTDOWN_FILE_PATH}    ${AV_PLUGIN_PATH}/chroot/var/thr
 ${SOPHOS_THREAT_DETECTOR_PID_FILE_PATH}         ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
 ${ON_ACCESS_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/soapd.log
 ${SAFESTORE_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/safestore.log
+${SAFESTORE_PID_FILE}                           ${AV_PLUGIN_PATH}/var/safestore.pid
 ${THREAT_DETECTOR_LOG_PATH}                     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
 ${THREAT_DETECTOR_INFO_LOG_PATH}                ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.info.log
 ${SUSI_DEBUG_LOG_PATH}                          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
@@ -123,6 +124,10 @@ Check Threat Detector PID File Does Not Exist
     Run Keyword And Ignore Error  File Should Not Exist  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
     Remove File  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
 
+Check SafeStore PID File Does Not Exist
+    Run Keyword And Ignore Error  File Should Not Exist  ${SAFESTORE_PID_FILE}
+    Remove File  ${SAFESTORE_PID_FILE}
+
 Count File Log Lines
     [Arguments]  ${path}
     ${status}  ${content} =  Run Keyword And Ignore Error
@@ -147,6 +152,13 @@ Mark Sophos Threat Detector Log
     ${count} =  Count Optional File Log Lines  ${THREAT_DETECTOR_LOG_PATH}
     Set Suite Variable   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}  ${count}
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
+    [Return]  ${count}
+
+Mark SafeStore Log
+    [Arguments]  ${mark}=""
+    ${count} =  Count Optional File Log Lines  ${SAFESTORE_LOG_PATH}
+    Set Suite Variable   ${SAFESTORE_LOG_MARK}  ${count}
+    Log  "SAFESTORE LOG MARK = ${SAFESTORE_LOG_MARK}"
     [Return]  ${count}
 
 Mark Susi Debug Log
@@ -287,6 +299,51 @@ On Access Log Does Not Contain With Offset
         File Log Should Not Contain With Offset  ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
         Sleep   3s
     END
+
+SafeStore Log Contains
+    [Arguments]  ${input}
+    File Log Contains     ${SAFESTORE_LOG_PATH}   ${input}
+
+SafeStore Log Does Not Contain
+    [Arguments]  ${input}
+    LogUtils.Over next 15 seconds ensure log does not contain   ${SAFESTORE_LOG_PATH}  ${input}
+
+SafeStore Log Contains With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_PATH}  0
+    File Log Contains With Offset     ${SAFESTORE_LOG_PATH}   ${input}   offset=${offset}
+
+SafeStore Log Contains With Offset Times
+    [Arguments]  ${input}  ${times}
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_PATH}  0
+    File Log Contains With Offset Times    ${SAFESTORE_LOG_PATH}   ${input}   ${times}   offset=${offset}
+
+SafeStore Log Does Not Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_PATH}  0
+    # retry for 15s
+    FOR   ${i}   IN RANGE   5
+        File Log Should Not Contain With Offset  ${SAFESTORE_LOG_PATH}   ${input}   offset=${offset}
+        Sleep   3s
+    END
+
+Wait Until SafeStore Log Contains
+    [Arguments]  ${input}  ${timeout}=15  ${interval}=0
+    ${interval} =   Set Variable If
+    ...   ${interval} > 0   ${interval}
+    ...   ${timeout} >= 120   10
+    ...   ${timeout} >= 60   5
+    ...   ${timeout} >= 15   3
+    ...   1
+    Wait Until File Log Contains  SafeStore Log Contains   ${input}   timeout=${timeout}  interval=${interval}
+
+Wait Until SafeStore Log Contains With Offset
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  SafeStore Log Contains With Offset  ${input}   timeout=${timeout}
+
+Wait Until SafeStore Log Contains Times With Offset
+    [Arguments]  ${input}  ${timeout}=15  ${times}=1
+    Wait Until File Log Contains Times  SafeStore Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
 
 Threat Detector Log Contains
     [Arguments]  ${input}
@@ -520,6 +577,13 @@ Wait Until Safestore running
         ...  60 secs
         ...  2 secs
         ...  Safestore Log Contains  SafeStore started
+
+Wait Until SafeStore Running With Offset
+    [Arguments]  ${timeout}=${60}
+    ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
+    Wait Until SafeStore Log Contains With Offset
+    ...  SophosThreatDetectorImpl <> Starting USR1 monitor
+    ...  timeout=${timeout}
 
 Wait Until Safestore not running
     [Arguments]  ${timeout}=30
@@ -1123,14 +1187,21 @@ Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
-    mark av log
-    mark sophos threat detector log
+    Mark AV Log
+    Mark Sophos Threat Detector Log
+    Mark SafeStore Log
     Check AV Plugin Not Running
     Check Threat Detector Not Running
     Check Threat Detector PID File Does Not Exist
+    Check SafeStore Not Running
+    Check SafeStore PID File Does Not Exist
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
     Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
     Register Cleanup   Terminate And Wait until threat detector not running  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+# TODO: LINUXDAR-5657 - enabled SafeStore as default part of test setup
+#    ${safestore_handle} =  Start Process  ${SAFESTORE_BIN}
+#    Set Test Variable  ${SAFESTORE_HANDLE}  ${safestore_handle}
+#    Register Cleanup   Terminate And Wait until safestore not running  ${SAFESTORE_HANDLE}
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Register Cleanup   Terminate And Wait until AV Plugin not running  ${AV_PLUGIN_HANDLE}
@@ -1187,6 +1258,11 @@ Terminate And Wait until threat detector not running
     [Arguments]   ${handle}
     Terminate Process  ${handle}
     Wait until threat detector not running
+
+Terminate And Wait until SafeStore not running
+    [Arguments]   ${handle}
+    Terminate Process  ${handle}
+    Wait until SafeStore not running
 
 Terminate And Wait until AV Plugin not running
     [Arguments]   ${handle}
