@@ -105,7 +105,7 @@ On Access Process Parses Policy Config
     Wait Until On Access Log Contains With Offset  On-access exclusions: ${DEFAULT_EXCLUSIONS}
 
 On Access Process Parses Flags Config On startup
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
     Wait Until Created  ${ONACCESS_FLAG_CONFIG}
@@ -130,7 +130,7 @@ On Access Does Not Include Remote Files If Excluded In Policy
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
     Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":${DEFAULT_EXCLUSIONS}}
@@ -304,7 +304,7 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
 
 
 On Access Process Handles Consecutive Process Control Requests
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
     On Access Log Does Not Contain With Offset  Using on-access settings from policy
 
@@ -336,7 +336,7 @@ On Access Uses Policy Settings If Flags Dont Override Policy
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
     Wait Until On Access Log Contains With Offset   No policy override, following policy settings
@@ -346,7 +346,7 @@ On Access Uses Policy Settings If Flags Dont Override Policy
 
 
 On Access Is Disabled After it Receives Disable Flags
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
     Wait Until On Access Log Contains With Offset   No policy override, following policy settings

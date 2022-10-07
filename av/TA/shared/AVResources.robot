@@ -582,7 +582,7 @@ Wait Until SafeStore Running With Offset
     [Arguments]  ${timeout}=${60}
     ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
     Wait Until SafeStore Log Contains With Offset
-    ...  SophosThreatDetectorImpl <> Starting USR1 monitor
+    ...  SafeStore started
     ...  timeout=${timeout}
 
 Wait Until Safestore not running

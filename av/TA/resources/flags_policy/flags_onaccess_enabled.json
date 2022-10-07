@@ -1,0 +1,13 @@
+{
+  "av.onaccess.enabled": true,
+  "installer_download.enabled": false,
+  "scheduled_queries.next": false,
+  "alc_obfuscation.enabled": false,
+  "ga.liveterminal.enabled": false,
+  "mcs.v2.data_feed.available": false,
+  "eap.liveterminal.enabled": false,
+  "livequery.network-tables.available": false,
+  "jwt-token.available": false,
+  "sdds3.enabled": false,
+  "safestore.enabled": false
+}

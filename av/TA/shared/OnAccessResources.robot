@@ -101,7 +101,7 @@ Enable OA Scanning
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
     Wait Until On Access Log Contains With Offset  "oa_enabled":true

@@ -66,7 +66,7 @@ Send Fixed Sav Policy
 
 Send Policies to enable on-access
     Register Cleanup   Send Policies to disable on-access
-    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Send Flags Policy To Base  flags_policy/flags_onaccess_enabled.json
     Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
 
 Send Policies to disable on-access

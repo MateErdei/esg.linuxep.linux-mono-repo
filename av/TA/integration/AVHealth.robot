@@ -139,7 +139,7 @@ Sophos SafeStore Process Not Running Does Not Trigger Bad Status Health When Saf
 
 Sophos SafeStore Process Not Running Triggers Bad Status Health
     Mark AV Log
-    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Check Status Health is Reporting Correctly    0
 
     Stop SafeStore
@@ -152,7 +152,7 @@ Sophos SafeStore Process Not Running Triggers Bad Status Health
 
 Sophos SafeStore PID File Existence Does Not Cause Good Status Health When Not Locked
     Mark AV Log
-    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait Until AV Plugin Log Contains With Offset
     ...   Safestore flag set. Setting Safestore to enabled.
     ...   timeout=60

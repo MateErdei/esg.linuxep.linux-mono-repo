@@ -28,7 +28,7 @@ SafeStore Logs When It Recieves A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
     Mark AV Log
-    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait Until AV Plugin Log Contains With Offset
     ...   Safestore flag set. Setting Safestore to enabled.
     ...   timeout=60
