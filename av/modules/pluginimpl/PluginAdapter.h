@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 

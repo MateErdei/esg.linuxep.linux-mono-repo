@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "AutoFd.h"
 
@@ -56,6 +52,7 @@ int AutoFd::release()
     m_fd = -1;
     return fd;
 }
+
 bool AutoFd::operator==(const AutoFd& other) const
 {
     return m_fd == other.m_fd;

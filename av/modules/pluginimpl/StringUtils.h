@@ -1,9 +1,7 @@
-/******************************************************************************************************
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+// TODO: move this somewhere common
 
-******************************************************************************************************/
-//TO DO: move this somewhere common
 #pragma once
 
 #include "scan_messages/ThreatDetected.h"

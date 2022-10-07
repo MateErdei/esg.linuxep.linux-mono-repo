@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 #include "../common/config.h"
 
@@ -40,8 +36,8 @@ int main()
     std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
         Common::PluginApi::createPluginResourceManagement();
 
-    auto queueTask = std::make_shared<TaskQueue>();
-    auto sharedPluginCallBack = std::make_shared<PluginCallback>(queueTask);
+    auto taskQueue = std::make_shared<TaskQueue>();
+    auto sharedPluginCallBack = std::make_shared<PluginCallback>(taskQueue);
 
     std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
 
@@ -78,8 +74,7 @@ int main()
     }
 
     fs::path threatEventPublisherSocketPath = pluginInstall / "var/threatEventPublisherSocketPath";
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack, threatEventPublisherSocketPath);
-
+    PluginAdapter pluginAdapter(taskQueue, std::move(baseService), sharedPluginCallBack, threatEventPublisherSocketPath);
 
     try
     {
