@@ -7,6 +7,7 @@
 #include "common/SaferStrerror.h"
 
 #include <sstream>
+#include <tuple>
 
 #include <fcntl.h>
 
@@ -14,6 +15,16 @@ using namespace sophos_on_access_process::fanotifyhandler;
 
 FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
     : m_systemCallWrapper(std::move(systemCallWrapper))
+{
+    assert(m_systemCallWrapper);
+}
+
+FanotifyHandler::~FanotifyHandler()
+{
+    close();
+}
+
+void FanotifyHandler::init()
 {
     assert(m_systemCallWrapper);
     int fanotifyFd = m_systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
@@ -25,69 +36,95 @@ FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCa
     }
     LOGINFO("Fanotify successfully initialised");
 
-    m_fd.reset(fanotifyFd);
-    LOGINFO("Fanotify FD set to " << m_fd.fd());
+    auto fanotify_autofd = m_fd.lock();
+    fanotify_autofd->reset(fanotifyFd);
+    LOGDEBUG("Fanotify FD set to " << fanotify_autofd->fd());
+}
+
+void FanotifyHandler::close()
+{
+    auto fanotify_autofd = m_fd.lock();
+    fanotify_autofd->close();
 }
 
 int FanotifyHandler::getFd() const
 {
-    if (!m_fd.valid())
+    auto fanotify_autofd = m_fd.lock();
+
+    if (!fanotify_autofd->valid())
     {
-        LOGDEBUG("Fanotify FD not valid " << m_fd.fd());
+        LOGERROR("Fanotify FD not valid " << fanotify_autofd->fd());
     }
 
-    return m_fd.fd();
+    return fanotify_autofd->fd();
 }
 
 int FanotifyHandler::markMount(const std::string& path) const
 {
     assert(m_systemCallWrapper);
+
+    auto fanotify_autofd = m_fd.lock(); // Hold the lock since we can be called while fanotify being disabled
+    int fanotify_fd = fanotify_autofd->fd();
+    if (fanotify_fd < 0)
+    {
+        LOGWARN("Skipping markMount for " << path << " as fanotify disabled");
+        return 0;
+    }
+
     constexpr unsigned int flags = FAN_MARK_ADD | FAN_MARK_MOUNT;
     constexpr uint64_t mask = FAN_CLOSE_WRITE | FAN_OPEN;
     constexpr int dfd = FAN_NOFD;
-    int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, dfd, path.c_str());
-    if (result < 0)
-    {
-     processFaMarkError("markMount", path);
-    }
-    return result;
+    int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, dfd, path.c_str());
+    return processFaMarkError(result, "markMount", path);
 }
 
 int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
 {
     assert(m_systemCallWrapper);
-    const unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
-    const uint64_t mask = FAN_OPEN;
-    int result = m_systemCallWrapper->fanotify_mark(getFd(), flags, mask, fd, nullptr);
-    if (result < 0)
+    int fanotify_fd = getFd(); // CacheFd only called while fanotify enabled
+    if (fanotify_fd < 0)
     {
-        processFaMarkError("cacheFd", path);
+        LOGERROR("Skipping cacheFd for " << path << " as fanotify disabled");
+        return 0;
     }
-    return result;
+
+    constexpr unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
+    constexpr uint64_t mask = FAN_OPEN;
+    int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, fd, nullptr);
+    return processFaMarkError(result, "cacheFd", path);
 }
 
 int FanotifyHandler::clearCachedFiles() const
 {
-    int result = m_systemCallWrapper->fanotify_mark(getFd(), FAN_MARK_FLUSH, 0, FAN_NOFD, nullptr);
-    if (result < 0)
+    auto fanotify_autofd = m_fd.lock();
+    int fanotify_fd = fanotify_autofd->fd(); // Don't call getFd() since we need to hold the lock
+    if (fanotify_fd < 0)
     {
-        processFaMarkError("clearCachedFiles", "");
+        LOGINFO("Clearing cache skipped as fanotify disabled");
+        return 0;
     }
-    return result;
+
+    int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, FAN_MARK_FLUSH, 0, FAN_NOFD, nullptr);
+    return processFaMarkError(result, "clearCachedFiles", "fanotify fd");
 }
 
 void FanotifyHandler::updateComplete()
 {
     LOGINFO("Clearing on-access cache");
-    clearCachedFiles();
+    std::ignore = clearCachedFiles();
+    LOGDEBUG("Cleared on-access cache");
 }
 
 void FanotifyHandler::processFaMarkError(const std::string& function, const std::string& path)
 {
-    LOGERROR("fanotify_mark failed: " << function << " : " << common::safer_strerror(errno) << " Path: " << path);
+    LOGERROR("fanotify_mark failed in " << function << ": " << common::safer_strerror(errno) << " for: " << path);
 }
 
-FanotifyHandler::~FanotifyHandler()
+int FanotifyHandler::processFaMarkError(int result, const std::string& function, const std::string& path)
 {
-    m_fd.close();
+    if (result < 0)
+    {
+        processFaMarkError(function, path);
+    }
+    return result;
 }

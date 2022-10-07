@@ -6,7 +6,6 @@
 #include "Logger.h"
 #include "OnAccessProcesControlCallbacks.h"
 // Component
-#include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 // Product
 #include "common/FDUtils.h"
@@ -29,7 +28,7 @@
 // Std C
 #include <poll.h>
 
-#define MAX_SCAN_THREADS 10
+#define MAX_SCAN_THREADS 1
 
 namespace fs = sophos_filesystem;
 
@@ -98,11 +97,11 @@ void SoapdBootstrap::innerRun()
 
     m_scanRequestQueue = std::make_shared<ScanRequestQueue>();
 
-    auto eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
+    m_eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
                                                            sysCallWrapper,
                                                            common::getPluginInstallPath(),
                                                            m_scanRequestQueue);
-    m_eventReaderThread = std::make_unique<common::ThreadRunner>(std::move(eventReader),
+    m_eventReaderThread = std::make_unique<common::ThreadRunner>(m_eventReader,
                                                                  "eventReader",
                                                                  false);
 
@@ -167,6 +166,10 @@ void SoapdBootstrap::innerRun()
         }
     }
 
+    processControllerServer->tryStop();
+    updateClient->tryStop();
+    processControllerServerThread.reset();
+    updateClientThread.reset();
     disableOnAccess(true);
 }
 
@@ -174,8 +177,6 @@ sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::
 {
     auto jsonString = OnAccessConfig::readPolicyConfigFile();
     OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessPolicySettingsFromJson(jsonString);
-    m_mountMonitor->setExcludeRemoteFiles(oaConfig.excludeRemoteFiles);
-
     return oaConfig;
 }
 
@@ -199,6 +200,8 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
         LOGINFO("No policy override, following policy settings");
 
         auto oaConfig = getPolicyConfiguration();
+        m_mountMonitor->updateConfig(oaConfig.exclusions, oaConfig.excludeRemoteFiles);
+
 
         bool newOaEnabledState = oaConfig.enabled;
         bool oldOaEnabledState = m_currentOaEnabledState.load();
@@ -213,22 +216,44 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
         {
             disableOnAccess(changed);
         }
+        m_eventReader->setExclusions(oaConfig.exclusions);
     }
     LOGDEBUG("Finished ProcessPolicy " << onStart);
 }
 
 void SoapdBootstrap::disableOnAccess(bool changed)
 {
+    // Log if on-access was enabled before
     if (changed)
     {
         LOGINFO("On-access scanning disabled");
     }
+
+    /*
+     * EventReader and scanHandler threads are not thread-safe with
+     * fanotify handler being closed.
+     *
+     * mount monitor should be thread-safe vs. fanotify handler being closed
+     * but isn't worth running when fanotify is turned off.
+     */
+
+    std::lock_guard<std::mutex> guard(m_onAccessChangeStateLock);
+
+    // Async stop event reader and mount monitor
+    m_eventReader->tryStop();
+    m_mountMonitor->tryStop();
+
+    // sync stop event reader and mount monitor
     m_eventReaderThread->requestStopIfNotStopped();
     m_mountMonitorThread->requestStopIfNotStopped();
-    m_scanRequestQueue->stop();
 
+    // stop scan threads, and clear queue
+    m_scanRequestQueue->stop(); // Clears queue
+
+    // Join all scan threads
     m_scanHandlerThreads.clear();
 
+    // Disable fanotify and close fanotify descriptor
     m_fanotifyHandler->close();
 }
 
@@ -241,6 +266,8 @@ void SoapdBootstrap::enableOnAccess(bool changed)
 
     LOGINFO("On-access scanning enabled");
 
+    std::lock_guard<std::mutex> guard(m_onAccessChangeStateLock);
+
     m_fanotifyHandler->init();
 
     m_eventReaderThread->startIfNotStarted();
@@ -250,14 +277,14 @@ void SoapdBootstrap::enableOnAccess(bool changed)
 
     std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
 
-    for (int threadCount = 0; threadCount < MAX_SCAN_THREADS; ++threadCount)
+    for (int count = 0; count < MAX_SCAN_THREADS; ++count)
     {
         std::stringstream threadName;
-        threadName << "scanHandler " << threadCount;
+        threadName << "scanHandler " << count;
 
         auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
         auto scanHandler = std::make_shared<ScanRequestHandler>(
-            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, threadCount);
+            m_scanRequestQueue, scanningSocket, m_fanotifyHandler);
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }

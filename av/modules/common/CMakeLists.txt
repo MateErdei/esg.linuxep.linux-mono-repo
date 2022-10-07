@@ -6,6 +6,7 @@ add_library(common SHARED
         ErrorCodesC.h
         Exclusion.cpp
         Exclusion.h
+        LockableData.h
         Logger.cpp
         Logger.h
         PidLockFile.cpp

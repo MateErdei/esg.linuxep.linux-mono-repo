@@ -37,6 +37,7 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         void innerRun();
 
+        std::mutex m_onAccessChangeStateLock;
         void enableOnAccess(bool changed);
         void disableOnAccess(bool changed);
 

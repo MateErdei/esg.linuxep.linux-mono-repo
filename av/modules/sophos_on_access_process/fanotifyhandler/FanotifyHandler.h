@@ -4,6 +4,7 @@
 
 #include "IFanotifyHandler.h"
 
+#include "common/LockableData.h"
 #include "datatypes/AutoFd.h"
 #include "datatypes/ISystemCallWrapper.h"
 #include "sophos_threat_detector/threat_scanner/IUpdateCompleteCallback.h"
@@ -18,9 +19,43 @@ namespace sophos_on_access_process::fanotifyhandler
             FanotifyHandler(const FanotifyHandler&) =delete;
             FanotifyHandler& operator=(const FanotifyHandler&) =delete;
 
+            /**
+             * Get the fanotify FD.
+             * Logs error if not connected.
+             *
+             * Called from EventReader thread
+             *
+             * @return
+             */
             [[nodiscard]] int getFd() const override;
+
+            /**
+             * Mark a mount point as wanted - we want fanotify events from it.
+             *
+             * Called from Mount Monitor Thread.
+             * (will be) Called from Process Control Thread
+             *
+             * @param path
+             * @return
+             */
             [[nodiscard]] int markMount(const std::string& path) const override;
+
+            /**
+             * Mark an FD to be cached - i.e. fanotify won't return events for it.
+             *
+             * Called from Scan Thread(s) after scanning file.
+             *
+             * @param dfd
+             * @param path
+             * @return
+             */
             [[nodiscard]] int cacheFd(const int& dfd, const std::string& path) const override;
+
+            /**
+             * Clear cached files.
+             * Called after ThreatDetector has updated from updateClientThread
+             */
+            void updateComplete() override;
 
             /**
              * Initialise fanotify
@@ -32,13 +67,13 @@ namespace sophos_on_access_process::fanotifyhandler
              */
             void close() final;
 
-            void updateComplete() override;
+            [[nodiscard]] int clearCachedFiles() const override;
 
         private:
-            [[nodiscard]] int clearCachedFiles() const;
+            static int processFaMarkError(int result, const std::string& function, const std::string& path);
             static void processFaMarkError(const std::string& function, const std::string& path);
 
-            datatypes::AutoFd m_fd;
+            mutable common::LockableData<datatypes::AutoFd> m_fd;
             datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;
     };
 }

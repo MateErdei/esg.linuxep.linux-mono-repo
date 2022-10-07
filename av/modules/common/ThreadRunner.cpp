@@ -51,11 +51,12 @@ void ThreadRunner::stopThread()
     LOGINFO("Joining " << m_name);
     m_thread->join();
     m_started = false;
+    m_thread->clearTerminationPipe(); // Ensure a restart won't terminate immediately
 }
 
 void ThreadRunner::startThread()
 {
     LOGINFO("Starting " << m_name);
-    m_thread->start();
+    m_thread->restart(); // Ensures termination pipe is cleared before start
     m_started = true;
 }
