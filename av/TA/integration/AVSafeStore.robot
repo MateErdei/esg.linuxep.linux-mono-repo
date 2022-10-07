@@ -28,6 +28,7 @@ SafeStore Logs When It Recieves A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
     Mark AV Log
+
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait Until AV Plugin Log Contains With Offset
     ...   Safestore flag set. Setting Safestore to enabled.
@@ -36,6 +37,25 @@ SafeStore Logs When It Recieves A File To Quarantine
     Check avscanner can detect eicar
 
     Wait Until Safestore Log Contains  Received Threat:
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test'
+
+
+With SafeStore Enabled But Not Running We Can Send Threats To AV
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    Stop SafeStore
+    Mark AV Log
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait Until AV Plugin Log Contains With Offset
+    ...   Safestore flag set. Setting Safestore to enabled.
+    ...   timeout=60
+
+    Check avscanner can detect eicar
+
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test'
+    Wait Until AV Plugin Log Contains With Offset  Failed to write to SafeStore socket.
+    Check SafeStore Not Running
 
 
 *** Keywords ***

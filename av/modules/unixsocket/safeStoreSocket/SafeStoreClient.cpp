@@ -43,6 +43,6 @@ void unixsocket::SafeStoreClient::sendQuarantineRequest(const scan_messages::Thr
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGERROR("Failed to write to SafeStore socket. Exception caught: " << e.what());
+        LOGWARN("Failed to write to SafeStore socket. Exception caught: " << e.what());
     }
 }
