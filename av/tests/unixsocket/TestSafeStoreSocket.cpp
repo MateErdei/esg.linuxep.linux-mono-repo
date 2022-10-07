@@ -114,7 +114,7 @@ TEST_F(TestSafeStoreSocket, blah) // NOLINT
     EXPECT_TRUE(appenderContains("Closing SafeStore Server socket"));
 }
 
-TEST_F(TestSafeStoreSocket, TestSendThreatReport) // NOLINT
+TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     setupFakeSophosThreatDetectorConfig();
@@ -159,7 +159,6 @@ TEST_F(TestSafeStoreSocket, TestSendThreatReport) // NOLINT
     EXPECT_TRUE(appenderContains("SHA256: " + m_sha256));
     EXPECT_TRUE(appenderContains("File descriptor:"));
     EXPECT_TRUE(appenderContains("Closing SafeStore Server socket"));
-    EXPECT_TRUE(appenderContains("Closing SafeStore connection thread"));
 }
 
 // TEST_F(TestSafeStoreSocket, TestSendTwoThreatReports) // NOLINT
