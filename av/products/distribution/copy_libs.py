@@ -40,6 +40,7 @@ def main(argv):
     touchedFiles = []
 
     for t in targets:
+        print(f"{os.path.basename(__file__)}, target: {t}")
         assert os.path.isfile(t), "%s isn't a file (doesn't exist)" % t
         base = os.path.basename(t)
         target_dest = os.path.join(dest, base)
