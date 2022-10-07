@@ -877,7 +877,9 @@ Remove ext2 mount
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}
     Copy File If Destination Missing  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp
+    # nosharecache,context="system_u:object_r:httpd_sys_rw_content_r:s0"
     Ensure List appears once   ${EXPORT_FILE}  ${source} localhost(rw,sync,no_subtree_check,no_root_squash)\n
+    Run Keyword And Ignore Error  Run Process  setsebool  -P  httpd_use_nfs=1
     Register On Fail  Run Process  systemctl  status  nfs-server
     Register On Fail  Dump Log  ${EXPORT_FILE}
     Run Shell Process   systemctl restart nfs-server            OnError=Failed to restart NFS server
@@ -1290,3 +1292,10 @@ List AV Plugin Path
     ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}  stdout=${TESTTMP}/lsstdout  stderr=STDOUT
     Log  ls -lR: ${result.stdout}
     Remove File  ${TESTTMP}/lsstdout
+
+List SELinux Context For Directory
+    [Arguments]   ${dir}
+    ${result} =  Run Process  ls  -dZ  ${dir}
+    Log  ls -lR: ${result.stdout}
+    ${result} =   Run Process  sestatus
+    Log  "sestatus:${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
