@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "DaySet.h"
 #include "Logger.h"
@@ -51,7 +47,7 @@ namespace
         {
             return SUNDAY;
         }
-        LOGERROR("Invalid day from policy: "<< day);
+        LOGWARN("Invalid day from policy: "<< day);
         return INVALID;
     }
 

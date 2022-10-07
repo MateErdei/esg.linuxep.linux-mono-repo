@@ -1,9 +1,6 @@
-/******************************************************************************************************
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
+#include "Logger.h"
 #include "TimeSet.h"
 
 #include <iomanip>
@@ -33,6 +30,7 @@ Time::Time(const std::string& time)
     if (ist.fail())
     {
         m_isValid = false;
+        LOGWARN("Invalid time from policy: " << time);
     }
     m_hour = time_buffer.tm_hour; // NOLINT(cppcoreguidelines-prefer-member-initializer)
     m_minute = time_buffer.tm_min; // NOLINT(cppcoreguidelines-prefer-member-initializer)

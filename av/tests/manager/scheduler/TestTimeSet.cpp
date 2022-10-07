@@ -2,15 +2,16 @@
 
 #include <gtest/gtest.h>
 #include "manager/scheduler/TimeSet.h"
-#include <tests/common/LogInitializedTests.h>
+#include <tests/common/MemoryAppender.h>
 
 using namespace manager::scheduler;
 
 namespace
 {
-    class TestTimeSet : public LogInitializedTests
+    class TestTimeSet : public MemoryAppenderUsingTests
     {
         public:
+            TestTimeSet() : MemoryAppenderUsingTests("ScanScheduler") {}
             Common::XmlUtilities::AttributesMap m_time = Common::XmlUtilities::parseXml(
                     R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
                         <timeSet>
@@ -231,4 +232,11 @@ TEST_F(TestTimeSet, validTimes)
 
     auto str = set.str();
     EXPECT_TRUE(str.find("INVALID") == str.npos);
+}
+
+TEST_F(TestTimeSet, logsWarningWhenTimeInvalidOnConstruction)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    TimeSet set(m_just_invalid_time, "timeSet/time");
+    EXPECT_TRUE(appenderContains("Invalid time from policy: imnotatime"));
 }

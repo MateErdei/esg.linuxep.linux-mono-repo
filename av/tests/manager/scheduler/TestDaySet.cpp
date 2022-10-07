@@ -3,15 +3,18 @@
 #include <gtest/gtest.h>
 #include <datatypes/Print.h>
 #include "manager/scheduler/DaySet.h"
-#include <tests/common/LogInitializedTests.h>
+#include <tests/common/MemoryAppender.h>
 
 using namespace manager::scheduler;
 
 namespace
 {
-    class TestDaySet : public LogInitializedTests
+    class TestDaySet : public MemoryAppenderUsingTests
     {
+
         public:
+            TestDaySet() : MemoryAppenderUsingTests("ScanScheduler") {}
+
             Common::XmlUtilities::AttributesMap m_days = Common::XmlUtilities::parseXml(
                     R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
                     <daySet>
@@ -129,4 +132,11 @@ TEST_F(TestDaySet, returnsValidWhenDaysAreValid)
     DaySet set(m_days, "daySet/day");
     EXPECT_EQ(set.size(), 7);
     EXPECT_EQ(set.isValid(), true);
+}
+
+TEST_F(TestDaySet, logsWarningWhenDayInvalidOnConstruction)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    DaySet set(m_one_invalid_day, "daySet/day");
+    EXPECT_TRUE(appenderContains("Invalid day from policy: not a day"));
 }
