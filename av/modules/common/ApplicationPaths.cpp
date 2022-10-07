@@ -17,11 +17,6 @@ namespace Plugin
         return getPluginInstall() +  "/var/safestore.pid";
     }
 
-    std::string getSafeStoreFlagPath()
-    {
-        return getPluginInstall() + "/var/ss_flag.json";
-    }
-
     std::string getSafeStoreSocketPath()
     {
         return getPluginInstall() + "/var/safestore_socket";
