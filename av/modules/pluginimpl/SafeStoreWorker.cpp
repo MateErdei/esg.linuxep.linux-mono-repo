@@ -29,7 +29,7 @@ void SafeStoreWorker::run()
     {
         std::optional<scan_messages::ThreatDetected> task = m_detectionQueue->pop();
 
-        if (!task.has_value())
+        if (stopRequested() || !task.has_value())
         {
             LOGDEBUG("Got stop request, exiting SafeStoreWorker");
             break;
@@ -37,14 +37,11 @@ void SafeStoreWorker::run()
 
         scan_messages::ThreatDetected threatDetected = std::move(task).value();
 
-        if (!stopRequested()) // PM Question -- do we want this?
-        {
-            unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket);
-            safeStoreClient.sendQuarantineRequest(threatDetected);
-        }
+        unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket);
+        safeStoreClient.sendQuarantineRequest(threatDetected);
 
+        // // TODO: LINUXDAR-5677 implement this code to wait for and deal with SafeStore response
         //        Reponse resp = socket.read(timeout);
-
         //        if (resp != good)
         //        {
         //            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP);
@@ -53,6 +50,7 @@ void SafeStoreWorker::run()
         //        {
         //            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
         //        }
+
         m_pluginAdapter.processDetectionReport(threatDetected);
     }
 }
