@@ -225,7 +225,7 @@ class CoreDumps(object):
                 raise AssertionError("Core dump found")
 
     def __copy_to_coredump_dir(self, filepath, testname):
-        testname = (testname + "_" + str(datetime.datetime.now())).replace(" ", "_")
+        testname = (testname.replace("/", "_") + "_" + str(datetime.datetime.now())).replace(" ", "_")
         coredump_dir = "/opt/test/coredumps"
         os.makedirs(coredump_dir, exist_ok=True)
         dest = os.path.join(coredump_dir, testname)
