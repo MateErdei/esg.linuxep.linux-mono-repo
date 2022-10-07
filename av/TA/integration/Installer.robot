@@ -804,6 +804,9 @@ Installer Suite TearDown
 
 Installer Test Setup
     Register On Fail  Debug install set
+    Register Cleanup  analyse Journalctl   print_always=True
+    Register Cleanup  Dump All Sophos Processes
+    Register Cleanup  Log Status Of Sophos Spl
     Register On Fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
     Register On Fail  dump log  ${AV_LOG_PATH}
