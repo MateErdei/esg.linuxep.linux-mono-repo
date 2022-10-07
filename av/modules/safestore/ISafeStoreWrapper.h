@@ -273,14 +273,14 @@ namespace safestore
                 }
             }
 
-            ISafeStoreObjectHandleHolder& operator*() const
+            std::shared_ptr<ISafeStoreObjectHandleHolder> operator*() const
             {
-                return *m_objectHolder;
+                return m_objectHolder;
             }
 
             ISafeStoreObjectHandleHolder* operator->()
             {
-                    return &(*m_objectHolder);
+                return &(*m_objectHolder);
             }
 
             // Prefix increment
@@ -298,12 +298,12 @@ namespace safestore
 
             friend bool operator== (const Iterator& a, const Iterator& b)
             {
-                return a.m_objectHolder->getRawHandle() == b.m_objectHolder->getRawHandle();
+                return *(a.m_objectHolder->getRawHandle()) == *(b.m_objectHolder->getRawHandle());
             };
 
             friend bool operator!= (const Iterator& a, const Iterator& b)
             {
-                return a.m_objectHolder->getRawHandle() != b.m_objectHolder->getRawHandle();
+                return *(a.m_objectHolder->getRawHandle()) != *(b.m_objectHolder->getRawHandle());
             };
 
         private:

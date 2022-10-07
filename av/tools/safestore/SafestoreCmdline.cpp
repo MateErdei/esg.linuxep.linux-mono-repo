@@ -148,7 +148,7 @@ int main()
     auto results = safeStoreWrapper->find(filter);
     for (auto result : results)
     {
-
+        std::cout << "for loop: " << safeStoreWrapper->getObjectName(*result) << std::endl;
     }
 
     //    auto it = safeStoreWrapper->find(filter);
