@@ -22,7 +22,7 @@ namespace Plugin
         return getPluginInstall() + "/var/ss_flag.json";
     }
 
-    std::string safestoreSocket()
+    std::string getSafeStoreSocketPath()
     {
         return getPluginInstall() + "/var/safestore_socket";
     }

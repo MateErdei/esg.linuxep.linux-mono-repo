@@ -99,12 +99,12 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
                     return false;
                 }));
 
-        unixsocket::SafeStoreServerSocket server(Plugin::safestoreSocket(), 0666, quarantineManager);
+        unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), 0666, quarantineManager);
 
         server.start();
 
         // connect after we start
-        unixsocket::SafeStoreClient client(Plugin::safestoreSocket());
+        unixsocket::SafeStoreClient client(Plugin::getSafeStoreSocketPath());
 
         auto threatDetected = createThreatDetected();
         client.sendQuarantineRequest(threatDetected);
@@ -131,7 +131,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
 TEST_F(TestSafeStoreSocket, testClientSocketTriesToReconnect) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    unixsocket::SafeStoreClient client(Plugin::safestoreSocket(), { 0, 0 });
+    unixsocket::SafeStoreClient client(Plugin::getSafeStoreSocketPath(), { 0, 0 });
 
     EXPECT_TRUE(appenderContains("Failed to connect to SafeStore - retrying after sleep", 9));
     EXPECT_TRUE(appenderContains("Reached total maximum number of connection attempts."));
@@ -159,12 +159,12 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
                 return false;
             }));
 
-    unixsocket::SafeStoreServerSocket server(Plugin::safestoreSocket(), 0666, quarantineManager);
+    unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), 0666, quarantineManager);
 
     server.start();
 
     // connect after we start
-    unixsocket::SafeStoreClient client(Plugin::safestoreSocket());
+    unixsocket::SafeStoreClient client(Plugin::getSafeStoreSocketPath());
 
     client.sendQuarantineRequest(createThreatDetected());
     serverWaitGuard.wait();

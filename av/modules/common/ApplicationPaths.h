@@ -9,5 +9,5 @@ namespace Plugin
     std::string getPluginInstall();
     std::string getSafeStorePidPath();
     std::string getSafeStoreFlagPath();
-    std::string safestoreSocket();
+    std::string getSafeStoreSocketPath();
 } // namespace Plugin
