@@ -10,6 +10,9 @@ AV and Base Setup
     # ignore occasional SXL4 timeouts
     Register Cleanup  Exclude Globalrep Timeout Errors
     Register Cleanup  Require No Unhandled Exception
+    Register Cleanup  analyse Journalctl   print_always=True
+    Register Cleanup  Dump All Sophos Processes
+    Register Cleanup  Log Status Of Sophos Spl
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
     Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
