@@ -145,20 +145,11 @@ int main()
     safeStoreWrapper->findFirst(filter, *searchHandle, *objectHandle);
 
     std::cout << "Object name: " << safeStoreWrapper->getObjectName(*objectHandle) << std::endl;
-    auto results = safeStoreWrapper->find(filter);
-    for (auto result : results)
+
+    for (auto result : safeStoreWrapper->find(filter))
     {
         std::cout << "for loop: " << safeStoreWrapper->getObjectName(*result) << std::endl;
     }
-
-    //    auto it = safeStoreWrapper->find(filter);
-//    std::string name1 = safeStoreWrapper->getObjectName(*it);
-//    std::cout << "name1: " << name1 << std::endl;
-//    ++it;
-//    std::string name2 = safeStoreWrapper->getObjectName(*it);
-//    std::cout << "name2: " << name2 << std::endl;
-
-
 
     std::cout << "Done" << std::endl;
 

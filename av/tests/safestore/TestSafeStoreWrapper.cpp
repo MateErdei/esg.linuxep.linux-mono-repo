@@ -1,3 +1,4 @@
+// Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 #include "../common/LogInitializedTests.h"
 #include "safestore/SafeStoreWrapperImpl.h"
@@ -5,7 +6,8 @@
 #include <gtest/gtest.h>
 
 class SafeStoreWrapperTests : public LogInitializedTests
-{};
+{
+};
 
 TEST_F(SafeStoreWrapperTests, threatIdFromStringTakesFirst16Bytes)
 {
@@ -28,7 +30,6 @@ TEST_F(SafeStoreWrapperTests, threatIdFromStringTakesFirst16Bytes)
     ASSERT_EQ(ssThreatIdStruct.value().Data4[2], 'k');
     ASSERT_EQ(ssThreatIdStruct.value().Data4[3], 'l');
 }
-
 
 TEST_F(SafeStoreWrapperTests, threatIdFromStringHandlesShortIds)
 {
