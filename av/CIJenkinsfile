@@ -13,9 +13,6 @@ def params = [
     booleanParam(name: 'do_999_build', defaultValue: true, description: 'Do 999 build (default everywhere)'),
 ]
 
-
 CIPipeline { pipelineEntryPoint = 'av_plugin'; buildParameters = params; skipInitialBuild = 'true';
              failureWebhook = 'https://sophosapps.webhook.office.com/webhookb2/bbfe96d7-efd4-41d6-ad31-63b6d35b586d@358a41ff-46d9-49d3-a297-370d894eae6a/IncomingWebhook/18fcf19c673140f0a37eceefb2e52a99/d44ac291-19eb-4e6a-aa6a-e45d9e574bb4';
              failureWebhookBranchRegex = '^develop$' }
-
-
