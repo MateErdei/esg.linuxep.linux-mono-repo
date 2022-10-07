@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <ctime>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -90,4 +91,5 @@ namespace Plugin
         bool m_warningLogged = false;
 
     };
+    using PolicyWaiterSharedPtr = std::shared_ptr<PolicyWaiter>;
 }

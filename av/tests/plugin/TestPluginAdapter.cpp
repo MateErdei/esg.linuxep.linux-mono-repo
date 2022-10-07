@@ -417,7 +417,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
     pluginThread.join();
 }
 
-TEST_F(TestPluginAdapter, testPluginAdaptorDoesntStartProcessesWithInvalidEntry)
+TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvalidPolicy)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger threadRunnerLogger = Common::Logging::getInstance("Common");

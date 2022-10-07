@@ -9,6 +9,7 @@
 #include "HealthStatus.h"
 #include "PluginCallback.h"
 #include "PolicyProcessor.h"
+#include "PolicyWaiter.h"
 #include "QueueTask.h"
 
 #include "modules/common/ThreadRunner.h"
@@ -59,7 +60,7 @@ namespace Plugin
          * @param appId OUT - the appId for the policy
          * @return whether policy has been updated
          */
-        void processPolicy(const std::string& policyXml, std::string& appId);
+        void processPolicy(const std::string& policyXml, PolicyWaiterSharedPtr policyWaiter);
         void processAction(const std::string& actionXml);
         void startThreads();
         void innerLoop();
