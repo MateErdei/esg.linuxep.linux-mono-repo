@@ -45,4 +45,6 @@ macro(SophosAddTest TARGET)
     endif()
     gtest_discover_tests(${TARGET} )
 
+    add_dependencies(${TARGET} copy_libs)
+
 endmacro()
