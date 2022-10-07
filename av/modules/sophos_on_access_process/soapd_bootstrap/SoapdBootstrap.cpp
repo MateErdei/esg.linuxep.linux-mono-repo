@@ -211,15 +211,7 @@ bool SoapdBootstrap::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnA
     else
     {
         LOGINFO("No policy override, following policy settings");
-
-        if (OnAccessEnabledPolicySetting)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return OnAccessEnabledPolicySetting;
     }
 }
 
