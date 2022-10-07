@@ -22,8 +22,8 @@ namespace safestore
 
             if (nextTimeToCheckState < now)
             {
+                reinitialiseBackoff = reinitialiseBackoff * 2;
                 lastCheck = std::chrono::system_clock::now().time_since_epoch();
-
                 auto state = m_quarantineManager->getState();
                 switch (state)
                 {
@@ -32,7 +32,6 @@ namespace safestore
                         break;
                     case QuarantineManagerState::UNINITIALISED:
                         LOGINFO("Quarantine Manager is UNINITIALISED");
-                        reinitialiseBackoff = reinitialiseBackoff * 2;
 
                         try
                         {
@@ -68,7 +67,7 @@ namespace safestore
             }
             else
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
         }
     }

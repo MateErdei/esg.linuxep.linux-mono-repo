@@ -3,11 +3,16 @@
 #include "QuarantineManagerImpl.h"
 
 #include "Logger.h"
+#include "SafeStoreObjectHandleHolderImpl.h"
 #include "SafeStoreWrapperImpl.h"
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "common/ApplicationPaths.h"
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include <optional>
 
@@ -32,8 +37,22 @@ namespace safestore
 
     std::string generatePassword()
     {
-        // TODO 5675
-        std::string pw = "TEMP PASSWORD";
+        std::ostringstream ss;
+        boost::uuids::uuid uuid = boost::uuids::random_generator()();
+        ss << uuid;
+        std::string pw = ss.str();
+        if (pw.length() > SAFESTORE_PASSWORD_MAX_SIZE)
+        {
+            try
+            {
+                pw.substr(0, SAFESTORE_PASSWORD_MAX_SIZE - 1);
+            }
+            catch (const std::exception& ex)
+            {
+                pw = "";
+                LOGERROR("Failed to trim SafeStore database password");
+            }
+        }
         return pw;
     }
 
@@ -74,12 +93,24 @@ namespace safestore
         const std::string& threatName)
     {
         std::lock_guard<std::mutex> lock(m_interfaceMutex);
-        SafeStoreObjectHandleHolderImpl objectHandle;
-        auto saveResult = m_safeStore->saveFile(directory, filename, threatId, threatName, objectHandle);
+        std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle =
+            std::make_shared<SafeStoreObjectHandleHolderImpl>();
+        auto saveResult = m_safeStore->saveFile(directory, filename, threatId, threatName, *objectHandle);
         if (saveResult == SaveFileReturnCode::OK)
         {
             // TODO LINUXDAR-5677 delete the file
-            return true;
+
+            LOGDEBUG("Finalising file: " << filename);
+            if (m_safeStore->finaliseObject(*objectHandle))
+            {
+                LOGDEBUG("Finalised file: " << filename);
+                return true;
+            }
+            else
+            {
+                LOGDEBUG("Failed to finalise file: " << filename);
+                return false;
+            }
         }
         else
         {
@@ -106,7 +137,7 @@ namespace safestore
         if (!pw.has_value())
         {
             pw = generatePassword();
-            if (savePassword(pw.value()))
+            if (!pw->empty() && savePassword(pw.value()))
             {
                 LOGDEBUG("Saved password OK");
             }
@@ -136,7 +167,21 @@ namespace safestore
     {
         std::lock_guard<std::mutex> lock(m_interfaceMutex);
         LOGWARN("Deleting Quarantine database");
-        LOGINFO("TODO 5675 - NOT IMPLEMENTED YET");
-        return false;
+        std::string safeStoreDbDir = Plugin::getSafeStoreDbDirPath();
+        auto fileSystem = Common::FileSystem::fileSystem();
+        try
+        {
+            if (fileSystem->exists(safeStoreDbDir))
+            {
+                fileSystem->removeFilesInDirectory(safeStoreDbDir);
+                LOGDEBUG("Quarantine database deletion successful");
+            }
+            return true;
+        }
+        catch (const Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGERROR("Failed to remove Quarantine Database due to: " << ex.what());
+            return false;
+        }
     }
 } // namespace safestore

@@ -41,3 +41,13 @@ TEST_F(SafeStoreWrapperTests, threatIdFromStringHandlesMalformedIds)
     auto ssThreatIdStruct = safestore::threatIdFromString("this is not a threat ID");
     ASSERT_FALSE(ssThreatIdStruct.has_value());
 }
+
+TEST_F(SafeStoreWrapperTests, stringFromThreatIdStruct)
+{
+    std::string idString = "abcdefghijklmnop"; // only 16bytes long.
+    std::string threatIdPrefix = "T";
+    std::string threatIdString = threatIdPrefix + idString;
+    auto ssThreatIdStruct = safestore::threatIdFromString(threatIdString);
+    std::string id = safestore::stringFromThreatId(ssThreatIdStruct.value());
+    ASSERT_EQ(idString, id);
+}

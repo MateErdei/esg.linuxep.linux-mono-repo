@@ -64,6 +64,7 @@ int main()
     // create QM and initialise it
     std::shared_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper = std::make_shared<safestore::SafeStoreWrapperImpl>();
     std::shared_ptr<safestore::IQuarantineManager> quarantineManager = std::make_shared<safestore::QuarantineManagerImpl>(safeStoreWrapper);
+    quarantineManager->deleteDatabase();
     quarantineManager->initialise();
 
 
@@ -107,16 +108,56 @@ int main()
     std::cout << std::endl;
 
     // add some fake threats
-    std::string fakeVirusFilePath = "/tmp/fakevirus";
-    fileSystem->writeFile(fakeVirusFilePath, "a temp test file");
-    bool stored = quarantineManager->quarantineFile(Common::FileSystem::dirName(fakeVirusFilePath), Common::FileSystem::basename(fakeVirusFilePath),"T_this_is_a_junk_threat_ID","threat name");
+    std::string fakeVirusFilePath1 = "/tmp/fakevirus1";
+    std::string fakeVirusFilePath2 = "/tmp/fakevirus2";
+    fileSystem->writeFile(fakeVirusFilePath1, "a temp test file1");
+    fileSystem->writeFile(fakeVirusFilePath2, "a temp test file2");
+    // Store 1
+    bool stored = quarantineManager->quarantineFile(Common::FileSystem::dirName(fakeVirusFilePath1), Common::FileSystem::basename(fakeVirusFilePath1),"T_this_is_a_junk_threat_ID1","threat name1");
     if (stored)
     {
-        std::cout << "Successfully quarantined " << fakeVirusFilePath << std::endl;
+        std::cout << "Successfully quarantined " << fakeVirusFilePath1 << std::endl;
     }
     else
     {
-        std::cout << "Failed to quarantine " << fakeVirusFilePath << std::endl;
+        std::cout << "Failed to quarantine " << fakeVirusFilePath1 << std::endl;
     }
+    // Store 2
+    stored = quarantineManager->quarantineFile(Common::FileSystem::dirName(fakeVirusFilePath2), Common::FileSystem::basename(fakeVirusFilePath2),"T_this_is_a_junk_threat_ID2","threat name2");
+    if (stored)
+    {
+        std::cout << "Successfully quarantined " << fakeVirusFilePath2 << std::endl;
+    }
+    else
+    {
+        std::cout << "Failed to quarantine " << fakeVirusFilePath2 << std::endl;
+    }
+
+    // Searching testing
+
+    safestore::SafeStoreFilter filter;
+    filter.objectLocation = Common::FileSystem::dirName(fakeVirusFilePath1); // same dir as 2
+//    filter.objectName = Common::FileSystem::basename(fakeVirusFilePath);
+    filter.activeFields = {safestore::FilterField::OBJECT_LOCATION};
+
+    auto searchHandle = safeStoreWrapper->createSearchHandleHolder();
+    auto objectHandle  = safeStoreWrapper->createObjectHandleHolder();
+    safeStoreWrapper->findFirst(filter, searchHandle, objectHandle);
+
+    std::cout << "Object name: " << safeStoreWrapper->getObjectName(objectHandle) << std::endl;
+    auto it = safeStoreWrapper->find(filter);
+    std::string name1 = safeStoreWrapper->getObjectName(*it);
+    std::cout << "name1: " << name1 << std::endl;
+    ++it;
+    std::string name2 = safeStoreWrapper->getObjectName(*it);
+    std::cout << "name2: " << name2 << std::endl;
+
+//    for (auto object :  safeStoreWrapper->find(filter))
+//    {
+//
+//    }
+
+    std::cout << "Done" << std::endl;
+
     // shutdown - implicitly called on safestore wrapper destructor so we don't need to worry about it.
 }

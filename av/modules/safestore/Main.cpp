@@ -53,7 +53,7 @@ void Main::innerRun()
         }
     };
 
-    std::unique_ptr<ISafeStoreWrapper> safeStoreWrapper = std::make_unique<SafeStoreWrapperImpl>();
+    std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper = std::shared_ptr<SafeStoreWrapperImpl>();
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(safeStoreWrapper));
     quarantineManager->initialise();

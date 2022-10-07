@@ -3,9 +3,9 @@
 #include "SafeStoreWrapperImpl.h"
 
 #include "Logger.h"
+#include "SafeStoreObjectHandleHolderImpl.h"
+#include "SafeStoreSearchHandleHolderImpl.h"
 
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystem/IFileSystemException.h"
 #include "common/ApplicationPaths.h"
 
 extern "C"
@@ -15,7 +15,6 @@ extern "C"
 
 namespace safestore
 {
-
     std::optional<SafeStore_Id_t> threatIdFromString(const std::string& threatId)
     {
         if (threatId.length() < sizeof(SafeStore_Id_t))
@@ -43,6 +42,32 @@ namespace safestore
 
         LOGDEBUG("Converted threat ID: " << threatId << " into safestore ID struct");
         return id;
+    }
+
+    std::string stringFromThreatId(const SafeStore_Id_t& id)
+    {
+        std::string threatId;
+        threatId += char(id.Data1 & 0x000000ff);
+        threatId += char((id.Data1 & 0x0000ff00) >> 8);
+        threatId += char((id.Data1 & 0x00ff0000) >> 16);
+        threatId += char((id.Data1 & 0xff000000) >> 24);
+
+        threatId += char(id.Data2 & 0x00ff);
+        threatId += char((id.Data2 & 0xff00) >> 8);
+
+        threatId += char(id.Data3 & 0x00ff);
+        threatId += char((id.Data3 & 0xff00) >> 8);
+
+        threatId += char(id.Data4[0]);
+        threatId += char(id.Data4[1]);
+        threatId += char(id.Data4[2]);
+        threatId += char(id.Data4[3]);
+        threatId += char(id.Data4[4]);
+        threatId += char(id.Data4[5]);
+        threatId += char(id.Data4[6]);
+        threatId += char(id.Data4[7]);
+
+        return threatId;
     }
 
     SafeStore_Config_t convertToSafeStoreConfigId(const ConfigOption& option)
@@ -100,44 +125,42 @@ namespace safestore
         return SOS_UNDEFINED;
     }
 
-    //////////
-    SafeStoreObjectHandleHolderImpl::~SafeStoreObjectHandleHolderImpl()
+    // see SafeStore_FilterField_t in safestore.h
+    int convertFilterFieldsToSafeStoreInt(const std::vector<FilterField>& fields)
     {
-        if (m_handle != nullptr)
+        int activeFields = 0;
+        for (const auto& field : fields)
         {
-            SafeStore_ReleaseObjectHandle(m_handle);
-            m_handle = nullptr;
-            LOGDEBUG("Cleaned up SafeStore object handle");
+            switch (field)
+            {
+                case FilterField::THREAT_ID:
+                    activeFields += 0x0001;
+                    break;
+                case FilterField::THREAT_NAME:
+                    activeFields += 0x0002;
+                    break;
+                case FilterField::START_TIME:
+                    activeFields += 0x0004;
+                    break;
+                case FilterField::END_TIME:
+                    activeFields += 0x0008;
+                    break;
+                case FilterField::OBJECT_TYPE:
+                    activeFields += 0x0010;
+                    break;
+                case FilterField::OBJECT_STATUS:
+                    activeFields += 0x0020;
+                    break;
+                case FilterField::OBJECT_LOCATION:
+                    activeFields += 0x0040;
+                    break;
+                case FilterField::OBJECT_NAME:
+                    activeFields += 0x0080;
+                    break;
+            }
         }
+        return activeFields;
     }
-    SafeStoreObjectHandle* SafeStoreObjectHandleHolderImpl::get()
-    {
-        return &m_handle;
-    }
-
-    ////////////////
-
-    SafeStoreSearchHandleHolderImpl::SafeStoreSearchHandleHolderImpl(SafeStoreContext safeStoreCtx) :
-        m_safeStoreCtx(safeStoreCtx)
-    {
-    }
-
-    SafeStoreSearchHandleHolderImpl::~SafeStoreSearchHandleHolderImpl()
-    {
-        if (m_handle != nullptr)
-        {
-            SafeStore_FindClose(m_safeStoreCtx, m_handle);
-            m_handle = nullptr;
-            LOGDEBUG("Cleaned up SafeStore search handle");
-        }
-    }
-
-    SafeStoreSearchHandle* SafeStoreSearchHandleHolderImpl::get()
-    {
-        return &m_handle;
-    }
-
-    ///////////
 
     SafeStoreWrapperImpl::~SafeStoreWrapperImpl()
     {
@@ -197,23 +220,26 @@ namespace safestore
         const std::string& filename,
         const std::string& threatId,
         const std::string& threatName,
-        SafeStoreObjectHandleHolder& objectHandle)
+        ISafeStoreObjectHandleHolder& objectHandle)
     {
         auto threatIdSafeStore = threatIdFromString(threatId);
-
+        LOGDEBUG("SafeStoreWrapperImpl::saveFile - directory: " << directory);
+        LOGDEBUG("SafeStoreWrapperImpl::saveFile - filename: " << filename);
+        LOGDEBUG("SafeStoreWrapperImpl::saveFile - threatId: " << threatId);
+        LOGDEBUG("SafeStoreWrapperImpl::saveFile - threatName: " << threatName);
         auto result = SafeStore_SaveFile(
             m_safeStoreCtx,
             directory.c_str(),
             filename.c_str(),
             &(threatIdSafeStore.value()),
             threatName.c_str(),
-            objectHandle.get());
+            objectHandle.getRawHandle());
 
         switch (result)
         {
                 // TODO 5675 messages....
             case SR_OK:
-                LOGDEBUG("TODO YAY");
+                LOGDEBUG("TODO SR_OK");
                 return SaveFileReturnCode::OK;
             case SR_INVALID_ARG:
                 LOGWARN("TODO INVALID_ARG");
@@ -263,18 +289,17 @@ namespace safestore
     }
 
     bool SafeStoreWrapperImpl::findFirst(
-        SafeStoreFilter filter,
-        SafeStoreSearchHandleHolder& searchHandle,
-        SafeStoreObjectHandleHolder& objectHandle)
+        const SafeStoreFilter& filter,
+        std::shared_ptr<ISafeStoreSearchHandleHolder> searchHandle,
+        std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
     {
         // Convert Filter type to SafeStore_Filter_t
         SafeStore_Filter_t ssFilter;
-        ssFilter.activeFields = filter.activeFields;
+        ssFilter.activeFields = convertFilterFieldsToSafeStoreInt(filter.activeFields);
         if (auto ssThreatId = threatIdFromString(filter.threatId))
         {
             ssFilter.threatId = &(ssThreatId.value());
         }
-        ssFilter.threatName = filter.threatName.c_str();
         ssFilter.threatName = filter.threatName.c_str();
         ssFilter.startTime = filter.startTime;
         ssFilter.endTime = filter.endTime;
@@ -283,14 +308,101 @@ namespace safestore
         ssFilter.objectLocation = filter.objectLocation.c_str();
         ssFilter.objectName = filter.objectName.c_str();
 
-        return (SafeStore_FindFirst(m_safeStoreCtx, &ssFilter, searchHandle.get(), objectHandle.get()) == SR_OK);
+        return (
+            SafeStore_FindFirst(
+                m_safeStoreCtx, &ssFilter, searchHandle->getRawHandle(), objectHandle->getRawHandle()) == SR_OK);
     }
 
     bool SafeStoreWrapperImpl::findNext(
-        SafeStoreSearchHandleHolder& searchHandle,
-        SafeStoreObjectHandleHolder& objectHandle)
+        std::shared_ptr<ISafeStoreSearchHandleHolder> searchHandle,
+        std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
     {
-        return (SafeStore_FindNext(m_safeStoreCtx,  searchHandle.get(), objectHandle.get()) == SR_OK);
+        return (
+            SafeStore_FindNext(m_safeStoreCtx, *(searchHandle->getRawHandle()), objectHandle->getRawHandle()) == SR_OK);
+    }
+
+    std::shared_ptr<ISafeStoreSearchHandleHolder> SafeStoreWrapperImpl::createSearchHandleHolder()
+    {
+        std::shared_ptr<ISafeStoreSearchHandleHolder> holder =
+            std::make_shared<SafeStoreSearchHandleHolderImpl>(m_safeStoreCtx);
+        return holder;
+    }
+
+    std::shared_ptr<ISafeStoreObjectHandleHolder> SafeStoreWrapperImpl::createObjectHandleHolder()
+    {
+        return std::make_shared<safestore::SafeStoreObjectHandleHolderImpl>();
+    }
+
+    SearchIterator SafeStoreWrapperImpl::find(const SafeStoreFilter& filter)
+    {
+        return SearchIterator(*this, filter);
+    }
+
+    std::string SafeStoreWrapperImpl::getObjectName(std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
+    {
+        constexpr int nameSize = 200;
+        size_t size = nameSize;
+        char buf[nameSize];
+
+        // TODO 5675 deal with error codes... e.g. string size too small
+        // Success:
+        //  *     SR_OK
+        //  *   Failure:
+        //  *     SR_INVALID_ARG - an invalid argument was passed to the function
+        //  *     SR_BUFFER_SIZE_TOO_SMALL - the buffer is too small to hold the output
+        //  *     SR_INTERNAL_ERROR - an internal error has occurred
+
+        auto returnCode = SafeStore_GetObjectName(*(objectHandle->getRawHandle()), buf, &size);
+
+        switch (returnCode)
+        {
+            case SR_OK:
+                break;
+            case SR_INVALID_ARG:
+                break;
+            case SR_INTERNAL_ERROR:
+                break;
+            case SR_BUFFER_SIZE_TOO_SMALL:
+                break;
+            default:
+                break;
+        }
+        return std::string(buf);
+    }
+
+    std::string SafeStoreWrapperImpl::getObjectId(std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
+    {
+        SafeStore_Id_t objectId;
+        SafeStore_GetObjectId(objectHandle->getRawHandle(), &objectId);
+
+        return stringFromThreatId(objectId);
+    }
+
+    bool SafeStoreWrapperImpl::getObjectHandle(
+        const std::string& threatId,
+        std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
+    {
+        //        TODO 5675: Handle errors
+        //        Success:
+        //            SR_OK
+        //        Failure:
+        //            SR_INVALID_ARG - an invalid argument was passed to the function
+        //            SR_OUT_OF_MEMORY - not enough memory is available to complete the operation
+        //            SR_OBJECT_NOT_FOUND - no object was found with the given ID
+        //            SR_INTERNAL_ERROR - an internal error has occurred
+
+        if (auto threadIdStr = threatIdFromString(threatId))
+        {
+            return (
+                SafeStore_GetObjectHandle(m_safeStoreCtx, &threadIdStr.value(), objectHandle->getRawHandle()) == SR_OK);
+        }
+
+        return false;
+    }
+    bool SafeStoreWrapperImpl::finaliseObject(ISafeStoreObjectHandleHolder& objectHandle)
+    {
+        auto result = SafeStore_FinalizeObject(m_safeStoreCtx, *(objectHandle.getRawHandle()));
+        return result == SR_OK;
     }
 
 } // namespace safestore

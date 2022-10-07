@@ -8,8 +8,11 @@
 
 #pragma once
 
+#include <memory>
 #include <optional>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace safestore
 {
@@ -92,11 +95,23 @@ namespace safestore
     using SafeStoreObjectHandle = void*;
     using SafeStoreSearchHandle = void*;
 
+    enum class FilterField
+    {
+        THREAT_ID = 0x0001,
+        THREAT_NAME = 0x0002,
+        START_TIME = 0x0004,
+        END_TIME = 0x0008,
+        OBJECT_TYPE = 0x0010,
+        OBJECT_STATUS = 0x0020,
+        OBJECT_LOCATION = 0x0040,
+        OBJECT_NAME = 0x0080,
+    };
+
     // Contains information used to get filtered data from SafeStore.
     struct SafeStoreFilter
     {
         // A combination of one or more SafeStore_FilterField_t flags.
-        int activeFields;
+        std::vector<FilterField> activeFields;
 
         // Threat id the object was saved with.
         std::string threatId;
@@ -123,24 +138,36 @@ namespace safestore
         std::string objectName;
     };
 
-    class SafeStoreObjectHandleHolder
+    class ISafeStoreObjectHandleHolder
     {
     public:
-        virtual ~SafeStoreObjectHandleHolder() = default;
-        virtual SafeStoreObjectHandle* get() = 0;
+        virtual ~ISafeStoreObjectHandleHolder() = default;
+        virtual SafeStoreObjectHandle* getRawHandle() = 0;
     };
 
-    class SafeStoreSearchHandleHolder
+    class ISafeStoreSearchHandleHolder
     {
     public:
-        virtual ~SafeStoreSearchHandleHolder() = default;
-        virtual SafeStoreSearchHandle* get() = 0;
+        virtual ~ISafeStoreSearchHandleHolder() = default;
+        virtual SafeStoreSearchHandle* getRawHandle() = 0;
     };
+
+    struct SearchIterator;
 
     class ISafeStoreWrapper
     {
     public:
         virtual ~ISafeStoreWrapper() = default;
+
+        /*
+         * TODO 5675 Interface docs
+         */
+        virtual std::shared_ptr<ISafeStoreSearchHandleHolder> createSearchHandleHolder() = 0;
+
+        /*
+         * TODO 5675 Interface docs
+         */
+        virtual std::shared_ptr<ISafeStoreObjectHandleHolder> createObjectHandleHolder() = 0;
 
         /*
          * Initialise SafeStore and setup any resources needed.
@@ -160,38 +187,105 @@ namespace safestore
             const std::string& filename,
             const std::string& threatId,
             const std::string& threatName,
-            SafeStoreObjectHandleHolder& objectHandle) = 0;
+            ISafeStoreObjectHandleHolder& objectHandle) = 0;
 
         /*
-         * TODO 5675
+         * TODO 5675 Interface docs
          */
         virtual std::optional<uint64_t> getConfigIntValue(ConfigOption option) = 0;
 
         /*
-         * TODO 5675
+         * TODO 5675 Interface docs
          */
         virtual bool setConfigIntValue(ConfigOption option, uint64_t value) = 0;
 
+        virtual SearchIterator find(const SafeStoreFilter& filter) = 0;
+
         /*
-         * TODO 5675
+         * TODO 5675 Interface docs
          */
         virtual bool findFirst(
-            SafeStoreFilter filter,
-            SafeStoreSearchHandleHolder& searchHandle,
-            SafeStoreObjectHandleHolder& objectHandle) = 0;
-
-//        _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_FindNext(
-//            _In_ SafeStore_t ctx,
-//            _In_ SafeStore_Search_t searchHandle,
-//            _Deref_out_ SafeStore_Handle_t* objectHandle);
+            const SafeStoreFilter& filter,
+            std::shared_ptr<ISafeStoreSearchHandleHolder> searchHandle,
+            std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) = 0;
 
         /*
-         * TODO 5675
+         * TODO 5675 Interface docs
          */
         virtual bool findNext(
-            SafeStoreSearchHandleHolder& searchHandle,
-            SafeStoreObjectHandleHolder& objectHandle) = 0;
+            std::shared_ptr<ISafeStoreSearchHandleHolder> searchHandle,
+            std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) = 0;
 
+        /*
+         * TODO 5675 Interface docs
+         */
+        virtual std::string getObjectName(std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) = 0;
+
+        /*
+         * TODO 5675 Interface docs
+         */
+        virtual std::string getObjectId(std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) = 0;
+
+        /*
+         * TODO 5675 Interface docs
+         */
+        virtual bool getObjectHandle(
+            const std::string& threatId,
+            std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) = 0;
+
+        /*
+         * TODO 5675 Interface docs
+         */
+        virtual bool finaliseObject(ISafeStoreObjectHandleHolder& objectHandle) = 0;
+    };
+
+    struct SearchIterator
+    {
+        SearchIterator(ISafeStoreWrapper& safeStore, const SafeStoreFilter& filter) :
+            m_safeStore(safeStore),
+            m_searchHolder(m_safeStore.createSearchHandleHolder()),
+            m_objectHolder(m_safeStore.createObjectHandleHolder())
+        {
+            m_safeStore.findFirst(filter, m_searchHolder, m_objectHolder);
+        }
+
+        std::shared_ptr<ISafeStoreObjectHandleHolder> operator*() const
+        {
+            return m_objectHolder;
+        }
+
+        /*
+         * TODO 5675 implement SafeStoreObjectHandleHolder* operator->()
+         */
+        //        SafeStoreObjectHandleHolder* operator->()
+        //        {
+        //
+        //        }
+
+        // Prefix increment
+        SearchIterator& operator++()
+        {
+            // find next
+            m_safeStore.findNext(m_searchHolder, m_objectHolder);
+            return *this;
+        }
+
+        // TODO 5675 implement Postfix increment
+        //        SearchIterator* operator++(int)
+        //        {
+        //            //find next
+        //        }
+
+        // TODO 5675 implement begin()
+        //        SearchIterator begin()
+
+        // TODO 5675 implement end()
+        //        SearchIterator end()
+
+    private:
+        ISafeStoreWrapper& m_safeStore;
+        std::shared_ptr<ISafeStoreSearchHandleHolder> m_searchHolder;
+        std::shared_ptr<ISafeStoreObjectHandleHolder> m_objectHolder;
     };
 
 } // namespace safestore
