@@ -24,14 +24,9 @@ namespace Plugin
          * @param policy
          * @return True if the customer ID has changed - if sophos_threat_detector needs to be restarted
          */
-        bool processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy);
+        void processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy);
 
-        /**
-         *
-         * @param policy
-         * @return True if the Enable SXL Lookup setting has changed - if sophos_threat_detector needs to be restarted
-         */
-        bool processSavPolicy(const Common::XmlUtilities::AttributesMap& policy);
+        void processSavPolicy(const Common::XmlUtilities::AttributesMap& policy);
 
         void processOnAccessPolicy(const Common::XmlUtilities::AttributesMap& policy);
 
@@ -43,6 +38,8 @@ namespace Plugin
 
         void processFlagSettings(const std::string& flagsJson);
         [[nodiscard]] bool isSafeStoreEnabled() const;
+
+        [[nodiscard]] bool restartThreatDetector() const { return m_restartThreatDetector; }
 
     protected:
         virtual void notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE requestType);
@@ -60,6 +57,7 @@ namespace Plugin
 
         bool m_gotFirstSavPolicy = false;
         bool m_gotFirstAlcPolicy = false;
+        bool m_restartThreatDetector = false;
 
         inline static const std::string OA_FLAG = "av.onaccess.enabled";
         inline static const std::string SS_FLAG = "safestore.enabled";

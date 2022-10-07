@@ -74,7 +74,7 @@ namespace Plugin
         }
     }
 
-    bool PolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
+    void PolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
         auto oldCustomerId = m_customerId;
         m_customerId = getCustomerId(policy);
@@ -88,13 +88,15 @@ namespace Plugin
         if (m_customerId.empty())
         {
             LOGWARN("Failed to find customer ID from ALC policy");
-            return false;
+            m_restartThreatDetector = false;
+            return;
         }
 
         if (m_customerId == oldCustomerId)
         {
             // customer ID not changed
-            return false;
+            m_restartThreatDetector = false;
+            return;
         }
 
         // write customer ID to a file
@@ -110,7 +112,7 @@ namespace Plugin
         fs->writeFile(dest, m_customerId);
         ::chmod(dest.c_str(), 0640);
 
-        return true; // Only restart sophos_threat_detector if it changes
+        m_restartThreatDetector = true; // Only restart sophos_threat_detector if it changes
     }
 
     bool PolicyProcessor::getSXL4LookupsEnabled() const
@@ -207,7 +209,7 @@ namespace Plugin
         telemetry.set("onAccessConfigured", onAccessEnabledTelemetry, true);
     }
 
-    bool PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
+    void PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
         processOnAccessPolicy(policy);
 
@@ -217,7 +219,8 @@ namespace Plugin
         if (m_gotFirstSavPolicy && m_lookupEnabled == oldLookupEnabled)
         {
             // Dont restart Threat Detector if its not changed and its not the first policy
-            return false;
+            m_restartThreatDetector = false;
+            return;
         }
 
         if (!m_gotFirstSavPolicy)
@@ -249,7 +252,7 @@ namespace Plugin
             LOGERROR(e.what() << ", setting default values for susi startup settings.");
         }
 
-        return true;
+        m_restartThreatDetector = true;
     }
 
     bool PolicyProcessor::isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy)

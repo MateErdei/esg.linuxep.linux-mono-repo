@@ -167,12 +167,8 @@ namespace Plugin
                         else
                         {
                             std::string appId;
-                            bool policyUpdated = processPolicy(task.Content, appId);
-                            if (policyUpdated)
-                            {
-                                policyWaiter.gotPolicy(appId);
-                                m_restartSophosThreatDetector = true;
-                            }
+                            processPolicy(task.Content, appId);
+                            policyWaiter.gotPolicy(appId);
                         }
 
                         break;
@@ -235,7 +231,7 @@ namespace Plugin
         m_callback->setSafeStoreEnabled(m_policyProcessor.isSafeStoreEnabled());
     }
 
-    bool PluginAdapter::processPolicy(const std::string& policyXml, std::string& appId)
+    void PluginAdapter::processPolicy(const std::string& policyXml, std::string& appId)
     {
         LOGINFO("Received Policy");
         try
@@ -252,16 +248,17 @@ namespace Plugin
                     // ALC policy
                     LOGINFO("Processing ALC Policy");
                     LOGDEBUG("Processing policy: " << policyXml);
-                    bool updated = m_policyProcessor.processAlcPolicy(attributeMap);
+                    m_policyProcessor.processAlcPolicy(attributeMap);
                     appId = "ALC";
-                    return updated;
+                    setResetThreatDetector(m_policyProcessor.restartThreatDetector());
+                    return;
                 }
                 else
                 {
                     LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
                 }
                 appId = "";
-                return false;
+                return;
             }
 
             // SAV policy
@@ -270,7 +267,7 @@ namespace Plugin
             {
                 LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
                 appId = "";
-                return false;
+                return;
             }
 
             LOGINFO("Processing SAV Policy");
@@ -285,20 +282,20 @@ namespace Plugin
             bool policyIsValid = m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
             if (policyIsValid)
             {
-                bool updated = m_policyProcessor.processSavPolicy(attributeMap);
-                if (updated)
+                m_policyProcessor.processSavPolicy(attributeMap);
+                if (m_policyProcessor.restartThreatDetector())
                 {
                     m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
                 }
-
             }
-
 
             std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
             m_callback->sendStatus(revID);
 
+            setResetThreatDetector(m_policyProcessor.restartThreatDetector());
+
             appId = "SAV";
-            return policyIsValid;
+            return;
         }
         catch(const Common::XmlUtilities::XmlUtilitiesException& e)
         {
@@ -309,7 +306,7 @@ namespace Plugin
             LOGERROR("Exception encountered while processing AV policy: " << e.what());
         }
         appId = "";
-        return false;
+        return;
     }
 
     void PluginAdapter::processAction(const std::string& actionXml)

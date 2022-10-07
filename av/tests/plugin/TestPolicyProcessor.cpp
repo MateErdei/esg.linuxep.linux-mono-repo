@@ -180,11 +180,11 @@ TEST_F(TestPolicyProcessor, processAlcPolicyNoChangePolicy)
     Plugin::PolicyProcessor proc;
 
     auto attributeMap = parseFullPolicy();
-    bool changed = proc.processAlcPolicy(attributeMap);
-    EXPECT_FALSE(changed);
+    proc.processAlcPolicy(attributeMap);
+    EXPECT_FALSE(proc.restartThreatDetector());
 
-    changed = proc.processAlcPolicy(attributeMap);
-    EXPECT_FALSE(changed);
+    proc.processAlcPolicy(attributeMap);
+    EXPECT_FALSE(proc.restartThreatDetector());
 }
 
 
@@ -206,12 +206,12 @@ TEST_F(TestPolicyProcessor, processAlcPolicyChangedPolicy)
     Plugin::PolicyProcessor proc;
 
     auto attributeMap = parseFullPolicy();
-    bool changed = proc.processAlcPolicy(attributeMap);
-    EXPECT_TRUE(changed);
+    proc.processAlcPolicy(attributeMap);
+    EXPECT_TRUE(proc.restartThreatDetector());
 
     attributeMap = Common::XmlUtilities::parseXml(GL_POLICY_2);
-    changed = proc.processAlcPolicy(attributeMap);
-    EXPECT_TRUE(changed);
+    proc.processAlcPolicy(attributeMap);
+    EXPECT_TRUE(proc.restartThreatDetector());
 }
 
 
@@ -445,8 +445,8 @@ TEST_F(TestPolicyProcessor, processAlcPolicyInvalid)
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    bool changed = proc.processAlcPolicy(attributeMap);
-    EXPECT_FALSE(changed);
+    proc.processAlcPolicy(attributeMap);
+    EXPECT_FALSE(proc.restartThreatDetector());
 }
 
 TEST_F(TestPolicyProcessor, processSavPolicy)
@@ -472,7 +472,8 @@ TEST_F(TestPolicyProcessor, processSavPolicy)
 )sophos";
 
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    EXPECT_TRUE(proc.processSavPolicy(attributeMap));
+    proc.processSavPolicy(attributeMap);
+    EXPECT_TRUE(proc.restartThreatDetector());
 }
 
 TEST_F(TestPolicyProcessor, defaultSXL4lookupValueIsTrue)
@@ -524,13 +525,16 @@ TEST_F(TestPolicyProcessor, processSavPolicyChanged)
     auto attributeMapTrue = Common::XmlUtilities::parseXml(policyXmlTrue);
     auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
 
-    EXPECT_TRUE(proc.processSavPolicy(attributeMapTrue));
+    proc.processSavPolicy(attributeMapTrue);
+    EXPECT_TRUE(proc.restartThreatDetector());
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
 
-    EXPECT_TRUE(proc.processSavPolicy(attributeMapFalse));
+    proc.processSavPolicy(attributeMapFalse);
+    EXPECT_TRUE(proc.restartThreatDetector());
     EXPECT_FALSE(proc.getSXL4LookupsEnabled());
 
-    EXPECT_TRUE(proc.processSavPolicy(attributeMapTrue));
+    proc.processSavPolicy(attributeMapTrue);
+    EXPECT_TRUE(proc.restartThreatDetector());
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
 }
 
@@ -575,16 +579,20 @@ TEST_F(TestPolicyProcessor, processSavPolicyMaintainsSXL4state)
     auto attributeMapTrue = Common::XmlUtilities::parseXml(policyXmlTrue);
     auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
 
-    EXPECT_TRUE(proc.processSavPolicy(attributeMapTrue));
+    proc.processSavPolicy(attributeMapTrue);
+    EXPECT_TRUE(proc.restartThreatDetector());
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
 
-    EXPECT_FALSE(proc.processSavPolicy(attributeMapTrue));
+    proc.processSavPolicy(attributeMapTrue);
+    EXPECT_FALSE(proc.restartThreatDetector());
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
 
-    EXPECT_TRUE(proc.processSavPolicy(attributeMapFalse));
+    proc.processSavPolicy(attributeMapFalse);
+    EXPECT_TRUE(proc.restartThreatDetector());
     EXPECT_FALSE(proc.getSXL4LookupsEnabled());
 
-    EXPECT_FALSE(proc.processSavPolicy(attributeMapFalse));
+    proc.processSavPolicy(attributeMapFalse);
+    EXPECT_FALSE(proc.restartThreatDetector());
     EXPECT_FALSE(proc.getSXL4LookupsEnabled());
 }
 
@@ -620,8 +628,9 @@ TEST_F(TestPolicyProcessor, processSavPolicyMissing)
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     auto attributeMapInvalid = Common::XmlUtilities::parseXml(policyXmlInvalid);
     proc.processSavPolicy(attributeMap);
-    bool changed = proc.processSavPolicy(attributeMapInvalid);
-    EXPECT_TRUE(changed);
+
+    proc.processSavPolicy(attributeMapInvalid);
+    EXPECT_TRUE(proc.restartThreatDetector());
 }
 
 TEST_F(TestPolicyProcessor, processSavPolicyInvalid)
@@ -659,8 +668,8 @@ TEST_F(TestPolicyProcessor, processSavPolicyInvalid)
     auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
     auto attributeMapInvalid = Common::XmlUtilities::parseXml(policyXmlInvalid);
     proc.processSavPolicy(attributeMap);
-    bool changed = proc.processSavPolicy(attributeMapInvalid);
-    EXPECT_TRUE(changed);
+    proc.processSavPolicy(attributeMapInvalid);
+    EXPECT_TRUE(proc.restartThreatDetector());
 }
 
 TEST_F(TestPolicyProcessor, processOnAccessPolicyEnabled)

@@ -59,12 +59,13 @@ namespace Plugin
          * @param appId OUT - the appId for the policy
          * @return whether policy has been updated
          */
-        bool processPolicy(const std::string& policyXml, std::string& appId);
+        void processPolicy(const std::string& policyXml, std::string& appId);
         void processAction(const std::string& actionXml);
         void startThreads();
         void innerLoop();
         void processSUSIRestartRequest();
         static void incrementTelemetryThreatCount(const std::string &threatName);
+        void setResetThreatDetector(bool reset) { m_restartSophosThreatDetector = reset || m_restartSophosThreatDetector; }
 
         PolicyProcessor m_policyProcessor;
         bool m_restartSophosThreatDetector = false;
