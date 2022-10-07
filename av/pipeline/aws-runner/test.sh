@@ -80,11 +80,11 @@ rm -f output.xml log.html report.html output1.xml output2.xml
 
 echo "Running tests on $HOSTNAME"
 RESULT=0
-python3 -m robot "${TAGS[@]}" \
+python3 -m robot -t "IDE can be removed" -t "sophos_threat_detector can start after multiple IDE updates"  \
     --exclude "manual OR disabled OR stress" \
     $PLATFORM_EXCLUDE_TAG \
     $SAMBA_EXCLUDE_TAG \
-    --removekeywords WUKS  .
+    --removekeywords WUKS  . . . . . . . . . . . . . . . . . .
 RESULT=$?
 
 [[ ${RERUNFAILED} == true ]] || exit $RESULT
