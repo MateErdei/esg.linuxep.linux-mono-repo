@@ -87,14 +87,15 @@ Successful Re-Registration When MCSID is Missing
     ...  2 secs
     ...  check_mcsenvelope_log_contains  ThisIsAnMCSID+1001
 
-    Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    ${result} =  Run Process  chown  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    Kill Mcsrouter
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  mcsrouter
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
     ...  Check MCS Router Not Running
+    Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${result} =  Run Process  chown  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  mcsrouter
 
     Wait Until Keyword Succeeds
     ...  40 secs

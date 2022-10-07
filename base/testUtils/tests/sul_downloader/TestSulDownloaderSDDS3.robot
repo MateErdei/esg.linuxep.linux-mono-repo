@@ -10,8 +10,8 @@ Test Teardown    Run Keywords
 ...                Stop Proxy If Running    AND
 ...                Stop Proxy Servers   AND
 ...                Clean up fake warehouse  AND
-...                Remove Environment Variable  COMMAND
-...                Remove Environment Variable  EXITCODE
+...                Remove Environment Variable  COMMAND  AND
+...                Remove Environment Variable  EXITCODE  AND
 ...                 Test Teardown
 
 
@@ -175,6 +175,7 @@ Sul Downloader Installs SDDS3 Through Proxy
     ...    5s
     ...    Check SulDownloader Log Contains  Update success
     Check Sul Downloader log does not contain    Connecting to update source directly
+    Log File  ${SOPHOS_INSTALL}/base/pluginRegistry/updatescheduler.json
 
 Sul Downloader Installs SDDS3 Through update cache
     write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
