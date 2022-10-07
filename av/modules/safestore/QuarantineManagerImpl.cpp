@@ -20,11 +20,17 @@ namespace safestore
 {
     bool savePassword(const std::string& password)
     {
+        std::string safeStoreDbDirPath = Plugin::getSafeStoreDbDirPath();
         std::string passwordFilePath = Plugin::getSafeStorePasswordFilePath();
         auto fileSystem = Common::FileSystem::fileSystem();
 
         try
         {
+            if (!fileSystem->isDirectory(safeStoreDbDirPath))
+            {
+                fileSystem->makedirs(safeStoreDbDirPath);
+            }
+
             fileSystem->writeFile(passwordFilePath, password);
             return true;
         }
