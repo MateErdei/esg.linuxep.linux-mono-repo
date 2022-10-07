@@ -214,17 +214,16 @@ namespace Plugin
         bool oldLookupEnabled = m_lookupEnabled;
         m_lookupEnabled = isLookupEnabled(policy);
 
+        if (m_gotFirstSavPolicy && m_lookupEnabled == oldLookupEnabled)
+        {
+            // Dont restart Threat Detector if its not changed and its not the first policy
+            return false;
+        }
+
         if (!m_gotFirstSavPolicy)
         {
             LOGINFO("SAV policy received for the first time.");
             m_gotFirstSavPolicy = true;
-            return false;
-        }
-
-        if (m_lookupEnabled == oldLookupEnabled)
-        {
-            // Only restart sophos_threat_detector if it is the first policy or it has changed
-            return false;
         }
 
 

@@ -37,9 +37,9 @@ namespace
             appConfig.setData("PLUGIN_INSTALL", m_testDir );
             
             m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
+            m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
             m_soapConfigPath = m_testDir / "var/soapd_config.json";
             m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
-            m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
         }
 
@@ -488,10 +488,12 @@ TEST_F(TestPolicyProcessor, processSavPolicyChanged)
                                                            _,
                                                            0640)).Times(3);
 
+
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
     {
         InSequence seq;
-
+        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
+        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
         EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
         EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
         EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
@@ -510,6 +512,7 @@ TEST_F(TestPolicyProcessor, processSavPolicyChanged)
 </config>
 )sophos";
 
+
     std::string policyXmlFalse = R"sophos(<?xml version="1.0"?>
 <config>
     <detectionFeedback>
@@ -521,7 +524,7 @@ TEST_F(TestPolicyProcessor, processSavPolicyChanged)
     auto attributeMapTrue = Common::XmlUtilities::parseXml(policyXmlTrue);
     auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
 
-    EXPECT_FALSE(proc.processSavPolicy(attributeMapTrue));
+    EXPECT_TRUE(proc.processSavPolicy(attributeMapTrue));
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
 
     EXPECT_TRUE(proc.processSavPolicy(attributeMapFalse));
@@ -529,6 +532,60 @@ TEST_F(TestPolicyProcessor, processSavPolicyChanged)
 
     EXPECT_TRUE(proc.processSavPolicy(attributeMapTrue));
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
+}
+
+TEST_F(TestPolicyProcessor, processSavPolicyMaintainsSXL4state)
+{
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})sophos",
+                                                           _,
+                                                           0640)).Times(4);
+
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
+    {
+        InSequence seq;
+        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
+        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
+        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
+    }
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+
+    std::string policyXmlTrue = R"sophos(<?xml version="1.0"?>
+<config>
+    <detectionFeedback>
+        <sendData>true</sendData>
+    </detectionFeedback>
+</config>
+)sophos";
+
+
+    std::string policyXmlFalse = R"sophos(<?xml version="1.0"?>
+<config>
+    <detectionFeedback>
+        <sendData>false</sendData>
+    </detectionFeedback>
+</config>
+)sophos";
+
+    auto attributeMapTrue = Common::XmlUtilities::parseXml(policyXmlTrue);
+    auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
+
+    EXPECT_TRUE(proc.processSavPolicy(attributeMapTrue));
+    EXPECT_TRUE(proc.getSXL4LookupsEnabled());
+
+    EXPECT_FALSE(proc.processSavPolicy(attributeMapTrue));
+    EXPECT_TRUE(proc.getSXL4LookupsEnabled());
+
+    EXPECT_TRUE(proc.processSavPolicy(attributeMapFalse));
+    EXPECT_FALSE(proc.getSXL4LookupsEnabled());
+
+    EXPECT_FALSE(proc.processSavPolicy(attributeMapFalse));
+    EXPECT_FALSE(proc.getSXL4LookupsEnabled());
 }
 
 TEST_F(TestPolicyProcessor, processSavPolicyMissing)
