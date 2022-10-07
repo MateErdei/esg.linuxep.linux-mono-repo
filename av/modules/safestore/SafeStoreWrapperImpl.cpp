@@ -290,8 +290,8 @@ namespace safestore
 
     bool SafeStoreWrapperImpl::findFirst(
         const SafeStoreFilter& filter,
-        std::shared_ptr<ISafeStoreSearchHandleHolder> searchHandle,
-        std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
+        ISafeStoreSearchHandleHolder& searchHandle,
+        ISafeStoreObjectHandleHolder& objectHandle)
     {
         // Convert Filter type to SafeStore_Filter_t
         SafeStore_Filter_t ssFilter;
@@ -310,15 +310,15 @@ namespace safestore
 
         return (
             SafeStore_FindFirst(
-                m_safeStoreCtx, &ssFilter, searchHandle->getRawHandle(), objectHandle->getRawHandle()) == SR_OK);
+                m_safeStoreCtx, &ssFilter, searchHandle.getRawHandle(), objectHandle.getRawHandle()) == SR_OK);
     }
 
     bool SafeStoreWrapperImpl::findNext(
-        std::shared_ptr<ISafeStoreSearchHandleHolder> searchHandle,
-        std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
+        ISafeStoreSearchHandleHolder& searchHandle,
+        ISafeStoreObjectHandleHolder& objectHandle)
     {
         return (
-            SafeStore_FindNext(m_safeStoreCtx, *(searchHandle->getRawHandle()), objectHandle->getRawHandle()) == SR_OK);
+            SafeStore_FindNext(m_safeStoreCtx, *(searchHandle.getRawHandle()), objectHandle.getRawHandle()) == SR_OK);
     }
 
     std::shared_ptr<ISafeStoreSearchHandleHolder> SafeStoreWrapperImpl::createSearchHandleHolder()
@@ -333,12 +333,12 @@ namespace safestore
         return std::make_shared<safestore::SafeStoreObjectHandleHolderImpl>();
     }
 
-    SearchIterator SafeStoreWrapperImpl::find(const SafeStoreFilter& filter)
+    SearchResults SafeStoreWrapperImpl::find(const SafeStoreFilter& filter)
     {
-        return SearchIterator(*this, filter);
+        return SearchResults(*this, filter);
     }
 
-    std::string SafeStoreWrapperImpl::getObjectName(std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
+    std::string SafeStoreWrapperImpl::getObjectName(ISafeStoreObjectHandleHolder& objectHandle)
     {
         constexpr int nameSize = 200;
         size_t size = nameSize;
@@ -352,7 +352,7 @@ namespace safestore
         //  *     SR_BUFFER_SIZE_TOO_SMALL - the buffer is too small to hold the output
         //  *     SR_INTERNAL_ERROR - an internal error has occurred
 
-        auto returnCode = SafeStore_GetObjectName(*(objectHandle->getRawHandle()), buf, &size);
+        auto returnCode = SafeStore_GetObjectName(*(objectHandle.getRawHandle()), buf, &size);
 
         switch (returnCode)
         {
@@ -370,10 +370,10 @@ namespace safestore
         return std::string(buf);
     }
 
-    std::string SafeStoreWrapperImpl::getObjectId(std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
+    std::string SafeStoreWrapperImpl::getObjectId(ISafeStoreObjectHandleHolder& objectHandle)
     {
         SafeStore_Id_t objectId;
-        SafeStore_GetObjectId(objectHandle->getRawHandle(), &objectId);
+        SafeStore_GetObjectId(objectHandle.getRawHandle(), &objectId);
 
         return stringFromThreatId(objectId);
     }

@@ -142,20 +142,23 @@ int main()
 
     auto searchHandle = safeStoreWrapper->createSearchHandleHolder();
     auto objectHandle  = safeStoreWrapper->createObjectHandleHolder();
-    safeStoreWrapper->findFirst(filter, searchHandle, objectHandle);
+    safeStoreWrapper->findFirst(filter, *searchHandle, *objectHandle);
 
-    std::cout << "Object name: " << safeStoreWrapper->getObjectName(objectHandle) << std::endl;
-    auto it = safeStoreWrapper->find(filter);
-    std::string name1 = safeStoreWrapper->getObjectName(*it);
-    std::cout << "name1: " << name1 << std::endl;
-    ++it;
-    std::string name2 = safeStoreWrapper->getObjectName(*it);
-    std::cout << "name2: " << name2 << std::endl;
+    std::cout << "Object name: " << safeStoreWrapper->getObjectName(*objectHandle) << std::endl;
+    auto results = safeStoreWrapper->find(filter);
+    for (auto result : results)
+    {
 
-//    for (auto object :  safeStoreWrapper->find(filter))
-//    {
-//
-//    }
+    }
+
+    //    auto it = safeStoreWrapper->find(filter);
+//    std::string name1 = safeStoreWrapper->getObjectName(*it);
+//    std::cout << "name1: " << name1 << std::endl;
+//    ++it;
+//    std::string name2 = safeStoreWrapper->getObjectName(*it);
+//    std::cout << "name2: " << name2 << std::endl;
+
+
 
     std::cout << "Done" << std::endl;
 

@@ -58,16 +58,16 @@ namespace safestore
         bool setConfigIntValue(ConfigOption option, uint64_t value) override;
         bool findFirst(
             const SafeStoreFilter& filter,
-            std::shared_ptr<ISafeStoreSearchHandleHolder> searchHandle,
-            std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) override;
+            ISafeStoreSearchHandleHolder& searchHandle,
+            ISafeStoreObjectHandleHolder& objectHandle) override;
         bool findNext(
-            std::shared_ptr<ISafeStoreSearchHandleHolder> searchHandle,
-            std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) override;
-        std::string getObjectName(std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) override;
-        std::string getObjectId(std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) override;
+            ISafeStoreSearchHandleHolder& searchHandle,
+            ISafeStoreObjectHandleHolder& objectHandle) override;
+        SearchResults find(const SafeStoreFilter& filter) override;
+        std::string getObjectName(ISafeStoreObjectHandleHolder& objectHandle) override;
+        std::string getObjectId(ISafeStoreObjectHandleHolder& objectHandle) override;
         bool getObjectHandle(const std::string& threatId, std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
             override;
-        SearchIterator find(const SafeStoreFilter& filter) override;
 
     private:
         SafeStoreContext m_safeStoreCtx;

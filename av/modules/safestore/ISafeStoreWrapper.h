@@ -152,7 +152,9 @@ namespace safestore
         virtual SafeStoreSearchHandle* getRawHandle() = 0;
     };
 
-    struct SearchIterator;
+//    struct SearchIterator;
+
+    class SearchResults;
 
     class ISafeStoreWrapper
     {
@@ -199,32 +201,32 @@ namespace safestore
          */
         virtual bool setConfigIntValue(ConfigOption option, uint64_t value) = 0;
 
-        virtual SearchIterator find(const SafeStoreFilter& filter) = 0;
+        virtual SearchResults find(const SafeStoreFilter& filter) = 0;
 
         /*
          * TODO 5675 Interface docs
          */
         virtual bool findFirst(
             const SafeStoreFilter& filter,
-            std::shared_ptr<ISafeStoreSearchHandleHolder> searchHandle,
-            std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) = 0;
+            ISafeStoreSearchHandleHolder& searchHandle,
+            ISafeStoreObjectHandleHolder& objectHandle) = 0;
 
         /*
          * TODO 5675 Interface docs
          */
         virtual bool findNext(
-            std::shared_ptr<ISafeStoreSearchHandleHolder> searchHandle,
-            std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) = 0;
+            ISafeStoreSearchHandleHolder& searchHandle,
+            ISafeStoreObjectHandleHolder& objectHandle) = 0;
 
         /*
          * TODO 5675 Interface docs
          */
-        virtual std::string getObjectName(std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) = 0;
+        virtual std::string getObjectName(ISafeStoreObjectHandleHolder& objectHandle) = 0;
 
         /*
          * TODO 5675 Interface docs
          */
-        virtual std::string getObjectId(std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle) = 0;
+        virtual std::string getObjectId(ISafeStoreObjectHandleHolder& objectHandle) = 0;
 
         /*
          * TODO 5675 Interface docs
@@ -239,53 +241,143 @@ namespace safestore
         virtual bool finaliseObject(ISafeStoreObjectHandleHolder& objectHandle) = 0;
     };
 
-    struct SearchIterator
+    class SearchResults
     {
-        SearchIterator(ISafeStoreWrapper& safeStore, const SafeStoreFilter& filter) :
-            m_safeStore(safeStore),
-            m_searchHolder(m_safeStore.createSearchHandleHolder()),
-            m_objectHolder(m_safeStore.createObjectHandleHolder())
+    public:
+        SearchResults(ISafeStoreWrapper& safeStore, SafeStoreFilter filter)
+        : m_safeStore(safeStore), m_filter(std::move(filter))
         {
-            m_safeStore.findFirst(filter, m_searchHolder, m_objectHolder);
+
         }
 
-        std::shared_ptr<ISafeStoreObjectHandleHolder> operator*() const
+        struct Iterator
         {
-            return m_objectHolder;
-        }
 
-        /*
-         * TODO 5675 implement SafeStoreObjectHandleHolder* operator->()
-         */
-        //        SafeStoreObjectHandleHolder* operator->()
-        //        {
-        //
-        //        }
+            using iterator_category = std::forward_iterator_tag;
+//            using difference_type   = std::ptrdiff_t;
+//            using value_type        = int;
+//            using pointer           = int*;
+//            using reference         = int&;
 
-        // Prefix increment
-        SearchIterator& operator++()
-        {
-            // find next
-            m_safeStore.findNext(m_searchHolder, m_objectHolder);
-            return *this;
-        }
+            Iterator(ISafeStoreWrapper& m_safeStore, const SafeStoreFilter& filter, bool end = false)
+                :  m_safeStore(m_safeStore), m_searchHolder(m_safeStore.createSearchHandleHolder()), m_objectHolder(m_safeStore.createObjectHandleHolder())
+            {
+                if (end)
+                {
+                    // don't set anything, the handle inside m_objectHolder should be null
+                    *(m_objectHolder->getRawHandle()) = nullptr;
+                }
+                else
+                {
+                    m_safeStore.findFirst(filter, *m_searchHolder, *m_objectHolder);
+                }
+            }
 
-        // TODO 5675 implement Postfix increment
-        //        SearchIterator* operator++(int)
-        //        {
-        //            //find next
-        //        }
+            ISafeStoreObjectHandleHolder& operator*() const
+            {
+                return *m_objectHolder;
+            }
+
+            ISafeStoreObjectHandleHolder* operator->()
+            {
+                    return &(*m_objectHolder);
+            }
+
+            // Prefix increment
+            Iterator& operator++()
+            {
+                m_safeStore.findNext(*m_searchHolder, *m_objectHolder);
+                return *this;
+            }
+
+            // TODO 5675 implement Postfix increment
+            //        Iterator* operator++(int)
+            //        {
+            //            //find next
+            //        }
+
+            friend bool operator== (const Iterator& a, const Iterator& b)
+            {
+                return a.m_objectHolder->getRawHandle() == b.m_objectHolder->getRawHandle();
+            };
+
+            friend bool operator!= (const Iterator& a, const Iterator& b)
+            {
+                return a.m_objectHolder->getRawHandle() != b.m_objectHolder->getRawHandle();
+            };
+
+        private:
+            ISafeStoreWrapper& m_safeStore;
+            std::shared_ptr<ISafeStoreSearchHandleHolder> m_searchHolder;
+            std::shared_ptr<ISafeStoreObjectHandleHolder> m_objectHolder;
+        };
 
         // TODO 5675 implement begin()
-        //        SearchIterator begin()
+        Iterator begin()
+        {
+            return Iterator(m_safeStore, m_filter);
+        }
 
-        // TODO 5675 implement end()
-        //        SearchIterator end()
+//        // TODO 5675 implement end()
+        Iterator end()
+        {
+            return Iterator(m_safeStore, m_filter, true);
+        }
 
-    private:
         ISafeStoreWrapper& m_safeStore;
-        std::shared_ptr<ISafeStoreSearchHandleHolder> m_searchHolder;
-        std::shared_ptr<ISafeStoreObjectHandleHolder> m_objectHolder;
+        SafeStoreFilter m_filter;
+
+
     };
+
+//
+//    struct SearchIterator
+//    {
+//        SearchIterator(ISafeStoreWrapper& safeStore, const SafeStoreFilter& filter) :
+//            m_safeStore(safeStore),
+//            m_searchHolder(m_safeStore.createSearchHandleHolder()),
+//            m_objectHolder(m_safeStore.createObjectHandleHolder())
+//        {
+//            m_safeStore.findFirst(filter, *m_searchHolder, *m_objectHolder);
+//        }
+//
+//        ISafeStoreObjectHandleHolder& operator*() const
+//        {
+//            return *m_objectHolder;
+//        }
+//
+//        /*
+//         * TODO 5675 implement SafeStoreObjectHandleHolder* operator->()
+//         */
+//        //        SafeStoreObjectHandleHolder* operator->()
+//        //        {
+//        //
+//        //        }
+//
+//        // Prefix increment
+//        SearchIterator& operator++()
+//        {
+//            // find next
+//            m_safeStore.findNext(*m_searchHolder, *m_objectHolder);
+//            return *this;
+//        }
+//
+//        // TODO 5675 implement Postfix increment
+//        //        SearchIterator* operator++(int)
+//        //        {
+//        //            //find next
+//        //        }
+//
+//        // TODO 5675 implement begin()
+//        //        SearchIterator begin()
+//
+//        // TODO 5675 implement end()
+//        //        SearchIterator end()
+//
+//    private:
+//        ISafeStoreWrapper& m_safeStore;
+//        std::shared_ptr<ISafeStoreSearchHandleHolder> m_searchHolder;
+//        std::shared_ptr<ISafeStoreObjectHandleHolder> m_objectHolder;
+//    };
 
 } // namespace safestore
