@@ -499,8 +499,8 @@ Wait Until On Access Log Contains
     Wait Until File Log Contains  On Access Log Contains   ${input}   timeout=${timeout}  interval=${interval}
 
 Wait Until On Access Log Contains With Offset
-    [Arguments]  ${input}  ${timeout}=15
-    Wait Until File Log Contains  On Access Log Contains With Offset  ${input}   timeout=${timeout}
+    [Arguments]  ${input}  ${timeout}=15  ${interval}=3
+    Wait Until File Log Contains  On Access Log Contains With Offset  ${input}   timeout=${timeout}  interval=${interval}
 
 Wait Until On Access Log Contains Times With Offset
     [Arguments]  ${input}  ${timeout}=15  ${times}=1

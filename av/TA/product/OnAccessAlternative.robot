@@ -422,14 +422,14 @@ On Access Process Handles Fast Process Control Requests Last Flag is OA Enabled
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
+    Mark On Access Log
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
-
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
-
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    #need to ensure that the disable flag has been read by soapd,
+    #the avp process can ovewrite the flag config before soapd gets a change to read it.
+    #this is fine because soapd will always read the latest flag settings as we get a notification after the a config is written
+    #but for the purpose of this test it's we want to avoid this situation
+    Wait Until On Access Log Contains With Offset   New flag configuration: {"oa_enabled":false}    2  0.1
 
     Mark On Access Log
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
