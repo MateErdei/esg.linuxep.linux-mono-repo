@@ -877,10 +877,7 @@ Remove ext2 mount
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}
     Copy File If Destination Missing  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp
-    # Workaround for case where /etc/exports already has a read-only entry for / that overrides the rw settings for our new entry
-    ${result}=  Run  sed -i 's/fsid=0/fsid=2/g' ${EXPORT_FILE}
-    Log  ${result}
-    Ensure List appears once   ${EXPORT_FILE}  ${source} localhost(fsid=1,rw,sync,no_subtree_check,no_root_squash)\n
+    Create File   ${EXPORT_FILE}  ${source} localhost(fsid=1,rw,sync,no_subtree_check,no_root_squash)\n
     Register On Fail  Run Process  systemctl  status  nfs-server
     Register On Fail  Dump Log  ${EXPORT_FILE}
     Run Shell Process   systemctl restart nfs-server            OnError=Failed to restart NFS server
