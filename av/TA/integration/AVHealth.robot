@@ -312,6 +312,8 @@ AV health is unaffected by scanning the threat_detector pidfile
     Check Status Health is Reporting Correctly    GOOD
 
 AV health is unaffected by on-access scanning the soapd pidfile
+    Register Cleanup  Exclude On Access Scan Errors
+
     Mark On Access Log
     Send Policies to enable on-access
     Wait for on access to be enabled
