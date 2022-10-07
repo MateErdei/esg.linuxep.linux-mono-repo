@@ -877,12 +877,14 @@ Remove ext2 mount
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}
     Copy File If Destination Missing  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp
-    Ensure List appears once   ${EXPORT_FILE}  ${source} localhost(rw,sync,no_subtree_check,no_root_squash)\n
-    Run Keyword And Ignore Error  Run Process  setsebool  -P  httpd_use_nfs=1
+    # Workaround for case where /etc/exports already has a read-only entry for / that overrides the rw settings for our new entry
+    ${result}=  Run  sed -i 's/fsid=0/fsid=2/g' ${EXPORT_FILE}
+    Log  ${result}
+    Ensure List appears once   ${EXPORT_FILE}  ${source} localhost(fsid=1,rw,sync,no_subtree_check,no_root_squash)\n
     Register On Fail  Run Process  systemctl  status  nfs-server
     Register On Fail  Dump Log  ${EXPORT_FILE}
     Run Shell Process   systemctl restart nfs-server            OnError=Failed to restart NFS server
-    Run Shell Process   mount -t nfs localhost:${source} ${destination} -o nosharecache,context="system_u:object_r:httpd_sys_content_t:s0"   OnError=Failed to mount local NFS share
+    Run Shell Process   mount -t nfs localhost:${source} ${destination}   OnError=Failed to mount local NFS share
 
 Remove Local NFS Share
     [Arguments]  ${source}  ${destination}
@@ -1291,10 +1293,3 @@ List AV Plugin Path
     ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}  stdout=${TESTTMP}/lsstdout  stderr=STDOUT
     Log  ls -lR: ${result.stdout}
     Remove File  ${TESTTMP}/lsstdout
-
-List SELinux Context For Directory
-    [Arguments]   ${dir}
-    ${result} =  Run Process  ls  -dZ  ${dir}
-    Log  ls -lR: ${result.stdout}
-    ${result} =   Run Process  sestatus
-    Log  "sestatus:${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"

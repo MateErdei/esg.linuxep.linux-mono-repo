@@ -154,9 +154,6 @@ On Access Applies Config Changes When The Mounts Change
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
     Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
-    Register On Fail  Dump Log  /var/log/messages
-    Register On Fail  Dump Log  /var/log/audit/audit.log
-    Register On Fail  List SELinux Context For Directory  ${destination}
     Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
     Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
