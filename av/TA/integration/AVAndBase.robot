@@ -27,9 +27,6 @@ Test Teardown   AV And Base Teardown
 *** Keywords ***
 AVAndBase Suite Setup
     Install With Base SDDS
-    Send Alc Policy
-    Send Sav Policy With No Scheduled Scans
-    Send Flags Policy
 
 AVAndBase Suite Teardown
     Uninstall All
@@ -590,11 +587,12 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Mark AV Log
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
-    ${rc}   ${output} =    Run And Return Rc And Output    pgrep sophos_threat
 
     Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved
-    Register Cleanup    Uninstall and full reinstall
-    Run Process   /bin/kill   -SIGSEGV   ${output}
+    Register Cleanup    Restart AV Plugin And Clear The Logs For Integration Tests
+    Register Cleanup    Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved  ${SOPHOS_THREAT_DETECTOR_BINARY}.0
+    ${pid} =   Record Sophos Threat Detector PID
+    Run Process   /bin/kill   -SIGSEGV   ${pid}
 
     Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, terminated with exit code: ${SCAN_ABORTED}
     ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}    interval=10
@@ -625,7 +623,8 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central  timeout=60  interval=1
 
     Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved
-    Register Cleanup    Uninstall and full reinstall
+    Register Cleanup    Restart AV Plugin And Clear The Logs For Integration Tests
+    Register Cleanup    Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved  ${SOPHOS_THREAT_DETECTOR_BINARY}.0
     ${pid} =   Record Sophos Threat Detector PID
     Run Process   /bin/kill   -SIGSEGV   ${pid}
 

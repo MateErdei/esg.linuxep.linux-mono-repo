@@ -780,8 +780,9 @@ Restart AV Plugin And Clear The Logs For Integration Tests
     Remove File    ${SCANNOW_LOG_PATH}
 
     Empty Directory  ${SOPHOS_INSTALL}/base/mcs/event/
+    Empty Directory  ${SOPHOS_INSTALL}/base/mcs/action/
 
-    Run Shell Process  systemctl start sophos-spl  OnError=failed to stop plugin
+    Run Shell Process  systemctl start sophos-spl  OnError=failed to start plugin
     Run Keyword and Ignore Error   Run Shell Process   ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
     Wait until AV Plugin running
     Wait until threat detector running

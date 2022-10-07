@@ -14,6 +14,9 @@ AV and Base Setup
     Register Cleanup  Check Dmesg For Segfaults
     Clear AV Plugin Logs If They Are Close To Rotating For Integration Tests
     Require Plugin Installed and Running
+    Send Alc Policy
+    Send Sav Policy With No Scheduled Scans
+    Send Flags Policy
 
     Remove Directory  /tmp/DiagnoseOutput  true
 
