@@ -191,10 +191,6 @@ namespace Plugin
                     case Task::TaskType::SendStatus:
                         m_baseService->sendStatus("SAV", task.Content, task.Content);
                         break;
-//                  TODO: Add this case for SafeStore worker to respond to
-//                    case Task::TaskType::ProcessSafeStoreResponse:
-//                        processDetectionReport(task.Content);
-//                        break;
                 }
 
                 processSUSIRestartRequest();

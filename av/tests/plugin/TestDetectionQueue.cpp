@@ -30,35 +30,67 @@ scan_messages::ThreatDetected basicDetection()
     return basicDetection;
 }
 
-TEST_F(TestDetectionQueue, TestDetectionsQueueSizeFunctions) // NOLINT
+TEST_F(TestDetectionQueue, TestQueueIntialisesToEmpty) // NOLINT
+{
+    Plugin::DetectionQueue queue;
+    ASSERT_TRUE(queue.isEmpty());
+}
+
+TEST_F(TestDetectionQueue, TestQueueIsFullOnceMaxSizeIsReached) // NOLINT
+{
+    Plugin::DetectionQueue queue;
+    queue.setMaxSize(1);
+
+    auto detection = basicDetection();
+
+    ASSERT_FALSE(queue.isFull());
+    queue.push(std::move(detection));
+    ASSERT_TRUE(queue.isFull());
+}
+
+TEST_F(TestDetectionQueue, TestQueueClearsFullAndEmptyStatesWhenPopulated) // NOLINT
+{
+    Plugin::DetectionQueue queue;
+    queue.setMaxSize(2);
+
+    auto detection = basicDetection();
+
+    ASSERT_TRUE(queue.isEmpty());
+    queue.push(std::move(detection));
+    ASSERT_FALSE(queue.isFull());
+    ASSERT_FALSE(queue.isEmpty());
+}
+
+TEST_F(TestDetectionQueue, TestQueueClearsIsFullStateAfterPop) // NOLINT
+{
+    Plugin::DetectionQueue queue;
+    queue.setMaxSize(1);
+
+    auto detection = basicDetection();
+
+    ASSERT_FALSE(queue.isFull());
+    queue.push(std::move(detection));
+    ASSERT_TRUE(queue.isFull());
+    queue.pop();
+    ASSERT_FALSE(queue.isFull());
+}
+
+TEST_F(TestDetectionQueue, TestQueueSetsIsEmptyStateAfterPoppingLastDetection) // NOLINT
 {
     Plugin::DetectionQueue queue;
     queue.setMaxSize(2);
 
     auto detection1 = basicDetection();
     auto detection2 = basicDetection();
-    auto detection3 = basicDetection();
 
     ASSERT_TRUE(queue.isEmpty());
-    ASSERT_FALSE(queue.isFull());
     queue.push(std::move(detection1));
-    ASSERT_FALSE(queue.isEmpty());
-    ASSERT_FALSE(queue.isFull());
     queue.push(std::move(detection2));
     ASSERT_FALSE(queue.isEmpty());
-    ASSERT_TRUE(queue.isFull());
-    queue.push(std::move(detection3));
-    ASSERT_FALSE(queue.isEmpty());
-    ASSERT_TRUE(queue.isFull());
     queue.pop();
     ASSERT_FALSE(queue.isEmpty());
-    ASSERT_TRUE(queue.isFull());
-    queue.pop();
-    ASSERT_FALSE(queue.isEmpty());
-    ASSERT_FALSE(queue.isFull());
     queue.pop();
     ASSERT_TRUE(queue.isEmpty());
-    ASSERT_FALSE(queue.isFull());
 }
 
 TEST_F(TestDetectionQueue, TestDetectionsQueuePopBlocksUntilToldToStop) // NOLINT
@@ -68,7 +100,8 @@ TEST_F(TestDetectionQueue, TestDetectionsQueuePopBlocksUntilToldToStop) // NOLIN
 
     std::chrono::milliseconds before =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    ASSERT_EQ(result.wait_for(std::chrono::milliseconds(500)), std::future_status::timeout);
+
     queue.requestStop();
     result.wait();
     std::chrono::milliseconds after =
