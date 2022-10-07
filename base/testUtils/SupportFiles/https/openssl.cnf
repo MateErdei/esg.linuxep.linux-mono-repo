@@ -356,3 +356,5 @@ subjectAltName = @alt_names
 DNS.1  = ostia.eng.sophos
 DNS.2  = localhost
 DNS.3  = ostiant.eng.sophos
+# Vagrant:
+IP.1  = 192.168.56.42
