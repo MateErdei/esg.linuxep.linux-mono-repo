@@ -44,8 +44,22 @@ TEST_F(TestDetectionQueue, TestQueueIsFullOnceMaxSizeIsReached) // NOLINT
     auto detection = basicDetection();
 
     ASSERT_FALSE(queue.isFull());
-    queue.push(std::move(detection));
+    queue.push(detection);
     ASSERT_TRUE(queue.isFull());
+}
+
+TEST_F(TestDetectionQueue, TestQueueCannotBePushedToOnceFull) // NOLINT
+{
+    Plugin::DetectionQueue queue;
+    queue.setMaxSize(1);
+
+    auto detection1 = basicDetection();
+    auto detection2 = basicDetection();
+
+    ASSERT_FALSE(queue.isFull());
+    ASSERT_TRUE(queue.push(detection1));
+    ASSERT_TRUE(queue.isFull());
+    ASSERT_FALSE(queue.push(detection2));
 }
 
 TEST_F(TestDetectionQueue, TestQueueClearsFullAndEmptyStatesWhenPopulated) // NOLINT
@@ -56,7 +70,7 @@ TEST_F(TestDetectionQueue, TestQueueClearsFullAndEmptyStatesWhenPopulated) // NO
     auto detection = basicDetection();
 
     ASSERT_TRUE(queue.isEmpty());
-    queue.push(std::move(detection));
+    ASSERT_TRUE(queue.push(detection));
     ASSERT_FALSE(queue.isFull());
     ASSERT_FALSE(queue.isEmpty());
 }
@@ -69,7 +83,7 @@ TEST_F(TestDetectionQueue, TestQueueClearsIsFullStateAfterPop) // NOLINT
     auto detection = basicDetection();
 
     ASSERT_FALSE(queue.isFull());
-    queue.push(std::move(detection));
+    ASSERT_TRUE(queue.push(detection));
     ASSERT_TRUE(queue.isFull());
     queue.pop();
     ASSERT_FALSE(queue.isFull());
@@ -84,13 +98,27 @@ TEST_F(TestDetectionQueue, TestQueueSetsIsEmptyStateAfterPoppingLastDetection) /
     auto detection2 = basicDetection();
 
     ASSERT_TRUE(queue.isEmpty());
-    queue.push(std::move(detection1));
-    queue.push(std::move(detection2));
+    ASSERT_TRUE(queue.push(detection1));
+    ASSERT_TRUE(queue.push(detection2));
     ASSERT_FALSE(queue.isEmpty());
     queue.pop();
     ASSERT_FALSE(queue.isEmpty());
     queue.pop();
     ASSERT_TRUE(queue.isEmpty());
+}
+
+TEST_F(TestDetectionQueue, DetectionsSentToTestQueueAreStillValidIfPushFails) // NOLINT
+{
+    Plugin::DetectionQueue queue;
+    queue.setMaxSize(1);
+
+    auto detection1 = basicDetection();
+    auto detection2 = basicDetection();
+
+    ASSERT_TRUE(queue.push(detection1));
+    ASSERT_FALSE(queue.push(detection2));
+    queue.pop();
+    ASSERT_TRUE(queue.push(detection2));
 }
 
 TEST_F(TestDetectionQueue, TestDetectionsQueuePopBlocksUntilToldToStop) // NOLINT
@@ -120,7 +148,7 @@ TEST_F(TestDetectionQueue, TestDetectionsQueuePopReturnsImmediately) // NOLINT
 
     std::chrono::milliseconds before =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-    queue.push(std::move(detection));
+    queue.push(detection);
     result.wait();
     std::chrono::milliseconds after =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
@@ -137,7 +165,7 @@ TEST_F(TestDetectionQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped)
     auto detectionToPush = basicDetection();
     auto detectionPopped = basicDetection();
 
-    queue.push(std::move(detectionToPush));
+    queue.push(detectionToPush);
     auto poppedData = queue.pop();
 
     ASSERT_EQ(poppedData, detectionPopped);

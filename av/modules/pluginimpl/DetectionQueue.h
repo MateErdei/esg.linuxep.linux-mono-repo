@@ -24,7 +24,14 @@ namespace Plugin
 
     public:
         void setMaxSize(uint);
-        void push(scan_messages::ThreatDetected);
+
+        /** Attempts to push the detection to queue - fails if queue is full.
+         *
+         * @return true: successfully push, ThreatDetected moved
+         * @return false: failed to push, ThreatDetected still valid
+         */
+        bool push(scan_messages::ThreatDetected&);
+
         std::optional<scan_messages::ThreatDetected> pop();
         bool isEmpty();
         bool isFull();

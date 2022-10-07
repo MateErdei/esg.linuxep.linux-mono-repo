@@ -9,11 +9,16 @@ namespace Plugin
         m_maxSize = newMaxSize;
     }
 
-    void DetectionQueue::push(scan_messages::ThreatDetected task)
+    bool DetectionQueue::push(scan_messages::ThreatDetected& task)
     {
         std::lock_guard<std::mutex> lck(m_mutex);
-        m_list.push(std::move(task));
-        m_cond.notify_one();
+        if (!isFull())
+        {
+            m_list.push(std::move(task));
+            m_cond.notify_one();
+            return true;
+        }
+        return false;
     }
 
     std::optional<scan_messages::ThreatDetected> DetectionQueue::pop()

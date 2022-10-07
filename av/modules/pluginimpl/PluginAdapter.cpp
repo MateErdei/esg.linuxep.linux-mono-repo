@@ -46,11 +46,8 @@ namespace Plugin
 
             void processMessage(scan_messages::ThreatDetected detection) override
             {
-                if (!m_adapter.isSafeStoreEnabled() || m_adapter.getDetectionQueue()->isFull())
-                {
-                    m_adapter.getDetectionQueue()->push(std::move(detection));
-                }
-                else
+                // detection is not moved if the push fails, so can still be used by processDetectionReport
+                if (!m_adapter.isSafeStoreEnabled() || !m_adapter.getDetectionQueue()->push(detection))
                 {
                     // TODO: LINUXDAR-5657 - Modify report to include no quarantine happened
                     // reportNoQuarantine(detection);
