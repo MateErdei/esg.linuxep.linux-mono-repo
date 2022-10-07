@@ -636,12 +636,11 @@ Check installer can handle versioned copied Virus Data from 1-0-0
 AV Plugin Can Send Telemetry After IDE Update
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
-    Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
-    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
-
-    # TODO - workaround for LINUXDAR-5661 / LINUXDAR-5671, delete these lines once service health is working
+    # TODO - workaround for LINUXDAR-5661 / LINUXDAR-5671, remove restarting of soapd once service health is working
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  on_access_process
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  on_access_process
+    Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
 
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector

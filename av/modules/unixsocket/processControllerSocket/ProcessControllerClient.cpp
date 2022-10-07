@@ -48,6 +48,6 @@ void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const 
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGERROR("Failed to write Process Control Request to socket "<< m_socketPath << ". Exception caught: " << e.what());
+        LOGWARN("Failed to write Process Control Request to socket "<< m_socketPath << ". Exception caught: " << e.what());
     }
 }
