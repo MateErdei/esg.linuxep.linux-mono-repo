@@ -877,13 +877,12 @@ Remove ext2 mount
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}
     Copy File If Destination Missing  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp
-    # nosharecache,context="system_u:object_r:httpd_sys_rw_content_r:s0"
     Ensure List appears once   ${EXPORT_FILE}  ${source} localhost(rw,sync,no_subtree_check,no_root_squash)\n
     Run Keyword And Ignore Error  Run Process  setsebool  -P  httpd_use_nfs=1
     Register On Fail  Run Process  systemctl  status  nfs-server
     Register On Fail  Dump Log  ${EXPORT_FILE}
     Run Shell Process   systemctl restart nfs-server            OnError=Failed to restart NFS server
-    Run Shell Process   mount -t nfs localhost:${source} ${destination}   OnError=Failed to mount local NFS share
+    Run Shell Process   mount -t nfs localhost:${source} ${destination} -o nosharecache,context="system_u:object_r:httpd_sys_content_t:s0"   OnError=Failed to mount local NFS share
 
 Remove Local NFS Share
     [Arguments]  ${source}  ${destination}
