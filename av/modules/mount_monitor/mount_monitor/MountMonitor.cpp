@@ -125,11 +125,11 @@ namespace mount_monitor::mount_monitor
         {
             LOGINFO("OA config changed, re-enumerating mount points");
             auto includedMountpoints = getIncludedMountpoints(getAllMountpoints());
-            LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
             for (const auto& mp : includedMountpoints)
             {
                 LOGDEBUG("Including mount point: " << mp->mountPoint());
             }
+            LOGDEBUG("Including " << includedMountpoints.size() << " mount points in on-access scanning");
         }
     }
 
