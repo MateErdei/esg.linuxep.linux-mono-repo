@@ -92,6 +92,9 @@ Restart then Update Sophos Threat Detector
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 IDE update during command line scan
+    [Tags]  DISABLED
+    # TODO - re-enable once we have multiple scan threads (LINUXDAR-5406)
+
     # Assumes that /usr/share/ takes long enough to scan, and that all files take well under one second to be scanned.
     # If this proves to be false on any of our test systems, we'll need to create a dummy fileset to scan instead.
     Mark Sophos Threat Detector Log
@@ -146,6 +149,9 @@ On access gets IDE update
     On-access Scan Peend
 
 On access continues during update
+    [Tags]  DISABLED
+    # TODO - re-enable once we have multiple scan threads (LINUXDAR-5406)
+
     Mark On Access Log
     Send Policies to enable on-access
     Wait for on access to be enabled
