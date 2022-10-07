@@ -415,6 +415,34 @@ On Access Process Handles Consecutive Process Control Requests
 
     On-access No Eicar Scan
 
+On Access Process Handles Fast Process Control Requests Last Flag is OA Enabled
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    Send Plugin Policy  av  sav  ${policyContent}
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+
+    Mark On Access Log
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+    Wait Until On Access Log Contains With Offset  No policy override, following policy settings
+    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
+    Wait Until On Access Log Contains With Offset  On-access scanning enabled
+    Wait Until On Access Log Contains With Offset  Finished ProcessPolicy 0
+    Wait Until On Access Log Contains With Offset  Setting poll timeout to
+
+    sleep  1 second
+    On-access Scan Eicar Open
+
 On Access Is Disabled By Default If No Flags Policy Arrives
     Disable OA Scanning
 
