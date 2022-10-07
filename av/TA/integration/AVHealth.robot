@@ -12,6 +12,13 @@ Suite Teardown  Uninstall All
 Test Setup      AV Health Test Setup
 Test Teardown   AV Health Test Teardown
 
+*** Variables ***
+&{SERVICE_HEALTH_STATUSES}
+...   0=0  1=1  2=2
+...   GOOD=0  BAD=1  MISSING=2
+...   Good=0  Bad=1  Missing=2
+...   good=0  bad=1  missing=2
+
 *** Keywords ***
 AV Health Suite Setup
     Install With Base SDDS
@@ -40,6 +47,9 @@ SHS Status File Contains
     
 Check Status Health is Reporting Correctly
     [Arguments]    ${healthStatus}
+
+    ${healthStatus} =   Get From Dictionary  ${SERVICE_HEALTH_STATUSES}  ${healthStatus}
+
     Wait Until Keyword Succeeds
     ...  40 secs
     ...  5 secs
@@ -64,7 +74,7 @@ Check Threat Health is Reporting Correctly
 
 *** Test Cases ***
 AV Not Running Triggers Bad Status Health
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
 
     Stop AV Plugin
     Wait Until Keyword Succeeds
@@ -74,101 +84,121 @@ AV Not Running Triggers Bad Status Health
 
     Start AV Plugin
     Wait until AV Plugin running
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
 
 Sophos Threat Detector Not Running Triggers Bad Status Health
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
 
     Stop sophos_threat_detector
-    Check Status Health is Reporting Correctly    1
+    Check Status Health is Reporting Correctly    BAD
 
     Start sophos_threat_detector
     Wait until threat detector running
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
 
-Sophos Threat Detector PID File Existence Does Not Cause Good Status Health When Not Locked
-    Check Status Health is Reporting Correctly    0
+Sophos Threat Detector Crashing Triggers Bad Health
+    # test that a stale pidfile doesn't lead to incorrect health status
+    Check Status Health is Reporting Correctly    GOOD
 
+    Ignore Coredumps and Segfaults
+    Register Cleanup    Exclude Threat Detector Launcher Died With 11
+
+    ${pid} =   Record Sophos Threat Detector PID
+    Run Process   /bin/kill   -SIGSEGV   ${pid}
     Stop sophos_threat_detector
+
     ${PID_FILE} =  Set Variable  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
-    Create File  123  ${PID_FILE}
-    Run  chmod 644 ${PID_FILE}
-    Check Status Health is Reporting Correctly    1
+    File Should Exist   ${PID_FILE}
 
-    Remove File  ${PID_FILE}
+    Check Status Health is Reporting Correctly    BAD
+
     Start sophos_threat_detector
     Wait until threat detector running
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
+
 
 Sophos On-Access Process Not Running Triggers Bad Status Health
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
 
     Stop soapd
-    Check Status Health is Reporting Correctly    1
+    Check Status Health is Reporting Correctly    BAD
 
     Start soapd
     Wait until threat detector running
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
 
-Sophos On-Access PID File Existence Does Not Cause Good Status Health When Not Locked
-    Check Status Health is Reporting Correctly    0
 
+Sophos On-Access Process Crashing Triggers Bad Health
+    Check Status Health is Reporting Correctly    GOOD
+
+    Ignore Coredumps and Segfaults
+    Register Cleanup    Exclude Soapd Died With 11
+
+    ${pid} =   Record Soapd Plugin PID
+    Run Process   /bin/kill   -SIGSEGV   ${pid}
     Stop soapd
+
     ${PID_FILE} =  Set Variable  ${AV_PLUGIN_PATH}/var/soapd.pid
-    Create File  123  ${PID_FILE}
-    Run  chmod 644 ${PID_FILE}
-    Check Status Health is Reporting Correctly    1
+    File Should Exist   ${PID_FILE}
 
-    Remove File  ${PID_FILE}
+    Check Status Health is Reporting Correctly    BAD
+
     Start soapd
     Wait until threat detector running
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
+
 
 Sophos SafeStore Process Not Running Does Not Trigger Bad Status Health When SafeStore Is Not Enabled
     Mark AV Log
     Send Flags Policy To Base  flags_policy/flags.json
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
 
     Stop SafeStore
     AV Plugin Log Contains With Offset  Safestore flag not set. Setting Safestore to disabled.
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
 
     Start SafeStore
     Wait until threat detector running
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
 
 Sophos SafeStore Process Not Running Triggers Bad Status Health
     Mark AV Log
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Check Status Health is Reporting Correctly    0
+    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Check Status Health is Reporting Correctly    GOOD
 
     Stop SafeStore
     AV Plugin Log Contains With Offset  Safestore flag set. Setting Safestore to enabled.
-    Check Status Health is Reporting Correctly    1
+    Check Status Health is Reporting Correctly    BAD
 
     Start SafeStore
     Wait until threat detector running
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
 
-Sophos SafeStore PID File Existence Does Not Cause Good Status Health When Not Locked
+Sophos SafeStore Crashing Triggers Bad Health
     Mark AV Log
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Send Flags Policy To Base  flags_policy/flags_enabled.json
     Wait Until AV Plugin Log Contains With Offset
     ...   Safestore flag set. Setting Safestore to enabled.
     ...   timeout=60
 
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
 
+    Ignore Coredumps and Segfaults
+    Register Cleanup    Exclude Safestore Died With 11
+
+    ${pid} =   Record Safestore Plugin PID
+    Run Process   /bin/kill   -SIGSEGV   ${pid}
     Stop SafeStore
-    ${PID_FILE} =  Set Variable  ${AV_PLUGIN_PATH}/var/safestore.pid
-    Create File  123  ${PID_FILE}
-    Run  chmod 644 ${PID_FILE}
-    Check Status Health is Reporting Correctly    1
 
-    Remove File  ${PID_FILE}
+    ${PID_FILE} =  Set Variable  ${AV_PLUGIN_PATH}/var/safestore.pid
+    File Should Exist   ${PID_FILE}
+
+    Check Status Health is Reporting Correctly    BAD
+
     Start SafeStore
     Wait until threat detector running
-    Check Status Health is Reporting Correctly    0
+    Check Status Health is Reporting Correctly    GOOD
+
 
 Clean CLS Result Does Not Reset Threat Health
     Check Threat Health is Reporting Correctly    1
@@ -187,7 +217,6 @@ Clean CLS Result Does Not Reset Threat Health
     Wait Until AV Plugin Log Contains With Offset  Threat health changed to suspicious
 
     Check Threat Health is Reporting Correctly    2
-
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/clean_file
     Log  return code is ${rc}
@@ -259,10 +288,7 @@ Clean Scheduled Scan Result Resets Threat Health
 
 Test av health is green right after install
     Install With Base SDDS
-    Wait Until Keyword Succeeds
-    ...  45 secs
-    ...  5 secs
-    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log    Management Agent Log   Starting service health checks  1
+    Wait Until Management Log Contains   Starting service health checks   timeout=45
 
     Wait until AV Plugin running
     Wait until threat detector running

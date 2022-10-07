@@ -507,8 +507,8 @@ Management Log Contains
     File Log Contains  ${MANAGEMENT_AGENT_LOG_PATH}   ${input}
 
 Wait Until Management Log Contains
-    [Arguments]  ${input}
-    Wait Until File Log Contains  Management Log Contains   ${input}
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  Management Log Contains   ${input}   ${timeout}
 
 Management Log Does Not Contain
     [Arguments]  ${input}
@@ -1017,6 +1017,10 @@ Record Sophos Threat Detector PID
 
 Record Soapd Plugin PID
     ${PID} =  ProcessUtils.wait for pid  ${ON_ACCESS_BIN}  ${5}
+    [Return]   ${PID}
+
+Record Safestore Plugin PID
+    ${PID} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  ${5}
     [Return]   ${PID}
 
 Get Sophos Threat Detector PID From File
