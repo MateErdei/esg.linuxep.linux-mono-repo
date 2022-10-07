@@ -5,6 +5,7 @@ Library         ../Libs/SystemFileWatcher.py
 
 Resource        ../shared/AVAndBaseResources.robot
 Resource        ../shared/ErrorMarkers.robot
+Resource        ../shared/OnAccessResources.robot
 
 Suite Setup     AV Health Suite Setup
 Suite Teardown  Uninstall All
@@ -295,3 +296,34 @@ Test av health is green right after install
     AV Plugin Log Does Not Contain       Health found previous Sophos Threat Detector process no longer running:
 
     SHS Status File Contains    <detail name="Sophos Linux AntiVirus" value="0" />
+
+
+AV health is unaffected by scanning the threat_detector pidfile
+    Check Status Health is Reporting Correctly    GOOD
+
+    ${PID_FILE} =  Set Variable  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
+    File Should Exist   ${PID_FILE}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${PID_FILE}
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    Check Status Health is Reporting Correctly    GOOD
+
+AV health is unaffected by on-access scanning the soapd pidfile
+    Mark On Access Log
+    Send Policies to enable on-access
+    Wait for on access to be enabled
+
+    # this will cause on-access events for the pid file
+    Check Status Health is Reporting Correctly    GOOD
+
+    ${PID_FILE} =  Set Variable  ${AV_PLUGIN_PATH}/var/soapd.pid
+    File Should Exist   ${PID_FILE}
+
+    Mark On Access Log
+    Get File   ${PID_FILE}
+    Wait Until On Access Log Contains With Offset  On-open event for ${PID_FILE} from
+
+    Check Status Health is Reporting Correctly    GOOD
