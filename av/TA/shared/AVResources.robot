@@ -1088,7 +1088,7 @@ Replace Virus Data With Test Dataset A
     # Copy Test Dataset A to installset IDE directory
     Copy Files  ${IDE_DIR}/*   /tmp/vdl-tmp/
     Empty Directory  ${IDE_DIR}
-    Copy Files  ${RESOURCES_PATH}/testVirusData/20220503/*   ${IDE_DIR}/
+    Copy Files  ${RESOURCES_PATH}/testVirusData/20221010/*   ${IDE_DIR}/
     Run Keyword If  ${setOldTimestamps}  Set Old Timestamps  ${IDE_DIR}
 
     ${result} =  Run Process  ls  -l  ${IDE_DIR}/
