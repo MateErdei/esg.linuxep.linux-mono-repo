@@ -275,38 +275,6 @@ On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In
     Wait Until On Access Log Contains With Offset  Mount point /tmp_test/bind_mount matches an exclusion in the policy and will be excluded from the scan
 
 
-On Access Monitors Addition And Removal Of Mount Points
-    Register Cleanup    Exclude On Access Scan Errors
-    Require Filesystem  ext2
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  ext2
-    Mark On Access Log
-    Restart On Access
-    Wait Until On Access Log Contains With Offset  Including mount point:
-    On Access Log Does Not Contain With Offset  Including mount point: ${where}
-    Sleep  1s
-    ${numMountsPreMount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
-
-    Mark On Access Log
-    ${image} =  Copy And Extract Image  ext2FileSystem
-    Mount Image  ${where}  ${image}  ${type}
-
-    Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
-    Wait Until On Access Log Contains  Including mount point: ${where}
-    Sleep  1s
-    ${totalNumMountsPostMount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
-    Should Be Equal As Integers  ${totalNumMountsPostMount}  ${numMountsPreMount+1}
-
-    Mark On Access Log
-    Unmount Image  ${where}
-
-    Wait Until On Access Log Contains With Offset  Mount points changed - re-evaluating
-    On Access Log Does Not Contain With Offset  Including mount point: ${where}
-    Sleep  1s
-    ${totalNumMountsPostUmount} =  get_latest_mount_inclusion_count_from_on_access_log  ${ON_ACCESS_LOG_MARK}
-    Should Be Equal As Integers  ${totalNumMountsPostUmount}  ${numMountsPreMount}
-
-
 On Access Logs When A File Is Closed Following Write After Being Disabled
     ${filepath} =  Set Variable  /tmp_test/eicar.com
     ${pid} =  Get Robot Pid
