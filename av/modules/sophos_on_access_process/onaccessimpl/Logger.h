@@ -7,19 +7,25 @@
 log4cplus::Logger& getOnAccessImplLogger();
 
 #ifndef USING_LIBFUZZER
+#define LOGTRACE(x) LOG4CPLUS_TRACE(getOnAccessImplLogger(), x)  // NOLINT
 #define LOGDEBUG(x) LOG4CPLUS_DEBUG(getOnAccessImplLogger(), x)  // NOLINT
 #define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getOnAccessImplLogger(), x) // NOLINT
 #define LOGINFO(x) LOG4CPLUS_INFO(getOnAccessImplLogger(), x)    // NOLINT
 #define LOGWARN(x) LOG4CPLUS_WARN(getOnAccessImplLogger(), x)    // NOLINT
 #define LOGERROR(x) LOG4CPLUS_ERROR(getOnAccessImplLogger(), x)  // NOLINT
 #define LOGFATAL(x) LOG4CPLUS_FATAL(getOnAccessImplLogger(), x)  // NOLINT
-#define LOGTRACE(x) LOG4CPLUS_TRACE(getOnAccessImplLogger(), x)  // NOLINT
 #else
 //Discard logs in fuzz mode
-#define LOGDEBUG(x)
-#define LOGSUPPORT(x)
-#define LOGINFO(x)
-#define LOGWARN(x)
-#define LOGERROR(x)
-#define LOGTRACE(x)
+
+#define LOG(x) do {} while(0) // NOLINT
+
+#include "datatypes/Print.h"
+
+#define LOGTRACE(x) LOG(x)
+#define LOGDEBUG(x) LOG(x)
+#define LOGSUPPORT(x) LOG(x)
+#define LOGINFO(x) LOG(x)
+#define LOGWARN(x) LOG(x)
+#define LOGERROR(x) LOG(x)
+#define LOGFATAL(x) do { PRINT(x); ::exit(1); } while(0)
 #endif
