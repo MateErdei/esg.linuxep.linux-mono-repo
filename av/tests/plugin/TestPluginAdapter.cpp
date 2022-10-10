@@ -625,6 +625,40 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed)
     scanLogger.removeAppender(m_sharedAppender);
 }
 
+TEST_F(TestPluginAdapter, testBadProcessActionXMLThrows)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger scanLogger = Common::Logging::getInstance("ScanScheduler");
+    scanLogger.addAppender(m_sharedAppender);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+
+    std::string actionXml =
+        R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1">)";
+    Task actionTask = {Task::TaskType::Action, actionXml};
+    m_queueTask->push(actionTask);
+
+    EXPECT_TRUE(waitForLog("Exception encountered while parsing Action XML"));
+
+    Task stopTask = {Task::TaskType::Stop, ""};
+    m_queueTask->push(stopTask);
+
+    pluginThread.join();
+
+    scanLogger.removeAppender(m_sharedAppender);
+}
+
 TEST_F(TestPluginAdapter, testProcessScanComplete)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);

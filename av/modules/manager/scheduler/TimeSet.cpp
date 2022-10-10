@@ -122,5 +122,5 @@ std::string TimeSet::str() const
 bool TimeSet::isValid() const
 {
     auto foundInvalid = std::find_if(m_times.begin(), m_times.end(), [](Time _t) { return !_t.isValid();});
-    return foundInvalid != m_times.cend() ? false : true;
+    return foundInvalid == m_times.cend();
 }

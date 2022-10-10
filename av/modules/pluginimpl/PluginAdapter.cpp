@@ -284,12 +284,22 @@ namespace Plugin
     {
         LOGDEBUG("Process action: " << actionXml);
 
-//TODO try catch on this parsexml
-        auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
-
-        if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
+        try
         {
-            m_scanScheduler->scanNow();
+            auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
+
+            if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
+            {
+                m_scanScheduler->scanNow();
+            }
+        }
+        catch(const Common::XmlUtilities::XmlUtilitiesException& e)
+        {
+            LOGERROR("Exception encountered while parsing Action XML: " << e.what());
+        }
+        catch(const std::exception& e)
+        {
+            LOGERROR("Exception encountered while processing Action XML: " << e.what());
         }
     }
 
