@@ -22,7 +22,7 @@ def create_sav_policy_with_scheduled_scan(filename, timestamp):
     sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day(day)
     sav_policy_builder.set_scheduled_scan_time(parsed_timestamp)
-    sav_policy_builder.set_posix_exclusions(["*/test_scripts/*"])
+    sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
     sav_policy_builder.send_sav_policy()
 
 def create_sav_policy_with_scheduled_scan_and_on_access_enabled(filename, timestamp):
@@ -34,7 +34,7 @@ def create_sav_policy_with_scheduled_scan_and_on_access_enabled(filename, timest
     sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day(day)
     sav_policy_builder.set_scheduled_scan_time(parsed_timestamp)
-    sav_policy_builder.set_posix_exclusions(["*/test_scripts/*"])
+    sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
     sav_policy_builder.set_on_access_on()
     sav_policy_builder.send_sav_policy()
 
@@ -58,7 +58,7 @@ def create_sav_policy_with_multiple_scheduled_scans(filename, timestamp, no_of_s
     day = "</day><day>".join(days)
     sav_policy_builder.set_scheduled_scan_day(day)
     sav_policy_builder.set_scheduled_scan_time(timestamp_builder)
-    sav_policy_builder.set_posix_exclusions(["*/test_scripts/*"])
+    sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
     sav_policy_builder.send_sav_policy()
 
 
