@@ -62,5 +62,8 @@ Safestore exits on interrupt signal
 SafeStore creates socket with correct permissions
     Start Safestore
     ${result} =  Run Process  ls  -l  ${SAFESTORE_SOCKET_PATH}
-    Should Contain  ${result.stdout}  srw------- 1 sophos-spl-av root 0
+    # the second variant is needed for Centos (where alternate access methods are enabled)
+    Should Contain Any  ${result.stdout}
+    ...  srw------- 1 sophos-spl-av root 0
+    ...  srw-------. 1 sophos-spl-av root 0
     Stop Safestore
