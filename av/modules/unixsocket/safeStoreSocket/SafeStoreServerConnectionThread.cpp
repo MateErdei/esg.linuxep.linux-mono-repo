@@ -222,9 +222,7 @@ void SafeStoreServerConnectionThread::inner_run()
 
             std::ignore = isQuarantineSuccessful;
 
-            // TODO: send a response back
-
-            // TODO: HANDLE ANY SOCKET ERRORS
+            // TODO: LINUXDAR-5677 send a response back
         }
     }
 }

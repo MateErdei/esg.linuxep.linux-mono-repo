@@ -49,7 +49,7 @@ namespace Plugin
                 // detection is not moved if the push fails, so can still be used by processDetectionReport
                 if (!m_adapter.isSafeStoreEnabled() || !m_adapter.getDetectionQueue()->push(detection))
                 {
-                    // TODO: LINUXDAR-5657 - Modify report to include no quarantine happened
+                    // TODO: LINUXDAR-5677 - Modify report to include no quarantine happened
                     // reportNoQuarantine(detection);
                     m_adapter.processDetectionReport(detection);
                 }
