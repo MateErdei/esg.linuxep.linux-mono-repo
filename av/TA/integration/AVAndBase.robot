@@ -295,6 +295,8 @@ AV Configures No Scheduled Scan Correctly
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 0
+    AV Plugin Log Should Not Contain With Offset  Unable to accept policy as scan information is invalid. Following scans wont be run:
+
 
 AV plugin runs scheduled scan while CLS is running
     #Terminate Process might cause this error
@@ -389,53 +391,6 @@ AV Configures Multiple Scheduled Scans Correctly
     Wait Until AV Plugin Log Contains With Offset  Configured number of Exclusions: 25
     Wait Until AV Plugin Log Contains With Offset  Configured number of Sophos Defined Extension Exclusions: 0
     Wait Until AV Plugin Log Contains With Offset  Configured number of User Defined Extension Exclusions: 0
-
-AV Handles Scheduled Scan With Badly Configured Day
-    Register Cleanup    Exclude Invalid Day From Policy
-    Register Cleanup    Exclude Scan As Invalid
-    Mark AV Log
-    Send Sav Policy With Invalid Scan Day
-    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Invalid day from policy: blernsday
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
-    Wait Until AV Plugin Log Contains With Offset  Days: INVALID
-    Wait Until AV Plugin Log Contains With Offset  Times: 11:00:00
-
-AV Handles Scheduled Scan With No Configured Day
-    Register Cleanup    Exclude Invalid Day From Policy
-    Mark AV Log
-    Mark Watchdog Log
-    Send Sav Policy With No Scan Day
-    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
-    Wait Until AV Plugin Log Contains With Offset  Days: \n
-    Wait Until AV Plugin Log Contains With Offset  Times: 11:00:00
-    File Log Does Not Contain
-    ...   Check Marked Watchdog Log Contains   av died
-
-AV Handles Scheduled Scan With Badly Configured Time
-    Mark Av Log
-    Send Sav Policy With Invalid Scan Time
-    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
-    AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
-    Wait Until AV Plugin Log Contains With Offset  Days: Monday
-    Wait Until AV Plugin Log Contains With Offset  Times: 00:00:00
-    Dump Log    ${AV_LOG_PATH}
-
-AV Handles Scheduled Scan With No Configured Time
-    Mark Watchdog Log
-    Mark AV Log
-    Send Sav Policy With No Scan Time
-    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
-    AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
-    Wait Until AV Plugin Log Contains With Offset  Days: Monday
-    Wait Until AV Plugin Log Contains With Offset  Times: \n
-    File Log Does Not Contain
-    ...   Check Marked Watchdog Log Contains   av died
 
 AV Reconfigures Scans Correctly
     Mark AV Log
@@ -926,9 +881,8 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${SCAN_NOW_LOG_MARK}
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
 
-First SAV Policy With Invalid Day And Time Is Not Accepted
-    Register Cleanup    Exclude Invalid Day From Policy
 
+First SAV Policy With Invalid Day And Time Is Not Accepted
     Remove File   ${MCS_PATH}/policy/SAV-2_policy.xml
     File Should Not Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 

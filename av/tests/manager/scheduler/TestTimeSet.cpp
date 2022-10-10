@@ -42,6 +42,18 @@ namespace
                             <time>imnotatime</time>
                         </timeSet>)MULTILINE");
 
+            Common::XmlUtilities::AttributesMap m_out_of_range_time = Common::XmlUtilities::parseXml(
+                R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
+                        <timeSet>
+                            <time>36:00:00</time>
+                        </timeSet>)MULTILINE");
+
+            Common::XmlUtilities::AttributesMap m_blank_time = Common::XmlUtilities::parseXml(
+                R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
+                        <timeSet>
+                            <time></time>
+                        </timeSet>)MULTILINE");
+
         Common::XmlUtilities::AttributesMap m_time_empty = Common::XmlUtilities::parseXml(
             R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
                         <timeSet />)MULTILINE");
@@ -214,6 +226,24 @@ TEST_F(TestTimeSet, onlyInvalidTime)
     EXPECT_EQ(set.str(), "Times: INVALID ");
 }
 
+TEST_F(TestTimeSet, outOfRangeTime)
+{
+    TimeSet set(m_out_of_range_time, "timeSet/time");
+    EXPECT_EQ(set.size(), 1);
+    ASSERT_EQ(set.isValid(), false);
+
+    EXPECT_EQ(set.str(), "Times: INVALID ");
+}
+
+TEST_F(TestTimeSet, blankTime)
+{
+    TimeSet set(m_blank_time, "timeSet/time");
+    EXPECT_EQ(set.size(), 1);
+    ASSERT_EQ(set.isValid(), false);
+
+    EXPECT_EQ(set.str(), "Times: INVALID ");
+}
+
 TEST_F(TestTimeSet, mixValidInvalidTimes)
 {
     TimeSet set(m_a_invalid_time, "timeSet/time");
@@ -239,4 +269,18 @@ TEST_F(TestTimeSet, logsWarningWhenTimeInvalidOnConstruction)
     UsingMemoryAppender memoryAppenderHolder(*this);
     TimeSet set(m_just_invalid_time, "timeSet/time");
     EXPECT_TRUE(appenderContains("Invalid time from policy: imnotatime"));
+}
+
+TEST_F(TestTimeSet, logsWarningWhenTimeOutOfRangeOnConstruction)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    TimeSet set(m_out_of_range_time, "timeSet/time");
+    EXPECT_TRUE(appenderContains("Invalid time from policy: 36:00:00"));
+}
+
+TEST_F(TestTimeSet, logsWarningWhenBlankOnConstruction)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    TimeSet set(m_blank_time, "timeSet/time");
+    EXPECT_TRUE(appenderContains("Invalid time from policy: "));
 }

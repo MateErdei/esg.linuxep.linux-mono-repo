@@ -59,9 +59,6 @@ Exclude UpdateScheduler Fails
 Exclude Threat Detector Process Is Killed With SIGKILL
     mark_expected_error_in_log  ${WATCHDOG_LOG}   ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 9
 
-Exclude Invalid Day From Policy Error
-    mark_expected_error_in_log  ${AV_LOG_PATH}  ScanScheduler <> Invalid day from policy:
-
 Exclude Failed To connect To Warehouse Error
     mark_expected_error_in_log  ${SULDOWNLOADER_LOG}  suldownloaderdata <> Failed to connect to the warehouse: 5
 

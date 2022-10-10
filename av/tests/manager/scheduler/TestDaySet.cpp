@@ -46,6 +46,12 @@ namespace
                         <day>not a day</day>
                     </daySet>)MULTILINE");
 
+            Common::XmlUtilities::AttributesMap m_blank_day = Common::XmlUtilities::parseXml(
+                R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
+                    <daySet>
+                        <day></day>
+                    </daySet>)MULTILINE");
+
             Common::XmlUtilities::AttributesMap m_sunday = Common::XmlUtilities::parseXml(
                     R"MULTILINE(<?xml version="1.0" encoding="utf-8"?>
                     <daySet>
@@ -127,6 +133,13 @@ TEST_F(TestDaySet, returnsInvalidIfDaySetSizeOneIsInvalid)
     EXPECT_EQ(set.isValid(), false);
 }
 
+TEST_F(TestDaySet, returnsInvalidIfDaySetSizeOneIsBlank)
+{
+    DaySet set(m_blank_day, "daySet/day");
+    EXPECT_EQ(set.size(), 1);
+    EXPECT_EQ(set.isValid(), false);
+}
+
 TEST_F(TestDaySet, returnsValidWhenDaysAreValid)
 {
     DaySet set(m_days, "daySet/day");
@@ -139,4 +152,11 @@ TEST_F(TestDaySet, logsWarningWhenDayInvalidOnConstruction)
     UsingMemoryAppender memoryAppenderHolder(*this);
     DaySet set(m_one_invalid_day, "daySet/day");
     EXPECT_TRUE(appenderContains("Invalid day from policy: not a day"));
+}
+
+TEST_F(TestDaySet, logsWarningWhenDayBlankOnConstruction)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    DaySet set(m_blank_day, "daySet/day");
+    EXPECT_TRUE(appenderContains("Invalid day from policy:"));
 }

@@ -61,31 +61,6 @@ def create_sav_policy_with_multiple_scheduled_scans(filename, timestamp, no_of_s
     sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
     sav_policy_builder.send_sav_policy()
 
-
-def create_badly_configured_sav_policy_time(filename):
-    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
-    sav_policy_builder.set_scheduled_scan_day("monday")
-    sav_policy_builder.set_scheduled_scan_time("36:00:00")
-    sav_policy_builder.send_sav_policy()
-
-def create_badly_configured_sav_policy_no_time(filename):
-    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
-    sav_policy_builder.set_scheduled_scan_day("monday")
-    sav_policy_builder.remove_scheduled_scan_time()
-    sav_policy_builder.send_sav_policy()
-
-def create_badly_configured_sav_policy_day(filename):
-    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
-    sav_policy_builder.set_scheduled_scan_day("blernsday")
-    sav_policy_builder.set_scheduled_scan_time("11:00:00")
-    sav_policy_builder.send_sav_policy()
-
-def create_badly_configured_sav_policy_no_day(filename):
-    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
-    sav_policy_builder.remove_scheduled_scan_day()
-    sav_policy_builder.set_scheduled_scan_time("11:00:00")
-    sav_policy_builder.send_sav_policy()
-
 def create_complete_sav_policy(filename):
     sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day("monday")

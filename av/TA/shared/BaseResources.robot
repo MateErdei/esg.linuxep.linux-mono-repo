@@ -34,22 +34,6 @@ Send Sav Policy With Multiple Imminent Scheduled Scans To Base
     Create Sav Policy With Multiple Scheduled Scans  ${TEMP_SAV_POLICY_FILENAME}  ${time}
     Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
 
-Send Sav Policy With Invalid Scan Time
-    Create Badly Configured Sav Policy Time  ${TEMP_SAV_POLICY_FILENAME}
-    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
-
-Send Sav Policy With No Scan Time
-    Create Badly Configured Sav Policy No Time  ${TEMP_SAV_POLICY_FILENAME}
-    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
-
-Send Sav Policy With Invalid Scan Day
-    Create Badly Configured Sav Policy Day  ${TEMP_SAV_POLICY_FILENAME}
-    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
-
-Send Sav Policy With No Scan Day
-    Create Badly Configured Sav Policy No Day  ${TEMP_SAV_POLICY_FILENAME}
-    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
-
 Send Sav Policy With Multiple Scheduled Scans
     Send Sav Policy To Base  SAV_Policy_Multiple_Scans.xml
 
