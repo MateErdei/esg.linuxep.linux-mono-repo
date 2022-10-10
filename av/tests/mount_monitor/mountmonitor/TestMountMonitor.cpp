@@ -65,6 +65,7 @@ TEST_F(TestMountMonitor, TestGetAllMountpoints)
     fileHandle << "tmpfs /run tmpfs rw,nosuid,noexec,relatime,size=1020640k,mode=755 0 0" << std::endl;
     fileHandle << "//UK-FILER6.ENG.SOPHOS/LINUX /mnt/uk-filer6/linux cifs rw,nosuid,nodev,noexec" << std::endl;
     fileHandle.close();
+    size_t origFileSize = fs::file_size(filePath);
 
     OnAccessMountConfig config;
     EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillRepeatedly(Return(m_mockSysPaths));
@@ -77,6 +78,10 @@ TEST_F(TestMountMonitor, TestGetAllMountpoints)
     fileHandle2 << "//UK-FILER5.PROD.SOPHOS/PRODRO /uk-filer5/prodro cifs rw,nosuid,nodev,noexec" << std::endl;
     fileHandle2.close();
     EXPECT_EQ(mountMonitor.getAllMountpoints().size(), 4);
+
+    // Restore the file to the original size - ie. simulate filer5 being unmounted
+    fs::resize_file(filePath, origFileSize);
+    EXPECT_EQ(mountMonitor.getAllMountpoints().size(), 3);
 }
 
 TEST_F(TestMountMonitor, TestGetIncludedMountpoints)
