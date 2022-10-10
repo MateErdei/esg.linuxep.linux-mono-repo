@@ -230,19 +230,24 @@ do
             ;;
         --get-input|--get-input-new)
             rm -rf input "${REDIST}"
+            [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
             export TAP_PARAMETER_MODE=release
             $TAP fetch av_plugin.build.normal_build
             ;;
         --setup)
             rm -rf input "${REDIST}"
+            [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
             export TAP_PARAMETER_MODE=release
             $TAP fetch av_plugin.build.normal_build
             NO_BUILD=1
             ;;
         --venv|--setup-venv)
-            python3.7 -m venv ${BASE}/tapvenv
-            source $BASE/tapvenv/bin/activate
-            cat <<EOF >tapvenv/pip.conf
+            rm -rf "${BASE}/tapvenv"
+            PYTHON="${PYTHON:-python3.7}"
+            [[ -x "$(which $PYTHON)" ]] || PYTHON=python3
+            "${PYTHON}" -m venv "${BASE}/tapvenv"
+            source "$BASE/tapvenv/bin/activate"
+            cat <<EOF >"${BASE}/tapvenv/pip.conf"
 [global]
 timeout=60
 index-url = https://artifactory.sophos-ops.com/api/pypi/pypi/simple
@@ -428,6 +433,8 @@ function build()
     then
         return 0
     fi
+
+    [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
 
     [[ -n ${NPROC:-} ]] || NPROC=$(nproc || echo 2)
 
