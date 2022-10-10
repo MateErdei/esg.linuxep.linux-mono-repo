@@ -4,6 +4,7 @@
 
 #include "Logger.h"
 
+#include "Common/FileSystem/IFilePermissions.h"
 #include "common/FDUtils.h"
 #include "common/SaferStrerror.h"
 
@@ -130,6 +131,12 @@ void unixsocket::BaseServerSocket::run()
     ::unlink(m_socketPath.c_str());
     m_socket_fd.reset();
     killThreads();
+}
+
+void unixsocket::BaseServerSocket::setUserAndGroup(const std::string& user, const std::string& groupString) const
+{
+    auto fp = Common::FileSystem::filePermissions();
+    fp->chown(m_socketPath, user, groupString);
 }
 
 

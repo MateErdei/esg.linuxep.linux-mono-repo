@@ -58,3 +58,9 @@ Safestore exits on interrupt signal
     Wait Until Safestore not running
     Safestore Log Contains  SafeStore received SIGINT - shutting down
     Safestore Log Contains  Exiting SafeStore
+
+SafeStore creates socket with correct permissions
+    Start Safestore
+    ${result} =  Run Process  ls  -l  ${SAFESTORE_SOCKET_PATH}
+    Should Contain  ${result.stdout}  srw------- 1 sophos-spl-av root 0
+    Stop Safestore

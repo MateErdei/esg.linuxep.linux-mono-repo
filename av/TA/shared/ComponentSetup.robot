@@ -42,10 +42,11 @@ Mock Base Installation
     Create Directory   ${SOPHOS_INSTALL}/var/ipc
     Create Directory   ${SOPHOS_INSTALL}/var/ipc/plugins
     Set Base Log Level  DEBUG
-    Run Process   groupadd  sophos-spl-group
-    Run Process   useradd  sophos-spl-av    --no-create-home  --no-user-group  --gid  sophos-spl-group  --groups  sophos-spl-ipc  --system
-    Run Process   useradd  sophos-spl-threat-detector  --no-create-home  --no-user-group  --gid  sophos-spl-group  --system
-    Run Process   useradd  sophos-spl-user  --no-create-home  --no-user-group  --gid  sophos-spl-group  --system
+    Run Process  groupadd  sophos-spl-group
+    Run Process  groupadd  sophos-spl-ipc
+    Run Process  useradd  sophos-spl-av               --no-create-home  --no-user-group  --gid  sophos-spl-group  --groups  sophos-spl-ipc  --system
+    Run Process  useradd  sophos-spl-threat-detector  --no-create-home  --no-user-group  --gid  sophos-spl-group  --system
+    Run Process  useradd  sophos-spl-user             --no-create-home  --no-user-group  --gid  sophos-spl-group  --system
 
 Set Base Log Level
     [Arguments]  ${logLevel}

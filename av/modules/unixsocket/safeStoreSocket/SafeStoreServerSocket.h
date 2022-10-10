@@ -14,7 +14,9 @@ namespace unixsocket
     class SafeStoreServerSocket : public SafeStoreServerSocketBase
     {
     public:
-        SafeStoreServerSocket(const std::string& path, const mode_t mode, std::shared_ptr<safestore::IQuarantineManager> quarantineManager);
+        SafeStoreServerSocket(
+            const std::string& path,
+            std::shared_ptr<safestore::IQuarantineManager> quarantineManager);
         ~SafeStoreServerSocket() override;
 
     protected:

@@ -29,6 +29,7 @@ ${SOPHOS_THREAT_DETECTOR_PID_FILE_PATH}         ${AV_PLUGIN_PATH}/chroot/var/thr
 ${ON_ACCESS_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/soapd.log
 ${SAFESTORE_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/safestore.log
 ${SAFESTORE_PID_FILE}                           ${AV_PLUGIN_PATH}/var/safestore.pid
+${SAFESTORE_SOCKET_PATH}                        ${AV_PLUGIN_PATH}/var/safestore_socket
 ${THREAT_DETECTOR_LOG_PATH}                     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
 ${THREAT_DETECTOR_INFO_LOG_PATH}                ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.info.log
 ${SUSI_DEBUG_LOG_PATH}                          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log

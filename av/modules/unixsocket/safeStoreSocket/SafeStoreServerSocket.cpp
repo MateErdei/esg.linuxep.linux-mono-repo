@@ -8,9 +8,8 @@ using namespace unixsocket;
 
 SafeStoreServerSocket::SafeStoreServerSocket(
     const std::string& path,
-    const mode_t mode,
     std::shared_ptr<safestore::IQuarantineManager> quarantineManager) :
-    SafeStoreServerSocketBase(path, mode), m_quarantineManager(std::move(quarantineManager))
+    SafeStoreServerSocketBase(path, 0600), m_quarantineManager(std::move(quarantineManager))
 {
     m_socketName = "SafeStore Server";
 }

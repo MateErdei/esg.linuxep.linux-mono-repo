@@ -44,7 +44,8 @@ void Main::innerRun()
 
     std::shared_ptr<IQuarantineManager> quarantineManager = std::make_shared<QuarantineManager>();
 
-    unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), 0666, quarantineManager);
+    unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), quarantineManager);
+    server.setUserAndGroup("sophos-spl-av", "root");
     server.start();
 
     auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };

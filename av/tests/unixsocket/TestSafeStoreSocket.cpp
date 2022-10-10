@@ -8,6 +8,7 @@
 #include "unixsocket/safeStoreSocket/SafeStoreClient.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
+#include "Common/FileSystem/IFilePermissions.h"
 #include "common/ApplicationPaths.h"
 
 #include <sys/fcntl.h>
@@ -24,6 +25,7 @@ namespace
         void SetUp() override
         {
             setupFakeSafeStoreConfig();
+            m_socketPath = Plugin::getSafeStoreSocketPath();
             m_userID = std::getenv("USER");
             m_threatName = "EICAR";
             m_threatPath = "/path/to/unit-test-eicar";
@@ -54,6 +56,7 @@ namespace
                 datatypes::AutoFd(open("/dev/zero", O_RDONLY)));
         }
 
+        std::string m_socketPath;
         std::string m_threatPath;
         std::string m_threatName;
         std::string m_userID;
@@ -99,12 +102,12 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
                     return false;
                 }));
 
-        unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), 0666, quarantineManager);
+        unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
 
         server.start();
 
         // connect after we start
-        unixsocket::SafeStoreClient client(Plugin::getSafeStoreSocketPath());
+        unixsocket::SafeStoreClient client(m_socketPath);
 
         auto threatDetected = createThreatDetected();
         client.sendQuarantineRequest(threatDetected);
@@ -131,7 +134,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
 TEST_F(TestSafeStoreSocket, testClientSocketTriesToReconnect) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    unixsocket::SafeStoreClient client(Plugin::getSafeStoreSocketPath(), { 0, 0 });
+    unixsocket::SafeStoreClient client(m_socketPath, { 0, 0 });
 
     EXPECT_TRUE(appenderContains("Failed to connect to SafeStore - retrying after sleep", 9));
     EXPECT_TRUE(appenderContains("Reached total maximum number of connection attempts."));
@@ -159,12 +162,12 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
                 return false;
             }));
 
-    unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), 0666, quarantineManager);
+    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
 
     server.start();
 
     // connect after we start
-    unixsocket::SafeStoreClient client(Plugin::getSafeStoreSocketPath());
+    unixsocket::SafeStoreClient client(m_socketPath);
 
     client.sendQuarantineRequest(createThreatDetected());
     serverWaitGuard.wait();
