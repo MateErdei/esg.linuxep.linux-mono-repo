@@ -125,7 +125,7 @@ Sophos On-Access Process Not Running Triggers Bad Status Health
     Check Status Health is Reporting Correctly    BAD
 
     Start soapd
-    Wait until threat detector running
+    Wait Until On Access running
     Check Status Health is Reporting Correctly    GOOD
 
 
@@ -145,7 +145,7 @@ Sophos On-Access Process Crashing Triggers Bad Health
     Check Status Health is Reporting Correctly    BAD
 
     Start soapd
-    Wait until threat detector running
+    Wait Until On Access running
     Check Status Health is Reporting Correctly    GOOD
 
 
@@ -159,7 +159,7 @@ Sophos SafeStore Process Not Running Does Not Trigger Bad Status Health When Saf
     Check Status Health is Reporting Correctly    GOOD
 
     Start SafeStore
-    Wait until threat detector running
+    Wait Until Safestore running
     Check Status Health is Reporting Correctly    GOOD
 
 Sophos SafeStore Process Not Running Triggers Bad Status Health
@@ -172,7 +172,7 @@ Sophos SafeStore Process Not Running Triggers Bad Status Health
     Check Status Health is Reporting Correctly    BAD
 
     Start SafeStore
-    Wait until threat detector running
+    Wait Until Safestore running
     Check Status Health is Reporting Correctly    GOOD
 
 Sophos SafeStore Crashing Triggers Bad Health
