@@ -149,6 +149,7 @@ do
             UNITTEST=0
             LOCAL_CMAKE=0
             BUILD_SDDS3=0
+            BUILD_DIR=${BUILD_DIR:-build64-fuzz}
             ;;
         --plugin-api-tar)
             shift
