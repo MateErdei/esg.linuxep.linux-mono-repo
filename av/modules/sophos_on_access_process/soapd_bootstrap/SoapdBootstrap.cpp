@@ -15,6 +15,7 @@
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
+#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteClientSocketThread.h"
@@ -84,9 +85,11 @@ void SoapdBootstrap::innerRun()
 
     m_fanotifyHandler = std::make_shared<FanotifyHandler>(sysCallWrapper);
 
+    auto sysPathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
     m_mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config,
                                                                                   sysCallWrapper,
-                                                                                  m_fanotifyHandler);
+                                                                                  m_fanotifyHandler,
+                                                                                  sysPathsFactory);
     m_mountMonitorThread = std::make_unique<common::ThreadRunner>(m_mountMonitor,
                                                                   "mountMonitor",
                                                                   false);

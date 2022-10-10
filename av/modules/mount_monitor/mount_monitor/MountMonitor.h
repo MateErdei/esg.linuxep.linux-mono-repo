@@ -5,6 +5,7 @@
 #include "datatypes/ISystemCallWrapper.h"
 #include "mount_monitor/mountinfo/IMountInfo.h"
 #include "mount_monitor/mount_monitor/OnAccessMountConfig.h"
+#include "mount_monitor/mountinfo/ISystemPathsFactory.h"
 #include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
 
 #include "common/AbstractThreadPluginInterface.h"
@@ -23,6 +24,7 @@ namespace mount_monitor::mount_monitor
             OnAccessMountConfig& config,
             datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
             fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
+            mountinfo::ISystemPathsFactorySharedPtr sysPathsFactory,
             struct timespec pollTimeout = {2,0});
 
         void updateConfig(std::vector<common::Exclusion> exclusions, bool excludeRemoteFiles);
@@ -40,6 +42,7 @@ namespace mount_monitor::mount_monitor
         OnAccessMountConfig& m_config;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
+        mountinfo::ISystemPathsFactorySharedPtr m_sysPathsFactory;
         const struct timespec m_pollTimeout;
         std::vector<common::Exclusion> m_exclusions;
     };

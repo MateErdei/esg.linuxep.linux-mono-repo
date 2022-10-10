@@ -7,7 +7,6 @@
 #include "common/SaferStrerror.h"
 #include "datatypes/AutoFd.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
-#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 
 #include <sstream>
 
@@ -19,20 +18,21 @@ namespace mount_monitor::mount_monitor
         OnAccessMountConfig& config,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
         fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
+        mountinfo::ISystemPathsFactorySharedPtr sysPathsFactory,
         struct timespec pollTimeout)
     : m_config(config)
     , m_sysCalls(std::move(systemCallWrapper))
     , m_fanotifyHandler(std::move(fanotifyHandler))
+    , m_sysPathsFactory(sysPathsFactory)
     , m_pollTimeout(pollTimeout)
     {
     }
 
     mountinfo::IMountPointSharedVector MountMonitor::getAllMountpoints()
     {
-        auto pathsFactory = std::make_shared<mountinfoimpl::SystemPathsFactory>();
         try
         {
-            auto mountInfo = std::make_shared<mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
+            auto mountInfo = std::make_shared<mountinfoimpl::Mounts>(m_sysPathsFactory->createSystemPaths());
             auto allMountpoints = mountInfo->mountPoints();
             LOGINFO("Found " << allMountpoints.size() << " mount points on the system");
             return allMountpoints;
