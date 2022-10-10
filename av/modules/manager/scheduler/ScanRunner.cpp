@@ -93,11 +93,11 @@ void ScanRunner::run()
     // 15 is SIGTERM
     if (exitCode == common::E_SIGTERM || exitCode == common::E_SCAN_ABORTED)
     {
-        LOGERROR("Scan: " << m_name << ", terminated with exit code: " << exitCode);
+        LOGWARN("Scan: " << m_name << ", terminated with exit code: " << exitCode);
     }
     else if(exitCode == common::E_SCAN_ABORTED_WITH_THREATS)
     {
-        LOGERROR("Scan: " << m_name << ", found threats but aborted with exit code: " << exitCode);
+        LOGWARN("Scan: " << m_name << ", found threats but aborted with exit code: " << exitCode);
     }
     else if (exitCode == common::E_CAP_SET_PROC_C || exitCode == common::E_CAP_SET_AMBIENT_C)
     {
