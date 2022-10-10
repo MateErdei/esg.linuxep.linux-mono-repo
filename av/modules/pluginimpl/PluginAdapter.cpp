@@ -262,11 +262,10 @@ namespace Plugin
                 {
                     m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
                 }
+                setResetThreatDetector(m_policyProcessor.restartThreatDetector());
 
                 std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
                 m_callback->sendStatus(revID);
-
-                setResetThreatDetector(m_policyProcessor.restartThreatDetector());
 
                 policyWaiter->gotPolicy("SAV");
             }
