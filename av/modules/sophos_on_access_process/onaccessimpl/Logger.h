@@ -16,16 +16,5 @@ log4cplus::Logger& getOnAccessImplLogger();
 #define LOGFATAL(x) LOG4CPLUS_FATAL(getOnAccessImplLogger(), x)  // NOLINT
 #else
 //Discard logs in fuzz mode
-
-#define LOG(x) do {} while(0) // NOLINT
-
-#include "datatypes/Print.h"
-
-#define LOGTRACE(x) LOG(x)
-#define LOGDEBUG(x) LOG(x)
-#define LOGSUPPORT(x) LOG(x)
-#define LOGINFO(x) LOG(x)
-#define LOGWARN(x) LOG(x)
-#define LOGERROR(x) LOG(x)
-#define LOGFATAL(x) do { PRINT(x); ::exit(1); } while(0)
+# include "common/Logger.h"
 #endif

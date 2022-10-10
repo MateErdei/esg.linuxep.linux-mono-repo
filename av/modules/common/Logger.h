@@ -9,12 +9,13 @@
 #include "datatypes/Print.h"
 //#define LOG(x) PRINT(x)
 
-#define LOGDEBUG(x) LOG(x)
-#define LOGINFO(x) LOG(x)
+#define LOGTRACE(X)   LOG(x)
+#define LOGDEBUG(x)   LOG(x)
+#define LOGINFO(x)    LOG(x)
 #define LOGSUPPORT(x) LOG(x)
-#define LOGWARN(x) LOG(x)
-#define LOGERROR(x) LOG(x)
-#define LOGFATAL(x) do { PRINT(x); ::exit(1); } while(0)
+#define LOGWARN(x)    LOG(x)
+#define LOGERROR(x)   LOG(x)
+#define LOGFATAL(x)   do { PRINT(x); ::exit(1); } while(0)
 
 #else
 
