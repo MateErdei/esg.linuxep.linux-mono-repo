@@ -122,7 +122,8 @@ On-access Scan Eicar Close
 
 
 On-access Scan Eicar Open
-    ${create-filepath} =  Set Variable  /tmp_test/excluded-eicar.com
+    [Arguments]     ${create-filepath}=/tmp_test/excluded-eicar.com
+
     Create File  ${create-filepath}  ${EICAR_STRING}
 
     ${filepath} =  Set Variable  /tmp_test/eicar.com

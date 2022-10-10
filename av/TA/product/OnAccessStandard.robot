@@ -426,7 +426,7 @@ On Access Caches Open Events Without Detections
     Register Cleanup   Remove File   ${dirtyfile}
 
     Get File   ${cleanfile}
-    Sleep   1  #Let the event be cached
+    Wait Until On Access Log Contains With Offset   Caching ${cleanfile}
 
     Mark On Access Log
     Get File   ${cleanfile}
@@ -444,7 +444,7 @@ On Access Doesnt Cache Open Events With Detections
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup   Remove File   ${dirtyfile}
 
-    Sleep   1  #Let the event be cached
+    Wait Until On Access Log Contains Times With Offset   On-close event for ${dirtyfile} from
 
     Get File   ${dirtyfile}
 
@@ -464,7 +464,7 @@ On Access Doesnt Cache Close Events Without Detections
     Copy File No Temp Directory   ${srcfile}   ${destdir}
     Register Cleanup   Remove File   ${destfile}
 
-    Sleep   1  #Let the event (hopefully not) be cached
+    Sleep   5s  #Let the event (hopefully not) be cached
 
     Copy File No Temp Directory   ${srcfile}   ${destdir}
     Wait Until On Access Log Contains Times With Offset  On-close event for ${destfile} from    timeout=${timeout}  times=2
@@ -482,13 +482,12 @@ On Access Doesnt Cache Close Events With Detections
     Copy File No Temp Directory   ${srcfile}   ${destdir}
     Register Cleanup   Remove File   ${destfile}
 
-    Sleep   1  #Let the event (hopefully not) be cached
+    Sleep   5s  #Let the event (hopefully not) be cached
 
     Copy File No Temp Directory   ${srcfile}   ${destdir}
 
     Wait Until On Access Log Contains Times With Offset  On-close event for ${destfile} from    timeout=${timeout}  times=2
     Wait Until On Access Log Contains Times With Offset  Detected "${destfile}" is infected with EICAR-AV-Test (Close-Write)   timeout=${timeout}  times=2
-
 
 On Access Processes New File With Same Attributes And Contents As Old File
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
@@ -499,7 +498,7 @@ On Access Processes New File With Same Attributes And Contents As Old File
 
     Get File   ${cleanfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
-    Sleep   1  #Let the event be cached, Create File can create a combined event which wont be cached
+    Wait Until On Access Log Contains With Offset   Caching ${cleanfile}
 
     Remove File   ${cleanfile}
 
@@ -517,7 +516,7 @@ On Access Detects A Clean File Replaced By Dirty File With Same Attributes
 
     Get File   ${dustyfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
-    Sleep   1s   Let the event be cached,
+    Wait Until On Access Log Contains With Offset  Caching ${dustyfile}
 
     Remove File   ${dustyfile}
     Create File   ${dustyfile}   ${EICAR_STRING}
