@@ -6,11 +6,13 @@
 
 #include "Common/Logging/PluginLoggingSetup.h"
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <sys/stat.h>
 
 namespace fs = sophos_filesystem;
 
 int main()
 {
+    umask(S_IRWXG | S_IRWXO | S_IXUSR); // Read and write for the owner
     Common::Logging::PluginLoggingSetup setupFileLoggingWithPath(PLUGIN_NAME, "safestore");
     // PLUGIN_INSTALL
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();

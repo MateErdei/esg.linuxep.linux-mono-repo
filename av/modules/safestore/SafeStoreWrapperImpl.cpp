@@ -3,8 +3,6 @@
 #include "SafeStoreWrapperImpl.h"
 
 #include "Logger.h"
-#include "SafeStoreObjectHandleHolderImpl.h"
-#include "SafeStoreSearchHandleHolderImpl.h"
 
 #include "common/ApplicationPaths.h"
 
@@ -177,6 +175,8 @@ namespace safestore
         const std::string& dbName,
         const std::string& password)
     {
+        LOGINFO("before init call");
+
         auto result = SafeStore_Init(
             &m_safeStoreCtx,
             dbDirName.c_str(),
@@ -184,6 +184,9 @@ namespace safestore
             reinterpret_cast<const uint8_t*>(password.c_str()),
             password.size(),
             0);
+
+        LOGINFO("after init call");
+
         switch (result)
         {
             case SR_OK:
@@ -220,7 +223,7 @@ namespace safestore
         const std::string& filename,
         const std::string& threatId,
         const std::string& threatName,
-        ISafeStoreObjectHandleHolder& objectHandle)
+        ObjectHandleHolder& objectHandle)
     {
         auto threatIdSafeStore = threatIdFromString(threatId);
         LOGDEBUG("SafeStoreWrapperImpl::saveFile - directory: " << directory);
@@ -290,8 +293,8 @@ namespace safestore
 
     bool SafeStoreWrapperImpl::findFirst(
         const SafeStoreFilter& filter,
-        ISafeStoreSearchHandleHolder& searchHandle,
-        ISafeStoreObjectHandleHolder& objectHandle)
+        SearchHandleHolder& searchHandle,
+        ObjectHandleHolder& objectHandle)
     {
         // Convert Filter type to SafeStore_Filter_t
         SafeStore_Filter_t ssFilter;
@@ -314,23 +317,25 @@ namespace safestore
     }
 
     bool SafeStoreWrapperImpl::findNext(
-        ISafeStoreSearchHandleHolder& searchHandle,
-        ISafeStoreObjectHandleHolder& objectHandle)
+        SearchHandleHolder& searchHandle,
+        ObjectHandleHolder& objectHandle)
     {
         return (
             SafeStore_FindNext(m_safeStoreCtx, *(searchHandle.getRawHandle()), objectHandle.getRawHandle()) == SR_OK);
     }
 
-    std::shared_ptr<ISafeStoreSearchHandleHolder> SafeStoreWrapperImpl::createSearchHandleHolder()
+    std::unique_ptr<SearchHandleHolder> SafeStoreWrapperImpl::createSearchHandleHolder()
     {
-        std::shared_ptr<ISafeStoreSearchHandleHolder> holder =
-            std::make_shared<SafeStoreSearchHandleHolderImpl>(m_safeStoreCtx);
-        return holder;
+
+//        std::weak_ptr<ISafeStoreWrapper> safeStoreWrapper = this;
+        // TODO make this nicer - the ref can go out of scope.
+        return std::make_unique<SearchHandleHolder>(*this);
     }
 
-    std::shared_ptr<ISafeStoreObjectHandleHolder> SafeStoreWrapperImpl::createObjectHandleHolder()
+    std::unique_ptr<ObjectHandleHolder> SafeStoreWrapperImpl::createObjectHandleHolder()
     {
-        return std::make_shared<safestore::SafeStoreObjectHandleHolderImpl>();
+        // TODO make this nicer - the ref can go out of scope.
+        return std::make_unique<safestore::ObjectHandleHolder>(*this);
     }
 
     SearchResults SafeStoreWrapperImpl::find(const SafeStoreFilter& filter)
@@ -338,7 +343,7 @@ namespace safestore
         return SearchResults(*this, filter);
     }
 
-    std::string SafeStoreWrapperImpl::getObjectName(ISafeStoreObjectHandleHolder& objectHandle)
+    std::string SafeStoreWrapperImpl::getObjectName(ObjectHandleHolder& objectHandle)
     {
         constexpr int nameSize = 200;
         size_t size = nameSize;
@@ -370,7 +375,7 @@ namespace safestore
         return std::string(buf);
     }
 
-    std::string SafeStoreWrapperImpl::getObjectId(ISafeStoreObjectHandleHolder& objectHandle)
+    std::string SafeStoreWrapperImpl::getObjectId(ObjectHandleHolder& objectHandle)
     {
         SafeStore_Id_t objectId;
         SafeStore_GetObjectId(objectHandle.getRawHandle(), &objectId);
@@ -380,7 +385,7 @@ namespace safestore
 
     bool SafeStoreWrapperImpl::getObjectHandle(
         const std::string& threatId,
-        std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
+        std::shared_ptr<ObjectHandleHolder> objectHandle)
     {
         //        TODO 5675: Handle errors
         //        Success:
@@ -399,10 +404,23 @@ namespace safestore
 
         return false;
     }
-    bool SafeStoreWrapperImpl::finaliseObject(ISafeStoreObjectHandleHolder& objectHandle)
+
+    bool SafeStoreWrapperImpl::finaliseObject(ObjectHandleHolder& objectHandle)
     {
         auto result = SafeStore_FinalizeObject(m_safeStoreCtx, *(objectHandle.getRawHandle()));
         return result == SR_OK;
+    }
+
+    void SafeStoreWrapperImpl::releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder)
+    {
+        // TODO handle result
+        SafeStore_ReleaseObjectHandle(objectHandleHolder);
+    }
+
+    void SafeStoreWrapperImpl::releaseSearchHandle(SafeStoreSearchHandle searchHandleHolder)
+    {
+        // TODO handle result
+        SafeStore_FindClose(m_safeStoreCtx, searchHandleHolder);
     }
 
 } // namespace safestore

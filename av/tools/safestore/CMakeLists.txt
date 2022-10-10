@@ -9,10 +9,12 @@ target_link_libraries(safestore_cmd PRIVATE
 target_include_directories(safestore_cmd PUBLIC
         ${CMAKE_SOURCE_DIR}/modules
         ${pluginapiinclude})
-#        ${CMAKE_CURRENT_BINARY_DIR})
+
+add_dependencies(safestore_cmd
+        copy_libs)
 
 SET_TARGET_PROPERTIES(safestore_cmd
         PROPERTIES
-        INSTALL_RPATH "$ORIGIN"
-        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
         )

@@ -43,8 +43,8 @@ namespace safestore
     {
     public:
         ~SafeStoreWrapperImpl() override;
-        std::shared_ptr<ISafeStoreSearchHandleHolder> createSearchHandleHolder() override;
-        std::shared_ptr<ISafeStoreObjectHandleHolder> createObjectHandleHolder() override;
+        std::unique_ptr<SearchHandleHolder> createSearchHandleHolder() override;
+        std::unique_ptr<ObjectHandleHolder> createObjectHandleHolder() override;
         InitReturnCode initialise(const std::string& dbDirName, const std::string& dbName, const std::string& password)
             override;
         SaveFileReturnCode saveFile(
@@ -52,24 +52,27 @@ namespace safestore
             const std::string& filename,
             const std::string& threatId,
             const std::string& threatName,
-            ISafeStoreObjectHandleHolder& objectHandle) override;
-        bool finaliseObject(ISafeStoreObjectHandleHolder& objectHandle) override;
+            ObjectHandleHolder& objectHandle) override;
+        bool finaliseObject(ObjectHandleHolder& objectHandle) override;
         std::optional<uint64_t> getConfigIntValue(ConfigOption option) override;
         bool setConfigIntValue(ConfigOption option, uint64_t value) override;
         bool findFirst(
             const SafeStoreFilter& filter,
-            ISafeStoreSearchHandleHolder& searchHandle,
-            ISafeStoreObjectHandleHolder& objectHandle) override;
+            SearchHandleHolder& searchHandle,
+            ObjectHandleHolder& objectHandle) override;
         bool findNext(
-            ISafeStoreSearchHandleHolder& searchHandle,
-            ISafeStoreObjectHandleHolder& objectHandle) override;
+            SearchHandleHolder& searchHandle,
+            ObjectHandleHolder& objectHandle) override;
         SearchResults find(const SafeStoreFilter& filter) override;
-        std::string getObjectName(ISafeStoreObjectHandleHolder& objectHandle) override;
-        std::string getObjectId(ISafeStoreObjectHandleHolder& objectHandle) override;
-        bool getObjectHandle(const std::string& threatId, std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle)
+        std::string getObjectName(ObjectHandleHolder& objectHandle) override;
+        std::string getObjectId(ObjectHandleHolder& objectHandle) override;
+        bool getObjectHandle(const std::string& threatId, std::shared_ptr<ObjectHandleHolder> objectHandle)
             override;
 
+        void releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder) override;
+        void releaseSearchHandle(SafeStoreSearchHandle searchHandleHolder) override;
+
     private:
-        SafeStoreContext m_safeStoreCtx;
+        SafeStoreContext m_safeStoreCtx = nullptr;
     };
 } // namespace safestore

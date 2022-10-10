@@ -24,7 +24,7 @@ namespace Plugin
 
     std::string getSafeStoreDbDirPath()
     {
-        return getPluginInstall() + "/var/safestore";
+        return getPluginInstall() + "/var/safestore_db";
     }
 
     std::string getSafeStoreDbFileName()
@@ -34,6 +34,6 @@ namespace Plugin
 
     std::string getSafeStorePasswordFilePath()
     {
-        return getSafeStoreDbDirPath() + "/SafeStore.pw";
+        return getSafeStoreDbDirPath() + "/safestore.pw";
     }
 } // namespace Plugin

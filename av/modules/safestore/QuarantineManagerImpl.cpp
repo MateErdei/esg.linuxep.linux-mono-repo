@@ -3,7 +3,6 @@
 #include "QuarantineManagerImpl.h"
 
 #include "Logger.h"
-#include "SafeStoreObjectHandleHolderImpl.h"
 #include "SafeStoreWrapperImpl.h"
 
 #include "Common/FileSystem/IFileSystem.h"
@@ -15,6 +14,7 @@
 #include <boost/uuid/uuid_io.hpp>
 
 #include <optional>
+#include <utility>
 
 namespace safestore
 {
@@ -30,13 +30,14 @@ namespace safestore
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
-            LOGERROR("Failed to save SafeStore Database Password to " << passwordFilePath << " due to: " << ex.what());
+            LOGERROR("Failed to save Quarantine Manager Password to " << passwordFilePath << " due to: " << ex.what());
             return false;
         }
     }
 
     std::string generatePassword()
     {
+        LOGDEBUG("Generating SafeStore password");
         std::ostringstream ss;
         boost::uuids::uuid uuid = boost::uuids::random_generator()();
         ss << uuid;
@@ -70,7 +71,7 @@ namespace safestore
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
-            LOGERROR("Failed to read SafeStore Database Password from " << passwordFilePath << "due to: " << ex.what());
+            LOGERROR("Failed to read SafeStore Database Password from " << passwordFilePath << " due to: " << ex.what());
         }
         return std::nullopt;
     }
@@ -93,8 +94,7 @@ namespace safestore
         const std::string& threatName)
     {
         std::lock_guard<std::mutex> lock(m_interfaceMutex);
-        std::shared_ptr<ISafeStoreObjectHandleHolder> objectHandle =
-            std::make_shared<SafeStoreObjectHandleHolderImpl>();
+        std::shared_ptr<ObjectHandleHolder> objectHandle = std::make_shared<ObjectHandleHolder>(*m_safeStore);
         auto saveResult = m_safeStore->saveFile(directory, filename, threatId, threatName, *objectHandle);
         if (saveResult == SaveFileReturnCode::OK)
         {
@@ -130,7 +130,6 @@ namespace safestore
         }
 
         LOGDEBUG("Initialising Quarantine Manager");
-        // TODO use app paths
         auto dbDir = Plugin::getSafeStoreDbDirPath();
         auto dbname = Plugin::getSafeStoreDbFileName();
         auto pw = loadPassword();
@@ -148,6 +147,13 @@ namespace safestore
                 return;
             }
         }
+
+        // temp debug
+        LOGINFO(dbDir);
+        LOGINFO(dbname);
+        LOGINFO(pw.value());
+        LOGINFO(&m_safeStore);
+        LOGINFO(&(*m_safeStore));
 
         auto initResult = m_safeStore->initialise(dbDir, dbname, pw.value());
 

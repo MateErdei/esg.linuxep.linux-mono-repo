@@ -146,10 +146,16 @@ int main()
 
     std::cout << "Object name: " << safeStoreWrapper->getObjectName(*objectHandle) << std::endl;
 
-    for (auto result : safeStoreWrapper->find(filter))
+    for (auto& result : safeStoreWrapper->find(filter))
     {
-        std::cout << "for loop: " << safeStoreWrapper->getObjectName(*result) << std::endl;
+        std::cout << "for loop: " << safeStoreWrapper->getObjectName(result) << std::endl;
     }
+
+//    // TODO 5675 fix const version
+//    for (const auto& result : safeStoreWrapper->find(filter))
+//    {
+//        std::cout << "for loop: " << safeStoreWrapper->getObjectName(result) << std::endl;
+//    }
 
     std::cout << "Done" << std::endl;
 

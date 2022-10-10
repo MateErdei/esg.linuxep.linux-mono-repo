@@ -8,17 +8,12 @@ add_library(safestoreimpl SHARED
         Main.h
         QuarantineManagerImpl.h
         QuarantineManagerImpl.cpp
-        SafeStoreObjectHandleHolderImpl.h
-        SafeStoreObjectHandleHolderImpl.cpp
-        SafeStoreSearchHandleHolderImpl.h
-        SafeStoreSearchHandleHolderImpl.cpp
         SafeStoreWrapperImpl.h
         SafeStoreWrapperImpl.cpp
         StateMonitor.cpp
         StateMonitor.h
         )
 
-message(${SAFESTORE_LIB})
 target_link_libraries(safestoreimpl PUBLIC
         ${SAFESTORE_LIB}
         common
