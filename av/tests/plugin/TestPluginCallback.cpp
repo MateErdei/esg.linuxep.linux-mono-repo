@@ -460,9 +460,6 @@ TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidFileDoesNotExistAndShutdown
 
 TEST_F(TestPluginCallback, calculateHealthReturnsGoodIfLockCannotBeTakenOnPidFiles)
 {
-    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
-    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
-
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -483,7 +480,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnThreatDete
     commonLogger.addAppender(m_sharedAppender);
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
-    // Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
+    Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";
 
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -496,7 +493,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnThreatDete
     int threat_detector_fd = 321;
 
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(other_fd));
-    EXPECT_CALL(*m_mockSysCalls, _open(::testing::EndsWith("/threat_detector.pid"), O_RDONLY, 0644)).WillOnce(Return(threat_detector_fd));
+    EXPECT_CALL(*m_mockSysCalls, _open(::testing::StrEq(threatDetectorPidFile), O_RDONLY, 0644)).WillOnce(Return(threat_detector_fd));
 
     EXPECT_CALL(*m_mockSysCalls, flock(other_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
     EXPECT_CALL(*m_mockSysCalls, flock(threat_detector_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));
@@ -517,7 +514,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFi
     log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
     commonLogger.addAppender(m_sharedAppender);
 
-    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path soapdPidFile = m_basePath / "var/soapd.pid";
 
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -526,7 +523,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFi
     int soapd_fd = 321;
 
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(other_fd));
-    EXPECT_CALL(*m_mockSysCalls, _open(::testing::EndsWith("/soapd.pid"), O_RDONLY, 0644)).WillOnce(Return(soapd_fd));
+    EXPECT_CALL(*m_mockSysCalls, _open(::testing::StrEq(soapdPidFile), O_RDONLY, 0644)).WillOnce(Return(soapd_fd));
 
     EXPECT_CALL(*m_mockSysCalls, flock(other_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
     EXPECT_CALL(*m_mockSysCalls, flock(soapd_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));
@@ -547,7 +544,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSafestoreP
     log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
     commonLogger.addAppender(m_sharedAppender);
 
-    Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
+    Path safestorePidFile = m_basePath / "var/safestore.pid";
 
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -556,7 +553,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSafestoreP
     int soapd_fd = 321;
 
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(other_fd));
-    EXPECT_CALL(*m_mockSysCalls, _open(::testing::EndsWith("/safestore.pid"), O_RDONLY, 0644)).WillOnce(Return(soapd_fd));
+    EXPECT_CALL(*m_mockSysCalls, _open(::testing::StrEq(safestorePidFile), O_RDONLY, 0644)).WillOnce(Return(soapd_fd));
 
     EXPECT_CALL(*m_mockSysCalls, flock(other_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
     EXPECT_CALL(*m_mockSysCalls, flock(soapd_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));

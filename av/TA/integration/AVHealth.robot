@@ -197,7 +197,7 @@ Sophos SafeStore Crashing Triggers Bad Health
     Check Status Health is Reporting Correctly    BAD
 
     Start SafeStore
-    Wait until threat detector running
+    Wait Until Safestore running
     Check Status Health is Reporting Correctly    GOOD
 
 
