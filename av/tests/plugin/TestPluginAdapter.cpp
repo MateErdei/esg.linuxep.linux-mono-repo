@@ -385,7 +385,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
-    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
@@ -405,12 +405,12 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
                     {"@@SXL@@", "false"}});
 
     Task policyTask = {Task::TaskType::Policy, brokenPolicyXml};
-    m_queueTask->push(policyTask);
+    m_taskQueue->push(policyTask);
 
     EXPECT_TRUE(waitForLog("Exception encountered while parsing AV policy XML: Error parsing xml"));
 
     Task stopTask = {Task::TaskType::Stop, ""};
-    m_queueTask->push(stopTask);
+    m_taskQueue->push(stopTask);
     EXPECT_TRUE(waitForLog("Stop task received"));
     EXPECT_FALSE(appenderContains("SAV policy received for the first time."));
 
@@ -431,7 +431,7 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
-    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
@@ -491,10 +491,10 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
 )sophos";
 
     Task policyTask = {Task::TaskType::Policy, invalidPolicyXml};
-    m_queueTask->push(policyTask);
+    m_taskQueue->push(policyTask);
 
     Task stopTask = {Task::TaskType::Stop, ""};
-    m_queueTask->push(stopTask);
+    m_taskQueue->push(stopTask);
     EXPECT_TRUE(waitForLog("Stop task received"));
     EXPECT_FALSE(appenderContains("SAV policy received for the first time."));
     EXPECT_FALSE(appenderContains("Processing request to restart sophos threat detector"));
@@ -637,7 +637,7 @@ TEST_F(TestPluginAdapter, testBadProcessActionXMLThrows)
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
-    auto pluginAdapter = std::make_shared<PluginAdapter>(m_queueTask, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
@@ -645,12 +645,12 @@ TEST_F(TestPluginAdapter, testBadProcessActionXMLThrows)
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1">)";
     Task actionTask = {Task::TaskType::Action, actionXml};
-    m_queueTask->push(actionTask);
+    m_taskQueue->push(actionTask);
 
     EXPECT_TRUE(waitForLog("Exception encountered while parsing Action XML"));
 
     Task stopTask = {Task::TaskType::Stop, ""};
-    m_queueTask->push(stopTask);
+    m_taskQueue->push(stopTask);
 
     pluginThread.join();
 
