@@ -12,6 +12,7 @@
 #include "datatypes/MockSysCalls.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
+#include "mount_monitor/mountinfoimpl/SystemPaths.h"
 #include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
 
 #include <fstream>
@@ -31,6 +32,7 @@ namespace
             m_mockFanotifyHandler = std::make_shared<NiceMock<MockFanotifyHandler>>();
             m_mockSysPathsFactory = std::make_shared<StrictMock<MockSystemPathsFactory>>();
             m_mockSysPaths = std::make_shared<StrictMock<MockSystemPaths>>();
+            m_sysPaths = std::make_shared<mount_monitor::mountinfoimpl::SystemPaths>();
 
             const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
             m_testDir = fs::temp_directory_path();
@@ -52,6 +54,7 @@ namespace
         std::shared_ptr<NiceMock<MockFanotifyHandler>> m_mockFanotifyHandler;
         std::shared_ptr<StrictMock<MockSystemPathsFactory>> m_mockSysPathsFactory;
         std::shared_ptr<StrictMock<MockSystemPaths>> m_mockSysPaths;
+        std::shared_ptr<mount_monitor::mountinfoimpl::SystemPaths> m_sysPaths;
         WaitForEvent m_serverWaitGuard;
         fs::path m_testDir;
     };
@@ -158,8 +161,7 @@ TEST_F(TestMountMonitor, TestSetExclusions)
     EXPECT_CALL(*localFixedDevice, isDirectory()).WillRepeatedly(Return(true));
     EXPECT_CALL(*localFixedDevice, mountPoint()).WillRepeatedly(Return(excludedMount));
 
-    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillOnce(Return(m_mockSysPaths));
-    EXPECT_CALL(*m_mockSysPaths, mountInfoFilePath()).WillOnce(Return("/proc/mounts"));
+    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillOnce(Return(m_sysPaths));
 
     mount_monitor::mountinfo::IMountPointSharedVector allMountpoints;
     allMountpoints.push_back(localFixedDevice);
@@ -200,8 +202,7 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
             )
           );
     EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillRepeatedly(Return(m_mockSysPaths));
-    EXPECT_CALL(*m_mockSysPaths, mountInfoFilePath()).WillRepeatedly(Return("/proc/mounts"));
+    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillRepeatedly(Return(m_sysPaths));
     auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
     auto numMountPoints = mountMonitor->getIncludedMountpoints(mountMonitor->getAllMountpoints()).size();
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
@@ -238,8 +239,7 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
 
 
     EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillRepeatedly(Return(m_mockSysPaths));
-    EXPECT_CALL(*m_mockSysPaths, mountInfoFilePath()).WillRepeatedly(Return("/proc/mounts"));
+    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillRepeatedly(Return(m_sysPaths));
     auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
     auto numMountPoints = mountMonitor->getIncludedMountpoints(mountMonitor->getAllMountpoints()).size();
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
@@ -285,8 +285,7 @@ TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
     EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillOnce(Return(m_mockSysPaths));
-    EXPECT_CALL(*m_mockSysPaths, mountInfoFilePath()).WillOnce(Return("/proc/mounts"));
+    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillOnce(Return(m_sysPaths));
     auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 
@@ -308,8 +307,7 @@ TEST_F(TestMountMonitor, TestMonitorLogsErrorIfMarkingFails)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
     EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillOnce(Return(-1));
-    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillOnce(Return(m_mockSysPaths));
-    EXPECT_CALL(*m_mockSysPaths, mountInfoFilePath()).WillOnce(Return("/proc/mounts"));
+    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillOnce(Return(m_sysPaths));
     auto mountMonitor = std::make_shared<MountMonitor>(config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
     common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
 
