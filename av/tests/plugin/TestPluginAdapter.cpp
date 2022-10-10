@@ -493,8 +493,6 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
     Task policyTask = {Task::TaskType::Policy, invalidPolicyXml};
     m_queueTask->push(policyTask);
 
-    //EXPECT_TRUE(waitForLog("Exception encountered while parsing AV policy XML: Error parsing xml"));
-
     Task stopTask = {Task::TaskType::Stop, ""};
     m_queueTask->push(stopTask);
     EXPECT_TRUE(waitForLog("Stop task received"));
