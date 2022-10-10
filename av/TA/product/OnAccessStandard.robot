@@ -445,10 +445,11 @@ On Access Doesnt Cache Open Events With Detections
     Register Cleanup   Remove File   ${dirtyfile}
 
     Wait Until On Access Log Contains Times With Offset   On-close event for ${dirtyfile} from
+    Mark On Access Log
 
     Get File   ${dirtyfile}
 
-    Wait Until On Access Log Contains Times With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}    times=2
+    Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from
     Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
 
 
