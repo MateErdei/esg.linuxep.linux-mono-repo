@@ -127,8 +127,8 @@
         </build-asset>
 
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/sspl/Version_1_0_0" build-id="20220825150631-43a7c87ceb5905f316aef54df45de777a5961022-O0LZyf"/>
-<!--            <development-version branch="develop"/>-->
+            <release-version branch="release/WINEP-2022.39-DTP2" build-id="20221003091945-90720120553d2d122effccb97edd4ccbcc5ea61e-MzUwFE"/>
+            <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
@@ -243,6 +243,22 @@
         <build-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="debug"/>
         <build-asset artifact-path="sspl-base/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="debug"/>
 
-        <publishbranches>master,feature,release,develop,bugfix</publishbranches>
+        <build-asset artifact-path="sspl-base/openssl" source-dir="/build/redist/openssl" mode="debug"/>
+        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="debug">
+            <include glob="pluginapi.tar.gz"/>
+        </build-asset>
+        <build-asset artifact-path="sspl-base/cmcsrouterapi" source-dir="output" mode="debug">
+            <include glob="cmcsrouterapi.tar.gz"/>
+        </build-asset>
+        <build-asset artifact-path="sspl-base/mcs" source-dir="output" mode="debug">
+            <include glob="mcs.tar.gz"/>
+        </build-asset>
+        <build-asset artifact-path="sspl-base/system_test" source-dir="output" mode="debug">
+            <include glob="SystemProductTestOutput.tar.gz"/>
+            <include glob="symbols"/>
+        </build-asset>
+        <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="debug"/>
+
+        <publishbranches>master,feature,release,develop,bugfix,debug</publishbranches>
     </publish>
 </package>
