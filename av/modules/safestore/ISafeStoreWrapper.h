@@ -231,6 +231,60 @@ namespace safestore
          */
         virtual std::string getObjectId(ObjectHandleHolder& objectHandle) = 0;
 
+        virtual ObjectType getObjectType(ObjectHandleHolder& objectHandle) = 0;
+        virtual ObjectStatus getObjectStatus(ObjectHandleHolder& objectHandle) = 0;
+        virtual std::string getObjectThreatId(ObjectHandleHolder& objectHandle) = 0;
+        virtual std::string getObjectThreatName(ObjectHandleHolder& objectHandle) = 0;
+        virtual int64_t getObjectStoreTime(ObjectHandleHolder& objectHandle) = 0;
+
+        // SafeStore_Result_t SAFESTORE_CALL SafeStore_GetObjectCustomData(
+        //     _In_ SafeStore_t ctx,
+        //     _In_ SafeStore_Handle_t objectHandle,
+        //     _In_z_ const SsPlatChar* dataTag,
+        //     _Out_opt_bytecap_(*dataBufSize) uint8_t* dataBuf,
+        //     _Inout_ size_t* dataBufSize,
+        //     _Out_opt_ size_t* bytesRead);
+
+        // SafeStore_Result_t SAFESTORE_CALL SafeStore_SetObjectCustomData(
+        //     _In_ SafeStore_t ctx,
+        //     _In_ SafeStore_Handle_t objectHandle,
+        //     _In_z_ const SsPlatChar* dataTag,
+        //     _In_opt_bytecount_(dataBufSize) const uint8_t* dataBuf,
+        //     _In_ size_t dataBufSize);
+
+
+
+        //
+        //        SafeStore_Result_t SAFESTORE_CALL
+        //        SafeStore_FinalizeObjectsByThreatId(_In_ SafeStore_t ctx, _In_ SafeStore_Id_t* threatId);
+
+
+        //_Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectById(
+        //    _In_ SafeStore_t ctx,
+        //    _In_ const SafeStore_Id_t* objectId,
+        //    _In_opt_z_ const SsPlatChar* location);
+
+        //_Check_return_ SafeStore_Result_t SAFESTORE_CALL
+        // SafeStore_RestoreObjectsByThreatId(_In_ SafeStore_t ctx, _In_ const SafeStore_Id_t* threatId);
+
+        //_Check_return_ SafeStore_Result_t SAFESTORE_CALL
+        // SafeStore_DeleteObjectById(_In_ SafeStore_t ctx, _In_ const SafeStore_Id_t* objectId);
+
+        //_Check_return_ SafeStore_Result_t SAFESTORE_CALL
+        // SafeStore_DeleteObjectsByThreatId(_In_ SafeStore_t ctx, _In_ const SafeStore_Id_t* threatId);
+
+        // SafeStore_Result_t SAFESTORE_CALL SafeStore_ExportFile(
+        //     _In_ SafeStore_t ctx,
+        //     _In_ const SafeStore_Id_t* objectId,
+        //     _Reserved_ const uint8_t* password,
+        //     _Reserved_ size_t passwordSize,
+        //     _In_z_ const SsPlatChar* directory,
+        //     _In_opt_z_ const SsPlatChar* fileName);
+
+
+
+
+
         /*
          * TODO 5675 Interface docs
          */
@@ -316,11 +370,6 @@ namespace safestore
             //            using pointer           = int*;
             //            using reference         = int&;
 
-//            Iterator(Iterator i)
-//            {
-//
-//            }
-
             Iterator(ISafeStoreWrapper& m_safeStore, const SafeStoreFilter& filter, bool end = false)
                 :  m_safeStore(m_safeStore), m_searchHolder(m_safeStore.createSearchHandleHolder()), m_objectHolder(m_safeStore.createObjectHandleHolder())
             {
@@ -370,19 +419,15 @@ namespace safestore
 
         private:
             ISafeStoreWrapper& m_safeStore;
-            //            std::shared_ptr<ISafeStoreSearchHandleHolder> m_searchHolder;
-            //            std::shared_ptr<ISafeStoreObjectHandleHolder> m_objectHolder;
             std::shared_ptr<SearchHandleHolder> m_searchHolder;
             std::shared_ptr<ObjectHandleHolder> m_objectHolder;
         };
 
-        // TODO 5675 implement begin()
         Iterator begin()
         {
             return Iterator(m_safeStore, m_filter);
         }
 
-        //        // TODO 5675 implement end()
         Iterator end()
         {
             return Iterator(m_safeStore, m_filter, true);

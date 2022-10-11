@@ -357,7 +357,8 @@ namespace safestore
         //  *     SR_BUFFER_SIZE_TOO_SMALL - the buffer is too small to hold the output
         //  *     SR_INTERNAL_ERROR - an internal error has occurred
 
-        auto returnCode = SafeStore_GetObjectName(*(objectHandle.getRawHandle()), buf, &size);
+//        auto returnCode = SafeStore_GetObjectName(*(objectHandle.getRawHandle()), buf, &size);
+        auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
 
         switch (returnCode)
         {
@@ -421,6 +422,102 @@ namespace safestore
     {
         // TODO handle result
         SafeStore_FindClose(m_safeStoreCtx, searchHandleHolder);
+    }
+
+    ObjectType SafeStoreWrapperImpl::getObjectType(ObjectHandleHolder& objectHandle)
+    {
+        SafeStore_ObjectType_t safeStoreObjectType;
+//        auto returnCode = SafeStore_GetObjectType(*(objectHandle.getRawHandle()), &safeStoreObjectType);
+        auto returnCode = SafeStore_GetObjectType(objectHandle.getRawHandle(), &safeStoreObjectType);
+        if (returnCode == SR_OK)
+        {
+            switch (safeStoreObjectType)
+            {
+                case SOT_ANY:
+                    return ObjectType::ANY;
+                case SOT_FILE:
+                    return ObjectType::FILE;
+                case SOT_REGKEY:
+                    return ObjectType::REGKEY;
+                case SOT_REGVALUE:
+                    return ObjectType::REGVALUE;
+            }
+        }
+        LOGWARN("Failed to query object type, returning unknown");
+        return ObjectType::UNKNOWN;
+    }
+
+    ObjectStatus SafeStoreWrapperImpl::getObjectStatus(ObjectHandleHolder& objectHandle)
+    {
+        SafeStore_ObjectStatus_t safeStoreObjectStatus;
+        auto returnCode = SafeStore_GetObjectStatus(objectHandle.getRawHandle(), &safeStoreObjectStatus);
+        if (returnCode == SR_OK)
+        {
+            switch (safeStoreObjectStatus)
+            {
+                case SOS_ANY:
+                    return ObjectStatus::ANY;
+                case SOS_STORED:
+                    return ObjectStatus::STORED;
+                case SOS_QUARANTINED:
+                    return ObjectStatus::QUARANTINED;
+                case SOS_RESTORE_FAILED:
+                    return ObjectStatus::RESTORE_FAILED;
+                case SOS_RESTORED_AS:
+                    return ObjectStatus::RESTORED_AS;
+                case SOS_RESTORED:
+                    return ObjectStatus::RESTORED;
+            }
+        }
+        LOGWARN("Failed to query object status, returning undefined");
+        return ObjectStatus::UNDEFINED;
+
+    }
+
+    std::string SafeStoreWrapperImpl::getObjectThreatId(ObjectHandleHolder& objectHandle)
+    {
+        SafeStore_Id_t threatId;
+        auto returnCode = SafeStore_GetObjectThreatId(objectHandle.getRawHandle(), &threatId);
+        if (returnCode == SR_OK)
+        {
+            return stringFromThreatId(threatId);
+        }
+        LOGWARN("Failed to query object threat ID, returning blank ID");
+        return "";
+    }
+
+    std::string SafeStoreWrapperImpl::getObjectThreatName(ObjectHandleHolder& objectHandle)
+    {
+        constexpr int nameSize = 200;
+        size_t size = nameSize;
+        char buf[nameSize];
+
+        // TODO 5675 deal with error codes... e.g. string size too small
+
+//        auto returnCode = SafeStore_GetObjectThreatName(*(objectHandle.getRawHandle()), buf, &size);
+        auto returnCode = SafeStore_GetObjectThreatName(objectHandle.getRawHandle(), buf, &size);
+
+        switch (returnCode)
+        {
+            case SR_OK:
+                break;
+            case SR_INVALID_ARG:
+                break;
+            case SR_INTERNAL_ERROR:
+                break;
+            case SR_BUFFER_SIZE_TOO_SMALL:
+                break;
+            default:
+                break;
+        }
+        return std::string(buf);
+    }
+
+    int64_t SafeStoreWrapperImpl::getObjectStoreTime(ObjectHandleHolder& objectHandle)
+    {
+        SafeStore_Time_t safeStoreTime;
+        SafeStore_GetObjectStoreTime(objectHandle.getRawHandle(), &safeStoreTime);
+        return safeStoreTime;
     }
 
 } // namespace safestore

@@ -68,6 +68,11 @@ namespace safestore
         std::string getObjectId(ObjectHandleHolder& objectHandle) override;
         bool getObjectHandle(const std::string& threatId, std::shared_ptr<ObjectHandleHolder> objectHandle)
             override;
+        ObjectType getObjectType(ObjectHandleHolder& objectHandle) override;
+        ObjectStatus getObjectStatus(ObjectHandleHolder& objectHandle) override;
+        std::string getObjectThreatId(ObjectHandleHolder& objectHandle) override;
+        std::string getObjectThreatName(ObjectHandleHolder& objectHandle) override;
+        int64_t getObjectStoreTime(ObjectHandleHolder& objectHandle) override;
 
         void releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder) override;
         void releaseSearchHandle(SafeStoreSearchHandle searchHandleHolder) override;
