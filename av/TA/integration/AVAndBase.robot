@@ -886,7 +886,10 @@ First SAV Policy With Invalid Day And Time Is Not Accepted
     Remove File   ${MCS_PATH}/policy/SAV-2_policy.xml
     File Should Not Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
+    Mark AV Log
     Restart AV Plugin
+    Wait Until AV Plugin Log Contains With Offset  SAV policy has not been sent to the plugin
+
     Mark AV Log
 
     Send Invalid Sav Policy
@@ -898,12 +901,11 @@ First SAV Policy With Invalid Day And Time Is Not Accepted
     Wait Until AV Plugin Log Contains With Offset  Invalid time from policy: whatisthismadness
     Wait Until AV Plugin Log Contains Times With Offset  Invalid time from policy:  times=3
     Wait Until AV Plugin Log Contains With Offset  Unable to accept policy as scan information is invalid. Following scans wont be run:
-    Wait Until AV Plugin Log Contains With Offset  SAV policy has not been sent to the plugin
 
     AV Plugin Log Does Not Contain With Offset  SAV policy received for the first time.
     AV Plugin Log Does Not Contain With Offset  Configured number of Scheduled Scans: 1
     AV Plugin Log Does Not Contain With Offset  Processing request to restart sophos threat detector
-    dump logs
+
 
 Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
