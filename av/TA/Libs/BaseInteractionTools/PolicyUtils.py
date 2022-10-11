@@ -9,7 +9,7 @@ except ImportError:
     import ExclusionHelper
 
 RESOURCES_DIR = "/opt/test/inputs/test_scripts/resources"
-SAV_POLICY_FILENAME = "SAV_Policy.xml"
+SAV_POLICY_FILENAME = "SAV_Policy_Template.xml"
 SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, SAV_POLICY_FILENAME)
 FIXED_SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, "sav_policy", "SAV_Policy_Fixed_Exclusions.xml")
 

@@ -57,24 +57,74 @@
     </onAccessScan>
     <onDemandScan>
         <extensions>
-            <allFiles>false</allFiles>
-            <excludeSophosDefined/>
-            <userDefined/>
-            <noExtensions>true</noExtensions>
+            <allFiles>{{allFiles}}</allFiles>
+            <excludeSophosDefined>{{excludeSophosDefined}}</excludeSophosDefined>
+            <userDefined>{{excludeUserDefined}}</userDefined>
+            <noExtensions>{{noExtensions}}</noExtensions>
         </extensions>
         <exclusions>
             <filePathSet>{{exclusions}}</filePathSet>
             <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
         </exclusions>
         <posixExclusions>
-            <filePathSet>{{posixExclusions}}</filePathSet>
+            <filePathSet>
+                {{IncludeOnlyTmpExclusions}}
+                {{posixExclusions}}
+            </filePathSet>
             <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
         </posixExclusions>
         <macExclusions>
             <filePathSet>{{posixExclusions}}</filePathSet>
             <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
         </macExclusions>
-        <scanSet/>
+        <scanSet>
+            <!-- if {{scheduledScanEnabled}} -->
+            <scan>
+                <name>Sophos Cloud Scheduled Scan</name>
+                <schedule>
+                    <daySet>
+                        <!-- for day in {{scheduledScanDays}} -->
+                        <day>TheDayOfDays</day>
+                        <day></day>
+                    </daySet>
+                    <timeSet>
+                        <time>45:67:89</time>
+                        <time>whatisthismadness</time>
+                        <time></time>
+                    </timeSet>
+                </schedule>
+                <settings>
+                    <scanObjectSet>
+                        <CDDVDDrives>false</CDDVDDrives>
+                        <hardDrives>true</hardDrives>
+                        <networkDrives>false</networkDrives>
+                        <removableDrives>false</removableDrives>
+                        <kernelMemory>true</kernelMemory>
+                    </scanObjectSet>
+                    <scanBehaviour>
+                        <level>normal</level>
+                        <archives>{{scheduledScanArchives}}</archives>
+                        <pua>true</pua>
+                        <suspiciousFileDetection>false</suspiciousFileDetection>
+                        <scanForMacViruses>false</scanForMacViruses>
+                        <anti-rootkits>true</anti-rootkits>
+                    </scanBehaviour>
+                    <actions>
+                        <disinfect>true</disinfect>
+                        <puaRemoval>false</puaRemoval>
+                        <fileAction>doNothing</fileAction>
+                        <destination/>
+                        <suspiciousFiles>
+                            <fileAction>doNothing</fileAction>
+                            <destination/>
+                        </suspiciousFiles>
+                    </actions>
+                    <on-demand-options>
+                        <minimise-scan-impact>true</minimise-scan-impact>
+                    </on-demand-options>
+                </settings>
+            </scan>
+        </scanSet>
         <fileReputation>{{fileReputationCollectionDuringOnDemandScan}}</fileReputation>
     </onDemandScan>
     <autoExclusions>{{autoExclusions}}</autoExclusions>

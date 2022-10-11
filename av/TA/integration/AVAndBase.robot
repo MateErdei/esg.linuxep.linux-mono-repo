@@ -213,7 +213,7 @@ AV plugin fails scan now if no policy
 AV plugin SAV Status contains revision ID of policy
     Register Cleanup    Exclude Invalid Day From Policy
     ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
-    Send Sav Policy To Base  SAV_Policy.xml
+    Send Sav Policy With No Scheduled Scans
     Wait Until SAV Status XML Contains  Res="Same"  timeout=60
     SAV Status XML Contains  RevID="ac9eaa2f09914ce947cfb14f1326b802ef0b9a86eca7f6c77557564e36dbff9a"
     SAV Status XML Contains  <product-version>${version}</product-version>
@@ -892,15 +892,18 @@ First SAV Policy With Invalid Day And Time Is Not Accepted
     Send Invalid Sav Policy
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Wait Until AV Plugin Log Contains With Offset  Invalid day from policy: {{day}}
-    Wait Until AV Plugin Log Contains With Offset  Invalid time from policy: {{scheduledScanTime}}
+    Wait Until AV Plugin Log Contains With Offset  Invalid day from policy: TheDayOfDays
+    Wait Until AV Plugin Log Contains Times With Offset  Invalid day from policy:  times=2
+    Wait Until AV Plugin Log Contains With Offset  Invalid time from policy: 45:67:89
+    Wait Until AV Plugin Log Contains With Offset  Invalid time from policy: whatisthismadness
+    Wait Until AV Plugin Log Contains Times With Offset  Invalid time from policy:  times=3
     Wait Until AV Plugin Log Contains With Offset  Unable to accept policy as scan information is invalid. Following scans wont be run:
     Wait Until AV Plugin Log Contains With Offset  SAV policy has not been sent to the plugin
 
     AV Plugin Log Does Not Contain With Offset  SAV policy received for the first time.
     AV Plugin Log Does Not Contain With Offset  Configured number of Scheduled Scans: 1
     AV Plugin Log Does Not Contain With Offset  Processing request to restart sophos threat detector
-
+    dump logs
 
 Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION

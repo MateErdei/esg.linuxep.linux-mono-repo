@@ -265,6 +265,11 @@ AV Plugin Log Contains With Offset
     ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
     LogUtils.Check Marked AV Log Contains   ${input}    ${offset}
 
+AV Plugin Log Contains With Offset Times
+    [Arguments]  ${input}  ${times}
+    ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
+    File Log Contains With Offset Times    ${AV_LOG_PATH}   ${input}   ${times}   offset=${offset}
+
 AV Plugin Log Should Not Contain With Offset
     [Arguments]  ${input}
     ${offset} =  Get Variable Value  ${AV_LOG_MARK}  0
@@ -451,6 +456,10 @@ Increase AV Log To Max Size
 Wait Until AV Plugin Log Contains With Offset
     [Arguments]  ${input}  ${timeout}=15    ${interval}=2
     Wait Until File Log Contains  AV Plugin Log Contains With Offset  ${input}   timeout=${timeout}  interval=${interval}
+
+Wait Until AV Plugin Log Contains Times With Offset
+    [Arguments]  ${input}  ${timeout}=15  ${times}=1
+    Wait Until File Log Contains Times  AV Plugin Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
 
 Wait Until Sophos Threat Detector Shutdown File Exists
     [Arguments]  ${timeout}=15    ${interval}=2

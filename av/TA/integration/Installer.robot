@@ -715,7 +715,7 @@ Check installer keeps SUSI startup settings as writable by AV Plugin
     Log   ${output}
 
     Mark AV Log
-    Send Sav Policy To Base  SAV_Policy_No_Scans.xml
+    Send Sav Policy With No Scheduled Scans
     Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
     AV Plugin Log Does Not Contain With Offset  Failed to create file
 
