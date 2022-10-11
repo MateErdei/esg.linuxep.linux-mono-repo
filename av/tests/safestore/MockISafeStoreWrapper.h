@@ -1,7 +1,11 @@
 // Copyright 2019-2022, Sophos Limited.  All rights reserved.
+#pragma once
 
 #include "safestore/ISafeStoreWrapper.h"
 #include <gmock/gmock.h>
+
+
+using namespace ::testing;
 
 class MockISafeStoreWrapper : public safestore::ISafeStoreWrapper
 {
@@ -28,6 +32,11 @@ public:
     MOCK_METHOD2(findNext, bool(safestore::SearchHandleHolder&, safestore::ObjectHandleHolder&));
     MOCK_METHOD1(getObjectName, std::string(safestore::ObjectHandleHolder&));
     MOCK_METHOD1(getObjectId, std::string(safestore::ObjectHandleHolder&));
+    MOCK_METHOD1(getObjectType, safestore::ObjectType(safestore::ObjectHandleHolder&));
+    MOCK_METHOD1(getObjectStatus, safestore::ObjectStatus(safestore::ObjectHandleHolder&));
+    MOCK_METHOD1(getObjectThreatId, std::string(safestore::ObjectHandleHolder&));
+    MOCK_METHOD1(getObjectThreatName, std::string(safestore::ObjectHandleHolder&));
+    MOCK_METHOD1(getObjectStoreTime, int64_t(safestore::ObjectHandleHolder&));
     MOCK_METHOD2(getObjectHandle, bool(const std::string&, std::shared_ptr<safestore::ObjectHandleHolder>));
     MOCK_METHOD1(finaliseObject, bool(safestore::ObjectHandleHolder&));
 };

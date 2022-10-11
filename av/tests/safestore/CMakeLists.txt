@@ -2,7 +2,7 @@
 include(GoogleTest)
 
 SophosAddTest(TestSafeStore
-        MockISafeStoreWrapper.cpp
+        MockISafeStoreWrapper.h
         TestQuarantineManager.cpp
         TestSafeStoreWrapper.cpp
         ../common/LogInitializedTests.cpp # include here as it's not part of a lib
