@@ -75,6 +75,10 @@ namespace
              const std::string& threatName,
              const std::string& sha256,
              datatypes::AutoFd autoFd));
+
+        MOCK_METHOD(void, initialise,());
+        MOCK_METHOD(safestore::QuarantineManagerState, getState,());
+        MOCK_METHOD(bool, deleteDatabase,());
     };
 } // namespace
 

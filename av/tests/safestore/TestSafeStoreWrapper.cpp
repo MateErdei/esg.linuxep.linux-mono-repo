@@ -11,7 +11,7 @@ class SafeStoreWrapperTests : public LogInitializedTests
 
 TEST_F(SafeStoreWrapperTests, threatIdFromStringTakesFirst16Bytes)
 {
-    auto ssThreatIdStruct = safestore::threatIdFromString("Tabcdefghijklmnopqrstuvwxyz");
+    auto ssThreatIdStruct = safestore::safeStoreIdFromString("Tabcdefghijklmnopqrstuvwxyz");
     ASSERT_TRUE(ssThreatIdStruct.has_value());
 
     ASSERT_EQ((ssThreatIdStruct.value().Data1 & 0x000000ff), 'a');
@@ -33,13 +33,13 @@ TEST_F(SafeStoreWrapperTests, threatIdFromStringTakesFirst16Bytes)
 
 TEST_F(SafeStoreWrapperTests, threatIdFromStringHandlesShortIds)
 {
-    auto ssThreatIdStruct = safestore::threatIdFromString("Tabcdefg");
+    auto ssThreatIdStruct = safestore::safeStoreIdFromString("Tabcdefg");
     ASSERT_FALSE(ssThreatIdStruct.has_value());
 }
 
 TEST_F(SafeStoreWrapperTests, threatIdFromStringHandlesMalformedIds)
 {
-    auto ssThreatIdStruct = safestore::threatIdFromString("this is not a threat ID");
+    auto ssThreatIdStruct = safestore::safeStoreIdFromString("this is not a threat ID");
     ASSERT_FALSE(ssThreatIdStruct.has_value());
 }
 
@@ -48,7 +48,7 @@ TEST_F(SafeStoreWrapperTests, stringFromThreatIdStruct)
     std::string idString = "abcdefghijklmnop"; // only 16bytes long.
     std::string threatIdPrefix = "T";
     std::string threatIdString = threatIdPrefix + idString;
-    auto ssThreatIdStruct = safestore::threatIdFromString(threatIdString);
-    std::string id = safestore::stringFromThreatId(ssThreatIdStruct.value());
+    auto ssThreatIdStruct = safestore::safeStoreIdFromString(threatIdString);
+    std::string id = safestore::stringFromSafeStoreId(ssThreatIdStruct.value());
     ASSERT_EQ(idString, id);
 }

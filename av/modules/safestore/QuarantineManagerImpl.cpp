@@ -94,17 +94,29 @@ namespace safestore
     }
 
     bool QuarantineManagerImpl::quarantineFile(
-        const std::string& directory,
-        const std::string& filename,
+        const std::string& filePath,
         const std::string& threatId,
-        const std::string& threatName)
+        const std::string& threatName,
+        const std::string& sha256,
+        datatypes::AutoFd autoFd)
     {
         std::lock_guard<std::mutex> lock(m_interfaceMutex);
+        std::string directory = Common::FileSystem::dirName(filePath);
+        std::string filename = Common::FileSystem::basename(filePath);
+
         std::shared_ptr<ObjectHandleHolder> objectHandle = std::make_shared<ObjectHandleHolder>(*m_safeStore);
         auto saveResult = m_safeStore->saveFile(directory, filename, threatId, threatName, *objectHandle);
         if (saveResult == SaveFileReturnCode::OK)
         {
+
+            // TODO LINUXDAR-5677 verify the file
+            LOGDEBUG("File Descriptor: " << autoFd.fd());
+
             // TODO LINUXDAR-5677 delete the file
+
+
+            // TODO LINUXDAR-5677 do something with the sha256, do we need to store this as custom data for restoration?
+            LOGDEBUG("File SHA256: " << sha256);
 
             LOGDEBUG("Finalising file: " << filename);
             if (m_safeStore->finaliseObject(*objectHandle))

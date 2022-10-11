@@ -237,6 +237,30 @@ namespace safestore
         virtual std::string getObjectThreatName(ObjectHandleHolder& objectHandle) = 0;
         virtual int64_t getObjectStoreTime(ObjectHandleHolder& objectHandle) = 0;
 
+        /* Fetches custom data associated with a stored object.
+         *
+         * Parameters:
+         *   ctx (in) - initialized SafeStore context handle
+         *   objectHandle (in) - handle identifying a stored object
+         *   dataTag (in) - keyword identifying the type of custom data requested
+         *   dataBuf (out, optional) - buffer to save the data to
+         *   dataBufSize (in, out) - size of the buffer
+         *   bytesRead (out, optional) - number of bytes written to the buffer
+         *
+         * Return value:
+         *   Success:
+         *     SR_OK
+         *   Failure:
+         *     SR_INVALID_ARG - an invalid argument was passed to the function
+         *     SR_DATA_TAG_NOT_SET - no custom data was defined with the given tag
+         *     SR_BUFFER_SIZE_TOO_SMALL - the buffer is too small to hold the output
+         *
+         * Remarks:
+         *   The dataBuf parameter is optional. If it is left as NULL the function
+         *   fills dataBufSize with the size, in bytes, required to store the
+         *   custom data.
+                 */
+
         // SafeStore_Result_t SAFESTORE_CALL SafeStore_GetObjectCustomData(
         //     _In_ SafeStore_t ctx,
         //     _In_ SafeStore_Handle_t objectHandle,
@@ -251,6 +275,11 @@ namespace safestore
         //     _In_z_ const SsPlatChar* dataTag,
         //     _In_opt_bytecount_(dataBufSize) const uint8_t* dataBuf,
         //     _In_ size_t dataBufSize);
+
+//        virtual bool setObjectCustomData(ObjectHandleHolder& objectHandle, const std::string& dataName, const std::vector<uint8_t>& value) = 0;
+//        virtual std::vector<uint8_t> getObjectCustomData(ObjectHandleHolder& objectHandle, const std::string& dataName) = 0;
+//
+
 
 
 

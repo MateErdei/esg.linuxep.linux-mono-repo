@@ -109,11 +109,13 @@ int main()
 
     // add some fake threats
     std::string fakeVirusFilePath1 = "/tmp/fakevirus1";
+    datatypes::AutoFd fd1; // just used to have something to pass in to QM
     std::string fakeVirusFilePath2 = "/tmp/fakevirus2";
+    datatypes::AutoFd fd2; // just used to have something to pass in to QM
     fileSystem->writeFile(fakeVirusFilePath1, "a temp test file1");
     fileSystem->writeFile(fakeVirusFilePath2, "a temp test file2");
     // Store 1
-    bool stored = quarantineManager->quarantineFile(Common::FileSystem::dirName(fakeVirusFilePath1), Common::FileSystem::basename(fakeVirusFilePath1),"T_this_is_a_junk_threat_ID1","threat name1");
+    bool stored = quarantineManager->quarantineFile(fakeVirusFilePath1, "T_junk_threat_ID1", "threat name1", "sha 256 test value1", std::move(fd1));
     if (stored)
     {
         std::cout << "Successfully quarantined " << fakeVirusFilePath1 << std::endl;
@@ -123,7 +125,7 @@ int main()
         std::cout << "Failed to quarantine " << fakeVirusFilePath1 << std::endl;
     }
     // Store 2
-    stored = quarantineManager->quarantineFile(Common::FileSystem::dirName(fakeVirusFilePath2), Common::FileSystem::basename(fakeVirusFilePath2),"T_this_is_a_junk_threat_ID2","threat name2");
+    stored = quarantineManager->quarantineFile(fakeVirusFilePath2,"T_junk_threat_ID2","threat name2", "sha 256 test value2", std::move(fd2));
     if (stored)
     {
         std::cout << "Successfully quarantined " << fakeVirusFilePath2 << std::endl;
@@ -133,22 +135,29 @@ int main()
         std::cout << "Failed to quarantine " << fakeVirusFilePath2 << std::endl;
     }
 
-    // Searching testing
+    // Test searching
 
     safestore::SafeStoreFilter filter;
     filter.objectLocation = Common::FileSystem::dirName(fakeVirusFilePath1); // same dir as 2
 //    filter.objectName = Common::FileSystem::basename(fakeVirusFilePath);
     filter.activeFields = {safestore::FilterField::OBJECT_LOCATION};
 
-    auto searchHandle = safeStoreWrapper->createSearchHandleHolder();
-    auto objectHandle  = safeStoreWrapper->createObjectHandleHolder();
-    safeStoreWrapper->findFirst(filter, *searchHandle, *objectHandle);
-
-    std::cout << "Object name: " << safeStoreWrapper->getObjectName(*objectHandle) << std::endl;
+//    auto searchHandle = safeStoreWrapper->createSearchHandleHolder();
+//    auto objectHandle  = safeStoreWrapper->createObjectHandleHolder();
+//    safeStoreWrapper->findFirst(filter, *searchHandle, *objectHandle);
+//
+//    std::cout << "Object name: " << safeStoreWrapper->getObjectName(*objectHandle) << std::endl;
 
     for (auto& result : safeStoreWrapper->find(filter))
     {
-        std::cout << "for loop: " << safeStoreWrapper->getObjectName(result) << std::endl;
+        std::cout << "for loop: " << std::endl;
+        std::cout << "getObjectName: " << safeStoreWrapper->getObjectName(result) << std::endl;
+        std::cout << "getObjectId: " << safeStoreWrapper->getObjectId(result) << std::endl;
+//        std::cout << "getObjectType: " << safeStoreWrapper->getObjectType(result) << std::endl;
+//        std::cout << "getObjectStatus: " << safeStoreWrapper->getObjectStatus(result) << std::endl;
+        std::cout << "getObjectStoreTime: " << safeStoreWrapper->getObjectStoreTime(result) << std::endl;
+        std::cout << "getObjectThreatId: " << safeStoreWrapper->getObjectThreatId(result) << std::endl;
+        std::cout << "getObjectThreatName: " << safeStoreWrapper->getObjectThreatName(result) << std::endl;
     }
 
 //    // TODO 5675 fix const version

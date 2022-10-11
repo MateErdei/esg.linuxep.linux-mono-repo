@@ -18,10 +18,11 @@ namespace safestore
         QuarantineManagerState getState() override;
         bool deleteDatabase() override;
         bool quarantineFile(
-            const std::string& directory,
-            const std::string& filename,
+            const std::string& filePath,
             const std::string& threatId,
-            const std::string& threatName) override;
+            const std::string& threatName,
+            const std::string& sha256,
+            datatypes::AutoFd autoFd) override;
 
     private:
         QuarantineManagerState m_state;

@@ -2,9 +2,11 @@
 
 #include "Main.h"
 
+#include "IQuarantineManager.h"
 #include "Logger.h"
-#include "QuarantineManager.h"
-
+#include "QuarantineManagerImpl.h"
+#include "SafeStoreWrapperImpl.h"
+#include "StateMonitor.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
 #include "common/ApplicationPaths.h"
@@ -15,80 +17,93 @@
 
 #include <poll.h>
 
-using namespace safestore;
 namespace fs = sophos_filesystem;
 
-int Main::run()
+namespace safestore
 {
-    LOGINFO("SafeStore started");
-    auto instance = Main();
-
-    try
+    int Main::run()
     {
-        instance.innerRun();
+        LOGINFO("SafeStore started");
+        auto instance = Main();
+
+        try
+        {
+            instance.innerRun();
+        }
+        catch (const std::exception& e)
+        {
+            LOGFATAL(e.what());
+            return 1;
+        }
+
+        LOGINFO("Exiting SafeStore");
+        return 0;
     }
-    catch (const std::exception& e)
+
+    void Main::innerRun()
     {
-        LOGFATAL(e.what());
-        return 1;
-    }
+        // Take safestore lock file
+        common::PidLockFile lock(Plugin::getSafeStorePidPath());
 
-    LOGINFO("Exiting SafeStore");
-    return 0;
-}
+        // TODO make this unique doesn't need to be shared here.
+        std::shared_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper = std::make_shared<safestore::SafeStoreWrapperImpl>();
+        std::shared_ptr<safestore::IQuarantineManager> quarantineManager = std::make_shared<safestore::QuarantineManagerImpl>(safeStoreWrapper);
 
-void Main::innerRun()
-{
-    // Take safestore lock file
-    common::PidLockFile lock(Plugin::getSafeStorePidPath());
+        quarantineManager->initialise();
 
-    std::shared_ptr<IQuarantineManager> quarantineManager = std::make_shared<QuarantineManager>();
+        StateMonitor qmStateMonitorThread(quarantineManager);
+        qmStateMonitorThread.run();
+
+        //    quarantineManager->quarantineFile(....);
 
     unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), quarantineManager);
     server.setUserAndGroup("sophos-spl-av", "root");
-    server.start();
+    server.start();auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
+        auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };
 
-    auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
-    auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };
-
-    struct pollfd fds[]
-    {
-        { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-        { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
-    };
-
-    while (true)
-    {
-        // wait for an activity on one of the fds
-        int activity = ::ppoll(fds, std::size(fds), nullptr, nullptr);
-        if (activity < 0)
+        struct pollfd fds[]
         {
-            // error in ppoll
-            int error = errno;
-            if (error == EINTR)
+            { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
             {
-                LOGDEBUG("Ignoring EINTR from ppoll");
-                continue;
+                .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0
+            }
+        };
+
+
+
+        while (true)
+        {
+            // wait for an activity on one of the fds
+            int activity = ::ppoll(fds, std::size(fds), nullptr, nullptr);
+            if (activity < 0)
+            {
+                // error in ppoll
+                int error = errno;
+                if (error == EINTR)
+                {
+                    LOGDEBUG("Ignoring EINTR from ppoll");
+                    continue;
+                }
+
+                LOGERROR(
+                    "Failed to read from pipe - shutting down. Error: " << common::safer_strerror(error) << " ("
+                                                                        << error << ')');
+                break;
             }
 
-            LOGERROR(
-                "Failed to read from pipe - shutting down. Error: " << common::safer_strerror(error) << " (" << error
-                                                                    << ')');
-            break;
-        }
+            if ((fds[0].revents & POLLIN) != 0)
+            {
+                LOGINFO("SafeStore received SIGINT - shutting down");
+                sigIntMonitor->triggered();
+                break;
+            }
 
-        if ((fds[0].revents & POLLIN) != 0)
-        {
-            LOGINFO("SafeStore received SIGINT - shutting down");
-            sigIntMonitor->triggered();
-            break;
-        }
-
-        if ((fds[1].revents & POLLIN) != 0)
-        {
-            LOGINFO("SafeStore received SIGTERM - shutting down");
-            sigTermMonitor->triggered();
-            break;
+            if ((fds[1].revents & POLLIN) != 0)
+            {
+                LOGINFO("SafeStore received SIGTERM - shutting down");
+                sigTermMonitor->triggered();
+                break;
+            }
         }
     }
 }

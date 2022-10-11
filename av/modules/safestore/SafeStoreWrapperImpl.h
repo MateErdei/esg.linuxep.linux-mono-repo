@@ -32,12 +32,12 @@ namespace safestore
     /*
      * TODO 5675 docs
      */
-    std::optional<SafeStore_Id_t> threatIdFromString(const std::string& threatId);
+    std::optional<SafeStore_Id_t> safeStoreIdFromString(const std::string& threatId);
 
     /*
      * TODO 5675 docs
      */
-    std::string stringFromThreatId(const SafeStore_Id_t& id);
+    std::string stringFromSafeStoreId(const SafeStore_Id_t& id);
 
     class SafeStoreWrapperImpl : public ISafeStoreWrapper
     {
@@ -66,7 +66,7 @@ namespace safestore
         SearchResults find(const SafeStoreFilter& filter) override;
         std::string getObjectName(ObjectHandleHolder& objectHandle) override;
         std::string getObjectId(ObjectHandleHolder& objectHandle) override;
-        bool getObjectHandle(const std::string& threatId, std::shared_ptr<ObjectHandleHolder> objectHandle)
+        bool getObjectHandle(const std::string& objectId, std::shared_ptr<ObjectHandleHolder> objectHandle)
             override;
         ObjectType getObjectType(ObjectHandleHolder& objectHandle) override;
         ObjectStatus getObjectStatus(ObjectHandleHolder& objectHandle) override;

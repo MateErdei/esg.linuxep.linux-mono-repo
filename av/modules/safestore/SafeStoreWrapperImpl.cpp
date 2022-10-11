@@ -13,7 +13,7 @@ extern "C"
 
 namespace safestore
 {
-    std::optional<SafeStore_Id_t> threatIdFromString(const std::string& threatId)
+    std::optional<SafeStore_Id_t> safeStoreIdFromString(const std::string& threatId)
     {
         if (threatId.length() < sizeof(SafeStore_Id_t))
         {
@@ -42,7 +42,7 @@ namespace safestore
         return id;
     }
 
-    std::string stringFromThreatId(const SafeStore_Id_t& id)
+    std::string stringFromSafeStoreId(const SafeStore_Id_t& id)
     {
         std::string threatId;
         threatId += char(id.Data1 & 0x000000ff);
@@ -225,7 +225,7 @@ namespace safestore
         const std::string& threatName,
         ObjectHandleHolder& objectHandle)
     {
-        auto threatIdSafeStore = threatIdFromString(threatId);
+        auto threatIdSafeStore = safeStoreIdFromString(threatId);
         LOGDEBUG("SafeStoreWrapperImpl::saveFile - directory: " << directory);
         LOGDEBUG("SafeStoreWrapperImpl::saveFile - filename: " << filename);
         LOGDEBUG("SafeStoreWrapperImpl::saveFile - threatId: " << threatId);
@@ -299,7 +299,7 @@ namespace safestore
         // Convert Filter type to SafeStore_Filter_t
         SafeStore_Filter_t ssFilter;
         ssFilter.activeFields = convertFilterFieldsToSafeStoreInt(filter.activeFields);
-        if (auto ssThreatId = threatIdFromString(filter.threatId))
+        if (auto ssThreatId = safeStoreIdFromString(filter.threatId))
         {
             ssFilter.threatId = &(ssThreatId.value());
         }
@@ -357,8 +357,8 @@ namespace safestore
         //  *     SR_BUFFER_SIZE_TOO_SMALL - the buffer is too small to hold the output
         //  *     SR_INTERNAL_ERROR - an internal error has occurred
 
-//        auto returnCode = SafeStore_GetObjectName(*(objectHandle.getRawHandle()), buf, &size);
-        auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
+        auto returnCode = SafeStore_GetObjectName(*(objectHandle.getRawHandle()), buf, &size);
+//        auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
 
         switch (returnCode)
         {
@@ -378,14 +378,26 @@ namespace safestore
 
     std::string SafeStoreWrapperImpl::getObjectId(ObjectHandleHolder& objectHandle)
     {
+        // TODO 5675 fix this
         SafeStore_Id_t objectId;
-        SafeStore_GetObjectId(objectHandle.getRawHandle(), &objectId);
+        auto returnCode = SafeStore_GetObjectId(*(objectHandle.getRawHandle()), &objectId);
+        if (returnCode == SR_OK)
+        {
 
-        return stringFromThreatId(objectId);
+        }
+        else
+        {
+
+        }
+
+//        SafeStore_GetObjectId(objectHandle.getRawHandle(), &objectId);
+
+//        return stringFromThreatId(objectId);
+        return "NOT IMPLEMENTED";
     }
 
     bool SafeStoreWrapperImpl::getObjectHandle(
-        const std::string& threatId,
+        const std::string& objectId,
         std::shared_ptr<ObjectHandleHolder> objectHandle)
     {
         //        TODO 5675: Handle errors
@@ -397,10 +409,10 @@ namespace safestore
         //            SR_OBJECT_NOT_FOUND - no object was found with the given ID
         //            SR_INTERNAL_ERROR - an internal error has occurred
 
-        if (auto threadIdStr = threatIdFromString(threatId))
+        if (auto safeStoreThreadId = safeStoreIdFromString(objectId))
         {
             return (
-                SafeStore_GetObjectHandle(m_safeStoreCtx, &threadIdStr.value(), objectHandle->getRawHandle()) == SR_OK);
+                SafeStore_GetObjectHandle(m_safeStoreCtx, &safeStoreThreadId.value(), objectHandle->getRawHandle()) == SR_OK);
         }
 
         return false;
@@ -477,10 +489,10 @@ namespace safestore
     std::string SafeStoreWrapperImpl::getObjectThreatId(ObjectHandleHolder& objectHandle)
     {
         SafeStore_Id_t threatId;
-        auto returnCode = SafeStore_GetObjectThreatId(objectHandle.getRawHandle(), &threatId);
+        auto returnCode = SafeStore_GetObjectThreatId(*(objectHandle.getRawHandle()), &threatId);
         if (returnCode == SR_OK)
         {
-            return stringFromThreatId(threatId);
+            return stringFromSafeStoreId(threatId);
         }
         LOGWARN("Failed to query object threat ID, returning blank ID");
         return "";
@@ -494,9 +506,7 @@ namespace safestore
 
         // TODO 5675 deal with error codes... e.g. string size too small
 
-//        auto returnCode = SafeStore_GetObjectThreatName(*(objectHandle.getRawHandle()), buf, &size);
-        auto returnCode = SafeStore_GetObjectThreatName(objectHandle.getRawHandle(), buf, &size);
-
+        auto returnCode = SafeStore_GetObjectThreatName(*(objectHandle.getRawHandle()), buf, &size);
         switch (returnCode)
         {
             case SR_OK:
