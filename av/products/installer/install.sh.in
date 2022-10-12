@@ -123,10 +123,8 @@ function delete_removed_libraries()
 
     $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed lrlib files"
 
-    local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/mllib"
     local dest_dir="${SUSI_UPDATE_SRC}/mllib"
-
-    $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$src_dir" "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed mllib files"
+    rm -rf "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed mllib files"
 
     local src_dir="$DIST/files/plugins/av/chroot/susi/update_source/susicore"
     local dest_dir="${SUSI_UPDATE_SRC}/susicore"
@@ -144,7 +142,7 @@ function generate_susi_package_manifest()
     vdl_hash=$(sha256sum $DATASETA_MANIFEST | awk '{print $1}')
     echo "vdl ${vdl_hash}" >> ${temp_manifest}
 
-    model_hash=$(sha256sum ${SUSI_UPDATE_SRC}/model/model.dat | awk '{print $1}')
+    model_hash=$(sha256sum ${SUSI_UPDATE_SRC}/model/manifest.dat | awk '{print $1}')
     echo "model ${model_hash}" >> ${temp_manifest}
 
     lrdata_hash=$(cat ${SUSI_UPDATE_SRC}/reputation/filerep.dat ${SUSI_UPDATE_SRC}/reputation/signerrep.dat | sha256sum | awk '{print $1}')
