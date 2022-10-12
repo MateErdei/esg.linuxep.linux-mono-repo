@@ -76,12 +76,9 @@
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
-        <trusted-asset artifact-path="filer5-migrate/model-linux-x64/1-3/212025/oempackage/linux-x64-model-gcc4.8.1.tar"
-                       dest-dir="input/susi_input/mllib"/>
-
         <build-asset project="ec" repo="susi">
-            <release-version branch="release/2.0"
-                             build-id="20220510125737-13c0735291821539325af76cab1474c614fdeb06-6zShry"/>
+            <release-version branch="feature--CORE-4349-New-ML-Package-Layout"
+                             build-id="20221010180103-ee3a30332b0242b5d54eb4e3f9f714287d8329e8-fpOFrT"/>
             <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib"/>
             <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib"/>
             <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include"/>

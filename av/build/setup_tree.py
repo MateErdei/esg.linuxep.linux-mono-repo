@@ -321,12 +321,11 @@ def main(argv):
     copy_from_input("lrlib/liblocalreputation.so", LRLIB_DIR)
 
     ## ml-lib
-    unpack_tar_from(os.path.join(INPUT_DIR, "mllib/linux-x64-model-gcc4.8.1.tar"), MLLIB_DIR)
+    # ML lib no longer part of product
 
     ## Calculate hashes
     susicore_checksum = dirhash(SUSICORE_DIR)
     lrlib_checksum = dirhash(LRLIB_DIR)
-    mllib_checksum = dirhash(MLLIB_DIR)
     libsophtainer_checksum = dirhash(SOPHTAINER_DIR)
     libsavi_checksum = dirhash(SAVI_DIR)
     libglobalrep_checksum = dirhash(GRLIB_DIR)
@@ -334,7 +333,6 @@ def main(argv):
 
     manifest = """susicore {}
 lrlib {}
-mllib {}
 libsophtainer {}
 libsavi {}
 libglobalrep {}
@@ -342,7 +340,6 @@ rules {}
 """.format(
         susicore_checksum,
         lrlib_checksum,
-        mllib_checksum,
         libsophtainer_checksum,
         libsavi_checksum,
         libglobalrep_checksum,
