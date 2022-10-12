@@ -78,7 +78,6 @@ Bootstrap SUSI From Update Source
     Copy Files  ${SUSI_UPDATE_SRC}/libsophtainer/*  ${SUSI_V1DIR}
     Copy Files  ${SUSI_UPDATE_SRC}/libupdater/*     ${SUSI_V1DIR}
     Copy Files  ${SUSI_UPDATE_SRC}/lrlib/*          ${SUSI_V1DIR}
-    Copy Files  ${SUSI_UPDATE_SRC}/mllib/*          ${SUSI_V1DIR}
     Copy Files  ${SUSI_UPDATE_SRC}/susicore/*       ${SUSI_V1DIR}
 
     Copy Files  ${SUSI_UPDATE_SRC}/reputation/*     ${SUSI_V1DIR}/lrdata
@@ -93,6 +92,7 @@ Bootstrap SUSI From Update Source
     Run Process   ldconfig   -lN   *.so.*   cwd=${SUSI_V1DIR}   shell=True
     Run Process   ln  -s  libsophtainer.so.1  libsophtainer.so   cwd=${SUSI_V1DIR}   shell=True
     Run Process   ln  -s  libglobalrep.so.1  libglobalrep.so   cwd=${SUSI_V1DIR}   shell=True
+    Run Process   ln  -s  model/model.so  libmodel.so   cwd=${SUSI_V1DIR}   shell=True
 
 
 Setup Component For Testing
