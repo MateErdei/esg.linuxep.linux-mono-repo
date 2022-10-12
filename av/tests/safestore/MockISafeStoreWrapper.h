@@ -31,7 +31,7 @@ public:
         bool(const safestore::SafeStoreFilter&, safestore::SearchHandleHolder&, safestore::ObjectHandleHolder&));
     MOCK_METHOD2(findNext, bool(safestore::SearchHandleHolder&, safestore::ObjectHandleHolder&));
     MOCK_METHOD1(getObjectName, std::string(safestore::ObjectHandleHolder&));
-    MOCK_METHOD1(getObjectId, std::string(safestore::ObjectHandleHolder&));
+    MOCK_METHOD1(getObjectId, std::string(const safestore::ObjectHandleHolder&));
     MOCK_METHOD1(getObjectType, safestore::ObjectType(safestore::ObjectHandleHolder&));
     MOCK_METHOD1(getObjectStatus, safestore::ObjectStatus(safestore::ObjectHandleHolder&));
     MOCK_METHOD1(getObjectThreatId, std::string(safestore::ObjectHandleHolder&));
@@ -39,4 +39,9 @@ public:
     MOCK_METHOD1(getObjectStoreTime, int64_t(safestore::ObjectHandleHolder&));
     MOCK_METHOD2(getObjectHandle, bool(const std::string&, std::shared_ptr<safestore::ObjectHandleHolder>));
     MOCK_METHOD1(finaliseObject, bool(safestore::ObjectHandleHolder&));
+    MOCK_METHOD3(setObjectCustomData, bool(safestore::ObjectHandleHolder&, const std::string&, const std::vector<uint8_t>& ));
+    MOCK_METHOD2(getObjectCustomData, std::vector<uint8_t>(safestore::ObjectHandleHolder&, const std::string&));
+    MOCK_METHOD3(setObjectCustomDataString, bool(safestore::ObjectHandleHolder&, const std::string&, const std::string& ));
+    MOCK_METHOD2(getObjectCustomDataString, std::string(safestore::ObjectHandleHolder&, const std::string&));
+
 };
