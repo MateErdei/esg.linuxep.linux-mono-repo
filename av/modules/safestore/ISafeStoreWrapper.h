@@ -25,9 +25,10 @@ namespace safestore
     // Return codes from SafeStore initialisation
     enum class InitReturnCode
     {
+        // TODO 5675 document this
+
         // SafeStore initialised ok
         OK,
-        // ...add comments to all  codes here:
         INVALID_ARG,
         UNSUPPORTED_OS,
         UNSUPPORTED_VERSION,
@@ -41,6 +42,9 @@ namespace safestore
 
     enum class SaveFileReturnCode
     {
+
+        // TODO 5675 document this
+
         // SafeStore initialised ok
         OK,
         INVALID_ARG,
@@ -77,6 +81,8 @@ namespace safestore
 
     enum class ObjectType
     {
+        // TODO 5675 document this
+
         ANY,
         UNKNOWN = ANY,
         FILE,
@@ -87,6 +93,8 @@ namespace safestore
 
     enum class ObjectStatus
     {
+        // TODO 5675 document this
+
         ANY,
         UNDEFINED = ANY,
         STORED,
@@ -126,10 +134,10 @@ namespace safestore
         int64_t endTime;
 
         // Type of the objects to consider.
-        ObjectType objectType;
+        ObjectType objectType = ObjectType::ANY;
 
         // Status of the objects to consider.
-        ObjectStatus objectStatus;
+        ObjectStatus objectStatus = ObjectStatus::ANY;
 
         // Location of the objects to consider.
         // For a file this is the full path of the directory containing the file.
@@ -139,7 +147,6 @@ namespace safestore
         // For a file this is the name of the file.
         std::string objectName;
     };
-
 
     class SearchResults;
     class ObjectHandleHolder;
@@ -168,7 +175,6 @@ namespace safestore
         /*
          * TODO 5675 Interface docs
          */
-//        virtual void releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder) = 0;
         virtual void releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder) = 0;
 
         /*
@@ -229,90 +235,64 @@ namespace safestore
         /*
          * TODO 5675 Interface docs
          */
-        virtual std::string getObjectId(ObjectHandleHolder& objectHandle) = 0;
+        virtual std::string getObjectId(const ObjectHandleHolder& objectHandle) = 0;
 
+        /*
+         * TODO 5675 Interface docs
+         */
         virtual ObjectType getObjectType(ObjectHandleHolder& objectHandle) = 0;
+
+        /*
+         * TODO 5675 Interface docs
+         */
         virtual ObjectStatus getObjectStatus(ObjectHandleHolder& objectHandle) = 0;
+
+        /*
+         * TODO 5675 Interface docs
+         */
         virtual std::string getObjectThreatId(ObjectHandleHolder& objectHandle) = 0;
+
+        /*
+         * TODO 5675 Interface docs
+         */
         virtual std::string getObjectThreatName(ObjectHandleHolder& objectHandle) = 0;
+
+        /*
+         * TODO 5675 Interface docs
+         */
         virtual int64_t getObjectStoreTime(ObjectHandleHolder& objectHandle) = 0;
 
-        /* Fetches custom data associated with a stored object.
-         *
-         * Parameters:
-         *   ctx (in) - initialized SafeStore context handle
-         *   objectHandle (in) - handle identifying a stored object
-         *   dataTag (in) - keyword identifying the type of custom data requested
-         *   dataBuf (out, optional) - buffer to save the data to
-         *   dataBufSize (in, out) - size of the buffer
-         *   bytesRead (out, optional) - number of bytes written to the buffer
-         *
-         * Return value:
-         *   Success:
-         *     SR_OK
-         *   Failure:
-         *     SR_INVALID_ARG - an invalid argument was passed to the function
-         *     SR_DATA_TAG_NOT_SET - no custom data was defined with the given tag
-         *     SR_BUFFER_SIZE_TOO_SMALL - the buffer is too small to hold the output
-         *
-         * Remarks:
-         *   The dataBuf parameter is optional. If it is left as NULL the function
-         *   fills dataBufSize with the size, in bytes, required to store the
-         *   custom data.
-                 */
+        /*
+         * TODO 5675 Interface docs
+         */
+        virtual bool setObjectCustomData(ObjectHandleHolder& objectHandle, const std::string& dataName, const std::vector<uint8_t>& value) = 0;
 
-        // SafeStore_Result_t SAFESTORE_CALL SafeStore_GetObjectCustomData(
-        //     _In_ SafeStore_t ctx,
-        //     _In_ SafeStore_Handle_t objectHandle,
-        //     _In_z_ const SsPlatChar* dataTag,
-        //     _Out_opt_bytecap_(*dataBufSize) uint8_t* dataBuf,
-        //     _Inout_ size_t* dataBufSize,
-        //     _Out_opt_ size_t* bytesRead);
+        /*
+         * TODO 5675 Interface docs
+         */
+        virtual std::vector<uint8_t> getObjectCustomData(ObjectHandleHolder& objectHandle, const std::string& dataName) = 0;
 
-        // SafeStore_Result_t SAFESTORE_CALL SafeStore_SetObjectCustomData(
-        //     _In_ SafeStore_t ctx,
-        //     _In_ SafeStore_Handle_t objectHandle,
-        //     _In_z_ const SsPlatChar* dataTag,
-        //     _In_opt_bytecount_(dataBufSize) const uint8_t* dataBuf,
-        //     _In_ size_t dataBufSize);
+        /*
+         * TODO 5675 Interface docs
+         */
+        virtual bool setObjectCustomDataString(ObjectHandleHolder& objectHandle, const std::string& dataName, const std::string& value) = 0;
 
-//        virtual bool setObjectCustomData(ObjectHandleHolder& objectHandle, const std::string& dataName, const std::vector<uint8_t>& value) = 0;
-//        virtual std::vector<uint8_t> getObjectCustomData(ObjectHandleHolder& objectHandle, const std::string& dataName) = 0;
-//
+        /*
+         * TODO 5675 Interface docs
+         */
+        virtual std::string getObjectCustomDataString(ObjectHandleHolder& objectHandle, const std::string& dataName) = 0;
 
+        // TODO 5675 SafeStore_Result_t SAFESTORE_CALL SafeStore_FinalizeObjectsByThreatId(_In_ SafeStore_t ctx, _In_ SafeStore_Id_t* threatId);
 
+        // TODO 5675  _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectById(_In_ SafeStore_t ctx, _In_ const SafeStore_Id_t* objectId, _In_opt_z_ const SsPlatChar* location);
 
+        // TODO 5675 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectsByThreatId(_In_ SafeStore_t ctx, _In_ const SafeStore_Id_t* threatId);
 
-        //
-        //        SafeStore_Result_t SAFESTORE_CALL
-        //        SafeStore_FinalizeObjectsByThreatId(_In_ SafeStore_t ctx, _In_ SafeStore_Id_t* threatId);
+        // TODO 5675 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectById(_In_ SafeStore_t ctx, _In_ const SafeStore_Id_t* objectId);
 
+        // TODO 5675 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectsByThreatId(_In_ SafeStore_t ctx, _In_ const SafeStore_Id_t* threatId);
 
-        //_Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectById(
-        //    _In_ SafeStore_t ctx,
-        //    _In_ const SafeStore_Id_t* objectId,
-        //    _In_opt_z_ const SsPlatChar* location);
-
-        //_Check_return_ SafeStore_Result_t SAFESTORE_CALL
-        // SafeStore_RestoreObjectsByThreatId(_In_ SafeStore_t ctx, _In_ const SafeStore_Id_t* threatId);
-
-        //_Check_return_ SafeStore_Result_t SAFESTORE_CALL
-        // SafeStore_DeleteObjectById(_In_ SafeStore_t ctx, _In_ const SafeStore_Id_t* objectId);
-
-        //_Check_return_ SafeStore_Result_t SAFESTORE_CALL
-        // SafeStore_DeleteObjectsByThreatId(_In_ SafeStore_t ctx, _In_ const SafeStore_Id_t* threatId);
-
-        // SafeStore_Result_t SAFESTORE_CALL SafeStore_ExportFile(
-        //     _In_ SafeStore_t ctx,
-        //     _In_ const SafeStore_Id_t* objectId,
-        //     _Reserved_ const uint8_t* password,
-        //     _Reserved_ size_t passwordSize,
-        //     _In_z_ const SsPlatChar* directory,
-        //     _In_opt_z_ const SsPlatChar* fileName);
-
-
-
-
+        // TODO 5675 SafeStore_Result_t SAFESTORE_CALL SafeStore_ExportFile(_In_ SafeStore_t ctx, _In_ const SafeStore_Id_t* objectId, _Reserved_ const uint8_t* password, _Reserved_ size_t passwordSize, _In_z_ const SsPlatChar* directory, _In_opt_z_ const SsPlatChar* fileName);
 
         /*
          * TODO 5675 Interface docs
@@ -332,8 +312,9 @@ namespace safestore
     public:
         explicit ObjectHandleHolder(ISafeStoreWrapper& safeStoreWrapper)
         : m_safeStoreWrapper(safeStoreWrapper)
-        {
-        }
+        {}
+        ObjectHandleHolder(const ObjectHandleHolder&) = delete;
+        ObjectHandleHolder& operator=(const ObjectHandleHolder&) = delete;
 
         ~ObjectHandleHolder()
         {
@@ -344,10 +325,36 @@ namespace safestore
 //                LOGTRACE("Cleaned up SafeStore object handle");
             }
         }
-        SafeStoreObjectHandle* getRawHandle()
+
+        SafeStoreObjectHandle getRawHandle() const
+        {
+            return m_handle;
+        }
+
+        SafeStoreObjectHandle* getRawHandlePtr()
         {
             return &m_handle;
         }
+
+        bool operator==(const ObjectHandleHolder& other) const
+        {
+//            return m_handle == other.getRawHandle();
+//            return m_safeStoreWrapper.getObjectId(*this) == m_safeStoreWrapper.getObjectId(other);
+            auto thisId = m_safeStoreWrapper.getObjectId(*this);
+            auto otherId = m_safeStoreWrapper.getObjectId(other);
+            return thisId == otherId;
+        }
+
+        bool operator!=(const ObjectHandleHolder& other) const
+        {
+            //            return m_handle == other.getRawHandle();
+            //            return m_safeStoreWrapper.getObjectId(*this) == m_safeStoreWrapper.getObjectId(other);
+            auto thisId = m_safeStoreWrapper.getObjectId(*this);
+            auto otherId = m_safeStoreWrapper.getObjectId(other);
+            return thisId != otherId;
+        }
+
+
     private:
         SafeStoreObjectHandle m_handle = nullptr;
         ISafeStoreWrapper& m_safeStoreWrapper;
@@ -358,14 +365,14 @@ namespace safestore
     public:
         explicit SearchHandleHolder(ISafeStoreWrapper& safeStoreWrapper)
         : m_safeStore(safeStoreWrapper)
-        {
-        }
+        {}
+        SearchHandleHolder(const SearchHandleHolder&) = delete;
+        SearchHandleHolder& operator=(const SearchHandleHolder&) = delete;
 
         ~SearchHandleHolder()
         {
             if (m_handle != nullptr)
             {
-//                SafeStore_FindClose(m_safeStoreCtx, m_handle);
                 m_safeStore.releaseSearchHandle(m_handle);
                 m_handle = nullptr;
 //                LOGTRACE("Cleaned up SafeStore search handle");
@@ -394,23 +401,16 @@ namespace safestore
         struct Iterator
         {
             using iterator_category = std::forward_iterator_tag;
-            //            using difference_type   = std::ptrdiff_t;
-            //            using value_type        = int;
-            //            using pointer           = int*;
-            //            using reference         = int&;
 
-            Iterator(ISafeStoreWrapper& m_safeStore, const SafeStoreFilter& filter, bool end = false)
+            Iterator(ISafeStoreWrapper& m_safeStore) :  m_safeStore(m_safeStore), m_searchHolder(m_safeStore.createSearchHandleHolder()), m_objectHolder(m_safeStore.createObjectHandleHolder())
+            {
+                // Used for end(), don't set anything, the m_objectHolder should be null.
+            }
+
+            Iterator(ISafeStoreWrapper& m_safeStore, const SafeStoreFilter& filter)
                 :  m_safeStore(m_safeStore), m_searchHolder(m_safeStore.createSearchHandleHolder()), m_objectHolder(m_safeStore.createObjectHandleHolder())
             {
-                if (end)
-                {
-                    // don't set anything, the handle inside m_objectHolder should be null
-                    *(m_objectHolder->getRawHandle()) = nullptr;
-                }
-                else
-                {
-                    m_safeStore.findFirst(filter, *m_searchHolder, *m_objectHolder);
-                }
+                m_safeStore.findFirst(filter, *m_searchHolder, *m_objectHolder);
             }
 
             ObjectHandleHolder& operator*() const
@@ -438,12 +438,12 @@ namespace safestore
 
             friend bool operator== (const Iterator& a, const Iterator& b)
             {
-                return *(a.m_objectHolder->getRawHandle()) == *(b.m_objectHolder->getRawHandle());
+                return *a.m_objectHolder == *b.m_objectHolder;
             };
 
             friend bool operator!= (const Iterator& a, const Iterator& b)
             {
-                return *(a.m_objectHolder->getRawHandle()) != *(b.m_objectHolder->getRawHandle());
+                return *a.m_objectHolder != *b.m_objectHolder;
             };
 
         private:
@@ -459,7 +459,7 @@ namespace safestore
 
         Iterator end()
         {
-            return Iterator(m_safeStore, m_filter, true);
+            return Iterator(m_safeStore);
         }
 
         ISafeStoreWrapper& m_safeStore;

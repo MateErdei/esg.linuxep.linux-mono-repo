@@ -1,5 +1,7 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
+#pragma once
+
 #include "ISafeStoreWrapper.h"
 
 extern "C"
@@ -65,7 +67,7 @@ namespace safestore
             ObjectHandleHolder& objectHandle) override;
         SearchResults find(const SafeStoreFilter& filter) override;
         std::string getObjectName(ObjectHandleHolder& objectHandle) override;
-        std::string getObjectId(ObjectHandleHolder& objectHandle) override;
+        std::string getObjectId(const ObjectHandleHolder& objectHandle) override;
         bool getObjectHandle(const std::string& objectId, std::shared_ptr<ObjectHandleHolder> objectHandle)
             override;
         ObjectType getObjectType(ObjectHandleHolder& objectHandle) override;
@@ -73,7 +75,18 @@ namespace safestore
         std::string getObjectThreatId(ObjectHandleHolder& objectHandle) override;
         std::string getObjectThreatName(ObjectHandleHolder& objectHandle) override;
         int64_t getObjectStoreTime(ObjectHandleHolder& objectHandle) override;
+        bool setObjectCustomData(
+            ObjectHandleHolder& objectHandle,
+            const std::string& dataName,
+            const std::vector<uint8_t>& value) override;
+        std::vector<uint8_t> getObjectCustomData(ObjectHandleHolder& objectHandle, const std::string& dataName)
+            override;
 
+        bool setObjectCustomDataString(
+            ObjectHandleHolder& objectHandle,
+            const std::string& dataName,
+            const std::string& value) override;
+        std::string getObjectCustomDataString(ObjectHandleHolder& objectHandle, const std::string& dataName) override;
         void releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder) override;
         void releaseSearchHandle(SafeStoreSearchHandle searchHandleHolder) override;
 

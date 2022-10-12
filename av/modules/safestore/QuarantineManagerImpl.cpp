@@ -116,6 +116,7 @@ namespace safestore
 
 
             // TODO LINUXDAR-5677 do something with the sha256, do we need to store this as custom data for restoration?
+            m_safeStore->setObjectCustomDataString(*objectHandle, "SHA256", sha256);
             LOGDEBUG("File SHA256: " << sha256);
 
             LOGDEBUG("Finalising file: " << filename);

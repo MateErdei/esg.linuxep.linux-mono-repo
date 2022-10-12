@@ -110,12 +110,14 @@ int main()
     // add some fake threats
     std::string fakeVirusFilePath1 = "/tmp/fakevirus1";
     datatypes::AutoFd fd1; // just used to have something to pass in to QM
+    std::string sha256PlaceHolder1 = "f2c91a583cfd1371a3085187aa5b2841ada3b62f5d1cc6b08bc02703ded3507a";
     std::string fakeVirusFilePath2 = "/tmp/fakevirus2";
     datatypes::AutoFd fd2; // just used to have something to pass in to QM
+    std::string sha256PlaceHolder2 = "1cfc5ec228cebc49669fe56dba41a58a41e2b9d3b8c95528e47fa4f0c26c7169";
     fileSystem->writeFile(fakeVirusFilePath1, "a temp test file1");
     fileSystem->writeFile(fakeVirusFilePath2, "a temp test file2");
     // Store 1
-    bool stored = quarantineManager->quarantineFile(fakeVirusFilePath1, "T_junk_threat_ID1", "threat name1", "sha 256 test value1", std::move(fd1));
+    bool stored = quarantineManager->quarantineFile(fakeVirusFilePath1, "T_junk_threat_ID1", "threat name1", sha256PlaceHolder1, std::move(fd1));
     if (stored)
     {
         std::cout << "Successfully quarantined " << fakeVirusFilePath1 << std::endl;
@@ -125,7 +127,7 @@ int main()
         std::cout << "Failed to quarantine " << fakeVirusFilePath1 << std::endl;
     }
     // Store 2
-    stored = quarantineManager->quarantineFile(fakeVirusFilePath2,"T_junk_threat_ID2","threat name2", "sha 256 test value2", std::move(fd2));
+    stored = quarantineManager->quarantineFile(fakeVirusFilePath2,"T_junk_threat_ID2","threat name2", sha256PlaceHolder2, std::move(fd2));
     if (stored)
     {
         std::cout << "Successfully quarantined " << fakeVirusFilePath2 << std::endl;
@@ -158,6 +160,7 @@ int main()
         std::cout << "getObjectStoreTime: " << safeStoreWrapper->getObjectStoreTime(result) << std::endl;
         std::cout << "getObjectThreatId: " << safeStoreWrapper->getObjectThreatId(result) << std::endl;
         std::cout << "getObjectThreatName: " << safeStoreWrapper->getObjectThreatName(result) << std::endl;
+        std::cout << "getObjectCustomDataString: " << safeStoreWrapper->getObjectCustomDataString(result, "SHA256") << std::endl;
     }
 
 //    // TODO 5675 fix const version

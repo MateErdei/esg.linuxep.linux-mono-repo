@@ -236,7 +236,7 @@ namespace safestore
             filename.c_str(),
             &(threatIdSafeStore.value()),
             threatName.c_str(),
-            objectHandle.getRawHandle());
+           objectHandle.getRawHandlePtr());
 
         switch (result)
         {
@@ -313,7 +313,7 @@ namespace safestore
 
         return (
             SafeStore_FindFirst(
-                m_safeStoreCtx, &ssFilter, searchHandle.getRawHandle(), objectHandle.getRawHandle()) == SR_OK);
+                m_safeStoreCtx, &ssFilter, searchHandle.getRawHandle(), objectHandle.getRawHandlePtr()) == SR_OK);
     }
 
     bool SafeStoreWrapperImpl::findNext(
@@ -321,7 +321,7 @@ namespace safestore
         ObjectHandleHolder& objectHandle)
     {
         return (
-            SafeStore_FindNext(m_safeStoreCtx, *(searchHandle.getRawHandle()), objectHandle.getRawHandle()) == SR_OK);
+            SafeStore_FindNext(m_safeStoreCtx, *(searchHandle.getRawHandle()), objectHandle.getRawHandlePtr()) == SR_OK);
     }
 
     std::unique_ptr<SearchHandleHolder> SafeStoreWrapperImpl::createSearchHandleHolder()
@@ -345,6 +345,11 @@ namespace safestore
 
     std::string SafeStoreWrapperImpl::getObjectName(ObjectHandleHolder& objectHandle)
     {
+        if (objectHandle.getRawHandle() == nullptr)
+        {
+            return {};
+        }
+
         constexpr int nameSize = 200;
         size_t size = nameSize;
         char buf[nameSize];
@@ -357,7 +362,7 @@ namespace safestore
         //  *     SR_BUFFER_SIZE_TOO_SMALL - the buffer is too small to hold the output
         //  *     SR_INTERNAL_ERROR - an internal error has occurred
 
-        auto returnCode = SafeStore_GetObjectName(*(objectHandle.getRawHandle()), buf, &size);
+        auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
 //        auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
 
         switch (returnCode)
@@ -376,24 +381,33 @@ namespace safestore
         return std::string(buf);
     }
 
-    std::string SafeStoreWrapperImpl::getObjectId(ObjectHandleHolder& objectHandle)
+    std::string SafeStoreWrapperImpl::getObjectId(const ObjectHandleHolder& objectHandle)
     {
-        // TODO 5675 fix this
+
+        if (objectHandle.getRawHandle() == nullptr)
+        {
+            return {};
+        }
+
         SafeStore_Id_t objectId;
-        auto returnCode = SafeStore_GetObjectId(*(objectHandle.getRawHandle()), &objectId);
+        auto returnCode = SafeStore_GetObjectId(objectHandle.getRawHandle(), &objectId);
+
+
         if (returnCode == SR_OK)
         {
-
+            // TODO
         }
         else
         {
-
+            // TODO
+            LOGWARN("Failed to get object ID");
         }
 
 //        SafeStore_GetObjectId(objectHandle.getRawHandle(), &objectId);
 
-//        return stringFromThreatId(objectId);
-        return "NOT IMPLEMENTED";
+
+        //        return "NOT IMPLEMENTED";
+        return stringFromSafeStoreId(objectId);
     }
 
     bool SafeStoreWrapperImpl::getObjectHandle(
@@ -412,7 +426,7 @@ namespace safestore
         if (auto safeStoreThreadId = safeStoreIdFromString(objectId))
         {
             return (
-                SafeStore_GetObjectHandle(m_safeStoreCtx, &safeStoreThreadId.value(), objectHandle->getRawHandle()) == SR_OK);
+                SafeStore_GetObjectHandle(m_safeStoreCtx, &safeStoreThreadId.value(), objectHandle->getRawHandlePtr()) == SR_OK);
         }
 
         return false;
@@ -420,7 +434,11 @@ namespace safestore
 
     bool SafeStoreWrapperImpl::finaliseObject(ObjectHandleHolder& objectHandle)
     {
-        auto result = SafeStore_FinalizeObject(m_safeStoreCtx, *(objectHandle.getRawHandle()));
+        if (objectHandle.getRawHandle() == nullptr)
+        {
+            return false;
+        }
+        auto result = SafeStore_FinalizeObject(m_safeStoreCtx, objectHandle.getRawHandle());
         return result == SR_OK;
     }
 
@@ -439,7 +457,6 @@ namespace safestore
     ObjectType SafeStoreWrapperImpl::getObjectType(ObjectHandleHolder& objectHandle)
     {
         SafeStore_ObjectType_t safeStoreObjectType;
-//        auto returnCode = SafeStore_GetObjectType(*(objectHandle.getRawHandle()), &safeStoreObjectType);
         auto returnCode = SafeStore_GetObjectType(objectHandle.getRawHandle(), &safeStoreObjectType);
         if (returnCode == SR_OK)
         {
@@ -489,7 +506,7 @@ namespace safestore
     std::string SafeStoreWrapperImpl::getObjectThreatId(ObjectHandleHolder& objectHandle)
     {
         SafeStore_Id_t threatId;
-        auto returnCode = SafeStore_GetObjectThreatId(*(objectHandle.getRawHandle()), &threatId);
+        auto returnCode = SafeStore_GetObjectThreatId(objectHandle.getRawHandle(), &threatId);
         if (returnCode == SR_OK)
         {
             return stringFromSafeStoreId(threatId);
@@ -506,7 +523,7 @@ namespace safestore
 
         // TODO 5675 deal with error codes... e.g. string size too small
 
-        auto returnCode = SafeStore_GetObjectThreatName(*(objectHandle.getRawHandle()), buf, &size);
+        auto returnCode = SafeStore_GetObjectThreatName(objectHandle.getRawHandle(), buf, &size);
         switch (returnCode)
         {
             case SR_OK:
@@ -528,6 +545,95 @@ namespace safestore
         SafeStore_Time_t safeStoreTime;
         SafeStore_GetObjectStoreTime(objectHandle.getRawHandle(), &safeStoreTime);
         return safeStoreTime;
+    }
+
+    bool SafeStoreWrapperImpl::setObjectCustomData(
+        ObjectHandleHolder& objectHandle,
+        const std::string& dataName,
+        const std::vector<uint8_t>& value)
+    {
+
+        //TODO 5675 define max size for custom data
+
+        auto returnCode = SafeStore_SetObjectCustomData(m_safeStoreCtx, objectHandle.getRawHandle(), dataName.c_str(),value.data(),value.size());
+
+        switch (returnCode)
+        {
+            case SR_OK:
+                LOGDEBUG("Stored custom data: " << dataName);
+                return true;
+            case SR_DB_ERROR:
+                LOGWARN("Failed to set custom data due to database error, name: " << dataName);
+                return false;
+            case SR_INVALID_ARG:
+                LOGWARN("Invalid arg when setting custom data: " << dataName);
+                return false;
+            case SR_MAX_CUSTOM_DATA_SIZE_EXCEEDED:
+                LOGWARN("Custom-data max size exceeded when setting custom data, name: " << dataName);
+                return false;
+            case SR_DATA_TAG_NOT_SET:
+                LOGWARN("Could not set any custom data with specified name: " << dataName);
+                return false;
+            default:
+                LOGWARN("Failed to set custom data for unknown reason, name: " << dataName);
+                return false;
+        }
+    }
+
+    std::vector<uint8_t> SafeStoreWrapperImpl::getObjectCustomData(
+        ObjectHandleHolder& objectHandle,
+        const std::string& dataName)
+    {
+        //TODO 5675 define max size for custom data
+        //TODO 5675 deal with size coming back not equal to what we're expecting
+        constexpr int dataSize = 1024;
+        size_t size = dataSize;
+        uint8_t buf[dataSize];
+
+        size_t bytesRead = 0;
+        auto returnCode = SafeStore_GetObjectCustomData(m_safeStoreCtx, objectHandle.getRawHandle(), dataName.c_str(),buf, &size,&bytesRead);
+        std::vector<uint8_t> dataToReturn;
+        switch (returnCode)
+        {
+            case SR_OK:
+                if (bytesRead < dataSize)
+                {
+                    dataToReturn.assign(buf, buf + bytesRead);
+                }
+                else
+                {
+                    LOGWARN("Size of data returned from getting object custom data is larger than buffer, returning empty data");
+                }
+                break;
+            case SR_INVALID_ARG:
+                LOGWARN("Invalid arg when getting custom data: " << dataName);
+                break;
+            case SR_MAX_CUSTOM_DATA_SIZE_EXCEEDED:
+                LOGWARN("Custom-data max size exceeded when setting custom data, name: " << dataName);
+                break;
+            case SR_DATA_TAG_NOT_SET:
+                LOGWARN("Could not find any custom data with specified name: " << dataName);
+                break;
+            default:
+                LOGWARN("Failed to get custom data for unknown reason, name: " << dataName);
+                break;
+        }
+        return dataToReturn;
+    }
+    bool SafeStoreWrapperImpl::setObjectCustomDataString(
+        ObjectHandleHolder& objectHandle,
+        const std::string& dataName,
+        const std::string& value)
+    {
+        std::vector<uint8_t> valueAsBytes(value.begin(), value.end());
+        return setObjectCustomData(objectHandle,dataName, valueAsBytes);
+    }
+    std::string SafeStoreWrapperImpl::getObjectCustomDataString(
+        ObjectHandleHolder& objectHandle,
+        const std::string& dataName)
+    {
+        auto bytes = getObjectCustomData(objectHandle, dataName);
+        return std::string(bytes.begin(), bytes.end());
     }
 
 } // namespace safestore
