@@ -1,7 +1,7 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 /*
- * This is a C++ wrapper around the Core safestore C library.
+ * This is a C++ wrapper around the Core SafeStore C library.
  * This wrapper interface provides two main benefits, to be able to call the library via C++ methods and to allow
  * unit tests to be written by being able to create a mock of this interface.
  */
@@ -230,7 +230,7 @@ namespace safestore
         /*
          * TODO 5675 Interface docs
          */
-        virtual std::string getObjectName(ObjectHandleHolder& objectHandle) = 0;
+        virtual std::string getObjectName(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
          * TODO 5675 Interface docs
@@ -240,27 +240,27 @@ namespace safestore
         /*
          * TODO 5675 Interface docs
          */
-        virtual ObjectType getObjectType(ObjectHandleHolder& objectHandle) = 0;
+        virtual ObjectType getObjectType(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
          * TODO 5675 Interface docs
          */
-        virtual ObjectStatus getObjectStatus(ObjectHandleHolder& objectHandle) = 0;
+        virtual ObjectStatus getObjectStatus(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
          * TODO 5675 Interface docs
          */
-        virtual std::string getObjectThreatId(ObjectHandleHolder& objectHandle) = 0;
+        virtual std::string getObjectThreatId(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
          * TODO 5675 Interface docs
          */
-        virtual std::string getObjectThreatName(ObjectHandleHolder& objectHandle) = 0;
+        virtual std::string getObjectThreatName(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
          * TODO 5675 Interface docs
          */
-        virtual int64_t getObjectStoreTime(ObjectHandleHolder& objectHandle) = 0;
+        virtual int64_t getObjectStoreTime(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
          * TODO 5675 Interface docs
@@ -270,7 +270,8 @@ namespace safestore
         /*
          * TODO 5675 Interface docs
          */
-        virtual std::vector<uint8_t> getObjectCustomData(ObjectHandleHolder& objectHandle, const std::string& dataName) = 0;
+        virtual std::vector<uint8_t> getObjectCustomData(
+            const ObjectHandleHolder& objectHandle, const std::string& dataName) = 0;
 
         /*
          * TODO 5675 Interface docs
@@ -298,7 +299,7 @@ namespace safestore
          * TODO 5675 Interface docs
          */
         virtual bool getObjectHandle(
-            const std::string& threatId,
+            const std::string& objectId,
             std::shared_ptr<ObjectHandleHolder> objectHandle) = 0;
 
         /*

@@ -343,7 +343,7 @@ namespace safestore
         return SearchResults(*this, filter);
     }
 
-    std::string SafeStoreWrapperImpl::getObjectName(ObjectHandleHolder& objectHandle)
+    std::string SafeStoreWrapperImpl::getObjectName(const ObjectHandleHolder& objectHandle)
     {
         if (objectHandle.getRawHandle() == nullptr)
         {
@@ -454,7 +454,7 @@ namespace safestore
         SafeStore_FindClose(m_safeStoreCtx, searchHandleHolder);
     }
 
-    ObjectType SafeStoreWrapperImpl::getObjectType(ObjectHandleHolder& objectHandle)
+    ObjectType SafeStoreWrapperImpl::getObjectType(const ObjectHandleHolder& objectHandle)
     {
         SafeStore_ObjectType_t safeStoreObjectType;
         auto returnCode = SafeStore_GetObjectType(objectHandle.getRawHandle(), &safeStoreObjectType);
@@ -476,7 +476,7 @@ namespace safestore
         return ObjectType::UNKNOWN;
     }
 
-    ObjectStatus SafeStoreWrapperImpl::getObjectStatus(ObjectHandleHolder& objectHandle)
+    ObjectStatus SafeStoreWrapperImpl::getObjectStatus(const ObjectHandleHolder& objectHandle)
     {
         SafeStore_ObjectStatus_t safeStoreObjectStatus;
         auto returnCode = SafeStore_GetObjectStatus(objectHandle.getRawHandle(), &safeStoreObjectStatus);
@@ -503,7 +503,7 @@ namespace safestore
 
     }
 
-    std::string SafeStoreWrapperImpl::getObjectThreatId(ObjectHandleHolder& objectHandle)
+    std::string SafeStoreWrapperImpl::getObjectThreatId(const ObjectHandleHolder& objectHandle)
     {
         SafeStore_Id_t threatId;
         auto returnCode = SafeStore_GetObjectThreatId(objectHandle.getRawHandle(), &threatId);
@@ -515,7 +515,7 @@ namespace safestore
         return "";
     }
 
-    std::string SafeStoreWrapperImpl::getObjectThreatName(ObjectHandleHolder& objectHandle)
+    std::string SafeStoreWrapperImpl::getObjectThreatName(const ObjectHandleHolder& objectHandle)
     {
         constexpr int nameSize = 200;
         size_t size = nameSize;
@@ -540,7 +540,7 @@ namespace safestore
         return std::string(buf);
     }
 
-    int64_t SafeStoreWrapperImpl::getObjectStoreTime(ObjectHandleHolder& objectHandle)
+    int64_t SafeStoreWrapperImpl::getObjectStoreTime(const ObjectHandleHolder& objectHandle)
     {
         SafeStore_Time_t safeStoreTime;
         SafeStore_GetObjectStoreTime(objectHandle.getRawHandle(), &safeStoreTime);
@@ -581,7 +581,7 @@ namespace safestore
     }
 
     std::vector<uint8_t> SafeStoreWrapperImpl::getObjectCustomData(
-        ObjectHandleHolder& objectHandle,
+        const ObjectHandleHolder& objectHandle,
         const std::string& dataName)
     {
         //TODO 5675 define max size for custom data

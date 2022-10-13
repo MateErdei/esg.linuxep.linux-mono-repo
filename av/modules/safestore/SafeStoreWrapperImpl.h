@@ -66,20 +66,20 @@ namespace safestore
             SearchHandleHolder& searchHandle,
             ObjectHandleHolder& objectHandle) override;
         SearchResults find(const SafeStoreFilter& filter) override;
-        std::string getObjectName(ObjectHandleHolder& objectHandle) override;
+        std::string getObjectName(const ObjectHandleHolder& objectHandle) override;
         std::string getObjectId(const ObjectHandleHolder& objectHandle) override;
         bool getObjectHandle(const std::string& objectId, std::shared_ptr<ObjectHandleHolder> objectHandle)
             override;
-        ObjectType getObjectType(ObjectHandleHolder& objectHandle) override;
-        ObjectStatus getObjectStatus(ObjectHandleHolder& objectHandle) override;
-        std::string getObjectThreatId(ObjectHandleHolder& objectHandle) override;
-        std::string getObjectThreatName(ObjectHandleHolder& objectHandle) override;
-        int64_t getObjectStoreTime(ObjectHandleHolder& objectHandle) override;
+        ObjectType getObjectType(const ObjectHandleHolder& objectHandle) override;
+        ObjectStatus getObjectStatus(const ObjectHandleHolder& objectHandle) override;
+        std::string getObjectThreatId(const ObjectHandleHolder& objectHandle) override;
+        std::string getObjectThreatName(const ObjectHandleHolder& objectHandle) override;
+        int64_t getObjectStoreTime(const ObjectHandleHolder& objectHandle) override;
         bool setObjectCustomData(
             ObjectHandleHolder& objectHandle,
             const std::string& dataName,
             const std::vector<uint8_t>& value) override;
-        std::vector<uint8_t> getObjectCustomData(ObjectHandleHolder& objectHandle, const std::string& dataName)
+        std::vector<uint8_t> getObjectCustomData(const ObjectHandleHolder& objectHandle, const std::string& dataName)
             override;
 
         bool setObjectCustomDataString(

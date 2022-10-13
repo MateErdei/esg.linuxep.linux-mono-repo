@@ -167,13 +167,6 @@ namespace safestore
             }
         }
 
-        // temp debug
-        LOGINFO(dbDir);
-        LOGINFO(dbname);
-        LOGINFO(pw.value());
-        LOGINFO(&m_safeStore);
-        LOGINFO(&(*m_safeStore));
-
         auto initResult = m_safeStore->initialise(dbDir, dbname, pw.value());
 
         if (initResult == InitReturnCode::OK)
