@@ -101,6 +101,12 @@ namespace safestore
         datatypes::AutoFd autoFd)
     {
         std::lock_guard<std::mutex> lock(m_interfaceMutex);
+        if (m_state != QuarantineManagerState::INITIALISED)
+        {
+            LOGWARN("Cannot quarantine file until SafeStore is initialised");
+            return false;
+        }
+
         std::string directory = Common::FileSystem::dirName(filePath);
         std::string filename = Common::FileSystem::basename(filePath);
 
