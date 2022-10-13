@@ -193,7 +193,7 @@ namespace Plugin
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path mlLib(appConfig.getData("PLUGIN_INSTALL"));
-        mlLib /= "chroot/susi/update_source/mllib/libmodel.so";
+        mlLib /= "chroot/susi/update_source/model/model.so";
         std::ifstream mlLibFs (mlLib, std::ifstream::in);
 
         if(mlLibFs.good())

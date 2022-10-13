@@ -61,10 +61,10 @@ namespace
 
             //creating initial ml library file
             fs::path libDirPath (m_basePath);
-            libDirPath /= "chroot/susi/update_source/mllib";
+            libDirPath /= "chroot/susi/update_source/model";
             fs::create_directories(libDirPath);
             m_mlLibPath = libDirPath;
-            m_mlLibPath /= "libmodel.so";
+            m_mlLibPath /= "model.so";
 
             std::ofstream mlFilePathStream;
             mlFilePathStream.open(m_mlLibPath);
