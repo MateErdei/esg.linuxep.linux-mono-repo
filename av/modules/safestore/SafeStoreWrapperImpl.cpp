@@ -288,7 +288,21 @@ namespace safestore
 
     bool SafeStoreWrapperImpl::setConfigIntValue(ConfigOption option, uint64_t value)
     {
-        return SafeStore_SetConfigIntValue(m_safeStoreCtx, convertToSafeStoreConfigId(option), value) == SR_OK;
+        auto returnCode = SafeStore_SetConfigIntValue(m_safeStoreCtx, convertToSafeStoreConfigId(option), value);
+        switch (returnCode)
+        {
+            case SR_OK:
+                return true;
+            case SR_INVALID_ARG:
+                LOGWARN("Failed to set config value due to invalid arg");
+                return false;
+            case SR_INTERNAL_ERROR:
+                LOGWARN("Failed to set config value due to internal SafeStore error");
+                return false;
+            default:
+                LOGWARN("Failed to set config value fue to unknown reason");
+                return false;
+        }
     }
 
     bool SafeStoreWrapperImpl::findFirst(

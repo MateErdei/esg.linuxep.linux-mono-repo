@@ -79,3 +79,36 @@ TEST_F(SafeStoreWrapperTapTests, readDefaultConfigOptions)
     ASSERT_TRUE(maxObjCount.has_value());
     ASSERT_EQ(maxObjCount.value(), 2000);
 }
+
+TEST_F(SafeStoreWrapperTapTests, writeAndThenRreadBackConfigOptions)
+{
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(safestore::ConfigOption::AUTO_PURGE, false));
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(safestore::ConfigOption::MAX_OBJECT_SIZE, 100000000000));
+
+    // This currently fails - defect or we don't care as it's windows only?
+    // ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(safestore::ConfigOption::MAX_REG_OBJECT_COUNT, 100));
+
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(safestore::ConfigOption::MAX_SAFESTORE_SIZE, 200000000000));
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(safestore::ConfigOption::MAX_STORED_OBJECT_COUNT, 5000));
+
+    auto autoPurge = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::AUTO_PURGE);
+    ASSERT_TRUE(autoPurge.has_value());
+    ASSERT_EQ(autoPurge.value(), 0);
+
+    auto maxObjSize = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_OBJECT_SIZE);
+    ASSERT_TRUE(maxObjSize.has_value());
+    ASSERT_EQ(maxObjSize.value(), 100000000000);
+
+//    auto maxObjInRegistrySubtree = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_REG_OBJECT_COUNT);
+//    ASSERT_TRUE(maxObjInRegistrySubtree.has_value());
+//    ASSERT_EQ(maxObjInRegistrySubtree.value(), 100);
+
+    auto maxSafeStoreSize = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_SAFESTORE_SIZE);
+    ASSERT_TRUE(maxSafeStoreSize.has_value());
+    ASSERT_EQ(maxSafeStoreSize.value(), 200000000000);
+
+    auto maxObjCount = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_STORED_OBJECT_COUNT);
+    ASSERT_TRUE(maxObjCount.has_value());
+    ASSERT_EQ(maxObjCount.value(), 5000);
+}
+
