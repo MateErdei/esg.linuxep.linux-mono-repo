@@ -114,6 +114,7 @@ enable_testing()
 set(REL_DIST installset)
 set(DIST "${CMAKE_BINARY_DIR}/${REL_DIST}")
 set(CMAKE_INSTALL_PREFIX "${REL_DIST}")
+set(OUTPUT "${CMAKE_SOURCE_DIR}/output")
 
 if(NOT DEFINED INPUT)
     set( INPUT ${CMAKE_SOURCE_DIR}/input )
@@ -221,3 +222,6 @@ add_subdirectory(products)
 add_subdirectory(tests)
 add_subdirectory(tools)
 add_subdirectory(tools/avscanner/mountinfoimpl)
+
+# Must come last
+add_subdirectory(PostInstall)

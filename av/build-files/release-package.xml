@@ -180,6 +180,10 @@
         <logs name="build_log" source-dir="log" mode="debug,release"/>
         <logs name="coverage_log" source-dir="log" mode="coverage"/>
 
+        <build-asset artifact-path="tap_test_output" source-dir="output" mode="release">
+            <include glob="tap_test_output.tar.gz"/>
+        </build-asset>
+
         <buildoutputs>
             <!-- rename logs for coverage builds -->
             <output name="build_log" srcfolder="log" mode="oldci"></output>
