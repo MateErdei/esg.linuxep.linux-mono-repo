@@ -85,7 +85,6 @@ PLUGIN_INSTALL="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
 VAR="${PLUGIN_INSTALL}/var"
 SUSI_UPDATE_SRC="$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/"
 SUSI_DIST_VERS="$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/"
-SUSI_V1DIR="${SUSI_DIST_VERS}version1/"
 LOCKFILE="${PLUGIN_INSTALL}/chroot/var/susi_update.lock"
 
 function delete_removed_vdl()
@@ -178,7 +177,6 @@ function set_permissions_on_susi_update_source()
     chmod -R g=rX,o= "${SUSI_UPDATE_SRC}/vdl/"
     chmod -R g=rX,o= "${SUSI_UPDATE_SRC}/reputation/"
     chmod -R g=rX,o= "${SUSI_UPDATE_SRC}/model/"
-    chmod -R g=rX,o= "${SUSI_UPDATE_SRC}/mllib/"
 }
 
 function bootstrap_susi_from_update_source()
