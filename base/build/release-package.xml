@@ -190,6 +190,7 @@
         <!-- Release -->
         <release-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
         <release-asset artifact-path="sspl-base/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
+        <release-asset artifact-path="sspl-base/symbols" source-dir="output/symbols" mode="release"/>
 
         <build-asset artifact-path="sspl-base/openssl" source-dir="/build/redist/openssl" mode="release"/>
         <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">
@@ -203,7 +204,6 @@
         </build-asset>
         <build-asset artifact-path="sspl-base/system_test" source-dir="output" mode="release">
             <include glob="SystemProductTestOutput.tar.gz"/>
-            <include glob="symbols"/>
         </build-asset>
         <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="release"/>
 
