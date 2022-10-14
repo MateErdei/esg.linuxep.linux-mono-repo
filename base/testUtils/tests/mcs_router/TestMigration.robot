@@ -267,11 +267,15 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
 
     # Check push connection has been re-established
     ${push_server_address} =  Set Variable  localhost:4443
+    #TODO renable LINUXDAR-5589
+#    Wait Until Keyword Succeeds
+#    ...  30 secs
+#    ...  5 secs
+#    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Established MCS Push Connection   1
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Established MCS Push Connection   1
-    Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} directly
+    ...  Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} directly
 
 
 *** Keywords ***

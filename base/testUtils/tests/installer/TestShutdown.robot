@@ -21,8 +21,6 @@ Test Components Shutdown Cleanly
     Run Process   systemctl  restart  sophos-spl
     Wait For Base Processes To Be Running
 
-    Install EDR Directly
-    Wait For EDR to be Installed
     Wait For Base Processes To Be Running
 
     Install Live Response Directly
@@ -37,6 +35,10 @@ Test Components Shutdown Cleanly
     Check MDR Component Suite Installed Correctly
     Insert MTR Policy
     Wait for MDR Executable To Be Running
+
+    #WARNING installing edr should be the last plugin installed to avoid watchdog going down due to the defect LINUXDAR-3732
+    Install EDR Directly
+    Wait For EDR to be Installed
 
     Run Process   systemctl  stop  sophos-spl
 

@@ -216,7 +216,8 @@ EDR Osquery restarts mtr extension when killed
     ...  20 secs
     ...  1 secs
     ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/SophosMTRExtension.log   mtr_ext_log  Finished registering tables  1
-
+    #osquery gets unhappy if the extension is killed qucikly after start up
+    sleep  5
     ${result} =  Run Process  pgrep MTR.ext | xargs kill -15  shell=true
 
     Wait Until Keyword Succeeds

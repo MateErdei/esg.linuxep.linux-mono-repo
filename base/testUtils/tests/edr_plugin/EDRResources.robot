@@ -32,6 +32,10 @@ Wait For EDR to be Installed
     ...   40 secs
     ...   2 secs
     ...   Check EDR Osquery Executable Running
+    Wait Until Keyword Succeeds
+    ...   40 secs
+    ...   5 secs
+    ...   File Should exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/options.conf
 
 
 

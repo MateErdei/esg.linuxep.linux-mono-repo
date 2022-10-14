@@ -40,7 +40,10 @@ UpdateScheduler Will Not Trigger SULDownloader Until Flags Policy is Read
     Check Update Config Contains Expected useSDDS3 Value    false
 
     Send Mock Flags Policy    {"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": true}
-    Check UpdateScheduler Log Contains    Received sdds3.enabled flag value: 1
+    Wait Until Keyword Succeeds
+    ...  3 secs
+    ...  1 secs
+    ...  Check UpdateScheduler Log Contains    Received sdds3.enabled flag value: 1
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  10 secs
