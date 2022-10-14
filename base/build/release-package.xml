@@ -128,7 +128,7 @@
 
         <build-asset project="winep" repo="sau">
             <release-version branch="release/WINEP-2022.39-DTP2" build-id="20221003091945-90720120553d2d122effccb97edd4ccbcc5ea61e-MzUwFE"/>
-            <development-version branch="develop"/>
+<!--            <development-version branch="develop"/>-->
             <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
         </build-asset>
