@@ -112,7 +112,7 @@ Check AV Plugin Not Running
     ${result} =   ProcessUtils.pidof  ${PLUGIN_BINARY}
     Run Keyword If  ${result} != ${-1}      Dump Threads And Fail    AV plugin still running: ${result}
 
-Check Safestore Not Running
+Check SafeStore Not Running
     ${result} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
     Should Be Equal As Integers  ${result}  ${-1}
 
@@ -581,12 +581,12 @@ Wait Until On Access running with offset
         ...  2 secs
         ...  Wait Until On Access Log Contains With Offset  ProcessPolicy 1
 
-Wait Until Safestore running
+Wait Until SafeStore running
     ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${30}
     Wait Until Keyword Succeeds
         ...  60 secs
         ...  2 secs
-        ...  Safestore Log Contains  SafeStore started
+        ...  SafeStore Log Contains  SafeStore started
 
 Wait Until SafeStore Running With Offset
     [Arguments]  ${timeout}=${60}
@@ -595,12 +595,12 @@ Wait Until SafeStore Running With Offset
     ...  SafeStore started
     ...  timeout=${timeout}
 
-Wait Until Safestore not running
+Wait Until SafeStore not running
     [Arguments]  ${timeout}=30
     Wait Until Keyword Succeeds
     ...  ${timeout} secs
     ...  3 secs
-    ...  Check Safestore Not Running
+    ...  Check SafeStore Not Running
 
 Wait until threat detector running
     # wait for sophos_threat_detector to initialize
@@ -1030,7 +1030,7 @@ Record Soapd Plugin PID
     ${PID} =  ProcessUtils.wait for pid  ${ON_ACCESS_BIN}  ${5}
     [Return]   ${PID}
 
-Record Safestore Plugin PID
+Record SafeStore Plugin PID
     ${PID} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  ${5}
     [Return]   ${PID}
 

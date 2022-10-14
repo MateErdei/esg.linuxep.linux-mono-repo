@@ -538,7 +538,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFi
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSafestorePidFile)
+TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSafeStorePidFile)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
@@ -564,7 +564,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSafestoreP
 
     EXPECT_TRUE(appenderContains("Lock acquired on PID file "));
     EXPECT_TRUE(appenderContains(" assume process not running"));
-    EXPECT_TRUE(appenderContains("Sophos Safestore Process is not running, turning service health to red"));
+    EXPECT_TRUE(appenderContains("Sophos SafeStore Process is not running, turning service health to red"));
     EXPECT_TRUE(appenderContains("Service Health has changed to: red"));
     ASSERT_EQ(result, expectedResult);
 }
@@ -875,7 +875,7 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
 
     EXPECT_TRUE(appenderContains("Lock acquired on PID file"));
     EXPECT_TRUE(appenderContains("assume process not running"));
-    EXPECT_FALSE(appenderContains("Sophos Safestore Process is not running, turning service health to red"));
+    EXPECT_FALSE(appenderContains("Sophos SafeStore Process is not running, turning service health to red"));
     EXPECT_FALSE(appenderContains("Sophos On Access Process is not running, turning service health to red"));
     EXPECT_FALSE(appenderContains("Sophos Threat Detector Process is not running, turning service health to red"));
     EXPECT_FALSE(appenderContains("Service Health has changed to"));
@@ -886,7 +886,7 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
     ASSERT_EQ(m_pluginCallback->m_serviceHealth, E_HEALTH_STATUS_BAD);
     result = m_pluginCallback->calculateHealth(m_mockSysCalls);
 
-    EXPECT_TRUE(appenderContains("Sophos Safestore Process is now running"));
+    EXPECT_TRUE(appenderContains("Sophos SafeStore Process is now running"));
     EXPECT_TRUE(appenderContains("Sophos On Access Process is now running"));
     EXPECT_TRUE(appenderContains("Sophos Threat Detector Process is now running"));
     EXPECT_TRUE(appenderContains("Service Health has changed to: green"));

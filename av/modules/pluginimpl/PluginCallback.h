@@ -101,6 +101,6 @@ TEST_PUBLIC:
 
         void calculateThreatDetectorHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
         void calculateSoapHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
-        void calculateSafestoreHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
+        void calculateSafeStoreHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
     };
 } // namespace Plugin

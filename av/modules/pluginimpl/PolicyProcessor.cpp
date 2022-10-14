@@ -339,11 +339,11 @@ namespace Plugin
         bool ssEnabled = flagsJson.value(SS_FLAG, false);
         if (ssEnabled)
         {
-            LOGINFO("Safestore flag set. Setting Safestore to enabled.");
+            LOGINFO("SafeStore flag set. Setting SafeStore to enabled.");
         }
         else
         {
-            LOGINFO("Safestore flag not set. Setting Safestore to disabled.");
+            LOGINFO("SafeStore flag not set. Setting SafeStore to disabled.");
         }
         m_safeStoreEnabled = ssEnabled;
     }

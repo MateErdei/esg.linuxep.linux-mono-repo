@@ -369,7 +369,7 @@ namespace Plugin
     {
         calculateThreatDetectorHealthStatus(sysCalls);
         calculateSoapHealthStatus(sysCalls);
-        calculateSafestoreHealthStatus(sysCalls);
+        calculateSafeStoreHealthStatus(sysCalls);
 
         auto newHealth = m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD &&
                          m_soapServiceStatus == E_HEALTH_STATUS_GOOD &&
@@ -386,13 +386,13 @@ namespace Plugin
         return newHealth;
     }
 
-    void PluginCallback::calculateSafestoreHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    void PluginCallback::calculateSafeStoreHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
         if (!common::PidLockFile::isPidFileLocked(getSafeStorePidPath(), sysCalls) && m_safeStoreEnabled)
         {
             if(m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
             {
-                LOGWARN("Sophos Safestore Process is not running, turning service health to red");
+                LOGWARN("Sophos SafeStore Process is not running, turning service health to red");
             }
             m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
         }
@@ -400,7 +400,7 @@ namespace Plugin
         {
             if(m_safestoreServiceStatus == E_HEALTH_STATUS_BAD)
             {
-                LOGINFO("Sophos Safestore Process is now running");
+                LOGINFO("Sophos SafeStore Process is now running");
             }
 
             m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;

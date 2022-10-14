@@ -792,7 +792,7 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsEnabled)
 
     EXPECT_TRUE(appenderContains(
         "On-access is enabled in the FLAGS policy, assuming on-access policy settings"));
-    EXPECT_TRUE(appenderContains("Safestore flag set. Setting Safestore to enabled."));
+    EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
     ASSERT_TRUE(proc.isSafeStoreEnabled());
 }
 
@@ -814,7 +814,7 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
 
     EXPECT_TRUE(appenderContains(
         "On-access is disabled in the FLAGS policy, overriding on-access policy settings"));
-    EXPECT_TRUE(appenderContains("Safestore flag not set. Setting Safestore to disabled."));
+    EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
     ASSERT_FALSE(proc.isSafeStoreEnabled());
 }
 
@@ -835,7 +835,7 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
     proc.processFlagSettings("{\"av.something_else\":  false}");
 
     EXPECT_TRUE(appenderContains("No on-access flag found, overriding on-access policy settings"));
-    EXPECT_TRUE(appenderContains("Safestore flag not set. Setting Safestore to disabled."));
+    EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
     ASSERT_FALSE(proc.isSafeStoreEnabled());
 }
 
@@ -859,7 +859,7 @@ TEST_F(TestPolicyProcessor, testWriteFlagConfigFailedOnAccess)
 
     EXPECT_TRUE(appenderContains(
         "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
-    EXPECT_TRUE(appenderContains("Safestore flag set. Setting Safestore to enabled."));
+    EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
     ASSERT_TRUE(proc.isSafeStoreEnabled());
 }
 

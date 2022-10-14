@@ -100,12 +100,12 @@ SafeStore Logs When It Recieves A File To Quarantine
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait Until AV Plugin Log Contains With Offset
-    ...   Safestore flag set. Setting Safestore to enabled.
+    ...   SafeStore flag set. Setting SafeStore to enabled.
     ...   timeout=60
 
     Check avscanner can detect eicar
 
-    Wait Until Safestore Log Contains  Received Threat:
+    Wait Until SafeStore Log Contains  Received Threat:
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test'
 
 
@@ -117,7 +117,7 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait Until AV Plugin Log Contains With Offset
-    ...   Safestore flag set. Setting Safestore to enabled.
+    ...   SafeStore flag set. Setting SafeStore to enabled.
     ...   timeout=60
 
     Check avscanner can detect eicar

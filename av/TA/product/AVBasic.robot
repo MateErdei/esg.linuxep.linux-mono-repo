@@ -529,7 +529,7 @@ AV Plugin Can Process SafeStore Flag Enabled
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
     Wait Until AV Plugin Log Contains With Offset
-    ...   Safestore flag set. Setting Safestore to enabled.
+    ...   SafeStore flag set. Setting SafeStore to enabled.
     ...   timeout=60
 
 
@@ -538,7 +538,7 @@ AV Plugin Can Process SafeStore Flag Disabled
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
     Wait Until AV Plugin Log Contains With Offset
-    ...   Safestore flag not set. Setting Safestore to disabled.
+    ...   SafeStore flag not set. Setting SafeStore to disabled.
     ...   timeout=60
 
 

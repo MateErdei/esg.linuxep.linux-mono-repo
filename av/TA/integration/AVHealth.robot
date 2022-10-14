@@ -155,11 +155,11 @@ Sophos SafeStore Process Not Running Does Not Trigger Bad Status Health When Saf
     Check Status Health is Reporting Correctly    GOOD
 
     Stop SafeStore
-    AV Plugin Log Contains With Offset  Safestore flag not set. Setting Safestore to disabled.
+    AV Plugin Log Contains With Offset  SafeStore flag not set. Setting SafeStore to disabled.
     Check Status Health is Reporting Correctly    GOOD
 
     Start SafeStore
-    Wait Until Safestore running
+    Wait Until SafeStore running
     Check Status Health is Reporting Correctly    GOOD
 
 Sophos SafeStore Process Not Running Triggers Bad Status Health
@@ -168,26 +168,26 @@ Sophos SafeStore Process Not Running Triggers Bad Status Health
     Check Status Health is Reporting Correctly    GOOD
 
     Stop SafeStore
-    AV Plugin Log Contains With Offset  Safestore flag set. Setting Safestore to enabled.
+    AV Plugin Log Contains With Offset  SafeStore flag set. Setting SafeStore to enabled.
     Check Status Health is Reporting Correctly    BAD
 
     Start SafeStore
-    Wait Until Safestore running
+    Wait Until SafeStore running
     Check Status Health is Reporting Correctly    GOOD
 
 Sophos SafeStore Crashing Triggers Bad Health
     Mark AV Log
     Send Flags Policy To Base  flags_policy/flags_enabled.json
     Wait Until AV Plugin Log Contains With Offset
-    ...   Safestore flag set. Setting Safestore to enabled.
+    ...   SafeStore flag set. Setting SafeStore to enabled.
     ...   timeout=60
 
     Check Status Health is Reporting Correctly    GOOD
 
     Ignore Coredumps and Segfaults
-    Register Cleanup    Exclude Safestore Died With 11
+    Register Cleanup    Exclude SafeStore Died With 11
 
-    ${pid} =   Record Safestore Plugin PID
+    ${pid} =   Record SafeStore Plugin PID
     Run Process   /bin/kill   -SIGSEGV   ${pid}
     Stop SafeStore
 
@@ -197,7 +197,7 @@ Sophos SafeStore Crashing Triggers Bad Health
     Check Status Health is Reporting Correctly    BAD
 
     Start SafeStore
-    Wait Until Safestore running
+    Wait Until SafeStore running
     Check Status Health is Reporting Correctly    GOOD
 
 
