@@ -65,7 +65,7 @@ protected:
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         const auto* pluginInstall = "/opt/sophos-spl/plugins/av";
         appConfig.setData("PLUGIN_INSTALL", pluginInstall);
-            m_statbuf.st_uid = 321;
+        m_statbuf.st_uid = 321;
     }
 
     static fanotify_event_metadata getMetaData(
@@ -85,7 +85,7 @@ protected:
     ScanRequestQueueSharedPtr m_SmallScanRequestQueue;
     fs::path m_pluginInstall = "/opt/sophos-spl/plugins/av";
     IFanotifyHandlerSharedPtr m_fakeFanotify;
-        struct ::stat m_statbuf {};
+    struct ::stat m_statbuf {};
 };
 
 TEST_F(TestEventReaderThread, TestReaderExitsUsingPipe)
@@ -586,8 +586,10 @@ TEST_F(TestEventReaderThread, TestReaderLogsCorrectlyWhenQueueIsNoLongerFullButN
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
+    EXPECT_TRUE(waitForLogMultiple("On-close event for /tmp/test from Process (PID=1999999999) and UID 321", 5, 100ms));
     m_SmallScanRequestQueue->pop();
     EXPECT_EQ(m_SmallScanRequestQueue->size(), 2);
+
     eventReaderGuard.onEventNoArgs();
     EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full.", 2, 100ms));
     EXPECT_TRUE(appenderContains("Queue is no longer full. Number of events dropped: 2"));
