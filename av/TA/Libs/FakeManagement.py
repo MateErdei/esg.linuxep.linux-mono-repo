@@ -233,6 +233,7 @@ class FakeManagement(object):
                     break
             if good:
                 return
+            time.sleep(0.5)
 
         self.logger.fatal("Plugin status didn't contain expected texts: %s", status)
         raise Exception("Plugin status didn't contain expected texts")
