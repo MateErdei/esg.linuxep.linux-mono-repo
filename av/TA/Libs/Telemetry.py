@@ -36,8 +36,10 @@ def check_telemetry(telemetry):
     assert av_dict["health"] == 0, "Health is not set to 0 in telemetry, showing bad AV Plugin Health"
     assert av_dict["threatHealth"] == 1, "Threat Health is not set to 1 in telemetry (1 = good, 2 = suspicious)"
 
+
 def _su_supports_group():
     return os.path.isfile("/etc/redhat-release") and os.path.isfile("/bin/su")
+
 
 def debug_telemetry(telemetry_symlink):
     id_proc = subprocess.run(['sudo', "-u", "sophos-spl-user", "id"],
@@ -82,8 +84,10 @@ def debug_telemetry(telemetry_symlink):
     # sudoers = open("/etc/sudoers").read()
     # logger.error("sudoers: %s" % sudoers)
 
+
 class Result:
     pass
+
 
 def _sophos_spl_user_primary_group_is_sophos_spl_group():
     # Check if sophos-spl-user's primary group is sophos-spl-group?
@@ -108,6 +112,7 @@ def _sophos_spl_user_primary_group_is_sophos_spl_group():
                      expected_gid
                  ))
     return False
+
 
 def run_telemetry(telemetry_symlink, telemetry_config):
     if _sophos_spl_user_primary_group_is_sophos_spl_group():
@@ -135,15 +140,17 @@ def run_telemetry(telemetry_symlink, telemetry_config):
     logger.info("Result %d: %s" % (result.rc, result.stdout))
     return result
 
-def _get_variable(varName, defaultValue=None):
+
+def _get_variable(var_name, default_value=None):
     try:
-        return robot.libraries.BuiltIn.BuiltIn().get_variable_value("${%s}" % varName) or defaultValue
+        return robot.libraries.BuiltIn.BuiltIn().get_variable_value("${%s}" % var_name) or default_value
     except robot.libraries.BuiltIn.RobotNotRunningError:
-        return os.environ.get(varName, defaultValue)
+        return os.environ.get(var_name, default_value)
 
 
 def _get_sophos_install():
     return _get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
+
 
 def _get_av_log_by_run(path=None):
     """
