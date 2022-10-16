@@ -161,17 +161,39 @@ Start SafeStore
     Should Be Equal As Integers    ${result.rc}    0
 
 Restart sophos_threat_detector
+    # with added checks/debugging for LINUXDAR-5808
+    ${status} =      Run Keyword And Return Status   Really Restart sophos_threat_detector
+    Run Keyword If   ${status} != True   Debug Restart sophos_threat_detector Failure
+
+Really Restart sophos_threat_detector
     Stop sophos_threat_detector
     Start sophos_threat_detector
     Wait until threat detector running
 
 Restart sophos_threat_detector and mark logs
+    # with added checks/debugging for LINUXDAR-5808
+    ${status} =      Run Keyword And Return Status   Really Restart sophos_threat_detector and mark logs
+    Run Keyword If   ${status} != True   Debug Restart sophos_threat_detector Failure
+
+Really Restart sophos_threat_detector and mark logs
     Stop sophos_threat_detector
     Mark AV Log
     Mark Sophos Threat Detector Log
     Mark Susi Debug Log
     Start sophos_threat_detector
     Wait until threat detector running with offset
+
+Debug Restart sophos_threat_detector Failure
+    # do some debug work before killing the stuck watchdog process
+    Analyse Journalctl   print_always=True
+    Dump All Sophos Processes
+    Log Status Of Sophos Spl
+
+    # force the stuck watchdog process to quit
+    ${wd_pid} =   Get Pid   ${WATCHDOG_BINARY}
+    Evaluate      os.kill(${wd_pid}, signal.SIGQUIT)   modules=os, signal
+
+    Fail          Failed to restart sophos_threat_detector, so killed watchdog. (LINUXDAR-5808)
 
 Scan GR Test File
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/gui.exe
