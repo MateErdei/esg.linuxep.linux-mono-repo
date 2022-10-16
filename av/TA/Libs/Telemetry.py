@@ -133,7 +133,7 @@ def run_telemetry(telemetry_symlink, telemetry_config):
         ]
 
     logger.info("Running telemetry using %s" % (str(command)))
-    r = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    r = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=10)
     result = Result()
     result.rc = r.returncode
     result.stdout = r.stdout
