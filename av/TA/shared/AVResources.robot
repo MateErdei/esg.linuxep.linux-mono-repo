@@ -940,37 +940,17 @@ Create EICAR files
          Create File   ${dir_name}/eicar-${INDEX}  ${EICAR_STRING}
      END
 
-Add IDE to install set
-    [Arguments]  ${ide_name}
-    # COMPONENT_INSTALL_SET
-    ${IDE} =  Set Variable  ${RESOURCES_PATH}/ides/${ide_name}
-    File Should Exist   ${IDE}
-    File Should Not Exist   ${IDE_DIR}/${ide_name}
-    Copy file  ${IDE}  ${IDE_DIR}/${ide_name}
-
 Debug install set
     ${result} =  run process  find  ${COMPONENT_INSTALL_SET}/files/plugins/av/chroot/susi/distribution_version  -type  f  stdout=/tmp/proc.out   stderr=STDOUT
     Log  INSTALL_SET= ${result.stdout}
     ${result} =  run process  find  ${SOPHOS_INSTALL}/plugins/av/chroot/susi/distribution_version   stdout=/tmp/proc.out    stderr=STDOUT
     Log  INSTALLATION= ${result.stdout}
 
-Remove IDE from install set
-    [Arguments]  ${ide_name}
-    File Should Exist   ${IDE_DIR}/${ide_name}
-    Remove File  ${IDE_DIR}/${ide_name}
-
 Run installer from install set
     ${result} =  run process    bash  -x  ${COMPONENT_INSTALL_SET}/install.sh  stdout=/tmp/proc.out  stderr=STDOUT
     Log  ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${0}
 
-Check IDE present in installation
-    [Arguments]  ${ide_name}
-    File should exist  ${INSTALL_IDE_DIR}/${ide_name}
-
-Check IDE absent from installation
-    [Arguments]  ${ide_name}
-    file should not exist  ${INSTALL_IDE_DIR}/${ide_name}
 
 Run installer from install set and wait for reload trigger
     [Arguments]  ${threat_detector_pid}  ${mark}

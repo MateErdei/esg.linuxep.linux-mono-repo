@@ -774,8 +774,6 @@ IDE Update Invalidates On Access Cache
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
-${IDE2_NAME}        pemid.ide
-${IDE3_NAME}        Sus2Exp.ide
 @{ALLOWED_TO_WRITE}
 ...     chroot/etc
 ...     chroot/log
@@ -791,10 +789,6 @@ ${IDE3_NAME}        Sus2Exp.ide
 
 *** Keywords ***
 Installer Suite Setup
-    Remove Files
-    ...   ${IDE_DIR}/${IDE_NAME}
-    ...   ${IDE_DIR}/${IDE2_NAME}
-    ...   ${IDE_DIR}/${IDE3_NAME}
     Install With Base SDDS
 
 Installer Suite TearDown

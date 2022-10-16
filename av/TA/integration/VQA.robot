@@ -91,12 +91,6 @@ SUSI config can scan a selfextractor file
 
 *** Keywords ***
 VQA Suite Setup
-    Remove Files
-    ...   ${IDE_DIR}/axml.ide
-    ...   ${IDE_DIR}/office.ide
-    ...   ${IDE_DIR}/pdf.ide
-    ...   ${IDE_DIR}/internet.ide
-    ...   ${IDE_DIR}/hfs.ide
     Install With Base SDDS
     Check Plugin Installed and Running
     Force SUSI to be initialized
