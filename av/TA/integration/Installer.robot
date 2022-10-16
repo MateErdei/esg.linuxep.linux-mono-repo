@@ -350,8 +350,6 @@ AV Plugin gets customer id after upgrade
     Should Be Equal   ${customerId2}   ${expectedId}
 
 IDE can be removed
-    #TODO: LINUXDAR-5775 re-enable once the bug is closed the issue has been identified
-    [Tags]  DISABLED
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
