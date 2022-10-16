@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Sophos Plc, Oxford, England.
+# Copyright (C) 2018-2022 Sophos Plc, Oxford, England.
 # All rights reserved.
 
 import grp
@@ -15,8 +15,8 @@ from Libs.PluginCommunicationTools.common import PathsLocation
 from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
 from Libs import FakeManagementLog
 
-import time
 import traceback
+
 
 class ManagementAgentPluginRequester(object):
     def __init__(self, plugin_name, logger):
@@ -43,7 +43,7 @@ class ManagementAgentPluginRequester(object):
                 self.__m_socket_path))
         filename = "ScanNow_Action.xml"
         sophos_install = os.environ['SOPHOS_INSTALL']
-        with open(os.path.join(sophos_install,"base/mcs/action/"+filename), "w") as f:
+        with open(os.path.join(sophos_install, "base/mcs/action/"+filename), "w") as f:
             f.write(action)
         message = self.build_message(Messages.DO_ACTION, app_id, [filename])
         message.correlationId = correlation
@@ -74,7 +74,7 @@ class ManagementAgentPluginRequester(object):
             raise Exception("Failed to determine policy type")
 
         sophos_install = os.environ['SOPHOS_INSTALL']
-        with open(os.path.join(sophos_install,"base/mcs/policy/"+filename), "w") as f:
+        with open(os.path.join(sophos_install, "base/mcs/policy/"+filename), "w") as f:
             f.write(policy_xml)
         message = self.build_message(Messages.APPLY_POLICY, app_id, [filename])
         self.send_message(message)
@@ -91,7 +91,7 @@ class ManagementAgentPluginRequester(object):
             return response.contents[0]
 
     def get_status(self, app_id, sleep_period=0.5, max_number_of_retries=10):
-        self.logger.info("Request Status for {}".format( self.name))
+        self.logger.info("Request Status for {}".format(self.name))
         request_message = self.build_message(Messages.REQUEST_STATUS, app_id, [])
         self.send_message(request_message)
         raw_response = None
@@ -149,6 +149,7 @@ class ManagementAgentPluginRequester(object):
         creation_time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         return f"{creation_time}_{ttl}"
 
+
 class FakeManagement(object):
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
 
@@ -199,32 +200,32 @@ class FakeManagement(object):
         self.agent = FakeManagementAgent.Agent(self.logger)
         self.agent.start()
 
-    def send_plugin_policy(self, plugin_name, appid, content):
+    def send_plugin_policy(self, plugin_name, app_id, content):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
-        plugin.policy(appid, content)
+        plugin.policy(app_id, content)
 
-    def send_plugin_action(self, plugin_name, appid, correlation, content):
+    def send_plugin_action(self, plugin_name, app_id, correlation, content):
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
-        plugin.action(appid, correlation, content)
+        plugin.action(app_id, correlation, content)
 
-    def get_plugin_status(self, plugin_name, appid):
+    def get_plugin_status(self, plugin_name, app_id):
         try:
             plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
-            return plugin.get_status(appid)
+            return plugin.get_status(app_id)
         except Exception as ex:
             self.logger.error("Failed to get_plugin_status: %s", str(ex))
             trace = traceback.format_exc()
             self.logger.error("Traceback %s", trace)
             raise
 
-    def wait_for_plugin_status(self, plugin_name, appid, *texts):
+    def wait_for_plugin_status(self, plugin_name, app_id, *texts):
         timeout = 15
         plugin = ManagementAgentPluginRequester(plugin_name, self.logger)
         deadline = time.time() + int(timeout)
         status = "FAILED TO FETCH STATUS"
 
         while time.time() < deadline:
-            status = plugin.get_status(appid)
+            status = plugin.get_status(app_id)
             good = True
             for t in texts:
                 if t not in status:
