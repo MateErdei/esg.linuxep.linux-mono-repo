@@ -7,11 +7,13 @@
 #include "QuarantineManagerImpl.h"
 #include "SafeStoreWrapperImpl.h"
 #include "StateMonitor.h"
+
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
 #include "common/ApplicationPaths.h"
 #include "common/PidLockFile.h"
 #include "common/SaferStrerror.h"
+#include "common/ThreadRunner.h"
 #include "common/signals/SigIntMonitor.h"
 #include "common/signals/SigTermMonitor.h"
 
@@ -48,17 +50,16 @@ namespace safestore
         // TODO make this unique doesn't need to be shared here.
         std::shared_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper = std::make_shared<safestore::SafeStoreWrapperImpl>();
         std::shared_ptr<safestore::IQuarantineManager> quarantineManager = std::make_shared<safestore::QuarantineManagerImpl>(safeStoreWrapper);
-
         quarantineManager->initialise();
 
-        StateMonitor qmStateMonitorThread(quarantineManager);
-        qmStateMonitorThread.run();
+        auto qmStateMonitor = std::make_shared<StateMonitor>(quarantineManager);
+        auto qmStateMonitorThread = std::make_unique<common::ThreadRunner>(qmStateMonitor, "StateMonitor", true);
 
-        //    quarantineManager->quarantineFile(....);
+        unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), quarantineManager);
+        server.setUserAndGroup("sophos-spl-av", "root");
+        server.start();
 
-    unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), quarantineManager);
-    server.setUserAndGroup("sophos-spl-av", "root");
-    server.start();auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
+        auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
         auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };
 
         struct pollfd fds[]
