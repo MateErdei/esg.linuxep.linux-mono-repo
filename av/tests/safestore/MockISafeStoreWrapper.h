@@ -1,4 +1,4 @@
-// Copyright 2019-2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "safestore/ISafeStoreWrapper.h"

@@ -1,4 +1,4 @@
-// Copyright 2019-2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "../common/LogInitializedTests.h"
 #include "safestore/SafeStoreWrapperImpl.h"

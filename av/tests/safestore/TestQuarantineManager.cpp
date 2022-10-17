@@ -1,4 +1,4 @@
-// Copyright 2019-2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "MockISafeStoreWrapper.h"
 
@@ -100,4 +100,40 @@ TEST_F(QuarantineManagerTests, uninitialisedDbStateIsStillUnitialisedAfterFailed
     ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::UNINITIALISED);
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::UNINITIALISED);
+}
+
+
+TEST_F(QuarantineManagerTests, quartineFile)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+    EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
+
+    auto mockSafeStoreWrapper = std::make_shared<StrictMock<MockISafeStoreWrapper>>();
+    EXPECT_CALL(*mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "a password"))
+        .WillOnce(Return(safestore::InitReturnCode::OK));
+
+    std::string dir = "/dir";
+    std::string file = "file";
+    std::string threatID = "threatID";
+    std::string threatName = "threatName";
+    std::string SHA256 = "SHA256abcdef";
+
+
+    // TODO - fix - can't pass this in to the expect call because it can't be copy constructed?
+    //    safestore::ObjectHandleHolder objectHandle(*mockSafeStoreWrapper);
+    EXPECT_CALL(*mockSafeStoreWrapper, saveFile(dir, file, threatID, threatName, _)).WillOnce(Return(safestore::SaveFileReturnCode::OK));
+    EXPECT_CALL(*mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", SHA256)).WillOnce(Return(true));
+    EXPECT_CALL(*mockSafeStoreWrapper, finaliseObject(_)).WillOnce(Return(true));
+
+    std::shared_ptr<safestore::IQuarantineManager> quarantineManager =
+        std::make_shared<safestore::QuarantineManagerImpl>(mockSafeStoreWrapper);
+
+    EXPECT_NO_THROW(quarantineManager->initialise());
+    ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::INITIALISED);
+    datatypes::AutoFd fdHolder;
+    ASSERT_TRUE(quarantineManager->quarantineFile(dir + "/" + file,threatID,threatName,SHA256,std::move(fdHolder)));
+
 }
