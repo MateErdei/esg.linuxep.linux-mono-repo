@@ -175,8 +175,6 @@ namespace safestore
         const std::string& dbName,
         const std::string& password)
     {
-        LOGINFO("before init call");
-
         auto result = SafeStore_Init(
             &m_safeStoreCtx,
             dbDirName.c_str(),
@@ -184,8 +182,6 @@ namespace safestore
             reinterpret_cast<const uint8_t*>(password.c_str()),
             password.size(),
             0);
-
-        LOGINFO("after init call");
 
         switch (result)
         {

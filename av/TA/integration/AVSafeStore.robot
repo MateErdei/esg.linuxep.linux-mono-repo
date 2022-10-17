@@ -24,6 +24,24 @@ ${MACHINEID_FILE}   ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 
 *** Test Cases ***
 
+SafeStore Database is Initialised
+    Wait Until Safestore Log Contains    Saved password OK
+    Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
+    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+
+SafeStore Can Reinitialise Database
+    Wait Until Safestore Log Contains    Saved password OK
+    Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
+    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+
+    Stop SafeStore
+    Check Safestore Not Running
+    Mark SafeStore Log
+
+    Start SafeStore
+    Wait Until SafeStore Log Contains With Offset    Quarantine Manager initialised OK
+    Wait Until SafeStore Log Contains With Offset    Successfully initialised SafeStore database
+
 SafeStore Logs When It Recieves A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
@@ -91,5 +109,4 @@ SafeStore Test TearDown
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
     Remove File  ${CUSTOMERID_FILE}
 
-    Stop SafeStore
     run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests

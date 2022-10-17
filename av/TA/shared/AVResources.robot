@@ -311,17 +311,17 @@ SafeStore Log Does Not Contain
 
 SafeStore Log Contains With Offset
     [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_PATH}  0
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
     File Log Contains With Offset     ${SAFESTORE_LOG_PATH}   ${input}   offset=${offset}
 
 SafeStore Log Contains With Offset Times
     [Arguments]  ${input}  ${times}
-    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_PATH}  0
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
     File Log Contains With Offset Times    ${SAFESTORE_LOG_PATH}   ${input}   ${times}   offset=${offset}
 
 SafeStore Log Does Not Contain With Offset
     [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_PATH}  0
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
     # retry for 15s
     FOR   ${i}   IN RANGE   5
         File Log Should Not Contain With Offset  ${SAFESTORE_LOG_PATH}   ${input}   offset=${offset}
