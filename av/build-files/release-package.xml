@@ -77,12 +77,17 @@
         </build-asset>
 
         <build-asset project="ec" repo="susi">
-            <release-version branch="feature--CORE-4349-New-ML-Package-Layout"
-                             build-id="20221010180103-ee3a30332b0242b5d54eb4e3f9f714287d8329e8-fpOFrT"/>
+            <release-version branch="release/2.0"
+                             build-id="20220518053435-b4fdc1d8d10507b938d5cd56b045eb72377bb225-bQBPKI"/>
             <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib"/>
-            <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib"/>
             <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include"/>
             <include artifact-path="release/rules" dest-dir="input/susi_input/rules"/>
+        </build-asset>
+
+        <build-asset project="ec" repo="susi">
+            <release-version branch="release--updater--2.0.2"
+                             build-id="20221015113310-93407277599d72fec13347af38fcce0738322fe6-KZTQ57"/>
+            <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib"/>
         </build-asset>
 
         <build-asset project="core" repo="httpsrequester">
