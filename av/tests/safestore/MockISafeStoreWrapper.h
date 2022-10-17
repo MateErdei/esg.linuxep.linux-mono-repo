@@ -31,7 +31,7 @@ public:
         bool(const safestore::SafeStoreFilter&, safestore::SearchHandleHolder&, safestore::ObjectHandleHolder&));
     MOCK_METHOD2(findNext, bool(safestore::SearchHandleHolder&, safestore::ObjectHandleHolder&));
     MOCK_METHOD1(getObjectName, std::string(const safestore::ObjectHandleHolder&));
-    MOCK_METHOD1(getObjectId, std::string(const safestore::ObjectHandleHolder&));
+    MOCK_METHOD1(getObjectId, std::vector<uint8_t>(const safestore::ObjectHandleHolder&));
     MOCK_METHOD1(getObjectType, safestore::ObjectType(const safestore::ObjectHandleHolder&));
     MOCK_METHOD1(getObjectStatus, safestore::ObjectStatus(const safestore::ObjectHandleHolder&));
     MOCK_METHOD1(getObjectThreatId, std::string(const safestore::ObjectHandleHolder&));

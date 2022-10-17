@@ -34,12 +34,17 @@ namespace safestore
     /*
      * TODO 5675 docs
      */
-    std::optional<SafeStore_Id_t> safeStoreIdFromString(const std::string& threatId);
+    std::optional<SafeStore_Id_t> safeStoreIdFromString(const std::string& safeStoreId);
 
     /*
      * TODO 5675 docs
      */
     std::string stringFromSafeStoreId(const SafeStore_Id_t& id);
+
+    /*
+     * TODO 5675 docs
+     */
+    std::vector<uint8_t> bytesFromSafeStoreId(const SafeStore_Id_t& id);
 
     class SafeStoreWrapperImpl : public ISafeStoreWrapper
     {
@@ -62,14 +67,11 @@ namespace safestore
             const SafeStoreFilter& filter,
             SearchHandleHolder& searchHandle,
             ObjectHandleHolder& objectHandle) override;
-        bool findNext(
-            SearchHandleHolder& searchHandle,
-            ObjectHandleHolder& objectHandle) override;
+        bool findNext(SearchHandleHolder& searchHandle, ObjectHandleHolder& objectHandle) override;
         SearchResults find(const SafeStoreFilter& filter) override;
         std::string getObjectName(const ObjectHandleHolder& objectHandle) override;
-        std::string getObjectId(const ObjectHandleHolder& objectHandle) override;
-        bool getObjectHandle(const std::string& objectId, std::shared_ptr<ObjectHandleHolder> objectHandle)
-            override;
+        std::vector<uint8_t> getObjectId(const ObjectHandleHolder& objectHandle) override;
+        bool getObjectHandle(const std::string& objectId, std::shared_ptr<ObjectHandleHolder> objectHandle) override;
         ObjectType getObjectType(const ObjectHandleHolder& objectHandle) override;
         ObjectStatus getObjectStatus(const ObjectHandleHolder& objectHandle) override;
         std::string getObjectThreatId(const ObjectHandleHolder& objectHandle) override;

@@ -49,7 +49,8 @@ namespace safestore
 
         // TODO make this unique doesn't need to be shared here.
         std::shared_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper = std::make_shared<SafeStoreWrapperImpl>();
-        std::shared_ptr<safestore::IQuarantineManager> quarantineManager = std::make_shared<QuarantineManagerImpl>(safeStoreWrapper);
+        std::shared_ptr<safestore::IQuarantineManager> quarantineManager =
+            std::make_shared<QuarantineManagerImpl>(safeStoreWrapper);
         quarantineManager->initialise();
 
         auto qmStateMonitor = std::make_shared<StateMonitor>(quarantineManager);
@@ -65,7 +66,9 @@ namespace safestore
         struct pollfd fds[]
         {
             { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-            { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
+            {
+                .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0
+            }
         };
 
         while (true)
@@ -103,4 +106,4 @@ namespace safestore
             }
         }
     }
-}
+} // namespace safestore

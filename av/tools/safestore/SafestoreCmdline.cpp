@@ -117,7 +117,7 @@ int main()
     fileSystem->writeFile(fakeVirusFilePath1, "a temp test file1");
     fileSystem->writeFile(fakeVirusFilePath2, "a temp test file2");
     // Store 1
-    bool stored = quarantineManager->quarantineFile(fakeVirusFilePath1, "T_junk_threat_ID1", "threat name1", sha256PlaceHolder1, std::move(fd1));
+    bool stored = quarantineManager->quarantineFile(fakeVirusFilePath1, "dummy_threat_ID1", "threat name1", sha256PlaceHolder1, std::move(fd1));
     if (stored)
     {
         std::cout << "Successfully quarantined " << fakeVirusFilePath1 << std::endl;
@@ -127,7 +127,7 @@ int main()
         std::cout << "Failed to quarantine " << fakeVirusFilePath1 << std::endl;
     }
     // Store 2
-    stored = quarantineManager->quarantineFile(fakeVirusFilePath2,"T_junk_threat_ID2","threat name2", sha256PlaceHolder2, std::move(fd2));
+    stored = quarantineManager->quarantineFile(fakeVirusFilePath2,"dummy_threat_ID2","threat name2", sha256PlaceHolder2, std::move(fd2));
     if (stored)
     {
         std::cout << "Successfully quarantined " << fakeVirusFilePath2 << std::endl;
@@ -154,9 +154,26 @@ int main()
     {
         std::cout << "for loop: " << std::endl;
         std::cout << "getObjectName: " << safeStoreWrapper->getObjectName(result) << std::endl;
-        std::cout << "getObjectId: " << safeStoreWrapper->getObjectId(result) << std::endl;
-//        std::cout << "getObjectType: " << safeStoreWrapper->getObjectType(result) << std::endl;
-//        std::cout << "getObjectStatus: " << safeStoreWrapper->getObjectStatus(result) << std::endl;
+//        std::cout << "getObjectId: " << safeStoreWrapper->getObjectId(result) << std::endl;
+
+        std::cout << "getObjectType: " ;
+        switch (safeStoreWrapper->getObjectType(result))
+        {
+            case safestore::ObjectType::ANY:
+                std::cout << "ANY" << std::endl;
+                break;
+            case safestore::ObjectType::FILE:
+                std::cout << "FILE" << std::endl;
+                break;
+            case safestore::ObjectType::REGKEY:
+                std::cout << "REGKEY" << std::endl;
+                break;
+            case safestore::ObjectType::REGVALUE:
+                std::cout << "REGVALUE" << std::endl;
+                break;
+        }
+
+        //        std::cout << "getObjectStatus: " << safeStoreWrapper->getObjectStatus(result) << std::endl;
         std::cout << "getObjectStoreTime: " << safeStoreWrapper->getObjectStoreTime(result) << std::endl;
         std::cout << "getObjectThreatId: " << safeStoreWrapper->getObjectThreatId(result) << std::endl;
         std::cout << "getObjectThreatName: " << safeStoreWrapper->getObjectThreatName(result) << std::endl;

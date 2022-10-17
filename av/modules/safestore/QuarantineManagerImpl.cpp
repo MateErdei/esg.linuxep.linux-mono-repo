@@ -16,7 +16,6 @@
 #include <optional>
 #include <utility>
 
-
 namespace
 {
     std::string quarantineManagerStateToString(const safestore::QuarantineManagerState& state)
@@ -32,7 +31,7 @@ namespace
         }
         return "UNKNOWN";
     }
-}
+} // namespace
 
 namespace safestore
 {
@@ -95,7 +94,8 @@ namespace safestore
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
-            LOGERROR("Failed to read SafeStore Database Password from " << passwordFilePath << " due to: " << ex.what());
+            LOGERROR(
+                "Failed to read SafeStore Database Password from " << passwordFilePath << " due to: " << ex.what());
         }
         return std::nullopt;
     }
@@ -118,10 +118,11 @@ namespace safestore
         const std::string& sha256,
         datatypes::AutoFd autoFd)
     {
-
         if (threatId.length() != THREAT_ID_LENGTH)
         {
-            LOGWARN("Cannot quarantine file because threat ID length (" << threatId.length() << ") is not " << THREAT_ID_LENGTH);
+            LOGWARN(
+                "Cannot quarantine file because threat ID length (" << threatId.length() << ") is not "
+                                                                    << THREAT_ID_LENGTH);
             return false;
         }
 
@@ -145,7 +146,6 @@ namespace safestore
             LOGDEBUG("File Descriptor: " << autoFd.fd());
 
             // TODO LINUXDAR-5677 delete the file
-
 
             // TODO LINUXDAR-5677 do something with the sha256, do we need to store this as custom data for restoration?
             m_safeStore->setObjectCustomDataString(*objectHandle, "SHA256", sha256);

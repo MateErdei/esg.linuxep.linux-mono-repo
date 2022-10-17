@@ -11,7 +11,7 @@ class SafeStoreWrapperTests : public LogInitializedTests
 
 TEST_F(SafeStoreWrapperTests, threatIdFromStringTakesFirst16Bytes)
 {
-    auto ssThreatIdStruct = safestore::safeStoreIdFromString("Tabcdefghijklmnopqrstuvwxyz");
+    auto ssThreatIdStruct = safestore::safeStoreIdFromString("abcdefghijklmnop"); // 16 bytes
     ASSERT_TRUE(ssThreatIdStruct.has_value());
 
     ASSERT_EQ((ssThreatIdStruct.value().Data1 & 0x000000ff), 'a');
@@ -33,22 +33,32 @@ TEST_F(SafeStoreWrapperTests, threatIdFromStringTakesFirst16Bytes)
 
 TEST_F(SafeStoreWrapperTests, threatIdFromStringHandlesShortIds)
 {
-    auto ssThreatIdStruct = safestore::safeStoreIdFromString("Tabcdefg");
+    auto ssThreatIdStruct = safestore::safeStoreIdFromString("abcdefg");
     ASSERT_FALSE(ssThreatIdStruct.has_value());
 }
 
 TEST_F(SafeStoreWrapperTests, threatIdFromStringHandlesMalformedIds)
 {
-    auto ssThreatIdStruct = safestore::safeStoreIdFromString("this is not a threat ID");
+    auto ssThreatIdStruct = safestore::safeStoreIdFromString("this is not a threat ID because it's too long");
     ASSERT_FALSE(ssThreatIdStruct.has_value());
 }
 
 TEST_F(SafeStoreWrapperTests, stringFromThreatIdStruct)
 {
     std::string idString = "abcdefghijklmnop"; // only 16bytes long.
-    std::string threatIdPrefix = "T";
-    std::string threatIdString = threatIdPrefix + idString;
-    auto ssThreatIdStruct = safestore::safeStoreIdFromString(threatIdString);
+    auto ssThreatIdStruct = safestore::safeStoreIdFromString(idString);
     std::string id = safestore::stringFromSafeStoreId(ssThreatIdStruct.value());
     ASSERT_EQ(idString, id);
+}
+
+TEST_F(SafeStoreWrapperTests, bytesFromSafeStoreId)
+{
+    std::string idString = "abcdefghijklmnop";
+    auto ssThreatIdStruct = safestore::safeStoreIdFromString(idString);
+    auto bytes = safestore::bytesFromSafeStoreId(ssThreatIdStruct.value());
+    ASSERT_EQ(bytes.size(), idString.length());
+    for (size_t i = 0; i < idString.length(); ++i)
+    {
+        ASSERT_EQ(bytes[i], 'a' + i);
+    }
 }

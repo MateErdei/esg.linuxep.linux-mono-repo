@@ -13,59 +13,83 @@ extern "C"
 
 namespace safestore
 {
-    std::optional<SafeStore_Id_t> safeStoreIdFromString(const std::string& threatId)
+    std::optional<SafeStore_Id_t> safeStoreIdFromString(const std::string& safeStoreId)
     {
-        if (threatId.length() < sizeof(SafeStore_Id_t))
+        if (safeStoreId.length() != sizeof(SafeStore_Id_t))
         {
             return std::nullopt;
         }
-        if (threatId[0] != 'T')
-        {
-            return std::nullopt;
-        }
-        constexpr unsigned int startOfBytes = 1; // start of the bytes we care about, ignore first T char
+        constexpr unsigned int startOfBytes = 0;
         SafeStore_Id_t id {};
-        id.Data1 = threatId[startOfBytes] | threatId[startOfBytes + 1] << 8 | threatId[startOfBytes + 2] << 16 |
-                   threatId[startOfBytes + 3] << 24;
-        id.Data2 = threatId[startOfBytes + 4] | threatId[startOfBytes + 5] << 8;
-        id.Data3 = threatId[startOfBytes + 6] | threatId[startOfBytes + 7] << 8;
-        id.Data4[0] = threatId[startOfBytes + 8];
-        id.Data4[1] = threatId[startOfBytes + 9];
-        id.Data4[2] = threatId[startOfBytes + 10];
-        id.Data4[3] = threatId[startOfBytes + 11];
-        id.Data4[4] = threatId[startOfBytes + 12];
-        id.Data4[5] = threatId[startOfBytes + 13];
-        id.Data4[6] = threatId[startOfBytes + 14];
-        id.Data4[7] = threatId[startOfBytes + 15];
+        id.Data1 = safeStoreId[startOfBytes] | safeStoreId[startOfBytes + 1] << 8 |
+                   safeStoreId[startOfBytes + 2] << 16 | safeStoreId[startOfBytes + 3] << 24;
+        id.Data2 = safeStoreId[startOfBytes + 4] | safeStoreId[startOfBytes + 5] << 8;
+        id.Data3 = safeStoreId[startOfBytes + 6] | safeStoreId[startOfBytes + 7] << 8;
+        id.Data4[0] = safeStoreId[startOfBytes + 8];
+        id.Data4[1] = safeStoreId[startOfBytes + 9];
+        id.Data4[2] = safeStoreId[startOfBytes + 10];
+        id.Data4[3] = safeStoreId[startOfBytes + 11];
+        id.Data4[4] = safeStoreId[startOfBytes + 12];
+        id.Data4[5] = safeStoreId[startOfBytes + 13];
+        id.Data4[6] = safeStoreId[startOfBytes + 14];
+        id.Data4[7] = safeStoreId[startOfBytes + 15];
 
-        LOGDEBUG("Converted threat ID: " << threatId << " into safestore ID struct");
+        LOGDEBUG("Converted threat ID: " << safeStoreId << " into safestore ID struct");
         return id;
     }
 
     std::string stringFromSafeStoreId(const SafeStore_Id_t& id)
     {
-        std::string threatId;
-        threatId += char(id.Data1 & 0x000000ff);
-        threatId += char((id.Data1 & 0x0000ff00) >> 8);
-        threatId += char((id.Data1 & 0x00ff0000) >> 16);
-        threatId += char((id.Data1 & 0xff000000) >> 24);
+        std::string idString;
+        idString += char(id.Data1 & 0x000000ff);
+        idString += char((id.Data1 & 0x0000ff00) >> 8);
+        idString += char((id.Data1 & 0x00ff0000) >> 16);
+        idString += char((id.Data1 & 0xff000000) >> 24);
 
-        threatId += char(id.Data2 & 0x00ff);
-        threatId += char((id.Data2 & 0xff00) >> 8);
+        idString += char(id.Data2 & 0x00ff);
+        idString += char((id.Data2 & 0xff00) >> 8);
 
-        threatId += char(id.Data3 & 0x00ff);
-        threatId += char((id.Data3 & 0xff00) >> 8);
+        idString += char(id.Data3 & 0x00ff);
+        idString += char((id.Data3 & 0xff00) >> 8);
 
-        threatId += char(id.Data4[0]);
-        threatId += char(id.Data4[1]);
-        threatId += char(id.Data4[2]);
-        threatId += char(id.Data4[3]);
-        threatId += char(id.Data4[4]);
-        threatId += char(id.Data4[5]);
-        threatId += char(id.Data4[6]);
-        threatId += char(id.Data4[7]);
+        idString += char(id.Data4[0]);
+        idString += char(id.Data4[1]);
+        idString += char(id.Data4[2]);
+        idString += char(id.Data4[3]);
+        idString += char(id.Data4[4]);
+        idString += char(id.Data4[5]);
+        idString += char(id.Data4[6]);
+        idString += char(id.Data4[7]);
 
-        return threatId;
+        return idString;
+    }
+
+    std::vector<uint8_t> bytesFromSafeStoreId(const SafeStore_Id_t& id)
+    {
+        std::vector<uint8_t> objectIdBytes;
+        int numberOfBytes = sizeof(id);
+        objectIdBytes.reserve(numberOfBytes);
+        objectIdBytes.push_back(id.Data1 & 0x000000ff);
+        objectIdBytes.push_back((id.Data1 & 0x0000ff00) >> 8);
+        objectIdBytes.push_back((id.Data1 & 0x00ff0000) >> 16);
+        objectIdBytes.push_back((id.Data1 & 0xff000000) >> 24);
+
+        objectIdBytes.push_back(id.Data2 & 0x00ff);
+        objectIdBytes.push_back((id.Data2 & 0xff00) >> 8);
+
+        objectIdBytes.push_back(id.Data3 & 0x00ff);
+        objectIdBytes.push_back((id.Data3 & 0xff00) >> 8);
+
+        objectIdBytes.push_back(id.Data4[0]);
+        objectIdBytes.push_back(id.Data4[1]);
+        objectIdBytes.push_back(id.Data4[2]);
+        objectIdBytes.push_back(id.Data4[3]);
+        objectIdBytes.push_back(id.Data4[4]);
+        objectIdBytes.push_back(id.Data4[5]);
+        objectIdBytes.push_back(id.Data4[6]);
+        objectIdBytes.push_back(id.Data4[7]);
+
+        return objectIdBytes;
     }
 
     SafeStore_Config_t convertToSafeStoreConfigId(const ConfigOption& option)
@@ -232,7 +256,7 @@ namespace safestore
             filename.c_str(),
             &(threatIdSafeStore.value()),
             threatName.c_str(),
-           objectHandle.getRawHandlePtr());
+            objectHandle.getRawHandlePtr());
 
         switch (result)
         {
@@ -326,18 +350,16 @@ namespace safestore
                 m_safeStoreCtx, &ssFilter, searchHandle.getRawHandle(), objectHandle.getRawHandlePtr()) == SR_OK);
     }
 
-    bool SafeStoreWrapperImpl::findNext(
-        SearchHandleHolder& searchHandle,
-        ObjectHandleHolder& objectHandle)
+    bool SafeStoreWrapperImpl::findNext(SearchHandleHolder& searchHandle, ObjectHandleHolder& objectHandle)
     {
         return (
-            SafeStore_FindNext(m_safeStoreCtx, *(searchHandle.getRawHandle()), objectHandle.getRawHandlePtr()) == SR_OK);
+            SafeStore_FindNext(m_safeStoreCtx, *(searchHandle.getRawHandle()), objectHandle.getRawHandlePtr()) ==
+            SR_OK);
     }
 
     std::unique_ptr<SearchHandleHolder> SafeStoreWrapperImpl::createSearchHandleHolder()
     {
-
-//        std::weak_ptr<ISafeStoreWrapper> safeStoreWrapper = this;
+        //        std::weak_ptr<ISafeStoreWrapper> safeStoreWrapper = this;
         // TODO make this nicer - the ref can go out of scope.
         return std::make_unique<SearchHandleHolder>(*this);
     }
@@ -373,7 +395,7 @@ namespace safestore
         //  *     SR_INTERNAL_ERROR - an internal error has occurred
 
         auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
-//        auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
+        //        auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
 
         switch (returnCode)
         {
@@ -391,9 +413,8 @@ namespace safestore
         return std::string(buf);
     }
 
-    std::string SafeStoreWrapperImpl::getObjectId(const ObjectHandleHolder& objectHandle)
+    std::vector<uint8_t> SafeStoreWrapperImpl::getObjectId(const ObjectHandleHolder& objectHandle)
     {
-
         if (objectHandle.getRawHandle() == nullptr)
         {
             return {};
@@ -402,22 +423,16 @@ namespace safestore
         SafeStore_Id_t objectId;
         auto returnCode = SafeStore_GetObjectId(objectHandle.getRawHandle(), &objectId);
 
-
         if (returnCode == SR_OK)
         {
-            // TODO
+            return bytesFromSafeStoreId(objectId);
         }
         else
         {
-            // TODO
-            LOGWARN("Failed to get object ID");
+            LOGERROR("Failed to get object ID");
         }
 
-//        SafeStore_GetObjectId(objectHandle.getRawHandle(), &objectId);
-
-
-        //        return "NOT IMPLEMENTED";
-        return stringFromSafeStoreId(objectId);
+        return {};
     }
 
     bool SafeStoreWrapperImpl::getObjectHandle(
@@ -436,7 +451,8 @@ namespace safestore
         if (auto safeStoreThreadId = safeStoreIdFromString(objectId))
         {
             return (
-                SafeStore_GetObjectHandle(m_safeStoreCtx, &safeStoreThreadId.value(), objectHandle->getRawHandlePtr()) == SR_OK);
+                SafeStore_GetObjectHandle(
+                    m_safeStoreCtx, &safeStoreThreadId.value(), objectHandle->getRawHandlePtr()) == SR_OK);
         }
 
         return false;
@@ -510,7 +526,6 @@ namespace safestore
         }
         LOGWARN("Failed to query object status, returning undefined");
         return ObjectStatus::UNDEFINED;
-
     }
 
     std::string SafeStoreWrapperImpl::getObjectThreatId(const ObjectHandleHolder& objectHandle)
@@ -562,10 +577,10 @@ namespace safestore
         const std::string& dataName,
         const std::vector<uint8_t>& value)
     {
+        // TODO 5675 define max size for custom data
 
-        //TODO 5675 define max size for custom data
-
-        auto returnCode = SafeStore_SetObjectCustomData(m_safeStoreCtx, objectHandle.getRawHandle(), dataName.c_str(),value.data(),value.size());
+        auto returnCode = SafeStore_SetObjectCustomData(
+            m_safeStoreCtx, objectHandle.getRawHandle(), dataName.c_str(), value.data(), value.size());
 
         switch (returnCode)
         {
@@ -594,14 +609,15 @@ namespace safestore
         const ObjectHandleHolder& objectHandle,
         const std::string& dataName)
     {
-        //TODO 5675 define max size for custom data
-        //TODO 5675 deal with size coming back not equal to what we're expecting
+        // TODO 5675 define max size for custom data
+        // TODO 5675 deal with size coming back not equal to what we're expecting
         constexpr int dataSize = 1024;
         size_t size = dataSize;
         uint8_t buf[dataSize];
 
         size_t bytesRead = 0;
-        auto returnCode = SafeStore_GetObjectCustomData(m_safeStoreCtx, objectHandle.getRawHandle(), dataName.c_str(),buf, &size,&bytesRead);
+        auto returnCode = SafeStore_GetObjectCustomData(
+            m_safeStoreCtx, objectHandle.getRawHandle(), dataName.c_str(), buf, &size, &bytesRead);
         std::vector<uint8_t> dataToReturn;
         switch (returnCode)
         {
@@ -612,7 +628,8 @@ namespace safestore
                 }
                 else
                 {
-                    LOGWARN("Size of data returned from getting object custom data is larger than buffer, returning empty data");
+                    LOGWARN("Size of data returned from getting object custom data is larger than buffer, returning "
+                            "empty data");
                 }
                 break;
             case SR_INVALID_ARG:
@@ -636,7 +653,7 @@ namespace safestore
         const std::string& value)
     {
         std::vector<uint8_t> valueAsBytes(value.begin(), value.end());
-        return setObjectCustomData(objectHandle,dataName, valueAsBytes);
+        return setObjectCustomData(objectHandle, dataName, valueAsBytes);
     }
     std::string SafeStoreWrapperImpl::getObjectCustomDataString(
         ObjectHandleHolder& objectHandle,
