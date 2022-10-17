@@ -42,7 +42,7 @@ target_link_libraries(SafeStoreTapTests
         )
 set_target_properties(SafeStoreTapTests PROPERTIES
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
-        INSTALL_RPATH "/opt/sophos-spl/base/lib64/" )
+        INSTALL_RPATH "/opt/sophos-spl/base/lib64/")
 
 install(TARGETS SafeStoreTapTests
         DESTINATION ${CMAKE_BINARY_DIR}/tap_test_output)

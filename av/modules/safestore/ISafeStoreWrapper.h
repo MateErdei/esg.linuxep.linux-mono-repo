@@ -22,6 +22,9 @@ namespace safestore
     using SafeStoreObjectHandle = void*;
     using SafeStoreSearchHandle = void*;
 
+    // The length in bytes that a threat ID must be
+    static constexpr size_t THREAT_ID_LENGTH = 16;
+
     // Return codes from SafeStore initialisation
     enum class InitReturnCode
     {

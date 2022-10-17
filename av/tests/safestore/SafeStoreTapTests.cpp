@@ -11,13 +11,12 @@
 
 class SafeStoreWrapperTapTests : public LogInitializedTests
 {
-
 protected:
     static void SetUpTestSuite()
     {
         std::cout << "SetUpTestSuite" << std::endl;
         auto fileSystem = Common::FileSystem::fileSystem();
-        fileSystem->makedirs( m_safeStoreDbDir);
+        fileSystem->makedirs(m_safeStoreDbDir);
     }
 
     static void TearDownTestSuite()
@@ -35,7 +34,7 @@ protected:
     static void deleteDatabase()
     {
         auto fileSystem = Common::FileSystem::fileSystem();
-        fileSystem->removeFilesInDirectory( m_safeStoreDbDir);
+        fileSystem->removeFilesInDirectory(m_safeStoreDbDir);
     }
 
     void TearDown() override
@@ -48,14 +47,14 @@ protected:
     static inline const std::string m_safeStoreDbDir = Common::FileSystem::join(m_testWorkingDir, "safestore_db");
     static inline const std::string m_safeStoreDbName = "safestore.db";
     static inline const std::string m_safeStoreDbPw = "a test password";
-    std::unique_ptr<safestore::ISafeStoreWrapper> m_safeStoreWrapper = std::make_unique<safestore::SafeStoreWrapperImpl>();
-
+    std::unique_ptr<safestore::ISafeStoreWrapper> m_safeStoreWrapper =
+        std::make_unique<safestore::SafeStoreWrapperImpl>();
 };
 
 TEST_F(SafeStoreWrapperTapTests, initExistingDb)
 {
-        auto initReturnCode = m_safeStoreWrapper->initialise(m_safeStoreDbDir, m_safeStoreDbName, m_safeStoreDbPw);
-        ASSERT_EQ(initReturnCode, safestore::InitReturnCode::OK);
+    auto initReturnCode = m_safeStoreWrapper->initialise(m_safeStoreDbDir, m_safeStoreDbName, m_safeStoreDbPw);
+    ASSERT_EQ(initReturnCode, safestore::InitReturnCode::OK);
 }
 
 TEST_F(SafeStoreWrapperTapTests, readDefaultConfigOptions)
@@ -99,9 +98,10 @@ TEST_F(SafeStoreWrapperTapTests, writeAndThenRreadBackConfigOptions)
     ASSERT_TRUE(maxObjSize.has_value());
     ASSERT_EQ(maxObjSize.value(), 100000000000);
 
-//    auto maxObjInRegistrySubtree = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_REG_OBJECT_COUNT);
-//    ASSERT_TRUE(maxObjInRegistrySubtree.has_value());
-//    ASSERT_EQ(maxObjInRegistrySubtree.value(), 100);
+    //    auto maxObjInRegistrySubtree =
+    //    m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_REG_OBJECT_COUNT);
+    //    ASSERT_TRUE(maxObjInRegistrySubtree.has_value());
+    //    ASSERT_EQ(maxObjInRegistrySubtree.value(), 100);
 
     auto maxSafeStoreSize = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_SAFESTORE_SIZE);
     ASSERT_TRUE(maxSafeStoreSize.has_value());
@@ -111,4 +111,3 @@ TEST_F(SafeStoreWrapperTapTests, writeAndThenRreadBackConfigOptions)
     ASSERT_TRUE(maxObjCount.has_value());
     ASSERT_EQ(maxObjCount.value(), 5000);
 }
-

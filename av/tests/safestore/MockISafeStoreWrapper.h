@@ -2,8 +2,8 @@
 #pragma once
 
 #include "safestore/ISafeStoreWrapper.h"
-#include <gmock/gmock.h>
 
+#include <gmock/gmock.h>
 
 using namespace ::testing;
 
@@ -39,9 +39,12 @@ public:
     MOCK_METHOD1(getObjectStoreTime, int64_t(const safestore::ObjectHandleHolder&));
     MOCK_METHOD2(getObjectHandle, bool(const std::string&, std::shared_ptr<safestore::ObjectHandleHolder>));
     MOCK_METHOD1(finaliseObject, bool(safestore::ObjectHandleHolder&));
-    MOCK_METHOD3(setObjectCustomData, bool(safestore::ObjectHandleHolder&, const std::string&, const std::vector<uint8_t>& ));
+    MOCK_METHOD3(
+        setObjectCustomData,
+        bool(safestore::ObjectHandleHolder&, const std::string&, const std::vector<uint8_t>&));
     MOCK_METHOD2(getObjectCustomData, std::vector<uint8_t>(const safestore::ObjectHandleHolder&, const std::string&));
-    MOCK_METHOD3(setObjectCustomDataString, bool(safestore::ObjectHandleHolder&, const std::string&, const std::string& ));
+    MOCK_METHOD3(
+        setObjectCustomDataString,
+        bool(safestore::ObjectHandleHolder&, const std::string&, const std::string&));
     MOCK_METHOD2(getObjectCustomDataString, std::string(safestore::ObjectHandleHolder&, const std::string&));
-
 };
