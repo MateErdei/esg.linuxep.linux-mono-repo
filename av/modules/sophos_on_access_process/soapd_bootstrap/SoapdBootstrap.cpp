@@ -112,7 +112,8 @@ void SoapdBootstrap::innerRun()
     LOGDEBUG("Control Server Socket is at: " << socketPath);
     auto processControlCallbacks = std::make_shared<sophos_on_access_process::OnAccessConfig::OnAccessProcessControlCallback>(*this);
     auto processControllerServer = std::make_shared<unixsocket::ProcessControllerServerSocket>(socketPath,
-                                                                                               0660,processControlCallbacks);
+                                                                                               0660,
+                                                                                               processControlCallbacks);
     processControllerServer->setUserAndGroup("sophos-spl-av", "sophos-spl-group");
     auto processControllerServerThread = std::make_unique<common::ThreadRunner>(processControllerServer,
                                                                                 "processControlServer",
