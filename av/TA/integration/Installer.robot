@@ -414,7 +414,7 @@ IDE update waits if lock already taken
     Should Be Equal As Integers  ${result.rc}  ${25}
 
 
-Check install permissions
+Check group writable install permissions
     [Documentation]   Find files or directories owned by sophos-spl-user or writable by sophos-spl-group.
     ...               Check results against an allowed list.
     ${rc}   ${output} =    Run And Return Rc And Output
@@ -425,9 +425,22 @@ Check install permissions
     Sort List   ${items}
     Log List   ${items}
     Should Not Be Empty   ${items}
-    Remove Values From List    ${items}   @{ALLOWED_TO_WRITE}
+    Remove Values From List    ${items}   @{GROUP_WRITE_ALLOWED_TO_WRITE}
     Log List   ${items}
     Should Be Empty   ${items}
+
+
+Check world writable permissions
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     find ${COMPONENT_ROOT_PATH} \\( -type d -o -type f -o -type s \\) -perm /002
+    Should Be Equal As Integers  ${rc}  0
+    @{items} =    Split To Lines   ${output}
+    Log List   ${items}
+    Should Not Be Empty   ${items}
+    Remove Values From List    ${items}   @{WORLD_WRITE_ALLOWED_TO_WRITE}
+    Log List   ${items}
+    Should Be Empty   ${items}
+
 
 Check permissions after upgrade
     # find writable directories
@@ -772,7 +785,7 @@ IDE Update Invalidates On Access Cache
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
-@{ALLOWED_TO_WRITE}
+@{GROUP_WRITE_ALLOWED_TO_WRITE}
 ...     chroot/etc
 ...     chroot/log
 ...     chroot/opt/sophos-spl/base/etc
@@ -784,6 +797,9 @@ ${IDE_NAME}         peend.ide
 ...     chroot/var
 ...     log
 ...     var
+
+@{WORLD_WRITE_ALLOWED_TO_WRITE}
+...     /opt/sophos-spl/plugins/av/chroot/var/scanning_socket
 
 *** Keywords ***
 Installer Suite Setup
