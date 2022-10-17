@@ -11,15 +11,21 @@ Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/ProcessUtils.py
 
+Library         OperatingSystem
+Library         Collections
+
 Test Setup      SafeStore Test Setup
 Test Teardown   SafeStore Test TearDown
 
 *** Variables ***
-${CLEAN_STRING}     not an eicar
-${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
-${CUSTOMERID_FILE}  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
-${MACHINEID_CHROOT_FILE}  ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
-${MACHINEID_FILE}   ${SOPHOS_INSTALL}/base/etc/machine_id.txt
+${CLEAN_STRING}                      not an eicar
+${NORMAL_DIRECTORY}                  /home/vagrant/this/is/a/directory/for/scanning
+${CUSTOMERID_FILE}                   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
+${MACHINEID_CHROOT_FILE}             ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
+${MACHINEID_FILE}                    ${SOPHOS_INSTALL}/base/etc/machine_id.txt
+${SAFESTORE_DB_DIR}                  ${SOPHOS_INSTALL}/plugins/av/var/safestore_db
+${SAFESTORE_DB_PATH}                 ${SAFESTORE_DB_DIR}/safestore.db
+${SAFESTORE_DB_PASSWORD_PATH}        ${SAFESTORE_DB_DIR}/safestore.pw
 
 
 *** Test Cases ***
@@ -29,10 +35,24 @@ SafeStore Database is Initialised
     Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
 
-SafeStore Can Reinitialise Database
+    Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}
+    File Should Exist    ${SAFESTORE_DB_PASSWORD_PATH}
+
+SafeStore Can Reinitialise Database Containing Threats
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait Until AV Plugin Log Contains With Offset    Safestore flag set. Setting Safestore to enabled.    timeout=60
+
     Wait Until Safestore Log Contains    Saved password OK
     Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+
+    ${ssPassword1} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
+
+    Check avscanner can detect eicar
+    Wait Until Safestore Log Contains  Received Threat:
+
+    ${filesInSafeStoreDb1} =  List Files In Directory  ${SAFESTORE_DB_DIR}
+    Log  ${filesInSafeStoreDb1}
 
     Stop SafeStore
     Check Safestore Not Running
@@ -41,6 +61,17 @@ SafeStore Can Reinitialise Database
     Start SafeStore
     Wait Until SafeStore Log Contains With Offset    Quarantine Manager initialised OK
     Wait Until SafeStore Log Contains With Offset    Successfully initialised SafeStore database
+
+    Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}
+    ${ssPassword2} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
+    Should Be Equal As Strings    ${ssPassword1}    ${ssPassword2}
+
+    ${filesInSafeStoreDb2} =  List Files In Directory  ${SAFESTORE_DB_DIR}
+    Log  ${filesInSafeStoreDb2}
+
+    # Removing tmp file: https://www.sqlite.org/tempfiles.html
+    Remove Values From List    ${filesInSafeStoreDb1}    safestore.db-journal
+    Should Be Equal    ${filesInSafeStoreDb1}    ${filesInSafeStoreDb2}
 
 SafeStore Logs When It Recieves A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
