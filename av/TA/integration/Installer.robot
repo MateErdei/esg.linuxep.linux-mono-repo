@@ -311,9 +311,10 @@ Scanner works after upgrade
     Wait Until Sophos Threat Detector Log Contains With Offset  EICAR-AV-Test
     Wait Until AV Plugin Log Contains With Offset  EICAR-AV-Test
 
-Soapd restarted after upgrade
+Services restarted after upgrade
     Mark On Access Log
     ${old_soapd_pid} =  Record Soapd Plugin PID
+    ${old_safestore_pid} =  ProcessUtils.pidof or fail  ${SAFESTORE_BIN}
 
     # modify the manifest to force the installer to perform a full product update
     Modify manifest
@@ -321,8 +322,10 @@ Soapd restarted after upgrade
     ## Wait for soapd to be running?
 
     ${new_soapd_pid} =  Record Soapd Plugin PID
+    ${new_safestore_pid} =  ProcessUtils.pidof or fail  ${SAFESTORE_BIN}
 
     Should Not Be Equal As Integers  ${old_soapd_pid}  ${new_soapd_pid}
+    Should Not Be Equal As Integers  ${old_safestore_pid}  ${new_safestore_pid}
 
 AV Plugin gets customer id after upgrade
     Register Cleanup    Exclude Failed To connect To Warehouse Error
