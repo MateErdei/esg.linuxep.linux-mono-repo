@@ -86,6 +86,7 @@ VAR="${PLUGIN_INSTALL}/var"
 SUSI_UPDATE_SRC="$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/"
 SUSI_DIST_VERS="$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/"
 LOCKFILE="${PLUGIN_INSTALL}/chroot/var/susi_update.lock"
+TD_PID_FILE="${PLUGIN_INSTALL}/chroot/var/threat_detector.pid"
 
 function delete_removed_vdl()
 {
@@ -186,14 +187,19 @@ function bootstrap_susi_from_update_source()
     chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_DIST_VERS}"
 }
 
+function already_installed()
+{
+    [[ -f "${SOPHOS_INSTALL}/base/pluginRegistry/$1.json" ]]
+}
+
 function av_already_installed()
 {
-    [[ -f "${SOPHOS_INSTALL}/base/pluginRegistry/${PLUGIN_NAME}.json" ]]
+    already_installed "${PLUGIN_NAME}"
 }
 
 function threat_detector_already_installed()
 {
-    [[ -f "${SOPHOS_INSTALL}/base/pluginRegistry/threat_detector.json" ]]
+    already_installed "threat_detector"
 }
 
 function apply_permissions()
@@ -294,9 +300,23 @@ function apply_permissions()
     chown root:${GROUP_NAME} "${CHROOT}/var"
     touch ${LOCKFILE}
     chown ${THREAT_DETECTOR_USER}:${GROUP_NAME} ${LOCKFILE}
+    if [[ -f ${TD_PID_FILE} ]]
+    then
+        chown ${THREAT_DETECTOR_USER}:${GROUP_NAME} ${TD_PID_FILE}
+        chmod 644 ${TD_PID_FILE}
+    fi
 
     chmod 0711 ${CHROOT}
     chown root:${GROUP_NAME} "${CHROOT}"
+}
+
+function create_registration_file()
+{
+  local NAME=$1
+  local TEMP_REG_FILE=${SOPHOS_INSTALL}/tmp/${NAME}.json
+  sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/${NAME}.json" > "${TEMP_REG_FILE}"
+  "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_REG_FILE}"
+  rm -f ${TEMP_REG_FILE}
 }
 
 function install_product()
@@ -325,19 +345,21 @@ function install_product()
         timeout 10 tail --pid=$(pgrep -G ${GROUP_NAME} sophos_threat_d) -f /dev/null 2> /dev/null
     fi
 
-    #Create plugin registration file
-    local TEMP_PLUGIN_REG_FILE=${SOPHOS_INSTALL}/tmp/${PLUGIN_NAME}.json
-    local TEMP_THREAT_DETECTOR_REG_FILE=${SOPHOS_INSTALL}/tmp/threat_detector.json
-    #local TEMP_ONACCESS_PROCESS_REG_FILE=${SOPHOS_INSTALL}/tmp/on_access_process.json
-    sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/${PLUGIN_NAME}.json"  > "${TEMP_PLUGIN_REG_FILE}"
-    sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/threat_detector.json" > "${TEMP_THREAT_DETECTOR_REG_FILE}"
-    #sed "s;SOPHOS_INSTALL_VALUE;${SOPHOS_INSTALL};g" "${DIST}/files/base/pluginRegistry/on_access_process.json" > "${TEMP_ONACCESS_PROCESS_REG_FILE}"
-    "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_PLUGIN_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_PLUGIN_REG_FILE}"
-    "${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_THREAT_DETECTOR_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_THREAT_DETECTOR_REG_FILE}"
-    #"${SOPHOS_INSTALL}/bin/wdctl" copyPluginRegistration "${TEMP_ONACCESS_PROCESS_REG_FILE}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_COPY} "Failed to copy registration ${TEMP_ONACCESS_PROCESS_REG_FILE}"
-    rm -f ${TEMP_PLUGIN_REG_FILE}
-    rm -f ${TEMP_THREAT_DETECTOR_REG_FILE}
-    #rm -f ${TEMP_ONACCESS_PROCESS_REG_FILE}
+    if already_installed on_access_process
+    then
+        "${SOPHOS_INSTALL}/bin/wdctl" stop "on_access_process" &>/dev/null || echo Failed to stop OnAccessProcess
+    fi
+
+    if already_installed safestore
+    then
+        "${SOPHOS_INSTALL}/bin/wdctl" stop "safestore" &>/dev/null || echo Failed to stop SafeStore
+    fi
+
+    #Create plugin registration files
+    create_registration_file "${PLUGIN_NAME}"
+    create_registration_file "threat_detector"
+    create_registration_file "on_access_process"
+    create_registration_file "safestore"
 
     #Install files using versioned copy (apart from SUSI)
     find "$DIST/files/plugins" -type f -not -path "$DIST/files/plugins/av/chroot/susi/*" -print0 \
@@ -382,17 +404,16 @@ function install_product()
 
     ln -snf "${PLUGIN_INSTALL}/bin/avscanner" /usr/local/bin/avscanner
 
-    delete_removed_vdl
     generate_susi_package_manifest
     bootstrap_susi_from_update_source
 
     #After install start AV Plugin
     "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
 
-    #Then start sophos_threat_detector
+    #Then start relevant processes
     "${SOPHOS_INSTALL}/bin/wdctl" start threat_detector || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos_threat_detector"
-
-    #"${SOPHOS_INSTALL}/bin/wdctl" start on_access_process || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos on-access process"
+    "${SOPHOS_INSTALL}/bin/wdctl" start on_access_process || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos on-access process"
+    "${SOPHOS_INSTALL}/bin/wdctl" start safestore || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start SafeStore"
 
     cp "$DIST/manifest.dat" "${VAR}/manifest.dat" || failure ${EXIT_FAIL_COPY_MANIFEST} "Failed to copy manifest from install-set to installation"
 }
@@ -408,12 +429,15 @@ function update_supplement()
     else
         echo "Lock acquired on $LOCKFILE"
         UPDATE_SRC="plugins/av/chroot/susi/update_source"
-        cp -auv "$DIST/files/$UPDATE_SRC/vdl/"* "$SOPHOS_INSTALL/$UPDATE_SRC/vdl/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Virus Data to installation"
+
+        $SOPHOS_INSTALL/plugins/av/sbin/sync_versioned_files "$DIST/files/$UPDATE_SRC/vdl" "$SOPHOS_INSTALL/$UPDATE_SRC/vdl" --copy \
+            || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Virus Data to installation"
+
         cp -auv "$DIST/files/$UPDATE_SRC/model/"* "$SOPHOS_INSTALL/$UPDATE_SRC/model/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy ML Model to installation"
         cp -auv "$DIST/files/$UPDATE_SRC/reputation/"* "$SOPHOS_INSTALL/$UPDATE_SRC/reputation/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy Local reputation data to installation"
         cp -auv "$DIST/files/$UPDATE_SRC/rules/"* "$SOPHOS_INSTALL/$UPDATE_SRC/rules/" || failure ${EXIT_FAIL_NONVERSIONEDCOPY} "Failed to copy LUA files to installation"
         set_permissions_on_susi_update_source
-        delete_removed_vdl
+
     fi
 
     generate_susi_package_manifest
