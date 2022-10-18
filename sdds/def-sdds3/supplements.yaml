@@ -12,6 +12,6 @@ supplements:
   # sdds3/tools/gen_bazel.py mirrors these external supplements into the build output.
   # It also parses the supplements to help verify all supplement-refs are valid.
   external_supplements:
-    - ML_MODEL2_LINUX
+    - ML_MODEL3_LINUX_X86_64
     - LocalRepData
     - DataSetA
