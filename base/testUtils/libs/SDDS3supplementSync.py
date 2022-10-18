@@ -20,12 +20,7 @@ import sys
 
 import requests
 
-# What this script does:
-# - you give it an SDDS2 supplement catalogue as a file or URL, and it creates an SDDS3 supplement
-#   for each rigidname found (as well as any packages required)
-
 SESSION = requests.Session()
-
 
 def is_url(string):
     return string.startswith('http://') or string.startswith('https://')
@@ -96,13 +91,28 @@ def copy_file_or_url(origin, target, quiet=False):
     return False
 
 
-def sync_sdds3_supplement(supplement, builder, mirror):
+def is_pkgref_for_release_group(pkgref, tag, release_group):
+    tags = pkgref.findall("./tags/tag")
+
+    for t in tags:
+        if t.get("name") != tag:
+            continue
+        groups = t.findall("./release-group")
+        for g in groups:
+            if g.get("name") == release_group:
+                return True
+
+    return False
+
+
+def sync_sdds3_supplement(supplement, builder, mirror, tag="LINUX_SCAN", release_group="0"):
     """Mirror an SDDS3 supplement into a folder"""
     # strip the '/catalogue/supplement' to get the base URL
     repo = supplement[:supplement.find('/supplement/')]
     target = f'{mirror}/supplement/{os.path.basename(supplement)}'
     trace(f'Mirroring {supplement} -> {target}')
     copy_file_or_url(supplement, target)
+    subprocess.call(['chmod', '+x', builder])
     runargs = [
         builder,
         '--unpack-signed-file',
@@ -119,14 +129,57 @@ def sync_sdds3_supplement(supplement, builder, mirror):
         )
     except subprocess.CalledProcessError as e:
         trace(f"FAILED CALL: {e.returncode},\n{e.stderr}\n{e.stdout}")
-        raise e
+        raise
+
     root = ET.fromstring(result.stdout)
+    dest = target+".decoded.xml"
+    open(dest, "w").write(result.stdout)
+
     for pkgref in root.findall('package-ref'):
         src = pkgref.attrib['src']
-        if os.path.exists(f'{mirror}/package/{src}'):
-            trace(f'Skipping {repo}/package/{src}: using cached copy')
+        if not is_pkgref_for_release_group(pkgref, tag, release_group):
+            trace(f"Ignoring {src} as it doesn't match tags")
             continue
-        copy_file_or_url(f'{repo}/package/{src}', f'{mirror}/package/{src}')
+
+        dest = f'{mirror}/package/{src}'
+
+        if os.path.exists(dest):
+            trace(f'Skipping {repo}/package/{src}: using cached copy')
+            return dest
+
+        copy_file_or_url(f'{repo}/package/{src}', dest)
+        return dest
+
+    return None
+
+
+def unpack(builder, dest_zipfile, unpack_dir):
+    """
+    sdds3/sdds3-builder --extract-package --package /tmp/download_supplements/sdds3/package/ML_MODEL3_LINUX_2022.9.28.13.10.47.1.92ce572aa3.zip --dir /tmp/ML_MODEL3_LINUX
+    """
+    print("Unpacking", dest_zipfile)
+
+    shutil.rmtree(unpack_dir, ignore_errors=True)
+
+    command = [builder, "--extract-package", "--package", dest_zipfile, "--dir", unpack_dir]
+    subprocess.run(command, check=True)
+    for (base, dirs, files) in os.walk(unpack_dir):
+        for f in files:
+            os.chmod(os.path.join(base, f), 0o644)
+        for d in dirs:
+            os.chmod(os.path.join(base, d), 0o755)
+    os.chmod(unpack_dir, 0o755)
+
+
+def sync_sdds3_supplement_name(name, builder, destination, tag):
+    if not name.startswith("sdds3."):
+        print("Forcing supplement name to start with sdds3.")
+        name = "sdds3." + name
+
+    supplement_name = name
+    supplement = "https://sdds3.sophosupd.com/supplement/" + supplement_name + ".dat"
+
+    return sync_sdds3_supplement(supplement, builder, destination, tag)
 
 
 def main():

@@ -26,96 +26,11 @@ from urllib.error import URLError
 LOGGER = None
 
 
-
-def ensure_binary(s):
-    if s is None:
-        return s
-    if isinstance(s, bytes):
-        return s
-    return s.encode("UTF-8")
-
-
-def ensure_unicode(s):
-    if s is None:
-        return s
-    if isinstance(s, str):  # fix if we need to work on python2
-        return s
-    return s.decode("UTF-8")
-
-
 def safe_mkdir(d):
     try:
         os.makedirs(d)
     except EnvironmentError:
         pass
-
-
-def get_json(url):
-    response = urllib_urlopen(url)
-    output = response.read()
-    data = json.loads(output)
-    return data
-
-
-def get_latest(url, filename):
-    print("Getting %s metadata from %s" % (filename, url))
-    data = get_json(url)
-    children = data['children']
-    res = []
-    for c in children:
-        if c['folder']:
-            res.append(c['uri'])
-    res.sort()
-
-    target_url = url+res[-1] + "/" + filename
-    return target_url
-
-
-def sha256hash(f):
-    hasher = hashlib.sha256()
-    with open(f, "rb") as fp:
-        while True:
-            data = fp.read(64*1024)
-            hasher.update(data)
-            if len(data) == 0:
-                break
-    return hasher.hexdigest()
-
-
-def download_url(url, dest):
-    print("Getting metadata from", url)
-    data = get_json(url)
-    if os.path.isfile(dest):
-        if sha256hash(dest) == data['checksums']['sha256']:
-            print("Not downloading - already matches sha256: ", data['checksums']['sha256'])
-            return False
-
-    url = data['downloadUri']
-    print("Downloading from", url, "to", ensure_unicode(dest))
-    urllib_urlretrieve(url, dest)
-    assert sha256hash(dest) == data['checksums']['sha256']
-    return True
-
-
-def unpack(zip_file, dest):
-    print("Extracting: {}".format(ensure_unicode(zip_file)))
-    with zipfile.ZipFile(ensure_unicode(zip_file)) as z:
-        safe_mkdir(dest)
-        z.extractall(ensure_unicode(dest))
-
-
-def process(baseurl, filename, dirname):
-    zip_file = os.path.join("/tmp", filename)
-    dest_dir = dirname
-
-    latest = get_latest(baseurl, filename)
-    zip_updated = download_url(latest, zip_file)
-    if not os.path.isdir(dest_dir):
-        # Force unpack and regen if dest_dir doesn't exist
-        zip_updated = True
-    if zip_updated:
-        unpack(zip_file, dest_dir)
-    return zip_updated
 
 
 def run(argv):
@@ -127,27 +42,24 @@ def run(argv):
     except IndexError:
         pass
 
-    artifactory_base_url = "https://artifactory.sophos-ops.com/api/storage/esg-tap-component-store/com.sophos/"
-
-    supplement = "https://sdds3.sophosupd.com/supplement/sdds3.DataSetA.dat"
-
-    builder = dest+ "/sdds3/sdds3-builder"
+    builder = dest + "/sdds3/sdds3-builder"
+    assert os.path.isfile(builder)
 
     sdds3_temp_dir = os.path.join(dest, "sdds3_temp")
     safe_mkdir(sdds3_temp_dir)
-    dest_dir = os.path.join(dest, "vdl")
-    safe_mkdir(dest_dir)
-    SDDS3supplementSync.sync_sdds3_supplement(supplement, builder, sdds3_temp_dir)
-    zip_files = glob.glob(os.path.join(sdds3_temp_dir, "package", "*.zip"))
-    zip_file = zip_files[0]
-    passwd = os.path.splitext(os.path.basename(zip_file))[0]
-    subprocess.call(["7za", "x", "-p{}".format(passwd), "-o{}".format(dest_dir), "-y", zip_file])
-    shutil.rmtree(sdds3_temp_dir)
-    updated = True
+    datasetA_zip = SDDS3supplementSync.sync_sdds3_supplement_name(
+        "sdds3.DataSetA", builder, sdds3_temp_dir, "LATEST_CLOUD_ENDPOINT")
+    mlmodel_zip  = SDDS3supplementSync.sync_sdds3_supplement_name(
+        "sdds3.ML_MODEL3_LINUX_X86_64", builder, sdds3_temp_dir, "LINUX_SCAN")
+    localrep_zip = SDDS3supplementSync.sync_sdds3_supplement_name(
+        "sdds3.LocalRepData", builder, sdds3_temp_dir, "LATEST_CLOUD_ENDPOINT")
 
-    updated = process(artifactory_base_url + "ssplav-mlmodel/released", "model.zip", dest +"/ml_model") or updated
-    updated = process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", dest +"/local_rep") or updated
-    return updated
+    SDDS3supplementSync.unpack(builder, datasetA_zip, os.path.join(dest, "vdl"))
+    SDDS3supplementSync.unpack(builder, mlmodel_zip, os.path.join(dest, "ml_model"))
+    SDDS3supplementSync.unpack(builder, localrep_zip, os.path.join(dest, "local_rep"))
+
+    shutil.rmtree(sdds3_temp_dir)
+
 
 def main(argv):
     run(argv)
