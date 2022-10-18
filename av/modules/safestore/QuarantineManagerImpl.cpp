@@ -101,7 +101,9 @@ namespace safestore
     }
 
     QuarantineManagerImpl::QuarantineManagerImpl(std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper) :
-        m_state(QuarantineManagerState::UNINITIALISED), m_safeStore(std::move(safeStoreWrapper))
+        m_state(QuarantineManagerState::UNINITIALISED),
+        m_safeStore(std::move(safeStoreWrapper)),
+        m_dbErrorCountThreshold(Plugin::getPluginVarDirPath(), "safeStoreDbErrorThreshold", 10)
     {
     }
 
@@ -214,8 +216,15 @@ namespace safestore
         }
         else
         {
-            m_state = QuarantineManagerState::UNINITIALISED;
             LOGERROR("Quarantine Manager failed to initialise");
+            if (initResult == InitReturnCode::DB_ERROR || initResult == InitReturnCode::DB_OPEN_FAILED)
+            {
+                callOnDbError();
+            }
+            else
+            {
+                m_state = QuarantineManagerState::UNINITIALISED;
+            }
         }
     }
 
@@ -247,7 +256,7 @@ namespace safestore
     void QuarantineManagerImpl::callOnDbError()
     {
         ++m_databaseErrorCount;
-        if (m_databaseErrorCount >= DB_ERROR_COUNT_THRESHOLD)
+        if (m_databaseErrorCount >= m_dbErrorCountThreshold.getValue())
         {
             m_state = QuarantineManagerState::CORRUPT;
         }

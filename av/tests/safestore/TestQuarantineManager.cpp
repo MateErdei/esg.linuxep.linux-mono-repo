@@ -27,6 +27,12 @@ protected:
         appConfig.setData("PLUGIN_INSTALL", "/tmp/av");
     }
 
+    void addCommonPersistValueExpects(StrictMock<MockFileSystem>& filesystemMock)
+    {
+        EXPECT_CALL(filesystemMock, exists("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return(false));
+        EXPECT_CALL(filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "10"));
+    }
+
     // Common test constants
     inline static const std::string m_dir = "/dir";
     inline static const std::string m_file = "file";
@@ -41,6 +47,9 @@ TEST_F(QuarantineManagerTests, initDbWithExistingPassword)
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
+
+    addCommonPersistValueExpects(*filesystemMock);
+
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
 
@@ -58,6 +67,7 @@ TEST_F(QuarantineManagerTests, initDbAndGeneratePassword)
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
+    addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).Times(0);
     EXPECT_CALL(*filesystemMock, isDirectory("/tmp/av/var/safestore_db")).WillOnce(Return(true));
@@ -77,6 +87,7 @@ TEST_F(QuarantineManagerTests, uninitialisedDbIsInitialisedAfterSuccessfulInitCa
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
+    addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
 
@@ -96,6 +107,7 @@ TEST_F(QuarantineManagerTests, uninitialisedDbStateIsStillUnitialisedAfterFailed
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
+    addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
 
@@ -115,6 +127,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
+    addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
 
@@ -143,6 +156,7 @@ TEST_F(QuarantineManagerTests, quartineFileFailsAndDbIsMarkedCorrupt)
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
+    addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
 
@@ -187,6 +201,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnInitialisedDb)
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
+    addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).Times(0);
     EXPECT_CALL(*filesystemMock, isDirectory("/tmp/av/var/safestore_db")).WillOnce(Return(true));
@@ -210,7 +225,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnUninitialisedDbThatDoesNotE
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
-
+    addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/safestore_db")).WillOnce(Return(false));
 
     auto mockSafeStoreWrapper = std::make_shared<StrictMock<MockISafeStoreWrapper>>();
@@ -227,7 +242,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnUninitialisedDbThatDoesExis
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
-
+    addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/safestore_db")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/safestore_db")).Times(1);
 

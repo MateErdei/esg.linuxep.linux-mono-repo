@@ -73,6 +73,26 @@ SafeStore Can Reinitialise Database Containing Threats
     Remove Values From List    ${filesInSafeStoreDb1}    safestore.db-journal
     Should Be Equal    ${filesInSafeStoreDb1}    ${filesInSafeStoreDb2}
 
+SafeStore Recovers From Corrupt Database
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait Until AV Plugin Log Contains With Offset    Safestore flag set. Setting Safestore to enabled.    timeout=60
+
+    Wait Until Safestore Log Contains    Saved password OK
+    Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
+    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+
+    Mark SafeStore Log
+    Corrupt SafeStore Database
+
+    Wait Until SafeStore Log Contains With Offset    Successfully removed corrupt SafeStore database    200
+    Wait Until SafeStore Log Contains With Offset    Successfully initialised SafeStore database
+
+    Mark SafeStore Log
+    Check avscanner can detect eicar
+    Wait Until SafeStore Log Contains With Offset  Received Threat:
+
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
+
 SafeStore Logs When It Recieves A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
@@ -141,3 +161,11 @@ SafeStore Test TearDown
     Remove File  ${CUSTOMERID_FILE}
 
     run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests
+
+Corrupt SafeStore Database
+    Stop SafeStore
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/persist-safeStoreDbErrorThreshold    1
+
+    Remove Files    ${SAFESTORE_DB_PATH}    ${SAFESTORE_DB_PASSWORD_PATH}
+    Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
+    Start SafeStore

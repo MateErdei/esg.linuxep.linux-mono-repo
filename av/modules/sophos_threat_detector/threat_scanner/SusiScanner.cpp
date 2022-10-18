@@ -28,6 +28,16 @@ static std::string create_scanner_config(const std::string& scannerInfo)
     return "{"+scannerInfo+"}";
 }
 
+namespace
+{
+    // TODO LINUXDAR-5793: Implement correct method of generating threatId
+    std::string generateThreatId(const std::string& filePath, const std::string& threatName)
+    {
+        std::string threatId = "T" + common::sha256_hash(filePath + threatName);
+        return threatId.substr(0, 16);
+    }
+}
+
 SusiScanner::SusiScanner(
     const ISusiWrapperFactorySharedPtr& susiWrapperFactory,
     bool scanArchives,
@@ -308,7 +318,7 @@ SusiScanner::scan(
             filePath,
             scan_messages::E_SMT_THREAT_ACTION_NONE,
             sha256,
-            "T" + common::sha256_hash(filePath + threatName),
+            generateThreatId(filePath, threatName),
             std::move(fd));
 
         assert(m_threatReporter);

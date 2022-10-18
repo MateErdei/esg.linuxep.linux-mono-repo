@@ -24,13 +24,33 @@ namespace Plugin
         }
     }
 
+    std::string getPluginVarDirPath()
+    {
+        return getPluginInstall() + "/var";
+    }
+
     std::string getSafeStorePidPath()
     {
-        return getPluginInstall() +  "/var/safestore.pid";
+        return getPluginVarDirPath() + "/safestore.pid";
     }
 
     std::string getSafeStoreSocketPath()
     {
-        return getPluginInstall() + "/var/safestore_socket";
+        return getPluginVarDirPath() + "/safestore_socket";
+    }
+
+    std::string getSafeStoreDbDirPath()
+    {
+        return getPluginVarDirPath() + "/safestore_db";
+    }
+
+    std::string getSafeStoreDbFileName()
+    {
+        return "safestore.db";
+    }
+
+    std::string getSafeStorePasswordFilePath()
+    {
+        return getSafeStoreDbDirPath() + "/safestore.pw";
     }
 } // namespace Plugin
