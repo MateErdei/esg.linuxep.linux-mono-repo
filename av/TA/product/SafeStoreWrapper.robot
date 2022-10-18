@@ -12,7 +12,7 @@ Test Teardown  SafestoreWrapper Test Teardown
 
 SafestoreWrapper Test Setup
     ${misc_system_test_inputs} =  Get Environment Variable  BUILD_ARTEFACTS_FOR_TAP
-    Set Suite Variable  ${safestore_unpacked}  ${TESTTMP}/safestorewrapper
+    Set Suite Variable  ${safestore_unpacked}  /tmp/safestorewrapper
     Create Directory  ${safestore_unpacked}
     ${result} =   Run Process   tar    xzf    ${misc_system_test_inputs}/tap_test_output.tar.gz    -C    ${safestore_unpacked}/
     Should Be Equal As Strings   ${result.rc}  0

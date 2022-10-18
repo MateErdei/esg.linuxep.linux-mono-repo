@@ -83,7 +83,6 @@ namespace safestore
             const std::vector<uint8_t>& value) override;
         std::vector<uint8_t> getObjectCustomData(const ObjectHandleHolder& objectHandle, const std::string& dataName)
             override;
-
         bool setObjectCustomDataString(
             ObjectHandleHolder& objectHandle,
             const std::string& dataName,
