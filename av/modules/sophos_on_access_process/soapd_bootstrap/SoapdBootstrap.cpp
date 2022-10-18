@@ -19,6 +19,9 @@
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteClientSocketThread.h"
 
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
+
 // Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 // Std C++
@@ -40,7 +43,7 @@ using namespace unixsocket::updateCompleteSocket;
 
 int SoapdBootstrap::runSoapd()
 {
-    LOGINFO("Sophos on access process started");
+    LOGINFO("Sophos on access process " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
     auto SoapdInstance = SoapdBootstrap();
     return SoapdInstance.outerRun();
 }

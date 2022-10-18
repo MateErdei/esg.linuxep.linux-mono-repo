@@ -10,6 +10,8 @@ add_library(soapdbootstrap SHARED
         OnAccessConfigurationUtils.cpp
         )
 
+target_include_directories(soapdbootstrap PUBLIC ${CMAKE_SOURCE_DIR}/products/distribution/include)
+
 target_link_libraries(soapdbootstrap  PUBLIC
         common
         datatypes
