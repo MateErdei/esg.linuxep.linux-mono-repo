@@ -189,8 +189,9 @@ void SoapdBootstrap::ProcessPolicy()
 
     if(checkIfOAShouldBeEnabled(OnAccessEnabledFlag, OnAccessEnabledPolicySetting))
     {
-        enableOnAccess();
+        //Set exclusions first before starting receiving fanotify events
         m_eventReader->setExclusions(oaConfig.exclusions);
+        enableOnAccess();
     }
     else
     {
