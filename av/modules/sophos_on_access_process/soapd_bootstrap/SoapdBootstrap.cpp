@@ -129,7 +129,7 @@ void SoapdBootstrap::innerRun()
         LOGINFO("Flag is set to " << setting);
     }
 
-    ProcessPolicy(true);
+    ProcessPolicy();
 
     while (true)
     {
@@ -177,10 +177,10 @@ sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::
     return oaConfig;
 }
 
-void SoapdBootstrap::ProcessPolicy(bool onStart)
+void SoapdBootstrap::ProcessPolicy()
 {
     std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
-    LOGDEBUG("ProcessPolicy " << onStart);
+    LOGDEBUG("ProcessPolicy ");
 
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
     auto OnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
@@ -198,7 +198,7 @@ void SoapdBootstrap::ProcessPolicy(bool onStart)
         disableOnAccess();
     }
 
-    LOGDEBUG("Finished ProcessPolicy " << onStart);
+    LOGDEBUG("Finished ProcessPolicy");
 }
 
 bool SoapdBootstrap::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting)

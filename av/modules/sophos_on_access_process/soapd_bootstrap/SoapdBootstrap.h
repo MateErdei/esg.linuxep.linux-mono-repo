@@ -30,7 +30,7 @@ namespace sophos_on_access_process::soapd_bootstrap
          * @param onStart - true when we are starting soapd - log if disabling on-access when disabled
          *
          */
-        void ProcessPolicy(bool onStart=false);
+        void ProcessPolicy();
 
         static bool checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting);
 
