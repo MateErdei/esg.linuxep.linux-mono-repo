@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.8)
 
 add_library(centralregistrationimpl SHARED
+        CentralRegistration.cpp
+        CentralRegistration.h
         Logger.cpp
         Logger.h
-        Main.h
         Main.cpp
-        CentralRegistration.h
-        CentralRegistration.cpp
-        MessageReplayExtractor.h
+        Main.h
+        MessageRelayExtractor.h
+        MessageRelaySorter.h
         )
 
 target_include_directories(centralregistrationimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR} ${CURL_INCLUDE_DIR} )

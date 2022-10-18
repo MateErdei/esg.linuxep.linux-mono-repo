@@ -61,13 +61,20 @@ class FakeILocalIP : public Common::OSUtilities::ILocalIP
     Common::OSUtilities::IPs m_ips;
 
 public:
-    FakeILocalIP(const std::vector<std::string>& ip4s)
+    FakeILocalIP(const std::vector<std::string>& ip4s, const std::vector<std::string>& ip6s)
     {
         for (auto& ip4 : ip4s)
         {
             m_ips.ip4collection.emplace_back(Common::OSUtilities::IP4{ ip4 });
         }
+        for (auto& ip6 : ip6s)
+        {
+            m_ips.ip6collection.emplace_back(Common::OSUtilities::IP6{ ip6 });
+        }
     }
+
+    FakeILocalIP(const std::vector<std::string>& ip4s) : FakeILocalIP(ip4s, {}) {}
+
     Common::OSUtilities::IPs getLocalIPs() const { return m_ips; }
-    std::vector<Common::OSUtilities::Interface> getLocalInterfaces() const { return { }; }
+    std::vector<Common::OSUtilities::Interface> getLocalInterfaces() const { return {}; }
 };

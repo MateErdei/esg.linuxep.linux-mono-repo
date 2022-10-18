@@ -35,3 +35,19 @@ Successful Registration In C With Group
     Log  ${result.stderr}
     Check Cloud Server Log Contains  <deviceGroup>ctestgroup</deviceGroup>
     Should Contain  ${result.stderr}  Product successfully registered
+
+Message Relay Prioritisation
+    [Tags]  MCS  FAKE_CLOUD  REGISTRATION  MCS_ROUTER  TAP_TESTS
+    ${result} =  Run Process  /opt/sophos-spl/base/bin/centralregistration
+        ...  ThisIsARegToken
+        ...  https://localhost:4443/mcs
+        ...  --message-relay  localhost:10000,1,relay1;localhost:20000,0,relay2
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${log_location} =  Set Variable  /tmp/TestCRegistration.stderr
+    Create File  ${log_location}  ${result.stderr}
+    Check Log Contains In Order  ${log_location}
+    ...  Trying 127.0.0.1:20000
+    ...  Trying 127.0.0.1:10000
+    Remove File  ${log_location}
+    Should Contain  ${result.stderr}  Product successfully registered

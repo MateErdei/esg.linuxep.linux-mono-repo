@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2019-2020 Sophos Plc, Oxford, England.
+# Copyright (C) 2019-2022 Sophos Plc, Oxford, England.
 # All rights reserved.
 
 

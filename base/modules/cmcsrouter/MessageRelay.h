@@ -12,9 +12,14 @@ namespace MCS
 {
     struct MessageRelay
     {
-        std::string priority;
+        int priority;
         std::string id;
         std::string address;
         std::string port;
+
+        bool operator==(const MessageRelay& other) const
+        {
+            return priority == other.priority && id == other.id && address == other.address && port == other.port;
+        }
     };
-}
+} // namespace MCS

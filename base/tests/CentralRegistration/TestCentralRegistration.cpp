@@ -39,10 +39,7 @@ class CentralRegistrationTests : public LogInitializedTests
     MCS::ConfigOptions addMessageRelaysToConfigOptions(MCS::ConfigOptions configOptions)
     {
         std::vector<MCS::MessageRelay> messageRelays(
-            {
-                {"Priority1", "Relay1", "Address1", "Port1"},
-                {"Priority2", "Relay2", "Address2", "Port2"}
-            });
+            { { 0, "Relay1", "Address1", "Port1" }, { 1, "Relay2", "Address2", "Port2" } });
         configOptions.messageRelays = messageRelays;
         return configOptions;
     }
