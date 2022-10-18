@@ -113,7 +113,6 @@ On Access Process Parses Flags Config On startup
     Mark On Access Log
     Restart On Access
 
-    Wait Until On Access Log Contains With Offset   Found Flag config on startup
     Wait Until On Access Log Contains With Offset   Flag is set to not override policy
     Wait Until On Access Log Contains With Offset   mount points in on-access scanning
 
@@ -416,15 +415,15 @@ On Access Process Handles Consecutive Process Control Requests
     On-access No Eicar Scan
 
 On Access Process Handles Fast Process Control Requests Last Flag is OA Enabled
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    ${enabledFlags}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    Send Plugin Policy  av  FLAGS  ${enabledFlags}
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    ${enabledPolicy}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    Send Plugin Policy  av  sav  ${enabledPolicy}
 
     Mark On Access Log
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    ${disabledFlags}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
+    Send Plugin Policy  av  FLAGS  ${disabledFlags}
     #need to ensure that the disable flag has been read by soapd,
     #the avp process can ovewrite the flag config before soapd gets a change to read it.
     #this is fine because soapd will always read the latest flag settings as we get a notification after the a config is written
@@ -432,15 +431,13 @@ On Access Process Handles Fast Process Control Requests Last Flag is OA Enabled
     Wait Until On Access Log Contains With Offset   New flag configuration: {"oa_enabled":false}    2  0.1
 
     Mark On Access Log
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    Send Plugin Policy  av  FLAGS  ${enabledFlags}
     Wait Until On Access Log Contains With Offset  No policy override, following policy settings
     Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
-    Wait Until On Access Log Contains With Offset  On-access scanning enabled
-    Wait Until On Access Log Contains With Offset  Finished ProcessPolicy 0
+    Wait Until On Access Log Contains With Offset  Finished ProcessPolicy
     Wait Until On Access Log Contains With Offset  Setting poll timeout to
+    Wait Until On Access Log Contains With Offset  On-access scanning enabled
 
-    sleep  1 second
     On-access Scan Eicar Open
 
 On Access Is Disabled By Default If No Flags Policy Arrives

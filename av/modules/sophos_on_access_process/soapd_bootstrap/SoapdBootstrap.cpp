@@ -124,7 +124,6 @@ void SoapdBootstrap::innerRun()
     //if flagJsonString is empty then readFlagConfigFile has already logged a WARN
     if(!flagJsonString.empty())
     {
-        LOGINFO("Found Flag config on startup");
         std::string setting = OnAccessConfig::parseFlagConfiguration(flagJsonString) ? "not override policy" : "override policy";
         LOGINFO("Flag is set to " << setting);
     }
@@ -180,7 +179,7 @@ sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::
 void SoapdBootstrap::ProcessPolicy()
 {
     std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
-    LOGDEBUG("ProcessPolicy ");
+    LOGDEBUG("ProcessPolicy");
 
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
     auto OnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
@@ -244,7 +243,7 @@ void SoapdBootstrap::enableOnAccess()
         return;
     }
 
-    LOGINFO("On-access scanning enabled");
+    LOGINFO("Enabling on-access scanning");
 
     m_fanotifyHandler->init();
 
@@ -267,5 +266,6 @@ void SoapdBootstrap::enableOnAccess()
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }
 
+    LOGINFO("On-access scanning enabled");
     m_currentOaEnabledState.store(true);
 }
