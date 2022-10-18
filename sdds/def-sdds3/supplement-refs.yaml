@@ -14,4 +14,4 @@ rdrules: { line-id: RuntimeDetectionRules, tag: LATEST, decode-path: content_rul
 #av
 vdl: { line-id: LocalRepData, tag: LATEST_CLOUD_ENDPOINT, decode-path: files/plugins/av/chroot/susi/update_source/reputation }
 dataseta: { line-id: DataSetA, tag: LATEST_CLOUD_ENDPOINT, decode-path: files/plugins/av/chroot/susi/update_source/vdl }
-mlmodel: { line-id: ML_MODEL2_LINUX, tag: LINUX_SCAN, decode-path: files/plugins/av/chroot/susi/update_source/model }
+mlmodel: { line-id: ML_MODEL3_LINUX_X86_64, tag: LINUX_SCAN, decode-path: files/plugins/av/chroot/susi/update_source/model }
