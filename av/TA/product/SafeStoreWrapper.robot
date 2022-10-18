@@ -5,19 +5,19 @@ Force Tags      PRODUCT  SAFESTORE
 Library         OperatingSystem
 Library         Process
 
-Test Setup     SafestoreWrapper Test Setup
-Test Teardown  SafestoreWrapper Test Teardown
+Test Setup     SafeStoreWrapper Test Setup
+Test Teardown  SafeStoreWrapper Test Teardown
 
 *** Keywords ***
 
-SafestoreWrapper Test Setup
+SafeStoreWrapper Test Setup
     ${misc_system_test_inputs} =  Get Environment Variable  BUILD_ARTEFACTS_FOR_TAP
     Set Suite Variable  ${safestore_unpacked}  /tmp/safestorewrapper
     Create Directory  ${safestore_unpacked}
     ${result} =   Run Process   tar    xzf    ${misc_system_test_inputs}/tap_test_output.tar.gz    -C    ${safestore_unpacked}/
     Should Be Equal As Strings   ${result.rc}  0
 
-SafestoreWrapper Test Teardown
+SafeStoreWrapper Test Teardown
     Remove Directory    ${safestore_unpacked}   recursive=True
 
 *** Test Cases ***
