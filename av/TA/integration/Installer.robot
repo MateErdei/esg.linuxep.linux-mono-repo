@@ -432,7 +432,7 @@ Check group writable install permissions
 
 Check world writable permissions
     ${rc}   ${output} =    Run And Return Rc And Output
-    ...     find ${COMPONENT_ROOT_PATH} \\( -type d -o -type f -o -type s \\) -perm /002
+    ...     find ${COMPONENT_ROOT_PATH} -! -type l -perm -0002
     Should Be Equal As Integers  ${rc}  0
     @{items} =    Split To Lines   ${output}
     Log List   ${items}
