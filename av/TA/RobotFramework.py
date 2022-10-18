@@ -1,6 +1,7 @@
 import argparse
 import json
 import robot
+import os
 import sys
 
 from pubtap.robotframework.tap_result_listener import tap_result_listener
@@ -28,6 +29,8 @@ def main():
         'report': log_files[2],
         'suite': '*'
     }
+
+    os.environ['BUILD_ARTEFACTS_FOR_TAP'] = '/opt/test/inputs/tap_test_output_from_build/'
 
     try:
         # Create the TAP Robot result listener.

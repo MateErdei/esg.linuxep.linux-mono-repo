@@ -45,6 +45,14 @@ Wait Until Safestore Log Contains
 
 *** Test Cases ***
 
+temp safestore test
+    ${things_to_use_in_tap} =  Get Environment Variable  BUILD_ARTEFACTS_FOR_TAP
+    log to console  ${things_to_use_in_tap}
+    log  ${things_to_use_in_tap}
+    ${Files} =  List Files In Directory  ${things_to_use_in_tap}/
+    log  ${Files}
+
+
 Safestore is killed gracefully
     Start Safestore
     Send signal to Safestore  signal.SIGTERM
