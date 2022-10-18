@@ -1,5 +1,12 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
+// These tests cover the SafeStore wrapper and call into the real safestore library (no mocks) so these
+// test are run in TAP in our robotframework suite. The tests interact heavily with the filesystem so shouldn't be
+// unit tests but gtest is very well suited to the types of tests where we're calling into a library.
+// See sspl-plugin-anti-virus/PostInstall/CMakeLists.txt for where this binary is archived ready for publishing.
+
+// The tests can be executed just like normal unit tests for local dev.
+
 #include "../common/LogInitializedTests.h"
 #include "safestore/SafeStoreWrapperImpl.h"
 

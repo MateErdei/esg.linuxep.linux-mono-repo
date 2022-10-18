@@ -1,5 +1,9 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
+// Tests for the various helper functions within the SafeStoreWrapper.
+// Most of the wrapper code calls into the safestore library so all those tests cannot be done as unit tests, they
+// are covered in SafeStoreTapTest.cpp which produces a gtest binary that is run at TAP test time by robot.
+
 #include "../common/LogInitializedTests.h"
 #include "safestore/SafeStoreWrapperImpl.h"
 
@@ -43,12 +47,21 @@ TEST_F(SafeStoreWrapperTests, threatIdFromStringHandlesMalformedIds)
     ASSERT_FALSE(ssThreatIdStruct.has_value());
 }
 
-TEST_F(SafeStoreWrapperTests, stringFromThreatIdStruct)
+TEST_F(SafeStoreWrapperTests, stringFromSafeStoreId)
 {
     std::string idString = "abcdefghijklmnop"; // only 16bytes long.
     auto ssThreatIdStruct = safestore::safeStoreIdFromString(idString);
     std::string id = safestore::stringFromSafeStoreId(ssThreatIdStruct.value());
     ASSERT_EQ(idString, id);
+}
+
+TEST_F(SafeStoreWrapperTests, stringFromSafeStoreIdDefaultDoesNotThrow)
+{
+    // The struct 'SafeStore_Id_t' in the safestore library does not default initialise any of its members so
+    // for this test a default constructed one should not cause our code to error but will produce a garbage string.
+    SafeStore_Id_t ssThreatIdStruct;
+    std::string id;
+    EXPECT_NO_THROW(id = safestore::stringFromSafeStoreId(ssThreatIdStruct));
 }
 
 TEST_F(SafeStoreWrapperTests, bytesFromSafeStoreId)
@@ -61,4 +74,35 @@ TEST_F(SafeStoreWrapperTests, bytesFromSafeStoreId)
     {
         ASSERT_EQ(bytes[i], 'a' + i);
     }
+}
+
+TEST_F(SafeStoreWrapperTests, convertObjStatusToSafeStoreObjStatus)
+{
+    ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::ANY), SOS_ANY);
+    ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::STORED), SOS_STORED);
+    ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::QUARANTINED), SOS_QUARANTINED);
+    ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::RESTORED), SOS_RESTORED);
+    ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::RESTORED_AS), SOS_RESTORED_AS);
+    ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::RESTORE_FAILED), SOS_RESTORE_FAILED);
+    ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::UNDEFINED), SOS_UNDEFINED);
+    ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::LAST), SOS_LAST);
+}
+
+TEST_F(SafeStoreWrapperTests, convertObjTypeToSafeStoreObjType)
+{
+    ASSERT_EQ(safestore::convertObjTypeToSafeStoreObjType(safestore::ObjectType::ANY), SOT_ANY);
+    ASSERT_EQ(safestore::convertObjTypeToSafeStoreObjType(safestore::ObjectType::FILE), SOT_FILE);
+    ASSERT_EQ(safestore::convertObjTypeToSafeStoreObjType(safestore::ObjectType::LAST), SOT_LAST);
+    ASSERT_EQ(safestore::convertObjTypeToSafeStoreObjType(safestore::ObjectType::REGVALUE), SOT_REGVALUE);
+    ASSERT_EQ(safestore::convertObjTypeToSafeStoreObjType(safestore::ObjectType::REGKEY), SOT_REGKEY);
+    ASSERT_EQ(safestore::convertObjTypeToSafeStoreObjType(safestore::ObjectType::UNKNOWN), SOT_UNKNOWN);
+}
+
+TEST_F(SafeStoreWrapperTests, convertToSafeStoreConfigId)
+{
+    ASSERT_EQ(safestore::convertToSafeStoreConfigId(safestore::ConfigOption::MAX_STORED_OBJECT_COUNT), SC_MAX_STORED_OBJECT_COUNT);
+    ASSERT_EQ(safestore::convertToSafeStoreConfigId(safestore::ConfigOption::MAX_SAFESTORE_SIZE), SC_MAX_SAFESTORE_SIZE);
+    ASSERT_EQ(safestore::convertToSafeStoreConfigId(safestore::ConfigOption::MAX_REG_OBJECT_COUNT), SC_MAX_REG_OBJECT_COUNT);
+    ASSERT_EQ(safestore::convertToSafeStoreConfigId(safestore::ConfigOption::MAX_OBJECT_SIZE), SC_MAX_OBJECT_SIZE);
+    ASSERT_EQ(safestore::convertToSafeStoreConfigId(safestore::ConfigOption::AUTO_PURGE), SC_AUTO_PURGE);
 }
