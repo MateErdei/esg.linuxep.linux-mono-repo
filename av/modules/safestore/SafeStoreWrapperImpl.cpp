@@ -271,28 +271,28 @@ namespace safestore
                 LOGWARN("TODO INTERNAL_ERROR");
                 return SaveFileReturnCode::INTERNAL_ERROR;
             case SR_OUT_OF_MEMORY:
-                LOGWARN("TODO");
+                LOGWARN("TODO OUT_OF_MEMORY");
                 return SaveFileReturnCode::OUT_OF_MEMORY;
             case SR_FILE_OPEN_FAILED:
-                LOGWARN("TODO");
+                LOGWARN("TODO FILE_OPEN_FAILED");
                 return SaveFileReturnCode::FILE_OPEN_FAILED;
             case SR_FILE_READ_FAILED:
-                LOGWARN("TODO");
+                LOGWARN("TODO FILE_READ_FAILED");
                 return SaveFileReturnCode::FILE_READ_FAILED;
             case SR_FILE_WRITE_FAILED:
-                LOGWARN("TODO");
+                LOGWARN("TODO FILE_WRITE_FAILED");
                 return SaveFileReturnCode::FILE_WRITE_FAILED;
             case SR_MAX_OBJECT_SIZE_EXCEEDED:
-                LOGWARN("TODO");
+                LOGWARN("TODO MAX_OBJECT_SIZE_EXCEEDED");
                 return SaveFileReturnCode::MAX_OBJECT_SIZE_EXCEEDED;
             case SR_MAX_STORE_SIZE_EXCEEDED:
-                LOGWARN("TODO");
+                LOGWARN("TODO MAX_STORE_SIZE_EXCEEDED");
                 return SaveFileReturnCode::MAX_STORE_SIZE_EXCEEDED;
             case SR_DB_ERROR:
-                LOGWARN("TODO");
+                LOGWARN("TODO DB_ERROR");
                 return SaveFileReturnCode::DB_ERROR;
             default:
-                LOGWARN("TODO");
+                LOGWARN("TODO FAILED");
                 return SaveFileReturnCode::FAILED;
         }
     }
