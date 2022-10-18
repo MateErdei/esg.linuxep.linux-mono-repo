@@ -2,6 +2,9 @@
 Documentation   Tests for SafeStore wrapper, runs a gtest binary
 Force Tags      PRODUCT  SAFESTORE
 
+Library         OperatingSystem
+Library         Process
+
 Test Setup     SafestoreWrapper Test Setup
 Test Teardown  SafestoreWrapper Test Teardown
 
