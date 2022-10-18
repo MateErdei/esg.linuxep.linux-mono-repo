@@ -82,6 +82,7 @@ Sul Downloader Report error correctly when it cannot connect to sdds3
     ...    10s
     ...    1s
     ...    Check SulDownloader Log Contains  Update failed, with code: 112
+    fail
 
 
 Sul Downloader Forces SDDS2 When Requested Fixed Version Is Unsupported In SDD3
