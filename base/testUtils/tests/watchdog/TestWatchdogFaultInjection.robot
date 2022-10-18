@@ -9,16 +9,13 @@ Library    ${LIBS_DIRECTORY}/Watchdog.py
 Resource  ../installer/InstallerResources.robot
 Resource  WatchdogResources.robot
 
-Test Setup  Require Fresh Install
 
 *** Test Cases ***
 
 Test wdctl and Watchdog Can Handle A Plugin That cannot Be Executed And Logs Error
     [Tags]    WATCHDOG  WDCTL  FAULTINJECTION
-    Remove File  /tmp/TestWdctlCanAddANewPluginToRunningWatchdog
-    Remove File  ${SOPHOS_INSTALL}/base/pluginRegistry/testplugin.json
-    Remove File  /tmp/TestWdctlHandleBrokenPlugin
-    Remove File  ${SOPHOS_INSTALL}/base/pluginRegistry/testbrokenplugin.json
+    [Teardown]  Clean Up Files
+    Require Fresh Install
 
     Setup Test Plugin Config  echo "Plugin started at $(date)" >>/tmp/TestWdctlCanAddANewPluginToRunningWatchdog   ${TEMPDIR}  testplugin
     Setup Test Plugin Config  echo "Plugin started at $(date)" >>/tmp/TestWdctlHandleBrokenPlugin                  ${TEMPDIR}  testbrokenplugin   testbrokenplugin.sh
@@ -42,7 +39,31 @@ Test wdctl and Watchdog Can Handle A Plugin That cannot Be Executed And Logs Err
     ...  3 secs
     ...  Check Watchdog Detect Broken Plugins
 
+Test wdctl and Watchdog kills a plugin that will not shutdown cleanly
+    [Tags]    WATCHDOG  WDCTL  FAULTINJECTION
+    [Teardown]  Clean Up Files
+    Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
+    Require Fresh Install
+
+    Setup Test Plugin Config  trap -- '' SIGINT SIGTERM\nsleep 11000   ${TEMPDIR}  testplugin
+    ## call wdctl to copy configuration
+
+
+    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration    ${TEMPDIR}/testplugin.json
+
+
+    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start    testplugin
+    sleep  2
+    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop    testplugin
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  2 secs
+    ...  check_watchdog_log_contains  /opt/sophos-spl/testPlugin.sh died with
+    check_watchdog_log_does_not_contain  /opt/sophos-spl/testPlugin.sh died with 15
+
+
 Watchdog Does Not Throw Unhandled Exception When Machine Id File Is Not Present At Startup
+    Require Fresh Install
     ${result} =  Run Process  chmod  600  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
     Should Be Equal As Strings  0  ${result.rc}
     ${result} =  Run Process  chown  root:root  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
@@ -56,6 +77,14 @@ Watchdog Does Not Throw Unhandled Exception When Machine Id File Is Not Present 
     ...  Check Updatescheduler Log Contains  Error, Failed to read file: '/opt/sophos-spl/base/etc/machine_id.txt', file does not exist
 
 *** Keywords ***
+Clean Up Files
+    General Test Teardown
+    Remove Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL
+    Remove File  /tmp/TestWdctlCanAddANewPluginToRunningWatchdog
+    Remove File  /tmp/TestWdctlHandleBrokenPlugin
+    Remove File  ${TEMPDIR}/testplugin.json
+    Remove File  ${TEMPDIR}/testbrokenplugin.json
+
 Check Watchdog Detect Broken Plugins
     # Check logs contain expected entries.
     ${wdctlLog}=  Get File  ${SOPHOS_INSTALL}/logs/base/wdctl.log

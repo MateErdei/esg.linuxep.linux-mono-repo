@@ -209,6 +209,11 @@ namespace Common
             }
         }
 
+        void ProcessProxy::setCoreDumpMode(const bool mode)
+        {
+            m_sharedState.m_process->setCoreDumpMode(mode);
+        }
+
         ProcessProxy::~ProcessProxy() noexcept
         {
             try

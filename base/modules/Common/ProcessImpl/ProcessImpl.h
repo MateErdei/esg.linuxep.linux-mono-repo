@@ -1,6 +1,6 @@
 /******************************************************************************************************
 
-Copyright 2018, Sophos Limited.  All rights reserved.
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
@@ -52,6 +52,9 @@ namespace Common
             void setOutputTrimmedCallback(std::function<void(std::string)>) override;
             void setNotifyProcessFinishedCallBack(Process::IProcess::functor) override;
 
+            void waitUntilProcessEnds() override;
+            void setCoreDumpMode(const bool mode) override;
+
         private:
             std::mutex m_protectImplOnBoost;
             std::atomic<int> m_pid;
@@ -59,6 +62,7 @@ namespace Common
             bool m_flushOnNewLine;
             Process::IProcess::functor m_callback;
             std::function<void(std::string)> m_notifyTrimmed;
+            bool m_coreDumpEnabled = false;
             // in order to protect for data race, this pointer will
             // need to be shared pointer to be used via this safeAccess method.
             std::shared_ptr<IProcessHolder> safeAccess();

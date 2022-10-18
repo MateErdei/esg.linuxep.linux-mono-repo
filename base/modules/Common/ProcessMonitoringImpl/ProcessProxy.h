@@ -114,6 +114,8 @@ namespace Common
              */
             int exitCode();
 
+            void setCoreDumpMode(const bool mode);
+
             ProcessSharedState m_sharedState;
             /**
              * Full path to the executable

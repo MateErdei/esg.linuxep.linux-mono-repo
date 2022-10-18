@@ -64,6 +64,7 @@ namespace Common
 
             void sendTerminateSignal() override;
 
+            void sendAbortSignal() override;
             void kill() override;
 
         private:

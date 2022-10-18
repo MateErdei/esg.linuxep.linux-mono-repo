@@ -201,7 +201,10 @@ class TeardownTools(object):
             self._run_combine_ignore_error(files)
 
     def check_for_coredumps(self, testname):
-        self.mount_filer6()
+        filer6 = False
+        if os.path.isdir("/mnt/filer6/linux"):
+            self.mount_filer6()
+            filer6 = True
         if os.path.exists("/tmp"):
             files_in_tmp = [f for f in os.listdir("/tmp") if os.path.isfile(os.path.join("/tmp", f))]
             is_core_dump = False
@@ -210,9 +213,9 @@ class TeardownTools(object):
                     is_core_dump = True
                     file_path = os.path.join("/tmp", file)
                     try:
-                        self.copy_to_filer6(file_path, testname)
+                        self.copy_to_filer6_or_s3_pickup(file_path, testname, filer6)
                     except Exception as ex:
-                        logger.info(f"failed to copy {file_path} to filer6: {ex}")
+                        logger.info(f"failed to copy {file_path} to storage location: {ex}")
                     finally:
                         os.remove(file_path)
             if is_core_dump:
@@ -220,12 +223,15 @@ class TeardownTools(object):
         else:
             print("No tmp directory")
 
-    def copy_to_filer6(self, filepath, testname):
-        fuzz_output_dir = "/mnt/filer6/linux/SSPL/CoreDumps"
+    def copy_to_filer6_or_s3_pickup(self, filepath, testname,filer6):
+        if filer6:
+            core_output_dir = "/mnt/filer6/linux/SSPL/CoreDumps"
+        else:
+            core_output_dir = "/opt/test/coredumps"
         testname = (testname + "_" + str(datetime.datetime.now())).replace(" ", "_")
-        core_dump_dir = os.path.join(fuzz_output_dir, testname)
+        core_dump_dir = os.path.join(core_output_dir, testname)
 
-        logger.info("copying file: {} to filer6".format(filepath))
+        logger.info("copying file: {} to {}".format(filepath,core_output_dir))
         if not os.path.exists(core_dump_dir):
             os.makedirs(core_dump_dir)
         shutil.copy(filepath, core_dump_dir)

@@ -40,6 +40,7 @@ namespace Common
             virtual bool isRunning() = 0;
 
             virtual std::string name() const = 0;
+            virtual void setCoreDumpMode(const bool mode) = 0;
         };
         using IProcessProxyPtr = std::unique_ptr<IProcessProxy>;
         extern IProcessProxyPtr createProcessProxy(Common::Process::IProcessInfoPtr processInfoPtr);

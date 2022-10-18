@@ -132,6 +132,12 @@ namespace Common
              * was resumed by a signal.
              */
             virtual void waitUntilProcessEnds() = 0;
+
+            /*
+             * set the bool that controls whether or not we kill processes with sigkill or sigabrt when the sigterm times out
+             * @param bool to turn on kill with sigabrt
+             */
+            virtual void setCoreDumpMode(const bool mode) = 0;
         };
         using IProcessPtr = std::unique_ptr<IProcess>;
         extern IProcessPtr createProcess();

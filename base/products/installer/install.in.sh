@@ -92,15 +92,25 @@ function isServiceInstalled()
     systemctl list-unit-files | grep -q "^${TARGET}\b" >/dev/null
 }
 
+CORESETTING=""
+DEBUGENV=""
+if [[ -n $SOPHOS_CORE_DUMP_ON_PLUGIN_KILL ]]
+then
+  CORESETTING="LimitCORE=infinity"
+  DEBUGENV="Environment='SOPHOS_CORE_DUMP_ON_PLUGIN_KILL=1'"
+fi
+
 function createWatchdogSystemdService()
 {
     NEW_SERVICE_INFO=$(cat <<EOF
 [Service]
 Environment="SOPHOS_INSTALL=${SOPHOS_INSTALL}"
+${DEBUGENV}
 ExecStart=${SOPHOS_INSTALL}/base/bin/sophos_watchdog
 Restart=always
 KillMode=mixed
 Delegate=yes
+${CORESETTING}
 
 [Install]
 WantedBy=multi-user.target

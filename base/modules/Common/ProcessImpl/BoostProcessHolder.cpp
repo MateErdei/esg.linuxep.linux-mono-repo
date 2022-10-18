@@ -431,8 +431,18 @@ namespace Common
             {
                 return;
             }
-            LOGSUPPORT("Terminating process " << m_pid);
+            LOGDEBUG("Terminating process " << m_pid);
             ::kill(m_pid, SIGTERM);
+        }
+
+        void BoostProcessHolder::sendAbortSignal()
+        {
+            if (hasFinished())
+            {
+                return;
+            }
+            LOGDEBUG("Terminating process with abort signal " << m_pid);
+            ::kill(m_pid, SIGABRT);
         }
 
         void BoostProcessHolder::kill()

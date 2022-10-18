@@ -161,6 +161,7 @@ public:
     void setOutputTrimmedCallback(std::function<void(std::string)>) override{};
     void setNotifyProcessFinishedCallBack(functor) override{};
     void waitUntilProcessEnds() override{};
+    void setCoreDumpMode(const bool) override{};
 };
 
 class ScopedProcess

@@ -71,6 +71,7 @@ namespace Common
             bool hasFinished() override { return true; }
 
             void sendTerminateSignal() override { return; }
+            void sendAbortSignal() override { return; }
 
             void kill() override { return; }
         };
@@ -98,6 +99,7 @@ namespace Common
             bool hasFinished() override { return true; }
 
             void sendTerminateSignal() override { return; }
+            void sendAbortSignal() override { return; }
 
             void kill() override { return; }
         };
@@ -204,7 +206,15 @@ namespace Common
                 processOnBoost->sendTerminateSignal();
                 if (wait(Process::milli(numOfDecSeconds), 100) == Process::ProcessStatus::TIMEOUT)
                 {
-                    processOnBoost->kill();
+                    if (m_coreDumpEnabled)
+                    {
+                        processOnBoost->sendAbortSignal();
+                    }
+                    else
+                    {
+                        processOnBoost->kill();
+                    }
+
                     requiredKill = true;
                 }
             }
@@ -264,6 +274,11 @@ namespace Common
         {
             auto processOnBoost = safeAccess();
             processOnBoost->wait();
+        }
+
+        void ProcessImpl::setCoreDumpMode(const bool mode)
+        {
+            m_coreDumpEnabled = mode;
         }
 
         void ProcessImpl::setOutputTrimmedCallback(std::function<void(std::string)> outputTrimmedCallback)

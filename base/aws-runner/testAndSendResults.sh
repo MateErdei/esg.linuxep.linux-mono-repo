@@ -18,3 +18,8 @@ aws s3 cp /opt/sspl/log.html s3://sspl-testbucket/test-results/$1/$HOSTNAME-log.
     aws s3 cp /opt/sspl/robot.xml s3://sspl-testbucket/test-results/$1/$HOSTNAME-robot.xml && \
     aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/$1/$HOSTNAME-cloudFormationInit.log || UPLOAD_RESULT=0
 
+if [[ -d /opt/test/coredumps ]]
+then
+    echo "Upload core files to s3://sspl-testbucket/core-files-nightly/$STACKNAME/$HOSTNAME/"
+    aws s3 sync /opt/test/coredumps s3://sspl-testbucket/test-results/$STACKNAME/core-files/$HOSTNAME/
+fi
