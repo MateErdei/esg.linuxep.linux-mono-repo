@@ -113,9 +113,9 @@ class CoreDumps(object):
             previous = previous[-5:]
             if "segfault" in line:
                 if include_next <= 0:
+                    result.append(previous[-4])
                     result.append(previous[-3])
                     result.append(previous[-2])
-                    result.append(previous[-1])
                 result.append(line)
                 segfaults.append(line)
                 include_next = 2
@@ -130,11 +130,19 @@ class CoreDumps(object):
         if testname is None:
             testname = BuiltIn().get_variable_value("${TEST NAME}")
 
-        SEGFAULT_RE = re.compile(r".* error [46] in sophos-subprocess-\d+-exec1 \(deleted\)\[.*")
-        all_segfaults_are_rtd = True
+        RTD_SEGFAULT_RE = re.compile(r".* error [46] in sophos-subprocess-\d+-exec1 \(deleted\)\[.*")
+        CLOUD_SETUP_SEGFAULT_RE = re.compile(r"nm-cloud-setup\[\d+\]: segfault at [0-9a-f]+ ip [0-9a-f]+ sp [0-9a-f]+ error 4 in libglib-2.0.so.*\[[0-9a-f]+\+[0-9a-f]+\]")
+
+        all_segfaults_are_ignored = True
         for segfault in segfaults:
-            if not SEGFAULT_RE.match(segfault):
-                all_segfaults_are_rtd = False
+            if RTD_SEGFAULT_RE.match(segfault):
+                logger.info("Ignoring segfault from RTD")
+                continue
+            if CLOUD_SETUP_SEGFAULT_RE.search(segfault):
+                # [Tue Oct 18 10:19:41 2022] nm-cloud-setup[697]: segfault at 7ffc00000002 ip 00007f07931576ef sp 00007ffc28f16850 error 4 in libglib-2.0.so.0.6800.4[7f0793134000+90000]
+                logger.info("Ignoring segfault from nm-cloud-setup")
+                continue
+            all_segfaults_are_ignored = False
 
         stdout = "\n".join(result)
         if stdout:
@@ -169,8 +177,8 @@ class CoreDumps(object):
             if self.__m_ignore_cores_segfaults:
                 logger.debug("Ignoring segfaults in dmesg")
                 return ""
-            elif all_segfaults_are_rtd:
-                logger.error("Not failing test for RTD segfaults! See LINUXDAR-4903")
+            elif all_segfaults_are_ignored:
+                logger.error("Not failing test for ignored segfaults! See LINUXDAR-4903")
             else:
                 raise AssertionError("segfault detected in dmesg: %s" % stdout)
 
