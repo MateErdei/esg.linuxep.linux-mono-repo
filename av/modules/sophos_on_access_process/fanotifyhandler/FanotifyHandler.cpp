@@ -151,7 +151,6 @@ void FanotifyHandler::updateComplete()
 
 void FanotifyHandler::processFaMarkError(const std::string& function, const std::string& path)
 {
-    // LINUXDAR-5776: Suppress errors related to soapd shutting down until LINUXDAR-5776 is fixed
     std::stringstream logMsg;
     int error = errno;
     logMsg << "fanotify_mark failed in " << function << ": " << common::safer_strerror(error) << " for: " << path;
