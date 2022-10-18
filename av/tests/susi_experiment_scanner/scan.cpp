@@ -257,14 +257,8 @@ int main(int argc, char* argv[])
     static const std::string scannerConfig = create_scanner_config(scannerInfo);
     SusiHolder susi(scannerConfig);
 
-    static const std::string metaDataJson = R"({
-    "properties": {
-        "url": "www.example.com"
-    }
-    })";
-
     SusiScanResult* result = nullptr;
-    SusiResult res = SUSI_ScanHandle(susi.m_handle, metaDataJson.c_str(), filename, fd, &result);
+    SusiResult res = SUSI_ScanHandle(susi.m_handle, nullptr, filename, fd, &result);
 
     ::close(fd);
 

@@ -186,13 +186,6 @@ SusiScanner::scan(
     HighestLevelRecorder::reset();
 
     scan_messages::ScanResponse response;
-
-    static const std::string metaDataJson = R"({
-    "properties": {
-        "url": "www.example.com"
-    }
-    })";
-
     SusiScanResult* scanResult = nullptr;
 
     pid_t tid = syscall(SYS_gettid);
@@ -202,7 +195,7 @@ SusiScanner::scan(
 
     auto timeBeforeScan = common::getSusiStyleTimestamp();
     LOG_SUSI_DEBUG("D " << timeBeforeScan << " T" << paddedThreadId.str() << " Starting scan of " << file_path);
-    SusiResult res = m_susi->scanFile(metaDataJson.c_str(), file_path.c_str(), fd, &scanResult);
+    SusiResult res = m_susi->scanFile(nullptr, file_path.c_str(), fd, &scanResult);
     auto timeAfterScan = common::getSusiStyleTimestamp();
     LOG_SUSI_DEBUG("D " << timeAfterScan << " T" << paddedThreadId.str() << " Finished scanning " << file_path << " result: " << std::hex << res << std::dec);
 

@@ -311,21 +311,14 @@ static void scan(int thread, const std::string& scannerConfig, const char* filen
     ASSERT(fd.fd() >= 0);
 
     SusiHolder susi(scannerConfig);
-    static const std::string metaDataJson = R"({
-    "properties": {
-        "url": "www.example.com"
-    }
-    })";
-
     AutoScanResult result;
-
 
     for (int i=0; i<NUMBER_OF_SCANS_PER_THREAD; i++)
     {
         P("THREAD:" << thread <<  ":" << i << ": Start scan");
         ASSERT(result.m_result == nullptr);
         ASSERT(!result);
-        SusiResult res = SUSI_ScanHandle(susi.m_handle, metaDataJson.c_str(), filename, fd.fd(), &result.m_result);
+        SusiResult res = SUSI_ScanHandle(susi.m_handle, nullptr, filename, fd.fd(), &result.m_result);
 
         if (result)
         {
