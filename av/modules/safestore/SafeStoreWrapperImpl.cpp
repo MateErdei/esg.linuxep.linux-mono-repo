@@ -359,14 +359,11 @@ namespace safestore
 
     std::unique_ptr<SearchHandleHolder> SafeStoreWrapperImpl::createSearchHandleHolder()
     {
-        //        std::weak_ptr<ISafeStoreWrapper> safeStoreWrapper = this;
-        // TODO make this nicer - the ref can go out of scope.
         return std::make_unique<SearchHandleHolder>(*this);
     }
 
     std::unique_ptr<ObjectHandleHolder> SafeStoreWrapperImpl::createObjectHandleHolder()
     {
-        // TODO make this nicer - the ref can go out of scope.
         return std::make_unique<safestore::ObjectHandleHolder>(*this);
     }
 
