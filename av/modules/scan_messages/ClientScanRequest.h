@@ -6,6 +6,7 @@
 
 #include "datatypes/AutoFd.h"
 
+#include <chrono>
 #include <memory>
 #include <string>
 
@@ -46,6 +47,7 @@ namespace scan_messages
         [[nodiscard]] std::string getPath() const { return m_path; };
         [[nodiscard]] int getFd() const { return m_autoFd.fd(); }
         [[nodiscard]] E_SCAN_TYPE getScanType() const { return m_scanType; }
+        [[nodiscard]] std::chrono::steady_clock::time_point getCreationTime() const { return m_creationTime; }
         [[nodiscard]] bool isOpenEvent() const { return m_scanType == E_SCAN_TYPE_ON_ACCESS_OPEN; }
 
     protected:
@@ -54,6 +56,7 @@ namespace scan_messages
         bool m_scanInsideImages = false;
         std::string m_userID;
         E_SCAN_TYPE m_scanType = E_SCAN_TYPE_UNKNOWN;
+        std::chrono::steady_clock::time_point m_creationTime = std::chrono::steady_clock::now();
 
         //Not serialised
        datatypes::AutoFd m_autoFd;
