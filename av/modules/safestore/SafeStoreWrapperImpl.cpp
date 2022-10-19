@@ -391,7 +391,6 @@ namespace safestore
         //  *     SR_INTERNAL_ERROR - an internal error has occurred
 
         auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
-        //        auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
 
         switch (returnCode)
         {

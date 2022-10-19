@@ -26,22 +26,27 @@ namespace safestore
         virtual ~IQuarantineManager() = default;
 
         /*
-         * TODO 5675 Interface docs
+         * Initialise the Quarantine Manager so that files can be quarantined.
          */
         virtual void initialise() = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Return the current state of the Quarantine Manager.
+         * The implementing class must keep this state updated.
          */
         virtual QuarantineManagerState getState() = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Delete all files within the database directory.
+         * This can be called when getState() reports corrupt so that a new database can be initialised.
          */
         virtual bool deleteDatabase() = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Quarantine a file.
+         * Add the file to the quarantine database.
+         * Delete the file.
+         * Store the checksum of the file.
          */
         virtual bool quarantineFile(
             const std::string& filePath,

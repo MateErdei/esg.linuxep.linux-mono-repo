@@ -28,9 +28,6 @@ namespace safestore
     // Return codes from SafeStore initialisation
     enum class InitReturnCode
     {
-        // TODO 5675 document this
-
-        // SafeStore initialised ok
         OK,
         INVALID_ARG,
         UNSUPPORTED_OS,
@@ -38,17 +35,11 @@ namespace safestore
         OUT_OF_MEMORY,
         DB_OPEN_FAILED,
         DB_ERROR,
-
-        // Failed to initialise for unknown reason
-        FAILED
+        FAILED // Failed to initialise for unknown reason
     };
 
     enum class SaveFileReturnCode
     {
-
-        // TODO 5675 document this
-
-        // SafeStore initialised ok
         OK,
         INVALID_ARG,
         INTERNAL_ERROR,
@@ -59,8 +50,7 @@ namespace safestore
         MAX_OBJECT_SIZE_EXCEEDED,
         MAX_STORE_SIZE_EXCEEDED,
         DB_ERROR,
-        // Failed to save for unknown reason
-        FAILED
+        FAILED // Failed to save for unknown reason
     };
 
     enum class ConfigOption
@@ -84,8 +74,6 @@ namespace safestore
 
     enum class ObjectType
     {
-        // TODO 5675 document this
-
         ANY,
         UNKNOWN = ANY,
         FILE,
@@ -96,8 +84,6 @@ namespace safestore
 
     enum class ObjectStatus
     {
-        // TODO 5675 document this
-
         ANY,
         UNDEFINED = ANY,
         STORED,
@@ -161,22 +147,24 @@ namespace safestore
         virtual ~ISafeStoreWrapper() = default;
 
         /*
-         * TODO 5675 Interface docs
+         * Utility function to generate a SafeStore search handle, the handle needs a reference to this interface to
+         * clean up on destruction.
          */
         virtual std::unique_ptr<SearchHandleHolder> createSearchHandleHolder() = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Utility function to clean up a search handle
          */
         virtual void releaseSearchHandle(SafeStoreSearchHandle searchHandleHolder) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Utility function to generate a SafeStore object handle, the handle needs a reference to this interface to
+         * clean up on destruction.
          */
         virtual std::unique_ptr<ObjectHandleHolder> createObjectHandleHolder() = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Utility function to clean up an object handle
          */
         virtual void releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder) = 0;
 
@@ -201,22 +189,27 @@ namespace safestore
             ObjectHandleHolder& objectHandle) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Get a SafeStore config option. If it is not available or the call fails then the value  is not set.
          */
         virtual std::optional<uint64_t> getConfigIntValue(ConfigOption option) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Set a SafeStore config option. If setting the value was successful then this returns true, false otherwise.
          */
         virtual bool setConfigIntValue(ConfigOption option, uint64_t value) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Find objects in the SafeStore database based on a filter, returns an iterator to access the result objects.
+         * The filter must have options set and the active fields member of the filter
+         * must match the search criteria that have been set on the filter.
          */
         virtual SearchResults find(const SafeStoreFilter& filter) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Find the first object in the SafeStore database that matches a filter.
+         * The search handle can then be used in findNext.
+         * The object handle will be set the result of the search.
+         * If no object is found then the raw handle within the holder is set to null by SafeStore.
          */
         virtual bool findFirst(
             const SafeStoreFilter& filter,
@@ -224,32 +217,47 @@ namespace safestore
             ObjectHandleHolder& objectHandle) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Find the next object that matches a search, here pass in the search handle used from a call to findFirst.
+         * The object handle will be set the result of the search.
+         * If no object is found then the raw handle within the holder is set to null by SafeStore.
          */
         virtual bool findNext(SearchHandleHolder& searchHandle, ObjectHandleHolder& objectHandle) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Return the name of an object in the SafeStore database.
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * an empty string is returned.
          */
         virtual std::string getObjectName(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Return the ID of an object. The ID of an object is generated by SafeStore and consists of 16 random bytes.
          */
         virtual std::vector<uint8_t> getObjectId(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Get the type of an object in the SafeStore database.
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * ObjectType::UNKNOWN is returned.
          */
         virtual ObjectType getObjectType(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Get the status of an object in the SafeStore database.
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * ObjectStatus::UNDEFINED is returned.
          */
         virtual ObjectStatus getObjectStatus(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Get the Threat ID of an object in the SafeStore database.
+         * This is the value that is passed in during quarantine.
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * then an empty string is returned.
          */
         virtual std::string getObjectThreatId(const ObjectHandleHolder& objectHandle) = 0;
 

@@ -114,7 +114,7 @@ TEST_F(SafeStoreWrapperTapTests, writeAndThenRreadBackConfigOptions)
     ASSERT_EQ(maxObjCount.value(), 5000);
 }
 
-TEST_F(SafeStoreWrapperTapTests, quaratineThreatAndLookupDetails)
+TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndLookupDetails)
 {
     auto fileSystem = Common::FileSystem::fileSystem();
     auto now = std::time(0);
@@ -159,7 +159,7 @@ TEST_F(SafeStoreWrapperTapTests, quaratineThreatAndLookupDetails)
     ASSERT_TRUE(foundAnyResults);
 }
 
-TEST_F(SafeStoreWrapperTapTests, quaratineMultipleThreatsAndLookupDetails)
+TEST_F(SafeStoreWrapperTapTests, quarantineMultipleThreatsAndLookupDetails)
 {
     auto fileSystem = Common::FileSystem::fileSystem();
 
@@ -215,7 +215,7 @@ TEST_F(SafeStoreWrapperTapTests, quaratineMultipleThreatsAndLookupDetails)
     ASSERT_EQ(expectedThreatNames, actualThreatNames);
 }
 
-TEST_F(SafeStoreWrapperTapTests, quaratineThreatAndAddCustomData)
+TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
 {
     auto fileSystem = Common::FileSystem::fileSystem();
 
