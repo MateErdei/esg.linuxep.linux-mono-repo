@@ -378,31 +378,27 @@ namespace safestore
             return {};
         }
 
-        constexpr int nameSize = 200;
-        size_t size = nameSize;
-        char buf[nameSize];
-
-        // TODO 5675 deal with error codes... e.g. string size too small
-        // Success:
-        //  *     SR_OK
-        //  *   Failure:
-        //  *     SR_INVALID_ARG - an invalid argument was passed to the function
-        //  *     SR_BUFFER_SIZE_TOO_SMALL - the buffer is too small to hold the output
-        //  *     SR_INTERNAL_ERROR - an internal error has occurred
+        size_t size = MAX_OBJECT_NAME_LENGTH;
+        char buf[MAX_OBJECT_NAME_LENGTH];
 
         auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
 
         switch (returnCode)
         {
             case SR_OK:
+                LOGDEBUG("Got OK when getting object name from SafeStore");
                 break;
             case SR_INVALID_ARG:
+                LOGDEBUG("Got INVALID_ARG when getting object name from SafeStore");
                 break;
             case SR_INTERNAL_ERROR:
+                LOGDEBUG("Got INTERNAL_ERROR when getting object name from SafeStore");
                 break;
             case SR_BUFFER_SIZE_TOO_SMALL:
+                LOGDEBUG("Got BUFFER_SIZE_TOO_SMALL when getting object name from SafeStore, size: " << size);
                 break;
             default:
+                LOGDEBUG("Failed for unknown reason when getting object name from SafeStore, rc: " << returnCode);
                 break;
         }
         return std::string(buf);
