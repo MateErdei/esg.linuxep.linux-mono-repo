@@ -22,6 +22,11 @@ namespace Plugin
 
     void TaskQueue::pushStop()
     {
+        {
+            std::lock_guard<std::mutex> lck(m_mutex);
+            m_stopQueued = true;
+        }
+
         Task stopTask{ .taskType = Task::TaskType::Stop, .Content = "" };
         push(std::move(stopTask));
     }
@@ -60,5 +65,13 @@ namespace Plugin
         }
 
         return false;
+    }
+
+    bool TaskQueue::stoppableSleep(duration_t sleepTime)
+    {
+        std::unique_lock<std::mutex> lck(m_mutex);
+
+        // Waits for period or for stop to be queued
+        return m_cond.wait_for(lck, sleepTime, [this](){ return m_stopQueued; });
     }
 } // namespace Plugin
