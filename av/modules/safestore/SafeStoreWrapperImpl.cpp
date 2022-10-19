@@ -572,9 +572,20 @@ namespace safestore
 
     int64_t SafeStoreWrapperImpl::getObjectStoreTime(const ObjectHandleHolder& objectHandle)
     {
-        SafeStore_Time_t safeStoreTime;
-        SafeStore_GetObjectStoreTime(objectHandle.getRawHandle(), &safeStoreTime);
-        return safeStoreTime;
+        SafeStore_Time_t safeStoreTime = 0;
+        auto returnCode = SafeStore_GetObjectStoreTime(objectHandle.getRawHandle(), &safeStoreTime);
+        switch (returnCode)
+        {
+            case SR_OK:
+                LOGDEBUG("Successfully got object store time from SafeStore");
+                return safeStoreTime;
+            case SR_INVALID_ARG:
+                LOGDEBUG("Failed to get object store time from SafeStore, returning 0");
+                break;
+            default:
+                break;
+        }
+        return 0;
     }
 
     bool SafeStoreWrapperImpl::setObjectCustomData(

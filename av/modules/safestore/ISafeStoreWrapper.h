@@ -262,17 +262,30 @@ namespace safestore
         virtual std::string getObjectThreatId(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Get the Threat Name of an object in the SafeStore database.
+         * This is the value that is passed in during quarantine.
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * then an empty string is returned.
          */
         virtual std::string getObjectThreatName(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Get the time that an object was stored in the SafeStore database.
+         * This value is a UNIX timestamp (seconds from epoch)
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * then 0 is returned.
          */
         virtual int64_t getObjectStoreTime(const ObjectHandleHolder& objectHandle) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Store custom data against an object in the SafeStore database.
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * then this will return false.
+         * dataName is the name to tag the data with and this is what will need to be used to retrieve that data.
+         * value is a vector of bytes to be stored.
          */
         virtual bool setObjectCustomData(
             ObjectHandleHolder& objectHandle,
@@ -280,14 +293,25 @@ namespace safestore
             const std::vector<uint8_t>& value) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Retrieve custom data that has been store against an object in the SafeStore database.
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * then this will return an empty vector of bytes.
+         * dataName is the name that the data was tagged with when it was stored by a call to setObjectCustomData
          */
         virtual std::vector<uint8_t> getObjectCustomData(
             const ObjectHandleHolder& objectHandle,
             const std::string& dataName) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Store string data against an object in the SafeStore database.
+         * This is a wrapper around setObjectCustomData that will allow easy string
+         * storage and has a respective get method: getObjectCustomDataString.
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * then this will return false.
+         * dataName is the name to tag the data with and this is what will need to be used to retrieve that data.
+         * value is your custom string to be stored.
          */
         virtual bool setObjectCustomDataString(
             ObjectHandleHolder& objectHandle,
@@ -295,7 +319,12 @@ namespace safestore
             const std::string& value) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Retrieve string data that has been store against an object in the SafeStore database.
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * then this will return an empty string.
+         * dataName is the name that the string was tagged with when it was stored by a
+         * call to setObjectCustomDataString.
          */
         virtual std::string getObjectCustomDataString(
             ObjectHandleHolder& objectHandle,
@@ -321,12 +350,20 @@ namespace safestore
         // SsPlatChar* directory, _In_opt_z_ const SsPlatChar* fileName);
 
         /*
-         * TODO 5675 Interface docs
+         * Retrieve an objecthandle from the safestore database to perform operations using that object, such as
+         * getting a Threat ID or name of the object.
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * then this will return false.
+         * objectId is the ID of the object that was generated when a file was saved to SafeStore.
          */
         virtual bool getObjectHandle(const std::string& objectId, std::shared_ptr<ObjectHandleHolder> objectHandle) = 0;
 
         /*
-         * TODO 5675 Interface docs
+         * Mark an object as finalised to indicate that all needed operations have been performed and that file.
+         * The object handle that gets passed in must be holding a SafeStore object.
+         * If the raw handle in the object holder is null or the call into SafeStore fails
+         * then this will return false. If the finalise call is successful then true is returned.
          */
         virtual bool finaliseObject(ObjectHandleHolder& objectHandle) = 0;
     };
