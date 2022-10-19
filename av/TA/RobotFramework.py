@@ -30,8 +30,6 @@ def main():
         'suite': '*'
     }
 
-    os.environ['BUILD_ARTEFACTS_FOR_TAP'] = '/opt/test/inputs/tap_test_output_from_build/'
-
     try:
         # Create the TAP Robot result listener.
         listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
