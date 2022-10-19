@@ -22,10 +22,12 @@ using namespace sophos_on_access_process::onaccessimpl;
 ScanRequestHandler::ScanRequestHandler(
    ScanRequestQueueSharedPtr scanRequestQueue,
     IScanningClientSocketSharedPtr socket,
-    fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler)
+    fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
+    int handlerId)
     : m_scanRequestQueue(std::move(scanRequestQueue))
     , m_socket(std::move(socket))
     , m_fanotifyHandler(std::move(fanotifyHandler))
+    , m_handlerId(handlerId)
 {
 }
 
@@ -67,6 +69,7 @@ void ScanRequestHandler::scan(
         if (errorMsg.empty() && scanRequest->isOpenEvent())
         {
             // Clean file, ret either 0 or 1 errno is logged by m_fanotifyHandler->cacheFd
+            LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()));
             int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
             if (ret < 0)
             {
@@ -108,11 +111,14 @@ void ScanRequestHandler::run()
                     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
                     scan(queueItem);
+
                     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-                    long scanDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+                    time_t scanDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+                    time_t inProductDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - queueItem->getCreationTime()).count();
 
                     std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
-                    LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms");
+                    LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms by scanHandler-" << m_handlerId
+                                         << ": Time in product is " << inProductDuration);
                 }
                 else
                 {
