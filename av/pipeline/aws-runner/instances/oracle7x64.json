@@ -51,6 +51,8 @@
         "yum -y install python3-devel python3-pip policycoreutils-python-utils &>>/tmp/cloudFormationInit.log\n",
         "yum -y install cmake gcc-c++ make &>>/tmp/cloudFormationInit.log\n",
         "yum -y install samba &>>/tmp/cloudFormationInit.log\n",
+        "export LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH\n",
+        "ldconfig /usr/local/lib\n",
         "python3 -m pip install --upgrade awscli pkgconfig &>>/tmp/cloudFormationInit.log\n",
         "python3 -m pip install --upgrade   zmq  paramiko watchdog cryptography==3.3.1 python-dateutil  enum34 packaging &>>/tmp/cloudFormationInit.log\n",
         "python3 -m pip install --upgrade urllib3  &>>/tmp/cloudFormationInit.log\n",
