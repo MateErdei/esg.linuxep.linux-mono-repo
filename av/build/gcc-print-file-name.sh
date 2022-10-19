@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-LIB=$(gcc -print-file-name=$1)
+CC=${CC:-gcc}
+LIB=$($CC -print-file-name=$1)
+
+echo $CC $LIB $1 >>/tmp/x
 
 [[ -f $LIB ]] || { echo "Failed to locate $1" ; exit 1 ; }
 

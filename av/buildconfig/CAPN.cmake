@@ -1,7 +1,7 @@
 
 function(CAPN_GENERATE_CPP SRCS HDRS)
   cmake_parse_arguments(capnp "" "" "SEPARATION" ${ARGN})
-  set( LD ${CAPNPROTO_LIBRARY_DIR}:${LD_LIBRARY_PATH} )
+  set( LD ${CAPNPROTO_LIBRARY_DIR}:${CAPNPROTO_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH} )
   set( CAPNPATH ${CAPNPROTO_EXECUTABLE_DIR}:${PATH} )
 
   set(${SRCS})
@@ -34,11 +34,11 @@ function(CAPN_GENERATE_CPP SRCS HDRS)
             OUTPUT "${_protobuf_protoc_src}"
             "${_protobuf_protoc_hdr}"
             COMMAND ${CMAKE_COMMAND} -E copy ${ABS_FIL} .
-            COMMAND  ${CMAKE_COMMAND} -E env LD_LIBRARY_PATH=/build/input/gcc/lib64/ PATH=${CAPNPATH} "${CAPNPROTO_EXECUTABLE}"
+            COMMAND  ${CMAKE_COMMAND} -E env PATH=${CAPNPATH} LD_LIBRARY_PATH=${LD} "${CAPNPROTO_EXECUTABLE}"
             compile "-oc++"
              ${FIL_WE}.capnp
             DEPENDS ${ABS_FIL} capnp
-            COMMENT "Running C++ capn compile buffer compiler on ${FIL}"
+            COMMENT "Running C++ capn compile buffer compiler on ${FIL} with LD_LIBRARY_PATH=${LD}"
             VERBATIM )
   endforeach()
 
