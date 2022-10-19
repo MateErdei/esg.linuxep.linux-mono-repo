@@ -11,10 +11,21 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-unixsocket::BaseClient::BaseClient(std::string socket_path, const timespec& sleepTime)
+using namespace unixsocket;
+
+BaseClient::BaseClient(
+    std::string socket_path,
+    const duration_t& sleepTime,
+    BaseClient::IStoppableSleeperSharedPtr sleeper)
     : m_socketPath(std::move(socket_path)),
-      m_sleepTime(sleepTime)
-{}
+      m_sleepTime(sleepTime),
+      m_sleeper(std::move(sleeper))
+{
+    if (!m_sleeper)
+    {
+        m_sleeper = std::make_shared<IStoppableSleeper>();
+    }
+}
 
 int unixsocket::BaseClient::attemptConnect()
 {
@@ -51,7 +62,7 @@ void unixsocket::BaseClient::connectWithRetries(const std::string& socketName)
         }
 
         LOGDEBUG("Failed to connect to " << socketName << " - retrying after sleep");
-        nanosleep(&m_sleepTime, nullptr);
+        m_sleeper->stoppableSleep(m_sleepTime);
 
         m_connectStatus = attemptConnect();
     }

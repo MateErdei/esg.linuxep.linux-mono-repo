@@ -14,7 +14,7 @@
 
 unixsocket::SafeStoreClient::SafeStoreClient(
     std::string socket_path,
-    const struct timespec& sleepTime) :
+    const duration_t& sleepTime) :
     BaseClient(std::move(socket_path), sleepTime)
 {
     BaseClient::connectWithRetries("SafeStore");

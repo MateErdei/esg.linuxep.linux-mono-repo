@@ -17,7 +17,7 @@ namespace unixsocket
     class ThreatReporterClientSocket : unixsocket::BaseClient
     {
     public:
-        explicit ThreatReporterClientSocket(std::string  socket_path, const struct timespec& sleepTime={1,0});
+        explicit ThreatReporterClientSocket(std::string  socket_path, const duration_t& sleepTime=DEFAULT_SLEEP_TIME);
 
         void sendThreatDetection(const scan_messages::ThreatDetected& detection);
 

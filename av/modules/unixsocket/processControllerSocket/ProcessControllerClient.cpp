@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ProcessControllerClient.h"
 
@@ -20,7 +16,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/socket.h>
 #include <sys/un.h>
 
-unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::string socket_path, const struct timespec& sleepTime)
+unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::string socket_path, const duration_t& sleepTime)
         : BaseClient(std::move(socket_path), sleepTime)
 {
     connectWithRetries();

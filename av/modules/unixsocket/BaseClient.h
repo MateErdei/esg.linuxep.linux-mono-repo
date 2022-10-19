@@ -2,8 +2,11 @@
 
 #pragma once
 
+#include "IStoppableSleeper.h"
+
 #include "datatypes/AutoFd.h"
 
+#include <memory>
 #include <string>
 
 namespace unixsocket
@@ -11,9 +14,13 @@ namespace unixsocket
     class BaseClient
     {
     public:
+        using IStoppableSleeperSharedPtr = std::shared_ptr<IStoppableSleeper>;
+        using duration_t = IStoppableSleeper::duration_t;
+        static constexpr duration_t DEFAULT_SLEEP_TIME = std::chrono::seconds{1};
+
         BaseClient& operator=(const BaseClient&) = delete;
         BaseClient(const BaseClient&) = delete;
-        explicit BaseClient(std::string socket_path, const struct timespec& sleepTime={1,0});
+        explicit BaseClient(std::string socket_path, const duration_t& sleepTime=DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
         virtual ~BaseClient() = default;
 
     protected:
@@ -23,6 +30,8 @@ namespace unixsocket
         int m_connectStatus = -1;
         datatypes::AutoFd m_socket_fd;
         std::string m_socketPath;
-        const timespec &m_sleepTime;
+        const duration_t m_sleepTime;
+    private:
+        IStoppableSleeperSharedPtr m_sleeper;
     };
 }

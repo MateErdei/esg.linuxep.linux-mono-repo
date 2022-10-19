@@ -16,7 +16,7 @@
 #include <sys/un.h>
 #include <sstream>
 
-unixsocket::ThreatReporterClientSocket::ThreatReporterClientSocket(std::string socket_path, const struct timespec& sleepTime)
+unixsocket::ThreatReporterClientSocket::ThreatReporterClientSocket(std::string socket_path, const duration_t& sleepTime)
     : BaseClient(std::move(socket_path), sleepTime)
 {
     connectWithRetries("Threat reporter");

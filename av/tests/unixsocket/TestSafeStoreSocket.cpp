@@ -138,7 +138,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
 TEST_F(TestSafeStoreSocket, testClientSocketTriesToReconnect) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    unixsocket::SafeStoreClient client(m_socketPath, { 0, 0 });
+    unixsocket::SafeStoreClient client(m_socketPath, std::chrono::seconds{0});
 
     EXPECT_TRUE(appenderContains("Failed to connect to SafeStore - retrying after sleep", 9));
     EXPECT_TRUE(appenderContains("Reached total maximum number of connection attempts."));
