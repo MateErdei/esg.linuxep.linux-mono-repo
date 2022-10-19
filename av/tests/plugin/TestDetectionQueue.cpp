@@ -154,8 +154,8 @@ TEST_F(TestDetectionQueue, TestDetectionsQueuePopReturnsImmediately) // NOLINT
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     EXPECT_TRUE(result.get().has_value());
-    int duration = after.count() - before.count();
-    EXPECT_LE(duration, 5);
+    auto duration = after.count() - before.count();
+    EXPECT_LE(duration, 50);
 }
 
 TEST_F(TestDetectionQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped) // NOLINT
