@@ -15,7 +15,7 @@ namespace safestore
     class QuarantineManagerImpl : public IQuarantineManager
     {
     public:
-        explicit QuarantineManagerImpl(std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper);
+        explicit QuarantineManagerImpl(std::unique_ptr<ISafeStoreWrapper> safeStoreWrapper);
         void initialise() override;
         QuarantineManagerState getState() override;
         bool deleteDatabase() override;
@@ -30,7 +30,7 @@ namespace safestore
         void callOnDbError();
         void callOnDbSuccess();
         QuarantineManagerState m_state;
-        std::shared_ptr<ISafeStoreWrapper> m_safeStore;
+        std::unique_ptr<ISafeStoreWrapper> m_safeStore;
         std::mutex m_interfaceMutex;
 
         // When a database error is encountered we increment this counter by calling callOnDbError()

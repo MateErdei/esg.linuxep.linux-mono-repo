@@ -48,9 +48,9 @@ namespace safestore
         common::PidLockFile lock(Plugin::getSafeStorePidPath());
 
         // TODO make this unique doesn't need to be shared here.
-        std::shared_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper = std::make_shared<SafeStoreWrapperImpl>();
+        std::unique_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper = std::make_unique<SafeStoreWrapperImpl>();
         std::shared_ptr<safestore::IQuarantineManager> quarantineManager =
-            std::make_shared<QuarantineManagerImpl>(safeStoreWrapper);
+            std::make_shared<QuarantineManagerImpl>(std::move(safeStoreWrapper));
         quarantineManager->initialise();
 
         auto qmStateMonitor = std::make_shared<StateMonitor>(quarantineManager);

@@ -100,7 +100,7 @@ namespace safestore
         return std::nullopt;
     }
 
-    QuarantineManagerImpl::QuarantineManagerImpl(std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper) :
+    QuarantineManagerImpl::QuarantineManagerImpl(std::unique_ptr<ISafeStoreWrapper> safeStoreWrapper) :
         m_state(QuarantineManagerState::UNINITIALISED),
         m_safeStore(std::move(safeStoreWrapper)),
         m_dbErrorCountThreshold(Plugin::getPluginVarDirPath(), "safeStoreDbErrorThreshold", 10)
