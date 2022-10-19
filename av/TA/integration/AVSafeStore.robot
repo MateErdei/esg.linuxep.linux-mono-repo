@@ -39,8 +39,9 @@ SafeStore Database is Initialised
     File Should Exist    ${SAFESTORE_DB_PASSWORD_PATH}
 
 SafeStore Can Reinitialise Database Containing Threats
+    Mark AV Log
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    Safestore flag set. Setting Safestore to enabled.    timeout=60
+    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
     Wait Until Safestore Log Contains    Saved password OK
     Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
@@ -74,8 +75,9 @@ SafeStore Can Reinitialise Database Containing Threats
     Should Be Equal    ${filesInSafeStoreDb1}    ${filesInSafeStoreDb2}
 
 SafeStore Recovers From Corrupt Database
+    Mark AV Log
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    Safestore flag set. Setting Safestore to enabled.    timeout=60
+    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
     Wait Until Safestore Log Contains    Saved password OK
     Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
@@ -99,9 +101,7 @@ SafeStore Logs When It Recieves A File To Quarantine
     Mark AV Log
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset
-    ...   SafeStore flag set. Setting SafeStore to enabled.
-    ...   timeout=60
+    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
     Check avscanner can detect eicar
 
@@ -116,9 +116,7 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
     Mark AV Log
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset
-    ...   SafeStore flag set. Setting SafeStore to enabled.
-    ...   timeout=60
+    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
     Check avscanner can detect eicar
 
