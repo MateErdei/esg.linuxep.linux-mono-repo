@@ -202,15 +202,11 @@ void ThreatReporterServerConnectionThread::inner_run()
                 break;
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
-            detectionReader.setAutoFd(std::move(file_fd));
+            detectionReader.autoFd = std::move(file_fd);
 
-            if (!detectionReader.hasFilePath())
+            if (detectionReader.filePath.empty())
             {
                 LOGERROR("Missing file path in detection report ( size=" << bytes_read << ")");
-            }
-            else if (detectionReader.getFilePath() == "")
-            {
-                LOGERROR("Missing file path in detection report: empty file path");
             }
             m_threatReportCallback->processMessage(std::move(detectionReader));
             // TODO: HANDLE ANY SOCKET ERRORS

@@ -6,17 +6,16 @@
 
 #include "datatypes/AutoFd.h"
 
+#include "common/CentralEnums.h"
+
+#include <ctime>
 #include <string>
 
 #include <ThreatDetected.capnp.h>
 
 namespace scan_messages
 {
-    enum E_THREAT_TYPE: int
-    {
-        // SAV Linux always uses 1, but we might to add more threat types in the future
-        E_VIRUS_THREAT_TYPE = 1
-    };
+    // TODO LINUXDAR-5839: E_NOTIFCATION_STATUS and E_ACTION_CODE should be combined into a single enum to correspond with event-core-clean fields
 
     enum E_NOTIFCATION_STATUS: int
     {
@@ -47,13 +46,13 @@ namespace scan_messages
         E_SMT_THREAT_ACTION_BLOCKED = 116
     };
 
-    class ThreatDetected
+    struct ThreatDetected
     {
     public:
-        explicit ThreatDetected(
+        ThreatDetected(
             std::string userID,
-            std::int64_t detectionTime,
-            E_THREAT_TYPE threatType,
+            std::time_t detectionTime,
+            common::CentralEnums::ThreatType threatType,
             std::string threatName,
             E_SCAN_TYPE scanType,
             E_NOTIFCATION_STATUS notificationStatus,
@@ -61,54 +60,30 @@ namespace scan_messages
             E_ACTION_CODE actionCode,
             std::string sha256,
             std::string threatId,
+            bool isRemote,
+            common::CentralEnums::ReportSource reportSource,
             datatypes::AutoFd autoFd);
 
         explicit ThreatDetected(Sophos::ssplav::ThreatDetected::Reader& reader);
 
         bool operator==(const ThreatDetected& other) const;
 
-        void setUserID(const std::string& userID);
-        void setDetectionTime(const std::int64_t& detectionTime);
-        void setThreatType(E_THREAT_TYPE threatType);
-        void setThreatName(const std::string& threatName);
-        void setScanType(E_SCAN_TYPE scanType);
-        void setNotificationStatus(E_NOTIFCATION_STATUS notificationStatus);
-        void setFilePath(const std::string& filePath);
-        void setActionCode(E_ACTION_CODE actionCode);
-        void setSha256(const std::string& sha256);
-        void setThreatId(const std::string& threatId);
-        void setAutoFd(datatypes::AutoFd&& autoFd);
-
         [[nodiscard]] std::string serialise() const;
 
-        [[nodiscard]] std::string getFilePath() const;
-        [[nodiscard]] std::string getThreatName() const;
-        [[nodiscard]] bool hasFilePath() const;
-        [[nodiscard]] std::int64_t getDetectionTime() const;
-        [[nodiscard]] std::string getUserID() const;
-        [[nodiscard]] E_SCAN_TYPE getScanType() const;
-        [[nodiscard]] E_NOTIFCATION_STATUS getNotificationStatus() const;
-        [[nodiscard]] E_THREAT_TYPE getThreatType() const;
-        [[nodiscard]] E_ACTION_CODE getActionCode() const;
-        [[nodiscard]] std::string getSha256() const;
-        [[nodiscard]] std::string getThreatId() const;
-
-        [[nodiscard]] int getFd() const; // does not transfer ownership of fd, use moveAutoFd if that's needed
-        [[nodiscard]] datatypes::AutoFd moveAutoFd();
-
-    protected:
-        std::string m_userID;
-        std::int64_t m_detectionTime;
-        E_THREAT_TYPE m_threatType;
-        std::string m_threatName;
-        E_SCAN_TYPE m_scanType;
-        E_NOTIFCATION_STATUS m_notificationStatus;
-        std::string m_filePath;
-        E_ACTION_CODE m_actionCode;
-        std::string m_sha256;
-        std::string m_threatId;
+        std::string userID;
+        std::time_t detectionTime;
+        common::CentralEnums::ThreatType threatType;
+        std::string threatName;
+        E_SCAN_TYPE scanType;
+        E_NOTIFCATION_STATUS notificationStatus;
+        std::string filePath;
+        E_ACTION_CODE actionCode;
+        std::string sha256;
+        std::string threatId;
+        bool isRemote;
+        common::CentralEnums::ReportSource reportSource;
 
         // Not serialised, sent over socket using send_fd
-        datatypes::AutoFd m_autoFd;
+        datatypes::AutoFd autoFd;
     };
 } // namespace scan_messages

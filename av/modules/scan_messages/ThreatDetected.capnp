@@ -22,6 +22,8 @@ struct ThreatDetected {
     actionCode                      @7  :Int64;
     sha256                          @8  :Text;
     threatId                        @9  :Text;
+    isRemote                        @10 :Bool;
+    reportSource                    @11 :Int64;
 }
 
 

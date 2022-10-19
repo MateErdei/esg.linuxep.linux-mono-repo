@@ -16,6 +16,8 @@
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
+using namespace common::CentralEnums;
+
 namespace
 {
     class MessageCallbacks : public IMessageCallback
@@ -88,7 +90,7 @@ static int writeSampleFile(std::string filename)
     scan_messages::ThreatDetected threatDetected(
         userID,
         detectionTimeStamp,
-        scan_messages::E_VIRUS_THREAT_TYPE,
+        ThreatType::virus,
         threatName,
         scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN,
         scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -96,6 +98,8 @@ static int writeSampleFile(std::string filename)
         scan_messages::E_SMT_THREAT_ACTION_SHRED,
         sha256,
         threatId,
+        false,
+        ReportSource::ml,
         datatypes::AutoFd(::open("/dev/null", O_RDONLY)));
 
     std::string request_str = threatDetected.serialise();

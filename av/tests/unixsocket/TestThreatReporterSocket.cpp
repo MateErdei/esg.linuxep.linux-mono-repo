@@ -16,6 +16,7 @@
 using namespace scan_messages;
 using namespace testing;
 namespace fs = sophos_filesystem;
+using namespace common::CentralEnums;
 
 namespace
 {
@@ -77,7 +78,7 @@ TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
         scan_messages::ThreatDetected threatDetected(
             m_userID,
             detectionTimeStamp,
-            E_VIRUS_THREAT_TYPE,
+            ThreatType::virus,
             m_threatName,
             E_SCAN_TYPE_ON_ACCESS_OPEN,
             E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -85,6 +86,8 @@ TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
             E_SMT_THREAT_ACTION_SHRED,
             m_sha256,
             m_threatId,
+            false,
+            ReportSource::ml,
             datatypes::AutoFd(open("/dev/zero", O_RDONLY)));
 
         threatReporterSocket.sendThreatDetection(threatDetected);
@@ -123,7 +126,7 @@ TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
     scan_messages::ThreatDetected threatDetected(
         m_userID,
         detectionTimeStamp,
-        E_VIRUS_THREAT_TYPE,
+        ThreatType::virus,
         m_threatName,
         E_SCAN_TYPE_ON_ACCESS_OPEN,
         E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -131,6 +134,8 @@ TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
         E_SMT_THREAT_ACTION_SHRED,
         m_sha256,
         m_threatId,
+        false,
+        ReportSource::ml,
         datatypes::AutoFd(open("/dev/zero", O_RDONLY)));
 
     threatReporterSocket.sendThreatDetection(threatDetected);

@@ -9,6 +9,8 @@
 #include <future>
 #include <thread>
 
+using namespace common::CentralEnums;
+
 class TestDetectionQueue : public LogOffInitializedTests
 {
 };
@@ -18,7 +20,7 @@ scan_messages::ThreatDetected basicDetection()
     scan_messages::ThreatDetected basicDetection(
         "root",
         1,
-        scan_messages::E_VIRUS_THREAT_TYPE,
+        ThreatType::virus,
         "threatName",
         scan_messages::E_SCAN_TYPE_UNKNOWN,
         scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
@@ -26,6 +28,8 @@ scan_messages::ThreatDetected basicDetection()
         scan_messages::E_SMT_THREAT_ACTION_UNKNOWN,
         "sha256",
         "threatId",
+        false,
+        ReportSource::ml,
         datatypes::AutoFd());
     return basicDetection;
 }

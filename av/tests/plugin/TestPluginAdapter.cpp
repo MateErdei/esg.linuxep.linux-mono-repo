@@ -1,12 +1,12 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
+#define PLUGIN_INTERNAL public
+
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "pluginimpl/Logger.h"
 #include "pluginimpl/PluginAdapter.h"
-
-#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -14,6 +14,7 @@
 #include <Common/Helpers/MockApiBaseServices.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
@@ -702,29 +703,9 @@ TEST_F(TestPluginAdapter, testProcessThreatReport)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    std::string threatDetectedXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-                     <notification xmlns="http://www.sophos.com/EE/Event"
-                               description="Virus/spyware eicar has been detected in path/to/threat"
-                               type="sophos.mgt.msg.event.threat"
-                               timestamp="123">
+    std::string threatDetectedXML = "may be xml data";
 
-                     <user userId="User"
-                               domain="local"/>
-                     <threat  type="1"
-                               name="eicar"
-                               scanType="201"
-                               status="50"
-                               id="1"
-                               idSource="1">
-
-                               <item file="threat"
-                                      path="path/to/threat"/>
-                               <action action="104"/>
-                     </threat>
-                     </notification>
-            )sophos";
-
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
+    EXPECT_CALL(*mockBaseServicePtr, sendEvent("CORE", threatDetectedXML));
 
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     pluginAdapter.processThreatReport(threatDetectedXML);
@@ -791,7 +772,7 @@ void SubscriberThread::run()
     }
 }
 
-TEST_F(TestPluginAdapter, testPublishThreatReport)
+TEST_F(TestPluginAdapter, testPublishThreatEvent)
 {
     auto subscriberContext = Common::ZMQWrapperApi::createContext();
     SubscriberThread thread(*subscriberContext, m_threatEventPublisherSocketPath);
@@ -822,66 +803,37 @@ TEST_F(TestPluginAdapter, testPublishThreatReport)
     EXPECT_EQ(data.at(1), threatDetectedJSON);
 }
 
-TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatCount)
-{
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-    std::string threatDetectedXML = R"sophos(
-<notification>
-  <threat name="Very bad file">
-  </threat>
-</notification>
-            )sophos";
-
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
-
-    Common::Telemetry::TelemetryHelper::getInstance().reset();
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    pluginAdapter.processThreatReport(threatDetectedXML);
-    m_taskQueue->pushStop();
-
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
-    pluginAdapter.mainLoop();
-
-    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
-    auto telemetry = nlohmann::json::parse(telemetryResult);
-    EXPECT_EQ(telemetry["threat-count"], 1);
-}
-
-TEST_F(TestPluginAdapter, testProcessThreatReportIncrementsThreatEicarCount)
+TEST_F(TestPluginAdapter, testPublishThreatHealth)
 {
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    std::string threatDetectedXML = R"sophos(
-<notification>
-  <threat name="EICAR-AV-Test">
-  </threat>
-</notification>
-            )sophos";
-
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
-
-    Common::Telemetry::TelemetryHelper::getInstance().reset();
-
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    pluginAdapter.processThreatReport(threatDetectedXML);
-    m_taskQueue->pushStop();
 
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).Times(1);
+    pluginAdapter.publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
 
-    pluginAdapter.mainLoop();
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":2})")).Times(1);
+    pluginAdapter.publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+}
 
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountIncrementsThreatCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file");
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["threat-count"], 1);
+}
 
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountIncrementsThreatEicarCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test");
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     auto telemetry = nlohmann::json::parse(telemetryResult);
     EXPECT_EQ(telemetry["threat-eicar-count"], 1);
 }

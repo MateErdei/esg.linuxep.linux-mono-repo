@@ -14,6 +14,7 @@
 #include <fcntl.h>
 
 using namespace ::testing;
+using namespace common::CentralEnums;
 
 namespace
 {
@@ -59,7 +60,7 @@ TEST_F(TestThreatReporter, testReport) // NOLINT
     scan_messages::ThreatDetected threatDetected(
         "root",
         1,
-        scan_messages::E_VIRUS_THREAT_TYPE,
+        ThreatType::virus,
         "threatName",
         scan_messages::E_SCAN_TYPE_UNKNOWN,
         scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
@@ -67,6 +68,8 @@ TEST_F(TestThreatReporter, testReport) // NOLINT
         scan_messages::E_SMT_THREAT_ACTION_UNKNOWN,
         "sha256",
         "threatId",
+        false,
+        ReportSource::ml,
         datatypes::AutoFd(open("/dev/zero", O_RDONLY)));
 
     reporterClient.sendThreatReport(threatDetected);

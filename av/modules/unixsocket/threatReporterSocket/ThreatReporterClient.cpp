@@ -26,7 +26,7 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
 {
     assert(m_socket_fd >= 0);
     std::string dataAsString = detection.serialise();
-    int fd = detection.getFd();
+    int fd = detection.autoFd.get();
 
     try
     {

@@ -7,6 +7,7 @@
 #include <fcntl.h>
 
 using namespace scan_messages;
+using namespace common::CentralEnums;
 
 int main()
 {
@@ -23,7 +24,7 @@ int main()
     scan_messages::ThreatDetected threatDetected(
         userID,
         detectionTimeStamp,
-        E_VIRUS_THREAT_TYPE,
+        ThreatType::virus,
         threatName,
         E_SCAN_TYPE_ON_ACCESS_OPEN,
         E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -31,6 +32,8 @@ int main()
         E_SMT_THREAT_ACTION_SHRED,
         sha256,
         threatId,
+        false,
+        ReportSource::ml,
         datatypes::AutoFd(::open("/dev/null", O_RDONLY)));
 
     socket.sendThreatDetection(threatDetected);

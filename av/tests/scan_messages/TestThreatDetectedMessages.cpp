@@ -11,6 +11,7 @@
 #include <ctime>
 
 using namespace scan_messages;
+using namespace common::CentralEnums;
 
 class TestThreatDetectedMessages : public ::testing::Test
 {
@@ -19,7 +20,7 @@ public:
         m_threatDetected(
             m_userID,
             m_testTimeStamp,
-            E_VIRUS_THREAT_TYPE,
+            ThreatType::virus,
             m_threatName,
             E_SCAN_TYPE_ON_ACCESS_OPEN,
             E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -27,6 +28,8 @@ public:
             E_SMT_THREAT_ACTION_SHRED,
             m_sha256,
             m_threatId,
+            true,
+            ReportSource::ml,
             datatypes::AutoFd())
     {
     }
@@ -54,21 +57,13 @@ TEST_F(TestThreatDetectedMessages, CreateThreatDetected)
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
             messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
-    EXPECT_EQ(deSerialisedData.getUserID(), m_userID);
-    EXPECT_EQ(deSerialisedData.getDetectionTime(), m_testTimeStamp);
-    EXPECT_EQ(deSerialisedData.getThreatType(), E_VIRUS_THREAT_TYPE);
-    EXPECT_EQ(deSerialisedData.getThreatName(), m_threatName);
-    EXPECT_EQ(deSerialisedData.getScanType(), E_SCAN_TYPE_ON_ACCESS_OPEN);
-    EXPECT_EQ(deSerialisedData.getNotificationStatus(), E_NOTIFICATION_STATUS_CLEANED_UP);
-    EXPECT_EQ(deSerialisedData.getFilePath(), m_filePath);
-    EXPECT_EQ(deSerialisedData.getActionCode(), E_SMT_THREAT_ACTION_SHRED);
-    EXPECT_EQ(deSerialisedData.getSha256(), m_sha256);
-    EXPECT_EQ(deSerialisedData.getThreatId(), m_threatId);
+    ThreatDetected deserialisedThreatDetected(deSerialisedData);
+    EXPECT_EQ(deserialisedThreatDetected, m_threatDetected);
 }
 
 TEST_F(TestThreatDetectedMessages, CreateThreatDetected_emptyThreatName)
 {
-    m_threatDetected.setThreatName("");
+    m_threatDetected.threatName = "";
     std::string dataAsString = m_threatDetected.serialise();
 
     const kj::ArrayPtr<const capnp::word> view(
@@ -79,14 +74,6 @@ TEST_F(TestThreatDetectedMessages, CreateThreatDetected_emptyThreatName)
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
         messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
-    EXPECT_EQ(deSerialisedData.getUserID(), m_userID);
-    EXPECT_EQ(deSerialisedData.getDetectionTime(), m_testTimeStamp);
-    EXPECT_EQ(deSerialisedData.getThreatType(), E_VIRUS_THREAT_TYPE);
-    EXPECT_EQ(deSerialisedData.getThreatName(), "");
-    EXPECT_EQ(deSerialisedData.getScanType(), E_SCAN_TYPE_ON_ACCESS_OPEN);
-    EXPECT_EQ(deSerialisedData.getNotificationStatus(), E_NOTIFICATION_STATUS_CLEANED_UP);
-    EXPECT_EQ(deSerialisedData.getFilePath(), m_filePath);
-    EXPECT_EQ(deSerialisedData.getActionCode(), E_SMT_THREAT_ACTION_SHRED);
-    EXPECT_EQ(deSerialisedData.getSha256(), m_sha256);
-    EXPECT_EQ(deSerialisedData.getThreatId(), m_threatId);
+    ThreatDetected deserialisedThreatDetected(deSerialisedData);
+    EXPECT_EQ(deserialisedThreatDetected, m_threatDetected);
 }

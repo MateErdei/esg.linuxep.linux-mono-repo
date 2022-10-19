@@ -11,6 +11,7 @@
 
 using namespace pluginimpl;
 using namespace scan_messages;
+using namespace common::CentralEnums;
 
 namespace
 {
@@ -21,31 +22,31 @@ namespace
         std::string threatId = "Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350";
 
         std::string m_englishsXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
-<notification description="Found 'eicar' in 'path/to/threat'" timestamp="19700101 000203" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
-  <user domain="local" userId="User"/>
-  <threat id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" idSource="Tsha256(path,name)" name="eicar" scanType="201" status="50" type="1">
-    <item file="threat" path="path/to/"/>
-    <action action="104"/>
-  </threat>
-</notification>)sophos";
+<event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
+  <user userId="User"/>
+  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" name="eicar" threatType="1" origin="0" remote="false">
+    <sha256>590165d5fd84b3302e239c260867a2310af2bc3b519b5c9c68ab2515c9bad15b</sha256>
+    <path>path/to/threat</path>
+  </alert>
+</event>)sophos";
 
         std::string m_umlatsXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
-<notification description="Found 'Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ' in '/πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·'" timestamp="19700101 000203" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
-  <user domain="local" userId="πολλῶν δ’ ἀνθρώπων ἴδεν ἄστεα καὶ νόον ἔγνω,, German umlats: Ä Ö Ü ß"/>
-  <threat id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" idSource="Tsha256(path,name)" name="Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ" scanType="201" status="50" type="1">
-    <item file="πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·" path="/"/>
-    <action action="104"/>
-  </threat>
-</notification>)sophos";
+<event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
+  <user userId="πολλῶν δ’ ἀνθρώπων ἴδεν ἄστεα καὶ νόον ἔγνω,, German umlats: Ä Ö Ü ß"/>
+  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" name="Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ" threatType="1" origin="0" remote="false">
+    <sha256>590165d5fd84b3302e239c260867a2310af2bc3b519b5c9c68ab2515c9bad15b</sha256>
+    <path>/πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·</path>
+  </alert>
+</event>)sophos";
 
         std::string m_japaneseXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
-<notification description="Found 'ありったけの夢をかき集め' in '/捜し物を探しに行くのさ ONE PIECE'" timestamp="19700101 000203" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
-  <user domain="local" userId="羅針盤なんて 渋滞のもと"/>
-  <threat id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" idSource="Tsha256(path,name)" name="ありったけの夢をかき集め" scanType="201" status="50" type="1">
-    <item file="捜し物を探しに行くのさ ONE PIECE" path="/"/>
-    <action action="104"/>
-  </threat>
-</notification>)sophos";
+<event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
+  <user userId="羅針盤なんて 渋滞のもと"/>
+  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" name="ありったけの夢をかき集め" threatType="1" origin="0" remote="false">
+    <sha256>590165d5fd84b3302e239c260867a2310af2bc3b519b5c9c68ab2515c9bad15b</sha256>
+    <path>/捜し物を探しに行くのさ ONE PIECE</path>
+  </alert>
+</event>)sophos";
     };
     std::time_t m_detectionTimeStamp = 123;
 }
@@ -59,7 +60,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXml)
     scan_messages::ThreatDetected threatDetected(
         userID,
         m_detectionTimeStamp,
-        E_VIRUS_THREAT_TYPE,
+        ThreatType::virus,
         threatName,
         E_SCAN_TYPE_ON_ACCESS,
         E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -67,6 +68,8 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXml)
         E_SMT_THREAT_ACTION_SHRED,
         sha256,
         threatId,
+        false,
+        ReportSource::ml,
         datatypes::AutoFd());
 
     std::string dataAsString = threatDetected.serialise();
@@ -95,7 +98,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats)
     scan_messages::ThreatDetected threatDetected(
         userID,
         m_detectionTimeStamp,
-        E_VIRUS_THREAT_TYPE,
+        ThreatType::virus,
         threatName,
         E_SCAN_TYPE_ON_ACCESS,
         E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -103,6 +106,8 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats)
         E_SMT_THREAT_ACTION_SHRED,
         sha256,
         threatId,
+        false,
+        ReportSource::ml,
         datatypes::AutoFd());
 
     std::string dataAsString = threatDetected.serialise();
@@ -130,7 +135,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters)
     scan_messages::ThreatDetected threatDetected(
         userID,
         m_detectionTimeStamp,
-        E_VIRUS_THREAT_TYPE,
+        ThreatType::virus,
         threatName,
         E_SCAN_TYPE_ON_ACCESS,
         E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -138,6 +143,8 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters)
         E_SMT_THREAT_ACTION_SHRED,
         sha256,
         threatId,
+        false,
+        ReportSource::ml,
         datatypes::AutoFd());
 
     std::string dataAsString = threatDetected.serialise();
@@ -161,13 +168,12 @@ static scan_messages::ThreatDetected createEvent(
     const std::string& threatPath = "",
     const std::string& userID = "",
     const std::string& sha256 = "",
-    const std::string& threatId = ""
-    )
+    const std::string& threatId = "")
 {
     scan_messages::ThreatDetected threatDetected(
         userID,
         m_detectionTimeStamp,
-        E_VIRUS_THREAT_TYPE,
+        ThreatType::virus,
         threatName,
         E_SCAN_TYPE_ON_ACCESS,
         E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -175,6 +181,8 @@ static scan_messages::ThreatDetected createEvent(
         E_SMT_THREAT_ACTION_SHRED,
         sha256,
         threatId,
+        false,
+        ReportSource::ml,
         datatypes::AutoFd());
 
     std::string dataAsString = threatDetected.serialise();
@@ -196,13 +204,13 @@ TEST_F(TestStringUtils, TestEmptyPathXML)
     std::string result = generateThreatDetectedXml(threatDetectedMessage);
 
     static const std::string expectedXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
-<notification description="Found '' in ''" timestamp="19700101 000203" type="sophos.mgt.msg.event.threat" xmlns="http://www.sophos.com/EE/Event">
-  <user domain="local" userId=""/>
-  <threat id="" idSource="Tsha256(path,name)" name="" scanType="201" status="50" type="1">
-    <item file="" path=""/>
-    <action action="104"/>
-  </threat>
-</notification>)sophos";
+<event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
+  <user userId=""/>
+  <alert id="" name="" threatType="1" origin="0" remote="false">
+    <sha256></sha256>
+    <path></path>
+  </alert>
+</event>)sophos";
 
     EXPECT_EQ(result, expectedXML);
 }
@@ -215,7 +223,7 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON)
     scan_messages::ThreatDetected threatDetected(
         userID,
         m_detectionTimeStamp,
-        E_VIRUS_THREAT_TYPE,
+        ThreatType::virus,
         threatName,
         E_SCAN_TYPE_ON_ACCESS_OPEN,
         E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -223,6 +231,8 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON)
         E_SMT_THREAT_ACTION_SHRED,
         "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def",
         threatId,
+        false,
+        ReportSource::ml,
         datatypes::AutoFd());
 
     std::string dataAsString = threatDetected.serialise();
@@ -250,7 +260,7 @@ TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
     scan_messages::ThreatDetected threatDetected(
         userID,
         m_detectionTimeStamp,
-        E_VIRUS_THREAT_TYPE,
+        ThreatType::virus,
         "",
         E_SCAN_TYPE_ON_ACCESS_OPEN,
         E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -258,6 +268,8 @@ TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
         E_SMT_THREAT_ACTION_SHRED,
         "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def",
         threatId,
+        false,
+        ReportSource::ml,
         datatypes::AutoFd());
 
     std::string dataAsString = threatDetected.serialise();

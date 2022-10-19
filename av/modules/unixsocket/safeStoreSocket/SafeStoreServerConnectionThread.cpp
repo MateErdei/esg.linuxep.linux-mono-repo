@@ -196,29 +196,25 @@ void SafeStoreServerConnectionThread::inner_run()
                 break;
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
-            threatDetected.setAutoFd(std::move(file_fd));
+            threatDetected.autoFd = std::move(file_fd);
 
-            if (!threatDetected.hasFilePath())
+            if (threatDetected.filePath.empty())
             {
                 LOGERROR("Missing file path in detection report ( size=" << bytes_read << ")");
-            }
-            else if (threatDetected.getFilePath() == "")
-            {
-                LOGERROR("Missing file path in detection report: empty file path");
             }
 
             LOGINFO(
                 "Received Threat:\n  File path: "
-                << threatDetected.getFilePath() << "\n  Threat ID: " << threatDetected.getThreatId()
-                << "\n  Threat name: " << threatDetected.getThreatName() << "\n  SHA256: " << threatDetected.getSha256()
-                << "\n  File descriptor: " << threatDetected.getFd());
+                << threatDetected.filePath << "\n  Threat ID: " << threatDetected.threatId
+                << "\n  Threat name: " << threatDetected.threatName << "\n  SHA256: " << threatDetected.sha256
+                << "\n  File descriptor: " << threatDetected.autoFd.get());
 
             bool isQuarantineSuccessful = m_quarantineManager->quarantineFile(
-                threatDetected.getFilePath(),
-                threatDetected.getThreatId(),
-                threatDetected.getThreatName(),
-                threatDetected.getSha256(),
-                threatDetected.moveAutoFd());
+                threatDetected.filePath,
+                threatDetected.threatId,
+                threatDetected.threatName,
+                threatDetected.sha256,
+                std::move(threatDetected.autoFd));
 
             std::ignore = isQuarantineSuccessful;
 

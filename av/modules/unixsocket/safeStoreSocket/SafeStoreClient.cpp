@@ -26,7 +26,7 @@ void unixsocket::SafeStoreClient::sendQuarantineRequest(const scan_messages::Thr
     LOGDEBUG("Sending quarantine request for file: " << detection.getFilePath());
     assert(m_socket_fd.valid());
     std::string dataAsString = detection.serialise();
-    auto fd = detection.getFd();
+    auto fd = detection.autoFd.get();
 
     try
     {

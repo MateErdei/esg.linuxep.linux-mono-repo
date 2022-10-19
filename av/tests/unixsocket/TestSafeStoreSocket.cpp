@@ -16,6 +16,7 @@
 using namespace testing;
 using namespace scan_messages;
 namespace fs = sophos_filesystem;
+using namespace common::CentralEnums;
 
 namespace
 {
@@ -42,10 +43,10 @@ namespace
         {
             std::time_t detectionTimeStamp = std::time(nullptr);
 
-            return scan_messages::ThreatDetected(
+            return {
                 m_userID,
                 detectionTimeStamp,
-                E_VIRUS_THREAT_TYPE,
+                ThreatType::virus,
                 m_threatName,
                 E_SCAN_TYPE_ON_ACCESS_OPEN,
                 E_NOTIFICATION_STATUS_CLEANED_UP,
@@ -53,7 +54,9 @@ namespace
                 E_SMT_THREAT_ACTION_SHRED,
                 m_sha256,
                 m_threatId,
-                datatypes::AutoFd(open("/dev/zero", O_RDONLY)));
+                false,
+                ReportSource::ml,
+                datatypes::AutoFd(open("/dev/zero", O_RDONLY))};
         }
 
         std::string m_socketPath;

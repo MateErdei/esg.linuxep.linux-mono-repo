@@ -22,20 +22,11 @@
 using namespace scan_messages;
 using namespace threat_scanner;
 using json = nlohmann::json;
+using namespace common::CentralEnums;
 
 static std::string create_scanner_config(const std::string& scannerInfo)
 {
     return "{"+scannerInfo+"}";
-}
-
-namespace
-{
-    // TODO LINUXDAR-5793: Implement correct method of generating threatId
-    std::string generateThreatId(const std::string& filePath, const std::string& threatName)
-    {
-        std::string threatId = "T" + common::sha256_hash(filePath + threatName);
-        return threatId.substr(0, 16);
-    }
 }
 
 SusiScanner::SusiScanner(
@@ -304,14 +295,16 @@ SusiScanner::scan(
         scan_messages::ThreatDetected threatDetected = ThreatDetected(
             userID,
             std::time(nullptr),
-            scan_messages::E_VIRUS_THREAT_TYPE, // For now this is always 1 (Virus)
+            ThreatType::virus, // TODO LINUXDAR-5792: Set depending on SUSI report
             threatName,
             centralScanType,
             scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
             filePath,
             scan_messages::E_SMT_THREAT_ACTION_NONE,
             sha256,
-            generateThreatId(filePath, threatName),
+            "T" + common::sha256_hash(filePath + threatName),
+            false, // AV plugin will set this to correct value
+            ReportSource::ml, // TODO LINUXDAR-5792: Set depending on SUSI report
             std::move(fd));
 
         assert(m_threatReporter);

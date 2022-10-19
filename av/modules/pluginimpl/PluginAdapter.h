@@ -61,6 +61,7 @@ namespace Plugin
 
     PLUGIN_INTERNAL:
         void publishThreatHealth(E_HEALTH_STATUS threatStatus) const;
+        static void incrementTelemetryThreatCount(const std::string &threatName);
     private:
         /**
          *
@@ -73,7 +74,6 @@ namespace Plugin
         void startThreads();
         void innerLoop();
         void processSUSIRestartRequest();
-        static void incrementTelemetryThreatCount(const std::string &threatName);
         void setResetThreatDetector(bool reset) { m_restartSophosThreatDetector = reset || m_restartSophosThreatDetector; }
 
         PolicyProcessor m_policyProcessor;
