@@ -83,7 +83,8 @@ TEST_F(SafeStoreWrapperTests, convertObjStatusToSafeStoreObjStatus)
     ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::QUARANTINED), SOS_QUARANTINED);
     ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::RESTORED), SOS_RESTORED);
     ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::RESTORED_AS), SOS_RESTORED_AS);
-    ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::RESTORE_FAILED), SOS_RESTORE_FAILED);
+    ASSERT_EQ(
+        safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::RESTORE_FAILED), SOS_RESTORE_FAILED);
     ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::UNDEFINED), SOS_UNDEFINED);
     ASSERT_EQ(safestore::convertObjStatusToSafeStoreObjStatus(safestore::ObjectStatus::LAST), SOS_LAST);
 }
@@ -100,9 +101,13 @@ TEST_F(SafeStoreWrapperTests, convertObjTypeToSafeStoreObjType)
 
 TEST_F(SafeStoreWrapperTests, convertToSafeStoreConfigId)
 {
-    ASSERT_EQ(safestore::convertToSafeStoreConfigId(safestore::ConfigOption::MAX_STORED_OBJECT_COUNT), SC_MAX_STORED_OBJECT_COUNT);
-    ASSERT_EQ(safestore::convertToSafeStoreConfigId(safestore::ConfigOption::MAX_SAFESTORE_SIZE), SC_MAX_SAFESTORE_SIZE);
-    ASSERT_EQ(safestore::convertToSafeStoreConfigId(safestore::ConfigOption::MAX_REG_OBJECT_COUNT), SC_MAX_REG_OBJECT_COUNT);
+    ASSERT_EQ(
+        safestore::convertToSafeStoreConfigId(safestore::ConfigOption::MAX_STORED_OBJECT_COUNT),
+        SC_MAX_STORED_OBJECT_COUNT);
+    ASSERT_EQ(
+        safestore::convertToSafeStoreConfigId(safestore::ConfigOption::MAX_SAFESTORE_SIZE), SC_MAX_SAFESTORE_SIZE);
+    ASSERT_EQ(
+        safestore::convertToSafeStoreConfigId(safestore::ConfigOption::MAX_REG_OBJECT_COUNT), SC_MAX_REG_OBJECT_COUNT);
     ASSERT_EQ(safestore::convertToSafeStoreConfigId(safestore::ConfigOption::MAX_OBJECT_SIZE), SC_MAX_OBJECT_SIZE);
     ASSERT_EQ(safestore::convertToSafeStoreConfigId(safestore::ConfigOption::AUTO_PURGE), SC_AUTO_PURGE);
 }

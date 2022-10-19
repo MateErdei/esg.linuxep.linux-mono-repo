@@ -2,13 +2,14 @@
 include(GoogleTest)
 
 SophosAddTest(TestSafeStore
+        ../common/LogInitializedTests.cpp # include here as it's not part of a lib
         MockISafeStoreWrapper.h
         TestQuarantineManager.cpp
         TestSafeStoreWrapper.cpp
-        ../common/LogInitializedTests.cpp # include here as it's not part of a lib
+        TestStateMonitor.cpp
         PROJECTS safestoreimpl common
-        INC_DIRS ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules
-        LIBS pthread ${log4cpluslib} ${testhelperslib}
+        INC_DIRS ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${testhelpersinclude}
+        LIBS pthread ${log4cpluslib} ${testhelperslib} ${pluginapilb}
         )
 
 SET_TARGET_PROPERTIES(TestSafeStore
