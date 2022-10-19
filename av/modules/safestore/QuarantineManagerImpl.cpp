@@ -113,6 +113,56 @@ namespace safestore
         return m_state;
     }
 
+    void QuarantineManagerImpl::initialise()
+    {
+        std::lock_guard<std::mutex> lock(m_interfaceMutex);
+        if (m_state == QuarantineManagerState::INITIALISED)
+        {
+            LOGDEBUG("Quarantine Manager already initialised, not initialising again");
+            return;
+        }
+
+        LOGDEBUG("Initialising Quarantine Manager");
+        auto dbDir = Plugin::getSafeStoreDbDirPath();
+        auto dbname = Plugin::getSafeStoreDbFileName();
+        auto pw = loadPassword();
+        if (!pw.has_value())
+        {
+            pw = generatePassword();
+            if (!pw->empty() && savePassword(pw.value()))
+            {
+                LOGDEBUG("Saved password OK");
+            }
+            else
+            {
+                LOGERROR("Failed to store Quarantine Manager password");
+                m_state = QuarantineManagerState::UNINITIALISED;
+                return;
+            }
+        }
+
+        auto initResult = m_safeStore->initialise(dbDir, dbname, pw.value());
+
+        if (initResult == InitReturnCode::OK)
+        {
+            m_state = QuarantineManagerState::INITIALISED;
+            m_databaseErrorCount = 0;
+            LOGINFO("Quarantine Manager initialised OK");
+        }
+        else
+        {
+            LOGERROR("Quarantine Manager failed to initialise");
+            if (initResult == InitReturnCode::DB_ERROR || initResult == InitReturnCode::DB_OPEN_FAILED)
+            {
+                callOnDbError();
+            }
+            else
+            {
+                m_state = QuarantineManagerState::UNINITIALISED;
+            }
+        }
+    }
+
     bool QuarantineManagerImpl::quarantineFile(
         const std::string& filePath,
         const std::string& threatId,
@@ -176,56 +226,6 @@ namespace safestore
         }
 
         return false;
-    }
-
-    void QuarantineManagerImpl::initialise()
-    {
-        std::lock_guard<std::mutex> lock(m_interfaceMutex);
-        if (m_state == QuarantineManagerState::INITIALISED)
-        {
-            LOGDEBUG("Quarantine Manager already initialised, not initialising again");
-            return;
-        }
-
-        LOGDEBUG("Initialising Quarantine Manager");
-        auto dbDir = Plugin::getSafeStoreDbDirPath();
-        auto dbname = Plugin::getSafeStoreDbFileName();
-        auto pw = loadPassword();
-        if (!pw.has_value())
-        {
-            pw = generatePassword();
-            if (!pw->empty() && savePassword(pw.value()))
-            {
-                LOGDEBUG("Saved password OK");
-            }
-            else
-            {
-                LOGERROR("Failed to store Quarantine Manager password");
-                m_state = QuarantineManagerState::UNINITIALISED;
-                return;
-            }
-        }
-
-        auto initResult = m_safeStore->initialise(dbDir, dbname, pw.value());
-
-        if (initResult == InitReturnCode::OK)
-        {
-            m_state = QuarantineManagerState::INITIALISED;
-            m_databaseErrorCount = 0;
-            LOGINFO("Quarantine Manager initialised OK");
-        }
-        else
-        {
-            LOGERROR("Quarantine Manager failed to initialise");
-            if (initResult == InitReturnCode::DB_ERROR || initResult == InitReturnCode::DB_OPEN_FAILED)
-            {
-                callOnDbError();
-            }
-            else
-            {
-                m_state = QuarantineManagerState::UNINITIALISED;
-            }
-        }
     }
 
     bool QuarantineManagerImpl::deleteDatabase()
