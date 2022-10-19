@@ -138,7 +138,7 @@ namespace safestore
         std::string directory = Common::FileSystem::dirName(filePath);
         std::string filename = Common::FileSystem::basename(filePath);
 
-        std::shared_ptr<ObjectHandleHolder> objectHandle = std::make_shared<ObjectHandleHolder>(*m_safeStore);
+        auto objectHandle = m_safeStore->createObjectHandleHolder();
         auto saveResult = m_safeStore->saveFile(directory, filename, threatId, threatName, *objectHandle);
         if (saveResult == SaveFileReturnCode::OK)
         {

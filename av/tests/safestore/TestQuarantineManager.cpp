@@ -135,6 +135,8 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     EXPECT_CALL(*mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "a password"))
         .WillOnce(Return(safestore::InitReturnCode::OK));
 
+    EXPECT_CALL(*mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::make_unique<safestore::ObjectHandleHolder>(*mockSafeStoreWrapper))));
+
     // TODO - fix - can't pass this in to the expect call because it can't be copy constructed?
     //    safestore::ObjectHandleHolder objectHandle(*mockSafeStoreWrapper);
     EXPECT_CALL(*mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, _))
@@ -175,9 +177,14 @@ TEST_F(QuarantineManagerTests, quartineFileFailsAndDbIsMarkedCorrupt)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    for (int i = 0; i < 11; ++i)
-        ASSERT_FALSE(
-            quarantineManager->quarantineFile(m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+    for (int i = 0; i < 10; ++i)
+    {
+        EXPECT_CALL(*mockSafeStoreWrapper, createObjectHandleHolder())
+            .WillOnce(Return(ByMove(std::make_unique<safestore::ObjectHandleHolder>(*mockSafeStoreWrapper))));
+
+        ASSERT_FALSE(quarantineManager->quarantineFile(
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+    }
     ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::CORRUPT);
 }
 
