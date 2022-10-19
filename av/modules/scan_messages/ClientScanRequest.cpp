@@ -8,7 +8,6 @@
 
 using namespace scan_messages;
 
-
 std::string ClientScanRequest::serialise() const
 {
     ::capnp::MallocMessageBuilder message;

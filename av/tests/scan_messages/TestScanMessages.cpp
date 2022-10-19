@@ -8,8 +8,6 @@
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
-#include <ctime>
-
 TEST(TestScanMessages, CreateScanRequestSerialisation)
 {
     ::capnp::MallocMessageBuilder message;
@@ -116,4 +114,12 @@ TEST(TestScanMessages, ReuseScanRequestObject)
     EXPECT_EQ(scanRequest->getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_UNKNOWN);
     EXPECT_FALSE(scanRequest->scanInsideArchives());
     EXPECT_FALSE(scanRequest->scanInsideImages());
+}
+
+TEST(TestScanMessages, ClientScanRequestHasTime)
+{
+    scan_messages::ClientScanRequest clientScanRequest{};
+    auto creationTime = clientScanRequest.getCreationTime().time_since_epoch().count();
+
+    ASSERT_NE(creationTime, 0);
 }
