@@ -31,7 +31,7 @@ ${SAFESTORE_DB_PASSWORD_PATH}        ${SAFESTORE_DB_DIR}/safestore.pw
 *** Test Cases ***
 
 SafeStore Database is Initialised
-    Wait Until Safestore Log Contains    Saved password OK
+    Wait Until Safestore Log Contains    Successfully saved SafeStore database password to file
     Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
 
@@ -43,7 +43,7 @@ SafeStore Can Reinitialise Database Containing Threats
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
-    Wait Until Safestore Log Contains    Saved password OK
+    Wait Until Safestore Log Contains    Successfully saved SafeStore database password to file
     Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
 
@@ -79,7 +79,7 @@ SafeStore Recovers From Corrupt Database
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
-    Wait Until Safestore Log Contains    Saved password OK
+    Wait Until Safestore Log Contains    Successfully saved SafeStore database password to file
     Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
 
