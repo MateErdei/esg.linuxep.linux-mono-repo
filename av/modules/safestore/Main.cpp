@@ -47,7 +47,6 @@ namespace safestore
         // Take safestore lock file
         common::PidLockFile lock(Plugin::getSafeStorePidPath());
 
-        // TODO make this unique doesn't need to be shared here.
         std::unique_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper = std::make_unique<SafeStoreWrapperImpl>();
         std::shared_ptr<safestore::IQuarantineManager> quarantineManager =
             std::make_shared<QuarantineManagerImpl>(std::move(safeStoreWrapper));
