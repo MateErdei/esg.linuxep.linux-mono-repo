@@ -25,22 +25,34 @@ def ensure_text(s, encoding="utf-8", errors="replace"):
 
 
 def attempt_backtrace_of_core(filepath):
-    proc = subprocess.Popen([b'gdb', b'-core', filepath],
+    proc = subprocess.Popen([b'file', b'--brief', filepath],
                             stdout=subprocess.PIPE,
                             stdin=subprocess.PIPE,
                             stderr=subprocess.STDOUT)
-    output = proc.communicate(b"\n".join([
-        b"set height 0",
-        b"info files",
-        b"thread apply all bt",
-        b"quit"
-    ]))[0]
-    logger.warn("GDB output: %s" % ensure_text(output))
+    output = proc.communicate()[0].strip()
+    logger.info("'file' output: %s" % ensure_text(output))
+
+    try:
+        proc = subprocess.Popen([b'gdb', b'-core', filepath],
+                                stdout=subprocess.PIPE,
+                                stdin=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
+        output = proc.communicate(b"\n".join([
+            b"set pagination off",
+            b"set trace-commands on",
+            b"info sharedlibrary",
+            b"thread apply all backtrace",
+            b"quit"
+        ]))[0]
+        logger.info("GDB output: %s" % ensure_text(output))
+    except FileNotFoundError:
+        logger.info("cannot find gdb")
 
 
 class CoreDumps(object):
     def __init__(self):
         self.__m_ignore_cores_segfaults = False
+
     def __find_watchdog_systemd_file(self):
         if os.path.isfile("/lib/systemd/system/sophos-spl.service"):
             return "/lib/systemd/system/sophos-spl.service"
@@ -187,7 +199,7 @@ class CoreDumps(object):
     def check_for_coredumps(self, testname=None):
         if testname is None:
             testname = BuiltIn().get_variable_value("${TEST NAME}")
-        CORE_DIR="/z"
+        CORE_DIR = "/z"
 
         if os.path.exists(CORE_DIR):
             coredumpnames = []
@@ -206,13 +218,16 @@ class CoreDumps(object):
                     continue
 
                 found_core_dump = True
-                logger.error("Found core dump at %s" % file_path)
+
+                stat_result = os.stat(file_path)
+                timestamp = datetime.datetime.utcfromtimestamp(stat_result.st_mtime)
+                logger.error("Found core dump at %s, generated at %s UTC" % (file_path, timestamp))
                 coredumpnames.append(file)
 
                 # Attempt to gdb core file
                 attempt_backtrace_of_core(file_path)
 
-                self.__copy_to_coredump_dir(file_path, testname)
+                self.__copy_to_coredump_dir(file_path, testname, timestamp=timestamp)
                 os.remove(file_path)
 
             if not found_core_dump:
@@ -228,20 +243,22 @@ class CoreDumps(object):
             if all_core_dumps_are_rtd:
                 logger.warn("Found RTD core dump(s)")
             else:
-                logger.error("Found core dump(s)")
                 # Disabled failing test run until we can sort the core files out
-                raise AssertionError("Core dump found")
+                raise AssertionError("Core dump(s) found")
 
-    def __copy_to_coredump_dir(self, filepath, testname):
-        testname = (testname.replace("/", "_") + "_" + str(datetime.datetime.now())).replace(" ", "_")
+    def __copy_to_coredump_dir(self, filepath, testname, timestamp=None):
+        if timestamp is None:
+            timestamp = datetime.datetime.now()
+        testname = (testname.replace("/", "_") + "_" + str(timestamp)).replace(" ", "_")
         coredump_dir = "/opt/test/coredumps"
         os.makedirs(coredump_dir, exist_ok=True)
         dest = os.path.join(coredump_dir, testname)
-        logger.error("Moving core file to %s" % dest)
+        logger.warn("Moving core file to %s" % dest)
         shutil.copy(filepath, dest)
 
     def ignore_coredumps_and_segfaults(self):
         self.__m_ignore_cores_segfaults = True
+
 
 def __main(argv):
     for arg in argv[1:]:
