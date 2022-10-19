@@ -19,7 +19,6 @@ int main()
     fs::path sophosInstall = appConfig.getData("SOPHOS_INSTALL");
     fs::path pluginInstall = sophosInstall / "plugins" / PLUGIN_NAME;
     appConfig.setData("PLUGIN_INSTALL", pluginInstall);
-    // TODO appConfig
 
     return safestore::Main::run();
 }
