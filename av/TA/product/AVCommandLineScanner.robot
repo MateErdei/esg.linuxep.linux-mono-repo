@@ -627,7 +627,7 @@ CLS Creates Threat Report
     AV Plugin Log Contains With Offset  name="EICAR-AV-Test"
     AV Plugin Log Contains With Offset  scanType="203"
     AV Plugin Log Contains With Offset  status="200"
-    AV Plugin Log Contains With Offset  id="Tfe8974b97b4b7a6a33b4c52acb4ffba0c11ebbf208a519245791ad32a96227d8"
+    AV Plugin Log Contains With Offset  id="Tfe8974b97b4b7a6"
     AV Plugin Log Contains With Offset  idSource="Tsha256(path,name)"
     AV Plugin Log Contains With Offset  <item file="naugthy_eicar"
     AV Plugin Log Contains With Offset  path="${NORMAL_DIRECTORY}/"/>
