@@ -131,7 +131,7 @@ namespace safestore
             pw = generatePassword();
             if (!pw->empty() && savePassword(pw.value()))
             {
-                LOGDEBUG("Saved password OK");
+                LOGDEBUG("Successfully saved SafeStore database password to file");
             }
             else
             {
