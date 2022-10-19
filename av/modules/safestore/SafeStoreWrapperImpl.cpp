@@ -435,22 +435,32 @@ namespace safestore
         const std::string& objectId,
         std::shared_ptr<ObjectHandleHolder> objectHandle)
     {
-        //        TODO 5675: Handle errors
-        //        Success:
-        //            SR_OK
-        //        Failure:
-        //            SR_INVALID_ARG - an invalid argument was passed to the function
-        //            SR_OUT_OF_MEMORY - not enough memory is available to complete the operation
-        //            SR_OBJECT_NOT_FOUND - no object was found with the given ID
-        //            SR_INTERNAL_ERROR - an internal error has occurred
-
         if (auto safeStoreThreadId = safeStoreIdFromString(objectId))
         {
-            return (
-                SafeStore_GetObjectHandle(
-                    m_safeStoreCtx, &safeStoreThreadId.value(), objectHandle->getRawHandlePtr()) == SR_OK);
-        }
 
+                auto returnCode = SafeStore_GetObjectHandle(m_safeStoreCtx, &safeStoreThreadId.value(), objectHandle->getRawHandlePtr());
+                switch (returnCode)
+                {
+                    case SR_OK:
+                        LOGDEBUG("Got OK when getting object handle from SafeStore");
+                        return true;
+                    case SR_INVALID_ARG:
+                        LOGDEBUG("Got INVALID_ARG when getting object handle from SafeStore");
+                        return false;
+                    case SR_OUT_OF_MEMORY:
+                        LOGDEBUG("Got OUT_OF_MEMORY when getting object handle from SafeStore");
+                        return false;
+                    case SR_OBJECT_NOT_FOUND:
+                        LOGDEBUG("Got OBJECT_NOT_FOUND when getting object handle from SafeStore");
+                        return false;
+                    case SR_INTERNAL_ERROR:
+                        LOGDEBUG("Got INTERNAL_ERROR when getting object handle from SafeStore");
+                        return false;
+                    default:
+                        LOGDEBUG("Unknown return code when getting object handle from SafeStore");
+                        return false;
+                }
+        }
         return false;
     }
 
