@@ -210,30 +210,30 @@ namespace safestore
         switch (result)
         {
             case SR_OK:
-                LOGINFO("Successfully initialised SafeStore database");
+                LOGDEBUG("Successfully initialised SafeStore database");
                 return InitReturnCode::OK;
             case SR_INVALID_ARG:
-                LOGWARN("Failed to initialise SafeStore database: Invalid argument");
+                LOGDEBUG("Failed to initialise SafeStore database: Invalid argument");
                 return InitReturnCode::INVALID_ARG;
             case SR_UNSUPPORTED_OS:
-                LOGWARN("Failed to initialise SafeStore database: Operating system is not supported by SafeStore");
+                LOGDEBUG("Failed to initialise SafeStore database: Operating system is not supported by SafeStore");
                 return InitReturnCode::UNSUPPORTED_OS;
             case SR_UNSUPPORTED_VERSION:
-                LOGWARN("Failed to initialise SafeStore database: Opened SafeStore database file's version is not "
+                LOGDEBUG("Failed to initialise SafeStore database: Opened SafeStore database file's version is not "
                         "supported");
                 return InitReturnCode::UNSUPPORTED_VERSION;
             case SR_OUT_OF_MEMORY:
-                LOGWARN("Failed to initialise SafeStore database: There is not enough memory available to complete the "
+                LOGDEBUG("Failed to initialise SafeStore database: There is not enough memory available to complete the "
                         "operation");
                 return InitReturnCode::OUT_OF_MEMORY;
             case SR_DB_OPEN_FAILED:
-                LOGWARN("Failed to initialise SafeStore database: Could not open the database");
+                LOGDEBUG("Failed to initialise SafeStore database: Could not open the database");
                 return InitReturnCode::DB_OPEN_FAILED;
             case SR_DB_ERROR:
-                LOGWARN("Failed to initialise SafeStore database: Database operation failed");
+                LOGDEBUG("Failed to initialise SafeStore database: Database operation failed");
                 return InitReturnCode::DB_ERROR;
             default:
-                LOGWARN("Failed to initialise SafeStore database");
+                LOGDEBUG("Failed to initialise SafeStore database");
                 return InitReturnCode::FAILED;
         }
     }
@@ -260,39 +260,38 @@ namespace safestore
 
         switch (result)
         {
-                // TODO 5675 messages....
             case SR_OK:
-                LOGDEBUG("TODO SR_OK");
+                LOGDEBUG("Got OK when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::OK;
             case SR_INVALID_ARG:
-                LOGWARN("TODO INVALID_ARG");
+                LOGDEBUG("Got INVALID_ARG when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::INVALID_ARG;
             case SR_INTERNAL_ERROR:
-                LOGWARN("TODO INTERNAL_ERROR");
+                LOGDEBUG("Got INTERNAL_ERROR when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::INTERNAL_ERROR;
             case SR_OUT_OF_MEMORY:
-                LOGWARN("TODO OUT_OF_MEMORY");
+                LOGDEBUG("Got OUT_OF_MEMORY when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::OUT_OF_MEMORY;
             case SR_FILE_OPEN_FAILED:
-                LOGWARN("TODO FILE_OPEN_FAILED");
+                LOGDEBUG("Got FILE_OPEN_FAILED when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::FILE_OPEN_FAILED;
             case SR_FILE_READ_FAILED:
-                LOGWARN("TODO FILE_READ_FAILED");
+                LOGDEBUG("Got FILE_READ_FAILED when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::FILE_READ_FAILED;
             case SR_FILE_WRITE_FAILED:
-                LOGWARN("TODO FILE_WRITE_FAILED");
+                LOGDEBUG("Got FILE_WRITE_FAILED when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::FILE_WRITE_FAILED;
             case SR_MAX_OBJECT_SIZE_EXCEEDED:
-                LOGWARN("TODO MAX_OBJECT_SIZE_EXCEEDED");
+                LOGDEBUG("Got MAX_OBJECT_SIZE_EXCEEDED when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::MAX_OBJECT_SIZE_EXCEEDED;
             case SR_MAX_STORE_SIZE_EXCEEDED:
-                LOGWARN("TODO MAX_STORE_SIZE_EXCEEDED");
+                LOGDEBUG("Got MAX_STORE_SIZE_EXCEEDED when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::MAX_STORE_SIZE_EXCEEDED;
             case SR_DB_ERROR:
-                LOGWARN("TODO DB_ERROR");
+                LOGDEBUG("Got DB_ERROR when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::DB_ERROR;
             default:
-                LOGWARN("TODO FAILED");
+                LOGDEBUG("Got FAILED when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::FAILED;
         }
     }
