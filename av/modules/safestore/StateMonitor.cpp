@@ -28,10 +28,10 @@ namespace safestore
                 switch (state)
                 {
                     case QuarantineManagerState::INITIALISED:
-                        LOGINFO("Quarantine Manager is INITIALISED");
+                        LOGINFO("Quarantine Manager is initialised");
                         break;
                     case QuarantineManagerState::UNINITIALISED:
-                        LOGINFO("Quarantine Manager is UNINITIALISED");
+                        LOGWARN("Quarantine Manager is not initialised");
 
                         try
                         {
@@ -44,7 +44,7 @@ namespace safestore
 
                         break;
                     case QuarantineManagerState::CORRUPT:
-                        LOGINFO("Quarantine Manager is CORRUPT");
+                        LOGWARN("Quarantine Manager is corrupt");
                         try
                         {
                             bool removedSafeStoreDb = m_quarantineManager->deleteDatabase();
