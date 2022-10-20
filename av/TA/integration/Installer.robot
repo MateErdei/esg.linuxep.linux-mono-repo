@@ -562,8 +562,14 @@ Check installer corrects permissions of var directory on upgrade
     Register On Fail  dump watchdog log
 
     Mark Watchdog Log
-    Mark Sophos Threat Detector Log
 
+    Mark AV Log
+    #Force AV to write the customer id in order to avoid errors after we change the file permissions
+    Send Alc Policy
+    #This is the last thing we log after we write the customer id
+    Wait Until AV Plugin Log Contains With Offset    Processing request to restart sophos threat detector
+
+    #Now AV won't create a customer_id file, so override it with a bad permission file
     ${customerIdFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/var/customer_id.txt
     Create file   ${customerIdFile}
     Change Owner  ${customerIdFile}  sophos-spl-user  sophos-spl-group
@@ -631,7 +637,6 @@ Check installer corrects permissions of chroot files on upgrade
     Change Owner  ${tdPidFile}  sophos-spl-user  sophos-spl-group
     Modify manifest
 
-    Mark Sophos Threat Detector Log
     Install AV Directly from SDDS
     ${rc}  ${output} =  Run And Return Rc And Output  ls -l ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/av/var/
     Log  ${output}
