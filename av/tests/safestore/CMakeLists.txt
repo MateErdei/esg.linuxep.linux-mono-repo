@@ -5,7 +5,7 @@ SophosAddTest(TestSafeStore
         ../common/LogInitializedTests.cpp # include here as it's not part of a lib
         MockISafeStoreWrapper.h
         TestQuarantineManager.cpp
-        TestSafeStoreWrapper.cpp
+        TestSafeStoreWrapperUtils.cpp
         TestStateMonitor.cpp
         PROJECTS safestoreimpl common
         INC_DIRS ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${testhelpersinclude}

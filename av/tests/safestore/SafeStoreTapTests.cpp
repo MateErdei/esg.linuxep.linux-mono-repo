@@ -242,16 +242,62 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
     safestore::SafeStoreFilter filter;
     filter.objectType = safestore::ObjectType::FILE;
     filter.activeFields = { safestore::FilterField::OBJECT_TYPE };
-    bool foundAnyResults = false;
+    int resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
-        foundAnyResults = true;
+        ++resultsFound;
         ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
         ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
 
         // Validate custom data saved ok
         ASSERT_EQ(m_safeStoreWrapper->getObjectCustomDataString(result, "SHA256"), sha256);
-    }
 
-    ASSERT_TRUE(foundAnyResults);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), safestore::ObjectStatus::STORED);
+    }
+    ASSERT_EQ(resultsFound, 1);
+}
+
+TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseThreatAndStatusChangesToQuarantined)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/fakevirus1";
+    std::string sha256 = "f2c91a583cfd1371a3085187aa5b2841ada3b62f5d1cc6b08bc02703ded3507a";
+    fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
+    std::string threatId = "dummy_threat_ID1";
+    std::string threatName = "threat name1";
+    auto objectHandle = m_safeStoreWrapper->createObjectHandleHolder();
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandle),
+        safestore::SaveFileReturnCode::OK);
+
+    // Finalise SafeStore object
+    ASSERT_TRUE(m_safeStoreWrapper->finaliseObject(*objectHandle));
+
+    // Set custom data
+    ASSERT_TRUE(m_safeStoreWrapper->setObjectCustomDataString(*objectHandle, "SHA256", sha256));
+
+    // Find all FILE threats in SafeStore
+    safestore::SafeStoreFilter filter;
+    filter.objectType = safestore::ObjectType::FILE;
+    filter.activeFields = { safestore::FilterField::OBJECT_TYPE };
+    int resultsFound = 0;
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
+        ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
+
+        // Validate custom data saved ok
+        ASSERT_EQ(m_safeStoreWrapper->getObjectCustomDataString(result, "SHA256"), sha256);
+
+        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), safestore::ObjectStatus::QUARANTINED);
+    }
+    ASSERT_EQ(resultsFound, 1);
 }
