@@ -199,10 +199,7 @@ namespace safestore::QuarantineManager
         {
             callOnDbSuccess();
 
-            // TODO LINUXDAR-5677 verify the file
             LOGDEBUG("File Descriptor: " << autoFd.fd());
-
-
 
             datatypes::AutoFd directoryFd(open(directory.c_str(), O_PATH));
 

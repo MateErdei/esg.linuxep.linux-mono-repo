@@ -12,7 +12,7 @@
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2022-39"
                              build-id="20220920080453-6a5a0c6601e8c1988f7c9311f638a657d3990747-NtZgBC"/>
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-5677-add-file-stats-method-to-filesystem-library"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
