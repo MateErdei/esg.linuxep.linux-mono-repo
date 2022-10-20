@@ -432,7 +432,6 @@ namespace safestore
     {
         if (auto safeStoreThreadId = safeStoreIdFromString(objectId))
         {
-
                 auto returnCode = SafeStore_GetObjectHandle(m_safeStoreCtx, &safeStoreThreadId.value(), objectHandle->getRawHandlePtr());
                 switch (returnCode)
                 {
