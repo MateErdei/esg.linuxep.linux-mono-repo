@@ -460,7 +460,6 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     AV Plugin Log Contains With Offset  Received new Action
     AV Plugin Log Contains With Offset  Evaluating Scan Now
     AV Plugin Log Contains With Offset  Starting scan Scan Now
-    AV Plugin Log Contains With Offset  Publishing good threat health status after clean scan
     Check ScanNow Log Exists
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /run/netns/avtest as it could not be read
 
