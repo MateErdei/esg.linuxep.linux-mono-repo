@@ -18,6 +18,18 @@ if [[ -f /etc/centos-release ]]
 then
     current_release=$(cat /etc/centos-release)
     PLATFORM_EXCLUDE_TAG="-e EXCLUDE_CENTOS"
+elif [[ -f /etc/oracle-release ]]
+then
+    current_release=$(cat /etc/oracle-release)
+    release_patternOracle7="PRETTY_NAME=\"Oracle Linux Server release 7*"
+    release_patternOracle8="PRETTY_NAME=\"Oracle Linux Server release 8*"
+    if [[ ${current_release} =~ ${release_patternOracle7} ]]
+    then
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_ORACLE7"
+    elif [[ ${current_release} =~ ${release_patternOracle8} ]]
+    then
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_ORACLE8"
+    fi
 elif [[ -f /etc/redhat-release ]]
 then
     current_release=$(cat /etc/redhat-release)
@@ -59,14 +71,6 @@ then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_DEBIAN11"
     else
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU"
-    fi
-elif [[ -f /etc/oracle-release ]]
-then
-    current_release=$(cat /etc/oracle-release)
-    release_pattern="Oracle Linux Server release 8*"
-    if [[ ${current_release} =~ ${release_pattern} ]]
-    then
-        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_ORACLE8"
     fi
 elif [[ -f /etc/os-release ]]
 then

@@ -49,6 +49,8 @@
         "echo 'Created aws config. Now grabbing tests...' >> /tmp/cloudFormationInit.log\n",
         "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
         "yum install -y zip >> /tmp/cloudFormationInit.log 2>&1\n",
+        "export LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH\n",
+        "ldconfig /usr/local/lib\n",
         "python3 -m pip install --upgrade awscli 2>&1 >>/tmp/cloudFormationInit.log\n",
         "python3 -m awscli s3 cp s3://sspl-testbucket/sspl/sspl-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
         "mkdir -p /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
