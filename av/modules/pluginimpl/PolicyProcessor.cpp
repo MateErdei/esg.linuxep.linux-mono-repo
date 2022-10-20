@@ -58,7 +58,8 @@ namespace Plugin
         }
     }
 
-    PolicyProcessor::PolicyProcessor()
+    PolicyProcessor::PolicyProcessor(IStoppableSleeperSharedPtr stoppableSleeper)
+        : m_sleeper(std::move(stoppableSleeper))
     {
         auto* fs = Common::FileSystem::fileSystem();
         auto dest = getNonChrootCustomerIdPath();

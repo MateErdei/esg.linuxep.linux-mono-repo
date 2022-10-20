@@ -13,7 +13,8 @@ namespace Plugin
     class PolicyProcessor
     {
     public:
-        PolicyProcessor();
+        using IStoppableSleeperSharedPtr = std::shared_ptr<unixsocket::IStoppableSleeper>;
+        explicit PolicyProcessor(IStoppableSleeperSharedPtr stoppableSleeper);
         virtual ~PolicyProcessor() = default;
 
         /**
@@ -49,7 +50,7 @@ namespace Plugin
             const Common::XmlUtilities::AttributesMap& policy,
             const std::string& entityFullPath);
 
-        std::shared_ptr<unixsocket::IStoppableSleeper> m_sleeper;
+        IStoppableSleeperSharedPtr m_sleeper;
         std::string m_customerId;
         bool m_lookupEnabled = true;
         bool m_safeStoreEnabled = false;

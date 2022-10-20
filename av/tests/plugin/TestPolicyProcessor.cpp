@@ -55,6 +55,10 @@ namespace
 
     class PolicyProcessorUnitTestClass : public Plugin::PolicyProcessor
     {
+    public:
+        PolicyProcessorUnitTestClass()
+            : Plugin::PolicyProcessor(nullptr)
+        {}
     protected:
         void notifyOnAccessProcess() override
         {
@@ -175,7 +179,7 @@ TEST_F(TestPolicyProcessor, processAlcPolicyNoChangePolicy)
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    Plugin::PolicyProcessor proc;
+    Plugin::PolicyProcessor proc{nullptr};
 
     auto attributeMap = parseFullPolicy();
     bool changed = proc.processAlcPolicy(attributeMap);
@@ -201,7 +205,7 @@ TEST_F(TestPolicyProcessor, processAlcPolicyChangedPolicy)
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    Plugin::PolicyProcessor proc;
+    Plugin::PolicyProcessor proc{nullptr};
 
     auto attributeMap = parseFullPolicy();
     bool changed = proc.processAlcPolicy(attributeMap);
@@ -430,7 +434,7 @@ TEST_F(TestPolicyProcessor, processAlcPolicyInvalid)
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    Plugin::PolicyProcessor proc;
+    Plugin::PolicyProcessor proc{nullptr};
 
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
@@ -475,7 +479,7 @@ TEST_F(TestPolicyProcessor, processSavPolicy)
 
 TEST_F(TestPolicyProcessor, defaultSXL4lookupValueIsTrue)
 {
-    Plugin::PolicyProcessor proc;
+    Plugin::PolicyProcessor proc{nullptr};
     EXPECT_TRUE(proc.getSXL4LookupsEnabled());
 }
 

@@ -68,7 +68,8 @@ namespace Plugin
             process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
-        m_threatEventPublisher(m_zmqContext->getPublisher())
+        m_threatEventPublisher(m_zmqContext->getPublisher()),
+        m_policyProcessor(m_taskQueue)
     {
     }
 
