@@ -13,6 +13,9 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include <optional>
 #include <utility>
 
@@ -199,7 +202,21 @@ namespace safestore::QuarantineManager
             // TODO LINUXDAR-5677 verify the file
             LOGDEBUG("File Descriptor: " << autoFd.fd());
 
-            // TODO LINUXDAR-5677 delete the file
+
+
+            datatypes::AutoFd directoryFd(open(directory.c_str(), O_PATH));
+
+            std::string path = Common::FileSystem::join(directory,filename);
+            datatypes::AutoFd fd2(openat(directoryFd.get(),path.c_str(), S_IWUSR));
+            auto fs = Common::FileSystem::fileSystem();
+            if (fs->compareFileDescriptors(autoFd.get(),fd2.get())) //
+            {
+                fs->removeFileOrDirectory(filePath);
+            }
+            else
+            {
+                LOGWARN("Cannot verify file to be quarantined ");
+            }
 
             // TODO LINUXDAR-5677 do something with the sha256, do we need to store this as custom data for restoration?
             m_safeStore->setObjectCustomDataString(*objectHandle, "SHA256", sha256);
