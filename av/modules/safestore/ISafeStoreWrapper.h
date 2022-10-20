@@ -335,22 +335,19 @@ namespace safestore
             ObjectHandleHolder& objectHandle,
             const std::string& dataName) = 0;
 
-        // TODO 5675 SafeStore_Result_t SAFESTORE_CALL SafeStore_FinalizeObjectsByThreatId(_In_ SafeStore_t ctx, _In_
-        // SafeStore_Id_t* threatId);
-
-        // TODO 5675  _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectById(_In_ SafeStore_t ctx,
+        // TODO LINUXDAR-5734  _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectById(_In_ SafeStore_t ctx,
         // _In_ const SafeStore_Id_t* objectId, _In_opt_z_ const SsPlatChar* location);
 
-        // TODO 5675 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectsByThreatId(_In_
+        // TODO LINUXDAR-5734 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectsByThreatId(_In_
         // SafeStore_t ctx, _In_ const SafeStore_Id_t* threatId);
 
-        // TODO 5675 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectById(_In_ SafeStore_t ctx,
+        // TODO LINUXDAR-5734 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectById(_In_ SafeStore_t ctx,
         // _In_ const SafeStore_Id_t* objectId);
 
-        // TODO 5675 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectsByThreatId(_In_ SafeStore_t
+        // TODO LINUXDAR-5734 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectsByThreatId(_In_ SafeStore_t
         // ctx, _In_ const SafeStore_Id_t* threatId);
 
-        // TODO 5675 SafeStore_Result_t SAFESTORE_CALL SafeStore_ExportFile(_In_ SafeStore_t ctx, _In_ const
+        // TODO LINUXDAR-5734 SafeStore_Result_t SAFESTORE_CALL SafeStore_ExportFile(_In_ SafeStore_t ctx, _In_ const
         // SafeStore_Id_t* objectId, _Reserved_ const uint8_t* password, _Reserved_ size_t passwordSize, _In_z_ const
         // SsPlatChar* directory, _In_opt_z_ const SsPlatChar* fileName);
 
@@ -371,6 +368,13 @@ namespace safestore
          * then this will return false. If the finalise call is successful then true is returned.
          */
         virtual bool finaliseObject(ObjectHandleHolder& objectHandle) = 0;
+
+        /*
+         * Mark an object as finalised to indicate that all needed operations have been performed and that file.
+         * The threat ID passed in is the threat ID that the object was store with.
+         * This will return false if finalising fails, true is successful.
+         */
+        virtual bool finaliseObjectByThreatId(const std::string& threatId) = 0;
     };
 
     class ObjectHandleHolder

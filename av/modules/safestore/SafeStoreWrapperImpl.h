@@ -96,6 +96,7 @@ namespace safestore
         std::string getObjectCustomDataString(ObjectHandleHolder& objectHandle, const std::string& dataName) override;
         void releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder) override;
         void releaseSearchHandle(SafeStoreSearchHandle searchHandleHolder) override;
+        bool finaliseObjectByThreatId(const std::string& threatId) override;
 
     private:
         SafeStoreContext m_safeStoreCtx = nullptr;

@@ -39,6 +39,7 @@ public:
     MOCK_METHOD1(getObjectStoreTime, int64_t(const safestore::ObjectHandleHolder&));
     MOCK_METHOD2(getObjectHandle, bool(const std::string&, std::shared_ptr<safestore::ObjectHandleHolder>));
     MOCK_METHOD1(finaliseObject, bool(safestore::ObjectHandleHolder&));
+    MOCK_METHOD1(finaliseObjectByThreatId, bool(const std::string&));
     MOCK_METHOD3(
         setObjectCustomData,
         bool(safestore::ObjectHandleHolder&, const std::string&, const std::vector<uint8_t>&));
