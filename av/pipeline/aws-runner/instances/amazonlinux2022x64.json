@@ -46,7 +46,7 @@
         "sed -i 's/127.0.0.1/127.0.0.1 '$HOSTNAME'/' /etc/hosts\n",
         "yum -y install make gcc python-devel nfs-utils kernel-devel fuse-libs gdb rpm-build cifs-utils wget attr psmisc gcc-c++ samba &>>/tmp/cloudFormationInit.log\n",
         "yum -y install openssl libnsl python-pip python3-devel python3-pip policycoreutils-python-utils p7zip &>>/tmp/cloudFormationInit.log\n",
-        "python3 -m pip install --upgrade robotframework psutil pytest-html pyzmq zmq protobuf paramiko watchdog cryptography==3.3.1 python-dateutil requests enum34 packaging Cython pycapnp &>>/tmp/cloudFormationInit.log\n",
+        "python3 -m pip install --upgrade   zmq  paramiko watchdog cryptography==3.3.1 python-dateutil  enum34 packaging &>>/tmp/cloudFormationInit.log\n",
         "service rpcbind start &>>/tmp/cloudFormationInit.log\n",
         "systemctl start nfs &>>/tmp/cloudFormationInit.log\n",
         "systemctl status nfs-server.service &>>/tmp/cloudFormationInit.log\n",

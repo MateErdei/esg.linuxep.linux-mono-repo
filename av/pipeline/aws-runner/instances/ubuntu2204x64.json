@@ -48,7 +48,7 @@
         "update-alternatives --set python3 /usr/local/bin/python3.7\n",
         "apt-get -y install python-pip python3-pip libcap2-bin auditd 2>&1 >>/tmp/cloudFormationInit.log\n",
         "apt-get -y install ec2-instance-connect make gcc python3-dev gdb cifs-utils wget attr psmisc sshpass samba 2>&1 >>/tmp/cloudFormationInit.log\n",
-        "pip3 install --upgrade awscli robotframework psutil pytest-html pyzmq zmq protobuf paramiko watchdog cryptography==3.3.1 python-dateutil requests enum34 packaging Cython pycapnp 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "pip3 install --upgrade awscli    zmq  paramiko watchdog cryptography==3.3.1 python-dateutil  enum34 packaging 2>&1 >>/tmp/cloudFormationInit.log\n",
         "export OVERRIDE_CLOUD_IP=", {"Ref": "cloudIpAddress"}, "\n",
         "echo ", {"Ref": "cloudIpAddress"}, " >/root/OVERRIDE_CLOUD_IP\n",
         "echo 'Created aws config. Now grabbing tests...' >> /tmp/cloudFormationInit.log\n",
