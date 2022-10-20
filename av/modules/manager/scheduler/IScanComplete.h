@@ -10,5 +10,5 @@ class IScanComplete
 {
 public:
     virtual ~IScanComplete() = default;
-    virtual void processScanComplete(std::string& scanCompletedXml, int exitCode)=0;
+    virtual void processScanComplete(std::string& scanCompletedXml)=0;
 };

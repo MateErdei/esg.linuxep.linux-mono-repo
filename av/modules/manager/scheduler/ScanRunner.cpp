@@ -131,7 +131,7 @@ void ScanRunner::run()
     LOGINFO("Sending scan complete event to Central");
     std::string scanCompletedXml = generateScanCompleteXml(m_name);
     LOGDEBUG("XML" << scanCompletedXml);
-    m_completionNotifier.processScanComplete(scanCompletedXml, exitCode);
+    m_completionNotifier.processScanComplete(scanCompletedXml);
 
     m_scanCompleted = true;
     LOGDEBUG("Exiting scan thread");

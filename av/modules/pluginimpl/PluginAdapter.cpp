@@ -303,14 +303,8 @@ namespace Plugin
         }
     }
 
-    void PluginAdapter::processScanComplete(std::string& scanCompletedXml, int exitCode)
+    void PluginAdapter::processScanComplete(std::string& scanCompletedXml)
     {
-        if (( exitCode == common::E_CLEAN_SUCCESS ||  exitCode == common::E_GENERIC_FAILURE ||  exitCode == common::E_PASSWORD_PROTECTED ))
-        {
-            LOGDEBUG("Publishing good threat health status after clean scan");
-            publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
-        }
-
         LOGDEBUG("Sending scan complete notification to central: " << scanCompletedXml);
 
         m_queueTask->push(Task { .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });

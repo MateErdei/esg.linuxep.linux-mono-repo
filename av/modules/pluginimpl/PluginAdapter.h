@@ -1,4 +1,4 @@
-//Copyright 2018-2022 Sophos Limited.  All rights reserved.
+// Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -6,15 +6,18 @@
 # define PLUGIN_INTERNAL private
 #endif
 
+#include "DetectionQueue.h"
 #include "HealthStatus.h"
+#include "IDetectionReportProcessor.h"
 #include "PluginCallback.h"
 #include "PolicyProcessor.h"
 #include "PolicyWaiter.h"
-#include "QueueTask.h"
+#include "SafeStoreWorker.h"
+#include "TaskQueue.h"
 
-#include "modules/common/ThreadRunner.h"
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "manager/scheduler/ScanScheduler.h"
+#include "modules/common/ThreadRunner.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include <Common/PluginApi/ApiException.h>
@@ -24,15 +27,17 @@
 
 namespace Plugin
 {
-    class PluginAdapter : public IScanComplete
+    class PluginAdapter : public IScanComplete, public IDetectionReportProcessor
     {
     private:
-        std::shared_ptr<QueueTask> m_queueTask;
+        std::shared_ptr<TaskQueue> m_taskQueue;
+        std::shared_ptr<DetectionQueue> m_detectionQueue;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<PluginCallback> m_callback;
         std::shared_ptr<manager::scheduler::ScanScheduler> m_scanScheduler;
         std::shared_ptr<unixsocket::ThreatReporterServerSocket> m_threatReporterServer;
         std::shared_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_threatDetector;
+        std::shared_ptr<SafeStoreWorker> m_safeStoreWorker;
         int m_waitForPolicyTimeout = 0;
 
         Common::ZMQWrapperApi::IContextSharedPtr m_zmqContext;
@@ -40,19 +45,22 @@ namespace Plugin
 
     public:
         PluginAdapter(
-            std::shared_ptr<QueueTask> queueTask,
+            std::shared_ptr<TaskQueue> taskQueue,
             std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
             std::shared_ptr<PluginCallback> callback,
             const std::string& threatEventPublisherSocketPath,
             int waitForPolicyTimeout = 5);
         void mainLoop();
-        void processScanComplete(std::string& scanCompletedXml, int exitCode) override;
-        void processThreatReport(const std::string& threatDetectedXML);
-        void publishThreatEvent(const std::string& threatDetectedJSON);
+        void processScanComplete(std::string& scanCompletedXml) override;
+        void processDetectionReport(const scan_messages::ThreatDetected&) const override;
+        void processThreatReport(const std::string& threatDetectedXML) const;
+        void publishThreatEvent(const std::string& threatDetectedJSON) const;
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
+        bool isSafeStoreEnabled();
+        [[nodiscard]] std::shared_ptr<DetectionQueue> getDetectionQueue() const;
 
     PLUGIN_INTERNAL:
-        void publishThreatHealth(E_HEALTH_STATUS threatStatus);
+        void publishThreatHealth(E_HEALTH_STATUS threatStatus) const;
     private:
         /**
          *
@@ -71,6 +79,7 @@ namespace Plugin
         PolicyProcessor m_policyProcessor;
         bool m_restartSophosThreatDetector = false;
 
+        std::unique_ptr<common::ThreadRunner> m_safeStoreWorkerThread;
         std::unique_ptr<common::ThreadRunner> m_schedulerThread;
         std::unique_ptr<common::ThreadRunner> m_threatDetectorThread;
         void processFlags(const std::string& flagsJson);
