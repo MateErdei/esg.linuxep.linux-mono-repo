@@ -1,8 +1,10 @@
+// Copyright 2022, Sophos Limited.  All rights reserved.
+
+// This binary will print the details of objects in the SafeStore database, useful for manual testing and TAP tests.
 
 #include "safestore/IQuarantineManager.h"
 #include "safestore/QuarantineManagerImpl.h"
 
-//#include "Common/Logging/ConsoleFileLoggingSetup.h"
 #include "safestore/SafeStoreWrapperImpl.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -10,13 +12,11 @@
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "common/ApplicationPaths.h"
 
-#include <filesystem>
-#include <iostream>
 
+#include <iostream>
 
 void printConfigOptions(std::shared_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper)
 {
-    // read config options:
     std::cout << "Config options: " << std::endl;
     if (auto autoPurge = safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::AUTO_PURGE))
     {
@@ -48,7 +48,10 @@ int main()
 {
     Common::Logging::ConsoleLoggingSetup loggingSetup;
 
+    // Safestore wrapper to interact with SafeStore database.
     std::shared_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper = std::make_shared<safestore::SafeStoreWrapperImpl>();
+
+    // Expected locations of safestore database in a product installation.
     std::string safestoreDbDir = "/opt/sophos-spl/plugins/av/var/safestore_db/";
     std::string safestoreDbName = "safestore.db";
     std::string safestoreDbFile = Common::FileSystem::join(safestoreDbDir, safestoreDbName);
@@ -56,24 +59,28 @@ int main()
 
     auto fileSystem = Common::FileSystem::fileSystem();
 
+    // Check SafeStore dir exists.
     if (!fileSystem->isDirectory(safestoreDbDir))
     {
         std::cout << "SafeStore DB dir (" << safestoreDbDir << ") does not exist, is the product installed?"<< std::endl;;
         return 1;
     }
 
+    // Check SafeStore database file exists.
     if (!fileSystem->isFile(safestoreDbFile))
     {
         std::cout << "SafeStore DB file (" << safestoreDbFile << ") does not exist, did SafeStore initialise OK?"<< std::endl;;
         return 2;
     }
 
+    // Check SafeStore password file exists.
     if (!fileSystem->isFile(safestoreDbPwFile))
     {
         std::cout << "SafeStore DB password file (" << safestoreDbPwFile << ") does not exist."<< std::endl;;
         return 3;
     }
 
+    // Read SafeStore password.
     std::string pw;
     try
     {
@@ -85,47 +92,51 @@ int main()
         return 4;
     }
 
-
     auto initReturnCode = safeStoreWrapper->initialise(safestoreDbDir, safestoreDbName, pw);
     switch (initReturnCode)
     {
         case safestore::InitReturnCode::OK:
-//            std::cout << "SafeStore DB connection initialised OK" << std::endl;
             break;
         case safestore::InitReturnCode::INVALID_ARG:
-
+            std::cout << "ERROR - got INVALID_ARG when initialising SafeStore database connection" << std::endl;
             break;
         case safestore::InitReturnCode::UNSUPPORTED_OS:
-
+            std::cout << "ERROR - got UNSUPPORTED_OS when initialising SafeStore database connection" << std::endl;
             break;
         case safestore::InitReturnCode::UNSUPPORTED_VERSION:
-
+            std::cout << "ERROR - got UNSUPPORTED_VERSION when initialising SafeStore database connection" << std::endl;
             break;
         case safestore::InitReturnCode::OUT_OF_MEMORY:
-
+            std::cout << "ERROR - got OUT_OF_MEMORY when initialising SafeStore database connection" << std::endl;
             break;
         case safestore::InitReturnCode::DB_OPEN_FAILED:
-
+            std::cout << "ERROR - got DB_OPEN_FAILED when initialising SafeStore database connection" << std::endl;
             break;
         case safestore::InitReturnCode::DB_ERROR:
-
+            std::cout << "ERROR - got DB_ERROR when initialising SafeStore database connection" << std::endl;
             break;
         case safestore::InitReturnCode::FAILED:
-
+            std::cout << "ERROR - got FAILED when initialising SafeStore database connection" << std::endl;
             break;
     }
 
+    // Print all current config options
+    std::cout << "--- SafeStore database config options ---" << std::endl;
     printConfigOptions(safeStoreWrapper);
+    std::cout << std::endl;
 
+    // Create filter to find all files in SafeStore database
     safestore::SafeStoreFilter filter;
     filter.objectType = safestore::ObjectType::FILE;
     filter.activeFields = {safestore::FilterField::OBJECT_TYPE};
 
+    std::cout << "--- SafeStore File Objects ---" << std::endl;
+    // Perform search to get all objects and then print object details
     for (auto& result : safeStoreWrapper->find(filter))
     {
-        std::cout << "getObjectName: " << safeStoreWrapper->getObjectName(result) << std::endl;
+        std::cout << "Object Name: " << safeStoreWrapper->getObjectName(result) << std::endl;
 
-        std::cout << "getObjectType: " ;
+        std::cout << "Object Type: " ;
         switch (safeStoreWrapper->getObjectType(result))
         {
             case safestore::ObjectType::ANY:
@@ -142,12 +153,34 @@ int main()
                 break;
         }
 
-        //        std::cout << "getObjectStatus: " << safeStoreWrapper->getObjectStatus(result) << std::endl;
+        std::cout << "Object Status: ";
+        switch (safeStoreWrapper->getObjectStatus(result))
+        {
+            case safestore::ObjectStatus::ANY:
+                std::cout << "ANY" << std::endl;
+                break;
+            case safestore::ObjectStatus::STORED:
+                std::cout << "STORED" << std::endl;
+                break;
+            case safestore::ObjectStatus::QUARANTINED:
+                std::cout << "QUARANTINED" << std::endl;
+                break;
+            case safestore::ObjectStatus::RESTORE_FAILED:
+                std::cout << "RESTORE_FAILED" << std::endl;
+                break;
+            case safestore::ObjectStatus::RESTORED_AS:
+                std::cout << "RESTORED_AS" << std::endl;
+                break;
+            case safestore::ObjectStatus::RESTORED:
+                std::cout << "RESTORED" << std::endl;
+                break;
+        }
 
-        std::cout << "getObjectStoreTime: " << safeStoreWrapper->getObjectStoreTime(result) << std::endl;
-        std::cout << "getObjectThreatId: " << safeStoreWrapper->getObjectThreatId(result) << std::endl;
-        std::cout << "getObjectThreatName: " << safeStoreWrapper->getObjectThreatName(result) << std::endl;
-        std::cout << "getObjectCustomDataString: " << safeStoreWrapper->getObjectCustomDataString(result, "SHA256") << std::endl;
+        std::cout << "Object Store Time: " << safeStoreWrapper->getObjectStoreTime(result) << std::endl;
+        std::cout << "Object Threat ID: " << safeStoreWrapper->getObjectThreatId(result) << std::endl;
+        std::cout << "Object Threat Name: " << safeStoreWrapper->getObjectThreatName(result) << std::endl;
+        std::cout << "Object Custom Data (SHA256): " << safeStoreWrapper->getObjectCustomDataString(result, "SHA256") << std::endl;
+        std::cout << std::endl;
     }
 
     return 0;
