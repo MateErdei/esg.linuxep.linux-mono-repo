@@ -676,10 +676,10 @@ TEST_F(TestPluginAdapter, testProcessScanComplete)
         </event>)sophos";
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", scanCompleteXml));
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}")).Times(0);
 
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_CLEAN_SUCCESS);
+    pluginAdapter.processScanComplete(scanCompleteXml);
     m_taskQueue->pushStop();
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
@@ -944,59 +944,6 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
     EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
 }
 
-TEST_F(TestPluginAdapter, testHealthResetsToGreenWhenAppriopriate)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-    std::string scanCompleteXml = R"sophos(<?xml version="1.0"?>
-        <event xmlns="http://www.sophos.com/EE/EESavEvent" type="sophos.mgt.sav.scanCompleteEvent">
-          <defaultDescription>The scan has completed!</defaultDescription>
-          <timestamp>20200101 120000</timestamp>
-          <scanComplete>
-            <scanName>Test Scan</scanName>
-          </scanComplete>
-          <entity></entity>
-        </event>)sophos";
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}")).Times(2);
-
-    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_GENERIC_FAILURE);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-
-    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_PASSWORD_PROTECTED);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-
-    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_SCAN_ABORTED);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_CAP_SET_PROC_C);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_CAP_SET_AMBIENT_C);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_SIGTERM);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_VIRUS_FOUND);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_SCAN_ABORTED_WITH_THREATS);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_EXECUTION_INTERRUPTED);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    EXPECT_TRUE(appenderContains("Publishing good threat health status after clean scan", 2));
-}
 
 // TODO: LINUXDAR-5806 -- stablise this test
 //// PluginAdapter construction needed for this test, so it's here instead of its own TestSafeStoreWorker file (for now)

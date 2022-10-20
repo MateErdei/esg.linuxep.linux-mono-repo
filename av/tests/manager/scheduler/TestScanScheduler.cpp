@@ -23,15 +23,13 @@ namespace
     class FakeScanCompletion : public IScanComplete
     {
     public:
-        void processScanComplete(std::string& scanCompletedXml, int exitCode) override
+        void processScanComplete(std::string& scanCompletedXml) override
         {
             m_xml = scanCompletedXml;
             m_count++;
-            m_exitCode = exitCode;
         }
         std::string m_xml;
         int m_count = 0;
-        int m_exitCode;
     };
 
     constexpr char LOG_CATEGORY[] = "ScanScheduler";

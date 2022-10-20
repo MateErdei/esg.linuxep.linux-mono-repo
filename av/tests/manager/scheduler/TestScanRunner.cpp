@@ -29,13 +29,11 @@ TEST_F(TestScanRunner, construction)
     class FakeScanCompletion : public IScanComplete
     {
     public:
-        void processScanComplete(std::string& scanCompletedXml, int exitCode) override
+        void processScanComplete(std::string& scanCompletedXml) override
         {
             m_xml = scanCompletedXml;
-            m_exitCode = exitCode;
         }
         std::string m_xml;
-        int m_exitCode;
     };
 
     FakeScanCompletion scanCompletion;
