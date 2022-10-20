@@ -41,7 +41,7 @@ namespace safestore
         switch (state)
         {
             case QuarantineManagerState::INITIALISED:
-                LOGINFO("Quarantine Manager is initialised");
+                LOGDEBUG("Quarantine Manager is initialised");
                 break;
             case QuarantineManagerState::UNINITIALISED:
                 LOGWARN("Quarantine Manager is not initialised");
