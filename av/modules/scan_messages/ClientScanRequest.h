@@ -38,6 +38,8 @@ namespace scan_messages
 
         void setUserID(const std::string& userID) { m_userID = userID; }
 
+        void setQueueIndex(const size_t& queueIndex) { m_queueIndex = queueIndex; }
+
         /*
          * fd is donated in this call
          */
@@ -48,6 +50,7 @@ namespace scan_messages
         [[nodiscard]] int getFd() const { return m_autoFd.fd(); }
         [[nodiscard]] E_SCAN_TYPE getScanType() const { return m_scanType; }
         [[nodiscard]] std::chrono::steady_clock::time_point getCreationTime() const { return m_creationTime; }
+        [[nodiscard]] size_t getQueueIndex() const { return m_queueIndex; }
         [[nodiscard]] bool isOpenEvent() const { return m_scanType == E_SCAN_TYPE_ON_ACCESS_OPEN; }
 
     protected:
@@ -56,10 +59,11 @@ namespace scan_messages
         bool m_scanInsideImages = false;
         std::string m_userID;
         E_SCAN_TYPE m_scanType = E_SCAN_TYPE_UNKNOWN;
-        std::chrono::steady_clock::time_point m_creationTime = std::chrono::steady_clock::now();
 
         //Not serialised
        datatypes::AutoFd m_autoFd;
+       std::chrono::steady_clock::time_point m_creationTime = std::chrono::steady_clock::now();
+       size_t m_queueIndex;
     };
 
     using ClientScanRequestPtr = std::shared_ptr<ClientScanRequest>;

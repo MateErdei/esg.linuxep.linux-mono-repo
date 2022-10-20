@@ -118,7 +118,7 @@ void ScanRequestHandler::run()
 
                     std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
                     LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms by scanHandler-" << m_handlerId
-                                         << ": Time in product is " << inProductDuration);
+                                         << ": Time in product is " << inProductDuration << "ms. Queue size was " << queueItem->getQueueIndex());
                 }
                 else
                 {

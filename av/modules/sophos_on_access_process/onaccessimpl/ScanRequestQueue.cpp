@@ -23,6 +23,7 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
     else
     {
         std::lock_guard<std::mutex> lock(m_lock);
+        item->setQueueIndex(currentQueueSize);
         m_queue.emplace(std::move(item));
         m_condition.notify_one();
         return true;
