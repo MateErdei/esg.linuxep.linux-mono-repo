@@ -431,7 +431,6 @@ namespace safestore
             {
                 m_safeStore.releaseSearchHandle(m_handle);
                 m_handle = nullptr;
-                //                LOGTRACE("Cleaned up SafeStore search handle");
             }
         }
 
@@ -505,7 +504,7 @@ namespace safestore
 
             friend bool operator!=(const Iterator& a, const Iterator& b)
             {
-                return *a.m_objectHolder != *b.m_objectHolder;
+                return !(a == b);
             };
 
         private:
