@@ -610,7 +610,12 @@ namespace safestore
         const std::string& dataName,
         const std::vector<uint8_t>& value)
     {
-        // TODO 5675 define max size for custom data
+
+        if (value.size() > MAX_CUSTOM_DATA_SIZE)
+        {
+            LOGWARN("Failed to set custom data against SafeStore object, max size: " << MAX_CUSTOM_DATA_SIZE << "bytes, attempted to store: " << value.size() << "bytes");
+            return false;
+        }
 
         auto returnCode = SafeStore_SetObjectCustomData(
             m_safeStoreCtx, objectHandle.getRawHandle(), dataName.c_str(), value.data(), value.size());
@@ -642,11 +647,8 @@ namespace safestore
         const ObjectHandleHolder& objectHandle,
         const std::string& dataName)
     {
-        // TODO 5675 define max size for custom data
-        // TODO 5675 deal with size coming back not equal to what we're expecting
-        constexpr int dataSize = 1024;
-        size_t size = dataSize;
-        uint8_t buf[dataSize];
+        size_t size = MAX_CUSTOM_DATA_SIZE;
+        uint8_t buf[MAX_CUSTOM_DATA_SIZE];
 
         size_t bytesRead = 0;
         auto returnCode = SafeStore_GetObjectCustomData(
@@ -655,7 +657,7 @@ namespace safestore
         switch (returnCode)
         {
             case SR_OK:
-                if (bytesRead < dataSize)
+                if (bytesRead <= MAX_CUSTOM_DATA_SIZE)
                 {
                     dataToReturn.assign(buf, buf + bytesRead);
                 }
@@ -680,6 +682,7 @@ namespace safestore
         }
         return dataToReturn;
     }
+
     bool SafeStoreWrapperImpl::setObjectCustomDataString(
         ObjectHandleHolder& objectHandle,
         const std::string& dataName,
@@ -688,6 +691,7 @@ namespace safestore
         std::vector<uint8_t> valueAsBytes(value.begin(), value.end());
         return setObjectCustomData(objectHandle, dataName, valueAsBytes);
     }
+
     std::string SafeStoreWrapperImpl::getObjectCustomDataString(
         ObjectHandleHolder& objectHandle,
         const std::string& dataName)

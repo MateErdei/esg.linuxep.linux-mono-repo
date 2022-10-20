@@ -26,6 +26,9 @@ namespace safestore
     static constexpr size_t THREAT_ID_LENGTH = 16;
     static constexpr int MAX_OBJECT_NAME_LENGTH = 200;
     static constexpr int MAX_OBJECT_THREAT_NAME_LENGTH = 200;
+    static constexpr int MAX_CUSTOM_DATA_SIZE = 5000; // bytes
+
+
 
     // Return codes from SafeStore initialisation
     enum class InitReturnCode
