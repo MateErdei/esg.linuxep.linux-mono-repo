@@ -390,7 +390,6 @@ namespace safestore
             {
                 m_safeStoreWrapper.releaseObjectHandle(m_handle);
                 m_handle = nullptr;
-                //                LOGTRACE("Cleaned up SafeStore object handle");
             }
         }
 
@@ -406,20 +405,12 @@ namespace safestore
 
         bool operator==(const ObjectHandleHolder& other) const
         {
-            //            return m_handle == other.getRawHandle();
-            //            return m_safeStoreWrapper.getObjectId(*this) == m_safeStoreWrapper.getObjectId(other);
-            auto thisId = m_safeStoreWrapper.getObjectId(*this);
-            auto otherId = m_safeStoreWrapper.getObjectId(other);
-            return thisId == otherId;
+            return m_safeStoreWrapper.getObjectId(*this) == m_safeStoreWrapper.getObjectId(other);
         }
 
         bool operator!=(const ObjectHandleHolder& other) const
         {
-            //            return m_handle == other.getRawHandle();
-            //            return m_safeStoreWrapper.getObjectId(*this) == m_safeStoreWrapper.getObjectId(other);
-            auto thisId = m_safeStoreWrapper.getObjectId(*this);
-            auto otherId = m_safeStoreWrapper.getObjectId(other);
-            return thisId != otherId;
+            return !(*this == other);
         }
 
     private:
