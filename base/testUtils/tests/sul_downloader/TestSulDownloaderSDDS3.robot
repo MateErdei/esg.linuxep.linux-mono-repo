@@ -303,7 +303,7 @@ SUS Fault Injection Server Hangs
     Create Directory  ${TEST_TEMP_DIR}
 
     Wait Until Keyword Succeeds
-    ...   30 secs
+    ...   70 secs
     ...   1 secs
     ...   Check Suldownloader Log Contains In Order
         ...  Failed to connect to repository: SUS request failed with error: Timeout was reached

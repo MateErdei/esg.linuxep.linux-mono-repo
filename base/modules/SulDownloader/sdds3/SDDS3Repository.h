@@ -18,7 +18,7 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 
 namespace SulDownloader
 {
-    static const int DEFAULT_TIMEOUT_S = 5;
+    static const int DEFAULT_TIMEOUT_S = 60;
 
     class SDDS3Repository : public virtual suldownloaderdata::ISdds3Repository
     {
