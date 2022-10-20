@@ -34,7 +34,7 @@ namespace safestore
         id.Data4[6] = safeStoreId[startOfBytes + 14];
         id.Data4[7] = safeStoreId[startOfBytes + 15];
 
-        LOGDEBUG("Converted threat ID: " << safeStoreId << " into safestore ID struct");
+        LOGDEBUG("Converted threat ID: " << safeStoreId << " into SafeStore ID struct");
         return id;
     }
 
