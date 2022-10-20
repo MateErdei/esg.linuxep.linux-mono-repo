@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "unixsocket/IStoppableSleeper.h"
+
 #include <condition_variable>
 #include <list>
 #include <mutex>
@@ -45,7 +47,7 @@ namespace Plugin
         }
     };
 
-    class TaskQueue
+    class TaskQueue : public unixsocket::IStoppableSleeper
     {
         std::mutex m_mutex;
         std::condition_variable m_cond;
@@ -53,8 +55,8 @@ namespace Plugin
         bool m_stopQueued = false;
 
     public:
+        using duration_t = unixsocket::IStoppableSleeper::duration_t;
         using clock_t = std::chrono::steady_clock;
-        using duration_t = std::chrono::milliseconds;
         using time_point_t = std::chrono::time_point<clock_t>;
 
         TaskQueue() = default;
@@ -72,7 +74,7 @@ namespace Plugin
          * @param sleepTime
          * @return True if the sleep was stopped
          */
-        bool stoppableSleep(duration_t sleepTime);
+        bool stoppableSleep(duration_t sleepTime) override;
     };
 
 } // namespace Plugin

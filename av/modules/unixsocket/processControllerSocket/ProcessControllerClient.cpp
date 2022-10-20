@@ -22,6 +22,15 @@ unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::st
     connectWithRetries();
 }
 
+unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(
+    std::string socket_path,
+    unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper)
+    : BaseClient(std::move(socket_path), DEFAULT_SLEEP_TIME, std::move(sleeper))
+{
+    connectWithRetries();
+}
+
+
 void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const scan_messages::ProcessControlSerialiser& processControl)
 {
     if (m_connectStatus == -1)

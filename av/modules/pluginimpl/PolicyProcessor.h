@@ -1,12 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include "scan_messages/ProcessControlSerialiser.h"
+#include "unixsocket/IStoppableSleeper.h"
 
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <thirdparty/nlohmann-json/json.hpp>
@@ -48,18 +45,20 @@ namespace Plugin
         void processOnAccessFlagSettings(const nlohmann::json& flagsJson);
         void processSafeStoreFlagSettings(const nlohmann::json& flagsJson);
 
-        std::string m_customerId;
-        bool m_lookupEnabled = true;
-        bool m_safeStoreEnabled = false;
         static std::vector<std::string> extractListFromXML(
             const Common::XmlUtilities::AttributesMap& policy,
             const std::string& entityFullPath);
+
+        std::shared_ptr<unixsocket::IStoppableSleeper> m_sleeper;
+        std::string m_customerId;
+        bool m_lookupEnabled = true;
+        bool m_safeStoreEnabled = false;
 
         bool m_gotFirstSavPolicy = false;
         bool m_gotFirstAlcPolicy = false;
         bool m_restartThreatDetector = false;
 
-        inline static const std::string OA_FLAG = "av.onaccess.enabled";
-        inline static const std::string SS_FLAG = "safestore.enabled";
+        inline static const std::string OA_FLAG{"av.onaccess.enabled"};
+        inline static const std::string SS_FLAG{"safestore.enabled"};
     };
 }

@@ -18,6 +18,7 @@ namespace unixsocket
     {
     public:
         explicit ProcessControllerClientSocket(std::string  socket_path, const duration_t& sleepTime=BaseClient::DEFAULT_SLEEP_TIME);
+        explicit ProcessControllerClientSocket(std::string  socket_path, IStoppableSleeperSharedPtr sleeper);
 
         void sendProcessControlRequest(const scan_messages::ProcessControlSerialiser& processControl);
     };
