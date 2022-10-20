@@ -5,5 +5,5 @@ pytest-html
 Cython
 pycapnp
 #TODO: LINUXDAR-5907 Update tests to be compatible with latest robot framework, pubtap is incompatible with 5.0.1
-robotframework>=4.0
+robotframework==4.0.2
 requests
