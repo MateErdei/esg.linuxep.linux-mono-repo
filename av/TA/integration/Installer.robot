@@ -434,6 +434,7 @@ Check world writable permissions
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     find ${COMPONENT_ROOT_PATH} -! -type l -perm -0002
     Should Be Equal As Integers  ${rc}  0
+    ${output} =   Replace String Using Regexp   ${output}   /[^/]*\\.cov   ${EMPTY}
     @{items} =    Split To Lines   ${output}
     Log List   ${items}
     Should Not Be Empty   ${items}
@@ -800,6 +801,7 @@ ${IDE_NAME}         peend.ide
 
 @{WORLD_WRITE_ALLOWED_TO_WRITE}
 ...     /opt/sophos-spl/plugins/av/chroot/var/scanning_socket
+...     /opt/sophos-spl/plugins/av/chroot/tmp
 
 *** Keywords ***
 Installer Suite Setup
