@@ -240,7 +240,7 @@ Bad Threat Health is preserved after av plugin restarts
     Wait until AV Plugin running
     Check Threat Health is Reporting Correctly    2
 
-Clean Scan Now Result Resets Threat Health
+Clean Scan Now Result Does Not Reset Threat Health
     Check Threat Health is Reporting Correctly    1
 
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
@@ -259,10 +259,10 @@ Clean Scan Now Result Resets Threat Health
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     AV Plugin Log Contains With Offset   Completed scan Scan Now without detecting any threats
 
-    Check Threat Health is Reporting Correctly    1
+    Check Threat Health is Reporting Correctly    2
 
 
-Clean Scheduled Scan Result Resets Threat Health
+Clean Scheduled Scan Result Does Not Resets Threat Health
     Check Threat Health is Reporting Correctly    1
 
     Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
@@ -285,7 +285,7 @@ Clean Scheduled Scan Result Resets Threat Health
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=180
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=210
 
-    Check Threat Health is Reporting Correctly    1
+    Check Threat Health is Reporting Correctly    2
 
 Test av health is green right after install
     Install With Base SDDS
