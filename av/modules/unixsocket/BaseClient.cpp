@@ -62,7 +62,11 @@ void unixsocket::BaseClient::connectWithRetries(const std::string& socketName)
         }
 
         LOGDEBUG("Failed to connect to " << socketName << " - retrying after sleep");
-        m_sleeper->stoppableSleep(m_sleepTime);
+        if (m_sleeper->stoppableSleep(m_sleepTime))
+        {
+            LOGINFO("Stop requested while connecting to "<< socketName);
+            return;
+        }
 
         m_connectStatus = attemptConnect();
     }
