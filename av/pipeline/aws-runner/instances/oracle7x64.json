@@ -48,7 +48,6 @@
         "echo 'Created aws config. Now grabbing tests...' >> /tmp/cloudFormationInit.log\n",
         "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
         "yum -y install epel-release make gcc nfs-utils kernel-devel fuse-libs gdb rpm-build cifs-utils wget attr psmisc zip &>>/tmp/cloudFormationInit.log\n",
-        "yum -y install python3-devel python3-pip policycoreutils-python-utils &>>/tmp/cloudFormationInit.log\n",
         "yum -y install cmake gcc-c++ make &>>/tmp/cloudFormationInit.log\n",
         "yum -y install samba &>>/tmp/cloudFormationInit.log\n",
         "export LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH\n",
