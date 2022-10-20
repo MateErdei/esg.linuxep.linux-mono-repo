@@ -471,14 +471,34 @@ namespace safestore
 
     void SafeStoreWrapperImpl::releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder)
     {
-        // TODO handle result
-        SafeStore_ReleaseObjectHandle(objectHandleHolder);
+        auto returnCode = SafeStore_ReleaseObjectHandle(objectHandleHolder);
+        switch (returnCode)
+        {
+            case SR_OK:
+                LOGDEBUG("Got OK when cleaning up safestore object handle");
+                break;
+            case SR_INVALID_ARG:
+                LOGDEBUG("Got INVALID_ARG when cleaning up safestore object handle");
+                break;
+            default:
+                LOGDEBUG("Failed to clean up safestore object handle for unknown reason");
+        }
     }
 
     void SafeStoreWrapperImpl::releaseSearchHandle(SafeStoreSearchHandle searchHandleHolder)
     {
-        // TODO handle result
-        SafeStore_FindClose(m_safeStoreCtx, searchHandleHolder);
+        auto returnCode = SafeStore_FindClose(m_safeStoreCtx, searchHandleHolder);
+        switch (returnCode)
+        {
+            case SR_OK:
+                LOGDEBUG("Got OK when cleaning up safestore search handle");
+                break;
+            case SR_INVALID_ARG:
+                LOGDEBUG("Got INVALID_ARG when cleaning up safestore search handle");
+                break;
+            default:
+                LOGDEBUG("Failed to clean up safestore search handle for unknown reason");
+        }
     }
 
     ObjectType SafeStoreWrapperImpl::getObjectType(const ObjectHandleHolder& objectHandle)
@@ -543,24 +563,25 @@ namespace safestore
 
     std::string SafeStoreWrapperImpl::getObjectThreatName(const ObjectHandleHolder& objectHandle)
     {
-        constexpr int nameSize = 200;
-        size_t size = nameSize;
-        char buf[nameSize];
-
-        // TODO 5675 deal with error codes... e.g. string size too small
-
+        size_t size = MAX_OBJECT_THREAT_NAME_LENGTH;
+        char buf[MAX_OBJECT_THREAT_NAME_LENGTH];
         auto returnCode = SafeStore_GetObjectThreatName(objectHandle.getRawHandle(), buf, &size);
         switch (returnCode)
         {
             case SR_OK:
+                LOGDEBUG("Got OK when getting object threat name from SafeStore");
                 break;
             case SR_INVALID_ARG:
+                LOGDEBUG("Got INVALID_ARG when getting object threat name from SafeStore");
                 break;
             case SR_INTERNAL_ERROR:
+                LOGDEBUG("Got INTERNAL_ERROR when getting object threat name from SafeStore");
                 break;
             case SR_BUFFER_SIZE_TOO_SMALL:
+                LOGDEBUG("Got BUFFER_SIZE_TOO_SMALL when getting object threat name from SafeStore, size: " << size);
                 break;
             default:
+                LOGDEBUG("Failed for unknown reason when getting object threat name from SafeStore, rc: " << returnCode);
                 break;
         }
         return std::string(buf);
