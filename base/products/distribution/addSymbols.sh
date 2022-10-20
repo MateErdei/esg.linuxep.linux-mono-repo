@@ -14,7 +14,7 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 cd $SOPHOS_INSTALL
 cp -av $ABS_SCRIPTDIR/files/* .
 
-for file in $(find . -name *.debug)
+for file in $(find . -name sophos-spl-comms -prune -o -name *.debug)
 do
     (
         cd $(dirname $file)
