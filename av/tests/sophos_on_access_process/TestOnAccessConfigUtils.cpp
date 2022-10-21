@@ -8,6 +8,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_on_access_process/soapd_bootstrap/OnAccessConfigurationUtils.h"
+#include "sophos_on_access_process/soapd_bootstrap/OnAccessProductConfigDefaults.h"
 
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
@@ -36,6 +37,7 @@ protected:
         appConfig.setData("PLUGIN_INSTALL", m_testDir );
 
         m_soapConfigPath = m_testDir / "var/soapd_config.json";
+        m_productControlPath = m_testDir / "var/onaccessproductconfig.json";
         m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
         m_defaultTestExclusions.emplace_back("/mnt/");
         m_defaultTestExclusions.emplace_back("/uk-filer5/");
@@ -47,6 +49,7 @@ protected:
     }
 
     std::string m_soapConfigPath;
+    std::string m_productControlPath;
     std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
     std::vector<common::Exclusion> m_defaultTestExclusions;
 };
@@ -131,3 +134,83 @@ TEST_F(TestOnAccessConfigUtils, parseFlagConfigurationFromJsonInvalidJsonSyntax)
     EXPECT_FALSE(parseFlagConfiguration(jsonString));
     EXPECT_TRUE(appenderContains("Failed to parse flag configuration, keeping existing settings"));
 }
+
+
+TEST_F(TestOnAccessConfigUtils, parseProductConfigEmptyKeepsDefaults)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return(""));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    size_t maxScanQueueItems = defaultMaxScanQueueSize;
+    int maxThreads = defaultScanningThreads;
+
+    readProductConfigFile(maxScanQueueItems, maxThreads);
+
+    EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
+    EXPECT_EQ(maxThreads, defaultScanningThreads);
+
+    std::stringstream logmsg;
+    logmsg << "Setting from defaults: Max queue size set to " << defaultMaxScanQueueSize << " and Max threads set to " << defaultScanningThreads;
+    EXPECT_TRUE(appenderContains(logmsg.str()));
+}
+
+
+TEST_F(TestOnAccessConfigUtils, parseProductConfigIgnoresBadvalues)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": \"ha\",\"maxscanqueuesize\": \"ha\"}"));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    size_t maxScanQueueItems = defaultMaxScanQueueSize;
+    int maxThreads = defaultScanningThreads;
+
+    readProductConfigFile(maxScanQueueItems, maxThreads);
+
+    EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
+    EXPECT_EQ(maxThreads, defaultScanningThreads);
+
+    EXPECT_TRUE(appenderContains("Failed to convert product config file info to integers: stoi"));
+    std::stringstream logmsg;
+    logmsg << "Setting from defaults: Max queue size set to " << defaultMaxScanQueueSize << " and Max threads set to " << defaultScanningThreads;
+    EXPECT_TRUE(appenderContains(logmsg.str()));
+}
+
+TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsDefaultWhenFileDoenstExist)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    size_t maxScanQueueItems = 0;
+    int maxThreads = 0;
+
+    readProductConfigFile(maxScanQueueItems, maxThreads);
+
+    EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
+    EXPECT_EQ(maxThreads, defaultScanningThreads);
+
+    std::stringstream logmsg;
+    logmsg << "Setting from defaults: Max queue size set to " << defaultMaxScanQueueSize << " and Max threads set to " << defaultScanningThreads;
+    EXPECT_TRUE(appenderContains(logmsg.str()));
+}
+
+
+TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToProvidedValuesWhenFileExists)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": \"20\",\"maxscanqueuesize\": \"2000\"}"));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    size_t maxScanQueueItems = 0;
+    int maxThreads = 0;
+
+    readProductConfigFile(maxScanQueueItems, maxThreads);
+
+    EXPECT_EQ(maxScanQueueItems, 2000);
+    EXPECT_EQ(maxThreads, 20);
+
+    EXPECT_TRUE(appenderContains("Setting from file: Max queue size set to 2000 and Max threads set to 20"));
+}
+

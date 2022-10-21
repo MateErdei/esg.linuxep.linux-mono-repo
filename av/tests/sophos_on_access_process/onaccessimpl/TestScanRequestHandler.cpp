@@ -8,6 +8,7 @@
 #include "sophos_on_access_process/onaccessimpl/ReconnectSettings.h"
 #include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
+#include "sophos_on_access_process/soapd_bootstrap/OnAccessProductConfigDefaults.h"
 
 #include <gtest/gtest.h>
 
@@ -50,7 +51,7 @@ namespace
 
 TestScanRequestHandler::HandlerPtr TestScanRequestHandler::buildDefaultHandler(std::shared_ptr<unixsocket::IScanningClientSocket> socket)
 {
-    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
     return std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
         scanRequestQueue, std::move(socket), m_mockFanotifyHandler);
 }
@@ -123,7 +124,7 @@ TEST_F(TestScanRequestHandler, scan_threadPopsAllItemsFromQueue)
 
     const char* filePath1 = "/tmp/test1";
     const char* filePath2 = "/tmp/test2";
-    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
     auto scanRequest1 = std::make_shared<ClientScanRequest>();
     scanRequest1->setPath(filePath1);
     scanRequest1->setScanType(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN);
@@ -155,7 +156,7 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileWaiting)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto scanRequestQueue = std::make_shared<ScanRequestQueue>();
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
         scanRequestQueue, socket, m_mockFanotifyHandler);
