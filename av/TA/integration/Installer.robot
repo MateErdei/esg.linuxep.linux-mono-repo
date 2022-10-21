@@ -313,16 +313,22 @@ Scanner works after upgrade
 
 Services restarted after upgrade
     Mark On Access Log
-    ${old_soapd_pid} =  Record Soapd Plugin PID
-    ${old_safestore_pid} =  ProcessUtils.pidof or fail  ${SAFESTORE_BIN}
+    ${soapd_log_mark} =  Mark Log Size  ${ON_ACCESS_LOG_PATH}
+    ${safestore_log_mark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
+
+    ${old_soapd_pid} =  ProcessUtils.wait for pid  ${ON_ACCESS_BIN}  timeout=${5}
+    ${old_safestore_pid} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  timeout=${5}
 
     # modify the manifest to force the installer to perform a full product update
     Modify manifest
     Run Installer From Install Set
-    ## Wait for soapd to be running?
 
-    ${new_soapd_pid} =  Record Soapd Plugin PID
-    ${new_safestore_pid} =  ProcessUtils.pidof or fail  ${SAFESTORE_BIN}
+    ## Wait for soapd to be running
+    wait for log contains after mark  ${ON_ACCESS_LOG_PATH}  configured for level:  ${soapd_log_mark}  timeout=${5}
+    wait for log contains after mark  ${SAFESTORE_LOG_PATH}  configured for level:  ${safestore_log_mark}  timeout=${5}
+
+    ${new_soapd_pid} =  ProcessUtils.wait for pid  ${ON_ACCESS_BIN}  timeout=${5}
+    ${new_safestore_pid} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  timeout=${5}
 
     Should Not Be Equal As Integers  ${old_soapd_pid}  ${new_soapd_pid}
     Should Not Be Equal As Integers  ${old_safestore_pid}  ${new_safestore_pid}

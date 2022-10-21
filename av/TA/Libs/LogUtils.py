@@ -890,6 +890,29 @@ File Log Contains
 
         return None
 
+    def mark_log_size(self, logpath):
+        contents = _get_log_contents(logpath)
+        self.__m_marked_log_position[logpath] = len(contents)
+        return self.__m_marked_log_position[logpath]
+
+    def wait_for_log_contains_after_mark(self, logpath, expected, mark=None, timeout=10):
+        if mark is None:
+            mark = self.__m_marked_log_position.get(logpath, 0)
+
+        start = time.time()
+        while time.time() < start + timeout:
+            contents = _get_log_contents(logpath)
+            if len(contents) > mark:
+                contents = contents[mark:]
+
+            if expected in contents:
+                return
+            time.sleep(0.5)
+
+        logger.error("Failed to find %s in %s" % (expected, logpath))
+        self.dump_log(logpath)
+        raise AssertionError("Failed to find %s in %s" % (expected, logpath))
+
 
 def __main(argv):
     # write your tests here
