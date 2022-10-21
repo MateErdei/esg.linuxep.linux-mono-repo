@@ -100,11 +100,7 @@ def find_eicars(eicar_directory):
 def get_filepath_notification_event(p):
     dom = xml.dom.minidom.parse(p)
     try:
-        with open(p) as f:
-            logger.info(f.read())
-
         items = dom.getElementsByTagName("path")
-        logger.info(f"{len(items)}")
         assert len(items) == 1
         item = items[0]
         return ''.join(node.nodeValue for node in item.childNodes)
