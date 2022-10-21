@@ -13,6 +13,7 @@
 
 #include <utility>
 
+#include <poll.h>
 #include <sys/select.h>
 #include <sys/stat.h>
 
@@ -43,7 +44,8 @@ namespace plugin::manager::scanprocessmonitor
         std::string processControllerSocket,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper) :
         m_sysCallWrapper(std::move(systemCallWrapper)),
-        m_processControllerSocketPath(std::move(processControllerSocket))
+        m_processControllerSocketPath(std::move(processControllerSocket)),
+        m_sleeper(std::make_shared<NotifyPipeSleeper>(m_notifyPipe))
     {
     }
 
@@ -52,7 +54,7 @@ namespace plugin::manager::scanprocessmonitor
     {
         try
         {
-            unixsocket::ProcessControllerClientSocket processController(m_processControllerSocketPath);
+            unixsocket::ProcessControllerClientSocket processController(m_processControllerSocketPath, m_sleeper);
             scan_messages::ProcessControlSerialiser processControlRequest(requestType);
             processController.sendProcessControlRequest(processControlRequest);
         }

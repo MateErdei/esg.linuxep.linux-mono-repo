@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ConfigMonitor.h"
+#include "NotifyPipeSleeper.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/ISystemCallWrapper.h"
@@ -30,6 +31,7 @@ namespace plugin::manager::scanprocessmonitor
         Common::Threads::NotifyPipe m_policy_changed;
         datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
         std::string m_processControllerSocketPath;
+        std::shared_ptr<NotifyPipeSleeper> m_sleeper;
     };
 }
 
