@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace safestore
+namespace safestore::QuarantineManager
 {
     enum class QuarantineManagerState
     {
@@ -56,4 +56,4 @@ namespace safestore
             datatypes::AutoFd autoFd) = 0;
     };
 
-} // namespace safestore
+} // namespace safestore::QuarantineManager

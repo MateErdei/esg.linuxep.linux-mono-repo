@@ -14,7 +14,7 @@
 #include <utility>
 #include <vector>
 
-namespace safestore
+namespace safestore::SafeStoreWrapper
 {
     // Handle the void* typedefs in safestore.h
     // These resources are wrapped up in ObjectHandleHolder, SearchHandleHolder and the SafeStoreWrapperImpl.
@@ -27,8 +27,6 @@ namespace safestore
     static constexpr int MAX_OBJECT_NAME_LENGTH = 200;
     static constexpr int MAX_OBJECT_THREAT_NAME_LENGTH = 200;
     static constexpr int MAX_CUSTOM_DATA_SIZE = 5000; // bytes
-
-
 
     // Return codes from SafeStore initialisation
     enum class InitReturnCode
@@ -335,17 +333,17 @@ namespace safestore
             ObjectHandleHolder& objectHandle,
             const std::string& dataName) = 0;
 
-        // TODO LINUXDAR-5734  _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectById(_In_ SafeStore_t ctx,
-        // _In_ const SafeStore_Id_t* objectId, _In_opt_z_ const SsPlatChar* location);
+        // TODO LINUXDAR-5734  _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectById(_In_
+        // SafeStore_t ctx, _In_ const SafeStore_Id_t* objectId, _In_opt_z_ const SsPlatChar* location);
 
         // TODO LINUXDAR-5734 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectsByThreatId(_In_
         // SafeStore_t ctx, _In_ const SafeStore_Id_t* threatId);
 
-        // TODO LINUXDAR-5734 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectById(_In_ SafeStore_t ctx,
-        // _In_ const SafeStore_Id_t* objectId);
+        // TODO LINUXDAR-5734 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectById(_In_
+        // SafeStore_t ctx, _In_ const SafeStore_Id_t* objectId);
 
-        // TODO LINUXDAR-5734 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectsByThreatId(_In_ SafeStore_t
-        // ctx, _In_ const SafeStore_Id_t* threatId);
+        // TODO LINUXDAR-5734 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectsByThreatId(_In_
+        // SafeStore_t ctx, _In_ const SafeStore_Id_t* threatId);
 
         // TODO LINUXDAR-5734 SafeStore_Result_t SAFESTORE_CALL SafeStore_ExportFile(_In_ SafeStore_t ctx, _In_ const
         // SafeStore_Id_t* objectId, _Reserved_ const uint8_t* password, _Reserved_ size_t passwordSize, _In_z_ const
@@ -527,4 +525,4 @@ namespace safestore
         SafeStoreFilter m_filter;
     };
 
-} // namespace safestore
+} // namespace safestore::SafeStoreWrapper

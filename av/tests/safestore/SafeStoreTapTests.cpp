@@ -8,13 +8,15 @@
 // The tests can be executed just like normal unit tests for local dev.
 
 #include "../common/LogInitializedTests.h"
-#include "safestore/SafeStoreWrapperImpl.h"
+#include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystem.h"
 
 #include <common/ApplicationPaths.h>
 #include <gtest/gtest.h>
+
+using namespace safestore::SafeStoreWrapper;
 
 class SafeStoreWrapperTapTests : public LogInitializedTests
 {
@@ -35,7 +37,7 @@ protected:
     {
         std::cout << "SetUp" << std::endl;
         auto initReturnCode = m_safeStoreWrapper->initialise(m_safeStoreDbDir, m_safeStoreDbName, m_safeStoreDbPw);
-        ASSERT_EQ(initReturnCode, safestore::InitReturnCode::OK);
+        ASSERT_EQ(initReturnCode, InitReturnCode::OK);
     }
 
     static void deleteDatabase()
@@ -54,62 +56,61 @@ protected:
     static inline const std::string m_safeStoreDbDir = Common::FileSystem::join(m_testWorkingDir, "safestore_db");
     static inline const std::string m_safeStoreDbName = "safestore.db";
     static inline const std::string m_safeStoreDbPw = "a test password";
-    std::unique_ptr<safestore::ISafeStoreWrapper> m_safeStoreWrapper =
-        std::make_unique<safestore::SafeStoreWrapperImpl>();
+    std::unique_ptr<ISafeStoreWrapper> m_safeStoreWrapper = std::make_unique<SafeStoreWrapperImpl>();
 };
 
 TEST_F(SafeStoreWrapperTapTests, initExistingDb)
 {
     auto initReturnCode = m_safeStoreWrapper->initialise(m_safeStoreDbDir, m_safeStoreDbName, m_safeStoreDbPw);
-    ASSERT_EQ(initReturnCode, safestore::InitReturnCode::OK);
+    ASSERT_EQ(initReturnCode, InitReturnCode::OK);
 }
 
 TEST_F(SafeStoreWrapperTapTests, readDefaultConfigOptions)
 {
-    auto autoPurge = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::AUTO_PURGE);
+    auto autoPurge = m_safeStoreWrapper->getConfigIntValue(ConfigOption::AUTO_PURGE);
     ASSERT_TRUE(autoPurge.has_value());
     ASSERT_EQ(autoPurge.value(), 1);
 
-    auto maxObjSize = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_OBJECT_SIZE);
+    auto maxObjSize = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_OBJECT_SIZE);
     ASSERT_TRUE(maxObjSize.has_value());
     ASSERT_EQ(maxObjSize.value(), 107374182400);
 
-    auto maxObjInRegistrySubtree = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_REG_OBJECT_COUNT);
+    auto maxObjInRegistrySubtree = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_REG_OBJECT_COUNT);
     ASSERT_FALSE(maxObjInRegistrySubtree.has_value());
 
-    auto maxSafeStoreSize = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_SAFESTORE_SIZE);
+    auto maxSafeStoreSize = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_SAFESTORE_SIZE);
     ASSERT_TRUE(maxSafeStoreSize.has_value());
     ASSERT_EQ(maxSafeStoreSize.value(), 214748364800);
 
-    auto maxObjCount = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_STORED_OBJECT_COUNT);
+    auto maxObjCount = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_STORED_OBJECT_COUNT);
     ASSERT_TRUE(maxObjCount.has_value());
     ASSERT_EQ(maxObjCount.value(), 2000);
 }
 
 TEST_F(SafeStoreWrapperTapTests, writeAndThenRreadBackConfigOptions)
 {
-    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(safestore::ConfigOption::AUTO_PURGE, false));
-    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(safestore::ConfigOption::MAX_OBJECT_SIZE, 100000000000));
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::AUTO_PURGE, false));
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_OBJECT_SIZE, 100000000000));
 
     // This currently fails - defect or we don't care as it's windows only?
-    // ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(safestore::ConfigOption::MAX_REG_OBJECT_COUNT, 100));
+    // ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_REG_OBJECT_COUNT, 100));
 
-    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(safestore::ConfigOption::MAX_SAFESTORE_SIZE, 200000000000));
-    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(safestore::ConfigOption::MAX_STORED_OBJECT_COUNT, 5000));
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_SAFESTORE_SIZE, 200000000000));
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_STORED_OBJECT_COUNT, 5000));
 
-    auto autoPurge = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::AUTO_PURGE);
+    auto autoPurge = m_safeStoreWrapper->getConfigIntValue(ConfigOption::AUTO_PURGE);
     ASSERT_TRUE(autoPurge.has_value());
     ASSERT_EQ(autoPurge.value(), 0);
 
-    auto maxObjSize = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_OBJECT_SIZE);
+    auto maxObjSize = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_OBJECT_SIZE);
     ASSERT_TRUE(maxObjSize.has_value());
     ASSERT_EQ(maxObjSize.value(), 100000000000);
 
-    auto maxSafeStoreSize = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_SAFESTORE_SIZE);
+    auto maxSafeStoreSize = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_SAFESTORE_SIZE);
     ASSERT_TRUE(maxSafeStoreSize.has_value());
     ASSERT_EQ(maxSafeStoreSize.value(), 200000000000);
 
-    auto maxObjCount = m_safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_STORED_OBJECT_COUNT);
+    auto maxObjCount = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_STORED_OBJECT_COUNT);
     ASSERT_TRUE(maxObjCount.has_value());
     ASSERT_EQ(maxObjCount.value(), 5000);
 }
@@ -132,20 +133,20 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndLookupDetails)
             threatId,
             threatName,
             *objectHandle1),
-        safestore::SaveFileReturnCode::OK);
+        SaveFileReturnCode::OK);
 
     // Find all FILE threats in SafeStore
-    safestore::SafeStoreFilter filter;
-    filter.objectType = safestore::ObjectType::FILE;
-    filter.activeFields = { safestore::FilterField::OBJECT_TYPE };
+    SafeStoreFilter filter;
+    filter.objectType = ObjectType::FILE;
+    filter.activeFields = { FilterField::OBJECT_TYPE };
     bool foundAnyResults = false;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
         foundAnyResults = true;
         ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
         ASSERT_EQ(m_safeStoreWrapper->getObjectId(result).size(), 16);
-        ASSERT_EQ(m_safeStoreWrapper->getObjectType(result), safestore::ObjectType::FILE);
-        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), safestore::ObjectStatus::STORED);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectType(result), ObjectType::FILE);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
 
         // Basic check to ensure that the store time is, at least, sensible
         auto storeTime = m_safeStoreWrapper->getObjectStoreTime(result);
@@ -181,7 +182,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineMultipleThreatsAndLookupDetails)
             "dummy_threat_ID1",
             threatName1,
             *objectHandle1),
-        safestore::SaveFileReturnCode::OK);
+        SaveFileReturnCode::OK);
 
     // Store 2
     auto objectHandle2 = m_safeStoreWrapper->createObjectHandleHolder();
@@ -192,11 +193,11 @@ TEST_F(SafeStoreWrapperTapTests, quarantineMultipleThreatsAndLookupDetails)
             "dummy_threat_ID2",
             threatName2,
             *objectHandle2),
-        safestore::SaveFileReturnCode::OK);
+        SaveFileReturnCode::OK);
 
-    safestore::SafeStoreFilter filter;
-    filter.objectType = safestore::ObjectType::FILE;
-    filter.activeFields = { safestore::FilterField::OBJECT_TYPE };
+    SafeStoreFilter filter;
+    filter.objectType = ObjectType::FILE;
+    filter.activeFields = { FilterField::OBJECT_TYPE };
 
     std::set<std::string> actualObjectNames;
     std::set<std::string> actualThreatNames;
@@ -233,15 +234,15 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
             threatId,
             threatName,
             *objectHandle1),
-        safestore::SaveFileReturnCode::OK);
+        SaveFileReturnCode::OK);
 
     // Set custom data
     ASSERT_TRUE(m_safeStoreWrapper->setObjectCustomDataString(*objectHandle1, "SHA256", sha256));
 
     // Find all FILE threats in SafeStore
-    safestore::SafeStoreFilter filter;
-    filter.objectType = safestore::ObjectType::FILE;
-    filter.activeFields = { safestore::FilterField::OBJECT_TYPE };
+    SafeStoreFilter filter;
+    filter.objectType = ObjectType::FILE;
+    filter.activeFields = { FilterField::OBJECT_TYPE };
     int resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -252,7 +253,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
         // Validate custom data saved ok
         ASSERT_EQ(m_safeStoreWrapper->getObjectCustomDataString(result, "SHA256"), sha256);
 
-        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), safestore::ObjectStatus::STORED);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
     }
     ASSERT_EQ(resultsFound, 1);
 }
@@ -275,7 +276,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseThreatAndStatusChangesToQu
             threatId,
             threatName,
             *objectHandle),
-        safestore::SaveFileReturnCode::OK);
+        SaveFileReturnCode::OK);
 
     // Finalise SafeStore object
     ASSERT_TRUE(m_safeStoreWrapper->finaliseObject(*objectHandle));
@@ -284,9 +285,9 @@ TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseThreatAndStatusChangesToQu
     ASSERT_TRUE(m_safeStoreWrapper->setObjectCustomDataString(*objectHandle, "SHA256", sha256));
 
     // Find all FILE threats in SafeStore
-    safestore::SafeStoreFilter filter;
-    filter.objectType = safestore::ObjectType::FILE;
-    filter.activeFields = { safestore::FilterField::OBJECT_TYPE };
+    SafeStoreFilter filter;
+    filter.objectType = ObjectType::FILE;
+    filter.activeFields = { FilterField::OBJECT_TYPE };
     int resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -297,7 +298,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseThreatAndStatusChangesToQu
         // Validate custom data saved ok
         ASSERT_EQ(m_safeStoreWrapper->getObjectCustomDataString(result, "SHA256"), sha256);
 
-        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), safestore::ObjectStatus::QUARANTINED);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::QUARANTINED);
     }
     ASSERT_EQ(resultsFound, 1);
 }

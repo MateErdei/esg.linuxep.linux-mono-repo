@@ -4,7 +4,7 @@
 
 #define AUTO_FD_IMPLICIT_INT
 
-#include "safestore/IQuarantineManager.h"
+#include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "unixsocket/BaseServerConnectionThread.h"
 
 #include "Common/Threads/AbstractThread.h"
@@ -26,13 +26,13 @@ namespace unixsocket
         SafeStoreServerConnectionThread& operator=(const SafeStoreServerConnectionThread&) = delete;
         explicit SafeStoreServerConnectionThread(
             datatypes::AutoFd& fd,
-            std::shared_ptr<safestore::IQuarantineManager> quarantineManager);
+            std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager);
         void run() override;
 
     private:
         void inner_run();
 
         datatypes::AutoFd m_fd;
-        std::shared_ptr<safestore::IQuarantineManager> m_quarantineManager;
+        std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> m_quarantineManager;
     };
 } // namespace unixsocket

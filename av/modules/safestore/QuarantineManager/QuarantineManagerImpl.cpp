@@ -2,8 +2,8 @@
 
 #include "QuarantineManagerImpl.h"
 
-#include "Logger.h"
-#include "SafeStoreWrapperImpl.h"
+#include "safestore/Logger.h"
+#include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
@@ -18,22 +18,22 @@
 
 namespace
 {
-    std::string quarantineManagerStateToString(const safestore::QuarantineManagerState& state)
+    std::string quarantineManagerStateToString(const safestore::QuarantineManager::QuarantineManagerState& state)
     {
         switch (state)
         {
-            case safestore::QuarantineManagerState::INITIALISED:
+            case safestore::QuarantineManager::QuarantineManagerState::INITIALISED:
                 return "INITIALISED";
-            case safestore::QuarantineManagerState::UNINITIALISED:
+            case safestore::QuarantineManager::QuarantineManagerState::UNINITIALISED:
                 return "UNINITIALISED";
-            case safestore::QuarantineManagerState::CORRUPT:
+            case safestore::QuarantineManager::QuarantineManagerState::CORRUPT:
                 return "CORRUPT";
         }
         return "UNKNOWN";
     }
 } // namespace
 
-namespace safestore
+namespace safestore::QuarantineManager
 {
     bool savePassword(const std::string& password)
     {
@@ -100,7 +100,8 @@ namespace safestore
         return std::nullopt;
     }
 
-    QuarantineManagerImpl::QuarantineManagerImpl(std::unique_ptr<ISafeStoreWrapper> safeStoreWrapper) :
+    QuarantineManagerImpl::QuarantineManagerImpl(
+        std::unique_ptr<SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper) :
         m_state(QuarantineManagerState::UNINITIALISED),
         m_safeStore(std::move(safeStoreWrapper)),
         m_dbErrorCountThreshold(Plugin::getPluginVarDirPath(), "safeStoreDbErrorThreshold", 10)
@@ -143,7 +144,7 @@ namespace safestore
 
         auto initResult = m_safeStore->initialise(dbDir, dbname, pw.value());
 
-        if (initResult == InitReturnCode::OK)
+        if (initResult == SafeStoreWrapper::InitReturnCode::OK)
         {
             m_state = QuarantineManagerState::INITIALISED;
             m_databaseErrorCount = 0;
@@ -152,7 +153,8 @@ namespace safestore
         else
         {
             LOGERROR("Quarantine Manager failed to initialise");
-            if (initResult == InitReturnCode::DB_ERROR || initResult == InitReturnCode::DB_OPEN_FAILED)
+            if (initResult == SafeStoreWrapper::InitReturnCode::DB_ERROR ||
+                initResult == SafeStoreWrapper::InitReturnCode::DB_OPEN_FAILED)
             {
                 callOnDbError();
             }
@@ -170,11 +172,11 @@ namespace safestore
         const std::string& sha256,
         datatypes::AutoFd autoFd)
     {
-        if (threatId.length() != THREAT_ID_LENGTH)
+        if (threatId.length() != SafeStoreWrapper::THREAT_ID_LENGTH)
         {
             LOGWARN(
                 "Cannot quarantine file because threat ID length (" << threatId.length() << ") is not "
-                                                                    << THREAT_ID_LENGTH);
+                                                                    << SafeStoreWrapper::THREAT_ID_LENGTH);
             return false;
         }
 
@@ -190,7 +192,7 @@ namespace safestore
 
         auto objectHandle = m_safeStore->createObjectHandleHolder();
         auto saveResult = m_safeStore->saveFile(directory, filename, threatId, threatName, *objectHandle);
-        if (saveResult == SaveFileReturnCode::OK)
+        if (saveResult == SafeStoreWrapper::SaveFileReturnCode::OK)
         {
             callOnDbSuccess();
 
@@ -217,7 +219,7 @@ namespace safestore
         }
         else
         {
-            if (saveResult == SaveFileReturnCode::DB_ERROR)
+            if (saveResult == SafeStoreWrapper::SaveFileReturnCode::DB_ERROR)
             {
                 callOnDbError();
             }
@@ -267,4 +269,4 @@ namespace safestore
         m_databaseErrorCount = 0;
         m_state = QuarantineManagerState::INITIALISED;
     }
-} // namespace safestore
+} // namespace safestore::QuarantineManager

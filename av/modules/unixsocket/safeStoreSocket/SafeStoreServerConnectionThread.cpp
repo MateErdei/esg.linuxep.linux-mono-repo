@@ -22,7 +22,7 @@ using namespace unixsocket;
 
 SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     datatypes::AutoFd& fd,
-    std::shared_ptr<safestore::IQuarantineManager> quarantineManager) :
+    std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager) :
     m_fd(std::move(fd)), m_quarantineManager(quarantineManager)
 {
     if (m_fd < 0)

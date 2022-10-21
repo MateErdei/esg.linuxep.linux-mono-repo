@@ -3,9 +3,9 @@
 #include "MockISafeStoreWrapper.h"
 
 #include "../common/LogInitializedTests.h"
-#include "safestore/QuarantineManagerImpl.h"
-#include "safestore/SafeStoreWrapperImpl.h"
-#include "safestore/StateMonitor.h"
+#include "safestore/QuarantineManager/QuarantineManagerImpl.h"
+#include "safestore/QuarantineManager/StateMonitor.h"
+#include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
@@ -14,6 +14,9 @@
 #include <gtest/gtest.h>
 
 #include <utility>
+
+using namespace safestore::QuarantineManager;
+using namespace safestore::SafeStoreWrapper;
 
 class StateMonitorTests : public LogInitializedTests
 {
@@ -25,11 +28,11 @@ class StateMonitorTests : public LogInitializedTests
     }
 };
 
-class TestableStateMonitor : public safestore::StateMonitor
+class TestableStateMonitor : public StateMonitor
 {
 public:
-    TestableStateMonitor(std::shared_ptr<safestore::IQuarantineManager> quarantineManager) :
-        safestore::StateMonitor(std::move(quarantineManager))
+    TestableStateMonitor(std::shared_ptr<IQuarantineManager> quarantineManager) :
+        StateMonitor(std::move(quarantineManager))
     {
     }
 
@@ -55,9 +58,9 @@ TEST_F(StateMonitorTests, stateMonitorDoesNotReinitialiseQuarantineManagerWhenAl
     // not try to re-initialise quarantineManager.
     EXPECT_CALL(*mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "password"))
         .Times(1)
-        .WillOnce(Return(safestore::InitReturnCode::OK));
-    std::shared_ptr<safestore::IQuarantineManager> quarantineManager =
-        std::make_shared<safestore::QuarantineManagerImpl>(std::move(mockSafeStoreWrapper));
+        .WillOnce(Return(InitReturnCode::OK));
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(mockSafeStoreWrapper));
     quarantineManager->initialise();
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
     stateMonitor.callInnerRun();
@@ -77,13 +80,13 @@ TEST_F(StateMonitorTests, stateMonitorInitialisesQuarantineManagerWhenQuarantine
     auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
     EXPECT_CALL(*mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "password"))
         .Times(1)
-        .WillOnce(Return(safestore::InitReturnCode::OK));
-    std::shared_ptr<safestore::IQuarantineManager> quarantineManager =
-        std::make_shared<safestore::QuarantineManagerImpl>(std::move(mockSafeStoreWrapper));
+        .WillOnce(Return(InitReturnCode::OK));
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(mockSafeStoreWrapper));
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
-    ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::UNINITIALISED);
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::UNINITIALISED);
     stateMonitor.callInnerRun();
-    ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::INITIALISED);
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
 }
 
 TEST_F(StateMonitorTests, stateMonitorReinitialisesQuarantineManagerWhenQuarantineManagerIsCorrupt)
@@ -106,15 +109,15 @@ TEST_F(StateMonitorTests, stateMonitorReinitialisesQuarantineManagerWhenQuaranti
 
     auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
     EXPECT_CALL(*mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "password"))
-        .WillOnce(Return(safestore::InitReturnCode::DB_ERROR))
-        .WillOnce(Return(safestore::InitReturnCode::OK));
-    std::shared_ptr<safestore::IQuarantineManager> quarantineManager =
-        std::make_shared<safestore::QuarantineManagerImpl>(std::move(mockSafeStoreWrapper));
+        .WillOnce(Return(InitReturnCode::DB_ERROR))
+        .WillOnce(Return(InitReturnCode::OK));
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(mockSafeStoreWrapper));
 
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
-    ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::UNINITIALISED);
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::UNINITIALISED);
     quarantineManager->initialise();
-    ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::CORRUPT);
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::CORRUPT);
     stateMonitor.callInnerRun();
-    ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::INITIALISED);
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
 }

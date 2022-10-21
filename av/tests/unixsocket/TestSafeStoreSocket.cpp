@@ -64,7 +64,7 @@ namespace
         std::string m_threatId;
     };
 
-    class MockQuarantineManager : public safestore::IQuarantineManager
+    class MockQuarantineManager : public safestore::QuarantineManager::IQuarantineManager
     {
     public:
         MOCK_METHOD(
@@ -77,7 +77,7 @@ namespace
              datatypes::AutoFd autoFd));
 
         MOCK_METHOD(void, initialise,());
-        MOCK_METHOD(safestore::QuarantineManagerState, getState,());
+        MOCK_METHOD(safestore::QuarantineManager::QuarantineManagerState, getState,());
         MOCK_METHOD(bool, deleteDatabase,());
     };
 } // namespace

@@ -12,7 +12,7 @@ extern "C"
 #include <optional>
 #include <utility>
 
-namespace safestore
+namespace safestore::SafeStoreWrapper
 {
     // Free functions used in implementation
 
@@ -29,8 +29,8 @@ namespace safestore
     SafeStore_ObjectType_t convertObjTypeToSafeStoreObjType(const ObjectType& objectType);
 
     /*
-    * Convert a ConfigOption used by this wrapper to a SafeStore type, SafeStore_Config_t.
-    * If we cannot map the config option then a default initialised SafeStore_Config_t is returned.
+     * Convert a ConfigOption used by this wrapper to a SafeStore type, SafeStore_Config_t.
+     * If we cannot map the config option then a default initialised SafeStore_Config_t is returned.
      */
     SafeStore_Config_t convertToSafeStoreConfigId(const ConfigOption& option);
 
@@ -101,4 +101,4 @@ namespace safestore
     private:
         SafeStoreContext m_safeStoreCtx = nullptr;
     };
-} // namespace safestore
+} // namespace safestore::SafeStoreWrapper

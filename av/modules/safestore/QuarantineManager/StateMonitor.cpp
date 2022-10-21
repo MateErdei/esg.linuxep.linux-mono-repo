@@ -2,11 +2,11 @@
 
 #include "StateMonitor.h"
 
-#include "Logger.h"
+#include "safestore/Logger.h"
 
 #include <utility>
 
-namespace safestore
+namespace safestore::QuarantineManager
 {
     StateMonitor::StateMonitor(std::shared_ptr<IQuarantineManager> quarantineManager) :
         m_quarantineManager(std::move(quarantineManager))
@@ -79,4 +79,4 @@ namespace safestore
         }
     }
 
-} // namespace safestore
+} // namespace safestore::QuarantineManager

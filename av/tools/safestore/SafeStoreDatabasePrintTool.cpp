@@ -2,43 +2,43 @@
 
 // This binary will print the details of objects in the SafeStore database, useful for manual testing and TAP tests.
 
-#include "safestore/IQuarantineManager.h"
-#include "safestore/QuarantineManagerImpl.h"
-
-#include "safestore/SafeStoreWrapperImpl.h"
+#include "safestore/QuarantineManager/IQuarantineManager.h"
+#include "safestore/QuarantineManager/QuarantineManagerImpl.h"
+#include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 #include "common/ApplicationPaths.h"
 
-
 #include <iostream>
 
-void printConfigOptions(std::shared_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper)
+using namespace safestore::SafeStoreWrapper;
+
+void printConfigOptions(std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper)
 {
     std::cout << "Config options: " << std::endl;
-    if (auto autoPurge = safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::AUTO_PURGE))
+    if (auto autoPurge = safeStoreWrapper->getConfigIntValue(ConfigOption::AUTO_PURGE))
     {
         std::cout << "AUTO_PURGE: " << autoPurge.value() << std::endl;
     }
 
-    if (auto maxObjSize = safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_OBJECT_SIZE))
+    if (auto maxObjSize = safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_OBJECT_SIZE))
     {
         std::cout << "MAX_OBJECT_SIZE: " << maxObjSize.value() << std::endl;
     }
 
-    if (auto maxObjInRegistrySubtree = safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_REG_OBJECT_COUNT))
+    if (auto maxObjInRegistrySubtree = safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_REG_OBJECT_COUNT))
     {
         std::cout << "MAX_REG_OBJECT_COUNT: " << maxObjInRegistrySubtree.value() << std::endl;
     }
 
-    if (auto maxSafeStoreSize = safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_SAFESTORE_SIZE))
+    if (auto maxSafeStoreSize = safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_SAFESTORE_SIZE))
     {
         std::cout << "MAX_SAFESTORE_SIZE: " << maxSafeStoreSize.value() << std::endl;
     }
 
-    if (auto maxObjCount = safeStoreWrapper->getConfigIntValue(safestore::ConfigOption::MAX_STORED_OBJECT_COUNT))
+    if (auto maxObjCount = safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_STORED_OBJECT_COUNT))
     {
         std::cout << "MAX_STORED_OBJECT_COUNT: " << maxObjCount.value() << std::endl;
     }
@@ -49,7 +49,7 @@ int main()
     Common::Logging::ConsoleLoggingSetup loggingSetup;
 
     // Safestore wrapper to interact with SafeStore database.
-    std::shared_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper = std::make_shared<safestore::SafeStoreWrapperImpl>();
+    std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper = std::make_shared<SafeStoreWrapperImpl>();
 
     // Expected locations of safestore database in a product installation.
     std::string safestoreDbDir = "/opt/sophos-spl/plugins/av/var/safestore_db/";
@@ -95,27 +95,27 @@ int main()
     auto initReturnCode = safeStoreWrapper->initialise(safestoreDbDir, safestoreDbName, pw);
     switch (initReturnCode)
     {
-        case safestore::InitReturnCode::OK:
+        case InitReturnCode::OK:
             break;
-        case safestore::InitReturnCode::INVALID_ARG:
+        case InitReturnCode::INVALID_ARG:
             std::cout << "ERROR - got INVALID_ARG when initialising SafeStore database connection" << std::endl;
             break;
-        case safestore::InitReturnCode::UNSUPPORTED_OS:
+        case InitReturnCode::UNSUPPORTED_OS:
             std::cout << "ERROR - got UNSUPPORTED_OS when initialising SafeStore database connection" << std::endl;
             break;
-        case safestore::InitReturnCode::UNSUPPORTED_VERSION:
+        case InitReturnCode::UNSUPPORTED_VERSION:
             std::cout << "ERROR - got UNSUPPORTED_VERSION when initialising SafeStore database connection" << std::endl;
             break;
-        case safestore::InitReturnCode::OUT_OF_MEMORY:
+        case InitReturnCode::OUT_OF_MEMORY:
             std::cout << "ERROR - got OUT_OF_MEMORY when initialising SafeStore database connection" << std::endl;
             break;
-        case safestore::InitReturnCode::DB_OPEN_FAILED:
+        case InitReturnCode::DB_OPEN_FAILED:
             std::cout << "ERROR - got DB_OPEN_FAILED when initialising SafeStore database connection" << std::endl;
             break;
-        case safestore::InitReturnCode::DB_ERROR:
+        case InitReturnCode::DB_ERROR:
             std::cout << "ERROR - got DB_ERROR when initialising SafeStore database connection" << std::endl;
             break;
-        case safestore::InitReturnCode::FAILED:
+        case InitReturnCode::FAILED:
             std::cout << "ERROR - got FAILED when initialising SafeStore database connection" << std::endl;
             break;
     }
@@ -126,9 +126,9 @@ int main()
     std::cout << std::endl;
 
     // Create filter to find all files in SafeStore database
-    safestore::SafeStoreFilter filter;
-    filter.objectType = safestore::ObjectType::FILE;
-    filter.activeFields = {safestore::FilterField::OBJECT_TYPE};
+    SafeStoreFilter filter;
+    filter.objectType = ObjectType::FILE;
+    filter.activeFields = {FilterField::OBJECT_TYPE};
 
     std::cout << "--- SafeStore File Objects ---" << std::endl;
     // Perform search to get all objects and then print object details
@@ -139,16 +139,16 @@ int main()
         std::cout << "Object Type: " ;
         switch (safeStoreWrapper->getObjectType(result))
         {
-            case safestore::ObjectType::ANY:
+            case ObjectType::ANY:
                 std::cout << "ANY" << std::endl;
                 break;
-            case safestore::ObjectType::FILE:
+            case ObjectType::FILE:
                 std::cout << "FILE" << std::endl;
                 break;
-            case safestore::ObjectType::REGKEY:
+            case ObjectType::REGKEY:
                 std::cout << "REGKEY" << std::endl;
                 break;
-            case safestore::ObjectType::REGVALUE:
+            case ObjectType::REGVALUE:
                 std::cout << "REGVALUE" << std::endl;
                 break;
         }
@@ -156,22 +156,22 @@ int main()
         std::cout << "Object Status: ";
         switch (safeStoreWrapper->getObjectStatus(result))
         {
-            case safestore::ObjectStatus::ANY:
+            case ObjectStatus::ANY:
                 std::cout << "ANY" << std::endl;
                 break;
-            case safestore::ObjectStatus::STORED:
+            case ObjectStatus::STORED:
                 std::cout << "STORED" << std::endl;
                 break;
-            case safestore::ObjectStatus::QUARANTINED:
+            case ObjectStatus::QUARANTINED:
                 std::cout << "QUARANTINED" << std::endl;
                 break;
-            case safestore::ObjectStatus::RESTORE_FAILED:
+            case ObjectStatus::RESTORE_FAILED:
                 std::cout << "RESTORE_FAILED" << std::endl;
                 break;
-            case safestore::ObjectStatus::RESTORED_AS:
+            case ObjectStatus::RESTORED_AS:
                 std::cout << "RESTORED_AS" << std::endl;
                 break;
-            case safestore::ObjectStatus::RESTORED:
+            case ObjectStatus::RESTORED:
                 std::cout << "RESTORED" << std::endl;
                 break;
         }

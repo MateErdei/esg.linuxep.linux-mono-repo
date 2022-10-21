@@ -2,7 +2,7 @@
 
 #include "SafeStoreWrapperImpl.h"
 
-#include "Logger.h"
+#include "safestore/Logger.h"
 
 #include "common/ApplicationPaths.h"
 
@@ -11,7 +11,7 @@ extern "C"
 #include "safestore.h"
 }
 
-namespace safestore
+namespace safestore::SafeStoreWrapper
 {
     std::optional<SafeStore_Id_t> safeStoreIdFromString(const std::string& safeStoreId)
     {
@@ -220,11 +220,12 @@ namespace safestore
                 return InitReturnCode::UNSUPPORTED_OS;
             case SR_UNSUPPORTED_VERSION:
                 LOGDEBUG("Failed to initialise SafeStore database: Opened SafeStore database file's version is not "
-                        "supported");
+                         "supported");
                 return InitReturnCode::UNSUPPORTED_VERSION;
             case SR_OUT_OF_MEMORY:
-                LOGDEBUG("Failed to initialise SafeStore database: There is not enough memory available to complete the "
-                        "operation");
+                LOGDEBUG(
+                    "Failed to initialise SafeStore database: There is not enough memory available to complete the "
+                    "operation");
                 return InitReturnCode::OUT_OF_MEMORY;
             case SR_DB_OPEN_FAILED:
                 LOGDEBUG("Failed to initialise SafeStore database: Could not open the database");
@@ -363,7 +364,7 @@ namespace safestore
 
     std::unique_ptr<ObjectHandleHolder> SafeStoreWrapperImpl::createObjectHandleHolder()
     {
-        return std::make_unique<safestore::ObjectHandleHolder>(*this);
+        return std::make_unique<safestore::SafeStoreWrapper::ObjectHandleHolder>(*this);
     }
 
     SearchResults SafeStoreWrapperImpl::find(const SafeStoreFilter& filter)
@@ -432,28 +433,29 @@ namespace safestore
     {
         if (auto safeStoreThreadId = safeStoreIdFromString(objectId))
         {
-                auto returnCode = SafeStore_GetObjectHandle(m_safeStoreCtx, &safeStoreThreadId.value(), objectHandle->getRawHandlePtr());
-                switch (returnCode)
-                {
-                    case SR_OK:
-                        LOGDEBUG("Got OK when getting object handle from SafeStore");
-                        return true;
-                    case SR_INVALID_ARG:
-                        LOGDEBUG("Got INVALID_ARG when getting object handle from SafeStore");
-                        return false;
-                    case SR_OUT_OF_MEMORY:
-                        LOGDEBUG("Got OUT_OF_MEMORY when getting object handle from SafeStore");
-                        return false;
-                    case SR_OBJECT_NOT_FOUND:
-                        LOGDEBUG("Got OBJECT_NOT_FOUND when getting object handle from SafeStore");
-                        return false;
-                    case SR_INTERNAL_ERROR:
-                        LOGDEBUG("Got INTERNAL_ERROR when getting object handle from SafeStore");
-                        return false;
-                    default:
-                        LOGDEBUG("Unknown return code when getting object handle from SafeStore");
-                        return false;
-                }
+            auto returnCode =
+                SafeStore_GetObjectHandle(m_safeStoreCtx, &safeStoreThreadId.value(), objectHandle->getRawHandlePtr());
+            switch (returnCode)
+            {
+                case SR_OK:
+                    LOGDEBUG("Got OK when getting object handle from SafeStore");
+                    return true;
+                case SR_INVALID_ARG:
+                    LOGDEBUG("Got INVALID_ARG when getting object handle from SafeStore");
+                    return false;
+                case SR_OUT_OF_MEMORY:
+                    LOGDEBUG("Got OUT_OF_MEMORY when getting object handle from SafeStore");
+                    return false;
+                case SR_OBJECT_NOT_FOUND:
+                    LOGDEBUG("Got OBJECT_NOT_FOUND when getting object handle from SafeStore");
+                    return false;
+                case SR_INTERNAL_ERROR:
+                    LOGDEBUG("Got INTERNAL_ERROR when getting object handle from SafeStore");
+                    return false;
+                default:
+                    LOGDEBUG("Unknown return code when getting object handle from SafeStore");
+                    return false;
+            }
         }
         return false;
     }
@@ -580,7 +582,8 @@ namespace safestore
                 LOGDEBUG("Got BUFFER_SIZE_TOO_SMALL when getting object threat name from SafeStore, size: " << size);
                 break;
             default:
-                LOGDEBUG("Failed for unknown reason when getting object threat name from SafeStore, rc: " << returnCode);
+                LOGDEBUG(
+                    "Failed for unknown reason when getting object threat name from SafeStore, rc: " << returnCode);
                 break;
         }
         return std::string(buf);
@@ -609,10 +612,11 @@ namespace safestore
         const std::string& dataName,
         const std::vector<uint8_t>& value)
     {
-
         if (value.size() > MAX_CUSTOM_DATA_SIZE)
         {
-            LOGWARN("Failed to set custom data against SafeStore object, max size: " << MAX_CUSTOM_DATA_SIZE << "bytes, attempted to store: " << value.size() << "bytes");
+            LOGWARN(
+                "Failed to set custom data against SafeStore object, max size: "
+                << MAX_CUSTOM_DATA_SIZE << "bytes, attempted to store: " << value.size() << "bytes");
             return false;
         }
 
@@ -723,4 +727,4 @@ namespace safestore
         }
         return false;
     }
-} // namespace safestore
+} // namespace safestore::SafeStoreWrapper

@@ -1,12 +1,12 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
-#include "IQuarantineManager.h"
+#include "safestore/QuarantineManager/IQuarantineManager.h"
 
 #include "common/AbstractThreadPluginInterface.h"
 
 using namespace std::chrono_literals;
-namespace safestore
+namespace safestore::QuarantineManager
 {
     class StateMonitor : public common::AbstractThreadPluginInterface
     {
@@ -23,4 +23,4 @@ namespace safestore
     protected:
         void innerRun();
     };
-} // namespace safestore
+} // namespace safestore::QuarantineManager

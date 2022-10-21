@@ -2,20 +2,21 @@
 
 #pragma once
 
-#include "IQuarantineManager.h"
-#include "ISafeStoreWrapper.h"
+#include "safestore/QuarantineManager/IQuarantineManager.h"
+#include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
 
 #include "Common/PersistentValue/PersistentValue.h"
 
 #include <memory>
 #include <mutex>
 #include <string>
-namespace safestore
+namespace safestore::QuarantineManager
 {
     class QuarantineManagerImpl : public IQuarantineManager
     {
     public:
-        explicit QuarantineManagerImpl(std::unique_ptr<ISafeStoreWrapper> safeStoreWrapper);
+        explicit QuarantineManagerImpl(
+            std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper);
         void initialise() override;
         QuarantineManagerState getState() override;
         bool deleteDatabase() override;
@@ -30,7 +31,7 @@ namespace safestore
         void callOnDbError();
         void callOnDbSuccess();
         QuarantineManagerState m_state;
-        std::unique_ptr<ISafeStoreWrapper> m_safeStore;
+        std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> m_safeStore;
         std::mutex m_interfaceMutex;
 
         // When a database error is encountered we increment this counter by calling callOnDbError()
@@ -41,4 +42,4 @@ namespace safestore
         int m_databaseErrorCount = 0;
         Common::PersistentValue<int> m_dbErrorCountThreshold;
     };
-} // namespace safestore
+} // namespace safestore::QuarantineManager

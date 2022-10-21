@@ -4,7 +4,7 @@
 
 #include "SafeStoreServerConnectionThread.h"
 
-#include "safestore/IQuarantineManager.h"
+#include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "unixsocket/BaseServerSocket.h"
 
 namespace unixsocket
@@ -16,7 +16,7 @@ namespace unixsocket
     public:
         SafeStoreServerSocket(
             const std::string& path,
-            std::shared_ptr<safestore::IQuarantineManager> quarantineManager);
+            std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager);
         ~SafeStoreServerSocket() override;
 
     protected:
@@ -31,6 +31,6 @@ namespace unixsocket
         }
 
     private:
-        std::shared_ptr<safestore::IQuarantineManager> m_quarantineManager;
+        std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> m_quarantineManager;
     };
 } // namespace unixsocket

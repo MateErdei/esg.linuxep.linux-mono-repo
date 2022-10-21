@@ -2,12 +2,12 @@
 
 #include "Main.h"
 
-#include "IQuarantineManager.h"
 #include "Logger.h"
-#include "QuarantineManagerImpl.h"
-#include "SafeStoreWrapperImpl.h"
-#include "StateMonitor.h"
 
+#include "safestore/QuarantineManager/IQuarantineManager.h"
+#include "safestore/QuarantineManager/QuarantineManagerImpl.h"
+#include "safestore/QuarantineManager/StateMonitor.h"
+#include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
 #include "common/ApplicationPaths.h"
@@ -47,12 +47,13 @@ namespace safestore
         // Take safestore lock file
         common::PidLockFile lock(Plugin::getSafeStorePidPath());
 
-        std::unique_ptr<safestore::ISafeStoreWrapper> safeStoreWrapper = std::make_unique<SafeStoreWrapperImpl>();
-        std::shared_ptr<safestore::IQuarantineManager> quarantineManager =
-            std::make_shared<QuarantineManagerImpl>(std::move(safeStoreWrapper));
+        std::unique_ptr<SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper =
+            std::make_unique<SafeStoreWrapper::SafeStoreWrapperImpl>();
+        std::shared_ptr<QuarantineManager::IQuarantineManager> quarantineManager =
+            std::make_shared<QuarantineManager::QuarantineManagerImpl>(std::move(safeStoreWrapper));
         quarantineManager->initialise();
 
-        auto qmStateMonitor = std::make_shared<StateMonitor>(quarantineManager);
+        auto qmStateMonitor = std::make_shared<QuarantineManager::StateMonitor>(quarantineManager);
         auto qmStateMonitorThread = std::make_unique<common::ThreadRunner>(qmStateMonitor, "StateMonitor", true);
 
         unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), quarantineManager);
