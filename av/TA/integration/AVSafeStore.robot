@@ -106,7 +106,7 @@ SafeStore Logs When It Recieves A File To Quarantine
     Check avscanner can detect eicar
 
     Wait Until SafeStore Log Contains  Received Threat:
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test'
+    Wait Until AV Plugin Log Contains Detection Name With Offset  EICAR-AV-Test
 
 
 With SafeStore Enabled But Not Running We Can Send Threats To AV
@@ -120,7 +120,7 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
 
     Check avscanner can detect eicar
 
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test'
+    Wait Until AV Plugin Log Contains Detection Name With Offset  EICAR-AV-Test
     Wait Until AV Plugin Log Contains With Offset  Failed to write to SafeStore socket.
     Check SafeStore Not Running
 

@@ -215,6 +215,26 @@ TEST_F(TestStringUtils, TestEmptyPathXML)
     EXPECT_EQ(result, expectedXML);
 }
 
+TEST_F(TestStringUtils, TestLongPathXML)
+{
+    std::string longPath(centralLimitedStringMaxSize + 1, '/');
+    std::string truncatedPath(centralLimitedStringMaxSize, '/');
+
+    scan_messages::ThreatDetected threatDetectedMessage(createEvent("", longPath));
+    std::string result = generateThreatDetectedXml(threatDetectedMessage);
+
+    static const std::string expectedXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
+  <user userId=""/>
+  <alert id="" name="" threatType="1" origin="0" remote="false">
+    <sha256></sha256>
+    <path>)sophos" + truncatedPath + R"sophos(</path>
+  </alert>
+</event>)sophos";
+
+    EXPECT_EQ(result, expectedXML);
+}
+
 TEST_F(TestStringUtils, TestEmptyThreatPathJSON)
 {
     std::string threatName = "eicar";

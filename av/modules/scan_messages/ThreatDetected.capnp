@@ -1,7 +1,4 @@
-#------------------------------------------------------------------------------
-# Copyright 2020 Sophos Limited. All rights reserved.
-#
-#------------------------------------------------------------------------------
+# Copyright 2020-2022 Sophos Limited. All rights reserved.
 @0xdb58d64963179a7d;
 
 # For more information on what each field means check: LINUXDAR-1472

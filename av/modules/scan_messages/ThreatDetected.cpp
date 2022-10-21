@@ -91,7 +91,7 @@ std::string ThreatDetected::serialise() const
     auto reader = threatDetectedBuilder.asReader();
     if (!reader.hasThreatName())
     {
-        LOGERROR("Missing did not receive a threat name in threat report");
+        LOGERROR("Did not receive a threat name in threat report");
     }
 
     return dataAsString;
@@ -111,7 +111,7 @@ bool ThreatDetected::operator==(const ThreatDetected& other) const
            sha256 == other.sha256 &&
            threatId == other.threatId &&
            isRemote == other.isRemote &&
-           autoFd == other.autoFd &&
-           reportSource == other.reportSource;
+           reportSource == other.reportSource &&
+           autoFd == other.autoFd;
     // clang-format on
 }

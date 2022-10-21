@@ -332,6 +332,7 @@ namespace Plugin
 
     void PluginAdapter::processDetectionReport(const scan_messages::ThreatDetected& detection) const
     {
+        LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "'");
         incrementTelemetryThreatCount(detection.threatName);
         processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
         publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));

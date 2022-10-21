@@ -14,6 +14,7 @@ Library         ../Libs/PluginUtils.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/SophosThreatDetector.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
+Library         ../Libs/ThreatReportUtils.py
 
 Resource    GlobalSetup.robot
 Resource    ComponentSetup.robot
@@ -460,6 +461,60 @@ Wait Until AV Plugin Log Contains With Offset
 Wait Until AV Plugin Log Contains Times With Offset
     [Arguments]  ${input}  ${timeout}=15  ${times}=1
     Wait Until File Log Contains Times  AV Plugin Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
+
+Wait Until AV Plugin Log Contains Detection Name With Offset
+    [Arguments]  ${name}  ${timeout}=15    ${interval}=2
+    Wait Until AV Plugin Log Contains With Offset  Found '${name}'  timeout=${timeout}  interval=${interval}
+
+Wait Until AV Plugin Log Contains Detection Name And Path With Offset
+    [Arguments]  ${name}  ${path}  ${timeout}=15    ${interval}=2
+    Wait Until AV Plugin Log Contains With Offset  Found '${name}' in '${path}'  timeout=${timeout}  interval=${interval}
+
+AV Plugin Log Should Not Contain Detection Name And Path With Offset
+    [Arguments]  ${name}  ${path}
+    AV Plugin Log Should Not Contain With Offset  Found '${name}' in '${path}'
+
+Check String Contains Detection Event XML
+    [Arguments]  ${input}  ${id}  ${name}  ${sha256}  ${path}
+    Should Contain  ${input}  type="sophos.core.detection" ts="
+    Should Contain  ${input}  <user userId="n/a"/>
+    Should Contain  ${input}  <alert id="${id}" name="${name}" threatType="1" origin="0" remote="false">
+    Should Contain  ${input}  <sha256>${sha256}</sha256>
+    Should Contain  ${input}  <path>${path}</path>
+    [Return]  ${true}
+
+Wait Until AV Plugin Log Contains Detection Event XML With Offset
+    [Arguments]  ${id}  ${name}  ${sha256}  ${path}  ${timeout}=15  ${interval}=2
+    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central  timeout=${timeout}  interval=${interval}
+    ${marked_av_log} =  Get Marked AV Log
+    Check String Contains Detection Event XML  ${marked_av_log}  ${id}  ${name}  ${sha256}  ${path}
+
+Base CORE Event Paths
+    @{paths} =  List Files In Directory  ${MCS_PATH}/event  CORE_*.xml  absolute
+    [Return]  ${paths}
+
+Base Has Number Of CORE Events
+    [Arguments]  ${expected_count}
+    @{paths} =  Base CORE Event Paths
+    ${actual_count} =  Get Length  ${paths}
+    Should Be Equal As Integers  ${expected_count}  ${actual_count}
+
+Base Has Detection Event
+    [Arguments]  ${id}  ${name}  ${sha256}  ${path}
+    @{files} =  Base CORE Event Paths
+    FOR  ${file}  IN  @{files}
+        ${xml} =  Get File  ${file}
+        ${was found} =  Run Keyword And Continue On Failure  Check String Contains Detection Event XML  ${xml}  ${id}  ${name}  ${sha256}  ${path}
+        Return From Keyword If  ${was found}  ${xml}
+    END
+    Fail  No matching detection event found
+
+Wait Until Base Has Detection Event
+    [Arguments]  ${id}  ${name}  ${sha256}  ${path}  ${timeout}=60  ${interval}=3
+    Wait Until Keyword Succeeds
+    ...  ${timeout} secs
+    ...  ${interval} secs
+    ...  Base Has Detection Event  ${id}  ${name}  ${sha256}  ${path}
 
 Wait Until Sophos Threat Detector Shutdown File Exists
     [Arguments]  ${timeout}=15    ${interval}=2

@@ -39,6 +39,13 @@ Remove Users Stop Processes
     Run Process  /usr/sbin/userdel   sophos-spl-av
     Run Process  /usr/sbin/userdel   sophos-spl-threat-detector
 
+Wait Until Base Has Naughty Eicar Detection Event
+    Wait Until Base Has Detection Event
+    ...  id=T26796de6ce94770b60a8477c0a55d2cf3262e1e62948f1f122fa7d28c6ce6c75
+    ...  name=EICAR-AV-Test
+    ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
+    ...  path=${SCAN_DIRECTORY}/naughty_eicar
+
 *** Test Cases ***
 
 AV plugin Can Start sophos_threat_detector
@@ -437,45 +444,36 @@ AV Deletes Scan Correctly
 AV Plugin Reports Threat XML To Base
    Empty Directory  ${MCS_PATH}/event/
    Register Cleanup  Empty Directory  ${MCS_PATH}/event
-   ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
 
-   Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-   ${rc}   ${output} =    Run And Return Rc And Output   /usr/local/bin/avscanner ${SCAN_DIRECTORY}/naugthy_eicar
+   Create File     ${SCAN_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+   ${rc}   ${output} =    Run And Return Rc And Output   /usr/local/bin/avscanner ${SCAN_DIRECTORY}/naughty_eicar
 
    Log   ${output}
 
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-   Wait Until Keyword Succeeds
-         ...  60 secs
-         ...  3 secs
-         ...  check threat event received by base  1  naugthyEicarThreatReport
+   Wait Until Base Has Naughty Eicar Detection Event
 
 Avscanner runs as non-root
    Empty Directory  ${MCS_PATH}/event/
    Register Cleanup  Empty Directory  ${MCS_PATH}/event/
    Register Cleanup  List Directory  ${MCS_PATH}/event/
 
-   ${SCAN_DIRECTORY} =  Set Variable  /home/vagrant/this/is/a/directory/for/scanning
-
-   Create File     ${SCAN_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-   ${command} =    Set Variable    /usr/local/bin/avscanner ${SCAN_DIRECTORY}/naugthy_eicar
+   Create File     ${SCAN_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+   ${command} =    Set Variable    /usr/local/bin/avscanner ${SCAN_DIRECTORY}/naughty_eicar
    ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
    ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
 
    Log   ${output}
 
    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-   Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/naugthy_eicar" is infected with EICAR-AV-Test (On Demand)
+   Should Contain   ${output}    Detected "${SCAN_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test (On Demand)
 
    Should Not Contain    ${output}    Failed to read the config file
    Should Not Contain    ${output}    All settings will be set to their default value
    Should Contain   ${output}    Logger av configured for level: DEBUG
 
-   Wait Until Keyword Succeeds
-         ...  60 secs
-         ...  3 secs
-         ...  check threat event received by base  1  naugthyEicarThreatReportAsNobody
+   Wait Until Base Has Naughty Eicar Detection Event
 
 AV Plugin Reports encoded eicars To Base
    Register Cleanup  Exclude Failed To connect To Warehouse Error
@@ -498,7 +496,7 @@ AV Plugin Reports encoded eicars To Base
    Wait Until Keyword Succeeds
          ...  60 secs
          ...  5 secs
-         ...  check_number_of_threat_events_matches  ${expected_count}
+         ...  Base Has Number Of CORE Events  ${expected_count}
 
    check_all_eicars_are_found  /tmp_test/encoded_eicars/
 
@@ -784,20 +782,17 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     Register Cleanup    List Directory  ${MCS_PATH}/event/
     Empty Directory    ${MCS_PATH}/event/
 
-    Create File  ${NORMAL_DIRECTORY}/naugthy_eicar  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naugthy_eicar
+    Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
 
     Mark AV Log
-    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naugthy_eicar
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
 
     # Verify that we get a log message for the eicar
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
 
     # Verify that the AV Plugin sends an alert when logging is working
-    Wait Until Keyword Succeeds
-       ...  60 secs
-       ...  5 secs
-       ...  check threat event received by base  1  naugthyEicarThreatReport
+    Wait Until Base Has Naughty Eicar Detection Event
 
     Empty Directory  ${MCS_PATH}/event/
 
@@ -825,16 +820,13 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     ${result} =  Run Process  ls  -l  ${AV_LOG_PATH}
     Log  New permissions: ${result.stdout}
 
-    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naugthy_eicar
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
 
     # Verify the av plugin still sent the alert
-    Wait Until Keyword Succeeds
-        ...  60 secs
-        ...  5 secs
-        ...  check threat event received by base  1  naugthyEicarThreatReport
+    Wait Until Base Has Naughty Eicar Detection Event
 
     # Verify that the log wasn't written (permission blocked)
-    AV Plugin Log Should Not Contain With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
+    AV Plugin Log Should Not Contain Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
 
 Scan Now Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
@@ -856,7 +848,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  Sending scan complete
     Log File  ${SCANNOW_LOG_PATH}
     File Log Contains  ${SCANNOW_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test (Scheduled)
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  /tmp_test/naughty_eicar
 
     ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
     Log  Old permissions: ${result.stdout}
@@ -879,7 +871,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  Sending scan complete
     Log File  ${SCANNOW_LOG_PATH}
     File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${SCAN_NOW_LOG_MARK}
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  /tmp_test/naughty_eicar
 
 
 First SAV Policy With Invalid Day And Time Is Not Accepted
@@ -927,7 +919,7 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Log File  ${CLOUDSCAN_LOG_PATH}
     File Log Contains  ${CLOUDSCAN_LOG_PATH}  Detected "/tmp_test/naughty_eicar" is infected with EICAR-AV-Test (Scheduled)
 
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  /tmp_test/naughty_eicar
 
     ${result} =  Run Process  ls  -l  ${CLOUDSCAN_LOG_PATH}
     Log  Old permissions: ${result.stdout}
@@ -949,4 +941,4 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=18
     Log File  ${CLOUDSCAN_LOG_PATH}
     File Log Should Not Contain With Offset  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '/tmp_test/naughty_eicar'"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  /tmp_test/naughty_eicar

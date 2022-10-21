@@ -22,28 +22,41 @@
 using json = nlohmann::json;
 namespace fs = sophos_filesystem;
 
+// XML defined at https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42233512399/EMP+event-core-detection
 std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ThreatDetected& detection)
 {
     if (detection.filePath.empty())
     {
-        LOGERROR("Missing path from threat report while generating xml: empty string");
+        LOGWARN("Missing path from threat report while generating xml: empty string");
     }
 
     std::string utf8Path = common::toUtf8(detection.filePath);
     common::escapeControlCharacters(utf8Path, true);
 
+    // EMP specifies a length limit for paths
+    if (utf8Path.size() > centralLimitedStringMaxSize)
+    {
+        LOGWARN("Threat path longer than " << centralLimitedStringMaxSize << " characters, truncating.");
+        utf8Path.resize(centralLimitedStringMaxSize);
+    }
+
+    // TODO LINUXDAR-5929
+    // from_time_t is marked as noexcept but can break that promise on very large but valid time_t values
+    // Either we need to perform validation on construction of ThreatDetected or we need to create a new function to
+    // replace MessageTimeStamp that takes time_t directly and avoids this problem
+    auto time = std::chrono::system_clock::from_time_t(detection.detectionTime);
+    std::string timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(time);
+
     std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
         R"sophos(<?xml version="1.0" encoding="utf-8"?>
-<event type="sophos.core.detection" ts="@@DETECTION_TIME@@">
+<event type="sophos.core.detection" ts="@@TS@@">
   <user userId="@@USER_ID@@"/>
   <alert id="@@ID@@" name="@@NAME@@" threatType="@@THREAT_TYPE@@" origin="@@ORIGIN@@" remote="@@REMOTE@@">
     <sha256>@@SHA256@@</sha256>
     <path>@@PATH@@</path>
   </alert>
 </event>)sophos",
-        { { "@@DETECTION_TIME@@",
-            Common::UtilityImpl::TimeUtils::MessageTimeStamp(
-                { std::chrono::system_clock::time_point(std::chrono::seconds(detection.detectionTime)) }) },
+        { { "@@TS@@", timestamp },
           { "@@USER_ID@@", detection.userID },
           { "@@ID@@", detection.threatId },
           { "@@NAME@@", detection.threatName },

@@ -409,7 +409,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
 
     Mark Sophos Threat Detector Log
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
     Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar (On Demand)
 
     Run  chmod 444 ${THREAT_DETECTOR_LOG_PATH}
@@ -427,7 +427,7 @@ Threat Detector Can Work Despite Specified Log File Being Read-Only
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
 
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
     Threat Detector Log Should Not Contain With Offset  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar
 
 
@@ -440,7 +440,7 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Mark Susi Debug Log
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
     SUSI Debug Log Contains With Offset  SUSI scan for ${NORMAL_DIRECTORY}/naughty_eicar
 
     Run  chmod 444 ${SUSI_DEBUG_LOG_PATH}
@@ -453,7 +453,7 @@ SUSI Can Work Despite Specified Log File Being Read-Only
     Log  New permissions: ${result.stdout}
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
     SUSI Debug Log Does Not Contain With Offset  SUSI scan for ${NORMAL_DIRECTORY}/naughty_eicar
 
 SUSI Debug Log Does Not Contain Info Level Logs By Default

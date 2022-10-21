@@ -612,26 +612,19 @@ CLS Can Scan Normal Path But Not SubFolders With a Huge Path
 
 
 CLS Creates Threat Report
-    Create File     ${NORMAL_DIRECTORY}/naugthy_eicar    ${EICAR_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naugthy_eicar
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central
-    AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naugthy_eicar'"
-    AV Plugin Log Contains With Offset  type="sophos.mgt.msg.event.threat"
-    AV Plugin Log Contains With Offset  domain="local"
-    AV Plugin Log Contains With Offset  type="1"
-    AV Plugin Log Contains With Offset  name="EICAR-AV-Test"
-    AV Plugin Log Contains With Offset  scanType="203"
-    AV Plugin Log Contains With Offset  status="200"
-    AV Plugin Log Contains With Offset  id="Tfe8974b97b4b7a6"
-    AV Plugin Log Contains With Offset  idSource="Tsha256(path,name)"
-    AV Plugin Log Contains With Offset  <item file="naugthy_eicar"
-    AV Plugin Log Contains With Offset  path="${NORMAL_DIRECTORY}/"/>
-    AV Plugin Log Contains With Offset  <action action="101"/>
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
+    Wait Until AV Plugin Log Contains Detection Event XML With Offset
+    ...  id=T26796de6ce94770b60a8477c0a55d2cf3262e1e62948f1f122fa7d28c6ce6c75
+    ...  name=EICAR-AV-Test
+    ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
+    ...  path=${NORMAL_DIRECTORY}/naughty_eicar
 
 
 CLS simple encoded eicar
@@ -640,8 +633,7 @@ CLS simple encoded eicar
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/脅威" is infected with EICAR-AV-Test
-    Wait Until AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/脅威'"
-    AV Plugin Log Contains With Offset  name="EICAR-AV-Test"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/脅威
 
 
 CLS simple encoded eicar in archive
@@ -651,8 +643,7 @@ CLS simple encoded eicar in archive
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar/脅威" is infected with EICAR-AV-Test
-    Wait Until AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/test.tar/脅威'"
-    AV Plugin Log Contains With Offset  name="EICAR-AV-Test"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/test.tar/脅威
 
 
 CLS simple eicar in encoded archive
@@ -662,8 +653,7 @@ CLS simple eicar in encoded archive
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/脅威.tar/eicar" is infected with EICAR-AV-Test
-    Wait Until AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/脅威.tar/eicar'"
-    AV Plugin Log Contains With Offset  name="EICAR-AV-Test"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/脅威.tar/eicar
 
 ClS Scans DiscImage When Image Setting Is On
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso
@@ -693,8 +683,7 @@ CLS Encoded Eicars
     Log   ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
 
-    # Once CORE-1517 has been fixed, uncomment the check below
-    #Threat Detector Does Not Log Contain  Failed to parse response from SUSI
+    Threat Detector Does Not Log Contain  Failed to parse response from SUSI
     AV Plugin Log Contains With Offset  Sending threat detection notification to central
 
     wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars
@@ -1716,7 +1705,7 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     File Log Contains  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test (On Demand)
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
 
     Mark AV Log
     Mark Log  /tmp/scan.log
@@ -1731,7 +1720,7 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     File Log Should Not Contain With Offset  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
-    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'"
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
 
 CLS Can Scan Clean File Twice Faster Second time
     Stop AV
@@ -1793,18 +1782,12 @@ Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
     Start AV Plugin Process
     Wait Until Sophos Threat Detector Log Contains With Offset  Successfully connected to Threat Reporter       timeout=120
 
-    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central
-    AV Plugin Log Contains With Offset  description="Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/eicar_file'"
-    AV Plugin Log Contains With Offset  type="sophos.mgt.msg.event.threat"
-    AV Plugin Log Contains With Offset  domain="local"
-    AV Plugin Log Contains With Offset  type="1"
-    AV Plugin Log Contains With Offset  name="EICAR-AV-Test"
-    AV Plugin Log Contains With Offset  scanType="203"
-    AV Plugin Log Contains With Offset  status="200"
-    AV Plugin Log Contains With Offset  idSource="Tsha256(path,name)"
-    AV Plugin Log Contains With Offset  <item file="eicar_file"
-    AV Plugin Log Contains With Offset  path="${NORMAL_DIRECTORY}/"/>
-    AV Plugin Log Contains With Offset  <action action="101"/>
+    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/eicar_file
+    Wait Until AV Plugin Log Contains Detection Event XML With Offset
+    ...  id=Te1b8af2bc4cb5054ddfcf290f64bfb26e39610f500971996035d71ba9f8b8c2d
+    ...  name=EICAR-AV-Test
+    ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
+    ...  path=${NORMAL_DIRECTORY}/eicar_file
 
 
 AV Scanner waits for threat detector process

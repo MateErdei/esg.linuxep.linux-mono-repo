@@ -18,4 +18,6 @@ namespace pluginimpl
                                        const std::vector<std::string>& exclusionList,
                                        const std::string& excludeRemoteFiles);
     long getThreatStatus();
+
+    constexpr std::size_t centralLimitedStringMaxSize = 32767;
 }
