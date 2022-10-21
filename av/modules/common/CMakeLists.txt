@@ -6,25 +6,28 @@ add_library(common SHARED
         ErrorCodesC.h
         Exclusion.cpp
         Exclusion.h
+        FDUtils.cpp
+        FDUtils.h
+        IStoppableSleeper.h
         LockableData.h
         Logger.cpp
         Logger.h
+        PathUtils.cpp
+        PathUtils.h
         PidLockFile.cpp
         PidLockFile.h
         PidLockFileException.h
-        ShuttingDownException.h
-        StringUtils.cpp
-        StringUtils.h
-        ThreadRunner.cpp
-        ThreadRunner.h
-        PathUtils.cpp
-        PathUtils.h
         PluginUtils.cpp
         PluginUtils.h
         SaferStrerror.cpp
         SaferStrerror.h
         ScanInterruptedException.h
         ScanManuallyInterruptedException.h
+        ShuttingDownException.h
+        StringUtils.cpp
+        StringUtils.h
+        ThreadRunner.cpp
+        ThreadRunner.h
         signals/IReloadable.h
         signals/SigHupMonitor.cpp
         signals/SigHupMonitor.h

@@ -7,6 +7,8 @@ sophos_add_library(scanprocessmonitor SHARED
         ScanProcessMonitor.h
         Logger.cpp
         Logger.h
+        NotifyPipeSleeper.cpp
+        NotifyPipeSleeper.h
         EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules
         EXTRA_LIBS ${log4cpluslib} unixsocket
         )
