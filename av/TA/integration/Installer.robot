@@ -154,7 +154,7 @@ On access continues during update
     Register Cleanup   Remove File   ${test_file}
 
     # start a background process to cause ~100 on-access events per second
-    ${handle} =   Start Process   while :; do echo foo >${test_file}; sleep 0.01; done   shell=True
+    ${handle} =   Start Process   while :; do echo foo >${test_file}; sleep 0.1; done   shell=True
 
     Mark Sophos Threat Detector Log
     Wait Until Sophos Threat Detector Log Contains With Offset     Scan requested of ${test_file}
@@ -174,13 +174,14 @@ On access continues during update
     Process should Be Running   handle=${handle}
     ${result} =   Terminate Process   handle=${handle}
 
-    # do some magic to check that we were scanning without interruption (at least 5 scans every second)
+    # check how many scans per second we did during an IDE update
+    # we write to a test file every 0.1 seconds so we should expect at least 1 scan
     ${time_diff} =   Subtract Date From Date   ${end_time}   ${start_time}   exclude_millis=True
     FOR   ${offset}   IN RANGE   ${time_diff}
         ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
-        ${lines} =   Grep File   ${THREAT_DETECTOR_LOG_PATH}   T${timestamp}.* Scan requested of ${test_file}
+        ${lines} =   Grep File   ${THREAT_DETECTOR_LOG_PATH}   T${timestamp}.* Scan requested of
         ${line_count} =   Get Line Count   ${lines}
-        Should Be True   5 <= ${line_count}
+        Should Be True   1 <= ${line_count}
     END
 
 Concurrent scans get pending update
