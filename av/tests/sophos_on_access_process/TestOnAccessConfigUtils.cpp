@@ -172,7 +172,7 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigIgnoresBadvalues)
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
     EXPECT_EQ(maxThreads, defaultScanningThreads);
 
-    EXPECT_TRUE(appenderContains("Failed to convert product config file info to integers: stoi"));
+    EXPECT_TRUE(appenderContains("Failed to read product config file info: [json.exception.type_error.302] type must be number, but is string"));
     std::stringstream logmsg;
     logmsg << "Setting from defaults: Max queue size set to " << defaultMaxScanQueueSize << " and Max threads set to " << defaultScanningThreads;
     EXPECT_TRUE(appenderContains(logmsg.str()));
@@ -200,7 +200,7 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToProvidedValuesWhenFileEx
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": \"20\",\"maxscanqueuesize\": \"2000\"}"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": 20,\"maxscanqueuesize\": 2000}"));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     size_t maxScanQueueItems = 0;

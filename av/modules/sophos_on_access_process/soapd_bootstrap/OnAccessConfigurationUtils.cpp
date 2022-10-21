@@ -63,19 +63,16 @@ namespace sophos_on_access_process::OnAccessConfig
             std::string configJson = sophosFsAPI->readFile(productConfigPath.string());
             if (!configJson.empty())
             {
-                auto parsedConfigJson = json::parse(configJson);
-                std::string maxQueueStr = parsedConfigJson["maxscanqueuesize"];
-                std::string maxThreadsStr = parsedConfigJson["maxthreads"];
-
-                try
+                 try
                 {
-                    maxScanQueueSize = std::stoi(maxQueueStr);
-                    maxNumberOfScanThread = std::stoi(maxThreadsStr);
+                    auto parsedConfigJson = json::parse(configJson);
+                    maxScanQueueSize = parsedConfigJson["maxscanqueuesize"];
+                    maxNumberOfScanThread = parsedConfigJson["maxthreads"];
                     usedFileValues = true;
                 }
                 catch (const std::exception& e)
                 {
-                    LOGWARN("Failed to convert product config file info to integers: " << e.what());
+                    LOGWARN("Failed to read product config file info: " << e.what());
                 }
             }
         }
