@@ -13,7 +13,7 @@ namespace Plugin
     class PolicyProcessor
     {
     public:
-        using IStoppableSleeperSharedPtr = std::shared_ptr<unixsocket::IStoppableSleeper>;
+        using IStoppableSleeperSharedPtr = common::IStoppableSleeperSharedPtr;
         explicit PolicyProcessor(IStoppableSleeperSharedPtr stoppableSleeper);
         virtual ~PolicyProcessor() = default;
 

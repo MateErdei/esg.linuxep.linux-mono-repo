@@ -3,9 +3,10 @@
 #pragma once
 
 #include <chrono>
+#include <memory>
 #include <thread>
 
-namespace unixsocket
+namespace common
 {
     class IStoppableSleeper
     {
@@ -24,4 +25,6 @@ namespace unixsocket
             return false;
         }
     };
+
+    using IStoppableSleeperSharedPtr = std::shared_ptr<IStoppableSleeper>;
 }

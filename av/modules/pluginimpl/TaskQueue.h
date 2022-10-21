@@ -47,7 +47,7 @@ namespace Plugin
         }
     };
 
-    class TaskQueue : public unixsocket::IStoppableSleeper
+    class TaskQueue : public common::IStoppableSleeper
     {
         std::mutex m_mutex;
         std::condition_variable m_cond;
@@ -55,7 +55,6 @@ namespace Plugin
         bool m_stopQueued = false;
 
     public:
-        using duration_t = unixsocket::IStoppableSleeper::duration_t;
         using clock_t = std::chrono::steady_clock;
         using time_point_t = std::chrono::time_point<clock_t>;
 
