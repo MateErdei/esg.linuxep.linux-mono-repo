@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "modules/common/IStoppableSleeper.h"
 #include "scan_messages/ProcessControlSerialiser.h"
-#include "unixsocket/IStoppableSleeper.h"
 
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <thirdparty/nlohmann-json/json.hpp>

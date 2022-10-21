@@ -8,7 +8,7 @@ add_library(unixsocket SHARED
         BaseServerSocket.cpp
         BaseServerSocket.h
         IMessageCallback.h
-        IStoppableSleeper.h
+        ../common/IStoppableSleeper.h
         SocketUtils.cpp
         SocketUtils.h
         SocketUtilsImpl.cpp
