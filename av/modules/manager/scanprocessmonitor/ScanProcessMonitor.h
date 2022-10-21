@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -10,7 +6,8 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/ISystemCallWrapper.h"
-#include "unixsocket/processControllerSocket/ProcessControllerClient.h"
+
+#include "scan_messages/ProcessControlSerialiser.h"
 
 namespace plugin::manager::scanprocessmonitor
 {
