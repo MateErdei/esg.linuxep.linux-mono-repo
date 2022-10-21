@@ -68,15 +68,7 @@ namespace Plugin
         LOGSUPPORT("Shutdown signal received");
         m_task->pushStop();
 
-        struct stat statbuf{};
-        int ret = stat("/opt/test/inputs", &statbuf);
-        bool testing = (ret == 0);
-
         auto deadline = std::chrono::steady_clock::now() + 30s;
-        if (testing)
-        {
-            deadline = std::chrono::steady_clock::now() + 8s;
-        }
         auto nextLog = std::chrono::steady_clock::now() + 1s;
 
         while(isRunning() && std::chrono::steady_clock::now() < deadline)
@@ -87,23 +79,6 @@ namespace Plugin
                 LOGSUPPORT("Shutdown waiting for all processes to complete");
             }
             std::this_thread::sleep_for(50ms);
-        }
-        if (!isRunning())
-        {
-            // Successful exit
-            return;
-        }
-        LOGFATAL("AV Plugin has hung: main thread has not exited");
-        if (testing)
-        {
-            std::this_thread::sleep_for(50ms);  // To allow logging to complete
-            // Will cause a SIGABRT, and the default action for that is generating a Core File
-            abort();
-        }
-        else
-        {
-            // Force exit
-            exit(30);
         }
     }
 

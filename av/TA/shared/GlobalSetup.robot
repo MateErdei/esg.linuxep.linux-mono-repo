@@ -54,6 +54,7 @@ Global Setup Tasks
 
     Set Global Variable  ${USING_FAKE_AV_SCANNER_FLAG}       UsingFakeAvScanner
     Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  false
+    Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
 
     Create Install Set If Required
     CoreDumps.Enable Core Files
