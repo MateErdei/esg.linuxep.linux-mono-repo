@@ -28,6 +28,8 @@ namespace
                 return "UNINITIALISED";
             case safestore::QuarantineManagerState::CORRUPT:
                 return "CORRUPT";
+            case safestore::QuarantineManagerState::STARTUP:
+                return "STARTUP";
         }
         return "UNKNOWN";
     }
@@ -101,7 +103,7 @@ namespace safestore
     }
 
     QuarantineManagerImpl::QuarantineManagerImpl(std::unique_ptr<ISafeStoreWrapper> safeStoreWrapper) :
-        m_state(QuarantineManagerState::UNINITIALISED),
+        m_state(QuarantineManagerState::STARTUP),
         m_safeStore(std::move(safeStoreWrapper)),
         m_dbErrorCountThreshold(Plugin::getPluginVarDirPath(), "safeStoreDbErrorThreshold", 10)
     {
@@ -113,26 +115,20 @@ namespace safestore
         return m_state;
     }
 
-    void QuarantineManagerImpl::setState(const std::string newState)
+    void QuarantineManagerImpl::setState(const QuarantineManagerState& newState)
     {
-        //exists
-        auto fileSystem = Common::FileSystem::fileSystem();
-        std::string dormantFlag = Plugin::getSafeStoreDormantFlagPath();
-        if (newState == "INITIALISED"){
-            fileSystem->removeFile(dormantFlag, true);
-            m_state = QuarantineManagerState::INITIALISED;
-        }
-        else
+        if (m_state != newState)
         {
-            //create flag file
-            fileSystem->appendFile(dormantFlag, "Safestore database either uninitialised or corrupt");
-            if (newState == "CORRUPT")
+            m_state = newState;
+            auto fileSystem = Common::FileSystem::fileSystem();
+            std::string dormantFlag = Plugin::getSafeStoreDormantFlagPath();
+            if (m_state == QuarantineManagerState::INITIALISED)
             {
-                m_state = QuarantineManagerState::CORRUPT;
+                fileSystem->removeFile(dormantFlag, true);
             }
             else
             {
-                m_state = QuarantineManagerState::UNINITIALISED;
+                fileSystem->appendFile(dormantFlag, "Safestore database either uninitialised or corrupt");
             }
         }
     }
@@ -160,7 +156,7 @@ namespace safestore
             else
             {
                 LOGERROR("Failed to store Quarantine Manager password");
-                setState("UNINITIALISED");
+                setState(QuarantineManagerState::UNINITIALISED);
                 return;
             }
         }
@@ -169,20 +165,18 @@ namespace safestore
 
         if (initResult == InitReturnCode::OK)
         {
-            setState("INITIALISED");
+            setState(QuarantineManagerState::INITIALISED);
             m_databaseErrorCount = 0;
             LOGINFO("Quarantine Manager initialised OK");
         }
         else
         {
+            setState(QuarantineManagerState::UNINITIALISED);
+
             LOGERROR("Quarantine Manager failed to initialise");
             if (initResult == InitReturnCode::DB_ERROR || initResult == InitReturnCode::DB_OPEN_FAILED)
             {
                 callOnDbError();
-            }
-            else
-            {
-                setState("UNINITIALISED");
             }
         }
     }
@@ -263,7 +257,7 @@ namespace safestore
             if (fileSystem->exists(safeStoreDbDir))
             {
                 fileSystem->removeFilesInDirectory(safeStoreDbDir);
-                setState("UNINITIALISED");
+                setState(QuarantineManagerState::UNINITIALISED);
                 m_databaseErrorCount = 0;
                 LOGDEBUG("Quarantine database deletion successful");
             }
@@ -282,13 +276,13 @@ namespace safestore
         ++m_databaseErrorCount;
         if (m_databaseErrorCount >= m_dbErrorCountThreshold.getValue())
         {
-            setState("CORRUPT");
+            setState(QuarantineManagerState::CORRUPT);
         }
     }
 
     void QuarantineManagerImpl::callOnDbSuccess()
     {
         m_databaseErrorCount = 0;
-        setState("UNINITIALISED");
+        setState(QuarantineManagerState::INITIALISED);
     }
 } // namespace safestore

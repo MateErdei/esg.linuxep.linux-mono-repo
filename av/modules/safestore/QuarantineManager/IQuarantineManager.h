@@ -18,7 +18,10 @@ namespace safestore::QuarantineManager
         UNINITIALISED,
 
         // The DB is corrupt (this is triggered when we keep getting DB errors)
-        CORRUPT
+        CORRUPT,
+
+        //The QM is starting up, guarenteed to change
+        STARTUP
     };
 
     class IQuarantineManager
@@ -30,11 +33,6 @@ namespace safestore::QuarantineManager
          * Initialise the Quarantine Manager so that files can be quarantined.
          */
         virtual void initialise() = 0;
-
-        /*
-         * Used to set the state of the Quarantine Manager
-         */
-        virtual void setState(const std::string newState) = 0;
 
         /*
          * Return the current state of the Quarantine Manager.

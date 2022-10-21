@@ -40,6 +40,9 @@ namespace safestore::QuarantineManager
         auto state = m_quarantineManager->getState();
         switch (state)
         {
+            case QuarantineManagerState::STARTUP:
+                LOGDEBUG("In startup");
+                break;
             case QuarantineManagerState::INITIALISED:
                 LOGDEBUG("Quarantine Manager is initialised");
                 break;
