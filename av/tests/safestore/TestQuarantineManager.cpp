@@ -6,6 +6,8 @@
 #include "safestore/IQuarantineManager.h"
 #include "safestore/QuarantineManagerImpl.h"
 
+#include <scan_messages/QuarantineResponse.h>
+
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
@@ -201,7 +203,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_TRUE(quarantineManager->quarantineFile(
+    ASSERT_EQ(scan_messages::QUARANTINE_SUCCESS,quarantineManager->quarantineFile(
         m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 }
 
@@ -237,7 +239,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_FALSE(quarantineManager->quarantineFile(
+    ASSERT_EQ(scan_messages::QUARANTINE_FAIL,quarantineManager->quarantineFile(
         m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 
     ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::CORRUPT);
@@ -271,7 +273,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_FALSE(quarantineManager->quarantineFile(
+    ASSERT_EQ(scan_messages::QUARANTINE_FAIL_TO_DELETE_FILE,quarantineManager->quarantineFile(
         m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 }
 
@@ -295,7 +297,7 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenThreatIdIsIncorrectSize)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), safestore::QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_FALSE(
+    ASSERT_EQ(scan_messages::QUARANTINE_FAIL,
         quarantineManager->quarantineFile(m_dir + "/" + m_file, threatId, m_threatName, m_SHA256, std::move(fdHolder)));
 }
 

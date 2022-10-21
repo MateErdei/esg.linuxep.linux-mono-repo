@@ -48,3 +48,33 @@ void unixsocket::SafeStoreClient::sendQuarantineRequest(const scan_messages::Thr
         LOGWARN("Failed to write to SafeStore socket. Exception caught: " << e.what());
     }
 }
+//
+//void unixsocket::SafeStoreClient::waitForResponse()
+//{
+//    struct pollfd fds[] {
+//        { .fd = m_socket.socketFd(), .events = POLLIN, .revents = 0 },
+//            { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
+//    };
+//
+//    while (true)
+//    {
+//        auto ret = ::ppoll(fds, std::size(fds), nullptr, nullptr);
+//
+//        if (ret < 0)
+//        {
+//            if (errno == EINTR)
+//            {
+//                continue;
+//            }
+//
+//            LOGERROR("Error from ppoll: " << common::safer_strerror(errno));
+//            throw ClientSocketException("Error while waiting for scan response");
+//        }
+//
+//        else if (ret > 0)
+//        {
+//
+//            break;
+//        }
+//    }
+//}

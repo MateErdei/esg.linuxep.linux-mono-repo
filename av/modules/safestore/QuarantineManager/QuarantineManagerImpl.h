@@ -5,6 +5,8 @@
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
 
+#include <scan_messages/QuarantineResponse.h>
+
 #include "Common/PersistentValue/PersistentValue.h"
 
 #include <memory>
@@ -20,7 +22,7 @@ namespace safestore::QuarantineManager
         void initialise() override;
         QuarantineManagerState getState() override;
         bool deleteDatabase() override;
-        bool quarantineFile(
+        scan_messages::QuarantineResult quarantineFile(
             const std::string& filePath,
             const std::string& threatId,
             const std::string& threatName,

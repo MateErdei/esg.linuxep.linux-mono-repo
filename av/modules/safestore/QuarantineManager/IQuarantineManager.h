@@ -3,7 +3,7 @@
 #pragma once
 
 #include "datatypes/AutoFd.h"
-
+#include <scan_messages/QuarantineResponse.h>
 #include <string>
 
 namespace safestore::QuarantineManager
@@ -48,7 +48,7 @@ namespace safestore::QuarantineManager
          * Delete the file.
          * Store the checksum of the file.
          */
-        virtual bool quarantineFile(
+        virtual  scan_messages::QuarantineResult quarantineFile(
             const std::string& filePath,
             const std::string& threatId,
             const std::string& threatName,

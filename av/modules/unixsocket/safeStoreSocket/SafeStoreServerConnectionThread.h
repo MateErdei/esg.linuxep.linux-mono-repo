@@ -12,6 +12,7 @@
 
 #include <datatypes/AutoFd.h>
 #include <scan_messages/ThreatDetected.h>
+#include <scan_messages/QuarantineResponse.h>
 #include <unixsocket/IMessageCallback.h>
 
 #include <cstdint>

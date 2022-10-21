@@ -71,7 +71,7 @@ namespace
     {
     public:
         MOCK_METHOD(
-            bool,
+            scan_messages::QuarantineResult,
             quarantineFile,
             (const std::string& filePath,
              const std::string& threatId,
@@ -106,7 +106,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
                 {
                     EXPECT_TRUE(autoFd.valid()); // check we received a valid fd
                     serverWaitGuard.onEventNoArgs();
-                    return false;
+                    return scan_messages::QUARANTINE_FAIL;
                 }));
 
         unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
@@ -160,13 +160,13 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
             [&serverWaitGuard]()
             {
                 serverWaitGuard.onEventNoArgs();
-                return false;
+                return scan_messages::QUARANTINE_FAIL;
             }))
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard2]()
             {
                 serverWaitGuard2.onEventNoArgs();
-                return false;
+                return scan_messages::QUARANTINE_FAIL;
             }));
 
     unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);

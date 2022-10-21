@@ -10,6 +10,7 @@
 #include <capnp/serialize.h>
 #include <common/FDUtils.h>
 #include <scan_messages/ThreatDetected.h>
+#include <scan_messages/QuarantineResponse.h>
 
 #include <cassert>
 #include <stdexcept>
@@ -22,7 +23,7 @@ using namespace unixsocket;
 
 SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     datatypes::AutoFd& fd,
-    std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager) :
+    std::shared_ptr<safestore::IQuarantineManager> quarantineManager) :
     m_fd(std::move(fd)), m_quarantineManager(quarantineManager)
 {
     if (m_fd < 0)
@@ -63,6 +64,31 @@ static scan_messages::ThreatDetected parseDetection(kj::Array<capnp::word>& prot
         LOGERROR("Missing file path while parsing report ( size=" << bytes_read << " )");
     }
     return scan_messages::ThreatDetected(requestReader);
+}
+
+void sendResponse(scan_messages::QuarantineResult quarantineResult, datatypes::AutoFd socket_fd)
+{
+    std::shared_ptr<scan_messages::QuarantineResponse> request = std::make_shared<scan_messages::QuarantineResponse>(quarantineResult);
+    std::string dataAsString = request->serialise();
+    LOGDEBUG("Sending quarantine response");
+    assert(socket_fd.valid());
+
+    try
+    {
+        if (!writeLengthAndBuffer(socket_fd, dataAsString))
+        {
+            std::stringstream errMsg;
+            errMsg << "Failed to write Quarantine Response to socket [" << errno << "]";
+            throw std::runtime_error(errMsg.str());
+        }
+
+
+    }
+    catch (unixsocket::environmentInterruption& e)
+    {
+        LOGWARN("Failed to write to SafeStore socket. Exception caught: " << e.what());
+    }
+
 }
 
 void SafeStoreServerConnectionThread::run()
@@ -196,29 +222,32 @@ void SafeStoreServerConnectionThread::inner_run()
                 break;
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
-            threatDetected.autoFd = std::move(file_fd);
+            threatDetected.setAutoFd(std::move(file_fd));
 
-            if (threatDetected.filePath.empty())
+            if (!threatDetected.hasFilePath())
             {
                 LOGERROR("Missing file path in detection report ( size=" << bytes_read << ")");
+            }
+            else if (threatDetected.getFilePath() == "")
+            {
+                LOGERROR("Missing file path in detection report: empty file path");
             }
 
             LOGINFO(
                 "Received Threat:\n  File path: "
-                << threatDetected.filePath << "\n  Threat ID: " << threatDetected.threatId
-                << "\n  Threat name: " << threatDetected.threatName << "\n  SHA256: " << threatDetected.sha256
-                << "\n  File descriptor: " << threatDetected.autoFd.get());
+                << threatDetected.getFilePath() << "\n  Threat ID: " << threatDetected.getThreatId()
+                << "\n  Threat name: " << threatDetected.getThreatName() << "\n  SHA256: " << threatDetected.getSha256()
+                << "\n  File descriptor: " << threatDetected.getFd());
 
-            bool isQuarantineSuccessful = m_quarantineManager->quarantineFile(
-                threatDetected.filePath,
-                threatDetected.threatId,
-                threatDetected.threatName,
-                threatDetected.sha256,
-                std::move(threatDetected.autoFd));
+            scan_messages::QuarantineResult quarantineResult = m_quarantineManager->quarantineFile(
+                threatDetected.getFilePath(),
+                threatDetected.getThreatId(),
+                threatDetected.getThreatName(),
+                threatDetected.getSha256(),
+                threatDetected.moveAutoFd());
 
-            std::ignore = isQuarantineSuccessful;
 
-            // TODO: LINUXDAR-5677 send a response back
+            sendResponse(quarantineResult,std::move(socket_fd));
         }
     }
 }

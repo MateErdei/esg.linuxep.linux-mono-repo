@@ -18,5 +18,6 @@ namespace unixsocket
         explicit SafeStoreClient(std::string socket_path, const duration_t& sleepTime = DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
 
         void sendQuarantineRequest(const scan_messages::ThreatDetected& detection);
+        void waitForResponse();
     };
 } // namespace unixsocket
