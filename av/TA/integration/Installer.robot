@@ -153,7 +153,7 @@ On access continues during update
     ${test_file} =   Set Variable   /tmp/testfile
     Register Cleanup   Remove File   ${test_file}
 
-    # start a background process to cause ~100 on-access events per second
+    # start a background process to cause ~10 on-access events per second
     ${handle} =   Start Process   while :; do echo foo >${test_file}; sleep 0.1; done   shell=True
 
     Mark Sophos Threat Detector Log
