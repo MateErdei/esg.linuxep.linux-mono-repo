@@ -247,6 +247,7 @@ namespace Plugin
                     LOGINFO("Processing ALC Policy");
                     LOGDEBUG("Processing policy: " << policyXml);
                     m_policyProcessor.processAlcPolicy(attributeMap);
+                    LOGDEBUG("Finished processing ALC Policy");
                     policyWaiter->gotPolicy("ALC");
                     setResetThreatDetector(m_policyProcessor.restartThreatDetector());
                 }

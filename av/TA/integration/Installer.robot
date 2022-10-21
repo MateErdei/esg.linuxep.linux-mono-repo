@@ -566,8 +566,8 @@ Check installer corrects permissions of var directory on upgrade
     Mark AV Log
     #Force AV to write the customer id in order to avoid errors after we change the file permissions
     Send Alc Policy
-    #This is the last thing we log after we write the customer id
-    Wait Until AV Plugin Log Contains With Offset    Processing request to restart sophos threat detector
+    #This is the first thing we log after we write the customer id
+    Wait Until AV Plugin Log Contains With Offset    Finished processing ALC Policy
 
     #Now AV won't create a customer_id file, so override it with a bad permission file
     ${customerIdFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/var/customer_id.txt
