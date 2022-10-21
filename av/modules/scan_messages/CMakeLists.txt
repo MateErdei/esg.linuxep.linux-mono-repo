@@ -3,6 +3,7 @@ CAPN_GENERATE_CPP(CapNGeneratedFilesSrcs CapNGeneratedFilesHeaders
         ScanResponse.capnp
         NamedScan.capnp
         ProcessControl.capnp
+        QuarantineResponse.capnp
         ThreatDetected.capnp)
 
 add_library(scanmessages SHARED
@@ -22,7 +23,9 @@ add_library(scanmessages SHARED
         ProcessControlDeserialiser.cpp
         ProcessControlDeserialiser.h
         ThreatDetected.cpp
-        ThreatDetected.h)
+        ThreatDetected.h
+        QuarantineResponse.cpp
+        QuarantineResponse.h)
 
 target_include_directories(scanmessages PUBLIC
         "${CAPNPROTO_INCLUDE_DIR}"
