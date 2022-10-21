@@ -15,7 +15,7 @@ using namespace common::CentralEnums;
 
 ThreatDetected::ThreatDetected(
     std::string userID,
-    std::time_t detectionTime,
+    std::int64_t detectionTime,
     ThreatType threatType,
     std::string threatName,
     E_SCAN_TYPE scanType,
@@ -111,7 +111,7 @@ bool ThreatDetected::operator==(const ThreatDetected& other) const
            sha256 == other.sha256 &&
            threatId == other.threatId &&
            isRemote == other.isRemote &&
-           reportSource == other.reportSource &&
-           autoFd == other.autoFd;
+           reportSource == other.reportSource;
+           // autoFd is not checked because two real autoFds should never be equal
     // clang-format on
 }

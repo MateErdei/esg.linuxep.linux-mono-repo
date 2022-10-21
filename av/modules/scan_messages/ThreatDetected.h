@@ -52,7 +52,7 @@ namespace scan_messages
     public:
         ThreatDetected(
             std::string userID,
-            std::time_t detectionTime,
+            std::int64_t detectionTime,
             common::CentralEnums::ThreatType threatType,
             std::string threatName,
             E_SCAN_TYPE scanType,
@@ -72,7 +72,7 @@ namespace scan_messages
         [[nodiscard]] std::string serialise() const;
 
         std::string userID;
-        std::time_t detectionTime;
+        std::int64_t detectionTime;
         common::CentralEnums::ThreatType threatType;
         std::string threatName;
         E_SCAN_TYPE scanType;

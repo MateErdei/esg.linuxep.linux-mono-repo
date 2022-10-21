@@ -6,13 +6,12 @@
 #include "Logger.h"
 #include "ThreatDetected.capnp.h"
 
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 #include "datatypes/Time.h"
 #include "datatypes/sophos_filesystem.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
-#include "Common/UtilityImpl/TimeUtils.h"
-
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <boost/locale.hpp>
 #include <common/StringUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
