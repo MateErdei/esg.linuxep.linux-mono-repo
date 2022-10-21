@@ -1,6 +1,7 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "OnAccessConfigurationUtils.h"
+#include "OnAccessProductConfigDefaults.h"
 
 #include "Logger.h"
 
@@ -43,6 +44,46 @@ namespace sophos_on_access_process::OnAccessConfig
     std::string readPolicyConfigFile()
     {
         return readPolicyConfigFile(policyConfigFilePath());
+    }
+
+    void readProductConfigFile(size_t& maxScanQueueSize, int& maxNumberOfScanThread)
+    {
+        maxScanQueueSize = defaultMaxScanQueueSize;
+        maxNumberOfScanThread = defaultScanningThreads;
+
+        auto* sophosFsAPI = Common::FileSystem::fileSystem();
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
+        auto productConfigPath = pluginInstall / "var/onaccessproductconfig.json";
+
+        bool usedFileValues = false;
+
+        try
+        {
+            std::string configJson = sophosFsAPI->readFile(productConfigPath.string());
+            if (!configJson.empty())
+            {
+                auto parsedConfigJson = json::parse(configJson);
+                std::string maxQueueStr = parsedConfigJson["maxscanqueuesize"];
+                std::string maxThreadsStr = parsedConfigJson["maxthreads"];
+
+                try
+                {
+                    maxScanQueueSize = std::stoi(maxQueueStr);
+                    maxNumberOfScanThread = std::stoi(maxThreadsStr);
+                    usedFileValues = true;
+                }
+                catch (const std::exception& e)
+                {
+                    LOGWARN("Failed to convert product config file info to integers: " << e.what());
+                }
+            }
+        }
+        catch (const Common::FileSystem::IFileSystemException& ex)
+        {
+        }
+        std::string logmsg = usedFileValues ? "Setting from file: " : "Setting from defaults: ";
+        LOGDEBUG(logmsg << "Max queue size set to " << maxScanQueueSize << " and Max threads set to " << maxNumberOfScanThread);
     }
 
     std::string readFlagConfigFile()

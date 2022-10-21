@@ -1,0 +1,9 @@
+// Copyright 2022, Sophos Limited.  All rights reserved.
+
+#include <stddef.h>
+
+namespace sophos_on_access_process::OnAccessConfig
+{
+    const size_t defaultMaxScanQueueSize = 1000;
+    const int defaultScanningThreads = 10;
+}

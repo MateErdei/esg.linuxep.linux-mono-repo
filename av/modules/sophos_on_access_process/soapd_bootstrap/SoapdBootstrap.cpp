@@ -15,9 +15,13 @@
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
+#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteClientSocketThread.h"
+
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
 
 // Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -27,8 +31,6 @@
 #include <memory>
 // Std C
 #include <poll.h>
-
-#define MAX_SCAN_THREADS 1
 
 namespace fs = sophos_filesystem;
 
@@ -40,7 +42,7 @@ using namespace unixsocket::updateCompleteSocket;
 
 int SoapdBootstrap::runSoapd()
 {
-    LOGINFO("Sophos on access process started");
+    LOGINFO("Sophos on access process " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
     auto SoapdInstance = SoapdBootstrap();
     return SoapdInstance.outerRun();
 }
@@ -75,18 +77,23 @@ void SoapdBootstrap::innerRun()
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
-    mount_monitor::mount_monitor::OnAccessMountConfig config;
+    OnAccessConfig::OnAccessConfiguration config;
 
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+
+    size_t maxScanQueueSize = 0;
+    OnAccessConfig::readProductConfigFile(maxScanQueueSize, m_maxNumberOfScanThreads);
 
     const struct rlimit file_lim = { 4096, 4096 };
     sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
 
     m_fanotifyHandler = std::make_shared<FanotifyHandler>(sysCallWrapper);
 
+    auto sysPathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
     m_mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config,
                                                                                   sysCallWrapper,
-                                                                                  m_fanotifyHandler);
+                                                                                  m_fanotifyHandler,
+                                                                                  sysPathsFactory);
     m_mountMonitorThread = std::make_unique<common::ThreadRunner>(m_mountMonitor,
                                                                   "mountMonitor",
                                                                   false);
@@ -95,7 +102,7 @@ void SoapdBootstrap::innerRun()
     auto updateClient = std::make_shared<UpdateCompleteClientSocketThread>(updateSocketPath, m_fanotifyHandler);
     auto updateClientThread = std::make_unique<common::ThreadRunner>(updateClient, "updateClient", true);
 
-    m_scanRequestQueue = std::make_shared<ScanRequestQueue>();
+    m_scanRequestQueue = std::make_shared<ScanRequestQueue>(maxScanQueueSize);
 
     m_eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
                                                            sysCallWrapper,
@@ -109,8 +116,9 @@ void SoapdBootstrap::innerRun()
     LOGDEBUG("Control Server Socket is at: " << socketPath);
     auto processControlCallbacks = std::make_shared<sophos_on_access_process::OnAccessConfig::OnAccessProcessControlCallback>(*this);
     auto processControllerServer = std::make_shared<unixsocket::ProcessControllerServerSocket>(socketPath,
-                                                                                               0666,
+                                                                                               0600,
                                                                                                processControlCallbacks);
+    processControllerServer->setUserAndGroup("sophos-spl-av", "sophos-spl-group");
     auto processControllerServerThread = std::make_unique<common::ThreadRunner>(processControllerServer,
                                                                                 "processControlServer",
                                                                                 true);
@@ -124,11 +132,13 @@ void SoapdBootstrap::innerRun()
     //if flagJsonString is empty then readFlagConfigFile has already logged a WARN
     if(!flagJsonString.empty())
     {
-        std::string setting = OnAccessConfig::parseFlagConfiguration(flagJsonString) ? "not override policy" : "override policy";
+        LOGINFO("Found Flag config on startup");
+        m_onAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
+        std::string setting = m_onAccessEnabledFlag ? "not override policy" : "override policy";
         LOGINFO("Flag is set to " << setting);
     }
 
-    ProcessPolicy();
+    ProcessPolicy(true);
 
     while (true)
     {
@@ -164,87 +174,107 @@ void SoapdBootstrap::innerRun()
         }
     }
 
-    disableOnAccess();
+    processControllerServer->tryStop();
+    updateClient->tryStop();
+    processControllerServerThread.reset();
+    updateClientThread.reset();
+    disableOnAccess(true);
 }
 
 sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::getPolicyConfiguration()
 {
     auto jsonString = OnAccessConfig::readPolicyConfigFile();
     OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessPolicySettingsFromJson(jsonString);
-    m_mountMonitor->updateConfig(oaConfig.exclusions, oaConfig.excludeRemoteFiles);
-
     return oaConfig;
 }
 
-void SoapdBootstrap::ProcessPolicy()
+void SoapdBootstrap::ProcessPolicy(bool onStart)
 {
     std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
-    LOGDEBUG("ProcessPolicy");
+    LOGDEBUG("ProcessPolicy " << onStart);
 
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
-    auto OnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
+    auto newOnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
+    bool flagChanged = onStart || (m_onAccessEnabledFlag != newOnAccessEnabledFlag);
+    m_onAccessEnabledFlag = newOnAccessEnabledFlag;
 
-    auto oaConfig = getPolicyConfiguration();
-    bool OnAccessEnabledPolicySetting = oaConfig.enabled;
-
-    if(checkIfOAShouldBeEnabled(OnAccessEnabledFlag, OnAccessEnabledPolicySetting))
-    {
-        //Set exclusions first before starting receiving fanotify events
-        m_eventReader->setExclusions(oaConfig.exclusions);
-        enableOnAccess();
-    }
-    else
-    {
-        disableOnAccess();
-    }
-
-    LOGDEBUG("Finished ProcessPolicy");
-}
-
-bool SoapdBootstrap::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting)
-{
-    if(!OnAccessEnabledFlag)
+    if(!m_onAccessEnabledFlag)
     {
         LOGINFO("Overriding policy, on-access will be disabled");
-        return false;
+        disableOnAccess(flagChanged);
     }
     else
     {
         LOGINFO("No policy override, following policy settings");
-        return OnAccessEnabledPolicySetting;
+
+        auto oaConfig = getPolicyConfiguration();
+        m_mountMonitor->updateConfig(oaConfig);
+
+
+        bool newOaEnabledState = oaConfig.enabled;
+        bool oldOaEnabledState = m_currentOaEnabledState.load();
+        m_currentOaEnabledState.store(newOaEnabledState);
+        bool changed = onStart || (oldOaEnabledState != newOaEnabledState);
+
+        if (newOaEnabledState)
+        {
+            enableOnAccess(changed);
+        }
+        else
+        {
+            disableOnAccess(changed);
+        }
+        m_eventReader->setExclusions(oaConfig.exclusions);
     }
+    LOGDEBUG("Finished ProcessPolicy " << onStart);
 }
 
-void SoapdBootstrap::disableOnAccess()
+void SoapdBootstrap::disableOnAccess(bool changed)
 {
-    if (!m_currentOaEnabledState)
+    // Log if on-access was enabled before
+    if (changed)
     {
-        LOGINFO("On-access scanning already disabled");
-        return;
+        LOGINFO("On-access scanning disabled");
     }
 
-    LOGINFO("Disabling on-access scanning");
+    /*
+     * EventReader and scanHandler threads are not thread-safe with
+     * fanotify handler being closed.
+     *
+     * mount monitor should be thread-safe vs. fanotify handler being closed
+     * but isn't worth running when fanotify is turned off.
+     */
+
+    std::lock_guard<std::mutex> guard(m_onAccessChangeStateLock);
+
+    // Async stop event reader and mount monitor
+    m_eventReader->tryStop();
+    m_mountMonitor->tryStop();
+
+    // sync stop event reader and mount monitor
     m_eventReaderThread->requestStopIfNotStopped();
     m_mountMonitorThread->requestStopIfNotStopped();
-    m_scanRequestQueue->stop();
 
+    // stop scan threads, and clear queue
+    m_scanRequestQueue->stop(); // Clears queue
+
+    // Join all scan threads
     m_scanHandlerThreads.clear();
 
+    // Disable fanotify and close fanotify descriptor
     m_fanotifyHandler->close();
-
-    LOGINFO("On-access scanning disabled");
-    m_currentOaEnabledState.store(false);
 }
 
-void SoapdBootstrap::enableOnAccess()
+void SoapdBootstrap::enableOnAccess(bool changed)
 {
-    if (m_currentOaEnabledState)
+    if (!changed)
     {
-        LOGINFO("On Access already enabled");
         return;
     }
 
-    LOGINFO("Enabling on-access scanning");
+    LOGINFO("On-access scanning enabled");
+
+    std::lock_guard<std::mutex> guard(m_onAccessChangeStateLock);
 
     m_fanotifyHandler->init();
 
@@ -255,18 +285,15 @@ void SoapdBootstrap::enableOnAccess()
 
     std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
 
-    for (int count = 0; count < MAX_SCAN_THREADS; ++count)
+    for (int threadCount = 0; threadCount < m_maxNumberOfScanThreads; ++threadCount)
     {
         std::stringstream threadName;
-        threadName << "scanHandler " << count;
+        threadName << "scanHandler " << threadCount;
 
         auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
         auto scanHandler = std::make_shared<ScanRequestHandler>(
-            m_scanRequestQueue, scanningSocket, m_fanotifyHandler);
+            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, threadCount);
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }
-
-    LOGINFO("On-access scanning enabled");
-    m_currentOaEnabledState.store(true);
 }

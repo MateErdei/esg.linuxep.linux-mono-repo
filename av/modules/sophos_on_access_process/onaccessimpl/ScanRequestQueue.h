@@ -13,14 +13,12 @@
 
 using namespace scan_messages;
 
-const size_t MAX_SIZE = 1000;
-
 namespace sophos_on_access_process::onaccessimpl
 {
     class ScanRequestQueue
     {
     public:
-        explicit ScanRequestQueue(size_t maxSize = MAX_SIZE);
+        explicit ScanRequestQueue(size_t maxSize);
 
         /**
          * Add scan request and associated file descriptor to the queue ready for scanning

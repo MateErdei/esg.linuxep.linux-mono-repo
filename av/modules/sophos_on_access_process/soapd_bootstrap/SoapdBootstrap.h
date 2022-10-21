@@ -52,6 +52,8 @@ namespace sophos_on_access_process::soapd_bootstrap
         std::mutex m_pendingConfigActionMutex;
         std::atomic_bool m_currentOaEnabledState = false;
 
+        int m_maxNumberOfScanThreads = 0;
+
         std::shared_ptr<onaccessimpl::ScanRequestQueue> m_scanRequestQueue;
         std::vector<std::shared_ptr<common::ThreadRunner>> m_scanHandlerThreads;
         std::shared_ptr<::fanotifyhandler::EventReaderThread> m_eventReader;

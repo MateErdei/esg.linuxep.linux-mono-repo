@@ -34,6 +34,7 @@ namespace sophos_on_access_process::OnAccessConfig
     std::string readPolicyConfigFile();
     OnAccessConfiguration parseOnAccessPolicySettingsFromJson(const std::string& jsonString);
     std::string readFlagConfigFile();
+    void readProductConfigFile(size_t& maxScanQueueSize, int& maxNumberOfScanThread);
     bool parseFlagConfiguration(const std::string& jsonString);
 
     bool isSettingTrue(const std::string& settingString);
