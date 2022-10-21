@@ -123,3 +123,15 @@ TEST(TestScanMessages, ClientScanRequestHasTime)
 
     ASSERT_NE(creationTime, 0);
 }
+
+
+TEST(TestScanMessages, ClientScanRequestSetsQueueSize)
+{
+    scan_messages::ClientScanRequest clientScanRequest{};
+
+    size_t testValue = 1439;
+
+    clientScanRequest.setQueueSizeAtTimeOfInsert(testValue);
+
+    ASSERT_EQ(testValue, clientScanRequest.getQueueSizeAtTimeOfInsert());
+}

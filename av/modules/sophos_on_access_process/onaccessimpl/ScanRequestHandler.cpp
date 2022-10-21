@@ -113,12 +113,13 @@ void ScanRequestHandler::run()
                     scan(queueItem);
 
                     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-                    time_t scanDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-                    time_t inProductDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - queueItem->getCreationTime()).count();
+                    auto scanDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+                    auto inProductDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - queueItem->getCreationTime()).count();
 
                     std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
                     LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms by scanHandler-" << m_handlerId
-                                         << ": Time in product is " << inProductDuration << "ms. Queue size was " << queueItem->getQueueIndex());
+                                         << ": Time in product is " << inProductDuration
+                                         << "ms. Queue size at time of insert was " << queueItem->getQueueSizeAtTimeOfInsert());
                 }
                 else
                 {
