@@ -143,8 +143,8 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigEmptyKeepsDefaults)
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return(""));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    size_t maxScanQueueItems = defaultMaxScanQueueSize;
-    int maxThreads = defaultScanningThreads;
+    size_t maxScanQueueItems = 0;
+    int maxThreads = 0;
 
     readProductConfigFile(maxScanQueueItems, maxThreads);
 
@@ -164,8 +164,8 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigIgnoresBadvalues)
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": \"ha\",\"maxscanqueuesize\": \"ha\"}"));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    size_t maxScanQueueItems = defaultMaxScanQueueSize;
-    int maxThreads = defaultScanningThreads;
+    size_t maxScanQueueItems = 0;
+    int maxThreads = 0;
 
     readProductConfigFile(maxScanQueueItems, maxThreads);
 
