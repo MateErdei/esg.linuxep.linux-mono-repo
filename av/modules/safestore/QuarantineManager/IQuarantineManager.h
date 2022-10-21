@@ -32,6 +32,11 @@ namespace safestore::QuarantineManager
         virtual void initialise() = 0;
 
         /*
+         * Used to set the state of the Quarantine Manager
+         */
+        virtual void setState(const std::string newState) = 0;
+
+        /*
          * Return the current state of the Quarantine Manager.
          * The implementing class must keep this state updated.
          */

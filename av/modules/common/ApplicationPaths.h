@@ -13,4 +13,5 @@ namespace Plugin
     std::string getSafeStoreDbDirPath();
     std::string getSafeStoreDbFileName();
     std::string getSafeStorePasswordFilePath();
+    std::string getSafeStoreDormantFlagPath();
 } // namespace Plugin

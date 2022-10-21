@@ -53,4 +53,9 @@ namespace Plugin
     {
         return getSafeStoreDbDirPath() + "/safestore.pw";
     }
+
+    std::string getSafeStoreDormantFlagPath()
+    {
+        return getPluginVarDirPath() + "/safestore_dormant_flag.json";
+    }
 } // namespace Plugin
