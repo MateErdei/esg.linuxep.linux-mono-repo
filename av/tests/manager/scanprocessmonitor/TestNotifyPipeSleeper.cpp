@@ -35,5 +35,5 @@ TEST_F(TestNotifyPipeSleeper, sleepWithStop)
     Common::Threads::NotifyPipe pipe;
     NotifyPipeSleeper sleeper(pipe);
     pipe.notify();
-    EXPECT_TRUE(sleeper.stoppableSleep(1ms));
+    EXPECT_TRUE(sleeper.stoppableSleep(10s));
 }

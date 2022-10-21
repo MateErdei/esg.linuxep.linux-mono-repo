@@ -19,9 +19,10 @@ bool plugin::manager::scanprocessmonitor::NotifyPipeSleeper::stoppableSleep(
         { .fd = m_pipe.readFd(), .events = POLLIN, .revents = 0 }
     };
 
+    auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(sleepTime).count();
     struct timespec timeout{
-        .tv_sec = 0,
-        .tv_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(sleepTime).count()
+        .tv_sec = nanoseconds /  1000000000,
+        .tv_nsec = nanoseconds % 1000000000
     };
 
     auto ret = ::ppoll(fds, std::size(fds), &timeout, nullptr);
@@ -29,7 +30,7 @@ bool plugin::manager::scanprocessmonitor::NotifyPipeSleeper::stoppableSleep(
     // ret > 0 -> sleep stopped
     if (ret < 0)
     {
-        LOGERROR("Unable to complete stoppableSleep" << common::safer_strerror(errno));
+        LOGERROR("Unable to complete stoppableSleep: " << common::safer_strerror(errno));
     }
     return ret > 0;
 }
