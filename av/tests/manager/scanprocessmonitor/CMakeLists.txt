@@ -3,6 +3,7 @@ include(GoogleTest)
 SophosAddTest(TestScanProcessMonitor
         ../../common/LogInitializedTests.cpp
         TestConfigMonitor.cpp
+        TestNotifyPipeSleeper.cpp
         TestScanProcessMonitor.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} rt pthread
