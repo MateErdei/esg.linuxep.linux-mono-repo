@@ -434,7 +434,7 @@ namespace safestore
             }
         }
 
-        SafeStoreSearchHandle* getRawHandle()
+        SafeStoreSearchHandle* getRawHandlePtr()
         {
             return &m_handle;
         }
@@ -456,7 +456,7 @@ namespace safestore
         {
             using iterator_category = std::forward_iterator_tag;
 
-            Iterator(ISafeStoreWrapper& m_safeStore) :
+            explicit Iterator(ISafeStoreWrapper& m_safeStore) :
                 m_safeStore(m_safeStore),
                 m_searchHolder(m_safeStore.createSearchHandleHolder()),
                 m_objectHolder(m_safeStore.createObjectHandleHolder())
@@ -479,7 +479,7 @@ namespace safestore
 
             ObjectHandleHolder* operator->()
             {
-                return &(*m_objectHolder);
+                return m_objectHolder.get();
             }
 
             // Pre-increment ++i

@@ -62,13 +62,13 @@ namespace safestore
         auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
         auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };
 
+        // clang-format off
         struct pollfd fds[]
         {
             { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-            {
-                .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0
-            }
+            { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
         };
+        // clang-format on
 
         while (true)
         {

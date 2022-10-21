@@ -346,13 +346,13 @@ namespace safestore
 
         return (
             SafeStore_FindFirst(
-                m_safeStoreCtx, &ssFilter, searchHandle.getRawHandle(), objectHandle.getRawHandlePtr()) == SR_OK);
+                m_safeStoreCtx, &ssFilter, searchHandle.getRawHandlePtr(), objectHandle.getRawHandlePtr()) == SR_OK);
     }
 
     bool SafeStoreWrapperImpl::findNext(SearchHandleHolder& searchHandle, ObjectHandleHolder& objectHandle)
     {
         return (
-            SafeStore_FindNext(m_safeStoreCtx, *(searchHandle.getRawHandle()), objectHandle.getRawHandlePtr()) ==
+            SafeStore_FindNext(m_safeStoreCtx, *(searchHandle.getRawHandlePtr()), objectHandle.getRawHandlePtr()) ==
             SR_OK);
     }
 
