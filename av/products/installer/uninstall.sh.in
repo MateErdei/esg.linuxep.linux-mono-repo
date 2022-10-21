@@ -47,6 +47,7 @@ then
     mkdir -p ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/chroot/log/sophos_threat_detector.log*  ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/log/av.log*  ${SAVE_DIR}
+    cp -v ${UNINSTALLDIR}/log/soapd.log*  ${SAVE_DIR}
 fi
 
 rm -f /usr/local/bin/avscanner

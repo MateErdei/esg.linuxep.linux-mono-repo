@@ -79,6 +79,7 @@ Check AV Plugin Not Installed
 
 Check Logs Saved On Downgrade
     Directory Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/
+    File Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/soapd.log
     File Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/av.log
     File Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/sophos_threat_detector.log
 
