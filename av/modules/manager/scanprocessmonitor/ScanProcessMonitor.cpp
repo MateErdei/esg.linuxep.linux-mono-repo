@@ -73,12 +73,12 @@ namespace plugin::manager::scanprocessmonitor
             .tv_sec = 0, .tv_nsec = 100L * 1000 * 1000
         };
 
-        fd_set readFds;
-        FD_ZERO(&readFds);
-        int max_fd = -1;
-        max_fd = FDUtils::addFD(&readFds, m_notifyPipe.readFd(), max_fd);
-        max_fd = FDUtils::addFD(&readFds, m_config_changed.readFd(), max_fd);
-        max_fd = FDUtils::addFD(&readFds, m_policy_changed.readFd(), max_fd);
+
+        struct pollfd fds[] {
+            { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
+            { .fd = m_config_changed.readFd(), .events = POLLIN, .revents = 0 },
+            { .fd = m_policy_changed.readFd(), .events = POLLIN, .revents = 0 },
+        };
 
         // this is also triggering the m_config_changed pipe
         auto configMonitor = std::make_shared<ConfigMonitor>(m_config_changed, m_sysCallWrapper);
@@ -88,8 +88,7 @@ namespace plugin::manager::scanprocessmonitor
 
         while (true)
         {
-            fd_set tempReadFds = readFds;
-            int active = ::pselect(max_fd + 1, &tempReadFds, nullptr, nullptr, &restartBackoff, nullptr);
+            int active = ::ppoll(fds, std::size(fds), &restartBackoff, nullptr);
 
             if (active < 0 and errno != EINTR)
             {
@@ -98,7 +97,7 @@ namespace plugin::manager::scanprocessmonitor
                 break;
             }
 
-            if (FDUtils::fd_isset(m_notifyPipe.readFd(), &tempReadFds))
+            if ((fds[0].revents & POLLIN) != 0)
             {
                 if (stopRequested())
                 {
@@ -107,14 +106,14 @@ namespace plugin::manager::scanprocessmonitor
                 }
             }
 
-            if (FDUtils::fd_isset(m_policy_changed.readFd(), &tempReadFds))
+            if ((fds[2].revents & POLLIN) != 0)
             {
                 clearPipe(m_policy_changed);
                 LOGINFO("Reloading susi as policy configuration has changed");
                 sendRequestToThreatDetector(scan_messages::E_RELOAD);
             }
 
-            if (FDUtils::fd_isset(m_config_changed.readFd(), &tempReadFds))
+            if ((fds[1].revents & POLLIN) != 0)
             {
                 clearPipe(m_config_changed);
                 if (inhibit_system_file_change_restart())
