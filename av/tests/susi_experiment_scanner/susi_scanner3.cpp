@@ -86,14 +86,14 @@ namespace
 
         SusiResult res = SUSI_Initialize(json_config.c_str(), &my_susi_callbacks);
         P("Global Susi constructed res=" << std::hex << res << std::dec);
-        ASSERT(res == SUSI_S_OK);
+        ASSERT(!SUSI_FAILURE(res));
     }
 
     SusiGlobalHandler::~SusiGlobalHandler() noexcept
     {
         SusiResult res = SUSI_Terminate();
         P("Global Susi destroyed res=" << std::hex << res << std::dec);
-        ASSERT(res == SUSI_S_OK);
+        ASSERT(!SUSI_FAILURE(res));
     }
 
     class SusiHolder
@@ -337,10 +337,15 @@ static void scan(int thread, const std::string& scannerConfig, const char* filen
         {
             P("THREAD:" << thread << ":" << i << ":ThreatFound");
         }
+        else if (SUSI_FAILURE(res))
+        {
+            P("THREAD:" << thread << ":" << i << ": Failed Scan result " << std::hex << res << std::dec);
+            ASSERT(!"Unknown failed scan result");
+        }
         else
         {
-            P("THREAD:" << thread << ":" << i << ": Scan result " << std::hex << res << std::dec);
-            ASSERT(!"Unknown scan result");
+            P("THREAD:" << thread << ":" << i << ": Successful Scan result " << std::hex << res << std::dec);
+            ASSERT(!"Unknown successful scan result");
         }
 
         result.reset();

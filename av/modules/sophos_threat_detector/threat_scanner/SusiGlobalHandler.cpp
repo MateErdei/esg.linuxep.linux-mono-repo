@@ -99,12 +99,12 @@ namespace threat_scanner
             LOGDEBUG("Exiting Global Susi");
             auto res = SUSI_Terminate();
             LOGSUPPORT("Exiting Global Susi result = " << std::hex << res << std::dec);
-            assert(res == SUSI_S_OK);
+            assert(!SUSI_FAILURE(res));
         }
 
         auto res = SUSI_SetLogCallback(&GL_fallback_log_callback);
         static_cast<void>(res); // Ignore res for non-debug builds (since we can't throw an exception in destructors)
-        assert(res == SUSI_S_OK);
+        assert(!SUSI_FAILURE(res));
     }
 
     bool SusiGlobalHandler::reload(const std::string& config)
@@ -119,16 +119,17 @@ namespace threat_scanner
 
         LOGDEBUG("Reloading SUSI global configuration");
         SusiResult res = SUSI_UpdateGlobalConfiguration(config.c_str());
-        if (res == SUSI_S_OK)
+        if (SUSI_FAILURE(res))
         {
-            LOGDEBUG("Susi configuration reloaded");
-            return true;
-        }
-        else
-        {
-            LOGDEBUG("Susi configuration reload failed");
+            LOGWARN("Susi configuration reload failed");
             return false;
         }
+        LOGDEBUG("Susi configuration reloaded");
+        if (res == SUSI_W_OLDDATA)
+        {
+            LOGWARN("SUSI Loaded old data");
+        }
+        return true;
     }
 
     void SusiGlobalHandler::shutdown()
@@ -219,9 +220,13 @@ namespace threat_scanner
         {
             LOGDEBUG("Threat scanner is already up to date");
         }
-        else if (res == SUSI_S_OK)
+        else if (!SUSI_FAILURE(res))
         {
             LOGINFO("Threat scanner successfully updated");
+            if (res == SUSI_W_OLDDATA)
+            {
+                LOGWARN("SUSI Loaded old data");
+            }
             m_susiVersionAlreadyLogged = true;
             logSusiVersion();
         }
@@ -242,7 +247,7 @@ namespace threat_scanner
             errorMsg << "Failed to release lock on " << lockfile;
             throw std::runtime_error(errorMsg.str());
         }
-        return res == SUSI_S_OK || res == SUSI_I_UPTODATE;
+        return !SUSI_FAILURE(res);
     }
 
     bool SusiGlobalHandler::initializeSusi(const std::string& jsonConfig)
@@ -319,17 +324,19 @@ namespace threat_scanner
     {
         SusiVersionResult* result = nullptr;
         auto res = SUSI_GetVersion(&result);
-        if (res == SUSI_S_OK)
-        {
-            LOGINFO("SUSI Libraries loaded: " << result->versionResultJson);
-            SUSI_FreeVersionResult(result);
-        }
-        else
+        if (SUSI_FAILURE(res))
         {
             std::ostringstream ost;
             ost << "Failed to retrieve SUSI version: 0x" << std::hex << res << std::dec;
             LOGERROR(ost.str());
             throw std::runtime_error(ost.str());
         }
+
+        LOGINFO("SUSI Libraries loaded: " << result->versionResultJson);
+        if (res == SUSI_W_OLDDATA)
+        {
+            LOGWARN("SUSI Loaded old data");
+        }
+        SUSI_FreeVersionResult(result);
     }
 } // namespace threat_scanner

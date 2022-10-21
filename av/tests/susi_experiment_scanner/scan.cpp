@@ -81,14 +81,14 @@ SusiGlobalHandler::SusiGlobalHandler(const std::string& json_config)
 
     SusiResult res = SUSI_Initialize(json_config.c_str(), &my_susi_callbacks);
     std::cerr << "Global Susi constructed res=" << std::hex << res << std::dec << std::endl;
-    assert(res == SUSI_S_OK);
+    assert(!SUSI_FAILURE(res));
 }
 
 SusiGlobalHandler::~SusiGlobalHandler() noexcept
 {
     SusiResult res = SUSI_Terminate();
     std::cerr << "Global Susi destroyed res=" << std::hex << res << std::dec << std::endl;
-    assert(res == SUSI_S_OK);
+    assert(!SUSI_FAILURE(res));
 }
 
 namespace
