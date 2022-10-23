@@ -18,6 +18,8 @@ MCS_POLICY_WITH_PROXY_AND_CREDS = """<policy xmlns:csc="com.sophos\msys\csc" typ
   <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
     <registrationToken>mcstokenb44b0f0e7b56548f14f2854e87ea535f228a712506d2707d1c4f444</registrationToken>
     <customerId>9f42f1b9-2a49-e452-fa76-3105612b19a3</customerId>
+    <tenantId>b4c43aab-1c44-4474-0805-c6697a01c411</tenantId>
+    <deviceId>ba36e430-8356-4cdd-963c-819d293f5f48</deviceId>
     <servers>
       <server>https://mcs2-cloudstation.sophos.com/sophos/management/ep</server>
     </servers>
@@ -54,6 +56,8 @@ MCS_REPLACEMENT_POLICY_WITH_PROXY_AND_CREDS = """<policy xmlns:csc="com.sophos\m
   <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
     <registrationToken>mcstokenb44b0f0e7b56548f14f2854e87ea535f228a712506d2707d1c4f444</registrationToken>
     <customerId>9f42f1b9-2a49-e452-fa76-3105612b19a3</customerId>
+    <tenantId>b4c43aab-1c44-4474-0805-c6697a01c411</tenantId>
+    <deviceId>ba36e430-8356-4cdd-963c-819d293f5f48</deviceId>
     <servers>
       <server>https://mcs2-cloudstation.sophos.com/sophos/management/ep</server>
     </servers>
@@ -90,6 +94,8 @@ MCS_POLICY_WITH_PROXY_EMPTY_CREDS = """<policy xmlns:csc="com.sophos\msys\csc" t
   <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
     <registrationToken>mcstokenb44b0f0e7b56548f14f2854e87ea535f228a712506d2707d1c4f444</registrationToken>
     <customerId>9f42f1b9-2a49-e452-fa76-3105612b19a3</customerId>
+    <tenantId>b4c43aab-1c44-4474-0805-c6697a01c411</tenantId>
+    <deviceId>ba36e430-8356-4cdd-963c-819d293f5f48</deviceId>
     <servers>
       <server>https://mcs2-cloudstation.sophos.com/sophos/management/ep</server>
     </servers>
@@ -123,6 +129,8 @@ MCS_POLICY_NO_PROXY = """<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
   <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
     <registrationToken>mcstokenb44b0f0e7b56548f14f2854e87ea535f228a712506d2707d1c4f444</registrationToken>
     <customerId>9f42f1b9-2a49-e452-fa76-3105612b19a3</customerId>
+    <tenantId>b4c43aab-1c44-4474-0805-c6697a01c411</tenantId>
+    <deviceId>ba36e430-8356-4cdd-963c-819d293f5f48</deviceId>
     <servers>
       <server>https://mcs2-cloudstation.sophos.com/sophos/management/ep</server>
     </servers>

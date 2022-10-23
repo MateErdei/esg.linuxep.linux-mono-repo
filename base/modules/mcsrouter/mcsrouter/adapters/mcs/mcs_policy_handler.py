@@ -155,12 +155,12 @@ class MCSPolicyHandler:
         """
         __apply_policy_setting
         """
-        if config_option is None:
+        if not config_option:
             config_option = policy_option
 
         node = self.__get_element(dom, policy_option)
 
-        if node is None:
+        if not node:
             if treat_missing_as_empty:
                 value = ""
             else:
@@ -384,7 +384,7 @@ class MCSPolicyHandler:
         """
         __apply_policy
         """
-        assert self.__m_policy_config is not None
+        assert self.__m_policy_config
 
         policy_xml = self.__m_policy_xml
         try:
@@ -435,6 +435,8 @@ class MCSPolicyHandler:
             self.__apply_policy_setting(policy_node, "pushPingTimeout")
             self.__apply_policy_setting(policy_node, "pushFallbackPollInterval")
             self.__apply_policy_setting(policy_node, "customerId", treat_missing_as_empty=True)
+            self.__apply_policy_setting(policy_node, "deviceId", config_option="policy_device_id",
+                                        treat_missing_as_empty=True)
             self.__apply_polling_delay(policy_node)
             # MCSToken is the config option we are already using for the Token
             # elsewhere
