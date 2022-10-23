@@ -7,6 +7,8 @@ sophos_add_library(pluginimpl SHARED
         ActionUtils.h
         DetectionQueue.cpp
         DetectionQueue.h
+        DetectionReporter.cpp
+        DetectionReporter.h
         HealthStatus.cpp
         HealthStatus.h
         IDetectionReportProcessor.h

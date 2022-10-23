@@ -57,7 +57,7 @@ namespace mount_monitor::mountinfoimpl
          * @param mountPoint    Optional mount point of the device.
          * @param filesystemType    Optional type of device's filesystem.
          */
-        bool isNetwork(
+        static bool isNetwork(
             const std::string& devicePath,
             const std::string& mountPoint = "",
             const std::string& filesystemType = "");
@@ -71,7 +71,7 @@ namespace mount_monitor::mountinfoimpl
          * @param mountPoint    Optional mount point of the device.
          * @param filesystemType    Optional type of device's filesystem.
          */
-        bool isOptical(
+        static bool isOptical(
             const std::string& devicePath,
             const std::string& mountPoint = "",
             const std::string& filesystemType = "");
