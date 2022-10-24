@@ -152,42 +152,6 @@ namespace avscanner::avscannerimpl
         }
     }
 
-    void ClientSocketWrapper::interruptableSleep(const timespec* duration)
-    {
-        struct pollfd fds[] {
-            { .fd = m_sigHupMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-            { .fd = m_sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-            { .fd = m_sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-        };
-
-        while (true)
-        {
-            auto ret = ::ppoll(fds, std::size(fds), duration, nullptr);
-
-            if (ret < 0)
-            {
-                if (errno == EINTR)
-                {
-                    continue;
-                }
-
-                LOGERROR("Error from ppoll: " << common::safer_strerror(errno));
-                throw ReconnectScannerException("Error while sleeping");
-            }
-
-            else if (ret == 0)
-            {
-                // timeout
-                return;
-            }
-
-            else // if (ret > 0)
-            {
-                checkIfScanAborted();
-            }
-        }
-    }
-
     bool ClientSocketWrapper::stoppableSleep(common::IStoppableSleeper::duration_t sleepTime)
     {
         struct pollfd fds[] {

@@ -33,7 +33,6 @@ namespace avscanner::avscannerimpl
         scan_messages::ScanResponse attemptScan(const scan_messages::ClientScanRequestPtr& request);
         void waitForResponse();
         bool stoppableSleep(duration_t sleepTime) override;
-        void interruptableSleep(const timespec* duration);
         void checkIfScanAborted();
 
         unixsocket::IScanningClientSocket& m_socket;
