@@ -79,8 +79,6 @@ void ScanRequestHandler::scan(
     }
     else
     {
-
-
         for(const auto& detection : detections)
         {
             std::string escapedPath(common::escapePathForLogging(detection.path));
