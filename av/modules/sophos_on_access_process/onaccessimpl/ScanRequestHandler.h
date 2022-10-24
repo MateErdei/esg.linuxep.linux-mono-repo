@@ -20,7 +20,8 @@ namespace sophos_on_access_process::onaccessimpl
             ScanRequestQueueSharedPtr scanRequestQueue,
             IScanningClientSocketSharedPtr socket,
             fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
-            int handlerId=1
+            int handlerId=1,
+            bool dumpPerfData=false
             );
 
         void run() override;
@@ -34,5 +35,6 @@ namespace sophos_on_access_process::onaccessimpl
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
         std::unique_ptr<ClientSocketWrapper> m_socketWrapper;
         int m_handlerId;
+        bool m_dumpPerfData;
     };
 }

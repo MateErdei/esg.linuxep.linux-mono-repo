@@ -53,6 +53,7 @@ namespace sophos_on_access_process::soapd_bootstrap
         std::atomic_bool m_currentOaEnabledState = false;
 
         int m_maxNumberOfScanThreads = 0;
+        bool m_dumpPerfData = false;
 
         std::shared_ptr<onaccessimpl::ScanRequestQueue> m_scanRequestQueue;
         std::vector<std::shared_ptr<common::ThreadRunner>> m_scanHandlerThreads;

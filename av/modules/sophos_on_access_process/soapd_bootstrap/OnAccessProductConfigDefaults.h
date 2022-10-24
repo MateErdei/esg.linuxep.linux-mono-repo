@@ -6,4 +6,5 @@ namespace sophos_on_access_process::OnAccessConfig
 {
     const size_t defaultMaxScanQueueSize = 1000;
     const int defaultScanningThreads = 10;
+    const bool defaultDumpPerfData = false;
 }

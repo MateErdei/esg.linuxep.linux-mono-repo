@@ -145,11 +145,13 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigEmptyKeepsDefaults)
 
     size_t maxScanQueueItems = 0;
     int maxThreads = 0;
+    bool dumpPerfData = true;
 
-    readProductConfigFile(maxScanQueueItems, maxThreads);
+    readProductConfigFile(maxScanQueueItems, maxThreads, dumpPerfData);
 
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
     EXPECT_EQ(maxThreads, defaultScanningThreads);
+    EXPECT_FALSE(dumpPerfData);
 
     std::stringstream logmsg;
     logmsg << "Setting from defaults: Max queue size set to " << defaultMaxScanQueueSize << " and Max threads set to " << defaultScanningThreads;
@@ -161,16 +163,18 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigIgnoresBadvalues)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": \"ha\",\"maxscanqueuesize\": \"ha\"}"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": \"ha\",\"maxscanqueuesize\": \"ha\",\"dumpPerfData\": \"ha\"}"));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     size_t maxScanQueueItems = 0;
     int maxThreads = 0;
+    bool dumpPerfData = true;
 
-    readProductConfigFile(maxScanQueueItems, maxThreads);
+    readProductConfigFile(maxScanQueueItems, maxThreads, dumpPerfData);
 
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
     EXPECT_EQ(maxThreads, defaultScanningThreads);
+    EXPECT_FALSE(dumpPerfData);
 
     EXPECT_TRUE(appenderContains("Failed to read product config file info: [json.exception.type_error.302] type must be number, but is string"));
     std::stringstream logmsg;
@@ -184,11 +188,13 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsDefaultWhenFileDoenstExist
 
     size_t maxScanQueueItems = 0;
     int maxThreads = 0;
+    bool dumpPerfData = true;
 
-    readProductConfigFile(maxScanQueueItems, maxThreads);
+    readProductConfigFile(maxScanQueueItems, maxThreads, dumpPerfData);
 
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
     EXPECT_EQ(maxThreads, defaultScanningThreads);
+    EXPECT_FALSE(dumpPerfData);
 
     std::stringstream logmsg;
     logmsg << "Setting from defaults: Max queue size set to " << defaultMaxScanQueueSize << " and Max threads set to " << defaultScanningThreads;
@@ -200,16 +206,18 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToProvidedValuesWhenFileEx
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": 20,\"maxscanqueuesize\": 2000}"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": 20,\"maxscanqueuesize\": 2000,\"dumpPerfData\": \"true\"}"));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     size_t maxScanQueueItems = 0;
     int maxThreads = 0;
+    bool dumpPerfData = false;
 
-    readProductConfigFile(maxScanQueueItems, maxThreads);
+    readProductConfigFile(maxScanQueueItems, maxThreads, dumpPerfData);
 
     EXPECT_EQ(maxScanQueueItems, 2000);
     EXPECT_EQ(maxThreads, 20);
+    EXPECT_TRUE(dumpPerfData);
 
     EXPECT_TRUE(appenderContains("Setting from file: Max queue size set to 2000 and Max threads set to 20"));
 }

@@ -46,10 +46,11 @@ namespace sophos_on_access_process::OnAccessConfig
         return readPolicyConfigFile(policyConfigFilePath());
     }
 
-    void readProductConfigFile(size_t& maxScanQueueSize, int& maxNumberOfScanThread)
+    void readProductConfigFile(size_t& maxScanQueueSize, int& maxNumberOfScanThread, bool& dumpPerfData)
     {
         maxScanQueueSize = defaultMaxScanQueueSize;
         maxNumberOfScanThread = defaultScanningThreads;
+        dumpPerfData = defaultDumpPerfData;
 
         auto* sophosFsAPI = Common::FileSystem::fileSystem();
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -63,11 +64,12 @@ namespace sophos_on_access_process::OnAccessConfig
             std::string configJson = sophosFsAPI->readFile(productConfigPath.string());
             if (!configJson.empty())
             {
-                 try
+                try
                 {
                     auto parsedConfigJson = json::parse(configJson);
                     maxScanQueueSize = parsedConfigJson["maxscanqueuesize"];
                     maxNumberOfScanThread = parsedConfigJson["maxthreads"];
+                    dumpPerfData = parsedConfigJson["dumpPerfData"] == "true";
                     usedFileValues = true;
                 }
                 catch (const std::exception& e)

@@ -82,7 +82,7 @@ void SoapdBootstrap::innerRun()
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
 
     size_t maxScanQueueSize = 0;
-    OnAccessConfig::readProductConfigFile(maxScanQueueSize, m_maxNumberOfScanThreads);
+    OnAccessConfig::readProductConfigFile(maxScanQueueSize, m_maxNumberOfScanThreads, m_dumpPerfData);
 
     const struct rlimit file_lim = { 4096, 4096 };
     sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
@@ -292,7 +292,7 @@ void SoapdBootstrap::enableOnAccess(bool changed)
 
         auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
         auto scanHandler = std::make_shared<ScanRequestHandler>(
-            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, threadCount);
+            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, threadCount, m_dumpPerfData);
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }

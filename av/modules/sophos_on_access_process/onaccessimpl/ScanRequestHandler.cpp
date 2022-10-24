@@ -23,11 +23,13 @@ ScanRequestHandler::ScanRequestHandler(
    ScanRequestQueueSharedPtr scanRequestQueue,
     IScanningClientSocketSharedPtr socket,
     fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
-    int handlerId)
+    int handlerId,
+    bool dumpPerfData)
     : m_scanRequestQueue(std::move(scanRequestQueue))
     , m_socket(std::move(socket))
     , m_fanotifyHandler(std::move(fanotifyHandler))
     , m_handlerId(handlerId)
+    , m_dumpPerfData(dumpPerfData)
 {
 }
 
@@ -102,7 +104,7 @@ void ScanRequestHandler::run()
             auto queueItem = m_scanRequestQueue->pop();
             if(queueItem)
             {
-                if(logLevel == Common::Logging::TRACE)
+                if(logLevel == Common::Logging::TRACE || m_dumpPerfData)
                 {
                     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
