@@ -208,7 +208,7 @@ TEST_F(TestScanRequestHandler, cleanScanOpen)
     auto socket = std::make_shared<RecordingMockSocket>(false, false);
     auto scanHandler = buildDefaultHandler(socket);
 
-    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).WillOnce(Return(0));
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).WillOnce(Return(0));
     EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(0);
 
     scan_messages::ClientScanRequestPtr request(buildRequest());
@@ -222,7 +222,7 @@ TEST_F(TestScanRequestHandler, cleanScanClose)
     auto socket = std::make_shared<RecordingMockSocket>(false, false);
     auto scanHandler = buildDefaultHandler(socket);
 
-    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(1);
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).Times(1);
     EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(0);
 
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
@@ -237,7 +237,7 @@ TEST_F(TestScanRequestHandler, infectedScanOpen)
     auto socket = std::make_shared<RecordingMockSocket>(true, false);
     auto scanHandler = buildDefaultHandler(socket);
 
-    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).Times(0);
     EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(1);
 
     scan_messages::ClientScanRequestPtr request(buildRequest());
@@ -253,7 +253,7 @@ TEST_F(TestScanRequestHandler, infectedScanClose)
     auto socket = std::make_shared<RecordingMockSocket>(true, false);
     auto scanHandler = buildDefaultHandler(socket);
 
-    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).Times(0);
     EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(1);
 
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
@@ -291,7 +291,7 @@ TEST_F(TestScanRequestHandler, scanError)
     auto socket = std::make_shared<RecordingMockSocket>(false, true);
     auto scanHandler = buildDefaultHandler(socket);
 
-    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).Times(0);
     EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(1);
 
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
@@ -313,7 +313,7 @@ TEST_F(TestScanRequestHandlerDeathTest, cacheFdError)
     auto scanHandler = buildDefaultHandler(socket);
 
     //WillRepeatedly allows us to set the return code and gmock doesn't have to verify how many times we called cacheFd
-    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).WillRepeatedly(Return(-1));
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).WillRepeatedly(Return(-1));
     testing::Mock::AllowLeak(m_mockFanotifyHandler.get());
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN));
     EXPECT_EXIT(scanHandler->scan(request), ::testing::ExitedWithCode(1),"");
@@ -341,7 +341,7 @@ TEST_F(TestScanRequestHandler, scanErrorAndDetection)
     auto socket = std::make_shared<RecordingMockSocket>(true, true);
     auto scanHandler = buildDefaultHandler(socket);
 
-    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).Times(0);
     EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(1);
 
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));

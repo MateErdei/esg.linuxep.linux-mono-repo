@@ -40,7 +40,7 @@ namespace
         {
             return 0;
         }
-        [[nodiscard]] int cacheFd(const int&, const std::string&) const override
+        [[nodiscard]] int cacheFd(const int&, const std::string&, bool) const override
         {
             return 0;
         }

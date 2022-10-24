@@ -65,6 +65,9 @@ bool EventReaderThread::skipScanningOfEvent(
     // Exclude events caused by AV logging to prevent recursive events
     if (filePath.rfind(m_pluginLogDir, 0) == 0)
     {
+        LOGTRACE("File access on " << filePath << " will not be scanned due to log directory exclusion");
+        // Result has already been logged
+        std::ignore = m_fanotify->cacheFd(eventFd, filePath, true);
         return true;
     }
 
@@ -81,6 +84,8 @@ bool EventReaderThread::skipScanningOfEvent(
         if (exclusion.appliesToPath(filePath))
         {
             LOGTRACE("File access on " << filePath << " will not be scanned due to exclusion: "  << exclusion.displayPath());
+            // Result has already been logged
+            std::ignore = m_fanotify->cacheFd(eventFd, filePath, true);
             return true;
         }
     }
@@ -296,9 +301,12 @@ void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& excl
             printableExclusions << "[\"" << exclusion.path().c_str() << "\"] ";
         }
         LOGDEBUG("Updating on-access exclusions with: " << printableExclusions.str());
+        {
+            std::lock_guard<std::mutex> lock(m_exclusionsLock);
+            m_exclusions = exclusions;
+        }
+        // Clear cache after we have updated exclusions - so that nothing is cached which shouldn't be.
         std::ignore = m_fanotify->clearCachedFiles();
-        std::lock_guard<std::mutex> lock(m_exclusionsLock);
-        m_exclusions = exclusions;
     }
 }
 

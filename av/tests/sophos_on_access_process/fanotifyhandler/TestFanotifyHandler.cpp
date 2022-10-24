@@ -111,7 +111,7 @@ TEST_F(TestFanotifyHandler, cacheFdWithoutInit)
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
 
-    EXPECT_EQ(0, handler.cacheFd(fileFd, "/expected"));
+    EXPECT_EQ(0, handler.cacheFd(fileFd, "/expected", false));
     EXPECT_TRUE(appenderContains("Skipping cacheFd for /expected as fanotify disabled"));
 }
 
@@ -120,7 +120,7 @@ TEST_F(TestFanotifyHandler, uncacheFdReturnsZeroForSuccess)
     int fanotifyFd = 123;
     int fileFd = 54;
     UsingMemoryAppender memoryAppenderHolder(*this);
-    
+
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS,
                                                      O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
 
@@ -226,7 +226,7 @@ TEST_F(TestFanotifyHandler, unmarkMountReturnsZeroForSuccess)
     int fanotifyFd = 123;
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::string path = "/expected";
-    
+
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS,
                                                      O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
 

@@ -22,7 +22,7 @@ namespace
         MOCK_METHOD(int, getFd, (), (const, override));
         MOCK_METHOD(int, markMount, (const std::string& path), (const, override));
         MOCK_METHOD(int, unmarkMount, (const std::string& path), (const, override));
-        MOCK_METHOD(int, cacheFd, (const int& fd, const std::string& path), (const, override));
+        MOCK_METHOD(int, cacheFd, (const int& fd, const std::string& path, bool), (const, override));
         MOCK_METHOD(int, uncacheFd, (const int& fd, const std::string& path), (const, override));
         MOCK_METHOD(int, clearCachedFiles, (), (const, override));
         MOCK_METHOD(bool, isInitialised, (), (const, override));

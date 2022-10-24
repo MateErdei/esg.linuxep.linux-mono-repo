@@ -76,7 +76,7 @@ void ScanRequestHandler::scan(
     {
         // Clean file, ret either 0 or 1 errno is logged by m_fanotifyHandler->cacheFd
         LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath())<< " (" << scanType << ")");
-        int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
+        int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath(), false);
         if (ret < 0)
         {
             std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));

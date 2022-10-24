@@ -57,9 +57,9 @@ namespace sophos_on_access_process::fanotifyhandler
              *
              * @param dfd
              * @param path
-             * @return
+             * @return fanotify_mark result: 0 for success
              */
-            [[nodiscard]] int cacheFd(const int& dfd, const std::string& path) const override;
+            [[nodiscard]] int cacheFd(const int& dfd, const std::string& path, bool surviveModify) const override;
 
             /**
              * Mark an FD to be un-cached - i.e. fanotify will return events for it again.
