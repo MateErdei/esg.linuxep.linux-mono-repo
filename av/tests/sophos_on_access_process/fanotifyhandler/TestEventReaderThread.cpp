@@ -108,14 +108,14 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorIfFanotifySendsNoEvent)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN));
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _)).WillOnce(Return(0));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("no event or error: 0"));
-    EXPECT_TRUE(waitForLog("Failed to handle Fanotify event, stopping the reading of more events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
 
@@ -308,9 +308,8 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "fanotify wrong protocol version " << metadata.vers;
+    logMsg << "Fanotify wrong protocol version " << metadata.vers;
     EXPECT_TRUE(waitForLog(logMsg.str()));
-    EXPECT_TRUE(waitForLog("Failed to handle Fanotify event, stopping the reading of more events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
 

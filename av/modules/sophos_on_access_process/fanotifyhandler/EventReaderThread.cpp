@@ -111,11 +111,11 @@ bool EventReaderThread::handleFanotifyEvent()
         }
 
         // nothing actually there - maybe another thread got it
-        LOGDEBUG(
-            "no event or error: " << len <<
+        LOGWARN(
+            "Fanotify: no event or error: " << len <<
             " (" << error << " "<< common::safer_strerror(error)<<")"
         );
-        return false;
+        return true;
     }
 
     auto* metadata = reinterpret_cast<struct fanotify_event_metadata*>(buf);
@@ -124,7 +124,7 @@ bool EventReaderThread::handleFanotifyEvent()
     {
         if (metadata->vers != FANOTIFY_METADATA_VERSION)
         {
-            LOGERROR("fanotify wrong protocol version " << metadata->vers);
+            LOGERROR("Fanotify wrong protocol version " << metadata->vers);
             return false;
         }
 
@@ -272,7 +272,6 @@ void EventReaderThread::run()
         {
             if (!handleFanotifyEvent())
             {
-                LOGDEBUG("Failed to handle Fanotify event, stopping the reading of more events");
                 break;
             }
         }
