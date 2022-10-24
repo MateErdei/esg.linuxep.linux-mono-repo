@@ -42,7 +42,7 @@ namespace
         datatypes::AutoFd m_socketFd;
     };
 
-    const struct timespec& oneMillisecond = { 0, 1000000 }; // 1ms
+    static constexpr ClientSocketWrapper::duration_t oneMillisecond = std::chrono::milliseconds{1}; // 1ms
 }
 
 TEST_F(TestClientSocketWrapper, Construction)

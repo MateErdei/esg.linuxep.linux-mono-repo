@@ -4,6 +4,7 @@
 
 #include "IClientSocketWrapper.h"
 
+#include "common/IStoppableSleeper.h"
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 
 #include "common/signals/SigHupMonitor.h"
@@ -12,12 +13,16 @@
 
 namespace avscanner::avscannerimpl
 {
-    class ClientSocketWrapper : IClientSocketWrapper
+    class ClientSocketWrapper : public IClientSocketWrapper,
+                                common::IStoppableSleeper
+
     {
     public:
+        using duration_t = common::IStoppableSleeper::duration_t;
+        static constexpr duration_t DEFAULT_SLEEP_TIME = std::chrono::seconds{1};
         ClientSocketWrapper(const ClientSocketWrapper&) = delete;
         ClientSocketWrapper(ClientSocketWrapper&&) = default;
-        explicit ClientSocketWrapper(unixsocket::IScanningClientSocket& socket, const struct timespec& sleepTime={1,0});
+        explicit ClientSocketWrapper(unixsocket::IScanningClientSocket& socket, duration_t sleepTime = DEFAULT_SLEEP_TIME);
         ~ClientSocketWrapper() override = default;
         ClientSocketWrapper& operator=(const ClientSocketWrapper&) = delete;
 
@@ -27,6 +32,7 @@ namespace avscanner::avscannerimpl
         void connect();
         scan_messages::ScanResponse attemptScan(const scan_messages::ClientScanRequestPtr& request);
         void waitForResponse();
+        bool stoppableSleep(duration_t sleepTime) override;
         void interruptableSleep(const timespec* duration);
         void checkIfScanAborted();
 
@@ -35,6 +41,6 @@ namespace avscanner::avscannerimpl
         std::shared_ptr<common::signals::SigTermMonitor> m_sigTermMonitor;
         std::shared_ptr<common::signals::SigHupMonitor> m_sigHupMonitor;
         int m_reconnectAttempts;
-        struct timespec m_sleepTime;
+        const duration_t m_sleepTime;
     };
 }

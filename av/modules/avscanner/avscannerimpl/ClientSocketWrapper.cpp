@@ -18,7 +18,7 @@
 
 namespace avscanner::avscannerimpl
 {
-    ClientSocketWrapper::ClientSocketWrapper(unixsocket::IScanningClientSocket& socket, const struct timespec& sleepTime)
+    ClientSocketWrapper::ClientSocketWrapper(unixsocket::IScanningClientSocket& socket, duration_t sleepTime)
         : m_socket(socket),
         m_sigIntMonitor(common::signals::SigIntMonitor::getSigIntMonitor(false)),
         m_sigTermMonitor(common::signals::SigTermMonitor::getSigTermMonitor(false)),
@@ -43,7 +43,7 @@ namespace avscanner::avscannerimpl
             }
 
             LOGDEBUG("Failed to connect to Sophos Threat Detector - retrying after sleep");
-            interruptableSleep(&m_sleepTime);
+            stoppableSleep(m_sleepTime);
 
             ret = m_socket.connect();
         }
@@ -81,7 +81,7 @@ namespace avscanner::avscannerimpl
                     checkIfScanAborted();
                     LOGWARN(e.what() << " - retrying after sleep");
                 }
-                interruptableSleep(&m_sleepTime);
+                stoppableSleep(m_sleepTime);
                 if (!m_socket.connect())
                 {
                     if (!retryErrorLogged)
@@ -188,6 +188,48 @@ namespace avscanner::avscannerimpl
         }
     }
 
+    bool ClientSocketWrapper::stoppableSleep(common::IStoppableSleeper::duration_t sleepTime)
+    {
+        struct pollfd fds[] {
+            { .fd = m_sigHupMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
+                { .fd = m_sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
+                { .fd = m_sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
+        };
+
+        auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(sleepTime).count();
+        struct timespec timeout{
+            .tv_sec = nanoseconds /  1000000000,
+            .tv_nsec = nanoseconds % 1000000000
+        };
+
+        while (true)
+        {
+            auto ret = ::ppoll(fds, std::size(fds), &timeout, nullptr);
+
+            if (ret < 0)
+            {
+                if (errno == EINTR)
+                {
+                    continue;
+                }
+
+                LOGERROR("Error from ppoll: " << common::safer_strerror(errno));
+                throw ReconnectScannerException("Error while sleeping");
+            }
+
+            else if (ret == 0)
+            {
+                // timeout
+                return false;
+            }
+
+            else // if (ret > 0)
+            {
+                checkIfScanAborted();
+            }
+        }
+    }
+
     void ClientSocketWrapper::checkIfScanAborted()
     {
         if (m_sigIntMonitor->triggered())
@@ -208,4 +250,5 @@ namespace avscanner::avscannerimpl
             throw ScanInterruptedException("Scan aborted due to environment interruption");
         }
     }
+
 }
