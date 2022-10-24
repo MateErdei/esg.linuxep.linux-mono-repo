@@ -214,7 +214,6 @@ namespace safestore
                 return scan_messages::QUARANTINE_FAIL_TO_DELETE_FILE;
             }
 
-            // TODO LINUXDAR-5677 do something with the sha256, do we need to store this as custom data for restoration?
             m_safeStore->setObjectCustomDataString(*objectHandle, "SHA256", sha256);
             LOGDEBUG("File SHA256: " << sha256);
 
@@ -232,12 +231,34 @@ namespace safestore
         }
         else
         {
-            if (saveResult == SaveFileReturnCode::DB_ERROR)
+            switch(saveResult)
             {
-                callOnDbError();
+                case SaveFileReturnCode::OUT_OF_MEMORY:
+                    LOGWARN("Failed to quarantine file with error out of memory");
+                    break;
+                case SaveFileReturnCode::INVALID_ARG:
+                    LOGWARN("Failed to quarantine file with invalid arguments");
+                    break;
+                case SaveFileReturnCode::INTERNAL_ERROR:
+                    LOGWARN("Failed to quarantine file with internal safestore error");
+                    break;
+                case SaveFileReturnCode::FILE_OPEN_FAILED:
+                    LOGWARN("Failed to open file for quarantine");
+                    break;
+                case SaveFileReturnCode::MAX_OBJECT_SIZE_EXCEEDED:
+                    LOGWARN("File too big to be quarantined");
+                    break;
+                case SaveFileReturnCode::MAX_STORE_SIZE_EXCEEDED:
+                    LOGWARN("Safestore database size limit hit");
+                    break;
+                case SaveFileReturnCode::DB_ERROR:
+                    callOnDbError();
+                    break;
+                default:
+                    LOGWARN("Failed to quarantine file");
+                    break;
             }
 
-            // TODO LINUXDAR-5677 handle quarantine failure
         }
 
         return scan_messages::QUARANTINE_FAIL;
@@ -273,6 +294,7 @@ namespace safestore
         ++m_databaseErrorCount;
         if (m_databaseErrorCount >= m_dbErrorCountThreshold.getValue())
         {
+            LOGWARN("database is corrupt");
             m_state = QuarantineManagerState::CORRUPT;
         }
     }

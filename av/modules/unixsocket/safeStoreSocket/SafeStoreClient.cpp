@@ -65,7 +65,7 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
     max = FDUtils::addFD(&readFDs, m_socket_fd, max);
     bool loggedLengthOfZero = false;
     struct timespec ts;
-    ts.tv_nsec = 100;
+    ts.tv_sec = 10;
     while (true)
     {
         fd_set tempRead = readFDs;
@@ -79,8 +79,8 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
         }
 
         LOGINFO(m_socket_fd.get());
-        assert(FDUtils::fd_isset(m_socket_fd, &tempRead));
-
+        bool inset = FDUtils::fd_isset(m_socket_fd, &tempRead);
+        assert(inset);
         // read length
         int32_t length = unixsocket::readLength(m_socket_fd);
         if (length == -2)

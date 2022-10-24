@@ -175,13 +175,14 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
 
     // connect after we start
     unixsocket::SafeStoreClient client(m_socketPath);
+    unixsocket::SafeStoreClient client2(m_socketPath);
 
     client.sendQuarantineRequest(createThreatDetected());
     client.waitForResponse();
     serverWaitGuard.wait();
 
-    client.sendQuarantineRequest(createThreatDetected());
-    client.waitForResponse();
+    client2.sendQuarantineRequest(createThreatDetected());
+    client2.waitForResponse();
     serverWaitGuard2.wait();
 
     // destructor will stop the thread
