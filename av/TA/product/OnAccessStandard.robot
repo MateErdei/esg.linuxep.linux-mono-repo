@@ -429,7 +429,7 @@ On Access Caches Open Events Without Detections
     Wait Until On Access Log Contains With Offset   Caching ${cleanfile} (Open)
 
     #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
-    Sleep    1
+    Sleep    1s
 
     Mark On Access Log
     Get File   ${cleanfile}
@@ -471,7 +471,7 @@ On Access Does Cache Close Events Without Detections
     Wait Until On Access Log Contains With Offset  Caching ${cleanfile} (Close-Write)
 
     #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
-    Sleep    1
+    Sleep    1s
 
     Mark On Access Log
     Get File   ${cleanfile}
@@ -496,7 +496,7 @@ On Access Receives Close Event On Cached File
     Wait Until On Access Log Contains With Offset  Caching ${cleanfile} (Close-Write)
 
     #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
-    Sleep    1
+    Sleep    1s
 
     #Check we are cached
     Mark On Access Log
@@ -522,13 +522,15 @@ On Access Doesnt Cache Close Events With Detections
     Create File  ${testfile}  ${EICAR_STRING}
     Register Cleanup   Remove File   ${testfile}
 
-    Sleep   5s  #Let the event (hopefully not) be cached
+    Wait Until On Access Log Contains With Offset  On-close event for ${testfile} from
+    Wait Until On Access Log Contains With Offset  Detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)
+    Sleep   1s  #Let the event (hopefully not) be cached
 
     Mark On Access Log
     Get File  ${testfile}
 
     Wait Until On Access Log Contains With Offset  On-open event for ${testfile} from
-    Wait Until On Access Log Contains With Offset  Detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)
+    Wait Until On Access Log Contains With Offset  Detected "${testfile}" is infected with EICAR-AV-Test (Open)
 
 
 On Access Processes New File With Same Attributes And Contents As Old File
@@ -560,7 +562,7 @@ On Access Detects A Clean File Replaced By Dirty File With Same Attributes
 
     Get File   ${dustyfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
-    Wait Until On Access Log Contains With Offset   Caching ${cleanfile}
+    Wait Until On Access Log Contains With Offset   Caching ${dustyfile}
     #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
     Sleep   1s
 
