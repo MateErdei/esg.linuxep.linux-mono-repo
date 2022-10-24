@@ -180,16 +180,10 @@ Scan Now Excludes Infected Files Successfully
 
 Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     [Timeout]  15min
-    Stop AV
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    Start AV
     Register Cleanup  Exclude Scan Now Terminated
     Register Cleanup  Exclude Unixsocket Failed To Send Scan Request To STD
     Register Cleanup  Exclude Failed To Scan Files
 
-    Register Cleanup  Start AV
-    Register Cleanup  Stop AV
     Register Cleanup  Dump Log  ${SCANNOW_LOG_PATH}
 
     # Start scan now - abort or timeout...
@@ -253,20 +247,18 @@ Scan Now scan errors do not get logged to av log
 
 ScanNow Suite Setup
     Start Fake Management If required
-    Start AV
-    Check AV Plugin Log exists
 
 ScanNow Suite TearDown
-    Stop AV
     Stop Fake Management If Running
-    Terminate All Processes  kill=True
 
 ScanNow Test Setup
+    Start AV
+    Component Test Setup
     Require Sophos Threat Detector Running
-    Register Cleanup      Delete Eicars From Tmp
-    Check AV Plugin Log exists
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    Delete Eicars From Tmp
+    mark av log
+    mark sophos threat detector log
+    mark susi debug log
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
     Register Cleanup      Exclude On Access Scan Errors
@@ -276,19 +268,22 @@ ScanNow Test Setup
     Register Cleanup      Check Dmesg For Segfaults
 
 ScanNow Test Teardown
+    Delete Eicars From Tmp
+    #terminates all processes
+    Component Test TearDown
+
     Dump Log On Failure   ${AV_LOG_PATH}
     Dump Log On Failure   ${SCANNOW_LOG_PATH}
     Dump Log On Failure   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
 
     run teardown functions
-    Run Keyword If Test Failed  Clear logs
-
-Clear threat detector log
-    Remove File   ${THREAT_DETECTOR_LOG_PATH}
+    Clear logs
 
 Clear logs
-    Clear threat detector log
+    Remove File   ${THREAT_DETECTOR_LOG_PATH}
+    Remove File   ${AV_LOG_PATH}
+    Remove File   ${SCANNOW_LOG_PATH}
 
 Start AV
     Clear logs
@@ -299,11 +294,3 @@ Start AV
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Installed
-
-Stop AV
-    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
-    ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
-    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
-    Dump Log  /tmp/av.stdout
-    Dump Log  /tmp/av.stderr
-    Remove Files   /tmp/av.stdout  /tmp/av.stderr
