@@ -1,14 +1,13 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "ScanProcessMonitorMemoryAppenderUsingTests.h"
-
 #include "modules/common/NotifyPipeSleeper.h"
+#include <tests/common/LogInitializedTests.h>
 
 #include <chrono>
 
 namespace
 {
-    class TestNotifyPipeSleeper : public ScanProcessMonitorMemoryAppenderUsingTests
+    class TestNotifyPipeSleeper : public LogInitializedTests
     {
     };
 }
