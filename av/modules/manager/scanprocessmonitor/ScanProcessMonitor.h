@@ -30,7 +30,7 @@ namespace plugin::manager::scanprocessmonitor
         Common::Threads::NotifyPipe m_policy_changed;
         datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
         std::string m_processControllerSocketPath;
-        std::shared_ptr<NotifyPipeSleeper> m_sleeper;
+        std::shared_ptr<common::NotifyPipeSleeper> m_sleeper;
     };
 }
 

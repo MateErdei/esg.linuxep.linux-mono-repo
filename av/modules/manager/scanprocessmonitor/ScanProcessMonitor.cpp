@@ -45,7 +45,7 @@ namespace plugin::manager::scanprocessmonitor
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper) :
         m_sysCallWrapper(std::move(systemCallWrapper)),
         m_processControllerSocketPath(std::move(processControllerSocket)),
-        m_sleeper(std::make_shared<NotifyPipeSleeper>(m_notifyPipe))
+        m_sleeper(std::make_shared<common::NotifyPipeSleeper>(m_notifyPipe))
     {
     }
 

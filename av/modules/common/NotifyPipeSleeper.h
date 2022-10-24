@@ -7,7 +7,7 @@
 // Product
 #include "Common/Threads/NotifyPipe.h"
 
-namespace plugin::manager::scanprocessmonitor
+namespace common
 {
     class NotifyPipeSleeper : public common::StoppableSleeper
     {

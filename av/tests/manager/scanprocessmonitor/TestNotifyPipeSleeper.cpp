@@ -13,7 +13,7 @@ namespace
     };
 }
 
-using namespace plugin::manager::scanprocessmonitor;
+using namespace common;
 
 TEST_F(TestNotifyPipeSleeper, construction)
 {

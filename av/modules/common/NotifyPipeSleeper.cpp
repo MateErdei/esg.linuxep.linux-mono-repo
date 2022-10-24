@@ -8,11 +8,11 @@
 
 #include <poll.h>
 
-plugin::manager::scanprocessmonitor::NotifyPipeSleeper::NotifyPipeSleeper(Common::Threads::NotifyPipe& pipe)
+common::NotifyPipeSleeper::NotifyPipeSleeper(Common::Threads::NotifyPipe& pipe)
     : m_pipe(pipe)
 {}
 
-bool plugin::manager::scanprocessmonitor::NotifyPipeSleeper::stoppableSleep(
+bool common::NotifyPipeSleeper::stoppableSleep(
     common::StoppableSleeper::duration_t sleepTime)
 {
     struct pollfd fds[] {
