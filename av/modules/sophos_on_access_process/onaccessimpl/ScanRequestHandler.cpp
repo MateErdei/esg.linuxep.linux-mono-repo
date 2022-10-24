@@ -64,10 +64,11 @@ void ScanRequestHandler::scan(
     }
 
     auto detections = response.getDetections();
+    auto scanType = scan_messages::getScanTypeAsStr(scanRequest->getScanType());
     if (detections.empty() && errorMsg.empty())
     {
         // Clean file, ret either 0 or 1 errno is logged by m_fanotifyHandler->cacheFd
-        LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()));
+        LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath())<< " (" << scanType << ")");
         int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
         if (ret < 0)
         {
@@ -78,7 +79,7 @@ void ScanRequestHandler::scan(
     }
     else
     {
-        auto scanType = scan_messages::getScanTypeAsStr(scanRequest->getScanType());
+
 
         for(const auto& detection : detections)
         {

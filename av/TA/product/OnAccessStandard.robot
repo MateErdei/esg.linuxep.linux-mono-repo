@@ -426,7 +426,11 @@ On Access Caches Open Events Without Detections
     Register Cleanup   Remove File   ${dirtyfile}
 
     Get File   ${cleanfile}
-    Wait Until On Access Log Contains With Offset   Caching ${cleanfile}
+    Wait Until On Access Log Contains With Offset   Caching ${cleanfile} (Open)
+
+    #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
+    Sleep    1
+
 
     Mark On Access Log
     Get File   ${cleanfile}
@@ -444,40 +448,71 @@ On Access Doesnt Cache Open Events With Detections
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup   Remove File   ${dirtyfile}
 
-    Wait Until On Access Log Contains With Offset   On-close event for ${dirtyfile} from
-    Mark On Access Log
+    Sleep   1  #Let the event be cached
 
     Get File   ${dirtyfile}
 
-    Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from
+    Wait Until On Access Log Contains Times With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}    times=2
     Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
 
-    Mark On Access Log
 
-    Get File   ${dirtyfile}
-
-    Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from
-    Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
-
-# TODO: LINUXDAR-5744 LINUXDAR-5810 revisit test after we have implemented the linked tickets
-On Access Doesnt Cache Close Events Without Detections
-    [Tags]  DISABLED
-    ${testfile} =  Set Variable  /tmp_test/cleanfile.txt
+On Access Does Cache Close Events Without Detections
+    ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
     Mark On Access Log
-    Create File  ${testfile}  ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${testfile}
+    Create File  ${cleanfile}  ${CLEAN_STRING}
+    Register Cleanup   Remove File   ${cleanfile}
 
-    Sleep   5s  #Let the event (hopefully not) be cached
+    Wait Until On Access Log Contains With Offset  On-close event for ${cleanfile}
+    Wait Until On Access Log Contains With Offset  Caching ${cleanfile} (Close-Write)
+
+    #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
+    Sleep    1
 
     Mark On Access Log
-    Get File  ${testfile}
+    Get File   ${cleanfile}
 
-    Wait Until On Access Log Contains With Offset  On-open event for ${testfile} from
+     #Generate another event we can expect in logs
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup   Remove File   ${dirtyfile}
+    Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Close-Write)   timeout=${timeout}
 
-# TODO: LINUXDAR-5744 LINUXDAR-5810 revisit test after we have implemented the linked tickets
+    On Access Log Does Not Contain With Offset   On-open event for ${cleanfile} from
+
+
+On Access Receives Close Event On Cached File
+    ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
+
+    Mark On Access Log
+    Create File  ${cleanfile}  ${CLEAN_STRING}
+    Register Cleanup   Remove File   ${cleanfile}
+
+    Wait Until On Access Log Contains With Offset  On-close event for ${cleanfile}
+    Wait Until On Access Log Contains With Offset  Caching ${cleanfile} (Close-Write)
+
+    #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
+    Sleep    1
+
+    #Check we are cached
+    Mark On Access Log
+    Get File   ${cleanfile}
+
+     #Generate another event we can expect in logs
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup   Remove File   ${dirtyfile}
+    Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Close-Write)   timeout=${timeout}
+
+    On Access Log Does Not Contain With Offset   On-open event for ${cleanfile} from
+
+    #Check we get an event when we create a close event
+    Mark On Access Log
+    Append To File   ${cleanfile}   ${CLEAN_STRING}
+    Wait Until On Access Log Contains With Offset  On-close event for ${cleanfile}
+
+
 On Access Doesnt Cache Close Events With Detections
-    [Tags]  DISABLED
     ${testfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
     Mark On Access Log
@@ -492,6 +527,7 @@ On Access Doesnt Cache Close Events With Detections
     Wait Until On Access Log Contains With Offset  On-open event for ${testfile} from
     Wait Until On Access Log Contains With Offset  Detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)
 
+
 On Access Processes New File With Same Attributes And Contents As Old File
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
 
@@ -501,7 +537,7 @@ On Access Processes New File With Same Attributes And Contents As Old File
 
     Get File   ${cleanfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
-    Wait Until On Access Log Contains With Offset   Caching ${cleanfile}
+    Sleep   1  #Let the event be cached, Create File can create a combined event which wont be cached
 
     Remove File   ${cleanfile}
 
@@ -519,7 +555,7 @@ On Access Detects A Clean File Replaced By Dirty File With Same Attributes
 
     Get File   ${dustyfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
-    Wait Until On Access Log Contains With Offset  Caching ${dustyfile}
+    Sleep   1s   Let the event be cached,
 
     Remove File   ${dustyfile}
     Create File   ${dustyfile}   ${EICAR_STRING}
