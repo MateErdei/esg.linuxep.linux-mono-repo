@@ -13,7 +13,7 @@ plugin::manager::scanprocessmonitor::NotifyPipeSleeper::NotifyPipeSleeper(Common
 {}
 
 bool plugin::manager::scanprocessmonitor::NotifyPipeSleeper::stoppableSleep(
-    common::IStoppableSleeper::duration_t sleepTime)
+    common::StoppableSleeper::duration_t sleepTime)
 {
     struct pollfd fds[] {
         { .fd = m_pipe.readFd(), .events = POLLIN, .revents = 0 }

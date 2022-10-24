@@ -8,7 +8,7 @@ add_library(common SHARED
         Exclusion.h
         FDUtils.cpp
         FDUtils.h
-        IStoppableSleeper.h
+        StoppableSleeper.h
         LockableData.h
         Logger.cpp
         Logger.h

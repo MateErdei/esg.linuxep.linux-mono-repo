@@ -3,7 +3,8 @@
 #pragma once
 
 #include "datatypes/AutoFd.h"
-#include "common/IStoppableSleeper.h"
+
+#include "common/StoppableSleeper.h"
 
 #include <memory>
 #include <string>
@@ -13,7 +14,7 @@ namespace unixsocket
     class BaseClient
     {
     public:
-        using IStoppableSleeper = common::IStoppableSleeper;
+        using IStoppableSleeper = common::StoppableSleeper;
         using IStoppableSleeperSharedPtr = common::IStoppableSleeperSharedPtr;
         using duration_t = IStoppableSleeper::duration_t;
         static constexpr duration_t DEFAULT_SLEEP_TIME = std::chrono::seconds{1};

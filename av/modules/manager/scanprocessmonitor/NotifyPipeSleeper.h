@@ -3,13 +3,13 @@
 #pragma once
 
 // Component
-#include "common/IStoppableSleeper.h"
+#include "common/StoppableSleeper.h"
 // Product
 #include "Common/Threads/NotifyPipe.h"
 
 namespace plugin::manager::scanprocessmonitor
 {
-    class NotifyPipeSleeper : public common::IStoppableSleeper
+    class NotifyPipeSleeper : public common::StoppableSleeper
     {
     public:
         explicit NotifyPipeSleeper(Common::Threads::NotifyPipe& pipe);

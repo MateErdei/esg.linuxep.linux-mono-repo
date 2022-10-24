@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "modules/common/IStoppableSleeper.h"
+#include "modules/common/StoppableSleeper.h"
 #include "scan_messages/ProcessControlSerialiser.h"
 
 #include <Common/XmlUtilities/AttributesMap.h>

@@ -152,7 +152,7 @@ namespace avscanner::avscannerimpl
         }
     }
 
-    bool ClientSocketWrapper::stoppableSleep(common::IStoppableSleeper::duration_t sleepTime)
+    bool ClientSocketWrapper::stoppableSleep(common::StoppableSleeper::duration_t sleepTime)
     {
         struct pollfd fds[] {
             { .fd = m_sigHupMonitor->monitorFd(), .events = POLLIN, .revents = 0 },

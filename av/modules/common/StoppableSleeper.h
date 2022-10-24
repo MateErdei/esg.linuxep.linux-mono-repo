@@ -8,11 +8,11 @@
 
 namespace common
 {
-    class IStoppableSleeper
+    class StoppableSleeper
     {
     public:
         using duration_t = std::chrono::nanoseconds;
-        virtual ~IStoppableSleeper() = default;
+        virtual ~StoppableSleeper() = default;
 
         /**
          *
@@ -26,5 +26,5 @@ namespace common
         }
     };
 
-    using IStoppableSleeperSharedPtr = std::shared_ptr<IStoppableSleeper>;
+    using IStoppableSleeperSharedPtr = std::shared_ptr<StoppableSleeper>;
 }

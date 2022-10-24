@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "modules/common/IStoppableSleeper.h"
+#include "modules/common/StoppableSleeper.h"
 
 #include <condition_variable>
 #include <list>
@@ -47,7 +47,7 @@ namespace Plugin
         }
     };
 
-    class TaskQueue : public common::IStoppableSleeper
+    class TaskQueue : public common::StoppableSleeper
     {
         std::mutex m_mutex;
         std::condition_variable m_cond;
