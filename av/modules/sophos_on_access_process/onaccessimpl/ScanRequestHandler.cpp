@@ -64,19 +64,16 @@ void ScanRequestHandler::scan(
     }
 
     auto detections = response.getDetections();
-    if (detections.empty())
+    if (detections.empty() && errorMsg.empty())
     {
-        if (errorMsg.empty() && scanRequest->isOpenEvent())
+        // Clean file, ret either 0 or 1 errno is logged by m_fanotifyHandler->cacheFd
+        LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()));
+        int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
+        if (ret < 0)
         {
-            // Clean file, ret either 0 or 1 errno is logged by m_fanotifyHandler->cacheFd
-            LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()));
-            int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath());
-            if (ret < 0)
-            {
-                std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
-                LOGFATAL("Caching " << escapedPath << " failed. Restarting On Access");
-                std::exit(EXIT_FAILURE);
-            }
+            std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
+            LOGFATAL("Caching " << escapedPath << " failed. Restarting On Access");
+            std::exit(EXIT_FAILURE);
         }
     }
     else

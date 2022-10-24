@@ -185,7 +185,7 @@ TEST_F(TestScanRequestHandler, cleanScanClose)
     auto socket = std::make_shared<RecordingMockSocket>(false, false);
     auto scanHandler = buildDefaultHandler(socket);
 
-    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(1);
 
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
     scanHandler->scan(request);
