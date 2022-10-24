@@ -4,7 +4,8 @@
 
 #include "Logger.h"
 
-#include "common/NotifyPipeSleeper.h"
+#include "scan_messages/QuarantineResponse.h"
+
 #include "common/ThreadRunner.h"
 
 #include <utility>
@@ -26,8 +27,6 @@ void SafeStoreWorker::run()
 
     announceThreadStarted();
 
-    common::IStoppableSleeperSharedPtr sleeper = std::make_shared<common::NotifyPipeSleeper>(m_notifyPipe);
-
     while (true)
     {
         std::optional<scan_messages::ThreatDetected> task = m_detectionQueue->pop();
@@ -40,23 +39,21 @@ void SafeStoreWorker::run()
 
         scan_messages::ThreatDetected threatDetected = std::move(task).value();
 
-        unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket,
-                                                    unixsocket::SafeStoreClient::DEFAULT_SLEEP_TIME,
-                                                    sleeper);
+        unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket);
         safeStoreClient.sendQuarantineRequest(threatDetected);
+        scan_messages::QuarantineResult quarantineResult = safeStoreClient.waitForResponse();
 
-        // // TODO: LINUXDAR-5677 implement this code to wait for and deal with SafeStore response
-        //        Reponse resp = socket.read(timeout);
-        //        if (resp != good)
-        //        {
-        //            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP);
-        //        }
-        //        else
-        //        {
-        //            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
-        //        }
+        if (quarantineResult == scan_messages::QUARANTINE_SUCCESS)
+        {
+            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP);
+            LOGINFO("Quarantine succeeded");
+        }
+        else
+        {
+            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
+            LOGINFO("Quarantine failed");
+        }
 
         m_pluginAdapter.processDetectionReport(threatDetected);
     }
-    sleeper.reset();
 }

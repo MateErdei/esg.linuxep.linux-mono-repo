@@ -2,9 +2,11 @@
 
 #include "SafeStoreClient.h"
 
-#include "scan_messages/ThreatDetected.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
+#include "common/SaferStrerror.h"
+#include <common/FDUtils.h>
+#include <capnp/serialize.h>
 
 #include <cassert>
 #include <sstream>
@@ -12,6 +14,8 @@
 
 #include <sys/socket.h>
 
+#include <poll.h>
+#include <unistd.h>
 unixsocket::SafeStoreClient::SafeStoreClient(
     std::string socket_path,
     const duration_t& sleepTime,
@@ -48,33 +52,86 @@ void unixsocket::SafeStoreClient::sendQuarantineRequest(const scan_messages::Thr
         LOGWARN("Failed to write to SafeStore socket. Exception caught: " << e.what());
     }
 }
-//
-//void unixsocket::SafeStoreClient::waitForResponse()
-//{
-//    struct pollfd fds[] {
-//        { .fd = m_socket.socketFd(), .events = POLLIN, .revents = 0 },
-//            { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
-//    };
-//
-//    while (true)
-//    {
-//        auto ret = ::ppoll(fds, std::size(fds), nullptr, nullptr);
-//
-//        if (ret < 0)
-//        {
-//            if (errno == EINTR)
-//            {
-//                continue;
-//            }
-//
-//            LOGERROR("Error from ppoll: " << common::safer_strerror(errno));
-//            throw ClientSocketException("Error while waiting for scan response");
-//        }
-//
-//        else if (ret > 0)
-//        {
-//
-//            break;
-//        }
-//    }
-//}
+
+scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
+{
+    uint32_t buffer_size = 512;
+    auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+
+
+    fd_set readFDs;
+    FD_ZERO(&readFDs);
+    int max = -1;
+    max = FDUtils::addFD(&readFDs, m_socket_fd, max);
+    bool loggedLengthOfZero = false;
+    struct timespec ts;
+    ts.tv_nsec = 100;
+    while (true)
+    {
+        fd_set tempRead = readFDs;
+
+        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &ts, nullptr);
+
+        if (activity < 0)
+        {
+            LOGERROR("Closing AV connection thread, error: " << errno);
+            break;
+        }
+
+        LOGINFO(m_socket_fd.get());
+        assert(FDUtils::fd_isset(m_socket_fd, &tempRead));
+
+        // read length
+        int32_t length = unixsocket::readLength(m_socket_fd);
+        if (length == -2)
+        {
+            LOGDEBUG("av SafeStore connection closed: EOF");
+            break;
+        }
+        else if (length < 0)
+        {
+            LOGERROR("Aborting av SafeStore connection : failed to read length");
+            break;
+        }
+        else if (length == 0)
+        {
+            if (not loggedLengthOfZero)
+            {
+                LOGDEBUG("Ignoring length of zero / No new messages");
+                loggedLengthOfZero = true;
+            }
+            continue;
+        }
+
+        // read capn proto
+        if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
+        {
+            buffer_size = 1 + length / sizeof(capnp::word);
+            proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+            loggedLengthOfZero = false;
+        }
+
+        ssize_t bytes_read = ::read(m_socket_fd, proto_buffer.begin(), length);
+        if (bytes_read < 0)
+        {
+            LOGERROR("Aborting SafeStore connection thread: " << errno);
+            break;
+        }
+        else if (bytes_read != length)
+        {
+            LOGERROR("Aborting SafeStore connection thread: failed to read entire message");
+            break;
+        }
+        auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
+
+        capnp::FlatArrayMessageReader messageInput(view);
+        Sophos::ssplav::QuarantineResponseMessage::Reader requestReader =
+            messageInput.getRoot<Sophos::ssplav::QuarantineResponseMessage>();
+        LOGINFO("Got response from ss");
+        return scan_messages::QuarantineResponse(requestReader).getResult();
+        }
+
+        throw std::runtime_error("Failed to get response from safestore");
+}
+
+

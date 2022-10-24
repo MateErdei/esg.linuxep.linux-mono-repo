@@ -66,28 +66,12 @@ static scan_messages::ThreatDetected parseDetection(kj::Array<capnp::word>& prot
     return scan_messages::ThreatDetected(requestReader);
 }
 
-void sendResponse(scan_messages::QuarantineResult quarantineResult, datatypes::AutoFd socket_fd)
+std::string getResponse(scan_messages::QuarantineResult quarantineResult)
 {
     std::shared_ptr<scan_messages::QuarantineResponse> request = std::make_shared<scan_messages::QuarantineResponse>(quarantineResult);
     std::string dataAsString = request->serialise();
-    LOGDEBUG("Sending quarantine response");
-    assert(socket_fd.valid());
 
-    try
-    {
-        if (!writeLengthAndBuffer(socket_fd, dataAsString))
-        {
-            std::stringstream errMsg;
-            errMsg << "Failed to write Quarantine Response to socket [" << errno << "]";
-            throw std::runtime_error(errMsg.str());
-        }
-
-
-    }
-    catch (unixsocket::environmentInterruption& e)
-    {
-        LOGWARN("Failed to write to SafeStore socket. Exception caught: " << e.what());
-    }
+    return dataAsString;
 
 }
 
@@ -246,8 +230,23 @@ void SafeStoreServerConnectionThread::inner_run()
                 threatDetected.getSha256(),
                 threatDetected.moveAutoFd());
 
+            std::string serialised_result = getResponse(quarantineResult);
 
-            sendResponse(quarantineResult,std::move(socket_fd));
+            try
+            {
+                if (!writeLengthAndBuffer(socket_fd, serialised_result))
+                {
+                    LOGWARN("Failed to write result to unix socket");
+                    break;
+                }
+            }
+            catch (unixsocket::environmentInterruption& e)
+            {
+                LOGWARN("Exiting Safestore Connection Thread: " << e.what());
+                break;
+            }
         }
+
+
     }
 }

@@ -6,6 +6,7 @@
 
 #include "datatypes/AutoFd.h"
 #include "scan_messages/ThreatDetected.h"
+#include "scan_messages/QuarantineResponse.h"
 #include "unixsocket/BaseClient.h"
 
 #include <string>
@@ -18,6 +19,6 @@ namespace unixsocket
         explicit SafeStoreClient(std::string socket_path, const duration_t& sleepTime = DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
 
         void sendQuarantineRequest(const scan_messages::ThreatDetected& detection);
-        void waitForResponse();
+        scan_messages::QuarantineResult waitForResponse();
     };
 } // namespace unixsocket
