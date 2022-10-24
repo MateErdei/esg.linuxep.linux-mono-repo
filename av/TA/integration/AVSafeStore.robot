@@ -26,6 +26,7 @@ ${MACHINEID_FILE}                    ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${SAFESTORE_DB_DIR}                  ${SOPHOS_INSTALL}/plugins/av/var/safestore_db
 ${SAFESTORE_DB_PATH}                 ${SAFESTORE_DB_DIR}/safestore.db
 ${SAFESTORE_DB_PASSWORD_PATH}        ${SAFESTORE_DB_DIR}/safestore.pw
+${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_dormant_flag.json
 
 
 *** Test Cases ***
@@ -86,6 +87,8 @@ SafeStore Recovers From Corrupt Database
     Mark SafeStore Log
     Corrupt SafeStore Database
 
+    Check Safestore Dormant Flag Exists
+
     Wait Until SafeStore Log Contains With Offset    Successfully removed corrupt SafeStore database    200
     Wait Until SafeStore Log Contains With Offset    Successfully initialised SafeStore database
 
@@ -95,7 +98,9 @@ SafeStore Recovers From Corrupt Database
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
-SafeStore Quarantines When It Receives A File To Quarantine
+
+
+SafeStore Logs When It Recieves A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
     Mark AV Log
@@ -106,32 +111,8 @@ SafeStore Quarantines When It Receives A File To Quarantine
     Check avscanner can detect eicar
 
     Wait Until SafeStore Log Contains  Received Threat:
-    Wait Until AV Plugin Log Contains With Offset  Quarantine succeeded
-    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
+    Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test'
 
-SafeStore does not quarantine on a Corrupt Database
-    Mark AV Log
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
-
-    Wait Until Safestore Log Contains    Successfully saved SafeStore database password to file
-    Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
-    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
-
-    Mark SafeStore Log
-    Corrupt SafeStore Database
-    Check avscanner can detect eicar
-
-    Wait Until SafeStore Log Contains  Received Threat:
-    Wait Until SafeStore Log Contains  Cannot quarantine file, SafeStore is in
-    Wait Until SafeStore Log Contains With Offset    Successfully removed corrupt SafeStore database    200
-    Wait Until SafeStore Log Contains With Offset    Successfully initialised SafeStore database
-
-    Mark SafeStore Log
-    Check avscanner can detect eicar
-    Wait Until SafeStore Log Contains With Offset  Received Threat:
-
-    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
 With SafeStore Enabled But Not Running We Can Send Threats To AV
     register cleanup    Exclude Watchdog Log Unable To Open File Error
@@ -147,7 +128,8 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test'
     Wait Until AV Plugin Log Contains With Offset  Failed to write to SafeStore socket.
     Check SafeStore Not Running
-    Mark Expected Error In Log    ${AV_PLUGIN_PATH}/log/av.log    Aborting SafeStore connection : failed to read length
+
+
 
 
 *** Keywords ***
@@ -192,3 +174,6 @@ Corrupt SafeStore Database
     Remove Files    ${SAFESTORE_DB_PATH}    ${SAFESTORE_DB_PASSWORD_PATH}
     Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
     Start SafeStore
+
+Check Safestore Dormant Flag Exists
+    File Should Exist  ${SAFESTORE_DORMANT_FLAG}

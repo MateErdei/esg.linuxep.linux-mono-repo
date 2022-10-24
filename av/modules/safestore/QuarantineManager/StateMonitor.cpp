@@ -42,6 +42,16 @@ namespace safestore::QuarantineManager
         {
             case QuarantineManagerState::STARTUP:
                 LOGDEBUG("In startup");
+
+                try
+                {
+                    m_quarantineManager->initialise();
+                }
+                catch (const std::exception& ex)
+                {
+                    LOGERROR("Failed to initialise SafeStore database: " << ex.what());
+                }
+
                 break;
             case QuarantineManagerState::INITIALISED:
                 LOGDEBUG("Quarantine Manager is initialised");

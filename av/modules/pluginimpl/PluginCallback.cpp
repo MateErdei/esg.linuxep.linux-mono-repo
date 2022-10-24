@@ -363,21 +363,29 @@ namespace Plugin
 
     void PluginCallback::calculateSafeStoreHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
-        if (!common::PidLockFile::isPidFileLocked(getSafeStorePidPath(), sysCalls) && m_safeStoreEnabled)
+        auto fileSystem = Common::FileSystem::fileSystem();
+        bool dormant = fileSystem->isFile(Plugin::getSafeStoreDormantFlagPath());
+        if (m_safeStoreEnabled)
         {
-            if(m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
+            if (dormant || !common::PidLockFile::isPidFileLocked(getSafeStorePidPath(), sysCalls) )
             {
-                LOGWARN("Sophos SafeStore Process is not running, turning service health to red");
+                if (m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
+                {
+                    LOGWARN("Sophos SafeStore Process is not running, turning service health to red");
+                }
+                m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
             }
-            m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
+            else
+            {
+                if (m_safestoreServiceStatus == E_HEALTH_STATUS_BAD)
+                {
+                    LOGINFO("Sophos SafeStore Process is now running");
+                }
+                m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
+            }
         }
         else
         {
-            if(m_safestoreServiceStatus == E_HEALTH_STATUS_BAD)
-            {
-                LOGINFO("Sophos SafeStore Process is now running");
-            }
-
             m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
         }
     }
