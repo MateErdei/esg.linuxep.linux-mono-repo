@@ -806,6 +806,8 @@ ${IDE_NAME}         peend.ide
 *** Keywords ***
 Installer Suite Setup
     Install With Base SDDS
+    #TODO LINUXDAR-5808 remove this lin when systemctl restart sophos-spl-update hang is fixed
+    Run Process  ${SOPHOS_INSTALL}/bin/wdctl  removePluginRegistration  updatescheduler
 
 Installer Suite TearDown
     No Operation

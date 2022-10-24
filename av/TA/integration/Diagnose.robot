@@ -16,7 +16,7 @@ Resource        ../shared/DiagnoseResources.robot
 Resource        ../shared/ErrorMarkers.robot
 
 Suite Setup     Install With Base SDDS
-Suite Teardown  Uninstall And Revert Setup
+Suite Teardown   Uninstall All
 
 Test Setup      Diagnose Test Setup
 Test Teardown   Diagnose Test TearDown
