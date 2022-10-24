@@ -62,7 +62,7 @@ namespace scan_messages
 
         //Not serialised
        datatypes::AutoFd m_autoFd;
-       std::chrono::steady_clock::time_point m_creationTime = std::chrono::steady_clock::now();
+       const std::chrono::steady_clock::time_point m_creationTime = std::chrono::steady_clock::now();
        size_t m_queueSizeAtTimeOfInsert;
     };
 
