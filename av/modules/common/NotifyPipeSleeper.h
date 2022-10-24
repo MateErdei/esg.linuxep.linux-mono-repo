@@ -3,7 +3,7 @@
 #pragma once
 
 // Component
-#include "common/StoppableSleeper.h"
+#include "StoppableSleeper.h"
 // Product
 #include "Common/Threads/NotifyPipe.h"
 

@@ -3,11 +3,10 @@
 #pragma once
 
 #include "ConfigMonitor.h"
-#include "NotifyPipeSleeper.h"
 
-#include "datatypes/sophos_filesystem.h"
 #include "datatypes/ISystemCallWrapper.h"
-
+#include "datatypes/sophos_filesystem.h"
+#include "modules/common/NotifyPipeSleeper.h"
 #include "scan_messages/ProcessControlSerialiser.h"
 
 namespace plugin::manager::scanprocessmonitor

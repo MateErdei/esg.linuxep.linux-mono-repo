@@ -12,6 +12,8 @@ add_library(common SHARED
         LockableData.h
         Logger.cpp
         Logger.h
+        NotifyPipeSleeper.cpp
+        NotifyPipeSleeper.h
         PathUtils.cpp
         PathUtils.h
         PidLockFile.cpp

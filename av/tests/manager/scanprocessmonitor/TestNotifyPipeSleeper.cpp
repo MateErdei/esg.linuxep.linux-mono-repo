@@ -1,8 +1,8 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "manager/scanprocessmonitor/NotifyPipeSleeper.h"
-
 #include "ScanProcessMonitorMemoryAppenderUsingTests.h"
+
+#include "modules/common/NotifyPipeSleeper.h"
 
 #include <chrono>
 
