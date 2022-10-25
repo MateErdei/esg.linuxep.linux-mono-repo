@@ -94,27 +94,21 @@ bool EventReaderThread::handleFanotifyEvent()
     errno = 0;
     ssize_t len = m_sysCalls->read(m_fanotify->getFd(), buf, sizeof(buf));
 
-    // Verify we got something.
-    if (len <= 0)
+    // Error only if < 0 https://man7.org/linux/man-pages/man2/read.2.html
+    if (len < 0)
     {
-        int error = errno;
-        if (error == EAGAIN)
+        if (checkIfErrorRecoverable())
         {
-            // Another thread got it:
             return true;
         }
-
-        if (error == EMFILE)
+        else
         {
-            LOGFATAL("No more File Descriptors available. Restarting On Access");
             exit(EXIT_FAILURE);
         }
-
-        // nothing actually there - maybe another thread got it
-        LOGWARN(
-            "Fanotify: no event or error: " << len <<
-            " (" << error << " "<< common::safer_strerror(error)<<")"
-        );
+    }
+    else if (len == 0)
+    {
+        LOGTRACE("Skipping empty fanotify event");
         return true;
     }
 
@@ -291,5 +285,34 @@ void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& excl
         std::ignore = m_fanotify->clearCachedFiles();
         std::lock_guard<std::mutex> lock(m_exclusionsLock);
         m_exclusions = exclusions;
+    }
+}
+
+bool EventReaderThread::checkIfErrorRecoverable()
+{
+    int error = errno;
+
+    switch (error)
+    {
+        case EAGAIN:
+        {
+            return true;
+        }
+        case EINTR:
+        case EACCES:
+        {
+            LOGWARN("Failed to read fanotify event, " << "(" << error << " "<< common::safer_strerror(error)<<")");
+            return true;
+        }
+        case EMFILE:
+        {
+            LOGFATAL("No more File Descriptors available. Restarting On Access");
+            return false;
+        }
+        default:
+        {
+            LOGFATAL("Fanotify: no event or error: (" << error << " "<< common::safer_strerror(error)<<")");
+            return false;
+        }
     }
 }
