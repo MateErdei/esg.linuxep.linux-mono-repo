@@ -1,6 +1,7 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "Mounts.h"
+
 #include "Drive.h"
 #include "Logger.h"
 
@@ -16,13 +17,10 @@
 
 // Standard C
 #include <fstab.h>
-#include <memory.h>
 #include <sys/stat.h>
-#include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <mntent.h>
 
 using namespace mount_monitor::mountinfo;
 using namespace mount_monitor::mountinfoimpl;
@@ -31,7 +29,7 @@ std::string octalUnescape(const std::string& input)
 {
     std::string out;
 
-    char* ptr = const_cast<char *>(input.c_str()); // We just want to read
+    char* ptr = const_cast<char*>(input.c_str()); // We just want to read
     while (*ptr != 0)
     {
         char ch = *ptr++;
@@ -40,7 +38,6 @@ std::string octalUnescape(const std::string& input)
             std::string buf("\\");
             size_t i; // NOLINT(cppcoreguidelines-init-variables)
             unsigned int val = 0;
-
 
             for (i = 0; i < 3; i++)
             {
@@ -73,8 +70,7 @@ std::string octalUnescape(const std::string& input)
 /**
  * constructor
  */
-Mounts::Mounts(ISystemPathsSharedPtr systemPaths)
-    : m_systemPaths(std::move(systemPaths))
+Mounts::Mounts(ISystemPathsSharedPtr systemPaths) : m_systemPaths(std::move(systemPaths))
 {
     parseProcMounts();
 }
@@ -91,7 +87,6 @@ void Mounts::parseProcMounts()
     }
     std::ifstream mountstream(mountInfoFilePath);
 
-
     if (!mountstream)
     {
         throw std::system_error(errno, std::system_category(), "Unable to access /proc/mounts, reason: ");
@@ -103,11 +98,10 @@ void Mounts::parseProcMounts()
         std::string type;
         std::string mountPoint;
 
-
         std::string line;
         std::getline(mountstream, line);
 
-        //LOGDEBUG("line: " << line);
+        // LOGDEBUG("line: " << line);
 
         if (!parseLinuxProcMountsLine(line, device, mountPoint, type))
         {
@@ -115,7 +109,7 @@ void Mounts::parseProcMounts()
         }
 
         device = realMountPoint(device);
-        //LOGDEBUG("dev " << device << " on " << mountPoint << " type " << type);
+        // LOGDEBUG("dev " << device << " on " << mountPoint << " type " << type);
         try
         {
             bool isDir = std::filesystem::is_directory(device);
@@ -152,11 +146,8 @@ void Mounts::parseProcMounts()
             try
             {
                 bool isDir = std::filesystem::is_directory(devicePath);
-                m_devices.push_back(std::make_shared<Drive>(
-                    devicePath,
-                    mountpoint->fs_file,
-                    mountpoint->fs_type,
-                    isDir));
+                m_devices.push_back(
+                    std::make_shared<Drive>(devicePath, mountpoint->fs_file, mountpoint->fs_type, isDir));
             }
             catch (const std::filesystem::filesystem_error& e)
             {
@@ -173,7 +164,7 @@ void Mounts::parseProcMounts()
  */
 std::string Mounts::device(const std::string& mountPoint) const
 {
-    for (const auto & it : m_devices)
+    for (const auto& it : m_devices)
     {
         if (it->mountPoint() == mountPoint)
         {
@@ -196,7 +187,6 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
 {
     std::string result;
 
-
     if (access(path.c_str(), X_OK) == 0)
     {
         // We have permission to execute the command
@@ -215,35 +205,33 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
 
                 case 0:
                     // child
-                {
-                    // connect stdout from mount to fd[1]
-                    dup2(fd[1], 1);
-                    // also collect output from stderr otherwise it'll end
-                    // up splattered all over the console.
-                    dup2(fd[1], 2);
-                    close(fd[0]);
-                    close(fd[1]);
-
-                    char** argv = new char*[args.size() + 1];
-                    int index = 0;
-
-
-                    for (const auto & it : args)
                     {
-                        argv[index] = new char[it.size() + 1];
-                        memcpy(argv[index], it.c_str(), it.size() + 1);
-                        index++;
-                    }
-                    argv[index] = nullptr;
+                        // connect stdout from mount to fd[1]
+                        dup2(fd[1], 1);
+                        // also collect output from stderr otherwise it'll end
+                        // up splattered all over the console.
+                        dup2(fd[1], 2);
+                        close(fd[0]);
+                        close(fd[1]);
 
-                    execv(path.c_str(), argv);
-                    // never returns
-                    _exit(1);
-                }
+                        char** argv = new char*[args.size() + 1];
+                        int index = 0;
+
+                        for (const auto& it : args)
+                        {
+                            argv[index] = new char[it.size() + 1];
+                            memcpy(argv[index], it.c_str(), it.size() + 1);
+                            index++;
+                        }
+                        argv[index] = nullptr;
+
+                        execv(path.c_str(), argv);
+                        // never returns
+                        _exit(1);
+                    }
                 default:
                 {
                     int status = 0;
-
 
                     close(fd[1]);
 
@@ -254,14 +242,12 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
                         {
                             bytes = ::read(fd[0], buf, 64);
 
-
                             if (bytes > 0)
                             {
                                 // remove trailing newline
-                                result.append(buf, bytes-1);
+                                result.append(buf, bytes - 1);
                             }
                         } while (waitpid(child, &status, WNOHANG) != child);
-
 
                         // Need to read remaining output...
                         do
@@ -274,7 +260,6 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
                             }
                         } while (bytes > 0);
                     }
-
 
                     close(fd[0]);
 
@@ -298,7 +283,9 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
  */
 std::string Mounts::realMountPoint(const std::string& device)
 {
-    struct stat st{};
+    struct stat st
+    {
+    };
 
     if (stat(device.c_str(), &st) == -1)
     {
@@ -329,10 +316,13 @@ std::string Mounts::realMountPoint(const std::string& device)
     return device;
 }
 
-bool Mounts::parseLinuxProcMountsLine(const std::string& line, std::string& device, std::string& mountpoint, std::string& filesystem)
+bool Mounts::parseLinuxProcMountsLine(
+    const std::string& line,
+    std::string& device,
+    std::string& mountpoint,
+    std::string& filesystem)
 {
     std::istringstream ist(line);
-
 
     ist >> device >> mountpoint >> filesystem;
 
@@ -402,7 +392,7 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
         assert(first_space != second_space);
         if (second_space != std::string::npos)
         {
-            return output.substr(first_space, second_space-first_space); // only return if we got something useful.
+            return output.substr(first_space, second_space - first_space); // only return if we got something useful.
         }
     }
 

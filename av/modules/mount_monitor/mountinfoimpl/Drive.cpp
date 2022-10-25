@@ -12,9 +12,7 @@
 
 #include <mntent.h>
 
-using namespace mount_monitor::mountinfo;
 using namespace mount_monitor::mountinfoimpl;
-
 
 static datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper()
 {
@@ -34,13 +32,13 @@ static DeviceUtilSharedPtr getDeviceUtil()
  * @param mountPoint
  * @param type
  */
-Drive::Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory)
-    : m_deviceUtil(getDeviceUtil())
-    , m_mountPoint(std::move(mountPoint))
-    , m_device(std::move(device))
-    , m_fileSystem(std::move(type))
-    , m_isDirectory(isDirectory)
-    , m_isReadOnly(false)   //placeholder until option unpacking added to DeviceUtil
+Drive::Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory) :
+    m_deviceUtil(getDeviceUtil()),
+    m_mountPoint(std::move(mountPoint)),
+    m_device(std::move(device)),
+    m_fileSystem(std::move(type)),
+    m_isDirectory(isDirectory),
+    m_isReadOnly(false) // placeholder until option unpacking added to DeviceUtil
 {
 }
 
@@ -49,9 +47,9 @@ Drive::Drive(const std::string& childPath)
     LOGDEBUG("Searching for nearest parent mount of: " << childPath);
     m_deviceUtil = getDeviceUtil();
 
-    FILE *f = nullptr;
-    f = setmntent ("/proc/mounts","r"); //open file for describing the mounted filesystems
-    mntent *mount;
+    FILE* f = nullptr;
+    f = setmntent("/proc/mounts", "r"); // open file for describing the mounted filesystems
+    mntent* mount;
     ulong parentPathSize = 0UL;
 
     if (!f)
@@ -59,7 +57,7 @@ Drive::Drive(const std::string& childPath)
         throw std::runtime_error("Could not access /proc/mounts to find parent mount of: " + childPath);
     }
 
-    while ((mount = getmntent(f))) //read next line
+    while ((mount = getmntent(f))) // read next line
     {
         if (Common::UtilityImpl::StringUtils::startswith(childPath, mount->mnt_dir) &&
             (parentPathSize < sizeof(mount->mnt_dir)))
@@ -80,7 +78,7 @@ Drive::Drive(const std::string& childPath)
             LOGDEBUG("Found potential parent: " << m_device << " -- at path: " << m_mountPoint);
         }
     }
-    endmntent (f); //close file for describing the mounted filesystems
+    endmntent(f); // close file for describing the mounted filesystems
     if (parentPathSize == 0UL)
     {
         throw std::runtime_error("No parent mounts found for path: " + childPath);
@@ -105,22 +103,22 @@ std::string Drive::filesystemType() const
 
 bool Drive::isHardDisc() const
 {
-    return m_deviceUtil->isLocalFixed(device(),mountPoint(),filesystemType());
+    return m_deviceUtil->isLocalFixed(device(), mountPoint(), filesystemType());
 }
 
 bool Drive::isNetwork() const
 {
-    return m_deviceUtil->isNetwork(device(),mountPoint(),filesystemType());
+    return m_deviceUtil->isNetwork(device(), mountPoint(), filesystemType());
 }
 
 bool Drive::isOptical() const
 {
-    return m_deviceUtil->isOptical(device(),mountPoint(),filesystemType());
+    return m_deviceUtil->isOptical(device(), mountPoint(), filesystemType());
 }
 
 bool Drive::isRemovable() const
 {
-    return m_deviceUtil->isRemovable(device(),mountPoint(),filesystemType());
+    return m_deviceUtil->isRemovable(device(), mountPoint(), filesystemType());
 }
 
 /**
@@ -129,7 +127,7 @@ bool Drive::isRemovable() const
  */
 bool Drive::isSpecial() const
 {
-    return m_deviceUtil->isSystem(device(),mountPoint(),filesystemType());
+    return m_deviceUtil->isSystem(device(), mountPoint(), filesystemType());
 }
 
 bool Drive::isDirectory() const

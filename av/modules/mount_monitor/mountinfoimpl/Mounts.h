@@ -38,14 +38,12 @@ namespace mount_monitor::mountinfoimpl
          */
         [[nodiscard]] std::string device(const std::string& mountPoint) const;
 
-
         /**
          * Iterator for the list of mount points.
          */
         mountinfo::IMountPointSharedVector mountPoints() override;
 
     private:
-
         /**
          * Run a command and collect the output.
          * @return an empty string on error.  This is obviously ambiguous with
@@ -56,7 +54,6 @@ namespace mount_monitor::mountinfoimpl
          * @param args    arguments.
          */
         std::string scrape(const std::string& path, const std::vector<std::string>& args);
-
 
         mountinfo::ISystemPathsSharedPtr m_systemPaths;
         mountinfo::IMountPointSharedVector m_devices;
@@ -77,12 +74,15 @@ namespace mount_monitor::mountinfoimpl
         /**
          * Parse one line of /proc/mounts on Linux.
          */
-        bool parseLinuxProcMountsLine(const std::string& line, std::string& device, std::string& mountpoint,
-                                             std::string& filesystem);
+        bool parseLinuxProcMountsLine(
+            const std::string& line,
+            std::string& device,
+            std::string& mountpoint,
+            std::string& filesystem);
 
         /**
          * Try and parse /proc/mounts.
          */
         void parseProcMounts();
     };
-}
+} // namespace mount_monitor::mountinfoimpl

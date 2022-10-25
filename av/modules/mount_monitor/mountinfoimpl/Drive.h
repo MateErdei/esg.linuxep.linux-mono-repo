@@ -1,7 +1,8 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "mount_monitor/mountinfo/IMountInfo.h"
 #include "DeviceUtil.h"
+
+#include "mount_monitor/mountinfo/IMountInfo.h"
 
 namespace mount_monitor::mountinfoimpl
 {
@@ -9,18 +10,18 @@ namespace mount_monitor::mountinfoimpl
     {
     public:
         /**
-             *
-             * @param device
-             * @param mountPoint
-             * @param type
+         *
+         * @param device
+         * @param mountPoint
+         * @param type
          */
         Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory);
 
         /**
-             * Constructs Drive of mount point nearest to childPath.
-             * Throws if unable to access /proc/mounts or no parent found (should always find "/").
-             *
-             * @param childPath
+         * Constructs Drive of mount point nearest to childPath.
+         * Throws if unable to access /proc/mounts or no parent found (should always find "/").
+         *
+         * @param childPath
          */
         explicit Drive(const std::string& childPath);
 
@@ -41,8 +42,8 @@ namespace mount_monitor::mountinfoimpl
         [[nodiscard]] bool isRemovable() const override;
 
         /**
-             * @return true if this is a special filesystem mount that we should avoid
-             * scanning.
+         * @return true if this is a special filesystem mount that we should avoid
+         * scanning.
          */
         [[nodiscard]] bool isSpecial() const override;
 
@@ -58,4 +59,4 @@ namespace mount_monitor::mountinfoimpl
         bool m_isDirectory;
         bool m_isReadOnly;
     };
-}
+} // namespace mount_monitor::mountinfoimpl

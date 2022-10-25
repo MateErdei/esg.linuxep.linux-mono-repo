@@ -12,4 +12,4 @@ namespace Plugin
     public:
         static void processThreatReport(const std::string&, const std::shared_ptr<TaskQueue>&);
     };
-}
+} // namespace Plugin

@@ -24,7 +24,7 @@ using namespace unixsocket;
 SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     datatypes::AutoFd& fd,
     std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager) :
-    m_fd(std::move(fd)), m_quarantineManager(quarantineManager)
+    m_fd(std::move(fd)), m_quarantineManager(std::move(quarantineManager))
 {
     if (m_fd < 0)
     {
@@ -197,49 +197,52 @@ void SafeStoreServerConnectionThread::inner_run()
                 break;
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
-            threatDetected.setAutoFd(std::move(file_fd));
+            threatDetected.autoFd = std::move(file_fd);
 
-            if (!threatDetected.hasFilePath())
+            if (threatDetected.filePath.empty())
             {
                 LOGERROR("Missing file path in detection report ( size=" << bytes_read << ")");
             }
-            else if (threatDetected.getFilePath() == "")
-            {
-                LOGERROR("Missing file path in detection report: empty file path");
-            }
+
+            LOGINFO(
+                "Received Threat:\n  File path: "
+                << threatDetected.filePath << "\n  Threat ID: " << threatDetected.threatId
+                << "\n  Threat name: " << threatDetected.threatName << "\n  SHA256: " << threatDetected.sha256
+                << "\n  File descriptor: " << threatDetected.autoFd.get());
 
             bool isQuarantineSuccessful = false;
+            bool tryQuarantine = true;
 
             try
             {
-                auto parentMount = mount_monitor::mountinfoimpl::Drive(threatDetected.getFilePath());
+                auto parentMount = mount_monitor::mountinfoimpl::Drive(threatDetected.filePath);
                 if (parentMount.isNetwork())
                 {
-                    //Have to mark Detection as remote here somehow
-                    LOGWARN("File is located on a Network mount: " << parentMount.mountPoint() << ". Will not quarantine.");
+                    LOGINFO("File is located on a Network mount: " << parentMount.mountPoint() << ". Will not quarantine.");
+                    threatDetected.isRemote = true;
+                    tryQuarantine = false;
                 }
                 else if (parentMount.isReadOnly())
                 {
-                    LOGWARN("File is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
+                    LOGINFO("File is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
+                    tryQuarantine = false;
                 }
             }
             catch (std::runtime_error& error)
             {
-                LOGWARN("Unable to determine detection's parent mount, due to: " << error.what());
+                LOGWARN("Unable to determine detection's parent mount, due to: " << error.what() << ". Will continue quarantine attempt.");
             }
-            
-            LOGINFO(
-                "Received Threat:\n  File path: "
-                << threatDetected.getFilePath() << "\n  Threat ID: " << threatDetected.getThreatId()
-                << "\n  Threat name: " << threatDetected.getThreatName() << "\n  SHA256: " << threatDetected.getSha256()
-                << "\n  File descriptor: " << threatDetected.getFd());
 
-            isQuarantineSuccessful = m_quarantineManager->quarantineFile(
-                threatDetected.getFilePath(),
-                threatDetected.getThreatId(),
-                threatDetected.getThreatName(),
-                threatDetected.getSha256(),
-                threatDetected.moveAutoFd());
+            if (tryQuarantine)
+            {
+                isQuarantineSuccessful = m_quarantineManager->quarantineFile(
+                    threatDetected.filePath,
+                    threatDetected.threatId,
+                    threatDetected.threatName,
+                    threatDetected.sha256,
+                    std::move(threatDetected.autoFd));
+            }
+
             std::ignore = isQuarantineSuccessful;
 
             // TODO: LINUXDAR-5677 send a response back
