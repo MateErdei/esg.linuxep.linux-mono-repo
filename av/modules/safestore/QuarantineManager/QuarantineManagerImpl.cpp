@@ -199,21 +199,30 @@ namespace safestore::QuarantineManager
         if (saveResult == SafeStoreWrapper::SaveFileReturnCode::OK)
         {
             callOnDbSuccess();
-
+            auto fs = Common::FileSystem::fileSystem();
             LOGDEBUG("File Descriptor: " << autoFd.fd());
 
-            datatypes::AutoFd directoryFd(open(directory.c_str(), O_PATH));
+            datatypes::AutoFd directoryFd(fs->getDirectoryFD(directory));
+            if (!(directoryFd.get() >= 0))
+            {
+                LOGWARN("Directory of threat does not exist");
+                return scan_messages::QUARANTINE_FAIL_TO_DELETE_FILE;
+            }
 
             std::string path = Common::FileSystem::join(directory,filename);
-            datatypes::AutoFd fd2(openat(directoryFd.get(),path.c_str(), S_IWUSR));
-            auto fs = Common::FileSystem::fileSystem();
+            datatypes::AutoFd fd2(fs->getFDFromDirectoryFD(directoryFd.get(),path.c_str()));
+            if (!(fd2.get() >= 0))
+            {
+                LOGWARN("Threat does not exist at path: " << path << " Cannot quarantine it");
+                return scan_messages::QUARANTINE_FAIL_TO_DELETE_FILE;
+            }
             if (fs->compareFileDescriptors(autoFd.get(),fd2.get())) //
             {
                 fs->removeFileOrDirectory(filePath);
             }
             else
             {
-                LOGWARN("Cannot verify file to be quarantined ");
+                LOGWARN("Cannot verify file to be quarantined");
                 return scan_messages::QUARANTINE_FAIL_TO_DELETE_FILE;
             }
 
