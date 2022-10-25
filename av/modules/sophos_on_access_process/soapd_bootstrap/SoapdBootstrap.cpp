@@ -60,7 +60,7 @@ int SoapdBootstrap::outerRun()
     }
     catch (...)
     {
-        LOGFATAL("Non-std::exeption caught at top-level");
+        LOGFATAL("Non-std::exception caught at top-level");
         return 2;
     }
 

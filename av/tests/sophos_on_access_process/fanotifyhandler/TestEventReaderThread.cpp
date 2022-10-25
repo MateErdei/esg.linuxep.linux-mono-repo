@@ -110,7 +110,6 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorIfFanotifySendsNoEvent)
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    //Todo Put sopmething here
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
 
@@ -136,7 +135,6 @@ TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterNoEvent)
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    //Todo Put sopmething here
     std::stringstream logMsg;
     logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
@@ -172,7 +170,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
 }
 
-TEST_F(TestEventReaderThread, TestReaderReadsOnCloseAndOnOpenFanotifyEventAndEventTypeSetAsClose)
+TEST_F(TestEventReaderThread, TestReaderReadsCombinedFanotifyEventAndEventTypeSetAsClose)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     auto metadata = getMetaData(FAN_CLOSE_WRITE | FAN_OPEN);
@@ -195,7 +193,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseAndOnOpenFanotifyEventAndEve
     std::stringstream closeLogMsg;
     closeLogMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(closeLogMsg.str()));
-    
+
     std::stringstream openLogMsg;
     openLogMsg << "On-open event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(openLogMsg.str()));
@@ -801,9 +799,144 @@ TEST_F(TestEventReaderThread, TestReaderContinuesQuietyWhenPpollThrowsEINTR)
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_SmallScanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_FALSE(waitForLog("Error from poll"));
+    std::stringstream logMsg;
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    EXPECT_TRUE(waitForLog(logMsg.str()));
+    EXPECT_FALSE(appenderContains("Error from poll"));
+}
+
+TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterEAGAIN)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto metadata = getMetaData();
+    const char* filePath = "/tmp/test";
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .WillOnce(SetErrnoAndReturn(EAGAIN, -1))
+        .WillOnce(readReturnsStruct(metadata));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .WillOnce(readlinkReturnPath(filePath));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
+        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+
+    auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
     logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
+
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_EQ(m_scanRequestQueue->size(), 1);
+
+    EXPECT_FALSE(appenderContains("Failed to read fanotify event, "));
+}
+
+TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterEINTR)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto metadata = getMetaData();
+    const char* filePath = "/tmp/test";
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .WillOnce(SetErrnoAndReturn(EINTR, -1))
+        .WillOnce(readReturnsStruct(metadata));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .WillOnce(readlinkReturnPath(filePath));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
+        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+
+    auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+
+    EXPECT_TRUE(waitForLog("Failed to read fanotify event, (4 Interrupted system call)"));
+
+    std::stringstream logMsg;
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    EXPECT_TRUE(waitForLog(logMsg.str()));
+
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_EQ(m_scanRequestQueue->size(), 1);
+}
+
+TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterEACCES)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto metadata = getMetaData();
+    const char* filePath = "/tmp/test";
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .WillOnce(SetErrnoAndReturn(EACCES, -1))
+        .WillOnce(readReturnsStruct(metadata));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .WillOnce(readlinkReturnPath(filePath));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
+        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+
+    auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+
+    EXPECT_TRUE(waitForLog("Failed to read fanotify event, (13 Permission denied)"));
+
+    std::stringstream logMsg;
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    EXPECT_TRUE(waitForLog(logMsg.str()));
+
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_EQ(m_scanRequestQueue->size(), 1);
+}
+
+TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorIsEMFILE)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .WillOnce(SetErrnoAndReturn(EMFILE, -1));
+
+    auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
+    try
+    {
+        eventReader->run();
+    }
+    catch(const std::runtime_error& e)
+    {
+        EXPECT_EQ(e.what(), std::string("No more File Descriptors available. Restarting On Access"));
+    }
+}
+
+TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorNotRecoverable)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .WillOnce(SetErrnoAndReturn(ENFILE, -1));
+
+    auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
+    try
+    {
+        eventReader->run();
+    }
+    catch(const std::runtime_error& e)
+    {
+        EXPECT_EQ(e.what(), std::string("Fatal Error. Restarting On Access: (23 Too many open files in system)"));
+    }
 }

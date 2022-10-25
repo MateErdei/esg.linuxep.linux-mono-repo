@@ -97,14 +97,7 @@ bool EventReaderThread::handleFanotifyEvent()
     // Error only if < 0 https://man7.org/linux/man-pages/man2/read.2.html
     if (len < 0)
     {
-        if (checkIfErrorRecoverable())
-        {
-            return true;
-        }
-        else
-        {
-            exit(EXIT_FAILURE);
-        }
+        throwIfErrorNotRecoverable();
     }
     else if (len == 0)
     {
@@ -289,7 +282,7 @@ void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& excl
     }
 }
 
-bool EventReaderThread::checkIfErrorRecoverable()
+void EventReaderThread::throwIfErrorNotRecoverable()
 {
     int error = errno;
     auto errorStr = common::safer_strerror(error);
@@ -298,23 +291,23 @@ bool EventReaderThread::checkIfErrorRecoverable()
     {
         case EAGAIN:
         {
-            return true;
+            return;
         }
         case EINTR:
         case EACCES:
         {
             LOGWARN("Failed to read fanotify event, " << "(" << error << " " << errorStr << ")");
-            return true;
+            return;
         }
         case EMFILE:
         {
-            LOGFATAL("No more File Descriptors available. Restarting On Access");
-            return false;
+            throw std::runtime_error("No more File Descriptors available. Restarting On Access");
         }
         default:
         {
-            LOGFATAL("Fanotify: Fatal Error, restarting On Access: (" << error << " "<< errorStr << ")");
-            return false;
+            std::stringstream logmsg;
+            logmsg << "Fatal Error. Restarting On Access: (" << error << " "<< errorStr << ")";
+            throw std::runtime_error(logmsg.str());
         }
     }
 }

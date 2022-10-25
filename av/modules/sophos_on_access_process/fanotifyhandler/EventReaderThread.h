@@ -40,7 +40,7 @@ namespace sophos_on_access_process::fanotifyhandler
             struct fanotify_event_metadata* eventMetadata, std::string& filePath, std::string& exePath, int eventFd);
         std::string getFilePathFromFd(int fd);
         std::string getUidFromPid(pid_t pid);
-        bool checkIfErrorRecoverable();
+        void throwIfErrorNotRecoverable();
 
         IFanotifyHandlerSharedPtr m_fanotify;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
