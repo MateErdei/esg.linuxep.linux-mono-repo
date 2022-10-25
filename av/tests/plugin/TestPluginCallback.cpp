@@ -410,7 +410,7 @@ TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidfileExistsButIsNotLocked)
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, getHealthReturnsBadWhenDormantFlagExists) //WORKING HERE
+TEST_F(TestPluginCallback, getHealthReturnsBadWhenDormantFlagExists)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};

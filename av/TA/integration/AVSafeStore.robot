@@ -176,4 +176,5 @@ Corrupt SafeStore Database
     Start SafeStore
 
 Check Safestore Dormant Flag Exists
-    File Should Exist  ${SAFESTORE_DORMANT_FLAG}
+    [Arguments]  ${timeout}=15  ${interval}=2
+    Wait Until File exists  ${SAFESTORE_DORMANT_FLAG}  ${timeout}  ${interval}
