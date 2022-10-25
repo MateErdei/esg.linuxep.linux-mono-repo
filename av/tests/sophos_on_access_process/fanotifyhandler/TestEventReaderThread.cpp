@@ -914,6 +914,7 @@ TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorIsEMFILE)
     try
     {
         eventReader->run();
+        FAIL();
     }
     catch(const std::runtime_error& e)
     {
@@ -934,6 +935,7 @@ TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorNotRecoverable)
     try
     {
         eventReader->run();
+        FAIL();
     }
     catch(const std::runtime_error& e)
     {
