@@ -66,6 +66,7 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
     bool loggedLengthOfZero = false;
     struct timespec ts;
     ts.tv_sec = 60;
+    ts.tv_nsec = 0;
     while (true)
     {
         fd_set tempRead = readFDs;

@@ -147,7 +147,7 @@ TEST_F(TestSafeStoreSocket, testClientSocketTriesToReconnect) // NOLINT
     EXPECT_TRUE(appenderContains("Reached total maximum number of connection attempts."));
 }
 
-TEST_F(TestSafeStoreSocket, DISABLED_TestSendTwoThreatDetecteds) // NOLINT
+TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
 {
     setupFakeSophosThreatDetectorConfig();
     WaitForEvent serverWaitGuard;
