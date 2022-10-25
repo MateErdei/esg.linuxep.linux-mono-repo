@@ -813,6 +813,24 @@ IDE Update Invalidates On Access Cache
     Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from  timeout=60
 
 
+SSPLAV can load old VDL
+    Mark Sophos Threat Detector Log
+    Restart sophos_threat_detector
+    Check Plugin Installed and Running
+    Wait Until Sophos Threat Detector Log Contains With Offset
+    ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
+    ...   timeout=60
+
+    Replace Virus Data With Test Dataset A  dataset=20220503
+    Register Cleanup  Revert Virus Data and Run Update if Required
+    Run IDE update without SUSI loaded
+
+    # Check we can detect EICAR following update
+    Check avscanner can detect eicar
+
+    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI Loaded old data
+
+
 *** Variables ***
 ${IDE_NAME}         peend.ide
 @{GROUP_WRITE_ALLOWED_TO_WRITE}

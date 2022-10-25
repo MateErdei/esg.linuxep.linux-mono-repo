@@ -1197,13 +1197,13 @@ Create Big Dir
     [Return]   ${path}
 
 Replace Virus Data With Test Dataset A
-    [Arguments]  ${setOldTimestamps}=${False}
+    [Arguments]  ${setOldTimestamps}=${False}  ${dataset}=20221010
 #    ${SUSI_UPDATE_SRC} =  Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/
 
     # Copy Test Dataset A to installset IDE directory
     Copy Files  ${IDE_DIR}/*   /tmp/vdl-tmp/
     Empty Directory  ${IDE_DIR}
-    Copy Files  ${RESOURCES_PATH}/testVirusData/20221010/*   ${IDE_DIR}/
+    Copy Files  ${RESOURCES_PATH}/testVirusData/${dataset}/*   ${IDE_DIR}/
     Run Keyword If  ${setOldTimestamps}  Set Old Timestamps  ${IDE_DIR}
 
     ${result} =  Run Process  ls  -l  ${IDE_DIR}/
