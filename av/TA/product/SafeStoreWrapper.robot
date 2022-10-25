@@ -14,6 +14,8 @@ SafeStoreWrapper Test Setup
     Set Suite Variable  ${safestore_unpacked}  /tmp/safestorewrapper
     Create Directory  ${safestore_unpacked}
     ${result} =   Run Process   tar    xzf    ${BUILD_ARTEFACTS_FOR_TAP}/tap_test_output.tar.gz    -C    ${safestore_unpacked}/
+    Log  ${result.stdout}
+    Log  ${result.stderr}
     Should Be Equal As Strings   ${result.rc}  0
 
 SafeStoreWrapper Test Teardown
