@@ -28,6 +28,7 @@ namespace
         MOCK_METHOD(bool, isSpecial, (), (const));
         MOCK_METHOD(bool, isDirectory, (), (const));
         MOCK_METHOD(std::string, mountPoint, (), (const));
+        MOCK_METHOD(bool, isReadOnly, (), (const));
     };
 
     class FakeMountPoint : public mount_monitor::mountinfo::IMountPoint
@@ -85,6 +86,11 @@ namespace
         [[nodiscard]] std::string mountPoint() const override
         {
             return m_mountPoint;
+        }
+
+        [[nodiscard]] bool isReadOnly() const override
+        {
+            return false;
         }
     };
 

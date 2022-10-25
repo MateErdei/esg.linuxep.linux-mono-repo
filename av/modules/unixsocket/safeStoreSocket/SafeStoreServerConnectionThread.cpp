@@ -10,7 +10,7 @@
 #include <capnp/serialize.h>
 #include <common/FDUtils.h>
 #include <scan_messages/ThreatDetected.h>
-#include <mount_monitor/mountinfoimpl/Mounts.h>
+#include <mount_monitor/mountinfoimpl/Drive.h>
 
 #include <cassert>
 #include <stdexcept>
@@ -212,7 +212,7 @@ void SafeStoreServerConnectionThread::inner_run()
 
             try
             {
-                auto parentMount = mount_monitor::mountinfoimpl::Mounts::Drive(threatDetected.getFilePath());
+                auto parentMount = mount_monitor::mountinfoimpl::Drive(threatDetected.getFilePath());
                 if (parentMount.isNetwork())
                 {
                     //Have to mark Detection as remote here somehow

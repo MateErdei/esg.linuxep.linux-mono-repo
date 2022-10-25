@@ -1,6 +1,8 @@
 add_library(mountinfoimpl SHARED
         DeviceUtil.cpp
         DeviceUtil.h
+        Drive.cpp
+        Drive.h
         Logger.cpp
         Logger.h
         Mounts.cpp
