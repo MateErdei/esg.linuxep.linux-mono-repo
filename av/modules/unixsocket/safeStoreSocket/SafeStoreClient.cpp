@@ -58,39 +58,32 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
     uint32_t buffer_size = 512;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
-
-    fd_set readFDs;
-    FD_ZERO(&readFDs);
-    int max = -1;
-    max = FDUtils::addFD(&readFDs, m_socket_fd, max);
+    struct pollfd fds[] {
+        { .fd = m_socket_fd.get(), .events = POLLIN, .revents = 0 }};
     bool loggedLengthOfZero = false;
     struct timespec ts;
     ts.tv_sec = 60;
     ts.tv_nsec = 0;
     while (true)
     {
-        fd_set tempRead = readFDs;
 
-        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &ts, nullptr);
-
-        if (activity < 0)
+        int active = ::ppoll(fds, std::size(fds), &ts, nullptr);
+        if (active < 0)
         {
-            LOGERROR("Closing AV connection thread, error: " << errno);
+            LOGERROR("Closing SafeStore connection thread, error: " << errno);
             break;
         }
 
-        LOGINFO(m_socket_fd.get());
-        assert(FDUtils::fd_isset(m_socket_fd, &tempRead));
         // read length
         int32_t length = unixsocket::readLength(m_socket_fd);
         if (length == -2)
         {
-            LOGDEBUG("av SafeStore connection closed: EOF");
+            LOGDEBUG("SafeStore connection closed: EOF");
             break;
         }
         else if (length < 0)
         {
-            LOGERROR("Aborting av SafeStore connection : failed to read length");
+            LOGERROR("Aborting SafeStore connection : failed to read length");
             break;
         }
         else if (length == 0)
