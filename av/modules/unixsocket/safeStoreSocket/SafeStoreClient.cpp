@@ -120,7 +120,7 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
         capnp::FlatArrayMessageReader messageInput(view);
         Sophos::ssplav::QuarantineResponseMessage::Reader requestReader =
             messageInput.getRoot<Sophos::ssplav::QuarantineResponseMessage>();
-        LOGINFO("Got response from ss");
+
         return scan_messages::QuarantineResponse(requestReader).getResult();
         }
 

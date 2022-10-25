@@ -46,7 +46,7 @@ void SafeStoreWorker::run()
         if (quarantineResult == scan_messages::QUARANTINE_SUCCESS)
         {
             threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP);
-            LOGINFO("Quarantine succeeded");
+            LOGDEBUG("Quarantine succeeded");
         }
         else
         {
