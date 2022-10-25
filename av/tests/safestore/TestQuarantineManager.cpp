@@ -225,9 +225,11 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
     auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
     EXPECT_CALL(*mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "a password"))
         .WillOnce(Return(InitReturnCode::OK));
-
+    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
+    auto  mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_));
     EXPECT_CALL(*mockSafeStoreWrapper, createObjectHandleHolder())
-        .WillOnce(Return(ByMove(std::make_unique<ObjectHandleHolder>(*mockSafeStoreWrapper))));
+        .WillOnce(Return(ByMove(std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods))));
 
     EXPECT_CALL(*mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, _))
         .WillOnce(Return(SaveFileReturnCode::OK));
@@ -257,9 +259,11 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDirectoryDoesNotExis
     auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
     EXPECT_CALL(*mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "a password"))
         .WillOnce(Return(InitReturnCode::OK));
-
+    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
+    auto  mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_));
     EXPECT_CALL(*mockSafeStoreWrapper, createObjectHandleHolder())
-        .WillOnce(Return(ByMove(std::make_unique<ObjectHandleHolder>(*mockSafeStoreWrapper))));
+        .WillOnce(Return(ByMove(std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods))));
 
     EXPECT_CALL(*mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, _))
         .WillOnce(Return(SaveFileReturnCode::OK));
@@ -290,9 +294,11 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
     auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
     EXPECT_CALL(*mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "a password"))
         .WillOnce(Return(InitReturnCode::OK));
-
+    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
+    auto  mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_));
     EXPECT_CALL(*mockSafeStoreWrapper, createObjectHandleHolder())
-        .WillOnce(Return(ByMove(std::make_unique<ObjectHandleHolder>(*mockSafeStoreWrapper))));
+        .WillOnce(Return(ByMove(std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods))));
 
     EXPECT_CALL(*mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, _))
         .WillOnce(Return(SaveFileReturnCode::OK));
