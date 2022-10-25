@@ -621,7 +621,7 @@ CLS Creates Threat Report
 
     Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
     Wait Until AV Plugin Log Contains Detection Event XML With Offset
-    ...  id=T26796de6ce94770b60a8477c0a55d2cf3262e1e62948f1f122fa7d28c6ce6c75
+    ...  id=T26796de6ce94770
     ...  name=EICAR-AV-Test
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
     ...  path=${NORMAL_DIRECTORY}/naughty_eicar
