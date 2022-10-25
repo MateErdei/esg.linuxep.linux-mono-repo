@@ -130,18 +130,20 @@ TEST_F(TestDetectionQueue, TestDetectionsQueuePopBlocksUntilToldToStop) // NOLIN
     Plugin::DetectionQueue queue;
     auto result = std::async(std::launch::async, &Plugin::DetectionQueue::pop, &queue);
 
-    std::chrono::milliseconds before =
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-    ASSERT_EQ(result.wait_for(std::chrono::milliseconds(500)), std::future_status::timeout);
+    using namespace std::chrono;
+    using test_clock_t = steady_clock;
+    auto before = test_clock_t::now();
+    ASSERT_EQ(result.wait_for(milliseconds(500)), std::future_status::timeout);
 
     queue.requestStop();
     result.wait();
-    std::chrono::milliseconds after =
-        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    auto after = test_clock_t::now();
 
     EXPECT_FALSE(result.get().has_value());
-    int duration = after.count() - before.count();
-    EXPECT_NEAR(duration, 500, 5);
+    auto duration = after - before;
+    auto durationMs = duration_cast<milliseconds>(duration).count();
+    // range increased to 15, since I've seen 507.
+    EXPECT_NEAR(durationMs, 500, 15);
 }
 
 TEST_F(TestDetectionQueue, TestDetectionsQueuePopReturnsImmediately) // NOLINT
