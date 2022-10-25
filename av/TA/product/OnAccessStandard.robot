@@ -421,9 +421,7 @@ On Access Caches Open Events Without Detections
     ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
     Create File   ${cleanfile}   ${CLEAN_STRING}
-    Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup   Remove File   ${cleanfile}
-    Register Cleanup   Remove File   ${dirtyfile}
 
     Get File   ${cleanfile}
     Wait Until On Access Log Contains With Offset   Caching ${cleanfile} (Open)
@@ -435,7 +433,8 @@ On Access Caches Open Events Without Detections
     Get File   ${cleanfile}
 
     #Generate another event we can expect in logs
-    Get File   ${dirtyfile}
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup   Remove File   ${dirtyfile}
     Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}
     On Access Log Does Not Contain With Offset   On-open event for ${cleanfile} from
 
@@ -447,6 +446,9 @@ On Access Doesnt Cache Open Events With Detections
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup   Remove File   ${dirtyfile}
     Wait Until On Access Log Contains With Offset   On-close event for ${dirtyfile} from
+
+    #TODO this is necessary while LINXUDAR-5740 is not resulved
+    Append To File  ${dirtyfile}  ${EICAR_STRING}
 
     Mark On Access Log
     Get File   ${dirtyfile}
