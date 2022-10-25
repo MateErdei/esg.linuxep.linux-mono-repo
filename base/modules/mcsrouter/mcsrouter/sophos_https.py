@@ -341,6 +341,8 @@ class CertValidatingHTTPSConnection(http.client.HTTPConnection):
             info("SSL Connection with %s cipher" % (str(self.sock.cipher())))
 
             # Cert verification now built-in (Python 2.7.9)
+        except PermissionError as exception:
+            raise PermissionError(f"Failed to connect to central due to {exception}")
         except socket.error as exception:
             raise mcs_exception.MCSConnectionFailedException(exception)
 
