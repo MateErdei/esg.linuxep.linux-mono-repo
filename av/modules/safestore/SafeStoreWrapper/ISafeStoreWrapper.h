@@ -4,6 +4,9 @@
  * This is a C++ wrapper around the Core SafeStore C library.
  * This wrapper interface provides two main benefits, to be able to call the library via C++ methods and to allow
  * unit tests to be written by being able to create a mock of this interface.
+ *
+ * Notes
+ * SafeStore_FinalizeObjectsByThreatId has not been implemented for any platform by SafeStore library team.
  */
 
 #pragma once
@@ -568,13 +571,6 @@ namespace safestore::SafeStoreWrapper
          * then this will return false. If the finalise call is successful then true is returned.
          */
         virtual bool finaliseObject(ObjectHandleHolder& objectHandle) = 0;
-
-        /*
-         * Mark an object as finalised to indicate that all needed operations have been performed and that file.
-         * The threat ID passed in is the threat ID that the object was store with.
-         * This will return false if finalising fails, true is successful.
-         */
-        virtual bool finaliseObjectByThreatId(const std::string& threatId) = 0;
     };
 
 } // namespace safestore::SafeStoreWrapper

@@ -142,7 +142,6 @@ namespace safestore::SafeStoreWrapper
             const std::string& dataName,
             const std::string& value) override;
         std::string getObjectCustomDataString(ObjectHandleHolder& objectHandle, const std::string& dataName) override;
-        bool finaliseObjectByThreatId(const std::string& threatId) override;
 
     private:
         std::shared_ptr<ISafeStoreHolder> m_safeStoreHolder;

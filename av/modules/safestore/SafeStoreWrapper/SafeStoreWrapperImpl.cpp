@@ -588,32 +588,6 @@ namespace safestore::SafeStoreWrapper
         return std::string(bytes.begin(), bytes.end());
     }
 
-    bool SafeStoreWrapperImpl::finaliseObjectByThreatId(const std::string& threatId)
-    {
-        auto safestoreThreatId = safeStoreIdFromString(threatId);
-        if (safestoreThreatId.has_value())
-        {
-            auto returnCode =
-                SafeStore_FinalizeObjectsByThreatId(m_safeStoreHolder->getHandle(), &safestoreThreatId.value());
-            switch (returnCode)
-            {
-                case SR_OK:
-                    LOGDEBUG("Got OK when finalising object by threat ID");
-                    return true;
-                case SR_INVALID_ARG:
-                    LOGWARN("Got INVALID_ARG when finalising object by threat ID");
-                    return false;
-                case SR_NOT_IMPLEMENTED:
-                    LOGWARN("Got NOT_IMPLEMENTED when finalising object by threat ID");
-                    return false;
-                default:
-                    LOGWARN("Failed to finalise object by threat ID for unknown reason");
-                    return false;
-            }
-        }
-        return false;
-    }
-
     SafeStoreWrapperImpl::SafeStoreWrapperImpl() :
         m_safeStoreHolder(std::make_shared<SafeStoreHolder>()),
         m_releaseMethods(std::make_shared<SafeStoreReleaseMethodsImpl>(m_safeStoreHolder)),

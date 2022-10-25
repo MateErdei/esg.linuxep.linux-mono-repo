@@ -93,7 +93,7 @@ TEST_F(SafeStoreWrapperTapTests, writeAndThenRreadBackConfigOptions)
     ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::AUTO_PURGE, false));
     ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_OBJECT_SIZE, 100000000000));
 
-    // This currently fails - defect or we don't care as it's windows only?
+    // This currently fails but it's windows only so doesn't need to work on Linux.
     // ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_REG_OBJECT_COUNT, 100));
 
     ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_SAFESTORE_SIZE, 200000000000));
@@ -227,6 +227,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
     std::string threatId = "dummy_threat_ID1";
     std::string threatName = "threat name1";
+    std::vector<uint8_t> someBytes{1,2};
     auto objectHandle1 = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(
         m_safeStoreWrapper->saveFile(
@@ -239,6 +240,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
 
     // Set custom data
     ASSERT_TRUE(m_safeStoreWrapper->setObjectCustomDataString(*objectHandle1, "SHA256", sha256));
+    ASSERT_TRUE(m_safeStoreWrapper->setObjectCustomData(*objectHandle1, "2bytes", someBytes));
 
     // Find all FILE threats in SafeStore
     SafeStoreFilter filter;
@@ -253,6 +255,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
 
         // Validate custom data saved ok
         ASSERT_EQ(m_safeStoreWrapper->getObjectCustomDataString(result, "SHA256"), sha256);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectCustomData(result, "2bytes"), someBytes);
 
         ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
     }
@@ -303,52 +306,6 @@ TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseThreatAndStatusChangesToQu
     }
     ASSERT_EQ(resultsFound, 1);
 }
-
-// TODO - SafeStore_FinalizeObjectsByThreatId has not been implemented by SafeStore yet.
-//TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseByThreatIdChangesStatusToQuarantined)
-//{
-//    auto fileSystem = Common::FileSystem::fileSystem();
-//
-//    // Add fake threat
-//    std::string fakeVirusFilePath = "/tmp/fakevirus1";
-//    std::string sha256 = "f2c91a583cfd1371a3085187aa5b2841ada3b62f5d1cc6b08bc02703ded3507a";
-//    fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
-//    std::string threatId = "dummy_threat_ID1";
-//    std::string threatName = "threat name1";
-//    auto objectHandle = m_safeStoreWrapper->createObjectHandleHolder();
-//    ASSERT_EQ(
-//        m_safeStoreWrapper->saveFile(
-//            Common::FileSystem::dirName(fakeVirusFilePath),
-//            Common::FileSystem::basename(fakeVirusFilePath),
-//            threatId,
-//            threatName,
-//            *objectHandle),
-//        SaveFileReturnCode::OK);
-//
-//    // Finalise SafeStore object
-//    ASSERT_TRUE(m_safeStoreWrapper->finaliseObjectByThreatId(threatId));
-//
-//    // Set custom data
-//    ASSERT_TRUE(m_safeStoreWrapper->setObjectCustomDataString(*objectHandle, "SHA256", sha256));
-//
-//    // Find all FILE threats in SafeStore
-//    SafeStoreFilter filter;
-//    filter.objectType = ObjectType::FILE;
-//    filter.activeFields = { FilterField::OBJECT_TYPE };
-//    int resultsFound = 0;
-//    for (auto& result : m_safeStoreWrapper->find(filter))
-//    {
-//        ++resultsFound;
-//        ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
-//        ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
-//
-//        // Validate custom data saved ok
-//        ASSERT_EQ(m_safeStoreWrapper->getObjectCustomDataString(result, "SHA256"), sha256);
-//
-//        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::QUARANTINED);
-//    }
-//    ASSERT_EQ(resultsFound, 1);
-//}
 
 TEST_F(SafeStoreWrapperTapTests, getObjectHandleAndSetCustomDataUsingIt)
 {
