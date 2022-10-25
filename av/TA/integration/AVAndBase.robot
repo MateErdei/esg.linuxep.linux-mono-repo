@@ -41,7 +41,7 @@ Remove Users Stop Processes
 
 Wait Until Base Has Naughty Eicar Detection Event
     Wait Until Base Has Detection Event
-    ...  id=T26796de6ce94770b60a8477c0a55d2cf3262e1e62948f1f122fa7d28c6ce6c75
+    ...  id=T26796de6ce94770
     ...  name=EICAR-AV-Test
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
     ...  path=${SCAN_DIRECTORY}/naughty_eicar

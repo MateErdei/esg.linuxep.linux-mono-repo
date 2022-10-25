@@ -1784,7 +1784,7 @@ Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
 
     Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/eicar_file
     Wait Until AV Plugin Log Contains Detection Event XML With Offset
-    ...  id=Te1b8af2bc4cb5054ddfcf290f64bfb26e39610f500971996035d71ba9f8b8c2d
+    ...  id=Te1b8af2bc4cb505
     ...  name=EICAR-AV-Test
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
     ...  path=${NORMAL_DIRECTORY}/eicar_file
