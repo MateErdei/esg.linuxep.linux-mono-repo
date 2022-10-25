@@ -250,8 +250,9 @@ void EventReaderThread::run()
         {
             if (errno != EINTR)
             {
-                // Error
-                LOGDEBUG("Error from poll: " << errno);
+                int error = errno;
+                auto errorStr = common::safer_strerror(error);
+                LOGDEBUG("Error from poll: " <<  error << " (" << errorStr << ")");
             }
         }
 
@@ -291,6 +292,7 @@ void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& excl
 bool EventReaderThread::checkIfErrorRecoverable()
 {
     int error = errno;
+    auto errorStr = common::safer_strerror(error);
 
     switch (error)
     {
@@ -301,7 +303,7 @@ bool EventReaderThread::checkIfErrorRecoverable()
         case EINTR:
         case EACCES:
         {
-            LOGWARN("Failed to read fanotify event, " << "(" << error << " "<< common::safer_strerror(error)<<")");
+            LOGWARN("Failed to read fanotify event, " << "(" << error << " " << errorStr << ")");
             return true;
         }
         case EMFILE:
@@ -311,7 +313,7 @@ bool EventReaderThread::checkIfErrorRecoverable()
         }
         default:
         {
-            LOGFATAL("Fanotify: no event or error: (" << error << " "<< common::safer_strerror(error)<<")");
+            LOGFATAL("Fanotify: Fatal Error, restarting On Access: (" << error << " "<< errorStr << ")");
             return false;
         }
     }
