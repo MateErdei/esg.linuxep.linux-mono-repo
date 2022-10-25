@@ -84,8 +84,8 @@ bool EventReaderThread::skipScanningOfEvent(
         if (exclusion.appliesToPath(filePath))
         {
             LOGTRACE("File access on " << filePath << " will not be scanned due to exclusion: "  << exclusion.displayPath());
-            // Result has already been logged
-            std::ignore = m_fanotify->cacheFd(eventFd, filePath, true);
+            // Can't cache user-created exclusions, since
+            // files can be created under the exclusion then moved elsewhere.
             return true;
         }
     }
