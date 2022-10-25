@@ -172,6 +172,40 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
 }
 
+TEST_F(TestEventReaderThread, TestReaderReadsOnCloseAndOnOpenFanotifyEventAndEventTypeSetAsClose)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto metadata = getMetaData(FAN_CLOSE_WRITE | FAN_OPEN);
+    const char* filePath = "/tmp/test";
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .WillOnce(readReturnsStruct(metadata));
+
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .WillOnce(readlinkReturnPath(filePath));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
+        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+
+    auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+
+    std::stringstream closeLogMsg;
+    closeLogMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    EXPECT_TRUE(waitForLog(closeLogMsg.str()));
+    
+    std::stringstream openLogMsg;
+    openLogMsg << "On-open event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    EXPECT_TRUE(waitForLog(openLogMsg.str()));
+
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    ASSERT_EQ(m_scanRequestQueue->size(), 1);
+    ASSERT_EQ(m_scanRequestQueue->pop()->getScanType(), scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE);
+}
+
+
 TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -745,7 +779,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorFromPpollAndContinues)
     EXPECT_TRUE(waitForLog(logMsg.str()));
 }
 
-TEST_F(TestEventReaderThread, TestReaderContinuesQuietyWhenPPollThrowsEINTR)
+TEST_F(TestEventReaderThread, TestReaderContinuesQuietyWhenPpollThrowsEINTR)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
