@@ -79,8 +79,7 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
         }
 
         LOGINFO(m_socket_fd.get());
-        bool inset = FDUtils::fd_isset(m_socket_fd, &tempRead);
-        assert(inset);
+        assert(FDUtils::fd_isset(m_socket_fd, &tempRead));
         // read length
         int32_t length = unixsocket::readLength(m_socket_fd);
         if (length == -2)
