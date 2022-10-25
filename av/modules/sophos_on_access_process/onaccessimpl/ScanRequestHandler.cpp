@@ -4,19 +4,25 @@
 
 #include "Logger.h"
 
+#include "common/PluginUtils.h"
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
+#include "datatypes/sophos_filesystem.h"
+#include "datatypes/Time.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
-#include <Common/Logging/LoggerConfig.h>
+// Base
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/Logging/LoggerConfig.h"
 
 #include <chrono>
 #include <memory>
+#include <fstream>
 #include <sstream>
 #include <utility>
 #include <fcntl.h>
 
-
+namespace fs = sophos_filesystem;
 using namespace sophos_on_access_process::onaccessimpl;
 
 ScanRequestHandler::ScanRequestHandler(
@@ -95,7 +101,17 @@ void ScanRequestHandler::run()
 {
     announceThreadStarted();
 
-    LOGDEBUG("Starting ScanRequestHandler");
+    LOGDEBUG("Starting ScanRequestHandler" << m_handlerId);
+    std::ofstream perfDump;
+    if (m_dumpPerfData)
+    {
+        std::stringstream perfDumpFileName;
+        perfDumpFileName << "perfDumpThread" << m_handlerId << '_' << datatypes::Time::currentToCentralTime("%Y-%m-%d_%H-%M-%S");
+        fs::path perfDumpFilePath = common::getPluginInstallPath() / "var" / perfDumpFileName.str();
+        perfDump.open(perfDumpFilePath);
+        perfDump << "Scan duration\tIn-Product duration\tQueue size\tFile path" << std::endl;
+    }
+
     auto logLevel = getOnAccessImplLogger().getChainedLogLevel();
     try
     {
@@ -115,9 +131,19 @@ void ScanRequestHandler::run()
                     auto inProductDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - queueItem->getCreationTime()).count();
 
                     std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
-                    LOGTRACE("Scan for " << escapedPath << " completed in " << scanDuration << "ms by scanHandler-" << m_handlerId
-                                         << ": Time in product is " << inProductDuration
-                                         << "ms. Queue size at time of insert was " << queueItem->getQueueSizeAtTimeOfInsert());
+                    if (logLevel == Common::Logging::TRACE)
+                    {
+                        LOGTRACE(
+                            "Scan for " << escapedPath << " completed in " << scanDuration << "ms by scanHandler-"
+                                        << m_handlerId << ": Time in product is " << inProductDuration
+                                        << "ms. Queue size at time of insert was "
+                                        << queueItem->getQueueSizeAtTimeOfInsert());
+                    }
+
+                    if (m_dumpPerfData)
+                    {
+                        perfDump << scanDuration << '\t' << inProductDuration << '\t' << queueItem->getQueueSizeAtTimeOfInsert() << '\t' << escapedPath << std::endl;
+                    }
                 }
                 else
                 {
