@@ -1,22 +1,23 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "SafeStoreServerConnectionThread.h"
+
 #include "ThreatDetected.capnp.h"
 
-#include "common/FDUtils.h"
-#include "scan_messages/ThreatDetected.h"
-#include "scan_messages/QuarantineResponse.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 
 #include <capnp/serialize.h>
+#include <common/FDUtils.h>
+#include <scan_messages/ThreatDetected.h>
+#include <mount_monitor/mountinfoimpl/Mounts.h>
 
 #include <cassert>
 #include <stdexcept>
-#include <sys/socket.h>
-#include <unistd.h>
 #include <utility>
 
+#include <sys/socket.h>
+#include <unistd.h>
 
 using namespace unixsocket;
 
@@ -30,6 +31,17 @@ SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
         throw std::runtime_error("Attempting to construct SafeStoreServerConnectionThread with invalid socket fd");
     }
 }
+
+//
+// static void throwOnError(int ret, const std::string& message)
+//{
+//    if (ret == 0)
+//    {
+//        return;
+//    }
+//    perror(message.c_str());
+//    throw std::runtime_error(message);
+//}
 
 /**
  * Parse a detection.
@@ -52,15 +64,6 @@ static scan_messages::ThreatDetected parseDetection(kj::Array<capnp::word>& prot
         LOGERROR("Missing file path while parsing report ( size=" << bytes_read << " )");
     }
     return scan_messages::ThreatDetected(requestReader);
-}
-
-std::string getResponse(common::CentralEnums::QuarantineResult quarantineResult)
-{
-    std::shared_ptr<scan_messages::QuarantineResponse> request = std::make_shared<scan_messages::QuarantineResponse>(quarantineResult);
-    std::string dataAsString = request->serialise();
-
-    return dataAsString;
-
 }
 
 void SafeStoreServerConnectionThread::run()
@@ -194,44 +197,52 @@ void SafeStoreServerConnectionThread::inner_run()
                 break;
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
-            threatDetected.autoFd = std::move(file_fd);
+            threatDetected.setAutoFd(std::move(file_fd));
 
-            if (threatDetected.filePath.empty())
+            if (!threatDetected.hasFilePath())
             {
                 LOGERROR("Missing file path in detection report ( size=" << bytes_read << ")");
             }
+            else if (threatDetected.getFilePath() == "")
+            {
+                LOGERROR("Missing file path in detection report: empty file path");
+            }
 
-
-            LOGINFO(
-                "Received Threat:\n  File path: "
-                << threatDetected.filePath << "\n  Threat ID: " << threatDetected.threatId
-                << "\n  Threat name: " << threatDetected.threatName << "\n  SHA256: " << threatDetected.sha256
-                << "\n  File descriptor: " << threatDetected.autoFd.get());
-
-            common::CentralEnums::QuarantineResult quarantineResult = m_quarantineManager->quarantineFile(
-                threatDetected.filePath,
-                threatDetected.threatId,
-                threatDetected.threatName,
-                threatDetected.sha256,
-                std::move(threatDetected.autoFd));
-
-            std::string serialised_result = getResponse(quarantineResult);
+            bool isQuarantineSuccessful = false;
 
             try
             {
-                if (!writeLengthAndBuffer(socket_fd, serialised_result))
+                auto parentMount = mount_monitor::mountinfoimpl::Mounts::Drive(threatDetected.getFilePath());
+                if (parentMount.isNetwork())
                 {
-                    LOGWARN("Failed to write result to unix socket");
-                    break;
+                    //Have to mark Detection as remote here somehow
+                    LOGWARN("File is located on a Network mount: " << parentMount.mountPoint() << ". Will not quarantine.");
+                }
+                else if (parentMount.isReadOnly())
+                {
+                    LOGWARN("File is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
                 }
             }
-            catch (unixsocket::environmentInterruption& e)
+            catch (std::runtime_error& error)
             {
-                LOGWARN("Exiting Safestore Connection Thread: " << e.what());
-                break;
+                LOGWARN("Unable to determine detection's parent mount, due to: " << error.what());
             }
+            
+            LOGINFO(
+                "Received Threat:\n  File path: "
+                << threatDetected.getFilePath() << "\n  Threat ID: " << threatDetected.getThreatId()
+                << "\n  Threat name: " << threatDetected.getThreatName() << "\n  SHA256: " << threatDetected.getSha256()
+                << "\n  File descriptor: " << threatDetected.getFd());
+
+            isQuarantineSuccessful = m_quarantineManager->quarantineFile(
+                threatDetected.getFilePath(),
+                threatDetected.getThreatId(),
+                threatDetected.getThreatName(),
+                threatDetected.getSha256(),
+                threatDetected.moveAutoFd());
+            std::ignore = isQuarantineSuccessful;
+
+            // TODO: LINUXDAR-5677 send a response back
         }
-
-
     }
 }

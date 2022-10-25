@@ -61,6 +61,7 @@ find_package( Boost REQUIRED COMPONENTS locale)
 target_link_libraries(unixsocket  PUBLIC
         common
         datatypes
+        mountinfoimpl
         scanmessages
         ${STD_FILESYSTEM_IF_REQUIRED}
         ${pluginapilib}

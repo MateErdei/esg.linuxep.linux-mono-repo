@@ -13,6 +13,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <memory>
 
+#include <mntent.h>
+
 namespace mount_monitor::mountinfoimpl
 {
     class Mounts : virtual public mountinfo::IMountInfo
@@ -36,6 +38,14 @@ namespace mount_monitor::mountinfoimpl
              * @param type
              */
             Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory);
+
+            /**
+             * Constructs Drive of mount point nearest to childPath.
+             * Throws if unable to access /proc/mounts or no parent found (should always find "/").
+             *
+             * @param childPath
+             */
+            explicit Drive(const std::string& childPath);
 
             ~Drive() override = default;
 
@@ -61,12 +71,15 @@ namespace mount_monitor::mountinfoimpl
 
             [[nodiscard]] bool isDirectory() const override;
 
+            [[nodiscard]] bool isReadOnly() const override;
+
         private:
             mountinfoimpl::DeviceUtilSharedPtr m_deviceUtil;
             std::string m_mountPoint;
             std::string m_device;
             std::string m_fileSystem;
             bool m_isDirectory;
+            bool m_isReadOnly;
         };
 
         /**

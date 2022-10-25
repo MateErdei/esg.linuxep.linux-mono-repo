@@ -6,9 +6,11 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "Mounts.h"
 
+#include "Logger.h"
+
 #include "datatypes/SystemCallWrapperFactory.h"
 
-#include "Logger.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 // Standard C++
 #include <cstdlib>
@@ -24,6 +26,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <mntent.h>
 
 using namespace mount_monitor::mountinfo;
 using namespace mount_monitor::mountinfoimpl;
@@ -446,7 +449,45 @@ Mounts::Drive::Drive(std::string device, std::string mountPoint, std::string typ
     , m_device(std::move(device))
     , m_fileSystem(std::move(type))
     , m_isDirectory(isDirectory)
+    , m_isReadOnly(false)   //placeholder until option unpacking added to DeviceUtil
 {
+}
+
+Mounts::Drive::Drive(const std::string& childPath)
+{
+    LOGDEBUG("Searching for nearest parent mount of: " << childPath);
+    m_deviceUtil = getDeviceUtil();
+
+    FILE *f = nullptr;
+    f = setmntent ("/proc/mounts","r"); //open file for describing the mounted filesystems
+    mntent *mount;
+    ulong parentPathSize = 0UL;
+
+    if (!f)
+    {
+        throw std::runtime_error("Could not access /proc/mounts to find parent mount of: " + childPath);
+    }
+
+    while ((mount = getmntent(f))) //read next line
+    {
+        if (Common::UtilityImpl::StringUtils::startswith(childPath, mount->mnt_dir) &&
+            (parentPathSize < sizeof(mount->mnt_dir)))
+        {
+            m_mountPoint = mount->mnt_dir;
+            m_device = mount->mnt_fsname;
+            m_fileSystem = mount->mnt_type;
+            m_isDirectory = true;
+            m_isReadOnly = hasmntopt(mount, "ro");
+            parentPathSize = m_mountPoint.size();
+            LOGDEBUG("Found potential parent: " << m_device << " -- at path: " << m_mountPoint);
+        }
+    }
+    endmntent (f); //close file for describing the mounted filesystems
+    if (parentPathSize == 0UL)
+    {
+        throw std::runtime_error("No parent mounts found for path: " + childPath);
+    }
+    LOGDEBUG("Best fit parent found: " << m_device << " -- at path: " << m_mountPoint);
 }
 
 std::string Mounts::Drive::mountPoint() const
@@ -496,4 +537,8 @@ bool Mounts::Drive::isSpecial() const
 bool Mounts::Drive::isDirectory() const
 {
     return m_isDirectory;
+}
+bool Mounts::Drive::isReadOnly() const
+{
+    return m_isReadOnly;
 }
