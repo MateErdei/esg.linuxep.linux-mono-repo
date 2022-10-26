@@ -5,11 +5,17 @@ import xml.dom.minidom
 
 
 def update(dom, repo, branch):
+    src_branch = None
+    if "=" in branch:
+        src_branch, branch = branch.split("=", 1)
+
     buildAssetNodes = dom.getElementsByTagName("build-asset")
     for node in buildAssetNodes:
         if node.getAttribute("repo") == repo:
             developmentVersionNodes = node.getElementsByTagName("development-version")
             for n in developmentVersionNodes:
+                if src_branch is not None and n.getAttribute("branch") != src_branch:
+                    continue
                 n.setAttribute("branch", branch)
 
 
