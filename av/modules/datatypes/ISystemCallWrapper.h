@@ -1,18 +1,18 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include <memory>
 #include <string>
+
+extern "C"
+{
 #include <sys/poll.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <fcntl.h>
+}
 
 namespace datatypes
 {
