@@ -57,6 +57,7 @@ chmod 700 "$AV/base-sdds/install.sh"
 rm -rf "$AV/test-resources"
 $COPY "$OUTPUT/test-resources"  "$AV/"
 
+mkdir -p "$INPUTS/tap_test_output_from_build/"
 rm -rf "$INPUTS/tap_test_output_from_build/tap_test_output.tar.gz"
 $COPY "$OUTPUT/tap_test_output.tar.gz"  "$INPUTS/tap_test_output_from_build/"
 
