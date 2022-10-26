@@ -25,7 +25,7 @@ namespace safestore
 {
     int Main::run()
     {
-        LOGINFO("SafeStore started");
+        LOGDEBUG("SafeStore starting");
         auto instance = Main();
 
         try
@@ -71,6 +71,8 @@ namespace safestore
         };
         // clang-format on
 
+        // We're only really fully started once everything is initialised
+        LOGINFO("SafeStore started");
         while (true)
         {
             // wait for an activity on one of the fds
