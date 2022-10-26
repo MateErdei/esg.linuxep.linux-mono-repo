@@ -130,6 +130,22 @@ do
         --fetch)
             "$BASE/tap_fetch.sh"
             ;;
+        --setup-venv)
+            rm -rf "${BASE}/tap_venv"
+            PYTHON="${PYTHON:-python3.7}"
+            [[ -x "$(which $PYTHON)" ]] || PYTHON=python3
+            "${PYTHON}" -m venv "${BASE}/tap_venv"
+            source "$BASE/tap_venv/bin/activate"
+            cat <<EOF >"${BASE}/tap_venv/pip.conf"
+[global]
+timeout=60
+index-url = https://artifactory.sophos-ops.com/api/pypi/pypi/simple
+EOF
+            pip install --upgrade pip
+            pip install --upgrade wheel build_scripts
+            pip install --upgrade tap keyrings.alt
+            exit 0
+            ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
             ;;

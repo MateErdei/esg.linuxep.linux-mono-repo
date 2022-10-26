@@ -38,5 +38,14 @@ Test watchdog restarts child after kill
     ## Then waits 10 seconds and restarts
     Wait For Plugin To Start Again  /tmp/TestWatchdogRestartsChildAfterKill  30
 
+Test watchdog restarts child quickly after restart 77 exit
+    [Tags]    WATCHDOG   TAP_TESTS
+    Remove File  /tmp/TestWatchdogRestartsChildAfterRestartExit
+    Setup Test Plugin Config  echo "Plugin startedat $(date)" >>/tmp/TestWatchdogRestartsChildAfterRestartExit ; sleep 1 ; exit 77
+    Manually Start Watchdog
+    Wait For Plugin To Start  /tmp/TestWatchdogRestartsChildAfterRestartExit  30
+    ## Then waits 10 seconds and restarts
+    Wait For Plugin To Start Again  /tmp/TestWatchdogRestartsChildAfterRestartExit  3
+
 
 *** Keywords ***

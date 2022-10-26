@@ -20,9 +20,10 @@ namespace Common
         class ProcessProxy : public Common::ProcessMonitoring::IProcessProxy
         {
         public:
+            static constexpr int RESTART_EXIT_CODE = 77;
             explicit ProcessProxy(Common::Process::IProcessInfoPtr processInfo);
             ~ProcessProxy() noexcept override;
-            ProcessProxy(ProcessProxy&&) noexcept;
+            ProcessProxy(ProcessProxy&&) noexcept = delete;
 
             // Don't allow copying
             ProcessProxy(const ProcessProxy&) = delete;
@@ -69,6 +70,12 @@ namespace Common
              */
             Common::Process::IProcessInfoPtr m_processInfo;
 
+            /**
+             * Wait for the exit code from the process.
+             * @return
+             */
+            int exitCode();
+
         private:
             /**
              * Get the current status of the process.
@@ -101,18 +108,14 @@ namespace Common
                 time_t m_deathTime;
 
                 time_t m_killIssuedTime;
+
+                int m_lastExit = 0;
             };
 
             /**
              * Starts the process.
              */
             void start();
-
-            /**
-             * Wait for the exit code from the process.
-             * @return
-             */
-            int exitCode();
 
             void setCoreDumpMode(const bool mode);
 

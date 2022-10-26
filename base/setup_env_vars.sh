@@ -20,6 +20,7 @@ export PATH=$BUILD_TOOLS_DIR/cmake/bin:$PATH
 export CMAKE_GENERATOR="Unix Makefiles"
 
 export LIBRARY_PATH=$BUILD_TOOLS_DIR/gcc/lib64:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
+export LD_LIBRARY_PATH="${LIBRARY_PATH}"
 export CPLUS_INCLUDE_PATH=$BUILD_TOOLS_DIR/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
 export CPATH=$BUILD_TOOLS_DIR/gcc/include/:${CPATH}
 

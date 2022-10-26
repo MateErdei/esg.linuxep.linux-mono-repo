@@ -25,6 +25,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <cassert>
 #include <cstdlib>
+#include <memory>
 #include <unistd.h>
 
 namespace
@@ -46,9 +47,10 @@ Watchdog::Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context) :
     m_watchdogservice(context, std::bind(&Watchdog::getListOfPluginNames, this))
 {
 }
+
 Watchdog::Watchdog() : Watchdog(Common::ZMQWrapperApi::createContext()) {}
 
-Watchdog::~Watchdog() {}
+Watchdog::~Watchdog() = default;
 
 int Watchdog::initialiseAndRun()
 {
@@ -58,7 +60,7 @@ int Watchdog::initialiseAndRun()
 
         for (auto& info : pluginConfigs)
         {
-            addProcessToMonitor(std::unique_ptr<PluginProxy>(new PluginProxy(std::move(info))));
+            addProcessToMonitor(std::make_unique<PluginProxy>(std::move(info)));
         }
 
         pluginConfigs.clear();
@@ -169,14 +171,14 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
     {
         // Not previously loaded, but now available
         assert(loadResult.second);
-        addProcessToMonitor(std::unique_ptr<PluginProxy>(new PluginProxy(std::move(loadResult.first))));
+        addProcessToMonitor(std::make_unique<PluginProxy>(std::move(loadResult.first)));
     }
     else if (loadResult.second)
     {
         // update info from disk
 
         auto infoUpdater = [&loadResult](Common::ProcessMonitoring::IProcessProxy& processProxy) {
-            PluginProxy* proxy = dynamic_cast<PluginProxy*>(&processProxy);
+            auto* proxy = dynamic_cast<PluginProxy*>(&processProxy);
             if (proxy != nullptr)
             {
                 bool changed = proxy->updatePluginInfo(loadResult.first);

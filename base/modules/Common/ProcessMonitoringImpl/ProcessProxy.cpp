@@ -135,6 +135,7 @@ namespace Common
             if (statusCode == Common::Process::ProcessStatus::FINISHED)
             {
                 int code = exitCode();
+                m_sharedState.m_lastExit = code;
                 if (code != 0)
                 {
                     if (code == ECANCELED)
@@ -151,6 +152,10 @@ namespace Common
                         {
                             LOGERROR(m_exe << " was forcefully stopped. Code=ECANCELED.");
                         }
+                    }
+                    else if (code == RESTART_EXIT_CODE)
+                    {
+                        LOGINFO(m_exe << " exited with " << code << " to be restarted");
                     }
                     else
                     {
@@ -196,8 +201,9 @@ namespace Common
                 return std::chrono::hours(1);
             }
 
+            // Restart immediately if last exit was with RESTART_EXIT_CODE
             time_t now = ::time(nullptr);
-            if ((now - m_sharedState.m_deathTime) > 10)
+            if (m_sharedState.m_lastExit == RESTART_EXIT_CODE || (now - m_sharedState.m_deathTime) > 10)
             {
                 start();
                 return std::chrono::hours(1);

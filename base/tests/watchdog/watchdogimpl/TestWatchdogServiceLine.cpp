@@ -47,10 +47,10 @@ namespace
         {
             replacePluginIpc("inproc://watchdogservice.ipc");
         }
-        ~TestWatchdogServiceLine() {}
+        ~TestWatchdogServiceLine() override = default;
 
 
-        void replacePluginIpc(std::string ipc)
+        static void replacePluginIpc(const std::string& ipc)
         {
             std::string pluginname =
                 "plugins/" + watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName() + ".ipc";
@@ -61,7 +61,7 @@ namespace
         {
             std::string pluginName{ watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName() };
             auto requester = m_context->getRequester();
-            Common::PluginApiImpl::PluginResourceManagement::setupRequester(*requester, pluginName, 5, 5);
+            Common::PluginApiImpl::PluginResourceManagement::setupRequester(*requester, pluginName, 100, 10);
             return Common::PluginCommunicationImpl::PluginProxy{ std::move(requester), pluginName };
         }
     };
@@ -196,9 +196,12 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductD
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
     EXPECT_CALL(*mockFileSystem, isExecutable("/usr/bin/du")).WillOnce(Return(true));
 
-    ProcessReplacement processReplacement([]() {
+    const std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+
+    ProcessReplacement processReplacement([installPath]() {
         auto mockProcess = new StrictMock<MockProcess>();
-        std::vector<std::string> args{"-B", "1000", "-sx", "--exclude=/opt/sophos-spl/var/sophos-spl-comms", "/opt/sophos-spl"};
+        std::string exclude = "--exclude=" + installPath + "/var/sophos-spl-comms";
+        std::vector<std::string> args{"-B", "1000", "-sx", exclude, installPath};
 
         EXPECT_CALL(*mockProcess, exec(HasSubstr("du"), args)).Times(1);
         EXPECT_CALL(*mockProcess, setOutputLimit(_));

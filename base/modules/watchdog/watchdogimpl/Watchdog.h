@@ -33,7 +33,7 @@ namespace watchdog
         public:
             explicit Watchdog();
             explicit Watchdog(Common::ZMQWrapperApi::IContextSharedPtr context);
-            ~Watchdog();
+            ~Watchdog() override;
             int initialiseAndRun();
             PluginInfoVector readPluginConfigs();
             std::vector<std::string> getListOfPluginNames();

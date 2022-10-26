@@ -14,11 +14,12 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <watchdog/watchdogimpl/Watchdog.h>
 
 #include <cassert>
+#include <memory>
 
 using namespace watchdog::watchdogimpl;
 
 PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info) :
-    ProcessProxy(Common::PluginRegistryImpl::PluginInfoPtr(new Common::PluginRegistryImpl::PluginInfo(std::move(info))))
+    ProcessProxy(std::make_unique<Common::PluginRegistryImpl::PluginInfo>(std::move(info)))
 {
 }
 
@@ -29,9 +30,13 @@ std::pair<std::chrono::seconds, Common::Process::ProcessStatus> PluginProxy::che
     auto statusCode = processProxyPair.second;
     if (statusCode == Common::Process::ProcessStatus::FINISHED && enabledFlag() && previousRunning)
     {
-        LOGSUPPORT("Update Telemetry Unexpected restart: " << name());
-        Common::Telemetry::TelemetryHelper::getInstance().increment(
-            watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(name()), 1UL);
+        auto code = exitCode();
+        if (code != RESTART_EXIT_CODE)
+        {
+            LOGSUPPORT("Update Telemetry Unexpected restart: " << name());
+            Common::Telemetry::TelemetryHelper::getInstance().increment(
+                watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(name()), 1UL);
+        }
     }
     return processProxyPair;
 }
