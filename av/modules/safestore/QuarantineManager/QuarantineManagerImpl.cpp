@@ -202,7 +202,7 @@ namespace safestore::QuarantineManager
             auto fs = Common::FileSystem::fileSystem();
             LOGDEBUG("File Descriptor: " << autoFd.fd());
 
-            datatypes::AutoFd directoryFd(fs->getDirectoryFD(directory));
+            datatypes::AutoFd directoryFd(fs->getFileDescriptor(directory));
             if (!(directoryFd.get() >= 0))
             {
                 LOGWARN("Directory of threat does not exist");
