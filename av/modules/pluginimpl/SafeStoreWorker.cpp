@@ -6,6 +6,7 @@
 
 #include "scan_messages/QuarantineResponse.h"
 
+#include "common/NotifyPipeSleeper.h"
 #include "common/ThreadRunner.h"
 
 #include <utility>
@@ -27,6 +28,8 @@ void SafeStoreWorker::run()
 
     announceThreadStarted();
 
+    common::IStoppableSleeperSharedPtr sleeper = std::make_shared<common::NotifyPipeSleeper>(m_notifyPipe);
+
     while (true)
     {
         std::optional<scan_messages::ThreatDetected> task = m_detectionQueue->pop();
@@ -39,7 +42,9 @@ void SafeStoreWorker::run()
 
         scan_messages::ThreatDetected threatDetected = std::move(task).value();
 
-        unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket);
+        unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket,m_notifyPipe,
+                                                    unixsocket::SafeStoreClient::DEFAULT_SLEEP_TIME,
+                                                    sleeper);
         safeStoreClient.sendQuarantineRequest(threatDetected);
         scan_messages::QuarantineResult quarantineResult = safeStoreClient.waitForResponse();
 
@@ -56,4 +61,5 @@ void SafeStoreWorker::run()
 
         m_pluginAdapter.processDetectionReport(threatDetected);
     }
+    sleeper.reset();
 }

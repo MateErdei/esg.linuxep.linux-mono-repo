@@ -59,6 +59,7 @@ namespace
                 datatypes::AutoFd(open("/dev/zero", O_RDONLY))};
         }
 
+        Common::Threads::NotifyPipe m_notifyPipe {};
         std::string m_socketPath;
         std::string m_threatPath;
         std::string m_threatName;
@@ -114,7 +115,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
         server.start();
 
         // connect after we start
-        unixsocket::SafeStoreClient client(m_socketPath);
+        unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
 
         auto threatDetected = createThreatDetected();
         client.sendQuarantineRequest(threatDetected);
@@ -141,7 +142,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
 TEST_F(TestSafeStoreSocket, testClientSocketTriesToReconnect) // NOLINT
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    unixsocket::SafeStoreClient client(m_socketPath, std::chrono::seconds{0});
+    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe, std::chrono::seconds{0});
 
     EXPECT_TRUE(appenderContains("Failed to connect to SafeStore - retrying after sleep", 9));
     EXPECT_TRUE(appenderContains("Reached total maximum number of connection attempts."));
@@ -174,8 +175,8 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
     server.start();
 
     // connect after we start
-    unixsocket::SafeStoreClient client(m_socketPath);
-    unixsocket::SafeStoreClient client2(m_socketPath);
+    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
+    unixsocket::SafeStoreClient client2(m_socketPath, m_notifyPipe);
 
     client.sendQuarantineRequest(createThreatDetected());
     client.waitForResponse();

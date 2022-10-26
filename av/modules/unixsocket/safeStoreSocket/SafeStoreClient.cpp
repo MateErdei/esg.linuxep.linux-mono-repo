@@ -17,9 +17,11 @@
 #include <unistd.h>
 unixsocket::SafeStoreClient::SafeStoreClient(
     std::string socket_path,
+    Common::Threads::NotifyPipe& notifyPipe,
     const duration_t& sleepTime,
-    IStoppableSleeperSharedPtr sleeper) :
-    BaseClient(std::move(socket_path), sleepTime, std::move(sleeper))
+    IStoppableSleeperSharedPtr sleeper)
+    :
+    BaseClient(std::move(socket_path), sleepTime, std::move(sleeper)), m_notifyPipe(notifyPipe)
 {
     BaseClient::connectWithRetries("SafeStore");
 }
@@ -51,14 +53,24 @@ void unixsocket::SafeStoreClient::sendQuarantineRequest(const scan_messages::Thr
         LOGWARN("Failed to write to SafeStore socket. Exception caught: " << e.what());
     }
 }
-
+bool unixsocket::SafeStoreClient::checkIfQuarantineAborted()
+{
+    if (m_notifyPipe.notified())
+    {
+        LOGDEBUG("Received stop notification on safestore thread");
+        return true;
+    }
+    return false;
+}
 scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
 {
     uint32_t buffer_size = 512;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
     struct pollfd fds[] {
-        { .fd = m_socket_fd.get(), .events = POLLIN, .revents = 0 }};
+        { .fd = m_socket_fd.get(), .events = POLLIN, .revents = 0 },
+        { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 }
+    };
     bool loggedLengthOfZero = false;
     struct timespec ts;
     ts.tv_sec = 60;
@@ -72,7 +84,18 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
             LOGERROR("Closing SafeStore connection thread, error: " << errno);
             break;
         }
-
+        else if (active == 0)
+        {
+            LOGWARN("Timed out waiting for response");
+            break;
+        }
+        else if (active > 0)
+        {
+            if (checkIfQuarantineAborted())
+            {
+                break;
+            }
+        }
         // read length
         int32_t length = unixsocket::readLength(m_socket_fd);
         if (length == -2)
@@ -123,7 +146,7 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
         return scan_messages::QuarantineResponse(requestReader).getResult();
         }
 
-        throw std::runtime_error("Failed to get response from safestore");
+        return scan_messages::QUARANTINE_FAIL;
 }
 
 

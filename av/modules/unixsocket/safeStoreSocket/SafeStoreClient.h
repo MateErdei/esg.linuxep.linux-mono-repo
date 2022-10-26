@@ -8,6 +8,7 @@
 #include "scan_messages/ThreatDetected.h"
 #include "scan_messages/QuarantineResponse.h"
 #include "unixsocket/BaseClient.h"
+#include "Common/Threads/NotifyPipe.h"
 
 #include <string>
 
@@ -16,9 +17,13 @@ namespace unixsocket
     class SafeStoreClient : public unixsocket::BaseClient
     {
     public:
-        explicit SafeStoreClient(std::string socket_path, const duration_t& sleepTime = DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
+        explicit SafeStoreClient(std::string socket_path, Common::Threads::NotifyPipe& notifyPipe, const duration_t& sleepTime = DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
 
         void sendQuarantineRequest(const scan_messages::ThreatDetected& detection);
         scan_messages::QuarantineResult waitForResponse();
+
+    private:
+        bool checkIfQuarantineAborted();
+        Common::Threads::NotifyPipe& m_notifyPipe;
     };
 } // namespace unixsocket
