@@ -53,15 +53,7 @@ void unixsocket::SafeStoreClient::sendQuarantineRequest(const scan_messages::Thr
         LOGWARN("Failed to write to SafeStore socket. Exception caught: " << e.what());
     }
 }
-bool unixsocket::SafeStoreClient::checkIfQuarantineAborted()
-{
-    if (m_notifyPipe.notified())
-    {
-        LOGDEBUG("Received stop notification on safestore thread");
-        return true;
-    }
-    return false;
-}
+
 scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
 {
     uint32_t buffer_size = 512;
@@ -91,9 +83,10 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
         }
         else if (active > 0)
         {
-            if (checkIfQuarantineAborted())
+            if (fds[1].revents & POLLIN)
             {
-                break;
+                LOGDEBUG("Received stop notification on safestore thread");
+                return scan_messages::QUARANTINE_FAIL;
             }
         }
         // read length
