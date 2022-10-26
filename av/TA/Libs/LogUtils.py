@@ -1123,6 +1123,19 @@ File Log Contains
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_safestore_log_contains_after_mark"
         return self.wait_for_log_contains_after_mark(self.__m_safestore_log, expected, mark, timeout=timeout)
 
+    def wait_for_log_to_not_contain_after_mark(self, logpath, not_expected, mark, timeout=5):
+        start = time.time()
+        while time.time() < start + timeout:
+            contents = _get_log_contents(logpath)
+            if len(contents) > mark:
+                contents = contents[mark:]
+
+            if not_expected in contents:
+                logger.error("Found %s in %s" % (not_expected, logpath))
+                self.dump_log(logpath)
+                raise AssertionError("Found %s in %s" % (not_expected, logpath))
+            time.sleep(2)
+        # ok
 
 def __main(argv):
     # write your tests here
