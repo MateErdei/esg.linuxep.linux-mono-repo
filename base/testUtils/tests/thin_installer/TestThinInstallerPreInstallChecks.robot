@@ -160,7 +160,8 @@ Thin Installer Detects Sweep And uninstalls SAV
     Create Fake Savscan In Tmp
     Create Fake SAV Uninstaller in Tmp
     Create Fake Sweep Symlink    /usr/bin
-    Run Default Thininstaller    0
+    ## Installer fails trying to talk to fakeCloud
+    Run Default Thininstaller    3
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
     ## Check we've run the uninstaller
     File Should Not Exist  /usr/bin/sweep
