@@ -752,29 +752,19 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorFromPpollAndContinues)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto metadata = getMetaData();
-    const char* filePath = "/tmp/test";
-
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(SetErrnoAndReturn(EBADF, -1))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN))
-        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+        .WillOnce(SetErrnoAndReturn(EBADF, -1));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .WillOnce(readReturnsStruct(metadata));
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .WillOnce(readlinkReturnPath(filePath));
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
-        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
-
-    auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_SmallScanRequestQueue);
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
-
-    EXPECT_TRUE(waitForLog("Error from poll: 9 (Bad file descriptor)"));
-
-    std::stringstream logMsg;
-    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
-    EXPECT_TRUE(waitForLog(logMsg.str()));
+    auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
+    try
+    {
+        eventReader->run();
+        FAIL() << "EventReaderThread::run() didnt throw";
+    }
+    catch(const std::runtime_error& e)
+    {
+        EXPECT_EQ(e.what(), std::string("Error from poll: 9 (Bad file descriptor)"));
+    }
 }
 
 TEST_F(TestEventReaderThread, TestReaderContinuesQuietyWhenPpollThrowsEINTR)
@@ -914,7 +904,7 @@ TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorIsEMFILE)
     try
     {
         eventReader->run();
-        FAIL();
+        FAIL() << "EventReaderThread::throwIfErrorNotRecoverable() didnt throw";
     }
     catch(const std::runtime_error& e)
     {
@@ -935,7 +925,7 @@ TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorNotRecoverable)
     try
     {
         eventReader->run();
-        FAIL();
+        FAIL() << "EventReaderThread::throwIfErrorNotRecoverable() didnt throw";
     }
     catch(const std::runtime_error& e)
     {

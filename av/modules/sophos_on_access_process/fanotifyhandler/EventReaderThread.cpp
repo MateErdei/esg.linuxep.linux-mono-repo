@@ -245,7 +245,9 @@ void EventReaderThread::run()
             {
                 int error = errno;
                 auto errorStr = common::safer_strerror(error);
-                LOGDEBUG("Error from poll: " <<  error << " (" << errorStr << ")");
+                std::stringstream logmsg;
+                logmsg << "Error from poll: " <<  error << " (" << errorStr << ")";
+                throw std::runtime_error(logmsg.str());
             }
         }
 
