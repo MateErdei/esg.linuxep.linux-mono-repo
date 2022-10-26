@@ -303,7 +303,7 @@ namespace safestore::SafeStoreWrapper
                 m_objectHolder(std::make_shared<ObjectHandleHolder>(getIdMethods, m_releaseMethods)),
                 m_searchHolder(std::make_shared<SearchHandleHolder>(m_releaseMethods))
             {
-                // Used for end(), don't set anything, the m_objectHolder should be null.
+                // Used for end(), don't set anything, the (ObjectHandleHolder)m_objectHolder.m_handle should be null.
             }
 
             Iterator(
