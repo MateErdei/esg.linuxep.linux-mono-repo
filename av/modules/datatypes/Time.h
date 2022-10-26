@@ -16,8 +16,8 @@ namespace datatypes
     public:
         Time() = delete;
 
-        static std::string epochToCentralTime(const std::time_t& rawtime, const char* format="%Y%m%d %H%M%S");
+        static std::string epochToDateTimeString(const std::time_t& rawtime, const char* format= "%Y%m%d %H%M%S");
 
-        static std::string currentToCentralTime(const char* format="%Y%m%d %H%M%S");
+        static std::string currentToDateTimeString(const char* format="%Y%m%d %H%M%S");
     };
 }

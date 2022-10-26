@@ -106,7 +106,7 @@ void ScanRequestHandler::run()
     if (m_dumpPerfData)
     {
         std::stringstream perfDumpFileName;
-        perfDumpFileName << "perfDumpThread" << m_handlerId << '_' << datatypes::Time::currentToCentralTime("%Y-%m-%d_%H-%M-%S");
+        perfDumpFileName << "perfDumpThread" << m_handlerId << '_' << datatypes::Time::currentToDateTimeString("%Y-%m-%d_%H-%M-%S");
         fs::path perfDumpFilePath = common::getPluginInstallPath() / "var" / perfDumpFileName.str();
         perfDump.open(perfDumpFilePath);
         perfDump << "Scan duration\tIn-Product duration\tQueue size\tFile path" << std::endl;

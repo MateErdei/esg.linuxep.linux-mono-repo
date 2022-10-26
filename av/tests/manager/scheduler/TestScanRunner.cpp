@@ -65,10 +65,10 @@ TEST_F(TestScanRunner, testCompletionXmlGenerationChangesTimestamp)
 
 TEST_F(TestScanRunner, testTimestampGeneration)
 {
-    std::string timestamp1 = datatypes::Time::currentToCentralTime();
+    std::string timestamp1 = datatypes::Time::currentToDateTimeString();
     EXPECT_THAT(timestamp1, ::testing::MatchesRegex("[0-9]{8} [0-9]{6}"));
 
-    std::string timestamp2 = datatypes::Time::currentToCentralTime();
+    std::string timestamp2 = datatypes::Time::currentToDateTimeString();
     EXPECT_THAT(timestamp2, ::testing::MatchesRegex("[0-9]{8} [0-9]{6}"));
 }
 

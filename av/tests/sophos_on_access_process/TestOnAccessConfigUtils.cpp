@@ -206,7 +206,7 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToProvidedValuesWhenFileEx
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": 20,\"maxscanqueuesize\": 2000,\"dumpPerfData\": \"true\"}"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": 20,\"maxscanqueuesize\": 2000,\"dumpPerfData\": true}"));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     size_t maxScanQueueItems = 0;

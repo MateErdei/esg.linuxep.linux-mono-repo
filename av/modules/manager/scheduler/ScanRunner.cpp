@@ -149,7 +149,7 @@ std::string manager::scheduler::generateScanCompleteXml(const std::string& name)
           </scanComplete>
           <entity></entity>
         </event>)sophos",{
-                {"@@TIMESTAMP@@", datatypes::Time::currentToCentralTime()},
+                {"@@TIMESTAMP@@", datatypes::Time::currentToDateTimeString()},
                 {"@@SCANNAME@@", name }
             });
 }

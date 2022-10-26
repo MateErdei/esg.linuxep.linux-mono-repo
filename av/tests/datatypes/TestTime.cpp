@@ -12,14 +12,14 @@ using namespace datatypes;
 
 TEST(TestTime, CurrentToCentralTime) // NOLINT
 {
-    ASSERT_NE(Time::currentToCentralTime(), "");
+    ASSERT_NE(Time::currentToDateTimeString(), "");
 }
 
 TEST(TestTime, EpochToCentralTimeThrowsFailedToConvert) // NOLINT
 {
     try
     {
-        Time::epochToCentralTime(-111111111111111111);
+        Time::epochToDateTimeString(-111111111111111111);
         FAIL() << "Did not throw exception as expected";
     }
     catch (std::runtime_error& e)
@@ -35,7 +35,7 @@ TEST(TestTime, EpochToCentralTimeThrowsFailedToFormat) // NOLINT
 {
     try
     {
-        Time::epochToCentralTime(9999999999999999);
+        Time::epochToDateTimeString(9999999999999999);
         FAIL() << "Did not throw exception as expected";
     }
     catch (std::runtime_error& e)

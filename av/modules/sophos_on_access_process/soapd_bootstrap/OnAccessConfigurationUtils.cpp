@@ -69,7 +69,7 @@ namespace sophos_on_access_process::OnAccessConfig
                     auto parsedConfigJson = json::parse(configJson);
                     maxScanQueueSize = parsedConfigJson["maxscanqueuesize"];
                     maxNumberOfScanThread = parsedConfigJson["maxthreads"];
-                    dumpPerfData = parsedConfigJson["dumpPerfData"] == "true";
+                    dumpPerfData = parsedConfigJson["dumpPerfData"];
                     usedFileValues = true;
                 }
                 catch (const std::exception& e)

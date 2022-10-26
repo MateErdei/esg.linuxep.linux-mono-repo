@@ -10,7 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 using namespace datatypes;
 
-std::string Time::epochToCentralTime(const std::time_t& rawtime, const char* format)
+std::string Time::epochToDateTimeString(const std::time_t& rawtime, const char* format)
 {
     struct tm timeinfo{};
     struct tm* result = gmtime_r(&rawtime, &timeinfo);
@@ -29,8 +29,8 @@ std::string Time::epochToCentralTime(const std::time_t& rawtime, const char* for
     return timebuffer;
 }
 
-std::string Time::currentToCentralTime(const char* format)
+std::string Time::currentToDateTimeString(const char* format)
 {
     std::time_t currentTime = std::time(nullptr);
-    return epochToCentralTime(currentTime, format);
+    return epochToDateTimeString(currentTime, format);
 }
