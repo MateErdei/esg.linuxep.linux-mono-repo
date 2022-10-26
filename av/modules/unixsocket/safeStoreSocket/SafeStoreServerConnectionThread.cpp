@@ -1,23 +1,22 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "SafeStoreServerConnectionThread.h"
-
 #include "ThreatDetected.capnp.h"
 
+#include "common/FDUtils.h"
+#include "scan_messages/ThreatDetected.h"
+#include "scan_messages/QuarantineResponse.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 
 #include <capnp/serialize.h>
-#include <common/FDUtils.h>
-#include <scan_messages/ThreatDetected.h>
-#include <scan_messages/QuarantineResponse.h>
 
 #include <cassert>
 #include <stdexcept>
-#include <utility>
-
 #include <sys/socket.h>
 #include <unistd.h>
+#include <utility>
+
 
 using namespace unixsocket;
 
@@ -31,17 +30,6 @@ SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
         throw std::runtime_error("Attempting to construct SafeStoreServerConnectionThread with invalid socket fd");
     }
 }
-
-//
-// static void throwOnError(int ret, const std::string& message)
-//{
-//    if (ret == 0)
-//    {
-//        return;
-//    }
-//    perror(message.c_str());
-//    throw std::runtime_error(message);
-//}
 
 /**
  * Parse a detection.
