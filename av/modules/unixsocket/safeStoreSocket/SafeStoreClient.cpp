@@ -144,9 +144,9 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
             messageInput.getRoot<Sophos::ssplav::QuarantineResponseMessage>();
 
         return scan_messages::QuarantineResponse(requestReader).getResult();
-        }
-
-        return scan_messages::QUARANTINE_FAIL;
+    }
+    //we should have already logged when we broke out of the loop
+    return scan_messages::QUARANTINE_FAIL;
 }
 
 

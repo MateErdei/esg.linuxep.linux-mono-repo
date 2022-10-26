@@ -1,15 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include <string>
 #include <vector>
 
-#include <QuarantineResponse.capnp.h>
+#include "QuarantineResponse.capnp.h"
 
 namespace scan_messages
 {

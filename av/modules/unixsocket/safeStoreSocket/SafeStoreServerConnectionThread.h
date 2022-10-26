@@ -4,16 +4,14 @@
 
 #define AUTO_FD_IMPLICIT_INT
 
-#include "safestore/QuarantineManager/IQuarantineManager.h"
-#include "unixsocket/BaseServerConnectionThread.h"
-
 #include "Common/Threads/AbstractThread.h"
 #include "Common/Threads/NotifyPipe.h"
-
-#include <datatypes/AutoFd.h>
-#include <scan_messages/ThreatDetected.h>
-#include <scan_messages/QuarantineResponse.h>
-#include <unixsocket/IMessageCallback.h>
+#include "datatypes/AutoFd.h"
+#include "safestore/QuarantineManager/IQuarantineManager.h"
+#include "scan_messages/ThreatDetected.h"
+#include "scan_messages/QuarantineResponse.h"
+#include "unixsocket/BaseServerConnectionThread.h"
+#include "unixsocket/IMessageCallback.h"
 
 #include <cstdint>
 #include <string>

@@ -202,7 +202,7 @@ namespace safestore::QuarantineManager
             auto fs = Common::FileSystem::fileSystem();
             LOGDEBUG("File Descriptor: " << autoFd.fd());
 
-            datatypes::AutoFd directoryFd(fs->getFileDescriptor(directory));
+            datatypes::AutoFd directoryFd(fs->getFileInfoDescriptor(directory));
             if (!(directoryFd.get() >= 0))
             {
                 LOGWARN("Directory of threat does not exist");
@@ -210,7 +210,7 @@ namespace safestore::QuarantineManager
             }
 
             std::string path = Common::FileSystem::join(directory,filename);
-            datatypes::AutoFd fd2(fs->getFDFromDirectoryFD(directoryFd.get(),path.c_str()));
+            datatypes::AutoFd fd2(fs->getFileInfoDescriptorFromDirectoryFD(directoryFd.get(),path.c_str()));
             if (!(fd2.get() >= 0))
             {
                 LOGWARN("Threat does not exist at path: " << path << " Cannot quarantine it");
