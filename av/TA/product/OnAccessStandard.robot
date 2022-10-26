@@ -362,6 +362,40 @@ On Access Scans File On XFS
     Wait Until On Access Log Contains With Offset   Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with  timeout=${timeout}
 
 
+On Access Includes Included Mount On Top Of Excluded Mount
+    ${excludedMount} =  Set Variable  /proc/tty
+    ${includedMount} =  Set Variable  ${NORMAL_DIRECTORY}/test
+    ${dest} =  Set Variable  ${NORMAL_DIRECTORY}/mount
+    Directory Should Exist  ${excludedMount}
+    Create Directory  ${includedMount}
+
+    Mark On Access Log
+    Bind Mount Directory  ${excludedMount}  ${dest}
+    Bind Mount Directory  ${includedMount}  ${dest}
+    ${result} =  Run Process  mount
+    Log  ${result.stdout}
+
+    Wait Until On Access Log Contains With Offset  Mount point ${dest} is system and will be excluded from the scan
+    Wait Until On Access Log Contains With Offset  Including mount point: ${dest}
+
+
+On Access Excludes Excluded Mount On Top Of Included Mount
+    ${excludedMount} =  Set Variable  /proc/tty
+    ${includedMount} =  Set Variable  ${NORMAL_DIRECTORY}/test
+    ${dest} =  Set Variable  ${NORMAL_DIRECTORY}/mount
+    Directory Should Exist  ${excludedMount}
+    Create Directory  ${includedMount}
+
+    Mark On Access Log
+    Bind Mount Directory  ${includedMount}  ${dest}
+    Bind Mount Directory  ${excludedMount}  ${dest}
+    ${result} =  Run Process  mount
+    Log  ${result.stdout}
+
+    Wait Until On Access Log Contains With Offset  Including mount point: ${dest}
+    Wait Until On Access Log Contains With Offset  Mount point ${dest} is system and will be excluded from the scan
+
+
 On Access Doesnt Scan Threat Detector Events
     ${TD_PID} =  Record Sophos Threat Detector PID
     ${filepath} =  Set Variable  ${NORMAL_DIRECTORY}/eicar.com

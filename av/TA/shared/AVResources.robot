@@ -1297,6 +1297,15 @@ Mount Image
     Should Be Equal As Integers  ${result.rc}  0
     Register Cleanup  Unmount Image Internal  ${where}
 
+Bind Mount Directory
+    [Arguments]  ${src}  ${dest}
+    Create Directory  ${dest}
+    ${result} =  Run Process  mount  --bind  ${src}  ${dest}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+    Register Cleanup  Unmount Image Internal  ${dest}
+
 Require Filesystem
     [Arguments]   ${fs_type}
     ${file_does_not_exist} =  Does File Not Exist  /proc/filesystems
