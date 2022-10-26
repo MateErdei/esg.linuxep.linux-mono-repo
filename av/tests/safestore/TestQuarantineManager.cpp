@@ -184,7 +184,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(_,_)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/dir/file"));
-    EXPECT_CALL(*filesystemMock, getDirectoryFD(_)).WillOnce(Return(100));
+    EXPECT_CALL(*filesystemMock, getFileDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFDFromDirectoryFD(_,_)).WillOnce(Return(120));
 
     auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
@@ -218,7 +218,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(_,_)).WillOnce(Return(false));
-    EXPECT_CALL(*filesystemMock, getDirectoryFD(_)).WillOnce(Return(100));
+    EXPECT_CALL(*filesystemMock, getFileDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFDFromDirectoryFD(_,_)).WillOnce(Return(120));
 
 
@@ -253,7 +253,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDirectoryDoesNotExis
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
-    EXPECT_CALL(*filesystemMock, getDirectoryFD(_)).WillOnce(Return(-1));
+    EXPECT_CALL(*filesystemMock, getFileDescriptor(_)).WillOnce(Return(-1));
 
 
     auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
@@ -287,7 +287,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
-    EXPECT_CALL(*filesystemMock, getDirectoryFD(_)).WillOnce(Return(100));
+    EXPECT_CALL(*filesystemMock, getFileDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFDFromDirectoryFD(_,_)).WillOnce(Return(-1));
 
 
@@ -361,7 +361,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(_,_)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, removeFileOrDirectory(_));
-    EXPECT_CALL(*filesystemMock, getDirectoryFD(_)).WillOnce(Return(100));
+    EXPECT_CALL(*filesystemMock, getFileDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFDFromDirectoryFD(_,_)).WillOnce(Return(120));
 
     auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
