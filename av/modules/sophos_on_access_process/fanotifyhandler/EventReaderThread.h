@@ -2,6 +2,10 @@
 
 #pragma once
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 #include "IFanotifyHandler.h"
 
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
@@ -51,5 +55,8 @@ namespace sophos_on_access_process::fanotifyhandler
         std::vector<common::Exclusion> m_exclusions;
         mutable std::mutex m_exclusionsLock;
         uint m_EventsWhileQueueFull = 0;
+
+    TEST_PUBLIC:
+        void innerRun();
     };
 }

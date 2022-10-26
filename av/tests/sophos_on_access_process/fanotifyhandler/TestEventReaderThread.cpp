@@ -2,6 +2,8 @@
 
 #include "FanotifyHandlerMemoryAppenderUsingTests.h"
 
+#define TEST_PUBLIC public
+
 #include "common/ThreadRunner.h"
 #include "common/WaitForEvent.h"
 #include "datatypes/MockSysCalls.h"
@@ -756,14 +758,15 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorFromPpollAndContinues)
         .WillOnce(SetErrnoAndReturn(EBADF, -1));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
+
     try
     {
-        eventReader->run();
-        FAIL() << "EventReaderThread::run() didnt throw";
+        eventReader->innerRun();
+        FAIL() << "EventReaderThread::innerRun() didnt throw";
     }
     catch(const std::runtime_error& e)
     {
-        EXPECT_EQ(e.what(), std::string("Error from poll: 9 (Bad file descriptor)"));
+        EXPECT_STREQ(e.what(), "Error from innerRun poll: 9 (Bad file descriptor)");
     }
 }
 
@@ -903,12 +906,12 @@ TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorIsEMFILE)
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     try
     {
-        eventReader->run();
+        eventReader->innerRun();
         FAIL() << "EventReaderThread::throwIfErrorNotRecoverable() didnt throw";
     }
     catch(const std::runtime_error& e)
     {
-        EXPECT_EQ(e.what(), std::string("No more File Descriptors available. Restarting On Access"));
+        EXPECT_STREQ(e.what(), "No more File Descriptors available. Restarting On Access");
     }
 }
 
@@ -924,11 +927,11 @@ TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorNotRecoverable)
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     try
     {
-        eventReader->run();
+        eventReader->innerRun();
         FAIL() << "EventReaderThread::throwIfErrorNotRecoverable() didnt throw";
     }
     catch(const std::runtime_error& e)
     {
-        EXPECT_EQ(e.what(), std::string("Fatal Error. Restarting On Access: (23 Too many open files in system)"));
+        EXPECT_STREQ(e.what(), "Fatal Error. Restarting On Access: (23 Too many open files in system)");
     }
 }

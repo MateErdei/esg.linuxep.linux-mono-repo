@@ -227,6 +227,24 @@ std::string EventReaderThread::getUidFromPid(pid_t pid)
 
 void EventReaderThread::run()
 {
+    try
+    {
+        innerRun();
+    }
+    catch (const std::exception& e)
+    {
+        LOGFATAL("EventReaderThread, Exception caught at top-level: " << e.what());
+        exit(EXIT_FAILURE);
+    }
+    catch (...)
+    {
+        LOGFATAL("EventReaderThread, Non-std::exception caught at top-level");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void EventReaderThread::innerRun()
+{
     struct pollfd fds[] {
         { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
         { .fd = m_fanotify->getFd(), .events = POLLIN, .revents = 0 },
@@ -246,7 +264,7 @@ void EventReaderThread::run()
                 int error = errno;
                 auto errorStr = common::safer_strerror(error);
                 std::stringstream logmsg;
-                logmsg << "Error from poll: " <<  error << " (" << errorStr << ")";
+                logmsg << "Error from innerRun poll: " <<  error << " (" << errorStr << ")";
                 throw std::runtime_error(logmsg.str());
             }
         }
