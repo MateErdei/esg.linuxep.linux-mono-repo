@@ -400,6 +400,19 @@ class ThinInstallerUtils(object):
         open('/tmp/i/am/fake/bin/savscan', 'a').close()
         os.chmod("/tmp/i/am/fake/bin/savscan", stat.S_IXOTH)
 
+    def Create_Fake_SAV_Uninstaller_in_Tmp(self):
+        fake_sav = "/tmp/i/am/fake"
+        os.makedirs(fake_sav, exist_ok=True)
+        uninstall = os.path.join(fake_sav, "uninstall.sh")
+        f = open(uninstall, "w")
+        f.write("""#!/bin/bash
+touch /tmp/uninstalled
+rm -rf %s
+rm -f /usr/bin/sweep
+exit 0""" % fake_sav)
+        f.close()
+        os.chmod(uninstall, stat.S_IRUSR | stat.S_IXUSR)
+
     def remove_fake_savscan_in_tmp(self):
         shutil.rmtree("/tmp/i/")
 

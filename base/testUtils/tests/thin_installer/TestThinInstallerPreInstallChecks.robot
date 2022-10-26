@@ -128,7 +128,8 @@ Thin Installer Does Not Tell Us About Which Sweep
     Run Default Thininstaller    3
     Check Thininstaller Log Does Not Contain    which: no sweep in
 
-Thin Installer Detects Sweep And Cancels Installation
+Thin Installer Detects Sweep And Cancels Installation If SAV can not be uninstalled
+    ## Fake SAV installation has no uninstall script so can't be uninstalled
     [Tags]  SAV  THIN_INSTALLER
     [Teardown]  SAV Teardown
     Create Fake Savscan In Tmp
@@ -152,6 +153,18 @@ Thin Installer Detects Sweep And Cancels Installation
     run thininstaller with non standard path    8  /tmp:/bin:${path}
     Check Thininstaller Log Contains     Found an existing installation of SAV in /tmp/i/am/fake
     Delete Fake Sweep Symlink    /tmp
+
+Thin Installer Detects Sweep And uninstalls SAV
+    [Tags]  SAV  THIN_INSTALLER
+    [Teardown]  SAV Teardown
+    Create Fake Savscan In Tmp
+    Create Fake SAV Uninstaller in Tmp
+    Create Fake Sweep Symlink    /usr/bin
+    Run Default Thininstaller    0
+    Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
+    ## Check we've run the uninstaller
+    File Should Not Exist  /usr/bin/sweep
+    Directory Should Not Exist  /tmp/i/am/fake
 
 Thin Installer Has Working Version Option
     Run Default Thininstaller With Args   0     --version
