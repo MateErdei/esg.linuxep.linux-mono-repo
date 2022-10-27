@@ -190,6 +190,34 @@ Threat Detector Triggers SafeStore Rescan On Timeout
     Wait Until SafeStore Log Contains   SafeStore Database Rescan request received.
 
 
+SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    Mark AV Log
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+
+    Check avscanner can detect eicar on read only mount
+
+    Wait Until SafeStore Log Contains  File is located on a ReadOnly mount:
+    Wait Until AV Plugin Log Contains Detection Name With Offset  EICAR-AV-Test
+
+
+SafeStore Does Not Attempt To Quarantine File On A Network Mount
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    Mark AV Log
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+
+    Check avscanner can detect eicar on network mount
+
+    Wait Until SafeStore Log Contains  File is located on a Network mount:
+    Wait Until AV Plugin Log Contains Detection Name With Offset  EICAR-AV-Test
+
+
 *** Keywords ***
 SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG

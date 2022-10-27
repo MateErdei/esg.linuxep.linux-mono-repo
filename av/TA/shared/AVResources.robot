@@ -1217,6 +1217,35 @@ Check avscanner can detect eicar
     Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
     Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com   ${LOCAL_AVSCANNER}
 
+Check avscanner can detect eicar on read only mount
+    [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
+    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    Create Directory  ${SCAN_DIRECTORY}/readOnly
+    ${result} =  run process    mount  --bind  -r  ${SCAN_DIRECTORY}  ${SCAN_DIRECTORY}/readOnly
+    Register Cleanup   run process   umount  ${SCAN_DIRECTORY}/readOnly
+    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
+    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/readOnly/eicar.com   ${LOCAL_AVSCANNER}
+
+Check avscanner can detect eicar on network mount
+    [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
+    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
+    Create Directory  ${SCAN_DIRECTORY}/network
+
+    Append to file  /etc/exports  ${SCAN_DIRECTORY} *(rw,sync,no_subtree_check,no_root_squash)
+    Register Cleanup   run process   sed  -i  '$d'  /etc/exports  shell=True
+
+    ${result} =  run process    exportfs  -a
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+
+    ${result} =  run process    mount  localhost:${SCAN_DIRECTORY}  ${SCAN_DIRECTORY}/network
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  0
+    Register Cleanup   run process   umount  ${SCAN_DIRECTORY}/network
+
+    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/network/eicar.com   ${LOCAL_AVSCANNER}
+
 Force SUSI to be initialized
     Check avscanner can detect eicar  ${CLI_SCANNER_PATH}
 
