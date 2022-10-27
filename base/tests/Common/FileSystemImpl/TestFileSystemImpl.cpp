@@ -17,6 +17,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <fstream>
 #include <thread>
 #include <unistd.h>
+#include <fcntl.h>
 
 using namespace Common::FileSystem;
 namespace
@@ -970,5 +971,118 @@ namespace
         Path pathToClearOut = "path to delete from";
         EXPECT_CALL(mockFileSystem, listFilesAndDirectories(pathToClearOut, false)).WillOnce(Throw(Common::FileSystem::IFileSystemException("Failed")));
         EXPECT_THROW(mockFileSystem.recursivelyDeleteContentsOfDirectory(pathToClearOut), Common::FileSystem::IFileSystemException);
+    }
+
+    TEST_F( // NOLINT
+        FileSystemImplTest,
+        compareFileDescriptor)
+    {
+        Tests::TempDir tempDir;
+        tempDir.createFile("1","");
+        int fd1 = open(tempDir.absPath("1").c_str(), O_PATH);
+        int fd2 = open(tempDir.absPath("1").c_str(), O_PATH);
+        EXPECT_TRUE(m_fileSystem->compareFileDescriptors(fd1,fd2));
+        close(fd1);
+        close(fd2);
+    }
+
+    TEST_F( // NOLINT
+        FileSystemImplTest,
+        compareFileDescriptorFailWhenFileAreDiffrent)
+    {
+        Tests::TempDir tempDir;
+        tempDir.createFile("1","");
+        tempDir.createFile("2","");
+        int fd1 = open(tempDir.absPath("1").c_str(), O_PATH);
+        int fd2 = open(tempDir.absPath("2").c_str(), O_PATH);
+        EXPECT_FALSE(m_fileSystem->compareFileDescriptors(fd1,fd2));
+        close(fd1);
+        close(fd2);
+    }
+
+    TEST_F( // NOLINT
+        FileSystemImplTest,
+        compareFileDescriptorFailsWhenFileDoesNotExist)
+    {
+        Tests::TempDir tempDir;
+        int fd1 = open(tempDir.absPath("1").c_str(), O_PATH);
+        int fd2 = open(tempDir.absPath("1").c_str(), O_PATH);
+        EXPECT_FALSE(m_fileSystem->compareFileDescriptors(fd1,fd2));
+        close(fd1);
+        close(fd2);
+    }
+
+    TEST_F( // NOLINT
+        FileSystemImplTest,
+        getFileDescriptorWorksForDirectory)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("1");
+        int fd1 = open(tempDir.absPath("1").c_str(), O_PATH);
+        int fd2 = m_fileSystem->getFileInfoDescriptor(tempDir.absPath("1"));
+        EXPECT_TRUE(m_fileSystem->compareFileDescriptors(fd1,fd2));
+        close(fd1);
+        close(fd2);
+    }
+
+    TEST_F( // NOLINT
+        FileSystemImplTest,
+        getFileDescriptorWorksForFile)
+    {
+        Tests::TempDir tempDir;
+        tempDir.createFile("1","");
+        int fd1 = open(tempDir.absPath("1").c_str(), O_PATH);
+        int fd2 = m_fileSystem->getFileInfoDescriptor(tempDir.absPath("1"));
+        EXPECT_TRUE(m_fileSystem->compareFileDescriptors(fd1,fd2));
+        close(fd1);
+        close(fd2);
+    }
+
+    TEST_F( // NOLINT
+        FileSystemImplTest,
+        getFileDescriptorReturnsMinus1WhenPathDoesNotExist)
+    {
+        int fd1 = m_fileSystem->getFileInfoDescriptor("/etc/randomsokdojdiuenb");
+        EXPECT_EQ(-1,fd1);
+        close(fd1);
+    }
+
+    TEST_F( // NOLINT
+        FileSystemImplTest,
+        getFileInfoDescriptorFromDirectoryFD)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("subdir");
+        tempDir.createFile("subdir/file1","");
+        int dirfd = open(tempDir.absPath("subdir").c_str(), O_PATH);
+        int fd1 = open(tempDir.absPath("subdir/file1").c_str(), O_PATH);
+        int fd2 = m_fileSystem->getFileInfoDescriptorFromDirectoryFD(dirfd, tempDir.absPath("subdir/file1"));
+        EXPECT_TRUE(m_fileSystem->compareFileDescriptors(fd1,fd2));
+        close(dirfd);
+        close(fd1);
+        close(fd2);
+    }
+    TEST_F( // NOLINT
+        FileSystemImplTest,
+        getFDFromDirectoryFDFailsWhendirDoesNotExist)
+    {
+        int dirfd = open("/etc/random383y3rhfr8e", O_PATH);
+        int fd1 = m_fileSystem->getFileInfoDescriptorFromDirectoryFD(dirfd, "/etc/random383y3rhfr8e/file1");
+        EXPECT_EQ(-1,fd1);
+        close(dirfd);
+        close(fd1);
+    }
+
+    TEST_F( // NOLINT
+        FileSystemImplTest,
+        getFDFromDirectoryFDFailsWhenFileDoesNotExist)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("subdir");
+        int dirfd = open(tempDir.absPath("subdir").c_str(), O_PATH);
+        int fd1 = m_fileSystem->getFileInfoDescriptorFromDirectoryFD(dirfd, tempDir.absPath("subdir/file1"));
+        EXPECT_EQ(-1,fd1);
+        close(dirfd);
+        close(fd1);
     }
 } // namespace

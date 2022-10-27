@@ -764,6 +764,37 @@ namespace Common
             return statbuf.st_mtim.tv_sec;
         }
 
+        bool FileSystemImpl::compareFileDescriptors(int fd1, int fd2) const
+        {
+            struct stat statbuf1; // NOLINT
+            int ret = fstat(fd1, &statbuf1);
+            if (ret != 0)
+            { // if it does not exist
+                return false;
+            }
+            struct stat statbuf2; // NOLINT
+            ret = fstat(fd2, &statbuf2);
+            if (ret != 0)
+            { // if it does not exist
+                return false;
+            }
+            if (statbuf1.st_dev == statbuf2.st_dev && statbuf1.st_ino == statbuf2.st_ino)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        int FileSystemImpl::getFileInfoDescriptor(const Path& path) const
+        {
+            return open(path.c_str(), O_PATH);
+        }
+
+        int FileSystemImpl::getFileInfoDescriptorFromDirectoryFD(int fd, const Path& path) const
+        {
+            return openat(fd,path.c_str(), O_PATH);
+        }
+
         void FileSystemImpl::removeFilesInDirectory(const Path& path) const
         {
             if (!FileSystemImpl::isDirectory(path))

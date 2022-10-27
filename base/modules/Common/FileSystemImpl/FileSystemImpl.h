@@ -86,6 +86,12 @@ namespace Common
 
             std::time_t lastModifiedTime(const Path& path) const override;
 
+            int getFileInfoDescriptor(const Path& directory) const override;
+
+            int getFileInfoDescriptorFromDirectoryFD(int fd, const Path& path) const override;
+
+            bool compareFileDescriptors(int fd1, int fd2) const override;
+
             std::optional<std::string> readProcFile(int pid, const std::string& filename) const override;
 
             void removeFilesInDirectory(const Path& path) const override;

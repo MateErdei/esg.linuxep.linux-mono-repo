@@ -306,6 +306,30 @@ namespace Common
              * @return
              */
             virtual std::time_t lastModifiedTime(const Path& path) const = 0;
+
+            /**
+             * Return whether or not the two file descriptors point to the same file
+             * @param first file descriptor
+             * @param second file descriptor
+             * @return bool
+             */
+            virtual bool compareFileDescriptors(int fd1, int fd2) const = 0;
+
+            /**
+             * Return file descriptor to directory/file
+             * @param path to directory/file
+             * @return file descriptor
+             */
+            virtual int getFileInfoDescriptor(const Path& path) const = 0;
+
+            /**
+             * Return the file descriptor for the file in directory that the directory file descriptor points to
+             * @param directory file descriptor
+             * @param path to file
+             * @return file descriptor
+             */
+            virtual int getFileInfoDescriptorFromDirectoryFD(int fd1, const Path& path) const = 0;
+
             /**
              * Wait for the given file to exist.
              * @param path, location of the file to wait for
