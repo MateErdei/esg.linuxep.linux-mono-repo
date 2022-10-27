@@ -106,12 +106,19 @@ namespace Plugin
         for (auto it = j.begin(); it != j.end(); ++it)
         {
             std::list<std::string> correlationids;
-
-            for (auto it2 = j.begin(); it2 != j.end(); ++it2)
+            try
             {
-                correlationids.emplace_back(it2.key());
+                for (auto it2 = it.value().begin(); it2 != it.value().end(); ++it2)
+                {
+                    correlationids.emplace_back(it2.value());
+                }
+                tempdatabase.emplace(it.key(), correlationids);
             }
-            tempdatabase.emplace(it.key(), correlationids);
+            catch (nlohmann::json::exception& ex)
+            {
+                //If the types of the threat id or correlation id are wrong throw away the entire threatID entry
+                LOGWARN("Not loading "<< it.key() << "into threat database as the parsing failed with error " << ex.what());
+            }
         }
         m_database = tempdatabase;
     }
