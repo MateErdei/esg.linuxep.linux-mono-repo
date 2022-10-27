@@ -147,6 +147,7 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
     Wait Until AV Plugin Log Contains With Offset  <notification description="Found 'EICAR-AV-Test'
     Wait Until AV Plugin Log Contains With Offset  Failed to write to SafeStore socket.
     Check SafeStore Not Running
+    Mark Expected Error In Log    ${AV_PLUGIN_PATH}/log/av.log    Aborting SafeStore connection : failed to read length
 
 
 *** Keywords ***
