@@ -91,6 +91,17 @@ TEST_F(TestOnAccessConfigUtils, parseOnAccessPolicySettingsFromJson)
     ASSERT_NE(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
 }
 
+TEST_F(TestOnAccessConfigUtils, parseOnAccessPolicySettingsFromJson_missingFields)
+{
+    std::string jsonString = R"({"excludeRemoteFiles":"true"})";
+
+    OnAccessConfiguration expectedResult;
+    expectedResult.enabled = false;
+    expectedResult.excludeRemoteFiles = true;
+
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+}
+
 TEST_F(TestOnAccessConfigUtils, parseOnAccessSettingsFromJsonInvalidJson)
 {
     std::string jsonString = R"({"enabled":"I think","excludeRemoteFiles":"therefore","exclusions":["I","am"]})";
@@ -222,3 +233,22 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToProvidedValuesWhenFileEx
     EXPECT_TRUE(appenderContains("Setting from file: Max queue size set to 2000 and Max threads set to 20"));
 }
 
+TEST_F(TestOnAccessConfigUtils, parseProductConfig_missingFields)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return("{\"maxthreads\": 20,\"maxscanqueuesize\": 2000}"));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    size_t maxScanQueueItems = 0;
+    int maxThreads = 0;
+    bool dumpPerfData = false;
+
+    readProductConfigFile(maxScanQueueItems, maxThreads, dumpPerfData);
+
+    EXPECT_EQ(maxScanQueueItems, 2000);
+    EXPECT_EQ(maxThreads, 20);
+    EXPECT_FALSE(dumpPerfData);
+
+    EXPECT_TRUE(appenderContains("Setting from file: Max queue size set to 2000 and Max threads set to 20"));
+}

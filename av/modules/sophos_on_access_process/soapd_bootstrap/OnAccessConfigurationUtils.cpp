@@ -67,9 +67,9 @@ namespace sophos_on_access_process::OnAccessConfig
                 try
                 {
                     auto parsedConfigJson = json::parse(configJson);
-                    maxScanQueueSize = parsedConfigJson["maxscanqueuesize"];
-                    maxNumberOfScanThread = parsedConfigJson["maxthreads"];
-                    dumpPerfData = parsedConfigJson["dumpPerfData"];
+                    maxScanQueueSize = parsedConfigJson.value("maxscanqueuesize", defaultMaxScanQueueSize);
+                    maxNumberOfScanThread = parsedConfigJson.value("maxthreads", defaultScanningThreads);
+                    dumpPerfData = parsedConfigJson.value("dumpPerfData", defaultDumpPerfData);
                     usedFileValues = true;
                 }
                 catch (const std::exception& e)
@@ -142,17 +142,19 @@ namespace sophos_on_access_process::OnAccessConfig
             parsedConfig = json::parse(jsonString);
 
             OnAccessConfiguration configuration{};
-            configuration.enabled = isSettingTrue(parsedConfig["enabled"]);
-            configuration.excludeRemoteFiles = isSettingTrue(parsedConfig["excludeRemoteFiles"]);
-            for (const auto& exclusion: parsedConfig["exclusions"])
-            {
-                configuration.exclusions.emplace_back(exclusion);
-            }
-
-            std::string scanNetwork = isSettingTrue(parsedConfig["excludeRemoteFiles"]) ? "\"false\"" : "\"true\"";
-            LOGINFO("On-access enabled: " << parsedConfig["enabled"]);
+            configuration.enabled = isSettingTrue(parsedConfig.value("enabled", "false"));
+            LOGINFO("On-access enabled: " << configuration.enabled);
+            configuration.excludeRemoteFiles = isSettingTrue(parsedConfig.value("excludeRemoteFiles", "false"));
+            std::string scanNetwork = configuration.excludeRemoteFiles ? "\"false\"" : "\"true\"";
             LOGINFO("On-access scan network: " << scanNetwork);
-            LOGINFO("On-access exclusions: " << parsedConfig["exclusions"]);
+            if (parsedConfig.contains("exclusions"))
+            {
+                for (const auto& exclusion : parsedConfig["exclusions"])
+                {
+                    configuration.exclusions.emplace_back(exclusion);
+                }
+                LOGINFO("On-access exclusions: " << parsedConfig["exclusions"]);
+            }
 
             return configuration;
         }
