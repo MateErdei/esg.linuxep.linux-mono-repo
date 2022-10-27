@@ -666,35 +666,43 @@ namespace safestore::SafeStoreWrapper
     {
     }
 
-    void SafeStoreReleaseMethodsImpl::releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder)
+    void SafeStoreReleaseMethodsImpl::releaseObjectHandle(SafeStoreObjectHandle objectHandle)
     {
-        auto returnCode = SafeStore_ReleaseObjectHandle(objectHandleHolder);
-        switch (returnCode)
+        if (objectHandle != nullptr)
         {
-            case SR_OK:
-                LOGDEBUG("Got OK when cleaning up safestore object handle");
-                break;
-            case SR_INVALID_ARG:
-                LOGDEBUG("Got INVALID_ARG when cleaning up safestore object handle");
-                break;
-            default:
-                LOGDEBUG("Failed to clean up safestore object handle for unknown reason");
+            auto returnCode = SafeStore_ReleaseObjectHandle(objectHandle);
+            objectHandle = nullptr;
+            switch (returnCode)
+            {
+                case SR_OK:
+                    LOGDEBUG("Got OK when cleaning up safestore object handle");
+                    break;
+                case SR_INVALID_ARG:
+                    LOGERROR("Got INVALID_ARG when cleaning up safestore object handle");
+                    break;
+                default:
+                    LOGERROR("Failed to clean up safestore object handle for unknown reason");
+            }
         }
     }
 
-    void SafeStoreReleaseMethodsImpl::releaseSearchHandle(SafeStoreSearchHandle searchHandleHolder)
+    void SafeStoreReleaseMethodsImpl::releaseSearchHandle(void* searchHandle)
     {
-        auto returnCode = SafeStore_FindClose(m_safeStoreHolder->getHandle(), searchHandleHolder);
-        switch (returnCode)
+        if (searchHandle != nullptr)
         {
-            case SR_OK:
-                LOGDEBUG("Got OK when cleaning up safestore search handle");
-                break;
-            case SR_INVALID_ARG:
-                LOGDEBUG("Got INVALID_ARG when cleaning up safestore search handle");
-                break;
-            default:
-                LOGDEBUG("Failed to clean up safestore search handle for unknown reason");
+            auto returnCode = SafeStore_FindClose(m_safeStoreHolder->getHandle(), searchHandle);
+            searchHandle = nullptr;
+            switch (returnCode)
+            {
+                case SR_OK:
+                    LOGDEBUG("Got OK when cleaning up safestore search handle");
+                    break;
+                case SR_INVALID_ARG:
+                    LOGERROR("Got INVALID_ARG when cleaning up safestore search handle");
+                    break;
+                default:
+                    LOGERROR("Failed to clean up safestore search handle for unknown reason");
+            }
         }
     }
 
@@ -749,6 +757,7 @@ namespace safestore::SafeStoreWrapper
                 LOGDEBUG("No objects found in SafeStore database that satisfy the filter criteria");
                 return false;
             default:
+                LOGERROR("Failed for unexpected reason when performing FindFirst on SafeStore database");
                 return false;
         }
     }
@@ -756,7 +765,7 @@ namespace safestore::SafeStoreWrapper
     bool SafeStoreSearchMethodsImpl::findNext(SearchHandleHolder& searchHandle, ObjectHandleHolder& objectHandle)
     {
       auto returnCode = SafeStore_FindNext(
-                m_safeStoreHolder->getHandle(), *(searchHandle.getRawHandlePtr()), objectHandle.getRawHandlePtr());
+                m_safeStoreHolder->getHandle(), searchHandle.getRawHandle(), objectHandle.getRawHandlePtr());
       switch (returnCode)
       {
           case SR_OK:
@@ -771,6 +780,7 @@ namespace safestore::SafeStoreWrapper
               LOGDEBUG("No further objects found in SafeStore database");
               return false;
           default:
+              LOGERROR("Failed for unexpected reason when performing FindNext on SafeStore database");
               return false;
       }
     }

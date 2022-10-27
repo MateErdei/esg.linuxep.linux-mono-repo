@@ -73,8 +73,8 @@ namespace safestore::SafeStoreWrapper
     {
     public:
         explicit SafeStoreReleaseMethodsImpl(std::shared_ptr<ISafeStoreHolder> safeStoreHolder);
-        void releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder) override;
-        void releaseSearchHandle(SafeStoreSearchHandle searchHandleHolder) override;
+        void releaseObjectHandle(SafeStoreObjectHandle objectHandle) override;
+        void releaseSearchHandle(SafeStoreSearchHandle searchHandle) override;
 
     private:
         std::shared_ptr<ISafeStoreHolder> m_safeStoreHolder;

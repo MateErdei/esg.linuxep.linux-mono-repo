@@ -2,14 +2,11 @@
 
 // This binary will print the details of objects in the SafeStore database, useful for manual testing and TAP tests.
 
-#include "safestore/QuarantineManager/IQuarantineManager.h"
-#include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
-#include "common/ApplicationPaths.h"
 
 #include <iostream>
 

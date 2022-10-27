@@ -246,6 +246,11 @@ namespace safestore::SafeStoreWrapper
             return &m_handle;
         }
 
+        [[nodiscard]] SafeStoreSearchHandle getRawHandle() const
+        {
+            return m_handle;
+        }
+
     private:
         SafeStoreSearchHandle m_handle = nullptr;
         std::shared_ptr<ISafeStoreReleaseMethods> m_safeStoreReleaseMethods;
