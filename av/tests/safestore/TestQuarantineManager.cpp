@@ -250,7 +250,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
                                                      m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 }
 
-TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDirectoryDoesNotExist)
+TEST_F(QuarantineManagerTests, quarantineFileFailsWhenThreatDirectoryDoesNotExist)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
