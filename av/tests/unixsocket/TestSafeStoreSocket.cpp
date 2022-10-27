@@ -107,7 +107,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
                 {
                     EXPECT_TRUE(autoFd.valid()); // check we received a valid fd
                     serverWaitGuard.onEventNoArgs();
-                    return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
+                    return common::CentralEnums::QuarantineResult::NOT_FOUND;
                 }));
 
         unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
@@ -161,13 +161,13 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
             [&serverWaitGuard]()
             {
                 serverWaitGuard.onEventNoArgs();
-                return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
+                return common::CentralEnums::QuarantineResult::NOT_FOUND;
             }))
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard2]()
             {
                 serverWaitGuard2.onEventNoArgs();
-                return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
+                return common::CentralEnums::QuarantineResult::NOT_FOUND;
             }));
 
     unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);

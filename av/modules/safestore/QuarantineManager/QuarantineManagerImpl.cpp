@@ -181,14 +181,14 @@ namespace safestore::QuarantineManager
                 "Cannot quarantine file because threat ID length (" << threatId.length() << ") is not "
                                                                     << SafeStoreWrapper::THREAT_ID_LENGTH);
 
-            return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
+            return common::CentralEnums::QuarantineResult::NOT_FOUND;
         }
 
         std::lock_guard<std::mutex> lock(m_interfaceMutex);
         if (m_state != QuarantineManagerState::INITIALISED)
         {
             LOGWARN("Cannot quarantine file, SafeStore is in " << quarantineManagerStateToString(m_state) << " state");
-            return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
+            return common::CentralEnums::QuarantineResult::NOT_FOUND;
         }
 
         std::string directory = Common::FileSystem::dirName(filePath);
@@ -206,7 +206,7 @@ namespace safestore::QuarantineManager
             if (!(directoryFd.get() >= 0))
             {
                 LOGWARN("Directory of threat does not exist");
-                return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL_TO_DELETE_FILE;
+                return common::CentralEnums::QuarantineResult::NOT_FOUND;
             }
 
             std::string path = Common::FileSystem::join(directory,filename);
@@ -214,7 +214,7 @@ namespace safestore::QuarantineManager
             if (!(fd2.get() >= 0))
             {
                 LOGWARN("Threat does not exist at path: " << path << " Cannot quarantine it");
-                return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL_TO_DELETE_FILE;
+                return common::CentralEnums::QuarantineResult::NOT_FOUND;
             }
             if (fs->compareFileDescriptors(autoFd.get(),fd2.get())) //
             {
@@ -223,7 +223,7 @@ namespace safestore::QuarantineManager
             else
             {
                 LOGWARN("Cannot verify file to be quarantined");
-                return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL_TO_DELETE_FILE;
+                return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
             }
 
             m_safeStore->setObjectCustomDataString(*objectHandle, "SHA256", sha256);
@@ -233,12 +233,12 @@ namespace safestore::QuarantineManager
             if (m_safeStore->finaliseObject(*objectHandle))
             {
                 LOGDEBUG("Finalised file: " << filename);
-                return common::CentralEnums::QuarantineResult::QUARANTINE_SUCCESS;
+                return common::CentralEnums::QuarantineResult::SUCCESS;
             }
             else
             {
                 LOGDEBUG("Failed to finalise file: " << filename);
-                return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
+                return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
             }
         }
         else
@@ -250,7 +250,7 @@ namespace safestore::QuarantineManager
 
         }
 
-        return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
+        return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
     }
 
     bool QuarantineManagerImpl::deleteDatabase()

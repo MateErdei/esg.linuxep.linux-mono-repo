@@ -48,7 +48,7 @@ void SafeStoreWorker::run()
         safeStoreClient.sendQuarantineRequest(threatDetected);
         common::CentralEnums::QuarantineResult quarantineResult = safeStoreClient.waitForResponse();
 
-        if (quarantineResult == common::CentralEnums::QuarantineResult::QUARANTINE_SUCCESS)
+        if (quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS)
         {
             threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP;
             LOGDEBUG("Quarantine succeeded");

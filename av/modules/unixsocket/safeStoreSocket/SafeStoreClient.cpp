@@ -87,7 +87,7 @@ common::CentralEnums::QuarantineResult unixsocket::SafeStoreClient::waitForRespo
             if (fds[1].revents & POLLIN)
             {
                 LOGDEBUG("Received stop notification on safestore thread");
-                return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
+                return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
             }
         }
         // read length
@@ -140,7 +140,7 @@ common::CentralEnums::QuarantineResult unixsocket::SafeStoreClient::waitForRespo
         return scan_messages::QuarantineResponse(requestReader).getResult();
     }
     //we should have already logged when we broke out of the loop
-    return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
+    return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
 }
 
 
