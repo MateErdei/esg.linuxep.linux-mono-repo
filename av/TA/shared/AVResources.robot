@@ -1297,6 +1297,13 @@ Mount Image
     Should Be Equal As Integers  ${result.rc}  0
     Register Cleanup  Unmount Image Internal  ${where}
 
+Unmount Bind Mount
+    [Arguments]  ${where}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Run Shell Process   umount ${where}   OnError=Failed to unmount bind mount
+
 Bind Mount Directory
     [Arguments]  ${src}  ${dest}
     Create Directory  ${dest}
@@ -1304,7 +1311,7 @@ Bind Mount Directory
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
-    Register Cleanup  Unmount Image Internal  ${dest}
+    Register Cleanup  Unmount Bind Mount  ${dest}
 
 Require Filesystem
     [Arguments]   ${fs_type}
