@@ -367,11 +367,19 @@ namespace Plugin
         if (m_safeStoreEnabled)
         {
             bool dormant = fileSystem->isFile(Plugin::getSafeStoreDormantFlagPath());
-            if (dormant || !common::PidLockFile::isPidFileLocked(getSafeStorePidPath(), sysCalls) )
+            if (!common::PidLockFile::isPidFileLocked(getSafeStorePidPath(), sysCalls) )
             {
                 if (m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
                 {
                     LOGWARN("Sophos SafeStore Process is not running, turning service health to red");
+                }
+                m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
+            }
+            else if(dormant)
+            {
+                if (m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
+                {
+                    LOGWARN("Sophos SafeStore Process failed initialisation, turning service health to red");
                 }
                 m_safestoreServiceStatus = E_HEALTH_STATUS_BAD;
             }
