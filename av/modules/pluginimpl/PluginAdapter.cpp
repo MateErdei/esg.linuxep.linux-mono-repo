@@ -49,6 +49,7 @@ namespace Plugin
                     // TODO: LINUXDAR-5677 - Modify report to include no quarantine happened
                     // reportNoQuarantine(detection);
                     m_adapter.processDetectionReport(detection);
+                    m_adapter.updateThreatDatabase(detection);
                 }
             }
 
@@ -72,7 +73,7 @@ namespace Plugin
                                std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
-        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this, m_detectionQueue, getSafeStoreSocketPath())),
+        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this,*this, m_detectionQueue, getSafeStoreSocketPath())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
         m_threatEventPublisher(m_zmqContext->getPublisher()),
@@ -341,6 +342,7 @@ namespace Plugin
         if (detection.notificationStatus != scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP)
         {
             m_threatDatabase.addThreat(detection.threatId,detection.threatId);
+            LOGDEBUG("Added threat: " << detection.threatId << " to database");
         }
 
     }

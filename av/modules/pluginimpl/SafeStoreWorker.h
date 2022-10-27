@@ -4,6 +4,7 @@
 
 #include "DetectionQueue.h"
 #include "IDetectionReportProcessor.h"
+#include "IDetectionDatabaseHandler.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/safeStoreSocket/SafeStoreClient.h"
@@ -23,6 +24,7 @@ namespace Plugin
     public:
         explicit SafeStoreWorker(
             const IDetectionReportProcessor& pluginAdapter,
+            IDetectionDatabaseHandler& databaseHandler,
             std::shared_ptr<DetectionQueue> detectionQueue,
             const fs::path& safeStoreSocket
         );
@@ -30,6 +32,7 @@ namespace Plugin
 
     private:
         const IDetectionReportProcessor& m_pluginAdapter;
+        IDetectionDatabaseHandler& m_databaseHandler;
         std::shared_ptr<DetectionQueue> m_detectionQueue;
         fs::path m_safeStoreSocket;
     };

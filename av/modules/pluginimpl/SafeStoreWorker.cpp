@@ -15,9 +15,10 @@ using namespace Plugin;
 
 SafeStoreWorker::SafeStoreWorker(
     const IDetectionReportProcessor& pluginAdapter,
+    IDetectionDatabaseHandler& databaseHandler,
     std::shared_ptr<DetectionQueue> detectionQueue,
     const fs::path& safeStoreSocket) :
-    m_pluginAdapter(pluginAdapter), m_detectionQueue(std::move(detectionQueue)), m_safeStoreSocket(safeStoreSocket)
+    m_pluginAdapter(pluginAdapter),m_databaseHandler(databaseHandler), m_detectionQueue(std::move(detectionQueue)), m_safeStoreSocket(safeStoreSocket)
 {
     LOGDEBUG("SafeStore socket path " << safeStoreSocket);
 }
@@ -60,6 +61,7 @@ void SafeStoreWorker::run()
         }
 
         m_pluginAdapter.processDetectionReport(threatDetected);
+        m_databaseHandler.updateThreatDatabase(threatDetected);
     }
     sleeper.reset();
 }

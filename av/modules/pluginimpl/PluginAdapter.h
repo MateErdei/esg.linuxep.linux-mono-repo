@@ -9,6 +9,7 @@
 #include "DetectionQueue.h"
 #include "HealthStatus.h"
 #include "IDetectionReportProcessor.h"
+#include "IDetectionDatabaseHandler.h"
 #include "PluginCallback.h"
 #include "PolicyProcessor.h"
 #include "PolicyWaiter.h"
@@ -28,7 +29,7 @@
 
 namespace Plugin
 {
-    class PluginAdapter : public IScanComplete, public IDetectionReportProcessor
+    class PluginAdapter : public IScanComplete, public IDetectionReportProcessor, public IDetectionDatabaseHandler
     {
     private:
         std::shared_ptr<TaskQueue> m_taskQueue;
@@ -56,7 +57,7 @@ namespace Plugin
         void processDetectionReport(const scan_messages::ThreatDetected&) const override;
         void processThreatReport(const std::string& threatDetectedXML) const;
         void publishThreatEvent(const std::string& threatDetectedJSON) const;
-        void updateThreatDatabase(const scan_messages::ThreatDetected& detection);
+        void updateThreatDatabase(const scan_messages::ThreatDetected& detection) override;
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
         bool isSafeStoreEnabled();
         [[nodiscard]] std::shared_ptr<DetectionQueue> getDetectionQueue() const;
