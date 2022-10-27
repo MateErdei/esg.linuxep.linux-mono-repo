@@ -17,7 +17,7 @@ Suite Setup  ThreatDatabase Suite Setup
 Test Setup      ThreatDatabase Test Setup
 Test Teardown   ThreatDatabase Test TearDown
 *** Variables ***
-${THREAT_DATABASE_PATH}        ${SOPHOS_INSTALL}/plugins/av/var/persist_threatDatabase
+${THREAT_DATABASE_PATH}        ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
 *** Test Cases ***
 Threat is added to Threat database when threat is not quarantined
     Mark AV Log
@@ -28,8 +28,10 @@ Threat is added to Threat database when threat is not quarantined
     ...  10 secs
     ...  1 secs
     ...  File Log Contains  ${THREAT_DATABASE_PATH}  Tbd7be297ddf3cd8
+    Mark AV Log
     Start AV Plugin
     Remove File  ${THREAT_DATABASE_PATH}
+    Wait Until AV Plugin Log Contains With Offset  Requesting SAV Policy from base
     Stop AV Plugin  #file should be written
     Wait Until Keyword Succeeds
     ...  10 secs
