@@ -26,7 +26,7 @@ ${MACHINEID_FILE}                    ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${SAFESTORE_DB_DIR}                  ${SOPHOS_INSTALL}/plugins/av/var/safestore_db
 ${SAFESTORE_DB_PATH}                 ${SAFESTORE_DB_DIR}/safestore.db
 ${SAFESTORE_DB_PASSWORD_PATH}        ${SAFESTORE_DB_DIR}/safestore.pw
-${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_dormant_flag.json
+${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_dormant_flag
 
 
 *** Test Cases ***
