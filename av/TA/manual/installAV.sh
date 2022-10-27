@@ -2,7 +2,7 @@
 
 set -ex
 
-while getopts t:u:bfa flag
+while getopts t:u:bfad flag
 do
     case "${flag}" in
         t) MCS_TOKEN=${OPTARG};;
@@ -10,6 +10,7 @@ do
         b) BREAK_UPDATING=true;;
         f) FLAGS=true;;
         a) ALC=true;;
+        d) CONFIGURE_DEBUG=true;;
         ?) echo "Error: Invalid option was specified -$OPTARG use -t for token -u for url and -b for breaking updating"
           failure 1;;
     esac
@@ -72,21 +73,29 @@ then
   mv /opt/sophos-spl/base/bin/UpdateScheduler.0 /opt/sophos-spl/base/bin/UpdateScheduler.bk
 fi
 
-if [[ $FLAGS ]]
+# If not registering with Central, copy policies over
+if [[ -z $MCS_URL ]]
 then
-  cp ${TEST_SUITE}/resources/flags_policy/flags_enabled.json ${SOPHOS_INSTALL}/base/mcs/policy/
+    if [[ $FLAGS ]]
+    then
+      cp ${TEST_SUITE}/resources/flags_policy/flags_enabled.json ${SOPHOS_INSTALL}/base/mcs/policy/
+    fi
+
+    if [[ $ALC ]]
+    then
+      cp ${TEST_SUITE}/resources/ALC_Policy.xml ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    fi
+
+    # copy AV on-access enabled policy in place
+    cp ${TEST_SUITE}/resources/SAV-2_policy_OA_enabled.xml ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
+
+    ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter
 fi
 
-if [[ $ALC ]]
+if [[ -n ${CONFIGURE_DEBUG} ]]
 then
-  cp ${TEST_SUITE}/resources/ALC_Policy.xml ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    sed -i -e's/VERBOSITY = INFO/VERBOSITY = DEBUG/' ${SOPHOS_INSTALL}/base/etc/logger.conf
 fi
-
-## Install AV
-chmod 700 "${SDDS_AV}/install.sh"
-bash $INSTALL_AV_BASH_OPTS "${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
-
-cp ${TEST_SUITE}/resources/onaccessproductconfig.json ${SOPHOS_INSTALL}/plugins/av/var/
 
 ## Setup Dev region MCS
 OVERRIDE_FLAG_FILE="${SOPHOS_INSTALL}/base/mcs/certs/ca_env_override_flag"
@@ -94,17 +103,15 @@ touch "${OVERRIDE_FLAG_FILE}"
 chown -h "root:sophos-spl-group" "${OVERRIDE_FLAG_FILE}"
 chmod 640 "${OVERRIDE_FLAG_FILE}"
 
+## Install AV
+chmod 700 "${SDDS_AV}/install.sh"
+bash $INSTALL_AV_BASH_OPTS "${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
+
+cp ${TEST_SUITE}/resources/onaccessproductconfig.json ${SOPHOS_INSTALL}/plugins/av/var/
+
 if [[ -n $MCS_URL ]]
 then
     exec ${SOPHOS_INSTALL}/base/bin/registerCentral "${MCS_TOKEN}" "${MCS_URL}"
 else
     echo "Not registering with Central as no token/url specified"
-    ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter
-    # copy AV on-access enabled policy in place
-    cp ${TEST_SUITE}/resources/SAV-2_policy_OA_enabled.xml ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
-fi
-
-if [[ -n ${CONFIGURE_DEBUG} ]]
-then
-    sed -i -e's/VERBOSITY = INFO/VERBOSITY = DEBUG/' ${SOPHOS_INSTALL}/base/etc/logger.conf
 fi
