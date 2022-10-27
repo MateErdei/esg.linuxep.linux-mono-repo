@@ -1228,23 +1228,18 @@ Check avscanner can detect eicar on read only mount
 
 Check avscanner can detect eicar on network mount
     [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
-    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+
+    ${source} =       Set Variable  /tmp_test/nfsshare
+    ${destination} =  Set Variable  /testmnt/nfsshare
+    Create Directory  ${source}
+    Create Directory  ${destination}
+    Create Local NFS Share   ${source}   ${destination}
+    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
+
+    Create File     ${source}/eicar.com    ${EICAR_STRING}
     Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
-    Create Directory  ${SCAN_DIRECTORY}/network
 
-    Append to file  /etc/exports  ${SCAN_DIRECTORY} *(rw,sync,no_subtree_check,no_root_squash)
-    Register Cleanup   run process   sed  -i  '$d'  /etc/exports  shell=True
-
-    ${result} =  run process    exportfs  -a
-    Log  ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0
-
-    ${result} =  run process    mount  localhost:${SCAN_DIRECTORY}  ${SCAN_DIRECTORY}/network
-    Log  ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0
-    Register Cleanup   run process   umount  ${SCAN_DIRECTORY}/network
-
-    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/network/eicar.com   ${LOCAL_AVSCANNER}
+    Check avscanner can detect eicar in  ${destination}/eicar.com   ${LOCAL_AVSCANNER}
 
 Force SUSI to be initialized
     Check avscanner can detect eicar  ${CLI_SCANNER_PATH}
