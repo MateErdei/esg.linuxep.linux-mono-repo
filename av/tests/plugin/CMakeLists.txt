@@ -13,6 +13,7 @@ SophosAddTest(TestPlugin
         TestPolicyWaiter.cpp
         TestStringUtils.cpp
         TestTaskQueue.cpp
+        TestThreatDatabase.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib} rt pthread
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
