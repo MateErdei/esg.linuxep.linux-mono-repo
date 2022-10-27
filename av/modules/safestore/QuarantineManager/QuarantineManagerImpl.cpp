@@ -122,13 +122,19 @@ namespace safestore
             m_state = newState;
             auto fileSystem = Common::FileSystem::fileSystem();
             std::string dormantFlag = Plugin::getSafeStoreDormantFlagPath();
-            if (m_state == QuarantineManagerState::INITIALISED)
+            switch(m_state)
             {
-                fileSystem->removeFile(dormantFlag, true);
-            }
-            else
-            {
-                fileSystem->appendFile(dormantFlag, "Safestore database either uninitialised or corrupt");
+                case QuarantineManagerState::INITIALISED:
+                    fileSystem->removeFile(dormantFlag, true);
+                    break;
+                case QuarantineManagerState::UNINITIALISED:
+                    fileSystem->appendFile(dormantFlag, "Safestore database uninitialised");
+                    break;
+                case QuarantineManagerState::CORRUPT:
+                    fileSystem->appendFile(dormantFlag, "Safestore database corrupt");
+                    break;
+                case QuarantineManagerState::STARTUP:
+                    break;
             }
         }
     }
