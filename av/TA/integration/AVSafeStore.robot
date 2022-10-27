@@ -95,7 +95,7 @@ SafeStore Recovers From Corrupt Database
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
-SafeStore Quarantines When It Recieves A File To Quarantine
+SafeStore Quarantines When It Receives A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
     Mark AV Log
