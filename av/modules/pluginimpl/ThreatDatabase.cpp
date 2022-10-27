@@ -69,17 +69,17 @@ namespace Plugin
         {
             LOGWARN("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error: " << ex.what());
         }
+
         std::map<std::string,std::list<std::string>> tempdatabase;
-        for (const auto& key : j)
+        for (auto it = j.begin(); it != j.end(); ++it)
         {
             std::list<std::string> correlationids;
-            std::string threatid = key;
-            nlohmann::json ids = j[threatid];
-            for(const auto& id : j)
+
+            for (auto it2 = j.begin(); it2 != j.end(); ++it2)
             {
-                correlationids.emplace_back(id);
+                correlationids.emplace_back(it2.key());
             }
-            tempdatabase.emplace(threatid, correlationids);
+            tempdatabase.emplace(it.key(), correlationids);
         }
         m_database = tempdatabase;
     }
