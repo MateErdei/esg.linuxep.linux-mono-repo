@@ -210,38 +210,12 @@ void SafeStoreServerConnectionThread::inner_run()
                 << "\n  Threat name: " << threatDetected.threatName << "\n  SHA256: " << threatDetected.sha256
                 << "\n  File descriptor: " << threatDetected.autoFd.get());
 
-            bool isQuarantineSuccessful = false;
-            bool tryQuarantine = true;
-
-            try
-            {
-                auto parentMount = mount_monitor::mountinfoimpl::Drive(threatDetected.filePath);
-                if (parentMount.isNetwork())
-                {
-                    LOGINFO("File is located on a Network mount: " << parentMount.mountPoint() << ". Will not quarantine.");
-                    threatDetected.isRemote = true;
-                    tryQuarantine = false;
-                }
-                else if (parentMount.isReadOnly())
-                {
-                    LOGINFO("File is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
-                    tryQuarantine = false;
-                }
-            }
-            catch (std::runtime_error& error)
-            {
-                LOGWARN("Unable to determine detection's parent mount, due to: " << error.what() << ". Will continue quarantine attempt.");
-            }
-
-            if (tryQuarantine)
-            {
-                isQuarantineSuccessful = m_quarantineManager->quarantineFile(
-                    threatDetected.filePath,
-                    threatDetected.threatId,
-                    threatDetected.threatName,
-                    threatDetected.sha256,
-                    std::move(threatDetected.autoFd));
-            }
+            bool isQuarantineSuccessful = m_quarantineManager->quarantineFile(
+                threatDetected.filePath,
+                threatDetected.threatId,
+                threatDetected.threatName,
+                threatDetected.sha256,
+                std::move(threatDetected.autoFd));
 
             std::ignore = isQuarantineSuccessful;
 

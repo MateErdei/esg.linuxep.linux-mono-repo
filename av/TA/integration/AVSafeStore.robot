@@ -200,7 +200,7 @@ SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount
 
     Check avscanner can detect eicar on read only mount
 
-    Wait Until SafeStore Log Contains  File is located on a ReadOnly mount:
+    Wait Until AV Plugin Log Contains  File is located on a ReadOnly mount:
     Wait Until AV Plugin Log Contains Detection Name With Offset  EICAR-AV-Test
 
 
@@ -214,7 +214,7 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount
 
     Check avscanner can detect eicar on network mount
 
-    Wait Until SafeStore Log Contains  File is located on a Network mount:
+    Wait Until AV Plugin Log Contains  File is located on a Network mount:
     Wait Until AV Plugin Log Contains Detection Name With Offset  EICAR-AV-Test
 
 

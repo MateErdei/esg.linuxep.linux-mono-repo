@@ -4,7 +4,7 @@
 
 #include "Logger.h"
 
-#include "scan_messages/QuarantineResponse.h"
+#include "mount_monitor/mountinfoimpl/Drive.h"
 
 #include "common/NotifyPipeSleeper.h"
 #include "common/ThreadRunner.h"
@@ -42,24 +42,47 @@ void SafeStoreWorker::run()
 
         scan_messages::ThreatDetected threatDetected = std::move(task).value();
 
-        unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket,m_notifyPipe,
-                                                    unixsocket::SafeStoreClient::DEFAULT_SLEEP_TIME,
-                                                    sleeper);
-        safeStoreClient.sendQuarantineRequest(threatDetected);
-        common::CentralEnums::QuarantineResult quarantineResult = safeStoreClient.waitForResponse();
-
-        if (quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS)
+        bool tryQuarantine = true;
+        try
         {
-            threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP;
-            LOGDEBUG("Quarantine succeeded");
+            auto parentMount = mount_monitor::mountinfoimpl::Drive(threatDetected.filePath);
+            if (parentMount.isNetwork())
+            {
+                LOGINFO("File is located on a Network mount: " << parentMount.mountPoint() << ". Will not quarantine.");
+                threatDetected.isRemote = true;
+                tryQuarantine = false;
+            }
+            else if (parentMount.isReadOnly())
+            {
+                LOGINFO("File is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
+                tryQuarantine = false;
+            }
         }
-        else
+        catch (std::runtime_error& error)
         {
-            threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
-            LOGINFO("Quarantine failed");
+            LOGWARN("Unable to determine detection's parent mount, due to: " << error.what() << ". Will continue quarantine attempt.");
         }
 
-        m_pluginAdapter.processDetectionReport(threatDetected, quarantineResult);
+        if (tryQuarantine)
+        {
+            unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket,
+                                                        unixsocket::SafeStoreClient::DEFAULT_SLEEP_TIME,
+                                                        sleeper);
+            safeStoreClient.sendQuarantineRequest(threatDetected);
+        }
+
+        // // TODO: LINUXDAR-5677 implement this code to wait for and deal with SafeStore response
+        //        Reponse resp = socket.read(timeout);
+        //        if (resp != good)
+        //        {
+        //            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP);
+        //        }
+        //        else
+        //        {
+        //            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
+        //        }
+
+        m_pluginAdapter.processDetectionReport(threatDetected);
     }
     sleeper.reset();
 }
