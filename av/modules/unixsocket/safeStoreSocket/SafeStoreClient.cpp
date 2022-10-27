@@ -4,6 +4,7 @@
 
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
+#include "common/CentralEnums.h"
 #include "common/SaferStrerror.h"
 #include "common/FDUtils.h"
 
@@ -54,7 +55,7 @@ void unixsocket::SafeStoreClient::sendQuarantineRequest(const scan_messages::Thr
     }
 }
 
-scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
+common::CentralEnums::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
 {
     uint32_t buffer_size = 512;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
@@ -86,7 +87,7 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
             if (fds[1].revents & POLLIN)
             {
                 LOGDEBUG("Received stop notification on safestore thread");
-                return scan_messages::QUARANTINE_FAIL;
+                return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
             }
         }
         // read length
@@ -139,7 +140,7 @@ scan_messages::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
         return scan_messages::QuarantineResponse(requestReader).getResult();
     }
     //we should have already logged when we broke out of the loop
-    return scan_messages::QUARANTINE_FAIL;
+    return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
 }
 
 

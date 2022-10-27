@@ -54,7 +54,7 @@ static scan_messages::ThreatDetected parseDetection(kj::Array<capnp::word>& prot
     return scan_messages::ThreatDetected(requestReader);
 }
 
-std::string getResponse(scan_messages::QuarantineResult quarantineResult)
+std::string getResponse(common::CentralEnums::QuarantineResult quarantineResult)
 {
     std::shared_ptr<scan_messages::QuarantineResponse> request = std::make_shared<scan_messages::QuarantineResponse>(quarantineResult);
     std::string dataAsString = request->serialise();
@@ -208,7 +208,7 @@ void SafeStoreServerConnectionThread::inner_run()
                 << "\n  Threat name: " << threatDetected.threatName << "\n  SHA256: " << threatDetected.sha256
                 << "\n  File descriptor: " << threatDetected.autoFd.get());
 
-            scan_messages::QuarantineResult quarantineResult = m_quarantineManager->quarantineFile(
+            common::CentralEnums::QuarantineResult quarantineResult = m_quarantineManager->quarantineFile(
                 threatDetected.filePath,
                 threatDetected.threatId,
                 threatDetected.threatName,

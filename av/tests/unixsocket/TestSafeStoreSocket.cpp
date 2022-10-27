@@ -72,7 +72,7 @@ namespace
     {
     public:
         MOCK_METHOD(
-            scan_messages::QuarantineResult,
+            common::CentralEnums::QuarantineResult,
             quarantineFile,
             (const std::string& filePath,
              const std::string& threatId,
@@ -107,7 +107,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
                 {
                     EXPECT_TRUE(autoFd.valid()); // check we received a valid fd
                     serverWaitGuard.onEventNoArgs();
-                    return scan_messages::QUARANTINE_FAIL;
+                    return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
                 }));
 
         unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
@@ -161,13 +161,13 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
             [&serverWaitGuard]()
             {
                 serverWaitGuard.onEventNoArgs();
-                return scan_messages::QUARANTINE_FAIL;
+                return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
             }))
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard2]()
             {
                 serverWaitGuard2.onEventNoArgs();
-                return scan_messages::QUARANTINE_FAIL;
+                return common::CentralEnums::QuarantineResult::QUARANTINE_FAIL;
             }));
 
     unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);

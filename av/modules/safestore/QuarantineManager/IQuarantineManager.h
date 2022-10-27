@@ -3,6 +3,7 @@
 #pragma once
 
 #include "datatypes/AutoFd.h"
+#include "common/CentralEnums.h"
 #include <scan_messages/QuarantineResponse.h>
 #include <string>
 
@@ -48,7 +49,7 @@ namespace safestore::QuarantineManager
          * Delete the file.
          * Store the checksum of the file.
          */
-        virtual  scan_messages::QuarantineResult quarantineFile(
+        virtual  common::CentralEnums::QuarantineResult quarantineFile(
             const std::string& filePath,
             const std::string& threatId,
             const std::string& threatName,

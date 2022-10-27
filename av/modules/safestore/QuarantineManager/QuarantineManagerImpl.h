@@ -22,7 +22,7 @@ namespace safestore::QuarantineManager
         void initialise() override;
         QuarantineManagerState getState() override;
         bool deleteDatabase() override;
-        scan_messages::QuarantineResult quarantineFile(
+        common::CentralEnums::QuarantineResult quarantineFile(
             const std::string& filePath,
             const std::string& threatId,
             const std::string& threatName,

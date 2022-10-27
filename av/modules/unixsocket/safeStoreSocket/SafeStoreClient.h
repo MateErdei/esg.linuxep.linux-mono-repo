@@ -20,10 +20,9 @@ namespace unixsocket
         explicit SafeStoreClient(std::string socket_path, Common::Threads::NotifyPipe& notifyPipe, const duration_t& sleepTime = DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
 
         void sendQuarantineRequest(const scan_messages::ThreatDetected& detection);
-        scan_messages::QuarantineResult waitForResponse();
+        common::CentralEnums::QuarantineResult waitForResponse();
 
     private:
-        bool checkIfQuarantineAborted();
         Common::Threads::NotifyPipe& m_notifyPipe;
     };
 } // namespace unixsocket

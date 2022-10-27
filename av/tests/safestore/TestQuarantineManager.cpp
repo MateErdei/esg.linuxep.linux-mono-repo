@@ -210,7 +210,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(scan_messages::QUARANTINE_SUCCESS,quarantineManager->quarantineFile(
+    ASSERT_EQ(common::CentralEnums::QuarantineResult::QUARANTINE_SUCCESS,quarantineManager->quarantineFile(
         m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 }
 
@@ -246,7 +246,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(scan_messages::QUARANTINE_FAIL_TO_DELETE_FILE,quarantineManager->quarantineFile(
+    ASSERT_EQ(common::CentralEnums::QuarantineResult::QUARANTINE_FAIL_TO_DELETE_FILE,quarantineManager->quarantineFile(
                                                      m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 }
 
@@ -280,7 +280,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenThreatDirectoryDoesNotExis
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(scan_messages::QUARANTINE_FAIL_TO_DELETE_FILE,quarantineManager->quarantineFile(
+    ASSERT_EQ(common::CentralEnums::QuarantineResult::QUARANTINE_FAIL_TO_DELETE_FILE,quarantineManager->quarantineFile(
                                                                  m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 }
 
@@ -315,7 +315,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(scan_messages::QUARANTINE_FAIL_TO_DELETE_FILE,quarantineManager->quarantineFile(
+    ASSERT_EQ(common::CentralEnums::QuarantineResult::QUARANTINE_FAIL_TO_DELETE_FILE,quarantineManager->quarantineFile(
                                                                  m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 }
 TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
@@ -355,7 +355,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(scan_messages::QUARANTINE_FAIL,quarantineManager->quarantineFile(
+    ASSERT_EQ(common::CentralEnums::QuarantineResult::QUARANTINE_FAIL,quarantineManager->quarantineFile(
         m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::CORRUPT);
@@ -396,7 +396,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(scan_messages::QUARANTINE_FAIL,quarantineManager->quarantineFile(
+    ASSERT_EQ(common::CentralEnums::QuarantineResult::QUARANTINE_FAIL,quarantineManager->quarantineFile(
         m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 }
 
@@ -420,7 +420,7 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenThreatIdIsIncorrectSize)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(scan_messages::QUARANTINE_FAIL,
+    ASSERT_EQ(common::CentralEnums::QuarantineResult::QUARANTINE_FAIL,
         quarantineManager->quarantineFile(m_dir + "/" + m_file, threatId, m_threatName, m_SHA256, std::move(fdHolder)));
 }
 
@@ -434,11 +434,11 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenUninitialised)
 
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::UNINITIALISED);
     datatypes::AutoFd fdHolder;
-    scan_messages::QuarantineResult result;
+    common::CentralEnums::QuarantineResult result;
     EXPECT_NO_THROW(
         result = quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
-    ASSERT_EQ(result,scan_messages::QUARANTINE_FAIL);
+    ASSERT_EQ(result,common::CentralEnums::QuarantineResult::QUARANTINE_FAIL);
 }
 
 TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnInitialisedDb)

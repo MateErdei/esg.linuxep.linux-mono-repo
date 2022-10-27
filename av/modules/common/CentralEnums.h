@@ -70,6 +70,14 @@ namespace common
             behavioral = 14
         };
 
+        enum class QuarantineResult : int
+        {
+            QUARANTINE_SUCCESS = 0,
+            QUARANTINE_FAIL = 1,
+            QUARANTINE_DELETE = 2,
+            QUARANTINE_FAIL_TO_DELETE_FILE = 3,
+            QUARANTINE_WHITELISTED = 4,
+        };
         // Code based on InteractionProtocolHelper::GetOriginOf in SSP
         constexpr Origin getOriginOf(ReportSource source, ThreatType type)
         {

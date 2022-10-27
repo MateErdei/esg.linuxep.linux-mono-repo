@@ -46,9 +46,9 @@ void SafeStoreWorker::run()
                                                     unixsocket::SafeStoreClient::DEFAULT_SLEEP_TIME,
                                                     sleeper);
         safeStoreClient.sendQuarantineRequest(threatDetected);
-        scan_messages::QuarantineResult quarantineResult = safeStoreClient.waitForResponse();
+        common::CentralEnums::QuarantineResult quarantineResult = safeStoreClient.waitForResponse();
 
-        if (quarantineResult == scan_messages::QUARANTINE_SUCCESS)
+        if (quarantineResult == common::CentralEnums::QuarantineResult::QUARANTINE_SUCCESS)
         {
             threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP;
             LOGDEBUG("Quarantine succeeded");
