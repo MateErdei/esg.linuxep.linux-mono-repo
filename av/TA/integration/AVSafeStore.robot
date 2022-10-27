@@ -87,10 +87,12 @@ SafeStore Recovers From Corrupt Database
     Mark SafeStore Log
     Corrupt SafeStore Database
 
-    Check Safestore Dormant Flag Exists
+    Check SafeStore Dormant Flag Exists
 
     Wait Until SafeStore Log Contains With Offset    Successfully removed corrupt SafeStore database    200
     Wait Until SafeStore Log Contains With Offset    Successfully initialised SafeStore database
+
+    Check Safestore Dormant Flag Does Not Exist
 
     Mark SafeStore Log
     Check avscanner can detect eicar
@@ -175,6 +177,9 @@ Corrupt SafeStore Database
     Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
     Start SafeStore
 
-Check Safestore Dormant Flag Exists
+Check SafeStore Dormant Flag Exists
     [Arguments]  ${timeout}=15  ${interval}=2
     Wait Until File exists  ${SAFESTORE_DORMANT_FLAG}  ${timeout}  ${interval}
+
+Check Safestore Dormant Flag Does Not Exist
+    File Should Not Exist  ${SAFESTORE_DORMANT_FLAG}
