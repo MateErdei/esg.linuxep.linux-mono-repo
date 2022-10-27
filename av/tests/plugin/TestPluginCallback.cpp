@@ -443,7 +443,6 @@ TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidFileDoesNotExistAndShutdown
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Return(std::time(nullptr) - 60));
-    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(true));
 
     long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_sysCalls);
@@ -469,7 +468,6 @@ TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidFileDoesNotExistAndShutdown
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
             Common::FileSystem::IFileSystemException("Shutdown file read error.")));
-    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(true));
 
     long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_sysCalls);
@@ -489,7 +487,6 @@ TEST_F(TestPluginCallback, calculateHealthReturnsGoodIfLockCannotBeTakenOnPidFil
     int fileDescriptor = 123;
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
     EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
-    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(true));
 
     long expectedResult = E_HEALTH_STATUS_GOOD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
@@ -512,7 +509,6 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnThreatDete
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
         Common::FileSystem::IFileSystemException("Shutdown file read error.")));
-    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(true));
 
     int other_fd = 123;
     int threat_detector_fd = 321;
@@ -552,7 +548,6 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFi
 
     EXPECT_CALL(*m_mockSysCalls, flock(other_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
     EXPECT_CALL(*m_mockSysCalls, flock(soapd_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));
-    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(true));
 
     long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
@@ -626,7 +621,6 @@ TEST_F(TestPluginCallback, getTelemetry_ProductInfo)
     EXPECT_CALL(*filesystemMock, isDirectory(threatDetectorPidProcDirectory)).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, isDirectory(soapdPidProcDirectory)).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readProcFile(threatDetectorPidFileContentsConverted, "stat")).WillOnce(Return(statProcContents));
-    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(true));
 
     json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
 
