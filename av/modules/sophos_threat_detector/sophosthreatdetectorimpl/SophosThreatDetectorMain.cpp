@@ -431,6 +431,8 @@ namespace sspl::sophosthreatdetectorimpl
         if (sigTermMonitor.triggered())
         {
             LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
+            m_scannerFactory->shutdown();
+            updateCompleteNotifier->tryStop();
             return common::E_CLEAN_SUCCESS;
         }
         m_scannerFactory->update(); // always force an update during start-up
