@@ -283,7 +283,7 @@ namespace safestore::QuarantineManager
         ++m_databaseErrorCount;
         if (m_databaseErrorCount >= m_dbErrorCountThreshold.getValue())
         {
-            LOGWARN("database is corrupt");
+            LOGWARN("SafeStore database is corrupt");
             m_state = QuarantineManagerState::CORRUPT;
         }
     }
