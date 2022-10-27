@@ -371,11 +371,8 @@ On Access Includes Included Mount On Top Of Excluded Mount
 
     Mark On Access Log
     Bind Mount Directory  ${excludedMount}  ${dest}
-    Bind Mount Directory  ${includedMount}  ${dest}
-    ${result} =  Run Process  mount
-    Log  ${result.stdout}
-
     Wait Until On Access Log Contains With Offset  Mount point ${dest} is system and will be excluded from the scan
+    Bind Mount Directory  ${includedMount}  ${dest}
     Wait Until On Access Log Contains With Offset  Including mount point: ${dest}
 
 
@@ -388,11 +385,8 @@ On Access Excludes Excluded Mount On Top Of Included Mount
 
     Mark On Access Log
     Bind Mount Directory  ${includedMount}  ${dest}
-    Bind Mount Directory  ${excludedMount}  ${dest}
-    ${result} =  Run Process  mount
-    Log  ${result.stdout}
-
     Wait Until On Access Log Contains With Offset  Including mount point: ${dest}
+    Bind Mount Directory  ${excludedMount}  ${dest}
     Wait Until On Access Log Contains With Offset  Mount point ${dest} is system and will be excluded from the scan
 
 
