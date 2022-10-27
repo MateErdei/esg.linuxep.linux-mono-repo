@@ -67,7 +67,7 @@ namespace Plugin
         }
         catch (nlohmann::json::exception& ex)
         {
-            LOGWARN("failed to parse threat database on disk with error: "<< ex.what() << " resetting database");
+            LOGWARN("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error: " << ex.what());
         }
         std::map<std::string,std::list<std::string>> tempdatabase;
         for (const auto& key : j)
