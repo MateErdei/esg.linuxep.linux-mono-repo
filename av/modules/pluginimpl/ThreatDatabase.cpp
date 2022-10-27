@@ -38,6 +38,32 @@ namespace Plugin
 
     }
 
+    void ThreatDatabase::removeThreat(const std::string& threatID, const std::string correlationID)
+    {
+        std::map<std::string,std::list<std::string>>::iterator it = m_database.find(threatID);
+        if (it != m_database.end())
+        {
+            std::list oldListIDS = it->second;
+            auto iterator = std::find(oldListIDS.begin(), oldListIDS.end(), correlationID);
+            if (iterator != oldListIDS.end() )
+            {
+                oldListIDS.erase(iterator);
+                if (oldListIDS.empty())
+                {
+                    m_database.erase(it);
+                }
+                else
+                {
+                    it->second = oldListIDS;
+                }
+            }
+        }
+        else
+        {
+            LOGINFO("Cannot remove threat form database as it cannot be found");
+        }
+    }
+
     void ThreatDatabase::convertDatabaseToString()
     {
         nlohmann::json j;

@@ -11,6 +11,7 @@ namespace Plugin
         explicit ThreatDatabase(const std::string& path);
         ~ThreatDatabase();
         void addThreat(const std::string& threatID, const std::string correlationID);
+        void removeThreat(const std::string& threatID, const std::string correlationID);
 
     private:
         void convertDatabaseToString();
