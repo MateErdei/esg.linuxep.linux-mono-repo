@@ -4,8 +4,6 @@
 
 #include "ScanRequest.capnp.h"
 
-#include <scan_messages/ScanRequest.h>
-
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 
@@ -129,6 +127,95 @@ void unixsocket::ScanningServerConnectionThread::run()
     setIsRunning(false);
 }
 
+bool unixsocket::ScanningServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd, const scan_messages::ScanResponse& response)
+{
+    std::string serialised_result = response.serialise();
+    try
+    {
+        if (!writeLengthAndBuffer(socket_fd, serialised_result))
+        {
+            LOGWARN("Failed to write result to unix socket");
+            return false;
+        }
+    }
+    catch (unixsocket::environmentInterruption& e)
+    {
+        LOGWARN("Exiting Scanning Connection Thread: " << e.what());
+        return false;
+    }
+    return true;
+}
+
+bool unixsocket::ScanningServerConnectionThread::isReceivedFdFile(datatypes::AutoFd& file_fd, std::string& errMsg)
+{
+    struct ::stat st
+    {
+    };
+    int ret = ::fstat(file_fd.get(), &st);
+    if (ret == -1)
+    {
+        errMsg = "Aborting Scanning connection thread: failed to get file status";
+        return false;
+    }
+    if (!S_ISREG(st.st_mode))
+    {
+        errMsg = "Aborting Scanning connection thread: fd is not a regular file";
+        return false;
+    }
+    return true;
+}
+
+bool unixsocket::ScanningServerConnectionThread::isReceivedFileOpen(datatypes::AutoFd& file_fd, std::string& errMsg)
+{
+    int status = ::fcntl(file_fd.get(), F_GETFL);
+    if (status == -1)
+    {
+        errMsg = "Aborting Scanning connection thread: failed to get file status flags";
+        return false;
+    }
+    unsigned int mode = status & O_ACCMODE;
+    if (!(mode == O_RDONLY || mode == O_RDWR ) || status & O_PATH )
+    {
+        errMsg = "Aborting Scanning connection thread: fd is not open for read";
+        return false;
+    }
+    return true;
+}
+
+bool unixsocket::ScanningServerConnectionThread::readCapnProtoMsg(
+    int32_t length,
+    uint32_t buffer_size,
+    kj::Array<capnp::word>& proto_buffer,
+    datatypes::AutoFd& socket_fd,
+    ssize_t& bytes_read,
+    bool& loggedLengthOfZero,
+    std::string& errMsg)
+{
+    if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
+    {
+        buffer_size = 1 + length / sizeof(capnp::word);
+        proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+        loggedLengthOfZero = false;
+    }
+
+    bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
+    if (bytes_read < 0)
+    {
+        std::stringstream errSS;
+        errSS << "Aborting Scanning connection thread: " << errno;
+        errMsg = errSS.str();
+        return false;
+    }
+    else if (bytes_read != length)
+    {
+        errMsg = "Aborting Scanning connection thread: failed to read entire message";
+        return false;
+    }
+
+    LOGDEBUG("Read capn of " << bytes_read);
+    return true;
+}
+
 void unixsocket::ScanningServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_socketFd));
@@ -203,27 +290,16 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             }
 
             // read capn proto
-            if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
+            scan_messages::ScanResponse result;
+            ssize_t bytes_read;
+            std::string errMsg;
+            if (!readCapnProtoMsg(length, buffer_size, proto_buffer, socket_fd, bytes_read, loggedLengthOfZero, errMsg))
             {
-                buffer_size = 1 + length / sizeof(capnp::word);
-                proto_buffer = kj::heapArray<capnp::word>(buffer_size);
-                loggedLengthOfZero = false;
-            }
-
-            ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
-            if (bytes_read < 0)
-            {
-                LOGERROR("Aborting Scanning connection thread: " << errno);
+                result.setErrorMsg(errMsg);
+                sendResponse(socket_fd, result);
+                LOGERROR(errMsg);
                 break;
             }
-            else if (bytes_read != length)
-            {
-                LOGERROR("Aborting Scanning connection thread: failed to read entire message");
-                break;
-            }
-
-            LOGDEBUG("Read capn of " << bytes_read);
-
             std::shared_ptr<scan_messages::ScanRequest> requestReader = parseRequest(proto_buffer, bytes_read);
 
             std::string escapedPath(requestReader->getPath());
@@ -235,40 +311,23 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
             if (file_fd.get() < 0)
             {
-                LOGERROR("Aborting Scanning connection thread: failed to read fd");
+                errMsg = "Aborting Scanning connection thread: failed to read fd";
+                result.setErrorMsg(errMsg);
+                sendResponse(socket_fd, result);
+                LOGERROR(errMsg);
                 break;
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
 
-            // is it a file?
-            struct ::stat st {};
-            int ret = ::fstat(file_fd.get(), &st);
-            if (ret == -1)
+
+            if (!isReceivedFdFile(file_fd, errMsg) || !isReceivedFileOpen(file_fd, errMsg))
             {
-                LOGERROR("Aborting Scanning connection thread: failed to get file status");
-                break;
-            }
-            if (!S_ISREG(st.st_mode))
-            {
-                LOGERROR("Aborting Scanning connection thread: fd is not a regular file");
+                result.setErrorMsg(errMsg);
+                sendResponse(socket_fd, result);
+                LOGERROR(errMsg);
                 break;
             }
 
-            // is it open for read?
-            int status = ::fcntl(file_fd.get(), F_GETFL);
-            if (status == -1)
-            {
-                LOGERROR("Aborting Scanning connection thread: failed to get file status flags");
-                break;
-            }
-            unsigned int mode = status & O_ACCMODE;
-            if (!(mode == O_RDONLY || mode == O_RDWR ) || status & O_PATH )
-            {
-                LOGERROR("Aborting Scanning connection thread: fd is not open for read");
-                break;
-            }
-
-            scan_messages::ScanResponse result;
             try
             {
                 if (!scanner)
@@ -292,19 +351,8 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
             file_fd.reset();
 
-            std::string serialised_result = result.serialise();
-
-            try
+            if (!sendResponse(socket_fd, result))
             {
-                if (!writeLengthAndBuffer(socket_fd, serialised_result))
-                {
-                    LOGWARN("Failed to write result to unix socket");
-                    break;
-                }
-            }
-            catch (unixsocket::environmentInterruption& e)
-            {
-                LOGWARN("Exiting Scanning Connection Thread: " << e.what());
                 break;
             }
         }

@@ -5,6 +5,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
+#include <ScanResponse.capnp.h>
 
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
@@ -13,6 +14,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "datatypes/sophos_filesystem.h"
 #include "tests/common/MemoryAppender.h"
 #include "tests/common/TestFile.h"
+#include <capnp/serialize.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -101,6 +103,61 @@ namespace
             ASSERT_GE(m_clientFd.get(), 0);
         }
 
+        bool receiveResponse(scan_messages::ScanResponse& response)
+        {
+            if (!m_clientFd.valid())
+            {
+                return false;
+            }
+            auto length = readLength(m_clientFd);
+            if (length < 0)
+            {
+                return false;
+            }
+
+            size_t buffer_size = 1 + length / sizeof(capnp::word);
+            auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+
+            auto bytes_read = ::read(m_clientFd, proto_buffer.begin(), length);
+
+            if (bytes_read != length)
+            {
+                return false;
+            }
+
+            auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
+
+            try
+            {
+                capnp::FlatArrayMessageReader messageInput(view);
+                Sophos::ssplav::FileScanResponse::Reader responseReader =
+                    messageInput.getRoot<Sophos::ssplav::FileScanResponse>();
+
+                response = scan_messages::ScanResponse(responseReader);
+            }
+            catch (kj::Exception& ex)
+            {
+                if (ex.getType() == kj::Exception::Type::UNIMPLEMENTED)
+                {
+                    // Fatal since this means we have a coding error that calls something unimplemented in kj.
+                    PRINT(
+                        "Terminated ScanningClientSocket with serialisation unimplemented exception: "
+                        << ex.getDescription().cStr());
+                }
+                else
+                {
+                    PRINT(
+                        "Terminated ScanningClientSocket with serialisation exception: " << ex.getDescription().cStr());
+                }
+
+                std::stringstream errorMsg;
+                errorMsg << "Malformed response from Sophos Threat Detector (" << ex.getDescription().cStr() << ")";
+                throw std::runtime_error(errorMsg.str());
+            }
+
+            return true;
+        }
+
         datatypes::AutoFd m_serverFd;
         datatypes::AutoFd m_clientFd;
     };
@@ -173,7 +230,7 @@ TEST_F(TestScanningServerConnectionThread, eof_while_running) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     connectionThread.start();
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -190,7 +247,7 @@ TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory, 1);
     connectionThread.start();
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -209,7 +266,7 @@ TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -233,7 +290,7 @@ TEST_F(TestScanningServerConnectionThread, over_max_length) //NOLINT
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLength(clientFd, 0x1000080);
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -259,7 +316,7 @@ TEST_F(TestScanningServerConnectionThread, max_length) //NOLINT
     // length is limited to ~16MB
     unixsocket::writeLength(clientFd, 0x100007f);
     ::close(clientFd);
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -285,7 +342,7 @@ TEST_F(TestScanningServerConnectionThread, corrupt_request) //NOLINT
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(clientFd, request);
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -301,7 +358,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, valid_request_no_
     EXPECT_TRUE(m_connectionThread->isRunning());
     unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
     ::close(m_clientFd);
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
     m_connectionThread->requestStop();
     m_connectionThread->join();
 
@@ -328,13 +385,13 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd) // NOLINT
 
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open());
-    auto ret = send_fd(m_clientFd, fd.get()); // send a valid file descriptor
+    int ret = send_fd(m_clientFd, fd.get()); // send a valid file descriptor
     ASSERT_GE(ret, 0);
 
-    auto length = unixsocket::readLength(m_clientFd);
+    int length = unixsocket::readLength(m_clientFd);
     static_cast<void>(length);
 
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -351,10 +408,14 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_not_readable) 
     unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open(O_WRONLY));
-    auto ret = send_fd(m_clientFd, fd.get());
+    int ret = send_fd(m_clientFd, fd.get());
     ASSERT_GE(ret, 0);
 
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
+    scan_messages::ScanResponse response;
+    receiveResponse(response);
+    EXPECT_EQ(response.getErrorMsg(), expected);
+
     m_connectionThread->requestStop();
     m_connectionThread->join();
 
@@ -371,11 +432,15 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_device) //N
     unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
     datatypes::AutoFd devNull(::open("/dev/null", O_RDONLY));
     ASSERT_GE(devNull.get(), 0);
-    auto ret = send_fd(m_clientFd, devNull.get());
+    int ret = send_fd(m_clientFd, devNull.get());
     devNull.close();
     ASSERT_GE(ret, 0);
 
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
+    scan_messages::ScanResponse response;
+    receiveResponse(response);
+    EXPECT_EQ(response.getErrorMsg(), expected);
+
     m_connectionThread->requestStop();
     m_connectionThread->join();
 
@@ -390,10 +455,14 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_socket) //N
     m_connectionThread->start();
     EXPECT_TRUE(m_connectionThread->isRunning());
     unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
-    auto ret = send_fd(m_clientFd, m_clientFd.get());
+    int ret = send_fd(m_clientFd, m_clientFd.get());
     ASSERT_GE(ret, 0);
 
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
+    scan_messages::ScanResponse response;
+    receiveResponse(response);
+    EXPECT_EQ(response.getErrorMsg(), expected);
+
     m_connectionThread->requestStop();
     m_connectionThread->join();
 
@@ -411,11 +480,15 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_path) //NOL
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open(O_PATH));
     ASSERT_GE(fd.get(), 0);
-    auto ret = send_fd(m_clientFd, fd.get());
+    int ret = send_fd(m_clientFd, fd.get());
     fd.close();
     ASSERT_GE(ret, 0);
 
-    EXPECT_TRUE(waitForLog(expected));
+    waitForLog(expected);
+    scan_messages::ScanResponse response;
+    receiveResponse(response);
+    EXPECT_EQ(response.getErrorMsg(), expected);
+
     m_connectionThread->requestStop();
     m_connectionThread->join();
 
