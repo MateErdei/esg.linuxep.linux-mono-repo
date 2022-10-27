@@ -123,3 +123,17 @@ TEST_F(TestThreatDatabase, removeCorrelationID)
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
     database.removeThreat("threatid","correlationID");
 }
+
+TEST_F(TestThreatDatabase, resetHealth)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    EXPECT_CALL(*filesystemMock, exists("/path/persist-threatDatabase")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("/path/persist-threatDatabase")).WillOnce(Return("{\"threatid\":[\"threatid\",\"correlationID\"]}"));
+    EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{}"));
+
+    Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
+    database.resetDatabase();
+}

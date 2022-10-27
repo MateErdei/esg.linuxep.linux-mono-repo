@@ -64,6 +64,12 @@ namespace Plugin
         }
     }
 
+    void ThreatDatabase::resetDatabase()
+    {
+        std::map<std::string,std::list<std::string>> tempdatabase;
+        m_database = tempdatabase;
+    }
+
     void ThreatDatabase::convertDatabaseToString()
     {
         nlohmann::json j;
