@@ -14,6 +14,7 @@
 #include "PolicyWaiter.h"
 #include "SafeStoreWorker.h"
 #include "TaskQueue.h"
+#include "ThreatDatabase.h"
 
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "manager/scheduler/ScanScheduler.h"
@@ -55,6 +56,7 @@ namespace Plugin
         void processDetectionReport(const scan_messages::ThreatDetected&) const override;
         void processThreatReport(const std::string& threatDetectedXML) const;
         void publishThreatEvent(const std::string& threatDetectedJSON) const;
+        void updateThreatDatabase(const scan_messages::ThreatDetected& detection);
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
         bool isSafeStoreEnabled();
         [[nodiscard]] std::shared_ptr<DetectionQueue> getDetectionQueue() const;
@@ -77,6 +79,7 @@ namespace Plugin
         void setResetThreatDetector(bool reset) { m_restartSophosThreatDetector = reset || m_restartSophosThreatDetector; }
 
         PolicyProcessor m_policyProcessor;
+        ThreatDatabase m_threatDatabase;
         bool m_restartSophosThreatDetector = false;
 
         std::unique_ptr<common::ThreadRunner> m_safeStoreWorkerThread;

@@ -46,7 +46,8 @@ namespace Plugin
                 // detection is not moved if the push fails, so can still be used by processDetectionReport
                 if (!m_adapter.isSafeStoreEnabled() || !m_adapter.getDetectionQueue()->push(detection))
                 {
-                    detection.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
+                    // TODO: LINUXDAR-5677 - Modify report to include no quarantine happened
+                    // reportNoQuarantine(detection);
                     m_adapter.processDetectionReport(detection);
                 }
             }
@@ -74,7 +75,9 @@ namespace Plugin
         m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this, m_detectionQueue, getSafeStoreSocketPath())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
-        m_threatEventPublisher(m_zmqContext->getPublisher())
+        m_threatEventPublisher(m_zmqContext->getPublisher()),
+        m_policyProcessor(m_taskQueue),
+        m_threatDatabase(Plugin::getPluginVarDirPath())
     {
     }
 
@@ -317,14 +320,8 @@ namespace Plugin
         }
     }
 
-    void PluginAdapter::processScanComplete(std::string& scanCompletedXml, int exitCode)
+    void PluginAdapter::processScanComplete(std::string& scanCompletedXml)
     {
-        if (( exitCode == common::E_CLEAN_SUCCESS ||  exitCode == common::E_GENERIC_FAILURE ||  exitCode == common::E_PASSWORD_PROTECTED ))
-        {
-            LOGDEBUG("Publishing good threat health status after clean scan");
-            publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
-        }
-
         LOGDEBUG("Sending scan complete notification to central: " << scanCompletedXml);
 
         m_taskQueue->push(Task { .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });
@@ -339,6 +336,14 @@ namespace Plugin
         publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     }
 
+    void PluginAdapter::updateThreatDatabase(const scan_messages::ThreatDetected& detection)
+    {
+        if (detection.notificationStatus != scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP)
+        {
+            m_threatDatabase.addThreat(detection.threatId,detection.threatId);
+        }
+
+    }
     void PluginAdapter::processThreatReport(const std::string& threatDetectedXML) const
     {
         LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
