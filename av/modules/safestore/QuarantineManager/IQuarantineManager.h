@@ -41,6 +41,11 @@ namespace safestore::QuarantineManager
         virtual QuarantineManagerState getState() = 0;
 
         /*
+         * Used to set the state of the Quarantine Manager
+         */
+        virtual void setState(const safestore::QuarantineManager::QuarantineManagerState& newState) = 0;
+
+        /*
          * Delete all files within the database directory.
          * This can be called when getState() reports corrupt so that a new database can be initialised.
          */

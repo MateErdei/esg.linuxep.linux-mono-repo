@@ -80,7 +80,7 @@ namespace
              const std::string& sha256,
              datatypes::AutoFd autoFd));
 
-        MOCK_METHOD(void, setState,(const std::string newState));
+        MOCK_METHOD(void, setState,(const safestore::QuarantineManager::QuarantineManagerState& newState));
         MOCK_METHOD(void, initialise,());
         MOCK_METHOD(safestore::QuarantineManager::QuarantineManagerState, getState,());
         MOCK_METHOD(bool, deleteDatabase,());

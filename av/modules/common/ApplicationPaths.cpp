@@ -56,6 +56,6 @@ namespace Plugin
 
     std::string getSafeStoreDormantFlagPath()
     {
-        return getPluginVarDirPath() + "/safestore_dormant_flag.json";
+        return getPluginVarDirPath() + "/safestore_dormant_flag";
     }
 } // namespace Plugin
