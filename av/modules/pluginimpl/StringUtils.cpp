@@ -151,38 +151,6 @@ long pluginimpl::getThreatStatus()
     }
 }
 
-//<event type="sophos.core.clean" ts="{{timestamp in format 2016-02-03T09:55:22.000Z}}">
-//  <alert id="{{eventCorrelationId}}" succeeded="{{0=false|1=true}}" origin="{{int}}">
-//    <items totalItems="{{totalItems}}">
-//      <item type="{{file|regkey}}" result="{{0=success, 1=not-found, 2=deleted, 3=failed-to-delete, 4=whitelisted ...
-//      other values are error}}">
-//        <descriptor>{{path1}}</descriptor>
-//      </item>
-//      <item type="{{file|regkey}}" result="{{0=success, 1=not-found, 2=deleted, 3=failed-to-delete, 4=whitelisted ...
-//      other values are error}}">
-//        <descriptor>{{path2}}</descriptor>
-//      </item>
-//      ...
-//    </items>
-//  </alert>
-//</event>
-
-//<event type="sophos.core.clean" ts="2016-02-03T09:55:22.000Z">
-//  <alert id="eventCorrelationId" succeeded="0/1" origin="{{int}}">
-//    <items totalItems="{{totalItems}}">
-//      <item type="{{file|regkey}}" result="{{0=success, 1=not-found, 2=deleted, 3=failed-to-delete, 4=whitelisted ...
-//      other values are error}}">
-//        <descriptor>{{path1}}</descriptor>
-//      </item>
-//      <item type="{{file|regkey}}" result="{{0=success, 1=not-found, 2=deleted, 3=failed-to-delete, 4=whitelisted ...
-//      other values are error}}">
-//        <descriptor>{{path2}}</descriptor>
-//      </item>
-//      ...
-//    </items>
-//  </alert>
-//</event>
-
 // XML defined at https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42255827359/EMP+event-core-clean
 std::string pluginimpl::generateCoreCleanEventXml(const scan_messages::ThreatDetected& detection, const common::CentralEnums::QuarantineResult& quarantineResult)
 {

@@ -57,7 +57,7 @@ namespace Plugin
 
         /*
          * Takes in detection info and the result from attempting to quarantine that threat and then
-         * triggers various outputs ot be generated: Central Events, Event Journal input, Threat Health
+         * triggers various outputs to be generated: Central Events, Event Journal input, Threat Health
          */
         void processDetectionReport(const scan_messages::ThreatDetected&, const common::CentralEnums::QuarantineResult& quarantineResult) const override;
 
