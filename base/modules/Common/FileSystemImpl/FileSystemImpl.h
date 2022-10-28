@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2022, Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -99,6 +95,10 @@ namespace Common
             bool waitForFile(const Path& path, unsigned int timeout) const override;
 
             void recursivelyDeleteContentsOfDirectory(const Path& path) const override;
+
+            std::string calculateDigest(const char* digestName, const Path& path) const override;
+
+            std::string calculateDigest(const char* digestName, int fd) const override;
 
         private:
             void walkDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const;

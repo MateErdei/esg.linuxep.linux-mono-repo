@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2022, Sophos Limited. All rights reserved.
 
 #include "FileSystemImpl.h"
 
@@ -10,7 +6,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
+#include <Common/SslImpl/Digest.h>
 #include <Common/UtilityImpl/StrError.h>
+#include <ext/stdio_filebuf.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -92,7 +90,10 @@ namespace Common
             return "";
         }
 
-        Path join(const Path& path1, const Path& path2, const Path& path3) { return join(join(path1, path2), path3); }
+        Path join(const Path& path1, const Path& path2, const Path& path3)
+        {
+            return join(join(path1, path2), path3);
+        }
 
         std::string basename(const Path& path)
         {
@@ -215,7 +216,10 @@ namespace Common
             }
         }
 
-        std::string FileSystemImpl::readFile(const Path& path) const { return readFile(path, GL_MAX_SIZE); }
+        std::string FileSystemImpl::readFile(const Path& path) const
+        {
+            return readFile(path, GL_MAX_SIZE);
+        }
 
         std::string FileSystemImpl::readFile(const Path& path, unsigned long maxSize) const
         {
@@ -601,7 +605,7 @@ namespace Common
             {
                 files = listFiles(root);
             }
-            catch(IFileSystemException& exception)
+            catch (IFileSystemException& exception)
             {
                 std::cout << "Failed to get list of files for :'" << root << "'" << std::endl;
                 return;
@@ -617,7 +621,7 @@ namespace Common
             {
                 directories = listDirectories(root);
             }
-            catch(IFileSystemException& exception)
+            catch (IFileSystemException& exception)
             {
                 std::cout << "Failed to get list of directories for :'" << root << "'" << std::endl;
                 return;
@@ -644,7 +648,10 @@ namespace Common
             }
         }
 
-        void FileSystemImpl::removeFile(const Path& path) const { removeFile(path, false); }
+        void FileSystemImpl::removeFile(const Path& path) const
+        {
+            removeFile(path, false);
+        }
 
         void FileSystemImpl::removeFileOrDirectory(const Path& dir) const
         {
@@ -731,15 +738,15 @@ namespace Common
                 linkPath[ret] = 0;
                 linkPath[PATH_MAX] = 0;
                 if (linkPath[0] == '/')
-				{
-					return linkPath;
-				}
-				else
-				{
-					return Common::FileSystem::join(dirName(path), linkPath);
-				}
+                {
+                    return linkPath;
+                }
+                else
+                {
+                    return Common::FileSystem::join(dirName(path), linkPath);
+                }
             }
-            return std::optional<Path> {};
+            return std::optional<Path>{};
         }
 
         off_t FileSystemImpl::fileSize(const Path& path) const
@@ -792,7 +799,7 @@ namespace Common
 
         int FileSystemImpl::getFileInfoDescriptorFromDirectoryFD(int fd, const Path& path) const
         {
-            return openat(fd,path.c_str(), O_PATH);
+            return openat(fd, path.c_str(), O_PATH);
         }
 
         void FileSystemImpl::removeFilesInDirectory(const Path& path) const
@@ -861,15 +868,55 @@ namespace Common
                     removeFileOrDirectory(pathToRemove);
                 }
             }
-            catch(IFileSystemException& exception)
+            catch (IFileSystemException& exception)
             {
                 std::stringstream errorMsg;
                 errorMsg << "Failed to remove all contents of :'" << path << "'"
-                          << " Reason: " << exception.what() << std::endl;
+                         << " Reason: " << exception.what() << std::endl;
                 throw IFileSystemException(errorMsg.str());
             }
         }
 
+        std::string FileSystemImpl::calculateDigest(const char* digestName, const Path& path) const
+        {
+            std::ifstream inFileStream{ path, std::ios::binary };
+
+            if (!inFileStream.is_open() || !inFileStream.good())
+            {
+                throw IFileSystemException("'" + path + "' does not exist or can't be opened for reading");
+            }
+
+            try
+            {
+                return Common::SslImpl::calculateDigest(digestName, inFileStream);
+            }
+            catch (...)
+            {
+                throw IFileSystemException("Can't calculate digest of '" + path + "'");
+            }
+        }
+
+        std::string FileSystemImpl::calculateDigest(const char* digestName, int fd) const
+        {
+            // Non-standard GNU compatibility layer between POSIX file descriptors and std::basic_streambuf
+            __gnu_cxx::stdio_filebuf<char> fileBuf{ fd, std::ios_base::in | std::ios_base::binary };
+
+            if (!fileBuf.is_open())
+            {
+                throw IFileSystemException("File descriptor '" + std::to_string(fd) + "' can't be opened for reading");
+            }
+
+            std::istream inStream{ &fileBuf };
+
+            try
+            {
+                return Common::SslImpl::calculateDigest(digestName, inStream);
+            }
+            catch (...)
+            {
+                throw IFileSystemException("Can't calculate digest of file descriptor '" + std::to_string(fd) + "'");
+            }
+        }
     } // namespace FileSystem
 } // namespace Common
 
