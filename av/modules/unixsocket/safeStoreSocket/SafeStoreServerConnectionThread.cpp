@@ -10,7 +10,6 @@
 #include <capnp/serialize.h>
 #include <common/FDUtils.h>
 #include <scan_messages/ThreatDetected.h>
-#include <mount_monitor/mountinfoimpl/Drive.h>
 
 #include <cassert>
 #include <stdexcept>

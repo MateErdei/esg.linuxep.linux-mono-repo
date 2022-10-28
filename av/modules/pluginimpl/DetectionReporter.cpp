@@ -4,8 +4,6 @@
 
 #include "Logger.h"
 
-#include "Common/XmlUtilities/AttributesMap.h"
-
 namespace Plugin
 {
     void DetectionReporter::processThreatReport(

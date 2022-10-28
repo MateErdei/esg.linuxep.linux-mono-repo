@@ -42,10 +42,10 @@ Drive::Drive(std::string device, std::string mountPoint, std::string type, bool 
 {
 }
 
-Drive::Drive(const std::string& childPath)
+Drive::Drive(const std::string& childPath) :
+    m_deviceUtil(getDeviceUtil())
 {
-    LOGDEBUG("Searching for nearest parent mount of: " << childPath);
-    m_deviceUtil = getDeviceUtil();
+//    LOGDEBUG("Searching for nearest parent mount of: " << childPath);
 
     FILE* f = nullptr;
     f = setmntent("/proc/mounts", "r"); // open file for describing the mounted filesystems
@@ -59,8 +59,9 @@ Drive::Drive(const std::string& childPath)
 
     while ((mount = getmntent(f))) // read next line
     {
-        if (Common::UtilityImpl::StringUtils::startswith(childPath, mount->mnt_dir) &&
-            (parentPathSize < sizeof(mount->mnt_dir)))
+        std::string mountPoint = mount->mnt_dir;
+        if (Common::UtilityImpl::StringUtils::startswith(childPath, mountPoint) &&
+            (parentPathSize < mountPoint.size()))
         {
             m_mountPoint = mount->mnt_dir;
             m_device = mount->mnt_fsname;

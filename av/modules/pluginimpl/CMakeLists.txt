@@ -42,3 +42,7 @@ SET_TARGET_PROPERTIES(pluginimpl
         BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
         INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64"
         )
+
+target_link_libraries(pluginimpl PUBLIC
+        mountinfoimpl
+        )
