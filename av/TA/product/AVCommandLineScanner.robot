@@ -662,20 +662,20 @@ ClS Scans DiscImage When Image Setting Is On
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Not Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/directory/subdir/eicar.com" is infected with EICAR-AV-Test
+    Should Not Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/DIR/subdir/eicar.com" is infected with EICAR-AV-Test
 
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso --scan-images
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/directory/subdir/eicar.com" is infected with EICAR-AV-Test
+    Should Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/DIR/subdir/eicar.com" is infected with EICAR-AV-Test
 
 CLS Does Not Scan DiscImage When Archives Setting Is On
     [Tags]  DISABLED
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso --scan-archives
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Not Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/directory/subdir/eicar.com" is infected with EICAR-AV-Test
+    Should Not Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/DIR/subdir/eicar.com" is infected with EICAR-AV-Test
 
 CLS Encoded Eicars
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
@@ -1461,14 +1461,14 @@ CLS scan with ISO mount
     Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
     Run Shell Process   mount -o ro,loop ${source} ${destination}     OnError=Failed to create loopback mount
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
-    Should Exist      ${destination}/directory/subdir/eicar.com
+    Should Exist      ${destination}/DIR/subdir/eicar.com
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/iso_test/
     Log  return code is ${rc}
     Log  output is ${output}
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}   Detected "${destination}/directory/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
+    Should Contain   ${output}   Detected "${destination}/DIR/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
 
 
 CLS scan two mounts same inode numbers
@@ -1482,7 +1482,7 @@ CLS scan two mounts same inode numbers
     Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
     Run Shell Process   mount -o ro,loop ${source} ${destination}     OnError=Failed to create loopback mount
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
-    Should Exist      ${destination}/directory/subdir/eicar.com
+    Should Exist      ${destination}/DIR/subdir/eicar.com
 
     ${source2} =       Set Variable  /tmp_test/inode_test/eicar2.iso
     ${destination2} =  Set Variable  /tmp_test/inode_test/iso_mount2
@@ -1491,15 +1491,15 @@ CLS scan two mounts same inode numbers
     Create Directory  ${destination2}
     Run Shell Process   mount -o ro,loop ${source2} ${destination2}     OnError=Failed to create loopback mount
     Register Cleanup  Run Shell Process   umount ${destination2}   OnError=Failed to release loopback mount
-    Should Exist      ${destination2}/directory/subdir/eicar.com
+    Should Exist      ${destination2}/DIR/subdir/eicar.com
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/inode_test/
     Log  return code is ${rc}
     Log  output is ${output}
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}   Detected "${destination}/directory/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
-    Should Contain   ${output}   Detected "${destination2}/directory/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
+    Should Contain   ${output}   Detected "${destination}/DIR/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
+    Should Contain   ${output}   Detected "${destination2}/DIR/subdir/eicar.com" is infected with EICAR-AV-Test (On Demand)
 
 
 CLS Can Scan Infected And Error Files
