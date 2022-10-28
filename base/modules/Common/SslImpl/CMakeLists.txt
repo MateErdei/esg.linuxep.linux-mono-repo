@@ -1,7 +1,11 @@
-add_library(sslimpl SHARED
-        Md5Calc.cpp Md5Calc.h)
+add_library(sslimplobject OBJECT
+        Digest.cpp
+        Digest.h
+        )
 message("opensslinclude: ${OPENSSL_INCLUDE_DIR}")
-target_include_directories(sslimpl PUBLIC ${OPENSSL_INCLUDE_DIR})
+target_include_directories(sslimplobject PUBLIC ${OPENSSL_INCLUDE_DIR})
+add_library(sslimpl SHARED $<TARGET_OBJECTS:sslimplobject>)
+
 target_link_libraries(sslimpl PUBLIC ${OPENSSLCRYPTO_LIBRARY})
 
 SET_TARGET_PROPERTIES(sslimpl

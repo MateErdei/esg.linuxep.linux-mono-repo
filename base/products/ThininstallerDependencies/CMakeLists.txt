@@ -12,7 +12,7 @@ add_library(cmcsrouterapi SHARED
         $<TARGET_OBJECTS:mcsimpl>
         $<TARGET_OBJECTS:obfuscationimpl>
         $<TARGET_OBJECTS:osutilitiesimpl>
-        $<TARGET_OBJECTS:sslimpl>
+        $<TARGET_OBJECTS:sslimplobject>
         $<TARGET_OBJECTS:threadsobject>
         $<TARGET_OBJECTS:utilityimpl>
         $<TARGET_OBJECTS:utilityimplobject>
@@ -20,7 +20,13 @@ add_library(cmcsrouterapi SHARED
         $<TARGET_OBJECTS:xmlutilitiesobject>
         )
 
-target_link_libraries(cmcsrouterapi PUBLIC zmq log4cplus protobuf expat -L${EXPAT_INPUT}/lib64 -L${ZEROMQ_INPUT}/lib -L${Protobuf_root}/lib -L${LOG4CPLUS_INPUT}/lib)
+target_link_libraries(cmcsrouterapi PUBLIC
+        zmq -L${ZEROMQ_INPUT}/lib
+        log4cplus -L${LOG4CPLUS_INPUT}/lib
+        protobuf -L${Protobuf_root}/lib
+        expat -L${EXPAT_INPUT}/lib64
+        ${OPENSSLCRYPTO_LIBRARY}
+        )
 
 
 SET_TARGET_PROPERTIES( cmcsrouterapi
@@ -34,6 +40,7 @@ FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
 FindLibraryFullPath( expatfull   expat  ${EXPAT_INPUT}/lib64)
 FindLibraryFullPath( zlibfull  z   ${ZLIB_INPUT}/lib64)
+FindLibraryFullPath( opensslcryptofull crypto ${OPENSSL_INPUT}/lib64)
 
 add_custom_target(
         cmcsrouterapitar ALL
@@ -45,6 +52,7 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${expatfull}    mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${zlibfull}    mcslibrary/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy ${opensslcryptofull} mcslibrary/lib64
 )
 
 function(add_copy_directory base)

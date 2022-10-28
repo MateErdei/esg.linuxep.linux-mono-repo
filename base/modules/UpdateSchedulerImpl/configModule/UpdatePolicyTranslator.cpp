@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2022, Sophos Limited. All rights reserved.
 
 #include "UpdatePolicyTranslator.h"
 
@@ -12,15 +8,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/OSUtilities/IIPUtils.h>
 #include <Common/ObfuscationImpl/Obfuscate.h>
+#include <Common/SslImpl/Digest.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <Common/sslimpl/Md5Calc.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 
 #include <algorithm>
-#include <regex>
-#include <sstream>
 
 namespace
 {
@@ -439,7 +433,7 @@ namespace UpdateSchedulerImpl
 
         std::string UpdatePolicyTranslator::calculateSulObfuscated(const std::string& user, const std::string& pass)
         {
-            return Common::sslimpl::md5(user + ':' + pass);
+            return Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, user + ':' + pass);
         }
 
         UpdatePolicyTranslator::UpdatePolicyTranslator() :

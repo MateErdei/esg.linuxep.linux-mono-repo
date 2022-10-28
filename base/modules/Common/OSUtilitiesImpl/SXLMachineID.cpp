@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2018-2022, Sophos Limited. All rights reserved.
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #include "SXLMachineID.h"
 
 #include "MACinfo.h"
@@ -11,13 +8,12 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/SslImpl/Digest.h>
 #include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <Common/sslimpl/Md5Calc.h>
 #include <sys/stat.h>
 
 #include <iostream>
-#include <sstream>
 #include <string>
 
 namespace Common
@@ -41,8 +37,9 @@ namespace Common
             {
                 content << mac;
             }
-            std::string md5hash = Common::sslimpl::md5(content.str());
-            std::string re_hash = Common::sslimpl::md5(md5hash);
+            using namespace Common::SslImpl;
+            std::string md5hash = calculateDigest(Digest::md5, content.str());
+            std::string re_hash = calculateDigest(Digest::md5, md5hash);
             return re_hash;
         }
 
