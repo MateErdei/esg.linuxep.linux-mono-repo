@@ -18,6 +18,6 @@ namespace pluginimpl
                                        const std::vector<std::string>& exclusionList,
                                        const std::string& excludeRemoteFiles);
     long getThreatStatus();
-
+    std::string generateCoreCleanEventXml(const scan_messages::ThreatDetected& detection, const common::CentralEnums::QuarantineResult& quarantineResult);
     constexpr std::size_t centralLimitedStringMaxSize = 32767;
 }

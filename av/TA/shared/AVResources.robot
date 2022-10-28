@@ -516,6 +516,32 @@ Wait Until Base Has Detection Event
     ...  ${interval} secs
     ...  Base Has Detection Event  ${id}  ${name}  ${sha256}  ${path}
 
+Check String Contains Clean Event XML
+    [Arguments]  ${input}  ${alert_id}  ${succeeded}  ${origin}  ${result}  ${path}
+    Should Contain  ${input}  type="sophos.core.clean" ts="
+    Should Contain  ${input}  <alert id="${alert_id}" succeeded="${succeeded}" origin="${origin}">
+    Should Contain  ${input}  <items totalItems="1">
+    Should Contain  ${input}  <item type="file" result="${result}">
+    Should Contain  ${input}  <descriptor>${path}</descriptor>
+    [Return]  ${true}
+
+Base Has Core Clean Event
+    [Arguments]   ${alert_id}  ${succeeded}  ${origin}  ${result}  ${path}
+    @{files} =  Base CORE Event Paths
+    FOR  ${file}  IN  @{files}
+        ${xml} =  Get File  ${file}
+        ${was_found} =  Run Keyword And Return Status  Check String Contains Clean Event XML  ${xml}  ${alert_id}  ${succeeded}  ${origin}  ${result}  ${path}
+        Return From Keyword If  ${was_found}
+    END
+    Fail  No matching CORE Clean event found
+
+Wait Until Base Has Core Clean Event
+    [Arguments]  ${alert_id}  ${succeeded}  ${origin}  ${result}  ${path}  ${timeout}=20  ${interval}=1
+    Wait Until Keyword Succeeds
+    ...  ${timeout} secs
+    ...  ${interval} secs
+    ...  Base Has Core Clean Event  ${alert_id}  ${succeeded}  ${origin}  ${result}  ${path}
+
 Wait Until Sophos Threat Detector Shutdown File Exists
     [Arguments]  ${timeout}=15    ${interval}=2
     Wait Until File Exists  ${SOPHOS_THREAT_DETECTOR_SHUTDOWN_FILE_PATH}  timeout=${timeout}  interval=${interval}

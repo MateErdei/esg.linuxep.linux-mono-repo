@@ -46,10 +46,11 @@ namespace Plugin
                 // detection is not moved if the push fails, so can still be used by processDetectionReport
                 if (!m_adapter.isSafeStoreEnabled() || !m_adapter.getDetectionQueue()->push(detection))
                 {
-                    // TODO: LINUXDAR-5677 - Modify report to include no quarantine happened
-                    // reportNoQuarantine(detection);
-                    m_adapter.processDetectionReport(detection);
-                    m_adapter.updateThreatDatabase(detection);
+                    detection.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
+
+                    // If SafeStore is disabled then we manually set the quarantine result to be a failure. This is
+                    // so we can populate the Core Clean event properly.
+                    m_adapter.processDetectionReport(detection, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE);
                 }
             }
 
@@ -73,12 +74,11 @@ namespace Plugin
                                std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
-        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this,*this, m_detectionQueue, getSafeStoreSocketPath())),
+        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this, m_detectionQueue, getSafeStoreSocketPath())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
         m_threatEventPublisher(m_zmqContext->getPublisher()),
-        m_policyProcessor(m_taskQueue),
-        m_threatDatabase(Plugin::getPluginVarDirPath())
+        m_policyProcessor(m_taskQueue)
     {
     }
 
@@ -186,6 +186,10 @@ namespace Plugin
 
                     case Task::TaskType::SendStatus:
                         m_baseService->sendStatus("SAV", task.Content, task.Content);
+                        break;
+
+                    case Task::TaskType::SendCleanEvent:
+                        m_baseService->sendEvent("CORE", task.Content);
                         break;
                 }
 
@@ -328,24 +332,16 @@ namespace Plugin
         m_taskQueue->push(Task { .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });
     }
 
-    void PluginAdapter::processDetectionReport(const scan_messages::ThreatDetected& detection) const
+    void PluginAdapter::processDetectionReport(const scan_messages::ThreatDetected& detection,  const common::CentralEnums::QuarantineResult& quarantineResult) const
     {
         LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "'");
         incrementTelemetryThreatCount(detection.threatName);
         processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
         publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
+        publishQuarantineCleanEvent(pluginimpl::generateCoreCleanEventXml(detection, quarantineResult));
         publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     }
 
-    void PluginAdapter::updateThreatDatabase(const scan_messages::ThreatDetected& detection)
-    {
-        if (detection.notificationStatus != scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP)
-        {
-            m_threatDatabase.addThreat(detection.threatId,detection.threatId);
-            LOGDEBUG("Added threat: " << detection.threatId << " to database");
-        }
-
-    }
     void PluginAdapter::processThreatReport(const std::string& threatDetectedXML) const
     {
         LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
@@ -405,5 +401,11 @@ namespace Plugin
     std::shared_ptr<DetectionQueue> PluginAdapter::getDetectionQueue() const
     {
         return m_detectionQueue;
+    }
+
+    void PluginAdapter::publishQuarantineCleanEvent(const std::string& coreCleanEventXml) const
+    {
+        LOGDEBUG("Sending Clean Event to Central: " << coreCleanEventXml);
+        m_taskQueue->push(Task { .taskType = Task::TaskType::SendCleanEvent, .Content = coreCleanEventXml });
     }
 }

@@ -9,6 +9,6 @@ class IDetectionReportProcessor
 {
 public:
     virtual ~IDetectionReportProcessor() = default;
-    virtual void processDetectionReport(const scan_messages::ThreatDetected&) const = 0;
+    virtual void processDetectionReport(const scan_messages::ThreatDetected&, const common::CentralEnums::QuarantineResult&) const = 0;
 };
 

@@ -20,6 +20,7 @@ namespace Plugin
             Action,
             ScanComplete,
             ThreatDetected,
+            SendCleanEvent,
             SendStatus
         };
         TaskType taskType;
@@ -41,6 +42,8 @@ namespace Plugin
                     return "ThreatDetected";
                 case TaskType::SendStatus:
                     return "SendStatus";
+                case TaskType::SendCleanEvent:
+                    return "SendCleanEvent";
             }
 
             return "Unknown task type";

@@ -150,3 +150,76 @@ long pluginimpl::getThreatStatus()
         return (Plugin::E_THREAT_HEALTH_STATUS_GOOD);
     }
 }
+
+//<event type="sophos.core.clean" ts="{{timestamp in format 2016-02-03T09:55:22.000Z}}">
+//  <alert id="{{eventCorrelationId}}" succeeded="{{0=false|1=true}}" origin="{{int}}">
+//    <items totalItems="{{totalItems}}">
+//      <item type="{{file|regkey}}" result="{{0=success, 1=not-found, 2=deleted, 3=failed-to-delete, 4=whitelisted ...
+//      other values are error}}">
+//        <descriptor>{{path1}}</descriptor>
+//      </item>
+//      <item type="{{file|regkey}}" result="{{0=success, 1=not-found, 2=deleted, 3=failed-to-delete, 4=whitelisted ...
+//      other values are error}}">
+//        <descriptor>{{path2}}</descriptor>
+//      </item>
+//      ...
+//    </items>
+//  </alert>
+//</event>
+
+//<event type="sophos.core.clean" ts="2016-02-03T09:55:22.000Z">
+//  <alert id="eventCorrelationId" succeeded="0/1" origin="{{int}}">
+//    <items totalItems="{{totalItems}}">
+//      <item type="{{file|regkey}}" result="{{0=success, 1=not-found, 2=deleted, 3=failed-to-delete, 4=whitelisted ...
+//      other values are error}}">
+//        <descriptor>{{path1}}</descriptor>
+//      </item>
+//      <item type="{{file|regkey}}" result="{{0=success, 1=not-found, 2=deleted, 3=failed-to-delete, 4=whitelisted ...
+//      other values are error}}">
+//        <descriptor>{{path2}}</descriptor>
+//      </item>
+//      ...
+//    </items>
+//  </alert>
+//</event>
+
+// XML defined at https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42255827359/EMP+event-core-clean
+std::string pluginimpl::generateCoreCleanEventXml(const scan_messages::ThreatDetected& detection, const common::CentralEnums::QuarantineResult& quarantineResult)
+{
+    if (detection.filePath.empty())
+    {
+        LOGWARN("Missing file path from threat report while generating Clean Event XML");
+    }
+
+    std::string utf8Path = common::toUtf8(detection.filePath);
+    common::escapeControlCharacters(utf8Path, true);
+    if (utf8Path.size() > centralLimitedStringMaxSize)
+    {
+        LOGWARN("Threat path longer than " << centralLimitedStringMaxSize << " characters, truncating.");
+        utf8Path.resize(centralLimitedStringMaxSize);
+    }
+
+    auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(std::chrono::system_clock::from_time_t(detection.detectionTime));
+    bool overallSuccess = quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS;
+
+    std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.clean" ts="@@TS@@">
+  <alert id="@@CORRELATION_ID@@" succeeded="@@SUCCESS_OVERALL@@" origin="@@ORIGIN@@">
+    <items totalItems="@@TOTAL_ITEMS@@">
+      <item type="file" result="@@SUCCESS_DETAILED@@">
+        <descriptor>@@PATH@@</descriptor>
+      </item>
+    </items>
+  </alert>
+</event>)sophos",
+        { { "@@TS@@", timestamp },
+          { "@@CORRELATION_ID@@", detection.threatId },
+          { "@@SUCCESS_OVERALL@@", std::to_string(overallSuccess) },
+          { "@@ORIGIN@@", std::to_string(static_cast<int>(getOriginOf(detection.reportSource, detection.threatType))) },
+          { "@@TOTAL_ITEMS@@", std::to_string(1) }, // hard coded until we deal with multiple threats per ThreatDetected object
+          { "@@SUCCESS_DETAILED@@", std::to_string(static_cast<int>(quarantineResult))},
+          { "@@PATH@@", utf8Path } });
+
+    return result;
+}

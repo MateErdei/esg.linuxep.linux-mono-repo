@@ -15,12 +15,14 @@ using namespace common::CentralEnums;
 
 namespace
 {
+
+    std::time_t DUMMY_TIMESTAMP = 123;
+
     class TestStringUtils : public LogInitializedTests
     {
     public:
-        std::string sha256 = "590165d5fd84b3302e239c260867a2310af2bc3b519b5c9c68ab2515c9bad15b";
-        std::string threatId = "Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350";
-
+        std::string m_sha256 = "590165d5fd84b3302e239c260867a2310af2bc3b519b5c9c68ab2515c9bad15b";
+        std::string m_threatId = "Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350";
         std::string m_englishsXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
   <user userId="User"/>
@@ -47,8 +49,23 @@ namespace
     <path>/捜し物を探しに行くのさ ONE PIECE</path>
   </alert>
 </event>)sophos";
+
+    scan_messages::ThreatDetected m_simpleThreatDetected =  scan_messages::ThreatDetected (
+        "User ID",
+        DUMMY_TIMESTAMP,
+        ThreatType::virus,
+        "threat name",
+        E_SCAN_TYPE_ON_ACCESS_OPEN,
+        E_NOTIFICATION_STATUS_CLEANED_UP,
+        "/threat/path",
+        E_SMT_THREAT_ACTION_SHRED,
+        "T2677b3f1607845d",
+        m_threatId,
+        false,
+        ReportSource::ml,
+        datatypes::AutoFd());
     };
-    std::time_t m_detectionTimeStamp = 123;
+
 }
 
 TEST_F(TestStringUtils, TestgenerateThreatDetectedXml)
@@ -59,15 +76,15 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXml)
 
     scan_messages::ThreatDetected threatDetected(
         userID,
-        m_detectionTimeStamp,
+        DUMMY_TIMESTAMP,
         ThreatType::virus,
         threatName,
         E_SCAN_TYPE_ON_ACCESS,
         E_NOTIFICATION_STATUS_CLEANED_UP,
         threatPath,
         E_SMT_THREAT_ACTION_SHRED,
-        sha256,
-        threatId,
+        m_sha256,
+        m_threatId,
         false,
         ReportSource::ml,
         datatypes::AutoFd());
@@ -97,15 +114,15 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats)
 
     scan_messages::ThreatDetected threatDetected(
         userID,
-        m_detectionTimeStamp,
+        DUMMY_TIMESTAMP,
         ThreatType::virus,
         threatName,
         E_SCAN_TYPE_ON_ACCESS,
         E_NOTIFICATION_STATUS_CLEANED_UP,
         threatPath,
         E_SMT_THREAT_ACTION_SHRED,
-        sha256,
-        threatId,
+        m_sha256,
+        m_threatId,
         false,
         ReportSource::ml,
         datatypes::AutoFd());
@@ -134,15 +151,15 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters)
 
     scan_messages::ThreatDetected threatDetected(
         userID,
-        m_detectionTimeStamp,
+        DUMMY_TIMESTAMP,
         ThreatType::virus,
         threatName,
         E_SCAN_TYPE_ON_ACCESS,
         E_NOTIFICATION_STATUS_CLEANED_UP,
         threatPath,
         E_SMT_THREAT_ACTION_SHRED,
-        sha256,
-        threatId,
+        m_sha256,
+        m_threatId,
         false,
         ReportSource::ml,
         datatypes::AutoFd());
@@ -172,7 +189,7 @@ static scan_messages::ThreatDetected createEvent(
 {
     scan_messages::ThreatDetected threatDetected(
         userID,
-        m_detectionTimeStamp,
+        DUMMY_TIMESTAMP,
         ThreatType::virus,
         threatName,
         E_SCAN_TYPE_ON_ACCESS,
@@ -242,7 +259,7 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON)
 
     scan_messages::ThreatDetected threatDetected(
         userID,
-        m_detectionTimeStamp,
+        DUMMY_TIMESTAMP,
         ThreatType::virus,
         threatName,
         E_SCAN_TYPE_ON_ACCESS_OPEN,
@@ -250,7 +267,7 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON)
         "",
         E_SMT_THREAT_ACTION_SHRED,
         "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def",
-        threatId,
+        m_threatId,
         false,
         ReportSource::ml,
         datatypes::AutoFd());
@@ -279,7 +296,7 @@ TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
 
     scan_messages::ThreatDetected threatDetected(
         userID,
-        m_detectionTimeStamp,
+        DUMMY_TIMESTAMP,
         ThreatType::virus,
         "",
         E_SCAN_TYPE_ON_ACCESS_OPEN,
@@ -287,7 +304,7 @@ TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
         threatPath,
         E_SMT_THREAT_ACTION_SHRED,
         "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def",
-        threatId,
+        m_threatId,
         false,
         ReportSource::ml,
         datatypes::AutoFd());
@@ -327,4 +344,73 @@ TEST_F(TestStringUtils, TestGenerateOnAcessConfig)
     EXPECT_EQ(expectedResult, generateOnAccessConfig("this is supposed to be something elese",
                                                      exclusionList,
                                                      "same here"));
+}
+
+TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineSuccess)
+{
+    std::string expectedEventXml = R"(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
+  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" succeeded="1" origin="0">
+    <items totalItems="1">
+      <item type="file" result="0">
+        <descriptor>/threat/path</descriptor>
+      </item>
+    </items>
+  </alert>
+</event>)";
+
+    std::string xml;
+    ASSERT_NO_THROW(xml = generateCoreCleanEventXml(m_simpleThreatDetected, common::CentralEnums::QuarantineResult::SUCCESS));
+    ASSERT_EQ(xml, expectedEventXml);
+}
+
+TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineFailedToDeleteFile)
+{
+    std::string expectedEventXml = R"(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
+  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" succeeded="0" origin="0">
+    <items totalItems="1">
+      <item type="file" result="3">
+        <descriptor>/threat/path</descriptor>
+      </item>
+    </items>
+  </alert>
+</event>)";
+
+    std::string xml;
+    ASSERT_NO_THROW(xml = generateCoreCleanEventXml(m_simpleThreatDetected, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE));
+    ASSERT_EQ(xml, expectedEventXml);
+}
+
+TEST_F(TestStringUtils, generateCoreCleanEventXmlFromVdlDetection)
+{
+    scan_messages::ThreatDetected vdlThreatDetected = scan_messages::ThreatDetected (
+        "User ID",
+        DUMMY_TIMESTAMP,
+        ThreatType::virus,
+        "threat name",
+        E_SCAN_TYPE_ON_ACCESS_OPEN,
+        E_NOTIFICATION_STATUS_CLEANED_UP,
+        "/threat/path",
+        E_SMT_THREAT_ACTION_SHRED,
+        "T2677b3f1607845d",
+        m_threatId,
+        false,
+        ReportSource::vdl,
+        datatypes::AutoFd());
+
+    std::string expectedEventXml = R"(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
+  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" succeeded="0" origin="1">
+    <items totalItems="1">
+      <item type="file" result="3">
+        <descriptor>/threat/path</descriptor>
+      </item>
+    </items>
+  </alert>
+</event>)";
+
+    std::string xml;
+    ASSERT_NO_THROW(xml = generateCoreCleanEventXml(vdlThreatDetected, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE));
+    ASSERT_EQ(xml, expectedEventXml);
 }

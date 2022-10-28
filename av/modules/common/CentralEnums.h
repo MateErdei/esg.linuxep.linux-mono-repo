@@ -78,6 +78,7 @@ namespace common
             FAILED_TO_DELETE_FILE = 3,
             WHITELISTED = 4,
         };
+
         // Code based on InteractionProtocolHelper::GetOriginOf in SSP
         constexpr Origin getOriginOf(ReportSource source, ThreatType type)
         {

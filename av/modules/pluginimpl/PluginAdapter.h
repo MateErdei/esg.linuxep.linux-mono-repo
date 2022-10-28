@@ -54,8 +54,22 @@ namespace Plugin
             int waitForPolicyTimeout = 5);
         void mainLoop();
         void processScanComplete(std::string& scanCompletedXml) override;
-        void processDetectionReport(const scan_messages::ThreatDetected&) const override;
+
+        /*
+         * Takes in detection info and the result from attempting to quarantine that threat and then
+         * triggers various outputs ot be generated: Central Events, Event Journal input, Threat Health
+         */
+        void processDetectionReport(const scan_messages::ThreatDetected&, const common::CentralEnums::QuarantineResult& quarantineResult) const override;
+
         void processThreatReport(const std::string& threatDetectedXML) const;
+
+        /*
+         * Puts a CORE Clean event task onto the main AV plugin task queue to be sent to Central.
+         * XML format can be seen here:
+         * https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42255827359/EMP+event-core-clean
+         */
+        void publishQuarantineCleanEvent(const std::string& coreCleanEventXml) const;
+
         void publishThreatEvent(const std::string& threatDetectedJSON) const;
         void updateThreatDatabase(const scan_messages::ThreatDetected& detection) override;
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
