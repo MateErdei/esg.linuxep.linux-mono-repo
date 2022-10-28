@@ -121,5 +121,6 @@ namespace Plugin
             }
         }
         m_database = tempdatabase;
+        LOGINFO("Initialised Threat Database");
     }
 }

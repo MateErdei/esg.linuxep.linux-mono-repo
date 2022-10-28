@@ -31,7 +31,7 @@ Threat is added to Threat database when threat is not quarantined
     Mark AV Log
     Start AV Plugin
     Remove File  ${THREAT_DATABASE_PATH}
-    Wait Until AV Plugin Log Contains With Offset  Requesting SAV Policy from base
+    Wait Until AV Plugin Log Contains With Offset  Initialised Threat Database
     Stop AV Plugin  #file should be written
     Wait Until Keyword Succeeds
     ...  10 secs
