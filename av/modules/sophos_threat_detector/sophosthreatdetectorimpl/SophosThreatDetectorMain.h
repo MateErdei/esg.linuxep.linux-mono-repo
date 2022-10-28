@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "IThreatDetectorResources.h"
 #include "Reloader.h"
 
 #include "datatypes/SystemCallWrapperFactory.h"
@@ -26,12 +27,12 @@ namespace sspl::sophosthreatdetectorimpl
         void shutdownThreatDetector();
 
     private:
-        void attempt_dns_query();
-
         std::shared_ptr<Reloader> m_reloader;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
         datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
+
     TEST_PUBLIC:
-        int inner_main();
+        int inner_main(IThreatDetectorResourcesUniquePtr resources);
+        void attempt_dns_query();
     };
 }

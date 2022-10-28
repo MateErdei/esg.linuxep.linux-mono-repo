@@ -15,6 +15,12 @@ namespace {
     {
     public:
         TestSophosThreatDetectorMain() :  MemoryAppenderUsingTests("SophosThreatDetectorImpl") {}
+
+        void SetUp() override
+        {
+                auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+                appConfig.setData("PLUGIN_INSTALL", "/tmp/TestSophosThreatDetectorMain");
+        }
     };
 
 }
@@ -22,7 +28,6 @@ namespace {
 TEST_F(TestSophosThreatDetectorMain, construction)
 {
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
-    EXPECT_EQ(treatDetectorMain.inner_main(), 0);
 
 }
 

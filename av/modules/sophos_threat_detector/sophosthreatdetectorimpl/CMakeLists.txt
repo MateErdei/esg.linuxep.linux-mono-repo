@@ -9,6 +9,9 @@ add_library(sophosthreatdetectorimpl SHARED
         ../../common/config.h
         SophosThreatDetectorMain.cpp
         SophosThreatDetectorMain.h
+        ThreatDetectorResources.cpp
+        ThreatDetectorResources.h
+        IThreatDetectorResources.h
         Logger.cpp
         Logger.h
         Reloader.cpp

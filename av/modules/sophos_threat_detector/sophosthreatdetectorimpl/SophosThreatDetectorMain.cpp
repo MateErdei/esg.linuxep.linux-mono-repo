@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "Reloader.h"
 #include "ShutdownTimer.h"
+#include "ThreatDetectorResources.h"
 #include "ThreatReporter.h"
 
 #include "common/Define.h"
@@ -325,10 +326,9 @@ namespace sspl::sophosthreatdetectorimpl
         }
     }
 
-    int SophosThreatDetectorMain::inner_main()
+    int SophosThreatDetectorMain::inner_main(IThreatDetectorResourcesUniquePtr resources)
     {
-        auto sysCallFact = datatypes::SystemCallWrapperFactory();
-        m_sysCallWrapper = sysCallFact.createSystemCallWrapper();
+        m_sysCallWrapper = resources->createSystemCallWrapper();
 
         common::signals::SigTermMonitor sigTermMonitor{true};
 
@@ -543,7 +543,8 @@ namespace sspl::sophosthreatdetectorimpl
     {
         try
         {
-            return inner_main();
+            auto resources = std::make_unique<ThreatDetectorResources>();
+            return inner_main(std::move(resources));
         }
         catch (std::exception& ex)
         {
