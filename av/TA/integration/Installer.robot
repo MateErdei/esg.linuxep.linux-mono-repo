@@ -237,6 +237,7 @@ Update then Restart Sophos Threat Detector
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
 Update before Init then Restart Threat Detector
+    Register Cleanup  Exclude Aborted Scan Errors
 
     # run a quick scan to make sure SUSI is loaded and up-to-date
     check avscanner can detect eicar
