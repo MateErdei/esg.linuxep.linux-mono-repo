@@ -117,6 +117,28 @@ SafeStore Quarantines When It Receives A File To Quarantine
     ...  path=${SCAN_DIRECTORY}/eicar.com
 
 
+Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    Mark AV Log
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
+    Check avscanner can detect eicar
+
+    Wait Until SafeStore Log Contains  Received Threat:
+    Wait Until AV Plugin Log Contains With Offset  Quarantine failed
+    File Should Exist   ${SCAN_DIRECTORY}/eicar.com
+
+    Wait Until Base Has Core Clean Event
+    ...  alert_id=Tbd7be297ddf3cd8
+    ...  succeeded=0
+    ...  origin=0
+    ...  result=3
+    ...  path=${SCAN_DIRECTORY}/eicar.com
+
+
 SafeStore does not quarantine on a Corrupt Database
     Mark AV Log
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
