@@ -36,5 +36,5 @@ namespace sspl::sophosthreatdetectorimpl
 
 
     };
-    using IThreatDetectorResourcesUniquePtr = std::unique_ptr<IThreatDetectorResources>;
+    using IThreatDetectorResourcesSharedPtr = std::shared_ptr<IThreatDetectorResources>;
 }

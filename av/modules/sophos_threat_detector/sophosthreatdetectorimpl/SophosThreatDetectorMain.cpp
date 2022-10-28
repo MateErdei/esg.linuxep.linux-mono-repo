@@ -326,7 +326,7 @@ namespace sspl::sophosthreatdetectorimpl
         }
     }
 
-    int SophosThreatDetectorMain::inner_main(IThreatDetectorResourcesUniquePtr resources)
+    int SophosThreatDetectorMain::inner_main(IThreatDetectorResourcesSharedPtr resources)
     {
         m_sysCallWrapper = resources->createSystemCallWrapper();
         auto sigTermMonitor = resources->createSignalHandler(true);
@@ -556,4 +556,4 @@ namespace sspl::sophosthreatdetectorimpl
             return 100;
         }
     }
-} // namespace sspl::sophosthreatdetectorimpl
+}

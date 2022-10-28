@@ -32,7 +32,7 @@ namespace sspl::sophosthreatdetectorimpl
         datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
 
     TEST_PUBLIC:
-        int inner_main(IThreatDetectorResourcesUniquePtr resources);
+        int inner_main(IThreatDetectorResourcesSharedPtr resources);
         void attempt_dns_query();
     };
 }
