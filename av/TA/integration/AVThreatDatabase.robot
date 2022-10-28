@@ -30,8 +30,8 @@ Threat is added to Threat database when threat is not quarantined
     ...  File Log Contains  ${THREAT_DATABASE_PATH}  Tbd7be297ddf3cd8
     Mark AV Log
     Start AV Plugin
-    Remove File  ${THREAT_DATABASE_PATH}
     Wait Until AV Plugin Log Contains With Offset  Initialised Threat Database
+    Remove File  ${THREAT_DATABASE_PATH}
     Stop AV Plugin  #file should be written
     Wait Until Keyword Succeeds
     ...  10 secs
