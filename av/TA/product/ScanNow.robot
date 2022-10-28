@@ -183,6 +183,7 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Register Cleanup  Exclude Scan Now Terminated
     Register Cleanup  Exclude Unixsocket Failed To Send Scan Request To STD
     Register Cleanup  Exclude Failed To Scan Files
+    Register Cleanup  Exclude Aborted Scan Errors
 
     Register Cleanup  Dump Log  ${SCANNOW_LOG_PATH}
 
@@ -202,6 +203,7 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     ${line_count} =  Count Lines In Log  ${SCANNOW_LOG_PATH}  Failed to send scan request -
     Should Be True   ${3} <= ${line_count} <= ${7}
 
+    File Log Contains  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Aborting scan, scanner is shutting down
     File Log Contains Once  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
 
 

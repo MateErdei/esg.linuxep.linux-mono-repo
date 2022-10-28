@@ -80,6 +80,11 @@ Exclude Failed To Scan Files
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  [Reached total maximum number of reconnection attempts. Aborting scan.]
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan one or more files due to an error
 
+Exclude Aborted Scan Errors
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Aborting scan, scanner is shutting down
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  UnixSocket <> Aborting scan, scanner is shutting down
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  UnixSocket <> Aborting scan, scanner is shutting down
+
 Exclude Failed To Scan Special File That Cannot Be Read In Threat Detector Logs
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}   ThreatScanner <> Failed to scan /run/netns/avtest as it could not be read
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Error logged from SUSI while scanning /run/netns/avtest
