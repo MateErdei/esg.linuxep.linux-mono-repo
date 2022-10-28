@@ -658,7 +658,6 @@ CLS simple eicar in encoded archive
     Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/脅威.tar/eicar
 
 ClS Scans DiscImage When Image Setting Is On
-    [Tags]  DISABLED
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
@@ -671,7 +670,6 @@ ClS Scans DiscImage When Image Setting Is On
     Should Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/DIR/subdir/eicar.com" is infected with EICAR-AV-Test
 
 CLS Does Not Scan DiscImage When Archives Setting Is On
-    [Tags]  DISABLED
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso --scan-archives
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
