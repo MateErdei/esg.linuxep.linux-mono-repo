@@ -99,5 +99,15 @@ namespace datatypes
         {
             return ::setrlimit(__resource, __rlim);
         }
+
+        int fcntl (int __fd, int __cmd) override
+        {
+            return ::fcntl(__fd, __cmd);
+        }
+
+        int fstat (int __fd, struct stat *__buf) override
+        {
+            return ::fstat(__fd, __buf);
+        }
     };
 }

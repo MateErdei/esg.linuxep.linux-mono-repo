@@ -39,6 +39,8 @@ namespace
         MOCK_METHOD(ssize_t, read, (int __fd, void *__buf, size_t __nbytes));
         MOCK_METHOD(ssize_t, readlink, (const char* __path, char* __buf, size_t __len));
         MOCK_METHOD(int, setrlimit, (int __resource, const struct ::rlimit* __rlim));
+        MOCK_METHOD(int, fcntl, (int __fd, int __cmd));
+        MOCK_METHOD(int, fstat, (int __fd, struct stat *__buf));
     };
 }
 

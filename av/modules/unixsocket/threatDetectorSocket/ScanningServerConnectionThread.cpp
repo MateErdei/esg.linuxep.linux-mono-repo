@@ -11,6 +11,7 @@
 #include "common/SaferStrerror.h"
 #include "common/ShuttingDownException.h"
 #include "common/StringUtils.h"
+#include "datatypes/SystemCallWrapper.h"
 
 #include <capnp/serialize.h>
 
@@ -147,12 +148,15 @@ bool unixsocket::ScanningServerConnectionThread::sendResponse(datatypes::AutoFd&
     return true;
 }
 
-bool unixsocket::ScanningServerConnectionThread::isReceivedFdFile(datatypes::AutoFd& file_fd, std::string& errMsg)
+bool unixsocket::ScanningServerConnectionThread::isReceivedFdFile(
+    std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
+    datatypes::AutoFd& file_fd,
+    std::string& errMsg)
 {
     struct ::stat st
     {
     };
-    int ret = ::fstat(file_fd.get(), &st);
+    int ret = sysCallWrapper->fstat(file_fd.get(), &st);
     if (ret == -1)
     {
         std::stringstream errSS;
@@ -168,9 +172,12 @@ bool unixsocket::ScanningServerConnectionThread::isReceivedFdFile(datatypes::Aut
     return true;
 }
 
-bool unixsocket::ScanningServerConnectionThread::isReceivedFileOpen(datatypes::AutoFd& file_fd, std::string& errMsg)
+bool unixsocket::ScanningServerConnectionThread::isReceivedFileOpen(
+    std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
+    datatypes::AutoFd& file_fd,
+    std::string& errMsg)
 {
-    int status = ::fcntl(file_fd.get(), F_GETFL);
+    int status = sysCallWrapper->fcntl(file_fd.get(), F_GETFL);
     if (status == -1)
     {
         std::stringstream errSS;
@@ -188,6 +195,7 @@ bool unixsocket::ScanningServerConnectionThread::isReceivedFileOpen(datatypes::A
 }
 
 bool unixsocket::ScanningServerConnectionThread::readCapnProtoMsg(
+    std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
     int32_t length,
     uint32_t& buffer_size,
     kj::Array<capnp::word>& proto_buffer,
@@ -203,7 +211,7 @@ bool unixsocket::ScanningServerConnectionThread::readCapnProtoMsg(
         loggedLengthOfZero = false;
     }
 
-    bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
+    bytes_read = sysCallWrapper->read(socket_fd, proto_buffer.begin(), length);
     if (bytes_read < 0)
     {
         std::stringstream errSS;
@@ -227,6 +235,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
     LOGDEBUG("Scanning Server thread got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
+    auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
 
     int exitFD = m_notifyPipe.readFd();
 
@@ -251,7 +260,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
         fd_set tempRead = readFDs;
 
-        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
+        int activity = sysCallWrapper->pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
 
         if (activity < 0)
         {
@@ -298,7 +307,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             scan_messages::ScanResponse result;
             ssize_t bytes_read;
             std::string errMsg;
-            if (!readCapnProtoMsg(length, buffer_size, proto_buffer, socket_fd, bytes_read, loggedLengthOfZero, errMsg))
+            if (!readCapnProtoMsg(sysCallWrapper, length, buffer_size, proto_buffer, socket_fd, bytes_read, loggedLengthOfZero, errMsg))
             {
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);
@@ -325,7 +334,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
 
             // Keep the connection open if we can read the message but get a file that we can't scan
-            if (!isReceivedFdFile(file_fd, errMsg) || !isReceivedFileOpen(file_fd, errMsg))
+            if (!isReceivedFdFile(sysCallWrapper, file_fd, errMsg) || !isReceivedFileOpen(sysCallWrapper, file_fd, errMsg))
             {
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);

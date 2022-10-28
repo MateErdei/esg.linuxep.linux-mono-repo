@@ -46,6 +46,8 @@ namespace datatypes
         virtual ssize_t read(int __fd, void *__buf, size_t __nbytes) = 0;
         virtual ssize_t readlink(const char* __path, char* __buf, size_t __len) = 0;
         virtual int setrlimit(int __resource, const struct ::rlimit* __rlim) = 0;
+        virtual int fcntl (int __fd, int __cmd) = 0;
+        virtual int fstat (int __fd, struct stat *__buf) = 0;
     };
 
     using ISystemCallWrapperSharedPtr = std::shared_ptr<ISystemCallWrapper>;
