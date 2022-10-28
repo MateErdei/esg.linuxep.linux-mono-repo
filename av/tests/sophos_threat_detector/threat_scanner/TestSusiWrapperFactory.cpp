@@ -129,6 +129,12 @@ void TestSusiWrapperFactory::writeLargeSusiStartupFile()
     writeToSusiStartupFile(largeContents.str());
 }
 
+TEST_F(TestSusiWrapperFactory, constructAndShutdown)
+{
+    SusiWrapperFactory wrapperFact{};
+    wrapperFact.shutdown();
+}
+
 TEST_F(TestSusiWrapperFactory, getCustomerIdReturnsUnknown) // NOLINT
 {
     EXPECT_EQ(getCustomerId(),"c1cfcf69a42311a6084bcefe8af02c8a");

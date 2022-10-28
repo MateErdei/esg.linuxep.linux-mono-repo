@@ -46,11 +46,14 @@ TEST_F(TestSusiScannerFactory, throwsDuringInitializeWithoutPLUGIN_INSTALL)
 
 TEST_F(TestSusiScannerFactory, testConstruction)
 {
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    appConfig.setData("PLUGIN_INSTALL", "/opt/not-sophos-spl/plugins/av");
-
     // SUSI initialization is now deferred, so constructor won't fail.
     SusiScannerFactory factory(nullptr, nullptr, nullptr);
+}
+
+TEST_F(TestSusiScannerFactory, testConstructAndShutdown)
+{
+    SusiScannerFactory factory(nullptr, nullptr, nullptr);
+    factory.shutdown();
 }
 
 TEST_F(TestSusiScannerFactory, throwsDuringInitialize) //NOLINT
