@@ -504,8 +504,8 @@ Base Has Detection Event
     @{files} =  Base CORE Event Paths
     FOR  ${file}  IN  @{files}
         ${xml} =  Get File  ${file}
-        ${was found} =  Run Keyword And Continue On Failure  Check String Contains Detection Event XML  ${xml}  ${id}  ${name}  ${sha256}  ${path}
-        Return From Keyword If  ${was found}  ${xml}
+        ${was_found} =  Run Keyword And Return Status  Check String Contains Detection Event XML  ${xml}  ${id}  ${name}  ${sha256}  ${path}
+        Return From Keyword If  ${was_found}  ${xml}
     END
     Fail  No matching detection event found
 

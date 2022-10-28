@@ -107,12 +107,21 @@ def get_filepath_notification_event(p):
     finally:
         dom.unlink()
 
+
+def is_core_detection_event(event_file_path: str):
+    with open(event_file_path, 'r') as event_fle:
+        contents = event_fle.read()
+        return 'type="sophos.core.detection"' in contents
+
+
 def get_eicars_from_notifications_events():
     events_list = os.listdir(GL_MCS_EVENTS_DIRECTORY)
     events_list = list(filter(lambda event: event.startswith('CORE'), events_list))
     ret = []
     for e in events_list:
-        ret.append(get_filepath_notification_event(os.path.join(GL_MCS_EVENTS_DIRECTORY, e)))
+        path = os.path.join(GL_MCS_EVENTS_DIRECTORY, e)
+        if is_core_detection_event(path):
+            ret.append(get_filepath_notification_event(path))
     return ret
 
 def safe_to_unicode(s):

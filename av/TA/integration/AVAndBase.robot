@@ -486,6 +486,10 @@ AV Plugin Reports encoded eicars To Base
    Register Cleanup  List Directory  ${MCS_PATH}/event/
 
    ${expected_count} =  Count Eicars in Directory  /tmp_test/encoded_eicars/
+
+   # We send both CORE Detection Events and CORE Clean Events, so for every detection there will be 2 events.
+   ${expected_count}=    Evaluate    ${expected_count} * 2
+
    Should Be True  ${expected_count} > 0
 
    ${result} =  Run Process  /usr/local/bin/avscanner  /tmp_test/encoded_eicars/  timeout=120s  stderr=STDOUT
