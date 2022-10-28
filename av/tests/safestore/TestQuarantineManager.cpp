@@ -116,7 +116,7 @@ TEST_F(QuarantineManagerTests, uninitialisedDbStateIsStillUnitialisedAfterFailed
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
-    EXPECT_CALL(*filesystemMock, appendFile("/tmp/av/var/safestore_dormant_flag", "Safestore database uninitialised"));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("/tmp/av/var/safestore_dormant_flag", "Safestore database uninitialised", "/tmp/tmp"));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "a password"))
         .WillOnce(Return(InitReturnCode::DB_OPEN_FAILED));
@@ -143,8 +143,8 @@ TEST_F(QuarantineManagerTests, initFailsOnDBErrorAndDbIsMarkedCorrupt)
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
 
-    EXPECT_CALL(*filesystemMock, appendFile("/tmp/av/var/safestore_dormant_flag", "Safestore database uninitialised"));
-    EXPECT_CALL(*filesystemMock, appendFile("/tmp/av/var/safestore_dormant_flag", "Safestore database corrupt"));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("/tmp/av/var/safestore_dormant_flag", "Safestore database uninitialised", "/tmp/tmp"));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("/tmp/av/var/safestore_dormant_flag", "Safestore database corrupt", "/tmp/tmp"));
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
 
     for (int i = 0; i < 10; ++i)
@@ -160,8 +160,8 @@ TEST_F(QuarantineManagerTests, initFailsOnDBOpenFailureAndDbIsMarkedCorrupt)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
-    EXPECT_CALL(*filesystemMock, appendFile("/tmp/av/var/safestore_dormant_flag", "Safestore database uninitialised"));
-    EXPECT_CALL(*filesystemMock, appendFile("/tmp/av/var/safestore_dormant_flag", "Safestore database corrupt"));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("/tmp/av/var/safestore_dormant_flag", "Safestore database uninitialised", "/tmp/tmp"));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("/tmp/av/var/safestore_dormant_flag", "Safestore database corrupt", "/tmp/tmp"));
     EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw"))
         .WillRepeatedly(Return("a password"));
@@ -347,7 +347,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, _))
         .WillRepeatedly(Return(SaveFileReturnCode::DB_ERROR));
-    EXPECT_CALL(*filesystemMock, appendFile("/tmp/av/var/safestore_dormant_flag", "Safestore database corrupt"));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("/tmp/av/var/safestore_dormant_flag", "Safestore database corrupt", "/tmp/tmp"));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", m_SHA256)).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(_)).WillRepeatedly(Return(true));
 
@@ -463,7 +463,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnInitialisedDb)
     EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/safestore_db")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/safestore_db")).Times(1);
 
-        EXPECT_CALL(*filesystemMock, appendFile("/tmp/av/var/safestore_dormant_flag", "Safestore database uninitialised"));
+        EXPECT_CALL(*filesystemMock, writeFileAtomically("/tmp/av/var/safestore_dormant_flag", "Safestore database uninitialised", "/tmp/tmp"));
     EXPECT_CALL(*m_mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", _))
         .WillOnce(Return(InitReturnCode::OK));
     std::shared_ptr<IQuarantineManager> quarantineManager =
@@ -495,7 +495,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnUninitialisedDbThatDoesExis
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
-    EXPECT_CALL(*filesystemMock, appendFile("/tmp/av/var/safestore_dormant_flag", "Safestore database uninitialised"));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("/tmp/av/var/safestore_dormant_flag", "Safestore database uninitialised", "/tmp/tmp"));
     EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/safestore_db")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, removeFilesInDirectory("/tmp/av/var/safestore_db")).Times(1);
 

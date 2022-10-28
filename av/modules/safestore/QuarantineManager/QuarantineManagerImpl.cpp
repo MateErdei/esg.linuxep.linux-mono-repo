@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "SafeStoreWrapperImpl.h"
 
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "common/ApplicationPaths.h"
@@ -15,6 +16,9 @@
 
 #include <optional>
 #include <utility>
+
+#include <fcntl.h>
+#include <sys/stat.h>
 
 namespace
 {
@@ -122,16 +126,17 @@ namespace safestore
             m_state = newState;
             auto fileSystem = Common::FileSystem::fileSystem();
             std::string dormantFlag = Plugin::getSafeStoreDormantFlagPath();
+            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
             switch(m_state)
             {
                 case QuarantineManagerState::INITIALISED:
                     fileSystem->removeFile(dormantFlag, true);
                     break;
                 case QuarantineManagerState::UNINITIALISED:
-                    fileSystem->appendFile(dormantFlag, "Safestore database uninitialised");
+                    fileSystem->writeFileAtomically(dormantFlag, "Safestore database uninitialised", tempDir);
                     break;
                 case QuarantineManagerState::CORRUPT:
-                    fileSystem->appendFile(dormantFlag, "Safestore database corrupt");
+                    fileSystem->writeFileAtomically(dormantFlag, "Safestore database corrupt",tempDir);
                     break;
                 case QuarantineManagerState::STARTUP:
                     break;
