@@ -2,6 +2,8 @@
 
 #include "QuarantineManagerImpl.h"
 
+#include "ConfigReader.h"
+
 #include "safestore/Logger.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
@@ -191,6 +193,9 @@ namespace safestore::QuarantineManager
                 callOnDbError();
             }
         }
+
+        // Update SafeStore config if config file exists
+        parseConfig(m_safeStore);
     }
 
     common::CentralEnums::QuarantineResult QuarantineManagerImpl::quarantineFile(
