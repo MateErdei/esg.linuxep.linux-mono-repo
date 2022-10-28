@@ -1,18 +1,20 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+/******************************************************************************************************
+
+Copyright 2020-2022, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
 #include <memory>
 #include <string>
 
-extern "C"
-{
 #include <sys/poll.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
 #include <fcntl.h>
-}
+#include <netdb.h>
 
 namespace datatypes
 {
@@ -46,8 +48,11 @@ namespace datatypes
         virtual ssize_t read(int __fd, void *__buf, size_t __nbytes) = 0;
         virtual ssize_t readlink(const char* __path, char* __buf, size_t __len) = 0;
         virtual int setrlimit(int __resource, const struct ::rlimit* __rlim) = 0;
-        virtual int fcntl (int __fd, int __cmd) = 0;
-        virtual int fstat (int __fd, struct stat *__buf) = 0;
+        virtual int getuid() = 0;
+        virtual int chroot(const char* __path)  = 0;
+        virtual int chdir(const char* __path)  = 0;
+        virtual int getaddrinfo(const char* __name, const char* __service, const struct ::addrinfo* __req, struct ::addrinfo** __pai) = 0;
+        virtual void freeaddrinfo(::addrinfo* __ai) = 0;
     };
 
     using ISystemCallWrapperSharedPtr = std::shared_ptr<ISystemCallWrapper>;

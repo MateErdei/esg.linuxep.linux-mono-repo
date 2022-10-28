@@ -8,6 +8,7 @@
 
 #include "Reloader.h"
 
+#include "datatypes/SystemCallWrapperFactory.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
 
 namespace sspl::sophosthreatdetectorimpl
@@ -23,10 +24,14 @@ namespace sspl::sophosthreatdetectorimpl
          */
         void reloadSUSIGlobalConfiguration();
         void shutdownThreatDetector();
-    TEST_PUBLIC:
-        int inner_main();
+
+    private:
+        void attempt_dns_query();
 
         std::shared_ptr<Reloader> m_reloader;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
+        datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
+    TEST_PUBLIC:
+        int inner_main();
     };
 }

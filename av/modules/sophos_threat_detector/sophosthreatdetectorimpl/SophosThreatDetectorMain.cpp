@@ -19,6 +19,7 @@
 #else
 #include <sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h>
 #endif
+
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
@@ -45,36 +46,7 @@ namespace sspl::sophosthreatdetectorimpl
 
     namespace
     {
-        void attempt_dns_query()
-        {
-            struct addrinfo* result { nullptr };
 
-            struct addrinfo hints
-            {
-            };
-            hints.ai_family = PF_UNSPEC;
-            hints.ai_socktype = SOCK_STREAM;
-            hints.ai_flags |= AI_CANONNAME; // NOLINT(hicpp-signed-bitwise)
-
-            /* resolve the domain name into a list of addresses */
-            int error = getaddrinfo("4.sophosxl.net", nullptr, &hints, &result);
-            if (error != 0)
-            {
-                if (error == EAI_SYSTEM)
-                {
-                    LOGERROR("Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: " << common::safer_strerror(errno));
-                }
-                else
-                {
-                    LOGERROR("Failed DNS query of 4.sophosxl.net: error in getaddrinfo: " << gai_strerror(error));
-                }
-            }
-            else
-            {
-                LOGINFO("Successful DNS query of 4.sophosxl.net");
-                freeaddrinfo(result);
-            }
-        }
 
         void copy_etc_file_if_present(const fs::path& etcDest, const fs::path& etcSrcFile)
         {
@@ -298,6 +270,37 @@ namespace sspl::sophosthreatdetectorimpl
         };
     } // namespace
 
+    void SophosThreatDetectorMain::attempt_dns_query()
+    {
+        struct addrinfo* result { nullptr };
+
+        struct addrinfo hints
+        {
+        };
+        hints.ai_family = PF_UNSPEC;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_flags |= AI_CANONNAME; // NOLINT(hicpp-signed-bitwise)
+
+        /* resolve the domain name into a list of addresses */
+        int error = m_sysCallWrapper->getaddrinfo("4.sophosxl.net", nullptr, &hints, &result);
+        if (error != 0)
+        {
+            if (error == EAI_SYSTEM)
+            {
+                LOGERROR("Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: " << common::safer_strerror(errno));
+            }
+            else
+            {
+                LOGERROR("Failed DNS query of 4.sophosxl.net: error in getaddrinfo: " << gai_strerror(error));
+            }
+        }
+        else
+        {
+            LOGINFO("Successful DNS query of 4.sophosxl.net");
+            m_sysCallWrapper->freeaddrinfo(result);
+        }
+    }
+
     void SophosThreatDetectorMain::shutdownThreatDetector()
     {
         LOGINFO("Sophos Threat Detector received shutdown request");
@@ -324,6 +327,9 @@ namespace sspl::sophosthreatdetectorimpl
 
     int SophosThreatDetectorMain::inner_main()
     {
+        auto sysCallFact = datatypes::SystemCallWrapperFactory();
+        m_sysCallWrapper = sysCallFact.createSystemCallWrapper();
+
         common::signals::SigTermMonitor sigTermMonitor{true};
 
         // Ignore SIGPIPE. send*() or write() on a broken pipe will now fail with errno=EPIPE rather than crash.
@@ -367,14 +373,14 @@ namespace sspl::sophosthreatdetectorimpl
 #pragma BullseyeCoverage restore
 #endif
 
-        int ret = ::chroot(chrootPath.c_str());
+        int ret = m_sysCallWrapper->chroot(chrootPath.c_str());
         if (ret != 0)
         {
             LOGERROR("Failed to chroot to " << chrootPath.c_str() << " (" << errno << "): Check permissions");
             exit(EXIT_FAILURE);
         }
 
-        if (getuid() != 0)
+        if (m_sysCallWrapper->getuid() != 0)
         {
             ret = dropCapabilities();
             if (ret != 0)
@@ -395,7 +401,7 @@ namespace sspl::sophosthreatdetectorimpl
             LOGINFO("Running as root - Skip dropping of capabilities");
         }
 
-        ret = ::chdir("/");
+        ret = m_sysCallWrapper->chdir("/");
         if (ret != 0)
         {
             LOGERROR("Failed to chdir / after entering chroot (" << ret << ")");

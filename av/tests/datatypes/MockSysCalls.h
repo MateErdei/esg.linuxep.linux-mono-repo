@@ -8,11 +8,18 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <datatypes/SystemCallWrapper.h>
 #include <gmock/gmock.h>
 
+using namespace testing;
+
 namespace
 {
     class MockSystemCallWrapper : public datatypes::ISystemCallWrapper
     {
     public:
+        MockSystemCallWrapper()
+        {
+            ON_CALL(*this, ppoll).WillByDefault(Return(0));
+        }
+
         MOCK_METHOD((std::pair<const int, const long>), getSystemUpTime, ());
         MOCK_METHOD(int, _ioctl, (int __fd, unsigned long int __request, char* buffer));
         MOCK_METHOD(int, _statfs, (const char *__file, struct ::statfs *__buf));
@@ -39,8 +46,11 @@ namespace
         MOCK_METHOD(ssize_t, read, (int __fd, void *__buf, size_t __nbytes));
         MOCK_METHOD(ssize_t, readlink, (const char* __path, char* __buf, size_t __len));
         MOCK_METHOD(int, setrlimit, (int __resource, const struct ::rlimit* __rlim));
-        MOCK_METHOD(int, fcntl, (int __fd, int __cmd));
-        MOCK_METHOD(int, fstat, (int __fd, struct stat *__buf));
+        MOCK_METHOD(int, getuid, ());
+        MOCK_METHOD(int, chroot, (const char* path));
+        MOCK_METHOD(int, chdir, (const char* path));
+        MOCK_METHOD(int, getaddrinfo, (const char* __name, const char* __service, const struct ::addrinfo* __req, struct ::addrinfo** __pai));
+        MOCK_METHOD(void, freeaddrinfo, (::addrinfo* __ai));
     };
 }
 

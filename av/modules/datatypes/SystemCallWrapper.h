@@ -100,14 +100,29 @@ namespace datatypes
             return ::setrlimit(__resource, __rlim);
         }
 
-        int fcntl (int __fd, int __cmd) override
+        int getuid() override
         {
-            return ::fcntl(__fd, __cmd);
+            return ::getuid();
         }
 
-        int fstat (int __fd, struct stat *__buf) override
+        int chroot(const char* __path) override
         {
-            return ::fstat(__fd, __buf);
+            return ::chroot(__path);
+        }
+
+        int chdir(const char* __path) override
+        {
+            return ::chdir(__path);
+        }
+
+        int getaddrinfo(const char* __name, const char* __service, const struct ::addrinfo* __req, struct ::addrinfo ** __pai) override
+        {
+            return ::getaddrinfo(__name, __service, __req, __pai);
+        }
+
+        void freeaddrinfo(::addrinfo* __ai) override
+        {
+            ::freeaddrinfo(__ai);
         }
     };
 }
