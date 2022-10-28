@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../scan_messages/ThreatDetected.h"
+#include "scan_messages/ThreatDetected.h"
 
 
 class IDetectionDatabaseHandler
