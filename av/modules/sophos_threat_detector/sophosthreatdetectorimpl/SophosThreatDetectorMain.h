@@ -1,5 +1,9 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 #pragma once
 
 #include "Reloader.h"
@@ -19,7 +23,7 @@ namespace sspl::sophosthreatdetectorimpl
          */
         void reloadSUSIGlobalConfiguration();
         void shutdownThreatDetector();
-    private:
+    TEST_PUBLIC:
         int inner_main();
 
         std::shared_ptr<Reloader> m_reloader;
