@@ -60,7 +60,7 @@ namespace Plugin
         }
         else
         {
-            LOGINFO("Cannot remove threat form database as it cannot be found");
+            LOGINFO("Cannot remove threat from database as it cannot be found");
         }
     }
 
