@@ -75,7 +75,8 @@ ${PROXY_LOG}  ./tmp/proxy_server.log
 ${MCS_CONFIG_FILE}  ${SOPHOS_INSTALL}/base/etc/mcs.config
 ${CUSTOM_TEMP_UNPACK_DIR} =  /tmp/temporary-unpack-dir
 @{FORCE_ARGUMENT} =  --force
-@{PRODUCT_MDR_ARGUMENT} =  --products\=mdr
+@{UNINSTALL_SAV_ARGUMENT} =  --uninstall-sav
+
 ${BaseVUTPolicy}                    ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
 *** Test Case ***
 Thin Installer fails to install on system without enough memory
@@ -161,8 +162,9 @@ Thin Installer Detects Sweep And uninstalls SAV
     Create Fake SAV Uninstaller in Tmp
     Create Fake Sweep Symlink    /usr/bin
     ## Installer fails trying to talk to fakeCloud
-    Run Default Thininstaller    3
+    Run Default Thininstaller    3  thininstaller_args=${UNINSTALL_SAV_ARGUMENT}
     Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
+    Check Thininstaller Log Contains    Sophos Anti-Virus will be uninstalled:
     ## Check we've run the uninstaller
     File Should Not Exist  /usr/bin/sweep
     Directory Should Not Exist  /tmp/i/am/fake
