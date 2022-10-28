@@ -10,10 +10,6 @@ namespace
 {
     class TestThreatDatabase : public LogInitializedTests
     {
-
-
-
-
     };
 }
 
