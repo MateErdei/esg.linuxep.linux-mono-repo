@@ -142,8 +142,9 @@ namespace sophos_on_access_process::OnAccessConfig
             parsedConfig = json::parse(jsonString);
 
             OnAccessConfiguration configuration{};
-            configuration.enabled = isSettingTrue(parsedConfig.value("enabled", "false"));
-            LOGINFO("On-access enabled: " << configuration.enabled);
+            auto enabled = parsedConfig.value("enabled", "false");
+            configuration.enabled = isSettingTrue(enabled);
+            LOGINFO("On-access enabled: \"" << enabled << "\"");
             configuration.excludeRemoteFiles = isSettingTrue(parsedConfig.value("excludeRemoteFiles", "false"));
             std::string scanNetwork = configuration.excludeRemoteFiles ? "\"false\"" : "\"true\"";
             LOGINFO("On-access scan network: " << scanNetwork);
