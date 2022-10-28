@@ -9,12 +9,6 @@ namespace mount_monitor::mountinfoimpl
     class Drive : virtual public mountinfo::IMountPoint
     {
     public:
-        /**
-         *
-         * @param device
-         * @param mountPoint
-         * @param type
-         */
         Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory);
 
         /**
