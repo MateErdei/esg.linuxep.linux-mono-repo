@@ -364,7 +364,11 @@ namespace Plugin
     void PluginCallback::calculateSafeStoreHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
-        if (m_safeStoreEnabled)
+        if (!m_safeStoreEnabled)
+        {
+            m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
+        }
+        else
         {
             bool dormant = fileSystem->isFile(Plugin::getSafeStoreDormantFlagPath());
             if (!common::PidLockFile::isPidFileLocked(getSafeStorePidPath(), sysCalls) )
@@ -391,10 +395,6 @@ namespace Plugin
                 }
                 m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
             }
-        }
-        else
-        {
-            m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
         }
     }
 
