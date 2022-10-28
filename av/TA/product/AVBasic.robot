@@ -337,11 +337,11 @@ AV Plugin Scan Now with ISO mount
     Register Cleanup  Remove Directory   ${destination}
     Run Shell Process   mount -o ro,loop ${source} ${destination}     OnError=Failed to create loopback mount
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
-    Should Exist      ${destination}/directory/subdir/eicar.com
+    Should Exist      ${destination}/DIR/subdir/eicar.com
 
     Run Scan Now Scan
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now   timeout=240   interval=5
-    AV Plugin Log Contains With Offset  Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/directory/subdir/eicar.com'
+    AV Plugin Log Contains With Offset  Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/DIR/subdir/eicar.com'
 
 AV Plugin Scan two mounts same inode numbers
     # Mount two copies of the same iso file. inode numbers on the mounts will be identical, but device numbers should
@@ -354,7 +354,7 @@ AV Plugin Scan two mounts same inode numbers
     Register Cleanup  Remove Directory   ${destination}
     Run Shell Process   mount -o ro,loop ${source} ${destination}     OnError=Failed to create loopback mount
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
-    Should Exist      ${destination}/directory/subdir/eicar.com
+    Should Exist      ${destination}/DIR/subdir/eicar.com
 
     ${source2} =       Set Variable  /tmp_test/eicar2.iso
     ${destination2} =  Set Variable  /tmp_test/iso_mount2
@@ -364,12 +364,12 @@ AV Plugin Scan two mounts same inode numbers
     Register Cleanup  Remove Directory   ${destination2}
     Run Shell Process   mount -o ro,loop ${source2} ${destination2}     OnError=Failed to create loopback mount
     Register Cleanup  Run Shell Process   umount ${destination2}   OnError=Failed to release loopback mount
-    Should Exist      ${destination2}/directory/subdir/eicar.com
+    Should Exist      ${destination2}/DIR/subdir/eicar.com
 
     Run Scan Now Scan
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now   timeout=240   interval=5
-    AV Plugin Log Contains With Offset   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/directory/subdir/eicar.com'
-    AV Plugin Log Contains With Offset  Found 'EICAR-AV-Test' in '/tmp_test/iso_mount2/directory/subdir/eicar.com'
+    AV Plugin Log Contains With Offset   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/DIR/subdir/eicar.com'
+    AV Plugin Log Contains With Offset  Found 'EICAR-AV-Test' in '/tmp_test/iso_mount2/DIR/subdir/eicar.com'
 
 
 AV Plugin Gets Customer ID
