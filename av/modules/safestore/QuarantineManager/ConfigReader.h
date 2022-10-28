@@ -19,6 +19,5 @@ namespace
 
 namespace safestore
 {
-    static void parseConfig(const std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper>& safeStore);
+    void parseConfig(safestore::SafeStoreWrapper::ISafeStoreWrapper& safeStore);
 };
-

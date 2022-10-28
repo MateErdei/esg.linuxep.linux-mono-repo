@@ -7,28 +7,37 @@
 #include "common/ApplicationPaths.h"
 #include <thirdparty/nlohmann-json/json.hpp>
 
-void parseConfig(const std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper>& safeStore)
+namespace safestore
 {
-    auto fileSystem = Common::FileSystem::fileSystem();
-    if (fileSystem->isFile(Plugin::getSafeStoreConfigPath()))
+    void parseConfig(safestore::SafeStoreWrapper::ISafeStoreWrapper& safeStore)
     {
-        LOGINFO("Config file found, parsing optional arguments.");
-        try
+        auto fileSystem = Common::FileSystem::fileSystem();
+        if (fileSystem->isFile(Plugin::getSafeStoreConfigPath()))
         {
-            auto configContents = fileSystem->readFile(Plugin::getSafeStoreConfigPath());
-            nlohmann::json j = nlohmann::json::parse(configContents);
-            for (const auto& pair : optionsMap)
+            LOGINFO("Config file found, parsing optional arguments.");
+            try
             {
-                if (j.contains(pair.first) && j[pair.first].is_number_unsigned())
+                auto configContents = fileSystem->readFile(Plugin::getSafeStoreConfigPath());
+                nlohmann::json j = nlohmann::json::parse(configContents);
+                for (const auto& [ optionAsString, option ] : optionsMap)
                 {
-                    LOGINFO("Setting config option: " << pair.first << " to: " << j[pair.first]);
-                    safeStore->setConfigIntValue(pair.second, j[pair.first]);
+                    if (j.contains(optionAsString) && j[optionAsString].is_number_unsigned())
+                    {
+                        if (safeStore.setConfigIntValue(option, j[optionAsString]))
+                        {
+                            LOGINFO("Setting config option: " << optionAsString << " to: " << j[optionAsString]);
+                        }
+                        else
+                        {
+                            LOGWARN("Failed to set config option: " << optionAsString << " to: " << j[optionAsString]);
+                        }
+                    }
                 }
             }
-        }
-        catch (nlohmann::json::parse_error& e)
-        {
-            LOGERROR("Failed to parse SafeStore config json: " << e.what());
+            catch (nlohmann::json::parse_error& e)
+            {
+                LOGERROR("Failed to parse SafeStore config json: " << e.what());
+            }
         }
     }
 }

@@ -195,7 +195,7 @@ namespace safestore::QuarantineManager
         }
 
         // Update SafeStore config if config file exists
-        parseConfig(m_safeStore);
+        parseConfig(*m_safeStore);
     }
 
     common::CentralEnums::QuarantineResult QuarantineManagerImpl::quarantineFile(

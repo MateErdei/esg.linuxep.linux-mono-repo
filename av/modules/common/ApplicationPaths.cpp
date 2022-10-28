@@ -56,6 +56,6 @@ namespace Plugin
 
     std::string getSafeStoreConfigPath()
     {
-        return getPluginVarDirPath() + "/config.json";
+        return getPluginVarDirPath() + "/safestore_config.json";
     }
 } // namespace Plugin
