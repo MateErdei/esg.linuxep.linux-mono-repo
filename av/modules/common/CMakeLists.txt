@@ -9,7 +9,7 @@ add_library(common SHARED
         Exclusion.h
         FDUtils.cpp
         FDUtils.h
-        StoppableSleeper.h
+        IPidLockFile.h
         LockableData.h
         Logger.cpp
         Logger.h
@@ -26,9 +26,10 @@ add_library(common SHARED
         SaferStrerror.h
         ScanInterruptedException.h
         ScanManuallyInterruptedException.h
-        ShuttingDownException.h
+        StoppableSleeper.h
         StringUtils.cpp
         StringUtils.h
+        ShuttingDownException.h
         ThreadRunner.cpp
         ThreadRunner.h
         signals/IReloadable.h

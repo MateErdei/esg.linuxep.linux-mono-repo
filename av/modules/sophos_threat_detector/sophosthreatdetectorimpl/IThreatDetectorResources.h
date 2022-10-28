@@ -2,9 +2,10 @@
 
 #pragma once
 
-#include "datatypes/ISystemCallWrapper.h"
-
+#include "common/IPidLockFile.h"
 #include "common/signals/ISignalHandlerBase.h"
+#include "datatypes/ISystemCallWrapper.h"
+#include "datatypes/sophos_filesystem.h"
 
 namespace sspl::sophosthreatdetectorimpl
 {
@@ -14,7 +15,8 @@ namespace sspl::sophosthreatdetectorimpl
         virtual ~IThreatDetectorResources() = default;
 
         virtual datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() = 0;
-        virtual common::signals::ISignalHandlerSharedPtr createSignalHandler(bool restartSyscalls) = 0;
+        virtual common::signals::ISignalHandlerSharedPtr createSignalHandler(bool _restartSyscalls) = 0;
+        virtual common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) = 0;
        /* common::signals::SigTermMonitor createSigTermMonitor(bool restartSyscalls);
         common::PidLockFile createLockFile(fs::path path);
         //Will create syscallsfactory

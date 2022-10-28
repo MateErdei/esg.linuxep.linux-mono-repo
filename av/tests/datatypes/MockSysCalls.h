@@ -15,6 +15,8 @@ namespace
         MockSystemCallWrapper()
         {
             ON_CALL(*this, ppoll).WillByDefault(Return(0));
+            ON_CALL(*this, getuid).WillByDefault(Return(0));
+            ON_CALL(*this, chdir).WillByDefault(Return(0));
         }
 
         MOCK_METHOD((std::pair<const int, const long>), getSystemUpTime, ());

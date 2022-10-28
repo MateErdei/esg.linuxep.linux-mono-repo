@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "IPidLockFile.h"
+
 #include "datatypes/AutoFd.h"
 #include "datatypes/ISystemCallWrapper.h"
 
@@ -13,7 +15,7 @@ namespace common
      * Create a lock file in the specified location, containing the current PID.
      * When destroyed, delete the PidLockFile.
      */
-    class PidLockFile
+    class PidLockFile : public IPidLockFile
     {
     public:
         explicit PidLockFile(const std::string& pidfile);

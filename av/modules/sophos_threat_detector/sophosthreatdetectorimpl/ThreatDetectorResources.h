@@ -10,6 +10,7 @@ namespace sspl::sophosthreatdetectorimpl
     {
         public:
             datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() override;
-            common::signals::ISignalHandlerSharedPtr createSignalHandler(bool restartSyscalls) override;
+            common::signals::ISignalHandlerSharedPtr createSignalHandler(bool _restartSyscalls) override;
+            common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) override;
     };
 }

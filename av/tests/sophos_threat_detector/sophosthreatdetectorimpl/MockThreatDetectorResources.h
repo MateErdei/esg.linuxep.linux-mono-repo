@@ -3,6 +3,7 @@
 #pragma once
 
 #include <datatypes/MockSysCalls.h>
+#include <common/MockPidLock.h>
 #include <common/MockSignalHandler.h>
 #include <sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorResources.h>
 #include <gmock/gmock.h>
@@ -18,17 +19,21 @@ namespace
         {
             m_mockSysCalls = std::make_shared<NiceMock<MockSystemCallWrapper>>();
             m_mockSigHandler = std::make_shared<NiceMock<MockSignalHandler>>();
+            m_mockPidLock = std::make_shared<NiceMock<MockPidLock>>();
 
             ON_CALL(*this, createSystemCallWrapper).WillByDefault(Return(m_mockSysCalls));
             ON_CALL(*this, createSignalHandler).WillByDefault(Return(m_mockSigHandler));
+            ON_CALL(*this, createPidLockFile).WillByDefault(Return(m_mockPidLock));
         }
 
         MOCK_METHOD(datatypes::ISystemCallWrapperSharedPtr, createSystemCallWrapper, ());
         MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createSignalHandler, (bool));
+        MOCK_METHOD(common::IPidLockFileSharedPtr, createPidLockFile, (const std::string& _path));
 
     private:
         std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSysCalls;
         std::shared_ptr<NiceMock<MockSignalHandler>> m_mockSigHandler;
+        std::shared_ptr<NiceMock<MockPidLock>> m_mockPidLock;
     };
 }
 /*

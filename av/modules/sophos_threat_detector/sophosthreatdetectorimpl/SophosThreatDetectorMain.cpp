@@ -416,7 +416,7 @@ namespace sspl::sophosthreatdetectorimpl
 
         remove_shutdown_notice_file(pluginInstall);
         fs::path lockfile = pluginInstall / "chroot/var/threat_detector.pid";
-        common::PidLockFile lock(lockfile);
+        auto pidLock = resources->createPidLockFile(lockfile);
 
         threat_scanner::IThreatReporterSharedPtr threatReporter =
             std::make_shared<sspl::sophosthreatdetectorimpl::ThreatReporter>(threat_reporter_socket(pluginInstall));
