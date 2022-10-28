@@ -316,7 +316,7 @@ def get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidnam
             spec_xml = spec_xml_dict.get(sdds_name, None)
             if not spec_xml:
                 if "SSPL" in sdds_name:
-                    logger.debug(f"Not got the spec for {sdds_name} from {sdds_specs_directory}")
+                    logger.error(f"Not got the spec for {sdds_name} from {sdds_specs_directory}")
                 continue
             examined.append(sdds_name)
 
