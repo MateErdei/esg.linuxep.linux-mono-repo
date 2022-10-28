@@ -6,6 +6,8 @@
 
 #include "mount_monitor/mountinfoimpl/Drive.h"
 
+#include "scan_messages/QuarantineResponse.h"
+
 #include "common/NotifyPipeSleeper.h"
 #include "common/ThreadRunner.h"
 
@@ -50,11 +52,13 @@ void SafeStoreWorker::run()
             {
                 LOGINFO("File is located on a Network mount: " << parentMount.mountPoint() << ". Will not quarantine.");
                 threatDetected.isRemote = true;
+                threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
                 tryQuarantine = false;
             }
             else if (parentMount.isReadOnly())
             {
                 LOGINFO("File is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
+                threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
                 tryQuarantine = false;
             }
         }
@@ -65,22 +69,23 @@ void SafeStoreWorker::run()
 
         if (tryQuarantine)
         {
-            unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket,
+            unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket,m_notifyPipe,
                                                         unixsocket::SafeStoreClient::DEFAULT_SLEEP_TIME,
                                                         sleeper);
             safeStoreClient.sendQuarantineRequest(threatDetected);
-        }
+            common::CentralEnums::QuarantineResult quarantineResult = safeStoreClient.waitForResponse();
 
-        // // TODO: LINUXDAR-5677 implement this code to wait for and deal with SafeStore response
-        //        Reponse resp = socket.read(timeout);
-        //        if (resp != good)
-        //        {
-        //            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP);
-        //        }
-        //        else
-        //        {
-        //            threatDetected.setNotificationStatus(scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
-        //        }
+            if (quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS)
+            {
+                threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP;
+                LOGDEBUG("Quarantine succeeded");
+            }
+            else
+            {
+                threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
+                LOGINFO("Quarantine failed");
+            }
+        }
 
         m_pluginAdapter.processDetectionReport(threatDetected);
     }
