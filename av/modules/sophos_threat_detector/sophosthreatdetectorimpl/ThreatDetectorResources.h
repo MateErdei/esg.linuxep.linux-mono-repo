@@ -10,5 +10,6 @@ namespace sspl::sophosthreatdetectorimpl
     {
         public:
             datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() override;
+            common::signals::ISignalHandlerSharedPtr createSignalHandler(bool restartSyscalls) override;
     };
 }

@@ -17,7 +17,7 @@ namespace common::signals
         explicit SigUSR1Monitor(IReloadablePtr reloadable);
         ~SigUSR1Monitor() override;
 
-        void triggered();
+        bool triggered() override;
 
     private:
         IReloadablePtr m_reloader;

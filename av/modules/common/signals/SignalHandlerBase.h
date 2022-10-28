@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "ISignalHandlerBase.h"
+
 #include <Common/Threads/NotifyPipe.h>
 
 #include <cassert>
@@ -9,7 +11,7 @@
 
 namespace common::signals
 {
-    class SignalHandlerBase
+    class SignalHandlerBase : public ISignalHandlerBase
     {
     public:
         explicit SignalHandlerBase(int signalNumber)
@@ -20,7 +22,7 @@ namespace common::signals
 
         virtual ~SignalHandlerBase() = default;
 
-        int monitorFd();
+        int monitorFd() override;
         int setSignalHandler(__sighandler_t handler, bool restartSyscalls=false);
         void clearSignalHandler() const;
     protected:

@@ -329,8 +329,7 @@ namespace sspl::sophosthreatdetectorimpl
     int SophosThreatDetectorMain::inner_main(IThreatDetectorResourcesUniquePtr resources)
     {
         m_sysCallWrapper = resources->createSystemCallWrapper();
-
-        common::signals::SigTermMonitor sigTermMonitor{true};
+        auto sigTermMonitor = resources->createSignalHandler(true);
 
         // Ignore SIGPIPE. send*() or write() on a broken pipe will now fail with errno=EPIPE rather than crash.
         struct sigaction ignore {};
@@ -434,7 +433,7 @@ namespace sspl::sophosthreatdetectorimpl
         m_scannerFactory =
             std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer, updateCompleteNotifier);
 
-        if (sigTermMonitor.triggered())
+        if (sigTermMonitor->triggered())
         {
             LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
             m_scannerFactory->shutdown();
@@ -463,7 +462,7 @@ namespace sspl::sophosthreatdetectorimpl
         FD_ZERO(&readFDs);
         int max = -1;
 
-        max = FDUtils::addFD(&readFDs, sigTermMonitor.monitorFd(), max);
+        max = FDUtils::addFD(&readFDs, sigTermMonitor->monitorFd(), max);
         max = FDUtils::addFD(&readFDs, usr1Monitor.monitorFd(), max);
 
         while (true)
@@ -517,10 +516,10 @@ namespace sspl::sophosthreatdetectorimpl
                 }
             }
 
-            if (FDUtils::fd_isset(sigTermMonitor.monitorFd(), &tempRead))
+            if (FDUtils::fd_isset(sigTermMonitor->monitorFd(), &tempRead))
             {
                 LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
-                sigTermMonitor.triggered();
+                sigTermMonitor->triggered();
                 returnCode = common::E_CLEAN_SUCCESS;
                 break;
             }

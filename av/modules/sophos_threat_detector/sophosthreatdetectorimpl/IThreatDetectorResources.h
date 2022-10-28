@@ -4,6 +4,8 @@
 
 #include "datatypes/ISystemCallWrapper.h"
 
+#include "common/signals/ISignalHandlerBase.h"
+
 namespace sspl::sophosthreatdetectorimpl
 {
     class IThreatDetectorResources
@@ -12,7 +14,7 @@ namespace sspl::sophosthreatdetectorimpl
         virtual ~IThreatDetectorResources() = default;
 
         virtual datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() = 0;
-
+        virtual common::signals::ISignalHandlerSharedPtr createSignalHandler(bool restartSyscalls) = 0;
        /* common::signals::SigTermMonitor createSigTermMonitor(bool restartSyscalls);
         common::PidLockFile createLockFile(fs::path path);
         //Will create syscallsfactory

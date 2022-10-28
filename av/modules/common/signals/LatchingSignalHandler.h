@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "ISignalHandlerBase.h"
 #include "SignalHandlerBase.h"
 
 namespace common::signals
@@ -10,7 +11,7 @@ namespace common::signals
     {
     public:
         using SignalHandlerBase::SignalHandlerBase;
-        bool triggered();
+        bool triggered() override;
     protected:
         bool m_signalled = false;
     };

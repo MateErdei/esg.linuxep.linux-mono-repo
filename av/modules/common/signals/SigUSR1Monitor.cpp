@@ -15,7 +15,7 @@ namespace common::signals
         int GL_USR1_MONITOR_PIPE = -1; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
     }
 
-    void SigUSR1Monitor::triggered()
+    bool SigUSR1Monitor::triggered()
     {
         while (m_pipe.notified())
         {
@@ -24,6 +24,7 @@ namespace common::signals
         LOGINFO("Reload triggered by USR1");
 
         m_reloader->update();
+        return true;
     }
 
     SigUSR1Monitor::SigUSR1Monitor(IReloadablePtr reloadable)
