@@ -15,6 +15,7 @@ Resource  ../GeneralTeardownResource.robot
 
 Default Tags   MANAGEMENT_AGENT
 
+
 *** Test Cases ***
 Verify Management Agent Creates New Event File When Plugin Raises A New Event
     [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
@@ -37,7 +38,6 @@ Verify Management Agent Creates New Event File When Plugin Raises A New Event
 
 Verify Sending Bad Message On Management Agent Socket Does Not Stop Plugin Registering Or Working
     ${errorMessage} =  Set Variable  reactor <> Reactor: callback process failed with message: Bad formed message: Protobuf parse error
-    ${logPath} =  Set Variable  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
 
     # make sure no previous event xml file exists.
     Remove Event Xml Files
@@ -47,8 +47,10 @@ Verify Sending Bad Message On Management Agent Socket Does Not Stop Plugin Regis
 
     Send Message To Management Agent Without Protobuf Serialisation  Bad Message 1
 
-    ${managementLog} =  Get File  ${logPath}
-    Should Contain X Times  ${managementLog}  ${errorMessage}  1  Management agent should contain : "${errorMessage}" only once
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Management Agent Log Contains Error N Times  ${errorMessage}  1
 
     Start Plugin
 
@@ -62,8 +64,10 @@ Verify Sending Bad Message On Management Agent Socket Does Not Stop Plugin Regis
     ...  1 secs
     ...  Check Event File     ${eventContent}
 
-    ${managementLog} =  Get File  ${logPath}
-    Should Contain X Times  ${managementLog}  ${errorMessage}  2  Management agent should contain : "${errorMessage}" only twice
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Management Agent Log Contains Error N Times  ${errorMessage}  2
 
 
 *** Keywords ***
@@ -73,3 +77,8 @@ Plugin Event Test Teardown
     Stop Plugin
     Stop Management Agent
     Terminate All Processes  kill=True
+
+Management Agent Log Contains Error N Times
+    [Arguments]  ${errorMessage}  ${expectedTimes}
+    ${managementLog} =  Get File  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
+    Should Contain X Times  ${managementLog}  ${errorMessage}  ${expectedTimes}  Management agent should contain : "${errorMessage}" only ${expectedTimes} time/s
