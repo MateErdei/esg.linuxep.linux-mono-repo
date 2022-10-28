@@ -257,7 +257,7 @@ TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
 
 TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
 {
-    const std::string expected = "Closing Scanning connection thread because pselect failed: 9";
+    const std::string expected = "Closing Scanning connection thread because pselect failed: Bad file descriptor";
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -401,7 +401,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd) // NOLINT
 
 TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_not_readable) //NOLINT
 {
-    const std::string expected = "Aborting Scanning connection thread: fd is not open for read";
+    const std::string expected = "Received file FD is not open for read";
 
     m_connectionThread->start();
     EXPECT_TRUE(m_connectionThread->isRunning());
@@ -425,7 +425,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_not_readable) 
 
 TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_device) //NOLINT
 {
-    const std::string expected = "Aborting Scanning connection thread: fd is not a regular file";
+    const std::string expected = "Received file FD is not a regular file";
 
     m_connectionThread->start();
     EXPECT_TRUE(m_connectionThread->isRunning());
@@ -450,7 +450,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_device) //N
 
 TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_socket) //NOLINT
 {
-    const std::string expected = "Aborting Scanning connection thread: fd is not a regular file";
+    const std::string expected = "Received file FD is not a regular file";
 
     m_connectionThread->start();
     EXPECT_TRUE(m_connectionThread->isRunning());
@@ -472,7 +472,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_socket) //N
 
 TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_path) //NOLINT
 {
-    const std::string expected = "Aborting Scanning connection thread: fd is not open for read";
+    const std::string expected = "Received file FD is not open for read";
 
     m_connectionThread->start();
     EXPECT_TRUE(m_connectionThread->isRunning());

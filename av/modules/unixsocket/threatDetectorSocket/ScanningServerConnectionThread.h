@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -42,7 +38,7 @@ namespace unixsocket
         bool isReceivedFileOpen(datatypes::AutoFd& file_fd, std::string& errMsg);
         bool readCapnProtoMsg(
             int32_t length,
-            uint32_t buffer_size,
+            uint32_t& buffer_size,
             kj::Array<capnp::word>& proto_buffer,
             datatypes::AutoFd& socket_fd,
             ssize_t& bytes_read,

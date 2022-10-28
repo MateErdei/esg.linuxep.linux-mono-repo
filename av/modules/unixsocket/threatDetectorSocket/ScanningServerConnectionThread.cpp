@@ -7,9 +7,10 @@
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 
-#include "common/StringUtils.h"
+#include "common/FDUtils.h"
+#include "common/SaferStrerror.h"
 #include "common/ShuttingDownException.h"
-#include <common/FDUtils.h>
+#include "common/StringUtils.h"
 
 #include <capnp/serialize.h>
 
@@ -154,12 +155,14 @@ bool unixsocket::ScanningServerConnectionThread::isReceivedFdFile(datatypes::Aut
     int ret = ::fstat(file_fd.get(), &st);
     if (ret == -1)
     {
-        errMsg = "Aborting Scanning connection thread: failed to get file status";
+        std::stringstream errSS;
+        errSS << "Failed to get status of received file FD: " << common::safer_strerror(errno);
+        errMsg = errSS.str();
         return false;
     }
     if (!S_ISREG(st.st_mode))
     {
-        errMsg = "Aborting Scanning connection thread: fd is not a regular file";
+        errMsg = "Received file FD is not a regular file";
         return false;
     }
     return true;
@@ -170,13 +173,15 @@ bool unixsocket::ScanningServerConnectionThread::isReceivedFileOpen(datatypes::A
     int status = ::fcntl(file_fd.get(), F_GETFL);
     if (status == -1)
     {
-        errMsg = "Aborting Scanning connection thread: failed to get file status flags";
+        std::stringstream errSS;
+        errSS << "Failed to get status flags of received file FD: " << common::safer_strerror(errno);
+        errMsg = errSS.str();
         return false;
     }
     unsigned int mode = status & O_ACCMODE;
     if (!(mode == O_RDONLY || mode == O_RDWR ) || status & O_PATH )
     {
-        errMsg = "Aborting Scanning connection thread: fd is not open for read";
+        errMsg = "Received file FD is not open for read";
         return false;
     }
     return true;
@@ -184,7 +189,7 @@ bool unixsocket::ScanningServerConnectionThread::isReceivedFileOpen(datatypes::A
 
 bool unixsocket::ScanningServerConnectionThread::readCapnProtoMsg(
     int32_t length,
-    uint32_t buffer_size,
+    uint32_t& buffer_size,
     kj::Array<capnp::word>& proto_buffer,
     datatypes::AutoFd& socket_fd,
     ssize_t& bytes_read,
@@ -202,7 +207,7 @@ bool unixsocket::ScanningServerConnectionThread::readCapnProtoMsg(
     if (bytes_read < 0)
     {
         std::stringstream errSS;
-        errSS << "Aborting Scanning connection thread: " << errno;
+        errSS << "Aborting Scanning connection thread: " << common::safer_strerror(errno);
         errMsg = errSS.str();
         return false;
     }
@@ -250,7 +255,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
         if (activity < 0)
         {
-            LOGERROR("Closing Scanning connection thread because pselect failed: " << errno);
+            LOGERROR("Closing Scanning connection thread because pselect failed: " << common::safer_strerror(errno));
             break;
         }
         // We don't set a timeout so something should have happened
@@ -319,13 +324,13 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             }
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
 
-
+            // Keep the connection open if we can read the message but get a file that we can't scan
             if (!isReceivedFdFile(file_fd, errMsg) || !isReceivedFileOpen(file_fd, errMsg))
             {
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);
                 LOGERROR(errMsg);
-                break;
+                continue;
             }
 
             try
@@ -345,7 +350,10 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             }
             catch (ShuttingDownException&)
             {
-                LOGINFO("Aborting scan, scanner is shutting down");
+                errMsg = "Aborting scan, scanner is shutting down";
+                result.setErrorMsg(errMsg);
+                sendResponse(socket_fd, result);
+                LOGERROR(errMsg);
                 break;
             }
 
