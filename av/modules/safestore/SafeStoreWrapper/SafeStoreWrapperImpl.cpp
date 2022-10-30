@@ -641,7 +641,7 @@ namespace safestore::SafeStoreWrapper
                 LOGDEBUG("Failed to initialise SafeStore database: Database operation failed");
                 return InitReturnCode::DB_ERROR;
             default:
-                LOGDEBUG("Failed to initialise SafeStore database");
+                LOGDEBUG("Failed to initialise SafeStore database. SafeStore returned unexpected error code: " << static_cast<int>(result));
                 return InitReturnCode::FAILED;
         }
     }
