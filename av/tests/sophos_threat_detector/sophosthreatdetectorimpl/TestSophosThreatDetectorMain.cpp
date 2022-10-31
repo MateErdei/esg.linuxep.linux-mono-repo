@@ -22,7 +22,7 @@ namespace {
 
         void SetUp() override
         {
-                auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
                 appConfig.setData("PLUGIN_INSTALL", "/tmp/TestSophosThreatDetectorMain");
 
                 m_MockThreatDetectorResources = std::make_shared<NiceMock<MockThreatDetectorResources>>();

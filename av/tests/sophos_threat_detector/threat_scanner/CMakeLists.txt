@@ -5,6 +5,7 @@ SophosAddTest(TestThreatScanner
         ../../common/LogInitializedTests.cpp
         ../../common/LogInitializedTests.h
         ../../common/MemoryAppender.h
+        MockSusiScannerFactory.h
         MockSusiWrapper.h
         MockSusiWrapperFactory.h
         TestSusiGlobalHandler.cpp

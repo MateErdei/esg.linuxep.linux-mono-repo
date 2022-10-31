@@ -420,8 +420,7 @@ namespace sspl::sophosthreatdetectorimpl
 
         common::ThreadRunner updateCompleteNotifierThread (updateCompleteNotifier, "updateCompleteNotifier", true);
 
-        m_scannerFactory =
-            std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer, updateCompleteNotifier);
+        m_scannerFactory = resources->createSusiScannerFactory(threatReporter, shutdownTimer, updateCompleteNotifier);
 
         if (sigTermMonitor->triggered())
         {

@@ -7,6 +7,7 @@
 #include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_threat_detector/threat_scanner/IThreatReporter.h"
+#include "sophos_threat_detector/threat_scanner/IThreatScannerFactory.h"
 #include "sophos_threat_detector/threat_scanner/IScanNotification.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
 
@@ -18,12 +19,25 @@ namespace sspl::sophosthreatdetectorimpl
         virtual ~IThreatDetectorResources() = default;
 
         virtual common::signals::ISignalHandlerSharedPtr createSignalHandler(bool _restartSyscalls) = 0;
+
         virtual common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) = 0;
+
         virtual datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() = 0;
+
         virtual threat_scanner::IThreatReporterSharedPtr createThreatReporter(const sophos_filesystem::path _socketPath) = 0;
+
         virtual threat_scanner::IScanNotificationSharedPtr createShutdownTimer(const sophos_filesystem::path _configPath) = 0;
+
         virtual unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr createUpdateCompleteNotifier
             (const sophos_filesystem::path _serverPath, mode_t _mode) = 0;
+
+        virtual threat_scanner::IThreatScannerFactorySharedPtr createSusiScannerFactory(
+            threat_scanner::IThreatReporterSharedPtr _reporter,
+            threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
+            threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback) = 0;
+
+
+
        /* common::signals::SigTermMonitor createSigTermMonitor(bool restartSyscalls);
         common::PidLockFile createLockFile(fs::path path);
         //Will create syscallsfactory

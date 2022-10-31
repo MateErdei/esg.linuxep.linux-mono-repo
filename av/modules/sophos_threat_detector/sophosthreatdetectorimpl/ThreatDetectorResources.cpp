@@ -7,6 +7,7 @@
 #include "datatypes/SystemCallWrapperFactory.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ShutdownTimer.h"
+#include "sophos_threat_detector/threat_scanner/SusiScannerFactory.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
 
 using namespace sspl::sophosthreatdetectorimpl;
@@ -42,4 +43,12 @@ unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr ThreatDetectorRe
     (const sophos_filesystem::path _serverPath, mode_t _mode)
 {
     return std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(_serverPath, _mode);
+}
+
+threat_scanner::IThreatScannerFactorySharedPtr ThreatDetectorResources::createSusiScannerFactory(
+    threat_scanner::IThreatReporterSharedPtr _reporter,
+    threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
+    threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback)
+{
+    return std::make_shared<threat_scanner::SusiScannerFactory>(_reporter, _shutdownTimer, _updateCompleteCallback);
 }
