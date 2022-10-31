@@ -14,5 +14,7 @@ namespace sspl::sophosthreatdetectorimpl
             common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) override;
             threat_scanner::IThreatReporterSharedPtr createThreatReporter(const sophos_filesystem::path _socketPath) override;
             threat_scanner::IScanNotificationSharedPtr createShutdownTimer(const sophos_filesystem::path _configPath) override;
+            unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr createUpdateCompleteNotifier
+                (const sophos_filesystem::path _serverPath, mode_t _mode) override;
     };
 }

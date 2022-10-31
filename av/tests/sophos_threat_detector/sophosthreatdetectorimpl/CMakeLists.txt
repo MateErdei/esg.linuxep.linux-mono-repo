@@ -36,6 +36,7 @@ SophosAddTest(TestSophosThreatDetectorMain
         MockShutdownTimer.h
         MockThreatDetectorResources.h
         MockThreatReporter.h
+        MockUpdateCompleteServerSocket.h
         TestSophosThreatDetectorMain.cpp
         PROJECTS sophosthreatdetectorimpl common
         INC_DIRS

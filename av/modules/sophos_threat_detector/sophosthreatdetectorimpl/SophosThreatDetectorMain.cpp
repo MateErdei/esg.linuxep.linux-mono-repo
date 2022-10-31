@@ -4,16 +4,14 @@
 
 #include "Logger.h"
 #include "Reloader.h"
-#include "ShutdownTimer.h"
 #include "ThreatDetectorResources.h"
-#include "ThreatReporter.h"
 
 #include "common/Define.h"
 #include "common/FDUtils.h"
-#include "common/PidLockFile.h"
+
 #include "common/SaferStrerror.h"
-#include "common/signals/SigTermMonitor.h"
 #include "common/signals/SigUSR1Monitor.h"
+#include "common/ThreadRunner.h"
 
 #ifdef USE_SUSI
 #include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
@@ -26,7 +24,6 @@
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
@@ -38,7 +35,6 @@
 #include <netdb.h>
 #include <sys/capability.h>
 #include <sys/prctl.h>
-#include <unistd.h>
 #include <zlib.h>
 
 namespace sspl::sophosthreatdetectorimpl
@@ -47,8 +43,6 @@ namespace sspl::sophosthreatdetectorimpl
 
     namespace
     {
-
-
         void copy_etc_file_if_present(const fs::path& etcDest, const fs::path& etcSrcFile)
         {
             fs::path targetFile = etcDest;
@@ -422,11 +416,9 @@ namespace sspl::sophosthreatdetectorimpl
 
         auto shutdownTimer = resources->createShutdownTimer(threat_detector_config(pluginInstall));
 
-        auto updateCompleteNotifier = std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(
-            updateCompletePath,
-            0700
-            );
-        updateCompleteNotifier->start();
+        auto updateCompleteNotifier = resources->createUpdateCompleteNotifier(updateCompletePath, 0700);
+
+        common::ThreadRunner updateCompleteNotifierThread (updateCompleteNotifier, "updateCompleteNotifier", true);
 
         m_scannerFactory =
             std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer, updateCompleteNotifier);
@@ -435,7 +427,6 @@ namespace sspl::sophosthreatdetectorimpl
         {
             LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
             m_scannerFactory->shutdown();
-            updateCompleteNotifier->tryStop();
             return common::E_CLEAN_SUCCESS;
         }
         m_scannerFactory->update(); // always force an update during start-up
@@ -530,7 +521,7 @@ namespace sspl::sophosthreatdetectorimpl
         }
 
         m_scannerFactory->shutdown();
-        updateCompleteNotifier->tryStop();
+
 
         LOGINFO("Sophos Threat Detector is exiting with return code " << returnCode);
         return returnCode;

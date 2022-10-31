@@ -38,4 +38,5 @@ namespace unixsocket::updateCompleteSocket
         ConnectionVector m_connections;
         mutable std::mutex m_connectionsLock;
     };
+    using UpdateCompleteServerSocketPtr = std::shared_ptr<UpdateCompleteServerSocket>;
 }

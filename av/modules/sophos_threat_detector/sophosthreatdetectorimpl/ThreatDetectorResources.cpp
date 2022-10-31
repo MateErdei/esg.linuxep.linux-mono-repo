@@ -7,6 +7,7 @@
 #include "datatypes/SystemCallWrapperFactory.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ShutdownTimer.h"
+#include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
 
 using namespace sspl::sophosthreatdetectorimpl;
 
@@ -35,4 +36,10 @@ threat_scanner::IThreatReporterSharedPtr ThreatDetectorResources::createThreatRe
 threat_scanner::IScanNotificationSharedPtr ThreatDetectorResources::createShutdownTimer(const sophos_filesystem::path _configPath)
 {
     return std::make_shared<ShutdownTimer>(_configPath);
+}
+
+unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr ThreatDetectorResources::createUpdateCompleteNotifier
+    (const sophos_filesystem::path _serverPath, mode_t _mode)
+{
+    return std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(_serverPath, _mode);
 }
