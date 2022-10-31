@@ -80,12 +80,13 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, environment=None
         robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS']
 
         include, *exclude = include_tag.split("NOT")
+        include = include.split("AND")
         robot_exclusion_tags.extend(exclude)
 
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
         machine.run('mkdir', '/opt/test/coredumps')
         machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
-                    '--include', include,
+                    '--include', *include,
                     '--exclude', *robot_exclusion_tags,
                     environment=environment,
                     timeout=5400)
@@ -133,7 +134,7 @@ AWS_TIMEOUT = 130
 def aws_task(machine: tap.Machine, include_tag: str):
     try:
         machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", include_tag,
-                    timeout=((AWS_TIMEOUT-5)*60))
+                    timeout=((AWS_TIMEOUT - 5) * 60))
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -398,7 +399,9 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     run_tests: bool = parameters.run_tests != 'false'
     run_aws_tests: bool = decide_whether_to_run_aws_tests(parameters, context)
-    include_tag = parameters.include_tag or "product integrationNOTavbase avbase"
+    # robot_task_with_env will parse this string
+    include_tag = parameters.include_tag or "productNOTav_basicNOTavscanner av_basicANDavscanner" \
+                                            "integrationNOTavbaseNOTav_health avbase av_health"
 
     do_coverage: bool = decide_whether_to_do_coverage(parameters, context)
     do_cppcheck: bool = decide_whether_to_run_cppcheck(parameters, context)
