@@ -44,6 +44,7 @@ AV Plugin Can Receive Actions
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="Test" id="" subtype="TestAction" replyRequired="1"/>
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Received new Action
+    Wait Until Safestore Log Contains   Quarantine Manager initialised OK
 
 
 AV plugin Can Send Status
@@ -575,10 +576,12 @@ Clear Logs
     Dump Log  ${AV_LOG_PATH}
     Dump Log  ${THREAT_DETECTOR_LOG_PATH}
     Dump Log  ${SUSI_DEBUG_LOG_PATH}
+    Dump Log  ${SAFESTORE_LOG_PATH}
 
     Remove File    ${AV_LOG_PATH}
     Remove File    ${THREAT_DETECTOR_LOG_PATH}
     Remove File    ${SUSI_DEBUG_LOG_PATH}*
+    Remove File    ${SAFESTORE_LOG_PATH}
 
 Product Test Setup
     SystemFileWatcher.Start Watching System Files
