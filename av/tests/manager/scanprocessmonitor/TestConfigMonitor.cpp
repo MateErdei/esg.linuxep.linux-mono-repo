@@ -47,17 +47,18 @@ namespace
     };
 }
 
+using Common::Threads::NotifyPipe;
 using plugin::manager::scanprocessmonitor::ConfigMonitor;
 
 TEST_F(TestConfigMonitor, createConfigMonitor)
 {
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper);
 }
 
 TEST_F(TestConfigMonitor, runConfigMonitor)
 {
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
     a.requestStop();
@@ -67,7 +68,7 @@ TEST_F(TestConfigMonitor, runConfigMonitor)
 using steady_clock = std::chrono::steady_clock;
 using namespace std::chrono_literals;
 
-static bool waitForPipe(Common::Threads::NotifyPipe& expected, steady_clock::duration wait_time)
+static bool waitForPipe(NotifyPipe& expected, steady_clock::duration wait_time)
 {
     auto deadline = steady_clock::now() + wait_time;
     do
@@ -81,12 +82,7 @@ static bool waitForPipe(Common::Threads::NotifyPipe& expected, steady_clock::dur
     return false;
 }
 
-static inline std::string toString(const fs::path& p)
-{
-    return p.string();
-}
-
-const static auto MONITOR_LATENCY = 150ms;
+constexpr auto MONITOR_LATENCY = 150ms;
 
 TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWrite)
 {
@@ -94,7 +90,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWrite)
     ofs << "This is some text";
     ofs.close();
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
 
@@ -112,7 +108,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorFail)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     EXPECT_CALL(*m_mockSystemCallWrapper, pselect(_, _, _, _, _, _)).WillOnce(Return(-1));
     ConfigMonitor a(configPipe, m_mockSystemCallWrapper, m_testDir);
     a.start();
@@ -125,9 +121,10 @@ TEST_F(TestConfigMonitor, ConfigMonitorLogsErrorWhenPselectFails)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_mockSystemCallWrapper, m_testDir);
-    EXPECT_CALL(*m_mockSystemCallWrapper, pselect(_, _, _, _, _, _)).WillOnce(DoAll(InvokeWithoutArgs(&a, &Common::Threads::AbstractThread::requestStop), Return(-1)));
+    EXPECT_CALL(*m_mockSystemCallWrapper, pselect(_, _, _, _, _, _))
+        .WillOnce(DoAll(InvokeWithoutArgs(&a, &Common::Threads::AbstractThread::requestStop), Return(-1)));
     a.start();
     EXPECT_FALSE(appenderContains("failure in ConfigMonitor: pselect failed: "));
     a.join();
@@ -141,7 +138,7 @@ TEST_F(TestConfigMonitor, noNotificationWhenSameContentsRewritten)
     ofs << "This is some text";
     ofs.close();
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
 
@@ -165,7 +162,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfAnotherWrite)
     ofs << "This is some text";
     ofs.close();
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
 
@@ -200,7 +197,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfAnotherWriteAfterStopStart)
     ofs << "This is some text";
     ofs.close();
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     auto a = std::make_shared<ConfigMonitor>(configPipe, m_systemCallWrapper, m_testDir);
     auto aThread = common::ThreadRunner(a, "a", true);
     EXPECT_TRUE(waitForLog("Config Monitor entering main loop"));
@@ -230,12 +227,12 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfAnotherWriteAfterStopStart)
 
 TEST_F(TestConfigMonitor, ConfigMonitorIsNotNotifiedOnCreateOutsideDir)
 {
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
 
     fs::create_directory("watched");
     fs::create_directory("not_watched");
 
-    ConfigMonitor a(configPipe, m_systemCallWrapper, toString(m_testDir / "watched"));
+    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir / "watched");
     a.start();
 
     std::ofstream ofs("not_watched/hosts");
@@ -249,12 +246,12 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotNotifiedOnCreateOutsideDir)
 
 TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfMove)
 {
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
 
     fs::create_directory("watched");
     fs::create_directory("not_watched");
 
-    ConfigMonitor a(configPipe, m_systemCallWrapper, toString(m_testDir / "watched"));
+    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir / "watched");
     a.start();
 
     std::ofstream ofs("not_watched/hosts");
@@ -283,7 +280,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWriteToSymlinkTarget)
 
     fs::create_symlink(symlinkTarget, "hosts");
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
 
@@ -316,7 +313,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfAnotherWriteToSymlinkTarget)
 
     fs::create_symlink(symlinkTarget, "hosts");
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
 
@@ -352,7 +349,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWriteToRelativeSymlinkTarget)
 
     fs::create_symlink("targetDir/targetFile", "hosts");
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
 
@@ -380,7 +377,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWriteToMultipleSymlinkTarget)
     fs::create_symlink(symlinkTarget, intermediateSymlinkTarget);
     fs::create_symlink(intermediateSymlinkTarget, m_testDir / "hosts");
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
 
@@ -398,7 +395,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorHandlesRecursiveSymlink)
 {
     fs::create_symlink("hosts", m_testDir / "hosts");
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
 
     a.start();
@@ -412,7 +409,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorHandlesInvalidDir)
 
     fs::path invalidDir = m_testDir / "invalidDir";
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, invalidDir);
 
     a.start();
@@ -445,7 +442,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfChangedSymlink)
 
     fs::create_symlink(symlinkTarget1, "hosts");
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
 
@@ -483,7 +480,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfRemovedChangedSymlink)
 
     fs::create_symlink(symlinkTarget1, "hosts");
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
 
@@ -519,7 +516,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIgnoresChangedSymlinkSameContent)
 
     fs::create_symlink(symlinkTarget1, "hosts");
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
     a.start();
 
@@ -566,7 +563,7 @@ TEST_F(TestConfigMonitor, catchIntermediateSymlinkChanges)
     fs::create_symlink(intermediateHosts, monitoredHosts);
     fs::create_symlink(target1, intermediateHosts);
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, monitoredDir);
     a.start();
 
@@ -615,7 +612,7 @@ TEST_F(TestConfigMonitor, catchBaseSymlinkChanges)
 
     fs::create_symlink(target1, monitoredHosts);
 
-    Common::Threads::NotifyPipe configPipe;
+    NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_systemCallWrapper, monitoredDir);
     a.start();
 
