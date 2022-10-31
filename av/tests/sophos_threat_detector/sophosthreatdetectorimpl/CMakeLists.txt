@@ -34,6 +34,7 @@ SET_TARGET_PROPERTIES(TestShutdownTimer
 SophosAddTest(TestSophosThreatDetectorMain
         ../../common/LogInitializedTests.cpp
         MockThreatDetectorResources.h
+        MockThreatReporter.h
         TestSophosThreatDetectorMain.cpp
         PROJECTS sophosthreatdetectorimpl common
         INC_DIRS

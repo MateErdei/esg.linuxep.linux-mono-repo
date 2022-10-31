@@ -10,6 +10,7 @@
 #include "../../common/WaitForEvent.h"
 #include "sophos_threat_detector/threat_scanner/SusiScanner.h"
 #include "sophos_threat_detector/threat_scanner/ThrowIfNotOk.h"
+#include "sophos_threat_detector/sophosthreatdetectorimpl/MockThreatReporter.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
@@ -144,16 +145,12 @@ namespace
     {
     public:
         TestThreatScanner() : MemoryAppenderUsingTests("ThreatScanner") {}
+        void SetUp() override
+        {
+            m_mockThreatReporter = std::make_shared<NiceMock<MockThreatReporter>>();
+        }
 
-    };
-
-    class MockIThreatReporter : public threat_scanner::IThreatReporter
-    {
-    public:
-        MOCK_METHOD(
-            void,
-            sendThreatReport,
-            (const scan_messages::ThreatDetected& threatDetected));
+        std::shared_ptr<NiceMock<MockThreatReporter>> m_mockThreatReporter;
     };
 
     class MockShutdownTimer : public threat_scanner::IScanNotification
@@ -330,12 +327,11 @@ TEST_F(TestThreatScanner, test_SusiScanner_ThreatDetected_And_NoScanError_SusiTh
     WaitForEvent serverWaitGuard;
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
     auto susiWrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
-    auto mock_reporter = std::make_shared<StrictMock<MockIThreatReporter>>();
     auto mock_timer = std::make_shared<StrictMock<MockShutdownTimer>>();
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
-    EXPECT_CALL(*mock_reporter, sendThreatReport(_)).Times(1).WillOnce(
+    EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
     EXPECT_CALL(*mock_timer, reset()).Times(1);
 
@@ -348,7 +344,7 @@ TEST_F(TestThreatScanner, test_SusiScanner_ThreatDetected_And_NoScanError_SusiTh
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, m_mockThreatReporter, mock_timer);
     datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
 
@@ -368,7 +364,6 @@ TEST_F(TestThreatScanner, Test_SusiScanner_ThreatDetected_And_NoScanError_And_Su
     WaitForEvent serverWaitGuard;
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
     auto susiWrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
-    auto mock_reporter = std::make_shared<StrictMock<MockIThreatReporter>>();
     auto mock_timer = std::make_shared<StrictMock<MockShutdownTimer>>();
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
@@ -387,7 +382,7 @@ TEST_F(TestThreatScanner, Test_SusiScanner_ThreatDetected_And_NoScanError_And_Su
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, m_mockThreatReporter, mock_timer);
     datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
 
@@ -407,12 +402,11 @@ TEST_F(TestThreatScanner, Test_SusiScanner_MultipleThreats_And_NoScanError_And_S
 
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
     auto susiWrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
-    auto mock_reporter = std::make_shared<StrictMock<MockIThreatReporter>>();
     auto mock_timer = std::make_shared<StrictMock<MockShutdownTimer>>();
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
-    EXPECT_CALL(*mock_reporter, sendThreatReport(_)).Times(1).WillOnce(
+    EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
 
     EXPECT_CALL(*mock_timer, reset()).Times(1);
@@ -426,7 +420,7 @@ TEST_F(TestThreatScanner, Test_SusiScanner_MultipleThreats_And_NoScanError_And_S
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, m_mockThreatReporter, mock_timer);
     datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_SCHEDULED, "root");
 
@@ -445,7 +439,6 @@ TEST_F(TestThreatScanner, Test_SusiScanner_ScanError_And_CleanScan_And_SusiOK)
     WaitForEvent serverWaitGuard;
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
     auto susiWrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
-    auto mock_reporter = std::make_shared<StrictMock<MockIThreatReporter>>();
     auto mock_timer = std::make_shared<StrictMock<MockShutdownTimer>>();
 
     EXPECT_CALL(*mock_timer, reset()).Times(1);
@@ -460,7 +453,7 @@ TEST_F(TestThreatScanner, Test_SusiScanner_ScanError_And_CleanScan_And_SusiOK)
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, m_mockThreatReporter, mock_timer);
     datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
 
@@ -479,7 +472,6 @@ TEST_F(TestThreatScanner, Test_SusiScanner_CleanScan_And_ScanError_And_SusiError
     WaitForEvent serverWaitGuard;
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
     auto susiWrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
-    auto mock_reporter = std::make_shared<StrictMock<MockIThreatReporter>>();
     auto mock_timer = std::make_shared<StrictMock<MockShutdownTimer>>();
 
     EXPECT_CALL(*mock_timer, reset()).Times(1);
@@ -494,7 +486,7 @@ TEST_F(TestThreatScanner, Test_SusiScanner_CleanScan_And_ScanError_And_SusiError
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, m_mockThreatReporter, mock_timer);
     datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
 
@@ -514,12 +506,11 @@ TEST_F(TestThreatScanner, Test_SusiScanner_ThreatPresent_And_ScanError_And_NoSus
     WaitForEvent serverWaitGuard;
     auto susiWrapper = std::make_shared<MockSusiWrapper>("");
     auto susiWrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
-    auto mock_reporter = std::make_shared<StrictMock<MockIThreatReporter>>();
     auto mock_timer = std::make_shared<StrictMock<MockShutdownTimer>>();
 
     EXPECT_CALL(*susiWrapperFactory, createSusiWrapper(_)).WillOnce(Return(susiWrapper));
 
-    EXPECT_CALL(*mock_reporter, sendThreatReport(_)).Times(1).WillOnce(
+    EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_)).Times(1).WillOnce(
         InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
     EXPECT_CALL(*mock_timer, reset()).Times(1);
 
@@ -532,7 +523,7 @@ TEST_F(TestThreatScanner, Test_SusiScanner_ThreatPresent_And_ScanError_And_NoSus
     EXPECT_CALL(*susiWrapper, scanFile(_, filePath.c_str(), _, _)).WillOnce(DoAll(SetArgPointee<3>(&scanResult), Return(susiResult)));
     EXPECT_CALL(*susiWrapper, freeResult(&scanResult));
 
-    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, mock_reporter, mock_timer);
+    threat_scanner::SusiScanner susiScanner(susiWrapperFactory, false, false, m_mockThreatReporter, mock_timer);
     datatypes::AutoFd fd;
     scan_messages::ScanResponse response = susiScanner.scan(fd, filePath, scan_messages::E_SCAN_TYPE_ON_DEMAND, "root");
 

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "MockThreatReporter.h"
 #include <datatypes/MockSysCalls.h>
 #include <common/MockPidLock.h>
 #include <common/MockSignalHandler.h>
@@ -20,10 +21,12 @@ namespace
             m_mockSysCalls = std::make_shared<NiceMock<MockSystemCallWrapper>>();
             m_mockSigHandler = std::make_shared<NiceMock<MockSignalHandler>>();
             m_mockPidLock = std::make_shared<NiceMock<MockPidLock>>();
+            m_mockThreatReporter = std::make_shared<NiceMock<MockThreatReporter>>();
 
             ON_CALL(*this, createSystemCallWrapper).WillByDefault(Return(m_mockSysCalls));
             ON_CALL(*this, createSignalHandler).WillByDefault(Return(m_mockSigHandler));
             ON_CALL(*this, createPidLockFile).WillByDefault(Return(m_mockPidLock));
+            ON_CALL(*this, createThreatReporter).WillByDefault(Return(m_mockThreatReporter));
         }
 
         MOCK_METHOD(datatypes::ISystemCallWrapperSharedPtr, createSystemCallWrapper, ());
@@ -35,6 +38,7 @@ namespace
         std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSysCalls;
         std::shared_ptr<NiceMock<MockSignalHandler>> m_mockSigHandler;
         std::shared_ptr<NiceMock<MockPidLock>> m_mockPidLock;
+        std::shared_ptr<NiceMock<MockThreatReporter>> m_mockThreatReporter;
     };
 }
 /*
