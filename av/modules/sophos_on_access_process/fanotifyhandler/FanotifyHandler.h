@@ -3,6 +3,7 @@
 #pragma once
 
 #include "IFanotifyHandler.h"
+#include "OnaccessStatusFile.h"
 
 #include "common/LockableData.h"
 #include "datatypes/AutoFd.h"
@@ -14,7 +15,7 @@ namespace sophos_on_access_process::fanotifyhandler
     class FanotifyHandler : public IFanotifyHandler, public threat_scanner::IUpdateCompleteCallback
     {
         public:
-            explicit FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
+            FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
             ~FanotifyHandler() override;
             FanotifyHandler(const FanotifyHandler&) =delete;
             FanotifyHandler& operator=(const FanotifyHandler&) =delete;
@@ -38,7 +39,7 @@ namespace sophos_on_access_process::fanotifyhandler
              * @param path
              * @return
              */
-            [[nodiscard]] int markMount(const std::string& path) const override;
+            [[nodiscard]] int markMount(const std::string& path) override;
 
             /**
              * Unmark a mount point as unwanted - we do not want fanotify events from it.
@@ -48,7 +49,7 @@ namespace sophos_on_access_process::fanotifyhandler
              * @param path
              * @return
              */
-            [[nodiscard]] int unmarkMount(const std::string& path) const override;
+            [[nodiscard]] int unmarkMount(const std::string& path) override;
 
             /**
              * Mark an FD to be cached - i.e. fanotify won't return events for it.
@@ -57,20 +58,9 @@ namespace sophos_on_access_process::fanotifyhandler
              *
              * @param dfd
              * @param path
-             * @return fanotify_mark result: 0 for success
-             */
-            [[nodiscard]] int cacheFd(const int& dfd, const std::string& path, bool surviveModify) const override;
-
-            /**
-             * Mark an FD to be un-cached - i.e. fanotify will return events for it again.
-             *
-             * Called from Scan Thread(s) after scanning file.
-             *
-             * @param dfd
-             * @param path
              * @return
              */
-            int uncacheFd(const int& dfd, const std::string& path) const override;
+            [[nodiscard]] int cacheFd(const int& dfd, const std::string& path) override;
 
             /**
              * Clear cached files.
@@ -88,7 +78,7 @@ namespace sophos_on_access_process::fanotifyhandler
              */
             void close() final;
 
-            [[nodiscard]] int clearCachedFiles() const override;
+            [[nodiscard]] int clearCachedFiles() override;
 
         private:
             static int processFaMarkError(int result, const std::string& function, const std::string& path);
@@ -96,6 +86,7 @@ namespace sophos_on_access_process::fanotifyhandler
 
             mutable common::LockableData<datatypes::AutoFd> m_fd;
             datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;
+            OnaccessStatusFile m_statusFile;
     };
 }
 

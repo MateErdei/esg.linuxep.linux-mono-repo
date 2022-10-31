@@ -30,10 +30,12 @@ void FanotifyHandler::init()
     int fanotifyFd = m_systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
     if (fanotifyFd == -1)
     {
+        m_statusFile.setStatus(OnaccessStatus::UNHEALTHY);
         std::stringstream errMsg;
         errMsg << "Unable to initialise fanotify: " << common::safer_strerror(errno);
         throw std::runtime_error(errMsg.str());
     }
+    m_statusFile.setStatus(OnaccessStatus::HEALTHY);
     LOGINFO("Fanotify successfully initialised");
 
     auto fanotify_autofd = m_fd.lock();
@@ -59,7 +61,7 @@ int FanotifyHandler::getFd() const
     return fanotify_autofd->fd();
 }
 
-int FanotifyHandler::markMount(const std::string& path) const
+int FanotifyHandler::markMount(const std::string& path)
 {
     assert(m_systemCallWrapper);
 
@@ -67,6 +69,7 @@ int FanotifyHandler::markMount(const std::string& path) const
     int fanotify_fd = fanotify_autofd->fd();
     if (fanotify_fd < 0)
     {
+        m_statusFile.setStatus(OnaccessStatus::UNHEALTHY);
         LOGWARN("Skipping markMount for " << path << " as fanotify disabled");
         return 0;
     }
@@ -78,7 +81,7 @@ int FanotifyHandler::markMount(const std::string& path) const
     return processFaMarkError(result, "markMount", path);
 }
 
-int FanotifyHandler::unmarkMount(const std::string& path) const
+int FanotifyHandler::unmarkMount(const std::string& path)
 {
     assert(m_systemCallWrapper);
 
@@ -86,6 +89,7 @@ int FanotifyHandler::unmarkMount(const std::string& path) const
     int fanotify_fd = fanotify_autofd->fd();
     if (fanotify_fd < 0)
     {
+        m_statusFile.setStatus(OnaccessStatus::UNHEALTHY);
         LOGWARN("Skipping unmarkMount for " << path << " as fanotify disabled");
         return 0;
     }
@@ -97,12 +101,13 @@ int FanotifyHandler::unmarkMount(const std::string& path) const
     return processFaMarkError(result, "unmarkMount", path);
 }
 
-int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
+int FanotifyHandler::cacheFd(const int& fd, const std::string& path)
 {
     assert(m_systemCallWrapper);
     int fanotify_fd = getFd(); // CacheFd only called while fanotify enabled
     if (fanotify_fd < 0)
     {
+        m_statusFile.setStatus(OnaccessStatus::UNHEALTHY);
         LOGERROR("Skipping cacheFd for " << path << " as fanotify disabled");
         return 0;
     }
@@ -113,28 +118,13 @@ int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
     return processFaMarkError(result, "cacheFd", path);
 }
 
-int FanotifyHandler::uncacheFd(const int& fd, const std::string& path) const
-{
-    assert(m_systemCallWrapper);
-    int fanotify_fd = getFd(); // uncacheFd only called while fanotify enabled
-    if (fanotify_fd < 0)
-    {
-        LOGERROR("Skipping uncacheFd for " << path << " as fanotify disabled");
-        return 0;
-    }
-
-    constexpr unsigned int flags = FAN_MARK_REMOVE | FAN_MARK_IGNORED_MASK;
-    constexpr uint64_t mask = FAN_OPEN;
-    int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, fd, nullptr);
-    return result;
-}
-
-int FanotifyHandler::clearCachedFiles() const
+int FanotifyHandler::clearCachedFiles()
 {
     auto fanotify_autofd = m_fd.lock();
     int fanotify_fd = fanotify_autofd->fd(); // Don't call getFd() since we need to hold the lock
     if (fanotify_fd < 0)
     {
+        m_statusFile.setStatus(OnaccessStatus::UNHEALTHY);
         LOGINFO("Clearing cache skipped as fanotify disabled");
         return 0;
     }
@@ -155,12 +145,8 @@ void FanotifyHandler::processFaMarkError(const std::string& function, const std:
     std::stringstream logMsg;
     int error = errno;
     logMsg << "fanotify_mark failed in " << function << ": " << common::safer_strerror(error) << " for: " << path;
-    if (error == ENOENT)
-    {
-        LOGDEBUG(logMsg.str());
-    }
     // TODO: Remove this condition once LINUXDAR-5803 is fixed
-    else if (function == "unmarkMount")
+    if (function == "unmarkMount")
     {
         LOGWARN(logMsg.str());
     }

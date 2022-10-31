@@ -8,6 +8,7 @@
 #include "common/WaitForEvent.h"
 #include "datatypes/MockSysCalls.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
+#include "sophos_on_access_process/soapd_bootstrap/OnAccessProductConfigDefaults.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
@@ -32,23 +33,19 @@ namespace
         {
             return FANOTIFY_FD;
         }
-        [[nodiscard]] int markMount(const std::string&) const override
+        [[nodiscard]] int markMount(const std::string&) override
         {
             return 0;
         }
-        [[nodiscard]] int unmarkMount(const std::string&) const override
+        [[nodiscard]] int unmarkMount(const std::string&) override
         {
             return 0;
         }
-        [[nodiscard]] int cacheFd(const int&, const std::string&, bool) const override
+        [[nodiscard]] int cacheFd(const int&, const std::string&) override
         {
             return 0;
         }
-        [[nodiscard]] int uncacheFd(const int&, const std::string&) const override
-        {
-            return 0;
-        }
-        [[nodiscard]] int clearCachedFiles() const override
+        [[nodiscard]] int clearCachedFiles() override
         {
             return 0;
         }
@@ -61,7 +58,7 @@ protected:
     void SetUp() override
     {
         m_mockSysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-        m_scanRequestQueue = std::make_shared<ScanRequestQueue>();
+        m_scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
         m_fakeFanotify = std::make_shared<FakeFanotify>();
         m_SmallScanRequestQueue = std::make_shared<ScanRequestQueue>(3);
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -619,7 +616,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTime)
 TEST_F(TestEventReaderThread, TestReaderLogsCorrectlyWhenQueueIsNoLongerFullButNotEmpty)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    WaitForEvent queueFull, queueNotFull;
+    WaitForEvent eventReaderGuard;
 
     int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
@@ -632,8 +629,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsCorrectlyWhenQueueIsNoLongerFullButN
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(DoAll(
-            InvokeWithoutArgs(&queueFull, &WaitForEvent::onEventNoArgs),
-            InvokeWithoutArgs(&queueNotFull, &WaitForEvent::waitDefault),
+            InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),
             pollReturnsWithRevents(1, POLLIN)))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
@@ -650,13 +646,12 @@ TEST_F(TestEventReaderThread, TestReaderLogsCorrectlyWhenQueueIsNoLongerFullButN
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_SmallScanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    queueFull.waitDefault();
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     EXPECT_TRUE(waitForLogMultiple("On-close event for /tmp/test from Process (PID=1999999999) and UID 321", 5, 100ms));
     m_SmallScanRequestQueue->pop();
     EXPECT_EQ(m_SmallScanRequestQueue->size(), 2);
 
-    queueNotFull.onEventNoArgs();
+    eventReaderGuard.onEventNoArgs();
     EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full.", 2, 100ms));
     EXPECT_TRUE(appenderContains("Queue is no longer full. Number of events dropped: 2"));
 }
@@ -664,7 +659,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsCorrectlyWhenQueueIsNoLongerFullButN
 TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    WaitForEvent queueFull, queueEmpty;
+    WaitForEvent eventReaderGuard;
 
     int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
@@ -677,8 +672,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(DoAll(
-            InvokeWithoutArgs(&queueFull, &WaitForEvent::onEventNoArgs),
-            InvokeWithoutArgs(&queueEmpty, &WaitForEvent::waitDefault),
+            InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),
             pollReturnsWithRevents(1, POLLIN)))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
@@ -694,11 +688,10 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_SmallScanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    queueFull.waitDefault();
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     m_SmallScanRequestQueue->restart();
 
-    queueEmpty.onEventNoArgs();
+    eventReaderGuard.onEventNoArgs();
     EXPECT_TRUE(waitForLog("Queue is no longer full. Number of events dropped: 2", 100ms));
 }
 
