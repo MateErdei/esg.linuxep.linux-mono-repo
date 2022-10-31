@@ -44,7 +44,6 @@ AV Plugin Can Receive Actions
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="Test" id="" subtype="TestAction" replyRequired="1"/>
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Received new Action
-    Wait Until Safestore Log Contains   Quarantine Manager initialised OK
 
 
 AV plugin Can Send Status

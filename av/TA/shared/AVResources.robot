@@ -1256,6 +1256,7 @@ Start AV
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Register Cleanup   Terminate And Wait until AV Plugin not running  ${AV_PLUGIN_HANDLE}
     Check AV Plugin Installed With Offset
+    Wait Until Safestore Log Contains   SafeStore started
 
 Copy And Extract Image
     [Arguments]  ${imagename}
