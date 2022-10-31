@@ -44,6 +44,9 @@ namespace safestore
 
     void Main::innerRun()
     {
+        auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
+        auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };
+
         // Take safestore lock file
         common::PidLockFile lock(Plugin::getSafeStorePidPath());
 
@@ -59,9 +62,6 @@ namespace safestore
         unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), quarantineManager);
         server.setUserAndGroup("sophos-spl-av", "root");
         server.start();
-
-        auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
-        auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };
 
         // clang-format off
         struct pollfd fds[]
