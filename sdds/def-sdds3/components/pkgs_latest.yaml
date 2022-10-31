@@ -19,7 +19,7 @@ mdr.latest.x64:
   line-id: ServerProtectionLinux-Plugin-MDR
   mountpoint: ServerProtectionLinux-Plugin-MDR
 base.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2022-42/20221010121523-66973f57fa9e8b2ac1886d3076d7d553875256d8-kklY2I/sspl-base/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2022-45/20221031083111-b7dbd1f7018e7210c6e3a8fd26a42f004fa4730f-wlBvi0/sspl-base/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Base-component
   mountpoint: ServerProtectionLinux-Base-component
 event-journaler.latest.x64:
@@ -31,6 +31,6 @@ liveresponse.latest.x64:
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse
 runtimedetections.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.capsule8-sensor/release--sensor--2022-42/20221010182213-dfdec24dac6865101d6d410fd812d47c279dbb91-gRctD3/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.capsule8-sensor/release--sensor--2022-45/20221031153801-f6c32523ac1eb39ecf59ee2cef8a53c297442311-E3vimO/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
   mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
