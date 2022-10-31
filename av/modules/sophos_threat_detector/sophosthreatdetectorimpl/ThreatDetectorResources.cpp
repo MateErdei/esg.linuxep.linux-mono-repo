@@ -5,6 +5,7 @@
 #include "common/signals/SigTermMonitor.h"
 #include "common/PidLockFile.h"
 #include "datatypes/SystemCallWrapperFactory.h"
+#include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h"
 
 using namespace sspl::sophosthreatdetectorimpl;
 
@@ -23,4 +24,9 @@ common::signals::ISignalHandlerSharedPtr ThreatDetectorResources::createSignalHa
 common::IPidLockFileSharedPtr ThreatDetectorResources::createPidLockFile(const std::string& _path)
 {
     return std::make_shared<common::PidLockFile>(_path);
+}
+
+threat_scanner::IThreatReporterSharedPtr ThreatDetectorResources::createThreatReporter(const sophos_filesystem::path _socketPath)
+{
+    return std::make_shared<sophosthreatdetectorimpl::ThreatReporter>(_socketPath);
 }

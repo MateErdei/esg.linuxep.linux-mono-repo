@@ -418,8 +418,7 @@ namespace sspl::sophosthreatdetectorimpl
         fs::path lockfile = pluginInstall / "chroot/var/threat_detector.pid";
         auto pidLock = resources->createPidLockFile(lockfile);
 
-        threat_scanner::IThreatReporterSharedPtr threatReporter =
-            std::make_shared<sspl::sophosthreatdetectorimpl::ThreatReporter>(threat_reporter_socket(pluginInstall));
+        auto threatReporter = resources->createThreatReporter(threat_reporter_socket(pluginInstall));
 
         threat_scanner::IScanNotificationSharedPtr shutdownTimer =
             std::make_shared<ShutdownTimer>(threat_detector_config(pluginInstall));

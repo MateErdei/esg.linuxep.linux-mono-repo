@@ -12,5 +12,7 @@ namespace sspl::sophosthreatdetectorimpl
             datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() override;
             common::signals::ISignalHandlerSharedPtr createSignalHandler(bool _restartSyscalls) override;
             common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) override;
+            threat_scanner::IThreatReporterSharedPtr createThreatReporter(const sophos_filesystem::path _socketPath) override;
+
     };
 }

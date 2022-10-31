@@ -29,6 +29,7 @@ namespace
         MOCK_METHOD(datatypes::ISystemCallWrapperSharedPtr, createSystemCallWrapper, ());
         MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createSignalHandler, (bool));
         MOCK_METHOD(common::IPidLockFileSharedPtr, createPidLockFile, (const std::string& _path));
+        MOCK_METHOD(threat_scanner::IThreatReporterSharedPtr, createThreatReporter, (const sophos_filesystem::path _socketPath));
 
     private:
         std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSysCalls;
