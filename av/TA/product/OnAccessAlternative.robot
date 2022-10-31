@@ -562,6 +562,8 @@ On Access Uses Multiple Scanners
     Wait Until On Access Log Contains  by scanHandler-9
 
 On Access Can Handle Unlimited Marks
+    [Tags]  MANUAL
+    [Documentation]  TODO: LINUXDAR-5658: Re-enable once we have log-rotation aware log checking
     Mark On Access Log
     Terminate On Access
     Start On Access without Log check
