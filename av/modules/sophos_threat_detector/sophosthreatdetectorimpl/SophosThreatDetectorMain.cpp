@@ -420,8 +420,7 @@ namespace sspl::sophosthreatdetectorimpl
 
         auto threatReporter = resources->createThreatReporter(threat_reporter_socket(pluginInstall));
 
-        threat_scanner::IScanNotificationSharedPtr shutdownTimer =
-            std::make_shared<ShutdownTimer>(threat_detector_config(pluginInstall));
+        auto shutdownTimer = resources->createShutdownTimer(threat_detector_config(pluginInstall));
 
         auto updateCompleteNotifier = std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(
             updateCompletePath,

@@ -6,6 +6,7 @@
 #include "common/PidLockFile.h"
 #include "datatypes/SystemCallWrapperFactory.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h"
+#include "sophos_threat_detector/sophosthreatdetectorimpl/ShutdownTimer.h"
 
 using namespace sspl::sophosthreatdetectorimpl;
 
@@ -28,5 +29,10 @@ common::IPidLockFileSharedPtr ThreatDetectorResources::createPidLockFile(const s
 
 threat_scanner::IThreatReporterSharedPtr ThreatDetectorResources::createThreatReporter(const sophos_filesystem::path _socketPath)
 {
-    return std::make_shared<sophosthreatdetectorimpl::ThreatReporter>(_socketPath);
+    return std::make_shared<ThreatReporter>(_socketPath);
+}
+
+threat_scanner::IScanNotificationSharedPtr ThreatDetectorResources::createShutdownTimer(const sophos_filesystem::path _configPath)
+{
+    return std::make_shared<ShutdownTimer>(_configPath);
 }

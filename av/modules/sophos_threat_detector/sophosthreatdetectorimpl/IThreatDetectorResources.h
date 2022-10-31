@@ -7,6 +7,7 @@
 #include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_threat_detector/threat_scanner/IThreatReporter.h"
+#include "sophos_threat_detector/threat_scanner/IScanNotification.h"
 
 namespace sspl::sophosthreatdetectorimpl
 {
@@ -19,6 +20,7 @@ namespace sspl::sophosthreatdetectorimpl
         virtual common::signals::ISignalHandlerSharedPtr createSignalHandler(bool _restartSyscalls) = 0;
         virtual common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) = 0;
         virtual threat_scanner::IThreatReporterSharedPtr createThreatReporter(const sophos_filesystem::path _socketPath) = 0;
+        virtual threat_scanner::IScanNotificationSharedPtr createShutdownTimer(const sophos_filesystem::path _configPath) = 0;
        /* common::signals::SigTermMonitor createSigTermMonitor(bool restartSyscalls);
         common::PidLockFile createLockFile(fs::path path);
         //Will create syscallsfactory

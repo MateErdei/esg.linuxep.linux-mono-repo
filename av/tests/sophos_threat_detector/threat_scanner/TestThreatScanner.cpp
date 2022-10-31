@@ -10,6 +10,7 @@
 #include "../../common/WaitForEvent.h"
 #include "sophos_threat_detector/threat_scanner/SusiScanner.h"
 #include "sophos_threat_detector/threat_scanner/ThrowIfNotOk.h"
+#include "sophos_threat_detector/sophosthreatdetectorimpl/MockShutdownTimer.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/MockThreatReporter.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
@@ -151,13 +152,6 @@ namespace
         }
 
         std::shared_ptr<NiceMock<MockThreatReporter>> m_mockThreatReporter;
-    };
-
-    class MockShutdownTimer : public threat_scanner::IScanNotification
-    {
-    public:
-        MOCK_METHOD(void, reset, ());
-        MOCK_METHOD(time_t, timeout, ());
     };
 }
 

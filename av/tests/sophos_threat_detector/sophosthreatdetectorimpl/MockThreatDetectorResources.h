@@ -2,11 +2,14 @@
 
 #pragma once
 
+#include "MockShutdownTimer.h"
 #include "MockThreatReporter.h"
+
 #include <datatypes/MockSysCalls.h>
 #include <common/MockPidLock.h>
 #include <common/MockSignalHandler.h>
 #include <sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorResources.h>
+
 #include <gmock/gmock.h>
 
 using namespace testing;
@@ -22,23 +25,27 @@ namespace
             m_mockSigHandler = std::make_shared<NiceMock<MockSignalHandler>>();
             m_mockPidLock = std::make_shared<NiceMock<MockPidLock>>();
             m_mockThreatReporter = std::make_shared<NiceMock<MockThreatReporter>>();
+            m_mockShutdownTimer = std::make_shared<NiceMock<MockShutdownTimer>>();
 
             ON_CALL(*this, createSystemCallWrapper).WillByDefault(Return(m_mockSysCalls));
             ON_CALL(*this, createSignalHandler).WillByDefault(Return(m_mockSigHandler));
             ON_CALL(*this, createPidLockFile).WillByDefault(Return(m_mockPidLock));
             ON_CALL(*this, createThreatReporter).WillByDefault(Return(m_mockThreatReporter));
+            ON_CALL(*this, createShutdownTimer).WillByDefault(Return(m_mockShutdownTimer));
         }
 
         MOCK_METHOD(datatypes::ISystemCallWrapperSharedPtr, createSystemCallWrapper, ());
         MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createSignalHandler, (bool));
         MOCK_METHOD(common::IPidLockFileSharedPtr, createPidLockFile, (const std::string& _path));
         MOCK_METHOD(threat_scanner::IThreatReporterSharedPtr, createThreatReporter, (const sophos_filesystem::path _socketPath));
+        MOCK_METHOD(threat_scanner::IScanNotificationSharedPtr , createShutdownTimer, (const sophos_filesystem::path _configPath));
 
     private:
         std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSysCalls;
         std::shared_ptr<NiceMock<MockSignalHandler>> m_mockSigHandler;
         std::shared_ptr<NiceMock<MockPidLock>> m_mockPidLock;
         std::shared_ptr<NiceMock<MockThreatReporter>> m_mockThreatReporter;
+        std::shared_ptr<NiceMock<MockShutdownTimer>> m_mockShutdownTimer;
     };
 }
 /*
