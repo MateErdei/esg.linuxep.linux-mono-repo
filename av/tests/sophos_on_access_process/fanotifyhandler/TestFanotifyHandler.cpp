@@ -54,7 +54,7 @@ TEST_F(TestFanotifyHandler, construction)
 {
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     EXPECT_EQ(handler.getFd(), -1);
-    EXPECT_EQ(getOnaccessStatusFromFile(), sophos_on_access_process::fanotifyhandler::OnaccessStatus::INACTIVE);
+    EXPECT_EQ(getOnaccessStatusFromFile(), datatypes::OnaccessStatus::INACTIVE);
 }
 
 TEST_F(TestFanotifyHandler, testInit)
@@ -74,7 +74,7 @@ TEST_F(TestFanotifyHandler, testInit)
     logMsg << "Fanotify FD set to " << fanotifyFd;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_FALSE(appenderContains("Unable to initialise fanotify:"));
-    EXPECT_EQ(getOnaccessStatusFromFile(), sophos_on_access_process::fanotifyhandler::OnaccessStatus::HEALTHY);
+    EXPECT_EQ(getOnaccessStatusFromFile(), datatypes::OnaccessStatus::HEALTHY);
 }
 
 TEST_F(TestFanotifyHandler, init_throwsErrorIfFanotifyInitFails)
@@ -86,7 +86,7 @@ TEST_F(TestFanotifyHandler, init_throwsErrorIfFanotifyInitFails)
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     EXPECT_THROW(handler.init(), std::runtime_error);
-    EXPECT_EQ(getOnaccessStatusFromFile(), sophos_on_access_process::fanotifyhandler::OnaccessStatus::UNHEALTHY);
+    EXPECT_EQ(getOnaccessStatusFromFile(), datatypes::OnaccessStatus::UNHEALTHY);
 }
 
 TEST_F(TestFanotifyHandler, cacheFdReturnsZeroForSuccess)
@@ -107,7 +107,7 @@ TEST_F(TestFanotifyHandler, cacheFdReturnsZeroForSuccess)
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 
     EXPECT_EQ(0, handler.cacheFd(fileFd, "/expected"));
-    EXPECT_EQ(getOnaccessStatusFromFile(), sophos_on_access_process::fanotifyhandler::OnaccessStatus::HEALTHY);
+    EXPECT_EQ(getOnaccessStatusFromFile(), datatypes::OnaccessStatus::HEALTHY);
 }
 
 TEST_F(TestFanotifyHandler, errorWhenCacheFdFails)
@@ -129,7 +129,7 @@ TEST_F(TestFanotifyHandler, errorWhenCacheFdFails)
 
     EXPECT_EQ(-1, handler.cacheFd(fileFd, "/expected"));
     EXPECT_TRUE(waitForLog("fanotify_mark failed in cacheFd: File exists for: /expected"));
-    EXPECT_EQ(getOnaccessStatusFromFile(), sophos_on_access_process::fanotifyhandler::OnaccessStatus::UNHEALTHY);
+    EXPECT_EQ(getOnaccessStatusFromFile(), datatypes::OnaccessStatus::HEALTHY);
 }
 
 TEST_F(TestFanotifyHandler, markMountReturnsZeroForSuccess)
@@ -150,7 +150,7 @@ TEST_F(TestFanotifyHandler, markMountReturnsZeroForSuccess)
     EXPECT_TRUE(waitForLog("Fanotify successfully initialised"));
 
     EXPECT_EQ(0, handler.markMount(path));
-    EXPECT_EQ(getOnaccessStatusFromFile(), sophos_on_access_process::fanotifyhandler::OnaccessStatus::HEALTHY);
+    EXPECT_EQ(getOnaccessStatusFromFile(), datatypes::OnaccessStatus::HEALTHY);
 }
 
 TEST_F(TestFanotifyHandler, errorWhenmarkMountFails)
@@ -172,7 +172,7 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFails)
 
     EXPECT_EQ(-1, handler.markMount(path));
     EXPECT_TRUE(waitForLog("fanotify_mark failed in markMount: File exists for: /expected"));
-    EXPECT_EQ(getOnaccessStatusFromFile(), sophos_on_access_process::fanotifyhandler::OnaccessStatus::UNHEALTHY);
+    EXPECT_EQ(getOnaccessStatusFromFile(), datatypes::OnaccessStatus::HEALTHY);
 }
 
 TEST_F(TestFanotifyHandler, clearCacheWithoutInit)
@@ -181,5 +181,5 @@ TEST_F(TestFanotifyHandler, clearCacheWithoutInit)
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
 
     EXPECT_NO_THROW(handler.updateComplete());
-    EXPECT_EQ(getOnaccessStatusFromFile(), sophos_on_access_process::fanotifyhandler::OnaccessStatus::HEALTHY);
+    EXPECT_EQ(getOnaccessStatusFromFile(), datatypes::OnaccessStatus::UNHEALTHY);
 }

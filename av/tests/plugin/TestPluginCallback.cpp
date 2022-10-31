@@ -4,6 +4,7 @@
 
 #include "PluginMemoryAppenderUsingTests.h"
 
+#include "datatypes/OnaccessStatus.h"
 #include "pluginimpl/PluginCallback.h"
 #include "pluginimpl/TaskQueue.h"
 
@@ -162,6 +163,14 @@ namespace
                 assert(val >= 0);
                 datafile << static_cast<unsigned char>(static_cast<unsigned>(val) & 0xff);
             }
+        }
+
+        void writeStatusFile(datatypes::OnaccessStatus status)
+        {
+            fs::path statusFilePath(m_basePath);
+            statusFilePath /= "var/onaccess.status";
+            std::ofstream statusFile(statusFilePath.c_str());
+            statusFile << status;
         }
 
         std::shared_ptr<Plugin::PluginCallback> m_pluginCallback;
@@ -478,16 +487,33 @@ TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidFileDoesNotExistAndShutdown
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsGoodIfLockCannotBeTakenOnPidFiles)
+TEST_F(TestPluginCallback, calculateHealthReturnsGoodIfLockCannotBeTakenOnPidFilesAndStatusHealthy)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+    writeStatusFile(datatypes::OnaccessStatus::HEALTHY);
 
     int fileDescriptor = 123;
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
     EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
 
     long expectedResult = E_HEALTH_STATUS_GOOD;
+    long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
+
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCannotBeTakenOnPidFilesButStatusUnhealthy)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+    writeStatusFile(datatypes::OnaccessStatus::UNHEALTHY);
+
+    int fileDescriptor = 123;
+    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
+    EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
+
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
 
     ASSERT_EQ(result, expectedResult);
@@ -528,11 +554,12 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnThreatDete
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFile)
+TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFileRegardlessOfOnaccessStatus)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
     commonLogger.addAppender(m_sharedAppender);
+    writeStatusFile(datatypes::OnaccessStatus::HEALTHY);
 
     Path soapdPidFile = m_basePath / "var/soapd.pid";
 
@@ -553,7 +580,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFi
 
     EXPECT_TRUE(appenderContains("Lock acquired on PID file "));
     EXPECT_TRUE(appenderContains(" assume process not running"));
-    EXPECT_TRUE(appenderContains("Sophos On Access Process is not running, turning service health to red"));
+    EXPECT_TRUE(appenderContains("Sophos On Access Process is not running or is otherwise unhealthy, turning service health to red"));
     EXPECT_TRUE(appenderContains("Service Health has changed to: red"));
     ASSERT_EQ(result, expectedResult);
 }
@@ -873,6 +900,7 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");
     commonLogger.addAppender(m_sharedAppender);
+    writeStatusFile(datatypes::OnaccessStatus::HEALTHY);
 
     Path shutdownFilePath = m_basePath / "chroot/var/threat_detector_expected_shutdown";
 

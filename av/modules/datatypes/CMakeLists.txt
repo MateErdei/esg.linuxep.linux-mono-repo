@@ -8,6 +8,7 @@ add_library(datatypes SHARED
         Time.h
         ISystemCallWrapper.h
         ISystemCallWrapperFactory.h
+        OnaccessStatus.h
         SystemCallWrapper.h
         SystemCallWrapperFactory.cpp
         SystemCallWrapperFactory.h

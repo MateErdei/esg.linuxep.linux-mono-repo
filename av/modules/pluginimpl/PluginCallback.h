@@ -62,6 +62,7 @@ namespace Plugin
                               const std::string& processName,
                               const std::string& processUsername,
                               Common::FileSystem::IFileSystem* fileSystem);
+        int getOnaccessStatusFromFile();
 
         static int getProcessPidFromFile(Common::FileSystem::IFileSystem* fileSystem, const Path&);
         [[nodiscard]] bool shutdownFileValid() const;
