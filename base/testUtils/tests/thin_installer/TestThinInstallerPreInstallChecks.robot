@@ -163,8 +163,10 @@ Thin Installer Detects Sweep And uninstalls SAV
     Create Fake Sweep Symlink    /usr/bin
     ## Installer fails trying to talk to fakeCloud
     Run Default Thininstaller    3  thininstaller_args=${UNINSTALL_SAV_ARGUMENT}
-    Check Thininstaller Log Contains    Found an existing installation of SAV in /tmp/i/am/fake
+    Check Thininstaller Log Contains    Found an existing installation of Sophos Anti-Virus in /tmp/i/am/fake/.
+    Check Thininstaller Log Contains    This product cannot be run alongside Sophos Anti-Virus.
     Check Thininstaller Log Contains    Sophos Anti-Virus will be uninstalled:
+    Check Thininstaller Log Contains    Sophos Anti-Virus has been uninstalled.
     ## Check we've run the uninstaller
     File Should Not Exist  /usr/bin/sweep
     Directory Should Not Exist  /tmp/i/am/fake
