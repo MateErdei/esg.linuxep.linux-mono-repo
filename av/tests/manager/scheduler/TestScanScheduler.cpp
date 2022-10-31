@@ -144,7 +144,7 @@ namespace
     class FakeFileWalker
     {
     public:
-        FakeFileWalker(const fs::path& basePath)
+        explicit FakeFileWalker(const fs::path& basePath)
         {
             fs::path scanLauncherDir = basePath / "sbin";
             fs::create_directories(scanLauncherDir);
@@ -303,6 +303,7 @@ TEST_F(TestScanScheduler, scanNow)
     ASSERT_TRUE(waitForLog("Starting scan Scan Now", 500ms));
     ASSERT_TRUE(waitForLog("Completed scan Scan Now", 500ms));
 
+    ASSERT_TRUE(waitForLog("Exiting scan thread", 500ms));
     EXPECT_EQ(scanCompletion.m_count, 1);
 }
 
@@ -337,7 +338,6 @@ TEST_F(TestScanScheduler, scanNowTwice)
     EXPECT_TRUE(waitForLog("Completed scan Scan Now", 500ms));
 }
 
-
 TEST_F(TestScanScheduler, scanNow_refusesConcurrentScanNow)
 {
     UsingMemoryAppender holder(*this);
@@ -360,6 +360,7 @@ TEST_F(TestScanScheduler, scanNow_refusesConcurrentScanNow)
     fileWalker.stopScan();
     ASSERT_TRUE(waitForLog("Completed scan Scan Now", 500ms));
 
+    ASSERT_TRUE(waitForLog("Exiting scan thread", 500ms));
     EXPECT_EQ(scanCompletion.m_count, 1);
 
     // Check the actual script only ran once

@@ -236,6 +236,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotNotifiedOnCreateOutsideDir)
     a.start();
 
     std::ofstream ofs("not_watched/hosts");
+    ofs << "This is some text";
     ofs.close();
 
     EXPECT_FALSE(waitForPipe(configPipe, MONITOR_LATENCY));

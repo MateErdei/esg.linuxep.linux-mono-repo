@@ -497,10 +497,12 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
 
     Task policyTask = {Task::TaskType::Policy, invalidPolicyXml};
     m_taskQueue->push(policyTask);
+    EXPECT_TRUE(waitForLog("Received Policy"));
 
     Task stopTask = {Task::TaskType::Stop, ""};
     m_taskQueue->push(stopTask);
     EXPECT_TRUE(waitForLog("Stop task received"));
+
     EXPECT_FALSE(appenderContains("SAV policy received for the first time."));
     EXPECT_FALSE(appenderContains("Processing request to restart sophos threat detector"));
 

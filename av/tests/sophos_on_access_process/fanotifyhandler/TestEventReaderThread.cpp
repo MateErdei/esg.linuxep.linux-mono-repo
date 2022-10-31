@@ -615,7 +615,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTime)
 TEST_F(TestEventReaderThread, TestReaderLogsCorrectlyWhenQueueIsNoLongerFullButNotEmpty)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    WaitForEvent eventReaderGuard;
+    WaitForEvent queueFull, queueNotFull;
 
     int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
@@ -628,7 +628,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsCorrectlyWhenQueueIsNoLongerFullButN
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(DoAll(
-            InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),
+            InvokeWithoutArgs(&queueFull, &WaitForEvent::onEventNoArgs),
+            InvokeWithoutArgs(&queueNotFull, &WaitForEvent::waitDefault),
             pollReturnsWithRevents(1, POLLIN)))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
@@ -645,12 +646,13 @@ TEST_F(TestEventReaderThread, TestReaderLogsCorrectlyWhenQueueIsNoLongerFullButN
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_SmallScanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
+    queueFull.waitDefault();
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     EXPECT_TRUE(waitForLogMultiple("On-close event for /tmp/test from Process (PID=1999999999) and UID 321", 5, 100ms));
     m_SmallScanRequestQueue->pop();
     EXPECT_EQ(m_SmallScanRequestQueue->size(), 2);
 
-    eventReaderGuard.onEventNoArgs();
+    queueNotFull.onEventNoArgs();
     EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full.", 2, 100ms));
     EXPECT_TRUE(appenderContains("Queue is no longer full. Number of events dropped: 2"));
 }
@@ -658,7 +660,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsCorrectlyWhenQueueIsNoLongerFullButN
 TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    WaitForEvent eventReaderGuard;
+    WaitForEvent queueFull, queueEmpty;
 
     int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
@@ -671,7 +673,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(DoAll(
-            InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),
+            InvokeWithoutArgs(&queueFull, &WaitForEvent::onEventNoArgs),
+            InvokeWithoutArgs(&queueEmpty, &WaitForEvent::waitDefault),
             pollReturnsWithRevents(1, POLLIN)))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
@@ -687,10 +690,11 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_SmallScanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
+    queueFull.waitDefault();
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     m_SmallScanRequestQueue->restart();
 
-    eventReaderGuard.onEventNoArgs();
+    queueEmpty.onEventNoArgs();
     EXPECT_TRUE(waitForLog("Queue is no longer full. Number of events dropped: 2", 100ms));
 }
 
