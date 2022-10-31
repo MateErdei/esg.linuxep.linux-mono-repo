@@ -1,4 +1,4 @@
 {
   "maxthreads": 10,
-  "maxscanqueuesize": 1000
+  "maxscanqueuesize": 4000
 }
