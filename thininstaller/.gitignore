@@ -7,7 +7,11 @@ log/
 output/
 redist/
 input/
+/.idea/
 .idea/codeStyles/
 .idea/markdown-navigator/
 *.pyc
 installer_header_versioned.sh
+/installer_header.sh
+/ps_rootca.crt
+/rootca.crt
