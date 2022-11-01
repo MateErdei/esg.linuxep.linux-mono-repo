@@ -53,48 +53,13 @@ class CoreDumps(object):
     def __init__(self):
         self.__m_ignore_cores_segfaults = False
 
-    def __find_watchdog_systemd_file(self):
-        if os.path.isfile("/lib/systemd/system/sophos-spl.service"):
-            return "/lib/systemd/system/sophos-spl.service"
-        if os.path.isfile("/usr/lib/systemd/system/sophos-spl.service"):
-            return "/usr/lib/systemd/system/sophos-spl.service"
-        return None
-
-    def __set_watchdog_infinite_cores(self):
-        watchdog = self.__find_watchdog_systemd_file()
-        if watchdog is None:
-            return
-        content = open(watchdog).read()
-        if "\nLimitCORE=infinity\n" in content:
-            return
-
-        output = []
-        lines = content.splitlines()
-        header_re = re.compile(r"^\[([^\]]*)\]")
-        for line in lines:
-            line = line.strip()
-            output.append(line+"\n")
-            mo = header_re.match(line)
-            if mo:
-                in_service = (mo.group(1) == "Service")
-                if in_service:
-                    output.append("LimitCORE=infinity\n")
-                    logger.debug("Adding LimitCORE=infinity to watchdog systemd service")
-
-        open(watchdog, "w").writelines(output)
-
-        sp = subprocess
-        systemctl_process = sp.Popen(["systemctl", "daemon-reload"], stdout=sp.PIPE, stderr=sp.STDOUT)
-        stdout, stderr = systemctl_process.communicate()
-        logger.info(f"systemd reloaded: {stdout}")
-
     def enable_core_files(self):
         # First set local limit to infinity, to cover product and component tests
         resource.setrlimit(resource.RLIMIT_CORE, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 
-        # Then reconfigure watchdog to ensure limit for watchdog started processes
-        # for integration tests.
-        self.__set_watchdog_infinite_cores()
+        # allow suid programs to dump core (also for processes with elevated capabilities)
+        sp = subprocess
+        sp.Popen(["sysctl", "fs.suid_dumpable=2"], stdout=sp.PIPE, stderr=sp.STDOUT).wait()
 
         os.makedirs("/z", exist_ok=True)
         os.chmod("/z", 0o777)  # ensure anyone can write to this directory
@@ -107,7 +72,7 @@ class CoreDumps(object):
         sp = subprocess
         dmesg_process = sp.Popen(["dmesg", "-T"], stdout=sp.PIPE, stderr=sp.STDOUT)
         stdout, stderr = dmesg_process.communicate()
-        logger.warn("dmesg output: %s" % stdout)
+        logger.info("dmesg output: %s" % ensure_text(stdout, encoding="utf-8", errors="replace"))
 
     def check_dmesg_for_segfaults(self, testname=None):
         sp = subprocess
@@ -201,50 +166,49 @@ class CoreDumps(object):
             testname = BuiltIn().get_variable_value("${TEST NAME}")
         CORE_DIR = "/z"
 
-        if os.path.exists(CORE_DIR):
-            coredumpnames = []
-            found_core_dump = False
-            for file in os.listdir(CORE_DIR):
-                if not file.startswith("core-"):
-                    continue
+        if not os.path.exists(CORE_DIR):
+            return
 
-                file_path = os.path.join(CORE_DIR, file)
-                if not os.path.isfile(file_path):
-                    continue
+        coredumpnames = []
+        for file in os.listdir(CORE_DIR):
+            if not file.startswith("core-"):
+                continue
 
-                if self.__m_ignore_cores_segfaults:
-                    logger.debug("Ignoring core dump:", file_path)
-                    os.unlink(file_path)
-                    continue
+            file_path = os.path.join(CORE_DIR, file)
+            if not os.path.isfile(file_path):
+                continue
 
-                found_core_dump = True
+            if self.__m_ignore_cores_segfaults:
+                logger.debug("Ignoring core dump:", file_path)
+                os.unlink(file_path)
+                continue
 
-                stat_result = os.stat(file_path)
-                timestamp = datetime.datetime.utcfromtimestamp(stat_result.st_mtime)
-                logger.error("Found core dump at %s, generated at %s UTC" % (file_path, timestamp))
-                coredumpnames.append(file)
+            stat_result = os.stat(file_path)
+            timestamp = datetime.datetime.utcfromtimestamp(stat_result.st_mtime)
+            logger.error("Found core dump at %s, generated at %s UTC" % (file_path, timestamp))
+            coredumpnames.append(file)
 
-                # Attempt to gdb core file
-                attempt_backtrace_of_core(file_path)
+            # Attempt to gdb core file
+            attempt_backtrace_of_core(file_path)
 
-                self.__copy_to_coredump_dir(file_path, testname, timestamp=timestamp)
-                os.remove(file_path)
+            self.__copy_to_coredump_dir(file_path, testname, timestamp=timestamp)
+            os.remove(file_path)
 
-            if not found_core_dump:
-                return
+        if not coredumpnames:
+            return
 
-            all_core_dumps_are_rtd = True
-            RTD_CORE_DUMP_RE = re.compile(r"core-.*sophos-subprocess-\d+-exec1 \(deleted\).\d+")
-            for core in coredumpnames:
-                core = ensure_text(core)
-                if not RTD_CORE_DUMP_RE.match(core):
-                    all_core_dumps_are_rtd = False
+        all_core_dumps_are_rtd = True
+        RTD_CORE_DUMP_RE = re.compile(r"core-.*sophos-subprocess-\d+-exec1 \(deleted\).\d+")
+        for core in coredumpnames:
+            core = ensure_text(core)
+            if not RTD_CORE_DUMP_RE.match(core):
+                all_core_dumps_are_rtd = False
 
-            if all_core_dumps_are_rtd:
-                logger.warn("Found RTD core dump(s)")
-            else:
-                # Disabled failing test run until we can sort the core files out
-                raise AssertionError("Core dump(s) found")
+        if all_core_dumps_are_rtd:
+            logger.warn("Found RTD core dump(s)")
+        else:
+            # Disabled failing test run until we can sort the core files out
+            raise AssertionError("Core dump(s) found")
 
     def __copy_to_coredump_dir(self, filepath, testname, timestamp=None):
         if timestamp is None:

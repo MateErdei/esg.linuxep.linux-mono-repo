@@ -749,7 +749,6 @@ Install Base For Component Tests
     ${result} =   Run Process   bash  ${BASE_SDDS}/install.sh  timeout=600s    stderr=STDOUT
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install base.\noutput: \n${result.stdout}"
 
-    CoreDumps.Enable Core Files
     # Check watchdog running
     ProcessUtils.wait_for_pid  ${WATCHDOG_BINARY}  ${5}
     # Stop MCS router since we haven't configured Central
