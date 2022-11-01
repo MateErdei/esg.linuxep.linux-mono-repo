@@ -18,10 +18,6 @@
 #include <cstdint>
 #include <string>
 
-#ifndef TEST_PUBLIC
-# define TEST_PUBLIC private
-#endif
-
 namespace unixsocket
 {
     class ScanningServerConnectionThread : public BaseServerConnectionThread
@@ -43,25 +39,6 @@ namespace unixsocket
         datatypes::AutoFd m_socketFd;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
         int m_maxIterations;
-
-    TEST_PUBLIC:
-        bool isReceivedFdFile(
-            std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
-            datatypes::AutoFd& file_fd,
-            std::string& errMsg);
-        bool isReceivedFileOpen(
-            std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
-            datatypes::AutoFd& file_fd,
-            std::string& errMsg);
-        bool readCapnProtoMsg(
-            std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
-            int32_t length,
-            uint32_t& buffer_size,
-            kj::Array<capnp::word>& proto_buffer,
-            datatypes::AutoFd& socket_fd,
-            ssize_t& bytes_read,
-            bool& loggedLengthOfZero,
-            std::string& errMsg);
     };
 
     struct ScanRequestObject

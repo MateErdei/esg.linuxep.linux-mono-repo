@@ -17,6 +17,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             ../common/LogInitializedTests.cpp
             TestScanningServerConnectionThread.cpp
             TestThreatDetectorSocket.cpp
+            TestThreatDetectedMessageUtils.cpp
             PROJECTS unixsocket
             )
 
