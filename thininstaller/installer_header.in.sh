@@ -21,6 +21,7 @@ then
     echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
     echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
     echo -e "--products='<products>'\t\tComma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr,xdr | --products=none"
+    echo -e "--uninstall-sav\t\tUninstall Sophos Anti-Virus if installed"
     exit 0
 fi
 
@@ -240,10 +241,23 @@ function check_SAV_installed()
 {
     local path=$1
     local sav_instdir=`readlink ${path} | sed 's/bin\/savscan//g'`
-    if [ "$sav_instdir" != "" ] && [ -d ${sav_instdir} ]
+    if [[ "$sav_instdir" == "" ]] || [[ ! -d ${sav_instdir} ]]
     then
-        failure ${EXITCODE_SAV_INSTALLED} "Found an existing installation of SAV in $sav_instdir. This product cannot be run alongside Sophos Anti-Virus"
+        # Sophos Anti-Virus not found at this location
+        return
     fi
+    echo "Found an existing installation of Sophos Anti-Virus in $sav_instdir."
+    echo "This product cannot be run alongside Sophos Anti-Virus."
+    if (( FORCE_UNINSTALL_SAV != 1 ))
+    then
+        failure ${EXITCODE_SAV_INSTALLED} \
+          "Found an existing installation of SAV in $sav_instdir. This product cannot be run alongside Sophos Anti-Virus. Re-run installer with --uninstall-sav to remove Sophos Anti-Virus"
+    fi
+
+    echo "Sophos Anti-Virus will be uninstalled:"
+    $sav_instdir/uninstall.sh --force || \
+      failure ${EXITCODE_SAV_INSTALLED} "Unable to uninstall Sophos Anti-Virus from $sav_instdir: $?"
+    echo "Sophos Anti-Virus has been uninstalled."
 }
 
 #
@@ -350,16 +364,10 @@ else
     failure ${EXITCODE_NOT_64_BIT} "This product can only be installed on a 64bit system"
 fi
 
-# Check if SAV is installed.
-## We check everything on $PATH, and always /usr/local/bin and /usr/bin
-## This should catch everywhere SAV might have installed the sweep symlink
-SWEEP=$(which sweep 2>/dev/null)
-[ -x "$SWEEP" ] && check_SAV_installed "$SWEEP"
-check_SAV_installed '/usr/local/bin/sweep'
-check_SAV_installed '/usr/bin/sweep'
 declare -a INSTALL_OPTIONS_ARGS
 # Handle arguments
 check_for_duplicate_arguments "$@"
+FORCE_UNINSTALL_SAV=0
 for i in "$@"
 do
     case $i in
@@ -408,6 +416,9 @@ do
             INSTALL_OPTIONS_ARGS+=("$i")
             shift
         ;;
+        --uninstall-sav)
+            FORCE_UNINSTALL_SAV=1
+            ;;
         --force)
             # Handled later in the code
             shift
@@ -417,6 +428,14 @@ do
         ;;
     esac
 done
+
+# Check if SAV is installed.
+## We check everything on $PATH, and always /usr/local/bin and /usr/bin
+## This should catch everywhere SAV might have installed the sweep symlink
+SWEEP=$(which sweep 2>/dev/null)
+[ -x "$SWEEP" ] && check_SAV_installed "$SWEEP"
+check_SAV_installed '/usr/local/bin/sweep'
+check_SAV_installed '/usr/bin/sweep'
 
 # Verify that instdir does not contain special characters that may cause problems.
 if ! echo "${SOPHOS_INSTALL}" | grep -q '^[-a-zA-Z0-9\/\_\.]*$'
