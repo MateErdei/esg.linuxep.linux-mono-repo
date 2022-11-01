@@ -521,7 +521,7 @@ function build()
             exitFailure $FAILURE_UNIT_TESTS "Unit tests failed for $PRODUCT"
         }
     fi
-    make install CXX=$CXX CC=$CC || exitFailure 17 "Failed to install $PRODUCT"
+    make -j${NPROC} install CXX=$CXX CC=$CC || exitFailure 17 "Failed to install $PRODUCT"
     make dist_sdds2 CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
     if (( BUILD_SDDS3 == 1 ))
     then
