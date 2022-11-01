@@ -38,11 +38,10 @@ namespace
         int getOnaccessStatusFromFile()
         {
             fs::path statusFilePath = m_testDir / "var/onaccess.status";
-            std::ifstream statusFile;
-            statusFile.open(statusFilePath.c_str());
-            int status;
+            std::ifstream statusFile(statusFilePath.c_str());
+            char status;
             statusFile >> status;
-            return status;
+            return status - '0';
         }
 
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;

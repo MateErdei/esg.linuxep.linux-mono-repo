@@ -347,9 +347,10 @@ namespace Plugin
         fs::path statusFilePath = common::getPluginInstallPath() / "var/onaccess.status";
         if (fs::exists(statusFilePath))
         {
-            std::ifstream statusFile;
-            statusFile.open(statusFilePath.c_str());
-            statusFile >> status;
+            char ch;
+            std::ifstream statusFile(statusFilePath.c_str(), std::fstream::in);
+            statusFile >> ch;
+            status = ch - '0';
         }
         return status;
     }
@@ -415,22 +416,21 @@ namespace Plugin
     void PluginCallback::calculateSoapHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
         Path soapdPidFile = common::getPluginInstallPath() / "var/soapd.pid";
-        if (!common::PidLockFile::isPidFileLocked(soapdPidFile, sysCalls) || getOnaccessStatusFromFile() == datatypes::OnaccessStatus::UNHEALTHY)
+        if (common::PidLockFile::isPidFileLocked(soapdPidFile, sysCalls) && getOnaccessStatusFromFile() != datatypes::OnaccessStatus::UNHEALTHY)
+        {
+            if(m_soapServiceStatus == E_HEALTH_STATUS_BAD)
+            {
+                LOGINFO("Sophos On Access Process is now running");
+            }
+            m_soapServiceStatus = E_HEALTH_STATUS_GOOD;
+        }
+        else
         {
             if(m_soapServiceStatus == E_HEALTH_STATUS_GOOD)
             {
                 LOGWARN("Sophos On Access Process is not running or is otherwise unhealthy, turning service health to red");
             }
             m_soapServiceStatus = E_HEALTH_STATUS_BAD;
-        }
-        else
-        {
-            if(m_soapServiceStatus == E_HEALTH_STATUS_BAD)
-            {
-                LOGINFO("Sophos On Access Process is now running");
-            }
-
-            m_soapServiceStatus = E_HEALTH_STATUS_GOOD;
         }
     }
 

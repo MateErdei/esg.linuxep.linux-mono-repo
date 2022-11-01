@@ -693,6 +693,8 @@ AV Plugin Can Send Telemetry After IDE Update
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${AV_PLUGIN_PATH}/chroot/susi/update_source/
     Log  ${output}
+    Send Policies to enable on-access
+    Wait for on access to be enabled
 
     Run Telemetry Executable With HTTPS Protocol
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -723,6 +725,8 @@ AV Plugin Can Send Telemetry After Upgrade
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${AV_PLUGIN_PATH}/chroot/susi/update_source/
     Log  ${output}
+    Send Policies to enable on-access
+    Wait for on access to be enabled
 
     Run Telemetry Executable With HTTPS Protocol
 

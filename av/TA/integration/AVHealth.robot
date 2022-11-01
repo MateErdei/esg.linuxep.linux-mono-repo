@@ -39,6 +39,10 @@ AV Health Test Setup
     AV And Base Setup
     Wait Until AV Plugin running
     Wait Until threat detector running
+    Send Policies to enable on-access
+    Wait for on access to be enabled
+    ${oaStatus} =  Get File  ${AV_PLUGIN_PATH}/var/onaccess.status
+    Log  OA status: ${oaStatus}
 
     Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
     Register Cleanup  Remove File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
