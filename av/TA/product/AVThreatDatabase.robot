@@ -18,10 +18,12 @@ Test Setup      ThreatDatabase Test Setup
 Test Teardown   ThreatDatabase Test TearDown
 *** Variables ***
 ${THREAT_DATABASE_PATH}        ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
+${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
 
 *** Test Cases ***
 Threat is added to Threat database when threat is not quarantined
     Start AV
+    Force SUSI to be initialized
     Mark AV Log
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
@@ -30,7 +32,7 @@ Threat is added to Threat database when threat is not quarantined
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  File Log Contains  ${THREAT_DATABASE_PATH}  T26796de6ce94770
+    ...  File Log Contains  ${THREAT_DATABASE_PATH}  Tbd7be297ddf3cd8
     Mark AV Log
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
@@ -40,23 +42,7 @@ Threat is added to Threat database when threat is not quarantined
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  File Log Contains  ${THREAT_DATABASE_PATH}  T26796de6ce94770
-
-Threat is not added to Threat database when threat is quarantined
-    Start AV
-    Start SafeStore Manually
-    Mark AV Log
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
-    Wait Until AV Plugin Log Contains With Offset     SafeStore flag set. Setting SafeStore to enabled   timeout=60
-    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    Wait Until AV Plugin Log Contains With Offset  Quarantine succeeded
-    Stop AV
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  File Log Contains  ${THREAT_DATABASE_PATH}  {}
+    ...  File Log Contains  ${THREAT_DATABASE_PATH}  Tbd7be297ddf3cd8
 
 *** Keywords ***
 ThreatDatabase Test Setup
@@ -87,7 +73,6 @@ Stop AV
 
 ThreatDatabase Test TearDown
     Stop AV
-    Stop SafeStore Manually
     Remove File  ${THREAT_DATABASE_PATH}
     run teardown functions
     Component Test TearDown
