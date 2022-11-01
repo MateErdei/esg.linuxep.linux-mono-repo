@@ -257,7 +257,7 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToMaxPossibleValueWhenProv
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::stringstream returnStr;
-    returnStr << "{\"maxthreads\": " << (maxScanningThreads + 1) << ",\"maxscanqueuesize\": " << (maxAllowedQueueSize + 1) << " ,\"dumpPerfData\": true}";
+    returnStr << "{\"maxthreads\": " << (maxAllowedScanningThreads + 1) << ",\"maxscanqueuesize\": " << (maxAllowedQueueSize + 1) << " ,\"dumpPerfData\": true}";
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return(returnStr.str()));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -267,9 +267,53 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToMaxPossibleValueWhenProv
 
     readProductConfigFile(maxScanQueueItems, maxThreads, dumpPerfData);
 
-    EXPECT_EQ(maxScanQueueItems, 2000);
-    EXPECT_EQ(maxThreads, 20);
+    EXPECT_EQ(maxScanQueueItems, maxAllowedQueueSize);
+    EXPECT_EQ(maxThreads, maxAllowedScanningThreads);
     EXPECT_TRUE(dumpPerfData);
 
-    EXPECT_TRUE(appenderContains("Setting from file: Max queue size set to 2000 and Max threads set to 20"));
+    std::stringstream queueSizeLogMsg;
+    queueSizeLogMsg << "Queue size of " << (maxAllowedQueueSize + 1) << " is greater than maximum allowed of " << maxAllowedQueueSize;
+
+    std::stringstream threadCountLogMsg;
+    threadCountLogMsg << "Scanning Thread count of " << (maxAllowedScanningThreads + 1) << " is greater than maximum allowed of " << maxAllowedScanningThreads;
+
+    std::stringstream settingLogMsg;
+    settingLogMsg << "Setting from file: Max queue size set to " << maxAllowedQueueSize << " and Max threads set to " << maxAllowedScanningThreads;
+
+    EXPECT_TRUE(waitForLog(queueSizeLogMsg.str()));
+    EXPECT_TRUE(waitForLog(threadCountLogMsg.str()));
+    EXPECT_TRUE(waitForLog(settingLogMsg.str()));
+}
+
+
+TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToMinPossibleValueWhenProvidedValuesToLow)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    std::stringstream returnStr;
+    returnStr << "{\"maxthreads\": " << (minAllowedScanningThreads - 1) << ",\"maxscanqueuesize\": " << (minAllowedQueueSize - 1) << " ,\"dumpPerfData\": true}";
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return(returnStr.str()));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    size_t maxScanQueueItems = 0;
+    int maxThreads = 0;
+    bool dumpPerfData = false;
+
+    readProductConfigFile(maxScanQueueItems, maxThreads, dumpPerfData);
+
+    EXPECT_EQ(maxScanQueueItems, minAllowedQueueSize);
+    EXPECT_EQ(maxThreads, minAllowedScanningThreads);
+    EXPECT_TRUE(dumpPerfData);
+
+    std::stringstream queueSizeLogMsg;
+    queueSizeLogMsg << "Queue size of " << (minAllowedQueueSize - 1) << " is less than minimum allowed of " << minAllowedQueueSize;
+
+    std::stringstream threadCountLogMsg;
+    threadCountLogMsg << "Scanning Thread count of " << (minAllowedScanningThreads - 1) << " is less than minimum allowed of " << minAllowedScanningThreads;
+
+    std::stringstream settingLogMsg;
+    settingLogMsg << "Setting from file: Max queue size set to " << minAllowedQueueSize << " and Max threads set to " << minAllowedScanningThreads;
+
+    EXPECT_TRUE(waitForLog(queueSizeLogMsg.str()));
+    EXPECT_TRUE(waitForLog(threadCountLogMsg.str()));
+    EXPECT_TRUE(waitForLog(settingLogMsg.str()));
 }

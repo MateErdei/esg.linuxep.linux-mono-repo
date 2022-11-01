@@ -12,8 +12,6 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 
-#include <math>
-
 namespace fs = sophos_filesystem;
 using json = nlohmann::json;
 
@@ -75,23 +73,23 @@ namespace sophos_on_access_process::OnAccessConfig
 
                     if (maxScanQueueSize > maxAllowedQueueSize)
                     {
-                        LOGDEBUG("File queue size of " << maxScanQueueSize << " is greater than maximum allowed of " << maxAllowedQueueSize);
+                        LOGDEBUG("Queue size of " << maxScanQueueSize << " is greater than maximum allowed of " << maxAllowedQueueSize);
                         maxScanQueueSize = maxAllowedQueueSize;
                     }
                     if (maxScanQueueSize < minAllowedQueueSize)
                     {
-                        LOGDEBUG("File queue size of " << maxScanQueueSize << " is less than minimum allowed of " << minAllowedQueueSize);
+                        LOGDEBUG("Queue size of " << maxScanQueueSize << " is less than minimum allowed of " << minAllowedQueueSize);
                         maxScanQueueSize = minAllowedQueueSize;
                     }
-                    if (maxNumberOfScanThread > maxScanningThreads)
+                    if (maxNumberOfScanThread > maxAllowedScanningThreads)
                     {
-                        LOGDEBUG("File queue size of " << maxScanQueueSize << " is greater than maximum allowed of " << maxScanningThreads);
-                        maxNumberOfScanThread = maxScanningThreads;
+                        LOGDEBUG("Scanning Thread count of " << maxNumberOfScanThread << " is greater than maximum allowed of " << maxAllowedScanningThreads);
+                        maxNumberOfScanThread = maxAllowedScanningThreads;
                     }
-                    if (maxNumberOfScanThread < minScanningThreads)
+                    if (maxNumberOfScanThread < minAllowedScanningThreads)
                     {
-                        LOGDEBUG("File queue size of " << maxScanQueueSize << " is greater than maximum allowed of " << minScanningThreads);
-                        maxNumberOfScanThread = minScanningThreads;
+                        LOGDEBUG("Scanning Thread count of " << maxNumberOfScanThread << " is less than minimum allowed of " << minAllowedScanningThreads);
+                        maxNumberOfScanThread = minAllowedScanningThreads;
                     }
 
 

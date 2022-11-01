@@ -85,7 +85,7 @@ void SoapdBootstrap::innerRun()
     size_t maxScanQueueSize = 0;
     OnAccessConfig::readProductConfigFile(maxScanQueueSize, m_maxNumberOfScanThreads, m_dumpPerfData);
 
-    const struct rlimit file_lim = { processFdLimit, processFdLimit };
+    const struct rlimit file_lim = { onAccessProcessFdLimit, onAccessProcessFdLimit };
     sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
 
     m_fanotifyHandler = std::make_shared<FanotifyHandler>(sysCallWrapper);
