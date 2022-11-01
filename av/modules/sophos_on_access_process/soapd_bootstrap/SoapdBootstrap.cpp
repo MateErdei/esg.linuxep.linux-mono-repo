@@ -5,6 +5,7 @@
 // Package
 #include "Logger.h"
 #include "OnAccessProcesControlCallbacks.h"
+#include "OnAccessProductConfigDefaults.h"
 // Component
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 // Product
@@ -84,7 +85,7 @@ void SoapdBootstrap::innerRun()
     size_t maxScanQueueSize = 0;
     OnAccessConfig::readProductConfigFile(maxScanQueueSize, m_maxNumberOfScanThreads, m_dumpPerfData);
 
-    const struct rlimit file_lim = { 4096, 4096 };
+    const struct rlimit file_lim = { processFdLimit, processFdLimit };
     sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
 
     m_fanotifyHandler = std::make_shared<FanotifyHandler>(sysCallWrapper);

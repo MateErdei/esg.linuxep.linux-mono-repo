@@ -12,6 +12,8 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 
+#include <math>
+
 namespace fs = sophos_filesystem;
 using json = nlohmann::json;
 
@@ -70,6 +72,29 @@ namespace sophos_on_access_process::OnAccessConfig
                     maxScanQueueSize = parsedConfigJson.value("maxscanqueuesize", defaultMaxScanQueueSize);
                     maxNumberOfScanThread = parsedConfigJson.value("maxthreads", defaultScanningThreads);
                     dumpPerfData = parsedConfigJson.value("dumpPerfData", defaultDumpPerfData);
+
+                    if (maxScanQueueSize > maxAllowedQueueSize)
+                    {
+                        LOGDEBUG("File queue size of " << maxScanQueueSize << " is greater than maximum allowed of " << maxAllowedQueueSize);
+                        maxScanQueueSize = maxAllowedQueueSize;
+                    }
+                    if (maxScanQueueSize < minAllowedQueueSize)
+                    {
+                        LOGDEBUG("File queue size of " << maxScanQueueSize << " is less than minimum allowed of " << minAllowedQueueSize);
+                        maxScanQueueSize = minAllowedQueueSize;
+                    }
+                    if (maxNumberOfScanThread > maxScanningThreads)
+                    {
+                        LOGDEBUG("File queue size of " << maxScanQueueSize << " is greater than maximum allowed of " << maxScanningThreads);
+                        maxNumberOfScanThread = maxScanningThreads;
+                    }
+                    if (maxNumberOfScanThread < minScanningThreads)
+                    {
+                        LOGDEBUG("File queue size of " << maxScanQueueSize << " is greater than maximum allowed of " << minScanningThreads);
+                        maxNumberOfScanThread = minScanningThreads;
+                    }
+
+
                     usedFileValues = true;
                 }
                 catch (const std::exception& e)

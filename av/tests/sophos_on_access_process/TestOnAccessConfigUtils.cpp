@@ -252,3 +252,24 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfig_missingFields)
 
     EXPECT_TRUE(appenderContains("Setting from file: Max queue size set to 2000 and Max threads set to 20"));
 }
+
+TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToMaxPossibleValueWhenProvidedValuesToHigh)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    std::stringstream returnStr;
+    returnStr << "{\"maxthreads\": " << (maxScanningThreads + 1) << ",\"maxscanqueuesize\": " << (maxAllowedQueueSize + 1) << " ,\"dumpPerfData\": true}";
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_productControlPath)).WillOnce(Return(returnStr.str()));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    size_t maxScanQueueItems = 0;
+    int maxThreads = 0;
+    bool dumpPerfData = false;
+
+    readProductConfigFile(maxScanQueueItems, maxThreads, dumpPerfData);
+
+    EXPECT_EQ(maxScanQueueItems, 2000);
+    EXPECT_EQ(maxThreads, 20);
+    EXPECT_TRUE(dumpPerfData);
+
+    EXPECT_TRUE(appenderContains("Setting from file: Max queue size set to 2000 and Max threads set to 20"));
+}
