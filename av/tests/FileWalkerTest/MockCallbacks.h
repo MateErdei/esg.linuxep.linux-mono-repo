@@ -12,23 +12,6 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 
-/*
- * hack to allow gtest/gmock to interact with mock methods passing fs::path parameters
- *
- * See: https://github.com/google/googletest/issues/521
- *      https://github.com/google/googletest/issues/1614
- *      https://github.com/google/googletest/pull/1186
- *
- * hopefully fixed in googletest v1.10.0
- */
-namespace std::filesystem // NOLINT
-{
-    inline void PrintTo(const path& p, std::ostream* os)
-    {
-        *os << p;
-    }
-}
-
 namespace
 {
     class MockCallbacks : public filewalker::IFileWalkCallbacks
