@@ -141,7 +141,7 @@ class ManagementAgentPluginRequester(object):
 
     def make_file_readable_by_mcs(self, file_path):
         uid = pwd.getpwnam('sophos-spl-user').pw_uid
-        gid = grp.getgrnam('sophos-spl-group')[2]
+        gid = grp.getgrnam('sophos-spl-group').gr_gid
         os.chown(file_path, uid, gid)
 
     def get_valid_creation_time_and_ttl(self):

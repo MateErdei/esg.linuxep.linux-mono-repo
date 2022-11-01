@@ -657,7 +657,7 @@ CLS simple eicar in encoded archive
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/脅威.tar/eicar" is infected with EICAR-AV-Test
     Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/脅威.tar/eicar
 
-ClS Scans DiscImage When Image Setting Is On
+CLS Scans DiscImage When Image Setting Is On
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}

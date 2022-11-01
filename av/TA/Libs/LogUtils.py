@@ -101,7 +101,7 @@ class LogUtils(object):
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.marked_mcsrouter_logs = 0
         self.marked_mcs_envelope_logs = 0
-        self.marked_watchdog_logs = 0
+        self.marked_watchdog_log = 0
         self.marked_managementagent_logs = 0
         self.marked_av_log = 0
         self.marked_oa_log = 0
@@ -560,7 +560,17 @@ File Log Contains
     def mark_watchdog_log(self):
         watchdog_log = self.watchdog_log()
         contents = _get_log_contents(watchdog_log)
-        self.marked_watchdog_logs = len(contents)
+        self.marked_watchdog_log = len(contents)
+
+    def get_marked_watchdog_log(self):
+        watchdog_log = self.watchdog_log()
+        contents = _get_log_contents(watchdog_log)
+        return contents[self.marked_watchdog_log:]
+
+    def dump_marked_watchdog_log(self):
+        contents = self.get_marked_watchdog_log()
+        logger.info("Marked Watchdog Log:")
+        logger.info(contents)
 
     def mark_managementagent_log(self):
         managementagent_log = self.managementagent_log()
@@ -680,7 +690,7 @@ File Log Contains
         watchdog_log = self.watchdog_log()
         contents = _get_log_contents(watchdog_log)
 
-        contents = contents[self.marked_watchdog_logs:]
+        contents = contents[self.marked_watchdog_log:]
 
         if string_to_contain not in contents:
             self.dump_watchdog_log()

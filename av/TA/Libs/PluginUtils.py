@@ -38,7 +38,7 @@ def install_av_if_not_installed():
 
 def __start_plugin(name):
     wdctl = os.path.join(get_sophos_install(), "bin", "wdctl")
-    assert os.path.isfile(wdctl)
+    assert os.path.isfile(wdctl), "Cannot find wdctl"
     subprocess.check_call([wdctl, "start", name])
 
 
