@@ -86,15 +86,18 @@ def dump_threads_from_pid(pid):
     # write script out
     script = b"""set pagination 0
 thread apply all bt
-quit
 """
     # run gdb
     proc = subprocess.Popen([gdb, b'/proc/%d/exe' % pid, str(pid)],
                             stdin=subprocess.PIPE,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT)
+    try:
+        output = proc.communicate(script, 10)[0].decode("UTF-8")
+    except:
+        proc.kill()
+        output = proc.communicate()[0].decode("UTF-8")
 
-    output = proc.communicate(script)[0].decode("UTF-8")
     exitcode = proc.wait()
 
     # Get rid of boilerplate before backtraces
