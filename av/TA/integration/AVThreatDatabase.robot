@@ -44,8 +44,6 @@ ThreatDatabase Suite Setup
 
 ThreatDatabase Test Setup
     Start AV Plugin Process
-    Run Keyword and Ignore Error   Run Shell Process   ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
-
 
     Mark AV Log
     Mark Sophos Threat Detector Log

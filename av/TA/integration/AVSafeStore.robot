@@ -184,7 +184,6 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
 *** Keywords ***
 SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
-    Run Keyword and Ignore Error   Run Shell Process   ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
     Start SafeStore
 
     Mark AV Log
