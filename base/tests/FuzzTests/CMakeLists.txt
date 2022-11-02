@@ -10,6 +10,7 @@ target_include_directories(loggerconfigtests PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${B
 
 target_link_libraries(loggerconfigtests PUBLIC
          ${LOG4CPLUS_LIBRARY}
+         sslimpl
         )
 
 SET_TARGET_PROPERTIES( loggerconfigtests
@@ -82,6 +83,7 @@ target_link_libraries(suldownloaderconfigtests PRIVATE
         ${CURL_LIBRARY}
         ${Protobuf_LIBRARIES}
         obfuscationimpl
+        sslimpl
         )
 
 SET_TARGET_PROPERTIES( suldownloaderconfigtests
