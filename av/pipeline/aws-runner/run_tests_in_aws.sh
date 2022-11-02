@@ -70,7 +70,10 @@ echo $STACK >stackName
 # Install python requirements
 if [[ -z "$SKIP_REQUIREMENTS" ]]
 then
+    STARTTIME=$(date +%s)
     python3 -m pip install --upgrade -r requirements.txt || failure "Unable to install python requirements: $?"
+    ENDTIME=$(date +%s)
+    TIME__TOTAL=$(( $ENDTIME - $STARTTIME ))
 fi
 
 # Upload basename needs to always be this - so that instances can file tarfile
@@ -79,6 +82,8 @@ TAR_BASENAME=ssplav-test-$STACK.tgz
 TEST_TAR=${TEST_TAR:-./${TAR_BASENAME}}
 export TEST_TAR
 
+
+STARTTIME=$(date +%s)
 ## Gather files
 if [[ -z "$SKIP_GATHER" ]]
 then
@@ -87,6 +92,9 @@ fi
 [[ -f "$TEST_TAR" ]] || failure "Failed to gather test files: $TEST_TAR doesn't exist"
 
 [[ -x $(which aws) ]] || failure "No aws command available"
+
+ENDTIME=$(date +%s)
+TIME__TOTAL=$(( $ENDTIME - $STARTTIME ))
 
 export AWS_ACCESS_KEY_ID=AKIAIF23TRE42IG5IH4Q
 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID || failure "Unable to configure access key: $?"
@@ -124,7 +132,11 @@ TAR_DESTINATION_FOLDER="s3://sspl-testbucket/ssplav"
 ## Upload test tarfile to s3
 if [[ -z "$SKIP_TAR_COPY" ]]
 then
+    STARTTIME=$(date +%s)
     aws s3 cp "$TEST_TAR" ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME} || failure "Unable to copy test tarfile to s3"
+    ENDTIME=$(date +%s)
+    TIME__TOTAL=$(( $ENDTIME - $STARTTIME ))
+
 fi
 # Only delete TEST_TAR if we just gathered it
 [[ -z "$SKIP_GATHER" ]] && rm $TEST_TAR
@@ -345,7 +357,6 @@ then
 fi
 
 ## Wait for termination
-
 # Once all test runs have finished
 cleanupStack() {
     echo "Beginning cleanup check for $STACK at $(date)" >&2
@@ -361,13 +372,19 @@ cleanupStack() {
     python3 ./DeleteUnusedVolumes.py \
         || failure "Unable to delete unused volumes for $STACK: $?"
 }
-
+STARTTIME=$(date +%s)
 cleanupStack
+ENDTIME=$(date +%s)
+TIME__TOTAL=$(( $ENDTIME - $STARTTIME ))
 
 # Get results back from the AWS test run and save them locally.
 rm -rf ./results
 mkdir ./results
+
+STARTTIME=$(date +%s)
 aws s3 cp --recursive "s3://sspl-testbucket/test-results/${STACK}/" ./results
+ENDTIME=$(date +%s)
+TIME__TOTAL=$(( $ENDTIME - $STARTTIME ))
 
 CORE_DIR=/opt/test/coredumps
 if [[ $(id -u) != 0 ]]
