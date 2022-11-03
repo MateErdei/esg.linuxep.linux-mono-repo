@@ -9,15 +9,42 @@ from robot.api import logger
 class LogMark:
     def __init__(self, log_path):
         self.__m_log_path = log_path
-        self.__m_stat = os.stat(self.__m_log_path)
+        try:
+            self.__m_stat = os.stat(self.__m_log_path)
+            self.__m_inode = self.__m_stat.st_ino
+        except OSError:
+            self.__m_stat = None
+            self.__m_inode = None
+
         self.__m_mark_time = time.time()
         # Line-count?
 
     def get_inode(self) -> int:
-        return self.__m_stat.st_ino
+        return self.__m_inode
+
+    def check_inode(self, inode=None) -> bool:
+        """
+        Check if the log files inode matches the inode saved at mark construction time
+        :return:
+        """
+        if inode is None:
+            # examine the file directly
+            try:
+                stat = os.stat(self.__m_log_path)
+                inode = stat.st_ino
+            except OSError:
+                return True
+
+        if self.__m_inode is None:
+            self.__m_inode = inode
+
+        return inode == self.__m_inode
 
     def get_size(self) -> int:
-        return self.__m_stat.st_size
+        if self.__m_stat is not None:
+            return self.__m_stat.st_size
+        # log file didn't exist when Mark created, so entire file is valid
+        return 0
 
     def get_path(self) -> str:
         return self.__m_log_path
@@ -34,11 +61,12 @@ class LogHandler:
         assert mark.get_path() == self.__m_log_path
 
     def get_contents(self, mark: LogMark) -> Optional[bytes]:
+        assert isinstance(mark, LogMark)
         assert mark.get_path() == self.__m_log_path
         try:
             with open(self.__m_log_path, "rb") as f:
                 stat = os.fstat(f.fileno())
-                if stat.st_ino == mark.get_inode():
+                if mark.check_inode(stat.st_ino):
                     # File hasn't rotated
                     f.seek(mark.get_size())
                     return f.read()

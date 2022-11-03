@@ -918,7 +918,7 @@ File Log Contains
     def mark_log_size(self, logpath) -> LogHandler.LogMark:
         h = self.get_log_handler(logpath)
         mark = h.get_mark()
-        self.__m_marked_log_position[logpath] = mark  # Safe the most recent marked position
+        self.__m_marked_log_position[logpath] = mark  # Save the most recent marked position
         return mark
 
     def wait_for_log_contains_after_mark(self,
@@ -929,6 +929,7 @@ File Log Contains
         if mark is None:
             logger.error("No mark passed for wait_for_log_contains_after_mark")
             raise AssertionError("No mark set to find %s in %s" % (expected, logpath))
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_after_mark"
 
         if isinstance(expected, str):
             expected = expected.encode("UTF-8")
@@ -938,13 +939,16 @@ File Log Contains
         old_contents = ""
         while time.time() < start + timeout:
             contents = h.get_contents(mark)
-            if len(contents) > len(old_contents):
-                logger.debug(contents[:len(old_contents)])
+            if contents is not None:
+                if len(contents) > len(old_contents):
+                    logger.debug(contents[:len(old_contents)])
 
-            if expected in contents:
-                return
+                if expected in contents:
+                    return
+
+                old_contents = contents
+
             time.sleep(0.5)
-            old_contents = contents
 
         logger.error("Failed to find %s in %s" % (expected, logpath))
         h.dump_marked_log(mark)
@@ -970,7 +974,8 @@ File Log Contains
     def get_on_access_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.oa_log)
 
-    def wait_for_on_access_log_contains_after_mark(self, expected, mark, timeout: int = 10):
+    def wait_for_on_access_log_contains_after_mark(self, expected, mark: LogHandler.LogMark, timeout: int = 10):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_on_access_log_contains_after_mark"
         return self.wait_for_log_contains_after_mark(self.oa_log, expected, mark, timeout=timeout)
 
     def check_on_access_log_contains_after_mark(self, expected, mark):

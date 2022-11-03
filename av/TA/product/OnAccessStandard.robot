@@ -83,13 +83,16 @@ On Access Scans File Created By non-root User
 
     ${command} =    Set Variable    cp ${srcfile} ${destfile}
     Register Cleanup  Remove File  ${destfile}
+
+    ${mark} =  get_on_access_log_mark
+
     ${su_command} =    Set Variable    su -s /bin/sh -c "${command}" nobody
     ${rc}   ${output} =    Run And Return Rc And Output   ${su_command}
 
     Log   ${output}
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${destfile} from
-    Wait Until On Access Log Contains With Offset  Detected "${destfile}" is infected with EICAR-AV-Test  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  On-close event for ${destfile} from  mark=${mark}  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  Detected "${destfile}" is infected with EICAR-AV-Test  mark=${mark}  timeout=${timeout}
 
 
 On Access Scans File Created Under A Long Path
