@@ -1,7 +1,6 @@
 //Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 #include <unixsocket/threatDetectorSocket/ScanningClientSocket.h>
-#include "avscanner/avscannerimpl/ClientSocketWrapper.h"
 
 #include <string>
 #include <cassert>

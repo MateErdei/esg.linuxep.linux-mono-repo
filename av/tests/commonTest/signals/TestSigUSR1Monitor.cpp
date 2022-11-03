@@ -1,6 +1,7 @@
 // Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 #include "modules/common/signals/SigUSR1Monitor.h"
+#include <modules/common/FDUtils.h>
 #include "tests/common/LogInitializedTests.h"
 
 #include <gmock/gmock.h>
@@ -8,14 +9,10 @@
 
 #include <csignal>
 
-#include <sys/types.h>
-
 /* According to POSIX.1-2001, POSIX.1-2008 */
 #include <sys/select.h>
 
 /* According to earlier standards */
-#include <common/FDUtils.h>
-
 #include <sys/time.h>
 #include <unistd.h>
 

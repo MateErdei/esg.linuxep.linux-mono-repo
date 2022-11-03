@@ -5,7 +5,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <gtest/gtest.h>
-#include <gmock/gmock-matchers.h>
 #include "datatypes/Time.h"
 using namespace testing;
 using namespace datatypes;

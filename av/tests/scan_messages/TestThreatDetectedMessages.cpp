@@ -5,7 +5,6 @@
 #include <scan_messages/ThreatDetected.h>
 
 #include <gtest/gtest.h>
-#include <capnp/message.h>
 #include <capnp/serialize.h>
 
 #include <ctime>

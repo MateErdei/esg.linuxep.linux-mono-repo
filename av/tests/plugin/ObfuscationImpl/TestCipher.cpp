@@ -5,7 +5,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "MockEvpCipherWrapper.h"
-#include "datatypes/Print.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <pluginimpl/Obfuscation/ICipherException.h>

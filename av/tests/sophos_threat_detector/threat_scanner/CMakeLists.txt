@@ -1,6 +1,4 @@
 
-include(GoogleTest)
-
 SophosAddTest(TestThreatScanner
         ../../common/LogInitializedTests.cpp
         ../../common/LogInitializedTests.h
@@ -14,13 +12,7 @@ SophosAddTest(TestThreatScanner
         TestThreatScanner.cpp
         TestSusiScannerFactory.cpp
         TestSusiWrapperFactory.cpp
-        PROJECTS threat_scanner common
+        PROJECTS threat_scanner
         INC_DIRS ${pluginapiinclude}
         ${CMAKE_SOURCE_DIR}/modules
-        LIBS pthread
-        )
-SET_TARGET_PROPERTIES(TestThreatScanner
-        PROPERTIES
-        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )

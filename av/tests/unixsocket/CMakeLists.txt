@@ -1,20 +1,10 @@
-
-include(GoogleTest)
-
-
 if (NOT DEFINED ENV{USE_LIBFUZZER})
     SophosAddTest(TestSocketUtils
             ../common/LogInitializedTests.cpp
             TestSocketUtils.cpp
-            PROJECTS unixsocket avscannerimpl
+            PROJECTS unixsocket
             INC_DIRS
-            ${CMAKE_SOURCE_DIR}/modules
-            LIBS pthread
-            )
-    SET_TARGET_PROPERTIES(TestSocketUtils
-            PROPERTIES
-            INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-            BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+            ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
             )
 
     SophosAddTest(TestProcessControllerServerSocket
@@ -23,13 +13,8 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestProcessControllerServerSocket.cpp
             PROJECTS unixsocket
             INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
-            LIBS pthread
             )
-    SET_TARGET_PROPERTIES(TestProcessControllerServerSocket
-            PROPERTIES
-            INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-            BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
-            )
+
 
     SophosAddTest(TestThreatDetectorSocket
             ../common/LogInitializedTests.cpp
@@ -37,12 +22,6 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestThreatDetectorSocket.cpp
             PROJECTS unixsocket
             INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
-            LIBS pthread
-            )
-    SET_TARGET_PROPERTIES(TestThreatDetectorSocket
-            PROPERTIES
-            INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-            BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
             )
 
     SophosAddTest(TestThreatReporterSocket
@@ -51,12 +30,6 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestThreatReporterSocket.cpp
             PROJECTS unixsocket
             INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
-            LIBS pthread
-            )
-    SET_TARGET_PROPERTIES(TestThreatReporterSocket
-            PROPERTIES
-            INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-            BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
             )
 
     SophosAddTest(TestUnixSocket
@@ -64,12 +37,6 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestUpdateCompleteClientSocketThread.cpp
             PROJECTS unixsocket
             INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
-            LIBS pthread
-            )
-    SET_TARGET_PROPERTIES(TestUnixSocket
-            PROPERTIES
-            INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-            BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
             )
 
     SophosAddTest(TestSafeStoreSocket
@@ -77,12 +44,6 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestSafeStoreSocket.cpp
             PROJECTS unixsocket
             INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
-            LIBS pthread
-            )
-    SET_TARGET_PROPERTIES(TestSafeStoreSocket
-            PROPERTIES
-            INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-            BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
             )
 
     add_executable(ProcessControlClientExecutable

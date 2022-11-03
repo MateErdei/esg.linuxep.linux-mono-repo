@@ -14,7 +14,6 @@
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/MockFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 
 #include <gtest/gtest.h>
 #include <pluginimpl/HealthStatus.h>

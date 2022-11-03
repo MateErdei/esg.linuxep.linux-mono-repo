@@ -1,5 +1,3 @@
-include(GoogleTest)
-
 add_executable(file_walker_experiment
         FileWalkerExperiment.cpp)
 
@@ -33,10 +31,6 @@ SophosAddTest(TestFileWalker
         PROJECTS filewalker
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
-        LIBS pthread
+        LIBS ${log4cpluslib}
         )
-SET_TARGET_PROPERTIES(TestFileWalker
-        PROPERTIES
-        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
-        )
+

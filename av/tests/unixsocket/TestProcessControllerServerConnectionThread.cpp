@@ -16,10 +16,6 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "ProcessControl.capnp.h"
-
-#include <capnp/message.h>
-#include <capnp/serialize.h>
 
 namespace fs = sophos_filesystem;
 

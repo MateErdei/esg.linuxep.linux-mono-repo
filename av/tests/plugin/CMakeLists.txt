@@ -1,8 +1,6 @@
 
 add_subdirectory(ObfuscationImpl)
 
-include(GoogleTest)
-
 SophosAddTest(TestPlugin
         ../common/LogInitializedTests.cpp
         TestDetectionQueue.cpp
@@ -15,14 +13,6 @@ SophosAddTest(TestPlugin
         TestTaskQueue.cpp
         TestThreatDatabase.cpp
         PROJECTS pluginimpl
-        LIBS ${pluginapilib} ${testhelperslib} rt pthread
+        LIBS ${pluginapilib} ${testhelperslib}
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
-        )
-
-add_dependencies(TestPlugin copy_libs unixsocket)
-
-SET_TARGET_PROPERTIES(TestPlugin
-        PROPERTIES
-        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )

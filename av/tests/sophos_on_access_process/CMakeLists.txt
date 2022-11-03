@@ -3,8 +3,6 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
 add_subdirectory(fanotifyhandler)
 add_subdirectory(onaccessimpl)
 
-include(GoogleTest)
-
 SophosAddTest(TestSophosOnAccessProcessImpl
         ../common/LogInitializedTests.cpp
         TestOnAccessConfigUtils.cpp
@@ -14,13 +12,7 @@ SophosAddTest(TestSophosOnAccessProcessImpl
         ${CMAKE_SOURCE_DIR}/tests
         ${pluginapiinclude}
         ${testhelpersinclude}
-        LIBS pthread ${pluginapilib} ${testhelperslib}
-        )
-
-SET_TARGET_PROPERTIES(TestSophosOnAccessProcessImpl
-        PROPERTIES
-        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        LIBS ${pluginapilib} ${testhelperslib}
         )
 
 endif (NOT DEFINED ENV{USE_LIBFUZZER})

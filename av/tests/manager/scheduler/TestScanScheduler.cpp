@@ -12,7 +12,6 @@
 #include <tests/common/MemoryAppender.h>
 
 #include <fstream>
-#include <utility>
 
 namespace fs = sophos_filesystem;
 using namespace manager::scheduler;

@@ -10,19 +10,11 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 
-#include <cstring>
 #include <fstream>
 #include <string>
 
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
 #define ERROR(x) std::cerr << x << '\n'
 #define PRINT(x) std::cout << x << '\n'
-
-
 
 #ifdef USING_LIBFUZZER
 

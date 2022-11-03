@@ -8,7 +8,6 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <pluginimpl/ObfuscationImpl/Base64.h>
 #include <tests/common/LogInitializedTests.h>
 
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 class TestBase64 : public LogOffInitializedTests{};

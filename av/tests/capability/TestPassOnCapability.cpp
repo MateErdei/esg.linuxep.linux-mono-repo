@@ -6,7 +6,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include "capability/PassOnCapability.h"
 
-#include "common/ErrorCodes.h"
 #include "datatypes/Print.h"
 
 #include <gtest/gtest.h>

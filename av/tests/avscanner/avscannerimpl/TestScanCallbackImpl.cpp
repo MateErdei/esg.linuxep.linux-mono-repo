@@ -5,7 +5,6 @@
 #include <pluginapi/include/Common/Logging/SophosLoggerMacros.h>
 
 #include "avscanner/avscannerimpl/ScanCallbackImpl.h"
-#include "tests/common/LogInitializedTests.h"
 #include <gtest/gtest.h>
 
 using namespace avscanner::avscannerimpl;

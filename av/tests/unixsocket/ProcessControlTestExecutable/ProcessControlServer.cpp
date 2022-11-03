@@ -11,9 +11,7 @@
 #include <fstream>
 #include <string>
 
-#include <fcntl.h>
 #include <sys/socket.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)

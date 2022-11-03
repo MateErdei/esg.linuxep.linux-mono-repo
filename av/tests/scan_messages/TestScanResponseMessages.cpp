@@ -9,10 +9,7 @@ Copyright 2019-2021, Sophos Limited.  All rights reserved.
 #include <scan_messages/ScanResponse.h>
 
 #include <gtest/gtest.h>
-#include <capnp/message.h>
 #include <capnp/serialize.h>
-
-#include <ctime>
 
 using namespace scan_messages;
 

@@ -11,7 +11,6 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/Print.h"
 
-#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <thread>

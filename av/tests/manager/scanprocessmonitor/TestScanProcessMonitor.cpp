@@ -12,11 +12,8 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "ScanProcessMonitorMemoryAppenderUsingTests.h"
 #include "tests/datatypes/MockSysCalls.h"
 
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MockFileSystem.h>
 #include <Common/Threads/AbstractThread.h>
 
-#include <chrono>
 #include <fstream>
 
 using namespace plugin::manager::scanprocessmonitor;

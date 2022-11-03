@@ -13,8 +13,6 @@
 
 #include <list>
 
-#include <unistd.h>
-
 namespace fs = sophos_filesystem;
 
 namespace

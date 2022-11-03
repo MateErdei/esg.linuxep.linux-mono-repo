@@ -9,7 +9,6 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ShutdownTimer.h"
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include "../../common/Common.h"
 
