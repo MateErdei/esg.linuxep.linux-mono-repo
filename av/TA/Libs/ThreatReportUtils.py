@@ -192,11 +192,11 @@ def _expected_raw_xml_string(eicars_on_disk):
     return ret
 
 
-def wait_for_all_eicars_are_reported_in_av_log(eicar_directory, limit=15):
+def wait_for_all_eicars_are_reported_in_av_log(eicar_directory, timeout=15):
     start = time.time()
     eicars_on_disk = find_eicars(eicar_directory)
     expected_strings = _expected_raw_xml_string(eicars_on_disk)
-    while time.time() < start + limit:
+    while time.time() < start + timeout:
         missing = _list_eicars_not_in_av_log(expected_strings)
         if len(missing) == 0:
             # all good

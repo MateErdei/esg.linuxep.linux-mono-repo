@@ -116,16 +116,16 @@ On Access Scans Encoded Eicars
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
     Log Many  ${result.stdout}  ${result.stderr}
 
-    wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars    60
+    wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars    timeout=${60}
 
 On Access Scans Password Protected File
     Register Cleanup    Exclude As Password Protected
-    Mark AV Log
+    ${mark} =  get_on_access_log_mark
 
     Copy File  ${RESOURCES_PATH}/file_samples/passwd-protected.xls  /tmp/
     Register Cleanup   Remove File  /tmp/passwd-protected.xls
     #Todo Test can see below message 2-3 times
-    Wait Until On Access Log Contains With Offset   /passwd-protected.xls as it is password protected   timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark   /passwd-protected.xls as it is password protected  mark=${mark}  timeout=${timeout}
 
 
 On Access Scans Corrupted File

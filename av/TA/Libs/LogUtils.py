@@ -971,6 +971,13 @@ File Log Contains
         h.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, log_path))
 
+    def dump_marked_log(self, log_path: str, mark=None):
+        if mark is None:
+            mark = self.__m_marked_log_position[log_path]
+        h = self.get_log_handler(log_path)
+        h.dump_marked_log(mark)
+
+
     def get_on_access_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.oa_log)
 
@@ -997,11 +1004,8 @@ File Log Contains
         time.sleep(timeout)
         return self.check_on_access_log_does_not_contain_after_mark(not_expected, mark)
 
-    def dump_marked_log(self, log_path: str, mark=None):
-        if mark is None:
-            mark = self.__m_marked_log_position[log_path]
-        h = self.get_log_handler(log_path)
-        h.dump_marked_log(mark)
+    def get_av_log_mark(self) -> LogHandler.LogMark:
+        return self.mark_log_size(self.av_log)
 
 
 def __main(argv):
