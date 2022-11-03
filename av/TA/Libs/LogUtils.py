@@ -981,17 +981,21 @@ File Log Contains
     def check_on_access_log_contains_after_mark(self, expected, mark):
         return self.check_log_contains_after_mark(self.oa_log, expected, mark)
 
-    def check_on_access_log_does_not_contain_before_timeout(self, notexpected, mark, timeout: int = 5):
-        """Wait for timeout and report if the log does contain notexpected
-        """
-        notexpected = six.ensure_binary(notexpected, "UTF-8")
+    def check_on_access_log_does_not_contain_after_mark(self, notexpected, mark):
         log_path = self.oa_log
-        time.sleep(timeout)
+        notexpected = six.ensure_binary(notexpected, "UTF-8")
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in check_on_access_log_does_not_contain_after_mark"
         h = self.get_log_handler(log_path)
         contents = h.get_contents(mark)
         if notexpected in contents:
             self.dump_marked_log(log_path, mark)
             raise AssertionError("Found %s in %s" % (notexpected, log_path))
+
+    def check_on_access_log_does_not_contain_before_timeout(self, not_expected, mark, timeout: int = 5):
+        """Wait for timeout and report if the log does contain notexpected
+        """
+        time.sleep(timeout)
+        return self.check_on_access_log_does_not_contain_after_mark(not_expected, mark)
 
     def dump_marked_log(self, log_path: str, mark=None):
         if mark is None:

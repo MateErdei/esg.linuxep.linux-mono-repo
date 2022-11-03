@@ -96,16 +96,17 @@ On Access Scans File Created By non-root User
 
 
 On Access Scans File Created Under A Long Path
+    ${mark} =  get_on_access_log_mark
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  long_dir_eicar  ${EICAR_STRING}
     Register Cleanup   Remove Directory   /home/vagrant/${LONG_DIRECTORY}   recursive=True
 
-    Wait Until On Access Log Contains With Offset   long_dir_eicar" is infected with EICAR-AV-Test  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  long_dir_eicar" is infected with EICAR-AV-Test  mark=${mark}  timeout=${timeout}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  silly_long_dir_eicar  ${EICAR_STRING}
 
-    Wait Until On Access Log Contains With Offset  Failed to get path from fd: File name too long  timeout=${timeout}
-    On Access Log Does Not Contain With Offset     silly_long_dir_eicar
+    wait_for_on_access_log_contains_after_mark  Failed to get path from fd: File name too long  mark=${mark}  timeout=${timeout}
+    check_on_access_log_does_not_contain_after_mark   silly_long_dir_eicar  mark=${mark}
 
 
 On Access Scans Encoded Eicars
