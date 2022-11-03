@@ -324,9 +324,8 @@ Services restarted after upgrade
     Run Installer From Install Set
 
     ## Wait for soapd to be running
-    # TODO: LINUXDAR-5658: Replace with rotate-aware log checking
-#    wait for log contains after mark  ${ON_ACCESS_LOG_PATH}  configured for level:  ${soapd_log_mark}  timeout=${5}
-#    wait for log contains after mark  ${SAFESTORE_LOG_PATH}  configured for level:  ${safestore_log_mark}  timeout=${5}
+    LogUtils.wait for log contains after mark  ${ON_ACCESS_LOG_PATH}  configured for level:  ${soapd_log_mark}  timeout=${5}
+    wait for log contains after mark  ${SAFESTORE_LOG_PATH}  configured for level:  ${safestore_log_mark}  timeout=${5}
 
     ${new_soapd_pid} =  ProcessUtils.wait for pid  ${ON_ACCESS_BIN}  timeout=${5}
     ${new_safestore_pid} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  timeout=${5}

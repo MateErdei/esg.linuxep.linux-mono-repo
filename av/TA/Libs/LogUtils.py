@@ -11,6 +11,11 @@ import time
 from robot.api import logger
 import robot.libraries.BuiltIn
 
+try:
+    from . import LogHandler
+except ImportError:
+    import LogHandler
+
 
 def _get_log_contents(path_to_log):
     try:
@@ -109,6 +114,7 @@ class LogUtils(object):
         self.__m_marked_log_position = {}
 
         self.__m_pending_mark_expected_errors = {}
+        self.__m_log_handlers = {}
 
     def log_contains_in_order(self, log_location, log_name, args, log_finds=True):
         return _log_contains_in_order(log_location, log_name, args, log_finds)
@@ -900,28 +906,49 @@ File Log Contains
 
         return None
 
-    def mark_log_size(self, logpath):
-        contents = _get_log_contents(logpath)
-        self.__m_marked_log_position[logpath] = len(contents)
-        return self.__m_marked_log_position[logpath]
+    def get_log_handler(self, logpath) -> LogHandler.LogHandler:
+        h = self.__m_log_handlers.get(logpath, None)
+        if h is None:
+            h = LogHandler.LogHandler(logpath)
+            self.__m_log_handlers[logpath] = h
+        return h
 
-    def wait_for_log_contains_after_mark(self, logpath, expected, mark=None, timeout=10):
+    def mark_log_size(self, logpath) -> LogHandler.LogMark:
+        h = self.get_log_handler(logpath)
+        mark = h.get_mark()
+        self.__m_marked_log_position[logpath] = mark  # Safe the most recent marked position
+        return mark
+
+    def wait_for_log_contains_after_mark(self, logpath, expected, mark: LogHandler.LogMark, timeout=10) -> None:
         if mark is None:
-            mark = self.__m_marked_log_position.get(logpath, 0)
+            logger.error("No mark passed for wait_for_log_contains_after_mark")
+            raise AssertionError("No mark set to find %s in %s" % (expected, logpath))
 
+        if isinstance(expected, str):
+            expected = expected.encode("UTF-8")
+
+        h = self.get_log_handler(logpath)
         start = time.time()
+        old_contents = ""
         while time.time() < start + timeout:
-            contents = _get_log_contents(logpath)
-            if len(contents) > mark:
-                contents = contents[mark:]
+            contents = h.get_contents(mark)
+            if len(contents) > len(old_contents):
+                logger.debug(contents[:len(old_contents)])
 
             if expected in contents:
                 return
             time.sleep(0.5)
+            old_contents = contents
 
         logger.error("Failed to find %s in %s" % (expected, logpath))
-        self.dump_log(logpath)
+        h.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, logpath))
+
+    def dump_marked_log(self, log_path: str, mark=None):
+        if mark is None:
+            mark = self.__m_marked_log_position[log_path]
+        h = self.get_log_handler(log_path)
+        h.dump_marked_log(mark)
 
 
 def __main(argv):
