@@ -115,8 +115,14 @@ function compress()
         "$2" || failure "Unable to compress template $1: $?"
 }
 
+machinecount=$(ls instances/ | wc -l)
 if [[ -n $INCLUDE_TAG ]]
 then
+    IFS=' '
+    read -a tags <<< "$INCLUDE_TAG"
+    tagcount=${#tags[*]}
+    machinecount=$((machinecount*tagcount))
+    echo -ne "Number of machines being started: $machinecount\n"
     printf '%s\n' $INCLUDE_TAG >argFile
 fi
 
@@ -404,10 +410,30 @@ fi
 python3 delete_old_results.py ${STACK}
 aws s3 rm ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME}
 
+MISSING_RESULT=""
 if ! [ "$(ls -A results)" ]
 then
     echo "No results found!"
     exit 2
+else
+    resultcount=$(ls ./results/*output.xml | wc -l)
+    if [ "$resultcount" != "$machinecount" ]
+    then
+        for fullfile in instances/*
+        do
+            file=$(basename -s .json "$fullfile")
+            currenttag=1
+            while [ $currenttag -le $tagcount ]
+            do
+                filetag="$file-$currenttag"
+                if ! [ "$(find ./results/ -name $filetag'*output.xml')" ]
+                then
+                    MISSING_RESULT="$MISSING_RESULT\n$filetag"
+                fi
+                currenttag=$(( currenttag+1 ))
+            done
+        done
+    fi
 fi
 
 combineResults()
@@ -433,12 +459,25 @@ LOGS_DIR=${LOGS_DIR:-/opt/test/logs}
 mkdir -p ${LOGS_DIR}
 cp ./results/*.log ${LOGS_DIR}/
 
+EXIT_FAIL=0
+if [ -n "$MISSING_RESULT" ]
+then
+    echo -ne "Missing output.xml for $MISSING_RESULT\n"
+    EXIT_FAIL=1
+fi
+
 # window.output["stats"] = [[{"elapsed":"04:55:20","fail":6,"label":"All Tests","pass":1082,"skip":0}]
 FAIL_COUNT=$(sed -ne's/window\.output\["stats"\][^f]*"fail":\([0-9][0-9]*\).*/\1/p' ./results/combined-log.html)
 echo "Failures: $FAIL_COUNT"
 if (( FAIL_COUNT > 0 ))
 then
     python3 extract_failed_tests.py ./results/*-output.xml
+    EXIT_FAIL=1
+fi
+
+if (( EXIT_FAIL == 1 ))
+then
     exit 1
 fi
+
 exit 0
