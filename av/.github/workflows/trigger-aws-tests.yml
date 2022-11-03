@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@develop
+        uses: actions/checkout@main
       - uses: connor-baer/action-sync-branch@main
         with:
           branch: test/akis-test
