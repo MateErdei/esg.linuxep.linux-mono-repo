@@ -3,7 +3,7 @@ name: Sync aws branch
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   sync-branch:
@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@master
+        uses: actions/checkout@develop
       - uses: connor-baer/action-sync-branch@main
         with:
-          branch: test
+          branch: test/akis-test
           token: ${{ secrets.GITHUB_TOKEN }}
-          force: false
+          force: true
