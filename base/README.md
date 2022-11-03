@@ -11,20 +11,21 @@ Built artifacts are gathered into the `output` directory.
 ### Coverage build with bullseye
 1. Trigger CI coverage build with bullseye:
     * on build pipeline build base with `mode=coverage`
-    * static analysis is also done whenever coverage is build is run, this is so we save on spinning an extra machine, and we publish the results together in one place 
 2. Results for both static analysis and coverage are published to:
    * filer6 path: `output/analysis`
    * artifactory path: `analysis.zip`
 
 ### Static analysis with cppcheck
-1. Trigger CI static analysis with cppcheck only:
+This runs automatically during pipeline builds. However, it's also possible to run it manually, either: 
+* Trigger CI static analysis with cppcheck only:
     * on build pipeline build base with `mode=analysis`
-2. Trigger local analysis with cppcheck only:
+* Trigger local analysis with cppcheck only:
 
-       ./build.sh --analysis --no-build
+      ./build.sh --analysis --no-build
 
-   Results are in `output/analysis`
-3. View the html report in `index.html`
+   Results are placed in `output/analysis`.
+
+Once complete, you can view the html report in `index.html`.
     
 ### Unified Pipeline Operations
 1) Fetch build inputs as specified in `build/release-package.xml`:
