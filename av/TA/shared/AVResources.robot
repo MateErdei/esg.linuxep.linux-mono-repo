@@ -656,11 +656,9 @@ Wait Until On Access running
         ...  On Access Log Contains  ProcessPolicy
 
 Wait Until On Access running with offset
+    [Arguments]  ${mark}
     ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
-    Wait Until Keyword Succeeds
-        ...  60 secs
-        ...  2 secs
-        ...  Wait Until On Access Log Contains With Offset  ProcessPolicy
+    LogUtils.Wait For Log Contains After Mark    ${ON_ACCESS_LOG_PATH}    ProcessPolicy    ${mark}  timeout=60
 
 Wait Until SafeStore running
     ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${30}

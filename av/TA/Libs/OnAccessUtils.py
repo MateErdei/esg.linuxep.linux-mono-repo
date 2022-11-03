@@ -4,6 +4,7 @@
 # All rights reserved.
 
 import os
+import six
 import time
 
 from robot.libraries.BuiltIn import BuiltIn
@@ -12,34 +13,32 @@ from robot.api import logger
 
 class OnAccessUtils:
     @staticmethod
-    def wait_for_on_access_to_be_enabled(timeout=15):
+    def wait_for_on_access_to_be_enabled(mark, timeout=15):
         """
         Replaces
         Wait Until On Access Log Contains With Offset   On-open event for
 
         :return:
         """
-        # logutils = BuiltIn().get_library_instance("LogUtils")
-        mark = BuiltIn().get_variable_value("${ON_ACCESS_LOG_MARK}", 0)
+        logutils = BuiltIn().get_library_instance("LogUtils")
         on_access_log = BuiltIn().get_variable_value("${ON_ACCESS_LOG_PATH}")
 
         start = time.time()
+        handler = logutils.get_log_handler(on_access_log)
+        handler.assert_mark_is_good(mark)
         log_contents = []
         while time.time() < start + timeout:
-            log_contents = open(on_access_log).readlines()
-            log_contents = log_contents[mark:]
+            log_contents = handler.get_contents(mark).splitlines()
+            log_contents = [  six.ensure_text(line, "UTF-8") for line in log_contents  ]
             for line in log_contents:
-                if "On-open event for" in line:
-                    logger.info("On Access enabled with " + line)
+                if u"On-open event for" in line:
+                    logger.info(u"On Access enabled with " + line)
                     return
 
-                if "On-close event for" in line:
-                    logger.info("On Access enabled with " + line)
+                if u"On-close event for" in line:
+                    logger.info(u"On Access enabled with " + line)
                     return
 
             time.sleep(0.1)
-            tempfile = "/tmp/%f" % time.time()
-            open(tempfile, "w")
-            os.unlink(tempfile)
 
-        raise AssertionError("On-Access not enabled within %d seconds: Logs: %s" % (timeout, "".join(log_contents)))
+        raise AssertionError(u"On-Access not enabled within %d seconds: Logs: %s" % (timeout, "".join(log_contents)))

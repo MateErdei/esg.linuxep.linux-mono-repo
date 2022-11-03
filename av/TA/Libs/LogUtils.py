@@ -5,9 +5,12 @@
 import os
 import glob
 import re
+import six
 import subprocess
 import sys
 import time
+import typing
+
 from robot.api import logger
 import robot.libraries.BuiltIn
 
@@ -109,7 +112,6 @@ class LogUtils(object):
         self.marked_watchdog_log = 0
         self.marked_managementagent_logs = 0
         self.marked_av_log = 0
-        self.marked_oa_log = 0
         self.marked_sophos_threat_detector_log = 0
         self.__m_marked_log_position = {}
 
@@ -919,7 +921,11 @@ File Log Contains
         self.__m_marked_log_position[logpath] = mark  # Safe the most recent marked position
         return mark
 
-    def wait_for_log_contains_after_mark(self, logpath, expected, mark: LogHandler.LogMark, timeout=10) -> None:
+    def wait_for_log_contains_after_mark(self,
+                                         logpath: typing.Union[str, bytes],
+                                         expected: typing.Union[str, bytes],
+                                         mark: LogHandler.LogMark,
+                                         timeout=10) -> None:
         if mark is None:
             logger.error("No mark passed for wait_for_log_contains_after_mark")
             raise AssertionError("No mark set to find %s in %s" % (expected, logpath))
@@ -943,6 +949,44 @@ File Log Contains
         logger.error("Failed to find %s in %s" % (expected, logpath))
         h.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, logpath))
+
+    def check_log_contains_after_mark(self, log_path, expected, mark):
+        if mark is None:
+            logger.error("No mark passed for check_log_contains_after_mark")
+            raise AssertionError("No mark set to find %s in %s" % (expected, log_path))
+
+        if isinstance(expected, str):
+            expected = expected.encode("UTF-8")
+
+        h = self.get_log_handler(log_path)
+        contents = h.get_contents(mark)
+        if expected in contents:
+            return
+
+        logger.error("Failed to find %s in %s" % (expected, log_path))
+        h.dump_marked_log(mark)
+        raise AssertionError("Failed to find %s in %s" % (expected, log_path))
+
+    def get_on_access_log_mark(self) -> LogHandler.LogMark:
+        return self.mark_log_size(self.oa_log)
+
+    def wait_for_on_access_log_contains_after_mark(self, expected, mark, timeout: int = 10):
+        return self.wait_for_log_contains_after_mark(self.oa_log, expected, mark, timeout=timeout)
+
+    def check_on_access_log_contains_after_mark(self, expected, mark):
+        return self.check_log_contains_after_mark(self.oa_log, expected, mark)
+
+    def check_on_access_log_does_not_contain_before_timeout(self, notexpected, mark, timeout: int = 5):
+        """Wait for timeout and report if the log does contain notexpected
+        """
+        notexpected = six.ensure_binary(notexpected, "UTF-8")
+        log_path = self.oa_log
+        time.sleep(timeout)
+        h = self.get_log_handler(log_path)
+        contents = h.get_contents(mark)
+        if notexpected in contents:
+            self.dump_marked_log(log_path, mark)
+            raise AssertionError("Found %s in %s" % (notexpected, log_path))
 
     def dump_marked_log(self, log_path: str, mark=None):
         if mark is None:

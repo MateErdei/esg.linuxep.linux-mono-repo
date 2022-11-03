@@ -30,6 +30,9 @@ class LogHandler:
     def get_mark(self) -> LogMark:
         return LogMark(self.__m_log_path)
 
+    def assert_mark_is_good(self, mark: LogMark):
+        assert mark.get_path() == self.__m_log_path
+
     def get_contents(self, mark: LogMark) -> Optional[bytes]:
         assert mark.get_path() == self.__m_log_path
         try:
