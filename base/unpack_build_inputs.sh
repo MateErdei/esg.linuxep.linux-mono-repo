@@ -18,7 +18,26 @@ do
     shift
 done
 
-## This had to be commented out for Continous Fuzzer fix. Still desirable code if we can improve the Fuzzer impl.
+function get_lock()
+{
+  echo "Getting lock, so only one unpack can run at a time..."
+  # Using redirection applied to the current shell (exec with no command)
+  # open a file and return the file descriptor (https://www.gnu.org/software/bash/manual/html_node/Redirections.html)
+  exec 3>unpack_lock_file
+  # lock fd 3, with a timeout of 120 seconds
+  flock -w 120 -x 3
+  echo "Got lock"
+}
+
+function unlock()
+{
+  exec 3>&-
+  rm -f unpack_lock_file
+}
+
+get_lock
+
+## This had to be commented out for Continuous Fuzzer fix. Still desirable code if we can improve the Fuzzer impl.
 #if [[ "$CI" == "true" ]]
 #  then
 #    echo "Building in CI, allowing root user execution."
@@ -327,4 +346,5 @@ copy_sdds3builder
 copy_sophlib
 setup_cmake
 
+unlock
 echo "Finished unpacking"
