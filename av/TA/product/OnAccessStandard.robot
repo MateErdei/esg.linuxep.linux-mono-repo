@@ -130,13 +130,12 @@ On Access Scans Password Protected File
 
 On Access Scans Corrupted File
     Register Cleanup     Exclude As Corrupted
-    Mark On Access Log
-    Mark AV Log
+    ${mark} =  get_on_access_log_mark
 
     Copy File  ${RESOURCES_PATH}/file_samples/corrupted.xls  /tmp/
     Register Cleanup   Remove File  /tmp/corrupted.xls
     #Todo Test can see below message 2-3 times
-    Wait Until On Access Log Contains With Offset   /corrupted.xls as it is corrupted   timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark   /corrupted.xls as it is corrupted  mark=${mark}  timeout=${timeout}
 
 
 On Access Scans File On BFS
