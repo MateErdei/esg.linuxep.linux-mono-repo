@@ -77,6 +77,7 @@ def dump_threads(executable):
 
     return dump_threads_from_pid(pid)
 
+
 def dump_threads_from_pid(pid):
     gdb = shutil.which('gdb')
     if gdb is None:
@@ -94,7 +95,7 @@ thread apply all bt
                             stderr=subprocess.STDOUT)
     try:
         output = proc.communicate(script, 10)[0].decode("UTF-8")
-    except:
+    except subprocess.TimeoutExpired:
         proc.kill()
         output = proc.communicate()[0].decode("UTF-8")
 
@@ -107,6 +108,7 @@ thread apply all bt
     for line in output.splitlines():
         logger.info(line)
 
+
 def dump_threads_from_process(process):
     """
     Dump threads from a Handle from Start Process
@@ -115,6 +117,7 @@ def dump_threads_from_process(process):
     :return:
     """
     return dump_threads_from_pid(process.pid)
+
 
 def __main(argv):
     print(pidof(argv[1]))
