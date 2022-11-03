@@ -110,13 +110,13 @@ On Access Scans File Created Under A Long Path
 
 
 On Access Scans Encoded Eicars
-    Mark AV Log
+    ${mark} =  get_av_log_mark
 
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
     Log Many  ${result.stdout}  ${result.stderr}
 
-    wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars    timeout=${60}
+    wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars   mark=${mark}  timeout=${60}
 
 On Access Scans Password Protected File
     Register Cleanup    Exclude As Password Protected

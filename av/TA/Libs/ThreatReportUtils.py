@@ -1,9 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Copyright (C) 2021-2022 Sophos Plc, Oxford, England.
 # All rights reserved.
 
 import os
+import six
 import time
 import xml.dom.minidom
 
@@ -16,7 +17,10 @@ except ImportError:
 
     logger = logging.getLogger("ThreatReportUtils")
 
-from robot.libraries.BuiltIn import BuiltIn
+try:
+    from . import LogHandler
+except ImportError:
+    import LogHandler
 
 GL_MCS_EVENTS_DIRECTORY = "/opt/sophos-spl/base/mcs/event/"
 
@@ -161,12 +165,12 @@ def check_all_eicars_are_found(eicar_directory):
     if errors_found:
         raise AssertionError("Eicars reported in events don't match eicars found on disk in %s" % eicar_directory)
 
-def _list_eicars_not_in_av_log(expected_raw_xml_strings):
-    builtin = BuiltIn()
-    marked_log = builtin.run_keyword("get_marked_av_log")
+
+def _list_eicars_not_in_av_log(expected_raw_xml_strings, mark: LogHandler.LogMark):
+    marked_log = mark.get_contents()
+    marked_log = six.ensure_text(marked_log, "UTF-8", errors="backslashreplace")
 
     missing = []
-
     for e in expected_raw_xml_strings:
         if e not in marked_log:
             missing.append(e)
@@ -192,12 +196,12 @@ def _expected_raw_xml_string(eicars_on_disk):
     return ret
 
 
-def wait_for_all_eicars_are_reported_in_av_log(eicar_directory, timeout=15):
+def wait_for_all_eicars_are_reported_in_av_log(eicar_directory, mark, timeout=15):
     start = time.time()
     eicars_on_disk = find_eicars(eicar_directory)
     expected_strings = _expected_raw_xml_string(eicars_on_disk)
     while time.time() < start + timeout:
-        missing = _list_eicars_not_in_av_log(expected_strings)
+        missing = _list_eicars_not_in_av_log(expected_strings, mark)
         if len(missing) == 0:
             # all good
             return True

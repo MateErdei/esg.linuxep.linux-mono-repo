@@ -971,6 +971,12 @@ File Log Contains
         h.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, log_path))
 
+    def get_log_after_mark(self, log_path, mark):
+        assert mark is not None
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in get_log_after_mark"
+        h = self.get_log_handler(log_path)
+        return h.get_contents(mark)
+
     def dump_marked_log(self, log_path: str, mark=None):
         if mark is None:
             mark = self.__m_marked_log_position[log_path]
@@ -1006,6 +1012,9 @@ File Log Contains
 
     def get_av_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.av_log)
+
+    def get_av_log_after_mark(self, mark):
+        return self.get_log_after_mark(self.av_log, mark)
 
 
 def __main(argv):

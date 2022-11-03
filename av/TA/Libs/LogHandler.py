@@ -49,6 +49,33 @@ class LogMark:
     def get_path(self) -> str:
         return self.__m_log_path
 
+    def get_contents(self) -> Optional[bytes]:
+        try:
+            with open(self.__m_log_path, "rb") as f:
+                stat = os.fstat(f.fileno())
+                if self.check_inode(stat.st_ino):
+                    # File hasn't rotated
+                    f.seek(self.get_size())
+                    return f.read()
+                contents = f.read()
+        except OSError:
+            return None
+        # log file has rotated
+        old_index = 1
+        try:
+            while True:
+                with open(self.__m_log_path+".%d" % old_index, "rb") as f:
+                    stat = os.fstat(f.fileno())
+                    if stat.st_ino == self.get_inode():
+                        # Found old log file
+                        f.seek(self.get_size())
+                        return f.read() + contents
+                    contents = f.read() + contents
+                old_index += 1
+        except OSError:
+            logger.error("Ran out of log files getting content for "+self.__m_log_path)
+            return contents
+
 
 class LogHandler:
     def __init__(self, log_path: str):
@@ -63,31 +90,7 @@ class LogHandler:
     def get_contents(self, mark: LogMark) -> Optional[bytes]:
         assert isinstance(mark, LogMark)
         assert mark.get_path() == self.__m_log_path
-        try:
-            with open(self.__m_log_path, "rb") as f:
-                stat = os.fstat(f.fileno())
-                if mark.check_inode(stat.st_ino):
-                    # File hasn't rotated
-                    f.seek(mark.get_size())
-                    return f.read()
-                contents = f.read()
-        except OSError:
-            return None
-        # log file has rotated
-        old_index = 1
-        try:
-            while True:
-                with open(self.__m_log_path+".%d" % old_index, "rb") as f:
-                    stat = os.fstat(f.fileno())
-                    if stat.st_ino == mark.get_inode():
-                        # Found old log file
-                        f.seek(mark.get_size())
-                        return f.read() + contents
-                    contents = f.read() + contents
-                old_index += 1
-        except OSError:
-            logger.error("Ran out of log files getting content for "+self.__m_log_path)
-            return contents
+        return mark.get_contents()
 
     def dump_marked_log(self, mark: LogMark) -> None:
         contents = self.get_contents(mark)
