@@ -122,31 +122,30 @@ On Access Process Parses Flags Config On startup
 
 On Access Does Not Include Remote Files If Excluded In Policy
     [Tags]  NFS
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${source} =       Set Variable  /tmp_test/nfsshare
     ${destination} =  Set Variable  /testmnt/nfsshare
     Create Directory  ${source}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
     Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
-    Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    wait for on access log contains after mark  Including mount point: /testmnt/nfsshare  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":${DEFAULT_EXCLUSIONS}}
-    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
-    Wait Until On Access Log Contains With Offset  On-access scan network: "false"
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ${DEFAULT_EXCLUSIONS}
-    Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
-    Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
-    On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    wait for on access log contains after mark  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
+    wait for on access log contains after mark  On-access enabled: "true"  mark=${mark}
+    wait for on access log contains after mark  On-access scan network: "false"  mark=${mark}
+    wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${mark}
+    wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
+    check_on_access_log_does_not_contain_after_mark  Including mount point: /testmnt/nfsshare  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
 
 On Access Applies Config Changes When The Mounts Change
