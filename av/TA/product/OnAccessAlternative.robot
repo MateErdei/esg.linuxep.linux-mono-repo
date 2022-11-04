@@ -394,22 +394,22 @@ On Access Process Handles Fast Process Control Requests Last Flag is OA Enabled
     ${enabledPolicy}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${enabledPolicy}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${disabledFlags}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${disabledFlags}
     #need to ensure that the disable flag has been read by soapd,
     #the avp process can ovewrite the flag config before soapd gets a change to read it.
     #this is fine because soapd will always read the latest flag settings as we get a notification after the a config is written
     #but for the purpose of this test it's we want to avoid this situation
-    Wait Until On Access Log Contains With Offset   New flag configuration: {"oa_enabled":false}    2  0.1
+    wait for on access log contains after mark   New flag configuration: {"oa_enabled":false}    mark=${mark}  timeout=${2}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Send Plugin Policy  av  FLAGS  ${enabledFlags}
-    Wait Until On Access Log Contains With Offset  No policy override, following policy settings
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
-    Wait Until On Access Log Contains With Offset  Finished ProcessPolicy
-    Wait Until On Access Log Contains With Offset  Setting poll timeout to
-    Wait Until On Access Log Contains With Offset  On-access scanning enabled
+    wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
+    wait for on access log contains after mark  New on-access configuration: {"enabled":"true"  mark=${mark}
+    wait for on access log contains after mark  Finished ProcessPolicy  mark=${mark}
+    wait for on access log contains after mark  Setting poll timeout to  mark=${mark}
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
 
     On-access Scan Eicar Open
 
