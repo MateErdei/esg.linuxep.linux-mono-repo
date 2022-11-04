@@ -912,6 +912,7 @@ CLS Relative Folder Exclusion
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 CLS Folder Name Exclusion
+    ${av_mark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
@@ -922,9 +923,9 @@ CLS Folder Name Exclusion
 
     Should Contain      ${output}  Exclusions: scanning/
     Should Contain      ${output}  Excluding directory: ${NORMAL_DIRECTORY}/
-    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
-    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar
-    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
+    check_av_log_does_not_contain_after_mark   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar  mark=${av_mark}
+    check_av_log_does_not_contain_after_mark   Excluding file: ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar  mark=${av_mark}
+    check_av_log_does_not_contain_after_mark   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar  mark=${av_mark}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
 
