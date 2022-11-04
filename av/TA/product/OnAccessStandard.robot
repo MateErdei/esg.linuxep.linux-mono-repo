@@ -164,16 +164,16 @@ On Access Scans File On CRAMFS
     ${image} =  Copy And Extract Image  cramfsFileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  cramfs
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
+    wait for on access log contains after mark  Including mount point: ${NORMAL_DIRECTORY}/mount  mark=${mark}
 
     ${pid} =  Get Robot Pid
     ${contents} =  Get Binary File  ${NORMAL_DIRECTORY}/mount/eicar.com
 
-    Wait Until On Access Log Contains With Offset  On-open event for ${where}/eicar.com from
-    Wait Until On Access Log Contains With Offset  (PID=${pid}) and UID 0
-    Wait Until On Access Log Contains With Offset  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with  timeout=${timeout}
+    wait for on access log contains after mark  On-open event for ${where}/eicar.com from  mark=${mark}
+    wait for on access log contains after mark  (PID=${pid}) and UID 0  mark=${mark}
+    wait for on access log contains after mark  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with  mark=${mark}  timeout=${timeout}
 
 On Access Scans File On EXT2
     Require Filesystem  ext2
