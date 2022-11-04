@@ -420,7 +420,7 @@ int main(int argc, char** argv)
         auto thisBinary = fs->readlink("/proc/self/exe");
         if (thisBinary.has_value())
         {
-            auto thisDir = Common::FileSystem::basename(thisBinary.value());
+            auto thisDir = Common::FileSystem::dirName(thisBinary.value());
             mcsRootCert = Common::FileSystem::join(thisDir,"mcs_rootca.crt");
             logDebug("Using shipped MCS cert: " + mcsRootCert);
         }
