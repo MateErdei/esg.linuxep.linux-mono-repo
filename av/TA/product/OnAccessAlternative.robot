@@ -509,19 +509,16 @@ On Access Scan Times Out When Unable To Connect To Threat Detector
     wait for on access log contains after mark  Reached total maximum number of connection attempts.  timeout=${timeout}  mark=${mark}
 
 On Access Logs Scan time in TRACE
-    Set Log Level  TRACE
-    Register Cleanup  Set Log Level  DEBUG
-
-    Mark On Access Log
-    Restart On Access
-    Wait Until On Access Log Contains With Offset  Starting eventReader
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    ${mark} =  get_on_access_log_mark
+    Configure on access log to trace level
+    wait for on access log contains after mark  Starting eventReader  mark=${mark}
+    wait for on access log contains after mark   mount points in on-access scanning  mark=${mark}
 
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     Create File  ${filepath}  clean
     Register Cleanup  Remove File  ${filepath}
 
-    Wait Until On Access Log Contains With Offset  Scan for /tmp_test/clean_file_writer/clean.txt completed in
+    wait for on access log contains after mark  Scan for /tmp_test/clean_file_writer/clean.txt completed in  mark=${mark}
 
 On Access logs if the kernel queue overflows
     # set loglevel to INFO to avoid log rotation due to large number of events
