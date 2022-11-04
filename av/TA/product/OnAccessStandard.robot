@@ -264,7 +264,7 @@ On Access Doesnt Scan Threat Detector Events
 On Access Doesnt Scan CommandLine Scanner Events
     ${filepath} =  Set Variable  ${NORMAL_DIRECTORY}/eicar.com
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
 
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
@@ -274,8 +274,8 @@ On Access Doesnt Scan CommandLine Scanner Events
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}    Detected "${filepath}" is infected with EICAR-AV-Test
 
-    Wait Until On Access Log Contains With Offset   Detected "${filepath}" is infected with EICAR-AV-Test  timeout=${timeout}
-    On Access Log Does Not Contain With Offset  from Process ${CLI_SCANNER_PATH}
+    wait for on access log contains after mark       Detected "${filepath}" is infected with EICAR-AV-Test  mark=${mark}  timeout=${timeout}
+    check_on_access_log_does_not_contain_after_mark  from Process ${CLI_SCANNER_PATH}  mark=${mark}
 
 
 On Access Doesnt Scan Named Scanner Events
