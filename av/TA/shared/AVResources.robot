@@ -171,7 +171,7 @@ Mark Susi Debug Log
 Mark On Access Log
     ${count} =  Count File Log Lines  ${ON_ACCESS_LOG_PATH}
     Set Suite Variable   ${ON_ACCESS_LOG_MARK}  ${count}
-    Log  "ON_ACCESS LOG PATH = ${ON_ACCESS_LOG_PATH}"
+    Log  "ON_ACCESS LOG LINES = ${ON_ACCESS_LOG_MARK}"
 
 Mark Log
     [Arguments]  ${path}

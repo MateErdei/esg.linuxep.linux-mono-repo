@@ -32,6 +32,8 @@ ${DEFAULT_EXCLUSIONS}   ["/mnt/","/uk-filer5/","*excluded*","/opt/test/inputs/te
 On Access Alternative Suite Setup
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
+    ${customerIdFile} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
+    Create File  ${customerIdFile}  c1cfcf69a42311a6084bcefe8af02c8a
 
 On Access Suite Teardown
     Terminate On Access And AV
@@ -43,6 +45,8 @@ On Access Test Setup
     Terminate On Access And AV
     Mark Sophos Threat Detector Log
     Mark On Access Log
+    save_on_access_log_mark_at_start_of_test
+
     Start On Access And AV With Running Threat Detector
     Enable OA Scanning
 
@@ -99,10 +103,10 @@ On Access Log Rotates
     Verify on access log rotated
 
 On Access Process Parses Policy Config
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}
-    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
-    Wait Until On Access Log Contains With Offset  On-access scan network: "true"
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ${DEFAULT_EXCLUSIONS}
+    wait for on access log contains after mark  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
+    wait for on access log contains after mark  On-access enabled: "true"  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
+    wait for on access log contains after mark  On-access scan network: "true"  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
+    wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
 
 On Access Process Parses Flags Config On startup
     Mark On Access Log

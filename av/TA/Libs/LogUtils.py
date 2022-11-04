@@ -992,8 +992,14 @@ File Log Contains
             self.dump_marked_log(log_path, mark)
             raise AssertionError("Found %s in %s" % (not_expected, log_path))
 
+########################################################################################################################
+# On-Access Soapd Log
     def get_on_access_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.oa_log)
+
+    def save_on_access_log_mark_at_start_of_test(self):
+        robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
+                                                            self.get_on_access_log_mark())
 
     def wait_for_on_access_log_contains_after_mark(self, expected, mark: LogHandler.LogMark, timeout: int = 10):
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_on_access_log_contains_after_mark"
@@ -1010,6 +1016,9 @@ File Log Contains
         """
         time.sleep(timeout)
         return self.check_on_access_log_does_not_contain_after_mark(not_expected, mark)
+
+#####################################################################
+# AV Log
 
     def get_av_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.av_log)
