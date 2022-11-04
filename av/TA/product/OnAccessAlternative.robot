@@ -437,21 +437,24 @@ On Access Uses Policy Settings If Flags Dont Override Policy
 
 
 On Access Is Disabled After it Receives Disable Flags
+    ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   No policy override, following policy settings
+    wait for on access log contains after mark   No policy override, following policy settings  mark=${mark}
 
+    ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}
+    wait for on access log contains after mark   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
 
+    ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   Overriding policy, on-access will be disabled
-    Wait Until On Access Log Contains With Offset   Stopping the reading of Fanotify events
+    wait for on access log contains after mark   Overriding policy, on-access will be disabled  mark=${mark}
+    wait for on access log contains after mark   Stopping the reading of Fanotify events  mark=${mark}
 
     On-access No Eicar Scan
 
