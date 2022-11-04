@@ -445,14 +445,14 @@ On Access Processes New File With Same Attributes And Contents As Old File
 
 On Access Detects A Clean File Replaced By Dirty File With Same Attributes
     ${dustyfile} =  Set Variable  /tmp_test/notcleanforlongfile.txt
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Create File   ${dustyfile}   ${CLEAN_STRING}
     Register Cleanup   Remove File   ${dustyfile}
     Sleep   0.1s
 
     Get File   ${dustyfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
-    Wait Until On Access Log Contains With Offset   Caching ${dustyfile}
+    wait for on access log contains after mark  On-open event for ${dustyfile} from   mark=${oamark}   timeout=${timeout}
+    wait for on access log contains after mark  Caching ${dustyfile}  mark=${oamark}
     #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
     Sleep   1s
 
@@ -460,7 +460,7 @@ On Access Detects A Clean File Replaced By Dirty File With Same Attributes
     Create File   ${dustyfile}   ${EICAR_STRING}
     Sleep   0.1s
 
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Get File   ${dustyfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${dustyfile} from    timeout=${timeout}
-    Wait Until On Access Log Contains With Offset  Detected "${dustyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
+    wait for on access log contains after mark  On-open event for ${dustyfile} from    mark=${oamark}  timeout=${timeout}
+    wait for on access log contains after mark  Detected "${dustyfile}" is infected with EICAR-AV-Test (Open)   mark=${oamark}  timeout=${timeout}
