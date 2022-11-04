@@ -681,6 +681,8 @@ CLS Encoded Eicars
     Log Many  ${result.stdout}  ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  0
 
+    ${av_mark} =  get_av_log_mark
+
     ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp_test/encoded_eicars/  timeout=120s
     Log   ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
@@ -688,7 +690,7 @@ CLS Encoded Eicars
     Threat Detector Does Not Log Contain  Failed to parse response from SUSI
     AV Plugin Log Contains With Offset  Sending threat detection notification to central
 
-    wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars
+    wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars  mark=${av_mark}
 
     Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
     Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
