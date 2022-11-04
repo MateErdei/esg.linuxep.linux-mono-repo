@@ -378,31 +378,31 @@ On Access Receives Close Event On Cached File
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
     ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Create File  ${cleanfile}  ${CLEAN_STRING}
     Register Cleanup   Remove File   ${cleanfile}
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${cleanfile}
-    Wait Until On Access Log Contains With Offset  Caching ${cleanfile} (Close-Write)
+    wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
+    wait for on access log contains after mark  Caching ${cleanfile} (Close-Write)  mark=${oamark}
 
     #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
     Sleep    1s
 
     #Check we are cached
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Get File   ${cleanfile}
 
      #Generate another event we can expect in logs
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup   Remove File   ${dirtyfile}
-    Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Close-Write)   timeout=${timeout}
+    wait for on access log contains after mark  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}   timeout=${timeout}
 
-    On Access Log Does Not Contain With Offset   On-open event for ${cleanfile} from
+    check_on_access_log_does_not_contain_after_mark  On-open event for ${cleanfile} from  mark=${oamark}
 
     #Check we get an event when we create a close event
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Append To File   ${cleanfile}   ${CLEAN_STRING}
-    Wait Until On Access Log Contains With Offset  On-close event for ${cleanfile}
+    wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
 
 
 On Access Doesnt Cache Close Events With Detections
