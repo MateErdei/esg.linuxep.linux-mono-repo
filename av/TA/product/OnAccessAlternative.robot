@@ -580,16 +580,11 @@ On Access Can Handle Unlimited Marks
     check_on_access_log_does_not_contain_after_mark   fanotify_mark failed: cacheFd : No space left on device  mark=${mark}
 
 On Access Can Be enabled After It Gets Disabled In Policy
-    Mark On Access Log
     Disable OA Scanning
-
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Enable OA Scanning
 
-    #Only shows up if OA is disabled before, we can use this log to check that the exclusions have been set before we start fanotify
-    Wait Until On Access Log Contains  Clearing cache skipped as fanotify disabled
-    Wait Until On Access Log Contains  On-access scanning enabled
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
 
     On-access Scan Eicar Close
 
-    Dump Log  ${ON_ACCESS_LOG_PATH}
