@@ -471,6 +471,10 @@ Wait Until AV Plugin Log Contains Detection Name And Path With Offset
     [Arguments]  ${name}  ${path}  ${timeout}=15    ${interval}=2
     Wait Until AV Plugin Log Contains With Offset  Found '${name}' in '${path}'  timeout=${timeout}  interval=${interval}
 
+Wait Until AV Plugin Log Contains Detection Name And Path After Mark
+    [Arguments]  ${mark}  ${name}  ${path}  ${timeout}=15
+    wait_for_av_log_contains_after_mark  Found '${name}' in '${path}'  timeout=${timeout}  mark=${mark}
+
 AV Plugin Log Should Not Contain Detection Name And Path With Offset
     [Arguments]  ${name}  ${path}
     AV Plugin Log Should Not Contain With Offset  Found '${name}' in '${path}'
@@ -488,6 +492,12 @@ Wait Until AV Plugin Log Contains Detection Event XML With Offset
     [Arguments]  ${id}  ${name}  ${sha256}  ${path}  ${timeout}=15  ${interval}=2
     Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central  timeout=${timeout}  interval=${interval}
     ${marked_av_log} =  Get Marked AV Log
+    Check String Contains Detection Event XML  ${marked_av_log}  ${id}  ${name}  ${sha256}  ${path}
+
+Wait Until AV Plugin Log Contains Detection Event XML After Mark
+    [Arguments]  ${mark}  ${id}  ${name}  ${sha256}  ${path}  ${timeout}=15
+    wait_for_av_log_contains_after_mark  Sending threat detection notification to central  timeout=${timeout}  mark=${mark}
+    ${marked_av_log} =  get av log after mark as unicode  ${mark}
     Check String Contains Detection Event XML  ${marked_av_log}  ${id}  ${name}  ${sha256}  ${path}
 
 Base CORE Event Paths

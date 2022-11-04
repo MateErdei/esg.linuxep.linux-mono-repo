@@ -617,6 +617,7 @@ CLS Can Scan Normal Path But Not SubFolders With a Huge Path
 
 
 CLS Creates Threat Report
+    ${mark} =  LogUtils.get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
@@ -624,8 +625,9 @@ CLS Creates Threat Report
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
-    Wait Until AV Plugin Log Contains Detection Event XML With Offset
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
+    Wait Until AV Plugin Log Contains Detection Event XML After Mark
+    ...  mark=${mark}
     ...  id=T26796de6ce94770
     ...  name=EICAR-AV-Test
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f

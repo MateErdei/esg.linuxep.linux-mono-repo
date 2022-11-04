@@ -20,6 +20,10 @@ except ImportError:
     import LogHandler
 
 
+def _ensure_str(s):
+    return six.ensure_str(s, "UTF-8", errors="backslashreplace")
+
+
 def _get_log_contents(path_to_log):
     try:
         with open(path_to_log, "rb") as log:
@@ -642,7 +646,7 @@ File Log Contains
         else:
             contents = self.get_marked_sophos_threat_detector_log(mark)
 
-        contents = six.ensure_str(contents, "UTF-8", errors="backslashreplace")
+        contents = _ensure_str(contents)
 
         if string_to_contain not in contents:
             self.dump_marked_sophos_threat_detector_log()
@@ -1033,6 +1037,9 @@ File Log Contains
 
     def get_av_log_after_mark(self, mark):
         return self.get_log_after_mark(self.av_log, mark)
+
+    def get_av_log_after_mark_as_unicode(self, mark):
+        return _ensure_str(self.get_av_log_after_mark(mark))
 
     def wait_for_av_log_contains_after_mark(self, expected, mark: LogHandler.LogMark, timeout: int = 10):
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_av_log_contains_after_mark"
