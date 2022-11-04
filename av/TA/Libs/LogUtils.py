@@ -909,15 +909,15 @@ File Log Contains
         return None
 
     def get_log_handler(self, logpath) -> LogHandler.LogHandler:
-        h = self.__m_log_handlers.get(logpath, None)
-        if h is None:
-            h = LogHandler.LogHandler(logpath)
-            self.__m_log_handlers[logpath] = h
-        return h
+        handler = self.__m_log_handlers.get(logpath, None)
+        if handler is None:
+            handler = LogHandler.LogHandler(logpath)
+            self.__m_log_handlers[logpath] = handler
+        return handler
 
     def mark_log_size(self, logpath) -> LogHandler.LogMark:
-        h = self.get_log_handler(logpath)
-        mark = h.get_mark()
+        handler = self.get_log_handler(logpath)
+        mark = handler.get_mark()
         self.__m_marked_log_position[logpath] = mark  # Save the most recent marked position
         return mark
 
@@ -934,11 +934,11 @@ File Log Contains
         if isinstance(expected, str):
             expected = expected.encode("UTF-8")
 
-        h = self.get_log_handler(logpath)
+        handler = self.get_log_handler(logpath)
         start = time.time()
         old_contents = ""
         while time.time() < start + timeout:
-            contents = h.get_contents(mark)
+            contents = handler.get_contents(mark)
             if contents is not None:
                 if len(contents) > len(old_contents):
                     logger.debug(contents[:len(old_contents)])
@@ -951,7 +951,7 @@ File Log Contains
             time.sleep(0.5)
 
         logger.error("Failed to find %s in %s" % (expected, logpath))
-        h.dump_marked_log(mark)
+        handler.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, logpath))
 
     def check_log_contains_after_mark(self, log_path, expected, mark):
@@ -962,27 +962,35 @@ File Log Contains
         if isinstance(expected, str):
             expected = expected.encode("UTF-8")
 
-        h = self.get_log_handler(log_path)
-        contents = h.get_contents(mark)
+        handler = self.get_log_handler(log_path)
+        contents = handler.get_contents(mark)
         if expected in contents:
             return
 
         logger.error("Failed to find %s in %s" % (expected, log_path))
-        h.dump_marked_log(mark)
+        handler.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, log_path))
 
     def get_log_after_mark(self, log_path, mark):
         assert mark is not None
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in get_log_after_mark"
-        h = self.get_log_handler(log_path)
-        return h.get_contents(mark)
+        handler = self.get_log_handler(log_path)
+        return handler.get_contents(mark)
 
     def dump_marked_log(self, log_path: str, mark=None):
         if mark is None:
             mark = self.__m_marked_log_position[log_path]
-        h = self.get_log_handler(log_path)
-        h.dump_marked_log(mark)
+        handler = self.get_log_handler(log_path)
+        handler.dump_marked_log(mark)
 
+    def check_log_does_not_contain_after_mark(self, log_path, not_expected, mark):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in check_log_does_not_contain_after_mark"
+        not_expected = six.ensure_binary(not_expected, "UTF-8")
+        handler = self.get_log_handler(log_path)
+        contents = handler.get_contents(mark)
+        if not_expected in contents:
+            self.dump_marked_log(log_path, mark)
+            raise AssertionError("Found %s in %s" % (not_expected, log_path))
 
     def get_on_access_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.oa_log)
@@ -995,14 +1003,7 @@ File Log Contains
         return self.check_log_contains_after_mark(self.oa_log, expected, mark)
 
     def check_on_access_log_does_not_contain_after_mark(self, notexpected, mark):
-        log_path = self.oa_log
-        notexpected = six.ensure_binary(notexpected, "UTF-8")
-        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in check_on_access_log_does_not_contain_after_mark"
-        h = self.get_log_handler(log_path)
-        contents = h.get_contents(mark)
-        if notexpected in contents:
-            self.dump_marked_log(log_path, mark)
-            raise AssertionError("Found %s in %s" % (notexpected, log_path))
+        return self.check_log_does_not_contain_after_mark(self.oa_log, notexpected, mark)
 
     def check_on_access_log_does_not_contain_before_timeout(self, not_expected, mark, timeout: int = 5):
         """Wait for timeout and report if the log does contain notexpected
