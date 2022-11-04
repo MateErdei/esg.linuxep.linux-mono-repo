@@ -1150,6 +1150,7 @@ CLS Can Scan Infected File Via Symlink To File
 
 
 CLS Can Scan Infected File Via Symlink To Directory Containing File
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     Create Directory    ${NORMAL_DIRECTORY}/a
     Create File         ${NORMAL_DIRECTORY}/a/eicar.com    ${EICAR_STRING}
     Create Symlink  ${NORMAL_DIRECTORY}/a  ${NORMAL_DIRECTORY}/symlinkToDir
@@ -1159,7 +1160,7 @@ CLS Can Scan Infected File Via Symlink To Directory Containing File
     Log  output is ${output}
     Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToDir/eicar.com" (symlinked to ${NORMAL_DIRECTORY}/a/eicar.com) is infected with EICAR-AV-Test
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToDir/eicar.com
+    check_sophos_threat_detector_log_contains_after_mark   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToDir/eicar.com  mark=${td_mark}
 
 
 CLS Skips The Scanning Of Symlink Targets On Special Mount Points
