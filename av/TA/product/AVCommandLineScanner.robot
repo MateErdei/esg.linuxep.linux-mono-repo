@@ -327,6 +327,7 @@ CLS Can Evaluate High Ml Score As A Threat
 
 CLS Can Evaluate Low Ml Score As A Clean File
     Copy File  ${RESOURCES_PATH}/file_samples/MLengLowScore.exe  ${NORMAL_DIRECTORY}
+    ${mark} =  LogUtils.get_susi_debug_log_mark
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengLowScore.exe
 
@@ -335,7 +336,7 @@ CLS Can Evaluate Low Ml Score As A Clean File
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
     Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengLowScore.exe"
 
-    ${contents}  Get File Contents From Offset   ${THREAT_DETECTOR_LOG_PATH}   ${SOPHOS_THREAT_DETECTOR_LOG_MARK}
+    ${contents} =  LogUtils.get_susi_debug_log_after_mark  ${mark}
     ${primary_score}  ${secondary_score} =  Find Integers After Phrase  ML Scores:  ${contents}
     Check Ml Primary Score Is Below Threshold  ${primary_score}  ${30}
 
