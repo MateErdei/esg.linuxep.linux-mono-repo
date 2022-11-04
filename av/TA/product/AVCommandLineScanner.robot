@@ -645,13 +645,14 @@ CLS simple encoded eicar
 
 
 CLS simple encoded eicar in archive
+    ${mark} =  LogUtils.get_av_log_mark
     Create File  ${NORMAL_DIRECTORY}/脅威    ${EICAR_STRING}
     Run Process     tar  -cf  ${NORMAL_DIRECTORY}/test.tar  -C  ${NORMAL_DIRECTORY}  脅威
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/test.tar --scan-archives
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar/脅威" is infected with EICAR-AV-Test
-    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/test.tar/脅威
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/test.tar/脅威
 
 
 CLS simple eicar in encoded archive
