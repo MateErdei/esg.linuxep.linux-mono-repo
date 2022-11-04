@@ -19,6 +19,12 @@ class LogMark:
         self.__m_mark_time = time.time()
         # Line-count?
 
+    def __str__(self):
+        mark_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(self.__m_mark_time))
+        if self.__m_stat is None:
+            return "Missing file at %s" % mark_time
+        return "%d bytes at %s" % (self.__m_stat.st_size, mark_time)
+
     def get_inode(self) -> int:
         return self.__m_inode
 
@@ -103,4 +109,4 @@ class LogHandler:
         else:
             lines = contents.splitlines()
             lines = [line.decode("UTF-8", errors="backslashreplace") for line in lines]
-            logger.info(u"Marked log from %s:\n" % self.__m_log_path+u''.join(lines))
+            logger.info(u"Marked log from %s:\n" % self.__m_log_path+u'\n'.join(lines))

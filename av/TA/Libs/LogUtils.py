@@ -950,7 +950,7 @@ File Log Contains
 
             time.sleep(0.5)
 
-        logger.error("Failed to find %s in %s" % (expected, logpath))
+        logger.error("Failed to find %s in %s after %s" % (expected, logpath, mark))
         handler.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, logpath))
 

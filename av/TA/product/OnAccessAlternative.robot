@@ -365,25 +365,25 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
 
 
 On Access Process Handles Consecutive Process Control Requests
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
-    On Access Log Does Not Contain With Offset  Using on-access settings from policy
+    wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"true"
+    wait for on access log contains after mark  New on-access configuration: {"enabled":"true"  mark=${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  No policy override, following policy settings
-    Wait Until On Access Log Contains With Offset  New on-access configuration: {"enabled":"false"
+    wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
+    wait for on access log contains after mark  New on-access configuration: {"enabled":"false"  mark=${mark}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
-    Wait Until On Access Log Contains With Offset  Overriding policy, on-access will be disabled
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    wait for on access log contains after mark  Overriding policy, on-access will be disabled  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
     On-access No Eicar Scan
 
