@@ -1030,6 +1030,15 @@ File Log Contains
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_av_log_contains_after_mark"
         return self.wait_for_log_contains_after_mark(self.av_log, expected, mark, timeout=timeout)
 
+#####################################################################
+# Sophos Threat Detector Log
+
+    def get_sophos_threat_detector_log_mark(self) -> LogHandler.LogMark:
+        return self.mark_log_size(self.sophos_threat_detector_log)
+
+    def check_sophos_threat_detector_log_contains_after_mark(self, expected, mark):
+        return self.check_log_contains_after_mark(self.sophos_threat_detector_log, expected, mark)
+
 
 def __main(argv):
     # write your tests here

@@ -173,13 +173,15 @@ CLS Can Scan Relative Path
     Create File     testdir/clean_file     ${CLEAN_STRING}
     Create File     testdir/naughty_eicar  ${EICAR_STRING}
 
+    ${mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} testdir
 
     Log  return code is ${rc}
     Log  output is ${output}
     Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/testdir/clean_file was aborted
     Should Not Contain  ${output}  Scanning of ${NORMAL_DIRECTORY}/testdir/naughty_eicar was aborted
-    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/testdir/naughty_eicar (On Demand)
+    LogUtils.Check Sophos Threat Detector Log Contains After Mark  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/testdir/naughty_eicar (On Demand)  mark=${mark}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 
