@@ -65,13 +65,17 @@ On Access Test Teardown
     Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
 
+Mount Image and Wait For Log
+    [Arguments]  ${where}  ${image}  ${type}  ${opts}=loop
+    ${mark} =  get_on_access_log_mark
+    Mount Image  ${where}  ${image}  ${type}  ${opts}
+    wait for on access log contains after mark  Including mount point: ${where}  mark=${mark}
+
 On Access Scans Eicar On Filesystem
     [Arguments]  ${type}  ${image}  ${opts}=loop
 
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${mark} =  get_on_access_log_mark
-    Mount Image  ${where}  ${image}  ${type}  ${opts}
-    wait for on access log contains after mark  Including mount point: ${NORMAL_DIRECTORY}/mount  mark=${mark}
+    Mount Image and Wait For Log  ${where}  ${image}  ${type}  ${opts}
 
     ${pid} =  Get Robot Pid
     ${mark} =  get_on_access_log_mark
@@ -212,10 +216,9 @@ On Access Scans File On SquashFS
 
     ${image} =  Copy And Extract Image  squashfsFileSystem
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${mark} =  get_on_access_log_mark
 
-    Mount Image  ${where}  ${image}  ${type}
-    wait for on access log contains after mark  Including mount point: ${NORMAL_DIRECTORY}/mount  mark=${mark}
+    ${mark} =  get_on_access_log_mark
+    Mount Image and Wait For Log  ${where}  ${image}  ${type}
 
     ${pid} =  Get Robot Pid
     ${contents} =  Get Binary File  ${NORMAL_DIRECTORY}/mount/eicar.com
