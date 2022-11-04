@@ -1114,6 +1114,7 @@ CLS Can Scan Infected File Via Symlink To Directory
 
 
 CLS Does Not Backtrack Through Symlinks
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     ${targetDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/b
     ${sourceDir} =  Set Variable  ${NORMAL_DIRECTORY}/a/c
     Create Directory   ${targetDir}
@@ -1130,7 +1131,7 @@ CLS Does Not Backtrack Through Symlinks
     Should Contain       ${output.replace("\n", " ")}  Directory already scanned: "${targetDir}"
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com
+    check_sophos_threat_detector_log_contains_after_mark   Detected "EICAR-AV-Test" in ${sourceDir}/b/eicar.com  mark=${td_mark}
 
 
 CLS Can Scan Infected File Via Symlink To File
