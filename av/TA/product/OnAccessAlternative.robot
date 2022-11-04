@@ -109,17 +109,16 @@ On Access Process Parses Policy Config
     wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
 
 On Access Process Parses Flags Config On startup
-    Mark On Access Log
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
     Wait Until Created  ${ONACCESS_FLAG_CONFIG}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Restart On Access
 
-    Wait Until On Access Log Contains With Offset   Flag is set to not override policy
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    wait for on access log contains after mark  Flag is set to not override policy  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
 On Access Does Not Include Remote Files If Excluded In Policy
     [Tags]  NFS
