@@ -300,12 +300,13 @@ CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Should Not Contain  ${result.stdout}  Failed to reconnect to Sophos Threat Detector - retrying...
 
 CLS Does not request TFTClassification from SUSI
+    ${mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}   Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test (On Demand)
-    Threat Detector Log Should Not Contain With Offset  TFTClassifications
+    LogUtils.check_sophos_threat_detector_log_does_not_contain_after_mark   TFTClassifications  mark=${mark}
 
 
 CLS Can Evaluate High Ml Score As A Threat
