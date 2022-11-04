@@ -314,9 +314,10 @@ AV health is unaffected by scanning the threat_detector pidfile
 AV health is unaffected by on-access scanning the soapd pidfile
     Register Cleanup  Exclude On Access Scan Errors
 
+    ${mark} =  get_on_access_log_mark
     Mark On Access Log
     Send Policies to enable on-access
-    Wait for on access to be enabled
+    Wait for on access to be enabled  mark=${mark}
 
     # this will cause on-access events for the pid file
     Check Status Health is Reporting Correctly    GOOD

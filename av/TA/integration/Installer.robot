@@ -146,8 +146,9 @@ On access gets IDE update
 
 On access continues during update
     Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Send Policies to enable on-access
-    Wait for on access to be enabled
+    Wait for on access to be enabled  ${mark}
 
     ${test_file} =   Set Variable   /tmp/testfile
     Register Cleanup   Remove File   ${test_file}
@@ -790,9 +791,11 @@ Check AV installer sets correct home directory for the users it creates
     Should Be Equal As Strings  ${homedir}  /opt/sophos-spl
 
 IDE Update Invalidates On Access Cache
+
+    ${mark} =  get_on_access_log_mark
     Mark On Access Log
     Send Policies to enable on-access
-    Wait for on access to be enabled
+    Wait for on access to be enabled  mark=${mark}
     Register Cleanup  Exclude On Access Scan Errors
 
     ${srcfile} =  Set Variable  /tmp_test/clean.txt

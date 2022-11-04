@@ -76,6 +76,9 @@ class LogMark:
             logger.error("Ran out of log files getting content for "+self.__m_log_path)
             return contents
 
+    def assert_is_good(self, log_path: str):
+        assert self.get_path() == log_path
+
 
 class LogHandler:
     def __init__(self, log_path: str):
@@ -85,7 +88,8 @@ class LogHandler:
         return LogMark(self.__m_log_path)
 
     def assert_mark_is_good(self, mark: LogMark):
-        assert mark.get_path() == self.__m_log_path
+        assert isinstance(mark, LogMark)
+        mark.assert_is_good(self.__m_log_path)
 
     def get_contents(self, mark: LogMark) -> Optional[bytes]:
         assert isinstance(mark, LogMark)
