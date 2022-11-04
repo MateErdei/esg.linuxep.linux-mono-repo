@@ -225,7 +225,7 @@ On Access Scans File On SquashFS
 
     wait for on access log contains after mark  On-open event for ${where}/eicar.com from  mark=${mark}
     wait for on access log contains after mark  (PID=${pid}) and UID 0  mark=${mark}
-    wait for on access log contains after mark  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with   mark=${mark}  timeout=${timeout}
+    wait for on access log contains after mark  Detected "${where}/eicar.com" is infected with   mark=${mark}  timeout=${timeout}
 
 
 On Access Scans File On VFAT
