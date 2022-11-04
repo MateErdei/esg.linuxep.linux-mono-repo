@@ -1293,6 +1293,8 @@ CLS Reports Error Once When Using Custom Log File
 
 
 CLS Scans root with non-canonical path
+
+    ${av_mark} =  get_av_log_mark
     ${exclusions} =  ExclusionHelper.Get Root Exclusions for avscanner except proc
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /. -x ${exclusions}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /./ -x ${exclusions}
@@ -1300,8 +1302,8 @@ CLS Scans root with non-canonical path
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /.. -x ${exclusions}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} / -x ${exclusions}
 
-    AV Plugin Log Should Not Contain With Offset      Scanning /proc/
-    AV Plugin Log Should Not Contain With Offset      Scanning /./proc/
+    check_av_log_does_not_contain_after_mark   Scanning /proc/  mark=${av_mark}
+    check_av_log_does_not_contain_after_mark   Scanning /./proc/  mark=${av_mark}
 
 
 CLS Scans Paths That Exist and Dont Exist
