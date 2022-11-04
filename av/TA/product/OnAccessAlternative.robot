@@ -341,10 +341,10 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     ${enabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     ${disabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Send Plugin Policy  av  sav  ${disabledPolicyContent}
-    Wait Until On Access Log Contains With Offset  On-access enabled: "false"
-    Wait Until On Access Log Contains With Offset  Joining eventReader
+    wait_for_on_access_log_contains_after_mark  On-access enabled: "false"  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  Joining eventReader  mark=${mark}
     Sleep   1s
 
     ${mark} =  get_on_access_log_mark
@@ -353,11 +353,11 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     wait_for_on_access_log_contains_after_mark  Starting eventReader  mark=${mark}
     Wait for on access to be enabled  ${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Create File  ${filepath}  ${CLEAN_STRING}
     Register Cleanup  Remove File  ${filepath}
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from  mark=${mark}  timeout=${timeout}
 
 
 On Access Process Handles Consecutive Process Control Requests
