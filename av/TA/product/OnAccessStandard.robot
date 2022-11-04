@@ -241,11 +241,11 @@ On Access Excludes Excluded Mount On Top Of Included Mount
     Directory Should Exist  ${excludedMount}
     Create Directory  ${includedMount}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Bind Mount Directory  ${includedMount}  ${dest}
-    Wait Until On Access Log Contains With Offset  Including mount point: ${dest}
+    wait for on access log contains after mark  Including mount point: ${dest}  mark=${mark}
     Bind Mount Directory  ${excludedMount}  ${dest}
-    Wait Until On Access Log Contains With Offset  Mount point ${dest} is system and will be excluded from the scan
+    wait for on access log contains after mark  Mount point ${dest} is system and will be excluded from the scan  mark=${mark}
 
 
 On Access Doesnt Scan Threat Detector Events
