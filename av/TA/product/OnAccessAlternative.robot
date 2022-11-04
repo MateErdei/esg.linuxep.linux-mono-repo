@@ -309,11 +309,12 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
 
 
 On Access Does Not Monitor A Mount Point If It Matches An Exclusion In Policy
+    ${mark} =  get_on_access_log_mark
     ${policyContent} =  Get Complete Sav Policy  ["/"]  True
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/"]
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
-    Wait Until On Access Log Contains With Offset  Mount point / matches an exclusion in the policy and will be excluded from the scan
+    wait for on access log contains after mark  On-access exclusions: ["/"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
+    wait for on access log contains after mark  Mount point / matches an exclusion in the policy and will be excluded from the scan  mark=${mark}
 
 
 On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In Policy
