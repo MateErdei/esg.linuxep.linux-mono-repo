@@ -460,16 +460,17 @@ On Access Is Disabled After it Receives Disable Flags
 
 
 On Access Does not Use Policy Settings If Flags Have Overriden Policy
+    ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset  Overriding policy, on-access will be disabled
+    wait for on access log contains after mark   Overriding policy, on-access will be disabled  mark=${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   Overriding policy, on-access will be disabled
+    wait for on access log contains after mark    Overriding policy, on-access will be disabled  mark=${mark}
     On-access No Eicar Scan
 
 
