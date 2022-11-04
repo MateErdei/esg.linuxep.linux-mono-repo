@@ -306,23 +306,25 @@ On Access Caches Open Events Without Detections
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
     ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
+    ${oamark} =  get_on_access_log_mark
+
     Create File   ${cleanfile}   ${CLEAN_STRING}
     Register Cleanup   Remove File   ${cleanfile}
 
     Get File   ${cleanfile}
-    Wait Until On Access Log Contains With Offset   Caching ${cleanfile} (Open)
+    wait for on access log contains after mark   Caching ${cleanfile} (Open)  mark=${oamark}
 
     #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
     Sleep    1s
 
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Get File   ${cleanfile}
 
     #Generate another event we can expect in logs
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup   Remove File   ${dirtyfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from    timeout=${timeout}
-    On Access Log Does Not Contain With Offset   On-open event for ${cleanfile} from
+    wait for on access log contains after mark        On-open event for ${dirtyfile} from  mark=${oamark}    timeout=${timeout}
+    check_on_access_log_does_not_contain_after_mark   On-open event for ${cleanfile} from  mark=${oamark}
 
 
 On Access Doesnt Cache Open Events With Detections
