@@ -312,7 +312,7 @@ CLS Does not request TFTClassification from SUSI
 CLS Can Evaluate High Ml Score As A Threat
     run on failure  dump log   ${SUSI_DEBUG_LOG_PATH}
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    Mark Susi Debug Log
+    ${mark} =  LogUtils.get_susi_debug_log_mark
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
     Log  return code is ${rc}
@@ -321,7 +321,7 @@ CLS Can Evaluate High Ml Score As A Threat
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A (On Demand)
 
-    ${contents}  Get File Contents From Offset   ${SUSI_DEBUG_LOG_PATH}   ${SUSI_DEBUG_LOG_MARK}
+    ${contents} =  LogUtils.get_susi_debug_log_after_mark  ${mark}
     ${primary_score}  ${secondary_score} =  Find Integers After Phrase  ML Scores:  ${contents}
     Check Ml Scores Are Above Threshold  ${primary_score}  ${secondary_score}  ${30}  ${20}
 

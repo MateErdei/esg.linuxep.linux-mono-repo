@@ -104,6 +104,7 @@ class LogUtils(object):
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.osquery_watcher_log = os.path.join(self.install_path, "plugins", "mtr", "dbos", "data", "logs", "osquery.watcher.log")
         self.sophos_threat_detector_log = os.path.join(self.install_path, "plugins", "av", "chroot", "log", "sophos_threat_detector.log")
+        self.susi_debug_log = os.path.join(self.install_path, "plugins", "av", "chroot", "log", "susi_debug.log")
         self.av_log = os.path.join(self.av_plugin_logs_dir, "av.log")
         self.oa_log = os.path.join(self.av_plugin_logs_dir, "soapd.log")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
@@ -1041,6 +1042,15 @@ File Log Contains
 
     def check_sophos_threat_detector_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.sophos_threat_detector_log, not_expected, mark)
+
+#####################################################################
+# SUSI Debug Log
+
+    def get_susi_debug_log_mark(self) -> LogHandler.LogMark:
+        return self.mark_log_size(self.susi_debug_log)
+
+    def get_susi_debug_log_after_mark(self, mark):
+        return self.get_log_after_mark(self.susi_debug_log, mark)
 
 
 def __main(argv):

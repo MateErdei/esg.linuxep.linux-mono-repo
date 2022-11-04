@@ -1,11 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (C) 2020 Sophos Plc, Oxford, England.
+# Copyright (C) 2020-2022 Sophos Plc, Oxford, England.
 # All rights reserved.
 
 import logging
 import os
 import re
+import six
 import sys
 import tarfile
 import zipfile
@@ -146,6 +147,7 @@ def find_value_after_phrase(phrase, file_contents):
 
 
 def find_integers_after_phrase(phrase, file_contents):
+    file_contents = six.ensure_str(file_contents, "UTF-8", errors="backslashreplace")
     split_line = []
     split_file = file_contents.split('\n')
     for line in split_file:
