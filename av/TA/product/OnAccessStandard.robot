@@ -426,21 +426,21 @@ On Access Doesnt Cache Close Events With Detections
 On Access Processes New File With Same Attributes And Contents As Old File
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
 
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Create File   ${cleanfile}   ${CLEAN_STRING}
     Register Cleanup   Remove File   ${cleanfile}
 
     Get File   ${cleanfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
-    Wait Until On Access Log Contains With Offset   Caching ${cleanfile}
+    wait for on access log contains after mark  On-open event for ${cleanfile} from  mark=${oamark}  timeout=${timeout}
+    wait for on access log contains after mark  Caching ${cleanfile}  mark=${oamark}
     #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
     Sleep   1
 
     Remove File   ${cleanfile}
 
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Create File   ${cleanfile}   ${CLEAN_STRING}
-    Wait Until On Access Log Contains With Offset  On-open event for ${cleanfile} from    timeout=${timeout}
+    wait for on access log contains after mark  On-open event for ${cleanfile} from   mark=${oamark}  timeout=${timeout}
 
 
 On Access Detects A Clean File Replaced By Dirty File With Same Attributes
