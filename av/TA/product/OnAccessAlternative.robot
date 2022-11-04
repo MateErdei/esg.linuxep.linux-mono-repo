@@ -548,26 +548,23 @@ On Access logs if the kernel queue overflows
     wait for on access log contains after mark   Fanotify queue overflowed, some files will not be scanned.  mark=${mark}
 
 On Access Uses Multiple Scanners
-    Set Log Level  TRACE
-    Register Cleanup  Set Log Level  DEBUG
-    Mark On Access Log
-    Terminate On Access
-    Start On Access without Log check
-    Wait Until On Access Log Contains With Offset   Starting scanHandler
+    ${mark} =  get_on_access_log_mark
+    Configure on access log to trace level
+    wait for on access log contains after mark   Starting scanHandler  mark=${mark}
     Sleep  1s
 
     Run Process  bash  ${BASH_SCRIPTS_PATH}/fanotifyMarkSpammer.sh  timeout=10s    on_timeout=continue
 
-    Wait Until On Access Log Contains  by scanHandler-0
-    Wait Until On Access Log Contains  by scanHandler-1
-    Wait Until On Access Log Contains  by scanHandler-2
-    Wait Until On Access Log Contains  by scanHandler-3
-    Wait Until On Access Log Contains  by scanHandler-4
-    Wait Until On Access Log Contains  by scanHandler-5
-    Wait Until On Access Log Contains  by scanHandler-6
-    Wait Until On Access Log Contains  by scanHandler-7
-    Wait Until On Access Log Contains  by scanHandler-8
-    Wait Until On Access Log Contains  by scanHandler-9
+    wait for on access log contains after mark  by scanHandler-0  mark=${mark}
+    wait for on access log contains after mark  by scanHandler-1  mark=${mark}
+    wait for on access log contains after mark  by scanHandler-2  mark=${mark}
+    wait for on access log contains after mark  by scanHandler-3  mark=${mark}
+    wait for on access log contains after mark  by scanHandler-4  mark=${mark}
+    wait for on access log contains after mark  by scanHandler-5  mark=${mark}
+    wait for on access log contains after mark  by scanHandler-6  mark=${mark}
+    wait for on access log contains after mark  by scanHandler-7  mark=${mark}
+    wait for on access log contains after mark  by scanHandler-8  mark=${mark}
+    wait for on access log contains after mark  by scanHandler-9  mark=${mark}
 
 On Access Can Handle Unlimited Marks
     [Tags]  MANUAL
