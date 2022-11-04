@@ -252,13 +252,13 @@ On Access Doesnt Scan Threat Detector Events
     ${TD_PID} =  Record Sophos Threat Detector PID
     ${filepath} =  Set Variable  ${NORMAL_DIRECTORY}/eicar.com
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
 
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
 
-    Wait Until On Access Log Contains With Offset   Detected "${filepath}" is infected with EICAR-AV-Test  timeout=${timeout}
-    On Access Log Does Not Contain With Offset   from Process ${SOPHOS_THREAT_DETECTOR_BINARY}(PID=${TD_PID})
+    wait for on access log contains after mark   Detected "${filepath}" is infected with EICAR-AV-Test  mark=${mark}  timeout=${timeout}
+    check_on_access_log_does_not_contain_after_mark   from Process ${SOPHOS_THREAT_DETECTOR_BINARY}(PID=${TD_PID})  mark=${mark}
 
 
 On Access Doesnt Scan CommandLine Scanner Events
