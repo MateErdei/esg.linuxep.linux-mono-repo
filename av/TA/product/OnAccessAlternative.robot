@@ -84,6 +84,14 @@ Verify on access log rotated
     List Directory  ${AV_PLUGIN_PATH}/log/
     Should Exist  ${AV_PLUGIN_PATH}/log/soapd.log.1
 
+Configure on access log to trace level
+    Set Log Level  TRACE
+    Register Cleanup       Set Log Level  DEBUG
+    ${mark} =  get_on_access_log_mark
+    Restart On Access
+    wait for on access log contains after mark  Logger soapd configured for level: TRACE  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
+
 *** Test Cases ***
 
 On Access Log Rotates
@@ -224,12 +232,7 @@ On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Poli
 
 
 On Access Does Not Scan Files If They Match Relative Directory Exclusion In Policy
-    Set Log Level  TRACE
-    Register Cleanup       Set Log Level  DEBUG
-    ${mark} =  get_on_access_log_mark
-    Restart On Access
-    wait for on access log contains after mark  Logger soapd configured for level: TRACE  mark=${mark}
-    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
+    Configure on access log to trace level
 
     ${mark} =  get_on_access_log_mark
     ${policyContent} =  Get Complete Sav Policy  ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  True
@@ -264,24 +267,20 @@ On Access Does Not Scan Files If They Match Relative Directory Exclusion In Poli
 
 
 On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
-    Set Log Level  TRACE
-    Register Cleanup       Set Log Level  DEBUG
-    Restart On Access
-    Wait Until On Access Log Contains With Offset  Logger soapd configured for level: TRACE
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    Configure on access log to trace level
 
     ${TEST_DIR} =   Set Variable  /tmp_test/globExclDir
     Create Directory  ${TEST_DIR}
     Register Cleanup  Remove Directory  ${TEST_DIR}  recursive=True
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${exclusionList} =  Set Variable  ["eicar","${TEST_DIR}/eicar.???","${TEST_DIR}/hi_i_am_dangerous.*","${TEST_DIR}/*.js"]
     ${policyContent} =  Get Complete Sav Policy  ${exclusionList}  True
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ${exclusionList}
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions with: ["/eicar"] ["/tmp_test/globExclDir/eicar.???"] ["/tmp_test/globExclDir/hi_i_am_dangerous.*"] ["/tmp_test/globExclDir/*.js"]
+    wait for on access log contains after mark  On-access exclusions: ${exclusionList}  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions with: ["/eicar"] ["/tmp_test/globExclDir/eicar.???"] ["/tmp_test/globExclDir/hi_i_am_dangerous.*"] ["/tmp_test/globExclDir/*.js"]  mark=${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Create File     ${TEST_DIR}/clean_file.txt             ${CLEAN_STRING}
     Create File     ${TEST_DIR}/eicar                      ${EICAR_STRING}
     #Absolute path with character suffix
@@ -296,17 +295,17 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
     Create File     ${TEST_DIR}/bird.js                    ${EICAR_STRING}
     Create File     ${TEST_DIR}/exe.js                     ${EICAR_STRING}
     Create File     ${TEST_DIR}/clean_file.jss             ${CLEAN_STRING}
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR}/clean_file.txt
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/eicar will not be scanned due to exclusion: eicar
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/eicar.com will not be scanned due to exclusion: ${TEST_DIR}/eicar.???
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR}/eicar.comm
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR}/eicar.co
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/hi_i_am_dangerous.txt will not be scanned due to exclusion: ${TEST_DIR}/hi_i_am_dangerous.*
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/hi_i_am_dangerous.exe will not be scanned due to exclusion: ${TEST_DIR}/hi_i_am_dangerous.*
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR}/hi_i_am_dangerous
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/bird.js will not be scanned due to exclusion: ${TEST_DIR}/*.js
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR}/exe.js will not be scanned due to exclusion: ${TEST_DIR}/*.js
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR}/clean_file.jss
+    wait for on access log contains after mark  On-close event for ${TEST_DIR}/clean_file.txt  mark=${mark}
+    wait for on access log contains after mark  File access on ${TEST_DIR}/eicar will not be scanned due to exclusion: eicar  mark=${mark}
+    wait for on access log contains after mark  File access on ${TEST_DIR}/eicar.com will not be scanned due to exclusion: ${TEST_DIR}/eicar.???  mark=${mark}
+    wait for on access log contains after mark  On-close event for ${TEST_DIR}/eicar.comm  mark=${mark}
+    wait for on access log contains after mark  On-close event for ${TEST_DIR}/eicar.co  mark=${mark}
+    wait for on access log contains after mark  File access on ${TEST_DIR}/hi_i_am_dangerous.txt will not be scanned due to exclusion: ${TEST_DIR}/hi_i_am_dangerous.*  mark=${mark}
+    wait for on access log contains after mark  File access on ${TEST_DIR}/hi_i_am_dangerous.exe will not be scanned due to exclusion: ${TEST_DIR}/hi_i_am_dangerous.*  mark=${mark}
+    wait for on access log contains after mark  On-close event for ${TEST_DIR}/hi_i_am_dangerous  mark=${mark}
+    wait for on access log contains after mark  File access on ${TEST_DIR}/bird.js will not be scanned due to exclusion: ${TEST_DIR}/*.js  mark=${mark}
+    wait for on access log contains after mark  File access on ${TEST_DIR}/exe.js will not be scanned due to exclusion: ${TEST_DIR}/*.js  mark=${mark}
+    wait for on access log contains after mark  On-close event for ${TEST_DIR}/clean_file.jss  mark=${mark}
 
 
 On Access Does Not Monitor A Mount Point If It Matches An Exclusion In Policy
