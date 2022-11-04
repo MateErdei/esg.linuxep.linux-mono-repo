@@ -496,16 +496,17 @@ On Access Process Reconnects To Threat Detector
 On Access Scan Times Out When Unable To Connect To Threat Detector
     [Tags]  MANUAL
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+    ${mark} =  get_on_access_log_mark
     Restart On Access
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    wait for on access log contains after mark   mount points in on-access scanning  mark=${mark}
 
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     Create File  ${filepath}  clean
     Register Cleanup  Remove File  ${filepath}
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
-    Wait Until On Access Log Contains With Offset  Failed to connect to Sophos Threat Detector - retrying after sleep
-    Wait Until On Access Log Contains With Offset  Reached total maximum number of connection attempts.  timeout=${timeout}
+    wait for on access log contains after mark  On-close event for ${filepath}  mark=${mark}
+    wait for on access log contains after mark  Failed to connect to Sophos Threat Detector - retrying after sleep  mark=${mark}
+    wait for on access log contains after mark  Reached total maximum number of connection attempts.  timeout=${timeout}  mark=${mark}
 
 On Access Logs Scan time in TRACE
     Set Log Level  TRACE
