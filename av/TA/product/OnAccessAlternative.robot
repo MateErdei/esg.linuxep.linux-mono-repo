@@ -226,15 +226,16 @@ On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Poli
 On Access Does Not Scan Files If They Match Relative Directory Exclusion In Policy
     Set Log Level  TRACE
     Register Cleanup       Set Log Level  DEBUG
+    ${mark} =  get_on_access_log_mark
     Restart On Access
-    Wait Until On Access Log Contains With Offset  Logger soapd configured for level: TRACE
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    wait for on access log contains after mark  Logger soapd configured for level: TRACE  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${policyContent} =  Get Complete Sav Policy  ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  True
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions with: ["/testdir/folder_without_wildcard/"] ["*/dir/su*ir/*"] ["*/do*er/*"]
+    wait for on access log contains after mark  On-access exclusions: ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions with: ["/testdir/folder_without_wildcard/"] ["*/dir/su*ir/*"] ["*/do*er/*"]  mark=${mark}
     ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_without_wildcard
     ${TEST_DIR_WITH_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_with_wildcard
     Create Directory  ${TEST_DIR_WITHOUT_WILDCARD}
@@ -242,7 +243,7 @@ On Access Does Not Scan Files If They Match Relative Directory Exclusion In Poli
     Create Directory  ${TEST_DIR_WITH_WILDCARD}
     Register Cleanup  Remove Directory  ${TEST_DIR_WITH_WILDCARD}  recursive=True
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     #Relative path to directory
     Create File     ${TEST_DIR_WITHOUT_WILDCARD}/clean_file                                       ${CLEAN_STRING}
     Create File     ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar                       ${EICAR_STRING}
@@ -253,13 +254,13 @@ On Access Does Not Scan Files If They Match Relative Directory Exclusion In Poli
     Create File     ${TEST_DIR_WITH_WILDCARD}/documents/test/subfolder/eicar.com                  ${EICAR_STRING}
     Create File     ${TEST_DIR_WITH_WILDCARD}/ddocuments/test/subfolder/eicar.com                 ${CLEAN_STRING}
 
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR_WITHOUT_WILDCARD}/clean_file will not be scanned due to exclusion: testdir/folder_without_wildcard/
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar will not be scanned due to exclusion: testdir/folder_without_wildcard/
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar_folder/eicar will not be scanned due to exclusion: testdir/folder_without_wildcard/
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR_WITH_WILDCARD}/dir/subpart/subdir/eicar.com will not be scanned due to exclusion: dir/su*ir/
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR_WITH_WILDCARD}/ddir/subpart/subdir/eicar.com
-    Wait Until On Access Log Contains With Offset  File access on ${TEST_DIR_WITH_WILDCARD}/documents/test/subfolder/eicar.com will not be scanned due to exclusion: do*er/
-    Wait Until On Access Log Contains With Offset  On-close event for ${TEST_DIR_WITH_WILDCARD}/ddocuments/test/subfolder/eicar.com
+    wait for on access log contains after mark  File access on ${TEST_DIR_WITHOUT_WILDCARD}/clean_file will not be scanned due to exclusion: testdir/folder_without_wildcard/  mark=${mark}
+    wait for on access log contains after mark  File access on ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar will not be scanned due to exclusion: testdir/folder_without_wildcard/  mark=${mark}
+    wait for on access log contains after mark  File access on ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar_folder/eicar will not be scanned due to exclusion: testdir/folder_without_wildcard/  mark=${mark}
+    wait for on access log contains after mark  File access on ${TEST_DIR_WITH_WILDCARD}/dir/subpart/subdir/eicar.com will not be scanned due to exclusion: dir/su*ir/  mark=${mark}
+    wait for on access log contains after mark  On-close event for ${TEST_DIR_WITH_WILDCARD}/ddir/subpart/subdir/eicar.com  mark=${mark}
+    wait for on access log contains after mark  File access on ${TEST_DIR_WITH_WILDCARD}/documents/test/subfolder/eicar.com will not be scanned due to exclusion: do*er/  mark=${mark}
+    wait for on access log contains after mark  On-close event for ${TEST_DIR_WITH_WILDCARD}/ddocuments/test/subfolder/eicar.com  mark=${mark}
 
 
 On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
