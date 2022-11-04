@@ -930,6 +930,7 @@ CLS Folder Name Exclusion
 
 
 CLS Absolute Folder Exclusion And Filename Exclusion
+    ${av_mark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/clean_eicar    ${CLEAN_STRING}
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar    ${EICAR_STRING}
     Create File     ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar    ${CLEAN_STRING}
@@ -942,8 +943,8 @@ CLS Absolute Folder Exclusion And Filename Exclusion
     Should Contain       ${output}  Scanning ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar
     Should Contain       ${output}  Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
     Should Contain       ${output}  Excluding directory: ${NORMAL_DIRECTORY}/clean_eicar_folder/
-    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar
-    AV Plugin Log Should Not Contain With Offset   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar
+    check_av_log_does_not_contain_after_mark   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar  mark=${av_mark}
+    check_av_log_does_not_contain_after_mark   Excluding file: ${NORMAL_DIRECTORY}/clean_eicar_folder/eicar  mark=${av_mark}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 
