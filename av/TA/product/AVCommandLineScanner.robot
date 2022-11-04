@@ -690,20 +690,22 @@ CLS Encoded Eicars
     Should Be Equal As Integers  ${result.rc}  ${0}
 
     ${av_mark} =  get_av_log_mark
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
 
     ${result} =  Run Process  ${CLI_SCANNER_PATH}  /tmp_test/encoded_eicars/  timeout=120s
     Log   ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
 
-    Threat Detector Does Not Log Contain  Failed to parse response from SUSI
-    AV Plugin Log Contains With Offset  Sending threat detection notification to central
-
+    wait_for_av_log_contains_after_mark  Sending threat detection notification to central  mark=${av_mark}
     wait_for_all_eicars_are_reported_in_av_log  /tmp_test/encoded_eicars  mark=${av_mark}
 
-    Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
-    Sophos Threat Detector Log Contains With Offset  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
-    Sophos Threat Detector Log Contains With Offset  Scan requested of /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"
-    Sophos Threat Detector Log Contains With Offset  Scan requested of /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh
+    check_sophos_threat_detector_log_contains_after_mark  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh  mark=${td_mark}
+    check_sophos_threat_detector_log_contains_after_mark  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"  mark=${td_mark}
+    check_sophos_threat_detector_log_contains_after_mark  Scan requested of /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"  mark=${td_mark}
+    check_sophos_threat_detector_log_contains_after_mark  Scan requested of /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh  mark=${td_mark}
+
+    # Check "not contains" at end to give maximum chance for it to be logged
+    check_sophos_threat_detector_log_does_not_contain_after_mark  Failed to parse response from SUSI  mark=${td_mark}
 
 
 CLS Handles Wild Card Eicars
