@@ -347,11 +347,11 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     Wait Until On Access Log Contains With Offset  Joining eventReader
     Sleep   1s
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Send Plugin Policy  av  sav  ${enabledPolicyContent}
-    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
-    Wait Until On Access Log Contains With Offset  Starting eventReader
-    Wait for on access to be enabled
+    wait_for_on_access_log_contains_after_mark  On-access enabled: "true"  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  Starting eventReader  mark=${mark}
+    Wait for on access to be enabled  ${mark}
 
     Mark On Access Log
     Create File  ${filepath}  ${CLEAN_STRING}
