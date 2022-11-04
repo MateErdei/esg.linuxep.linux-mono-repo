@@ -296,10 +296,10 @@ On Access Doesnt Scan Named Scanner Events
 
 
 On Access Doesnt Scan On Access Events
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     On-access Scan Eicar Open
 
-    On Access Log Does Not Contain With Offset  from Process ${ON_ACCESS_BIN}
+    check_on_access_log_does_not_contain_after_mark  from Process ${ON_ACCESS_BIN}  mark=${oamark}
 
 
 On Access Caches Open Events Without Detections
