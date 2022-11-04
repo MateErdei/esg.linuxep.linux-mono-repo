@@ -284,15 +284,15 @@ On Access Doesnt Scan Named Scanner Events
 
     ${filepath} =  Set Variable  ${NORMAL_DIRECTORY}/eicar.com
 
-    Mark On Access Log
-    Mark AV Log
+    ${oamark} =  get_on_access_log_mark
+    ${avmark} =  get_av_log_mark
 
     Run Scheduled Scan With On Access Enabled
-    Wait Until AV Plugin Log Contains With Offset    Completed scan   timeout=60
+    wait_for_av_log_contains_after_mark   Completed scan   mark=${avmark}  timeout=60
 
-    On Access Log Does Not Contain With Offset  from Process ${PLUGIN_BINARY}(PID=${AVPLUGIN_PID})
-    On Access Log Does Not Contain With Offset  from Process ${SCHEDULED_FILE_WALKER_LAUNCHER}
-    On Access Log Does Not Contain With Offset  from Process ${CLI_SCANNER_PATH}
+    check_on_access_log_does_not_contain_after_mark  from Process ${PLUGIN_BINARY}(PID=${AVPLUGIN_PID})  mark=${oamark}
+    check_on_access_log_does_not_contain_after_mark  from Process ${SCHEDULED_FILE_WALKER_LAUNCHER}  mark=${oamark}
+    check_on_access_log_does_not_contain_after_mark  from Process ${CLI_SCANNER_PATH}  mark=${oamark}
 
 
 On Access Doesnt Scan On Access Events

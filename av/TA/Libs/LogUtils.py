@@ -1016,6 +1016,10 @@ File Log Contains
     def get_av_log_after_mark(self, mark):
         return self.get_log_after_mark(self.av_log, mark)
 
+    def wait_for_av_log_contains_after_mark(self, expected, mark: LogHandler.LogMark, timeout: int = 10):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_av_log_contains_after_mark"
+        return self.wait_for_log_contains_after_mark(self.av_log, expected, mark, timeout=timeout)
+
 
 def __main(argv):
     # write your tests here
