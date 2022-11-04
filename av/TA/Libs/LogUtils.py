@@ -1041,7 +1041,7 @@ File Log Contains
     def get_av_log_after_mark_as_unicode(self, mark):
         return _ensure_str(self.get_av_log_after_mark(mark))
 
-    def wait_for_av_log_contains_after_mark(self, expected, mark: LogHandler.LogMark, timeout: int = 10):
+    def wait_for_av_log_contains_after_mark(self, expected: str, mark: LogHandler.LogMark, timeout: int = 10):
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_av_log_contains_after_mark"
         return self.wait_for_log_contains_after_mark(self.av_log, expected, mark, timeout=timeout)
 

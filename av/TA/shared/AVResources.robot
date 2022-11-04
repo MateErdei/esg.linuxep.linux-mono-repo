@@ -624,8 +624,9 @@ Wait Until SAV Status XML Contains
     Wait Until File Log Contains  SAV Status XML Contains   ${input}   timeout=${timeout}
 
 Check Plugin Installed and Running
+    [Arguments]   ${mark}
     File Should Exist   ${PLUGIN_BINARY}
-    Wait until AV Plugin running
+    Wait until AV Plugin running  ${mark}
     Wait until threat detector running
 
 Check Plugin Installed and Running With Offset
@@ -634,16 +635,9 @@ Check Plugin Installed and Running With Offset
     Wait until threat detector running with offset
 
 Wait until AV Plugin running
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Plugin Running
-    Wait Until Keyword Succeeds
-    ...  40 secs
-    ...  2 secs
-    ...  Plugin Log Contains  Common <> Starting scanScheduler
-    # Only output in debug mode:
-    # ...  Plugin Log Contains  ${COMPONENT} <> Starting the main program loop
+    [Arguments]  ${mark}
+    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${30}
+    wait_for_av_log_contains_after_mark  Common <> Starting scanScheduler  mark=${mark}  timeout=${40}
 
 Wait until AV Plugin running with offset
     Wait Until Keyword Succeeds
@@ -717,7 +711,8 @@ Wait until threat detector not running
     ...  Check Threat Detector Not Running
 
 Check AV Plugin Installed
-    Check Plugin Installed and Running
+    [Arguments]  ${av_mark}
+    Check Plugin Installed and Running  ${av_mark}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  3 secs

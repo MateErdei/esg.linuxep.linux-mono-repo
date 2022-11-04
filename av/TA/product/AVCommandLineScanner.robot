@@ -124,11 +124,12 @@ Stop AV Plugin process
 
 Start AV Plugin process
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    ${mark} =  LogUtils.get_av_log_mark
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     ${proc} =  Get Process Object  ${AV_PLUGIN_HANDLE}
     Log  Started AV Plugin Process PID=${proc.pid}
-    Check AV Plugin Installed
+    Check AV Plugin Installed  ${mark}
 
 Start AV
 #    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
