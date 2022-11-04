@@ -408,19 +408,19 @@ On Access Receives Close Event On Cached File
 On Access Doesnt Cache Close Events With Detections
     ${testfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Create File  ${testfile}  ${EICAR_STRING}
     Register Cleanup   Remove File   ${testfile}
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${testfile} from
-    Wait Until On Access Log Contains With Offset  Detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)
+    wait for on access log contains after mark  On-close event for ${testfile} from  mark=${oamark}
+    wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}
     Sleep   1s  #Let the event (hopefully not) be cached
 
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Get File  ${testfile}
 
-    Wait Until On Access Log Contains With Offset  On-open event for ${testfile} from
-    Wait Until On Access Log Contains With Offset  Detected "${testfile}" is infected with EICAR-AV-Test (Open)
+    wait for on access log contains after mark  On-open event for ${testfile} from  mark=${oamark}
+    wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark}
 
 
 On Access Processes New File With Same Attributes And Contents As Old File
