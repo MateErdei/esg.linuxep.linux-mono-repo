@@ -475,6 +475,7 @@ On Access Does not Use Policy Settings If Flags Have Overriden Policy
 
 
 On Access Process Reconnects To Threat Detector
+    ${mark} =  get_on_access_log_mark
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     ${script} =  Set Variable  ${BASH_SCRIPTS_PATH}/cleanFileWriter.sh
     ${HANDLE} =  Start Process  bash  ${script}  stderr=STDOUT
@@ -482,15 +483,15 @@ On Access Process Reconnects To Threat Detector
     Register Cleanup  Remove Directory  /tmp_test/clean_file_writer/  recursive=True
     Register Cleanup  Terminate Process  ${HANDLE}
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
+    wait for on access log contains after mark  On-close event for ${filepath}  mark=${mark}
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath}
+    wait for on access log contains after mark  On-close event for ${filepath}  mark=${mark}
     #Depending on whether a scan is being processed or it is being requested one of these 2 errors should appear
     File Log Contains One of   ${ON_ACCESS_LOG_PATH}  0  Failed to receive scan response  Failed to send scan request
 
-    On Access Log Does Not Contain With Offset  Failed to scan ${filepath}
+    check_on_access_log_does_not_contain_after_mark  Failed to scan ${filepath}  mark=${mark}
 
 On Access Scan Times Out When Unable To Connect To Threat Detector
     [Tags]  MANUAL
