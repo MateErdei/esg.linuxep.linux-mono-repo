@@ -524,10 +524,10 @@ On Access logs if the kernel queue overflows
     # set loglevel to INFO to avoid log rotation due to large number of events
     Set Log Level  INFO
     Register Cleanup  Set Log Level  DEBUG
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Terminate On Access
     Start On Access without Log check
-    Wait Until On Access Log Contains With Offset   Starting scanHandler
+    wait for on access log contains after mark  Starting scanHandler  mark=${mark}
     Sleep  1s
 
     Mark On Access Log
@@ -545,7 +545,7 @@ On Access logs if the kernel queue overflows
     # resume soapd
     Evaluate  os.kill(${soapd_pid}, signal.SIGCONT)  modules=os, signal
 
-    Wait Until On Access Log Contains With Offset   Fanotify queue overflowed, some files will not be scanned.
+    wait for on access log contains after mark   Fanotify queue overflowed, some files will not be scanned.  mark=${mark}
 
 On Access Uses Multiple Scanners
     Set Log Level  TRACE
