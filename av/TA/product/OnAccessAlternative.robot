@@ -150,52 +150,52 @@ On Access Does Not Include Remote Files If Excluded In Policy
 
 On Access Applies Config Changes When The Mounts Change
     [Tags]  NFS
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${source} =       Set Variable  /tmp_test/nfsshare
     ${destination} =  Set Variable  /testmnt/nfsshare
     Create Directory  ${source}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
     Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
-    Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    wait for on access log contains after mark  Including mount point: /testmnt/nfsshare  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${filepath} =  Set Variable  /testmnt/nfsshare/clean.txt
     Create File  ${filepath}  clean
     Register Cleanup  Remove File  ${filepath}
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath} from Process
+    wait for on access log contains after mark  On-close event for ${filepath} from Process  mark=${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
-    Wait Until On Access Log Contains With Offset  On-access scan network: "false"
-    Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
-    On Access Log Does Not Contain With Offset  Including mount point: /testmnt/nfsshare
+    wait for on access log contains after mark  On-access enabled: "true"  mark=${mark}
+    wait for on access log contains after mark  On-access scan network: "false"  mark=${mark}
+    wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
+    check_on_access_log_does_not_contain_after_mark  Including mount point: /testmnt/nfsshare  mark=${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${filepath2} =  Set Variable  /testmnt/nfsshare/clean2.txt
     Create File  ${filepath2}  clean
     Register Cleanup  Remove File  ${filepath2}
 
-    On Access Log Does Not Contain With Offset  On-close event for ${filepath2} from Process
+    check_on_access_log_does_not_contain_after_mark  On-close event for ${filepath2} from Process  mark=${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset  On-access enabled: "true"
-    Wait Until On Access Log Contains With Offset  On-access scan network: "true"
-    Wait Until On Access Log Contains With Offset  OA config changed, re-enumerating mount points
-    Wait Until On Access Log Contains With Offset  Including mount point: /testmnt/nfsshare
+    wait for on access log contains after mark  On-access enabled: "true"  mark=${mark}
+    wait for on access log contains after mark  On-access scan network: "true"  mark=${mark}
+    wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
+    wait for on access log contains after mark  Including mount point: /testmnt/nfsshare  mark=${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${filepath3} =  Set Variable  /testmnt/nfsshare/clean3.txt
     Create File  ${filepath3}  clean
     Register Cleanup  Remove File  ${filepath3}
 
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath3} from Process
+    wait for on access log contains after mark  On-close event for ${filepath3} from Process  mark=${mark}
 
 
 On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Policy
