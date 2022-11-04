@@ -878,6 +878,7 @@ CLS Absolute Folder Exclusion
 
 
 CLS Relative Folder Exclusion
+    ${av_mark} =  get_av_log_mark
     ${TEST_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/testdir
     ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  ${NORMAL_DIRECTORY}/testdir/folder_without_wildcard
     ${TEST_DIR_WITH_WILDCARD} =  Set Variable  ${NORMAL_DIRECTORY}/testdir/folder_with_wildcard
@@ -899,9 +900,9 @@ CLS Relative Folder Exclusion
     Should Contain      ${output}  Exclusions: testdir/folder_without_wildcard/, dir/su*ir/, do*er/
 
     Should Contain      ${output}  Excluding directory: ${TEST_DIR_WITHOUT_WILDCARD}/
-    AV Plugin Log Should Not Contain With Offset   Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar
-    AV Plugin Log Should Not Contain With Offset   Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar
-    AV Plugin Log Should Not Contain With Offset   Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar_folder/eicar
+    check_av_log_does_not_contain_after_mark   Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar  mark=${av_mark}
+    check_av_log_does_not_contain_after_mark   Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/naughty_eicar_folder/eicar  mark=${av_mark}
+    check_av_log_does_not_contain_after_mark   Excluding file: ${TEST_DIR_WITHOUT_WILDCARD}/clean_eicar_folder/eicar  mark=${av_mark}
     Should Contain       ${output}  Excluding directory: ${TEST_DIR_WITH_WILDCARD}/dir/subpart/subdir/
     Should Not Contain   ${output}  Excluding directory: ${TEST_DIR_WITH_WILDCARD}/ddir/subpart/subdir/
     Should Contain       ${output}  Excluding directory: ${TEST_DIR_WITH_WILDCARD}/documents/test/subfolder/
