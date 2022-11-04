@@ -1124,7 +1124,6 @@ CLS Does Not Backtrack Through Symlinks
     Create Directory   ${sourceDir}
     Create File     ${targetDir}/eicar.com    ${EICAR_STRING}
     Create Symlink  ${targetDir}  ${sourceDir}/b
-    Mark Sophos Threat Detector Log
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${sourceDir}/b ${targetDir}
 
     Log  return code is ${rc}
@@ -1138,6 +1137,7 @@ CLS Does Not Backtrack Through Symlinks
 
 
 CLS Can Scan Infected File Via Symlink To File
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
     Create Symlink  ${NORMAL_DIRECTORY}/eicar.com  ${NORMAL_DIRECTORY}/symlinkToEicar
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/symlinkToEicar
@@ -1146,7 +1146,7 @@ CLS Can Scan Infected File Via Symlink To File
     Log  output is ${output}
     Should Contain       ${output.replace("\n", " ")}  Detected "${NORMAL_DIRECTORY}/symlinkToEicar" (symlinked to ${NORMAL_DIRECTORY}/eicar.com) is infected with EICAR-AV-Test
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToEicar
+    check_sophos_threat_detector_log_contains_after_mark   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/symlinkToEicar  mark=${td_mark}
 
 
 CLS Can Scan Infected File Via Symlink To Directory Containing File
