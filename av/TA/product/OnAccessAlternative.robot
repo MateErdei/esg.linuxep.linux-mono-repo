@@ -567,15 +567,7 @@ On Access Uses Multiple Scanners
     wait for on access log contains after mark  by scanHandler-9  mark=${mark}
 
 On Access Can Handle Unlimited Marks
-    [Tags]  MANUAL
-    [Documentation]  TODO: LINUXDAR-5658: Re-enable once we have log-rotation aware log checking
-    Mark On Access Log
-    Terminate On Access
-    Start On Access without Log check
-    Wait Until On Access Log Contains With Offset   Starting scanHandler
-    Sleep  1s
-
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
 
     #Default MARK limit is 8192 marks https://man7.org/linux/man-pages/man2/fanotify_init.2.html
     Create Directory   /tmp_test
@@ -584,8 +576,8 @@ On Access Can Handle Unlimited Marks
         ...   for i in `seq 0 1 8500`; do echo clean > /tmp_test/clean_file_\$i; done
         ...   OnError=Failed to create clean files
 
-    Wait Until On Access Log Contains  On-open event for /tmp_test/clean_file_8500
-    On Access Log Does Not Contain     fanotify_mark failed: cacheFd : No space left on device
+    wait for on access log contains after mark  On-open event for /tmp_test/clean_file_8500  mark=${mark}
+    check_on_access_log_does_not_contain_after_mark   fanotify_mark failed: cacheFd : No space left on device  mark=${mark}
 
 On Access Can Be enabled After It Gets Disabled In Policy
     Mark On Access Log
