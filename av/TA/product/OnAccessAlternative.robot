@@ -199,28 +199,28 @@ On Access Applies Config Changes When The Mounts Change
 
 
 On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Policy
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     ${filepath1} =  Set Variable  /tmp_test/eicar.com
     ${filepath2} =  Set Variable  /tmp_test/eicar2.com
     ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/"]  True
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/tmp_test/"]
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions with: ["/tmp_test/"]
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    wait for on access log contains after mark  On-access exclusions: ["/tmp_test/"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions with: ["/tmp_test/"]  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Create File  ${filepath1}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath1}
-    On Access Log Does Not Contain With Offset  On-close event for ${filepath1} from
+    check_on_access_log_does_not_contain_after_mark  On-close event for ${filepath1} from  mark=${mark}
 
     ${policyContent} =  Get Complete Sav Policy  []  True
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: []
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
+    wait for on access log contains after mark  On-access exclusions: []  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
 
     Create File  ${filepath2}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath2}
-    Wait Until On Access Log Contains With Offset  On-close event for ${filepath2} from  timeout=60
+    wait for on access log contains after mark  On-close event for ${filepath2} from  mark=${mark}  timeout=60
 
 
 On Access Does Not Scan Files If They Match Relative Directory Exclusion In Policy
