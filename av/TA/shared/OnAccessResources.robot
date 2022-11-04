@@ -134,21 +134,22 @@ On-access Scan Eicar Open
 
     Move File   ${create-filepath}  ${filepath}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
 
     Get File   ${filepath}
 
-    Wait Until On Access Log Contains With Offset  On-open event for ${filepath} from    timeout=${timeout}
-    Wait Until On Access Log Contains With Offset  "${filepath}" is infected with    timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  On-open event for ${filepath} from  mark=${mark}  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with      mark=${mark}  timeout=${timeout}
 
 On-access No Eicar Scan
     ${filepath} =  Set Variable  /tmp_test/uncaught_eicar.com
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
 
-    On Access Log Does Not Contain With Offset  On-close event for ${filepath} from
+    # Should not be logged:
+    check_on_access_log_does_not_contain_before_timeout  On-close event for ${filepath} from  mark=${mark}
 
 On-access Scan Peend
     ${threat_file} =   Set Variable   ${RESOURCES_PATH}/file_samples/peend.exe

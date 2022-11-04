@@ -423,14 +423,15 @@ On Access Is Disabled By Default If No Flags Policy Arrives
 
 
 On Access Uses Policy Settings If Flags Dont Override Policy
+    ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset   No policy override, following policy settings
-    Wait Until On Access Log Contains With Offset   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}
+    wait for on access log contains after mark   No policy override, following policy settings  mark=${mark}
+    wait for on access log contains after mark   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
 
     On-access Scan Eicar Close
 
