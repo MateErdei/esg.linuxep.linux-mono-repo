@@ -415,11 +415,24 @@ int main(int argc, char** argv)
         // Exit 44 means cannot connect to Cloud - must correspond to handling in installer_header.sh
         return 44;
     }
-
+    auto fs = Common::FileSystem::fileSystem();
     bool forceLegacyInstall = static_cast<bool>(getenv("FORCE_LEGACY_INSTALL"));
     if (!forceLegacyInstall)
     {
-        MCS::ConfigOptions rootConfigOptions = CentralRegistration::innerCentralRegistration(registerArgValues);
+        std::string mcsRootCert;
+        auto thisBinary = fs->readlink("/proc/self/exe");
+        if (thisBinary.has_value())
+        {
+            auto thisDir = Common::FileSystem::basename(thisBinary.value());
+            mcsRootCert = Common::FileSystem::join(thisDir,"mcs_rootca.crt");
+            logDebug("Using shipped MCS cert: " + mcsRootCert);
+        }
+        else
+        {
+            return 55;
+        }
+
+        MCS::ConfigOptions rootConfigOptions = CentralRegistration::innerCentralRegistration(registerArgValues, mcsRootCert);
 
         if (rootConfigOptions.config[MCS::MCS_ID].empty())
         {
@@ -442,7 +455,7 @@ int main(int argc, char** argv)
         }
         else
         {
-            httpClient.setCertPath("./mcs_rootca.crt");
+            httpClient.setCertPath(mcsRootCert);
         }
         httpClient.setID(rootConfigOptions.config[MCS::MCS_ID]);
         httpClient.setPassword(rootConfigOptions.config[MCS::MCS_PASSWORD]);
@@ -471,7 +484,6 @@ int main(int argc, char** argv)
         rootConfigOptions.config[MCS::MCS_PASSWORD] = "";
         rootConfigOptions.writeToDisk("./mcs.config");
         policyOptions.writeToDisk("./mcsPolicy.config");
-        auto fs = Common::FileSystem::fileSystem();
         std::string versigPath = Common::FileSystem::join( fs->currentWorkingDirectory(),"installer/bin/versig");
         nlohmann::json j;
         //Dummy values for now
