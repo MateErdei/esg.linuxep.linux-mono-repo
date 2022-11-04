@@ -640,18 +640,12 @@ Wait until AV Plugin running
     wait_for_av_log_contains_after_mark  Common <> Starting scanScheduler  mark=${mark}  timeout=${40}
 
 Wait until AV Plugin running with offset
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Plugin Running
-    Wait Until AV Plugin Log Contains With Offset  Common <> Starting scanScheduler  timeout=40
+    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${30}
+    Wait Until AV Plugin Log Contains With Offset  Common <> Starting scanScheduler  timeout=${40}
 
 Wait until AV Plugin not running
-    [Arguments]  ${timeout}=30
-    Wait Until Keyword Succeeds
-    ...  ${timeout} secs
-    ...  3 secs
-    ...  Check AV Plugin Not Running
+    [Arguments]  ${timeout}=${30}
+    ProcessUtils.wait_for_no_pid  ${PLUGIN_BINARY}  ${timeout}
 
 Wait Until On Access running
     ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
