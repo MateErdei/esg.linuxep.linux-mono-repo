@@ -123,6 +123,7 @@ Stop AV Plugin process
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
 
 Start AV Plugin process
+    [Arguments]  ${td_mark}
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${mark} =  LogUtils.get_av_log_mark
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
@@ -138,8 +139,9 @@ Start AV
     Check AV Plugin Not Running
     Check Threat Detector Not Running
     Check Threat Detector PID File Does Not Exist
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Start AV Plugin process
+    Start AV Plugin process  ${td_mark}
 
 Stop AV
 #    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
