@@ -328,11 +328,12 @@ On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In
     Run Shell Process   mount --bind ${source} ${destination}     OnError=Failed to create bind mount
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release bind mount
 
+    ${mark} =  get_on_access_log_mark
     ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/bind_mount"]  True
     Send Plugin Policy  av  sav  ${policyContent}
-    Wait Until On Access Log Contains With Offset  On-access exclusions: ["/tmp_test/bind_mount"]
-    Wait Until On Access Log Contains With Offset  Updating on-access exclusions
-    Wait Until On Access Log Contains With Offset  Mount point /tmp_test/bind_mount matches an exclusion in the policy and will be excluded from the scan
+    wait for on access log contains after mark  On-access exclusions: ["/tmp_test/bind_mount"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
+    wait for on access log contains after mark  Mount point /tmp_test/bind_mount matches an exclusion in the policy and will be excluded from the scan  mark=${mark}
 
 
 On Access Logs When A File Is Closed Following Write After Being Disabled
