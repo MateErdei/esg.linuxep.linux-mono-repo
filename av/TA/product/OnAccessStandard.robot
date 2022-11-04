@@ -160,7 +160,7 @@ On Access Scans Corrupted File
     Copy File  ${RESOURCES_PATH}/file_samples/corrupted.xls  /tmp/
     Register Cleanup   Remove File  /tmp/corrupted.xls
     #Todo Test can see below message 2-3 times
-    wait_for_on_access_log_contains_after_mark   /corrupted.xls as it is corrupted  mark=${mark}  timeout=${timeout}
+    wait for on access log contains after mark   /corrupted.xls as it is corrupted  mark=${mark}  timeout=${timeout}
 
 
 On Access Scans File On BFS
@@ -225,11 +225,13 @@ On Access Includes Included Mount On Top Of Excluded Mount
     Directory Should Exist  ${excludedMount}
     Create Directory  ${includedMount}
 
-    Mark On Access Log
+    ${mark} =  get_on_access_log_mark
     Bind Mount Directory  ${excludedMount}  ${dest}
-    Wait Until On Access Log Contains With Offset  Mount point ${dest} is system and will be excluded from the scan
+    wait for on access log contains after mark
+    ...  Mount point ${dest} is system and will be excluded from the scan
+    ...  mark=${mark}
     Bind Mount Directory  ${includedMount}  ${dest}
-    Wait Until On Access Log Contains With Offset  Including mount point: ${dest}
+    wait for on access log contains after mark  Including mount point: ${dest}  mark=${mark}
 
 
 On Access Excludes Excluded Mount On Top Of Included Mount
