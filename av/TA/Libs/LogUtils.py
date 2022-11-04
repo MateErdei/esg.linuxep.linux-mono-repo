@@ -600,10 +600,12 @@ File Log Contains
         contents = _get_log_contents(sophos_threat_detector_log)
         self.marked_sophos_threat_detector_log = len(contents)
 
-    def get_marked_sophos_threat_detector_log(self):
+    def get_marked_sophos_threat_detector_log(self, mark=None):
+        if mark is None:
+            mark = self.marked_sophos_threat_detector_log
         sophos_threat_detector_log = self.sophos_threat_detector_log
         contents = _get_log_contents(sophos_threat_detector_log)
-        return contents[self.marked_sophos_threat_detector_log:]
+        return contents[mark:]
 
     def dump_marked_sophos_threat_detector_log(self):
         contents = self.get_marked_sophos_threat_detector_log()
@@ -635,15 +637,20 @@ File Log Contains
                                  string_to_contain+"', starting from '"+contents[:50]+"'")
 
     def check_marked_sophos_threat_detector_log_contains(self, string_to_contain, mark=None):
-        contents = self.get_marked_sophos_threat_detector_log()
+        if isinstance(mark, LogHandler.LogMark):
+            contents = self.get_sophos_threat_detector_log_after_mark(mark)
+        else:
+            contents = self.get_marked_sophos_threat_detector_log(mark)
+
+        contents = six.ensure_str(contents, "UTF-8", errors="backslashreplace")
 
         if string_to_contain not in contents:
             self.dump_marked_sophos_threat_detector_log()
             raise AssertionError("sophos_threat_detector.log log did not contain: " + string_to_contain)
         return contents
 
-    def verify_sophos_threat_detector_log_line_is_level(self, expected_level, string_to_check):
-        contents = self.check_marked_sophos_threat_detector_log_contains(string_to_check)
+    def verify_sophos_threat_detector_log_line_is_level(self, expected_level, string_to_check, mark):
+        contents = self.check_marked_sophos_threat_detector_log_contains(string_to_check, mark)
         # 9296    [2022-07-29T08:45:34.335]    WARN [9369807616] ThreatScanner <> Failed to scan /home/vagrant/this/is/a/directory/for/scanning/password_protected.7z/eicar.com as it is password protected
         line_re = re.compile(r"^\d+\s+\[\S+]\s+(\w+)\s+.*?"+re.escape(string_to_check)+r".*?$", flags=re.MULTILINE)
         found = False
@@ -1037,11 +1044,17 @@ File Log Contains
     def get_sophos_threat_detector_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.sophos_threat_detector_log)
 
+    def get_sophos_threat_detector_log_after_mark(self, mark):
+        return self.get_log_after_mark(self.sophos_threat_detector_log, mark)
+
     def check_sophos_threat_detector_log_contains_after_mark(self, expected, mark):
         return self.check_log_contains_after_mark(self.sophos_threat_detector_log, expected, mark)
 
     def check_sophos_threat_detector_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.sophos_threat_detector_log, not_expected, mark)
+
+    def dump_sophos_threat_detector_log_after_mark(self, mark):
+        return self.dump_marked_log(self.sophos_threat_detector_log, mark)
 
 #####################################################################
 # SUSI Debug Log

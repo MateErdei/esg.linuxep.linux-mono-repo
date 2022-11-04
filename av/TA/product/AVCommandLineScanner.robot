@@ -422,7 +422,7 @@ CLS Aborts Scanning of Password Protected File
     Register Cleanup     Exclude As Password Protected
     Copy File  ${RESOURCES_PATH}/file_samples/password_protected.7z  ${NORMAL_DIRECTORY}
 
-    mark sophos threat detector log
+    ${mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/password_protected.7z --scan-archives
 
     Log  return code is ${rc}
@@ -430,9 +430,9 @@ CLS Aborts Scanning of Password Protected File
     Should Be Equal As Integers  ${rc}  ${PASSWORD_PROTECTED_RESULT}
     Should Contain  ${output}  Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected
 
-    dump marked sophos threat detector log
-    check marked sophos threat detector log contains  ThreatScanner <> Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected
-    verify sophos threat detector log line is level  WARN  ThreatScanner <> Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected
+    LogUtils.dump sophos threat detector log after mark  mark=${mark}
+    LogUtils.Check Sophos Threat Detector Log Contains After Mark  ThreatScanner <> Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected  mark=${mark}
+    verify sophos threat detector log line is level  WARN  ThreatScanner <> Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected  mark=${mark}
 
 
 CLS Aborts Scanning of Corrupted File
