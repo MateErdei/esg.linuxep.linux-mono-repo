@@ -8,8 +8,6 @@ SophosAddTest(TestSophosOnAccessProcessImpl
         TestOnAccessConfigUtils.cpp
         PROJECTS soapdbootstrap
         INC_DIRS
-        ${CMAKE_SOURCE_DIR}/modules
-        ${CMAKE_SOURCE_DIR}/tests
         ${pluginapiinclude}
         ${testhelpersinclude}
         LIBS ${pluginapilib} ${testhelperslib}

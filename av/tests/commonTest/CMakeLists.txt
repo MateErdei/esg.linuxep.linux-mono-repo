@@ -15,7 +15,4 @@ SophosAddTest(TestCommon
         signals/TestSignalHandlerTemplate.cpp
         signals/TestSigUSR1Monitor.cpp
         PROJECTS common
-        INC_DIRS
-        ${CMAKE_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/modules
         )

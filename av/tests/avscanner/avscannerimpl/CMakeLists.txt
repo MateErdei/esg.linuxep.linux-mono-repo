@@ -11,8 +11,6 @@ SophosAddTest(TestAVScannerImpl
         TestBaseFileWalkCallbacks.cpp
         TestClientSocketWrapper.cpp
         PROJECTS avscannerimpl
-        INC_DIRS
-        ${CMAKE_SOURCE_DIR}/modules
         )
 
 

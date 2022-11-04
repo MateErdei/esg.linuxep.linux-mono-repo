@@ -14,5 +14,5 @@ SophosAddTest(TestPlugin
         TestThreatDatabase.cpp
         PROJECTS pluginimpl
         LIBS ${pluginapilib} ${testhelperslib}
-        INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude} ${testhelpersinclude}
+        INC_DIRS ${pluginapiinclude} ${testhelpersinclude}
         )

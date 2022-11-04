@@ -6,5 +6,4 @@ SophosAddTest(TestObfuscation
         TestObscurity.cpp
         PROJECTS obfuscationimpl
         LIBS ${pluginapilib}
-        INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/modules
         )

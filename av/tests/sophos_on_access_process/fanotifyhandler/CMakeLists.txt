@@ -5,7 +5,4 @@ SophosAddTest(TestFanotifyHandler
         TestFanotifyHandler.cpp
         TestProcUtils.cpp
         PROJECTS fanotifyhandler
-        INC_DIRS
-        ${CMAKE_SOURCE_DIR}/modules
-        ${CMAKE_SOURCE_DIR}/tests
         )

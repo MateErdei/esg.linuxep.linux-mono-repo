@@ -6,7 +6,8 @@ SophosAddTest(TestSafeStore
         TestSafeStoreWrapperUtils.cpp
         TestStateMonitor.cpp
         PROJECTS safestoreimpl
-        INC_DIRS ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${testhelpersinclude}
+        INC_DIRS
+        ${testhelpersinclude}
         LIBS ${log4cpluslib} ${testhelperslib}
         )
 

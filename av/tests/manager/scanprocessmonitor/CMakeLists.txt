@@ -2,7 +2,6 @@ SophosAddTest(TestScanProcessMonitor
         ../../common/LogInitializedTests.cpp
         TestConfigMonitor.cpp
         TestScanProcessMonitor.cpp
-        PROJECTS pluginimpl
+        PROJECTS scanprocessmonitor
         LIBS ${pluginapilib}
-        INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${pluginapiinclude}
         )

@@ -29,8 +29,6 @@ SophosAddTest(TestFileWalker
         TestFileWalker.cpp
         TestFileWalkerRecursion.cpp
         PROJECTS filewalker
-        INC_DIRS
-        ${CMAKE_SOURCE_DIR}/modules
         LIBS ${log4cpluslib}
         )
 

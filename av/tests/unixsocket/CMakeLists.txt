@@ -3,8 +3,6 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             ../common/LogInitializedTests.cpp
             TestSocketUtils.cpp
             PROJECTS unixsocket
-            INC_DIRS
-            ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
             )
 
     SophosAddTest(TestProcessControllerServerSocket
@@ -12,7 +10,6 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestProcessControllerServerConnectionThread.cpp
             TestProcessControllerServerSocket.cpp
             PROJECTS unixsocket
-            INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
             )
 
 
@@ -21,7 +18,6 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestScanningServerConnectionThread.cpp
             TestThreatDetectorSocket.cpp
             PROJECTS unixsocket
-            INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
             )
 
     SophosAddTest(TestThreatReporterSocket
@@ -29,21 +25,18 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestThreatReporterServerConnectionThread.cpp
             TestThreatReporterSocket.cpp
             PROJECTS unixsocket
-            INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
             )
 
     SophosAddTest(TestUnixSocket
             ../common/LogInitializedTests.cpp
             TestUpdateCompleteClientSocketThread.cpp
             PROJECTS unixsocket
-            INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
             )
 
     SophosAddTest(TestSafeStoreSocket
             ../common/LogInitializedTests.cpp
             TestSafeStoreSocket.cpp
             PROJECTS unixsocket
-            INC_DIRS ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}
             )
 
     add_executable(ProcessControlClientExecutable
