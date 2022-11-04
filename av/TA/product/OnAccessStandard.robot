@@ -204,9 +204,26 @@ On Access Scans File On ReiserFS
     On Access Scans Eicar On Filesystem from Image  reiserfs  reiserfsFileSystem
 
 On Access Scans File On SquashFS
+    # Squash is read-only
+    ${type} =  Set Variable  squashfs
     Run Keyword And Ignore Error
-    ...  Run Process  modprobe  squashfs
-    On Access Scans Eicar On Filesystem from Image  squashfs  squashfsFileSystem
+    ...  Run Process  modprobe  ${type}
+    Require Filesystem  ${type}
+
+    ${image} =  Copy And Extract Image  squashfsFileSystem
+    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
+    ${mark} =  get_on_access_log_mark
+
+    Mount Image  ${where}  ${image}  ${type}
+    wait for on access log contains after mark  Including mount point: ${NORMAL_DIRECTORY}/mount  mark=${mark}
+
+    ${pid} =  Get Robot Pid
+    ${contents} =  Get Binary File  ${NORMAL_DIRECTORY}/mount/eicar.com
+
+    wait for on access log contains after mark  On-open event for ${where}/eicar.com from  mark=${mark}
+    wait for on access log contains after mark  (PID=${pid}) and UID 0  mark=${mark}
+    wait for on access log contains after mark  Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with   mark=${mark}  timeout=${timeout}
+
 
 On Access Scans File On VFAT
     ${opts} =  Set Variable  loop,umask=0000
