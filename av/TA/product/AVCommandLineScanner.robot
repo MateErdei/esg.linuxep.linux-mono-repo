@@ -464,7 +464,7 @@ CLS Can Report Scan Error And Detection For Archive
 
 
 AV Log Contains No Errors When Scanning File
-    Mark AV Log
+    ${mark} =  LogUtils.get_av_log_mark
 
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
@@ -473,8 +473,8 @@ AV Log Contains No Errors When Scanning File
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central
-    AV Plugin Log Should Not Contain With Offset  ERROR
+    wait_for_av_log_contains_after_mark  Sending threat detection notification to central  mark=${mark}
+    check_av_log_does_not_contain_after_mark  ERROR  mark=${mark}
 
 
 CLS Can Scan Infected And Clean File With The Same Name
