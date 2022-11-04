@@ -330,23 +330,23 @@ On Access Caches Open Events Without Detections
 On Access Doesnt Cache Open Events With Detections
     ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup   Remove File   ${dirtyfile}
-    Wait Until On Access Log Contains With Offset   On-close event for ${dirtyfile} from
+    wait for on access log contains after mark    On-close event for ${dirtyfile} from  mark=${oamark}
 
-    #TODO this is necessary while LINXUDAR-5740 is not resulved
+    #TODO this is necessary while LINXUDAR-5740 is not resolved
     Append To File  ${dirtyfile}  ${EICAR_STRING}
 
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Get File   ${dirtyfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from
-    Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
+    wait for on access log contains after mark  On-open event for ${dirtyfile} from  mark=${oamark}
+    wait for on access log contains after mark  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark}   timeout=${timeout}
 
-    Mark On Access Log
+    ${oamark} =  get_on_access_log_mark
     Get File   ${dirtyfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${dirtyfile} from
-    Wait Until On Access Log Contains With Offset  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)   timeout=${timeout}
+    wait for on access log contains after mark  On-open event for ${dirtyfile} from  mark=${oamark}
+    wait for on access log contains after mark  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark}   timeout=${timeout}
 
 
 On Access Does Cache Close Events Without Detections
