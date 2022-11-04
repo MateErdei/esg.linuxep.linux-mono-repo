@@ -67,7 +67,6 @@ On Access Test Teardown
 
 On Access Scans Eicar On Filesystem
     [Arguments]  ${type}  ${image}  ${opts}=loop
-    Require Filesystem  ${type}
 
     ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${mark} =  get_on_access_log_mark
@@ -83,6 +82,12 @@ On Access Scans Eicar On Filesystem
     wait for on access log contains after mark  (PID=${pid}) and UID 0  mark=${mark}
     wait for on access log contains after mark  Detected "${where}/eicar.com" is infected with  mark=${mark}  timeout=${timeout}
 
+On Access Scans Eicar On Filesystem from Image
+    [Arguments]  ${type}  ${imageName}  ${opts}=loop
+
+    Require Filesystem  ${type}
+    ${image} =  Copy And Extract Image  ${imageName}
+    On Access Scans Eicar On Filesystem  ${type}  ${image}
 
 *** Test Cases ***
 
@@ -159,136 +164,59 @@ On Access Scans Corrupted File
 
 
 On Access Scans File On BFS
-    ${image} =  Copy And Extract Image  bfsFileSystem
-    On Access Scans Eicar On Filesystem  bfs  ${image}
+    On Access Scans Eicar On Filesystem from Image  bfs  bfsFileSystem
 
 On Access Scans File On CRAMFS
-    Require Filesystem  cramfs
-    ${image} =  Copy And Extract Image  cramfsFileSystem
-    On Access Scans Eicar On Filesystem  cramfs  ${image}
+    On Access Scans Eicar On Filesystem from Image  cramfs  cramfsFileSystem
 
 On Access Scans File On EXT2
-    Require Filesystem  ext2
-    ${image} =  Copy And Extract Image  ext2FileSystem
-    On Access Scans Eicar On Filesystem  ext2  ${image}
+    On Access Scans Eicar On Filesystem from Image  ext2  ext2FileSystem
 
 On Access Scans File On EXT3
-    Require Filesystem  ext3
-    ${image} =  Copy And Extract Image  ext3FileSystem
-    On Access Scans Eicar On Filesystem  ext3  ${image}
+    On Access Scans Eicar On Filesystem from Image  ext3  ext3FileSystem
 
 On Access Scans File On EXT4
-    Require Filesystem  ext4
-    ${image} =  Copy And Extract Image  ext4FileSystem
-    On Access Scans Eicar On Filesystem  ext4  ${image}
+    On Access Scans Eicar On Filesystem from Image  ext4  ext4FileSystem
 
 On Access Scans File On MINIX
-    Require Filesystem  minix
-    ${image} =  Copy And Extract Image  minixFileSystem
-    On Access Scans Eicar On Filesystem  minix  ${image}
+    # Can't require minix fs in /proc/filesystems since it could be dynamically loaded
+    Run Keyword And Ignore Error
+    ...  Run Process  modprobe  minix
+    On Access Scans Eicar On Filesystem from Image  minix  minixFileSystem
 
 On Access Scans File On MSDOS
-    ${type} =  Set Variable  msdos
-    Require Filesystem  ${type}
-    ${image} =  Copy And Extract Image  msdosFileSystem
+    # vfat is fs type for msdos
     ${opts} =  Set Variable  loop,umask=0000
-    On Access Scans Eicar On Filesystem  ${type}  ${image}  ${opts}
+    On Access Scans Eicar On Filesystem from Image  vfat  msdosFileSystem  opts=${opts}
 
 On Access Scans File On NTFS
-    Require Filesystem  ntfs
+    # Can't check for filesystem, since NTFS uses fuse
+    ${file_does_not_exist} =  Does File Not Exist  /sbin/mount.ntfs
+    Pass Execution If    ${file_does_not_exist}  /sbin/mount.ntfs doesn't exist - NTFS not supported
 
-    ${image} =  Copy And Extract Image  ntfsFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
     ${type} =  Set Variable  ntfs
-    Mark On Access Log
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Mark On Access Log
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
-    Wait Until On Access Log Contains With Offset  (PID=${pid}) and UID 0
-    Wait Until On Access Log Contains With Offset   Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with  timeout=${timeout}
+    ${image} =  Copy And Extract Image  ntfsFileSystem
+    On Access Scans Eicar On Filesystem  ${type}  ${image}
 
 On Access Scans File On ReiserFS
-    Require Filesystem  reiserfs
-
-    ${image} =  Copy And Extract Image  reiserfsFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  reiserfs
-    Mark On Access Log
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Mark On Access Log
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
-    Wait Until On Access Log Contains With Offset  (PID=${pid}) and UID 0
-    Wait Until On Access Log Contains With Offset   Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with  timeout=${timeout}
+    Run Keyword And Ignore Error
+    ...  Run Process  modprobe  reiserfs
+    On Access Scans Eicar On Filesystem from Image  reiserfs  reiserfsFileSystem
 
 On Access Scans File On SquashFS
-    Require Filesystem  squashfs
-
-    ${image} =  Copy And Extract Image  squashfsFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  squashfs
-    Mark On Access Log
-    Mount Image  ${where}  ${image}  ${type}
-    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    ${contents} =  Get Binary File  ${NORMAL_DIRECTORY}/mount/eicar.com
-
-    Wait Until On Access Log Contains With Offset  On-open event for ${where}/eicar.com from
-    Wait Until On Access Log Contains With Offset  (PID=${pid}) and UID 0
-    Wait Until On Access Log Contains With Offset   Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with   timeout=${timeout}
+    Run Keyword And Ignore Error
+    ...  Run Process  modprobe  squashfs
+    On Access Scans Eicar On Filesystem from Image  squashfs  squashfsFileSystem
 
 On Access Scans File On VFAT
-    Require Filesystem  vfat
-
-    ${image} =  Copy And Extract Image  vfatFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  vfat
     ${opts} =  Set Variable  loop,umask=0000
-    Mark On Access Log
-    Mount Image  ${where}  ${image}  ${type}  ${opts}
-    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Mark On Access Log
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
-    Wait Until On Access Log Contains With Offset  (PID=${pid}) and UID 0
-    Wait Until On Access Log Contains With Offset   Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with  timeout=${timeout}
+    On Access Scans Eicar On Filesystem from Image  vfat  vfatFileSystem  opts=${opts}
 
 On Access Scans File On XFS
-    Require Filesystem  xfs
-
-    ${image} =  Copy And Extract Image  xfsFileSystem
-    ${where} =  Set Variable  ${NORMAL_DIRECTORY}/mount
-    ${type} =  Set Variable  xfs
+    Run Keyword And Ignore Error
+    ...  Run Process  modprobe  xfs
     ${opts} =  Set Variable  nouuid
-    Mark On Access Log
-    Mount Image  ${where}  ${image}  ${type}  ${opts}
-    Wait Until On Access Log Contains With Offset  Including mount point: ${NORMAL_DIRECTORY}/mount
-
-    ${pid} =  Get Robot Pid
-    Mark On Access Log
-    Create File  ${where}/eicar.com  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${where}/eicar.com
-
-    Wait Until On Access Log Contains With Offset  On-close event for ${where}/eicar.com from
-    Wait Until On Access Log Contains With Offset  (PID=${pid}) and UID 0
-    Wait Until On Access Log Contains With Offset   Detected "/home/vagrant/this/is/a/directory/for/scanning/mount/eicar.com" is infected with  timeout=${timeout}
-
+    On Access Scans Eicar On Filesystem from Image  xfs  xfsFileSystem  opts=${opts}
 
 On Access Includes Included Mount On Top Of Excluded Mount
     ${excludedMount} =  Set Variable  /proc/tty
