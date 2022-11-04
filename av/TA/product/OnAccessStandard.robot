@@ -28,6 +28,8 @@ ${TESTTMP}  /tmp_test/SSPLAVTests
 On Access Suite Setup
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
+    ${customerIdFile} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
+    Create File  ${customerIdFile}  c1cfcf69a42311a6084bcefe8af02c8a
     Mark Sophos Threat Detector Log
     Mark On Access Log
     Start On Access And AV With Running Threat Detector
