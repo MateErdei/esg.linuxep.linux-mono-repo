@@ -9,10 +9,13 @@
 #include "DetectionQueue.h"
 #include "HealthStatus.h"
 #include "IDetectionReportProcessor.h"
+#include "IDetectionDatabaseHandler.h"
 #include "PluginCallback.h"
 #include "PolicyProcessor.h"
+#include "PolicyWaiter.h"
 #include "SafeStoreWorker.h"
 #include "TaskQueue.h"
+#include "ThreatDatabase.h"
 
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "manager/scheduler/ScanScheduler.h"
@@ -26,7 +29,7 @@
 
 namespace Plugin
 {
-    class PluginAdapter : public IScanComplete, public IDetectionReportProcessor
+    class PluginAdapter : public IScanComplete, public IDetectionReportProcessor, public IDetectionDatabaseHandler
     {
     private:
         std::shared_ptr<TaskQueue> m_taskQueue;
@@ -50,34 +53,40 @@ namespace Plugin
             const std::string& threatEventPublisherSocketPath,
             int waitForPolicyTimeout = 5);
         void mainLoop();
-        void processScanComplete(std::string& scanCompletedXml, int exitCode) override;
-        void processDetectionReport(const scan_messages::ThreatDetected&) const override;
+        void processScanComplete(std::string& scanCompletedXml) override;
+
+        /*
+         * Takes in detection info and the result from attempting to quarantine that threat and then
+         * triggers various outputs to be generated: Central Events, Event Journal input, Threat Health
+         */
+        void processDetectionReport(const scan_messages::ThreatDetected&, const common::CentralEnums::QuarantineResult& quarantineResult) const override;
+
         void publishThreatEvent(const std::string& threatDetectedJSON) const;
+        void updateThreatDatabase(const scan_messages::ThreatDetected& detection) override;
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
         bool isSafeStoreEnabled();
         [[nodiscard]] std::shared_ptr<DetectionQueue> getDetectionQueue() const;
 
     PLUGIN_INTERNAL:
         void publishThreatHealth(E_HEALTH_STATUS threatStatus) const;
+        static void incrementTelemetryThreatCount(const std::string &threatName);
     private:
         /**
          *
          * @param policyXml
-         * @param policyUpdated OUT - has the policy been updated
          * @param appId OUT - the appId for the policy
+         * @return whether policy has been updated
          */
-        void processPolicy(const std::string& policyXml, bool& policyUpdated, std::string& appId);
+        void processPolicy(const std::string& policyXml, PolicyWaiterSharedPtr policyWaiter);
         void processAction(const std::string& actionXml);
         void startThreads();
         void innerLoop();
         void processSUSIRestartRequest();
-        static void incrementTelemetryThreatCount(const std::string &threatName);
+        void setResetThreatDetector(bool reset) { m_restartSophosThreatDetector = reset || m_restartSophosThreatDetector; }
 
         PolicyProcessor m_policyProcessor;
+        ThreatDatabase m_threatDatabase;
         bool m_restartSophosThreatDetector = false;
-
-        bool m_gotSavPolicy = false;
-        bool m_gotAlcPolicy = false;
 
         std::unique_ptr<common::ThreadRunner> m_safeStoreWorkerThread;
         std::unique_ptr<common::ThreadRunner> m_schedulerThread;

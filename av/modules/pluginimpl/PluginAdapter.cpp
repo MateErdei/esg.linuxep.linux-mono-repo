@@ -1,14 +1,11 @@
 // Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
-# define PLUGIN_INTERNAL public
-
 #include "PluginAdapter.h"
 
 #include "DetectionQueue.h"
 #include "DetectionReporter.h"
 #include "HealthStatus.h"
 #include "Logger.h"
-#include "PolicyWaiter.h"
 #include "StringUtils.h"
 
 #include "datatypes/SystemCallWrapper.h"
@@ -50,9 +47,13 @@ namespace Plugin
                 // detection is not moved if the push fails, so can still be used by processDetectionReport
                 if (!m_adapter.isSafeStoreEnabled() || !m_adapter.getDetectionQueue()->push(detection))
                 {
-                    // TODO: LINUXDAR-5677 - Modify report to include no quarantine happened
-                    // reportNoQuarantine(detection);
-                    m_adapter.processDetectionReport(detection);
+                    detection.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
+
+                    // If SafeStore is disabled then we manually set the quarantine result to be a failure. This is
+                    // so we can populate the Core Clean event properly.
+                    m_adapter.processDetectionReport(detection, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE);
+
+                    m_adapter.updateThreatDatabase(detection);
                 }
             }
 
@@ -76,10 +77,12 @@ namespace Plugin
                                std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
-        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this, m_detectionQueue, getSafeStoreSocketPath())),
+        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this,*this, m_detectionQueue, getSafeStoreSocketPath())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
-        m_threatEventPublisher(m_zmqContext->getPublisher())
+        m_threatEventPublisher(m_zmqContext->getPublisher()),
+        m_policyProcessor(m_taskQueue),
+        m_threatDatabase(Plugin::getPluginVarDirPath())
     {
     }
 
@@ -143,14 +146,14 @@ namespace Plugin
         PolicyWaiter::policy_list_t policies;
         policies.push_back("SAV");
         policies.push_back("ALC");
-        PolicyWaiter policyWaiter(std::move(policies), PolicyWaiter::seconds_t{m_waitForPolicyTimeout});
+        auto policyWaiter = std::make_shared<PolicyWaiter>(std::move(policies), PolicyWaiter::seconds_t{m_waitForPolicyTimeout});
 
         bool threadsRunning = false;
 
         while (true)
         {
             Task task{};
-            bool gotTask = m_taskQueue->pop(task, policyWaiter.timeout());
+            bool gotTask = m_taskQueue->pop(task, policyWaiter->timeout());
             if (gotTask)
             {
                 switch (task.taskType)
@@ -167,11 +170,7 @@ namespace Plugin
                         }
                         else
                         {
-                            bool policyUpdated = false;
-                            std::string appId;
-                            processPolicy(task.Content, policyUpdated, appId);
-                            policyWaiter.gotPolicy(appId);
-                            m_restartSophosThreatDetector = policyUpdated || m_restartSophosThreatDetector;
+                            processPolicy(task.Content, policyWaiter);
                         }
 
                         break;
@@ -182,12 +181,19 @@ namespace Plugin
                         break;
 
                     case Task::TaskType::ScanComplete:
-                    case Task::TaskType::ThreatDetected:
                         m_baseService->sendEvent("SAV", task.Content);
+                        break;
+
+                    case Task::TaskType::ThreatDetected:
+                        m_baseService->sendEvent("CORE", task.Content);
                         break;
 
                     case Task::TaskType::SendStatus:
                         m_baseService->sendStatus("SAV", task.Content, task.Content);
+                        break;
+
+                    case Task::TaskType::SendCleanEvent:
+                        m_baseService->sendEvent("CORE", task.Content);
                         break;
                 }
 
@@ -196,13 +202,13 @@ namespace Plugin
             else
             {
                 // timeout waiting for policy
-                policyWaiter.checkTimeout();
+                policyWaiter->checkTimeout();
             }
 
             // if we've got policies, or timed out the initial wait then start threads
             if (!threadsRunning)
             {
-                if (policyWaiter.hasAllPolicies() || policyWaiter.infoLogged())
+                if (policyWaiter->hasAllPolicies() || policyWaiter->infoLogged())
                 {
                     startThreads();
                     threadsRunning = true;
@@ -234,98 +240,123 @@ namespace Plugin
         m_callback->setSafeStoreEnabled(m_policyProcessor.isSafeStoreEnabled());
     }
 
-    void PluginAdapter::processPolicy(const std::string& policyXml, bool& policyUpdated, std::string& appId)
+    void PluginAdapter::processPolicy(const std::string& policyXml, PolicyWaiterSharedPtr policyWaiter)
     {
         LOGINFO("Received Policy");
-        auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-
-        // Work out whether it's ALC or SAV policy
-        auto alc_comp = attributeMap.lookup("AUConfigurations/csc:Comp");
-        auto policyType = alc_comp.value("policyType", "unknown");
-        if (policyType != "unknown")
+        try
         {
-            if (policyType == "1")
+            auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+
+            // Work out whether it's ALC or SAV policy
+            auto alc_comp = attributeMap.lookup("AUConfigurations/csc:Comp");
+            auto policyType = alc_comp.value("policyType", "unknown");
+            if (policyType != "unknown")
             {
-                // ALC policy
-                LOGINFO("Processing ALC Policy");
-                LOGDEBUG("Processing policy: " << policyXml);
-                bool updated = m_policyProcessor.processAlcPolicy(attributeMap);
-                if (!m_gotAlcPolicy)
+                if (policyType == "1")
                 {
-                    LOGINFO("ALC policy received for the first time.");
-                    m_gotAlcPolicy = true;
+                    // ALC policy
+                    LOGINFO("Processing ALC Policy");
+                    LOGDEBUG("Processing policy: " << policyXml);
+                    m_policyProcessor.processAlcPolicy(attributeMap);
+                    LOGDEBUG("Finished processing ALC Policy");
+                    policyWaiter->gotPolicy("ALC");
+                    setResetThreatDetector(m_policyProcessor.restartThreatDetector());
                 }
-                policyUpdated = updated;
-                appId = "ALC";
+                else
+                {
+                    LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
+                }
                 return;
             }
-            else
+
+            // SAV policy
+            policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
+            if (policyType != "2")
             {
                 LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
+                return;
             }
-            policyUpdated = false;
-            appId = "";
-            return;
-        }
 
-        // SAV policy
-        policyType = attributeMap.lookup("config/csc:Comp").value("policyType", "unknown");
-        if (policyType != "2")
+            LOGINFO("Processing SAV Policy");
+            LOGDEBUG("Processing policy: " << policyXml);
+
+            bool policyIsValid = m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
+            if (policyIsValid)
+            {
+                m_policyProcessor.processSavPolicy(attributeMap);
+                if (m_policyProcessor.restartThreatDetector())
+                {
+                    m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
+                }
+                setResetThreatDetector(m_policyProcessor.restartThreatDetector());
+
+                std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
+                m_callback->sendStatus(revID);
+
+                policyWaiter->gotPolicy("SAV");
+            }
+        }
+        catch(const Common::XmlUtilities::XmlUtilitiesException& e)
         {
-            LOGDEBUG("Ignoring policy of incorrect type: " << policyType);
-            policyUpdated = false;
-            appId = "";
-            return;
+            LOGERROR("Exception encountered while parsing AV policy XML: " << e.what());
         }
-
-        LOGINFO("Processing SAV Policy");
-        LOGDEBUG("Processing policy: " << policyXml);
-
-        bool savPolicyHasChanged = m_policyProcessor.processSavPolicy(attributeMap, m_gotSavPolicy);
-        m_callback->setSXL4Lookups(m_policyProcessor.getSXL4LookupsEnabled());
-        m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
-
-        std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
-        m_callback->sendStatus(revID);
-        if (!m_gotSavPolicy)
+        catch(const std::exception& e)
         {
-            LOGINFO("SAV policy received for the first time.");
-            m_gotSavPolicy = true;
+            LOGERROR("Exception encountered while processing AV policy: " << e.what());
         }
-        policyUpdated = savPolicyHasChanged;
-        appId = "SAV";
     }
 
     void PluginAdapter::processAction(const std::string& actionXml)
     {
         LOGDEBUG("Process action: " << actionXml);
 
-        auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
-
-        if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
+        try
         {
-            m_scanScheduler->scanNow();
+            auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
+
+            if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
+            {
+                m_scanScheduler->scanNow();
+            }
+        }
+        catch(const Common::XmlUtilities::XmlUtilitiesException& e)
+        {
+            LOGERROR("Exception encountered while parsing Action XML: " << e.what());
+        }
+        catch(const std::exception& e)
+        {
+            LOGERROR("Exception encountered while processing Action XML: " << e.what());
         }
     }
 
-    void PluginAdapter::processScanComplete(std::string& scanCompletedXml, int exitCode)
+    void PluginAdapter::processScanComplete(std::string& scanCompletedXml)
     {
-        if (( exitCode == common::E_CLEAN_SUCCESS ||  exitCode == common::E_GENERIC_FAILURE ||  exitCode == common::E_PASSWORD_PROTECTED ))
-        {
-            LOGDEBUG("Publishing good threat health status after clean scan");
-            publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
-        }
-
         LOGDEBUG("Sending scan complete notification to central: " << scanCompletedXml);
 
         m_taskQueue->push(Task { .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });
     }
 
-    void PluginAdapter::processDetectionReport(const scan_messages::ThreatDetected& detection) const
+    void PluginAdapter::processDetectionReport(const scan_messages::ThreatDetected& detection,  const common::CentralEnums::QuarantineResult& quarantineResult) const
     {
+        LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "'");
+        incrementTelemetryThreatCount(detection.threatName);
         DetectionReporter::processThreatReport(pluginimpl::generateThreatDetectedXml(detection), m_taskQueue);
+        DetectionReporter::publishQuarantineCleanEvent(pluginimpl::generateCoreCleanEventXml(detection, quarantineResult), m_taskQueue);
         publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
-        publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+        if (quarantineResult != common::CentralEnums::QuarantineResult::SUCCESS)
+        {
+            publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+        }
+    }
+
+    void PluginAdapter::updateThreatDatabase(const scan_messages::ThreatDetected& detection)
+    {
+        if (detection.notificationStatus != scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP)
+        {
+            m_threatDatabase.addThreat(detection.threatId,detection.threatId);
+            LOGDEBUG("Added threat: " << detection.threatId << " to database");
+        }
+
     }
 
     void PluginAdapter::publishThreatEvent(const std::string& threatDetectedJSON) const

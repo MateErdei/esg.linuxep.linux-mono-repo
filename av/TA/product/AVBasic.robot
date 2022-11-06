@@ -311,7 +311,7 @@ AV Plugin Scan Now with Bind Mount
     Create File       ${source}/eicar.com    ${EICAR_STRING}
 
     Run Shell Process   mount --bind ${source} ${destination}     OnError=Failed to create bind mount
-    Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release bind mount
+    Register Cleanup  Unmount Bind Mount  ${destination}
 
     Should Exist      ${destination}/eicar.com
 

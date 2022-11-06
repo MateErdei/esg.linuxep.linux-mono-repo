@@ -326,7 +326,7 @@ On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In
     Create File  ${destination}
 
     Run Shell Process   mount --bind ${source} ${destination}     OnError=Failed to create bind mount
-    Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release bind mount
+    Register Cleanup  Unmount Bind Mount  ${destination}
 
     ${mark} =  get_on_access_log_mark
     ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/bind_mount"]  True

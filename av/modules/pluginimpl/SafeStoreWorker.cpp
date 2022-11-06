@@ -67,13 +67,14 @@ void SafeStoreWorker::run()
             LOGWARN("Unable to determine detection's parent mount, due to: " << error.what() << ". Will continue quarantine attempt.");
         }
 
+        auto quarantineResult = common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
         if (tryQuarantine)
         {
             unixsocket::SafeStoreClient safeStoreClient(m_safeStoreSocket,m_notifyPipe,
                                                         unixsocket::SafeStoreClient::DEFAULT_SLEEP_TIME,
                                                         sleeper);
             safeStoreClient.sendQuarantineRequest(threatDetected);
-            common::CentralEnums::QuarantineResult quarantineResult = safeStoreClient.waitForResponse();
+            quarantineResult = safeStoreClient.waitForResponse();
 
             if (quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS)
             {
