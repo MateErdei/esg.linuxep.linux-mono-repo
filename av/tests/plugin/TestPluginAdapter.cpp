@@ -570,7 +570,34 @@ TEST_F(TestPluginAdapter, testProcessThreatReport)
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
     pluginAdapter.mainLoop();
-    std::string expectedLog = "Sending threat detection notification to central: ";
+    std::string expectedLog = "Sending threat detection notification to Central: ";
+    expectedLog.append(threatDetectedXML);
+
+    EXPECT_TRUE(appenderContains(expectedLog));
+}
+
+TEST_F(TestPluginAdapter, publishQuarantineCleanEvent)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    std::string threatDetectedXML = "may be xml data";
+
+    EXPECT_CALL(*mockBaseServicePtr, sendEvent("CORE", threatDetectedXML));
+
+    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    DetectionReporter::publishQuarantineCleanEvent(threatDetectedXML, m_taskQueue);
+    m_taskQueue->pushStop();
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
+    pluginAdapter.mainLoop();
+    std::string expectedLog = "Sending Clean Event to Central: ";
     expectedLog.append(threatDetectedXML);
 
     EXPECT_TRUE(appenderContains(expectedLog));
