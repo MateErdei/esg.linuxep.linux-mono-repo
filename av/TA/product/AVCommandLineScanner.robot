@@ -1691,8 +1691,8 @@ CLS Can Append Summary To Log When SIGHUP Is Received strace
     Remove File  ${SCAN_LOG}
     Remove File  /tmp/sighup_test_strace.log
 
-    Mark Sophos Threat Detector Log
-    ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sighup_test_strace.log  ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    ${cls_handle} =     Start Process    strace  -f  -o  /tmp/sighup_test_strace.log  ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/  /run/snapd/
     Register cleanup  Run Keyword And Ignore Error  Terminate Process  handle=${cls_handle}  kill=True
     register on fail  Dump Log  ${SCAN_LOG}
     register on fail  Dump Log  /tmp/sigterm_test_strace.log
@@ -1708,7 +1708,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received strace
     Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   Stopping Scanning Server thread
+    wait_for_log_contains_from_mark  ${td_mark}  Stopping Scanning Server thread
 
 CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  /tmp/scan.log
