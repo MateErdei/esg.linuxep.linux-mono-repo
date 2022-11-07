@@ -173,7 +173,7 @@ TEST_F(TestThreatDatabase, removeCorrelationIDRemovesThreatWhenNoMoreCorrelation
     EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{}"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
-    database.removeCorrelationID("threatid", "threatid");
+    database.removeCorrelationID("threatid");
 }
 
 TEST_F(TestThreatDatabase, removeCorrelationIDHandlesWhenThreatIsNotInDatabase)
@@ -187,7 +187,7 @@ TEST_F(TestThreatDatabase, removeCorrelationIDHandlesWhenThreatIsNotInDatabase)
     EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{\"threatid\":[\"threatid\"]}"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
-    EXPECT_NO_THROW(database.removeCorrelationID("threatid2", "threatid"));
+    EXPECT_NO_THROW(database.removeCorrelationID("threatid2"));
 }
 
 TEST_F(TestThreatDatabase, removeCorrelationID)
@@ -198,10 +198,10 @@ TEST_F(TestThreatDatabase, removeCorrelationID)
 
     EXPECT_CALL(*filesystemMock, exists("/path/persist-threatDatabase")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/path/persist-threatDatabase")).WillOnce(Return("{\"threatid\":[\"threatid\",\"correlationID\"]}"));
-    EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{\"threatid\":[\"threatid\"]}"));
+    EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{}"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
-    database.removeCorrelationID("threatid", "correlationID");
+    database.removeCorrelationID( "correlationID");
 }
 
 TEST_F(TestThreatDatabase, removeThreatID)

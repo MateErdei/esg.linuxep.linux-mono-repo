@@ -38,33 +38,27 @@ namespace Plugin
 
     }
 
-    void ThreatDatabase::removeCorrelationID(const std::string& threatID, const std::string& correlationID)
+    void ThreatDatabase::removeCorrelationID(const std::string& correlationID)
     {
-        std::map<std::string,std::list<std::string>>::iterator it = m_database.find(threatID);
-        if (it != m_database.end())
+        std::string threatID = "";
+        for (auto const& entry : m_database)
         {
-            std::list oldListIDS = it->second;
+            std::list oldListIDS = entry.second;
             auto iterator = std::find(oldListIDS.begin(), oldListIDS.end(), correlationID);
             if (iterator != oldListIDS.end() )
             {
-                oldListIDS.erase(iterator);
-                if (oldListIDS.empty())
-                {
-                    m_database.erase(it);
-                }
-                else
-                {
-                    it->second = oldListIDS;
-                }
+                threatID = entry.first;
             }
-            else
-            {
-                LOGWARN("Cannot remove correlation id" << correlationID << " from database as it cannot be found");
-            }
+        }
+
+        if (threatID.empty())
+        {
+            LOGWARN("Cannot remove correlation id" << correlationID << " from database as it cannot be found");
         }
         else
         {
-            LOGWARN("Cannot remove threat id" << threatID << " from database as it cannot be found");
+            std::map<std::string,std::list<std::string>>::iterator it = m_database.find(threatID);
+            m_database.erase(it);
         }
     }
 
