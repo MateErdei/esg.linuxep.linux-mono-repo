@@ -8,7 +8,7 @@
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/QuarantineManager/StateMonitor.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
-#include "unixsocket/rescanSafeStoreSocket/SafeStoreRescanServerSocket.h"
+#include "unixsocket/safeStoreRescanSocket/SafeStoreRescanServerSocket.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
 #include "common/ApplicationPaths.h"
