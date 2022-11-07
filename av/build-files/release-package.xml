@@ -54,6 +54,10 @@
                      dest-dir="input/googletest/gtest-headers/gtest"/>
             <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="input/googletest/gtest-libs"/>
         </build-asset>
+        <build-asset project="thirdparty" repo="zlib">
+            <release-version branch="release/sspl/Version_1_2_12" build-id="20220412084330-fbed66023e864153b2947dbffac57b6600587601-Z87Tnl"/>
+            <include artifact-path="output" dest-dir="input"/>
+        </build-asset>
         <!-- Need to compile our own messages -->
         <build-asset project="thirdparty" repo="capnproto">
             <release-version branch="release/sspl/Version_0_8_0"

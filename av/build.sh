@@ -58,6 +58,21 @@ DUMP_LAST_TEST_ON_FAILURE=0
 RUN_CPPCHECK=0
 BUILD_SDDS3=1
 TAP=${TAP:-tap}
+[[ -n "$REDIST" ]] || REDIST=$BASE/redist
+
+function install_package()
+{
+  local package=$1
+  if which apt &>/dev/null
+  then
+    if ! apt list --installed $package 2>/dev/null | grep -q "$package"
+    then
+      sudo apt-get install $package -y || exit 1
+    fi
+  else
+    echo "Not implemented yet - currently only support apt"
+  fi
+}
 
 while [[ $# -ge 1 ]]
 do
@@ -88,7 +103,7 @@ do
             CMAKE_BUILD_TYPE=Debug
             ## gcc 7 no longer supported
             LOCAL_GCC=0
-            LOCAL_CMAKE=1
+            LOCAL_CMAKE=0 # We want to use the cmake that we pull in from artifactory.
             #NPROC=4
             CLEAN=0
             UNITTEST=1
@@ -96,6 +111,9 @@ do
             ;;
         --no-sdds3)
             BUILD_SDDS3=0
+            ;;
+        --sdds3)
+            BUILD_SDDS3=1
             ;;
         --centos7-local|--centos7|--centos)
             export ENABLE_STRIP=0
@@ -145,6 +163,7 @@ do
             UNITTEST=0
             LOCAL_CMAKE=0
             BUILD_SDDS3=0
+            BUILD_DIR=${BUILD_DIR:-build64-fuzz}
             ;;
         --plugin-api-tar)
             shift
@@ -225,17 +244,35 @@ do
             BUILD_DIR=$1
             ;;
         --get-input|--get-input-new)
-            rm -rf input redist
+            rm -rf input "${REDIST}"
+            [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
             export TAP_PARAMETER_MODE=release
             $TAP fetch av_plugin.build.normal_build
             ;;
         --setup)
-            rm -rf input redist
+            rm -rf input "${REDIST}"
+            [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
             export TAP_PARAMETER_MODE=release
             $TAP fetch av_plugin.build.normal_build
+            # Needed for sys/capability.h
+            install_package libcap-dev
             NO_BUILD=1
-            LOCAL_GCC=1
-            LOCAL_CMAKE=1
+            ;;
+        --venv|--setup-venv)
+            rm -rf "${BASE}/tapvenv"
+            PYTHON="${PYTHON:-python3.7}"
+            [[ -x "$(which $PYTHON)" ]] || PYTHON=python3
+            "${PYTHON}" -m venv "${BASE}/tapvenv"
+            source "$BASE/tapvenv/bin/activate"
+            cat <<EOF >"${BASE}/tapvenv/pip.conf"
+[global]
+timeout=60
+index-url = https://artifactory.sophos-ops.com/api/pypi/pypi/simple
+EOF
+            pip install --upgrade pip
+            pip install --upgrade wheel build_scripts
+            pip install --upgrade tap keyrings.alt
+            NO_BUILD=1
             ;;
          --999)
             export VERSION_OVERRIDE=9.99.9.999
@@ -247,8 +284,8 @@ do
     shift
 done
 
+export REDIST
 [[ -n "$BUILD_DIR" ]] || BUILD_DIR=build64-${CMAKE_BUILD_TYPE}
-[[ -n "$REDIST" ]] || REDIST=$BASE/redist
 
 [[ -n "${PLUGIN_NAME}" ]] || PLUGIN_NAME=${DEFAULT_PRODUCT}
 [[ -n "${PRODUCT}" ]] || PRODUCT=${PLUGIN_NAME}
@@ -385,13 +422,9 @@ function build()
         (( LOCAL_CMAKE == 0 )) && ln -snf $INPUT/cmake $REDIST/
         untar_input capnproto
         untar_input boost
-        if [[ -d "$INPUT/googletest" ]]
+        untar_input zlib
+        if [[ ! -d "$INPUT/googletest" ]]
         then
-            if [[ ! -d $REDIST/googletest ]]
-            then
-                ln -sf $INPUT/googletest $REDIST/googletest
-            fi
-        else
             echo "ERROR - googletest not found here: $INPUT/googletest"
             exit 1
         fi
@@ -407,9 +440,7 @@ function build()
       chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
     fi
 
-    cp -r $REDIST/googletest $BASE/tests
-
-    [[ -e ${REDIST}/sdds3 ]] || ln -s ../input/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
+    [[ -e ${REDIST}/sdds3 ]] || ln -s ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 
     if (( RUN_CPPCHECK == 1 ))
     then
@@ -420,6 +451,8 @@ function build()
     then
         return 0
     fi
+
+    [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
 
     [[ -n ${NPROC:-} ]] || NPROC=$(nproc || echo 2)
 
@@ -466,13 +499,13 @@ function build()
     rm -rf output
     mkdir -p output
 
-    [[ $CLEAN == 1 ]] && rm -rf build${BITS}
-    mkdir -p build${BITS}
-    cd build${BITS}
+    [[ $CLEAN == 1 ]] && rm -rf ${BUILD_DIR}
+    mkdir -p ${BUILD_DIR}
+    cd ${BUILD_DIR}
     which cmake
     LD_LIBRARY_PATH=${LD_LIBRARY_PATH} \
         cmake \
-            -DINPUT="${REDIST}" \
+            -DINPUT="${INPUT}" \
             -DREDIST="${REDIST}" \
             -DPLUGIN_NAME="${PLUGIN_NAME}" \
             -DPRODUCT_NAME="${PRODUCT_NAME}" \
@@ -482,7 +515,7 @@ function build()
             -DCMAKE_CXX_COMPILER=$CXX \
             -DCMAKE_C_COMPILER=$CC \
             ${EXTRA_CMAKE_OPTIONS} \
-        .. || exitFailure 14 "Failed to configure $PRODUCT"
+        ${BASE} || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} "CXX=$CXX" "CC=$CC" "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" \
         || exitFailure 15 "Failed to build $PRODUCT"
 
@@ -528,55 +561,55 @@ function build()
         make dist_sdds3 CXX=$CXX CC=$CC || exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
     fi
     make sdds CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create sdds component $PRODUCT"
-    cd ..
+    cd ${BASE}
 
     echo "STARTINGDIR=$STARTINGDIR" >output/STARTINGDIR
     echo "BASE=$BASE" >output/BASE
     echo "PATH=$PATH" >output/PATH
     echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >output/LD_LIBRARY_PATH
 
-    local INSTALLSET=build64/installset
-    local SDDS=build64/sdds
-    local SDDS3=build64/SDDS3-PACKAGE
+    local INSTALLSET=${BUILD_DIR}/installset
+    local SDDS=${BUILD_DIR}/sdds
+    local SDDS3=${BUILD_DIR}/SDDS3-PACKAGE
 
     if [[ -d $SDDS ]]
     then
         echo "Separate SDDS component"
         [[ -f $SDDS/SDDS-Import.xml ]] || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to create SDDS-Import.xml"
-        cp -rL "$SDDS" output/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
+        cp -rL "$SDDS" ${OUTPUT}/SDDS-COMPONENT || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS component to output"
         if (( BUILD_SDDS3 == 1 ))
         then
-            cp -rL "$SDDS3" output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS3 package to output"
-            cp -rL $SDDS/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3 package output"
+            cp -rL "$SDDS3" ${OUTPUT}/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy Plugin SDDS3 package to output"
+            cp -rL $SDDS/SDDS-Import.xml ${OUTPUT}/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3 package output"
         fi
     else
         exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to find SDDS component in build"
     fi
     if [[ -d "${INPUT}/base-sdds" ]]
     then
-        cp -rL "${INPUT}/base-sdds"  output/base-sdds \
+        cp -rL "${INPUT}/base-sdds"  ${OUTPUT}/base-sdds \
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy SSPL-Base SDDS component to output"
         chmod 755 output/base-sdds/{install.sh,files/bin/*,files/base/bin/*}
     fi
-    if [[ -d build64/componenttests ]]
+    if [[ -d ${BUILD_DIR}/componenttests ]]
     then
-        cp -rL build64/componenttests output/componenttests \
+        cp -rL ${BUILD_DIR}/componenttests ${OUTPUT}/componenttests \
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy google component tests"
     fi
-    if [[ -x build64/tools/avscanner/mountinfoimpl/PrintMounts ]]
+    if [[ -x ${BUILD_DIR}/tools/avscanner/mountinfoimpl/PrintMounts ]]
     then
-        mkdir -p output/componenttests
-        cp -rL build64/tools/avscanner/mountinfoimpl/PrintMounts  output/componenttests/ \
+        mkdir -p ${OUTPUT}/componenttests
+        cp -rL ${BUILD_DIR}/tools/avscanner/mountinfoimpl/PrintMounts  output/componenttests/ \
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy PrintMounts"
     fi
-    mkdir -p output/manualtests
-    cp -L TA/manual/*.sh TA/manual/*.py output/manualtests/
+    mkdir -p ${OUTPUT}/manualtests
+    cp -L TA/manual/*.sh TA/manual/*.py ${OUTPUT}/manualtests/
 
     python3 TA/process_capnp_files.py
 
-    if [[ -d build${BITS}/symbols ]]
+    if [[ -d ${BUILD_DIR}/symbols ]]
     then
-        cp -a build${BITS}/symbols output/
+        cp -a ${BUILD_DIR}/symbols ${OUTPUT}/
     fi
 
 

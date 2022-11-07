@@ -215,6 +215,19 @@ find_library(SAFESTORE_LIB
         NO_DEFAULT_PATH
         )
 
+set(ZLIB_INPUT ${REDIST}/zlib)
+set(ZLIB_INCLUDE_DIR ${ZLIB_INPUT}/include)
+find_library(ZLIB_LIBRARY
+        NAMES z
+        PATHS ${ZLIB_INPUT}/lib64
+        NO_DEFAULT_PATH
+        )
+
+message(HELLOE)
+message(${ZLIB_INPUT})
+message(${ZLIB_LIBRARY})
+
+
 GET_FILENAME_COMPONENT(OPENSSLCRYPTO_LIBRARY_ABSOLUTE ${CRYPTO_LIBRARY} REALPATH)
 
 add_subdirectory(modules)

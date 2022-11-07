@@ -18,6 +18,9 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh li
         OUTPUT_VARIABLE libatomic_path)
 string(STRIP "${libatomic_path}" libatomic_path )
 
+GET_FILENAME_COMPONENT(ZLIB_LIBRARY_ABSOLUTE ${ZLIB_LIBRARY} REALPATH)
+
+message(${ZLIB_LIBRARY_ABSOLUTE})
 set(third_party_libs
         ${libstdcpp_path}
         ${libgcc_s_path}
@@ -28,6 +31,7 @@ set(third_party_libs
         ${protobuflib}
         ${OPENSSLCRYPTO_LIBRARY_ABSOLUTE}
         ${SAFESTORE_LIB}
+        ${ZLIB_LIBRARY_ABSOLUTE}
         )
 
 function(FindLibraryFullPath FULLPATH LIBNAME LIBRARY_PATH)
