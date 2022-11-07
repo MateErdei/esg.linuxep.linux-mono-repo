@@ -680,6 +680,9 @@ AV Plugin Can Send Telemetry After IDE Update
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
+    # Fake a healthy OA status file so that we don't need to send a policy and cause additional updates
+    Create File  ${AV_PLUGIN_PATH}/var/onaccess.status  1
+    Register Cleanup  Remove File  ${AV_PLUGIN_PATH}/var/onaccess.status
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
     ...   timeout=60
@@ -693,9 +696,6 @@ AV Plugin Can Send Telemetry After IDE Update
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${AV_PLUGIN_PATH}/chroot/susi/update_source/
     Log  ${output}
-    ${mark} =  get_on_access_log_mark
-    Send Policies to enable on-access
-    Wait for on access to be enabled  ${mark}
 
     Run Telemetry Executable With HTTPS Protocol
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}

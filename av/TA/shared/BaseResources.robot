@@ -57,7 +57,9 @@ Send Policies to enable on-access
     Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
 
 Send Policies to disable on-access
+    ${mark} =  get_on_access_log_mark
     Send Sav Policy To Base  SAV-2_policy_OA_disabled.xml
+    wait for on access log contains after mark  Finished ProcessPolicy  mark=${mark}
     #TODO: LINUXDAR-5723 re-enable after ticket is fixed
     #Send Flags Policy To Base  flags_policy/flags.json
 
