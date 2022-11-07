@@ -48,8 +48,10 @@ def uninstall_sspl_if_installed():
         logger.warning("/opt/sophos-spl/.sophos doesn't exist - uninstaller would break")
         open(dot_sophos, "wb").close()
 
-    subprocess.check_call(["bash", uninstaller, "--force"], timeout=60)
-
+    p = subprocess.run(["bash", uninstaller, "--force"], timeout=60, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    if p.returncode != 0:
+        logger.warning(p.stdout)
+        raise Exception("Failed to uninstall")
 
 def create_test_telemetry_config_file(telemetry_config_file_path, certificate_path, username="sophos-spl-user",
                                       requestType="PUT", port=443):

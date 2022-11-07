@@ -733,6 +733,15 @@ Install With Base SDDS
     Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
     Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
 
+Start SafeStore Manually
+    ${handle} =  Start Process  ${SAFESTORE_BIN}  stdout=DEVNULL  stderr=DEVNULL
+    Set Test Variable  ${SAFESTORE_HANDLE}  ${handle}
+    Wait Until SafeStore running
+
+Stop SafeStore Manually
+    ${result} =  Terminate Process  ${SAFESTORE_HANDLE}
+    Set Suite Variable  ${SAFESTORE_HANDLE}  ${None}
+
 Uninstall And Revert Setup
     Uninstall All
     Setup Base And Component

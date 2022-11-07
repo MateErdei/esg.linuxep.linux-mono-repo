@@ -113,11 +113,11 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesHandlesUnexpectedStructureNewThr
         filesystemMock) };
 
     EXPECT_CALL(*filesystemMock, exists("/path/persist-threatDatabase")).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile("/path/persist-threatDatabase")).WillOnce(Return("{\"threatid\":1000}"));
-    EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{\"threatID\":[\"correlationid2\"]}"));
+    EXPECT_CALL(*filesystemMock, readFile("/path/persist-threatDatabase")).WillOnce(Return("{\"threatID1\":1000}"));
+    EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{\"threatID2\":[\"correlationid2\"]}"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
-    database.addThreat("threatID","correlationid2");
+    database.addThreat("threatID2","correlationid2");
 }
 
 TEST_F(TestThreatDatabase, removeThreatID)
@@ -132,6 +132,20 @@ TEST_F(TestThreatDatabase, removeThreatID)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
     database.removeThreat("threatid","threatid");
+}
+
+TEST_F(TestThreatDatabase, removeThreatIDHandlesWhenThreatIsNotInDatabase)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    EXPECT_CALL(*filesystemMock, exists("/path/persist-threatDatabase")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("/path/persist-threatDatabase")).WillOnce(Return("{\"threatid\":[\"threatid\"]}"));
+    EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{\"threatid\":[\"threatid\"]}"));
+
+    Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
+    EXPECT_NO_THROW(database.removeThreat("threatid2","threatid"));
 }
 
 TEST_F(TestThreatDatabase, removeCorrelationID)

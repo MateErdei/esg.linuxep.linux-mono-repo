@@ -13,41 +13,54 @@ Library         ../Libs/ProcessUtils.py
 
 Library         OperatingSystem
 Library         Collections
-Suite Setup  ThreatDatabase Suite Setup
+
 Test Setup      ThreatDatabase Test Setup
 Test Teardown   ThreatDatabase Test TearDown
 *** Variables ***
 ${THREAT_DATABASE_PATH}        ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
+
 *** Test Cases ***
 Threat is added to Threat database when threat is not quarantined
+    Start AV
     Mark AV Log
-    Check avscanner can detect eicar
-    Wait Until AV Plugin Log Contains With Offset   Added threat: Tbd7be297ddf3cd8 to database
-    Stop AV Plugin
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+    Wait Until AV Plugin Log Contains With Offset   Added threat: T26796de6ce94770 to database
+    Stop AV
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  File Log Contains  ${THREAT_DATABASE_PATH}  Tbd7be297ddf3cd8
+    ...  File Log Contains  ${THREAT_DATABASE_PATH}  T26796de6ce94770
     Mark AV Log
-    Start AV Plugin
+    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
+    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Wait Until AV Plugin Log Contains With Offset  Initialised Threat Database
     Remove File  ${THREAT_DATABASE_PATH}
-    Stop AV Plugin  #file should be written
+    Stop AV  #file should be written
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  File Log Contains  ${THREAT_DATABASE_PATH}  Tbd7be297ddf3cd8
+    ...  File Log Contains  ${THREAT_DATABASE_PATH}  T26796de6ce94770
+
+Threat is not added to Threat database when threat is quarantined
+    Start AV
+    Start SafeStore Manually
+    Mark AV Log
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+    Wait Until AV Plugin Log Contains With Offset     SafeStore flag set. Setting SafeStore to enabled   timeout=60
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+    Wait Until AV Plugin Log Contains With Offset  Quarantine succeeded
+    Stop AV
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  File Log Contains  ${THREAT_DATABASE_PATH}  {}
 
 *** Keywords ***
-ThreatDatabase Suite Setup
-    Require Plugin Installed and Running
-
 ThreatDatabase Test Setup
-    Start AV Plugin Process
-
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-
+    Component Test Setup
     register on fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     register on fail  dump log  ${WATCHDOG_LOG}
     register on fail  dump log  ${SAFESTORE_LOG_PATH}
@@ -64,11 +77,17 @@ ThreatDatabase Test Setup
     Register Cleanup      Check For Coredumps  ${TEST NAME}
     Register Cleanup      Check Dmesg For Segfaults
 
+Stop AV
+    ${proc} =  Get Process Object  ${AV_PLUGIN_HANDLE}
+    Log  Stopping AV Plugin Process PID=${proc.pid}
+    ${result} =  Terminate Process  ${AV_PLUGIN_HANDLE}
+    Log  ${result.stderr}
+    Log  ${result.stdout}
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
+
 ThreatDatabase Test TearDown
-    run cleanup functions
-    run failure functions if failed
-
-    Stop AV Plugin
+    Stop AV
+    Stop SafeStore Manually
     Remove File  ${THREAT_DATABASE_PATH}
-
-    run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests
+    run teardown functions
+    Component Test TearDown

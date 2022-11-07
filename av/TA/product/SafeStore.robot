@@ -14,21 +14,12 @@ SafeStore Test Setup
     Component Test Setup
 
 SafeStore Test Teardown
-    Stop SafeStore
+    Stop SafeStore Manually
     List AV Plugin Path
     run teardown functions
     Check All Product Logs Do Not Contain Error
     Dump and Reset Logs
     Component Test TearDown
-
-Start SafeStore
-    ${handle} =  Start Process  ${SAFESTORE_BIN}  stdout=DEVNULL  stderr=DEVNULL
-    Set Test Variable  ${SAFESTORE_HANDLE}  ${handle}
-    Wait Until SafeStore running
-
-Stop SafeStore
-    ${result} =  Terminate Process  ${SAFESTORE_HANDLE}
-    Set Suite Variable  ${SAFESTORE_HANDLE}  ${None}
 
 Dump and Reset Logs
     Dump log  ${SAFESTORE_LOG_PATH}
@@ -46,24 +37,24 @@ Wait Until SafeStore Log Contains
 *** Test Cases ***
 
 SafeStore is killed gracefully
-    Start SafeStore
+    Start SafeStore Manually
     Send signal to SafeStore  signal.SIGTERM
     Wait Until SafeStore not running
     SafeStore Log Contains  SafeStore received SIGTERM - shutting down
     SafeStore Log Contains  Exiting SafeStore
 
 SafeStore exits on interrupt signal
-    Start SafeStore
+    Start SafeStore Manually
     Send signal to SafeStore  signal.SIGINT
     Wait Until SafeStore not running
     SafeStore Log Contains  SafeStore received SIGINT - shutting down
     SafeStore Log Contains  Exiting SafeStore
 
 SafeStore creates socket with correct permissions
-    Start SafeStore
+    Start SafeStore Manually
     ${result} =  Run Process  ls  -l  ${SAFESTORE_SOCKET_PATH}
     # the second variant is needed for Centos (where alternate access methods are enabled)
     Should Contain Any  ${result.stdout}
     ...  srw------- 1 sophos-spl-av root 0
     ...  srw-------. 1 sophos-spl-av root 0
-    Stop SafeStore
+    Stop SafeStore Manually

@@ -57,10 +57,14 @@ namespace Plugin
                     it->second = oldListIDS;
                 }
             }
+            else
+            {
+                LOGWARN("Cannot remove correlation id" << correlationID << " from database as it cannot be found");
+            }
         }
         else
         {
-            LOGWARN("Cannot remove threat from database as it cannot be found");
+            LOGWARN("Cannot remove threat id" << threatID << " from database as it cannot be found");
         }
     }
 
@@ -117,7 +121,7 @@ namespace Plugin
             catch (nlohmann::json::exception& ex)
             {
                 //If the types of the threat id or correlation id are wrong throw away the entire threatID entry
-                LOGWARN("Not loading "<< it.key() << "into threat database as the parsing failed with error " << ex.what());
+                LOGWARN("Not loading "<< it.key() << " into threat database as the parsing failed with error " << ex.what());
             }
         }
         m_database = tempdatabase;
