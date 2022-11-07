@@ -39,8 +39,9 @@ AV Health Test Setup
     AV And Base Setup
     Wait Until AV Plugin running
     Wait Until threat detector running
+    ${mark} =  get_on_access_log_mark
     Send Policies to enable on-access
-    Wait for on access to be enabled
+    Wait for on access to be enabled  ${mark}
     ${oaStatus} =  Get File  ${AV_PLUGIN_PATH}/var/onaccess.status
     Log  OA status: ${oaStatus}
 
