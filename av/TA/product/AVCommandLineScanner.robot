@@ -1714,7 +1714,7 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  /tmp/scan.log
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/naughty_eicar
 
-    Mark AV Log
+    ${av_mark} =  get_av_log_mark
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar -o /tmp/scan.log
 
@@ -1725,10 +1725,10 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     File Log Contains  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test (On Demand)
-    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
 
-    Mark AV Log
-    Mark Log  /tmp/scan.log
+    ${av_mark} =  get_av_log_mark
+    ${scan_mark} =  mark_log_size  /tmp/scan.log
     Run  chmod 444 /tmp/scan.log
 
     ${result} =  Run Process  ls  -l  /tmp/scan.log
@@ -1739,8 +1739,8 @@ CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    File Log Should Not Contain With Offset  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${LOG_MARK}
-    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
+    check_log_does_not_contain_after_mark  /tmp/scan.log  Detected "${NORMAL_DIRECTORY}/naughty_eicar" is infected with EICAR-AV-Test  ${scan_mark}
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
 
 CLS Can Scan Clean File Twice Faster Second time
     Stop AV
