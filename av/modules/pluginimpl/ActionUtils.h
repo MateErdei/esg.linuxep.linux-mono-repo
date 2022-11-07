@@ -4,6 +4,8 @@
 
 namespace pluginimpl
 {
-
+    bool isScanNowAction(const Common::XmlUtilities::AttributesMap& action);
+    bool isSAVClearAction(const Common::XmlUtilities::AttributesMap& action);
+    std::string getThreatID(const Common::XmlUtilities::AttributesMap& action);
 }
 

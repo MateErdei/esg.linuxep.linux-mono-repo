@@ -6,6 +6,7 @@
 #include "HealthStatus.h"
 #include "Logger.h"
 #include "StringUtils.h"
+#include "ActionUtils.h"
 
 #include "datatypes/SystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
@@ -310,9 +311,14 @@ namespace Plugin
         {
             auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
 
-            if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
+            if (pluginimpl::isScanNowAction(attributeMap))
             {
                 m_scanScheduler->scanNow();
+            }
+            else if (pluginimpl::isSAVClearAction(attributeMap))
+            {
+                std::string correlationID = pluginimpl::getThreatID(attributeMap);
+                m_threatDatabase.removeCorrelationID(correlationID);
             }
         }
         catch(const Common::XmlUtilities::XmlUtilitiesException& e)
