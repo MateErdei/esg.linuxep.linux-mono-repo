@@ -18,7 +18,6 @@ Test Setup      ThreatDatabase Test Setup
 Test Teardown   ThreatDatabase Test TearDown
 *** Variables ***
 ${THREAT_DATABASE_PATH}        ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
-${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
 
 *** Test Cases ***
 Threat is added to Threat database when threat is not quarantined
