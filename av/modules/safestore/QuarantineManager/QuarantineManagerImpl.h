@@ -5,13 +5,14 @@
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
 
-#include <scan_messages/QuarantineResponse.h>
-
 #include "Common/PersistentValue/PersistentValue.h"
+
+#include <scan_messages/QuarantineResponse.h>
 
 #include <memory>
 #include <mutex>
 #include <string>
+
 namespace safestore::QuarantineManager
 {
     class QuarantineManagerImpl : public IQuarantineManager
@@ -28,11 +29,12 @@ namespace safestore::QuarantineManager
             const std::string& threatName,
             const std::string& sha256,
             datatypes::AutoFd autoFd) override;
+        void setState(const safestore::QuarantineManager::QuarantineManagerState& newState) override;
+        void rescanDatabase() override;
 
     private:
         void callOnDbError();
         void callOnDbSuccess();
-        void setState(const QuarantineManagerState& newState);
         QuarantineManagerState m_state;
         std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> m_safeStore;
         std::mutex m_interfaceMutex;

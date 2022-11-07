@@ -10,6 +10,7 @@ namespace Plugin
     std::string getPluginVarDirPath();
     std::string getSafeStorePidPath();
     std::string getSafeStoreSocketPath();
+    std::string getSafeStoreRescanSocketPath();
     std::string getSafeStoreDbDirPath();
     std::string getSafeStoreDbFileName();
     std::string getSafeStorePasswordFilePath();

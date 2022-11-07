@@ -8,6 +8,7 @@
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/QuarantineManager/StateMonitor.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
+#include "unixsocket/rescanSafeStoreSocket/SafeStoreRescanServerSocket.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
 #include "common/ApplicationPaths.h"
@@ -62,6 +63,10 @@ namespace safestore
         unixsocket::SafeStoreServerSocket server(Plugin::getSafeStoreSocketPath(), quarantineManager);
         server.setUserAndGroup("sophos-spl-av", "root");
         server.start();
+
+        unixsocket::SafeStoreRescanServerSocket rescanServer(Plugin::getSafeStoreRescanSocketPath(), quarantineManager);
+        rescanServer.setUserAndGroup("sophos-spl-av", "root");
+        rescanServer.start();
 
         // clang-format off
         struct pollfd fds[]

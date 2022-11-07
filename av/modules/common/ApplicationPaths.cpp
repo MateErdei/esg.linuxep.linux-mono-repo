@@ -39,6 +39,11 @@ namespace Plugin
         return getPluginVarDirPath() + "/safestore_socket";
     }
 
+    std::string getSafeStoreRescanSocketPath()
+    {
+        return getPluginVarDirPath() + "/safestore_rescan_socket";
+    }
+
     std::string getSafeStoreDbDirPath()
     {
         return getPluginVarDirPath() + "/safestore_db";

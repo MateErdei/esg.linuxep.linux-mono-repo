@@ -63,6 +63,8 @@ namespace safestore::QuarantineManager
             const std::string& threatName,
             const std::string& sha256,
             datatypes::AutoFd autoFd) = 0;
+
+        virtual void rescanDatabase() = 0;
     };
 
 } // namespace safestore::QuarantineManager

@@ -404,6 +404,7 @@ namespace sspl::sophosthreatdetectorimpl
 
         fs::path scanningSocketPath = "/var/scanning_socket";
         fs::path updateCompletePath = "/var/update_complete_socket";
+        fs::path rescanSocketPath = "/var/safestore_rescan_socket";
 #else
         fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
         fs::path updateCompletePath = chrootPath / "var/update_complete_socket";

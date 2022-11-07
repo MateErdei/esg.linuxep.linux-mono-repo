@@ -2,8 +2,8 @@
 
 #include "QuarantineManagerImpl.h"
 
-#include "Logger.h"
-#include "SafeStoreWrapperImpl.h"
+#include "safestore/Logger.h"
+#include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
@@ -22,24 +22,24 @@
 
 namespace
 {
-    std::string quarantineManagerStateToString(const safestore::QuarantineManagerState& state)
+    std::string quarantineManagerStateToString(const safestore::QuarantineManager::QuarantineManagerState& state)
     {
         switch (state)
         {
-            case safestore::QuarantineManagerState::INITIALISED:
+            case safestore::QuarantineManager::QuarantineManagerState::INITIALISED:
                 return "INITIALISED";
-            case safestore::QuarantineManagerState::UNINITIALISED:
+            case safestore::QuarantineManager::QuarantineManagerState::UNINITIALISED:
                 return "UNINITIALISED";
-            case safestore::QuarantineManagerState::CORRUPT:
+            case safestore::QuarantineManager::QuarantineManagerState::CORRUPT:
                 return "CORRUPT";
-            case safestore::QuarantineManagerState::STARTUP:
+            case safestore::QuarantineManager::QuarantineManagerState::STARTUP:
                 return "STARTUP";
         }
         return "UNKNOWN";
     }
 } // namespace
 
-namespace safestore
+namespace safestore::QuarantineManager
 {
     bool savePassword(const std::string& password)
     {
@@ -106,7 +106,8 @@ namespace safestore
         return std::nullopt;
     }
 
-    QuarantineManagerImpl::QuarantineManagerImpl(std::unique_ptr<ISafeStoreWrapper> safeStoreWrapper) :
+    QuarantineManagerImpl::QuarantineManagerImpl(
+        std::unique_ptr<SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper) :
         m_state(QuarantineManagerState::STARTUP),
         m_safeStore(std::move(safeStoreWrapper)),
         m_dbErrorCountThreshold(Plugin::getPluginVarDirPath(), "safeStoreDbErrorThreshold", 10)
@@ -174,7 +175,7 @@ namespace safestore
 
         auto initResult = m_safeStore->initialise(dbDir, dbname, pw.value());
 
-        if (initResult == InitReturnCode::OK)
+        if (initResult == SafeStoreWrapper::InitReturnCode::OK)
         {
             setState(QuarantineManagerState::INITIALISED);
             m_databaseErrorCount = 0;
@@ -185,33 +186,35 @@ namespace safestore
             setState(QuarantineManagerState::UNINITIALISED);
 
             LOGERROR("Quarantine Manager failed to initialise");
-            if (initResult == InitReturnCode::DB_ERROR || initResult == InitReturnCode::DB_OPEN_FAILED)
+            if (initResult == SafeStoreWrapper::InitReturnCode::DB_ERROR ||
+                initResult == SafeStoreWrapper::InitReturnCode::DB_OPEN_FAILED)
             {
                 callOnDbError();
             }
         }
     }
 
-    bool QuarantineManagerImpl::quarantineFile(
+    common::CentralEnums::QuarantineResult QuarantineManagerImpl::quarantineFile(
         const std::string& filePath,
         const std::string& threatId,
         const std::string& threatName,
         const std::string& sha256,
         datatypes::AutoFd autoFd)
     {
-        if (threatId.length() != THREAT_ID_LENGTH)
+        if (threatId.length() != SafeStoreWrapper::THREAT_ID_LENGTH)
         {
             LOGWARN(
                 "Cannot quarantine file because threat ID length (" << threatId.length() << ") is not "
-                                                                    << THREAT_ID_LENGTH);
-            return false;
+                                                                    << SafeStoreWrapper::THREAT_ID_LENGTH);
+
+            return common::CentralEnums::QuarantineResult::NOT_FOUND;
         }
 
         std::lock_guard<std::mutex> lock(m_interfaceMutex);
         if (m_state != QuarantineManagerState::INITIALISED)
         {
             LOGWARN("Cannot quarantine file, SafeStore is in " << quarantineManagerStateToString(m_state) << " state");
-            return false;
+            return common::CentralEnums::QuarantineResult::NOT_FOUND;
         }
 
         std::string directory = Common::FileSystem::dirName(filePath);
@@ -219,16 +222,36 @@ namespace safestore
 
         auto objectHandle = m_safeStore->createObjectHandleHolder();
         auto saveResult = m_safeStore->saveFile(directory, filename, threatId, threatName, *objectHandle);
-        if (saveResult == SaveFileReturnCode::OK)
+        if (saveResult == SafeStoreWrapper::SaveFileReturnCode::OK)
         {
             callOnDbSuccess();
-
-            // TODO LINUXDAR-5677 verify the file
+            auto fs = Common::FileSystem::fileSystem();
             LOGDEBUG("File Descriptor: " << autoFd.fd());
 
-            // TODO LINUXDAR-5677 delete the file
+            datatypes::AutoFd directoryFd(fs->getFileInfoDescriptor(directory));
+            if (!(directoryFd.get() >= 0))
+            {
+                LOGWARN("Directory of threat does not exist");
+                return common::CentralEnums::QuarantineResult::NOT_FOUND;
+            }
 
-            // TODO LINUXDAR-5677 do something with the sha256, do we need to store this as custom data for restoration?
+            std::string path = Common::FileSystem::join(directory,filename);
+            datatypes::AutoFd fd2(fs->getFileInfoDescriptorFromDirectoryFD(directoryFd.get(),path.c_str()));
+            if (!(fd2.get() >= 0))
+            {
+                LOGWARN("Threat does not exist at path: " << path << " Cannot quarantine it");
+                return common::CentralEnums::QuarantineResult::NOT_FOUND;
+            }
+            if (fs->compareFileDescriptors(autoFd.get(),fd2.get())) //
+            {
+                fs->removeFileOrDirectory(filePath);
+            }
+            else
+            {
+                LOGWARN("Cannot verify file to be quarantined");
+                return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
+            }
+
             m_safeStore->setObjectCustomDataString(*objectHandle, "SHA256", sha256);
             LOGDEBUG("File SHA256: " << sha256);
 
@@ -236,25 +259,24 @@ namespace safestore
             if (m_safeStore->finaliseObject(*objectHandle))
             {
                 LOGDEBUG("Finalised file: " << filename);
-                return true;
+                return common::CentralEnums::QuarantineResult::SUCCESS;
             }
             else
             {
                 LOGDEBUG("Failed to finalise file: " << filename);
-                return false;
+                return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
             }
         }
         else
         {
-            if (saveResult == SaveFileReturnCode::DB_ERROR)
+            if (saveResult == SafeStoreWrapper::SaveFileReturnCode::DB_ERROR)
             {
                 callOnDbError();
             }
 
-            // TODO LINUXDAR-5677 handle quarantine failure
         }
 
-        return false;
+        return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
     }
 
     bool QuarantineManagerImpl::deleteDatabase()
@@ -287,6 +309,7 @@ namespace safestore
         ++m_databaseErrorCount;
         if (m_databaseErrorCount >= m_dbErrorCountThreshold.getValue())
         {
+            LOGWARN("SafeStore database is corrupt");
             setState(QuarantineManagerState::CORRUPT);
         }
     }
@@ -296,4 +319,10 @@ namespace safestore
         m_databaseErrorCount = 0;
         setState(QuarantineManagerState::INITIALISED);
     }
-} // namespace safestore
+
+    void QuarantineManagerImpl::rescanDatabase()
+    {
+        LOGINFO("SafeStore Database Rescan request received.");
+        // TODO: LINUXDAR-5734 - Implement database unpacking, scanning, and updating here.
+    }
+} // namespace safestore::QuarantineManager

@@ -18,6 +18,12 @@ add_library(unixsocket SHARED
         safeStoreSocket/SafeStoreServerConnectionThread.h
         safeStoreSocket/SafeStoreClient.cpp
         safeStoreSocket/SafeStoreClient.h
+        rescanSafeStoreSocket/SafeStoreRescanServerConnectionThread.cpp
+        rescanSafeStoreSocket/SafeStoreRescanServerConnectionThread.h
+        rescanSafeStoreSocket/SafeStoreRescanServerSocket.cpp
+        rescanSafeStoreSocket/SafeStoreRescanServerSocket.h
+        rescanSafeStoreSocket/SafeStoreRescanClient.cpp
+        rescanSafeStoreSocket/SafeStoreRescanClient.h
         processControllerSocket/IProcessControlMessageCallback.h
         processControllerSocket/ProcessControllerServerSocket.cpp
         processControllerSocket/ProcessControllerServerSocket.h

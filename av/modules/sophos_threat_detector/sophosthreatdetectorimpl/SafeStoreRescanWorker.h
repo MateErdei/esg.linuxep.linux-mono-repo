@@ -1,0 +1,12 @@
+//
+// Created by pair on 07/11/22.
+//
+
+#ifndef SSPL_PLUGIN_MAV_SAFESTORERESCANWORKER_H
+#define SSPL_PLUGIN_MAV_SAFESTORERESCANWORKER_H
+
+class SafeStoreRescanWorker
+{
+};
+
+#endif // SSPL_PLUGIN_MAV_SAFESTORERESCANWORKER_H
