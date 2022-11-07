@@ -116,37 +116,44 @@ Threat Detector Restarts If System File Contents Change
 
 
 Threat Detector Does Not Restart If System File Contents Do Not Change
+    ${av_mark} =  LogUtils.Get Av Log Mark
+
     copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
     Revert System File To Original
 
     ## LINUXDAR-5249 - we now just check all files every time
-    Wait Until AV Plugin Log Contains With Offset  System configuration not changed
-    AV Plugin Log Should Not Contain With Offset  System configuration updated for ${TESTSYSFILE}
+    wait_for_av_log_contains_after_mark  System configuration not changed  ${av_mark}
+    check_av_log_does_not_contain_after_mark  System configuration updated for ${TESTSYSFILE}  ${av_mark}
 
 
 Threat Detector Restarts If Sometimes-symlinked System File Contents Change
+    ${av_mark} =  LogUtils.Get Av Log Mark
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+
     copy file  ${SOMETIMES_SYMLINKED_SYSPATH}  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
     Register On Fail   Revert Sometimes-symlinked System File To Original
 
     ${ORG_CONTENTS} =  Get File  ${SOMETIMES_SYMLINKED_SYSPATH}  encoding_errors=replace
     Append To File  ${SOMETIMES_SYMLINKED_SYSPATH}   "#NewLine"
 
-    Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}
+    wait_for_av_log_contains_after_mark  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}  ${av_mark}
+    Wait until threat detector running  ${td_mark}
 
-    Wait until threat detector running
-    mark sophos threat detector log
-
+    ${av_mark} =  LogUtils.Get Av Log Mark
     Revert Sometimes-symlinked System File To Original
     Deregister On Fail   Revert Sometimes-symlinked System File To Original
 
-    Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}
+    wait_for_av_log_contains_after_mark  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}  ${av_mark}
 
     ${POSTTESTCONTENTS} =  Get File  ${SOMETIMES_SYMLINKED_SYSPATH}  encoding_errors=replace
     Should Be Equal   ${POSTTESTCONTENTS}   ${ORG_CONTENTS}
 
 
 Threat Detector Does Not Restart If Sometimes-symlinked System File Contents Do Not Change
+    ${av_mark} =  LogUtils.Get Av Log Mark
+
     copy file  ${SOMETIMES_SYMLINKED_SYSPATH}  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
     Revert Sometimes-symlinked System File To Original
 
-    AV Plugin Log Should Not Contain With Offset  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}
+    wait_for_av_log_contains_after_mark  System configuration not changed  ${av_mark}
+    check_av_log_does_not_contain_after_mark  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}  ${av_mark}
