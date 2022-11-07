@@ -223,7 +223,6 @@ find_library(ZLIB_LIBRARY
         NO_DEFAULT_PATH
         )
 
-message(HELLOE)
 message(${ZLIB_INPUT})
 message(${ZLIB_LIBRARY})
 
