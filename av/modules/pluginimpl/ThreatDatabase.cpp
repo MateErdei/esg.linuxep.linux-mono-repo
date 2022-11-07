@@ -59,6 +59,7 @@ namespace Plugin
         {
             std::map<std::string,std::list<std::string>>::iterator it = m_database.find(threatID);
             m_database.erase(it);
+            LOGINFO("Removed threat from database");
         }
     }
 

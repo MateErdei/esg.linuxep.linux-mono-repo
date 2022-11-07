@@ -42,6 +42,16 @@ Threat is added to Threat database when threat is not quarantined
     ...  1 secs
     ...  File Log Contains  ${THREAT_DATABASE_PATH}  T26796de6ce94770
 
+Threat is removed from Threat database when marked as resolved in central
+    Start AV
+    Mark AV Log
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+    Wait Until AV Plugin Log Contains With Offset   Added threat: T26796de6ce94770 to database
+    ${actionContent} =  Set Variable  <action type="sophos.mgt.action.SAVClearFromList" ><threat-set><threat id="T26796de6ce94770"></threat></threat-set></action>
+    Send Plugin Action  av  sav  corr123  ${actionContent}
+    Wait Until AV Plugin Log Contains With Offset   Removed threat from database
+
 Threat is not added to Threat database when threat is quarantined
     Start AV
     Start SafeStore Manually
