@@ -123,8 +123,10 @@ Threat Detector Log Rotates while in chroot
 
 Threat detector is killed gracefully
     Dump and Reset Logs
+
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     Start AV
-    Wait until threat detector running
+    Wait until threat detector running  ${td_mark}
 
     ${cls_handle} =   Start Process  ${CLI_SCANNER_PATH}  /  -x  /mnt/  stdout=${TESTTMP}/cli.log  stderr=STDOUT
     Register Cleanup  Remove File  ${TESTTMP}/cli.log
@@ -136,12 +138,12 @@ Threat detector is killed gracefully
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
     Evaluate  os.kill(${pid}, signal.SIGTERM)  modules=os, signal
 
-    Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector received SIGTERM - shutting down
-    Wait Until Sophos Threat Detector Log Contains  Sophos Threat Detector is exiting
-    Wait Until Sophos Threat Detector Log Contains  Exiting Global Susi result = 0
-    Threat Detector Does Not Log Contain  Failed to open lock file
-    Threat Detector Does Not Log Contain  Failed to acquire lock
-    Threat Detector Does Not Log Contain  Sophos Threat Detector is exiting with return code 15
+    wait_for_log_contains_from_mark  ${td_mark}  Sophos Threat Detector received SIGTERM - shutting down
+    wait_for_log_contains_from_mark  ${td_mark}  Sophos Threat Detector is exiting
+    wait_for_log_contains_from_mark  ${td_mark}  Exiting Global Susi result = 0
+    check_sophos_threat_detector_log_does_not_contain_after_mark  Failed to open lock file  mark=${td_mark}
+    check_sophos_threat_detector_log_does_not_contain_after_mark  Failed to acquire lock  mark=${td_mark}
+    check_sophos_threat_detector_log_does_not_contain_after_mark  Sophos Threat Detector is exiting with return code 15  mark=${td_mark}
 
     # Verify SIGTERM is not logged at error level
     Verify Sophos Threat Detector Log Line is informational   Sophos Threat Detector received SIGTERM - shutting down
