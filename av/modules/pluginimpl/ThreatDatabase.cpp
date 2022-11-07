@@ -53,13 +53,13 @@ namespace Plugin
 
         if (threatID.empty())
         {
-            LOGWARN("Cannot remove correlation id" << correlationID << " from database as it cannot be found");
+            LOGINFO("Cannot remove correlation id" << correlationID << " from database as it cannot be found");
         }
         else
         {
             std::map<std::string,std::list<std::string>>::iterator it = m_database.find(threatID);
             m_database.erase(it);
-            LOGINFO("Removed threat from database");
+            LOGDEBUG("Removed threat from database");
         }
     }
 
