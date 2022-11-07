@@ -155,9 +155,10 @@ Threat detector is killed gracefully
 
 Threat detector triggers reload on SIGUSR1
     Dump and Reset Logs
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     Mark Sophos Threat Detector Log
     Start AV
-    Wait until threat detector running
+    Wait until threat detector running  ${td_mark}
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
 
     Wait Until Sophos Threat Detector Log Contains With Offset  Starting USR1 monitor  timeout=60
@@ -174,9 +175,10 @@ Threat detector triggers reload on SIGUSR1
 
 Threat detector exits if it cannot acquire the susi update lock
     Dump and Reset Logs
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
 #    Register Cleanup    Exclude Failed To Acquire Susi Lock
     Start AV
-    Wait until threat detector running
+    Wait until threat detector running  ${td_mark}
     Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
 
