@@ -24,7 +24,7 @@ using namespace safestore::QuarantineManager;
 class QuarantineManagerTests : public LogInitializedTests
 {
 protected:
-    virtual void SetUp()
+    void SetUp() override
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         appConfig.setData("SOPHOS_INSTALL", "/tmp");

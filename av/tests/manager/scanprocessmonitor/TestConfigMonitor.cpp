@@ -3,6 +3,7 @@
 #include "ScanProcessMonitorMemoryAppenderUsingTests.h"
 
 #include "common/ThreadRunner.h"
+#include "common/NotifyPipeSleeper.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "manager/scanprocessmonitor/ConfigMonitor.h"
 
@@ -70,19 +71,21 @@ using namespace std::chrono_literals;
 
 static bool waitForPipe(NotifyPipe& expected, steady_clock::duration wait_time)
 {
+    common::NotifyPipeSleeper sleeper(expected);
+
     auto deadline = steady_clock::now() + wait_time;
     do
     {
+        sleeper.stoppableSleep(deadline - steady_clock::now());
         if (expected.notified())
         {
             return true;
         }
-        std::this_thread::sleep_for(10ms);
     } while (steady_clock::now() < deadline);
     return false;
 }
 
-constexpr auto MONITOR_LATENCY = 150ms;
+constexpr auto MONITOR_LATENCY = 100ms;
 
 TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWrite)
 {

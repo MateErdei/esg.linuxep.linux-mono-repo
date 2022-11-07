@@ -15,9 +15,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 class MockSusiWrapper : public threat_scanner::ISusiWrapper
 {
 public:
-    MockSusiWrapper()
-    {
-    }
+    MockSusiWrapper() = default;
 
     explicit MockSusiWrapper(std::string scannerConfig)
     : m_scannerConfig(std::move(scannerConfig))

@@ -40,7 +40,7 @@ TEST_F(TestSusiScannerFactory, throwsDuringInitializeWithoutPLUGIN_INSTALL)
     }
     catch (const std::exception& ex)
     {
-        PRINT("Unable to construct instance: " << ex.what() << '\n');
+        PRINT("Unable to construct instance: " << ex.what() << std::endl);
     }
 }
 
@@ -68,7 +68,7 @@ TEST_F(TestSusiScannerFactory, throwsDuringInitialize) //NOLINT
     }
     catch (const std::exception& ex)
     {
-        PRINT("Unable to construct instance: " << ex.what() << '\n');
+        PRINT("Unable to construct instance: " << ex.what() << std::endl);
     }
 }
 

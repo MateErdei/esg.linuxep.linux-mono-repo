@@ -14,7 +14,7 @@ using namespace std::chrono_literals;
 
 namespace
 {
-    class TestClientSocketWrapper : public SoapMemoryAppenderUsingTests
+    class TestOnAccessClientSocketWrapper : public SoapMemoryAppenderUsingTests
     {
     protected:
         void SetUp() override {}
@@ -46,7 +46,7 @@ namespace
     const struct timespec& oneMillisecond = { 0, 1000000 }; // 1ms
 }
 
-TEST_F(TestClientSocketWrapper, Construction)
+TEST_F(TestOnAccessClientSocketWrapper, Construction)
 {
     MockIScanningClientSocket socket {};
     Common::Threads::NotifyPipe notifyPipe {};
@@ -56,7 +56,7 @@ TEST_F(TestClientSocketWrapper, Construction)
     ClientSocketWrapper csw {socket, notifyPipe};
 }
 
-TEST_F(TestClientSocketWrapper, Scan)
+TEST_F(TestOnAccessClientSocketWrapper, Scan)
 {
     auto request = std::make_shared<scan_messages::ClientScanRequest>();
     scan_messages::ScanResponse response;
@@ -89,7 +89,7 @@ TEST_F(TestClientSocketWrapper, Scan)
     ASSERT_EQ(detections.size(), 0);
 }
 
-TEST_F(TestClientSocketWrapper, RetriesConnect)
+TEST_F(TestOnAccessClientSocketWrapper, RetriesConnect)
 {
     MockIScanningClientSocket socket {};
     Common::Threads::NotifyPipe notifyPipe {};
@@ -106,7 +106,7 @@ TEST_F(TestClientSocketWrapper, RetriesConnect)
     ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
 }
 
-TEST_F(TestClientSocketWrapper, ConnectRetryLimit)
+TEST_F(TestOnAccessClientSocketWrapper, ConnectRetryLimit)
 {
     MockIScanningClientSocket socket {};
     Common::Threads::NotifyPipe notifyPipe {};
@@ -121,7 +121,7 @@ TEST_F(TestClientSocketWrapper, ConnectRetryLimit)
     ClientSocketWrapper csw {socket, notifyPipe, oneMillisecond};
 }
 
-TEST_F(TestClientSocketWrapper, ScanRetriesSend)
+TEST_F(TestOnAccessClientSocketWrapper, ScanRetriesSend)
 {
     auto request = std::make_shared<scan_messages::ClientScanRequest>();
     scan_messages::ScanResponse response;
@@ -156,7 +156,7 @@ TEST_F(TestClientSocketWrapper, ScanRetriesSend)
     EXPECT_TRUE(response.allClean());
 }
 
-TEST_F(TestClientSocketWrapper, ScanRetryLimit)
+TEST_F(TestOnAccessClientSocketWrapper, ScanRetryLimit)
 {
     auto request = std::make_shared<scan_messages::ClientScanRequest>();
     request->setPath("/foo/bar");
@@ -186,7 +186,7 @@ TEST_F(TestClientSocketWrapper, ScanRetryLimit)
     EXPECT_EQ(errMsg, "Failed to scan file: /foo/bar after 60 retries");
 }
 
-TEST_F(TestClientSocketWrapper, ScanReconnectLimit)
+TEST_F(TestOnAccessClientSocketWrapper, ScanReconnectLimit)
 {
     auto request = std::make_shared<scan_messages::ClientScanRequest>();
     request->setPath("/foo/bar");
@@ -221,7 +221,7 @@ TEST_F(TestClientSocketWrapper, ScanReconnectLimit)
     EXPECT_THROW(csw.scan(request), common::AbortScanException);
 }
 
-TEST_F(TestClientSocketWrapper, ScanRetriesReceive)
+TEST_F(TestOnAccessClientSocketWrapper, ScanRetriesReceive)
 {
     auto request = std::make_shared<scan_messages::ClientScanRequest>();
     scan_messages::ScanResponse response;

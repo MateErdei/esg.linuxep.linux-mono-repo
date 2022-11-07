@@ -129,7 +129,7 @@ public:
     std::shared_ptr<DeviceUtil> m_deviceUtil;
 };
 
-INSTANTIATE_TEST_CASE_P(TestDeviceUtil, DeviceUtilParameterizedTest, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(TestDeviceUtil, DeviceUtilParameterizedTest, ::testing::Values(
     std::make_tuple("nfs", NETWORK),
     std::make_tuple("cifs", NETWORK),
     std::make_tuple("smbfs", NETWORK),
@@ -184,7 +184,7 @@ TEST_P(DeviceUtilParameterizedTest, TestDeviceType) // NOLINT
 }
 
 class SpecialMountParameterizedTest
-    : public ::testing::TestWithParam<uint64_t>
+    : public ::testing::TestWithParam<decltype(statfs::f_type)>
 {
 public:
     void SetUp() override
@@ -200,7 +200,7 @@ public:
     std::shared_ptr<DeviceUtil> m_deviceUtil;
 };
 
-INSTANTIATE_TEST_CASE_P(TestDeviceUtil, SpecialMountParameterizedTest, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(TestDeviceUtil, SpecialMountParameterizedTest, ::testing::Values(
     PROC_SUPER_MAGIC,
     SYSFS_MAGIC,
     DEBUGFS_MAGIC,

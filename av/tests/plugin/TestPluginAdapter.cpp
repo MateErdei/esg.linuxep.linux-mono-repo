@@ -393,7 +393,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     std::string brokenPolicyXml = Common::UtilityImpl::StringUtils::orderedStringReplace(
         R"sophos(<?xml version="1.0"?>
@@ -439,7 +439,7 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     std::string invalidPolicyXml =
         R"sophos(<?xml version="1.0"?>
@@ -576,7 +576,7 @@ TEST_F(TestPluginAdapter, testProcessAction)
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>)";
@@ -586,8 +586,8 @@ TEST_F(TestPluginAdapter, testProcessAction)
     std::string expectedLog = "Process action: ";
     expectedLog.append(actionXml);
 
-    EXPECT_TRUE(waitForLog(expectedLog, 500ms));
-    EXPECT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
+    EXPECT_TRUE(waitForLog(expectedLog));
+    EXPECT_TRUE(waitForLog("Evaluating Scan Now"));
 
     m_taskQueue->pushStop();
 
@@ -613,7 +613,7 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed)
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="NONE" id="" subtype="MALFORMED" replyRequired="0"/>)";
@@ -623,8 +623,8 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed)
     std::string expectedLog = "Process action: ";
     expectedLog.append(actionXml);
 
-    EXPECT_TRUE(waitForLog(expectedLog, 500ms));
-    EXPECT_FALSE(waitForLog("Evaluating Scan Now", 500ms));
+    EXPECT_TRUE(waitForLog(expectedLog));
+    EXPECT_FALSE(waitForLog("Evaluating Scan Now"));
 
     m_taskQueue->pushStop();
 
@@ -650,7 +650,7 @@ TEST_F(TestPluginAdapter, testBadProcessActionXMLThrows)
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1">)";
@@ -893,11 +893,11 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     m_taskQueue->pushStop();
 
-    EXPECT_TRUE(waitForLog("Stopping the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Stopping the main program loop"));
 
     pluginThread.join();
 

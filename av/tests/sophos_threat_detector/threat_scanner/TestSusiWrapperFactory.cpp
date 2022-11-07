@@ -11,7 +11,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <gtest/gtest.h>
 
-#define BASE "/tmp/TestSusiWrapperFactory/chroot/"
 using namespace threat_scanner;
 
 namespace
@@ -54,8 +53,8 @@ namespace
 
             fs::path m_fakeEtcPath  = m_testDir;
             m_fakeEtcPath  /= "base/etc";
-            m_machineIdpath = m_fakeEtcPath;
-            m_machineIdpath /= "machine_id.txt";
+            m_machineIdPath = m_fakeEtcPath;
+            m_machineIdPath /= "machine_id.txt";
 
             m_customerIdPath = PLUGIN_INSTALL;
             m_customerIdPath /= "var/customer_id.txt";
@@ -71,7 +70,7 @@ namespace
         fs::path PLUGIN_INSTALL;
         fs::path m_testDir;
 
-        fs::path m_machineIdpath;
+        fs::path m_machineIdPath;
         fs::path m_customerIdPath;
         fs::path m_susiStartupPath;
     };
@@ -81,7 +80,7 @@ void TestSusiWrapperFactory::setupFilesForTestingGlobalRep(const std::string& cu
 {
     createTestFolderAndSetupPaths();
 
-    std::ofstream machineIdFile(m_machineIdpath);
+    std::ofstream machineIdFile(m_machineIdPath);
     ASSERT_TRUE(machineIdFile.good());
     machineIdFile << machineId;
     machineIdFile.close();

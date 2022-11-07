@@ -82,7 +82,7 @@ TEST_F(TestMountMonitor, TestGetAllMountpoints)
     fileHandle2.close();
     EXPECT_EQ(mountMonitor.getAllMountpoints().size(), 4);
 
-    // Restore the file to the original size - ie. simulate filer5 being unmounted
+    // Restore the file to the original size - i.e. simulate filer5 being unmounted
     fs::resize_file(filePath, origFileSize);
     EXPECT_EQ(mountMonitor.getAllMountpoints().size(), 3);
 }
@@ -158,10 +158,11 @@ TEST_F(TestMountMonitor, TestSetExclusions)
     sophos_on_access_process::OnAccessConfig::OnAccessConfiguration config{};
     config.exclusions = exclusions;
     mountMonitor.updateConfig(config);
+
+    EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 0);
     std::stringstream logMsg;
     logMsg << "Mount point " << excludedMount << " matches an exclusion in the policy and will be excluded from the scan";
-    waitForLog(logMsg.str());
-    EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 0);
+    EXPECT_TRUE(appenderContains(logMsg.str()));
 }
 
 TEST_F(TestMountMonitor, TestUpdateConfigSetsAllConfigBeforeReenumeratingMounts)
@@ -200,12 +201,13 @@ TEST_F(TestMountMonitor, TestUpdateConfigSetsAllConfigBeforeReenumeratingMounts)
     config.excludeRemoteFiles = true;
     config.exclusions = exclusions;
     mountMonitor.updateConfig(config);
-    waitForLog("OA config changed, re-enumerating mount points");
+    EXPECT_TRUE(appenderContains("OA config changed, re-enumerating mount points"));
+
+    EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 0);
     std::stringstream logMsg;
     logMsg << "Mount point " << excludedMount << " matches an exclusion in the policy and will be excluded from the scan";
-    waitForLog(logMsg.str());
-    waitForLog("Mount point network has been excluded from the scan");
-    EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 0);
+    EXPECT_TRUE(appenderContains(logMsg.str()));
+    EXPECT_TRUE(appenderContains("Mount point network has been excluded from the scan"));
 }
 
 TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChange)
@@ -269,7 +271,7 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
 
     clientWaitGuard.onEventNoArgs(); // Will allow the first call to complete
 
-    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 2));
+    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 2, 250ms));
 
     clientWaitGuard.clear();
 
@@ -282,11 +284,11 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
 
     mountMonitorThread.startIfNotStarted();
 
-    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 3));
+    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 3, 250ms));
 
     clientWaitGuard.onEventNoArgs(); // Will allow the first call to complete
 
-    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 4));
+    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 4, 250ms));
 }
 
 TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe)

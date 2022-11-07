@@ -118,7 +118,7 @@ namespace
     class TestFile
     {
     public:
-        explicit TestFile(std::string name)
+        [[maybe_unused]] explicit TestFile(std::string name)
             : m_name(std::move(name))
         {
             ::unlink(m_name.c_str());
@@ -205,7 +205,7 @@ TEST_F(TestReadLength, EOFReturnsMinus2)
     ASSERT_GE(fd.get(), 0) << "Open read-only failed: errno=" << errno << ": " <<
         common::safer_strerror(errno);
 
-    int ret = unixsocket::readLength(fd.get());
+    auto ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, -2);
 }
 
@@ -221,7 +221,7 @@ TEST_F(TestReadLength, FailedRead)
 
     ::close(fd.get());
 
-    int ret = unixsocket::readLength(fd.get());
+    auto ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, -1);
 
     EXPECT_TRUE(appenderContains(expected));
@@ -236,7 +236,7 @@ TEST_F(TestReadLength, TooLargeLengthReturnsMinusOne)
     datatypes::AutoFd fd(tf.readFD());
     ASSERT_GE(fd.get(), 0);
 
-    int ret = unixsocket::readLength(fd.get());
+    auto ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, -1);
 }
 TEST_F(TestReadLength, ZeroLength)
@@ -248,7 +248,7 @@ TEST_F(TestReadLength, ZeroLength)
     datatypes::AutoFd fd(tf.readFD());
     ASSERT_GE(fd.get(), 0);
 
-    int ret = unixsocket::readLength(fd.get());
+    auto ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, 0);
 }
 
@@ -261,7 +261,7 @@ TEST_F(TestReadLength, TwoByteLength)
     datatypes::AutoFd fd(tf.readFD());
     ASSERT_GE(fd.get(), 0);
 
-    int ret = unixsocket::readLength(fd.get());
+    auto ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, 0xff);
 }
 
@@ -276,7 +276,7 @@ TEST_F(TestReadLength, MaxLength)
     datatypes::AutoFd fd(tf.readFD());
     ASSERT_GE(fd.get(), 0);
 
-    int ret = unixsocket::readLength(fd.get());
+    auto ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, 0x0100007f);
 }
 
@@ -291,7 +291,7 @@ TEST_F(TestReadLength, OverMaxLength)
     datatypes::AutoFd fd(tf.readFD());
     ASSERT_GE(fd.get(), 0);
 
-    int ret = unixsocket::readLength(fd.get());
+    auto ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, -1);
 }
 
@@ -305,7 +305,7 @@ TEST_F(TestReadLength, PaddedLength)
     datatypes::AutoFd fd(tf.readFD());
     ASSERT_GE(fd.get(), 0);
 
-    int ret = unixsocket::readLength(fd.get());
+    auto ret = unixsocket::readLength(fd.get());
     EXPECT_EQ(ret, 1);
 }
 
@@ -379,7 +379,7 @@ TEST_F(TestFdTransfer, validFd)
 
     datatypes::AutoFd client_fd(tf.readFD());
 
-    int ret = unixsocket::send_fd(socket_pair.get_client_fd(), client_fd.get());
+    auto ret = unixsocket::send_fd(socket_pair.get_client_fd(), client_fd.get());
     ASSERT_GT(ret, 0) << "send_fd failed with: " << common::safer_strerror(errno);
 
     int new_fd = unixsocket::recv_fd(socket_pair.get_server_fd());
@@ -404,7 +404,7 @@ TEST_F(TestFdTransfer, writeError)
     datatypes::AutoFd client_fd(tf.readFD());
 
     ::close(socket_pair.get_client_fd());
-    int ret = unixsocket::send_fd(socket_pair.get_client_fd(), client_fd.get());
+    auto ret = unixsocket::send_fd(socket_pair.get_client_fd(), client_fd.get());
     ASSERT_EQ(ret, -1);
 }
 

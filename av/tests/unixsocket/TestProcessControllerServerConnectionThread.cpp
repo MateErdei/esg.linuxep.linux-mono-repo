@@ -209,7 +209,7 @@ TEST_F(TestProcessControllerServerConnectionThread, max_length) //NOLINT
     // length is limited to ~16MB
     unixsocket::writeLength(clientFd.get(), 0x100007f);
     ::close(clientFd.get());
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -235,7 +235,7 @@ TEST_F(TestProcessControllerServerConnectionThread, corrupt_request) //NOLINT
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(clientFd.get(), request);
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 

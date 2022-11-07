@@ -145,8 +145,8 @@ namespace
         [[maybe_unused]] void dumpLog() const;
 
         using clock = std::chrono::steady_clock;
-        [[maybe_unused]] bool waitForLog(const std::string& expected, clock::duration wait_time = 250ms) const; // NOLINT(modernize-use-nodiscard)
-        [[maybe_unused]] bool waitForLogMultiple(const std::string& expected, const int& count, clock::duration wait_time = 100ms) const; // NOLINT(modernize-use-nodiscard)
+        [[maybe_unused]] [[nodiscard]] bool waitForLog(const std::string& expected, clock::duration wait_time = 250ms) const;
+        [[maybe_unused]] [[nodiscard]] bool waitForLogMultiple(const std::string& expected, const int& count, clock::duration wait_time = 100ms) const;
     };
 
     MemoryAppenderUsingTests::MemoryAppenderUsingTests(std::string loggerInstanceName) :
@@ -171,9 +171,8 @@ namespace
         {
             log4cplus::Logger logger = getLogger();
             logger.removeAppender(m_sharedAppender);
-            m_memoryAppender->clear();
+            m_sharedAppender = nullptr; // deletes m_memoryAppender
             m_memoryAppender = nullptr;
-            m_sharedAppender = log4cplus::SharedAppenderPtr(); // deletes m_memoryAppender
         }
     }
 
@@ -196,7 +195,7 @@ namespace
         const std::lock_guard lock(m_memoryAppender->m_events_mutex);
         for (const auto& item : m_memoryAppender->m_events)
         {
-            PRINT("ITEM: " << item);
+            PRINT("ITEM: " << item.substr(0, item.size() - 1));
         }
     }
 
@@ -210,7 +209,7 @@ namespace
             {
                 return true;
             }
-            std::this_thread::sleep_for(10ms);
+            std::this_thread::sleep_for(1ms);
         } while (clock::now() < deadline);
         return false;
     }
@@ -225,7 +224,7 @@ namespace
             {
                 return true;
             }
-            std::this_thread::sleep_for(10ms);
+            std::this_thread::sleep_for(1ms);
         } while (clock::now() < deadline);
         return false;
     }

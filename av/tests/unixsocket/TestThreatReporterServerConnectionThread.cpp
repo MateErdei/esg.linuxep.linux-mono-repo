@@ -91,7 +91,7 @@ TEST_F(TestThreatReporterServerConnectionThread, eof_while_running) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback);
     connectionThread.start();
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -109,7 +109,7 @@ TEST_F(TestThreatReporterServerConnectionThread, send_zero_length) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback);
     connectionThread.start();
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -129,7 +129,7 @@ TEST_F(TestThreatReporterServerConnectionThread, closed_fd) //NOLINT
     ThreatReporterServerConnectionThread connectionThread(fdHolder, mock_callback);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 

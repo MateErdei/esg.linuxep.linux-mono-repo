@@ -42,7 +42,7 @@ TEST_F(TestThreadRunner, ThreadRunnerStarts) // NOLINT
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto testThread = std::make_shared<TestAbstractThreadImpl>();
-    TestClassUsingThreadRunner(testThread, "ThreadRunnerStarts");
+    auto testTRUser = std::make_unique<TestClassUsingThreadRunner>(testThread, "ThreadRunnerStarts");
 
     EXPECT_TRUE(appenderContains("Starting ThreadRunnerStarts"));
 }

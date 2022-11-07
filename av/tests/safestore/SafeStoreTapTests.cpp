@@ -119,7 +119,7 @@ TEST_F(SafeStoreWrapperTapTests, writeAndThenRreadBackConfigOptions)
 TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndLookupDetails)
 {
     auto fileSystem = Common::FileSystem::fileSystem();
-    auto now = std::time(0);
+    auto now = std::time(nullptr);
 
     // Add fake threat
     std::string fakeVirusFilePath1 = "/tmp/fakevirus1";

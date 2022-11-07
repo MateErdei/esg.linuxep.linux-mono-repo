@@ -76,10 +76,10 @@ TEST_F(TestUpdateCompleteClientSocketThread, notificationPassedToClient)
     UpdateCompleteClientSocketThread client(m_socketPath, callback);
     client.start();
 
-    int count = 20;
+    int count = 200;
     while (count > 0 && (server.clientCount() == 0 || !client.connected()))
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         count--;
     }
 
@@ -115,10 +115,10 @@ TEST_F(TestUpdateCompleteClientSocketThread, clientConnectsIfStartedFirst)
     UpdateCompleteServerSocket server(m_socketPath, 0700);
     server.start();
 
-    int count = 50;
+    int count = 200;
     while (count > 0 && (server.clientCount() == 0 || !client.connected()))
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         count--;
     }
 
@@ -158,10 +158,10 @@ TEST_F(TestUpdateCompleteClientSocketThread, clientReconnects)
     UpdateCompleteServerSocket server2(m_socketPath, 0700);
     server2.start();
 
-    int count = 20;
+    int count = 200;
     while (count > 0 && (server2.clientCount() == 0 || !client.connected()))
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         count--;
     }
 

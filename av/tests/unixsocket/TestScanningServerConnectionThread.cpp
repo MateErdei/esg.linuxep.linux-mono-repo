@@ -173,7 +173,7 @@ TEST_F(TestScanningServerConnectionThread, eof_while_running) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     connectionThread.start();
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -190,7 +190,7 @@ TEST_F(TestScanningServerConnectionThread, send_zero_length) //NOLINT
     ASSERT_GE(fdHolder.get(), 0);
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory, 1);
     connectionThread.start();
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -209,7 +209,7 @@ TEST_F(TestScanningServerConnectionThread, closed_fd) //NOLINT
     ScanningServerConnectionThread connectionThread(fdHolder, scannerFactory);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -233,7 +233,7 @@ TEST_F(TestScanningServerConnectionThread, over_max_length) //NOLINT
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLength(clientFd, 0x1000080);
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -259,7 +259,7 @@ TEST_F(TestScanningServerConnectionThread, max_length) //NOLINT
     // length is limited to ~16MB
     unixsocket::writeLength(clientFd, 0x100007f);
     ::close(clientFd);
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -285,7 +285,7 @@ TEST_F(TestScanningServerConnectionThread, corrupt_request) //NOLINT
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(clientFd, request);
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -301,7 +301,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, valid_request_no_
     EXPECT_TRUE(m_connectionThread->isRunning());
     unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
     ::close(m_clientFd);
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     m_connectionThread->requestStop();
     m_connectionThread->join();
 
@@ -328,13 +328,13 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd) // NOLINT
 
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open());
-    int ret = send_fd(m_clientFd, fd.get()); // send a valid file descriptor
+    auto ret = send_fd(m_clientFd, fd.get()); // send a valid file descriptor
     ASSERT_GE(ret, 0);
 
-    int length = unixsocket::readLength(m_clientFd);
+    auto length = unixsocket::readLength(m_clientFd);
     static_cast<void>(length);
 
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
     connectionThread.join();
 
@@ -351,10 +351,10 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_not_readable) 
     unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open(O_WRONLY));
-    int ret = send_fd(m_clientFd, fd.get());
+    auto ret = send_fd(m_clientFd, fd.get());
     ASSERT_GE(ret, 0);
 
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     m_connectionThread->requestStop();
     m_connectionThread->join();
 
@@ -371,11 +371,11 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_device) //N
     unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
     datatypes::AutoFd devNull(::open("/dev/null", O_RDONLY));
     ASSERT_GE(devNull.get(), 0);
-    int ret = send_fd(m_clientFd, devNull.get());
+    auto ret = send_fd(m_clientFd, devNull.get());
     devNull.close();
     ASSERT_GE(ret, 0);
 
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     m_connectionThread->requestStop();
     m_connectionThread->join();
 
@@ -390,10 +390,10 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_socket) //N
     m_connectionThread->start();
     EXPECT_TRUE(m_connectionThread->isRunning());
     unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
-    int ret = send_fd(m_clientFd, m_clientFd.get());
+    auto ret = send_fd(m_clientFd, m_clientFd.get());
     ASSERT_GE(ret, 0);
 
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     m_connectionThread->requestStop();
     m_connectionThread->join();
 
@@ -411,11 +411,11 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_is_path) //NOL
     TestFile testFile("testfile");
     datatypes::AutoFd fd(testFile.open(O_PATH));
     ASSERT_GE(fd.get(), 0);
-    int ret = send_fd(m_clientFd, fd.get());
+    auto ret = send_fd(m_clientFd, fd.get());
     fd.close();
     ASSERT_GE(ret, 0);
 
-    waitForLog(expected);
+    EXPECT_TRUE(waitForLog(expected));
     m_connectionThread->requestStop();
     m_connectionThread->join();
 

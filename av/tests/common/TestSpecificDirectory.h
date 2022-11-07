@@ -12,7 +12,7 @@ Copyright 2021-2022, Sophos Limited.  All rights reserved.
 
 namespace test_common
 {
-    inline int remove_all(const sophos_filesystem::path& d)
+    inline auto remove_all(const sophos_filesystem::path& d)
     {
         namespace fs = sophos_filesystem;
         std::error_code ec{};
@@ -47,7 +47,7 @@ namespace test_common
         return testDir;
     }
 
-    inline int removeTestSpecificDirectory(const sophos_filesystem::path& testDir)
+    inline auto removeTestSpecificDirectory(const sophos_filesystem::path& testDir)
     {
         namespace fs = sophos_filesystem;
 
@@ -68,7 +68,7 @@ namespace
             return test_common::createTestSpecificDirectory();
         }
 
-        static int removeTestSpecificDirectory(const sophos_filesystem::path& testDir)
+        [[maybe_unused]] static auto removeTestSpecificDirectory(const sophos_filesystem::path& testDir)
         {
             return test_common::removeTestSpecificDirectory(testDir);
         }
