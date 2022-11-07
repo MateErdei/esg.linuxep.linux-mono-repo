@@ -319,6 +319,10 @@ namespace Plugin
             {
                 std::string correlationID = pluginimpl::getThreatID(attributeMap);
                 m_threatDatabase.removeCorrelationID(correlationID);
+                if (m_threatDatabase.isDatabaseEmpty())
+                {
+                    publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+                }
             }
         }
         catch(const Common::XmlUtilities::XmlUtilitiesException& e)

@@ -190,6 +190,20 @@ TEST_F(TestThreatDatabase, removeCorrelationIDHandlesWhenThreatIsNotInDatabase)
     EXPECT_NO_THROW(database.removeCorrelationID("threatid2"));
 }
 
+TEST_F(TestThreatDatabase, removeThreatIDHandlesWhenThreatIsNotInDatabase)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    EXPECT_CALL(*filesystemMock, exists("/path/persist-threatDatabase")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("/path/persist-threatDatabase")).WillOnce(Return("{\"threatid\":[\"threatid\"]}"));
+    EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{\"threatid\":[\"threatid\"]}"));
+
+    Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
+    EXPECT_NO_THROW(database.removeThreatID("threatid2","threatid"));
+}
+
 TEST_F(TestThreatDatabase, removeCorrelationID)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
