@@ -24,6 +24,17 @@ namespace pluginimpl
 
     std::string getThreatID(const Common::XmlUtilities::AttributesMap& action)
     {
-        return action.lookup("action/threat-set/threat").value("id", "");
+        auto threats =  action.entitiesThatContainPath("action/threat-set/threat");
+        for (const auto& threat : threats)
+        {
+            auto threatDetails = action.lookup(threat);
+            std::string threatName = threatDetails.value("id");
+            if (threatName.empty())
+            {
+                continue;
+            }
+            return threatName;
+        }
+        throw std::runtime_error("No ID found for threat in Sav clear action");
     }
 }
