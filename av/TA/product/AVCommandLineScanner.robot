@@ -123,7 +123,6 @@ Stop AV Plugin process
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
 
 Start AV Plugin process
-    [Arguments]  ${td_mark}
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${mark} =  LogUtils.get_av_log_mark
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
@@ -139,9 +138,12 @@ Start AV
     Check AV Plugin Not Running
     Check Threat Detector Not Running
     Check Threat Detector PID File Does Not Exist
+
     ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    Start AV Plugin process  ${td_mark}
+    Wait until threat detector running  ${td_mark}
+
+    Start AV Plugin process
 
 Stop AV
 #    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
@@ -1796,14 +1798,17 @@ Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
     Create File     ${NORMAL_DIRECTORY}/eicar_file    ${EICAR_STRING}
     Stop AV Plugin process
 
+    ${av_mark} =  get_av_log_mark
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   ${NORMAL_DIRECTORY}  -x  /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
-    Wait Until Sophos Threat Detector Log Contains With Offset     Detected     timeout=120
-    Wait Until Sophos Threat Detector Log Contains With Offset     Failed to connect to Threat reporter - retrying after sleep      timeout=120
+    wait_for_log_contains_from_mark  ${td_mark}     Detected     timeout=120
+    wait_for_log_contains_from_mark  ${td_mark}     Failed to connect to Threat reporter - retrying after sleep      timeout=120
     Start AV Plugin Process
-    Wait Until Sophos Threat Detector Log Contains With Offset  Successfully connected to Threat Reporter       timeout=120
+    wait_for_log_contains_from_mark  ${td_mark}     Successfully connected to Threat Reporter       timeout=120
 
-    Wait Until AV Plugin Log Contains Detection Name And Path With Offset  EICAR-AV-Test  ${NORMAL_DIRECTORY}/eicar_file
-    Wait Until AV Plugin Log Contains Detection Event XML With Offset
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/eicar_file
+    Wait Until AV Plugin Log Contains Detection Event XML After Mark
+    ...  mark=${av_mark}
     ...  id=Te1b8af2bc4cb505
     ...  name=EICAR-AV-Test
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f

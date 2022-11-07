@@ -624,10 +624,10 @@ Wait Until SAV Status XML Contains
     Wait Until File Log Contains  SAV Status XML Contains   ${input}   timeout=${timeout}
 
 Check Plugin Installed and Running
-    [Arguments]   ${mark}
+    [Arguments]   ${mark}  ${td_mark}
     File Should Exist   ${PLUGIN_BINARY}
     Wait until AV Plugin running  ${mark}
-    Wait until threat detector running
+    Wait until threat detector running  ${td_mark}
 
 Check Plugin Installed and Running With Offset
     File Should Exist   ${PLUGIN_BINARY}
@@ -681,12 +681,10 @@ Wait Until SafeStore not running
     ...  Check SafeStore Not Running
 
 Wait until threat detector running
+    [Arguments]  ${td_mark}
     # wait for sophos_threat_detector to initialize
     ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  2 secs
-    ...  Threat Detector Log Contains  SophosThreatDetectorImpl <> Starting USR1 monitor
+    wait_for_log_contains_from_mark  ${td_mark}  SophosThreatDetectorImpl <> Starting USR1 monitor  ${60}
     # Only output in debug mode:
     # ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
 
@@ -706,7 +704,8 @@ Wait until threat detector not running
 
 Check AV Plugin Installed
     [Arguments]  ${av_mark}
-    Check Plugin Installed and Running  ${av_mark}
+    File Should Exist   ${PLUGIN_BINARY}
+    Wait until AV Plugin running  ${av_mark}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  3 secs
