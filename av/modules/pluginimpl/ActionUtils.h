@@ -1,0 +1,9 @@
+// Copyright 2022, Sophos Limited.  All rights reserved.
+
+#include <Common/XmlUtilities/AttributesMap.h>
+
+namespace pluginimpl
+{
+
+}
+
