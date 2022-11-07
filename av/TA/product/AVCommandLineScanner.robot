@@ -1341,10 +1341,6 @@ CLS Scans file on NFS
 
 
 CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
-    # log can get rotated during test, so reset first.
-    Clear logs
-    Mark logs
-
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
 
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
