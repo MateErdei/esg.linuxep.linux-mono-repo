@@ -681,10 +681,10 @@ Wait Until SafeStore not running
     ...  Check SafeStore Not Running
 
 Wait until threat detector running
-    [Arguments]  ${td_mark}
+    [Arguments]  ${td_mark}  ${timeout}=${60}
     # wait for sophos_threat_detector to initialize
     ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
-    wait_for_log_contains_from_mark  ${td_mark}  SophosThreatDetectorImpl <> Starting USR1 monitor  ${60}
+    wait_for_log_contains_from_mark  ${td_mark}  SophosThreatDetectorImpl <> Starting USR1 monitor  ${timeout}
     # Only output in debug mode:
     # ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
 
@@ -768,7 +768,7 @@ Install Base For Component Tests
 
 Install AV Directly from SDDS
     Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
 
     ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}
@@ -777,7 +777,7 @@ Install AV Directly from SDDS
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install plugin.\noutput: \n${log_contents}"
 
     Wait until AV Plugin running with offset
-    Wait until threat detector running with offset
+    Wait until threat detector running  ${td_mark}
 
 Uninstall AV Without /usr/sbin in PATH
     ${result} =   Run Process   bash  -x  ${AV_PLUGIN_PATH}/sbin/uninstall.sh   timeout=60s  stderr=STDOUT   stdout=${AV_UNINSTALL_LOG}  env:PATH=/usr/local/bin:/usr/bin:/bin
@@ -788,7 +788,7 @@ Uninstall AV Without /usr/sbin in PATH
 
 Install AV Directly from SDDS Without /usr/sbin in PATH
     Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
 
     ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}  env:PATH=/usr/local/bin:/usr/bin:/bin
@@ -797,7 +797,7 @@ Install AV Directly from SDDS Without /usr/sbin in PATH
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install plugin.\noutput: \n${log_contents}"
 
     Wait until AV Plugin running with offset
-    Wait until threat detector running with offset
+    Wait until threat detector running  ${td_mark}
 
 Require Plugin Installed and Running
     [Arguments]  ${LogLevel}=DEBUG
@@ -1041,15 +1041,17 @@ Run installer from install set
 
 Run installer from install set and wait for reload trigger
     [Arguments]  ${threat_detector_pid}  ${mark}
+    # ${mark} can either be line-count or LogHandler.LogMark
     Run installer from install set
     Wait Until Sophos Threat Detector Logs Or Restarts  ${threat_detector_pid}  ${mark}  Reload triggered by USR1  timeout=60
 
 Run IDE update with expected texts
     [Arguments]  ${timeout}  @{expected_update_texts}
-    # TODO Improve "Mark Sophos Threat Detector Log" (& related functions) to enable multiple marks in one file so it doesn't clobber any marks used for testing LINUXDAR-2677
+
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     ${mark} =  Mark Sophos Threat Detector Log
     ${threat_detector_pid} =  Record Sophos Threat Detector PID
-    Run installer from install set and wait for reload trigger  ${threat_detector_pid}  ${mark}
+    Run installer from install set and wait for reload trigger  ${threat_detector_pid}  ${td_mark}
     Wait Until Sophos Threat Detector Log Contains One Of  ${timeout}  @{expected_update_texts}
     Threat Detector Log Should Not Contain With Offset    Current version matches that of the update source. Nothing to do.
     Check Sophos Threat Detector Has Same PID  ${threat_detector_pid}

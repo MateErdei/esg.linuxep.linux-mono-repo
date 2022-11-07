@@ -6,8 +6,20 @@ import time
 from robot.libraries.BuiltIn import BuiltIn
 from robot.api import logger
 
+try:
+    from . import LogHandler
+except ImportError:
+    import LogHandler
+
 
 def get_content_lines(path, mark):
+    if isinstance(mark, LogHandler.LogMark):
+        mark.assert_is_good(path)
+        contents = mark.get_contents()
+        if contents is None:
+            return []
+        return contents.splitlines(keepends=True)
+    assert isinstance(mark, int)
     contents = open(path, encoding="utf-8", errors="backslashreplace").readlines()
     return contents[mark:]
 
@@ -68,7 +80,8 @@ class SophosThreatDetector(object):
         :return: text that was found, or None if sophos_threat_detector stopped, False if no texts found
         """
         original_pid = int(original_pid)
-        mark = int(mark)
+        if not isinstance(mark, LogHandler.LogMark):
+            mark = int(mark)
         timeout = float(timeout)
         interval = float(interval)
 

@@ -19,6 +19,15 @@ Resource    ../shared/AVResources.robot
 Test Setup     Threat Detector Test Setup
 Test Teardown  Threat Detector Test Teardown
 
+*** Variables ***
+${TESTSYSFILE}  hosts
+${TESTSYSPATHBACKUP}  /etc/${TESTSYSFILE}backup
+${TESTSYSPATH}  /etc/${TESTSYSFILE}
+${SOMETIMES_SYMLINKED_SYSFILE}  resolv.conf
+${SOMETIMES_SYMLINKED_SYSPATHBACKUP}  /etc/${SOMETIMES_SYMLINKED_SYSFILE}backup
+${SOMETIMES_SYMLINKED_SYSPATH}  /etc/${SOMETIMES_SYMLINKED_SYSFILE}
+
+
 *** Keywords ***
 
 Threat Detector Test Setup
@@ -63,6 +72,14 @@ Verify threat detector log rotated
 Dump and Reset Logs
     Register Cleanup   Empty Directory   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
     Register Cleanup   Dump log          ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log
+
+Revert System File To Original
+    copy file with permissions  ${TESTSYSPATHBACKUP}  ${TESTSYSPATH}
+    Remove File  ${TESTSYSPATHBACKUP}
+
+Revert Sometimes-symlinked System File To Original
+    copy file with permissions  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}  ${SOMETIMES_SYMLINKED_SYSPATH}
+    Remove File  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
 
 *** Test Cases ***
 

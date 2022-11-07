@@ -31,12 +31,6 @@ ${AV_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${AV_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 ${HANDLE}
-${TESTSYSFILE}  hosts
-${TESTSYSPATHBACKUP}  /etc/${TESTSYSFILE}backup
-${TESTSYSPATH}  /etc/${TESTSYSFILE}
-${SOMETIMES_SYMLINKED_SYSFILE}  resolv.conf
-${SOMETIMES_SYMLINKED_SYSPATHBACKUP}  /etc/${SOMETIMES_SYMLINKED_SYSFILE}backup
-${SOMETIMES_SYMLINKED_SYSPATH}  /etc/${SOMETIMES_SYMLINKED_SYSFILE}
 
 
 *** Test Cases ***
@@ -463,65 +457,6 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     Check ScanNow Log Exists
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /run/netns/avtest as it could not be read
 
-Threat Detector Restarts If System File Contents Change
-    copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
-    Register On Fail   Revert System File To Original
-
-    ${ORG_CONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
-    Append To File  ${TESTSYSPATH}   "#NewLine"
-
-    Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${TESTSYSFILE}
-    AV Plugin Log Should Not Contain With Offset  System configuration not changed for ${TESTSYSFILE}
-
-    Wait until threat detector running
-    mark sophos threat detector log
-
-    Revert System File To Original
-    Deregister On Fail   Revert System File To Original
-
-    Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${TESTSYSFILE}
-    AV Plugin Log Should Not Contain With Offset  System configuration not changed for ${TESTSYSFILE}
-
-    ${POSTTESTCONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
-    Should Be Equal   ${POSTTESTCONTENTS}   ${ORG_CONTENTS}
-
-
-Threat Detector Does Not Restart If System File Contents Do Not Change
-    copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
-    Revert System File To Original
-
-    ## LINUXDAR-5249 - we now just check all files every time
-    Wait Until AV Plugin Log Contains With Offset  System configuration not changed
-    AV Plugin Log Should Not Contain With Offset  System configuration updated for ${TESTSYSFILE}
-
-
-Threat Detector Restarts If Sometimes-symlinked System File Contents Change
-    copy file  ${SOMETIMES_SYMLINKED_SYSPATH}  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
-    Register On Fail   Revert Sometimes-symlinked System File To Original
-
-    ${ORG_CONTENTS} =  Get File  ${SOMETIMES_SYMLINKED_SYSPATH}  encoding_errors=replace
-    Append To File  ${SOMETIMES_SYMLINKED_SYSPATH}   "#NewLine"
-
-    Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}
-
-    Wait until threat detector running
-    mark sophos threat detector log
-
-    Revert Sometimes-symlinked System File To Original
-    Deregister On Fail   Revert Sometimes-symlinked System File To Original
-
-    Wait Until AV Plugin Log Contains With Offset  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}
-
-    ${POSTTESTCONTENTS} =  Get File  ${SOMETIMES_SYMLINKED_SYSPATH}  encoding_errors=replace
-    Should Be Equal   ${POSTTESTCONTENTS}   ${ORG_CONTENTS}
-
-
-Threat Detector Does Not Restart If Sometimes-symlinked System File Contents Do Not Change
-    copy file  ${SOMETIMES_SYMLINKED_SYSPATH}  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
-    Revert Sometimes-symlinked System File To Original
-
-    AV Plugin Log Should Not Contain With Offset  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}
-
 
 AV Plugin Can Process SafeStore Flag Enabled
     Start Fake Management If Required
@@ -652,11 +587,3 @@ Test Remote Share
     Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningEnabled}  timeout=240  interval=5
     File Should Exist  ${remoteFSscanningEnabled_log}
     File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR
-
-Revert System File To Original
-    copy file with permissions  ${TESTSYSPATHBACKUP}  ${TESTSYSPATH}
-    Remove File  ${TESTSYSPATHBACKUP}
-
-Revert Sometimes-symlinked System File To Original
-    copy file with permissions  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}  ${SOMETIMES_SYMLINKED_SYSPATH}
-    Remove File  ${SOMETIMES_SYMLINKED_SYSPATHBACKUP}
