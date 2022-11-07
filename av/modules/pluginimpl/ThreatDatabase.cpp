@@ -18,7 +18,7 @@ namespace Plugin
         convertDatabaseToString();
     }
 
-    void ThreatDatabase::addThreat(const std::string& threatID, const std::string correlationID)
+    void ThreatDatabase::addThreat(const std::string& threatID, const std::string& correlationID)
     {
         std::map<std::string,std::list<std::string>>::iterator it = m_database.find(threatID);
         if (it != m_database.end())
@@ -38,7 +38,7 @@ namespace Plugin
 
     }
 
-    void ThreatDatabase::removeThreat(const std::string& threatID, const std::string correlationID)
+    void ThreatDatabase::removeCorrelationID(const std::string& threatID, const std::string& correlationID)
     {
         std::map<std::string,std::list<std::string>>::iterator it = m_database.find(threatID);
         if (it != m_database.end())
@@ -66,6 +66,29 @@ namespace Plugin
         {
             LOGWARN("Cannot remove threat id" << threatID << " from database as it cannot be found");
         }
+    }
+
+    void ThreatDatabase::removeThreatID(const std::string& threatID, bool ignoreNotInDatabase)
+    {
+        std::map<std::string,std::list<std::string>>::iterator it = m_database.find(threatID);
+        if (it != m_database.end())
+        {
+            m_database.erase(it);
+            LOGINFO("Removed threat id " << threatID << " from database");
+        }
+        else if (!ignoreNotInDatabase)
+        {
+            LOGWARN("Cannot remove threat id" << threatID << " from database as it cannot be found");
+        }
+    }
+
+    bool ThreatDatabase::isDatabaseEmpty()
+    {
+        if (m_database.empty())
+        {
+            return true;
+        }
+        return false;
     }
 
     void ThreatDatabase::resetDatabase()
