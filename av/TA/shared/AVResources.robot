@@ -711,6 +711,12 @@ Check AV Plugin Installed
     ...  3 secs
     ...  FakeManagement Log Contains   Registered plugin: ${COMPONENT}
 
+Check AV Plugin Installed from Marks
+    [Arguments]  ${av_mark}  ${fake_management_mark}
+    File Should Exist   ${PLUGIN_BINARY}
+    Wait until AV Plugin running  ${av_mark}
+    wait_for_log_contains_from_mark  ${fake_management_mark}  Registered plugin: ${COMPONENT}  timeout=${15}
+
 Check AV Plugin Installed With Offset
     Check Plugin Installed and Running With Offset
     Wait Until Keyword Succeeds
