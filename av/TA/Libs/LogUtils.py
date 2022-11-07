@@ -933,6 +933,11 @@ File Log Contains
         self.__m_marked_log_position[logpath] = mark  # Save the most recent marked position
         return mark
 
+    def wait_for_log_contains_from_mark(self, mark: LogHandler.LogMark, expected, timeout=10) -> None:
+        assert mark is not None
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
+        return mark.wait_for_log_contains_from_mark(expected, timeout)
+
     def wait_for_log_contains_after_mark(self,
                                          logpath: typing.Union[str, bytes],
                                          expected: typing.Union[str, bytes],
@@ -942,29 +947,8 @@ File Log Contains
             logger.error("No mark passed for wait_for_log_contains_after_mark")
             raise AssertionError("No mark set to find %s in %s" % (expected, logpath))
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_after_mark"
-
-        if isinstance(expected, str):
-            expected = expected.encode("UTF-8")
-
-        handler = self.get_log_handler(logpath)
-        start = time.time()
-        old_contents = ""
-        while time.time() < start + timeout:
-            contents = handler.get_contents(mark)
-            if contents is not None:
-                if len(contents) > len(old_contents):
-                    logger.debug(contents[:len(old_contents)])
-
-                if expected in contents:
-                    return
-
-                old_contents = contents
-
-            time.sleep(0.5)
-
-        logger.error("Failed to find %s in %s after %s" % (expected, logpath, mark))
-        handler.dump_marked_log(mark)
-        raise AssertionError("Failed to find %s in %s" % (expected, logpath))
+        mark.assert_is_good(logpath)
+        return mark.wait_for_log_contains_from_mark(expected, timeout)
 
     def check_log_contains_after_mark(self, log_path, expected, mark):
         if mark is None:

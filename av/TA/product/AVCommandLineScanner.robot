@@ -1660,9 +1660,9 @@ CLS Can Append Summary To Log When SIGHUP Is Received
 
     Register Cleanup  Exclude Scan Errors From File Samples
 
-    Mark Sophos Threat Detector Log
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     ${cls_handle} =     Start Process
-        ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/
+        ...   ${CLI_SCANNER_PATH}  -o  ${SCAN_LOG}  /  -x  /mnt/  /run/snapd/
         ...   stdout=${SCAN_OUT}  stderr=STDOUT
     ${cls_pid} =   Get Process Id   handle=${cls_handle}
     Log  PID: ${cls_pid}
@@ -1682,7 +1682,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   Stopping Scanning Server thread
+    wait_for_log_contains_from_mark  ${td_mark}  Stopping Scanning Server thread
 
 CLS Can Append Summary To Log When SIGHUP Is Received strace
     [Tags]  STRACE   MANUAL

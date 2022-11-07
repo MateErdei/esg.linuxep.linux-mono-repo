@@ -1,5 +1,6 @@
 
 import os
+import six
 import time
 from typing import Optional
 
@@ -85,6 +86,36 @@ class LogMark:
     def assert_is_good(self, log_path: str):
         assert self.get_path() == log_path
 
+    def dump_marked_log(self) -> None:
+        contents = self.get_contents()
+        if contents is None:
+            logger.info("File %s does not exist, or failed to read" % str(self.__m_log_path))
+        else:
+            lines = contents.splitlines()
+            lines = [line.decode("UTF-8", errors="backslashreplace") for line in lines]
+            logger.info(u"Marked log from %s:\n" % self.__m_log_path+u'\n'.join(lines))
+
+    def wait_for_log_contains_from_mark(self, expected, timeout) -> None:
+        expected = six.ensure_binary(expected, "UTF-8")
+        start = time.time()
+        old_contents = ""
+        while time.time() < start + timeout:
+            contents = self.get_contents()
+            if contents is not None:
+                if len(contents) > len(old_contents):
+                    logger.debug(contents[:len(old_contents)])
+
+                if expected in contents:
+                    return
+
+                old_contents = contents
+
+            time.sleep(0.5)
+
+        logger.error("Failed to find %s in %s after %s" % (expected, self.get_path(), self))
+        self.dump_marked_log()
+        raise AssertionError("Failed to find %s in %s" % (expected, self.get_path()))
+
 
 class LogHandler:
     def __init__(self, log_path: str):
@@ -99,14 +130,15 @@ class LogHandler:
 
     def get_contents(self, mark: LogMark) -> Optional[bytes]:
         assert isinstance(mark, LogMark)
-        assert mark.get_path() == self.__m_log_path
+        mark.assert_is_good(self.__m_log_path)
         return mark.get_contents()
 
     def dump_marked_log(self, mark: LogMark) -> None:
-        contents = self.get_contents(mark)
-        if contents is None:
-            logger.info("File %s does not exist, or failed to read" % str(self.__m_log_path))
-        else:
-            lines = contents.splitlines()
-            lines = [line.decode("UTF-8", errors="backslashreplace") for line in lines]
-            logger.info(u"Marked log from %s:\n" % self.__m_log_path+u'\n'.join(lines))
+        assert isinstance(mark, LogMark)
+        mark.assert_is_good(self.__m_log_path)
+        return mark.dump_marked_log()
+
+    def wait_for_log_contains_from_mark(self, mark: LogMark, expected, timeout) -> None:
+        assert isinstance(mark, LogMark)
+        mark.assert_is_good(self.__m_log_path)
+        return mark.wait_for_log_contains_from_mark(expected, timeout)
