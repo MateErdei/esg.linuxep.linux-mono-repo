@@ -41,17 +41,18 @@ ${WATCHDOG_BINARY}                              ${SOPHOS_INSTALL}/base/bin/sopho
 ${WATCHDOG_LOG}                                 ${SOPHOS_INSTALL}/logs/base/watchdog.log
 ${SULDOWNLOADER_LOG}                            ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${UPDATE_SCHEDULER}                             ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-${CHROOT_LOGGING_SYMLINK}                       ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
+${COMPONENT_ROOT_PATH_CHROOT}                   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}
+${CHROOT_LOGGING_SYMLINK}                       ${COMPONENT_ROOT_PATH_CHROOT}/log/sophos_threat_detector
 ${SUSI_STARTUP_SETTINGS_FILE}                   ${AV_PLUGIN_PATH}/var/susi_startup_settings.json
-${SUSI_STARTUP_SETTINGS_FILE_CHROOT}            ${COMPONENT_ROOT_PATH}/chroot/${AV_PLUGIN_PATH}/var/susi_startup_settings.json
+${SUSI_STARTUP_SETTINGS_FILE_CHROOT}            ${COMPONENT_ROOT_PATH_CHROOT}/var/susi_startup_settings.json
 ${AV_SDDS}                                      ${COMPONENT_SDDS}
 ${PLUGIN_SDDS}                                  ${COMPONENT_SDDS}
-${PLUGIN_BINARY}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/${COMPONENT}
-${SCHEDULED_FILE_WALKER_LAUNCHER}               ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/scheduled_file_walker_launcher
-${ON_ACCESS_BIN}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/soapd
-${SAFESTORE_BIN}                                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/safestore
-${SOPHOS_THREAT_DETECTOR_BINARY}                ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector
-${SOPHOS_THREAT_DETECTOR_LAUNCHER}              ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/sophos_threat_detector_launcher
+${PLUGIN_BINARY}                                ${COMPONENT_ROOT_PATH}/sbin/${COMPONENT}
+${SCHEDULED_FILE_WALKER_LAUNCHER}               ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
+${ON_ACCESS_BIN}                                ${COMPONENT_ROOT_PATH}/sbin/soapd
+${SAFESTORE_BIN}                                ${COMPONENT_ROOT_PATH}/sbin/safestore
+${SOPHOS_THREAT_DETECTOR_BINARY}                ${COMPONENT_ROOT_PATH}/sbin/sophos_threat_detector
+${SOPHOS_THREAT_DETECTOR_LAUNCHER}              ${COMPONENT_ROOT_PATH}/sbin/sophos_threat_detector_launcher
 ${EXPORT_FILE}                                  /etc/exports
 ${AV_INSTALL_LOG}                               /tmp/avplugin_install.log
 ${AV_UNINSTALL_LOG}                             /tmp/avplugin_uninstall.log
@@ -255,7 +256,7 @@ Wait Until File Log Contains Times
 File Log Does Not Contain
     [Arguments]  ${logCheck}  ${input}
     Run Keyword And Expect Error
-    ...  Keyword '${logCheck}' failed after retrying for 15 seconds.*
+    ...  REGEXP:Keyword '.*' failed after retrying for [0-9]* seconds\..*
     ...  Wait Until Keyword Succeeds
     ...    15 secs
     ...    1 secs
@@ -1203,7 +1204,7 @@ Force SUSI to be initialized
     Check avscanner can detect eicar  ${CLI_SCANNER_PATH}
 
 Create Big Dir
-    [Arguments]   ${count}=100   ${path}=${SCAN_DIRECTORY}/big_dir
+    [Arguments]   ${count}=${100}   ${path}=${SCAN_DIRECTORY}/big_dir
     Register Cleanup   Remove Directory   ${path}   recursive=true
     Create Directory   ${path}
     Copy File     ${RESOURCES_PATH}/file_samples/Firefox.exe   ${path}/Firefox.exe
@@ -1285,7 +1286,7 @@ Copy And Extract Image
     ${result} =  Run Process  tar  xvzf  ${imagetarfile}  -C  ${UNPACK_DIRECTORY}
     Log  ${result.stdout}
     Log  ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0
+    Should Be Equal As Integers  ${result.rc}  ${0}
     [Return]  ${UNPACK_DIRECTORY}/${imagename}.img
 
 Unmount Image
@@ -1312,7 +1313,7 @@ Mount Image
     ${result} =  Run Process  mount  -t  ${type}  -o  ${opts}  ${image}  ${where}
     Log  ${result.stdout}
     Log  ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0
+    Should Be Equal As Integers  ${result.rc}  ${0}
     Register Cleanup  Unmount Image Internal  ${where}
 
 Unmount Bind Mount
@@ -1328,7 +1329,7 @@ Bind Mount Directory
     ${result} =  Run Process  mount  --bind  ${src}  ${dest}
     Log  ${result.stdout}
     Log  ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0
+    Should Be Equal As Integers  ${result.rc}  ${0}
     Register Cleanup  Unmount Bind Mount  ${dest}
 
 Require Filesystem

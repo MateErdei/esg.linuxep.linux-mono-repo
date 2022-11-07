@@ -147,7 +147,6 @@ Stop AV
 
 
 *** Variables ***
-${CLI_SCANNER_PATH}  ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${CLEAN_STRING}     not an eicar
 ${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
 ${UKNOWN_OPTION_RESULT}      ${2}
@@ -597,7 +596,7 @@ CLS Cannot Scan Huge Path
 
     Log  return code is ${rc}
     Log  output is ${output}
-    Should Be Equal As Integers  ${rc}  36
+    Should Be Equal As Integers  ${rc}  ${SCAN_ABORTED}
     Should contain  ${output}  1 scan error encountered
 
 
@@ -679,7 +678,7 @@ CLS Encoded Eicars
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
     ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh
     Log Many  ${result.stdout}  ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0
+    Should Be Equal As Integers  ${result.rc}  ${0}
 
     ${av_mark} =  get_av_log_mark
 
@@ -1389,7 +1388,7 @@ CLS Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     File Log Contains Once  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
 
     # Specific codes tested in integration
-    Should Be True  ${result.rc} > 0
+    Should Be True  ${result.rc} > ${0}
 
 
 CLS scan with Bind Mount
@@ -1757,8 +1756,8 @@ CLS Can init susi safely in parallel
     ${process2} =   Start Process   ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/clean_file
     ${result1} =    Wait For Process   ${process1}  timeout=${60}  on_timeout=kill
     ${result2} =    Wait For Process   ${process2}  timeout=${60}  on_timeout=kill
-    Should Be equal As Integers  ${result1.rc}  0
-    Should Be equal As Integers  ${result2.rc}  0
+    Should Be equal As Integers  ${result1.rc}  ${0}
+    Should Be equal As Integers  ${result2.rc}  ${0}
 
 CLS Can Scan Special File That Cannot Be Read
     Register Cleanup    Exclude SUSI Illegal seek error
@@ -1766,7 +1765,7 @@ CLS Can Scan Special File That Cannot Be Read
     Register Cleanup    Run Process  ip  netns  delete  avtest  stderr=STDOUT
     ${result} =  Run Process  ip  netns  add  avtest  stderr=STDOUT
     Register On Fail  Log  ip netns add avtest output is ${result.stdout}
-    Should Be equal As Integers  ${result.rc}  0
+    Should Be equal As Integers  ${result.rc}  ${0}
     Wait Until File exists  /run/netns/avtest
     ${catrc}   ${catoutput} =    Run And Return Rc And Output    cat /run/netns/avtest
     Register On Fail  Log  cat result: = ${catrc} output = ${catoutput}

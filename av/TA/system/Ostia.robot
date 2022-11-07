@@ -96,15 +96,15 @@ Override LogConf File as Global Level
 
 Stop Management Agent
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   managementagent
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
 Start Management Agent
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start   managementagent
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
 Check Managment Agent Is Not Running
     ${result} =    Run Process  pgrep  sophos_managementagent
-    Should Not Be Equal As Integers    ${result.rc}    0   msg="stdout:${result.stdout}\n${SPACE}err: ${result.stderr}"
+    Should Not Be Equal As Integers    ${result.rc}    ${0}   msg="stdout:${result.stdout}\n${SPACE}err: ${result.stderr}"
 
 Wait For Management Agent To Stop
     Wait Until Keyword Succeeds

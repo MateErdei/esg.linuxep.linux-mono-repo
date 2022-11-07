@@ -19,7 +19,7 @@ AV plugin runs scan now and completes
      Check Plugin Installed and Running
      Configure and check scan now with offset
      ${result} =  Count AV Log Lines
-     Should be true  ${result} > 1000
+     Should be true  ${result} > ${1000}
      [Teardown]  Remove Directory  /tmp_test/stress  True
 
 *** Keywords ***

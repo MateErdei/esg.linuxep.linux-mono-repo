@@ -128,7 +128,7 @@ IDE update during command line scan
     FOR   ${offset}   IN RANGE   ${time_diff}
         ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
         ${line_count} =  Count Lines In Log  ${scan_log}  [${timestamp}] Scanning \
-        Should Be True   5 <= ${line_count}
+        Should Be True   ${5} <= ${line_count}
     END
 
 On access gets IDE update
@@ -181,7 +181,7 @@ On access continues during update
         ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
         ${lines} =   Grep File   ${THREAT_DETECTOR_LOG_PATH}   T${timestamp}.* Scan requested of
         ${line_count} =   Get Line Count   ${lines}
-        Should Be True   1 <= ${line_count}
+        Should Be True   ${1} <= ${line_count}
     END
 
 Concurrent scans get pending update
@@ -442,7 +442,7 @@ Check group writable install permissions
     ...               Check results against an allowed list.
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     find ${COMPONENT_ROOT_PATH} -! -type l -\\( -user sophos-spl-av -o -group sophos-spl-group -perm -0020 -\\) -prune
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  ${0}
     ${output} =   Replace String   ${output}   ${COMPONENT_ROOT_PATH}/   ${EMPTY}
     @{items} =    Split To Lines   ${output}
     Sort List   ${items}
@@ -456,7 +456,7 @@ Check group writable install permissions
 Check world writable permissions
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     find ${COMPONENT_ROOT_PATH} -! -type l -perm -0002
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  ${0}
     ${output} =   Replace String Using Regexp   ${output}   /[^/]*\\.cov   ${EMPTY}
     @{items} =    Split To Lines   ${output}
     Log List   ${items}
@@ -470,7 +470,7 @@ Check permissions after upgrade
     # find writable directories
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     find ${COMPONENT_ROOT_PATH} -name susi -prune -o -type d -\\( -user sophos-spl-av -perm -0200 -o -group sophos-spl-group -perm -0020 -\\) -print
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  ${0}
     @{items} =    Split To Lines   ${output}
     Sort List   ${items}
     Log List   ${items}
@@ -498,7 +498,7 @@ Check permissions after upgrade
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${files_as_args}
     Log   ${output}
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  ${0}
     ${before} =   Set Variable   ${output}
 
     # modify the manifest to force the installer to perform a full product update
@@ -509,7 +509,7 @@ Check permissions after upgrade
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${files_as_args}
     Log   ${output}
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  ${0}
     ${after} =   Set Variable   ${output}
     Should Be Equal   ${before}   ${after}
 
@@ -579,7 +579,7 @@ Check installer corrects permissions of var directory on upgrade
     File Log Does Not Contain  Check Marked Watchdog Log Contains  Failed to create file: '${customerIdFile}', Permission denied
 
     ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  ${0}
     Should Be Empty  ${output}
 
     # Request a scan in order to load SUSI
@@ -604,7 +604,7 @@ Check installer corrects permissions of logs directory on upgrade
     File Log Does Not Contain  Check Marked Watchdog Log Contains  log4cplus:ERROR Unable to open file: ${AV_LOG_PATH}
 
     ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  ${0}
     Should Be Empty  ${output}
 
 Check installer corrects permissions of chroot files on upgrade
@@ -641,7 +641,7 @@ Check installer corrects permissions of chroot files on upgrade
     Log  ${output}
 
     ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
-    Should Be Equal As Integers  ${rc}  0
+    Should Be Equal As Integers  ${rc}  ${0}
     Should Be Empty  ${output}
 
     # Request a scan in order to load SUSI
@@ -665,7 +665,7 @@ Check installer can handle versioned copied Virus Data from 1-0-0
     Install AV Directly from SDDS
 
     ${number_of_VDL_files}   Count Files In Directory   ${AV_PLUGIN_PATH}/chroot/susi/update_source/vdl
-    Should Be True   ${number_of_VDL_files} > 1
+    Should Be True   ${number_of_VDL_files} > ${1}
 
 AV Plugin Can Send Telemetry After IDE Update
     #reset telemetry values

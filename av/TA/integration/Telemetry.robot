@@ -61,7 +61,7 @@ AV plugin runs scheduled scan and updates telemetry
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
 
-    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   1
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${1}
 
 
 AV Plugin Can Send Telemetry
@@ -92,8 +92,8 @@ AV Plugin sends non-zero processInfo to Telemetry
     ${memUsage}=    Get From Dictionary   ${avDict}   threatMemoryUsage
     ${processAge}=    Get From Dictionary   ${avDict}   threatProcessAge
 
-    Should Not Be Equal As Integers  ${memUsage}  0
-    Should Be True  ${processAge} > 0 and ${processAge} < 10
+    Should Not Be Equal As Integers  ${memUsage}  ${0}
+    Should Be True  ${0} < ${processAge} < ${10}
 
 AV plugin Saves and Restores Scan Now Counter
     # Run telemetry to reset counters to 0
@@ -113,8 +113,8 @@ AV plugin Saves and Restores Scan Now Counter
     Log   ${backupfileContents}
     ${backupJson}=    Evaluate     json.loads("""${backupfileContents}""")    json
     ${rootkeyDict}=    Set Variable     ${backupJson['rootkey']}
-    Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   1
-    Dictionary Should Contain Item   ${rootkeyDict}   threatHealth   1
+    Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   ${1}
+    Dictionary Should Contain Item   ${rootkeyDict}   threatHealth   ${1}
 
     Mark AV Log
     Start AV Plugin
@@ -127,8 +127,8 @@ AV plugin Saves and Restores Scan Now Counter
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
 
-    Dictionary Should Contain Item   ${avDict}   scan-now-count   1
-    Dictionary Should Contain Item   ${avDict}   threatHealth   1
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
+    Dictionary Should Contain Item   ${avDict}   threatHealth   ${1}
 
 
 AV plugin increments Scan Now Counter after Save and Restore
@@ -149,7 +149,7 @@ AV plugin increments Scan Now Counter after Save and Restore
     Log   ${backupfileContents}
     ${backupJson}=    Evaluate     json.loads("""${backupfileContents}""")    json
     ${rootkeyDict}=    Set Variable     ${backupJson['rootkey']}
-    Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   1
+    Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   ${1}
 
     Start AV Plugin
 
@@ -163,7 +163,7 @@ AV plugin increments Scan Now Counter after Save and Restore
 
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
-    Dictionary Should Contain Item   ${avDict}   scan-now-count   2
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${2}
 
 
 Telemetry Counters Are Zero by default
@@ -179,7 +179,7 @@ Telemetry Counters Are Zero by default
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
 
-    Dictionary Should Contain Item   ${avDict}   threat-eicar-count   0
-    Dictionary Should Contain Item   ${avDict}   threat-count   0
-    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   0
-    Dictionary Should Contain Item   ${avDict}   scan-now-count   0
+    Dictionary Should Contain Item   ${avDict}   threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${0}

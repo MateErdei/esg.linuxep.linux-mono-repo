@@ -16,7 +16,7 @@ SafeStoreWrapper Test Setup
     ${result} =   Run Process   tar    xzf    ${BUILD_ARTEFACTS_FOR_TAP}/tap_test_output.tar.gz    -C    ${safestore_unpacked}/
     Log  ${result.stdout}
     Log  ${result.stderr}
-    Should Be Equal As Strings   ${result.rc}  0
+    Should Be Equal As Integers   ${result.rc}  ${0}
 
 SafeStoreWrapper Test Teardown
     Remove Directory    ${safestore_unpacked}   recursive=True
@@ -30,7 +30,4 @@ SafeStoreWrapper Tests
     ${result} =   Run Process   ${safestore_tests_binary}
     Log  ${result.stdout}
     Log  ${result.stderr}
-    Should Be Equal As Strings   ${result.rc}  0
-
-
-
+    Should Be Equal As Integers   ${result.rc}  ${0}

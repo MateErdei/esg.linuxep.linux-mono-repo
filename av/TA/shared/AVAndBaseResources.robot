@@ -31,11 +31,11 @@ Check avscanner in /usr/local/bin
 
 Stop AV Plugin Process
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   av
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
 Start AV Plugin Process
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start   av
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
 Restart AV Plugin
     Stop AV Plugin
@@ -134,32 +134,32 @@ Validate latest Event
 
 Create Encoded Eicars
    ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/createEncodingEicars.sh  stderr=STDOUT
-   Should Be Equal As Integers  ${result.rc}  0
+   Should Be Equal As Integers  ${result.rc}  ${0}
    Log  ${result.stdout}
 
 Stop sophos_threat_detector
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   threat_detector
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
 Start sophos_threat_detector
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  threat_detector
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
 Stop soapd
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   on_access_process
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
 Start soapd
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  on_access_process
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
 Stop SafeStore
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   safestore
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
 Start SafeStore
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  safestore
-    Should Be Equal As Integers    ${result.rc}    0
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
 Restart sophos_threat_detector
     # with added checks/debugging for LINUXDAR-5808

@@ -15,10 +15,18 @@ Test Teardown   AV Health Test Teardown
 
 *** Variables ***
 &{SERVICE_HEALTH_STATUSES}
-...   0=0  1=1  2=2
-...   GOOD=0  BAD=1  MISSING=2
-...   Good=0  Bad=1  Missing=2
-...   good=0  bad=1  missing=2
+...   0=${0}     1=${1}     2=${2}
+...   ${0}=${0}  ${1}=${1}  ${2}=${2}
+...   GOOD=${0}  BAD=${1}   MISSING=${2}
+...   Good=${0}  Bad=${1}   Missing=${2}
+...   good=${0}  bad=${1}   missing=${2}
+
+&{THREAT_HEALTH_STATUSES}
+...   1=${1}     2=${2}            3=${3}
+...   ${1}=${1}  ${2}=${2}         ${3}=${3}
+...   GOOD=${1}  SUSPICIOUS=${2}   BAD=${3}
+...   Good=${1}  Suspicious=${2}   Bad=${3}
+...   good=${1}  suspicious=${2}   bad=${3}
 
 *** Keywords ***
 AV Health Suite Setup
@@ -63,6 +71,9 @@ Check Status Health is Reporting Correctly
 
 Check Threat Health is Reporting Correctly
     [Arguments]    ${threatStatus}
+
+    ${threatStatus} =   Get From Dictionary  ${THREAT_HEALTH_STATUSES}  ${threatStatus}
+
     Wait Until Keyword Succeeds
     ...  40 secs
     ...  5 secs
@@ -202,7 +213,7 @@ Sophos SafeStore Crashing Triggers Bad Health
 
 
 Clean CLS Result Does Not Reset Threat Health
-    Check Threat Health is Reporting Correctly    1
+    Check Threat Health is Reporting Correctly    GOOD
 
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
     Create File     /tmp_test/clean_file       ${CLEAN_STRING}
@@ -217,31 +228,31 @@ Clean CLS Result Does Not Reset Threat Health
     Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in /tmp_test/naughty_eicar
     Wait Until AV Plugin Log Contains With Offset  Threat health changed to suspicious
 
-    Check Threat Health is Reporting Correctly    2
+    Check Threat Health is Reporting Correctly    SUSPICIOUS
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/clean_file
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
-    Check Threat Health is Reporting Correctly    2
+    Check Threat Health is Reporting Correctly    SUSPICIOUS
 
 Bad Threat Health is preserved after av plugin restarts
-    Check Threat Health is Reporting Correctly    1
+    Check Threat Health is Reporting Correctly    GOOD
 
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
 
     Configure and check scan now with offset
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
 
-    Check Threat Health is Reporting Correctly    2
+    Check Threat Health is Reporting Correctly    SUSPICIOUS
     Stop AV Plugin
     Start AV Plugin
     Wait until AV Plugin running
-    Check Threat Health is Reporting Correctly    2
+    Check Threat Health is Reporting Correctly    SUSPICIOUS
 
 Clean Scan Now Result Does Not Reset Threat Health
-    Check Threat Health is Reporting Correctly    1
+    Check Threat Health is Reporting Correctly    GOOD
 
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
 
@@ -250,7 +261,7 @@ Clean Scan Now Result Does Not Reset Threat Health
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     AV Plugin Log Contains With Offset   Completed scan Scan Now and detected threats
 
-    Check Threat Health is Reporting Correctly    2
+    Check Threat Health is Reporting Correctly    SUSPICIOUS
 
     Remove File  /tmp_test/naughty_eicar
 
@@ -259,11 +270,11 @@ Clean Scan Now Result Does Not Reset Threat Health
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     AV Plugin Log Contains With Offset   Completed scan Scan Now without detecting any threats
 
-    Check Threat Health is Reporting Correctly    2
+    Check Threat Health is Reporting Correctly    SUSPICIOUS
 
 
 Clean Scheduled Scan Result Does Not Resets Threat Health
-    Check Threat Health is Reporting Correctly    1
+    Check Threat Health is Reporting Correctly    GOOD
 
     Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
 
@@ -274,7 +285,7 @@ Clean Scheduled Scan Result Does Not Resets Threat Health
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=180
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=210
 
-    Check Threat Health is Reporting Correctly    2
+    Check Threat Health is Reporting Correctly    SUSPICIOUS
 
     Remove File  /tmp_test/naughty_eicar
 
@@ -285,7 +296,7 @@ Clean Scheduled Scan Result Does Not Resets Threat Health
     Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=180
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=210
 
-    Check Threat Health is Reporting Correctly    2
+    Check Threat Health is Reporting Correctly    SUSPICIOUS
 
 Test av health is green right after install
     Install With Base SDDS

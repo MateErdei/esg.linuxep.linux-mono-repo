@@ -490,7 +490,7 @@ AV Plugin Reports encoded eicars To Base
    # We send both CORE Detection Events and CORE Clean Events, so for every detection there will be 2 events.
    ${expected_count}=    Evaluate    ${expected_count} * 2
 
-   Should Be True  ${expected_count} > 0
+   Should Be True  ${expected_count} > ${0}
 
    ${result} =  Run Process  /usr/local/bin/avscanner  /tmp_test/encoded_eicars/  timeout=120s  stderr=STDOUT
    Should Be Equal As Integers  ${result.rc}  ${VIRUS_DETECTED_RESULT}
@@ -658,7 +658,7 @@ AV Plugin does not restart threat detector on customer id change
 
     Wait Until AV Plugin Log Contains With Offset   Received new policy
     Run Keyword And Expect Error
-    ...   Keyword 'AV Plugin Log Contains With Offset' failed after retrying for 5 seconds.*
+    ...   REGEXP:Keyword '.*' failed after retrying for [0-9]* seconds\..*
     ...   Wait Until AV Plugin Log Contains With Offset   Reloading susi as policy configuration has changed   timeout=5
     Check Sophos Threat Detector has same PID   ${pid}
 

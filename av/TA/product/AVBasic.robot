@@ -94,7 +94,7 @@ AV Plugin Scan Now Updates Telemetry Count
     Log   ${telemetryString}
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
 
-    Dictionary Should Contain Item   ${telemetryJson}   scan-now-count   1
+    Dictionary Should Contain Item   ${telemetryJson}   scan-now-count   ${1}
 
     av_log_contains_only_one_no_saved_telemetry_per_start
 
@@ -281,7 +281,7 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count And Reports Suspici
     # Run telemetry to reset counters to 0
     ${telemetryString}=  Get Plugin Telemetry  av
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
-    Dictionary Should Contain Item   ${telemetryJson}   threatHealth   1
+    Dictionary Should Contain Item   ${telemetryJson}   threatHealth   ${1}
 
     Run Scan Now Scan
 
@@ -290,8 +290,8 @@ AV Plugin Scan of Infected File Increases Threat Eicar Count And Reports Suspici
     ${telemetryString}=  Get Plugin Telemetry  av
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
     Log   ${telemetryJson}
-    Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   1
-    Dictionary Should Contain Item   ${telemetryJson}   threatHealth   2
+    Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   ${1}
+    Dictionary Should Contain Item   ${telemetryJson}   threatHealth   ${2}
 
 
 AV Plugin Scan Now Does Not Detect PUA
@@ -449,7 +449,7 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     Register Cleanup    Run Process  ip  netns  delete  avtest  stderr=STDOUT
     ${result} =  Run Process  ip  netns  add  avtest  stderr=STDOUT
     Log  output is ${result.stdout}
-    Should Be equal As Integers  ${result.rc}  0
+    Should Be equal As Integers  ${result.rc}  ${0}
     Wait Until File exists  /run/netns/avtest
     ${exclusions} =  Configure Scan Exclusions Everything Else  /run/netns/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>

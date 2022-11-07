@@ -32,8 +32,9 @@ Global Setup Tasks
     Set Environment Variable  SOPHOS_INSTALL                ${SOPHOS_INSTALL}
 
     Set Global Variable  ${TEST_SCRIPTS_PATH}               ${TEST_INPUT_PATH}/test_scripts
-    Set Global Variable  ${INTEGRATION_TESTS_PATH}          ${TEST_SCRIPTS_PATH}/integration
-    Set Global Variable  ${PRODUCT_TESTS_PATH}              ${TEST_SCRIPTS_PATH}/product
+    Set Global Variable  ${LIBS_PATH}                       ${TEST_SCRIPTS_PATH}/Libs
+    Set Global Variable  ${BASH_SCRIPTS_PATH}               ${LIBS_PATH}/bashScripts
+    Set Global Variable  ${SUPPORT_FILES_PATH}              ${LIBS_PATH}/supportFiles
     Set Global Variable  ${RESOURCES_PATH}                  ${TEST_SCRIPTS_PATH}/resources
     Set Global Variable  ${BUILD_ARTEFACTS_FOR_TAP}         ${TEST_INPUT_PATH}/tap_test_output_from_build
 
