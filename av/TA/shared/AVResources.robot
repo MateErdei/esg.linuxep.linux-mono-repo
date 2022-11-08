@@ -624,10 +624,9 @@ Wait Until SAV Status XML Contains
     Wait Until File Log Contains  SAV Status XML Contains   ${input}   timeout=${timeout}
 
 Check Plugin Installed and Running
-    [Arguments]   ${mark}  ${td_mark}
     File Should Exist   ${PLUGIN_BINARY}
-    Wait until AV Plugin running  ${mark}
-    Wait until threat detector running  ${td_mark}
+    Wait until AV Plugin running
+    Wait until threat detector running
 
 Check Plugin Installed and Running With Offset
     File Should Exist   ${PLUGIN_BINARY}
@@ -635,9 +634,8 @@ Check Plugin Installed and Running With Offset
     Wait until threat detector running with offset
 
 Wait until AV Plugin running
-    [Arguments]  ${mark}
     ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${30}
-    wait_for_av_log_contains_after_mark  Common <> Starting scanScheduler  mark=${mark}  timeout=${40}
+    LogUtils.Wait For AV Log contains after last restart  Common <> Starting scanScheduler  timeout=${40}
 
 Wait until AV Plugin running with offset
     ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${30}
@@ -681,10 +679,10 @@ Wait Until SafeStore not running
     ...  Check SafeStore Not Running
 
 Wait until threat detector running
-    [Arguments]  ${td_mark}  ${timeout}=${60}
+    [Arguments]  ${timeout}=${60}
     # wait for sophos_threat_detector to initialize
     ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
-    wait_for_log_contains_from_mark  ${td_mark}  SophosThreatDetectorImpl <> Starting USR1 monitor  ${timeout}
+    Wait_For_Log_contains_after_last_restart  ${THREAT_DETECTOR_LOG_PATH}  SophosThreatDetectorImpl <> Starting USR1 monitor  ${timeout}
     # Only output in debug mode:
     # ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
 
@@ -703,18 +701,17 @@ Wait until threat detector not running
     ...  Check Threat Detector Not Running
 
 Check AV Plugin Installed
-    [Arguments]  ${av_mark}
     File Should Exist   ${PLUGIN_BINARY}
-    Wait until AV Plugin running  ${av_mark}
+    Wait until AV Plugin running
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  3 secs
     ...  FakeManagement Log Contains   Registered plugin: ${COMPONENT}
 
 Check AV Plugin Installed from Marks
-    [Arguments]  ${av_mark}  ${fake_management_mark}
+    [Arguments]  ${fake_management_mark}
     File Should Exist   ${PLUGIN_BINARY}
-    Wait until AV Plugin running  ${av_mark}
+    Wait until AV Plugin running
     wait_for_log_contains_from_mark  ${fake_management_mark}  Registered plugin: ${COMPONENT}  timeout=${15}
 
 Check AV Plugin Installed With Offset
@@ -768,7 +765,6 @@ Install Base For Component Tests
 
 Install AV Directly from SDDS
     Mark AV Log
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
 
     ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}
@@ -777,7 +773,7 @@ Install AV Directly from SDDS
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install plugin.\noutput: \n${log_contents}"
 
     Wait until AV Plugin running with offset
-    Wait until threat detector running  ${td_mark}
+    Wait until threat detector running
 
 Uninstall AV Without /usr/sbin in PATH
     ${result} =   Run Process   bash  -x  ${AV_PLUGIN_PATH}/sbin/uninstall.sh   timeout=60s  stderr=STDOUT   stdout=${AV_UNINSTALL_LOG}  env:PATH=/usr/local/bin:/usr/bin:/bin

@@ -1,10 +1,21 @@
+#!/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (C) 2022 Sophos Ltd
+# All rights reserved.
 
 import os
+import re
 import six
 import time
 from typing import Optional
 
 from robot.api import logger
+
+
+def ensure_binary(s, encoding="UTF-8"):
+    if isinstance(s, six.text_type):
+        return s.encode(encoding)
+    return s
 
 
 class LogMark:
@@ -96,7 +107,7 @@ class LogMark:
             logger.info(u"Marked log from %s:\n" % self.__m_log_path+u'\n'.join(lines))
 
     def wait_for_log_contains_from_mark(self, expected, timeout) -> None:
-        expected = six.ensure_binary(expected, "UTF-8")
+        expected = ensure_binary(expected, "UTF-8")
         start = time.time()
         old_contents = ""
         while time.time() < start + timeout:
@@ -142,3 +153,59 @@ class LogHandler:
         assert isinstance(mark, LogMark)
         mark.assert_is_good(self.__m_log_path)
         return mark.wait_for_log_contains_from_mark(expected, timeout)
+
+    def __generate_log_file_names(self):
+        yield self.__m_log_path
+        for n in range(1, 10):
+            yield "%s.%d" % (self.__m_log_path, n)
+
+    def get_content_since_last_start(self) -> list:
+        """
+        Get the log file contents since the last start,
+        assuming the first field in a log line is time(ms) since the process started
+        assumes 999999999 is greater than any process will live for
+        :return:
+        """
+        results = []
+        proc_age = 999999999
+        LINE_RE = re.compile(rb"^(\d+).*")
+
+        for file_path in self.__generate_log_file_names():
+            lines = open(file_path, "rb").readlines()
+            lines = reversed(lines)  # read the newest first
+            for line in lines:
+                mo = LINE_RE.match(line)
+                if mo:
+                    age = int(mo.group(1))
+                    if age > proc_age:
+                        results.reverse()
+                        return results
+                    proc_age = age
+                results.append(line)
+
+        logger.error("Log file %s has completely rolled over since process last started" % self.__m_log_path)
+        results.reverse()
+        return results
+
+    def Wait_For_AV_Log_contains_after_last_restart(self, expected, timeout: int) -> None:
+        """
+        Need to look for the restart in the log, and check the log after that.
+        A restart means the first digit resetting to 0
+        :param expected:
+        :param timeout:
+        :return:
+        """
+        expected = ensure_binary(expected, "UTF-8")
+        start = time.time()
+        content_lines = []
+        while time.time() < start + timeout:
+            content_lines = self.get_content_since_last_start()
+            for line in content_lines:
+                if expected in line:
+                    return
+
+            time.sleep(1)
+
+        content_lines = [line.decode("UTF-8", errors="backslashreplace") for line in content_lines]
+        logger.info("AV Log since last restart:" + u"".join(content_lines))
+        raise AssertionError("'%s' not found in %s after %d seconds" % (expected, self.__m_log_path, timeout))

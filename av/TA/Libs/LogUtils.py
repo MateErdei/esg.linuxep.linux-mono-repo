@@ -988,6 +988,10 @@ File Log Contains
             self.dump_marked_log(log_path, mark)
             raise AssertionError("Found %s in %s" % (not_expected, log_path))
 
+    def Wait_For_Log_contains_after_last_restart(self, log_path, expected, timeout: int):
+        handler = self.get_log_handler(log_path)
+        return handler.Wait_For_AV_Log_contains_after_last_restart(expected, timeout)
+
 ########################################################################################################################
 # On-Access Soapd Log
     def get_on_access_log_mark(self) -> LogHandler.LogMark:
@@ -1031,6 +1035,10 @@ File Log Contains
 
     def check_av_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.av_log, not_expected, mark)
+
+    def Wait_For_AV_Log_contains_after_last_restart(self, expected, timeout: int):
+        handler = self.get_log_handler(self.av_log)
+        return handler.Wait_For_AV_Log_contains_after_last_restart(expected, timeout)
 
 #####################################################################
 # Sophos Threat Detector Log
