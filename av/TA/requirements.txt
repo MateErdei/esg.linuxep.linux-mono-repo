@@ -2,8 +2,9 @@ pyzmq
 psutil
 protobuf<=3.20.0
 pytest-html
-Cython
+cython
 pycapnp
 #TODO: LINUXDAR-5907 Update tests to be compatible with latest robot framework, pubtap is incompatible with 5.0.1
 robotframework==4.0.2
 requests
+urllib3>=1.25.4
