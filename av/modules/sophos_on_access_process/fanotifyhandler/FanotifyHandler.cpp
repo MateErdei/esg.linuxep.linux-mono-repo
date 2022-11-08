@@ -125,6 +125,22 @@ int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
     return result;
 }
 
+int FanotifyHandler::uncacheFd(const int& fd, const std::string& path) const
+{
+    assert(m_systemCallWrapper);
+    int fanotify_fd = getFd(); // CacheFd only called while fanotify enabled
+    if (fanotify_fd < 0)
+    {
+        LOGERROR("Skipping uncacheFd for " << path << " as fanotify disabled");
+        return 0;
+    }
+
+    constexpr unsigned int flags = FAN_MARK_REMOVE | FAN_MARK_IGNORED_MASK;
+    constexpr uint64_t mask = FAN_OPEN;
+    int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, fd, nullptr);
+    return result;
+}
+
 int FanotifyHandler::clearCachedFiles() const
 {
     int fd = m_fd.fd(); // Don't call getFd() since it will log an error

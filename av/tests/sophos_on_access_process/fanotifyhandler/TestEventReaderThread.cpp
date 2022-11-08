@@ -44,6 +44,10 @@ namespace
         {
             return 0;
         }
+        [[nodiscard]] int uncacheFd(const int&, const std::string&) const override
+        {
+            return 0;
+        }
         [[nodiscard]] int clearCachedFiles() const override
         {
             return 0;

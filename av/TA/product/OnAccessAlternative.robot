@@ -581,3 +581,34 @@ On Access Can Be enabled After It Gets Disabled In Policy
 
     On-access Scan Eicar Close
 
+On Access Doesnt Cache Close Events With Detections After Rewrite
+    [Tags]   manual
+    # switch to 1 scanning thread
+    Create File   ${AV_PLUGIN_PATH}/var/onaccessproductconfig.json   { "maxthreads" : 1 }
+    Register Cleanup   Remove File   {AV_PLUGIN_PATH}/var/onaccessproductconfig.json
+    ${mark} =  Get on access log mark
+    Restart On Access
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
+    # create test file, wait for OA queue to clear
+    ${srcfile} =   Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/susicore/libicui18n.so.70.1
+    ${testfile} =  Set Variable  /tmp_test/dirtyfile.txt
+    Evaluate  shutil.copyfile("${srcfile}", "${testfile}-excluded")
+    Move File  ${testfile}-excluded  ${testfile}
+    Register Cleanup   Remove File   ${testfile}
+    Sleep   1s
+
+    # replace test file with EICAR
+    ${oamark} =  Get on access log mark
+    Write File After Delay  ${testfile}  ${EICAR_STRING}  ${0.005}
+    Wait for on access log contains after mark  On-close event for ${testfile} from  mark=${oamark}
+    Wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}
+    Sleep   1s  #Let the event (hopefully not) be cached
+
+    # see if the file is cached
+    ${oamark2} =  Get on access log mark
+    Get File  ${testfile}
+    Sleep  1s
+    Dump On Access Log After Mark   ${oamark}
+    Wait for on access log contains after mark  On-open event for ${testfile} from  mark=${oamark2}
+    Wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark2}

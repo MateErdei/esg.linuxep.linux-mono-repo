@@ -59,7 +59,7 @@ namespace
             return request;
         }
 
-        std::shared_ptr<NiceMock<MockFanotifyHandler>> m_mockFanotifyHandler;
+        std::shared_ptr<MockFanotifyHandler> m_mockFanotifyHandler;
         fs::path m_testDir;
     };
 
@@ -184,12 +184,32 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileWaiting)
     EXPECT_TRUE(waitForLog("Finished ScanRequestHandler"));
 }
 
+TEST_F(TestScanRequestHandler, scan_threadCanExitWhileScanning)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
+    auto socket = std::make_shared<RecordingMockSocket>();
+    auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
+        scanRequestQueue, socket, m_mockFanotifyHandler);
+    auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
+
+    EXPECT_TRUE(waitForLog("Starting ScanRequestHandler"));
+
+    auto scanRequest = std::make_shared<ClientScanRequest>();
+    scanRequest->setPath("THROW_SCAN_INTERRUPTED");
+    scanRequestQueue->emplace(scanRequest);
+
+    EXPECT_TRUE(waitForLog("Finished ScanRequestHandler"));
+}
+
 TEST_F(TestScanRequestHandler, cleanScanOpen)
 {
     auto socket = std::make_shared<RecordingMockSocket>(false, false);
     auto scanHandler = buildDefaultHandler(socket);
 
     EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).WillOnce(Return(0));
+    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(0);
 
     scan_messages::ClientScanRequestPtr request(buildRequest());
     scanHandler->scan(request);
@@ -203,6 +223,7 @@ TEST_F(TestScanRequestHandler, cleanScanClose)
     auto scanHandler = buildDefaultHandler(socket);
 
     EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(1);
+    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(0);
 
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
     scanHandler->scan(request);
@@ -217,6 +238,7 @@ TEST_F(TestScanRequestHandler, infectedScanOpen)
     auto scanHandler = buildDefaultHandler(socket);
 
     EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(1);
 
     scan_messages::ClientScanRequestPtr request(buildRequest());
     scanHandler->scan(request);
@@ -232,6 +254,7 @@ TEST_F(TestScanRequestHandler, infectedScanClose)
     auto scanHandler = buildDefaultHandler(socket);
 
     EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(1);
 
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
     scanHandler->scan(request);
@@ -269,6 +292,7 @@ TEST_F(TestScanRequestHandler, scanError)
     auto scanHandler = buildDefaultHandler(socket);
 
     EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(1);
 
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
     scanHandler->scan(request);
@@ -295,6 +319,22 @@ TEST_F(TestScanRequestHandlerDeathTest, cacheFdError)
     EXPECT_EXIT(scanHandler->scan(request), ::testing::ExitedWithCode(1),"");
 }
 
+TEST_F(TestScanRequestHandler, uncacheFdErrorIgnored)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto socket = std::make_shared<RecordingMockSocket>(true, false);
+    auto scanHandler = buildDefaultHandler(socket);
+
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).WillOnce(Return(-1));
+
+    scan_messages::ClientScanRequestPtr request(buildRequest());
+    scanHandler->scan(request);
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
+    EXPECT_TRUE(appenderContains("Detected \"/expected\" is infected with threatName (Open)"));
+}
+
 TEST_F(TestScanRequestHandler, scanErrorAndDetection)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -302,6 +342,7 @@ TEST_F(TestScanRequestHandler, scanErrorAndDetection)
     auto scanHandler = buildDefaultHandler(socket);
 
     EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(1);
 
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
     scanHandler->scan(request);

@@ -1012,6 +1012,10 @@ File Log Contains
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
                                                             self.get_on_access_log_mark())
 
+    def dump_on_access_log_after_mark(self, mark: LogHandler.LogMark):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in dump_on_access_log_after_mark"
+        self.dump_marked_log(self.oa_log, mark)
+
     def wait_for_on_access_log_contains_after_mark(self, expected, mark: LogHandler.LogMark, timeout: int = 10):
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_on_access_log_contains_after_mark"
         return self.wait_for_log_contains_after_mark(self.oa_log, expected, mark, timeout=timeout)

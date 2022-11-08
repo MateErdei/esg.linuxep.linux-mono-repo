@@ -4,6 +4,7 @@ import os
 import re
 import shutil
 import stat
+import time
 
 from robot.api import logger
 
@@ -93,3 +94,15 @@ def copy_file_no_temp_directory(src, destdir):
     if not os.path.exists(destdir):
         os.makedirs(destdir)
     shutil.copy2(src, destdir)
+
+
+def write_file_after_delay(dest, content, delay: float):
+    logger.info("Opening "+dest)
+    with open(dest, "a") as f:
+        time.sleep(delay)
+        logger.info("Writing "+dest)
+        f.seek(0)
+        f.truncate()
+        f.write(content)
+        # f.flush()
+    logger.info("Closed "+dest)

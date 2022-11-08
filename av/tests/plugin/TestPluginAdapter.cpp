@@ -1,13 +1,12 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
+#define PLUGIN_INTERNAL public
+
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "pluginimpl/Logger.h"
 #include "pluginimpl/PluginAdapter.h"
-#include "pluginimpl/DetectionReporter.h"
-
-#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -15,6 +14,7 @@
 #include <Common/Helpers/MockApiBaseServices.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
@@ -195,8 +195,9 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
     fs::path testDir = tmpdir();
     const std::string susiStartupSettingsPath = testDir / "var/susi_startup_settings.json";
     const std::string susiStartupSettingsChrootPath = std::string(testDir / "chroot") + susiStartupSettingsPath;
+    const std::string databasePath = std::string(testDir / "var/persist-threatDatabase") ;
     Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + susiStartupSettingsPath + "', file does not exist");
-
+    EXPECT_CALL(*mockIFileSystemPtr, exists(databasePath)).WillOnce(Return(false));
     EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillRepeatedly(Throw(ex));
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(_,_)).WillRepeatedly(Throw(ex));
     EXPECT_CALL(*mockIFileSystemPtr, writeFileAtomically(_,_,_,_)).WillRepeatedly(Throw(ex));
@@ -348,8 +349,11 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
     const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
+    const std::string databasePath = std::string(testDir / "var/persist-threatDatabase") ;
     Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
     EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
+    EXPECT_CALL(*mockIFileSystemPtr, exists(databasePath)).WillOnce(Return(false));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(databasePath, "{}")).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).WillOnce(QueueStopTask(m_taskQueue));
 
@@ -372,6 +376,140 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     EXPECT_TRUE(appenderContains("Processing policy: " + policyXml));
 }
 
+TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger threadRunnerLogger = Common::Logging::getInstance("Common");
+    threadRunnerLogger.addAppender(m_sharedAppender);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
+
+    std::string brokenPolicyXml = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        R"sophos(<?xml version="1.0"?>
+        <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+          <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="@@REV_ID@@" policyType="@@POLICY_ID@@"/>
+             <detectionFeedback>
+                <sendData>@@SXL@@</sendData>
+                <sendFiles>false</sendFiles>
+                true</onDemandEnable>
+              </detectionFeedback>
+        </config>
+        )sophos", {{"@@REV_ID@@", "12345678901"},
+                    {"@@POLICY_ID@@", "2"},
+                    {"@@SXL@@", "false"}});
+
+    Task policyTask = {Task::TaskType::Policy, brokenPolicyXml};
+    m_taskQueue->push(policyTask);
+
+    EXPECT_TRUE(waitForLog("Exception encountered while parsing AV policy XML: Error parsing xml"));
+
+    Task stopTask = {Task::TaskType::Stop, ""};
+    m_taskQueue->push(stopTask);
+    EXPECT_TRUE(waitForLog("Stop task received"));
+    EXPECT_FALSE(appenderContains("SAV policy received for the first time."));
+
+    pluginThread.join();
+}
+
+TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvalidPolicy)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger threadRunnerLogger = Common::Logging::getInstance("Common");
+    threadRunnerLogger.addAppender(m_sharedAppender);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
+
+    std::string invalidPolicyXml =
+        R"sophos(<?xml version="1.0"?>
+<config xmlns="http://www.sophos.com/EE/EESavConfiguration">
+  <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>
+  <onDemandScan>
+   <scanSet>
+        <!-- if {{scheduledScanEnabled}} -->
+        <scan>
+            <name>Sophos Cloud Scheduled Scan</name>
+        <schedule>
+        <daySet>
+            <!-- for day in {{scheduledScanDays}} -->
+            <day>{{day}}</day>
+        </daySet>
+        <timeSet>
+            <time>{{scheduledScanTime}}</time>
+        </timeSet>
+        </schedule>
+        <settings>
+        <scanObjectSet>
+        <CDDVDDrives>false</CDDVDDrives>
+        <hardDrives>true</hardDrives>
+        <networkDrives>false</networkDrives>
+        <removableDrives>false</removableDrives>
+        <kernelMemory>true</kernelMemory>
+        </scanObjectSet>
+        <scanBehaviour>
+        <level>normal</level>
+        <archives>{{scheduledScanArchives}}</archives>
+        <pua>true</pua>
+        <suspiciousFileDetection>false</suspiciousFileDetection>
+        <scanForMacViruses>false</scanForMacViruses>
+        <anti-rootkits>true</anti-rootkits>
+        </scanBehaviour>
+        <actions>
+            <disinfect>true</disinfect>
+            <puaRemoval>false</puaRemoval>
+            <fileAction>doNothing</fileAction>
+            <destination/>
+            <suspiciousFiles>
+              <fileAction>doNothing</fileAction>
+              <destination/>
+            </suspiciousFiles>
+        </actions>
+        <on-demand-options>
+        <minimise-scan-impact>true</minimise-scan-impact>
+        </on-demand-options>
+        </settings>
+        </scan>
+        </scanSet>
+  </onDemandScan>
+</config>
+)sophos";
+
+    Task policyTask = {Task::TaskType::Policy, invalidPolicyXml};
+    m_taskQueue->push(policyTask);
+    EXPECT_TRUE(waitForLog("Received Policy"));
+
+    Task stopTask = {Task::TaskType::Stop, ""};
+    m_taskQueue->push(stopTask);
+    EXPECT_TRUE(waitForLog("Stop task received"));
+
+    EXPECT_FALSE(appenderContains("SAV policy received for the first time."));
+    EXPECT_FALSE(appenderContains("Processing request to restart sophos threat detector"));
+
+    pluginThread.join();
+}
+
+
 TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -388,7 +526,10 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
     const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
     const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
+    const std::string databasePath = std::string(testDir / "var/persist-threatDatabase") ;
     Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
+    EXPECT_CALL(*mockIFileSystemPtr, exists(databasePath)).WillOnce(Return(false));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(databasePath, "{}")).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).WillOnce(QueueStopTask(m_taskQueue));
@@ -435,7 +576,7 @@ TEST_F(TestPluginAdapter, testProcessAction)
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>)";
@@ -445,8 +586,8 @@ TEST_F(TestPluginAdapter, testProcessAction)
     std::string expectedLog = "Process action: ";
     expectedLog.append(actionXml);
 
-    EXPECT_TRUE(waitForLog(expectedLog, 500ms));
-    EXPECT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
+    EXPECT_TRUE(waitForLog(expectedLog));
+    EXPECT_TRUE(waitForLog("Evaluating Scan Now"));
 
     m_taskQueue->pushStop();
 
@@ -472,7 +613,7 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed)
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="NONE" id="" subtype="MALFORMED" replyRequired="0"/>)";
@@ -482,10 +623,44 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed)
     std::string expectedLog = "Process action: ";
     expectedLog.append(actionXml);
 
-    EXPECT_TRUE(waitForLog(expectedLog, 500ms));
-    EXPECT_FALSE(waitForLog("Evaluating Scan Now", 500ms));
+    EXPECT_TRUE(waitForLog(expectedLog));
+    EXPECT_FALSE(waitForLog("Evaluating Scan Now"));
 
     m_taskQueue->pushStop();
+
+    pluginThread.join();
+
+    scanLogger.removeAppender(m_sharedAppender);
+}
+
+TEST_F(TestPluginAdapter, testBadProcessActionXMLThrows)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger scanLogger = Common::Logging::getInstance("ScanScheduler");
+    scanLogger.addAppender(m_sharedAppender);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
+
+    std::string actionXml =
+        R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1">)";
+    Task actionTask = {Task::TaskType::Action, actionXml};
+    m_taskQueue->push(actionTask);
+
+    EXPECT_TRUE(waitForLog("Exception encountered while parsing Action XML", 500ms));
+
+    Task stopTask = {Task::TaskType::Stop, ""};
+    m_taskQueue->push(stopTask);
 
     pluginThread.join();
 
@@ -511,10 +686,10 @@ TEST_F(TestPluginAdapter, testProcessScanComplete)
         </event>)sophos";
 
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", scanCompleteXml));
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}")).Times(0);
 
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_CLEAN_SUCCESS);
+    pluginAdapter.processScanComplete(scanCompleteXml);
     m_taskQueue->pushStop();
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
@@ -537,32 +712,12 @@ TEST_F(TestPluginAdapter, testProcessThreatReport)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    std::string threatDetectedXML = R"sophos(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-                     <notification xmlns="http://www.sophos.com/EE/Event"
-                               description="Virus/spyware eicar has been detected in path/to/threat"
-                               type="sophos.mgt.msg.event.threat"
-                               timestamp="123">
+    std::string threatDetectedXML = "may be xml data";
 
-                     <user userId="User"
-                               domain="local"/>
-                     <threat  type="1"
-                               name="eicar"
-                               scanType="201"
-                               status="50"
-                               id="1"
-                               idSource="1">
-
-                               <item file="threat"
-                                      path="path/to/threat"/>
-                               <action action="104"/>
-                     </threat>
-                     </notification>
-            )sophos";
-
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
+    EXPECT_CALL(*mockBaseServicePtr, sendEvent("CORE", threatDetectedXML));
 
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    DetectionReporter::processThreatReport(threatDetectedXML, m_taskQueue);
+    pluginAdapter.processThreatReport(threatDetectedXML);
     m_taskQueue->pushStop();
 
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
@@ -571,34 +726,6 @@ TEST_F(TestPluginAdapter, testProcessThreatReport)
 
     pluginAdapter.mainLoop();
     std::string expectedLog = "Sending threat detection notification to central: ";
-    expectedLog.append(threatDetectedXML);
-
-    EXPECT_TRUE(appenderContains(expectedLog));
-}
-
-TEST_F(TestPluginAdapter, publishQuarantineCleanEvent)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-    std::string threatDetectedXML = "may be xml data";
-
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("CORE", threatDetectedXML));
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    DetectionReporter::publishQuarantineCleanEvent(threatDetectedXML, m_taskQueue);
-    m_taskQueue->pushStop();
-
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
-
-    pluginAdapter.mainLoop();
-    std::string expectedLog = "Sending Clean Event to Central: ";
     expectedLog.append(threatDetectedXML);
 
     EXPECT_TRUE(appenderContains(expectedLog));
@@ -654,7 +781,7 @@ void SubscriberThread::run()
     }
 }
 
-TEST_F(TestPluginAdapter, testPublishThreatReport)
+TEST_F(TestPluginAdapter, testPublishThreatEvent)
 {
     auto subscriberContext = Common::ZMQWrapperApi::createContext();
     SubscriberThread thread(*subscriberContext, m_threatEventPublisherSocketPath);
@@ -685,66 +812,37 @@ TEST_F(TestPluginAdapter, testPublishThreatReport)
     EXPECT_EQ(data.at(1), threatDetectedJSON);
 }
 
-TEST_F(TestPluginAdapter, DISABLED_testProcessThreatReportIncrementsThreatCount)
-{
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-    std::string threatDetectedXML = R"sophos(
-<notification>
-  <threat name="Very bad file">
-  </threat>
-</notification>
-            )sophos";
-
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
-
-    Common::Telemetry::TelemetryHelper::getInstance().reset();
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    DetectionReporter::processThreatReport(threatDetectedXML, m_taskQueue);
-    m_taskQueue->pushStop();
-
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
-    pluginAdapter.mainLoop();
-
-    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
-    auto telemetry = nlohmann::json::parse(telemetryResult);
-    EXPECT_EQ(telemetry["threat-count"], 1);
-}
-
-TEST_F(TestPluginAdapter, DISABLED_testProcessThreatReportIncrementsThreatEicarCount)
+TEST_F(TestPluginAdapter, testPublishThreatHealth)
 {
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    std::string threatDetectedXML = R"sophos(
-<notification>
-  <threat name="EICAR-AV-Test">
-  </threat>
-</notification>
-            )sophos";
-
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", threatDetectedXML));
-
-    Common::Telemetry::TelemetryHelper::getInstance().reset();
-
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    DetectionReporter::processThreatReport(threatDetectedXML, m_taskQueue);
-    m_taskQueue->pushStop();
 
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).Times(1);
+    pluginAdapter.publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
 
-    pluginAdapter.mainLoop();
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":2})")).Times(1);
+    pluginAdapter.publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+}
 
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountIncrementsThreatCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file");
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["threat-count"], 1);
+}
 
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountIncrementsThreatEicarCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test");
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     auto telemetry = nlohmann::json::parse(telemetryResult);
     EXPECT_EQ(telemetry["threat-eicar-count"], 1);
 }
@@ -795,11 +893,11 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
     auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
-    EXPECT_TRUE(waitForLog("Starting the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     m_taskQueue->pushStop();
 
-    EXPECT_TRUE(waitForLog("Stopping the main program loop", 500ms));
+    EXPECT_TRUE(waitForLog("Stopping the main program loop"));
 
     pluginThread.join();
 
@@ -807,59 +905,6 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
     EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
 }
 
-TEST_F(TestPluginAdapter, testHealthResetsToGreenWhenAppriopriate)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-    std::string scanCompleteXml = R"sophos(<?xml version="1.0"?>
-        <event xmlns="http://www.sophos.com/EE/EESavEvent" type="sophos.mgt.sav.scanCompleteEvent">
-          <defaultDescription>The scan has completed!</defaultDescription>
-          <timestamp>20200101 120000</timestamp>
-          <scanComplete>
-            <scanName>Test Scan</scanName>
-          </scanComplete>
-          <entity></entity>
-        </event>)sophos";
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}")).Times(2);
-
-    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_GENERIC_FAILURE);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-
-    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_PASSWORD_PROTECTED);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-
-    m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_SCAN_ABORTED);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_CAP_SET_PROC_C);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_CAP_SET_AMBIENT_C);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_SIGTERM);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_VIRUS_FOUND);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_SCAN_ABORTED_WITH_THREATS);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    pluginAdapter.processScanComplete(scanCompleteXml, common::E_EXECUTION_INTERRUPTED);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-
-    EXPECT_TRUE(appenderContains("Publishing good threat health status after clean scan", 2));
-}
 
 // TODO: LINUXDAR-5806 -- stablise this test
 //// PluginAdapter construction needed for this test, so it's here instead of its own TestSafeStoreWorker file (for now)

@@ -12,7 +12,6 @@
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
 // Base
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Logging/LoggerConfig.h"
 
 #include <chrono>
@@ -87,6 +86,10 @@ void ScanRequestHandler::scan(
     }
     else
     {
+        LOGDEBUG("Un-caching " << common::escapePathForLogging(scanRequest->getPath())<< " (" << scanType << ")");
+        // file may not have been cached, so we ignore the return code
+        std::ignore = m_fanotifyHandler->uncacheFd(scanRequest->getFd(), scanRequest->getPath());
+
         for(const auto& detection : detections)
         {
             std::string escapedPath(common::escapePathForLogging(detection.path));
@@ -120,7 +123,7 @@ void ScanRequestHandler::run()
             auto queueItem = m_scanRequestQueue->pop();
             if(queueItem)
             {
-                if(logLevel == Common::Logging::TRACE || m_dumpPerfData)
+                if(logLevel <= Common::Logging::TRACE || m_dumpPerfData)
                 {
                     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
@@ -131,7 +134,7 @@ void ScanRequestHandler::run()
                     auto inProductDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - queueItem->getCreationTime()).count();
 
                     std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
-                    if (logLevel == Common::Logging::TRACE)
+                    if (logLevel <= Common::Logging::TRACE)
                     {
                         LOGTRACE(
                             "Scan for " << escapedPath << " completed in " << scanDuration << "ms by scanHandler-"
