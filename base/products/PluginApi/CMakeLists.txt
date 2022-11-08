@@ -61,6 +61,7 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/PersistentValue
         COMMAND mkdir -p pluginapi/include/Common/PluginApi
         COMMAND mkdir -p pluginapi/include/Common/PluginApiImpl
+        COMMAND mkdir -p pluginapi/include/Common/PluginProtocol
         COMMAND mkdir -p pluginapi/include/Common/ProcUtilImpl
         COMMAND mkdir -p pluginapi/include/Common/Process
         COMMAND mkdir -p pluginapi/include/Common/ProcessMonitoring
@@ -126,6 +127,7 @@ add_copy_directory(Common/Logging)
 add_copy_directory(Common/PersistentValue)
 add_copy_directory(Common/PluginApi)
 add_copy_directory(Common/PluginApiImpl)
+add_copy_directory(Common/PluginProtocol)
 add_copy_directory(Common/ProcUtilImpl)
 add_copy_directory(Common/Process)
 add_copy_directory(Common/ProcessMonitoring)
