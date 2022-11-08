@@ -30,10 +30,6 @@ Send signal to SafeStore
     ${rc}  ${pid} =  Run And Return Rc And Output  pgrep safestore
     Evaluate  os.kill(${pid}, ${signal})  modules=os, signal
 
-Wait Until SafeStore Log Contains
-    [Arguments]  ${input}  ${timeout}=15
-    Wait Until File Log Contains  SafeStore Log Contains  ${input}  timeout=${timeout}
-
 *** Test Cases ***
 
 SafeStore is killed gracefully

@@ -228,8 +228,9 @@ class LogHandler:
         """
         Need to look for the restart in the log, and check the log after that.
         A restart means the first digit resetting to 0
-        :param expected:
-        :param timeout:
+        :param mark: Optional Mark - only check log after mark
+        :param expected: String expected in log
+        :param timeout: Amount of time to wait for expected to appear
         :return:
         """
         expected = ensure_binary(expected, "UTF-8")

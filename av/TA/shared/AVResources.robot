@@ -662,11 +662,9 @@ Wait Until On Access running with offset
     LogUtils.Wait For Log Contains After Mark    ${ON_ACCESS_LOG_PATH}    ProcessPolicy    ${mark}  timeout=60
 
 Wait Until SafeStore running
-    ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${30}
-    Wait Until Keyword Succeeds
-        ...  60 secs
-        ...  2 secs
-        ...  SafeStore Log Contains  SafeStore started
+    [Arguments]  ${timeout}=${60}
+    ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
+    LogUtils.Wait For Log contains after last restart  ${SAFESTORE_LOG_PATH}  Common <> Starting scanScheduler  timeout=${timeout}
 
 Wait Until SafeStore Running With Offset
     [Arguments]  ${timeout}=${60}
