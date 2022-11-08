@@ -548,6 +548,8 @@ On Access logs if the kernel queue overflows
     wait for on access log contains after mark   Fanotify queue overflowed, some files will not be scanned.  mark=${mark}
 
 On Access Uses Multiple Scanners
+#    TODO: Remove after LINUXDAR-6017 is fixed
+    [Tags]  MANUAL
     ${mark} =  get_on_access_log_mark
     Configure on access log to trace level
     wait for on access log contains after mark   Starting scanHandler  mark=${mark}

@@ -132,6 +132,8 @@ IDE update during command line scan
     END
 
 On access gets IDE update
+#    TODO: Remove after LINUXDAR-6018 is fixed
+    [Tags]  MANUAL
     ${mark} =  get_on_access_log_mark
     Send Policies to enable on-access
     Wait for on access to be enabled  ${mark}
