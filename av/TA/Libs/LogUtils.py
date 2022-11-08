@@ -1020,6 +1020,8 @@ File Log Contains
                                                             self.mark_log_size(self.av_log))
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}",
                                                             self.mark_log_size(self.__m_safestore_log))
+        robot.libraries.BuiltIn.BuiltIn().set_test_variable("${THREATDETECTOR_LOG_MARK_FROM_START_OF_TEST}",
+                                                            self.mark_log_size(self.sophos_threat_detector_log))
 
 ########################################################################################################################
 # On-Access Soapd Log

@@ -154,23 +154,23 @@ SafeStore does not quarantine on a Corrupt Database
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
 
-    Wait Until Safestore Log Contains    Successfully saved SafeStore database password to file
-    Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
-    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully saved SafeStore database password to file  timeout=15
+    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Quarantine Manager initialised OK  timeout=15
+    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully initialised SafeStore database  timeout=15
 
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Corrupt SafeStore Database
     Check avscanner can detect eicar
 
-    Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test'  ${av_mark}
-    Wait Until SafeStore Log Contains  Received Threat:
-    Wait Until SafeStore Log Contains  Cannot quarantine file, SafeStore is in
-    Wait For SafeStore Log Contains After Mark    Successfully removed corrupt SafeStore database  ${ss_mark}  timeout=200
-    Wait For SafeStore Log Contains After Mark    Successfully initialised SafeStore database  ${ss_mark}
+    Wait Until AV Plugin Log Contains Detection Name After Mark  ${av_mark}  EICAR-AV-Test
+    wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${safe_store_mark}  Cannot quarantine file, SafeStore is in
+    wait_for_log_contains_from_mark  ${safe_store_mark}  Successfully removed corrupt SafeStore database    timeout=200
+    wait_for_log_contains_from_mark  ${safe_store_mark}  Successfully initialised SafeStore database
 
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
-    Wait For SafeStore Log Contains After Mark  Received Threat:  ${ss_mark}
+    wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
