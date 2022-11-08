@@ -141,6 +141,7 @@ class Agent(object):
         self.logger.info("Sending reply to plugin: {}".format(message))
         self.send_message_over_agent_socket(message)
 
+
 def main():
     LOGGER = setup_logging("fake_management_agent.log", "Fake Management Agent")
     LOGGER.info("Fake Management Agent started")

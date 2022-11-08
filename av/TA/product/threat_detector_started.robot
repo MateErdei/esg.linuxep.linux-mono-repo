@@ -17,6 +17,8 @@ Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 
+Suite Setup    Threat Detector Suite Setup
+
 Test Setup     Threat Detector Test Setup
 Test Teardown  Threat Detector Test Teardown
 
@@ -32,13 +34,19 @@ ${SOMETIMES_SYMLINKED_SYSPATH}  /etc/${SOMETIMES_SYMLINKED_SYSFILE}
 
 *** Keywords ***
 
+Threat Detector Suite Setup
+    Remove File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
+
 Threat Detector Test Setup
     Component Test Setup
     Mark Sophos Threat Detector Log
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
+    Register On Fail  Dump Log  ${AV_LOG_PATH}
     Start AV
+    Remove File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
+    Wait_For_Log_contains_after_last_restart  ${AV_LOG_PATH}  ScanProcessMonitor <> Config Monitor entering main loop
 
 Threat Detector Test Teardown
     List AV Plugin Path
