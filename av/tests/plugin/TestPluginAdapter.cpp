@@ -570,7 +570,7 @@ TEST_F(TestPluginAdapter, testProcessThreatReport)
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
     pluginAdapter.mainLoop();
-    std::string expectedLog = "Sending threat detection notification to Central: ";
+    std::string expectedLog = "Sending threat detection notification to central: ";
     expectedLog.append(threatDetectedXML);
 
     EXPECT_TRUE(appenderContains(expectedLog));
