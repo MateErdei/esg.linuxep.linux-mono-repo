@@ -154,6 +154,12 @@ class LogHandler:
         mark.assert_is_good(self.__m_log_path)
         return mark.wait_for_log_contains_from_mark(expected, timeout)
 
+    def __readlines(self, file_path):
+        try:
+            return open(file_path, "rb").readlines()
+        except OSError:
+            return []
+
     def __generate_log_file_names(self):
         yield self.__m_log_path
         for n in range(1, 10):
@@ -171,7 +177,7 @@ class LogHandler:
         LINE_RE = re.compile(rb"^(\d+).*")
 
         for file_path in self.__generate_log_file_names():
-            lines = open(file_path, "rb").readlines()
+            lines = self.__readlines(file_path)
             lines = reversed(lines)  # read the newest first
             for line in lines:
                 mo = LINE_RE.match(line)
@@ -183,7 +189,8 @@ class LogHandler:
                     proc_age = age
                 results.append(line)
 
-        logger.error("Log file %s has completely rolled over since process last started" % self.__m_log_path)
+        if proc_age > 0:
+            logger.error("Log file %s has completely rolled over since process last started" % self.__m_log_path)
         results.reverse()
         return results
 
