@@ -26,6 +26,15 @@ namespace fs = sophos_filesystem;
 
 namespace safestore
 {
+    Main::~Main()
+    {
+        if (m_pluginHandler)
+        {
+            m_pluginHandler->stop();
+        }
+        Common::Telemetry::TelemetryHelper::getInstance().save();
+    }
+
     int Main::run()
     {
         LOGDEBUG("SafeStore starting");

@@ -12,6 +12,7 @@ namespace safestore
     class Main
     {
     public:
+        ~Main();
         static int run();
         static std::string SafeStoreServiceLineName() { return "safestore"; }
 
