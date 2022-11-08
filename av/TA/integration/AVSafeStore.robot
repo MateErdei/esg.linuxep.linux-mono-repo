@@ -33,9 +33,7 @@ ${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_
 *** Test Cases ***
 
 SafeStore Database is Initialised
-    Wait Until Safestore Log Contains    Successfully saved SafeStore database password to file
-    Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
-    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+    wait for Safestore to be running
 
     Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}
     File Should Exist    ${SAFESTORE_DB_PASSWORD_PATH}
@@ -43,27 +41,26 @@ SafeStore Database is Initialised
 SafeStore Can Reinitialise Database Containing Threats
     ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}    timeout=60
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
-    Wait Until Safestore Log Contains    Successfully saved SafeStore database password to file
-    Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
-    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+    wait for Safestore to be running
 
     ${ssPassword1} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
 
+    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
-    Wait Until Safestore Log Contains  Received Threat:
+    wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
 
     ${filesInSafeStoreDb1} =  List Files In Directory  ${SAFESTORE_DB_DIR}
     Log  ${filesInSafeStoreDb1}
 
     Stop SafeStore
     Check Safestore Not Running
-    ${ss_mark} =  Get SafeStore Log Mark
+    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
 
     Start SafeStore
-    Wait For SafeStore Log Contains After Mark    Quarantine Manager initialised OK  ${ss_mark}
-    Wait For SafeStore Log Contains After Mark    Successfully initialised SafeStore database  ${ss_mark}
+    wait_for_log_contains_from_mark  ${safe_store_mark}  Quarantine Manager initialised OK
+    wait_for_log_contains_from_mark  ${safe_store_mark}  Successfully initialised SafeStore database
 
     Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}
     ${ssPassword2} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
