@@ -11,8 +11,16 @@ try:
 except ImportError:
     import LogHandler
 
+ensure_binary = LogHandler.ensure_binary
 
-def get_content_lines(path, mark):
+
+def ensure_unicode(s) -> str:
+    if isinstance(s, bytes):
+        return s.decode("UTF-8", errors="replace")
+    return s
+
+
+def get_content_lines(path, mark) -> list:
     if isinstance(mark, LogHandler.LogMark):
         mark.assert_is_good(path)
         contents = mark.get_contents()
@@ -64,6 +72,17 @@ def get_sophos_threat_detector_pid():
     raise SophosThreatDetectorException("sophos_threat_detector not running")
 
 
+def normalize_mark(mark):
+    if isinstance(mark, LogHandler.LogMark):
+        return mark
+
+    try:
+        return int(mark)
+    except TypeError:
+        logger.error("Unable to convert mark ("+str(type(mark))+") to int")
+    return mark
+
+
 class SophosThreatDetector(object):
     def __init__(self):
         self.__m_ides_for_uninstall = []
@@ -80,10 +99,11 @@ class SophosThreatDetector(object):
         :return: text that was found, or None if sophos_threat_detector stopped, False if no texts found
         """
         original_pid = int(original_pid)
-        if not isinstance(mark, LogHandler.LogMark):
-            mark = int(mark)
+        mark = normalize_mark(mark)
         timeout = float(timeout)
         interval = float(interval)
+
+        texts = [ ensure_unicode(t) for t in texts ]
 
         log_file_path = BuiltIn().get_variable_value("${THREAT_DETECTOR_LOG_PATH}")
         start = time.time()
@@ -94,6 +114,7 @@ class SophosThreatDetector(object):
             logger.debug("Checking log after %f seconds" % (time.time() - start))
             contents = get_content_lines(log_file_path, mark)
             for line in contents:
+                line = ensure_unicode(line)
                 for text in texts:
                     if text in line:
                         logger.info("Found line %s in marked log contents" % text)
@@ -122,9 +143,10 @@ class SophosThreatDetector(object):
         :return:
         """
         original_pid = int(original_pid)
-        mark = int(mark)
+        mark = normalize_mark(mark)
         timeout = float(timeout)
         interval = float(interval)
+        text = ensure_unicode(text)
 
         log_file_path = BuiltIn().get_variable_value("${THREAT_DETECTOR_LOG_PATH}")
         start = time.time()
@@ -135,6 +157,7 @@ class SophosThreatDetector(object):
             logger.debug("Checking log after %f seconds" % (time.time() - start))
             contents = get_content_lines(log_file_path, mark)
             for line in contents:
+                line = ensure_unicode(line)
                 if text in line:
                     logger.info("Found line %s in marked log contents" % text)
                     return True
