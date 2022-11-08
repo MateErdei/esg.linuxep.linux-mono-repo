@@ -4,6 +4,7 @@ SophosAddTest(TestSafeStore
         MockIQuarantineManager.h
         MockISafeStoreWrapper.h
         TestQuarantineManager.cpp
+        TestSafeStoreServiceCallback.cpp
         TestSafeStoreWrapperUtils.cpp
         TestStateMonitor.cpp
         PROJECTS safestoreimpl
