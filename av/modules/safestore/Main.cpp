@@ -3,14 +3,16 @@
 #include "Main.h"
 
 #include "Logger.h"
+#include "SafeStoreServiceCallback.h"
 
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/QuarantineManager/StateMonitor.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
-#include "unixsocket/safeStoreRescanSocket/SafeStoreRescanServerSocket.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/PluginApiImpl/PluginResourceManagement.h"
 #include "common/ApplicationPaths.h"
 #include "common/PidLockFile.h"
 #include "common/SaferStrerror.h"
@@ -64,9 +66,16 @@ namespace safestore
         server.setUserAndGroup("sophos-spl-av", "root");
         server.start();
 
-        unixsocket::SafeStoreRescanServerSocket rescanServer(Plugin::getSafeStoreRescanSocketPath(), quarantineManager);
-        rescanServer.setUserAndGroup("sophos-spl-threat-detector", "sophos-spl-group");
-        rescanServer.start();
+        Common::Telemetry::TelemetryHelper::getInstance().restore(SafeStoreServiceLineName());
+        auto replier = m_context->getReplier();
+        Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, SafeStoreServiceLineName(), 5000, 5000);
+        std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new SafeStoreServiceCallback() };
+        m_pluginHandler.reset(new Common::PluginApiImpl::PluginCallBackHandler(
+            SafeStoreServiceLineName(),
+            std::move(replier),
+            std::move(pluginCallback),
+            Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM));
+        m_pluginHandler->start();
 
         // clang-format off
         struct pollfd fds[]
