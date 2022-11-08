@@ -135,10 +135,13 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}   timeout=60
     Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
+
+
+    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
 
-    Wait Until SafeStore Log Contains  Received Threat:
-    Wait For AV Log Contains After Mark  Quarantine failed  ${av_mark}
+    wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${av_mark}  Quarantine failed
     File Should Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
