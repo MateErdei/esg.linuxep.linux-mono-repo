@@ -111,12 +111,13 @@ SafeStore Quarantines When It Receives A File To Quarantine
     ${av_mark} =  Get AV Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.   ${av_mark}   timeout=60
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
+    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
 
-    Wait Until SafeStore Log Contains  Received Threat:
-    Wait For AV Log Contains After Mark  Quarantine succeeded  ${av_mark}
+    wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
