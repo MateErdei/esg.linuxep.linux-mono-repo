@@ -79,11 +79,7 @@ namespace Plugin
 
     bool ThreatDatabase::isDatabaseEmpty()
     {
-        if (m_database.empty())
-        {
-            return true;
-        }
-        return false;
+        return m_database.empty();
     }
 
     void ThreatDatabase::resetDatabase()

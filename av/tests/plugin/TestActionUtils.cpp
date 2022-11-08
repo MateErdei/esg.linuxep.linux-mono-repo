@@ -20,7 +20,7 @@ TEST_F(TestActionUtils, isScanNowActionReturnTrueOnScanNowAction)
     EXPECT_TRUE(pluginimpl::isScanNowAction(attributeMap));
 }
 
-TEST_F(TestActionUtils, isScanNowActionReturnFalseOnScanNowAction)
+TEST_F(TestActionUtils, isScanNowActionReturnFalseOnNotAScanNowAction)
 {
     std::string actionXml =
         R"(<action type="sophos.mgt.action.SAVClearFromList" xmlns="com.sophos/msys/action">
@@ -28,6 +28,14 @@ TEST_F(TestActionUtils, isScanNowActionReturnFalseOnScanNowAction)
      <threat type="{{threatType}}" typeId="{{threatTypeId}}" name="{{threatName}}" item="{{threatFilename}}" id="{{threatId}}" idSource="NameFilenameFilepathCIMD5"></threat>
 </threat-set>
 </action>)";
+    auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
+    EXPECT_FALSE(pluginimpl::isScanNowAction(attributeMap));
+}
+
+TEST_F(TestActionUtils, isScanNowActionReturnFalseOnEmptyAction)
+{
+    std::string actionXml =
+        R"(<a:action></a:action>)";
     auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
     EXPECT_FALSE(pluginimpl::isScanNowAction(attributeMap));
 }
@@ -56,6 +64,14 @@ TEST_F(TestActionUtils, isSAVClearActionReturnFalseOnNotSAVClearAction)
     EXPECT_FALSE(pluginimpl::isSAVClearAction(attributeMap));
 }
 
+TEST_F(TestActionUtils, isSAVClearActionReturnFalseOnEmptyAction)
+{
+    std::string actionXml =
+        R"(<a:action></a:action>)";
+    auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
+    EXPECT_FALSE(pluginimpl::isSAVClearAction(attributeMap));
+}
+
 TEST_F(TestActionUtils, getThreatIDFromAction)
 {
     std::string actionXml =
@@ -69,7 +85,7 @@ TEST_F(TestActionUtils, getThreatIDFromAction)
     EXPECT_EQ("threatID",pluginimpl::getThreatID(attributeMap));
 }
 
-TEST_F(TestActionUtils, getThreatIDFromActionthrows)
+TEST_F(TestActionUtils, getThreatIDFromActionthrowsWhenNoIDInAction)
 {
     std::string actionXml =
         R"(<action type="sophos.mgt.action.SAVClearFromList" xmlns="com.sophos/msys/action">

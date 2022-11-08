@@ -3,6 +3,8 @@
 add_subdirectory(ObfuscationImpl)
 
 sophos_add_library(pluginimpl SHARED
+        ActionUtils.cpp
+        ActionUtils.h
         DetectionQueue.cpp
         DetectionQueue.h
         HealthStatus.cpp
@@ -22,8 +24,6 @@ sophos_add_library(pluginimpl SHARED
         SafeStoreWorker.h
         StringUtils.cpp
         StringUtils.h
-        ActionUtils.cpp
-        ActionUtils.h
         TaskQueue.cpp
         TaskQueue.h
         ThreatDatabase.cpp
