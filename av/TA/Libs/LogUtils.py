@@ -988,9 +988,9 @@ File Log Contains
             self.dump_marked_log(log_path, mark)
             raise AssertionError("Found %s in %s" % (not_expected, log_path))
 
-    def Wait_For_Log_contains_after_last_restart(self, log_path, expected, timeout: int):
+    def Wait_For_Log_contains_after_last_restart(self, log_path, expected, timeout: int, mark=None):
         handler = self.get_log_handler(log_path)
-        return handler.Wait_For_AV_Log_contains_after_last_restart(expected, timeout)
+        return handler.Wait_For_AV_Log_contains_after_last_restart(expected, timeout, mark)
 
 ########################################################################################################################
 # On-Access Soapd Log

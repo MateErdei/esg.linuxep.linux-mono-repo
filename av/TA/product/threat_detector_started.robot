@@ -60,10 +60,12 @@ Start AV
 
     Start Sophos Threat Detector Under Fake Watchdog
 
+    ${fake_management_log_path} =   FakeManagementLog.get_fake_management_log_path
+    ${fake_management_log_mark} =  LogUtils.mark_log_size  ${fake_management_log_path}
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Register Cleanup   Terminate And Wait until AV Plugin not running  ${AV_PLUGIN_HANDLE}
-    Check AV Plugin Installed With Offset
+    Check AV Plugin Installed from Marks  ${fake_management_log_mark}
 
 Stop AV
     Stop Sophos Threat Detector Under Fake Watchdog
@@ -101,7 +103,7 @@ Threat Detector Restarts If System File Contents Change
     wait_for_av_log_contains_after_mark  System configuration updated for ${TESTSYSFILE}  ${av_mark}
     check_av_log_does_not_contain_after_mark  System configuration not changed for ${TESTSYSFILE}  ${av_mark}
 
-    Wait until threat detector running  ${td_mark}
+    Wait until threat detector running after mark  ${td_mark}
 
     ${av_mark} =  LogUtils.Get Av Log Mark
 
@@ -137,7 +139,7 @@ Threat Detector Restarts If Sometimes-symlinked System File Contents Change
     Append To File  ${SOMETIMES_SYMLINKED_SYSPATH}   "#NewLine"
 
     wait_for_av_log_contains_after_mark  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}  ${av_mark}
-    Wait until threat detector running  ${td_mark}
+    Wait until threat detector running after mark  ${td_mark}
 
     ${av_mark} =  LogUtils.Get Av Log Mark
     Revert Sometimes-symlinked System File To Original

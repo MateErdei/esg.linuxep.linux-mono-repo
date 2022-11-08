@@ -294,11 +294,10 @@ Start AV
     ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
     Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
 
-    ${av_log_mark} =  LogUtils.get_av_log_mark
     ${fake_management_log_path} =   FakeManagementLog.get_fake_management_log_path
     ${fake_management_log_mark} =  LogUtils.mark_log_size  ${fake_management_log_path}
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}   stdout=/tmp/av.stdout  stderr=/tmp/av.stderr
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
 
-    Check AV Plugin Installed from Marks  ${av_log_mark}  ${fake_management_log_mark}
+    Check AV Plugin Installed from Marks  ${fake_management_log_mark}
