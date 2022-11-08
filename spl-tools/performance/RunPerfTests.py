@@ -10,8 +10,9 @@ import time
 
 import requests
 
-from PerformanceResources import stop_sspl_process, start_sspl_process, get_current_unix_epoch_in_seconds, \
-    wait_for_plugin_to_be_installed
+import LogUtils
+from PerformanceResources import stop_sspl_process, start_sspl_process, stop_sspl, start_sspl, \
+    disable_onaccess, enable_onaccess, get_current_unix_epoch_in_seconds, wait_for_plugin_to_be_installed
 
 PROCESS_EVENTS_QUERY = ("process-events", '''SELECT
 GROUP_CONCAT(process_events.pid) AS pids,
@@ -143,6 +144,52 @@ def run_gcc_perf_test():
 
     if result.returncode != 0:
         exit(1)
+
+def run_clean_file_test(test_name, stop_on_queue_full=True, max_count=100000):
+    dirpath = os.path.join("/tmp", "onaccess_stress_test")
+    os.makedirs(dirpath)
+    date_time = get_current_date_time_string()
+
+    log_utils = LogUtils.LogUtils()
+    mark = log_utils.get_on_access_log_mark()
+    start_time = get_current_unix_epoch_in_seconds()
+    file_count = 0;
+    while file_count < max_count:
+        file_count += 1
+        filepath = os.path.join(dirpath, "{}.txt".format(file_count))
+        with open(filepath, "w") as f:
+            f.write("clean file {}".format(file_count))
+        if stop_on_queue_full:
+            try:
+                log_utils.check_on_access_log_does_not_contain_after_mark("Failed to add scan request to queue, on-access scanning queue is full.", mark)
+            except AssertionError as ex:
+                logging.info("At file count {}: {}".format(file_count, str(ex)))
+                break
+    end_time = get_current_unix_epoch_in_seconds()
+    logging.info("Created {} files in {} seconds".format(file_count, end_time - start_time))
+
+    shutil.rmtree(dirpath)
+    record_result(test_name, date_time, start_time, end_time)
+    return file_count
+
+
+
+def run_onaccess_test():
+    logging.info("Running AV On-access stress test")
+
+    # Write clean files until the queue becomes full or we reach max_count
+    file_count = run_clean_file_test("File opens - OA enabled")
+
+    # Write the same number of files but with on-access disable
+    disable_onaccess()
+    run_clean_file_test("File opens - OA disabled", False, file_count)
+    enable_onaccess()
+
+    # Write the same number of files but with the product not running
+    stop_sspl()
+    run_clean_file_test("File opens - SPL not running", False, file_count)
+    start_sspl()
+
 
 def run_local_live_query_perf_test():
     logging.info("Running Local Live Query performance test")
@@ -409,7 +456,8 @@ def add_options():
                                  'central-livequery',
                                  'local-liveresponse_x1',
                                  'local-liveresponse_x10',
-                                 'event-journaler-ingestion'],
+                                 'event-journaler-ingestion',
+                                 'av-onaccess'],
                         help="Select which performance test suite to run")
 
     parser.add_argument('-i', '--client-id', action='store',
@@ -454,6 +502,8 @@ def main():
         run_local_live_response_test(10, 0)
     elif args.suite == 'event-journaler-ingestion':
         run_event_journaler_ingestion_test()
+    elif args.suite == 'av-onaccess':
+        run_onaccess_test()
 
     logging.info("Finished")
 
