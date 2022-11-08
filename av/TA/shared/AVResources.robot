@@ -968,7 +968,7 @@ Create Local NFS Share
 
 Remove Local NFS Share
     [Arguments]  ${source}  ${destination}
-    Run Shell Process   umount ${destination}   OnError=Failed to unmount local NFS share
+    Unmount Bind Mount  ${destination}
     Move File  ${EXPORT_FILE}_bkp  ${EXPORT_FILE}
     Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server
     Remove Directory    ${source}  recursive=True
