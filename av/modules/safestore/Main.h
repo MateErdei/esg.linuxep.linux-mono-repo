@@ -12,13 +12,12 @@ namespace safestore
     class Main
     {
     public:
-        ~Main();
         static int run();
         static std::string SafeStoreServiceLineName() { return "safestore"; }
 
     private:
         void innerRun();
-        Common::ZMQWrapperApi::IContextSharedPtr m_context = Common::ZMQWrapperApi::createContext();
+        Common::ZMQWrapperApi::IContextSharedPtr m_safeStoreContext = Common::ZMQWrapperApi::createContext();
         std::unique_ptr<Common::PluginApiImpl::PluginCallBackHandler> m_pluginHandler;
     };
 } // namespace safestore

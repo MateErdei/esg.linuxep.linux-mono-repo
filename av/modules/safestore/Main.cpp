@@ -26,15 +26,6 @@ namespace fs = sophos_filesystem;
 
 namespace safestore
 {
-    Main::~Main()
-    {
-        if (m_pluginHandler)
-        {
-            m_pluginHandler->stop();
-        }
-        Common::Telemetry::TelemetryHelper::getInstance().save();
-    }
-
     int Main::run()
     {
         LOGDEBUG("SafeStore starting");
@@ -76,7 +67,7 @@ namespace safestore
         server.start();
 
         Common::Telemetry::TelemetryHelper::getInstance().restore(SafeStoreServiceLineName());
-        auto replier = m_context->getReplier();
+        auto replier = m_safeStoreContext->getReplier();
         Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, SafeStoreServiceLineName(), 5000, 5000);
         std::shared_ptr<Common::PluginApi::IPluginCallbackApi> pluginCallback{ new SafeStoreServiceCallback() };
         m_pluginHandler.reset(new Common::PluginApiImpl::PluginCallBackHandler(
