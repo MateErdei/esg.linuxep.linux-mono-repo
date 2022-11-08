@@ -99,19 +99,26 @@ class LogUtils(object):
         self.install_path = _get_variable("SOPHOS_INSTALL", os.path.join("/", "opt", "sophos-spl"))
         self.router_path = _get_variable("MCS_DIR", os.path.join(self.install_path, "base", "mcs"))
         self.base_logs_dir = _get_variable("BASE_LOGS_DIR", os.path.join(self.install_path, "logs", "base"))
-        self.av_plugin_logs_dir = os.path.join(self.install_path, "plugins", "av", "log")
+
         self.thin_install_log = os.path.join(self.tmp_path, "thin_installer", "ThinInstaller.log")
         self.suldownloader_log = os.path.join(self.base_logs_dir, "suldownloader.log")
         self.update_scheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "updatescheduler.log")
         self.register_log = os.path.join(self.base_logs_dir, "register_central.log")
         self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
-        self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.osquery_watcher_log = os.path.join(self.install_path, "plugins", "mtr", "dbos", "data", "logs", "osquery.watcher.log")
-        self.sophos_threat_detector_log = os.path.join(self.install_path, "plugins", "av", "chroot", "log", "sophos_threat_detector.log")
-        self.susi_debug_log = os.path.join(self.install_path, "plugins", "av", "chroot", "log", "susi_debug.log")
+        self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
+
+        # SSPL-AV chroot log files
+        self.__m_chroot_logs_dir = os.path.join(self.install_path, "plugins", "av", "chroot", "log")
+        self.sophos_threat_detector_log = os.path.join(self.__m_chroot_logs_dir, "sophos_threat_detector.log")
+        self.susi_debug_log = os.path.join(self.__m_chroot_logs_dir, "susi_debug.log")
+
+        # SSPL-AV main log files
+        self.av_plugin_logs_dir = os.path.join(self.install_path, "plugins", "av", "log")
         self.av_log = os.path.join(self.av_plugin_logs_dir, "av.log")
         self.oa_log = os.path.join(self.av_plugin_logs_dir, "soapd.log")
-        self.ss_log = os.path.join(self.av_plugin_logs_dir, "safestore.log")
+        self.__m_safestore_log = os.path.join(self.av_plugin_logs_dir, "safestore.log")
+
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.marked_mcsrouter_logs = 0
         self.marked_mcs_envelope_logs = 0
@@ -606,15 +613,6 @@ File Log Contains
         contents = _get_log_contents(sophos_threat_detector_log)
         self.marked_sophos_threat_detector_log = len(contents)
 
-    def mark_safestore_log(self):
-        contents = _get_log_contents(self.ss_log)
-        if contents is None:
-            self.marked_ss_log = 0
-            return 0
-
-        self.marked_ss_log = len(contents)  # bytes
-        return len(contents.splitlines())
-
     def get_marked_sophos_threat_detector_log(self, mark=None):
         if mark is None:
             mark = self.marked_sophos_threat_detector_log
@@ -931,6 +929,9 @@ File Log Contains
 
         return None
 
+########################################################################################################################
+# Log Handler
+
     def get_log_handler(self, logpath) -> LogHandler.LogHandler:
         handler = self.__m_log_handlers.get(logpath, None)
         if handler is None:
@@ -1000,8 +1001,25 @@ File Log Contains
             raise AssertionError("Found %s in %s" % (not_expected, log_path))
 
     def Wait_For_Log_contains_after_last_restart(self, log_path, expected, timeout: int = 10, mark=None):
+        """
+        Wait for a log line, but only in the log lines after the most recent restart of the process.
+
+        :param log_path:
+        :param expected:
+        :param timeout:
+        :param mark: Also restrict log lines after the mark
+        :return:
+        """
         handler = self.get_log_handler(log_path)
         return handler.Wait_For_Log_contains_after_last_restart(expected, timeout, mark)
+
+    def save_log_marks_at_start_of_test(self):
+        robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
+                                                            self.mark_log_size(self.oa_log))
+        robot.libraries.BuiltIn.BuiltIn().set_test_variable("${AV_LOG_MARK_FROM_START_OF_TEST}",
+                                                            self.mark_log_size(self.av_log))
+        robot.libraries.BuiltIn.BuiltIn().set_test_variable("${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}",
+                                                            self.mark_log_size(self.__m_safestore_log))
 
 ########################################################################################################################
 # On-Access Soapd Log
@@ -1090,14 +1108,14 @@ File Log Contains
 # SafeStore Log
 
     def get_safestore_log_mark(self) -> LogHandler.LogMark:
-        return self.mark_log_size(self.ss_log)
+        return self.mark_log_size(self.__m_safestore_log)
 
     def get_safestore_log_after_mark(self, mark):
-        return self.get_log_after_mark(self.ss_log, mark)
+        return self.get_log_after_mark(self.__m_safestore_log, mark)
 
     def wait_for_safestore_log_contains_after_mark(self, expected, mark: LogHandler.LogMark, timeout: int = 10):
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_safestore_log_contains_after_mark"
-        return self.wait_for_log_contains_after_mark(self.ss_log, expected, mark, timeout=timeout)
+        return self.wait_for_log_contains_after_mark(self.__m_safestore_log, expected, mark, timeout=timeout)
 
 
 def __main(argv):

@@ -179,15 +179,15 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
     Stop SafeStore
-    ${av_mark} =  Get AV Log Mark
 
+    ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
 
     Check avscanner can detect eicar
 
-    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
-    Wait For AV Log Contains After Mark    Failed to write to SafeStore socket.  ${av_mark}
+    Wait Until AV Plugin Log Contains Detection Name After Mark  ${av_mark}  EICAR-AV-Test
+    Wait For AV Log Contains After Mark  Failed to write to SafeStore socket.  mark=${av_mark}
     Check SafeStore Not Running
     Mark Expected Error In Log    ${AV_PLUGIN_PATH}/log/av.log    Aborting SafeStore connection : failed to read length
 
@@ -229,6 +229,7 @@ Threat Detector Triggers SafeStore Rescan On Timeout
 *** Keywords ***
 SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
+    LogUtils.save_log_marks_at_start_of_test
     Start SafeStore
 
     Get AV Log Mark

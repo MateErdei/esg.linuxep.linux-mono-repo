@@ -467,6 +467,10 @@ Wait Until AV Plugin Log Contains Times With Offset
     [Arguments]  ${input}  ${timeout}=15  ${times}=1
     Wait Until File Log Contains Times  AV Plugin Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
 
+Wait Until AV Plugin Log Contains Detection Name After Mark
+    [Arguments]  ${mark}  ${name}  ${timeout}=15
+    wait_for_av_log_contains_after_mark  Found '${name}'  mark=${mark}  timeout=${timeout}
+
 Wait Until AV Plugin Log Contains Detection Name With Offset
     [Arguments]  ${name}  ${timeout}=15    ${interval}=2
     Wait Until AV Plugin Log Contains With Offset  Found '${name}'  timeout=${timeout}  interval=${interval}
