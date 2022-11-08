@@ -968,7 +968,7 @@ Create Local NFS Share
 
 Remove Local NFS Share
     [Arguments]  ${source}  ${destination}
-    Unmount Bind Mount  ${destination}
+    Unmount Test Mount  ${destination}
     Move File  ${EXPORT_FILE}_bkp  ${EXPORT_FILE}
     Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server
     Remove Directory    ${source}  recursive=True
@@ -1326,12 +1326,12 @@ Mount Image
     Should Be Equal As Integers  ${result.rc}  ${0}
     Register Cleanup  Unmount Image Internal  ${where}
 
-Unmount Bind Mount
+Unmount Test Mount
     [Arguments]  ${where}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
-    ...  Run Shell Process   umount ${where}   OnError=Failed to unmount bind mount
+    ...  Run Shell Process   umount ${where}   OnError=Failed to Unmount Test Mount
 
 Bind Mount Directory
     [Arguments]  ${src}  ${dest}
@@ -1340,7 +1340,7 @@ Bind Mount Directory
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Integers  ${result.rc}  ${0}
-    Register Cleanup  Unmount Bind Mount  ${dest}
+    Register Cleanup  Unmount Test Mount  ${dest}
 
 Require Filesystem
     [Arguments]   ${fs_type}
