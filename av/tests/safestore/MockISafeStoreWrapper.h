@@ -11,33 +11,34 @@ using namespace safestore::SafeStoreWrapper;
 class MockISafeStoreWrapper : public ISafeStoreWrapper
 {
 public:
-    MOCK_METHOD0(createSearchHandleHolder, std::unique_ptr<SearchHandleHolder>());
-    MOCK_METHOD0(createObjectHandleHolder, std::unique_ptr<ObjectHandleHolder>());
-    MOCK_METHOD3(initialise, InitReturnCode(const std::string&, const std::string&, const std::string&));
-    MOCK_METHOD5(
+    MOCK_METHOD(std::unique_ptr<SearchHandleHolder>, createSearchHandleHolder, ());
+    MOCK_METHOD(std::unique_ptr<ObjectHandleHolder>, createObjectHandleHolder, ());
+    MOCK_METHOD(InitReturnCode, initialise, (const std::string&, const std::string&, const std::string&));
+    MOCK_METHOD(
+        SaveFileReturnCode,
         saveFile,
-        SaveFileReturnCode(
-            const std::string&,
-            const std::string&,
-            const std::string&,
-            const std::string&,
-            ObjectHandleHolder&));
-    MOCK_METHOD1(getConfigIntValue, std::optional<uint64_t>(ConfigOption));
-    MOCK_METHOD2(setConfigIntValue, bool(ConfigOption, uint64_t));
-    MOCK_METHOD1(find, SearchResults(const SafeStoreFilter&));
-    MOCK_METHOD1(getObjectName, std::string(const ObjectHandleHolder&));
-    MOCK_METHOD1(getObjectId, ObjectIdType(const ObjectHandleHolder&));
-    MOCK_METHOD1(getObjectType, ObjectType(const ObjectHandleHolder&));
-    MOCK_METHOD1(getObjectStatus, ObjectStatus(const ObjectHandleHolder&));
-    MOCK_METHOD1(getObjectThreatId, std::string(const ObjectHandleHolder&));
-    MOCK_METHOD1(getObjectThreatName, std::string(const ObjectHandleHolder&));
-    MOCK_METHOD1(getObjectStoreTime, int64_t(const ObjectHandleHolder&));
-    MOCK_METHOD2(getObjectHandle, bool(const ObjectIdType&, std::shared_ptr<ObjectHandleHolder>));
-    MOCK_METHOD1(finaliseObject, bool(ObjectHandleHolder&));
-    MOCK_METHOD3(setObjectCustomData, bool(ObjectHandleHolder&, const std::string&, const std::vector<uint8_t>&));
-    MOCK_METHOD2(getObjectCustomData, std::vector<uint8_t>(const ObjectHandleHolder&, const std::string&));
-    MOCK_METHOD3(setObjectCustomDataString, bool(ObjectHandleHolder&, const std::string&, const std::string&));
-    MOCK_METHOD2(getObjectCustomDataString, std::string(ObjectHandleHolder&, const std::string&));
+        (const std::string&, const std::string&, const std::string&, const std::string&, ObjectHandleHolder&));
+    MOCK_METHOD(std::optional<uint64_t>, getConfigIntValue, (ConfigOption));
+    MOCK_METHOD(bool, setConfigIntValue, (ConfigOption, uint64_t));
+    MOCK_METHOD(SearchResults, find, (const SafeStoreFilter&));
+    MOCK_METHOD(std::string, getObjectName, (const ObjectHandleHolder&));
+    MOCK_METHOD(ObjectIdType, getObjectId, (const ObjectHandleHolder&));
+    MOCK_METHOD(ObjectType, getObjectType, (const ObjectHandleHolder&));
+    MOCK_METHOD(ObjectStatus, getObjectStatus, (const ObjectHandleHolder&));
+    MOCK_METHOD(std::string, getObjectThreatId, (const ObjectHandleHolder&));
+    MOCK_METHOD(std::string, getObjectThreatName, (const ObjectHandleHolder&));
+    MOCK_METHOD(int64_t, getObjectStoreTime, (const ObjectHandleHolder&));
+    MOCK_METHOD(bool, getObjectHandle, (const ObjectIdType&, std::shared_ptr<ObjectHandleHolder>));
+    MOCK_METHOD(bool, finaliseObject, (ObjectHandleHolder&));
+    MOCK_METHOD(bool, setObjectCustomData, (ObjectHandleHolder&, const std::string&, const std::vector<uint8_t>&));
+    MOCK_METHOD(std::vector<uint8_t>, getObjectCustomData, (const ObjectHandleHolder&, const std::string&));
+    MOCK_METHOD(bool, setObjectCustomDataString, (ObjectHandleHolder&, const std::string&, const std::string&));
+    MOCK_METHOD(std::string, getObjectCustomDataString, (ObjectHandleHolder&, const std::string&));
+    MOCK_METHOD(bool, restoreObjectById, (const ObjectIdType& objectId));
+    MOCK_METHOD(bool, restoreObjectByIdToLocation, (const ObjectIdType& objectId, const std::string& path));
+    MOCK_METHOD(bool, restoreObjectsByThreatId, (const std::string& threatId));
+    MOCK_METHOD(bool, deleteObjectById, (const ObjectIdType& objectId));
+    MOCK_METHOD(bool, deleteObjectsByThreatId, (const std::string& threatId));
 };
 
 class MockISafeStoreReleaseMethods : public ISafeStoreReleaseMethods

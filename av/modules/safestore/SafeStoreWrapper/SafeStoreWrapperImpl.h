@@ -2,7 +2,6 @@
 
 #pragma once
 
-
 #include "ISafeStoreWrapper.h"
 
 extern "C"
@@ -17,8 +16,10 @@ from /home/pair/mav/modules/safestore/Main.cpp:10:
 59 |         __s32   __reserved;
    |         ^~~~~
  */
+// clang-format off
 #include <sys/stat.h>
 #include "safestore.h"
+    // clang-format on
 }
 
 #include <optional>
@@ -154,6 +155,11 @@ namespace safestore::SafeStoreWrapper
             const std::string& dataName,
             const std::string& value) override;
         std::string getObjectCustomDataString(ObjectHandleHolder& objectHandle, const std::string& dataName) override;
+        bool restoreObjectById(const ObjectIdType& objectId) override;
+        bool restoreObjectByIdToLocation(const ObjectIdType& objectId, const std::string& path) override;
+        bool restoreObjectsByThreatId(const std::string& threatId) override;
+        bool deleteObjectById(const ObjectIdType& objectId) override;
+        bool deleteObjectsByThreatId(const std::string& threatId) override;
 
     private:
         std::shared_ptr<ISafeStoreHolder> m_safeStoreHolder;

@@ -45,7 +45,7 @@ int main()
 {
     Common::Logging::ConsoleLoggingSetup loggingSetup;
 
-    // Safestore wrapper to interact with SafeStore database.
+    // SafeStore wrapper to interact with SafeStore database.
     std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper = std::make_shared<SafeStoreWrapperImpl>();
 
     // Expected locations of safestore database in a product installation.

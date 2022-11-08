@@ -17,6 +17,9 @@ namespace safestore::SafeStoreWrapper
     {
         if (safeStoreId.length() != sizeof(SafeStore_Id_t))
         {
+            LOGERROR(
+                "ID length must be " << sizeof(SafeStore_Id_t) << " but the length of ID: " << safeStoreId << " is "
+                                     << safeStoreId.length());
             return std::nullopt;
         }
 
@@ -28,6 +31,9 @@ namespace safestore::SafeStoreWrapper
     {
         if (safeStoreId.size() != sizeof(SafeStore_Id_t))
         {
+            LOGERROR(
+                "ID length must be " << sizeof(SafeStore_Id_t) << " but the length of the passed ID is "
+                                     << safeStoreId.size());
             return std::nullopt;
         }
 
@@ -194,6 +200,14 @@ namespace safestore::SafeStoreWrapper
         return activeFields;
     }
 
+    SafeStoreWrapperImpl::SafeStoreWrapperImpl() :
+        m_safeStoreHolder(std::make_shared<SafeStoreHolder>()),
+        m_releaseMethods(std::make_shared<SafeStoreReleaseMethodsImpl>(m_safeStoreHolder)),
+        m_searchMethods(std::make_shared<SafeStoreSearchMethodsImpl>(m_safeStoreHolder)),
+        m_getIdMethods(std::make_shared<SafeStoreGetIdMethodsImpl>(m_safeStoreHolder))
+    {
+    }
+
     SafeStoreWrapperImpl::~SafeStoreWrapperImpl()
     {
         m_safeStoreHolder->deinit();
@@ -260,7 +274,9 @@ namespace safestore::SafeStoreWrapper
                 LOGDEBUG("Got DB_ERROR when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::DB_ERROR;
             default:
-                LOGDEBUG("Got FAILED when attempting to save file to SafeStore database");
+                LOGDEBUG(
+                    "Failed for unknown reason while saving file to SafeStore database, SafeStore return code: "
+                    << std::to_string(result));
                 return SaveFileReturnCode::FAILED;
         }
     }
@@ -341,17 +357,17 @@ namespace safestore::SafeStoreWrapper
                 LOGERROR("Failed for unknown reason when getting object name from SafeStore, rc: " << returnCode);
                 break;
         }
-        return {buf};
+        return { buf };
     }
 
     bool SafeStoreWrapperImpl::getObjectHandle(
         const ObjectIdType& objectId,
         std::shared_ptr<ObjectHandleHolder> objectHandle)
     {
-        if (auto safeStoreThreadId = safeStoreIdFromBytes(objectId))
+        if (auto safeStoreObjectId = safeStoreIdFromBytes(objectId))
         {
-            auto returnCode =
-                SafeStore_GetObjectHandle(m_safeStoreHolder->getHandle(), &safeStoreThreadId.value(), objectHandle->getRawHandlePtr());
+            auto returnCode = SafeStore_GetObjectHandle(
+                m_safeStoreHolder->getHandle(), &safeStoreObjectId.value(), objectHandle->getRawHandlePtr());
             switch (returnCode)
             {
                 case SR_OK:
@@ -471,7 +487,7 @@ namespace safestore::SafeStoreWrapper
                     "Failed for unknown reason when getting object threat name from SafeStore, rc: " << returnCode);
                 break;
         }
-        return {buf};
+        return { buf };
     }
 
     int64_t SafeStoreWrapperImpl::getObjectStoreTime(const ObjectHandleHolder& objectHandle)
@@ -552,7 +568,7 @@ namespace safestore::SafeStoreWrapper
                 else
                 {
                     LOGERROR("Size of data returned from getting object custom data is larger than buffer, returning "
-                            "empty data");
+                             "empty data");
                 }
                 break;
             case SR_INVALID_ARG:
@@ -588,17 +604,188 @@ namespace safestore::SafeStoreWrapper
         return std::string(bytes.begin(), bytes.end());
     }
 
-    SafeStoreWrapperImpl::SafeStoreWrapperImpl() :
-        m_safeStoreHolder(std::make_shared<SafeStoreHolder>()),
-        m_releaseMethods(std::make_shared<SafeStoreReleaseMethodsImpl>(m_safeStoreHolder)),
-        m_searchMethods(std::make_shared<SafeStoreSearchMethodsImpl>(m_safeStoreHolder)),
-        m_getIdMethods(std::make_shared<SafeStoreGetIdMethodsImpl>(m_safeStoreHolder))
-    {
-    }
-
     ObjectIdType SafeStoreWrapperImpl::getObjectId(const ObjectHandleHolder& objectHandle)
     {
         return m_getIdMethods->getObjectId(objectHandle.getRawHandle());
+    }
+
+    bool SafeStoreWrapperImpl::restoreObjectById(const ObjectIdType& objectId)
+    {
+        return restoreObjectByIdToLocation(objectId, "");
+    }
+
+    bool SafeStoreWrapperImpl::restoreObjectByIdToLocation(const ObjectIdType& objectId, const std::string& path)
+    {
+        if (auto safeStoreObjectId = safeStoreIdFromBytes(objectId))
+        {
+            auto result = SafeStore_RestoreObjectById(
+                m_safeStoreHolder->getHandle(), &safeStoreObjectId.value(), path.empty() ? nullptr : path.c_str());
+            switch (result)
+            {
+                case SR_OK:
+                    if (path.empty())
+                    {
+                        LOGDEBUG("Successfully restored object to original path");
+                    }
+                    else
+                    {
+                        LOGDEBUG("Successfully restored object to custom path: " << path);
+                    }
+                    return true;
+                case SR_INVALID_ARG:
+                    LOGERROR("Got INVALID_ARG when trying to restore an object");
+                    break;
+                case SR_INTERNAL_ERROR:
+                    LOGERROR("Got INTERNAL_ERROR when trying to restore an object");
+                    break;
+                case SR_UNSUPPORTED_OS:
+                    LOGERROR("Got UNSUPPORTED_OS when trying to restore an object");
+                    break;
+                case SR_UNSUPPORTED_VERSION:
+                    LOGERROR("Got UNSUPPORTED_VERSION when trying to restore an object");
+                    break;
+                case SR_OUT_OF_MEMORY:
+                    LOGERROR("Got OUT_OF_MEMORY when trying to restore an object");
+                    break;
+                case SR_DB_ERROR:
+                    LOGERROR("Got DB_ERROR when trying to restore an object");
+                    break;
+                case SR_DB_INCONSISTENT:
+                    LOGERROR("Got DB_INCONSISTENT when trying to restore an object");
+                    break;
+                case SR_RESTORE_FAILED:
+                    LOGERROR("Got RESTORE_FAILED when trying to restore an object");
+                    break;
+                case SR_OBJECT_NOT_FOUND:
+                    LOGERROR("Got OBJECT_NOT_FOUND when trying to restore an object");
+                    break;
+                default:
+                    LOGERROR(
+                        "Failed for an unknown reason when trying to restore an object, SafeStore return code: "
+                        << std::to_string(result));
+                    break;
+            }
+        }
+        return false;
+    }
+
+    bool SafeStoreWrapperImpl::restoreObjectsByThreatId(const std::string& threatId)
+    {
+        if (auto ssThreatId = safeStoreIdFromString(threatId))
+        {
+            auto result = SafeStore_RestoreObjectsByThreatId(m_safeStoreHolder->getHandle(), &ssThreatId.value());
+            switch (result)
+            {
+                case SR_OK:
+                    LOGDEBUG("Successfully restored object with threat ID:" << threatId);
+                    return true;
+                case SR_INVALID_ARG:
+                    LOGERROR("Got INVALID_ARG when trying to restore an object by threat ID: " << threatId);
+                    break;
+                case SR_INTERNAL_ERROR:
+                    LOGERROR("Got INTERNAL_ERROR when trying to restore an object by threat ID: " << threatId);
+                    break;
+                case SR_UNSUPPORTED_VERSION:
+                    LOGERROR("Got UNSUPPORTED_VERSION when trying to restore an object by threat ID: " << threatId);
+                    break;
+                case SR_OUT_OF_MEMORY:
+                    LOGERROR("Got OUT_OF_MEMORY when trying to restore an object by threat ID: " << threatId);
+                    break;
+                case SR_DB_ERROR:
+                    LOGERROR("Got DB_ERROR when trying to restore an object by threat ID: " << threatId);
+                    break;
+                case SR_DB_INCONSISTENT:
+                    LOGERROR("Got DB_INCONSISTENT when trying to restore an object by threat ID: " << threatId);
+                    break;
+                case SR_OBJECT_NOT_FOUND:
+                    LOGERROR("Got OBJECT_NOT_FOUND when trying to restore an object by threat ID: " << threatId);
+                    break;
+                case SR_PARTIAL_RESTORE:
+                    LOGERROR("Got PARTIAL_RESTORE when trying to restore an object by threat ID: " << threatId);
+                    break;
+                case SR_RESTORE_FAILED:
+                    LOGERROR("Got RESTORE_FAILED when trying to restore an object by threat ID: " << threatId);
+                    break;
+                default:
+                    LOGERROR(
+                        "Failed for unknown reason when restoring object by threat ID, SafeStore return code: "
+                        << std::to_string(result) << ", threat ID: " << threatId);
+            }
+        }
+        return false;
+    }
+
+    bool SafeStoreWrapperImpl::deleteObjectById(const ObjectIdType& objectId)
+    {
+        if (auto safeStoreObjectId = safeStoreIdFromBytes(objectId))
+        {
+            auto result = SafeStore_DeleteObjectById(m_safeStoreHolder->getHandle(), &safeStoreObjectId.value());
+            switch (result)
+            {
+                case SR_OK:
+                    LOGDEBUG("Successfully deleted object from SafeStore");
+                    return true;
+                case SR_INVALID_ARG:
+                    LOGERROR("Got INVALID_ARG while trying to delete an object from SafeStore");
+                    break;
+                case SR_INTERNAL_ERROR:
+                    LOGERROR("Got INTERNAL_ERROR while trying to delete an object from SafeStore");
+                    break;
+                case SR_OUT_OF_MEMORY:
+                    LOGERROR("Got OUT_OF_MEMORY while trying to delete an object from SafeStore");
+                    break;
+                case SR_DB_ERROR:
+                    LOGERROR("Got DB_ERROR while trying to delete an object from SafeStore");
+                    break;
+                case SR_OBJECT_NOT_FOUND:
+                    LOGERROR("Got OBJECT_NOT_FOUND while trying to delete an object from SafeStore");
+                    break;
+                default:
+                    LOGERROR(
+                        "Failed for unknown reason while trying to delete object, SafeStore return code: "
+                        << std::to_string(result));
+            }
+        }
+        return false;
+    }
+
+    bool SafeStoreWrapperImpl::deleteObjectsByThreatId(const std::string& threatId)
+    {
+        if (auto ssThreatId = safeStoreIdFromString(threatId))
+        {
+            auto result = SafeStore_DeleteObjectsByThreatId(m_safeStoreHolder->getHandle(), &ssThreatId.value());
+            switch (result)
+            {
+                case SR_OK:
+                    LOGDEBUG("Successfully deleted object from SafeStore with threat ID: " << threatId);
+                    return true;
+                case SR_INVALID_ARG:
+                    LOGERROR(
+                        "Got INVALID_ARG while trying to delete an object from SafeStore with threat ID: " << threatId);
+                    break;
+                case SR_INTERNAL_ERROR:
+                    LOGERROR(
+                        "Got INVALID_ARG while trying to delete an object from SafeStore with threat ID: " << threatId);
+                    break;
+                case SR_OUT_OF_MEMORY:
+                    LOGERROR(
+                        "Got INVALID_ARG while trying to delete an object from SafeStore with threat ID: " << threatId);
+                    break;
+                case SR_DB_ERROR:
+                    LOGERROR(
+                        "Got INVALID_ARG while trying to delete an object from SafeStore with threat ID: " << threatId);
+                    break;
+                case SR_OBJECT_NOT_FOUND:
+                    LOGERROR(
+                        "Got INVALID_ARG while trying to delete an object from SafeStore with threat ID: " << threatId);
+                    break;
+                default:
+                    LOGERROR(
+                        "Failed for unknown reason while trying to delete object, SafeStore return code: "
+                        << std::to_string(result) << ", threat ID: " << threatId);
+            }
+        }
+        return false;
     }
 
     InitReturnCode SafeStoreHolder::init(
@@ -641,7 +828,9 @@ namespace safestore::SafeStoreWrapper
                 LOGDEBUG("Failed to initialise SafeStore database: Database operation failed");
                 return InitReturnCode::DB_ERROR;
             default:
-                LOGDEBUG("Failed to initialise SafeStore database. SafeStore returned unexpected error code: " << static_cast<int>(result));
+                LOGDEBUG(
+                    "Failed to initialise SafeStore database. SafeStore returned unexpected error code: "
+                    << static_cast<int>(result));
                 return InitReturnCode::FAILED;
         }
     }
@@ -719,9 +908,12 @@ namespace safestore::SafeStoreWrapper
         // Convert Filter type to SafeStore_Filter_t
         SafeStore_Filter_t ssFilter;
         ssFilter.activeFields = convertFilterFieldsToSafeStoreInt(filter.activeFields);
-        if (auto ssThreatId = safeStoreIdFromString(filter.threatId))
+        if (!filter.threatId.empty())
         {
-            ssFilter.threatId = &(ssThreatId.value());
+            if (auto ssThreatId = safeStoreIdFromString(filter.threatId))
+            {
+                ssFilter.threatId = &(ssThreatId.value());
+            }
         }
         ssFilter.threatName = filter.threatName.c_str();
         ssFilter.startTime = filter.startTime;
@@ -732,10 +924,7 @@ namespace safestore::SafeStoreWrapper
         ssFilter.objectName = filter.objectName.c_str();
 
         auto returnCode = SafeStore_FindFirst(
-                m_safeStoreHolder->getHandle(),
-                &ssFilter,
-                searchHandle.getRawHandlePtr(),
-                objectHandle.getRawHandlePtr());
+            m_safeStoreHolder->getHandle(), &ssFilter, searchHandle.getRawHandlePtr(), objectHandle.getRawHandlePtr());
 
         switch (returnCode)
         {
@@ -764,25 +953,25 @@ namespace safestore::SafeStoreWrapper
 
     bool SafeStoreSearchMethodsImpl::findNext(SearchHandleHolder& searchHandle, ObjectHandleHolder& objectHandle)
     {
-      auto returnCode = SafeStore_FindNext(
-                m_safeStoreHolder->getHandle(), searchHandle.getRawHandle(), objectHandle.getRawHandlePtr());
-      switch (returnCode)
-      {
-          case SR_OK:
-              return true;
-          case SR_INVALID_ARG:
-              LOGERROR("Got INVALID_ARG when performing FindNext on SafeStore database");
-              return false;
-          case SR_OUT_OF_MEMORY:
-              LOGERROR("Got INVALID_ARG when performing FindNext on SafeStore database");
-              return false;
-          case SR_OBJECT_NOT_FOUND:
-              LOGDEBUG("No further objects found in SafeStore database");
-              return false;
-          default:
-              LOGERROR("Failed for unexpected reason when performing FindNext on SafeStore database");
-              return false;
-      }
+        auto returnCode = SafeStore_FindNext(
+            m_safeStoreHolder->getHandle(), searchHandle.getRawHandle(), objectHandle.getRawHandlePtr());
+        switch (returnCode)
+        {
+            case SR_OK:
+                return true;
+            case SR_INVALID_ARG:
+                LOGERROR("Got INVALID_ARG when performing FindNext on SafeStore database");
+                return false;
+            case SR_OUT_OF_MEMORY:
+                LOGERROR("Got INVALID_ARG when performing FindNext on SafeStore database");
+                return false;
+            case SR_OBJECT_NOT_FOUND:
+                LOGDEBUG("No further objects found in SafeStore database");
+                return false;
+            default:
+                LOGERROR("Failed for unexpected reason when performing FindNext on SafeStore database");
+                return false;
+        }
     }
 
     SafeStoreGetIdMethodsImpl::SafeStoreGetIdMethodsImpl(std::shared_ptr<ISafeStoreHolder> safeStoreHolder) :

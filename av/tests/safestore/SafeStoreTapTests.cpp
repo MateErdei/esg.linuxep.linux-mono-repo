@@ -10,7 +10,7 @@
 #include "../common/LogInitializedTests.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 
 #include <common/ApplicationPaths.h>
@@ -49,6 +49,11 @@ protected:
     void TearDown() override
     {
         std::cout << "TearDown" << std::endl;
+        auto filesystem = Common::FileSystem::fileSystem();
+        for (const auto& file : m_filesToDeleteOnTeardown)
+        {
+            filesystem->removeFile(file, true);
+        }
         deleteDatabase();
     }
 
@@ -58,6 +63,7 @@ protected:
     static inline const std::string m_safeStoreDbPw = "a test password";
 
     std::unique_ptr<ISafeStoreWrapper> m_safeStoreWrapper = std::make_unique<SafeStoreWrapperImpl>();
+    std::set<std::string> m_filesToDeleteOnTeardown;
 };
 
 TEST_F(SafeStoreWrapperTapTests, initExistingDb)
@@ -124,6 +130,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndLookupDetails)
     // Add fake threat
     std::string fakeVirusFilePath1 = "/tmp/fakevirus1";
     fileSystem->writeFile(fakeVirusFilePath1, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath1);
     std::string threatId = "dummy_threat_ID1";
     std::string threatName = "threat name1";
     auto objectHandle1 = m_safeStoreWrapper->createObjectHandleHolder();
@@ -169,10 +176,12 @@ TEST_F(SafeStoreWrapperTapTests, quarantineMultipleThreatsAndLookupDetails)
     std::string fakeVirusFilePath1 = "/tmp/fakevirus1";
     std::string threatName1 = "threat name1";
     fileSystem->writeFile(fakeVirusFilePath1, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath1);
 
     std::string fakeVirusFilePath2 = "/tmp/fakevirus2";
     std::string threatName2 = "threat name2";
     fileSystem->writeFile(fakeVirusFilePath2, "a temp test file2");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath2);
 
     // Store 1
     auto objectHandle1 = m_safeStoreWrapper->createObjectHandleHolder();
@@ -225,9 +234,10 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
     std::string fakeVirusFilePath = "/tmp/fakevirus1";
     std::string sha256 = "f2c91a583cfd1371a3085187aa5b2841ada3b62f5d1cc6b08bc02703ded3507a";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
     std::string threatId = "dummy_threat_ID1";
     std::string threatName = "threat name1";
-    std::vector<uint8_t> someBytes{1,2};
+    std::vector<uint8_t> someBytes { 1, 2 };
     auto objectHandle1 = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(
         m_safeStoreWrapper->saveFile(
@@ -270,6 +280,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseThreatAndStatusChangesToQu
     std::string fakeVirusFilePath = "/tmp/fakevirus1";
     std::string sha256 = "f2c91a583cfd1371a3085187aa5b2841ada3b62f5d1cc6b08bc02703ded3507a";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
     std::string threatId = "dummy_threat_ID1";
     std::string threatName = "threat name1";
     auto objectHandle = m_safeStoreWrapper->createObjectHandleHolder();
@@ -315,6 +326,7 @@ TEST_F(SafeStoreWrapperTapTests, getObjectHandleAndSetCustomDataUsingIt)
     std::string fakeVirusFilePath = "/tmp/fakevirus1";
     std::string sha256 = "f2c91a583cfd1371a3085187aa5b2841ada3b62f5d1cc6b08bc02703ded3507a";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
     std::string threatId = "dummy_threat_ID1";
     std::string threatName = "threat name1";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
@@ -352,4 +364,598 @@ TEST_F(SafeStoreWrapperTapTests, getObjectHandleAndSetCustomDataUsingIt)
         ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
     }
     ASSERT_EQ(resultsFound, 1);
+}
+
+// restoreObjectById tests
+
+TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdAndVerifyFile)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+    auto filePermissions = Common::FileSystem::filePermissions();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/restoreObjectById_fake_threat";
+    std::string contents = "a temp test file";
+    fileSystem->writeFile(fakeVirusFilePath, contents);
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    std::string threatId = "16_characters_ID";
+    std::string threatName = "threat name";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+
+    ASSERT_TRUE(fileSystem->exists(fakeVirusFilePath));
+    std::string groupBefore = filePermissions->getGroupName(fakeVirusFilePath);
+    std::string userBefore = filePermissions->getUserName(fakeVirusFilePath);
+    auto permissionsBefore = filePermissions->getFilePermissions(fakeVirusFilePath);
+
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    fileSystem->removeFile(fakeVirusFilePath);
+    ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
+
+    auto objectId = m_safeStoreWrapper->getObjectId(*objectHandleFromSaveFile);
+    ASSERT_TRUE(m_safeStoreWrapper->restoreObjectById(objectId));
+
+    // Verify the file
+    ASSERT_TRUE(fileSystem->exists(fakeVirusFilePath));
+    ASSERT_EQ(fileSystem->readFile(fakeVirusFilePath), contents);
+
+    std::string groupAfter = filePermissions->getGroupName(fakeVirusFilePath);
+    std::string userAfter = filePermissions->getUserName(fakeVirusFilePath);
+    auto permissionsAfter = filePermissions->getFilePermissions(fakeVirusFilePath);
+
+    ASSERT_EQ(groupBefore, groupAfter);
+    ASSERT_EQ(userBefore, userAfter);
+
+    //    TODO LINUXDAR-5915 enable this check and remove printing once file permissions work is complete in SafeStore
+    //    lib
+    std::cout << "permissions before: " << permissionsBefore << ", after: " << permissionsAfter << std::endl;
+    //    ASSERT_EQ(permissionsBefore, permissionsAfter);
+}
+
+TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdHandleMissingId)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/restoreObjectById_fake_threat";
+    std::string contents = "a temp test file";
+    fileSystem->writeFile(fakeVirusFilePath, contents);
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    std::string threatId = "16_characters_ID";
+    std::string threatName = "threat name";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+
+    ASSERT_TRUE(fileSystem->exists(fakeVirusFilePath));
+
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    fileSystem->removeFile(fakeVirusFilePath);
+    ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
+
+    // IDs must be 16 bytes
+    ObjectIdType objectId;
+    for (uint i = 0; i < THREAT_ID_LENGTH; ++i)
+    {
+        objectId.emplace_back(i);
+    }
+    ASSERT_FALSE(m_safeStoreWrapper->restoreObjectById(objectId));
+
+    // Verify the file
+    ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
+}
+
+// restoreObjectByIdToLocation tests
+
+TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdToLocationAndVerifyFile)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+    auto filePermissions = Common::FileSystem::filePermissions();
+
+    // Add fake threat and make a dir to use to restore a file to
+    std::string fakeVirusFilePath = "/tmp/restoreObjectByIdToLocationAndVerifyFile_fake_threat";
+    std::string dirToRestoreTo = "/tmp/restoreObjectByIdToLocationAndVerifyFile";
+    fileSystem->makedirs(dirToRestoreTo);
+    std::string expectedRestoreLocation =
+        "/tmp/restoreObjectByIdToLocationAndVerifyFile/restoreObjectByIdToLocationAndVerifyFile_fake_threat";
+    std::string contents = "a temp test file";
+    fileSystem->writeFile(fakeVirusFilePath, contents);
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    m_filesToDeleteOnTeardown.insert(expectedRestoreLocation);
+    std::string threatId = "16_characters_ID";
+    std::string threatName = "threat name";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+
+    ASSERT_TRUE(fileSystem->exists(fakeVirusFilePath));
+    std::string groupBefore = filePermissions->getGroupName(fakeVirusFilePath);
+    std::string userBefore = filePermissions->getUserName(fakeVirusFilePath);
+    auto permissionsBefore = filePermissions->getFilePermissions(fakeVirusFilePath);
+
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    fileSystem->removeFile(fakeVirusFilePath);
+    ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
+
+    auto objectId = m_safeStoreWrapper->getObjectId(*objectHandleFromSaveFile);
+    ASSERT_TRUE(m_safeStoreWrapper->restoreObjectByIdToLocation(objectId, dirToRestoreTo));
+
+    // Check that the file has not been restored to the original location
+    ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
+
+    // Verify the file
+    ASSERT_TRUE(fileSystem->exists(expectedRestoreLocation));
+    ASSERT_EQ(fileSystem->readFile(expectedRestoreLocation), contents);
+
+    std::string groupAfter = filePermissions->getGroupName(expectedRestoreLocation);
+    std::string userAfter = filePermissions->getUserName(expectedRestoreLocation);
+    auto permissionsAfter = filePermissions->getFilePermissions(expectedRestoreLocation);
+
+    ASSERT_EQ(groupBefore, groupAfter);
+    ASSERT_EQ(userBefore, userAfter);
+
+    // TODO LINUXDAR-5915 enable this check and remove printing once file permissions work is complete in SafeStore lib
+    std::cout << "permissions before: " << permissionsBefore << ", after: " << permissionsAfter << std::endl;
+    //    ASSERT_EQ(permissionsBefore, permissionsAfter);
+}
+
+TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdToLocationDoesNotOverwriteExistingFile)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+    auto filePermissions = Common::FileSystem::filePermissions();
+
+    // Add fake threat and make a dir to use to restore a file to
+    std::string fakeVirusFilePath = "/tmp/restoreObjectByIdToLocationAndVerifyFile_fake_threat";
+    std::string dirToRestoreTo = "/tmp/restoreObjectByIdToLocationAndVerifyFile";
+    fileSystem->makedirs(dirToRestoreTo);
+    std::string expectedRestoreLocation =
+        "/tmp/restoreObjectByIdToLocationAndVerifyFile/restoreObjectByIdToLocationAndVerifyFile_fake_threat";
+    std::string contents1 = "a temp test file";
+    std::string contents2 = "some other content";
+    fileSystem->writeFile(fakeVirusFilePath, contents1);
+
+    // Create the target location file to test that we can't restore over the top of it
+    fileSystem->writeFile(expectedRestoreLocation, contents2);
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    m_filesToDeleteOnTeardown.insert(expectedRestoreLocation);
+    std::string threatId = "16_characters_ID";
+    std::string threatName = "threat name";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+
+    ASSERT_TRUE(fileSystem->exists(fakeVirusFilePath));
+    std::string groupBefore = filePermissions->getGroupName(fakeVirusFilePath);
+    std::string userBefore = filePermissions->getUserName(fakeVirusFilePath);
+    auto permissionsBefore = filePermissions->getFilePermissions(fakeVirusFilePath);
+
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+    fileSystem->removeFile(fakeVirusFilePath);
+    ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
+
+    auto objectId = m_safeStoreWrapper->getObjectId(*objectHandleFromSaveFile);
+
+    // Restore should fail because there is already a file in the target location
+    ASSERT_FALSE(m_safeStoreWrapper->restoreObjectByIdToLocation(objectId, dirToRestoreTo));
+
+    // Check that the file has not been restored to the original location
+    ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
+
+    // Verify the placeholder file has not been overwritten
+    ASSERT_TRUE(fileSystem->exists(expectedRestoreLocation));
+    ASSERT_EQ(fileSystem->readFile(expectedRestoreLocation), contents2);
+
+    std::string groupAfter = filePermissions->getGroupName(expectedRestoreLocation);
+    std::string userAfter = filePermissions->getUserName(expectedRestoreLocation);
+    auto permissionsAfter = filePermissions->getFilePermissions(expectedRestoreLocation);
+
+    ASSERT_EQ(groupBefore, groupAfter);
+    ASSERT_EQ(userBefore, userAfter);
+
+    // TODO LINUXDAR-5915 enable this check and remove printing once file permissions work is complete in SafeStore lib
+    std::cout << "permissions before: " << permissionsBefore << ", after: " << permissionsAfter << std::endl;
+    //    ASSERT_EQ(permissionsBefore, permissionsAfter);
+}
+
+// restoreObjectsByThreatId tests
+
+TEST_F(SafeStoreWrapperTapTests, restoreObjectsByThreatIdAndVerifyFile)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+    auto filePermissions = Common::FileSystem::filePermissions();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/restoreObjectsByThreatIdAndVerifyFile_fake_threat";
+    std::string contents = "a temp test file";
+    fileSystem->writeFile(fakeVirusFilePath, contents);
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    std::string threatId = "16_characters_ID";
+    std::string threatName = "threat name";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+
+    ASSERT_TRUE(fileSystem->exists(fakeVirusFilePath));
+    std::string groupBefore = filePermissions->getGroupName(fakeVirusFilePath);
+    std::string userBefore = filePermissions->getUserName(fakeVirusFilePath);
+    auto permissionsBefore = filePermissions->getFilePermissions(fakeVirusFilePath);
+
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    fileSystem->removeFile(fakeVirusFilePath);
+    ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
+
+    ASSERT_TRUE(m_safeStoreWrapper->restoreObjectsByThreatId(threatId));
+
+    // Verify the file
+    ASSERT_TRUE(fileSystem->exists(fakeVirusFilePath));
+    ASSERT_EQ(fileSystem->readFile(fakeVirusFilePath), contents);
+
+    std::string groupAfter = filePermissions->getGroupName(fakeVirusFilePath);
+    std::string userAfter = filePermissions->getUserName(fakeVirusFilePath);
+    auto permissionsAfter = filePermissions->getFilePermissions(fakeVirusFilePath);
+
+    ASSERT_EQ(groupBefore, groupAfter);
+    ASSERT_EQ(userBefore, userAfter);
+
+    // TODO LINUXDAR-5915 enable this check and remove printing once file permissions work is complete in SafeStore lib
+    std::cout << "permissions before: " << permissionsBefore << ", after: " << permissionsAfter << std::endl;
+    //    ASSERT_EQ(permissionsBefore, permissionsAfter);
+}
+
+TEST_F(SafeStoreWrapperTapTests, restoreObjectsByThreatIdHandlesMissingThreatId)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/restoreObjectsByThreatIdAndVerifyFile_fake_threat";
+    std::string contents = "a temp test file";
+    fileSystem->writeFile(fakeVirusFilePath, contents);
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    std::string threatId = "16_characters_ID";
+    std::string aDifferentThreatId = "16_charactersABC";
+    std::string threatName = "threat name";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+
+    ASSERT_TRUE(fileSystem->exists(fakeVirusFilePath));
+
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    fileSystem->removeFile(fakeVirusFilePath);
+    ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
+    ASSERT_FALSE(m_safeStoreWrapper->restoreObjectsByThreatId(aDifferentThreatId));
+
+    // Verify the file
+    ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
+}
+
+// deleteObjectById tests
+
+TEST_F(SafeStoreWrapperTapTests, deleteObjectByIdAndcheckItIsNoLongerInDatabase)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/fakevirus1";
+    fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    std::string threatId = "dummy_threat_ID1";
+    std::string threatName = "threat name1";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    auto objectId = m_safeStoreWrapper->getObjectId(*objectHandleFromSaveFile);
+
+    // Prove that the object is in the DB before we delete it
+    SafeStoreFilter filter;
+    filter.objectType = ObjectType::FILE;
+    filter.activeFields = { FilterField::OBJECT_TYPE };
+    int resultsFound = 0;
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
+    }
+    ASSERT_EQ(resultsFound, 1);
+
+    // Delete the object specified by ID, this will remove it from the DB
+    ASSERT_TRUE(m_safeStoreWrapper->deleteObjectById(objectId));
+
+    // Try and find the file in SafeStore DB
+    resultsFound = 0;
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        FAIL() << "This object should have been removed from SafeStore DB: "
+               << m_safeStoreWrapper->getObjectThreatName(result);
+    }
+    ASSERT_EQ(resultsFound, 0);
+}
+
+TEST_F(SafeStoreWrapperTapTests, deleteObjectByIdHandlesMissingId)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/fakevirus1";
+    fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    std::string threatId = "dummy_threat_ID1";
+    std::string threatName = "threat name1";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    // Prove that the object is in the DB before we delete it
+    SafeStoreFilter filter;
+    filter.objectType = ObjectType::FILE;
+    filter.activeFields = { FilterField::OBJECT_TYPE };
+    int resultsFound = 0;
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
+    }
+    ASSERT_EQ(resultsFound, 1);
+
+    // IDs must be 16 bytes
+    ObjectIdType objectId;
+    for (uint i = 0; i < THREAT_ID_LENGTH; ++i)
+    {
+        objectId.emplace_back(i);
+    }
+    ASSERT_FALSE(m_safeStoreWrapper->deleteObjectById(objectId));
+
+    // Try and find the file in SafeStore DB
+    resultsFound = 0;
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
+    }
+    ASSERT_EQ(resultsFound, 1);
+}
+
+// deleteObjectsByThreatId tests
+
+TEST_F(SafeStoreWrapperTapTests, deleteObjectsByThreatIdAndCheckItIsNoLongerInDatabase)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/fakevirus1";
+    fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    std::string threatId = "dummy_threat_ID1";
+    std::string threatName = "threat name1";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    // Prove that the object is in the DB before we delete it
+    SafeStoreFilter filter;
+    filter.objectType = ObjectType::FILE;
+    filter.activeFields = { FilterField::OBJECT_TYPE };
+    int resultsFound = 0;
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
+    }
+    ASSERT_EQ(resultsFound, 1);
+
+    // Delete the object specified by ID, this will remove it from the DB
+    ASSERT_TRUE(m_safeStoreWrapper->deleteObjectsByThreatId(threatId));
+
+    // Try and find the file in SafeStore DB
+    resultsFound = 0;
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        FAIL() << "This object should have been removed from SafeStore DB: "
+               << m_safeStoreWrapper->getObjectThreatName(result);
+    }
+    ASSERT_EQ(resultsFound, 0);
+}
+
+TEST_F(SafeStoreWrapperTapTests, deleteObjectsByThreatIdDeletesAllFilesWithSameThreatId)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/fakevirus1";
+    fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    std::string threatId = "dummy_threat_ID1";
+    std::string threatName = "threat name";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    // Prove that the objects are in the DB before we delete it
+    SafeStoreFilter filter;
+    filter.objectType = ObjectType::FILE;
+    filter.activeFields = { FilterField::OBJECT_TYPE };
+    int resultsFound = 0;
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
+    }
+    ASSERT_EQ(resultsFound, 2);
+
+    // Delete the object specified by ID, this will remove it from the DB
+    ASSERT_TRUE(m_safeStoreWrapper->deleteObjectsByThreatId(threatId));
+
+    // Try and find the file in SafeStore DB
+    resultsFound = 0;
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        FAIL() << "This object should have been removed from SafeStore DB: "
+               << m_safeStoreWrapper->getObjectThreatName(result);
+    }
+    ASSERT_EQ(resultsFound, 0);
+}
+
+TEST_F(SafeStoreWrapperTapTests, deleteObjectsByThreatIdHandlesMissingId)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/fakevirus1";
+    fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    std::string threatId = "dummy_threat_ID1";
+    std::string threatName = "threat name1";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    // Prove that the object is in the DB before we delete it
+    SafeStoreFilter filter;
+    filter.objectType = ObjectType::FILE;
+    filter.activeFields = { FilterField::OBJECT_TYPE };
+    int resultsFound = 0;
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
+    }
+    ASSERT_EQ(resultsFound, 1);
+
+    // Delete the object specified by ID, this will remove it from the DB
+    ASSERT_FALSE(m_safeStoreWrapper->deleteObjectsByThreatId("unknown threatID"));
+
+    // Try and find the file in SafeStore DB
+    resultsFound = 0;
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
+    }
+    ASSERT_EQ(resultsFound, 1);
+}
+
+TEST_F(SafeStoreWrapperTapTests, objectHandlesThatAreInvalidatedDueToRemovalDoNotThrowOrCrashWhenUsed)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/fakevirus1";
+    fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    std::string threatId = "dummy_threat_ID1";
+    std::string threatName = "threat name1";
+    auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            threatId,
+            threatName,
+            *objectHandleFromSaveFile),
+        SaveFileReturnCode::OK);
+
+    auto name = m_safeStoreWrapper->getObjectName(*objectHandleFromSaveFile);
+
+    // Delete the object specified by ID, this will remove it from the DB
+    ASSERT_TRUE(m_safeStoreWrapper->deleteObjectsByThreatId(threatId));
+
+    // Threat should no longer be in the database
+    int resultsFound = 0;
+    SafeStoreFilter filter;
+    filter.objectType = ObjectType::FILE;
+    filter.activeFields = { FilterField::OBJECT_TYPE };
+    for (auto& result : m_safeStoreWrapper->find(filter))
+    {
+        ++resultsFound;
+        FAIL() << "This object should have been removed from SafeStore DB: "
+               << m_safeStoreWrapper->getObjectThreatName(result);
+    }
+    ASSERT_EQ(resultsFound, 0);
+
+    // This handle is now invalid but calling a function on it should not throw or crash.
+    ASSERT_NO_THROW(name = m_safeStoreWrapper->getObjectName(*objectHandleFromSaveFile));
 }

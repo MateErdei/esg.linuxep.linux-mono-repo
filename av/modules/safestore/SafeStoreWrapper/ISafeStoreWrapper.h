@@ -543,31 +543,48 @@ namespace safestore::SafeStoreWrapper
             ObjectHandleHolder& objectHandle,
             const std::string& dataName) = 0;
 
-        // TODO LINUXDAR-5734  _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectById(_In_
-        // SafeStore_t ctx, _In_ const SafeStore_Id_t* objectId, _In_opt_z_ const SsPlatChar* location);
-
-        // TODO LINUXDAR-5734 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_RestoreObjectsByThreatId(_In_
-        // SafeStore_t ctx, _In_ const SafeStore_Id_t* threatId);
-
-        // TODO LINUXDAR-5734 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectById(_In_
-        // SafeStore_t ctx, _In_ const SafeStore_Id_t* objectId);
-
-        // TODO LINUXDAR-5734 _Check_return_ SafeStore_Result_t SAFESTORE_CALL SafeStore_DeleteObjectsByThreatId(_In_
-        // SafeStore_t ctx, _In_ const SafeStore_Id_t* threatId);
-
-        // TODO LINUXDAR-5734 SafeStore_Result_t SAFESTORE_CALL SafeStore_ExportFile(_In_ SafeStore_t ctx, _In_ const
-        // SafeStore_Id_t* objectId, _Reserved_ const uint8_t* password, _Reserved_ size_t passwordSize, _In_z_ const
-        // SsPlatChar* directory, _In_opt_z_ const SsPlatChar* fileName);
+        /*
+         * Restore a file, specified by its object ID, to its original location.
+         * Returns true on success and false on failure.
+         */
+        virtual bool restoreObjectById(const ObjectIdType& objectId) = 0;
 
         /*
-         * Retrieve an objecthandle from the safestore database to perform operations using that object, such as
+         * Restore a file, specified by its object ID, to a custom location.
+         * The path argument specifies the parent directory the file is to be restored to.
+         * Returns true on success and false on failure.
+         */
+        virtual bool restoreObjectByIdToLocation(const ObjectIdType& objectId, const std::string& path) = 0;
+
+        /*
+         * Restore all files that have the same threat ID to their original locations.
+         * Returns true on success and false on failure.
+         */
+        virtual bool restoreObjectsByThreatId(const std::string& threatId) = 0;
+
+        /*
+         * Remove a file, specified by its object ID, from the SafeStore database.
+         * Returns true on success and false on failure.
+         */
+        virtual bool deleteObjectById(const ObjectIdType& objectId) = 0;
+
+        /*
+         * Remove all files with the specified threat ID, from the SafeStore database.
+         * Returns true on success and false on failure.
+         */
+        virtual bool deleteObjectsByThreatId(const std::string& threatId) = 0;
+
+        /*
+         * Retrieve an objecthandle from the SafeStore database to perform operations using that object, such as
          * getting a Threat ID or name of the object.
          * The object handle that gets passed in must be holding a SafeStore object.
          * If the raw handle in the object holder is null or the call into SafeStore fails
          * then this will return false.
          * objectId is the ID of the object that was generated when a file was saved to SafeStore.
          */
-        virtual bool getObjectHandle(const ObjectIdType& objectId, std::shared_ptr<ObjectHandleHolder> objectHandle) = 0;
+        virtual bool getObjectHandle(
+            const ObjectIdType& objectId,
+            std::shared_ptr<ObjectHandleHolder> objectHandle) = 0;
 
         /*
          * Mark an object as finalised to indicate that all needed operations have been performed and that file.

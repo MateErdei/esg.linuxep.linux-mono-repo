@@ -134,10 +134,10 @@ namespace safestore::QuarantineManager
                     fileSystem->removeFile(dormantFlag, true);
                     break;
                 case QuarantineManagerState::UNINITIALISED:
-                    fileSystem->writeFileAtomically(dormantFlag, "Safestore database uninitialised", tempDir);
+                    fileSystem->writeFileAtomically(dormantFlag, "SafeStore database uninitialised", tempDir);
                     break;
                 case QuarantineManagerState::CORRUPT:
-                    fileSystem->writeFileAtomically(dormantFlag, "Safestore database corrupt",tempDir);
+                    fileSystem->writeFileAtomically(dormantFlag, "SafeStore database corrupt",tempDir);
                     break;
                 case QuarantineManagerState::STARTUP:
                     break;
