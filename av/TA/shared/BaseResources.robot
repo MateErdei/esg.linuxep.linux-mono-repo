@@ -131,6 +131,17 @@ Check AV Telemetry
     Dictionary Should Contain Key    ${telemetryJson}    av
     Dictionary Should Contain Item   ${telemetryJson["av"]}   ${telemetryKey}   ${telemetryValue}
 
+Check SafeStore Telemetry
+    [Arguments]    ${telemetryKey}    ${telemetryValue}
+    Run Telemetry Executable With HTTPS Protocol
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
+
+    Log    ${telemetryJson}
+    Dictionary Should Contain Key    ${telemetryJson}    safestore
+    Dictionary Should Contain Item   ${telemetryJson["safestore"]}   ${telemetryKey}   ${telemetryValue}
+
 Dump All Sophos Processes
     ${result}=  Run Process    ps -elf | grep sophos    shell=True
     Log  ${result.stdout}
