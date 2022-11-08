@@ -677,19 +677,19 @@ AV Plugin Can Send Telemetry After IDE Update
     Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
 
+    ${mark} =  get_on_access_log_mark
+    Send Policies to enable on-access
+    Wait for on access to be enabled  ${mark}
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
-    # Fake a healthy OA status file so that we don't need to send a policy and cause additional updates
-    Create File  ${AV_PLUGIN_PATH}/var/onaccess.status  1
-    Register Cleanup  Remove File  ${AV_PLUGIN_PATH}/var/onaccess.status
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
     ...   timeout=60
     Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
@@ -711,6 +711,9 @@ AV Plugin Can Send Telemetry After Upgrade
     Mark AV Log
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
     Wait until AV Plugin running with offset
+    ${mark} =  get_on_access_log_mark
+    Send Policies to enable on-access
+    Wait for on access to be enabled  ${mark}
 
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
@@ -726,9 +729,6 @@ AV Plugin Can Send Telemetry After Upgrade
     ${rc}   ${output} =    Run And Return Rc And Output
     ...     ls -l ${AV_PLUGIN_PATH}/chroot/susi/update_source/
     Log  ${output}
-    ${mark} =  get_on_access_log_mark
-    Send Policies to enable on-access
-    Wait for on access to be enabled  ${mark}
 
     Run Telemetry Executable With HTTPS Protocol
 
