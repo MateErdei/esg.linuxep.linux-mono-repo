@@ -185,7 +185,7 @@ namespace CentralRegistration
         return configOptions;
     }
 
-    MCS::ConfigOptions innerCentralRegistration(const std::vector<std::string>& args)
+    MCS::ConfigOptions innerCentralRegistration(const std::vector<std::string>& args, const std::string& mcsCertPath)
     {
         std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
 
@@ -194,6 +194,14 @@ namespace CentralRegistration
         {
             throw std::runtime_error("Failed to process command line options");
         }
+
+        // When we call this function from the thin installer we need to specify the certificate we use in addition
+        // to any command line args being passed in.
+        if (!mcsCertPath.empty())
+        {
+            configOptions.config[MCS::MCS_CERT] = mcsCertPath;
+        }
+
         return registerAndObtainMcsOptions(configOptions);
     }
 
