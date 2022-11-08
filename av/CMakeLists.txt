@@ -223,10 +223,6 @@ find_library(ZLIB_LIBRARY
         NO_DEFAULT_PATH
         )
 
-message(${ZLIB_INPUT})
-message(${ZLIB_LIBRARY})
-
-
 GET_FILENAME_COMPONENT(OPENSSLCRYPTO_LIBRARY_ABSOLUTE ${CRYPTO_LIBRARY} REALPATH)
 
 add_subdirectory(modules)
