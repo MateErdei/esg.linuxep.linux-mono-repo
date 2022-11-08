@@ -194,13 +194,15 @@ class LogHandler:
         """
         results = []
         proc_age = 999999999
-        LINE_RE = re.compile(rb"^(\d+).*")
+        LINE_RE = re.compile(rb"^(\d+)\s+\[.*")
 
         for line in self.__generate_reversed_lines(mark):  # read the newest first
             mo = LINE_RE.match(line)
             if mo:
                 age = int(mo.group(1))
-                if age > proc_age:
+                if age - proc_age > 2 and proc_age < 100:
+                    # Log lines can be out of order by 1ms, and we assume we log something
+                    # within first 100ms
                     results.reverse()
                     return results
                 proc_age = age

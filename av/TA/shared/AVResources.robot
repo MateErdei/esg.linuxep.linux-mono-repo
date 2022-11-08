@@ -791,17 +791,14 @@ Uninstall AV Without /usr/sbin in PATH
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to uninstall plugin.\noutput: \n${log_contents}"
 
 Install AV Directly from SDDS Without /usr/sbin in PATH
-    Mark AV Log
-    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
-
     ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}  env:PATH=/usr/local/bin:/usr/bin:/bin
     ${log_contents} =  Get File  ${install_log}
     File Log Should Not Contain  ${AV_INSTALL_LOG}  chown: cannot access
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install plugin.\noutput: \n${log_contents}"
 
-    Wait until AV Plugin running with offset
-    Wait until threat detector running  ${td_mark}
+    Wait until AV Plugin running
+    Wait until threat detector running
 
 Require Plugin Installed and Running
     [Arguments]  ${LogLevel}=DEBUG
