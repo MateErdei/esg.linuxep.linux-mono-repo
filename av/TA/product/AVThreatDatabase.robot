@@ -51,6 +51,7 @@ Threat is removed from Threat database when marked as resolved in central
     ${actionContent} =  Set Variable  <action type="sophos.mgt.action.SAVClearFromList" ><threat-set><threat id="T26796de6ce94770"></threat></threat-set></action>
     Send Plugin Action  av  sav  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset   Removed threat from database
+    Wait Until AV Plugin Log Contains With Offset   Publishing threat health: good
 
 Threat is not added to Threat database when threat is quarantined
     Start AV
