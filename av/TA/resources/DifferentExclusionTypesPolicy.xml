@@ -78,6 +78,8 @@
                 <filePath>/vagrant/</filePath>
                 <filePath>/var/</filePath>
                 <filePath>/SophosPackages/</filePath>
+                <filePath>/pyvenv/</filePath>
+                <filePath>/build/</filePath>
             </filePathSet>
         </posixExclusions>
     </onDemandScan>
