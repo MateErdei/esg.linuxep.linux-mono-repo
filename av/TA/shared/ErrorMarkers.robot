@@ -123,6 +123,9 @@ Exclude Parse Xml Error
 Exclude Scan As Invalid
     mark_expected_error_in_log  ${AV_LOG_PATH}  ScanScheduler <> Refusing to run invalid scan: INVALID
 
+Exclude Safestore connection errors
+    mark_expected_error_in_log  ${AV_LOG_PATH}  UnixSocket <> Aborting SafeStore connection : failed to read length
+
 Exclude MCS Router is dead
     mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
 
