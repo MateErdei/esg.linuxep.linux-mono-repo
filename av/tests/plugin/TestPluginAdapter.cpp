@@ -592,6 +592,7 @@ TEST_F(TestPluginAdapter, publishQuarantineCleanEvent)
     DetectionReporter::publishQuarantineCleanEvent(threatDetectedXML, m_taskQueue);
     m_taskQueue->pushStop();
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);

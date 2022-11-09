@@ -356,7 +356,6 @@ namespace Plugin
             m_threatDatabase.addThreat(detection.threatId,detection.threatId);
             LOGDEBUG("Added threat: " << detection.threatId << " to database");
         }
-
     }
 
     void PluginAdapter::publishThreatEvent(const std::string& threatDetectedJSON) const
