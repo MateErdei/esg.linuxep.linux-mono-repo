@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation    Product tests of SafeStore
-Force Tags       INTEGRATION  SAFESTORE
+Force Tags       PRODUCT  SAFESTORE
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
