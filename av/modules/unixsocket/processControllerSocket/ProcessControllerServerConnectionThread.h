@@ -10,6 +10,7 @@
 #include "Common/Threads/NotifyPipe.h"
 
 #include <datatypes/AutoFd.h>
+#include <datatypes/ISystemCallWrapper.h>
 #include <scan_messages/ThreatDetected.h>
 
 #include <cstdint>
@@ -24,7 +25,8 @@ namespace unixsocket
         ProcessControllerServerConnectionThread& operator=(const ProcessControllerServerConnectionThread&) = delete;
         explicit ProcessControllerServerConnectionThread(
             datatypes::AutoFd& fd,
-            std::shared_ptr<IProcessControlMessageCallback> processControlCallback
+            std::shared_ptr<IProcessControlMessageCallback> processControlCallback,
+            datatypes::ISystemCallWrapperSharedPtr sysCalls
             );
 
         void run() override;
@@ -34,6 +36,7 @@ namespace unixsocket
 
         datatypes::AutoFd m_fd;
         std::shared_ptr<IProcessControlMessageCallback> m_controlMessageCallback;
+        datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
     };
 }
 

@@ -3,8 +3,10 @@
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
 #include "datatypes/sophos_filesystem.h"
+#include "datatypes/SystemCallWrapper.h"
 #include "tests/common/MemoryAppender.h"
 #include "tests/common/TestFile.h"
+#include "tests/datatypes/MockSysCalls.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerConnectionThread.h"
 
@@ -41,6 +43,9 @@ namespace
             fs::create_directories(m_testDir);
 
             fs::current_path(m_testDir);
+
+            m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+            m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
         }
 
         void TearDown() override
@@ -51,6 +56,8 @@ namespace
 
         UsingMemoryAppender memoryAppenderHolder;
         fs::path m_testDir;
+        std::shared_ptr<datatypes::SystemCallWrapper> m_sysCalls;
+        std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
     };
 
 
@@ -69,7 +76,7 @@ TEST_F(TestProcessControllerServerConnectionThread, successful_construction) //N
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
-    EXPECT_NO_THROW(unixsocket::ProcessControllerServerConnectionThread connectionThread(fdHolder, callback));
+    EXPECT_NO_THROW(unixsocket::ProcessControllerServerConnectionThread connectionThread(fdHolder, callback, m_sysCalls));
 }
 
 TEST_F(TestProcessControllerServerConnectionThread, isRunning_false_after_construction) //NOLINT
@@ -77,7 +84,7 @@ TEST_F(TestProcessControllerServerConnectionThread, isRunning_false_after_constr
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
-    unixsocket::ProcessControllerServerConnectionThread connectionThread(fdHolder, callback);
+    unixsocket::ProcessControllerServerConnectionThread connectionThread(fdHolder, callback, m_sysCalls);
     EXPECT_FALSE(connectionThread.isRunning());
 }
 
@@ -86,7 +93,7 @@ TEST_F(TestProcessControllerServerConnectionThread, fail_construction_with_bad_f
     datatypes::AutoFd fdHolder;
     ASSERT_EQ(fdHolder.get(), -1);
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
-    EXPECT_THROW(unixsocket::ProcessControllerServerConnectionThread connectionThread(fdHolder, callback),
+    EXPECT_THROW(unixsocket::ProcessControllerServerConnectionThread connectionThread(fdHolder, callback, m_sysCalls),
                  std::runtime_error);
 }
 
@@ -98,7 +105,7 @@ TEST_F(TestProcessControllerServerConnectionThread, stop_while_running) //NOLINT
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
-    ProcessControllerServerConnectionThread connectionThread(fdHolder, callback);
+    ProcessControllerServerConnectionThread connectionThread(fdHolder, callback, m_sysCalls);
     EXPECT_FALSE(connectionThread.isRunning());
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
@@ -119,7 +126,7 @@ TEST_F(TestProcessControllerServerConnectionThread, eof_while_running) //NOLINT
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
-    ProcessControllerServerConnectionThread connectionThread(fdHolder, callback);
+    ProcessControllerServerConnectionThread connectionThread(fdHolder, callback, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
@@ -137,7 +144,7 @@ TEST_F(TestProcessControllerServerConnectionThread, send_zero_length) //NOLINT
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
-    ProcessControllerServerConnectionThread connectionThread(fdHolder, callback);
+    ProcessControllerServerConnectionThread connectionThread(fdHolder, callback, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
@@ -147,16 +154,46 @@ TEST_F(TestProcessControllerServerConnectionThread, send_zero_length) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, closed_fd) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, bad_notify_pipe_fd) //NOLINT
 {
-    const std::string expected = "Closing Process Controller connection thread, error: 9";
+    const std::string expected = "Closing Process Controller connection thread, error from notify pipe: Bad file descriptor";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     int fd = fdHolder.get();
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
-    ProcessControllerServerConnectionThread connectionThread(fdHolder, callback);
+    struct pollfd fds[2]{};
+    fds[1].revents = POLLERR;
+    EXPECT_CALL(*m_mockSysCalls, ppoll(_, 2, _, nullptr))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), SetErrnoAndReturn(EBADF, 1)));
+
+    ProcessControllerServerConnectionThread connectionThread(fdHolder, callback, m_mockSysCalls);
+    ::close(fd); // fd in connection Thread now broken
+    connectionThread.start();
+    EXPECT_TRUE(waitForLog(expected));
+    connectionThread.requestStop();
+    connectionThread.join();
+
+    EXPECT_GT(m_memoryAppender->size(), 0);
+    EXPECT_TRUE(appenderContains(expected));
+}
+
+TEST_F(TestProcessControllerServerConnectionThread, bad_socket_fd) //NOLINT
+{
+    const std::string expected = "Closing Process Controller connection thread, error from socket: Bad file descriptor";
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
+    ASSERT_GE(fdHolder.get(), 0);
+    int fd = fdHolder.get();
+    std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
+    struct pollfd fds[2]{};
+    fds[0].revents = POLLERR;
+    EXPECT_CALL(*m_mockSysCalls, ppoll(_, 2, _, nullptr))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), SetErrnoAndReturn(EBADF, 1)));
+
+    ProcessControllerServerConnectionThread connectionThread(fdHolder, callback, m_mockSysCalls);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
     EXPECT_TRUE(waitForLog(expected));
@@ -179,7 +216,7 @@ TEST_F(TestProcessControllerServerConnectionThread, over_max_length) //NOLINT
     ASSERT_GE(serverFd.get(), 0);
     ASSERT_GE(clientFd.get(), 0);
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
-    ProcessControllerServerConnectionThread connectionThread(serverFd, callback);
+    ProcessControllerServerConnectionThread connectionThread(serverFd, callback, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLength(clientFd.get(), 0x1000080);
@@ -203,7 +240,7 @@ TEST_F(TestProcessControllerServerConnectionThread, max_length) //NOLINT
     ASSERT_GE(serverFd.get(), 0);
     ASSERT_GE(clientFd.get(), 0);
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
-    ProcessControllerServerConnectionThread connectionThread(serverFd, callback);
+    ProcessControllerServerConnectionThread connectionThread(serverFd, callback, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     // length is limited to ~16MB
@@ -231,7 +268,7 @@ TEST_F(TestProcessControllerServerConnectionThread, corrupt_request) //NOLINT
     ASSERT_GE(serverFd.get(), 0);
     ASSERT_GE(clientFd.get(), 0);
     std::shared_ptr<MockCallback> callback = std::make_shared<MockCallback>();
-    ProcessControllerServerConnectionThread connectionThread(serverFd, callback);
+    ProcessControllerServerConnectionThread connectionThread(serverFd, callback, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(clientFd.get(), request);
