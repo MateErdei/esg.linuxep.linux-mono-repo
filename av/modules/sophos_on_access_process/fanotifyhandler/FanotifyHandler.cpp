@@ -69,7 +69,7 @@ int FanotifyHandler::markMount(const std::string& path)
     int fanotify_fd = fanotify_autofd->fd();
     if (fanotify_fd < 0)
     {
-        m_statusFile.setStatus(datatypes::OnaccessStatus::UNHEALTHY);
+        m_statusFile.setStatus(datatypes::OnaccessStatus::INACTIVE);
         LOGWARN("Skipping markMount for " << path << " as fanotify disabled");
         return 0;
     }
@@ -89,7 +89,7 @@ int FanotifyHandler::unmarkMount(const std::string& path)
     int fanotify_fd = fanotify_autofd->fd();
     if (fanotify_fd < 0)
     {
-        m_statusFile.setStatus(datatypes::OnaccessStatus::UNHEALTHY);
+        m_statusFile.setStatus(datatypes::OnaccessStatus::INACTIVE);
         LOGWARN("Skipping unmarkMount for " << path << " as fanotify disabled");
         return 0;
     }
@@ -107,7 +107,7 @@ int FanotifyHandler::cacheFd(const int& fd, const std::string& path)
     int fanotify_fd = getFd(); // CacheFd only called while fanotify enabled
     if (fanotify_fd < 0)
     {
-        m_statusFile.setStatus(datatypes::OnaccessStatus::UNHEALTHY);
+        m_statusFile.setStatus(datatypes::OnaccessStatus::INACTIVE);
         LOGERROR("Skipping cacheFd for " << path << " as fanotify disabled");
         return 0;
     }
@@ -124,7 +124,7 @@ int FanotifyHandler::clearCachedFiles()
     int fanotify_fd = fanotify_autofd->fd(); // Don't call getFd() since we need to hold the lock
     if (fanotify_fd < 0)
     {
-        m_statusFile.setStatus(datatypes::OnaccessStatus::UNHEALTHY);
+        m_statusFile.setStatus(datatypes::OnaccessStatus::INACTIVE);
         LOGINFO("Clearing cache skipped as fanotify disabled");
         return 0;
     }

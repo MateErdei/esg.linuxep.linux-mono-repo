@@ -180,5 +180,5 @@ TEST_F(TestFanotifyHandler, clearCacheWithoutInit)
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
 
     EXPECT_NO_THROW(handler.updateComplete());
-    EXPECT_EQ(getOnaccessStatusFromFile(), datatypes::OnaccessStatus::UNHEALTHY);
+    EXPECT_EQ(getOnaccessStatusFromFile(), datatypes::OnaccessStatus::INACTIVE);
 }
