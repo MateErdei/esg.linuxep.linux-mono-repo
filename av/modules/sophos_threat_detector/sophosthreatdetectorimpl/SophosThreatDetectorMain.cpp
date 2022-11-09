@@ -369,8 +369,11 @@ namespace sspl::sophosthreatdetectorimpl
         int ret = m_sysCallWrapper->chroot(chrootPath.c_str());
         if (ret != 0)
         {
-            LOGERROR("Failed to chroot to " << chrootPath.c_str() << " (" << errno << "): Check permissions");
-            exit(EXIT_FAILURE);
+            int error = errno;
+            auto errorStr = common::safer_strerror(error);
+            std::stringstream logmsg;
+            logmsg << "Failed to chroot to " << chrootPath.c_str() << ": " <<  error << " (" << errorStr << ")";
+            throw std::runtime_error(logmsg.str());
         }
 
         if (m_sysCallWrapper->getuid() != 0)
@@ -535,12 +538,12 @@ namespace sspl::sophosthreatdetectorimpl
         }
         catch (std::exception& ex)
         {
-            LOGFATAL("Caught std::exception: " << ex.what() << " at top level");
+            LOGFATAL("ThreatDetectorMain, Exception caught at top level: " << ex.what());
             exit(EXIT_FAILURE);
         }
         catch (...)
         {
-            LOGFATAL("Caught unknown exception at top-level");
+            LOGFATAL("ThreatDetectorMain, Non-std::exception caught at top-level");
             exit(EXIT_FAILURE);
         }
     }
