@@ -145,7 +145,7 @@ def run_gcc_perf_test():
     if result.returncode != 0:
         exit(1)
 
-def run_clean_file_test(test_name, stop_on_queue_full=True, max_count=100000):
+def run_clean_file_test(test_name, stop_on_queue_full, max_count):
     dirpath = os.path.join("/tmp", "onaccess_stress_test")
     os.makedirs(dirpath)
     date_time = get_current_date_time_string()
@@ -174,11 +174,11 @@ def run_clean_file_test(test_name, stop_on_queue_full=True, max_count=100000):
 
 
 
-def run_onaccess_test():
+def run_onaccess_test(max_file_count):
     logging.info("Running AV On-access stress test")
 
     # Write clean files until the queue becomes full or we reach max_count
-    file_count = run_clean_file_test("File opens - OA enabled")
+    file_count = run_clean_file_test("File opens - OA enabled", True, max_file_count)
 
     # Write the same number of files but with on-access disable
     disable_onaccess()
@@ -473,6 +473,9 @@ def add_options():
 
     parser.add_argument('-d', '--dry_run', action='store_true', default=False,
                         help="Run tests locally without storing results")
+
+    parser.add_argument('-m', '--max-file-count', type=int, default=100000, action='store',
+                        help="Maximum number of files to create for the av-onaccess test")
     return parser
 
 
@@ -503,7 +506,7 @@ def main():
     elif args.suite == 'event-journaler-ingestion':
         run_event_journaler_ingestion_test()
     elif args.suite == 'av-onaccess':
-        run_onaccess_test()
+        run_onaccess_test(args.max_file_count)
 
     logging.info("Finished")
 
