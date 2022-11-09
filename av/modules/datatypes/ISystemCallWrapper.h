@@ -1,20 +1,20 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include <memory>
 #include <string>
 
+extern "C"
+{
+#include <fcntl.h>
+#include <netdb.h>
+#include <sys/capability.h>
 #include <sys/poll.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
-#include <fcntl.h>
-#include <netdb.h>
+}
 
 namespace datatypes
 {
@@ -53,6 +53,9 @@ namespace datatypes
         virtual int chdir(const char* __path)  = 0;
         virtual int getaddrinfo(const char* __name, const char* __service, const struct ::addrinfo* __req, struct ::addrinfo** __pai) = 0;
         virtual void freeaddrinfo(::addrinfo* __ai) = 0;
+        virtual cap_t cap_get_proc() = 0;
+        virtual int cap_clear(cap_t __cap_t) = 0;
+        virtual int cap_set_proc(cap_t __cap_t) = 0;
     };
 
     using ISystemCallWrapperSharedPtr = std::shared_ptr<ISystemCallWrapper>;

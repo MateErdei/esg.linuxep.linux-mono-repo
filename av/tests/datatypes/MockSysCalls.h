@@ -18,6 +18,9 @@ namespace
             ON_CALL(*this, getuid).WillByDefault(Return(0));
             ON_CALL(*this, chdir).WillByDefault(Return(0));
             ON_CALL(*this, chroot).WillByDefault(Return(0));
+            ON_CALL(*this, cap_get_proc).WillByDefault(Return(::cap_get_proc()));
+            ON_CALL(*this, cap_clear).WillByDefault(Return(0));
+            ON_CALL(*this, cap_set_proc).WillByDefault(Return(0));
         }
 
         MOCK_METHOD((std::pair<const int, const long>), getSystemUpTime, ());
@@ -51,6 +54,9 @@ namespace
         MOCK_METHOD(int, chdir, (const char* path));
         MOCK_METHOD(int, getaddrinfo, (const char* __name, const char* __service, const struct ::addrinfo* __req, struct ::addrinfo** __pai));
         MOCK_METHOD(void, freeaddrinfo, (::addrinfo* __ai));
+        MOCK_METHOD(cap_t, cap_get_proc, ());
+        MOCK_METHOD(int, cap_clear, (cap_t __cap_t));
+        MOCK_METHOD(int, cap_set_proc, (cap_t __cap_t));
     };
 }
 

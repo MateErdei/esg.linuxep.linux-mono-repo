@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -124,5 +120,21 @@ namespace datatypes
         {
             ::freeaddrinfo(__ai);
         }
+
+        cap_t cap_get_proc() override
+        {
+            return cap_get_proc();
+        }
+
+        int cap_clear(cap_t __cap_t) override
+        {
+            return ::cap_clear(__cap_t);
+        }
+
+        int cap_set_proc(cap_t __cap_t) override
+        {
+            return ::cap_set_proc(__cap_t);
+        }
+
     };
 }
