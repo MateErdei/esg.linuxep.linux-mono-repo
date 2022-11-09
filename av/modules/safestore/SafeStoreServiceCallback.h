@@ -16,6 +16,8 @@ namespace safestore
         Common::PluginApi::StatusInfo getStatus(const std::string& appid) override;
         void onShutdown() override {}
         void queueAction(const std::string& action) override;
+
+        static std::optional<unsigned long> getSafeStoreDatabaseSize();
     };
 
 } // namespace safestore
