@@ -551,10 +551,11 @@ namespace safestore::SafeStoreWrapper
 
         /*
          * Restore a file, specified by its object ID, to a custom location.
-         * The path argument specifies the parent directory the file is to be restored to.
+         * The dirPath argument specifies the parent directory the file is to be restored to.
+         * If the dirPath is an empty string then the original path of the file is used.
          * Returns true on success and false on failure.
          */
-        virtual bool restoreObjectByIdToLocation(const ObjectIdType& objectId, const std::string& path) = 0;
+        virtual bool restoreObjectByIdToLocation(const ObjectIdType& objectId, const std::string& dirPath) = 0;
 
         /*
          * Restore all files that have the same threat ID to their original locations.
