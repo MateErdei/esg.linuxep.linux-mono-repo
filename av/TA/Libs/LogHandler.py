@@ -200,9 +200,9 @@ class LogHandler:
             mo = LINE_RE.match(line)
             if mo:
                 age = int(mo.group(1))
-                if age - proc_age > 2 and proc_age < 100:
-                    # Log lines can be out of order by 1ms, and we assume we log something
-                    # within first 100ms
+                if age - proc_age > 10 and proc_age < 50:
+                    # Log lines can be out of order by 5ms, and we assume we log something
+                    # within first 50ms
                     results.reverse()
                     return results
                 proc_age = age
