@@ -20,7 +20,6 @@ string(STRIP "${libatomic_path}" libatomic_path )
 
 GET_FILENAME_COMPONENT(ZLIB_LIBRARY_ABSOLUTE ${ZLIB_LIBRARY} REALPATH)
 
-message(${ZLIB_LIBRARY_ABSOLUTE})
 set(third_party_libs
         ${libstdcpp_path}
         ${libgcc_s_path}
