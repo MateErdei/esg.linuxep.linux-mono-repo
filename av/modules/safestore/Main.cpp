@@ -65,7 +65,7 @@ namespace safestore
         server.start();
 
         unixsocket::SafeStoreRescanServerSocket rescanServer(Plugin::getSafeStoreRescanSocketPath(), quarantineManager);
-        rescanServer.setUserAndGroup("sophos-spl-av", "root");
+        rescanServer.setUserAndGroup("sophos-spl-threat-detector", "sophos-spl-group");
         rescanServer.start();
 
         // clang-format off

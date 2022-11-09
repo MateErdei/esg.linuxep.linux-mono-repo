@@ -13,7 +13,7 @@
 
 unixsocket::SafeStoreRescanClient::SafeStoreRescanClient(std::string socket_path) : BaseClient(std::move(socket_path))
 {
-    BaseClient::connectWithRetries("SafeStore");
+    BaseClient::connectWithRetries("SafeStore Rescan");
 }
 
 void unixsocket::SafeStoreRescanClient::sendRescanRequest()
@@ -33,6 +33,6 @@ void unixsocket::SafeStoreRescanClient::sendRescanRequest()
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGWARN("Failed to write to SafeStore socket. Exception caught: " << e.what());
+        LOGWARN("Failed to write to SafeStore Rescan socket. Exception caught: " << e.what());
     }
 }

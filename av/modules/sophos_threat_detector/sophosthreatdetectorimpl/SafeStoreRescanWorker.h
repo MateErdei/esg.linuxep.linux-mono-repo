@@ -8,6 +8,7 @@
 #include "Common/PersistentValue/PersistentValue.h"
 #include "common/AbstractThreadPluginInterface.h"
 
+#include <atomic>
 #include <condition_variable>
 #include <thread>
 
@@ -23,10 +24,15 @@ public:
     void run() override;
     void triggerRescan();
 
-private:
+    virtual void sendRescanRequest();
+
+protected:
     std::mutex m_rescanLock;
+
+private:
     std::condition_variable m_rescanWakeUp;
     fs::path m_safeStoreRescanSocket;
     Common::PersistentValue<int> m_rescanInterval;  // in seconds
-    bool m_manualRescan = false;
+    std::atomic<bool> m_manualRescan = false;
+    std::atomic<bool> m_stopRequested = false;
 };
