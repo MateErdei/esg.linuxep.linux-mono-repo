@@ -1221,8 +1221,8 @@ Check avscanner can detect eicar on read only mount
     [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
     Create Directory  ${SCAN_DIRECTORY}/readOnly
-    ${result} =  run process    mount  --bind  -r  ${SCAN_DIRECTORY}  ${SCAN_DIRECTORY}/readOnly
-    Register Cleanup   Unmount Bind Mount  ${SCAN_DIRECTORY}/readOnly
+    ${result} =  run process    mount  --bind  -o  ro  ${SCAN_DIRECTORY}  ${SCAN_DIRECTORY}/readOnly
+    Register Cleanup   Unmount Test Mount  ${SCAN_DIRECTORY}/readOnly
     Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
     Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/readOnly/eicar.com   ${LOCAL_AVSCANNER}
 

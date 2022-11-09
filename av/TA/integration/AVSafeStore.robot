@@ -9,6 +9,7 @@ Resource    ../shared/ErrorMarkers.robot
 
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/ProcessUtils.py
 
 Library         OperatingSystem
@@ -40,9 +41,9 @@ SafeStore Database is Initialised
     File Should Exist    ${SAFESTORE_DB_PASSWORD_PATH}
 
 SafeStore Can Reinitialise Database Containing Threats
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}    timeout=60
 
     Wait Until Safestore Log Contains    Successfully saved SafeStore database password to file
     Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
@@ -58,11 +59,11 @@ SafeStore Can Reinitialise Database Containing Threats
 
     Stop SafeStore
     Check Safestore Not Running
-    Mark SafeStore Log
+    ${ss_mark} =  Get SafeStore Log Mark
 
     Start SafeStore
-    Wait Until SafeStore Log Contains With Offset    Quarantine Manager initialised OK
-    Wait Until SafeStore Log Contains With Offset    Successfully initialised SafeStore database
+    Wait For SafeStore Log Contains After Mark    Quarantine Manager initialised OK  ${ss_mark}
+    Wait For SafeStore Log Contains After Mark    Successfully initialised SafeStore database  ${ss_mark}
 
     Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}
     ${ssPassword2} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
@@ -76,42 +77,42 @@ SafeStore Can Reinitialise Database Containing Threats
     Should Be Equal    ${filesInSafeStoreDb1}    ${filesInSafeStoreDb2}
 
 SafeStore Recovers From Corrupt Database
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}   timeout=60
 
     Wait Until Safestore Log Contains    Successfully saved SafeStore database password to file
     Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
 
-    Mark SafeStore Log
+    ${ss_mark} =  Get SafeStore Log Mark
     Corrupt SafeStore Database
 
     Check SafeStore Dormant Flag Exists
 
-    Wait Until SafeStore Log Contains With Offset    Successfully removed corrupt SafeStore database    200
-    Wait Until SafeStore Log Contains With Offset    Successfully initialised SafeStore database
+    Wait For SafeStore Log Contains After Mark    Successfully removed corrupt SafeStore database    ${ss_mark}  timeout=200
+    Wait For SafeStore Log Contains After Mark    Successfully initialised SafeStore database  ${ss_mark}
 
     Check Safestore Dormant Flag Does Not Exist
 
-    Mark SafeStore Log
+    ${ss_mark} =  Get SafeStore Log Mark
     Check avscanner can detect eicar
-    Wait Until SafeStore Log Contains With Offset  Received Threat:
+    Wait For SafeStore Log Contains After Mark  Received Threat:  ${ss_mark}
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
 SafeStore Quarantines When It Receives A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.   ${av_mark}   timeout=60
 
     Check avscanner can detect eicar
 
     Wait Until SafeStore Log Contains  Received Threat:
-    Wait Until AV Plugin Log Contains With Offset  Quarantine succeeded
+    Wait For AV Log Contains After Mark  Quarantine succeeded  ${av_mark}
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
@@ -125,15 +126,15 @@ SafeStore Quarantines When It Receives A File To Quarantine
 Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}   timeout=60
     Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
     Check avscanner can detect eicar
 
     Wait Until SafeStore Log Contains  Received Threat:
-    Wait Until AV Plugin Log Contains With Offset  Quarantine failed
+    Wait For AV Log Contains After Mark  Quarantine failed  ${av_mark}
     File Should Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
@@ -145,27 +146,27 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
 
 
 SafeStore does not quarantine on a Corrupt Database
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
 
     Wait Until Safestore Log Contains    Successfully saved SafeStore database password to file
     Wait Until SafeStore Log Contains    Quarantine Manager initialised OK
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
 
-    Mark SafeStore Log
+    ${ss_mark} =  Get SafeStore Log Mark
     Corrupt SafeStore Database
     Check avscanner can detect eicar
 
-    Wait Until AV Plugin Log Contains Detection Name With Offset  EICAR-AV-Test
+    Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test'  ${av_mark}
     Wait Until SafeStore Log Contains  Received Threat:
     Wait Until SafeStore Log Contains  Cannot quarantine file, SafeStore is in
-    Wait Until SafeStore Log Contains With Offset    Successfully removed corrupt SafeStore database    200
-    Wait Until SafeStore Log Contains With Offset    Successfully initialised SafeStore database
+    Wait For SafeStore Log Contains After Mark    Successfully removed corrupt SafeStore database  ${ss_mark}  timeout=200
+    Wait For SafeStore Log Contains After Mark    Successfully initialised SafeStore database  ${ss_mark}
 
-    Mark SafeStore Log
+    ${ss_mark} =  Get SafeStore Log Mark
     Check avscanner can detect eicar
-    Wait Until SafeStore Log Contains With Offset  Received Threat:
+    Wait For SafeStore Log Contains After Mark  Received Threat:  ${ss_mark}
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
@@ -173,15 +174,15 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
     Stop SafeStore
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
 
     Check avscanner can detect eicar
 
-    Wait Until AV Plugin Log Contains Detection Name With Offset  EICAR-AV-Test
-    Wait Until AV Plugin Log Contains With Offset  Failed to write to SafeStore socket.
+    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For AV Log Contains After Mark    Failed to write to SafeStore socket.  ${av_mark}
     Check SafeStore Not Running
     Mark Expected Error In Log    ${AV_PLUGIN_PATH}/log/av.log    Aborting SafeStore connection : failed to read length
 
@@ -193,29 +194,29 @@ Threat Detector Triggers SafeStore Rescan On Timeout
 SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
 
     Check avscanner can detect eicar on read only mount
 
-    Wait Until AV Plugin Log Contains  File is located on a ReadOnly mount:
-    Wait Until AV Plugin Log Contains Detection Name With Offset  EICAR-AV-Test
+    Wait For AV Log Contains After Mark    File is located on a ReadOnly mount:  ${av_mark}
+    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
 
 
 SafeStore Does Not Attempt To Quarantine File On A Network Mount
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
 
     Check avscanner can detect eicar on network mount
 
-    Wait Until AV Plugin Log Contains  File is located on a Network mount:
-    Wait Until AV Plugin Log Contains Detection Name With Offset  EICAR-AV-Test
+    Wait For AV Log Contains After Mark    File is located on a Network mount:  ${av_mark}
+    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
 
 
 *** Keywords ***
@@ -223,7 +224,7 @@ SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
     Start SafeStore
 
-    Mark AV Log
+    Get AV Log Mark
     Mark Sophos Threat Detector Log
 
     register on fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
