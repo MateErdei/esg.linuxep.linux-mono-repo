@@ -33,6 +33,8 @@ ${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_
 *** Test Cases ***
 
 SafeStore Database is Initialised
+    register on fail  dump log  ${SOPHOS_INSTALL}/base/etc/logger.conf.local
+    register on fail  dump log  ${SOPHOS_INSTALL}/base/etc/logger.conf
     wait for Safestore to be running
 
     Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}

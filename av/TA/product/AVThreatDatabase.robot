@@ -49,6 +49,9 @@ Threat is removed from Threat database when marked as resolved in central
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
     wait_for_av_log_contains_after_mark   Added threat: T26796de6ce94770 to database   ${avmark}
+
+    ## Only interested in removals after we send the action
+    ${avmark} =  get_av_log_mark
     ${actionContent} =  Set Variable  <action type="sophos.core.threat.sav.clear"><item id="T26796de6ce94770"/></action>
     Send Plugin Action  av  sav  corr123  ${actionContent}
     wait_for_av_log_contains_after_mark   Removed threat from database   ${avmark}
