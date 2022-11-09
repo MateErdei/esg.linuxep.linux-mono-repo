@@ -139,6 +139,7 @@ namespace Plugin
         telemetry.increment("scheduled-scan-count", 0ul);
         telemetry.increment("threat-count", 0ul);
         telemetry.increment("threat-eicar-count", 0ul);
+        telemetry.increment("detections-dropped-from-safestore-queue", 0ul);
 
         std::string telemetryJson = telemetry.serialiseAndReset();
         telemetry.set("threatHealth", m_threatStatus);
