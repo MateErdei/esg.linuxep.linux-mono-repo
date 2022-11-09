@@ -702,7 +702,7 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectByIdAndcheckItIsNoLongerInDatabase)
     // Delete the object specified by ID, this will remove it from the DB
     ASSERT_TRUE(m_safeStoreWrapper->deleteObjectById(objectId));
 
-    // Try and find the file in SafeStore DB
+    // Try and find the file in SafeStore DB, it should not exist.
     resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -710,7 +710,6 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectByIdAndcheckItIsNoLongerInDatabase)
         FAIL() << "This object should have been removed from SafeStore DB: "
                << m_safeStoreWrapper->getObjectThreatName(result);
     }
-    ASSERT_EQ(resultsFound, 0);
 }
 
 TEST_F(SafeStoreWrapperTapTests, deleteObjectByIdHandlesMissingId)
