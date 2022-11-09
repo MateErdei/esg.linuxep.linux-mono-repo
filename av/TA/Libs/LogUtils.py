@@ -1000,7 +1000,7 @@ File Log Contains
             self.dump_marked_log(log_path, mark)
             raise AssertionError("Found %s in %s" % (not_expected, log_path))
 
-    def Wait_For_Log_contains_after_last_restart(self, log_path, expected, timeout: int = 10, mark=None):
+    def wait_for_log_contains_after_last_restart(self, log_path, expected, timeout: int = 10, mark=None):
         """
         Wait for a log line, but only in the log lines after the most recent restart of the process.
 
@@ -1012,6 +1012,10 @@ File Log Contains
         """
         handler = self.get_log_handler(log_path)
         return handler.Wait_For_Log_contains_after_last_restart(expected, timeout, mark)
+
+    def wait_for_entire_log_contains(self, log_path, expected, timeout: int = 15):
+        handler = self.get_log_handler(log_path)
+        return handler.Wait_For_Entire_log_contains(expected, timeout)
 
     def save_log_marks_at_start_of_test(self):
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
@@ -1071,8 +1075,8 @@ File Log Contains
     def check_av_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.av_log, not_expected, mark)
 
-    def Wait_For_AV_Log_contains_after_last_restart(self, expected, timeout: int):
-        return self.Wait_For_Log_contains_after_last_restart(self.av_log, expected, timeout)
+    def wait_for_av_log_contains_after_last_restart(self, expected, timeout: int):
+        return self.wait_for_log_contains_after_last_restart(self.av_log, expected, timeout)
 
 #####################################################################
 # Sophos Threat Detector Log

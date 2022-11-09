@@ -668,7 +668,7 @@ Wait Until On Access running with offset
 Wait Until SafeStore running
     [Arguments]  ${timeout}=${60}
     ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
-    LogUtils.Wait For Log contains after last restart  ${SAFESTORE_LOG_PATH}  Common <> Starting scanScheduler  timeout=${timeout}
+    LogUtils.Wait For Log contains after last restart  ${SAFESTORE_LOG_PATH}  SafeStore started  timeout=${timeout}
 
 Wait Until SafeStore Running With Offset
     [Arguments]  ${timeout}=${60}

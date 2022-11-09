@@ -168,6 +168,18 @@ class LogHandler:
         except OSError:
             return []
 
+    @staticmethod
+    def __read_content(file_path):
+        """
+        Reads a file, or returns "" if the file doesn't exist or can't be read.
+        :param file_path:
+        :return:
+        """
+        try:
+            return open(file_path, "rb").read()
+        except OSError:
+            return b""
+
     def __generate_log_file_names(self):
         yield self.__m_log_path
         for n in range(1, 10):
@@ -247,3 +259,21 @@ class LogHandler:
         content_lines = [line.decode("UTF-8", errors="backslashreplace") for line in content_lines]
         logger.info("%s since last restart:" % self.__m_log_path + u"".join(content_lines))
         raise AssertionError("'%s' not found in %s after %d seconds" % (expected, self.__m_log_path, timeout))
+
+    def Wait_For_Entire_log_contains(self, expected, timeout: int) -> None:
+        """
+        Waits for expected to appear in the entire text of the logs
+        :param expected:
+        :param timeout:
+        :return:
+        """
+        expected_bytes = ensure_binary(expected, "UTF-8")
+        start = time.time()
+        while time.time() < start + timeout:
+            for file_path in self.__generate_log_file_names():
+                if expected_bytes in self.__read_content(file_path):
+                    return
+                time.sleep(1)
+
+        logger.error("Failed to find %s in any log files for %s" % (expected, self.__m_log_path))
+        raise AssertionError("Failed to find %s in any log files for %s" % (expected, self.__m_log_path))
