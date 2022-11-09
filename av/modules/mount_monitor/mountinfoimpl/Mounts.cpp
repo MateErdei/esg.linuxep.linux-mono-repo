@@ -204,7 +204,6 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
                 index++;
             }
             argv[index] = nullptr;
-
             pid_t child = fork();
 
             switch (child)
@@ -272,6 +271,12 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
                     break;
                 }
             }
+            // clean up manually allocated memory
+            for (; index >= 0; index--)
+            {
+                delete[] argv[index];
+            }
+            delete[] argv;
         }
     }
     return result;
