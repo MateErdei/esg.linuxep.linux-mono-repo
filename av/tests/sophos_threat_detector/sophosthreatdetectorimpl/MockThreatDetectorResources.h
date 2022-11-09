@@ -2,6 +2,8 @@
 
 #pragma once
 
+#define TEST_PUBLIC public
+
 #include "MockShutdownTimer.h"
 #include "MockThreatReporter.h"
 #include "MockUpdateCompleteServerSocket.h"
@@ -22,14 +24,14 @@ namespace
     class MockThreatDetectorResources : public sspl::sophosthreatdetectorimpl::IThreatDetectorResources
     {
     public:
-        MockThreatDetectorResources()
+        MockThreatDetectorResources(const fs::path& testUpdateSocketPath)
         {
             m_mockSysCalls = std::make_shared<NiceMock<MockSystemCallWrapper>>();
             m_mockSigHandler = std::make_shared<NiceMock<MockSignalHandler>>();
             m_mockPidLock = std::make_shared<NiceMock<MockPidLock>>();
             m_mockThreatReporter = std::make_shared<NiceMock<MockThreatReporter>>();
             m_mockShutdownTimer = std::make_shared<NiceMock<MockShutdownTimer>>();
-            m_mockUpdateCompleteServerSocket = std::make_shared<NiceMock<MockUpdateCompleteServerSocket>>("tmp/update_complete_socket", 0777);
+            m_mockUpdateCompleteServerSocket = std::make_shared<NiceMock<MockUpdateCompleteServerSocket>>(testUpdateSocketPath, 0777);
             m_mockSusiScannerFactory = std::make_shared<NiceMock<MockSusiScannerFactory>>();
 
 

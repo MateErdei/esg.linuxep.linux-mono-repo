@@ -1,10 +1,10 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
+#pragma once
+
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h"
 
 #include <gmock/gmock.h>
-
-#pragma once
 
 namespace {
     class MockThreatReporter : public threat_scanner::IThreatReporter
