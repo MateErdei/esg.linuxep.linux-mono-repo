@@ -351,15 +351,14 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
 
 def decide_whether_to_run_aws_tests(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:
     branch = context.branch
-    # aws tests will always run in release/aws-test-runner which mirrors develop
+    
     if branch == "develop":
         return False
 
-    if parameters.force_run_aws_tests != 'false':
+    if parameters.run_aws_tests != 'false':
         return True
-    if parameters.inhibit_run_aws_tests != 'false':
+    else:
         return False
-
 
 def decide_whether_to_do_coverage(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:
     if parameters.force_run_coverage != 'false':
