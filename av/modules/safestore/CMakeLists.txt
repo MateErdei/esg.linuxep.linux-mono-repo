@@ -11,6 +11,7 @@ add_library(safestoreimpl SHARED
         QuarantineManager/StateMonitor.h
         SafeStoreServiceCallback.cpp
         SafeStoreServiceCallback.h
+        SafeStoreTelemetryConsts.h
         SafeStoreWrapper/ISafeStoreWrapper.h
         SafeStoreWrapper/SafeStoreWrapperImpl.cpp
         SafeStoreWrapper/SafeStoreWrapperImpl.h
