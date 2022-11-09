@@ -206,3 +206,17 @@ Telemetry Executable Generates SafeStore Telemetry When SafeStore Is In Dormant 
 
     Check SafeStore Telemetry    dormant-mode   True
     Check SafeStore Telemetry    health   1
+
+Telemetry Executable Generates SafeStore Database Size Telemetry
+    Run Telemetry Executable With HTTPS Protocol
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
+
+    Log    ${telemetryJson}
+    Dictionary Should Contain Key    ${telemetryJson}    safestore
+    ${safeStoreTelemetryJson} =    Get From Dictionary    ${telemetryJson}    safestore
+    Dictionary Should Contain Key   ${safeStoreTelemetryJson}   database-size
+
+    ${databaseSizeType}=      Evaluate     isinstance(${safeStoreTelemetryJson["database-size"]}, int)
+    Should Be Equal    ${databaseSizeType}    ${True}
