@@ -193,6 +193,18 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
         int fd[2];
         if (pipe(fd) != -1)
         {
+            // pre-process arguments for child process
+            char** argv = new char*[args.size() + 1];
+            int index = 0;
+
+            for (const auto& it : args)
+            {
+                argv[index] = new char[it.size() + 1];
+                memcpy(argv[index], it.c_str(), it.size() + 1);
+                index++;
+            }
+            argv[index] = nullptr;
+
             pid_t child = fork();
 
             switch (child)
@@ -213,17 +225,6 @@ std::string Mounts::scrape(const std::string& path, const std::vector<std::strin
                         dup2(fd[1], 2);
                         close(fd[0]);
                         close(fd[1]);
-
-                        char** argv = new char*[args.size() + 1];
-                        int index = 0;
-
-                        for (const auto& it : args)
-                        {
-                            argv[index] = new char[it.size() + 1];
-                            memcpy(argv[index], it.c_str(), it.size() + 1);
-                            index++;
-                        }
-                        argv[index] = nullptr;
 
                         execv(path.c_str(), argv);
                         // never returns
