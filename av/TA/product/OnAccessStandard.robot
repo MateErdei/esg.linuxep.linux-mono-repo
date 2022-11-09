@@ -4,7 +4,7 @@
 
 *** Settings ***
 Documentation   Product tests for SOAP
-Force Tags      PRODUCT  SOAP  oa_standard
+Force Tags      PRODUCT  SOAP
 
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ComponentSetup.robot
@@ -28,12 +28,12 @@ ${TESTTMP}  /tmp_test/SSPLAVTests
 On Access Suite Setup
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
-    Create File  ${COMPONENT_ROOT_PATH}/var/customer_id.txt  c1cfcf69a42311a6084bcefe8af02c8a
-    Create File  ${COMPONENT_ROOT_PATH_CHROOT}/var/customer_id.txt  c1cfcf69a42311a6084bcefe8af02c8a
-
-    ${oa_mark} =  get_on_access_log_mark
+    ${customerIdFile} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
+    Create File  ${customerIdFile}  c1cfcf69a42311a6084bcefe8af02c8a
+    Mark Sophos Threat Detector Log
+    Mark On Access Log
     Start On Access And AV With Running Threat Detector
-    Enable OA Scanning   mark=${oa_mark}
+    Enable OA Scanning
 
 
 On Access Suite Teardown
@@ -84,7 +84,7 @@ On Access Scans Eicar On Filesystem
 
     wait for on access log contains after mark  On-close event for ${where}/eicar.com from  mark=${mark}
     wait for on access log contains after mark  (PID=${pid}) and UID 0  mark=${mark}
-    wait for on access log contains after mark  Detected "${where}/eicar.com" is infected with  mark=${mark}
+    wait for on access log contains after mark  Detected "${where}/eicar.com" is infected with  mark=${mark}  timeout=${timeout}
 
 On Access Scans Eicar On Filesystem from Image
     [Arguments]  ${type}  ${imageName}  ${opts}=loop
@@ -120,8 +120,8 @@ On Access Scans File Created By non-root User
 
     Log   ${output}
 
-    wait_for_on_access_log_contains_after_mark  On-close event for ${destfile} from  mark=${mark}
-    wait_for_on_access_log_contains_after_mark  Detected "${destfile}" is infected with EICAR-AV-Test  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  On-close event for ${destfile} from  mark=${mark}  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  Detected "${destfile}" is infected with EICAR-AV-Test  mark=${mark}  timeout=${timeout}
 
 
 On Access Scans File Created Under A Long Path
@@ -129,12 +129,12 @@ On Access Scans File Created Under A Long Path
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${40}  /home/vagrant/  long_dir_eicar  ${EICAR_STRING}
     Register Cleanup   Remove Directory   /home/vagrant/${LONG_DIRECTORY}   recursive=True
 
-    wait_for_on_access_log_contains_after_mark  long_dir_eicar" is infected with EICAR-AV-Test  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  long_dir_eicar" is infected with EICAR-AV-Test  mark=${mark}  timeout=${timeout}
 
     ${mark} =  get_on_access_log_mark
     ${long_path} =  create long path  ${LONG_DIRECTORY}   ${100}  /home/vagrant/  silly_long_dir_eicar  ${EICAR_STRING}
 
-    wait_for_on_access_log_contains_after_mark  Failed to get path from fd: File name too long  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  Failed to get path from fd: File name too long  mark=${mark}  timeout=${timeout}
     check_on_access_log_does_not_contain_after_mark   silly_long_dir_eicar  mark=${mark}
 
 
@@ -149,27 +149,23 @@ On Access Scans Encoded Eicars
 
 On Access Scans Password Protected File
     Register Cleanup    Exclude As Password Protected
-    Register Cleanup     Exclude As Corrupted   # on-open scan may get partial content
     ${mark} =  get_on_access_log_mark
 
-    Basic Copy File  ${RESOURCES_PATH}/file_samples/passwd-protected.xls  /tmp/
+    Copy File  ${RESOURCES_PATH}/file_samples/passwd-protected.xls  /tmp/
     Register Cleanup   Remove File  /tmp/passwd-protected.xls
-    wait_for_on_access_log_contains_after_mark   /tmp/passwd-protected.xls as it is password protected  mark=${mark}
+    #Todo Test can see below message 2-3 times
+    wait_for_on_access_log_contains_after_mark   /passwd-protected.xls as it is password protected  mark=${mark}  timeout=${timeout}
 
-    # ensure we've completed the on-close scan
-    wait for on access log contains after mark   Un-caching /tmp/passwd-protected.xls (Close-Write)  mark=${mark}
 
 On Access Scans Corrupted File
     Register Cleanup     Exclude As Corrupted
     ${mark} =  get_on_access_log_mark
 
-    Basic Copy File  ${RESOURCES_PATH}/file_samples/corrupted.xls  /tmp/
+    Copy File  ${RESOURCES_PATH}/file_samples/corrupted.xls  /tmp/
     Register Cleanup   Remove File  /tmp/corrupted.xls
+    #Todo Test can see below message 2-3 times
+    wait for on access log contains after mark   /corrupted.xls as it is corrupted  mark=${mark}  timeout=${timeout}
 
-    wait for on access log contains after mark   /tmp/corrupted.xls as it is corrupted  mark=${mark}
-
-    # ensure we've completed the on-close scan
-    wait for on access log contains after mark   Un-caching /tmp/corrupted.xls (Close-Write)  mark=${mark}
 
 On Access Scans File On BFS
     On Access Scans Eicar On Filesystem from Image  bfs  bfsFileSystem
@@ -229,7 +225,7 @@ On Access Scans File On SquashFS
 
     wait for on access log contains after mark  On-open event for ${where}/eicar.com from  mark=${mark}
     wait for on access log contains after mark  (PID=${pid}) and UID 0  mark=${mark}
-    wait for on access log contains after mark  Detected "${where}/eicar.com" is infected with   mark=${mark}
+    wait for on access log contains after mark  Detected "${where}/eicar.com" is infected with   mark=${mark}  timeout=${timeout}
 
 
 On Access Scans File On VFAT
@@ -273,6 +269,7 @@ On Access Excludes Excluded Mount On Top Of Included Mount
 
 
 On Access Doesnt Scan Threat Detector Events
+    ${TD_PID} =  Record Sophos Threat Detector PID
     ${filepath} =  Set Variable  ${NORMAL_DIRECTORY}/eicar.com
 
     ${mark} =  get_on_access_log_mark
@@ -280,8 +277,8 @@ On Access Doesnt Scan Threat Detector Events
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
 
-    wait for on access log contains after mark   Detected "${filepath}" is infected with EICAR-AV-Test  mark=${mark}
-    check_on_access_log_does_not_contain_after_mark   from Process ${SOPHOS_THREAT_DETECTOR_BINARY}  mark=${mark}
+    wait for on access log contains after mark   Detected "${filepath}" is infected with EICAR-AV-Test  mark=${mark}  timeout=${timeout}
+    check_on_access_log_does_not_contain_after_mark   from Process ${SOPHOS_THREAT_DETECTOR_BINARY}(PID=${TD_PID})  mark=${mark}
 
 
 On Access Doesnt Scan CommandLine Scanner Events
@@ -293,36 +290,29 @@ On Access Doesnt Scan CommandLine Scanner Events
     Register Cleanup  Remove File  ${filepath}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}
-    Log   ${output}
+
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}    Detected "${filepath}" is infected with EICAR-AV-Test
 
-    wait for on access log contains after mark       Detected "${filepath}" is infected with EICAR-AV-Test  mark=${mark}
+    wait for on access log contains after mark       Detected "${filepath}" is infected with EICAR-AV-Test  mark=${mark}  timeout=${timeout}
     check_on_access_log_does_not_contain_after_mark  from Process ${CLI_SCANNER_PATH}  mark=${mark}
 
 
 On Access Doesnt Scan Named Scanner Events
     Register Cleanup   Dump Log On Failure   ${AV_LOG_PATH}
+    ${AVPLUGIN_PID} =  Record AV Plugin PID
+
+    ${filepath} =  Set Variable  ${NORMAL_DIRECTORY}/eicar.com
 
     ${oamark} =  get_on_access_log_mark
     ${avmark} =  get_av_log_mark
 
-    Configure Scan Now Scan With On Access Enabled
+    Run Scheduled Scan With On Access Enabled
+    wait_for_av_log_contains_after_mark   Completed scan   mark=${avmark}  timeout=60
 
-    # ensure on-access is enabled
-    On-access Scan Clean File
-
-    Trigger Scan Now Scan
-    wait_for_av_log_contains_after_mark  Starting scan Scan Now  mark=${avmark}  timeout=10
-    wait_for_av_log_contains_after_mark   Completed scan Scan Now   mark=${avmark}  timeout=60
-
-    # check specific plugin processes
-    check_on_access_log_does_not_contain_after_mark  from Process ${PLUGIN_BINARY}  mark=${oamark}
+    check_on_access_log_does_not_contain_after_mark  from Process ${PLUGIN_BINARY}(PID=${AVPLUGIN_PID})  mark=${oamark}
     check_on_access_log_does_not_contain_after_mark  from Process ${SCHEDULED_FILE_WALKER_LAUNCHER}  mark=${oamark}
     check_on_access_log_does_not_contain_after_mark  from Process ${CLI_SCANNER_PATH}  mark=${oamark}
-
-    # check all plugin processes by path prefix
-    check_on_access_log_does_not_contain_after_mark  from Process ${AV_PLUGIN_PATH}  mark=${oamark}
 
 
 On Access Doesnt Scan On Access Events
@@ -334,63 +324,56 @@ On Access Doesnt Scan On Access Events
 
 On Access Caches Open Events Without Detections
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
-    ${cleanfile2} =  Set Variable  /tmp_test/cleanfile2.txt
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
-    # create a file without generating fanotify events
     ${oamark} =  get_on_access_log_mark
+
     Create File   ${cleanfile}-excluded   ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${cleanfile}-excluded
-    #Generate another event we can expect in logs
-    Create File  ${cleanfile2}  ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${cleanfile2}
-    wait for on access log contains after mark  On-close event for ${cleanfile2}  mark=${oamark}
-    Move File   ${cleanfile}-excluded   ${cleanfile}
+    Evaluate  shutil.move("${cleanfile}-excluded", "${cleanfile}")
     Register Cleanup   Remove File   ${cleanfile}
 
-    # generate an open event, which should be cached
-    ${oamark} =  get_on_access_log_mark
     Get File   ${cleanfile}
-    wait for on access log contains after mark  Caching ${cleanfile} (Open)  mark=${oamark}
+    wait for on access log contains after mark   Caching ${cleanfile} (Open)  mark=${oamark}
 
-    # open the file again, ensure we get no event
+    #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
+    Sleep    1s
+
     ${oamark} =  get_on_access_log_mark
     Get File   ${cleanfile}
+
     #Generate another event we can expect in logs
-    Create File  ${cleanfile2}  ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${cleanfile2}
-    wait for on access log contains after mark        On-open event for ${cleanfile2} from  mark=${oamark}
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup   Remove File   ${dirtyfile}
+    wait for on access log contains after mark        On-open event for ${dirtyfile} from  mark=${oamark}    timeout=${timeout}
     check_on_access_log_does_not_contain_after_mark   On-open event for ${cleanfile} from  mark=${oamark}
+    dump logs
 
 
 On Access Doesnt Cache Open Events With Detections
     ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
-    ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
 
-    # create a file without generating fanotify events
     ${oamark} =  get_on_access_log_mark
-    Create File   ${dirtyfile}-excluded   ${EICAR_STRING}
-    Register Cleanup   Remove File   ${dirtyfile}-excluded
-    #Generate another event we can expect in logs
-    Create File  ${cleanfile}  ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${cleanfile}
-    wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
-    Move File   ${dirtyfile}-excluded   ${dirtyfile}
+    Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup   Remove File   ${dirtyfile}
+    wait for on access log contains after mark    On-close event for ${dirtyfile} from  mark=${oamark}
+
+    #TODO this is necessary while LINXUDAR-5740 is not resolved
+    Append To File  ${dirtyfile}  ${EICAR_STRING}
 
     ${oamark} =  get_on_access_log_mark
     Get File   ${dirtyfile}
     wait for on access log contains after mark  On-open event for ${dirtyfile} from  mark=${oamark}
-    wait for on access log contains after mark  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark}
+    wait for on access log contains after mark  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark}   timeout=${timeout}
 
     ${oamark} =  get_on_access_log_mark
     Get File   ${dirtyfile}
     wait for on access log contains after mark  On-open event for ${dirtyfile} from  mark=${oamark}
-    wait for on access log contains after mark  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark}
+    wait for on access log contains after mark  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark}   timeout=${timeout}
 
 
 On Access Does Cache Close Events Without Detections
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
-    ${cleanfile2} =  Set Variable  /tmp_test/cleanfile2.txt
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
     ${oamark} =  get_on_access_log_mark
     Create File  ${cleanfile}  ${CLEAN_STRING}
@@ -399,20 +382,23 @@ On Access Does Cache Close Events Without Detections
     wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
     wait for on access log contains after mark  Caching ${cleanfile} (Close-Write)  mark=${oamark}
 
+    #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
+    Sleep    1s
+
     ${oamark} =  get_on_access_log_mark
     Get File   ${cleanfile}
 
-    #Generate another event we can expect in logs
-    Create File  ${cleanfile2}  ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${cleanfile2}
-    wait for on access log contains after mark  On-close event for ${cleanfile2}  mark=${oamark}
+     #Generate another event we can expect in logs
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup   Remove File   ${dirtyfile}
+    wait for on access log contains after mark  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}   timeout=${timeout}
 
     check_on_access_log_does_not_contain_after_mark  On-open event for ${cleanfile} from  mark=${oamark}
 
 
 On Access Receives Close Event On Cached File
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
-    ${cleanfile2} =  Set Variable  /tmp_test/cleanfile2.txt
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
     ${oamark} =  get_on_access_log_mark
     Create File  ${cleanfile}  ${CLEAN_STRING}
@@ -421,14 +407,17 @@ On Access Receives Close Event On Cached File
     wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
     wait for on access log contains after mark  Caching ${cleanfile} (Close-Write)  mark=${oamark}
 
+    #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
+    Sleep    1s
+
     #Check we are cached
     ${oamark} =  get_on_access_log_mark
     Get File   ${cleanfile}
 
-    #Generate another event we can expect in logs
-    Create File  ${cleanfile2}  ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${cleanfile2}
-    wait for on access log contains after mark  On-close event for ${cleanfile2}  mark=${oamark}
+     #Generate another event we can expect in logs
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup   Remove File   ${dirtyfile}
+    wait for on access log contains after mark  Detected "${dirtyfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}   timeout=${timeout}
 
     check_on_access_log_does_not_contain_after_mark  On-open event for ${cleanfile} from  mark=${oamark}
 
@@ -464,14 +453,16 @@ On Access Processes New File With Same Attributes And Contents As Old File
     Register Cleanup   Remove File   ${cleanfile}
 
     Get File   ${cleanfile}
-    wait for on access log contains after mark  On-open event for ${cleanfile} from  mark=${oamark}
+    wait for on access log contains after mark  On-open event for ${cleanfile} from  mark=${oamark}  timeout=${timeout}
     wait for on access log contains after mark  Caching ${cleanfile}  mark=${oamark}
+    #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
+    Sleep   1
 
     Remove File   ${cleanfile}
 
     ${oamark} =  get_on_access_log_mark
     Create File   ${cleanfile}   ${CLEAN_STRING}
-    wait for on access log contains after mark  On-open event for ${cleanfile} from   mark=${oamark}
+    wait for on access log contains after mark  On-open event for ${cleanfile} from   mark=${oamark}  timeout=${timeout}
 
 
 On Access Detects A Clean File Replaced By Dirty File With Same Attributes
@@ -482,8 +473,10 @@ On Access Detects A Clean File Replaced By Dirty File With Same Attributes
     Sleep   0.1s
 
     Get File   ${dustyfile}
-    wait for on access log contains after mark  On-open event for ${dustyfile} from   mark=${oamark}
+    wait for on access log contains after mark  On-open event for ${dustyfile} from   mark=${oamark}   timeout=${timeout}
     wait for on access log contains after mark  Caching ${dustyfile}  mark=${oamark}
+    #On a busy system there maybe a delay between logging we have cached and it being processed in kernel space
+    Sleep   1s
 
     Remove File   ${dustyfile}
     Create File   ${dustyfile}   ${EICAR_STRING}
@@ -491,5 +484,5 @@ On Access Detects A Clean File Replaced By Dirty File With Same Attributes
 
     ${oamark} =  get_on_access_log_mark
     Get File   ${dustyfile}
-    wait for on access log contains after mark  On-open event for ${dustyfile} from    mark=${oamark}
-    wait for on access log contains after mark  Detected "${dustyfile}" is infected with EICAR-AV-Test (Open)   mark=${oamark}
+    wait for on access log contains after mark  On-open event for ${dustyfile} from    mark=${oamark}  timeout=${timeout}
+    wait for on access log contains after mark  Detected "${dustyfile}" is infected with EICAR-AV-Test (Open)   mark=${oamark}  timeout=${timeout}
