@@ -200,6 +200,69 @@ namespace safestore::SafeStoreWrapper
         return activeFields;
     }
 
+    std::string safeStoreReturnCodeToString(SafeStore_Result_t result)
+    {
+        switch (result)
+        {
+            case SR_OK:
+                return "OK";
+            case SR_INVALID_ARG:
+                return "INVALID_ARG";
+            case SR_NOT_IMPLEMENTED:
+                return "NOT_IMPLEMENTED";
+            case SR_INTERNAL_ERROR:
+                return "INTERNAL_ERROR";
+            case SR_UNSUPPORTED_OS:
+                return "UNSUPPORTED_OS";
+            case SR_UNSUPPORTED_VERSION:
+                return "UNSUPPORTED_VERSION";
+            case SR_OUT_OF_MEMORY:
+                return "OUT_OF_MEMORY";
+            case SR_DB_ERROR:
+                return "DB_ERROR";
+            case SR_DB_OPEN_FAILED:
+                return "DB_OPEN_FAILED";
+            case SR_DB_INCONSISTENT:
+                return "DB_INCONSISTENT";
+            case SR_FILE_OPEN_FAILED:
+                return "FILE_OPEN_FAILED";
+            case SR_FILE_READ_FAILED:
+                return "FILE_READ_FAILED";
+            case SR_FILE_WRITE_FAILED:
+                return "FILE_WRITE_FAILED";
+            case SR_REGISTRY_OPEN_FAILED:
+                return "REGISTRY_OPEN_FAILED";
+            case SR_MAX_STORE_SIZE_EXCEEDED:
+                return "MAX_STORE_SIZE_EXCEEDED";
+            case SR_MAX_OBJECT_SIZE_EXCEEDED:
+                return "MAX_OBJECT_SIZE_EXCEEDED";
+            case SR_MAX_REG_OBJECT_COUNT_EXCEEDED:
+                return "MAX_REG_OBJECT_COUNT_EXCEEDED";
+            case SR_PARTIAL_RESTORE:
+                return "PARTIAL_RESTORE";
+            case SR_RESTORE_FAILED:
+                return "RESTORE_FAILED";
+            case SR_OBJECT_NOT_FOUND:
+                return "OBJECT_NOT_FOUND";
+            case SR_OBJECT_EXISTS:
+                return "OBJECT_EXISTS";
+            case SR_MAX_STORED_OBJECT_COUNT_EXCEEDED:
+                return "MAX_STORED_OBJECT_COUNT_EXCEEDED";
+            case SR_MAX_CUSTOM_DATA_SIZE_EXCEEDED:
+                return "MAX_CUSTOM_DATA_SIZE_EXCEEDED";
+            case SR_DATA_TAG_NOT_SET:
+                return "DATA_TAG_NOT_SET";
+            case SR_BUFFER_SIZE_TOO_SMALL:
+                return "BUFFER_SIZE_TOO_SMALL";
+            case SR_EXPORT_FILE_EXISTS:
+                return "EXPORT_FILE_EXISTS";
+            case SR_ILLEGAL_RESTORE_LOCATION:
+                return "ILLEGAL_RESTORE_LOCATION";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
     SafeStoreWrapperImpl::SafeStoreWrapperImpl() :
         m_safeStoreHolder(std::make_shared<SafeStoreHolder>()),
         m_releaseMethods(std::make_shared<SafeStoreReleaseMethodsImpl>(m_safeStoreHolder)),
@@ -296,20 +359,12 @@ namespace safestore::SafeStoreWrapper
     {
         auto returnCode =
             SafeStore_SetConfigIntValue(m_safeStoreHolder->getHandle(), convertToSafeStoreConfigId(option), value);
-        switch (returnCode)
+        if (returnCode == SR_OK)
         {
-            case SR_OK:
-                return true;
-            case SR_INVALID_ARG:
-                LOGWARN("Failed to set config value due to invalid arg");
-                return false;
-            case SR_INTERNAL_ERROR:
-                LOGWARN("Failed to set config value due to internal SafeStore error");
-                return false;
-            default:
-                LOGWARN("Failed to set config value fue to unknown reason");
-                return false;
+            return true;
         }
+        LOGWARN("Got " << safeStoreReturnCodeToString(returnCode) << " when setting config value");
+        return false;
     }
 
     std::unique_ptr<ObjectHandleHolder> SafeStoreWrapperImpl::createObjectHandleHolder()
@@ -368,27 +423,12 @@ namespace safestore::SafeStoreWrapper
         {
             auto returnCode = SafeStore_GetObjectHandle(
                 m_safeStoreHolder->getHandle(), &safeStoreObjectId.value(), objectHandle->getRawHandlePtr());
-            switch (returnCode)
+            if (returnCode == SR_OK)
             {
-                case SR_OK:
-                    LOGDEBUG("Got OK when getting object handle from SafeStore");
-                    return true;
-                case SR_INVALID_ARG:
-                    LOGERROR("Got INVALID_ARG when getting object handle from SafeStore");
-                    return false;
-                case SR_OUT_OF_MEMORY:
-                    LOGERROR("Got OUT_OF_MEMORY when getting object handle from SafeStore");
-                    return false;
-                case SR_OBJECT_NOT_FOUND:
-                    LOGERROR("Got OBJECT_NOT_FOUND when getting object handle from SafeStore");
-                    return false;
-                case SR_INTERNAL_ERROR:
-                    LOGERROR("Got INTERNAL_ERROR when getting object handle from SafeStore");
-                    return false;
-                default:
-                    LOGERROR("Unknown return code when getting object handle from SafeStore");
-                    return false;
+                LOGDEBUG("Got OK when getting object handle from SafeStore");
+                return true;
             }
+            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when getting object handle from SafeStore");
         }
         return false;
     }
@@ -459,7 +499,7 @@ namespace safestore::SafeStoreWrapper
         {
             return stringFromSafeStoreId(threatId);
         }
-        LOGWARN("Failed to query object threat ID, returning blank ID");
+        LOGWARN("Got " << safeStoreReturnCodeToString(returnCode) << " while getting object threat ID, returning blank ID");
         return "";
     }
 
@@ -468,24 +508,13 @@ namespace safestore::SafeStoreWrapper
         size_t size = MAX_OBJECT_THREAT_NAME_LENGTH;
         char buf[MAX_OBJECT_THREAT_NAME_LENGTH];
         auto returnCode = SafeStore_GetObjectThreatName(objectHandle.getRawHandle(), buf, &size);
-        switch (returnCode)
+        if (returnCode == SR_OK)
         {
-            case SR_OK:
-                LOGDEBUG("Got OK when getting object threat name from SafeStore");
-                break;
-            case SR_INVALID_ARG:
-                LOGERROR("Got INVALID_ARG when getting object threat name from SafeStore");
-                break;
-            case SR_INTERNAL_ERROR:
-                LOGERROR("Got INTERNAL_ERROR when getting object threat name from SafeStore");
-                break;
-            case SR_BUFFER_SIZE_TOO_SMALL:
-                LOGERROR("Got BUFFER_SIZE_TOO_SMALL when getting object threat name from SafeStore, size: " << size);
-                break;
-            default:
-                LOGERROR(
-                    "Failed for unknown reason when getting object threat name from SafeStore, rc: " << returnCode);
-                break;
+            LOGDEBUG("Got OK when getting object threat name from SafeStore");
+        }
+        else
+        {
+            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when getting object threat name from SafeStore");
         }
         return { buf };
     }
@@ -494,17 +523,12 @@ namespace safestore::SafeStoreWrapper
     {
         SafeStore_Time_t safeStoreTime = 0;
         auto returnCode = SafeStore_GetObjectStoreTime(objectHandle.getRawHandle(), &safeStoreTime);
-        switch (returnCode)
+        if (returnCode == SR_OK)
         {
-            case SR_OK:
-                LOGDEBUG("Successfully got object store time from SafeStore");
-                return safeStoreTime;
-            case SR_INVALID_ARG:
-                LOGERROR("Failed to get object store time from SafeStore, returning 0");
-                break;
-            default:
-                break;
+            LOGDEBUG("Successfully got object store time from SafeStore");
+            return safeStoreTime;
         }
+        LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " while getting object store time from SafeStore, returning 0");
         return 0;
     }
 
@@ -523,28 +547,13 @@ namespace safestore::SafeStoreWrapper
 
         auto returnCode = SafeStore_SetObjectCustomData(
             m_safeStoreHolder->getHandle(), objectHandle.getRawHandle(), dataName.c_str(), value.data(), value.size());
-
-        switch (returnCode)
+        if (returnCode == SR_OK)
         {
-            case SR_OK:
-                LOGDEBUG("Stored custom data: " << dataName);
-                return true;
-            case SR_DB_ERROR:
-                LOGERROR("Failed to set custom data due to database error, name: " << dataName);
-                return false;
-            case SR_INVALID_ARG:
-                LOGERROR("Invalid arg when setting custom data: " << dataName);
-                return false;
-            case SR_MAX_CUSTOM_DATA_SIZE_EXCEEDED:
-                LOGERROR("Custom-data max size exceeded when setting custom data, name: " << dataName);
-                return false;
-            case SR_DATA_TAG_NOT_SET:
-                LOGERROR("Could not set any custom data with specified name: " << dataName);
-                return false;
-            default:
-                LOGERROR("Failed to set custom data for unknown reason, name: " << dataName);
-                return false;
+            LOGDEBUG("Stored custom data: " << dataName);
+            return true;
         }
+        LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " while setting custom data, name: " << dataName);
+        return false;
     }
 
     std::vector<uint8_t> SafeStoreWrapperImpl::getObjectCustomData(
@@ -558,31 +567,21 @@ namespace safestore::SafeStoreWrapper
         auto returnCode = SafeStore_GetObjectCustomData(
             m_safeStoreHolder->getHandle(), objectHandle.getRawHandle(), dataName.c_str(), buf, &size, &bytesRead);
         std::vector<uint8_t> dataToReturn;
-        switch (returnCode)
+
+        if (returnCode == SR_OK)
         {
-            case SR_OK:
-                if (bytesRead <= MAX_CUSTOM_DATA_SIZE)
-                {
-                    dataToReturn.assign(buf, buf + bytesRead);
-                }
-                else
-                {
-                    LOGERROR("Size of data returned from getting object custom data is larger than buffer, returning "
-                             "empty data");
-                }
-                break;
-            case SR_INVALID_ARG:
-                LOGERROR("Invalid arg when getting custom data: " << dataName);
-                break;
-            case SR_MAX_CUSTOM_DATA_SIZE_EXCEEDED:
-                LOGERROR("Custom-data max size exceeded when setting custom data, name: " << dataName);
-                break;
-            case SR_DATA_TAG_NOT_SET:
-                LOGERROR("Could not find any custom data with specified name: " << dataName);
-                break;
-            default:
-                LOGERROR("Failed to get custom data for unknown reason, name: " << dataName);
-                break;
+            if (bytesRead <= MAX_CUSTOM_DATA_SIZE)
+            {
+                dataToReturn.assign(buf, buf + bytesRead);
+            }
+            else
+            {
+                LOGERROR("Size of data returned from getting object custom data is larger than buffer, returning empty data");
+            }
+        }
+        else
+        {
+            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when getting custom data, name: " << dataName);
         }
         return dataToReturn;
     }
@@ -618,53 +617,21 @@ namespace safestore::SafeStoreWrapper
     {
         if (auto safeStoreObjectId = safeStoreIdFromBytes(objectId))
         {
-            auto result = SafeStore_RestoreObjectById(
+            auto returnCode = SafeStore_RestoreObjectById(
                 m_safeStoreHolder->getHandle(), &safeStoreObjectId.value(), path.empty() ? nullptr : path.c_str());
-            switch (result)
+            if (returnCode == SR_OK)
             {
-                case SR_OK:
-                    if (path.empty())
-                    {
-                        LOGDEBUG("Successfully restored object to original path");
-                    }
-                    else
-                    {
-                        LOGDEBUG("Successfully restored object to custom path: " << path);
-                    }
-                    return true;
-                case SR_INVALID_ARG:
-                    LOGERROR("Got INVALID_ARG when trying to restore an object");
-                    break;
-                case SR_INTERNAL_ERROR:
-                    LOGERROR("Got INTERNAL_ERROR when trying to restore an object");
-                    break;
-                case SR_UNSUPPORTED_OS:
-                    LOGERROR("Got UNSUPPORTED_OS when trying to restore an object");
-                    break;
-                case SR_UNSUPPORTED_VERSION:
-                    LOGERROR("Got UNSUPPORTED_VERSION when trying to restore an object");
-                    break;
-                case SR_OUT_OF_MEMORY:
-                    LOGERROR("Got OUT_OF_MEMORY when trying to restore an object");
-                    break;
-                case SR_DB_ERROR:
-                    LOGERROR("Got DB_ERROR when trying to restore an object");
-                    break;
-                case SR_DB_INCONSISTENT:
-                    LOGERROR("Got DB_INCONSISTENT when trying to restore an object");
-                    break;
-                case SR_RESTORE_FAILED:
-                    LOGERROR("Got RESTORE_FAILED when trying to restore an object");
-                    break;
-                case SR_OBJECT_NOT_FOUND:
-                    LOGERROR("Got OBJECT_NOT_FOUND when trying to restore an object");
-                    break;
-                default:
-                    LOGERROR(
-                        "Failed for an unknown reason when trying to restore an object, SafeStore return code: "
-                        << std::to_string(result));
-                    break;
+                if (path.empty())
+                {
+                    LOGDEBUG("Successfully restored object to original path");
+                }
+                else
+                {
+                    LOGDEBUG("Successfully restored object to custom path: " << path);
+                }
+                return true;
             }
+            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when trying to restore an object");
         }
         return false;
     }
@@ -673,44 +640,13 @@ namespace safestore::SafeStoreWrapper
     {
         if (auto ssThreatId = safeStoreIdFromString(threatId))
         {
-            auto result = SafeStore_RestoreObjectsByThreatId(m_safeStoreHolder->getHandle(), &ssThreatId.value());
-            switch (result)
+            auto returnCode = SafeStore_RestoreObjectsByThreatId(m_safeStoreHolder->getHandle(), &ssThreatId.value());
+            if (returnCode == SR_OK)
             {
-                case SR_OK:
-                    LOGDEBUG("Successfully restored object with threat ID: " << threatId);
-                    return true;
-                case SR_INVALID_ARG:
-                    LOGERROR("Got INVALID_ARG when trying to restore an object by threat ID: " << threatId);
-                    break;
-                case SR_INTERNAL_ERROR:
-                    LOGERROR("Got INTERNAL_ERROR when trying to restore an object by threat ID: " << threatId);
-                    break;
-                case SR_UNSUPPORTED_VERSION:
-                    LOGERROR("Got UNSUPPORTED_VERSION when trying to restore an object by threat ID: " << threatId);
-                    break;
-                case SR_OUT_OF_MEMORY:
-                    LOGERROR("Got OUT_OF_MEMORY when trying to restore an object by threat ID: " << threatId);
-                    break;
-                case SR_DB_ERROR:
-                    LOGERROR("Got DB_ERROR when trying to restore an object by threat ID: " << threatId);
-                    break;
-                case SR_DB_INCONSISTENT:
-                    LOGERROR("Got DB_INCONSISTENT when trying to restore an object by threat ID: " << threatId);
-                    break;
-                case SR_OBJECT_NOT_FOUND:
-                    LOGERROR("Got OBJECT_NOT_FOUND when trying to restore an object by threat ID: " << threatId);
-                    break;
-                case SR_PARTIAL_RESTORE:
-                    LOGERROR("Got PARTIAL_RESTORE when trying to restore an object by threat ID: " << threatId);
-                    break;
-                case SR_RESTORE_FAILED:
-                    LOGERROR("Got RESTORE_FAILED when trying to restore an object by threat ID: " << threatId);
-                    break;
-                default:
-                    LOGERROR(
-                        "Failed for unknown reason when restoring object by threat ID, SafeStore return code: "
-                        << std::to_string(result) << ", threat ID: " << threatId);
+                LOGDEBUG("Successfully restored object with threat ID: " << threatId);
+                return true;
             }
+            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " while trying to restore an object by threat ID: " << threatId);
         }
         return false;
     }
@@ -719,32 +655,13 @@ namespace safestore::SafeStoreWrapper
     {
         if (auto safeStoreObjectId = safeStoreIdFromBytes(objectId))
         {
-            auto result = SafeStore_DeleteObjectById(m_safeStoreHolder->getHandle(), &safeStoreObjectId.value());
-            switch (result)
+            auto returnCode = SafeStore_DeleteObjectById(m_safeStoreHolder->getHandle(), &safeStoreObjectId.value());
+            if (returnCode == SR_OK)
             {
-                case SR_OK:
-                    LOGDEBUG("Successfully deleted object from SafeStore");
-                    return true;
-                case SR_INVALID_ARG:
-                    LOGERROR("Got INVALID_ARG while trying to delete an object from SafeStore");
-                    break;
-                case SR_INTERNAL_ERROR:
-                    LOGERROR("Got INTERNAL_ERROR while trying to delete an object from SafeStore");
-                    break;
-                case SR_OUT_OF_MEMORY:
-                    LOGERROR("Got OUT_OF_MEMORY while trying to delete an object from SafeStore");
-                    break;
-                case SR_DB_ERROR:
-                    LOGERROR("Got DB_ERROR while trying to delete an object from SafeStore");
-                    break;
-                case SR_OBJECT_NOT_FOUND:
-                    LOGERROR("Got OBJECT_NOT_FOUND while trying to delete an object from SafeStore");
-                    break;
-                default:
-                    LOGERROR(
-                        "Failed for unknown reason while trying to delete object, SafeStore return code: "
-                        << std::to_string(result));
+                LOGDEBUG("Successfully deleted object from SafeStore");
+                return true;
             }
+            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " while trying to delete an object from SafeStore");
         }
         return false;
     }
@@ -753,37 +670,13 @@ namespace safestore::SafeStoreWrapper
     {
         if (auto ssThreatId = safeStoreIdFromString(threatId))
         {
-            auto result = SafeStore_DeleteObjectsByThreatId(m_safeStoreHolder->getHandle(), &ssThreatId.value());
-            switch (result)
+            auto returnCode = SafeStore_DeleteObjectsByThreatId(m_safeStoreHolder->getHandle(), &ssThreatId.value());
+            if (returnCode == SR_OK)
             {
-                case SR_OK:
-                    LOGDEBUG("Successfully deleted object from SafeStore with threat ID: " << threatId);
-                    return true;
-                case SR_INVALID_ARG:
-                    LOGERROR(
-                        "Got INVALID_ARG while trying to delete an object from SafeStore with threat ID: " << threatId);
-                    break;
-                case SR_INTERNAL_ERROR:
-                    LOGERROR(
-                        "Got INVALID_ARG while trying to delete an object from SafeStore with threat ID: " << threatId);
-                    break;
-                case SR_OUT_OF_MEMORY:
-                    LOGERROR(
-                        "Got INVALID_ARG while trying to delete an object from SafeStore with threat ID: " << threatId);
-                    break;
-                case SR_DB_ERROR:
-                    LOGERROR(
-                        "Got INVALID_ARG while trying to delete an object from SafeStore with threat ID: " << threatId);
-                    break;
-                case SR_OBJECT_NOT_FOUND:
-                    LOGERROR(
-                        "Got INVALID_ARG while trying to delete an object from SafeStore with threat ID: " << threatId);
-                    break;
-                default:
-                    LOGERROR(
-                        "Failed for unknown reason while trying to delete object, SafeStore return code: "
-                        << std::to_string(result) << ", threat ID: " << threatId);
+                LOGDEBUG("Successfully deleted object from SafeStore with threat ID: " << threatId);
+                return true;
             }
+            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " while trying to delete an object from SafeStore with threat ID: " << threatId);
         }
         return false;
     }
@@ -851,7 +744,7 @@ namespace safestore::SafeStoreWrapper
     }
 
     SafeStoreReleaseMethodsImpl::SafeStoreReleaseMethodsImpl(std::shared_ptr<ISafeStoreHolder> safeStoreHolder) :
-        m_safeStoreHolder(safeStoreHolder)
+        m_safeStoreHolder(std::move(safeStoreHolder))
     {
     }
 
@@ -861,17 +754,11 @@ namespace safestore::SafeStoreWrapper
         {
             auto returnCode = SafeStore_ReleaseObjectHandle(objectHandle);
             objectHandle = nullptr;
-            switch (returnCode)
+            if (returnCode == SR_OK)
             {
-                case SR_OK:
-                    LOGDEBUG("Got OK when cleaning up safestore object handle");
-                    break;
-                case SR_INVALID_ARG:
-                    LOGERROR("Got INVALID_ARG when cleaning up safestore object handle");
-                    break;
-                default:
-                    LOGERROR("Failed to clean up safestore object handle for unknown reason");
+                LOGDEBUG("Got OK when cleaning up SafeStore object handle");
             }
+            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when cleaning up SafeStore object handle");
         }
     }
 
@@ -881,22 +768,15 @@ namespace safestore::SafeStoreWrapper
         {
             auto returnCode = SafeStore_FindClose(m_safeStoreHolder->getHandle(), searchHandle);
             searchHandle = nullptr;
-            switch (returnCode)
+            if (returnCode != SR_OK)
             {
-                case SR_OK:
-                    LOGDEBUG("Got OK when cleaning up safestore search handle");
-                    break;
-                case SR_INVALID_ARG:
-                    LOGERROR("Got INVALID_ARG when cleaning up safestore search handle");
-                    break;
-                default:
-                    LOGERROR("Failed to clean up safestore search handle for unknown reason");
+                LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when cleaning up SafeStore search handle");
             }
         }
     }
 
     SafeStoreSearchMethodsImpl::SafeStoreSearchMethodsImpl(std::shared_ptr<ISafeStoreHolder> safeStoreHolder) :
-        m_safeStoreHolder(safeStoreHolder)
+        m_safeStoreHolder(std::move(safeStoreHolder))
     {
     }
 
@@ -926,52 +806,24 @@ namespace safestore::SafeStoreWrapper
         auto returnCode = SafeStore_FindFirst(
             m_safeStoreHolder->getHandle(), &ssFilter, searchHandle.getRawHandlePtr(), objectHandle.getRawHandlePtr());
 
-        switch (returnCode)
+        if (returnCode == SR_OK)
         {
-            case SR_OK:
-                return true;
-            case SR_INVALID_ARG:
-                LOGERROR("Got INVALID_ARG when performing FindFirst on SafeStore database");
-                return false;
-            case SR_INTERNAL_ERROR:
-                LOGERROR("Got INTERNAL_ERROR when performing FindFirst on SafeStore database");
-                return false;
-            case SR_OUT_OF_MEMORY:
-                LOGERROR("Got OUT_OF_MEMORY when performing FindFirst on SafeStore database");
-                return false;
-            case SR_DB_ERROR:
-                LOGERROR("Got DB_ERROR when performing FindFirst on SafeStore database");
-                return false;
-            case SR_OBJECT_NOT_FOUND:
-                LOGDEBUG("No objects found in SafeStore database that satisfy the filter criteria");
-                return false;
-            default:
-                LOGERROR("Failed for unexpected reason when performing FindFirst on SafeStore database");
-                return false;
+            return true;
         }
+        LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when performing FindFirst on SafeStore database");
+        return false;
     }
 
     bool SafeStoreSearchMethodsImpl::findNext(SearchHandleHolder& searchHandle, ObjectHandleHolder& objectHandle)
     {
         auto returnCode = SafeStore_FindNext(
             m_safeStoreHolder->getHandle(), searchHandle.getRawHandle(), objectHandle.getRawHandlePtr());
-        switch (returnCode)
+        if (returnCode == SR_OK)
         {
-            case SR_OK:
-                return true;
-            case SR_INVALID_ARG:
-                LOGERROR("Got INVALID_ARG when performing FindNext on SafeStore database");
-                return false;
-            case SR_OUT_OF_MEMORY:
-                LOGERROR("Got INVALID_ARG when performing FindNext on SafeStore database");
-                return false;
-            case SR_OBJECT_NOT_FOUND:
-                LOGDEBUG("No further objects found in SafeStore database");
-                return false;
-            default:
-                LOGERROR("Failed for unexpected reason when performing FindNext on SafeStore database");
-                return false;
+            return true;
         }
+        LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when performing FindNext on SafeStore database");
+        return false;
     }
 
     SafeStoreGetIdMethodsImpl::SafeStoreGetIdMethodsImpl(std::shared_ptr<ISafeStoreHolder> safeStoreHolder) :

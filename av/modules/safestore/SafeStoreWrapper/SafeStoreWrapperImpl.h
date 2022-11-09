@@ -66,6 +66,11 @@ namespace safestore::SafeStoreWrapper
     std::vector<uint8_t> bytesFromSafeStoreId(const SafeStore_Id_t& id);
 
     /*
+     * Get the string representation of a SafeStore return code, useful for logging.
+     */
+    std::string safeStoreReturnCodeToString(SafeStore_Result_t);
+
+    /*
      * Convert ObjectIdType (bytes) to SafeStore_Id_t
      */
     std::optional<SafeStore_Id_t> safeStoreIdFromBytes(const ObjectIdType& safeStoreId);
