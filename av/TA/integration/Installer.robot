@@ -673,6 +673,7 @@ AV Plugin Can Send Telemetry After IDE Update
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
+    Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
 
     Mark Sophos Threat Detector Log

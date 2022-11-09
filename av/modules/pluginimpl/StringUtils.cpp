@@ -125,31 +125,6 @@ std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ThreatDe
     return threatEvent.dump();
 }
 
-long pluginimpl::getThreatStatus()
-{
-    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-    std::string storedtelemetry = telemetry.serialise();
-    json j = json::parse(storedtelemetry);
-
-    if (j.find("threatHealth") != j.end())
-    {
-        try
-        {
-            long health = static_cast<long>(j["threatHealth"]);
-            return health;
-        }
-        catch (std::exception& exception)
-        {
-            LOGWARN("Could not initialise threatHealth value from stored telemetry due to error: " << exception.what());
-            return (Plugin::E_THREAT_HEALTH_STATUS_GOOD);
-        }
-    }
-    else
-    {
-        LOGDEBUG("No stored threatHealth");
-        return (Plugin::E_THREAT_HEALTH_STATUS_GOOD);
-    }
-}
 
 // XML defined at https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42255827359/EMP+event-core-clean
 std::string pluginimpl::generateCoreCleanEventXml(const scan_messages::ThreatDetected& detection, const common::CentralEnums::QuarantineResult& quarantineResult)

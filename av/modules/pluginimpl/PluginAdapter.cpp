@@ -52,6 +52,8 @@ namespace Plugin
                     // If SafeStore is disabled then we manually set the quarantine result to be a failure. This is
                     // so we can populate the Core Clean event properly.
                     m_adapter.processDetectionReport(detection, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE);
+
+                    m_adapter.updateThreatDatabase(detection);
                 }
             }
 
@@ -75,11 +77,12 @@ namespace Plugin
                                std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
-        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this, m_detectionQueue, getSafeStoreSocketPath())),
+        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this,*this, m_detectionQueue, getSafeStoreSocketPath())),
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
         m_threatEventPublisher(m_zmqContext->getPublisher()),
-        m_policyProcessor(m_taskQueue)
+        m_policyProcessor(m_taskQueue),
+        m_threatDatabase(Plugin::getPluginVarDirPath())
     {
     }
 
@@ -115,9 +118,14 @@ namespace Plugin
             LOGINFO("Failed to request FLAGS policy at startup (" << e.what() << ")");
         }
 
-        m_callback->setThreatHealth(
-            static_cast<E_HEALTH_STATUS>(pluginimpl::getThreatStatus())
-            );
+        if (m_threatDatabase.isDatabaseEmpty())
+        {
+            publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+        }
+        else
+        {
+            publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+        }
 
         innerLoop();
         LOGSUPPORT("Stopping the main program loop");
@@ -321,11 +329,28 @@ namespace Plugin
                 m_threatDatabase.removeCorrelationID(correlationID);
                 if (m_threatDatabase.isDatabaseEmpty())
                 {
+                    if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_GOOD)
+                    {
+                        LOGINFO("Threat database is now empty, sending good health to Management agent");
+                        publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+                    }
+                }
+            }
+            else if (pluginimpl::isCOREResetThreatHealthAction(attributeMap))
+            {
+                LOGINFO("Resetting threat database due to core reset action");
+                m_threatDatabase.resetDatabase();
+                if (m_threatDatabase.isDatabaseEmpty())
+                {
                     publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+                }
+                else
+                {
+                    LOGWARN("Failed to clear threat health database");
                 }
             }
         }
-        catch(const Common::XmlUtilities::XmlUtilitiesException& e)
+        catch (const Common::XmlUtilities::XmlUtilitiesException& e)
         {
             LOGERROR("Exception encountered while parsing Action XML: " << e.what());
         }
@@ -349,9 +374,33 @@ namespace Plugin
         processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
         publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
         publishQuarantineCleanEvent(pluginimpl::generateCoreCleanEventXml(detection, quarantineResult));
-        publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     }
 
+    void PluginAdapter::updateThreatDatabase(const scan_messages::ThreatDetected& detection)
+    {
+        if (detection.notificationStatus != scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP)
+        {
+            m_threatDatabase.addThreat(detection.threatId,detection.threatId);
+            LOGDEBUG("Added threat: " << detection.threatId << " to database");
+            if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_SUSPICIOUS)
+            {
+                publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+            }
+        }
+        else
+        {
+            m_threatDatabase.removeThreatID(detection.threatId);
+            if (m_threatDatabase.isDatabaseEmpty())
+            {
+                if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_GOOD)
+                {
+                    LOGINFO("Threat database is now empty, sending good health to Management agent");
+                    publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+                }
+            }
+        }
+
+    }
     void PluginAdapter::processThreatReport(const std::string& threatDetectedXML) const
     {
         LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);

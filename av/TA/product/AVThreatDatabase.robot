@@ -34,6 +34,7 @@ Threat is added to Threat database when threat is not quarantined
     ${avmark} =  get_av_log_mark
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
+    wait_for_av_log_contains_after_mark   Publishing threat health: suspicious   ${avmark}
     wait_for_av_log_contains_after_mark  Initialised Threat Database   ${avmark}
     Remove File  ${THREAT_DATABASE_PATH}
     Stop AV  #file should be written
@@ -48,10 +49,48 @@ Threat is removed from Threat database when marked as resolved in central
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
     wait_for_av_log_contains_after_mark   Added threat: T26796de6ce94770 to database   ${avmark}
-    ${actionContent} =  Set Variable  <action type="sophos.mgt.action.SAVClearFromList" ><threat-set><threat id="T26796de6ce94770"></threat></threat-set></action>
+    ${actionContent} =  Set Variable  <action type="sophos.core.threat.sav.clear"><item id="T26796de6ce94770"/></action>
     Send Plugin Action  av  sav  corr123  ${actionContent}
     wait_for_av_log_contains_after_mark   Removed threat from database   ${avmark}
+    wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
+
+Threat database is cleared when we get a core reset action from central
+    Start AV
+    ${avmark} =  get_av_log_mark
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+    wait_for_av_log_contains_after_mark   Added threat: T26796de6ce94770 to database   ${avmark}
+    ${actionContent} =  Set Variable  <action type="sophos.core.threat.reset"/>
+    Send Plugin Action  av  core  corr123  ${actionContent}
+    wait_for_av_log_contains_after_mark   Resetting threat database due to core reset action   ${avmark}
+    wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
+
+Threat is removed from Threat database when threat is quarantined
+    ${avmark} =  get_av_log_mark
+    Start AV
+    Start SafeStore Manually
+    wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
+    ${avmark} =  get_av_log_mark
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+    wait_for_av_log_contains_after_mark   Added threat: T26796de6ce94770 to database   ${avmark}
+    ${avmark} =  get_av_log_mark
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+    wait_for_av_log_contains_after_mark     SafeStore flag set. Setting SafeStore to enabled   ${avmark}  timeout=60
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
+    wait_for_av_log_contains_after_mark  Quarantine succeeded  ${avmark}
+    wait_for_av_log_contains_after_mark   Removed threat id T26796de6ce94770 from database   ${avmark}
+    wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
+    wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
+    Stop AV
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  File Log Contains  ${THREAT_DATABASE_PATH}  {}
+
 
 Threat is not added to Threat database when threat is quarantined
     Start AV

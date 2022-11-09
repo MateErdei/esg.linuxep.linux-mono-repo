@@ -69,7 +69,7 @@ namespace Plugin
         if (it != m_database.end())
         {
             m_database.erase(it);
-            LOGINFO("Removed threat id " << threatID << " from database");
+            LOGDEBUG("Removed threat id " << threatID << " from database");
         }
         else if (!ignoreNotInDatabase)
         {
@@ -86,6 +86,7 @@ namespace Plugin
     {
         std::map<std::string,std::list<std::string>> tempdatabase;
         m_database = tempdatabase;
+        m_databaseInString.setValueAndForceStore("{}");
     }
 
     void ThreatDatabase::convertDatabaseToString()

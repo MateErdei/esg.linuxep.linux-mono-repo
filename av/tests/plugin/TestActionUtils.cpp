@@ -43,11 +43,7 @@ TEST_F(TestActionUtils, isScanNowActionReturnFalseOnEmptyAction)
 TEST_F(TestActionUtils, isSAVClearActionReturnTrueOnSAVClearAction)
 {
     std::string actionXml =
-        R"(<action type="sophos.mgt.action.SAVClearFromList" xmlns="com.sophos/msys/action">
-<threat-set>
-     <threat type="threatType" typeId="threatTypeId" name="threatName" item="threatFilename" id="threatID" idSource="NameFilenameFilepathCIMD5"></threat>
-</threat-set>
-</action>)";
+        R"(<action type="sophos.core.threat.sav.clear"><item id="CorrelationId"/></action>)";
     auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
     EXPECT_TRUE(pluginimpl::isSAVClearAction(attributeMap));
 }
@@ -55,11 +51,7 @@ TEST_F(TestActionUtils, isSAVClearActionReturnTrueOnSAVClearAction)
 TEST_F(TestActionUtils, isSAVClearActionReturnFalseOnNotSAVClearAction)
 {
     std::string actionXml =
-        R"(<action type="sophos.mgt.action.SAVClea" xmlns="com.sophos/msys/action">
-<threat-set>
-     <threat type="threatType" typeId="threatTypeId" name="threatName" item="threatFilename" id="threatID" idSource="NameFilenameFilepathCIMD5"></threat>
-</threat-set>
-</action>)";
+        R"(<action type="sophos.mgt.action.SAVClea" xmlns="com.sophos/msys/action"></action>)";
     auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
     EXPECT_FALSE(pluginimpl::isSAVClearAction(attributeMap));
 }
@@ -72,14 +64,35 @@ TEST_F(TestActionUtils, isSAVClearActionReturnFalseOnEmptyAction)
     EXPECT_FALSE(pluginimpl::isSAVClearAction(attributeMap));
 }
 
+TEST_F(TestActionUtils, isCOREResetThreatHealthActionReturnTrueCOREResetThreatHealthAction)
+{
+    std::string actionXml =
+        R"(<action type="sophos.core.threat.reset"/>)";
+    auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
+    EXPECT_TRUE(pluginimpl::isCOREResetThreatHealthAction(attributeMap));
+}
+
+TEST_F(TestActionUtils, isCOREResetThreatHealthActionReturnFalseOnNotCOREResetThreatHealthAction)
+{
+    std::string actionXml =
+        R"(<action type="sophos.mgt.action" xmlns="com.sophos/msys/action">
+</action>)";
+    auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
+    EXPECT_FALSE(pluginimpl::isCOREResetThreatHealthAction(attributeMap));
+}
+
+TEST_F(TestActionUtils, isCOREResetThreatHealthActionReturnFalseOnEmptyAction)
+{
+    std::string actionXml =
+        R"(<a:action></a:action>)";
+    auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
+    EXPECT_FALSE(pluginimpl::isCOREResetThreatHealthAction(attributeMap));
+}
+
 TEST_F(TestActionUtils, getThreatIDFromAction)
 {
     std::string actionXml =
-        R"(<action type="sophos.mgt.action.SAVClearFromList" xmlns="com.sophos/msys/action">
-<threat-set>
-<threat type="threatType" typeId="threatTypeId" name="threatName" item="threatFilename" id="threatID" idSource="NameFilenameFilepathCIMD5"></threat>
-</threat-set>
-</action>)";
+        R"(<action type="sophos.core.threat.sav.clear"><item id="threatID"/></action>)";
 
     auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
     EXPECT_EQ("threatID",pluginimpl::getThreatID(attributeMap));

@@ -274,7 +274,7 @@ TEST_F(TestThreatDatabase, resetHealth)
 
     EXPECT_CALL(*filesystemMock, exists("/path/persist-threatDatabase")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/path/persist-threatDatabase")).WillOnce(Return("{\"threatid\":[\"threatid\",\"correlationID\"]}"));
-    EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{}"));
+    EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{}")).Times(2);
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
     database.resetDatabase();

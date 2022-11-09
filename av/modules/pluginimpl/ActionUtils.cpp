@@ -15,7 +15,16 @@ namespace pluginimpl
 
     bool isSAVClearAction(const Common::XmlUtilities::AttributesMap& action)
     {
-        if (action.lookup("action").value("type", "") == "sophos.mgt.action.SAVClearFromList")
+        if (action.lookup("action").value("type", "") == "sophos.core.threat.sav.clear")
+        {
+            return true;
+        }
+        return false;
+    }
+
+    bool isCOREResetThreatHealthAction(const Common::XmlUtilities::AttributesMap& action)
+    {
+        if (action.lookup("action").value("type", "") == "sophos.core.threat.reset")
         {
             return true;
         }
@@ -24,7 +33,7 @@ namespace pluginimpl
 
     std::string getThreatID(const Common::XmlUtilities::AttributesMap& action)
     {
-        auto threats =  action.entitiesThatContainPath("action/threat-set/threat");
+        auto threats =  action.entitiesThatContainPath("action/item");
         for (const auto& threat : threats)
         {
             auto threatDetails = action.lookup(threat);

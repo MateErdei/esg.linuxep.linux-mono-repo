@@ -5,7 +5,8 @@
         "FLAGS"
   ],
   "actionAppIds": [
-        "SAV"
+        "SAV",
+        "CORE"
   ],
   "statusAppIds": [
         "SAV"

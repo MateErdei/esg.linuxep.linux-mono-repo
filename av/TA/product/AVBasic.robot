@@ -586,6 +586,7 @@ Product Test Setup
     SystemFileWatcher.Start Watching System Files
     Register Cleanup      SystemFileWatcher.stop watching system files
 
+    Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
     Start AV
     Component Test Setup
     Delete Eicars From Tmp

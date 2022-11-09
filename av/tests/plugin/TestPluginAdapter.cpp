@@ -147,6 +147,7 @@ TEST_F(TestPluginAdapter, testMainLoop)
 
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillOnce(QueueStopTask(m_taskQueue));
@@ -165,6 +166,7 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows)
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     Common::PluginApi::ApiException ex { "dummy error" };
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).WillOnce(Throw(ex));
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillOnce(Throw(ex));
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).WillOnce(Throw(ex));
@@ -239,6 +241,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
     EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status3Xml, status3Xml)).WillOnce(QueueStopTask(m_taskQueue));
     EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -268,6 +271,7 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
     Task policyTask = {Task::TaskType::Policy, policyXml};
     m_taskQueue->push(policyTask);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -322,6 +326,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID)
 
     EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -367,6 +372,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     Task policyTask = {Task::TaskType::Policy, policyXml};
     m_taskQueue->push(policyTask);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -386,6 +392,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -432,6 +439,7 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -548,6 +556,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
     m_taskQueue->push(policy1Task);
     m_taskQueue->push(policy2Task);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -568,6 +577,7 @@ TEST_F(TestPluginAdapter, testProcessAction)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -606,6 +616,7 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -643,6 +654,7 @@ TEST_F(TestPluginAdapter, testBadProcessActionXMLThrows)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -692,6 +704,7 @@ TEST_F(TestPluginAdapter, testProcessScanComplete)
     pluginAdapter.processScanComplete(scanCompleteXml);
     m_taskQueue->pushStop();
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -720,6 +733,7 @@ TEST_F(TestPluginAdapter, testProcessThreatReport)
     pluginAdapter.processThreatReport(threatDetectedXML);
     m_taskQueue->pushStop();
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -857,6 +871,7 @@ TEST_F(TestPluginAdapter, testInvalidTaskType)
 
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -886,6 +901,7 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
