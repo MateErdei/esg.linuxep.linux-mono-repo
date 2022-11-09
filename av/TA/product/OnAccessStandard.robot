@@ -346,7 +346,6 @@ On Access Caches Open Events Without Detections
     Register Cleanup   Remove File   ${dirtyfile}
     wait for on access log contains after mark        On-open event for ${dirtyfile} from  mark=${oamark}    timeout=${timeout}
     check_on_access_log_does_not_contain_after_mark   On-open event for ${cleanfile} from  mark=${oamark}
-    dump logs
 
 
 On Access Doesnt Cache Open Events With Detections
