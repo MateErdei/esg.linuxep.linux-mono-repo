@@ -677,7 +677,7 @@ namespace safestore::SafeStoreWrapper
             switch (result)
             {
                 case SR_OK:
-                    LOGDEBUG("Successfully restored object with threat ID:" << threatId);
+                    LOGDEBUG("Successfully restored object with threat ID: " << threatId);
                     return true;
                 case SR_INVALID_ARG:
                     LOGERROR("Got INVALID_ARG when trying to restore an object by threat ID: " << threatId);
