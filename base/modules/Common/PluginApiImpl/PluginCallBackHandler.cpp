@@ -14,6 +14,8 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 #include <Common/PluginCommunication/IPluginCommunicationException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
+#include <thread>
+
 namespace Common
 {
     namespace PluginApiImpl
@@ -42,8 +44,8 @@ namespace Common
             Common::PluginProtocol::Commands commandType,
             const std::string& payload) const
         {
-            // If the payload does not contain .xml extension assume payload is not a file name but the data
-            // if the payload is the data, this should only be for commands such as TriggerUpdate from watchdog.
+            // If the payload does not contain .xml extension assume payload is not a file name but the data.
+            // If the payload is the data, this should only be for commands such as TriggerUpdate from watchdog.
 
             std::string payloadData(payload);
             if (Common::FileSystem::basename(payload) != payload)
@@ -55,7 +57,7 @@ namespace Common
 
             if ((payload.find(".xml") != std::string::npos) || (payload.find(".json") != std::string::npos))
             {
-                std::string rootPath("");
+                std::string rootPath;
                 if (commandType == Common::PluginProtocol::Commands::REQUEST_PLUGIN_APPLY_POLICY)
                 {
                     if (payload.find("internal")!= std::string::npos)
@@ -76,18 +78,37 @@ namespace Common
                     throw PluginCommunication::IPluginCommunicationException("Unable to determine payload path");
                 }
 
-                try
+                // Add some extra resilience here to retry reading the policy file as we've seen some very occasional
+                // cases of the file failing to be read. https://sophos.atlassian.net/browse/LINUXDAR-5816
+                int tries = 0;
+                int maxTries = 3;
+                while (tries <= maxTries)
                 {
-                    payloadData =
-                        Common::FileSystem::fileSystem()->readFile(Common::FileSystem::join(rootPath, payload));
-                    return payloadData;
+                    ++tries;
+                    try
+                    {
+                        payloadData =
+                            Common::FileSystem::fileSystem()->readFile(Common::FileSystem::join(rootPath, payload));
+                        return payloadData;
+                    }
+                    catch (Common::FileSystem::IFileSystemException& ex)
+                    {
+                        if (tries <= maxTries)
+                        {
+                            LOGDEBUG( "Failed to read MCS file " << payload << ", will retry. Exception: " << ex.what());
+                            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                        }
+                        else
+                        {
+                            LOGDEBUG( "Failed to read MCS file " << payload << ". Exception: " << ex.what());
+                        }
+                    }
                 }
-                catch (Common::FileSystem::IFileSystemException& ex)
-                {
-                    std::stringstream errorMessage;
-                    errorMessage << "Failed to read action file" << payload << ", error, " << ex.what();
-                    throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
-                }
+
+                // If we got here then we failed to read the file, even after retrying.
+                std::stringstream errorMessage;
+                errorMessage << "Failed to read MCS file: " << payload;
+                throw PluginCommunication::IPluginCommunicationException(errorMessage.str());
             }
             else
             {

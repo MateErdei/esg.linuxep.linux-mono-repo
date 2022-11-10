@@ -237,15 +237,32 @@ namespace Common
             try
             {
                 inFileStream.seekg(0, std::istream::end);
+                if (!inFileStream.good())
+                {
+                    throw IFileSystemException(
+                        "Error, Failed to read file: '" + path +
+                        "', seekg failed, state: " + std::to_string(static_cast<int>(inFileStream.rdstate())));
+                }
+
                 std::ifstream::pos_type size(inFileStream.tellg());
+
+                if (!inFileStream.good())
+                {
+                    throw IFileSystemException(
+                        "Error, Failed to read file: '" + path +
+                        "', tellg failed, state: " + std::to_string(static_cast<int>(inFileStream.rdstate())));
+                }
 
                 if (size < 0)
                 {
-                    throw IFileSystemException("Error, Failed to read file: '" + path + "', failed to get file size");
+                    throw IFileSystemException(
+                        "Error, Failed to read file: '" + path +
+                        "', failed to get file size. Got: " + std::to_string(size));
                 }
                 else if (static_cast<unsigned long>(size) > maxSize)
                 {
-                    throw IFileTooLargeException("Error, Failed to read file: '" + path + "', file too large");
+                    throw IFileTooLargeException(
+                        "Error, Failed to read file: '" + path + "', file too large, size: " + std::to_string(size));
                 }
 
                 inFileStream.seekg(0, std::istream::beg);

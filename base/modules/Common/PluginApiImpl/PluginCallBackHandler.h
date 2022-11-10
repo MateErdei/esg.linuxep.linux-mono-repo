@@ -27,14 +27,14 @@ namespace Common
                     Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::HANDLESHUTDOWN);
             ~PluginCallBackHandler() override;
 
+        protected:
+            std::string GetContentFromPayload(Common::PluginProtocol::Commands commandType, const std::string& fileName)
+                const;
+
         private:
             Common::PluginProtocol::DataMessage process(
                 const Common::PluginProtocol::DataMessage& request) const override;
             void onShutdownRequested() override;
-
-            std::string GetContentFromPayload(Common::PluginProtocol::Commands commandType, const std::string& fileName)
-                const;
-
             Common::PluginProtocol::MessageBuilder m_messageBuilder;
             std::shared_ptr<Common::PluginApi::IPluginCallbackApi> m_pluginCallback;
             bool m_shutdownRequested = false;
