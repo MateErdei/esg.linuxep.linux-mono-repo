@@ -25,12 +25,11 @@ target_link_libraries(sophosthreatdetectorimpl  PUBLIC
         threat_scanner
         unixsocket
         datatypes
-        cap
-        ${ZLIB_LIBRARY}
+        libz.so.1
         ${Boost_LIBRARIES}
         )
 
-target_include_directories(sophosthreatdetectorimpl PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${BOOSTPATH}, ${ZLIB_INCLUDE_DIR})
+target_include_directories(sophosthreatdetectorimpl PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${BOOSTPATH})
 
 install(TARGETS sophosthreatdetectorimpl
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

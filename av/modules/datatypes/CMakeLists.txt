@@ -13,6 +13,10 @@ add_library(datatypes SHARED
         SystemCallWrapperFactory.h
         )
 
+target_link_libraries(datatypes  PUBLIC
+        cap
+        )
+
 install(TARGETS datatypes
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
