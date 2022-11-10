@@ -57,11 +57,11 @@ class OnAccessUtils:
         start = time.time()
         log_contents = []
         unique_threads = set()
+        regex = re.compile(r"ms by scanHandler-(\d+)")
         while time.time() < start + timeout:
             log_contents = mark.get_contents().splitlines()
             log_contents = [six.ensure_text(line, "UTF-8") for line in log_contents]
             for line in log_contents:
-                regex = re.compile(r"ms by scanHandler-(\d+)")
                 regex_result = regex.search(line)
                 if regex_result:
                     handler_id = int(regex_result.group(1))
