@@ -180,16 +180,6 @@ namespace sspl::sophosthreatdetectorimpl
             }
         };
 
-        int lockCapabilities()
-        {
-            int ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
-            if (ret != 0)
-            {
-                LOGERROR("Failed to lock capabilities: " << common::safer_strerror(errno));
-            }
-            return ret;
-        }
-
         fs::path threat_reporter_socket(const fs::path& pluginInstall)
         {
             return pluginInstall / "chroot/var/threat_report_socket";
@@ -296,6 +286,16 @@ namespace sspl::sophosthreatdetectorimpl
         return ret;
     }
 
+    int SophosThreatDetectorMain::lockCapabilities()
+    {
+        int ret = m_sysCallWrapper->prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+        if (ret != 0)
+        {
+            LOGERROR("Failed to lock capabilities: " << common::safer_strerror(errno));
+        }
+        return ret;
+    }
+
     void SophosThreatDetectorMain::shutdownThreatDetector()
     {
         LOGINFO("Sophos Threat Detector received shutdown request");
@@ -387,8 +387,7 @@ namespace sspl::sophosthreatdetectorimpl
             ret = lockCapabilities();
             if (ret != 0)
             {
-                LOGERROR("Failed to lock capabilities after entering chroot (" << ret << ")");
-                exit(EXIT_FAILURE);
+                throw std::runtime_error("Failed to lock capabilities after entering chroot");
             }
         }
         else

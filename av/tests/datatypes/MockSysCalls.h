@@ -21,6 +21,7 @@ namespace
             ON_CALL(*this, cap_get_proc).WillByDefault(Return(::cap_get_proc()));
             ON_CALL(*this, cap_clear).WillByDefault(Return(0));
             ON_CALL(*this, cap_set_proc).WillByDefault(Return(0));
+            ON_CALL(*this, prctl).WillByDefault(Return(0));
         }
 
         MOCK_METHOD((std::pair<const int, const long>), getSystemUpTime, ());
@@ -57,6 +58,7 @@ namespace
         MOCK_METHOD(cap_t, cap_get_proc, ());
         MOCK_METHOD(int, cap_clear, (cap_t __cap_t));
         MOCK_METHOD(int, cap_set_proc, (cap_t __cap_t));
+        MOCK_METHOD(int, prctl, (int option, ulong __arg2, ulong __arg3, ulong __arg4, ulong __arg5));
     };
 }
 

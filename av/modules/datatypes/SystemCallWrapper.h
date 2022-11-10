@@ -4,11 +4,15 @@
 
 #include "ISystemCallWrapper.h"
 
+extern "C"
+{
 #include <sys/fanotify.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>
+#include <sys/prctl.h>
 #include <sys/sysinfo.h>
 #include <unistd.h>
+}
 
 namespace datatypes
 {
@@ -134,6 +138,11 @@ namespace datatypes
         int cap_set_proc(cap_t __cap_t) override
         {
             return ::cap_set_proc(__cap_t);
+        }
+
+        int prctl (int option, ulong __arg2, ulong __arg3, ulong __arg4, ulong __arg5) override
+        {
+            return ::prctl(option, __arg2, __arg3, __arg4, __arg5);
         }
 
     };

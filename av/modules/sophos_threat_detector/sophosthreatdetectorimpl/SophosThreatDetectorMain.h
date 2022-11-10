@@ -31,6 +31,7 @@ namespace sspl::sophosthreatdetectorimpl
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
         datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
         int dropCapabilities();
+        int lockCapabilities();
         void attempt_dns_query();
 
     TEST_PUBLIC:

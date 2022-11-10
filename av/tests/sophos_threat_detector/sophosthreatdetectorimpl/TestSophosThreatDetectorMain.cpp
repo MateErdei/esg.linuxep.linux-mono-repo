@@ -143,3 +143,45 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfCap_Set_ProcFails)
     }
     EXPECT_TRUE(appenderContains("Failed to set the dropped capabilities"));
 }
+
+TEST_F(TestSophosThreatDetectorMain, runsAsRootIfGetUIDReturnsNonZero)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+    auto mockSigTermMonitor = std::make_shared<NiceMock<MockSignalHandler>>();
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSignalHandler(_)).WillOnce(Return(mockSigTermMonitor));
+
+    EXPECT_CALL(*mockSysCallWrapper, getuid()).WillOnce(Return(0));
+    EXPECT_CALL(*mockSigTermMonitor, triggered()).WillOnce(Return(true));
+
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    treatDetectorMain.inner_main(m_MockThreatDetectorResources);
+
+    EXPECT_TRUE(waitForLog("Running as root - Skip dropping of capabilities"));
+}
+
+TEST_F(TestSophosThreatDetectorMain, throwsIfprctlFails)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
+    EXPECT_CALL(*mockSysCallWrapper, getuid()).WillOnce(Return(1));
+    EXPECT_CALL(*mockSysCallWrapper, prctl(_,_,_,_,_)).WillOnce(Return(-1));
+
+    try
+    {
+        auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+        treatDetectorMain.inner_main(m_MockThreatDetectorResources);
+        FAIL() << "Threat detector main::chroot didnt throw";
+    }
+    catch (std::exception& ex)
+    {
+        EXPECT_STREQ(ex.what(), "Failed to lock capabilities after entering chroot");
+    }
+    EXPECT_TRUE(appenderContains("Failed to lock capabilities: "));
+}
