@@ -14,7 +14,7 @@ using namespace sspl::sophosthreatdetectorimpl;
 using namespace testing;
 
 namespace {
-    class TestSophosThreatDetectorMain : public MemoryAppenderUsingTests//, public SophosThreatDetectorMain
+    class TestSophosThreatDetectorMain : public MemoryAppenderUsingTests
     {
     public:
         TestSophosThreatDetectorMain() :  MemoryAppenderUsingTests("SophosThreatDetectorImpl")
@@ -82,7 +82,7 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfNoCaphandle)
 
     EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
     EXPECT_CALL(*mockSysCallWrapper, getuid()).WillOnce(Return(1));
-    EXPECT_CALL(*mockSysCallWrapper, cap_get_proc()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*mockSysCallWrapper, cap_get_proc()).WillOnce(SetErrnoAndReturn(EINVAL, nullptr));
 
     try
     {
@@ -94,7 +94,7 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfNoCaphandle)
     {
         EXPECT_STREQ(ex.what(), "Failed to drop capabilities after entering chroot");
     }
-    EXPECT_TRUE(appenderContains("Failed to get capabilities from call to cap_get_proc"));
+    EXPECT_TRUE(appenderContains("Failed to get capabilities from call to cap_get_proc: 22 (Invalid argument)"));
 }
 
 
@@ -106,7 +106,7 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfCap_ClearFails)
 
     EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
     EXPECT_CALL(*mockSysCallWrapper, getuid()).WillOnce(Return(1));
-    EXPECT_CALL(*mockSysCallWrapper, cap_clear(_)).WillOnce(Return(-1));
+    EXPECT_CALL(*mockSysCallWrapper, cap_clear(_)).WillOnce(SetErrnoAndReturn(EINVAL, -1));
 
     try
     {
@@ -118,7 +118,7 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfCap_ClearFails)
     {
         EXPECT_STREQ(ex.what(), "Failed to drop capabilities after entering chroot");
     }
-    EXPECT_TRUE(appenderContains("Failed to clear effective capabilities"));
+    EXPECT_TRUE(appenderContains("Failed to clear effective capabilities: 22 (Invalid argument)"));
 }
 
 TEST_F(TestSophosThreatDetectorMain, throwsIfCap_Set_ProcFails)
@@ -129,7 +129,7 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfCap_Set_ProcFails)
 
     EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
     EXPECT_CALL(*mockSysCallWrapper, getuid()).WillOnce(Return(1));
-    EXPECT_CALL(*mockSysCallWrapper, cap_set_proc(_)).WillOnce(Return(-1));
+    EXPECT_CALL(*mockSysCallWrapper, cap_set_proc(_)).WillOnce(SetErrnoAndReturn(EPERM, -1));
 
     try
     {
@@ -141,7 +141,7 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfCap_Set_ProcFails)
     {
         EXPECT_STREQ(ex.what(), "Failed to drop capabilities after entering chroot");
     }
-    EXPECT_TRUE(appenderContains("Failed to set the dropped capabilities"));
+    EXPECT_TRUE(appenderContains("Failed to set the dropped capabilities: 1 (Operation not permitted)"));
 }
 
 TEST_F(TestSophosThreatDetectorMain, runsAsRootIfGetUIDReturnsNonZero)
@@ -165,13 +165,11 @@ TEST_F(TestSophosThreatDetectorMain, runsAsRootIfGetUIDReturnsNonZero)
 
 TEST_F(TestSophosThreatDetectorMain, throwsIfprctlFails)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
     auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
 
     EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
     EXPECT_CALL(*mockSysCallWrapper, getuid()).WillOnce(Return(1));
-    EXPECT_CALL(*mockSysCallWrapper, prctl(_,_,_,_,_)).WillOnce(Return(-1));
+    EXPECT_CALL(*mockSysCallWrapper, prctl(_,_,_,_,_)).WillOnce(SetErrnoAndReturn(EFAULT, -1));
 
     try
     {
@@ -181,7 +179,27 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfprctlFails)
     }
     catch (std::exception& ex)
     {
-        EXPECT_STREQ(ex.what(), "Failed to lock capabilities after entering chroot");
+        EXPECT_STREQ(ex.what(), "Failed to lock capabilities after entering chroot: 14 (Bad address)");
     }
-    EXPECT_TRUE(appenderContains("Failed to lock capabilities: "));
+}
+
+TEST_F(TestSophosThreatDetectorMain, throwsIfchdirFails)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
+    EXPECT_CALL(*mockSysCallWrapper, chdir(_)).WillOnce(SetErrnoAndReturn(EFAULT, -1));
+
+    try
+    {
+        auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+        treatDetectorMain.inner_main(m_MockThreatDetectorResources);
+        FAIL() << "Threat detector main::chroot didnt throw";
+    }
+    catch (std::exception& ex)
+    {
+        EXPECT_STREQ(ex.what(), "Failed to chdir / after entering chroot 14 (Bad address)");
+    }
 }

@@ -265,21 +265,27 @@ namespace sspl::sophosthreatdetectorimpl
         std::unique_ptr<cap_t, stateless_deleter<cap_t, int (*)(void*), &cap_free>> capHandle(m_sysCallWrapper->cap_get_proc());
         if (!capHandle)
         {
-            LOGERROR("Failed to get capabilities from call to cap_get_proc");
+            int error = errno;
+            LOGERROR("Failed to get capabilities from call to cap_get_proc: "
+                     <<  error << " (" << common::safer_strerror(error) << ")");
             return ret;
         }
 
         ret = m_sysCallWrapper->cap_clear(capHandle.get());
         if (ret != 0)
         {
-            LOGERROR("Failed to clear effective capabilities");
+            int error = errno;
+            LOGERROR("Failed to clear effective capabilities: "
+                     <<  error << " (" << common::safer_strerror(error) << ")");
             return ret;
         }
 
         ret = m_sysCallWrapper->cap_set_proc(capHandle.get());
         if (ret != 0)
         {
-            LOGERROR("Failed to set the dropped capabilities");
+            int error = errno;
+            LOGERROR("Failed to set the dropped capabilities: "
+                     <<  error << " (" << common::safer_strerror(error) << ")");
             return ret;
         }
 
@@ -288,12 +294,7 @@ namespace sspl::sophosthreatdetectorimpl
 
     int SophosThreatDetectorMain::lockCapabilities()
     {
-        int ret = m_sysCallWrapper->prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
-        if (ret != 0)
-        {
-            LOGERROR("Failed to lock capabilities: " << common::safer_strerror(errno));
-        }
-        return ret;
+        return m_sysCallWrapper->prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
     }
 
     void SophosThreatDetectorMain::shutdownThreatDetector()
@@ -387,7 +388,11 @@ namespace sspl::sophosthreatdetectorimpl
             ret = lockCapabilities();
             if (ret != 0)
             {
-                throw std::runtime_error("Failed to lock capabilities after entering chroot");
+                int error = errno;
+                auto errorStr = common::safer_strerror(error);
+                std::stringstream logmsg;
+                logmsg << "Failed to lock capabilities after entering chroot: " << error << " (" << common::safer_strerror(error) << ")";
+                throw std::runtime_error(logmsg.str());
             }
         }
         else
@@ -398,8 +403,11 @@ namespace sspl::sophosthreatdetectorimpl
         ret = m_sysCallWrapper->chdir("/");
         if (ret != 0)
         {
-            LOGERROR("Failed to chdir / after entering chroot (" << ret << ")");
-            exit(EXIT_FAILURE);
+            int error = errno;
+            auto errorStr = common::safer_strerror(error);
+            std::stringstream logmsg;
+            logmsg << "Failed to chdir / after entering chroot " << error << " (" << common::safer_strerror(error) << ")";
+            throw std::runtime_error(logmsg.str());
         }
 
         fs::path scanningSocketPath = "/var/scanning_socket";
