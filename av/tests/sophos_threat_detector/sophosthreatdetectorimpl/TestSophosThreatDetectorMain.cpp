@@ -7,6 +7,7 @@
 #include "MockThreatDetectorResources.h"
 
 #include "common/MemoryAppender.h"
+
 #include <gtest/gtest.h>
 
 
@@ -144,7 +145,7 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfCap_Set_ProcFails)
     EXPECT_TRUE(appenderContains("Failed to set the dropped capabilities: 1 (Operation not permitted)"));
 }
 
-TEST_F(TestSophosThreatDetectorMain, runsAsRootIfGetUIDReturnsNonZero)
+TEST_F(TestSophosThreatDetectorMain, runsAsRootIfGetUIDReturnsZero)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -185,8 +186,6 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfprctlFails)
 
 TEST_F(TestSophosThreatDetectorMain, throwsIfchdirFails)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
     auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
 
     EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
@@ -202,4 +201,24 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfchdirFails)
     {
         EXPECT_STREQ(ex.what(), "Failed to chdir / after entering chroot 14 (Bad address)");
     }
+}
+
+TEST_F(TestSophosThreatDetectorMain, sigTermTerminatesProcess)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger threadRunnerLogger = Common::Logging::getInstance("Common");
+    threadRunnerLogger.addAppender(m_sharedAppender);
+
+    auto mockSigTermMonitor = std::make_shared<NiceMock<MockSignalHandler>>();
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSignalHandler(_)).WillOnce(Return(mockSigTermMonitor));
+    EXPECT_CALL(*mockSigTermMonitor, triggered()).WillOnce(Return(true));
+
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    treatDetectorMain.inner_main(m_MockThreatDetectorResources);
+
+    EXPECT_TRUE(waitForLog("Starting updateCompleteNotifier"));
+    ASSERT_TRUE(waitForLog("Sophos Threat Detector received SIGTERM - shutting down"));
+    ASSERT_TRUE(waitForLog("Stopping updateCompleteNotifier"));
+    ASSERT_TRUE(waitForLog("Joining updateCompleteNotifier"));
 }

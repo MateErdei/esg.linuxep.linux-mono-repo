@@ -391,7 +391,7 @@ namespace sspl::sophosthreatdetectorimpl
                 int error = errno;
                 auto errorStr = common::safer_strerror(error);
                 std::stringstream logmsg;
-                logmsg << "Failed to lock capabilities after entering chroot: " << error << " (" << common::safer_strerror(error) << ")";
+                logmsg << "Failed to lock capabilities after entering chroot: " << error << errorStr;
                 throw std::runtime_error(logmsg.str());
             }
         }
@@ -406,7 +406,7 @@ namespace sspl::sophosthreatdetectorimpl
             int error = errno;
             auto errorStr = common::safer_strerror(error);
             std::stringstream logmsg;
-            logmsg << "Failed to chdir / after entering chroot " << error << " (" << common::safer_strerror(error) << ")";
+            logmsg << "Failed to chdir / after entering chroot " << error << errorStr;
             throw std::runtime_error(logmsg.str());
         }
 
