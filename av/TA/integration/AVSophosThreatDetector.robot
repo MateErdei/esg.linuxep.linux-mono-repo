@@ -84,23 +84,27 @@ Threat detector aborts if logging symlink cannot be created
 
 Threat Detector Restarts When /etc/hosts changed
     # ensure that both AV and threat_detector are ready
-    Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
-    Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
+    Wait_For_Log_contains_after_last_restart  ${AV_LOG_PATH}  Starting sophos_threat_detector monitor
+    Wait_For_Log_contains_after_last_restart  ${THREAT_DETECTOR_LOG_PATH}
+    ...  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=${120}
 
     ${SOPHOS_THREAT_DETECTOR_PID_AT_START} =  Get Sophos Threat Detector PID From File
 
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${av_mark} =  LogUtils.Get Av Log Mark
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
 
     Alter Hosts
 
     # wait for AV log
-    Wait Until AV Plugin Log Contains With Offset  Restarting sophos_threat_detector as the system configuration has changed
-    Wait Until Sophos Threat Detector Shutdown File Exists
-    Mark Sophos Threat Detector Log
-    Wait Until Sophos Threat Detector Log Contains With Offset  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
+    wait_for_av_log_contains_after_mark  Restarting sophos_threat_detector as the system configuration has changed  mark=${av_mark}
 
-    Wait until threat detector running with offset
+    # Can't check the shutdown file - ThreatDetector restarts too quickly
+    # Wait Until Sophos Threat Detector Shutdown File Exists
+
+    # Should have restarted almost immediately
+    wait_for_log_contains_from_mark  ${td_mark}  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=2
+    Wait until threat detector running after mark  ${td_mark}
+
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
     Should Not Be Equal As Integers  ${SOPHOS_THREAT_DETECTOR_PID_AT_START}  ${SOPHOS_THREAT_DETECTOR_PID_AT_END}
 
@@ -110,30 +114,27 @@ Threat Detector restarts if no scans requested within the configured timeout
     Register Cleanup   Remove File   ${AV_PLUGIN_PATH}/chroot/etc/threat_detector_config
     Register Cleanup   Stop sophos_threat_detector
 
-    Mark Sophos Threat Detector Log
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     Start sophos_threat_detector
-    Wait Until Sophos Threat Detector Log Contains With Offset  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
-    Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
-    Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
-
-    Mark Sophos Threat Detector Log
-    # Request a scan in order to load SUSI
-    Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    wait_for_log_contains_from_mark  ${td_mark}  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
+    wait_for_log_contains_from_mark  ${td_mark}  Default shutdown timeout set to 15 seconds.
+    wait_for_log_contains_from_mark  ${td_mark}  Setting shutdown timeout to
 
     ${SOPHOS_THREAT_DETECTOR_PID_AT_START} =  Get Sophos Threat Detector PID From File
-    Wait Until Sophos Threat Detector Log Contains With Offset  Default shutdown timeout set to 15 seconds.
-    Wait Until Sophos Threat Detector Log Contains With Offset  Setting shutdown timeout to
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+
+    Force SUSI to be initialized
 
     # No scans requested for ${timeout} seconds - shutting down.
-    Wait Until Sophos Threat Detector Log Contains With Offset  No scans requested  timeout=20
-    Wait Until Sophos Threat Detector Shutdown File Exists
-    Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector is exiting
+    wait_for_log_contains_from_mark  ${td_mark}  No scans requested  timeout=20
+    wait_for_log_contains_from_mark  ${td_mark}  Sophos Threat Detector is exiting
 
-    Wait Until Sophos Threat Detector Log Contains With Offset  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
+    # TD should restart immediately:
+    wait_for_log_contains_from_mark  ${td_mark}  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=2
+    wait_for_log_contains_from_mark  ${td_mark}  Default shutdown timeout set to 15 seconds.
+    wait_for_log_contains_from_mark  ${td_mark}  Setting shutdown timeout to
+    Wait until threat detector running after mark  ${td_mark}
 
-    Wait until threat detector running with offset
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
     Should Not Be Equal As Integers  ${SOPHOS_THREAT_DETECTOR_PID_AT_START}  ${SOPHOS_THREAT_DETECTOR_PID_AT_END}
 
