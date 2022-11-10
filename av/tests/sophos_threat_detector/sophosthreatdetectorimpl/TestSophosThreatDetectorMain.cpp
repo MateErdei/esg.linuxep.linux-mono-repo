@@ -14,6 +14,10 @@
 using namespace sspl::sophosthreatdetectorimpl;
 using namespace testing;
 
+
+//Todo - current mock structure gets us to creating the ScanningServerSocket: ln~435 of sophosthreatdetector main
+//Todo - Write additional tests LINUXDAR-6030
+
 namespace {
     class TestSophosThreatDetectorMain : public MemoryAppenderUsingTests
     {
@@ -33,8 +37,6 @@ namespace {
             fs::create_directories(m_testDir);
             fs::current_path(m_testDir);
 
-            //m_mockSysCalls = std::make_shared<NiceMock<MockSystemCallWrapper>>();
-
             const fs::path testUpdateSocketPath = m_testDir / "update_socket";
             m_MockThreatDetectorResources = std::make_shared<NiceMock<MockThreatDetectorResources>>
             (testUpdateSocketPath);
@@ -50,12 +52,10 @@ namespace {
         Common::ApplicationConfiguration::IApplicationConfiguration& m_appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path m_testDir;
         std::shared_ptr<NiceMock<MockThreatDetectorResources>> m_MockThreatDetectorResources;
-        std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSysCalls;
     };
 
 }
 
-//Todo - current mock structure gets us to creating the ScanningServerSocket ~435
 TEST_F(TestSophosThreatDetectorMain, throwsIfChrootFails)
 {
     auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
@@ -150,10 +150,12 @@ TEST_F(TestSophosThreatDetectorMain, runsAsRootIfGetUIDReturnsZero)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+
+    //Todo - This exits prematurely, may not be necessary once LINUXDAR-6030 is implemented
     auto mockSigTermMonitor = std::make_shared<NiceMock<MockSignalHandler>>();
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSignalHandler(_)).WillOnce(Return(mockSigTermMonitor));
 
     EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
-    EXPECT_CALL(*m_MockThreatDetectorResources, createSignalHandler(_)).WillOnce(Return(mockSigTermMonitor));
 
     EXPECT_CALL(*mockSysCallWrapper, getuid()).WillOnce(Return(0));
     EXPECT_CALL(*mockSigTermMonitor, triggered()).WillOnce(Return(true));

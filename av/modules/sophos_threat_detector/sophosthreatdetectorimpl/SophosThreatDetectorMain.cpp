@@ -272,7 +272,7 @@ namespace sspl::sophosthreatdetectorimpl
         }
 
         ret = m_sysCallWrapper->cap_clear(capHandle.get());
-        if (ret != 0)
+        if (ret == -1)
         {
             int error = errno;
             LOGERROR("Failed to clear effective capabilities: "
@@ -281,7 +281,7 @@ namespace sspl::sophosthreatdetectorimpl
         }
 
         ret = m_sysCallWrapper->cap_set_proc(capHandle.get());
-        if (ret != 0)
+        if (ret == -1)
         {
             int error = errno;
             LOGERROR("Failed to set the dropped capabilities: "
@@ -368,12 +368,12 @@ namespace sspl::sophosthreatdetectorimpl
 #endif
 
         int ret = m_sysCallWrapper->chroot(chrootPath.c_str());
-        if (ret != 0)
+        if (ret == -1)
         {
             int error = errno;
-            auto errorStr = common::safer_strerror(error);
             std::stringstream logmsg;
-            logmsg << "Failed to chroot to " << chrootPath.c_str() << ": " <<  error << " (" << errorStr << ")";
+            logmsg << "Failed to chroot to " << chrootPath.c_str() <<
+                ": " <<  error << " (" << common::safer_strerror(error) << ")";
             throw std::runtime_error(logmsg.str());
         }
 
@@ -389,9 +389,9 @@ namespace sspl::sophosthreatdetectorimpl
             if (ret != 0)
             {
                 int error = errno;
-                auto errorStr = common::safer_strerror(error);
                 std::stringstream logmsg;
-                logmsg << "Failed to lock capabilities after entering chroot: " << error << errorStr;
+                logmsg << "Failed to lock capabilities after entering chroot: "
+                       <<  error << " (" << common::safer_strerror(error) << ")";
                 throw std::runtime_error(logmsg.str());
             }
         }
@@ -401,12 +401,11 @@ namespace sspl::sophosthreatdetectorimpl
         }
 
         ret = m_sysCallWrapper->chdir("/");
-        if (ret != 0)
+        if (ret == -1)
         {
             int error = errno;
-            auto errorStr = common::safer_strerror(error);
             std::stringstream logmsg;
-            logmsg << "Failed to chdir / after entering chroot " << error << errorStr;
+            logmsg << "Failed to chdir / after entering chroot " << error << " (" << common::safer_strerror(error) << ")";
             throw std::runtime_error(logmsg.str());
         }
 
