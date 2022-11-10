@@ -24,7 +24,7 @@ protected:
     }
 };
 
-TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedData) // NOLINT
+TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedData)
 {
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
@@ -37,11 +37,11 @@ TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedData) // N
     EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(fileList));
     EXPECT_CALL(*mockFileSystem, fileSize(_)).WillRepeatedly(Return(150));
-
-    EXPECT_EQ(safeStoreCallback.getTelemetry(), "{\"database-size\":300,\"dormant-mode\":false,\"health\":0}");
+    
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0})");
 }
 
-TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreIsInDormantMode) // NOLINT
+TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreIsInDormantMode)
 {
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
@@ -54,12 +54,11 @@ TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSa
     EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(fileList));
     EXPECT_CALL(*mockFileSystem, fileSize(_)).WillRepeatedly(Return(150));
-
-
-    EXPECT_EQ(safeStoreCallback.getTelemetry(), "{\"database-size\":300,\"dormant-mode\":true,\"health\":1}");
+    
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":true,"health":1})");
 }
 
-TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreDatabaseIsEmpty) // NOLINT
+TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreDatabaseIsEmpty)
 {
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
@@ -73,10 +72,10 @@ TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSa
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(fileList));
     EXPECT_CALL(*mockFileSystem, fileSize(_)).Times(0);
 
-    EXPECT_EQ(safeStoreCallback.getTelemetry(), "{\"database-size\":0,\"dormant-mode\":false,\"health\":0}");
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":0,"dormant-mode":false,"health":0})");
 }
 
-TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreDatabaseSizeHasNoValue) // NOLINT
+TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreDatabaseSizeHasNoValue)
 {
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
@@ -87,5 +86,5 @@ TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSa
     EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Throw(std::exception{}));
 
-    EXPECT_EQ(safeStoreCallback.getTelemetry(), "{\"dormant-mode\":false,\"health\":0}");
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"dormant-mode":false,"health":0})");
 }

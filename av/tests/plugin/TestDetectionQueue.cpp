@@ -63,7 +63,7 @@ TEST_F(TestDetectionQueue, TestQueueIsFullOnceMaxSizeIsReached) // NOLINT
     ASSERT_TRUE(queue.isFull());
 }
 
-TEST_F(TestDetectionQueue, TestQueueCannotBePushedToOnceFullAndTelemetryIsIncremented) // NOLINT
+TEST_F(TestDetectionQueue, TestQueueCannotBePushedToOnceFullAndTelemetryIsIncremented)
 {
     Plugin::DetectionQueue queue;
     std::shared_ptr<Plugin::TaskQueue> task = nullptr;

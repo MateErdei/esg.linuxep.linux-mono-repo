@@ -47,7 +47,7 @@ namespace safestore
         return telemetry.serialiseAndReset();
     }
 
-    std::optional<unsigned long> SafeStoreServiceCallback::getSafeStoreDatabaseSize()
+    std::optional<unsigned long> SafeStoreServiceCallback::getSafeStoreDatabaseSize() const
     {
         try
         {

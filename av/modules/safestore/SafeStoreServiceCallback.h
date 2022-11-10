@@ -17,7 +17,7 @@ namespace safestore
         void onShutdown() override {}
         void queueAction(const std::string& action) override;
 
-        static std::optional<unsigned long> getSafeStoreDatabaseSize();
+        [[nodiscard]] std::optional<unsigned long> getSafeStoreDatabaseSize() const;
     };
 
 } // namespace safestore
