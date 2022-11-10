@@ -40,6 +40,10 @@ namespace safestore
         telemetry.set(telemetrySafeStoreDormantMode, dormant);
         telemetry.set(telemetrySafeStoreHealth, healthValue);
 
+        telemetry.increment(telemetrySafeStoreQuarantineSuccess, 0ul);
+        telemetry.increment(telemetrySafeStoreQuarantineFailure, 0ul);
+        telemetry.increment(telemetrySafeStoreUnlinkFailure, 0ul);
+
         if (safeStoreDatabaseSize.has_value())
         {
             telemetry.set(telemetrySafeStoreDatabaseSize, safeStoreDatabaseSize.value());

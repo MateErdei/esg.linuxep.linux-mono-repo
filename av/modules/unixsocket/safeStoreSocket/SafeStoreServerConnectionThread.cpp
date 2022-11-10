@@ -1,46 +1,37 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "SafeStoreServerConnectionThread.h"
-
 #include "ThreatDetected.capnp.h"
 
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "common/FDUtils.h"
+#include "safestore/SafeStoreTelemetryConsts.h"
+#include "scan_messages/ThreatDetected.h"
+#include "scan_messages/QuarantineResponse.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 
 #include <capnp/serialize.h>
-#include <common/FDUtils.h>
-#include <scan_messages/ThreatDetected.h>
 
 #include <cassert>
 #include <stdexcept>
-#include <utility>
-
 #include <sys/socket.h>
 #include <unistd.h>
+#include <utility>
+
 
 using namespace unixsocket;
 
 SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     datatypes::AutoFd& fd,
     std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager) :
-    m_fd(std::move(fd)), m_quarantineManager(std::move(quarantineManager))
+    m_fd(std::move(fd)), m_quarantineManager(quarantineManager)
 {
     if (m_fd < 0)
     {
         throw std::runtime_error("Attempting to construct SafeStoreServerConnectionThread with invalid socket fd");
     }
 }
-
-//
-// static void throwOnError(int ret, const std::string& message)
-//{
-//    if (ret == 0)
-//    {
-//        return;
-//    }
-//    perror(message.c_str());
-//    throw std::runtime_error(message);
-//}
 
 /**
  * Parse a detection.
@@ -63,6 +54,15 @@ static scan_messages::ThreatDetected parseDetection(kj::Array<capnp::word>& prot
         LOGERROR("Missing file path while parsing report ( size=" << bytes_read << " )");
     }
     return scan_messages::ThreatDetected(requestReader);
+}
+
+std::string getResponse(common::CentralEnums::QuarantineResult quarantineResult)
+{
+    std::shared_ptr<scan_messages::QuarantineResponse> request = std::make_shared<scan_messages::QuarantineResponse>(quarantineResult);
+    std::string dataAsString = request->serialise();
+
+    return dataAsString;
+
 }
 
 void SafeStoreServerConnectionThread::run()
@@ -203,22 +203,60 @@ void SafeStoreServerConnectionThread::inner_run()
                 LOGERROR("Missing file path in detection report ( size=" << bytes_read << ")");
             }
 
+
             LOGINFO(
                 "Received Threat:\n  File path: "
                 << threatDetected.filePath << "\n  Threat ID: " << threatDetected.threatId
                 << "\n  Threat name: " << threatDetected.threatName << "\n  SHA256: " << threatDetected.sha256
                 << "\n  File descriptor: " << threatDetected.autoFd.get());
 
-            bool isQuarantineSuccessful = m_quarantineManager->quarantineFile(
+            common::CentralEnums::QuarantineResult quarantineResult = m_quarantineManager->quarantineFile(
                 threatDetected.filePath,
                 threatDetected.threatId,
                 threatDetected.threatName,
                 threatDetected.sha256,
                 std::move(threatDetected.autoFd));
 
-            std::ignore = isQuarantineSuccessful;
+            switch(quarantineResult)
+            {
+                case common::CentralEnums::QuarantineResult::SUCCESS:
+                {
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(safestore::telemetrySafeStoreQuarantineSuccess, 1ul);
+                    break;
+                }
+                case common::CentralEnums::QuarantineResult::NOT_FOUND:
+                {
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(safestore::telemetrySafeStoreQuarantineFailure, 1ul);
+                    break;
+                }
+                case common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE:
+                {
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(safestore::telemetrySafeStoreUnlinkFailure, 1ul);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
 
-            // TODO: LINUXDAR-5677 send a response back
+            std::string serialised_result = getResponse(quarantineResult);
+
+            try
+            {
+                if (!writeLengthAndBuffer(socket_fd, serialised_result))
+                {
+                    LOGWARN("Failed to write result to unix socket");
+                    break;
+                }
+            }
+            catch (unixsocket::environmentInterruption& e)
+            {
+                LOGWARN("Exiting Safestore Connection Thread: " << e.what());
+                break;
+            }
         }
+
+
     }
 }

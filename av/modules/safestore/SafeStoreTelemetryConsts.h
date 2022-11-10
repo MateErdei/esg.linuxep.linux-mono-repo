@@ -6,4 +6,8 @@ namespace safestore
     const char* const telemetrySafeStoreDormantMode = "dormant-mode";
 
     const char* const telemetrySafeStoreDatabaseSize = "database-size";
+
+    const char* const telemetrySafeStoreQuarantineSuccess = "quarantine-successes";
+    const char* const telemetrySafeStoreQuarantineFailure = "quarantine-failures";
+    const char* const telemetrySafeStoreUnlinkFailure = "unlink-failures";
 }
