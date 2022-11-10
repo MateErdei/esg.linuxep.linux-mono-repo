@@ -79,7 +79,7 @@ TEST_F(TestFanotifyHandler, cacheFdReturnsZeroForSuccess)
                                                      FAN_OPEN, fileFd, nullptr)).WillOnce(
             SetErrnoAndReturn(0, 0));
 
-    EXPECT_EQ(0, handler.cacheFd(fileFd, "/expected"));
+    EXPECT_EQ(0, handler.cacheFd(fileFd, "/expected", false));
 }
 
 TEST_F(TestFanotifyHandler, errorWhenCacheFdFails)
@@ -100,7 +100,7 @@ TEST_F(TestFanotifyHandler, errorWhenCacheFdFails)
                                                      FAN_OPEN, fileFd, nullptr)).WillOnce(
             SetErrnoAndReturn(EEXIST, -1));
 
-    EXPECT_EQ(-1, handler.cacheFd(fileFd, "/expected"));
+    EXPECT_EQ(-1, handler.cacheFd(fileFd, "/expected", false));
     EXPECT_TRUE(appenderContains("fanotify_mark failed in cacheFd: File exists for: /expected"));
 }
 
