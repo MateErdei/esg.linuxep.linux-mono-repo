@@ -35,7 +35,7 @@ namespace
     };
 } // namespace
 
-TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestOnce) // NOLINT
+TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestOnce)
 {
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
     EXPECT_CALL(*quarantineManager, rescanDatabase()).Times(1);
@@ -50,7 +50,7 @@ TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestOnce) // NOLINT
     // destructor will stop the thread
 }
 
-TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestTwice) // NOLINT
+TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestTwice)
 {
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
     EXPECT_CALL(*quarantineManager, rescanDatabase()).Times(2);
@@ -66,7 +66,7 @@ TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestTwice) // NOLINT
     // destructor will stop the thread
 }
 
-TEST_F(TestSafeStoreRescanSocket, testClientSocketTriesToReconnect) // NOLINT
+TEST_F(TestSafeStoreRescanSocket, testClientSocketTriesToReconnect)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     unixsocket::SafeStoreRescanClient client(m_socketPath);

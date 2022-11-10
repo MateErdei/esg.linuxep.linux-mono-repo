@@ -5,9 +5,9 @@
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
 
-#include "Common/PersistentValue/PersistentValue.h"
-
 #include <scan_messages/QuarantineResponse.h>
+
+#include "Common/PersistentValue/PersistentValue.h"
 
 #include <memory>
 #include <mutex>

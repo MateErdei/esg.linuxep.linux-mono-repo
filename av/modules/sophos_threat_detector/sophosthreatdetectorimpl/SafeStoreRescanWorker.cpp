@@ -18,12 +18,17 @@ SafeStoreRescanWorker::SafeStoreRescanWorker(const fs::path& safeStoreRescanSock
 
 SafeStoreRescanWorker::~SafeStoreRescanWorker()
 {
+    tryStop();
+    join();
+}
+
+void SafeStoreRescanWorker::tryStop()
+{
     {
         std::lock_guard lock(m_rescanLock);
         m_stopRequested = true;
     }
     m_rescanWakeUp.notify_one();
-    join();
 }
 
 void SafeStoreRescanWorker::run()

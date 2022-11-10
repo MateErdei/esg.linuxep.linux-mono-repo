@@ -11,17 +11,13 @@ using namespace safestore::QuarantineManager;
 class MockIQuarantineManager : public IQuarantineManager
 {
 public:
-    MOCK_METHOD0(initialise, void());
-    MOCK_METHOD0(getState, safestore::QuarantineManager::QuarantineManagerState());
-    MOCK_METHOD1(setState, void(const safestore::QuarantineManager::QuarantineManagerState&));
-    MOCK_METHOD0(deleteDatabase, bool());
-    MOCK_METHOD5(
+    MOCK_METHOD(void, initialise, ());
+    MOCK_METHOD(safestore::QuarantineManager::QuarantineManagerState, getState, ());
+    MOCK_METHOD(void, setState, (const safestore::QuarantineManager::QuarantineManagerState&));
+    MOCK_METHOD(bool, deleteDatabase, ());
+    MOCK_METHOD(
+        common::CentralEnums::QuarantineResult,
         quarantineFile,
-        common::CentralEnums::QuarantineResult(
-            const std::string&,
-            const std::string&,
-            const std::string&,
-            const std::string&,
-            datatypes::AutoFd));
-    MOCK_METHOD0(rescanDatabase, void());
+        (const std::string&, const std::string&, const std::string&, const std::string&, datatypes::AutoFd));
+    MOCK_METHOD(void, rescanDatabase, ());
 };

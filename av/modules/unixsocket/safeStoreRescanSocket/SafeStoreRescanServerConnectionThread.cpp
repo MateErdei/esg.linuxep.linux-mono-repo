@@ -5,8 +5,9 @@
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 
+#include "common/SaferStrerror.h"
 #include "common/FDUtils.h"
-
+#include <poll.h>
 #include <cassert>
 #include <stdexcept>
 #include <utility>
@@ -56,37 +57,44 @@ void SafeStoreRescanServerConnectionThread::inner_run()
 
     int exitFD = m_notifyPipe.readFd();
 
-    fd_set readFDs;
-    FD_ZERO(&readFDs);
-    int max = -1;
-    max = FDUtils::addFD(&readFDs, exitFD, max);
-    max = FDUtils::addFD(&readFDs, socket_fd, max);
     bool loggedLengthOfZero = false;
+
+    struct pollfd fds[] {
+        { .fd = exitFD, .events = POLLIN, .revents = 0 },
+        { .fd = socket_fd, .events = POLLIN, .revents = 0 }
+    };
 
     while (true)
     {
-        fd_set tempRead = readFDs;
 
-        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
+        int activity = ::ppoll(fds, std::size(fds), nullptr, nullptr);
 
         if (activity < 0)
         {
-            LOGERROR("Closing SafeStore Rescan connection thread, error: " << errno);
+            // error in ppoll
+            int error = errno;
+            if (error == EINTR)
+            {
+                LOGDEBUG("Ignoring EINTR from ppoll");
+                continue;
+            }
+
+            LOGERROR("Closing SafeStore Rescan connection thread,Error: "
+                     << common::safer_strerror(error) << " (" << error << ')');
             break;
         }
 
-        if (FDUtils::fd_isset(exitFD, &tempRead))
+        if ((fds[0].revents & POLLIN) != 0)
         {
             LOGDEBUG("Closing SafeStore Rescan connection thread");
             break;
         }
         else
-        // if (FDUtils::fd_isset(socket_fd, &tempRead))
+        // if ((fds[1].revents & POLLIN) != 0)
         {
-            // If shouldn't be required - we have no timeout, and only 2 FDs in the pselect.
+            // If shouldn't be required - we have no timeout, and only 2 FDs in the ppoll.
             // exitFD will cause break
             // therefore "else" must be fd_isset(socket_fd, &tempRead)
-            assert(FDUtils::fd_isset(socket_fd, &tempRead));
 
             // read length
             int32_t length = unixsocket::readLength(socket_fd);
