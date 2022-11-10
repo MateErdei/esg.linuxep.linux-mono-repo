@@ -127,7 +127,7 @@ namespace datatypes
 
         cap_t cap_get_proc() override
         {
-            return cap_get_proc();
+            return ::cap_get_proc();
         }
 
         int cap_clear(cap_t __cap_t) override
