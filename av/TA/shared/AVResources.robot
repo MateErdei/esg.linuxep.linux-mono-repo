@@ -114,6 +114,10 @@ Check AV Plugin Not Running
     ${result} =   ProcessUtils.pidof  ${PLUGIN_BINARY}
     Run Keyword If  ${result} != ${-1}      Dump Threads And Fail    AV plugin still running: ${result}
 
+Check OnAccess Not Running
+    ${result} =   ProcessUtils.pidof  ${ON_ACCESS_BIN}
+    Should Be Equal As Integers  ${result}  ${-1}
+
 Check SafeStore Not Running
     ${result} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
     Should Be Equal As Integers  ${result}  ${-1}

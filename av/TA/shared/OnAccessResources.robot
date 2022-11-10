@@ -78,10 +78,18 @@ Start AV and On Access
 
 Terminate AV
     Run Keyword If  ${AV_PLUGIN_HANDLE}  Terminate Process  ${AV_PLUGIN_HANDLE}
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  2 secs
+        ...  Check AV Plugin Not Running
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
 
 Terminate On Access
     Run Keyword If  ${ON_ACCESS_PLUGIN_HANDLE}  Terminate Process  ${ON_ACCESS_PLUGIN_HANDLE}
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  2 secs
+        ...  Check OnAccess Not Running
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
 
 Terminate On Access And AV
