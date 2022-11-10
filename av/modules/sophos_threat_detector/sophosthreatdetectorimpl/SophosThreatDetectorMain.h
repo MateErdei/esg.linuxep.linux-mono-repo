@@ -30,9 +30,12 @@ namespace sspl::sophosthreatdetectorimpl
         std::shared_ptr<Reloader> m_reloader;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
         datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
+        int dropCapabilities();
+        void attempt_dns_query();
 
     TEST_PUBLIC:
         int inner_main(IThreatDetectorResourcesSharedPtr resources);
-        void attempt_dns_query();
+
+
     };
 }

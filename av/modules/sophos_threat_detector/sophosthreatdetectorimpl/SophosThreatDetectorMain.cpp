@@ -180,33 +180,6 @@ namespace sspl::sophosthreatdetectorimpl
             }
         };
 
-        int dropCapabilities()
-        {
-            int ret = -1;
-            std::unique_ptr<cap_t, stateless_deleter<cap_t, int (*)(void*), &cap_free>> capHandle(cap_get_proc());
-            if (!capHandle)
-            {
-                LOGERROR("Failed to get effective capabilities");
-                return ret;
-            }
-
-            ret = cap_clear(capHandle.get());
-            if (ret != 0)
-            {
-                LOGERROR("Failed to clear effective capabilities");
-                return ret;
-            }
-
-            ret = cap_set_proc(capHandle.get());
-            if (ret != 0)
-            {
-                LOGERROR("Failed to set the dropped capabilities");
-                return ret;
-            }
-
-            return ret;
-        }
-
         int lockCapabilities()
         {
             int ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
@@ -296,6 +269,33 @@ namespace sspl::sophosthreatdetectorimpl
         }
     }
 
+    int SophosThreatDetectorMain::dropCapabilities()
+    {
+        int ret = -1;
+        std::unique_ptr<cap_t, stateless_deleter<cap_t, int (*)(void*), &cap_free>> capHandle(m_sysCallWrapper->cap_get_proc());
+        if (!capHandle)
+        {
+            LOGERROR("Failed to get capabilities from call to cap_get_proc");
+            return ret;
+        }
+
+        ret = m_sysCallWrapper->cap_clear(capHandle.get());
+        if (ret != 0)
+        {
+            LOGERROR("Failed to clear effective capabilities");
+            return ret;
+        }
+
+        ret = m_sysCallWrapper->cap_set_proc(capHandle.get());
+        if (ret != 0)
+        {
+            LOGERROR("Failed to set the dropped capabilities");
+            return ret;
+        }
+
+        return ret;
+    }
+
     void SophosThreatDetectorMain::shutdownThreatDetector()
     {
         LOGINFO("Sophos Threat Detector received shutdown request");
@@ -381,8 +381,7 @@ namespace sspl::sophosthreatdetectorimpl
             ret = dropCapabilities();
             if (ret != 0)
             {
-                LOGERROR("Failed to drop capabilities after entering chroot (" << ret << ")");
-                exit(EXIT_FAILURE);
+                throw std::runtime_error("Failed to drop capabilities after entering chroot");
             }
 
             ret = lockCapabilities();
