@@ -27,6 +27,7 @@ namespace common
         E_CAP_SET_FLAG_C    = E_CAP_SET_FLAG,   // 61
         E_CAP_SET_PROC_C    = E_CAP_SET_PROC,   // 62
         E_CAP_FREE_C        = E_CAP_FREE,       // 63
-        E_CAP_SET_AMBIENT_C = E_CAP_SET_AMBIENT // 64
+        E_CAP_SET_AMBIENT_C = E_CAP_SET_AMBIENT,// 64
+        E_QUICK_RESTART_SUCCESS = 77
     };
 }

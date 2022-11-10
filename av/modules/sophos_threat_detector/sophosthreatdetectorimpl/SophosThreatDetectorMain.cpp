@@ -519,6 +519,7 @@ namespace sspl::sophosthreatdetectorimpl
                     {
                         LOGDEBUG("No scans requested for " << timeout.tv_sec << " seconds - shutting down.");
                         create_shutdown_notice_file(pluginInstall);
+                        returnCode = common::E_QUICK_RESTART_SUCCESS;
                         break;
                     }
                     else
@@ -570,7 +571,7 @@ namespace sspl::sophosthreatdetectorimpl
             if ((fds[SYSTEM_FILE_CHANGE].revents & POLLIN) != 0)
             {
                 LOGINFO("Sophos Threat Detector is restarting to pick up changed system files");
-                returnCode = common::E_CLEAN_SUCCESS; // TODO LINUXDAR-5419 fast restarts
+                returnCode = common::E_QUICK_RESTART_SUCCESS;
                 break;
             }
         }
