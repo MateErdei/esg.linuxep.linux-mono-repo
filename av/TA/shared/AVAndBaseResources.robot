@@ -9,6 +9,8 @@ Library         ../Libs/CoreDumps.py
 AV and Base Setup
     # ignore occasional SXL4 timeouts
     Register Cleanup  Exclude Globalrep Timeout Errors
+    # LINUXDAR-6028 - Remove the below exclusion once fixed
+    Register Cleanup  Exclude ThreatHealthReceiver Was Not Initialised Error
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  analyse Journalctl   print_always=True
     Register Cleanup  Dump All Sophos Processes
