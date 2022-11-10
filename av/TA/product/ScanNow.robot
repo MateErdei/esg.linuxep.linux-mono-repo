@@ -207,7 +207,8 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Should Be True   ${3} <= ${line_count} <= ${7}
 
     File Log Contains  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Aborting scan, scanner is shutting down
-    File Log Contains Once  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
+#    This message will only be logged if a scan is running in TD when we stop, this is not guaranteed to happen
+#    File Log Contains Once  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
 
 
 Scan Now scans dir with name similar to excluded mount
