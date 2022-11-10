@@ -259,7 +259,7 @@ namespace safestore::SafeStoreWrapper
             case SR_ILLEGAL_RESTORE_LOCATION:
                 return "ILLEGAL_RESTORE_LOCATION";
             default:
-                return "UNKNOWN";
+                return "UNKNOWN, code: " + std::to_string(static_cast<int>(result));
         }
     }
 
@@ -304,42 +304,31 @@ namespace safestore::SafeStoreWrapper
             threatName.c_str(),
             objectHandle.getRawHandlePtr());
 
+        LOGDEBUG("Got " << safeStoreReturnCodeToString(result) << " when attempting to save file to SafeStore database");
         switch (result)
         {
             case SR_OK:
                 LOGDEBUG("Got OK when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::OK;
             case SR_INVALID_ARG:
-                LOGDEBUG("Got INVALID_ARG when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::INVALID_ARG;
             case SR_INTERNAL_ERROR:
-                LOGDEBUG("Got INTERNAL_ERROR when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::INTERNAL_ERROR;
             case SR_OUT_OF_MEMORY:
-                LOGDEBUG("Got OUT_OF_MEMORY when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::OUT_OF_MEMORY;
             case SR_FILE_OPEN_FAILED:
-                LOGDEBUG("Got FILE_OPEN_FAILED when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::FILE_OPEN_FAILED;
             case SR_FILE_READ_FAILED:
-                LOGDEBUG("Got FILE_READ_FAILED when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::FILE_READ_FAILED;
             case SR_FILE_WRITE_FAILED:
-                LOGDEBUG("Got FILE_WRITE_FAILED when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::FILE_WRITE_FAILED;
             case SR_MAX_OBJECT_SIZE_EXCEEDED:
-                LOGDEBUG("Got MAX_OBJECT_SIZE_EXCEEDED when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::MAX_OBJECT_SIZE_EXCEEDED;
             case SR_MAX_STORE_SIZE_EXCEEDED:
-                LOGDEBUG("Got MAX_STORE_SIZE_EXCEEDED when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::MAX_STORE_SIZE_EXCEEDED;
             case SR_DB_ERROR:
-                LOGDEBUG("Got DB_ERROR when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::DB_ERROR;
             default:
-                LOGDEBUG(
-                    "Failed for unknown reason while saving file to SafeStore database, SafeStore return code: "
-                    << std::to_string(result));
                 return SaveFileReturnCode::FAILED;
         }
     }
@@ -391,27 +380,8 @@ namespace safestore::SafeStoreWrapper
 
         size_t size = MAX_OBJECT_NAME_LENGTH;
         char buf[MAX_OBJECT_NAME_LENGTH];
-
         auto returnCode = SafeStore_GetObjectName(objectHandle.getRawHandle(), buf, &size);
-
-        switch (returnCode)
-        {
-            case SR_OK:
-                LOGDEBUG("Got OK when getting object name from SafeStore");
-                break;
-            case SR_INVALID_ARG:
-                LOGERROR("Got INVALID_ARG when getting object name from SafeStore");
-                break;
-            case SR_INTERNAL_ERROR:
-                LOGERROR("Got INTERNAL_ERROR when getting object name from SafeStore");
-                break;
-            case SR_BUFFER_SIZE_TOO_SMALL:
-                LOGERROR("Got BUFFER_SIZE_TOO_SMALL when getting object name from SafeStore, size: " << size);
-                break;
-            default:
-                LOGERROR("Failed for unknown reason when getting object name from SafeStore, rc: " << returnCode);
-                break;
-        }
+        LOGDEBUG("Got " << safeStoreReturnCodeToString(returnCode) << " when getting object name from SafeStore");
         return { buf };
     }
 
@@ -694,36 +664,32 @@ namespace safestore::SafeStoreWrapper
             password.size(),
             0);
 
+        if (result == SR_OK)
+        {
+            LOGDEBUG("Successfully initialised SafeStore database");
+        }
+        else
+        {
+            LOGERROR("Failed to initialise SafeStore database: " << safeStoreReturnCodeToString(result));
+        }
+
         switch (result)
         {
             case SR_OK:
-                LOGDEBUG("Successfully initialised SafeStore database");
                 return InitReturnCode::OK;
             case SR_INVALID_ARG:
-                LOGDEBUG("Failed to initialise SafeStore database: Invalid argument");
                 return InitReturnCode::INVALID_ARG;
             case SR_UNSUPPORTED_OS:
-                LOGDEBUG("Failed to initialise SafeStore database: Operating system is not supported by SafeStore");
                 return InitReturnCode::UNSUPPORTED_OS;
             case SR_UNSUPPORTED_VERSION:
-                LOGDEBUG("Failed to initialise SafeStore database: Opened SafeStore database file's version is not "
-                         "supported");
                 return InitReturnCode::UNSUPPORTED_VERSION;
             case SR_OUT_OF_MEMORY:
-                LOGDEBUG(
-                    "Failed to initialise SafeStore database: There is not enough memory available to complete the "
-                    "operation");
                 return InitReturnCode::OUT_OF_MEMORY;
             case SR_DB_OPEN_FAILED:
-                LOGDEBUG("Failed to initialise SafeStore database: Could not open the database");
                 return InitReturnCode::DB_OPEN_FAILED;
             case SR_DB_ERROR:
-                LOGDEBUG("Failed to initialise SafeStore database: Database operation failed");
                 return InitReturnCode::DB_ERROR;
             default:
-                LOGDEBUG(
-                    "Failed to initialise SafeStore database. SafeStore returned unexpected error code: "
-                    << static_cast<int>(result));
                 return InitReturnCode::FAILED;
         }
     }
