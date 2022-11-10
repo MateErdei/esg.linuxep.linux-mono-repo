@@ -82,7 +82,7 @@ class LogMark:
         old_index = 1
         try:
             while True:
-                with open(self.__m_log_path+".%d" % old_index, "rb") as f:
+                with open(self.__m_log_path + ".%d" % old_index, "rb") as f:
                     stat = os.fstat(f.fileno())
                     if stat.st_ino == self.get_inode():
                         # Found old log file
@@ -91,7 +91,7 @@ class LogMark:
                     contents = f.read() + contents
                 old_index += 1
         except OSError:
-            logger.error("Ran out of log files getting content for "+self.__m_log_path)
+            logger.error("Ran out of log files getting content for " + self.__m_log_path)
             return contents
 
     def generate_reversed_lines(self):
@@ -111,7 +111,7 @@ class LogMark:
         else:
             lines = contents.splitlines()
             lines = [line.decode("UTF-8", errors="backslashreplace") for line in lines]
-            logger.info(u"Marked log from %s:\n" % self.__m_log_path+u'\n'.join(lines))
+            logger.info(u"Marked log from %s:\n" % self.__m_log_path + u'\n'.join(lines))
 
     def wait_for_log_contains_from_mark(self, expected, timeout) -> None:
         expected = ensure_binary(expected, "UTF-8")
@@ -200,7 +200,9 @@ class LogHandler:
             mo = LINE_RE.match(line)
             if mo:
                 age = int(mo.group(1))
-                if age - proc_age > 10 and proc_age < 50:
+                if age - proc_age > 100 and proc_age < 50:
+                    logger.info("Found end of previous run (age=%d, proc_age=%d): " % (age, proc_age) +
+                                line.decode("UTF-8", errors="replace"))
                     # Log lines can be out of order by 5ms, and we assume we log something
                     # within first 50ms
                     results.reverse()
@@ -208,14 +210,20 @@ class LogHandler:
                 proc_age = age
             results.append(line)
 
+        results.reverse()
         if proc_age > 0 and len(results) > 0:
             # Not an error if this is the first run of the process
             # Or the log files don't exist yet
-            logger.error("Log file %s has completely rolled over since process last started (%d lines)" % (self.__m_log_path, len(results)))
-        results.reverse()
+            logger.error(
+                "Log file %s has completely rolled over since process last started (%d lines) (earliest log: %d):" %
+                (self.__m_log_path, len(results), proc_age))
+            if len(results) < 50:
+                for line in results:
+                    logger.info(line.decode("UTF-8", errors="replace"))
+
         return results
 
-    def Wait_For_AV_Log_contains_after_last_restart(self, expected, timeout: int, mark=None) -> None:
+    def Wait_For_Log_contains_after_last_restart(self, expected, timeout: int, mark=None) -> None:
         """
         Need to look for the restart in the log, and check the log after that.
         A restart means the first digit resetting to 0
@@ -235,5 +243,5 @@ class LogHandler:
             time.sleep(1)
 
         content_lines = [line.decode("UTF-8", errors="backslashreplace") for line in content_lines]
-        logger.info("AV Log since last restart:" + u"".join(content_lines))
+        logger.info("%s since last restart:" % self.__m_log_path + u"".join(content_lines))
         raise AssertionError("'%s' not found in %s after %d seconds" % (expected, self.__m_log_path, timeout))
