@@ -2,6 +2,8 @@
 
 #include "DetectionQueue.h"
 
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
 namespace Plugin
 {
     void DetectionQueue::setMaxSize(uint newMaxSize)
@@ -18,6 +20,7 @@ namespace Plugin
             m_cond.notify_one();
             return true;
         }
+        Common::Telemetry::TelemetryHelper::getInstance().increment("detections-dropped-from-safestore-queue", 1ul);
         return false;
     }
 

@@ -48,8 +48,6 @@ namespace Plugin
                 // detection is not moved if the push fails, so can still be used by processDetectionReport
                 if (!m_adapter.isSafeStoreEnabled() || !m_adapter.getDetectionQueue()->push(detection))
                 {
-                    Common::Telemetry::TelemetryHelper::getInstance().increment("detections-dropped-from-safestore-queue", 1ul);
-
                     detection.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
 
                     // If SafeStore is disabled then we manually set the quarantine result to be a failure. This is
