@@ -509,7 +509,7 @@ On Access Scan Times Out When Unable To Connect To Threat Detector
 
     wait for on access log contains after mark  On-close event for ${filepath}  mark=${mark}
     wait for on access log contains after mark  Failed to connect to Sophos Threat Detector - retrying after sleep  mark=${mark}
-    wait for on access log contains after mark  Reached total maximum number of connection attempts.  timeout=${timeout}  mark=${mark}
+    wait for on access log contains after mark  Reached total maximum number of connection attempts.  timeout=${60}  mark=${mark}
 
 On Access Logs Scan time in TRACE
     ${mark} =  get_on_access_log_mark

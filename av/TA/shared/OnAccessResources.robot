@@ -134,8 +134,8 @@ On-access Scan Eicar Close
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
 
-    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${mark}  timeout=${timeout}
-    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with EICAR-AV-Test \   mark=${mark}  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with EICAR-AV-Test \   mark=${mark}
 
 
 On-access Scan Eicar Open
@@ -152,8 +152,8 @@ On-access Scan Eicar Open
 
     Get File   ${filepath}
 
-    wait_for_on_access_log_contains_after_mark  On-open event for ${filepath} from  mark=${mark}  timeout=${timeout}
-    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with      mark=${mark}  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  On-open event for ${filepath} from  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with      mark=${mark}
 
 On-access No Eicar Scan
     ${filepath} =  Set Variable  /tmp_test/uncaught_eicar.com
@@ -175,8 +175,8 @@ On-access Scan Peend
     Create Binary File   ${filepath}   ${peend}
     Register Cleanup  Remove File  ${filepath}
 
-    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${mark}  timeout=${timeout}
-    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with ${threat_name} \   mark=${mark}  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with ${threat_name} \   mark=${mark}
 
 On-access Scan Peend no detect
     ${threat_file} =   Set Variable   ${RESOURCES_PATH}/file_samples/peend.exe

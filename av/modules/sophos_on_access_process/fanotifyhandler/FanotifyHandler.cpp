@@ -128,7 +128,7 @@ int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
 int FanotifyHandler::uncacheFd(const int& fd, const std::string& path) const
 {
     assert(m_systemCallWrapper);
-    int fanotify_fd = getFd(); // CacheFd only called while fanotify enabled
+    int fanotify_fd = getFd(); // uncacheFd only called while fanotify enabled
     if (fanotify_fd < 0)
     {
         LOGERROR("Skipping uncacheFd for " << path << " as fanotify disabled");
