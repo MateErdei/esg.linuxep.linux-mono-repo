@@ -3,6 +3,7 @@
 #include "MockISafeStoreWrapper.h"
 
 #include "../common/LogInitializedTests.h"
+#include "common/ApplicationPaths.h"
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/QuarantineManager/StateMonitor.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
@@ -10,7 +11,6 @@
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
-#include "common/ApplicationPaths.h"
 
 #include <gtest/gtest.h>
 
@@ -21,18 +21,22 @@ using namespace safestore::SafeStoreWrapper;
 
 class StateMonitorTests : public LogInitializedTests
 {
-    virtual void SetUp()
+public:
+    void SetUp() override
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         appConfig.setData("SOPHOS_INSTALL", "/tmp");
         appConfig.setData("PLUGIN_INSTALL", "/tmp/av");
+        m_mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
     }
+
+    std::unique_ptr<StrictMock<MockISafeStoreWrapper>> m_mockSafeStoreWrapper;
 };
 
 class TestableStateMonitor : public StateMonitor
 {
 public:
-    TestableStateMonitor(std::shared_ptr<IQuarantineManager> quarantineManager) :
+    explicit TestableStateMonitor(std::shared_ptr<IQuarantineManager> quarantineManager) :
         StateMonitor(std::move(quarantineManager))
     {
     }
@@ -49,20 +53,21 @@ TEST_F(StateMonitorTests, stateMonitorDoesNotReinitialiseQuarantineManagerWhenAl
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
+    EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
     EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "10"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    
 
-    auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
     // This should only be called once on the quarantineManager->initialise() call and then the statemonitor should
     // not try to re-initialise quarantineManager.
-    EXPECT_CALL(*mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), "safestore.db", "password"))
+    EXPECT_CALL(*m_mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
         .Times(1)
         .WillOnce(Return(InitReturnCode::OK));
     std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(mockSafeStoreWrapper));
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
     quarantineManager->initialise();
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
     stateMonitor.callInnerRun();
@@ -77,17 +82,18 @@ TEST_F(StateMonitorTests, stateMonitorInitialisesQuarantineManagerWhenQuarantine
     EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "10"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+    
+    EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("password"));
+    EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
 
-    auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
-    EXPECT_CALL(*mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), "safestore.db", "password"))
+    EXPECT_CALL(*m_mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
         .Times(1)
         .WillOnce(Return(InitReturnCode::OK));
     std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(mockSafeStoreWrapper));
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
-    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::UNINITIALISED);
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
     stateMonitor.callInnerRun();
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
 }
@@ -103,23 +109,27 @@ TEST_F(StateMonitorTests, stateMonitorReinitialisesQuarantineManagerWhenQuaranti
     EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "1"));
     EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return("1"));
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(Plugin::getSafeStoreDormantFlagPath(), "Safestore database uninitialised", "/tmp/tmp")).Times(2);
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(Plugin::getSafeStoreDormantFlagPath(), "Safestore database corrupt", "/tmp/tmp"));
 
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return("password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillRepeatedly(Return(false));
+    
+    EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, removeFilesInDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
 
-    auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
-    EXPECT_CALL(*mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), "safestore.db", "password"))
+    EXPECT_CALL(*m_mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
         .WillOnce(Return(InitReturnCode::DB_ERROR))
         .WillOnce(Return(InitReturnCode::OK));
     std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(mockSafeStoreWrapper));
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
 
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
-    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::UNINITIALISED);
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
     quarantineManager->initialise();
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::CORRUPT);
     stateMonitor.callInnerRun();
