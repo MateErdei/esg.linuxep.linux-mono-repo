@@ -348,7 +348,6 @@ On Access Caches Open Events Without Detections
 
 
 On Access Doesnt Cache Open Events With Detections
-    [Tags]  MANUAL
     ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
     ${oamark} =  get_on_access_log_mark
