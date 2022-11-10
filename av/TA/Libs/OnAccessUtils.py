@@ -4,6 +4,8 @@
 # All rights reserved.
 
 import os
+import re
+
 import six
 import time
 
@@ -60,9 +62,10 @@ class OnAccessUtils:
             log_contents = mark.get_contents().splitlines()
             log_contents = [six.ensure_text(line, "UTF-8") for line in log_contents]
             for line in log_contents:
-                if u"ms by scanHandler-" in line:
-                    split = line.split("scanHandler-")
-                    handler_id = split[1][0]
+                regex = re.compile(r"ms by scanHandler-(\d+)")
+                regex_result = regex.search(line)
+                if regex_result:
+                    handler_id = int(regex_result.group(1))
                     unique_threads.add(handler_id)
 
             if len(unique_threads) >= min_number_of_scanners:
