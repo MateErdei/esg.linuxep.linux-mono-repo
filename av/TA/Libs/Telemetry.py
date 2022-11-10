@@ -36,6 +36,23 @@ def check_telemetry(telemetry):
     assert av_dict["health"] == 0, "Health is not set to 0 in telemetry, showing bad AV Plugin Health"
     assert av_dict["threatHealth"] == 1, "Threat Health is not set to 1 in telemetry (1 = good, 2 = suspicious)"
 
+def check_safestore_telemetry(telemetry):
+    telemetry_dict = json.loads(telemetry)
+    assert "safestore" in telemetry_dict, "No SafeStore section in telemetry"
+    safestore_dict = telemetry_dict["safestore"]
+    assert "health" in safestore_dict, "Health is not set to 0 in telemetry, showing bad SafeStore Health"
+    assert "dormant-mode" in safestore_dict, "No Dormant Mode in telemetry"
+    assert "database-size" in safestore_dict, "No SafeStore Database Size in telemetry"
+    assert "quarantine-successes" in safestore_dict, "No IDE Count in telemetry"
+    assert "quarantine-failures" in safestore_dict, "No VDL Version in telemetry"
+    assert "unlink-failures" in safestore_dict, "No AV Version Number in telemetry"
+    assert safestore_dict["health"] == 0, "Health is not set to 0 in telemetry, showing bad SafeStore Plugin Health"
+    assert not safestore_dict["dormant-mode"], "Dormant Mode is defaulting to False in telemetry"
+    assert not isinstance(safestore_dict["database-size"], int), "SafeStore Database Size is not an int in telemetry"
+    assert safestore_dict["quarantine-successes"] == 0, "Count of SafeStore Quarantine Successes is not defaulting to 0"
+    assert safestore_dict["quarantine-failures"] == 0, "Count of SafeStore Quarantine Failures is not defaulting to 0"
+    assert safestore_dict["unlink-failures"] == 0, "Count of SafeStore Unlink Failures is not defaulting to 0"
+
 
 def _su_supports_group():
     return os.path.isfile("/etc/redhat-release") and os.path.isfile("/bin/su")
