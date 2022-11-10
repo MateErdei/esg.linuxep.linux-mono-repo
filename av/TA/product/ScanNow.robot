@@ -184,6 +184,8 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Register Cleanup  Exclude Unixsocket Failed To Send Scan Request To STD
     Register Cleanup  Exclude Failed To Scan Files
     Register Cleanup  Exclude Aborted Scan Errors
+    Register Cleanup  Exclude As Corrupted
+    Register Cleanup  Exclude Scan Errors From File Samples
 
     Register Cleanup  Dump Log  ${SCANNOW_LOG_PATH}
 
