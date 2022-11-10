@@ -188,17 +188,20 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     Register Cleanup  Dump Log  ${SCANNOW_LOG_PATH}
 
     # Start scan now - abort or timeout...
+    ${av_mark} =  get_av_log_mark
+    ${scan_now_mark} =  mark_log_size  ${SCANNOW_LOG_PATH}
     Run Scan Now Scan With No Exclusions
-    AV Plugin Log Contains With Offset  Received new Action
-    Wait Until AV Plugin Log Contains With Offset  Evaluating Scan Now
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
+    wait_for_av_log_contains_after_mark  Received new Action  mark=${av_mark}
+    wait_for_av_log_contains_after_mark  Evaluating Scan Now  mark=${av_mark}
+    wait_for_av_log_contains_after_mark  Starting scan Scan Now  timeout=10  mark=${av_mark}
+
+    # Wait for Scan Now to actually start
+    wait_for_log_contains_from_mark  ${scan_now_mark}  \ Scanning\
 
     Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     sleep  60  Waiting for the socket to timeout
-    Wait Until Keyword Succeeds
-    ...  ${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD} secs
-    ...  20 secs
-    ...  File Log Contains  ${SCANNOW_LOG_PATH}  Reached total maximum number of reconnection attempts. Aborting scan.
+    wait_for_log_contains_from_mark  ${scan_now_mark}  Reached total maximum number of reconnection attempts. Aborting scan.
+    ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}
 
     ${line_count} =  Count Lines In Log  ${SCANNOW_LOG_PATH}  Failed to send scan request -
     Should Be True   ${3} <= ${line_count} <= ${7}
