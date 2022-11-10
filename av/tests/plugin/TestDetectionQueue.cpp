@@ -1,18 +1,29 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "pluginimpl/DetectionQueue.h"
+#include "pluginimpl/PluginCallback.h"
 #include "scan_messages/ThreatDetected.h"
+
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 #include <Common/Helpers/LogInitializedTests.h>
 #include <gtest/gtest.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <future>
 #include <thread>
 
+using json = nlohmann::json;
 using namespace common::CentralEnums;
 
 class TestDetectionQueue : public LogOffInitializedTests
 {
+    void SetUp() override
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        appConfig.setData("SOPHOS_INSTALL", "/tmp");
+        appConfig.setData("PLUGIN_INSTALL", "/tmp/av");
+    }
 };
 
 scan_messages::ThreatDetected basicDetection()
@@ -52,9 +63,14 @@ TEST_F(TestDetectionQueue, TestQueueIsFullOnceMaxSizeIsReached) // NOLINT
     ASSERT_TRUE(queue.isFull());
 }
 
-TEST_F(TestDetectionQueue, TestQueueCannotBePushedToOnceFull) // NOLINT
+TEST_F(TestDetectionQueue, TestQueueCannotBePushedToOnceFullAndTelemetryIsIncremented) // NOLINT
 {
     Plugin::DetectionQueue queue;
+    std::shared_ptr<Plugin::TaskQueue> task = nullptr;
+    std::shared_ptr<Plugin::PluginCallback> m_pluginCallback = std::make_shared<Plugin::PluginCallback>(task);
+    json initialTelemetry = json::parse(m_pluginCallback->getTelemetry());
+    EXPECT_EQ(initialTelemetry["detections-dropped-from-safestore-queue"], 0);
+
     queue.setMaxSize(1);
 
     auto detection1 = basicDetection();
@@ -64,6 +80,9 @@ TEST_F(TestDetectionQueue, TestQueueCannotBePushedToOnceFull) // NOLINT
     ASSERT_TRUE(queue.push(detection1));
     ASSERT_TRUE(queue.isFull());
     ASSERT_FALSE(queue.push(detection2));
+
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
+    EXPECT_EQ(modifiedTelemetry["detections-dropped-from-safestore-queue"], 1);
 }
 
 TEST_F(TestDetectionQueue, TestQueueClearsFullAndEmptyStatesWhenPopulated) // NOLINT
