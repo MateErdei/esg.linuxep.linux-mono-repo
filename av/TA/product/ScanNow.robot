@@ -179,6 +179,7 @@ Scan Now Excludes Infected Files Successfully
 
 
 Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
+    [Tags]  MANUAL
     [Timeout]  15min
     Register Cleanup  Exclude Scan Now Terminated
     Register Cleanup  Exclude Unixsocket Failed To Send Scan Request To STD
