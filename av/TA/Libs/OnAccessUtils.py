@@ -50,11 +50,10 @@ class OnAccessUtils:
         raise AssertionError(u"On-Access not enabled within %d seconds: Logs: %s" % (timeout, u"\n".join(log_contents)))
 
     @staticmethod
-    def check_multiple_on_access_threads_are_scanning(mark: LogHandler.LogMark, timeout=60):
+    def check_multiple_on_access_threads_are_scanning(mark: LogHandler.LogMark, min_number_of_scanners=5,timeout=60):
         on_access_log = BuiltIn().get_variable_value("${ON_ACCESS_LOG_PATH}")
         mark.assert_is_good(on_access_log)
 
-        min_number_of_scanners = 5
         start = time.time()
         log_contents = []
         unique_threads = set()
@@ -71,6 +70,7 @@ class OnAccessUtils:
             if len(unique_threads) >= min_number_of_scanners:
                 logger.info(u"Minimum requirement satisfied thread ids found: " + str(unique_threads))
                 return
+            time.sleep(0.5)
 
         raise AssertionError(u"On-Access did not use enough scanners within %d seconds: Logs: %s" % (timeout, u"\n".join(log_contents)))
 
