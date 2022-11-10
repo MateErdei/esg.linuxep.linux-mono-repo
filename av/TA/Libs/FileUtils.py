@@ -69,7 +69,6 @@ def does_file_contain_word(path, word) -> bool:
     with open(path) as f:
         pattern = re.compile(r'\b({0})\b'.format(word), flags=re.IGNORECASE)
         return bool(pattern.search(f.read()))
-    return False
 
 
 def does_file_not_contain(path, word) -> bool:
@@ -96,13 +95,19 @@ def copy_file_no_temp_directory(src, destdir):
     shutil.copy2(src, destdir)
 
 
+def basic_copy_file(src, dest):
+    if os.path.isdir(dest):
+        dest = os.path.join(dest, os.path.basename(src))
+    shutil.copyfile(src, dest)
+
+
 def write_file_after_delay(dest, content, delay: float):
-    logger.info("Opening "+dest)
+    logger.info("Opening " + dest)
     with open(dest, "a") as f:
         time.sleep(delay)
-        logger.info("Writing "+dest)
+        logger.info("Writing " + dest)
         f.seek(0)
         f.truncate()
         f.write(content)
         # f.flush()
-    logger.info("Closed "+dest)
+    logger.info("Closed " + dest)

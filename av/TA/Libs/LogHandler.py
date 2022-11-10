@@ -102,7 +102,7 @@ class LogMark:
             yield line
 
     def assert_is_good(self, log_path: str):
-        assert self.get_path() == log_path
+        assert self.get_path() == log_path, "mark is for wrong file"
 
     def dump_marked_log(self) -> None:
         contents = self.get_contents()
@@ -147,7 +147,7 @@ class LogHandler:
         mark.assert_is_good(self.__m_log_path)
 
     def get_contents(self, mark: LogMark) -> Optional[bytes]:
-        assert isinstance(mark, LogMark)
+        assert isinstance(mark, LogMark), "mark is not an instance of LogMark"
         mark.assert_is_good(self.__m_log_path)
         return mark.get_contents()
 

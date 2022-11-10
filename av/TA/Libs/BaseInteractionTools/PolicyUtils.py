@@ -13,6 +13,7 @@ SAV_POLICY_FILENAME = "SAV_Policy_Template.xml"
 SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, SAV_POLICY_FILENAME)
 FIXED_SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, "sav_policy", "SAV_Policy_Fixed_Exclusions.xml")
 
+
 def create_sav_policy_with_scheduled_scan(filename, timestamp):
     parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
     scan_time = parsed_timestamp + timedelta(seconds=20)
@@ -25,6 +26,7 @@ def create_sav_policy_with_scheduled_scan(filename, timestamp):
     sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
     sav_policy_builder.send_sav_policy()
 
+
 def create_sav_policy_with_scheduled_scan_and_on_access_enabled(filename, timestamp):
     parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
     scan_time = parsed_timestamp + timedelta(seconds=20)
@@ -34,6 +36,15 @@ def create_sav_policy_with_scheduled_scan_and_on_access_enabled(filename, timest
     sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day(day)
     sav_policy_builder.set_scheduled_scan_time(parsed_timestamp)
+    sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
+    sav_policy_builder.set_on_access_on()
+    sav_policy_builder.send_sav_policy()
+
+
+def create_sav_policy_with_on_access_enabled(filename):
+    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
+    sav_policy_builder.set_scheduled_scan_day("sunday")
+    sav_policy_builder.set_scheduled_scan_time("11:00:00")
     sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
     sav_policy_builder.set_on_access_on()
     sav_policy_builder.send_sav_policy()
@@ -60,6 +71,7 @@ def create_sav_policy_with_multiple_scheduled_scans(filename, timestamp, no_of_s
     sav_policy_builder.set_scheduled_scan_time(timestamp_builder)
     sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
     sav_policy_builder.send_sav_policy()
+
 
 def create_complete_sav_policy(filename):
     sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)

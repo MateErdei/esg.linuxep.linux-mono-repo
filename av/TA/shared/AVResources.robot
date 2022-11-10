@@ -826,7 +826,6 @@ AV And Base Teardown
     Register On Fail  dump log  ${ON_ACCESS_LOG_PATH}
     Register On Fail  dump log  ${TELEMETRY_LOG_PATH}
     Register On Fail  dump log  ${AV_INSTALL_LOG}
-    Register On Fail  dump log  ${SAFESTORE_LOG_PATH}
 
     Run Cleanup Functions
 
@@ -1217,32 +1216,21 @@ Check avscanner can detect eicar
     Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
     Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com   ${LOCAL_AVSCANNER}
 
-Check avscanner can detect eicar on read only mount
+Check avscanner can scan clean file in
+    [Arguments]  ${CLEAN_PATH}  ${LOCAL_AVSCANNER}=${AVSCANNER}
+    ${rc}   ${output} =    Run And Return Rc And Output   ${LOCAL_AVSCANNER} ${CLEAN_PATH}
+    Log   ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Not Contain   ${output}    Detected "${CLEAN_PATH}" is infected
+
+Check avscanner can scan clean file
     [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
-    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    Create Directory  ${SCAN_DIRECTORY}/readOnly
-    ${result} =  run process    mount  --bind  -o  ro  ${SCAN_DIRECTORY}  ${SCAN_DIRECTORY}/readOnly
-    Register Cleanup   Unmount Test Mount  ${SCAN_DIRECTORY}/readOnly
-    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
-    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/readOnly/eicar.com   ${LOCAL_AVSCANNER}
-
-Check avscanner can detect eicar on network mount
-    [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
-
-    ${source} =       Set Variable  /tmp_test/nfsshare
-    ${destination} =  Set Variable  /testmnt/nfsshare
-    Create Directory  ${source}
-    Create Directory  ${destination}
-    Create Local NFS Share   ${source}   ${destination}
-    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
-
-    Create File     ${source}/eicar.com    ${EICAR_STRING}
-    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
-
-    Check avscanner can detect eicar in  ${destination}/eicar.com   ${LOCAL_AVSCANNER}
+    Create File     ${SCAN_DIRECTORY}/cleanfile.txt    ${CLEAN_STRING}
+    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/cleanfile.txt
+    Check avscanner can scan clean file in  ${SCAN_DIRECTORY}/cleanfile.txt   ${LOCAL_AVSCANNER}
 
 Force SUSI to be initialized
-    Check avscanner can detect eicar  ${CLI_SCANNER_PATH}
+    Check avscanner can scan clean file  ${CLI_SCANNER_PATH}
 
 Create Big Dir
     [Arguments]   ${count}=${100}   ${path}=${SCAN_DIRECTORY}/big_dir

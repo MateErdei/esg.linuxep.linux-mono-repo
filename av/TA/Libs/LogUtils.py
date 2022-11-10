@@ -1059,6 +1059,10 @@ File Log Contains
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_safestore_log_contains_after_mark"
         return self.wait_for_log_contains_after_mark(self.ss_log, expected, mark, timeout=timeout)
 
+    def dump_av_log_after_mark(self, mark: LogHandler.LogMark):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in dump_av_log_after_mark"
+        self.dump_marked_log(self.av_log, mark)
+
 
 def __main(argv):
     # write your tests here

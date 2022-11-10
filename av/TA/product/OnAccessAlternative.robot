@@ -4,7 +4,7 @@
 
 *** Settings ***
 Documentation   Product tests for SOAP
-Force Tags      PRODUCT  SOAP
+Force Tags      PRODUCT  SOAP  oa_alternative
 
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/FakeManagementResources.robot
@@ -25,7 +25,6 @@ ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 ${TESTTMP}  /tmp_test/SSPLAVTests
 ${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}  ${SOPHOS_THREAT_DETECTOR_BINARY}_launcher
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
-${timeout}  ${60}
 ${DEFAULT_EXCLUSIONS}   ["/mnt/","/uk-filer5/","*excluded*","/opt/test/inputs/test_scripts/"]
 
 *** Keywords ***
@@ -43,12 +42,12 @@ On Access Test Setup
     Component Test Setup
 
     Terminate On Access And AV
-    Mark Sophos Threat Detector Log
-    Mark On Access Log
+
     save_on_access_log_mark_at_start_of_test
 
+    ${oa_mark} =  get_on_access_log_mark
     Start On Access And AV With Running Threat Detector
-    Enable OA Scanning
+    Enable OA Scanning   mark=${oa_mark}
 
     Register Cleanup  Clear On Access Log When Nearly Full
     Register Cleanup  Remove File     ${ONACCESS_FLAG_CONFIG}
@@ -70,6 +69,7 @@ On Access Test Teardown
 
     Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
+    Dump Log On Failure   ${AV_LOG_PATH}
 
     Remove File      ${AV_PLUGIN_PATH}/log/soapd.log*
     Component Test TearDown
@@ -180,6 +180,8 @@ On Access Applies Config Changes When The Mounts Change
     wait for on access log contains after mark  On-access enabled: "true"  mark=${mark}
     wait for on access log contains after mark  On-access scan network: "false"  mark=${mark}
     wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
+    check_on_access_log_contains_after_mark  Mount point /testmnt/nfsshare has been excluded from the scan  mark=${mark}
     check_on_access_log_does_not_contain_after_mark  Including mount point: /testmnt/nfsshare  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
@@ -196,7 +198,8 @@ On Access Applies Config Changes When The Mounts Change
     wait for on access log contains after mark  On-access enabled: "true"  mark=${mark}
     wait for on access log contains after mark  On-access scan network: "true"  mark=${mark}
     wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
-    wait for on access log contains after mark  Including mount point: /testmnt/nfsshare  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
+    check_on_access_log_contains_after_mark  Including mount point: /testmnt/nfsshare  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
     ${filepath3} =  Set Variable  /testmnt/nfsshare/clean3.txt
@@ -361,7 +364,7 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     Create File  ${filepath}  ${CLEAN_STRING}
     Register Cleanup  Remove File  ${filepath}
 
-    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from  mark=${mark}  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from  mark=${mark}
 
 
 On Access Process Handles Consecutive Process Control Requests
@@ -574,9 +577,9 @@ On Access Can Handle Unlimited Marks
 
 On Access Can Be enabled After It Gets Disabled In Policy
     Disable OA Scanning
+
     ${mark} =  get_on_access_log_mark
     Enable OA Scanning
-
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
 
     On-access Scan Eicar Close

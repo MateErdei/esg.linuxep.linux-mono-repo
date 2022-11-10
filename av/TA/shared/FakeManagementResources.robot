@@ -36,6 +36,11 @@ Configure Scan Now Scan
     Send Plugin Policy  av  sav  ${policy_contents}
     Wait until scheduled scan updated
 
+Configure Scan Now Scan With On Access Enabled
+    Create Sav Policy With On Access Enabled  ${TEMP_SAV_POLICY_FILENAME}
+    ${policy_contents} =  Get File  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
+    Send Plugin Policy  av  sav  ${policy_contents}
+    Wait until scheduled scan updated With Offset
 
 Trigger Scan Now Scan
     Send Plugin Action  av  sav  corr123  ${ACTION_CONTENT}
