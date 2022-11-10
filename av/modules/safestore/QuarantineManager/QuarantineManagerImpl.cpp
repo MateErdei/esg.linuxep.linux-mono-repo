@@ -181,6 +181,9 @@ namespace safestore::QuarantineManager
             setState(QuarantineManagerState::INITIALISED);
             m_databaseErrorCount = 0;
             LOGINFO("Quarantine Manager initialised OK");
+
+            // Update SafeStore config if config file exists
+            parseConfig(*m_safeStore);
         }
         else
         {
@@ -194,8 +197,6 @@ namespace safestore::QuarantineManager
             }
         }
 
-        // Update SafeStore config if config file exists
-        parseConfig(*m_safeStore);
     }
 
     common::CentralEnums::QuarantineResult QuarantineManagerImpl::quarantineFile(

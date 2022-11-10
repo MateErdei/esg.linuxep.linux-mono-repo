@@ -1,10 +1,13 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "ConfigReader.h"
+
 #include "safestore/Logger.h"
 
-#include "Common/FileSystem/IFileSystem.h"
 #include "common/ApplicationPaths.h"
+
+#include "Common/FileSystem/IFileSystem.h"
+
 #include <thirdparty/nlohmann-json/json.hpp>
 
 namespace safestore
@@ -19,7 +22,7 @@ namespace safestore
             {
                 auto configContents = fileSystem->readFile(Plugin::getSafeStoreConfigPath());
                 nlohmann::json j = nlohmann::json::parse(configContents);
-                for (const auto& [ optionAsString, option ] : optionsMap)
+                for (const auto& [optionAsString, option] : optionsMap)
                 {
                     if (j.contains(optionAsString) && j[optionAsString].is_number_unsigned())
                     {
@@ -40,4 +43,4 @@ namespace safestore
             }
         }
     }
-}
+} // namespace safestore
