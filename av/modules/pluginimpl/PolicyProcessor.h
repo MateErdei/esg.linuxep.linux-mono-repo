@@ -10,12 +10,22 @@
 
 namespace Plugin
 {
+    enum class PolicyType
+    {
+        ALC,
+        SAV,
+        CORC,
+        UNKNOWN
+    };
+
     class PolicyProcessor
     {
     public:
         using IStoppableSleeperSharedPtr = common::IStoppableSleeperSharedPtr;
         explicit PolicyProcessor(IStoppableSleeperSharedPtr stoppableSleeper);
         virtual ~PolicyProcessor() = default;
+
+        PolicyType determinePolicyType(const Common::XmlUtilities::AttributesMap& policy);
 
         /**
          *

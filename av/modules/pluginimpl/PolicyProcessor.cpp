@@ -352,4 +352,33 @@ namespace Plugin
     {
         return m_safeStoreEnabled;
     }
+
+    PolicyType PolicyProcessor::determinePolicyType(const Common::XmlUtilities::AttributesMap& policy)
+    {
+        // ALC policy
+        auto alc_comp = policy.lookup("AUConfigurations/csc:Comp");
+        auto policyType = alc_comp.value("policyType", "unknown");
+        if (policyType != "unknown")
+        {
+            if (policyType == "1")
+            {
+                return PolicyType::ALC;
+            }
+        }
+
+        // SAV policy
+        policyType = policy.lookup("config/csc:Comp").value("policyType", "unknown");
+        if (policyType == "2")
+        {
+            return PolicyType::SAV;
+        }
+
+        // CORC policy
+        if (policy.lookup("policy").value("policyType", "unknown") == "37")
+        {
+            return PolicyType::CORC;
+        }
+
+        return PolicyType::UNKNOWN;
+    }
 }

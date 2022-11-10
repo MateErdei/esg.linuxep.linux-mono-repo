@@ -329,7 +329,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID)
 
     EXPECT_TRUE(appenderContains("Received Policy"));
     EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
-    EXPECT_TRUE(appenderContains("Ignoring policy of incorrect type: 1"));
+    EXPECT_TRUE(appenderContains("Ignoring unknown policy"));
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
 }
 
@@ -562,7 +562,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
-    EXPECT_TRUE(appenderContains("Ignoring policy of incorrect type: 2"));
+    EXPECT_TRUE(appenderContains("Ignoring unknown policy"));
     EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
 }
 
