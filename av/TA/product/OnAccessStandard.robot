@@ -323,9 +323,6 @@ On Access Doesnt Scan On Access Events
 
 
 On Access Caches Open Events Without Detections
-    #TODO remove after LINUXDAR-5740 is finished
-    [Tags]  manual
-
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
     ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
@@ -352,6 +349,8 @@ On Access Caches Open Events Without Detections
 
 
 On Access Doesnt Cache Open Events With Detections
+    #TODO remove after LINUXDAR-5740 is finished
+    [Tags]  manual
     ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
     ${oamark} =  get_on_access_log_mark
