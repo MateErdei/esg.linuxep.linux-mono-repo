@@ -724,7 +724,10 @@ namespace safestore::SafeStoreWrapper
             {
                 LOGDEBUG("Got OK when cleaning up SafeStore object handle");
             }
-            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when cleaning up SafeStore object handle");
+            else
+            {
+                LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when cleaning up SafeStore object handle");
+            }
         }
     }
 
