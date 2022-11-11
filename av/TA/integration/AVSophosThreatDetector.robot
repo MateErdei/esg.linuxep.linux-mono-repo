@@ -98,11 +98,14 @@ Threat Detector Restarts When /etc/hosts changed
     # wait for AV log
     wait_for_av_log_contains_after_mark  Restarting sophos_threat_detector as the system configuration has changed  mark=${av_mark}
 
+    # Ideally we'd wait for the log while checking that either the process is running or shutdown file exists
+
     # Can't check the shutdown file - ThreatDetector restarts too quickly
     # Wait Until Sophos Threat Detector Shutdown File Exists
 
-    # Should have restarted almost immediately
-    wait_for_log_contains_from_mark  ${td_mark}  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=2
+    # Should have restarted almost immediately, but less than 10 seconds mean we've started faster than the normal watchdog timeout
+    # Unfortunately TA machines seem to be slower that my test VM
+    wait_for_log_contains_from_mark  ${td_mark}  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=8
     Wait until threat detector running after mark  ${td_mark}
 
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
