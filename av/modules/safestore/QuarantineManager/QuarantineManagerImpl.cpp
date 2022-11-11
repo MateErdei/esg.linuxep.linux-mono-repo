@@ -244,7 +244,15 @@ namespace safestore::QuarantineManager
             }
             if (fs->compareFileDescriptors(autoFd.get(),fd2.get())) //
             {
-                fs->removeFileOrDirectory(filePath);
+                try
+                {
+                    fs->removeFileOrDirectory(filePath);
+                }
+                catch (const Common::FileSystem::IFileSystemException& ex)
+                {
+                    LOGERROR("Removing " << filePath << " failed due to: " << ex.what());
+                    return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
+                }
             }
             else
             {
