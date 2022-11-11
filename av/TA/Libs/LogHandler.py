@@ -43,7 +43,7 @@ class LogMark:
     def check_inode(self, inode=None) -> bool:
         """
         Check if the log files inode matches the inode saved at mark construction time
-        :return:
+        :return: True if the inode matches our saved inode
         """
         if inode is None:
             # examine the file directly
@@ -172,8 +172,9 @@ class LogHandler:
     def __read_content(file_path):
         """
         Reads a file, or returns "" if the file doesn't exist or can't be read.
-        :param file_path:
-        :return:
+
+        :param file_path: File path to read contents of.
+        :return: file contents or returns "" if the file doesn't exist or can't be read.
         """
         try:
             return open(file_path, "rb").read()
@@ -199,10 +200,9 @@ class LogHandler:
 
     def get_content_since_last_start(self, mark=None) -> list:
         """
-        Get the log file contents since the last start,
-        assuming the first field in a log line is time(ms) since the process started
-        assumes 999999999 is greater than any process will live for
-        :return:
+        Get the log file contents since the last start, assuming the process
+        starts by logging: "Logger .* configured for level:"
+        :return: list<bytes> lines from current run of process
         """
         results = []
         START_RE = re.compile(rb".*<> Logger .* configured for level: ")
@@ -243,7 +243,7 @@ class LogHandler:
         :param mark: Optional Mark - only check log after mark
         :param expected: String expected in log
         :param timeout: Amount of time to wait for expected to appear
-        :return:
+        :return: None
         """
         expected = ensure_binary(expected, "UTF-8")
         start = time.time()
@@ -263,9 +263,9 @@ class LogHandler:
     def Wait_For_Entire_log_contains(self, expected, timeout: int) -> None:
         """
         Waits for expected to appear in the entire text of the logs
-        :param expected:
-        :param timeout:
-        :return:
+        :param expected: str or bytes we are looking for in the log file
+        :param timeout: timeout in seconds
+        :return: None, throws AssertionError on failure
         """
         expected_bytes = ensure_binary(expected, "UTF-8")
         start = time.time()
@@ -273,7 +273,7 @@ class LogHandler:
             for file_path in self.__generate_log_file_names():
                 if expected_bytes in self.__read_content(file_path):
                     return
-                time.sleep(1)
+            time.sleep(1)
 
         logger.error("Failed to find %s in any log files for %s" % (expected, self.__m_log_path))
         raise AssertionError("Failed to find %s in any log files for %s" % (expected, self.__m_log_path))
