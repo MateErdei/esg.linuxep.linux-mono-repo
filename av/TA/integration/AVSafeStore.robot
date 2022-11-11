@@ -100,6 +100,7 @@ SafeStore Recovers From Corrupt Database
     ${ss_mark} =  Get SafeStore Log Mark
     Check avscanner can detect eicar
     Wait For SafeStore Log Contains After Mark  Received Threat:  ${ss_mark}
+    Wait For SafeStore Log Contains After Mark  Finalised file: eicar.com  ${ss_mark}
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
