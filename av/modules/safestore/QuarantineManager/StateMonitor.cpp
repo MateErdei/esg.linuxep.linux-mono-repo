@@ -46,6 +46,12 @@ namespace safestore::QuarantineManager
 //            }
 
             std::unique_lock lock(m_QMCheckLock);
+
+            if (m_reinitialiseBackoff >= m_maxReinitialiseBackoff)
+            {
+                m_reinitialiseBackoff = 60s;
+            }
+
             m_checkWakeUp.wait_for(lock,m_reinitialiseBackoff);
             if (m_stopRequested)
             {
