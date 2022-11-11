@@ -200,3 +200,11 @@ Scan GR Test File
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/gui.exe
     Log  ${output}
     BuiltIn.Should Be Equal As Integers  ${rc}  ${0}  Failed to scan gui.exe
+
+Corrupt SafeStore Database
+    Stop SafeStore
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/persist-safeStoreDbErrorThreshold    1
+
+    Remove Files    ${SAFESTORE_DB_PATH}    ${SAFESTORE_DB_PASSWORD_PATH}
+    Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
+    Start SafeStore

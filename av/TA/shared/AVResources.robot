@@ -832,6 +832,7 @@ AV And Base Teardown
     Register On Fail  dump log  ${ON_ACCESS_LOG_PATH}
     Register On Fail  dump log  ${TELEMETRY_LOG_PATH}
     Register On Fail  dump log  ${AV_INSTALL_LOG}
+    Register On Fail  dump log  ${SAFESTORE_LOG_PATH}
 
     Run Cleanup Functions
 

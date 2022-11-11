@@ -13,14 +13,15 @@ Library         DateTime
 ${TEMP_SAV_POLICY_FILENAME} =  TempSAVpolicy.xml
 
 ${CERT_PATH}   /tmp/cert.pem
-${SSPL_BASE}                    ${SOPHOS_INSTALL}/base
-${PLUGIN_REGISTRY}              ${SSPL_BASE}/pluginRegistry
-${MCS_ACTION_DIRECTORY}         ${SSPL_BASE}/mcs/action
-${MACHINE_ID_FILE}              ${SSPL_BASE}/etc/machine_id.txt
-${EXE_CONFIG_FILE}              ${SSPL_BASE}/telemetry/var/telemetry-exe.json
-${TELEMETRY_OUTPUT_JSON}        ${SSPL_BASE}/telemetry/var/telemetry.json
-${TELEMETRY_BACKUP_JSON}        ${SSPL_BASE}/telemetry/cache/av-telemetry.json
-${TELEMETRY_EXECUTABLE_LOG}     ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
+${SSPL_BASE}                          ${SOPHOS_INSTALL}/base
+${PLUGIN_REGISTRY}                    ${SSPL_BASE}/pluginRegistry
+${MCS_ACTION_DIRECTORY}               ${SSPL_BASE}/mcs/action
+${MACHINE_ID_FILE}                    ${SSPL_BASE}/etc/machine_id.txt
+${EXE_CONFIG_FILE}                    ${SSPL_BASE}/telemetry/var/telemetry-exe.json
+${TELEMETRY_OUTPUT_JSON}              ${SSPL_BASE}/telemetry/var/telemetry.json
+${TELEMETRY_BACKUP_JSON}              ${SSPL_BASE}/telemetry/cache/av-telemetry.json
+${SAFESTORE_TELEMETRY_BACKUP_JSON}    ${SSPL_BASE}/telemetry/cache/safestore-telemetry.json
+${TELEMETRY_EXECUTABLE_LOG}           ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log
 
 *** Keywords ***
 

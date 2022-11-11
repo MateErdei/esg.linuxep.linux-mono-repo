@@ -76,3 +76,95 @@ Telemetry Executable Generates SafeStore Database Size Telemetry
 
     Check Is Greater Than    ${databaseSize}    ${100}
     Should Be Equal    ${databaseSizeType}    ${True}
+
+SafeStore Increments Quarantine Counter After Successful Quarantine
+   # Run telemetry to reset counters to 0
+   Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+   ${av_mark} =  Get AV Log Mark
+   Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+   Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}   timeout=60
+   Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+   ${ss_mark} =    Get SafeStore Log Mark
+
+   Check avscanner can detect eicar
+   Wait Until SafeStore Log Contains  Received Threat:
+   Wait For Safestore Log Contains After Mark    Finalised file: eicar.com    ${ss_mark}
+
+   Stop SafeStore
+   Wait Until Keyword Succeeds
+   ...  10 secs
+   ...  1 secs
+   ...  File Should Exist  ${SAFESTORE_TELEMETRY_BACKUP_JSON}
+
+   ${backupfileContents} =  Get File    ${SAFESTORE_TELEMETRY_BACKUP_JSON}
+   Log   ${backupfileContents}
+   ${backupJson}=    Evaluate     json.loads("""${backupfileContents}""")    json
+   ${rootkeyDict}=    Set Variable     ${backupJson['rootkey']}
+   Dictionary Should Contain Item   ${rootkeyDict}   quarantine-successes   ${1}
+
+   Start SafeStore
+   Wait For Safestore Log Contains After Mark    Successfully initialised SafeStore database     ${ss_mark}
+   ${ss_mark} =    Get SafeStore Log Mark
+
+   Check avscanner can detect eicar
+   Wait Until SafeStore Log Contains  Received Threat:
+   LogUtils.Wait For SafeStore Log Contains After Mark    Finalised file: eicar.com    ${ss_mark}
+
+   Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+   ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+   Log   ${telemetryFileContents}
+   ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+   ${safeStoreDict}=    Set Variable     ${telemetryJson['safestore']}
+   Dictionary Should Contain Item   ${safeStoreDict}   quarantine-successes   ${2}
+   # Verify other counts are not impacted
+   Dictionary Should Contain Item   ${safeStoreDict}   quarantine-failures   ${0}
+   Dictionary Should Contain Item   ${safeStoreDict}   unlink-failures   ${0}
+
+SafeStore Increments Quarantine Counter After Failed Quarantine
+   # Run telemetry to reset counters to 0
+   Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+   ${av_mark} =  Get AV Log Mark
+   Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+   Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}   timeout=60
+   Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+   ${ss_mark} =    Get SafeStore Log Mark
+
+   Corrupt SafeStore Database
+   Check avscanner can detect eicar
+   Wait Until SafeStore Log Contains  Received Threat:
+   Wait For Safestore Log Contains After Mark    Cannot quarantine file, SafeStore is in    ${ss_mark}
+
+   Stop SafeStore
+   Wait Until Keyword Succeeds
+   ...  10 secs
+   ...  1 secs
+   ...  File Should Exist  ${SAFESTORE_TELEMETRY_BACKUP_JSON}
+
+   ${backupfileContents} =  Get File    ${SAFESTORE_TELEMETRY_BACKUP_JSON}
+   Log   ${backupfileContents}
+   ${backupJson}=    Evaluate     json.loads("""${backupfileContents}""")    json
+   ${rootkeyDict}=    Set Variable     ${backupJson['rootkey']}
+   Dictionary Should Contain Item   ${rootkeyDict}   quarantine-failures   ${1}
+
+   Start SafeStore
+   ${ss_mark} =    Get SafeStore Log Mark
+
+   Check avscanner can detect eicar
+   Wait Until SafeStore Log Contains  Received Threat:
+   Wait For Safestore Log Contains After Mark    Cannot quarantine file, SafeStore is in    ${ss_mark}
+
+   Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+   ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+   Log   ${telemetryFileContents}
+   ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+   ${safeStoreDict}=    Set Variable     ${telemetryJson['safestore']}
+   Dictionary Should Contain Item   ${safeStoreDict}   quarantine-failures   ${2}
+   # Verify other counts are not impacted
+   Dictionary Should Contain Item   ${safeStoreDict}   quarantine-successes   ${0}
+   Dictionary Should Contain Item   ${safeStoreDict}   unlink-failures   ${0}
+
+   Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise

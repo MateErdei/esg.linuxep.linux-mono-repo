@@ -52,6 +52,10 @@ Global Setup Tasks
     Set Global Variable  ${AV_PLUGIN_PATH}                  ${COMPONENT_ROOT_PATH}
     Set Global Variable  ${AV_LOG_PATH}                     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
 
+    Set Global Variable  ${SAFESTORE_DB_DIR}                ${COMPONENT_VAR_DIR}/safestore_db
+    Set Global Variable  ${SAFESTORE_DB_PATH}               ${SAFESTORE_DB_DIR}/safestore.db
+    Set Global Variable  ${SAFESTORE_DB_PASSWORD_PATH}      ${SAFESTORE_DB_DIR}/safestore.pw
+
 
     Set Global Variable  ${USING_FAKE_AV_SCANNER_FLAG}       UsingFakeAvScanner
     Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  false
