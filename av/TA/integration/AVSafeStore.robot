@@ -97,6 +97,7 @@ SafeStore Recovers From Corrupt Database
     wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
     wait_for_log_contains_from_mark  ${safe_store_mark}  Finalised file: eicar.com
 
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
 SafeStore Quarantines When It Receives A File To Quarantine
@@ -168,6 +169,7 @@ SafeStore does not quarantine on a Corrupt Database
     Check avscanner can detect eicar
     wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
 
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
 With SafeStore Enabled But Not Running We Can Send Threats To AV
