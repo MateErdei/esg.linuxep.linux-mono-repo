@@ -1,6 +1,6 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "pluginapi/tests/include/Common/Helpers/LogInitializedTests.h"
+#include "../../common/LogInitializedTests.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/SafeStoreRescanWorker.h"
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
