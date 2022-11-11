@@ -45,6 +45,7 @@ void FanotifyHandler::init()
 
 void FanotifyHandler::close()
 {
+    m_statusFile.setStatus(datatypes::OnaccessStatus::INACTIVE);
     auto fanotify_autofd = m_fd.lock();
     fanotify_autofd->close();
 }
@@ -61,7 +62,7 @@ int FanotifyHandler::getFd() const
     return fanotify_autofd->fd();
 }
 
-int FanotifyHandler::markMount(const std::string& path)
+int FanotifyHandler::markMount(const std::string& path) const
 {
     assert(m_systemCallWrapper);
 
@@ -69,7 +70,6 @@ int FanotifyHandler::markMount(const std::string& path)
     int fanotify_fd = fanotify_autofd->fd();
     if (fanotify_fd < 0)
     {
-        m_statusFile.setStatus(datatypes::OnaccessStatus::INACTIVE);
         LOGWARN("Skipping markMount for " << path << " as fanotify disabled");
         return 0;
     }
@@ -81,7 +81,7 @@ int FanotifyHandler::markMount(const std::string& path)
     return processFaMarkError(result, "markMount", path);
 }
 
-int FanotifyHandler::unmarkMount(const std::string& path)
+int FanotifyHandler::unmarkMount(const std::string& path) const
 {
     assert(m_systemCallWrapper);
 
@@ -89,7 +89,6 @@ int FanotifyHandler::unmarkMount(const std::string& path)
     int fanotify_fd = fanotify_autofd->fd();
     if (fanotify_fd < 0)
     {
-        m_statusFile.setStatus(datatypes::OnaccessStatus::INACTIVE);
         LOGWARN("Skipping unmarkMount for " << path << " as fanotify disabled");
         return 0;
     }
@@ -101,13 +100,12 @@ int FanotifyHandler::unmarkMount(const std::string& path)
     return processFaMarkError(result, "unmarkMount", path);
 }
 
-int FanotifyHandler::cacheFd(const int& fd, const std::string& path)
+int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
 {
     assert(m_systemCallWrapper);
     int fanotify_fd = getFd(); // CacheFd only called while fanotify enabled
     if (fanotify_fd < 0)
     {
-        m_statusFile.setStatus(datatypes::OnaccessStatus::INACTIVE);
         LOGERROR("Skipping cacheFd for " << path << " as fanotify disabled");
         return 0;
     }
@@ -118,13 +116,28 @@ int FanotifyHandler::cacheFd(const int& fd, const std::string& path)
     return processFaMarkError(result, "cacheFd", path);
 }
 
-int FanotifyHandler::clearCachedFiles()
+int FanotifyHandler::uncacheFd(const int& fd, const std::string& path) const
+{
+    assert(m_systemCallWrapper);
+    int fanotify_fd = getFd(); // uncacheFd only called while fanotify enabled
+    if (fanotify_fd < 0)
+    {
+        LOGERROR("Skipping uncacheFd for " << path << " as fanotify disabled");
+        return 0;
+    }
+
+    constexpr unsigned int flags = FAN_MARK_REMOVE | FAN_MARK_IGNORED_MASK;
+    constexpr uint64_t mask = FAN_OPEN;
+    int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, fd, nullptr);
+    return result;
+}
+
+int FanotifyHandler::clearCachedFiles() const
 {
     auto fanotify_autofd = m_fd.lock();
     int fanotify_fd = fanotify_autofd->fd(); // Don't call getFd() since we need to hold the lock
     if (fanotify_fd < 0)
     {
-        m_statusFile.setStatus(datatypes::OnaccessStatus::INACTIVE);
         LOGINFO("Clearing cache skipped as fanotify disabled");
         return 0;
     }

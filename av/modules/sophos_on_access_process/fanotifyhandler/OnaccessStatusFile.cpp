@@ -14,7 +14,7 @@ OnaccessStatusFile::OnaccessStatusFile()
     writeStatusFile();
 }
 
-void OnaccessStatusFile::setStatus(datatypes::OnaccessStatus status)
+void OnaccessStatusFile::setStatus(const char* status)
 {
     std::unique_lock<std::mutex> lock(m_lock);
     m_status = status;

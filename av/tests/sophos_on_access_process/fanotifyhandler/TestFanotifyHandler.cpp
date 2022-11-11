@@ -3,6 +3,7 @@
 #include "FanotifyHandlerMemoryAppenderUsingTests.h"
 
 #include "datatypes/MockSysCalls.h"
+#include "datatypes/OnaccessStatus.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -35,13 +36,13 @@ namespace
             appConfig.setData("PLUGIN_INSTALL", m_testDir );
         }
 
-        int getOnaccessStatusFromFile()
+        std::string getOnaccessStatusFromFile()
         {
             fs::path statusFilePath = m_testDir / "var/onaccess.status";
             std::ifstream statusFile(statusFilePath.c_str());
-            char status;
+            std::string status;
             statusFile >> status;
-            return status - '0';
+            return status;
         }
 
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;

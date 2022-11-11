@@ -52,9 +52,11 @@ Send Fixed Sav Policy
     Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
 
 Send Policies to enable on-access
+    ${mark} =  get_on_access_log_mark
     Register Cleanup   Send Policies to disable on-access
     Send Flags Policy To Base  flags_policy/flags_onaccess_enabled.json
     Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
+    Wait for on access to be enabled  ${mark}
 
 Send Policies to disable on-access
     ${mark} =  get_on_access_log_mark

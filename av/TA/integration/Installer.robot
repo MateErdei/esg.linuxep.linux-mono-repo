@@ -134,9 +134,7 @@ IDE update during command line scan
 On access gets IDE update
 #    TODO: Remove after LINUXDAR-6018 is fixed
     [Tags]  manual
-    ${mark} =  get_on_access_log_mark
     Send Policies to enable on-access
-    Wait for on access to be enabled  ${mark}
 
     On-access Scan Eicar Close
     On-access Scan Peend no detect
@@ -148,9 +146,7 @@ On access gets IDE update
 
 On access continues during update
     Mark On Access Log
-    ${mark} =  get_on_access_log_mark
     Send Policies to enable on-access
-    Wait for on access to be enabled  ${mark}
 
     ${test_file} =   Set Variable   /tmp/testfile
     Register Cleanup   Remove File   ${test_file}
@@ -671,6 +667,7 @@ Check installer can handle versioned copied Virus Data from 1-0-0
     Should Be True   ${number_of_VDL_files} > ${1}
 
 AV Plugin Can Send Telemetry After IDE Update
+    # Restarting threat_detector when OA is enabled can lead to some file scans being aborted
     Register Cleanup  Exclude Aborted Scan Errors
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
@@ -678,9 +675,7 @@ AV Plugin Can Send Telemetry After IDE Update
     Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
 
-    ${mark} =  get_on_access_log_mark
     Send Policies to enable on-access
-    Wait for on access to be enabled  ${mark}
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
@@ -706,6 +701,7 @@ AV Plugin Can Send Telemetry After IDE Update
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 AV Plugin Can Send Telemetry After Upgrade
+    # Restarting threat_detector when OA is enabled can lead to some file scans being aborted
     Register Cleanup  Exclude Aborted Scan Errors
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
@@ -713,9 +709,7 @@ AV Plugin Can Send Telemetry After Upgrade
     Mark AV Log
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
     Wait until AV Plugin running with offset
-    ${mark} =  get_on_access_log_mark
     Send Policies to enable on-access
-    Wait for on access to be enabled  ${mark}
 
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
@@ -803,11 +797,8 @@ Check AV installer sets correct home directory for the users it creates
     Should Be Equal As Strings  ${homedir}  /opt/sophos-spl
 
 IDE Update Invalidates On Access Cache
-
-    ${mark} =  get_on_access_log_mark
     Mark On Access Log
     Send Policies to enable on-access
-    Wait for on access to be enabled  mark=${mark}
     Register Cleanup  Exclude On Access Scan Errors
 
     ${srcfile} =  Set Variable  /tmp_test/clean.txt

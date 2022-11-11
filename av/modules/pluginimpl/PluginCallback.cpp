@@ -23,6 +23,7 @@
 // Std C++
 #include <cstdlib>
 #include <fstream>
+#include <string>
 #include <thread>
 #include <chrono>
 // Std C
@@ -341,18 +342,22 @@ namespace Plugin
         return "";
     }
 
-    int PluginCallback::getOnaccessStatusFromFile()
+    bool PluginCallback::onaccessStatusFromFileIsInactiveOrHealthy()
     {
-        int status = datatypes::OnaccessStatus::UNHEALTHY;
+        std::string status = datatypes::OnaccessStatus::INACTIVE;
         fs::path statusFilePath = common::getPluginInstallPath() / "var/onaccess.status";
         if (fs::exists(statusFilePath))
         {
-            char ch;
             std::ifstream statusFile(statusFilePath.c_str(), std::fstream::in);
-            statusFile >> ch;
-            status = ch - '0';
+            statusFile >> status;
+            LOGDEBUG("On-access status: " << status);
         }
-        return status;
+        else
+        {
+            LOGWARN("On-access status file does not exist, assuming unhealthy status");
+        }
+
+        return status == datatypes::OnaccessStatus::INACTIVE || status == datatypes::OnaccessStatus::HEALTHY;
     }
 
     long PluginCallback::calculateHealth(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
@@ -416,7 +421,7 @@ namespace Plugin
     void PluginCallback::calculateSoapHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
         Path soapdPidFile = common::getPluginInstallPath() / "var/soapd.pid";
-        if (common::PidLockFile::isPidFileLocked(soapdPidFile, sysCalls) && getOnaccessStatusFromFile() != datatypes::OnaccessStatus::UNHEALTHY)
+        if (common::PidLockFile::isPidFileLocked(soapdPidFile, sysCalls) && onaccessStatusFromFileIsInactiveOrHealthy())
         {
             if(m_soapServiceStatus == E_HEALTH_STATUS_BAD)
             {

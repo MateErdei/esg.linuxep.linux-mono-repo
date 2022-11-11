@@ -62,7 +62,7 @@ namespace Plugin
                               const std::string& processName,
                               const std::string& processUsername,
                               Common::FileSystem::IFileSystem* fileSystem);
-        int getOnaccessStatusFromFile();
+        bool onaccessStatusFromFileIsInactiveOrHealthy();
 
         static int getProcessPidFromFile(Common::FileSystem::IFileSystem* fileSystem, const Path&);
         [[nodiscard]] bool shutdownFileValid() const;

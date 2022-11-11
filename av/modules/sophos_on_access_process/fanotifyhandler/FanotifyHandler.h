@@ -39,7 +39,7 @@ namespace sophos_on_access_process::fanotifyhandler
              * @param path
              * @return
              */
-            [[nodiscard]] int markMount(const std::string& path) override;
+            [[nodiscard]] int markMount(const std::string& path) const override;
 
             /**
              * Unmark a mount point as unwanted - we do not want fanotify events from it.
@@ -49,7 +49,7 @@ namespace sophos_on_access_process::fanotifyhandler
              * @param path
              * @return
              */
-            [[nodiscard]] int unmarkMount(const std::string& path) override;
+            [[nodiscard]] int unmarkMount(const std::string& path) const override;
 
             /**
              * Mark an FD to be cached - i.e. fanotify won't return events for it.
@@ -60,7 +60,18 @@ namespace sophos_on_access_process::fanotifyhandler
              * @param path
              * @return
              */
-            [[nodiscard]] int cacheFd(const int& dfd, const std::string& path) override;
+            [[nodiscard]] int cacheFd(const int& dfd, const std::string& path) const override;
+
+            /**
+             * Mark an FD to be un-cached - i.e. fanotify will return events for it again.
+             *
+             * Called from Scan Thread(s) after scanning file.
+             *
+             * @param dfd
+             * @param path
+             * @return
+             */
+            int uncacheFd(const int& dfd, const std::string& path) const override;
 
             /**
              * Clear cached files.
@@ -78,7 +89,7 @@ namespace sophos_on_access_process::fanotifyhandler
              */
             void close() final;
 
-            [[nodiscard]] int clearCachedFiles() override;
+            [[nodiscard]] int clearCachedFiles() const override;
 
         private:
             static int processFaMarkError(int result, const std::string& function, const std::string& path);

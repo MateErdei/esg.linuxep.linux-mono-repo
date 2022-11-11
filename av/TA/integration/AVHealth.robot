@@ -39,9 +39,7 @@ AV Health Test Setup
     AV And Base Setup
     Wait Until AV Plugin running
     Wait Until threat detector running
-    ${mark} =  get_on_access_log_mark
     Send Policies to enable on-access
-    Wait for on access to be enabled  ${mark}
     ${oaStatus} =  Get File  ${AV_PLUGIN_PATH}/var/onaccess.status
     Log  OA status: ${oaStatus}
 
@@ -330,10 +328,7 @@ AV health is unaffected by scanning the threat_detector pidfile
 AV health is unaffected by on-access scanning the soapd pidfile
     Register Cleanup  Exclude On Access Scan Errors
 
-    ${mark} =  get_on_access_log_mark
-    Mark On Access Log
     Send Policies to enable on-access
-    Wait for on access to be enabled  mark=${mark}
 
     # this will cause on-access events for the pid file
     Check Status Health is Reporting Correctly    GOOD

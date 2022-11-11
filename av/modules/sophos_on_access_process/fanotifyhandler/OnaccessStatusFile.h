@@ -16,11 +16,11 @@ namespace sophos_on_access_process::fanotifyhandler
     public:
         OnaccessStatusFile();
 
-        void setStatus(datatypes::OnaccessStatus status);
+        void setStatus(const char* status);
 
     private:
         void writeStatusFile();
-        datatypes::OnaccessStatus m_status = datatypes::OnaccessStatus::INACTIVE;
+        std::string m_status = datatypes::OnaccessStatus::INACTIVE;
         fs::path m_statusFilePath;
         mutable std::mutex m_lock;
     };

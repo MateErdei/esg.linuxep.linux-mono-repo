@@ -165,7 +165,7 @@ namespace
             }
         }
 
-        void writeStatusFile(datatypes::OnaccessStatus status)
+        void writeStatusFile(const char* status)
         {
             fs::path statusFilePath(m_basePath);
             statusFilePath /= "var/onaccess.status";
@@ -498,6 +498,22 @@ TEST_F(TestPluginCallback, calculateHealthReturnsGoodIfLockCannotBeTakenOnPidFil
     EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
 
     long expectedResult = E_HEALTH_STATUS_GOOD;
+    long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
+
+    ASSERT_EQ(result, expectedResult);
+}
+
+TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCannotBeTakenOnPidFilesAndStatusUnexpected)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+    writeStatusFile("unexpected status");
+
+    int fileDescriptor = 123;
+    EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
+    EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
+
+    long expectedResult = E_HEALTH_STATUS_BAD;
     long result = m_pluginCallback->calculateHealth(m_mockSysCalls);
 
     ASSERT_EQ(result, expectedResult);

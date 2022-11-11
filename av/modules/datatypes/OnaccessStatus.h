@@ -2,12 +2,9 @@
 
 #pragma once
 
-namespace datatypes
+namespace datatypes::OnaccessStatus
 {
-    enum OnaccessStatus
-    {
-        UNHEALTHY = 0,
-        HEALTHY = 1,
-        INACTIVE = 2
-    };
+    constexpr const char* UNHEALTHY = "unhealthy";
+    constexpr const char* HEALTHY = "healthy";
+    constexpr const char* INACTIVE = "inactive";
 }
