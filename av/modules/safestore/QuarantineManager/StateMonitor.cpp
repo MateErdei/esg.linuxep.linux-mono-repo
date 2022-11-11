@@ -31,7 +31,7 @@ namespace safestore::QuarantineManager
     {
         announceThreadStarted();
         LOGINFO("Starting Quarantine Manager state monitor");
-        while (!stopRequested())
+        while (!m_stopRequested)
         {
 //            auto now = std::chrono::system_clock::now().time_since_epoch();
 //            auto nextTimeToCheckState =
@@ -46,27 +46,20 @@ namespace safestore::QuarantineManager
 //            }
 
             std::unique_lock lock(m_QMCheckLock);
-            auto nextTimeToCheckState =
-                std::min(m_lastCheck + m_reinitialiseBackoff, m_lastCheck + m_maxReinitialiseBackoff);
-            m_checkWakeUp.wait_for(lock,nextTimeToCheckState);
+            m_checkWakeUp.wait_for(lock,m_reinitialiseBackoff);
             if (m_stopRequested)
             {
-                LOGDEBUG("Stop requested"); //fix
+                LOGDEBUG("State Monitor stop requested"); //fix
                 break;
             }
-            auto now = std::chrono::system_clock::now().time_since_epoch();
-            if (nextTimeToCheckState < now)
-            {
-                innerRun();
-            }
-
+            innerRun();
         }
     }
 
     void StateMonitor::innerRun()
     {
         m_reinitialiseBackoff = m_reinitialiseBackoff * 2;
-        m_lastCheck = std::chrono::system_clock::now().time_since_epoch();
+//        m_lastCheck = std::chrono::system_clock::now().time_since_epoch();
         auto state = m_quarantineManager->getState();
         switch (state)
         {

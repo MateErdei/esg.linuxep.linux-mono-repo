@@ -11,6 +11,8 @@
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
 
+#include "Common/Logging/ConsoleLoggingSetup.h"
+
 #include <gtest/gtest.h>
 
 #include <utility>
@@ -43,6 +45,11 @@ public:
     void callInnerRun()
     {
         innerRun();
+    }
+
+    void callRun()
+    {
+        run();
     }
 };
 
@@ -134,28 +141,29 @@ TEST_F(StateMonitorTests, stateMonitorReinitialisesQuarantineManagerWhenQuaranti
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
 }
 
-//TEST_F(StateMonitorTests, testExitsOnDestructDuringWait)
-//{
-//    testing::internal::CaptureStderr();
-//
-//    auto* filesystemMock = new StrictMock<MockFileSystem>();
-//    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
-//        filesystemMock) };
-//    std::shared_ptr<IQuarantineManager> quarantineManager =
-//        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
-//
-//    EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
-//    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("10"));
-//    EXPECT_CALL(*filesystemMock, writeFile(_, "10"));
-//
-//    bool called = false;
-//    {
-//        TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
-//        stateMonitor.sta;
-//    };
-//
-//
-//    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
-//
+TEST_F(StateMonitorTests, testStateMonitorExitsOnDestructDuringWait)
+{
+    testing::internal::CaptureStderr();
 
-//}
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
+
+    EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "1"));
+
+    //bool called = false;
+    {
+        TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
+        stateMonitor.callRun();
+    }
+
+    std::string logMessage = internal::GetCapturedStderr();
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("State Monitor stop requested"));
+
+
+
+}
