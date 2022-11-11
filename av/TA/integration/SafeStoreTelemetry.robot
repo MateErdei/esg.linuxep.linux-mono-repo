@@ -2,10 +2,14 @@
 Documentation   SafeStore Telemetry tests
 Force Tags      INTEGRATION  AVBASE  TELEMETRY
 
+Library         Collections
+
 Library         ../Libs/AVScanner.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/Telemetry.py
 
 Resource        ../shared/AVAndBaseResources.robot
+Resource        ../shared/ErrorMarkers.robot
 
 Suite Setup     Telemetry Suite Setup
 Suite Teardown  Uninstall All
@@ -26,7 +30,7 @@ SafeStore Can Send Telemetry
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
-    Check SafeStore Telemetry  ${telemetryFileContents}
+    Check SafeStore Telemetry Dict    ${telemetryFileContents}
     ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
     Should Contain   ${telemetryLogContents}    Gathered telemetry for safestore
 
@@ -67,8 +71,8 @@ Telemetry Executable Generates SafeStore Database Size Telemetry
     ${safeStoreTelemetryJson} =    Get From Dictionary    ${telemetryJson}    safestore
     Dictionary Should Contain Key   ${safeStoreTelemetryJson}   database-size
 
-    ${databaseSize} =    Evaluate    ${safeStoreTelemetryJson["database-size"]}
-    ${databaseSizeType}=      Evaluate     isinstance(databaseSize, int)
+    ${databaseSize} =    Get From Dictionary    ${safeStoreTelemetryJson}    database-size
+    ${databaseSizeType}=      Evaluate     isinstance(${databaseSize}, int)
 
     Check Is Greater Than    ${databaseSize}    ${100}
     Should Be Equal    ${databaseSizeType}    ${True}

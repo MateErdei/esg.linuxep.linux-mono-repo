@@ -36,7 +36,8 @@ def check_telemetry(telemetry):
     assert av_dict["health"] == 0, "Health is not set to 0 in telemetry, showing bad AV Plugin Health"
     assert av_dict["threatHealth"] == 1, "Threat Health is not set to 1 in telemetry (1 = good, 2 = suspicious)"
 
-def check_safestore_telemetry(telemetry):
+
+def check_safestore_telemetry_dict(telemetry):
     telemetry_dict = json.loads(telemetry)
     assert "safestore" in telemetry_dict, "No SafeStore section in telemetry"
     safestore_dict = telemetry_dict["safestore"]
@@ -48,7 +49,7 @@ def check_safestore_telemetry(telemetry):
     assert "unlink-failures" in safestore_dict, "No AV Version Number in telemetry"
     assert safestore_dict["health"] == 0, "Health is not set to 0 in telemetry, showing bad SafeStore Plugin Health"
     assert not safestore_dict["dormant-mode"], "Dormant Mode is defaulting to False in telemetry"
-    assert not isinstance(safestore_dict["database-size"], int), "SafeStore Database Size is not an int in telemetry"
+    assert isinstance(safestore_dict["database-size"], int), "SafeStore Database Size is not an int in telemetry"
     assert safestore_dict["quarantine-successes"] == 0, "Count of SafeStore Quarantine Successes is not defaulting to 0"
     assert safestore_dict["quarantine-failures"] == 0, "Count of SafeStore Quarantine Failures is not defaulting to 0"
     assert safestore_dict["unlink-failures"] == 0, "Count of SafeStore Unlink Failures is not defaulting to 0"
