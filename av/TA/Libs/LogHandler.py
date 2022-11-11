@@ -193,33 +193,34 @@ class LogHandler:
         :return:
         """
         results = []
-        proc_age = 999999999
-        LINE_RE = re.compile(rb"^(\d+)\s+\[.*")
-
+        START_RE = re.compile(rb".*<> Logger .* configured for level: ")
         for line in self.__generate_reversed_lines(mark):  # read the newest first
-            mo = LINE_RE.match(line)
-            if mo:
-                age = int(mo.group(1))
-                if age - proc_age > 100 and proc_age < 50:
-                    logger.info("Found end of previous run (age=%d, proc_age=%d): " % (age, proc_age) +
-                                line.decode("UTF-8", errors="replace"))
-                    # Log lines can be out of order by 5ms, and we assume we log something
-                    # within first 50ms
-                    results.reverse()
-                    return results
-                proc_age = age
+            mo = START_RE.match(line)
             results.append(line)
+            if mo:
+                logger.info("Found start line: "+line.decode("UTF-8"))
+                results.reverse()
+                return results
 
+        # Failed to find start: check age of the oldest line
         results.reverse()
-        if proc_age > 0 and len(results) > 0:
-            # Not an error if this is the first run of the process
-            # Or the log files don't exist yet
-            logger.error(
-                "Log file %s has completely rolled over since process last started (%d lines) (earliest log: %d):" %
-                (self.__m_log_path, len(results), proc_age))
-            if len(results) < 50:
-                for line in results:
-                    logger.info(line.decode("UTF-8", errors="replace"))
+
+        # No error if we have no results
+        if len(results) > 0:
+            LINE_RE = re.compile(rb"^(\d+)\s+\[.*")
+            age = None
+            for line in results:
+                mo = LINE_RE.match(line)
+                if mo:
+                    age = int(mo.group(1))
+                    break
+            if age is not None:
+                logger.error(
+                    "Log file %s has completely rolled over since process last started (%d lines) (earliest log: %d):" %
+                    (self.__m_log_path, len(results), age))
+                if len(results) < 50:
+                    for line in results:
+                        logger.info(line.decode("UTF-8", errors="replace"))
 
         return results
 
