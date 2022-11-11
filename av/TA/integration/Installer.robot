@@ -671,6 +671,7 @@ Check installer can handle versioned copied Virus Data from 1-0-0
     Should Be True   ${number_of_VDL_files} > ${1}
 
 AV Plugin Can Send Telemetry After IDE Update
+    Register Cleanup  Exclude Aborted Scan Errors
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
@@ -705,6 +706,7 @@ AV Plugin Can Send Telemetry After IDE Update
     Should Contain   ${telemetryLogContents}    Gathered telemetry for av
 
 AV Plugin Can Send Telemetry After Upgrade
+    Register Cleanup  Exclude Aborted Scan Errors
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
