@@ -991,14 +991,22 @@ File Log Contains
         handler = self.get_log_handler(log_path)
         handler.dump_marked_log(mark)
 
-    def check_log_does_not_contain_after_mark(self, log_path, not_expected, mark):
+    def check_log_does_not_contain_after_mark(self, log_path, not_expected, mark: LogHandler.LogMark) -> None:
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in check_log_does_not_contain_after_mark"
-        not_expected = six.ensure_binary(not_expected, "UTF-8")
-        handler = self.get_log_handler(log_path)
-        contents = handler.get_contents(mark)
+        not_expected = LogHandler.ensure_binary(not_expected)
+        mark.assert_is_good(log_path)
+        contents = mark.get_contents()
         if not_expected in contents:
             self.dump_marked_log(log_path, mark)
             raise AssertionError("Found %s in %s" % (not_expected, log_path))
+
+    def wait_for_log_to_not_contain_after_mark(self, log_path, not_expected, mark: LogHandler.LogMark, timeout: int):
+        """Wait for timeout and report if the log does contain not_expected
+        """
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_to_not_contain_after_mark"
+        mark.assert_is_good(log_path)
+        time.sleep(timeout)
+        return self.check_log_does_not_contain_after_mark(log_path, not_expected, mark)
 
     def wait_for_log_contains_after_last_restart(self, log_path, expected, timeout: int = 10, mark=None):
         """
@@ -1123,19 +1131,6 @@ File Log Contains
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_safestore_log_contains_after_mark"
         return self.wait_for_log_contains_after_mark(self.__m_safestore_log, expected, mark, timeout=timeout)
 
-    def wait_for_log_to_not_contain_after_mark(self, logpath, not_expected, mark, timeout=5):
-        start = time.time()
-        while time.time() < start + timeout:
-            contents = _get_log_contents(logpath)
-            if len(contents) > mark:
-                contents = contents[mark:]
-
-            if not_expected in contents:
-                logger.error("Found %s in %s" % (not_expected, logpath))
-                self.dump_log(logpath)
-                raise AssertionError("Found %s in %s" % (not_expected, logpath))
-            time.sleep(2)
-        # ok
 
 def __main(argv):
     # write your tests here
