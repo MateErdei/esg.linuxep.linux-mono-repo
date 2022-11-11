@@ -13,23 +13,53 @@ namespace safestore::QuarantineManager
     {
     }
 
+    StateMonitor::~StateMonitor()
+    {
+        tryStop();
+        join();
+    }
+
+    void StateMonitor::tryStop()
+    {
+        {
+            std::lock_guard lock(m_QMCheckLock);
+            m_stopRequested = true;
+        }
+        m_checkWakeUp.notify_one();
+    }
     void StateMonitor::run()
     {
         announceThreadStarted();
         LOGINFO("Starting Quarantine Manager state monitor");
         while (!stopRequested())
         {
-            auto now = std::chrono::system_clock::now().time_since_epoch();
+//            auto now = std::chrono::system_clock::now().time_since_epoch();
+//            auto nextTimeToCheckState =
+//                std::min(m_lastCheck + m_reinitialiseBackoff, m_lastCheck + m_maxReinitialiseBackoff);
+//            if (nextTimeToCheckState < now)
+//            {
+//                innerRun();
+//            }
+//            else
+//            {
+//                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//            }
+
+            std::unique_lock lock(m_QMCheckLock);
             auto nextTimeToCheckState =
                 std::min(m_lastCheck + m_reinitialiseBackoff, m_lastCheck + m_maxReinitialiseBackoff);
+            m_checkWakeUp.wait_for(lock,nextTimeToCheckState);
+            if (m_stopRequested)
+            {
+                LOGDEBUG("Stop requested"); //fix
+                break;
+            }
+            auto now = std::chrono::system_clock::now().time_since_epoch();
             if (nextTimeToCheckState < now)
             {
                 innerRun();
             }
-            else
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
+
         }
     }
 

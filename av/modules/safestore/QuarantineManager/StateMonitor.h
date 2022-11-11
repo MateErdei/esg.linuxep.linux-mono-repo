@@ -5,6 +5,8 @@
 
 #include "common/AbstractThreadPluginInterface.h"
 
+#include <atomic>
+
 using namespace std::chrono_literals;
 namespace safestore::QuarantineManager
 {
@@ -13,6 +15,8 @@ namespace safestore::QuarantineManager
     public:
         explicit StateMonitor(std::shared_ptr<IQuarantineManager> quarantineManager);
         void run() override;
+        ~StateMonitor() override;
+        void tryStop() final;
 
     private:
         std::shared_ptr<IQuarantineManager> m_quarantineManager;
@@ -22,5 +26,8 @@ namespace safestore::QuarantineManager
 
     protected:
         void innerRun();
+        std::mutex m_QMCheckLock;
+        std::condition_variable m_checkWakeUp;
+        std::atomic<bool> m_stopRequested = false;
     };
 } // namespace safestore::QuarantineManager
