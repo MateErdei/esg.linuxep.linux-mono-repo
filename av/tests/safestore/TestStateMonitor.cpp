@@ -158,4 +158,4 @@ TEST_F(StateMonitorTests, stateMonitorReinitialisesQuarantineManagerWhenQuaranti
 //    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
 //
 
-}
+//}
