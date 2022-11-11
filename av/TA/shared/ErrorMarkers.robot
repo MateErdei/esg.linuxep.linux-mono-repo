@@ -81,6 +81,7 @@ Exclude Failed To Scan Files
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan one or more files due to an error
 
 Exclude Aborted Scan Errors
+    mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}  OnAccessImpl <> Aborting scan, scanner is shutting down
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Aborting scan, scanner is shutting down
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  UnixSocket <> Aborting scan, scanner is shutting down
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  UnixSocket <> Aborting scan, scanner is shutting down
