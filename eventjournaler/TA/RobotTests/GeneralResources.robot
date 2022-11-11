@@ -44,7 +44,7 @@ Marked File Does Not Contain
 
 Run Shell Process
     [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
-    ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
+    ${result} =   Run Process  ${Command}   shell=True  env:LD_LIBRARY_PATH=/opt/sophos-spl/base/lib64/   timeout=${timeout}
     Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\nstdout: \n${result.stdout} \n. stderr: \n${result.stderr}"
 
 Remove Subscriber Socket

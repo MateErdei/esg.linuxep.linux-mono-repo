@@ -259,7 +259,11 @@ function build()
         mkdir -p $REDIST
         unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" ${PLUGIN_TAR}
-        cp -r $INPUT/cmake $REDIST
+
+        if [[ ! -d $REDIST/cmake ]]
+        then
+           ln -snf $INPUT/cmake $REDIST
+        fi
         if [[ -d "$INPUT/googletest" ]]
         then
             if [[ ! -d $REDIST/googletest ]]
@@ -278,7 +282,10 @@ function build()
     PATH=$REDIST/cmake/bin:$PATH
     chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
     chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
-    cp -r $REDIST/googletest $BASE/tests
+    if [[ ! -d $BASE/tests/googletest ]]
+    then
+      cp -r $REDIST/googletest $BASE/tests
+    fi
 
     cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 

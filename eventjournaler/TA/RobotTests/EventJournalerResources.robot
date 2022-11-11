@@ -118,7 +118,7 @@ Publish Threat Event With Specific Data From File
 
 Publish Threat Events In Background Process
     [Arguments]  ${msg}  ${count}
-    Start Process 	timeout 30s ${EVENT_PUB_SUB_TOOL} -s /opt/sophos-spl/var/ipc/events.ipc send -d '${msg}' -c ${count}  shell=True
+    Start Process 	timeout 30s ${EVENT_PUB_SUB_TOOL} -s /opt/sophos-spl/var/ipc/events.ipc send -d '${msg}' -c ${count}  shell=True  env:LD_LIBRARY_PATH=/opt/sophos-spl/base/lib64/
 
 Read First Event From Journal
     ${result} =   Run Process  ${EVENT_READER_TOOL}  -l  ${EVENT_JOURNAL_DIR}/  -s  Detections  -p  SophosSPL  -u  -t  0  --flush-delay-disable  -c  1
@@ -129,7 +129,7 @@ Read First Event From Journal
     [Return]   ${result.stdout}
 
 Read All Detection Events From Journal
-    ${result} =   Run Process  ${EVENT_READER_TOOL}  -l  ${EVENT_JOURNAL_DIR}/  -s  Detections  -p  SophosSPL  -u  -t  0  --flush-delay-disable
+    ${result} =   Run Process  ${EVENT_READER_TOOL}  -l  ${EVENT_JOURNAL_DIR}/  -s  Detections  -p  SophosSPL  -u  -t  0  --flush-delay-disable  env:LD_LIBRARY_PATH=/opt/sophos-spl/base/lib64/
     log to console   ${result.stdout}
     log  ${result.stdout}
     log  ${result.stderr}
