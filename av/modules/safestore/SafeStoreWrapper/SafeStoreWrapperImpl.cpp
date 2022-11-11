@@ -265,6 +265,25 @@ namespace safestore::SafeStoreWrapper
         }
     }
 
+    std::string configOptionToString(const ConfigOption& option)
+    {
+        switch(option)
+        {
+            case ConfigOption::MAX_SAFESTORE_SIZE:
+                return "Max_SafeStore_Size";
+            case ConfigOption::MAX_OBJECT_SIZE:
+                return "Max_Object_Size";
+            case ConfigOption::MAX_REG_OBJECT_COUNT:
+                return "Max_Reg_Object_Count";
+            case ConfigOption::AUTO_PURGE:
+                return "Auto_Purge";
+            case ConfigOption::MAX_STORED_OBJECT_COUNT:
+                return "Max_Stored_Object_Count";
+            default:
+                return "Value has no corresponding string";
+        }
+    }
+
     std::optional<uint64_t> SafeStoreWrapperImpl::getConfigIntValue(ConfigOption option)
     {
         uint64_t valueRead = 0;
@@ -283,15 +302,16 @@ namespace safestore::SafeStoreWrapper
         switch (returnCode)
         {
             case SR_OK:
+                LOGINFO("Set config value: " << configOptionToString(option) << " to: " << value);
                 return true;
             case SR_INVALID_ARG:
-                LOGWARN("Failed to set config value due to invalid arg");
+                LOGWARN("Failed to set config value: " << configOptionToString(option) << " due to invalid arg");
                 return false;
             case SR_INTERNAL_ERROR:
-                LOGWARN("Failed to set config value due to internal SafeStore error");
+                LOGWARN("Failed to set config value: " << configOptionToString(option) << " due to internal SafeStore error");
                 return false;
             default:
-                LOGWARN("Failed to set config value fue to unknown reason");
+                LOGWARN("Failed to set config value: " << configOptionToString(option) << " due to unknown error. Errorcode: " << returnCode);
                 return false;
         }
     }

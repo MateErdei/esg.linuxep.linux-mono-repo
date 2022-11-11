@@ -123,6 +123,34 @@ TEST_F(SafeStoreWrapperTapTests, writeAndThenRreadBackConfigOptions)
     ASSERT_EQ(maxObjCount.value(), 5000);
 }
 
+TEST_F(SafeStoreWrapperTapTests, testConfigOptionLimits)
+{
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::AUTO_PURGE, false));
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_OBJECT_SIZE, 33000));
+
+    // This currently fails but it's windows only so doesn't need to work on Linux.
+    // ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_REG_OBJECT_COUNT, 100));
+
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_SAFESTORE_SIZE, 66000));
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_STORED_OBJECT_COUNT, 5000));
+
+    auto autoPurge = m_safeStoreWrapper->getConfigIntValue(ConfigOption::AUTO_PURGE);
+    ASSERT_TRUE(autoPurge.has_value());
+    ASSERT_EQ(autoPurge.value(), 0);
+
+    auto maxObjSize = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_OBJECT_SIZE);
+    ASSERT_TRUE(maxObjSize.has_value());
+    ASSERT_EQ(maxObjSize.value(), 33000);
+
+    auto maxSafeStoreSize = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_SAFESTORE_SIZE);
+    ASSERT_TRUE(maxSafeStoreSize.has_value());
+    ASSERT_EQ(maxSafeStoreSize.value(), 66000);
+
+    auto maxObjCount = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_STORED_OBJECT_COUNT);
+    ASSERT_TRUE(maxObjCount.has_value());
+    ASSERT_EQ(maxObjCount.value(), 5000);
+}
+
 TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndLookupDetails)
 {
     auto fileSystem = Common::FileSystem::fileSystem();
