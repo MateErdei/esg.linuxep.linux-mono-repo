@@ -4,6 +4,7 @@
         "CORE",
         "SAV",
         "ALC",
+        "CORE",
         "FLAGS"
   ],
   "actionAppIds": [
