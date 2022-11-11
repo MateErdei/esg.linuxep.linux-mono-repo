@@ -49,20 +49,20 @@ SafeStore Can Reinitialise Database Containing Threats
 
     ${ssPassword1} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
 
-    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
 
     ${filesInSafeStoreDb1} =  List Files In Directory  ${SAFESTORE_DB_DIR}
     Log  ${filesInSafeStoreDb1}
 
     Stop SafeStore
     Check Safestore Not Running
-    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
 
     Start SafeStore
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Quarantine Manager initialised OK
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Successfully initialised SafeStore database
+    wait_for_log_contains_from_mark  ${safestore_mark}  Quarantine Manager initialised OK
+    wait_for_log_contains_from_mark  ${safestore_mark}  Successfully initialised SafeStore database
 
     Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}
     ${ssPassword2} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
@@ -82,20 +82,20 @@ SafeStore Recovers From Corrupt Database
 
     wait for Safestore to be running
 
-    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Corrupt SafeStore Database
 
     Check SafeStore Dormant Flag Exists
 
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Successfully removed corrupt SafeStore database    200
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Successfully initialised SafeStore database
+    wait_for_log_contains_from_mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    200
+    wait_for_log_contains_from_mark  ${safestore_mark}  Successfully initialised SafeStore database
 
     Check Safestore Dormant Flag Does Not Exist
 
-    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Finalised file: eicar.com
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${safestore_mark}  Finalised file: eicar.com
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
@@ -108,10 +108,10 @@ SafeStore Quarantines When It Receives A File To Quarantine
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
-    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
 
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
     wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
@@ -133,10 +133,10 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
 
 
-    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
 
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
     wait_for_log_contains_from_mark  ${av_mark}  Quarantine failed
     File Should Exist   ${SCAN_DIRECTORY}/eicar.com
 
@@ -155,19 +155,19 @@ SafeStore does not quarantine on a Corrupt Database
 
     wait for Safestore to be running
 
-    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Corrupt SafeStore Database
     Check avscanner can detect eicar
 
     Wait Until AV Plugin Log Contains Detection Name After Mark  ${av_mark}  EICAR-AV-Test
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Cannot quarantine file, SafeStore is in
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Successfully removed corrupt SafeStore database    timeout=200
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Successfully initialised SafeStore database
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${safestore_mark}  Cannot quarantine file, SafeStore is in
+    wait_for_log_contains_from_mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    timeout=200
+    wait_for_log_contains_from_mark  ${safestore_mark}  Successfully initialised SafeStore database
 
-    ${safe_store_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
-    wait_for_log_contains_from_mark  ${safe_store_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
