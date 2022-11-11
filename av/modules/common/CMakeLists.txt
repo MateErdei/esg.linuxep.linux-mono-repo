@@ -27,9 +27,9 @@ add_library(common SHARED
         ScanInterruptedException.h
         ScanManuallyInterruptedException.h
         StoppableSleeper.h
+        ShuttingDownException.h
         StringUtils.cpp
         StringUtils.h
-        ShuttingDownException.h
         ThreadRunner.cpp
         ThreadRunner.h
         signals/IReloadable.h

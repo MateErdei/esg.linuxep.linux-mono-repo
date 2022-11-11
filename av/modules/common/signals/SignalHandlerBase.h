@@ -20,8 +20,6 @@ namespace common::signals
         SignalHandlerBase(const SignalHandlerBase&) = delete;
         SignalHandlerBase& operator=(const SignalHandlerBase&) = delete;
 
-        virtual ~SignalHandlerBase() = default;
-
         int monitorFd() override;
         int setSignalHandler(__sighandler_t handler, bool restartSyscalls=false);
         void clearSignalHandler() const;
