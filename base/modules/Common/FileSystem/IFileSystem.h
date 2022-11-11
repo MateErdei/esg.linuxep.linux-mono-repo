@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "Common/SslImpl/Digest.h"
+
 #include <ctime>
 #include <memory>
 #include <optional>
@@ -354,24 +356,23 @@ namespace Common
             virtual std::optional<std::string> readProcFile(int pid, const std::string& filename) const = 0;
 
             /**
-             * Calculates the digest of a file
-             * @param digestName The name of the digest to calculate, e.g. "sha256". It is preferred to use the string
-             * variables in the Common::SslImpl::Digest namespace for consistency
-             * @param path Path to a file
-             * @return Hexadecimal representation of the digest
-             * @throws IFileSystemException if it fails to calculate the digest
+             * Calculates the digest of a file.
+             * @param digestName The type of digest to calculate.
+             * @param path Path to the file.
+             * @return Lowercase hexadecimal representation of the digest.
              */
-            virtual std::string calculateDigest(const char* digestName, const Path& path) const = 0;
+            [[nodiscard]] virtual std::string calculateDigest(SslImpl::Digest digestName, const Path& path) const = 0;
 
             /**
-             * Calculates the digest of a file
-             * @param digestName The name of the digest to calculate, e.g. "sha256". It is preferred to use the string
-             * variables in the Common::SslImpl::Digest namespace for consistency
-             * @param fd File descriptor pointing to a file
-             * @return Hexadecimal representation of the digest
-             * @throws IFileSystemException if it fails to calculate the digest
+             * Calculates the digest of a file from a file descriptor.
+             * The file offset of the file descriptor will be changed to the end of the file, unless an error occurs,
+             * which means the offset could be anything.
+             * This does not close the file descriptor upon completion, so it must be closed independently.
+             * @param digestName The type of digest to calculate.
+             * @param fd File descriptor.
+             * @return Lowercase hexadecimal representation of the digest.
              */
-            virtual std::string calculateDigest(const char* digestName, int fd) const = 0;
+            [[nodiscard]] virtual std::string calculateDigest(SslImpl::Digest digestName, int fd) const = 0;
         };
 
         /**

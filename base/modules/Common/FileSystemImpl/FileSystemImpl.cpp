@@ -5,7 +5,6 @@
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
-#include <Common/FileSystem/IPermissionDeniedException.h>
 #include <Common/SslImpl/Digest.h>
 #include <Common/UtilityImpl/StrError.h>
 #include <ext/stdio_filebuf.h>
@@ -877,7 +876,7 @@ namespace Common
             }
         }
 
-        std::string FileSystemImpl::calculateDigest(const char* digestName, const Path& path) const
+        std::string FileSystemImpl::calculateDigest(SslImpl::Digest digestName, const Path& path) const
         {
             std::ifstream inFileStream{ path, std::ios::binary };
 
@@ -886,20 +885,22 @@ namespace Common
                 throw IFileSystemException("'" + path + "' does not exist or can't be opened for reading");
             }
 
-            try
-            {
-                return Common::SslImpl::calculateDigest(digestName, inFileStream);
-            }
-            catch (...)
-            {
-                throw IFileSystemException("Can't calculate digest of '" + path + "'");
-            }
+            return Common::SslImpl::calculateDigest(digestName, inFileStream);
         }
 
-        std::string FileSystemImpl::calculateDigest(const char* digestName, int fd) const
+        std::string FileSystemImpl::calculateDigest(SslImpl::Digest digestName, int fd) const
         {
+            // Need to duplicate the file descriptor because the compatibility layer will close it upon destruction
+            int dupFd = dup(fd);
+
+            // Set the file offset of the file descriptor to the start, so we calculate the digest of the whole file.
+            // Both file descriptors point to the same file description, so changing the file offset for one will change
+            // it for the other.
+            lseek(dupFd, 0, SEEK_SET);
+
             // Non-standard GNU compatibility layer between POSIX file descriptors and std::basic_streambuf
-            __gnu_cxx::stdio_filebuf<char> fileBuf{ fd, std::ios_base::in | std::ios_base::binary };
+            // This also ensures that dupFd gets closed.
+            __gnu_cxx::stdio_filebuf<char> fileBuf{ dupFd, std::ios_base::in | std::ios_base::binary };
 
             if (!fileBuf.is_open())
             {
@@ -908,14 +909,7 @@ namespace Common
 
             std::istream inStream{ &fileBuf };
 
-            try
-            {
-                return Common::SslImpl::calculateDigest(digestName, inStream);
-            }
-            catch (...)
-            {
-                throw IFileSystemException("Can't calculate digest of file descriptor '" + std::to_string(fd) + "'");
-            }
+            return Common::SslImpl::calculateDigest(digestName, inStream);
         }
     } // namespace FileSystem
 } // namespace Common

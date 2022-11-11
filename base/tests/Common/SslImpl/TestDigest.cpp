@@ -5,12 +5,6 @@
 
 using namespace Common::SslImpl;
 
-TEST(TestDigest, calculateDigestUsingDefinedDigestNamesProducesIntendedDigests) // NOLINT
-{
-    EXPECT_EQ(calculateDigest(Digest::md5, "hello world!"), calculateDigest("md5", "hello world!"));
-    EXPECT_EQ(calculateDigest(Digest::sha256, "hello world!"), calculateDigest("sha256", "hello world!"));
-}
-
 TEST(TestDigest, calculateDigestMd5) // NOLINT
 {
     EXPECT_EQ(calculateDigest(Digest::md5, "hello world!"), "fc3ff98e8c6a0d3087d515c0473f8677");
@@ -27,21 +21,13 @@ TEST(TestDigest, calculateDigestSha256) // NOLINT
     // clang-format on
 }
 
-TEST(TestDigest, calculateDigestInvalidDigestNameThrows) // NOLINT
-{
-    EXPECT_THROW(std::ignore = calculateDigest("", "foo"), std::runtime_error);
-    EXPECT_THROW(std::ignore = calculateDigest("foo", "foo"), std::runtime_error);
-    EXPECT_THROW(std::ignore = calculateDigest("\n", "foo"), std::runtime_error);
-    EXPECT_THROW(std::ignore = calculateDigest("md5 ", "foo"), std::runtime_error);
-    EXPECT_THROW(std::ignore = calculateDigest("md5md5", "foo"), std::runtime_error);
-    EXPECT_THROW(std::ignore = calculateDigest("md5,sha256", "foo"), std::runtime_error);
-}
-
 TEST(TestDigest, calculateDigestInputLongerThanBufferSize) // NOLINT
 {
+    // clang-format off
     EXPECT_EQ(calculateDigest(Digest::md5, std::string(digestBufferSize + 1, '.')), "506ff924fd0061830292d99415084501");
     EXPECT_EQ(calculateDigest(Digest::md5, std::string(digestBufferSize * 2, '.')), "3a9099505930995e266e175c131507ad");
     EXPECT_EQ(calculateDigest(Digest::md5, std::string(digestBufferSize * 2 + 1, '.')), "f6d1980c19ca54e6710d83faedca329f");
+    // clang-format on
 }
 
 TEST(TestDigest, calculateDigestStream) // NOLINT

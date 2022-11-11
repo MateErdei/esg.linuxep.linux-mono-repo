@@ -96,9 +96,9 @@ namespace Common
 
             void recursivelyDeleteContentsOfDirectory(const Path& path) const override;
 
-            std::string calculateDigest(const char* digestName, const Path& path) const override;
+            [[nodiscard]] std::string calculateDigest(SslImpl::Digest digestName, const Path& path) const override;
 
-            std::string calculateDigest(const char* digestName, int fd) const override;
+            [[nodiscard]] std::string calculateDigest(SslImpl::Digest digestName, int fd) const override;
 
         private:
             void walkDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const;

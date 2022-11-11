@@ -951,22 +951,20 @@ namespace
         std::string digest{};
         EXPECT_NO_THROW(
             digest = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, tempDir.absPath(filename)));
-        EXPECT_EQ(digest, "acbd18db4cc2f85cedef654fccc4a4d8");
+        EXPECT_EQ(digest, Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, content));
     }
 
     TEST_F(FileSystemImplTest, calculateDigestThrowsOnNonExistentPath) // NOLINT
     {
         const Tests::TempDir tempDir{};
-        EXPECT_THROW(
-            m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, tempDir.absPath("non-existent")),
-            IFileSystemException);
+        EXPECT_ANY_THROW(
+            std::ignore = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, tempDir.absPath("non-existent")));
     }
 
     TEST_F(FileSystemImplTest, calculateDigestThrowsOnValidDirectoryPath) // NOLINT
     {
         const Tests::TempDir tempDir{};
-        EXPECT_THROW(
-            m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, tempDir.dirPath()), IFileSystemException);
+        EXPECT_ANY_THROW(std::ignore = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, tempDir.dirPath()));
     }
 
     TEST_F(FileSystemImplTest, calculateDigestFromValidFd) // NOLINT
@@ -980,9 +978,9 @@ namespace
 
         std::string digest{};
         EXPECT_NO_THROW(digest = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, fd));
-        EXPECT_EQ(digest, "acbd18db4cc2f85cedef654fccc4a4d8");
+        EXPECT_EQ(digest, Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, content));
 
-        ::close(fd);
+        EXPECT_EQ(::close(fd), 0);
     }
 
     TEST_F(FileSystemImplTest, calculateDigestFromValidFdButAfterDeletingFile) // NOLINT
@@ -997,14 +995,14 @@ namespace
 
         std::string digest{};
         EXPECT_NO_THROW(digest = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, fd));
-        EXPECT_EQ(digest, "acbd18db4cc2f85cedef654fccc4a4d8");
+        EXPECT_EQ(digest, Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, content));
 
-        ::close(fd);
+        EXPECT_EQ(::close(fd), 0);
     }
 
     TEST_F(FileSystemImplTest, calculateDigestThrowsOnInvalidFd) // NOLINT
     {
-        EXPECT_THROW(m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, -1), IFileSystemException);
+        EXPECT_ANY_THROW(std::ignore = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, -1));
     }
 
     TEST_F(FileSystemImplTest, calculateDigestThrowsOnValidFdButWithoutReadFlag) // NOLINT
@@ -1015,8 +1013,8 @@ namespace
         tempDir.createFile(filename, content);
 
         const int fd{ ::open(tempDir.absPath(filename).c_str(), O_WRONLY) };
-        EXPECT_THROW(m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, fd), IFileSystemException);
-        ::close(fd);
+        EXPECT_ANY_THROW(std::ignore = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, fd));
+        EXPECT_EQ(::close(fd), 0);
     }
 
     TEST_F(FileSystemImplTest, calculateDigestThrowsOnValidDirectoryFd) // NOLINT
@@ -1024,8 +1022,25 @@ namespace
         const Tests::TempDir tempDir{};
 
         const int fd{ ::open(tempDir.dirPath().c_str(), O_RDONLY) };
-        EXPECT_THROW(m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, fd), IFileSystemException);
-        ::close(fd);
+        EXPECT_ANY_THROW(std::ignore = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, fd));
+        EXPECT_EQ(::close(fd), 0);
+    }
+
+    TEST_F(FileSystemImplTest, calculateDigestWithFdOffsetCalculatesDigestOfWholeFile) // NOLINT
+    {
+        const Tests::TempDir tempDir;
+        const std::string filename = "file";
+        const std::string content = "foo_bar_baz";
+        tempDir.createFile(filename, content);
+
+        const int fd{ ::open(tempDir.absPath(filename).c_str(), O_RDONLY) };
+        ::lseek(fd, 4, SEEK_SET); // change the file offset
+
+        std::string digest;
+        EXPECT_NO_THROW(digest = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, fd));
+        EXPECT_EQ(digest, Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, content));
+
+        EXPECT_EQ(::close(fd), 0);
     }
 
     class mockFileSystemForRecursiveDelete : public FileSystemImpl

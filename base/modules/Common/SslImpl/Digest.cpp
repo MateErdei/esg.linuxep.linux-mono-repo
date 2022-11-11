@@ -50,18 +50,29 @@ namespace Common::SslImpl
         };
     } // namespace
 
-    std::string calculateDigest(const char* digestName, std::istream& inStream)
+    std::string calculateDigest(Digest digestName, std::istream& inStream)
     {
         if (!inStream.good())
         {
             throw std::runtime_error("Provided istream is not in a good state for reading");
         }
 
+        const char* digestNameString;
+        switch (digestName)
+        {
+            case Digest::md5:
+                digestNameString = "md5";
+                break;
+            case Digest::sha256:
+                digestNameString = "sha256";
+                break;
+        }
+
         // TODO: replace with EVP_MD_fetch for OpenSSL 3.0
-        const EVP_MD* md = EVP_get_digestbyname(digestName);
+        const EVP_MD* md = EVP_get_digestbyname(digestNameString);
         if (md == nullptr)
         {
-            throw std::runtime_error(std::string("Unknown message digest ") + digestName);
+            throw std::runtime_error(std::string("Unknown message digest ") + digestNameString);
         }
 
         MdContext mdContext;
@@ -106,7 +117,7 @@ namespace Common::SslImpl
         return stream.str();
     }
 
-    std::string calculateDigest(const char* digestName, const std::string& input)
+    std::string calculateDigest(Digest digestName, const std::string& input)
     {
         std::istringstream istream(input);
         return calculateDigest(digestName, istream);

@@ -60,6 +60,6 @@ public:
     MOCK_CONST_METHOD2(readProcFile, std::optional<std::string>(int pid, const std::string& filename));
     MOCK_CONST_METHOD2(waitForFile, bool(const Path& path, unsigned int timeout));
     MOCK_CONST_METHOD1(recursivelyDeleteContentsOfDirectory, void(const Path& path));
-    MOCK_CONST_METHOD2(calculateDigest, std::string(const char* digestName, const Path& path));
-    MOCK_CONST_METHOD2(calculateDigest, std::string(const char* digestName, int fd));
+    MOCK_CONST_METHOD2(calculateDigest, std::string(Common::SslImpl::Digest digestName, const Path& path));
+    MOCK_CONST_METHOD2(calculateDigest, std::string(Common::SslImpl::Digest digestName, int fd));
 };
