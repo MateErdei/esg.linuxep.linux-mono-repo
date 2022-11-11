@@ -1,24 +1,26 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #define PLUGIN_INTERNAL public
 
 #include "PluginMemoryAppenderUsingTests.h"
 
+#include "common/ApplicationPaths.h"
 #include "datatypes/sophos_filesystem.h"
+#include "pluginimpl/DetectionReporter.h"
 #include "pluginimpl/Logger.h"
 #include "pluginimpl/PluginAdapter.h"
-#include "pluginimpl/DetectionReporter.h"
+#include "pluginimpl/StringUtils.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MockApiBaseServices.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/ZeroMQWrapper/IIPCException.h>
-#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockApiBaseServices.h"
+#include "Common/Helpers/MockFileSystem.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -40,8 +42,7 @@ namespace
     protected:
         void SetUp() override
         {
-            const ::testing::TestInfo* const test_info =
-                ::testing::UnitTest::GetInstance()->current_test_info();
+            const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
             fs::path basePath = fs::temp_directory_path();
             basePath /= test_info->test_case_name();
             basePath /= test_info->name();
@@ -49,21 +50,21 @@ namespace
             fs::create_directories(basePath);
             m_threatEventPublisherSocketPath = basePath / "threatEventPublisherSocket";
 
-            setupFakeSophosThreatDetectorConfig();
+            setupFakePluginConfig();
 
             m_taskQueue = std::make_shared<TaskQueue>();
             m_callback = std::make_shared<Plugin::PluginCallback>(m_taskQueue);
         }
 
-        void TearDown() override
-        {
-            fs::remove_all(tmpdir());
-        }
+        void TearDown() override { fs::remove_all(tmpdir()); }
 
-        static std::string generatePolicyXML(const std::string& revID, const std::string& policyID="2", const std::string& sxl="false")
+        static std::string generatePolicyXML(
+            const std::string& revID,
+            const std::string& policyID = "2",
+            const std::string& sxl = "false")
         {
             return Common::UtilityImpl::StringUtils::orderedStringReplace(
-                    R"sophos(<?xml version="1.0"?>
+                R"sophos(<?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
   <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="@@REV_ID@@" policyType="@@POLICY_ID@@"/>
      <detectionFeedback>
@@ -72,15 +73,14 @@ namespace
         <onDemandEnable>true</onDemandEnable>
       </detectionFeedback>
 </config>
-)sophos", {{"@@REV_ID@@", revID},
-           {"@@POLICY_ID@@", policyID},
-           {"@@SXL@@", sxl}});
+)sophos",
+                { { "@@REV_ID@@", revID }, { "@@POLICY_ID@@", policyID }, { "@@SXL@@", sxl } });
         }
 
-        static std::string generateUpdatePolicyXML(const std::string& revID, const std::string& policyID="1")
+        static std::string generateUpdatePolicyXML(const std::string& revID, const std::string& policyID = "1")
         {
             return Common::UtilityImpl::StringUtils::orderedStringReplace(
-                    R"sophos(<?xml version="1.0"?>
+                R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="@@REV_ID@@" policyType="@@POLICY_ID@@"/>
   <AUConfig>
@@ -89,14 +89,14 @@ namespace
     </primary_location>
   </AUConfig>
 </AUConfigurations>
-)sophos", {{"@@REV_ID@@", revID},
-           {"@@POLICY_ID@@", policyID}});
+)sophos",
+                { { "@@REV_ID@@", revID }, { "@@POLICY_ID@@", policyID } });
         }
 
         static std::string generateStatusXML(const std::string& res, const std::string& revID)
         {
             return Common::UtilityImpl::StringUtils::orderedStringReplace(
-                    R"sophos(<?xml version="1.0" encoding="utf-8"?>
+                R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <status xmlns="http://www.sophos.com/EE/EESavStatus">
   <csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="@@POLICY_COMPLIANCE@@" RevID="@@REV_ID@@" policyType="2"/>
   <upToDateState>1</upToDateState>
@@ -113,19 +113,28 @@ namespace
     <product-version>unknown</product-version>
     <entityInfo>SSPL-AV</entityInfo>
   </entity>
-</status>)sophos", {
-                        {"@@POLICY_COMPLIANCE@@", res},
-                        {"@@REV_ID@@", revID}
-                    });
+</status>)sophos",
+                { { "@@POLICY_COMPLIANCE@@", res }, { "@@REV_ID@@", revID } });
         }
+
+
+        static void expectedDefaultPolicyRequests(StrictMock<MockApiBaseServices>& mock)
+        {
+            for (const auto& policy : PluginAdapter::m_requested_policies)
+            {
+                EXPECT_CALL(mock, requestPolicies(policy)).Times(1);
+            }
+        }
+
 
         std::shared_ptr<TaskQueue> m_taskQueue;
         std::shared_ptr<Plugin::PluginCallback> m_callback;
         fs::path m_threatEventPublisherSocketPath;
     };
-}
+} // namespace
 
-ACTION_P(QueueStopTask, taskQueue) {
+ACTION_P(QueueStopTask, taskQueue)
+{
     taskQueue->pushStop();
 }
 
@@ -135,9 +144,9 @@ TEST_F(TestPluginAdapter, testConstruction)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 }
-
 
 TEST_F(TestPluginAdapter, testMainLoop)
 {
@@ -147,31 +156,29 @@ TEST_F(TestPluginAdapter, testMainLoop)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("CORE")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillOnce(QueueStopTask(m_taskQueue));
     pluginAdapter.mainLoop();
 }
-
 
 TEST_F(TestPluginAdapter, testRequestPoliciesThrows)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     Common::PluginApi::ApiException ex { "dummy error" };
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).WillOnce(Throw(ex));
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillOnce(Throw(ex));
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).WillOnce(Throw(ex));
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
+    EXPECT_CALL(*mockBaseService, requestPolicies(_)).Times(4).WillRepeatedly(Throw(ex));
+
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <invalidPolicy />
@@ -199,26 +206,21 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
     fs::path testDir = tmpdir();
     const std::string susiStartupSettingsPath = testDir / "var/susi_startup_settings.json";
     const std::string susiStartupSettingsChrootPath = std::string(testDir / "chroot") + susiStartupSettingsPath;
-    const std::string databasePath = std::string(testDir / "var/persist-threatDatabase") ;
-    Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + susiStartupSettingsPath + "', file does not exist");
-    EXPECT_CALL(*mockIFileSystemPtr, exists(databasePath)).WillOnce(Return(false));
+    Common::FileSystem::IFileSystemException ex(
+        "Error, Failed to read file: '" + susiStartupSettingsPath + "', file does not exist");
+    EXPECT_CALL(*mockIFileSystemPtr, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(false));
     EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillRepeatedly(Throw(ex));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_,_)).WillRepeatedly(Throw(ex));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFileAtomically(_,_,_,_)).WillRepeatedly(Throw(ex));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_, _)).WillRepeatedly(Throw(ex));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFileAtomically(_, _, _, _)).WillRepeatedly(Throw(ex));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    auto* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(
-        m_taskQueue,
-        std::move(mockBaseService),
-        m_callback,
-        m_threatEventPublisherSocketPath,
-        0
-        );
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     std::string policy1revID = "12345678901";
     std::string policy2revID = "12345678902";
@@ -244,9 +246,8 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
     EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
 
     EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+    expectedDefaultPolicyRequests(*mockBaseServicePtr);
+
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
@@ -263,8 +264,6 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
 
     std::string policyXml = R"sophos(<?xml version="1.0"?>
 <invalidPolicy />
@@ -273,18 +272,11 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
     Task policyTask = { .taskType = Task::TaskType::Policy, .Content = policyXml, .appId = "SAV" };
     m_taskQueue->push(policyTask);
 
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
+    expectedDefaultPolicyRequests(*mockBaseService);
 
     auto pluginAdapter = std::make_shared<PluginAdapter>(
-        m_taskQueue,
-        std::move(mockBaseService),
-        m_callback,
-        m_threatEventPublisherSocketPath,
-        1
-        );
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     // check these first to ensure the timing is correct
@@ -300,7 +292,6 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
     m_taskQueue->pushStop();
 
     pluginThread.join();
-
 }
 
 TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID)
@@ -310,8 +301,10 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID)
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
+    expectedDefaultPolicyRequests(*mockBaseService);
 
-    PluginAdapter pluginAdapter(m_taskQueue,  std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     std::string policy1revID = "12345678901";
     std::string policy2revID = "12345678902";
@@ -331,9 +324,6 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID)
     EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
 
     EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
@@ -349,6 +339,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
+    expectedDefaultPolicyRequests(*mockBaseService);
 
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
@@ -358,17 +349,18 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
     const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
-    const std::string databasePath = std::string(testDir / "var/persist-threatDatabase") ;
-    Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
+    Common::FileSystem::IFileSystemException ex(
+        "Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
     EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
-    EXPECT_CALL(*mockIFileSystemPtr, exists(databasePath)).WillOnce(Return(false));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(databasePath, "{}")).Times(1);
+    EXPECT_CALL(*mockIFileSystemPtr, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(false));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(Plugin::getPersistThreatDatabaseFilePath(), "{}")).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).WillOnce(QueueStopTask(m_taskQueue));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     std::string policyRevID = "12345678901";
     std::string policyXml = generateUpdatePolicyXML(policyRevID);
@@ -378,9 +370,6 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     m_taskQueue->push(policyTask);
 
     EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
@@ -394,15 +383,11 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
     threadRunnerLogger.addAppender(m_sharedAppender);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
+    expectedDefaultPolicyRequests(*mockBaseService);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
-
-    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop"));
@@ -417,16 +402,15 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
                 true</onDemandEnable>
               </detectionFeedback>
         </config>
-        )sophos", {{"@@REV_ID@@", "12345678901"},
-                    {"@@POLICY_ID@@", "2"},
-                    {"@@SXL@@", "false"}});
+        )sophos",
+        { { "@@REV_ID@@", "12345678901" }, { "@@POLICY_ID@@", "2" }, { "@@SXL@@", "false" } });
 
     Task policyTask = { .taskType = Task::TaskType::Policy, .Content = brokenPolicyXml, .appId = "SAV" };
     m_taskQueue->push(policyTask);
 
-    EXPECT_TRUE(waitForLog("Exception encountered while parsing AV policy XML: Error parsing xml"));
+    EXPECT_TRUE(waitForLog("Exception encountered while parsing AV policy XML: Error parsing xml", 500ms));
 
-    Task stopTask = {Task::TaskType::Stop, ""};
+    Task stopTask = { Task::TaskType::Stop, "" };
     m_taskQueue->push(stopTask);
     EXPECT_TRUE(waitForLog("Stop task received"));
     EXPECT_FALSE(appenderContains("SAV policy received for the first time."));
@@ -441,15 +425,11 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
     threadRunnerLogger.addAppender(m_sharedAppender);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
+    expectedDefaultPolicyRequests(*mockBaseService);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
-
-    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop"));
@@ -510,18 +490,17 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
 
     Task policyTask = { .taskType = Task::TaskType::Policy, .Content = invalidPolicyXml, .appId = "SAV" };
     m_taskQueue->push(policyTask);
-    EXPECT_TRUE(waitForLog("Received Policy"));
+    EXPECT_TRUE(waitForLog("Received Policy", 500ms));
 
-    Task stopTask = {Task::TaskType::Stop, ""};
+    Task stopTask = { Task::TaskType::Stop, "" };
     m_taskQueue->push(stopTask);
-    EXPECT_TRUE(waitForLog("Stop task received"));
+    EXPECT_TRUE(waitForLog("Stop task received", 500ms));
 
     EXPECT_FALSE(appenderContains("SAV policy received for the first time."));
     EXPECT_FALSE(appenderContains("Processing request to restart sophos threat detector"));
 
     pluginThread.join();
 }
-
 
 TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
 {
@@ -530,6 +509,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
+    expectedDefaultPolicyRequests(*mockBaseService);
 
     // Setup Mock filesystem
     auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
@@ -539,17 +519,18 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
     const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
     const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
-    const std::string databasePath = std::string(testDir / "var/persist-threatDatabase") ;
-    Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
-    EXPECT_CALL(*mockIFileSystemPtr, exists(databasePath)).WillOnce(Return(false));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(databasePath, "{}")).Times(1);
+    Common::FileSystem::IFileSystemException ex(
+        "Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
+    EXPECT_CALL(*mockIFileSystemPtr, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(false));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(Plugin::getPersistThreatDatabaseFilePath(), "{}")).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).WillOnce(QueueStopTask(m_taskQueue));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
 
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     std::string policy1revID = "12345678901";
     std::string policy2revID = "12345678902";
@@ -562,9 +543,6 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
     m_taskQueue->push(policy2Task);
 
     EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
     pluginAdapter.mainLoop();
 
     EXPECT_TRUE(appenderContains("Received Policy"));
@@ -579,30 +557,25 @@ TEST_F(TestPluginAdapter, testProcessAction)
     scanLogger.addAppender(m_sharedAppender);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
+    expectedDefaultPolicyRequests(*mockBaseService);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
-
-
-    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>)";
-    Task actionTask = {Task::TaskType::Action, actionXml};
+    Task actionTask = { Task::TaskType::Action, actionXml };
     m_taskQueue->push(actionTask);
 
     std::string expectedLog = "Process action: ";
     expectedLog.append(actionXml);
 
     EXPECT_TRUE(waitForLog(expectedLog));
-    EXPECT_TRUE(waitForLog("Evaluating Scan Now"));
+    EXPECT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
 
     m_taskQueue->pushStop();
 
@@ -618,22 +591,18 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed)
     scanLogger.addAppender(m_sharedAppender);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
+    expectedDefaultPolicyRequests(*mockBaseService);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
-
-    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="NONE" id="" subtype="MALFORMED" replyRequired="0"/>)";
-    Task actionTask = {Task::TaskType::Action, actionXml};
+    Task actionTask = { Task::TaskType::Action, actionXml };
     m_taskQueue->push(actionTask);
 
     std::string expectedLog = "Process action: ";
@@ -656,27 +625,23 @@ TEST_F(TestPluginAdapter, testBadProcessActionXMLThrows)
     scanLogger.addAppender(m_sharedAppender);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
+    expectedDefaultPolicyRequests(*mockBaseService);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
-
-    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop"));
 
     std::string actionXml =
         R"(<?xml version='1.0'?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1">)";
-    Task actionTask = {Task::TaskType::Action, actionXml};
+    Task actionTask = { Task::TaskType::Action, actionXml };
     m_taskQueue->push(actionTask);
 
     EXPECT_TRUE(waitForLog("Exception encountered while parsing Action XML", 500ms));
 
-    Task stopTask = {Task::TaskType::Stop, ""};
+    Task stopTask = { Task::TaskType::Stop, "" };
     m_taskQueue->push(stopTask);
 
     pluginThread.join();
@@ -688,9 +653,8 @@ TEST_F(TestPluginAdapter, testProcessScanComplete)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    expectedDefaultPolicyRequests(*mockBaseService);
 
     std::string scanCompleteXml = R"sophos(<?xml version="1.0"?>
         <event xmlns="http://www.sophos.com/EE/EESavEvent" type="sophos.mgt.sav.scanCompleteEvent">
@@ -702,46 +666,39 @@ TEST_F(TestPluginAdapter, testProcessScanComplete)
           <entity></entity>
         </event>)sophos";
 
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("SAV", scanCompleteXml));
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}")).Times(0);
+    EXPECT_CALL(*mockBaseService, sendEvent("SAV", scanCompleteXml));
+    EXPECT_CALL(
+        *mockBaseService, sendThreatHealth("{\"ThreatHealth\":" + std::to_string(E_THREAT_HEALTH_STATUS_GOOD) + "}"))
+        .Times(0);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+    m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     pluginAdapter.processScanComplete(scanCompleteXml);
     m_taskQueue->pushStop();
-
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
     pluginAdapter.mainLoop();
     std::string expectedLog = "Sending scan complete notification to central: ";
     expectedLog.append(scanCompleteXml);
 
     EXPECT_TRUE(appenderContains(expectedLog));
-
 }
 
 TEST_F(TestPluginAdapter, testProcessThreatReport)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    expectedDefaultPolicyRequests(*mockBaseService);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
     std::string threatDetectedXML = "may be xml data";
+    EXPECT_CALL(*mockBaseService, sendEvent("CORE", threatDetectedXML));
 
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("CORE", threatDetectedXML));
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     DetectionReporter::processThreatReport(threatDetectedXML, m_taskQueue);
     m_taskQueue->pushStop();
-
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
     pluginAdapter.mainLoop();
     std::string expectedLog = "Sending threat detection notification to central: ";
@@ -754,28 +711,56 @@ TEST_F(TestPluginAdapter, publishQuarantineCleanEvent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    expectedDefaultPolicyRequests(*mockBaseService);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
     std::string threatDetectedXML = "may be xml data";
+    EXPECT_CALL(*mockBaseService, sendEvent("CORE", threatDetectedXML));
 
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("CORE", threatDetectedXML));
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     DetectionReporter::publishQuarantineCleanEvent(threatDetectedXML, m_taskQueue);
     m_taskQueue->pushStop();
 
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
     pluginAdapter.mainLoop();
     std::string expectedLog = "Sending Clean Event to Central: ";
     expectedLog.append(threatDetectedXML);
 
     EXPECT_TRUE(appenderContains(expectedLog));
+}
+
+TEST_F(TestPluginAdapter, processRestoreReport)
+{
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+
+    const RestoreReport restoreReport{ 0, "/tmp/eicar.txt", "correlationId", true };
+    const auto eventXml = pluginimpl::generateCoreRestoreEventXml(restoreReport);
+
+    EXPECT_CALL(*mockBaseServicePtr, sendEvent("CORE", eventXml));
+
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+
+    internal::CaptureStderr();
+    pluginAdapter.processRestoreReport(restoreReport);
+    auto log = internal::GetCapturedStderr();
+    EXPECT_THAT(log, HasSubstr(" INFO Reporting successful restoration of /tmp/eicar.txt"));
+    EXPECT_THAT(log, HasSubstr("DEBUG Added restore report to task queue"));
+
+    m_taskQueue->pushStop();
+
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
+    internal::CaptureStderr();
+    pluginAdapter.mainLoop();
+    log = internal::GetCapturedStderr();
+    EXPECT_THAT(log, HasSubstr("DEBUG Sending Restore Event to Central: " + eventXml));
 }
 
 class SubscriberThread
@@ -791,10 +776,7 @@ public:
     }
     void start();
 
-    std::vector<std::string> getData()
-    {
-        return m_data;
-    };
+    std::vector<std::string> getData() { return m_data; };
 
 private:
     Common::ZMQWrapperApi::IContext& m_context;
@@ -805,15 +787,16 @@ private:
 };
 
 SubscriberThread::SubscriberThread(Common::ZMQWrapperApi::IContext& context, const std::string& socketPath) :
-    m_context(context),
-    m_subscriber(m_context.getSubscriber()),
-    m_thread()
+    m_context(context), m_subscriber(m_context.getSubscriber()), m_thread()
 {
     m_subscriber->listen("ipc://" + socketPath);
     m_subscriber->subscribeTo("threatEvents");
 }
 
-void SubscriberThread::start() { m_thread = std::thread(&SubscriberThread::run, this); }
+void SubscriberThread::start()
+{
+    m_thread = std::thread(&SubscriberThread::run, this);
+}
 
 void SubscriberThread::run()
 {
@@ -834,16 +817,17 @@ TEST_F(TestPluginAdapter, testPublishThreatEvent)
     SubscriberThread thread(*subscriberContext, m_threatEventPublisherSocketPath);
     thread.start();
 
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     pluginAdapter.connectToThreatPublishingSocket(m_threatEventPublisherSocketPath);
 
     std::string threatDetectedJSON = R"sophos({"threatName":"eicar", "threatPath":"/tmp/eicar.com"})sophos";
     // pluginAdapter appears to take a few moments to connect to the threatPublishingSocket, try a few times
-    for (int tries=0; tries<10; ++tries)
+    for (int tries = 0; tries < 10; ++tries)
     {
         pluginAdapter.publishThreatEvent(threatDetectedJSON);
         std::this_thread::sleep_for(10ms);
@@ -861,7 +845,7 @@ TEST_F(TestPluginAdapter, testPublishThreatEvent)
 
 TEST_F(TestPluginAdapter, testPublishThreatHealth)
 {
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
@@ -871,7 +855,8 @@ TEST_F(TestPluginAdapter, testPublishThreatHealth)
   </threat>
 </notification>
             )sophos";
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     DetectionReporter::processThreatReport(threatDetectedXML, m_taskQueue);
     m_taskQueue->pushStop();
 
@@ -976,57 +961,56 @@ TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnAccessThreatEicarCo
 
 TEST_F(TestPluginAdapter, testPublishThreatHealthWithretrySuceedsAfterFailure)
 {
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     m_taskQueue->pushStop();
-    Common::PluginApi::ApiException ex { "dummy error" };
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Return());
+    Common::PluginApi::ApiException ex{ "dummy error" };
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})"))
+        .WillOnce(Throw(ex))
+        .WillOnce(Throw(ex))
+        .WillOnce(Throw(ex))
+        .WillOnce(Throw(ex))
+        .WillOnce(Return());
 
     pluginAdapter.publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_GOOD);
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-
 }
 
 TEST_F(TestPluginAdapter, testPublishThreatHealthWithRetryFailsAfter5tries)
 {
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     m_taskQueue->pushStop();
-    Common::PluginApi::ApiException ex { "dummy error" };
+    Common::PluginApi::ApiException ex{ "dummy error" };
     EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).Times(5).WillRepeatedly(Throw(ex));
 
     pluginAdapter.publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_GOOD);
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-
 }
-
 
 TEST_F(TestPluginAdapter, testInvalidTaskType)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
+    expectedDefaultPolicyRequests(*mockBaseService);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
-    Task invalidTask = {static_cast<Task::TaskType>(99), ""};
+    Task invalidTask = { static_cast<Task::TaskType>(99), "" };
     m_taskQueue->push(invalidTask);
 
     std::string policyXml = R"sophos(<?xml version="1.0"?>
@@ -1042,21 +1026,16 @@ TEST_F(TestPluginAdapter, testInvalidTaskType)
     EXPECT_TRUE(appenderContains("Received Policy"));
 }
 
-
 TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
+    expectedDefaultPolicyRequests(*mockBaseService);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
-
-    auto pluginAdapter = std::make_shared<PluginAdapter>(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
     EXPECT_TRUE(waitForLog("Starting the main program loop"));
@@ -1071,45 +1050,44 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
     EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
 }
 
-
 // TODO: LINUXDAR-5806 -- stablise this test
 //// PluginAdapter construction needed for this test, so it's here instead of its own TestSafeStoreWorker file (for now)
-//TEST_F(TestPluginAdapter, testSafeStoreWorkerExitsOnStop) // NOLINT
+// TEST_F(TestPluginAdapter, testSafeStoreWorkerExitsOnStop) // NOLINT
 //{
-//    // In lieu of a Mock PluginAdapter, make a real one since this test never calls its functions anyway
-//    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-//    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-//    ASSERT_NE(mockBaseServicePtr, nullptr);
-//    PluginAdapter pluginAdapter(
-//        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+//     // In lieu of a Mock PluginAdapter, make a real one since this test never calls its functions anyway
+//     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+//     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+//     ASSERT_NE(mockBaseServicePtr, nullptr);
+//     PluginAdapter pluginAdapter(
+//         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 //
-//    auto newQueue = std::make_shared<DetectionQueue>();
-//    auto worker = std::make_shared<SafeStoreWorker>(pluginAdapter, newQueue, "fakeSocket");
+//     auto newQueue = std::make_shared<DetectionQueue>();
+//     auto worker = std::make_shared<SafeStoreWorker>(pluginAdapter, newQueue, "fakeSocket");
 //
-//    // Prove worker exits when queue gets stop request
-//    auto result = std::async(std::launch::async, &SafeStoreWorker::join, worker);
-//    worker->start();
-//    newQueue->requestStop();
-//    ASSERT_EQ(result.wait_for(std::chrono::milliseconds(50)), std::future_status::ready);
-//    result.get();
+//     // Prove worker exits when queue gets stop request
+//     auto result = std::async(std::launch::async, &SafeStoreWorker::join, worker);
+//     worker->start();
+//     newQueue->requestStop();
+//     ASSERT_EQ(result.wait_for(std::chrono::milliseconds(50)), std::future_status::ready);
+//     result.get();
 //
-//    // Prove worker exits when thread is asked to stop, detection given to queue to unblock internal pop
-//    result = std::async(std::launch::async, &SafeStoreWorker::join, worker);
-//    worker->start();
-//    worker->requestStop();
-//    scan_messages::ThreatDetected basicDetection(
-//        "root",
-//        1,
-//        scan_messages::E_VIRUS_THREAT_TYPE,
-//        "threatName",
-//        scan_messages::E_SCAN_TYPE_UNKNOWN,
-//        scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
-//        "/path",
-//        scan_messages::E_SMT_THREAT_ACTION_UNKNOWN,
-//        "sha256",
-//        "threatId",
-//        datatypes::AutoFd());
-//    newQueue->push(basicDetection);
-//    ASSERT_EQ(result.wait_for(std::chrono::milliseconds(50)), std::future_status::ready);
-//    result.get();
-//}
+//     // Prove worker exits when thread is asked to stop, detection given to queue to unblock internal pop
+//     result = std::async(std::launch::async, &SafeStoreWorker::join, worker);
+//     worker->start();
+//     worker->requestStop();
+//     scan_messages::ThreatDetected basicDetection(
+//         "root",
+//         1,
+//         scan_messages::E_VIRUS_THREAT_TYPE,
+//         "threatName",
+//         scan_messages::E_SCAN_TYPE_UNKNOWN,
+//         scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
+//         "/path",
+//         scan_messages::E_SMT_THREAT_ACTION_UNKNOWN,
+//         "sha256",
+//         "threatId",
+//         datatypes::AutoFd());
+//     newQueue->push(basicDetection);
+//     ASSERT_EQ(result.wait_for(std::chrono::milliseconds(50)), std::future_status::ready);
+//     result.get();
+// }

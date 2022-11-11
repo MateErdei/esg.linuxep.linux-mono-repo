@@ -1,15 +1,16 @@
-// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+// Copyright 2018-2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #ifndef PLUGIN_INTERNAL
-# define PLUGIN_INTERNAL private
+#    define PLUGIN_INTERNAL private
 #endif
 
 #include "DetectionQueue.h"
 #include "HealthStatus.h"
-#include "IDetectionReportProcessor.h"
 #include "IDetectionDatabaseHandler.h"
+#include "IDetectionReportProcessor.h"
+#include "IRestoreReportProcessor.h"
 #include "PluginCallback.h"
 #include "PolicyProcessor.h"
 #include "PolicyWaiter.h"
@@ -20,16 +21,20 @@
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "manager/scheduler/ScanScheduler.h"
 #include "modules/common/ThreadRunner.h"
+#include "unixsocket/restoreReportingSocket/RestoreReportingServer.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
-#include <Common/PluginApi/ApiException.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketPublisher.h>
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
 
 namespace Plugin
 {
-    class PluginAdapter : public IScanComplete, public IDetectionReportProcessor, public IDetectionDatabaseHandler
+    class PluginAdapter : public IScanComplete,
+                          public IDetectionReportProcessor,
+                          public IDetectionDatabaseHandler,
+                          public IRestoreReportProcessor
     {
     private:
         std::shared_ptr<TaskQueue> m_taskQueue;
@@ -40,6 +45,7 @@ namespace Plugin
         std::shared_ptr<unixsocket::ThreatReporterServerSocket> m_threatReporterServer;
         std::shared_ptr<plugin::manager::scanprocessmonitor::ScanProcessMonitor> m_threatDetector;
         std::shared_ptr<SafeStoreWorker> m_safeStoreWorker;
+        unixsocket::RestoreReportingServer m_restoreReportingServer;
         int m_waitForPolicyTimeout = 0;
 
         Common::ZMQWrapperApi::IContextSharedPtr m_zmqContext;
@@ -59,18 +65,29 @@ namespace Plugin
          * Takes in detection info and the result from attempting to quarantine that threat and then
          * triggers various outputs to be generated: Central Events, Event Journal input, Threat Health
          */
-        void processDetectionReport(const scan_messages::ThreatDetected&, const common::CentralEnums::QuarantineResult& quarantineResult) const override;
+        void processDetectionReport(
+            const scan_messages::ThreatDetected&,
+            const common::CentralEnums::QuarantineResult& quarantineResult) const override;
 
         void publishThreatEvent(const std::string& threatDetectedJSON) const;
         void updateThreatDatabase(const scan_messages::ThreatDetected& detection) override;
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
         bool isSafeStoreEnabled();
         [[nodiscard]] std::shared_ptr<DetectionQueue> getDetectionQueue() const;
+        void processRestoreReport(const scan_messages::RestoreReport& restoreReport) const override;
 
+        static const PolicyWaiter::policy_list_t m_requested_policies;
+
+        // clang-format off
     PLUGIN_INTERNAL:
+        ; // Needed to prevent clang-format from being silly
+        // clang-format on
         void publishThreatHealth(E_HEALTH_STATUS threatStatus) const;
         void publishThreatHealthWithRetry(E_HEALTH_STATUS threatStatus) const;
-        static void incrementTelemetryThreatCount(const std::string &threatName, const scan_messages::E_SCAN_TYPE& scanType);
+        static void incrementTelemetryThreatCount(
+            const std::string& threatName,
+            const scan_messages::E_SCAN_TYPE& scanType);
+
     private:
         /**
          *
@@ -83,7 +100,10 @@ namespace Plugin
         void startThreads();
         void innerLoop();
         void processSUSIRestartRequest();
-        void setResetThreatDetector(bool reset) { m_restartSophosThreatDetector = reset || m_restartSophosThreatDetector; }
+        void setResetThreatDetector(bool reset)
+        {
+            m_restartSophosThreatDetector = reset || m_restartSophosThreatDetector;
+        }
 
         PolicyProcessor m_policyProcessor;
         ThreatDatabase m_threatDatabase;
