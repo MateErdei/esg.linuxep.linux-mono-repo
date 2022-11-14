@@ -69,9 +69,11 @@ namespace Plugin
 
     const PolicyWaiter::policy_list_t PluginAdapter::m_requested_policies{
         "SAV",
+#ifdef ENABLE_CORE_POLICY
         "CORE",
+#endif
         "FLAGS",
-        "ALC"
+        "ALC" // Must be last for unit tests
     };
 
     PluginAdapter::PluginAdapter(

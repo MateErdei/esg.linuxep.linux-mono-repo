@@ -6,6 +6,8 @@
 #    define PLUGIN_INTERNAL private
 #endif
 
+// #define ENABLE_CORE_POLICY
+
 #include "DetectionQueue.h"
 #include "HealthStatus.h"
 #include "IDetectionDatabaseHandler.h"

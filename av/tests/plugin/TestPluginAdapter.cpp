@@ -162,7 +162,9 @@ TEST_F(TestPluginAdapter, testMainLoop)
     EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+#ifdef ENABLE_CORE_POLICY
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("CORE")).Times(1);
+#endif
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillOnce(QueueStopTask(m_taskQueue));
     pluginAdapter.mainLoop();
 }
@@ -175,7 +177,7 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows)
 
     Common::PluginApi::ApiException ex { "dummy error" };
     EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseService, requestPolicies(_)).Times(4).WillRepeatedly(Throw(ex));
+    EXPECT_CALL(*mockBaseService, requestPolicies(_)).Times(PluginAdapter::m_requested_policies.size()).WillRepeatedly(Throw(ex));
 
     PluginAdapter pluginAdapter(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
