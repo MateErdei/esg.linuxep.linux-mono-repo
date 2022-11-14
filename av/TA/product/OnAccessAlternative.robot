@@ -137,7 +137,6 @@ On Access Does Not Include Remote Files If Excluded In Policy
     Create Directory  ${source}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
-    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
     wait for on access log contains after mark  Including mount point: /testmnt/nfsshare  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
@@ -165,7 +164,6 @@ On Access Applies Config Changes When The Mounts Change
     Create Directory  ${source}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
-    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
     wait for on access log contains after mark  Including mount point: /testmnt/nfsshare  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 

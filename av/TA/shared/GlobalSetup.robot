@@ -24,6 +24,9 @@ ${SCAN_ABORTED_WITH_THREAT}        ${25}
 ${SCAN_ABORTED}                    ${36}
 ${EXECUTION_INTERRUPTED}           ${40}
 
+${TESTUSER}         testuser
+${TESTGROUP}        testgroup
+
 *** Keywords ***
 Global Setup Tasks
     # SOPHOS_INSTALL
@@ -60,13 +63,24 @@ Global Setup Tasks
     Create Install Set If Required
     CoreDumps.Enable Core Files
 
+    Create test user and group
+
 Global Teardown Tasks
     Run Keyword And Ignore Error  Uninstall All
     stop fake management if running
 
+    Remove test user and group
 
 Uninstall All
     Run Keyword And Ignore Error  Log File    /tmp/installer.log
     Run Keyword And Ignore Error  Log File   ${AV_LOG_PATH}
     LogUtils.dump_watchdog_log
     BaseUtils.uninstall_sspl_if_installed
+
+Create test user and group
+    Run Process  groupadd  ${TESTGROUP}
+    Run Process  useradd  ${TESTUSER}  --no-create-home  --no-user-group  --gid  ${TESTGROUP}
+
+Remove test user and group
+    Run Process  /usr/sbin/userdel   ${TESTUSER}
+    Run Process  /usr/sbin/groupdel   ${TESTGROUP}

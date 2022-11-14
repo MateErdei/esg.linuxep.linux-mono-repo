@@ -179,7 +179,6 @@ AV Plugin Can Disable Scanning Of Mounted NFS Shares
     Register Cleanup  Remove File      ${source}/eicar.com
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
-    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
 
     Test Remote Share  ${destination}
 

@@ -976,6 +976,7 @@ Create Local NFS Share
     Register On Fail  Dump Log  ${EXPORT_FILE}
     Run Shell Process   exportfs -ra            OnError=Failed to force NFS server reload
     Run Shell Process   mount -t nfs localhost:${source} ${destination} -o ${mount_opts}   OnError=Failed to mount local NFS share
+    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
 
 Remove Local NFS Share
     [Arguments]  ${source}  ${destination}
@@ -1235,6 +1236,7 @@ Check avscanner can detect eicar on read only mount
     Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/readOnly/eicar.com   ${LOCAL_AVSCANNER}
 
 Check avscanner can detect eicar on network mount
+    [Tags]   NFS
     [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
 
     ${source} =       Set Variable  /tmp_test/nfsshare
@@ -1242,7 +1244,6 @@ Check avscanner can detect eicar on network mount
     Create Directory  ${source}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
-    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
 
     Create File     ${source}/eicar.com    ${EICAR_STRING}
     Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com

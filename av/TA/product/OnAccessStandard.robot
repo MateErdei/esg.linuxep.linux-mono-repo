@@ -94,6 +94,18 @@ On Access Scans Eicar On Filesystem from Image
     ${image} =  Copy And Extract Image  ${imageName}
     On Access Scans Eicar On Filesystem  ${type}  ${image}
 
+Create File As User
+    [Arguments]  ${user}  ${filename}  ${contents}
+    Run Shell Process
+    ...     echo -n '${contents}' | sudo -u ${user} bash -c 'cat > ${filename}'
+    ...     OnError=Failed to Create File As User
+
+Get File As User
+    [Arguments]  ${user}  ${filename}
+    ${result} =  Run Shell Process
+    ...     sudo -u ${user} bash -c 'cat ${filename}'
+    ...     OnError=Failed to Get File As User
+    [Return]   ${result.stdout}
 
 On Access Scans Files On NFS
     [Arguments]   ${version}=4  ${share_opts}=root_squash  ${mount_opts}=defaults
@@ -104,12 +116,12 @@ On Access Scans Files On NFS
     ${source} =       Set Variable  ${TESTTMP}/excluded/nfsshare
     ${destination} =  Set Variable  ${TESTTMP}/nfsmount
     Create Directory  ${source}
+    Evaluate   os.chmod($TESTTMP, 0o755)
     Evaluate   os.chmod($source, 0o777)
     Create Directory  ${destination}
 
     ${mark} =  get_on_access_log_mark
     Create Local NFS Share   ${source}   ${destination}     ${share_opts}   vers\=${version},${mount_opts}
-    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
     wait for on access log contains after mark  Including mount point: ${destination}  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
@@ -129,7 +141,18 @@ On Access Scans Files On NFS
     wait for on access log contains after mark  On-open event for ${destination}/eicar2.com from  mark=${mark}
     wait for on access log contains after mark  Detected "${destination}/eicar2.com" is infected with  mark=${mark}
 
-    # TODO - LINUXDAR-6014 - check as a regular user
+    # On-close, regular user
+    ${mark} =  get_on_access_log_mark
+    Create File As User   ${TESTUSER}  ${destination}/eicar3.com  ${EICAR_STRING}
+    wait for on access log contains after mark  On-close event for ${destination}/eicar3.com from  mark=${mark}
+    wait for on access log contains after mark  Detected "${destination}/eicar3.com" is infected with  mark=${mark}
+
+    # On-open, regular user
+    ${mark} =  get_on_access_log_mark
+    # Create File  ${source}/eicar2.com  ${EICAR_STRING}
+    Get File As User   ${TESTUSER}  ${destination}/eicar2.com
+    wait for on access log contains after mark  On-open event for ${destination}/eicar2.com from  mark=${mark}
+    wait for on access log contains after mark  Detected "${destination}/eicar2.com" is infected with  mark=${mark}
 
 
 On Access Scans Files on Samba

@@ -1337,7 +1337,6 @@ CLS Scans file on NFS
     Create File        ${source}/eicar.com    ${EICAR_STRING}
     Create Directory   ${destination}
     Create Local NFS Share   ${source}   ${destination}
-    Register Cleanup   Remove Local NFS Share   ${source}   ${destination}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${destination}
     Log     ${output}
