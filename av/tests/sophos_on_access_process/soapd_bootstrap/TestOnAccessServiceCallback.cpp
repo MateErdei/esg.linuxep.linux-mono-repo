@@ -12,6 +12,7 @@
 #include <thread>
 
 using namespace sophos_on_access_process::service_callback;
+using namespace Common::Telemetry;
 using namespace testing;
 
 class TestOnAccessServiceCallback : public LogInitializedTests
@@ -19,17 +20,17 @@ class TestOnAccessServiceCallback : public LogInitializedTests
 protected:
     void SetUp() override
     {
+        m_callback = OnAccessServiceCallback {};
     }
+    OnAccessServiceCallback m_callback;
 };
 
 
 TEST_F(TestOnAccessServiceCallback, OnAccessTelemetryResets)
 {
-    auto callback = sophos_on_access_process::service_callback::OnAccessServiceCallback {};
-
-    Common::Telemetry::TelemetryHelper::getInstance().increment("This is a test", 1ul);
-    auto resContent = callback.getTelemetry();
+    TelemetryHelper::getInstance().increment("This is a test", 1ul);
+    auto resContent = m_callback.getTelemetry();
     ASSERT_EQ(resContent, "{\"This is a test\":1}");
-    auto resEmpty = callback.getTelemetry();
+    auto resEmpty = m_callback.getTelemetry();
     ASSERT_EQ(resEmpty, "{}");
 }
