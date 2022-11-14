@@ -9,6 +9,7 @@ Force Tags      PRODUCT  SOAP  oa_standard
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/ErrorMarkers.robot
+Resource    ../shared/SambaResources.robot
 Resource    ../shared/FakeManagementResources.robot
 
 Resource    ../shared/OnAccessResources.robot
@@ -129,6 +130,36 @@ On Access Scans Files On NFS
     wait for on access log contains after mark  Detected "${destination}/eicar2.com" is infected with  mark=${mark}
 
     # TODO - LINUXDAR-6014 - check as a regular user
+
+
+On Access Scans Files on Samba
+    [Arguments]   ${opts}=
+    ${source} =       Set Variable  ${TESTTMP}/excluded/share
+    ${destination} =  Set Variable  ${TESTTMP}/mount
+    Create Directory  ${source}
+    Evaluate   os.chmod($source, 0o777)
+    Create Directory  ${destination}
+
+    ${mark} =  get_on_access_log_mark
+    Create Local SMB Share   ${source}   ${destination}   ${opts}
+    wait for on access log contains after mark  Including mount point: ${destination}  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
+
+    ${result} =   Run Process   mount | grep ${TESTTMP}   shell=True
+    Log   ${result.stdout}
+
+    # On-close
+    ${mark} =  get_on_access_log_mark
+    Create File  ${destination}/eicar.com  ${EICAR_STRING}
+    wait for on access log contains after mark  On-close event for ${destination}/eicar.com from  mark=${mark}
+    wait for on access log contains after mark  Detected "${destination}/eicar.com" is infected with  mark=${mark}
+
+    # On-open
+    ${mark} =  get_on_access_log_mark
+    Create File  ${source}/eicar2.com  ${EICAR_STRING}
+    Get File   ${destination}/eicar2.com
+    wait for on access log contains after mark  On-open event for ${destination}/eicar2.com from  mark=${mark}
+    wait for on access log contains after mark  Detected "${destination}/eicar2.com" is infected with  mark=${mark}
 
 
 *** Test Cases ***
@@ -304,6 +335,26 @@ On Access Scans File On NFSv3 no_root_squash
 On Access Scans File On NFSv2 no_root_squash
     [Tags]  NFS
     On Access Scans Files On NFS   version=2   share_opts=no_root_squash
+
+On Access Scans Files on Samba v1.0
+    [Tags]  cifs
+    On Access Scans Files on Samba   vers=1.0
+
+On Access Scans Files on Samba v2.0
+    [Tags]  cifs
+    On Access Scans Files on Samba   vers=2.0
+
+On Access Scans Files on Samba v2.1
+    [Tags]  cifs
+    On Access Scans Files on Samba   vers=2.1
+
+On Access Scans Files on Samba v3.0
+    [Tags]  cifs
+    On Access Scans Files on Samba   vers=3.0
+
+On Access Scans Files on Samba v3.1.1
+    [Tags]  cifs
+    On Access Scans Files on Samba   vers=3.1.1
 
 
 On Access Includes Included Mount On Top Of Excluded Mount

@@ -12,7 +12,7 @@ ${SAMBA_CONFIG}    /etc/samba/smb.conf
 *** Keywords ***
 
 Create Local SMB Share
-    [Arguments]  ${source}  ${destination}
+    [Arguments]  ${source}  ${destination}  ${opts}=
     file should exist  ${SAMBA_CONFIG}
     file should not exist  ${SAMBA_CONFIG}_bkp
     Copy File  ${SAMBA_CONFIG}  ${SAMBA_CONFIG}_bkp
@@ -22,7 +22,7 @@ Create Local SMB Share
     ...   comment = SMB Share\n
     ...   path = ${source}\n
     ...   browseable = yes\n
-    ...   read only = yes\n
+    ...   writable = yes\n
     ...   guest ok = yes\n
     Append To File  ${SAMBA_CONFIG}   ${share_config}
 
@@ -33,7 +33,7 @@ Create Local SMB Share
     Wait Until Keyword Succeeds
     ...  10x
     ...  100 ms
-    ...  Mount Samba Share  ${destination}
+    ...  Mount Samba Share  ${destination}   ${opts}
 
     ${rc}   ${output} =    Run And Return Rc And Output    mount
     Log  ${output}
@@ -68,6 +68,6 @@ Reload Samba
 
 
 Mount Samba Share
-    [Arguments]  ${destination}
-    ${result} =  Run Process   mount  -t  cifs  //localhost/testSamba  ${destination}  -o  guest
+    [Arguments]  ${destination}   ${opts}=defaults
+    ${result} =  Run Process   mount  -t  cifs  //localhost/testSamba  ${destination}  -o  guest,${opts}
     Should Be Equal As Integers  ${result.rc}  ${0}  "Failed to mount local SMB share.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
