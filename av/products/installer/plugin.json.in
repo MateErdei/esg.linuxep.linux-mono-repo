@@ -1,5 +1,7 @@
 {
   "policyAppIds": [
+        "CORC",
+        "CORE",
         "SAV",
         "ALC",
         "FLAGS"

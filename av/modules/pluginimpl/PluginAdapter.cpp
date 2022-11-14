@@ -170,7 +170,7 @@ namespace Plugin
                         }
                         else
                         {
-                            processPolicy(task.Content, policyWaiter);
+                            processPolicy(task.Content, policyWaiter, task.appId);
                         }
 
                         break;
@@ -240,13 +240,13 @@ namespace Plugin
         m_callback->setSafeStoreEnabled(m_policyProcessor.isSafeStoreEnabled());
     }
 
-    void PluginAdapter::processPolicy(const std::string& policyXml, PolicyWaiterSharedPtr policyWaiter)
+    void PluginAdapter::processPolicy(const std::string& policyXml, PolicyWaiterSharedPtr policyWaiter, const std::string& appId)
     {
         LOGINFO("Received Policy");
         try
         {
             auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-            auto policyType = m_policyProcessor.determinePolicyType(attributeMap);
+            auto policyType = m_policyProcessor.determinePolicyType(attributeMap, appId);
 
             if (policyType == PolicyType::ALC)
             {
@@ -277,7 +277,11 @@ namespace Plugin
             }
             else if (policyType == PolicyType::CORC)
             {
-                LOGINFO("Processing CORC policy");
+                LOGDEBUG("Processing of CORC policy not implemented");
+            }
+            else if (policyType == PolicyType::CORE)
+            {
+                LOGDEBUG("Processing of CORE policy not implemented");
             }
             else if (policyType == PolicyType::UNKNOWN)
             {

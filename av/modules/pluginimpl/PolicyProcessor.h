@@ -15,6 +15,7 @@ namespace Plugin
         ALC,
         SAV,
         CORC,
+        CORE,
         UNKNOWN
     };
 
@@ -25,7 +26,11 @@ namespace Plugin
         explicit PolicyProcessor(IStoppableSleeperSharedPtr stoppableSleeper);
         virtual ~PolicyProcessor() = default;
 
-        PolicyType determinePolicyType(const Common::XmlUtilities::AttributesMap& policy);
+        /*
+         * Returns the type of policy received based on APPID and, where needed, policy type attribute
+         * For example there are 2 SAV polices.         *
+         */
+        static PolicyType determinePolicyType(const Common::XmlUtilities::AttributesMap& policy, const std::string& appId);
 
         /**
          *

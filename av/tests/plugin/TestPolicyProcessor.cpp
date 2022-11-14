@@ -1172,7 +1172,7 @@ TEST_F(TestPolicyProcessor, determinePolicyTypeCorc)
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     auto attributeMap = Common::XmlUtilities::parseXml(GL_CORC_POLICY);
     PolicyProcessorUnitTestClass proc;
-    auto policyType = proc.determinePolicyType(attributeMap);
+    auto policyType = proc.determinePolicyType(attributeMap, "CORC");
     ASSERT_EQ(policyType, Plugin::PolicyType::CORC);
 }
 
@@ -1182,7 +1182,7 @@ TEST_F(TestPolicyProcessor, determinePolicyTypeAlc)
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     auto attributeMap = Common::XmlUtilities::parseXml(ALC_FULL_POLICY);
     PolicyProcessorUnitTestClass proc;
-    auto policyType = proc.determinePolicyType(attributeMap);
+    auto policyType = proc.determinePolicyType(attributeMap, "ALC");
     ASSERT_EQ(policyType, Plugin::PolicyType::ALC);
 }
 
@@ -1192,16 +1192,26 @@ TEST_F(TestPolicyProcessor, determinePolicyTypeSav)
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     auto attributeMap = Common::XmlUtilities::parseXml(GL_SAV_POLICY);
     PolicyProcessorUnitTestClass proc;
-    auto policyType = proc.determinePolicyType(attributeMap);
+    auto policyType = proc.determinePolicyType(attributeMap, "SAV");
     ASSERT_EQ(policyType, Plugin::PolicyType::SAV);
 }
 
-TEST_F(TestPolicyProcessor, determinePolicyTypeUnknown)
+TEST_F(TestPolicyProcessor, determinePolicyTypeUnknownWithAppIdSav)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     auto attributeMap = Common::XmlUtilities::parseXml("<xml></xml>");
     PolicyProcessorUnitTestClass proc;
-    auto policyType = proc.determinePolicyType(attributeMap);
+    auto policyType = proc.determinePolicyType(attributeMap, "SAV");
+    ASSERT_EQ(policyType, Plugin::PolicyType::UNKNOWN);
+}
+
+TEST_F(TestPolicyProcessor, determinePolicyTypeUnknownWithUnkownAppId)
+{
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    auto attributeMap = Common::XmlUtilities::parseXml("<xml></xml>");
+    PolicyProcessorUnitTestClass proc;
+    auto policyType = proc.determinePolicyType(attributeMap, "not a known APP ID");
     ASSERT_EQ(policyType, Plugin::PolicyType::UNKNOWN);
 }
