@@ -14,9 +14,10 @@ from .common.ProtobufSerialisation import *
 from .common.SetupLogger import setup_logging, get_log_dir
 from .common.PathsLocation import management_agent_socket_path
 
+from . import ManagementAgentPluginRequester
 
 class Agent(object):
-    def __init__(self, logger):
+    def __init__(self, logger, plugin_name):
         # IPC Socket paths
         self.management_agent_socket_path = management_agent_socket_path()
         # IPC Sockets
@@ -25,6 +26,16 @@ class Agent(object):
         self.run_thread = None
         self.logger = logger
         self.m_policies = {}
+        self.__m_plugin_name = plugin_name
+
+    def set_default_policy(self, app_id, content):
+        """
+        Save a policy as the default to give if the policy is requested
+        :param app_id:
+        :param content:
+        :return:
+        """
+        self.m_policies[app_id] = content
 
     def socket_path(self):
         return self.management_agent_socket_path
@@ -135,13 +146,18 @@ class Agent(object):
         message.set_ack()
         self.send_reply_to_plugin(message)
 
+    def __get_requester(self):
+        return ManagementAgentPluginRequester.ManagementAgentPluginRequester(self.__m_plugin_name, self.logger)
+
     def handle_request_policy(self, message):
         self.logger.info("Received policy request: {}".format(message))
         message.set_ack()
         self.send_reply_to_plugin(message)
         policy = self.m_policies.get(message.app_id, None)
         if policy is not None:
-
+            self.logger.info("Sending back policy: {}".format(policy))
+            plugin = self.__get_requester()
+            plugin.policy(message.app_id, policy)
 
     def handle_send_threat_health(self, message):
         self.logger.info("Received threat health: {}".format(message))

@@ -22,6 +22,7 @@ except ImportError:
 
 import traceback
 
+PLUGIN_NAME = "av"
 
 class ManagementAgentPluginRequester(object):
     def __init__(self, plugin_name, logger):
@@ -175,7 +176,9 @@ class FakeManagement(object):
         return self.logger
 
     def __create_agent(self):
-        self.agent = FakeManagementAgent.Agent(self.logger)
+        self.agent = FakeManagementAgent.Agent(self.logger, PLUGIN_NAME)
+        # set default policies
+
         return self.agent
 
     def start_fake_management(self):
@@ -233,6 +236,9 @@ class FakeManagement(object):
     def send_plugin_policy(self, plugin_name, app_id, content):
         plugin = self.__get_requester(plugin_name)
         plugin.policy(app_id, content)
+
+    def send_av_policy(self, app_id, content):
+        return self.send_plugin_policy(PLUGIN_NAME, app_id, content)
 
     def send_plugin_action(self, plugin_name, app_id, correlation, content):
         plugin = self.__get_requester(plugin_name)
