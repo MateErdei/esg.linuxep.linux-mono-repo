@@ -37,6 +37,7 @@ On Access Alternative Suite Setup
 On Access Suite Teardown
     Terminate On Access And AV
     Remove Files    ${ONACCESS_FLAG_CONFIG}  /tmp/av.stdout  /tmp/av.stderr  /tmp/soapd.stdout  /tmp/soapd.stderr
+    Remove Directory   ${TESTTMP}   recursive=True
 
 On Access Test Setup
     Component Test Setup

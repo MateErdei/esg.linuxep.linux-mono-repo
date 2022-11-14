@@ -969,19 +969,21 @@ Remove ext2 mount
     Remove file   ${source}
 
 Create Local NFS Share
-    [Arguments]  ${source}  ${destination}
+    [Arguments]  ${source}  ${destination}  ${share_opts}=no_root_squash  ${mount_opts}=defaults
     Copy File If Destination Missing  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp
-    Create File   ${EXPORT_FILE}  ${source} localhost(fsid=1,rw,sync,no_subtree_check,no_root_squash)\n
+    Create File   ${EXPORT_FILE}  ${source} localhost(fsid=1,rw,sync,no_subtree_check,${share_opts})\n
     Register On Fail  Run Process  systemctl  status  nfs-server
     Register On Fail  Dump Log  ${EXPORT_FILE}
-    Run Shell Process   systemctl restart nfs-server            OnError=Failed to restart NFS server
-    Run Shell Process   mount -t nfs localhost:${source} ${destination}   OnError=Failed to mount local NFS share
+    Run Shell Process   exportfs -ra            OnError=Failed to force NFS server reload
+    Run Shell Process   mount -t nfs localhost:${source} ${destination} -o ${mount_opts}   OnError=Failed to mount local NFS share
 
 Remove Local NFS Share
     [Arguments]  ${source}  ${destination}
     Unmount Test Mount  ${destination}
+    Remove Directory    ${destination}
+
     Move File  ${EXPORT_FILE}_bkp  ${EXPORT_FILE}
-    Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server
+    Run Shell Process   exportfs -ra            OnError=Failed to force NFS server reload
     Remove Directory    ${source}  recursive=True
 
 Check Scan Now Configuration File is Correct
@@ -1398,6 +1400,14 @@ Require Filesystem
     Pass Execution If    ${file_does_not_exist}  /proc/filesystems does not exist - cannot determine supported filesystems
     ${file_does_not_contain} =  Does File Not Contain  /proc/filesystems  ${fs_type}
     Pass Execution If    ${file_does_not_contain}  ${fs_type} is not a supported filesystem with this kernel - skipping test
+
+Require NFS Version
+    [Arguments]   ${version}
+    ${status}   ${content} =   Run Keyword And Ignore Error     Get File   /proc/fs/nfsd/versions
+    Pass Execution If    '${status}' == 'FAIL'
+    ...     /proc/fs/nfsd/versions does not exist - cannot determine supported NFS versions
+    Pass Execution If    '-${version}' in ' ${content.strip()} '
+    ...     ${version} is not a supported NFS version with this NFS installation - skipping test
 
 Terminate And Wait until threat detector not running
     [Arguments]   ${handle}
