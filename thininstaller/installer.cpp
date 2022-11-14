@@ -427,7 +427,7 @@ int main(int argc, char** argv)
             mcsRootCert = Common::FileSystem::join(thisDir,"..", "mcs_rootca.crt");
             if (!fs->isFile(mcsRootCert))
             {
-                log("Shipped MCS cert cannot be found here: " + mcsRootCert);
+                logError("Shipped MCS cert cannot be found here: " + mcsRootCert);
                 return 55;
             }
             logDebug("Using shipped MCS cert: " + mcsRootCert);
