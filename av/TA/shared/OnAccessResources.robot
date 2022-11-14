@@ -20,7 +20,6 @@ Library         ../Libs/ThreatReportUtils.py
 
 *** Variables ***
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
-${timeout}  ${20}
 
 
 *** Keywords ***
@@ -83,7 +82,7 @@ Terminate AV
         ...  30 secs
         ...  2 secs
         ...  Check AV Plugin Not Running
-   Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
+    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
 
 Terminate On Access
     Run Keyword If  ${ON_ACCESS_PLUGIN_HANDLE}  Terminate Process  ${ON_ACCESS_PLUGIN_HANDLE}
@@ -98,27 +97,42 @@ Terminate On Access And AV
     Terminate AV
 
 Disable OA Scanning
+    [Arguments]  ${mark}=${None}
+    IF   $mark is None
+            ${mark} =  get_on_access_log_mark
+    END
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset  "oa_enabled":false
-    Wait Until On Access Log Contains With Offset  Joining eventReader
+    wait for on access log contains after mark  "oa_enabled":false   mark=${mark}
+    wait for on access log contains after mark  Joining eventReader   mark=${mark}
 
 
 Enable OA Scanning
+    [Arguments]  ${mark}=${None}
+    IF   $mark is None
+            ${mark} =  get_on_access_log_mark
+    END
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
     Send Plugin Policy  av  sav  ${policyContent}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
 
-    Wait Until On Access Log Contains With Offset  "oa_enabled":true
-    Wait Until On Access Log Contains With Offset  Starting eventReader
-    Wait Until On Access Log Contains With Offset   mount points in on-access scanning
+    wait for on access log contains after mark  "oa_enabled":true   mark=${mark}
+    wait for on access log contains after mark  Starting eventReader   mark=${mark}
+    wait for on access log contains after mark   mount points in on-access scanning   mark=${mark}
 
+On-access Scan Clean File
+    ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
+
+    ${oamark} =  get_on_access_log_mark
+    Create File   ${cleanfile}   ${CLEAN_STRING}
+    Register Cleanup   Remove File   ${cleanfile}
+    wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
 
 On-access Scan Eicar Close
     #${pid} =  Get Robot Pid
@@ -128,8 +142,8 @@ On-access Scan Eicar Close
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
 
-    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${mark}  timeout=${timeout}
-    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with EICAR-AV-Test \   mark=${mark}  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with EICAR-AV-Test (Close-Write)\   mark=${mark}
 
 
 On-access Scan Eicar Open
@@ -146,8 +160,8 @@ On-access Scan Eicar Open
 
     Get File   ${filepath}
 
-    wait_for_on_access_log_contains_after_mark  On-open event for ${filepath} from  mark=${mark}  timeout=${timeout}
-    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with      mark=${mark}  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  On-open event for ${filepath} from  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with      mark=${mark}
 
 
 On-access No Eicar Scan
@@ -170,8 +184,8 @@ On-access Scan Peend
     Create Binary File   ${filepath}   ${peend}
     Register Cleanup  Remove File  ${filepath}
 
-    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${mark}  timeout=${timeout}
-    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with ${threat_name} \   mark=${mark}  timeout=${timeout}
+    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with ${threat_name} \   mark=${mark}
 
 On-access Scan Peend no detect
     ${threat_file} =   Set Variable   ${RESOURCES_PATH}/file_samples/peend.exe
