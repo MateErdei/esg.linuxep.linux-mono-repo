@@ -97,7 +97,7 @@ int FanotifyHandler::unmarkMount(const std::string& path) const
     return processFaMarkError(result, "unmarkMount", path);
 }
 
-int FanotifyHandler::cacheFd(const int& fd, const std::string& path, bool surviveModify) const
+int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
 {
     assert(m_systemCallWrapper);
     int fanotify_fd = getFd(); // CacheFd only called while fanotify enabled
@@ -107,11 +107,7 @@ int FanotifyHandler::cacheFd(const int& fd, const std::string& path, bool surviv
         return 0;
     }
 
-    unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
-    if (surviveModify)
-    {
-        flags |= FAN_MARK_IGNORED_SURV_MODIFY;
-    }
+    constexpr unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
     constexpr uint64_t mask = FAN_OPEN;
     int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, fd, nullptr);
     return processFaMarkError(result, "cacheFd", path);
@@ -159,12 +155,8 @@ void FanotifyHandler::processFaMarkError(const std::string& function, const std:
     std::stringstream logMsg;
     int error = errno;
     logMsg << "fanotify_mark failed in " << function << ": " << common::safer_strerror(error) << " for: " << path;
-    if (error == ENOENT)
-    {
-        LOGDEBUG(logMsg.str());
-    }
-    // TODO: Remove this condition once LINUXDAR-5803 is fixed
-    else if (function == "unmarkMount")
+    // TODO: Remove this condition once LINUXDAR-5803 is fixed, we still want to keep ENOENT
+    if (function == "unmarkMount" ||  error == ENOENT)
     {
         LOGWARN(logMsg.str());
     }
