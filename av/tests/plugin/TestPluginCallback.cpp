@@ -548,7 +548,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnThreatDete
     ASSERT_EQ(result, expectedResult);
 }
 
-TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFileRegardlessOfOnaccessStatus)
+TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFileRegardlessOfOnaccessUnhealthyFlag)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     log4cplus::Logger commonLogger = Common::Logging::getInstance("Common");

@@ -4,7 +4,6 @@
 
 #include "common/ApplicationPaths.h"
 #include "datatypes/MockSysCalls.h"
-#include "datatypes/OnaccessStatus.h"
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 

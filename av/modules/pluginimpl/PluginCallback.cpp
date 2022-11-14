@@ -11,7 +11,6 @@
 #include "common/StringUtils.h"
 // Plugin
 #include "common/ApplicationPaths.h"
-#include "datatypes/OnaccessStatus.h"
 // Product
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
