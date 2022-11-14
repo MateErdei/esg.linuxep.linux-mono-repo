@@ -424,12 +424,17 @@ int main(int argc, char** argv)
         if (thisBinary.has_value())
         {
             auto thisDir = Common::FileSystem::dirName(thisBinary.value());
-            mcsRootCert = Common::FileSystem::join(thisDir,"mcs_rootca.crt");
+            mcsRootCert = Common::FileSystem::join(thisDir,"..", "mcs_rootca.crt");
+            if (!fs->isFile(mcsRootCert))
+            {
+                log("Shipped MCS cert cannot be found here: " + mcsRootCert);
+                return 55;
+            }
             logDebug("Using shipped MCS cert: " + mcsRootCert);
         }
         else
         {
-            return 55;
+            return 56;
         }
 
         MCS::ConfigOptions rootConfigOptions = CentralRegistration::innerCentralRegistration(registerArgValues, mcsRootCert);
