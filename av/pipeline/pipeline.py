@@ -403,7 +403,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     run_tests: bool = parameters.run_tests != 'false'
     run_aws_tests: bool = decide_whether_to_run_aws_tests(parameters, context)
     # robot_task_with_env will parse this string
-    include_tag = parameters.include_tag or "productNOTav_basicNOTavscanner av_basicANDavscanner " \
+    include_tag = parameters.include_tag or "productNOTav_basicNOTavscanner av_basicORavscanner " \
                                             "integrationNOTavbaseNOTav_health avbase av_health"
 
     do_coverage: bool = decide_whether_to_do_coverage(parameters, context)
