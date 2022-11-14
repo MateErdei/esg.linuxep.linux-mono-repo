@@ -8,6 +8,7 @@
 #include "pluginimpl/TaskQueue.h"
 
 #include "common/ApplicationPaths.h"
+#include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -574,7 +575,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFi
 
     EXPECT_TRUE(appenderContains("Lock acquired on PID file "));
     EXPECT_TRUE(appenderContains(" assume process not running"));
-    EXPECT_TRUE(appenderContains("Sophos On Access Process is not running or is otherwise unhealthy, turning service health to red"));
+    EXPECT_TRUE(appenderContains("Sophos On Access Process is not running, turning service health to red"));
     EXPECT_TRUE(appenderContains("Service Health has changed to: red"));
     ASSERT_EQ(result, expectedResult);
 }
@@ -939,4 +940,19 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
     ASSERT_EQ(result, E_HEALTH_STATUS_GOOD);
     //if this succeeds all process service healths are E_HEALTH_STATUS_GOOD
     ASSERT_EQ(m_pluginCallback->m_serviceHealth, E_HEALTH_STATUS_GOOD);
+}
+
+TEST_F(TestPluginCallback, calculateSoapHealthStatusReadsTheUnhealthyFlagFileCreatedByFanotifyHandler)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    int fanotifyFd = -1;
+    EXPECT_CALL(*m_mockSysCalls, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS,
+                                               O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
+
+    sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCalls);
+    EXPECT_THROW(handler.init(), std::runtime_error);
+
+    m_pluginCallback->calculateSoapHealthStatus(m_sysCalls);
+    ASSERT_EQ(m_pluginCallback->m_soapServiceStatus, E_HEALTH_STATUS_BAD);
+    EXPECT_TRUE(appenderContains("Sophos On Access Process is unhealthy, turning service health to red"));
 }

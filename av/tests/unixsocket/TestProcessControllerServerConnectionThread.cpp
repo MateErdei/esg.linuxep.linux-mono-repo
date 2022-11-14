@@ -71,7 +71,7 @@ namespace
     };
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, successful_construction) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, successful_construction)
 {
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
@@ -79,7 +79,7 @@ TEST_F(TestProcessControllerServerConnectionThread, successful_construction) //N
     EXPECT_NO_THROW(unixsocket::ProcessControllerServerConnectionThread connectionThread(fdHolder, callback, m_sysCalls));
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, isRunning_false_after_construction) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, isRunning_false_after_construction)
 {
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
@@ -88,7 +88,7 @@ TEST_F(TestProcessControllerServerConnectionThread, isRunning_false_after_constr
     EXPECT_FALSE(connectionThread.isRunning());
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, fail_construction_with_bad_fd) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, fail_construction_with_bad_fd)
 {
     datatypes::AutoFd fdHolder;
     ASSERT_EQ(fdHolder.get(), -1);
@@ -97,7 +97,7 @@ TEST_F(TestProcessControllerServerConnectionThread, fail_construction_with_bad_f
                  std::runtime_error);
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, stop_while_running) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, stop_while_running)
 {
     const std::string expected = "Closing Process Controller connection thread";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -118,7 +118,7 @@ TEST_F(TestProcessControllerServerConnectionThread, stop_while_running) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, eof_while_running) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, eof_while_running)
 {
     const std::string expected = "Process Controller connection thread closed: EOF";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -136,7 +136,7 @@ TEST_F(TestProcessControllerServerConnectionThread, eof_while_running) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, send_zero_length) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, send_zero_length)
 {
     const std::string expected = "Ignoring length of zero / No new messages";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -154,7 +154,7 @@ TEST_F(TestProcessControllerServerConnectionThread, send_zero_length) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, bad_notify_pipe_fd) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, bad_notify_pipe_fd)
 {
     const std::string expected = "Closing Process Controller connection thread, error from notify pipe";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -179,7 +179,7 @@ TEST_F(TestProcessControllerServerConnectionThread, bad_notify_pipe_fd) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, bad_socket_fd) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, bad_socket_fd)
 {
     const std::string expected = "Closing Process Controller connection thread, error from socket";
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -204,7 +204,7 @@ TEST_F(TestProcessControllerServerConnectionThread, bad_socket_fd) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, over_max_length) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, over_max_length)
 {
     const std::string expected = "Aborting Process Controller connection thread: failed to read length";
 
@@ -228,7 +228,7 @@ TEST_F(TestProcessControllerServerConnectionThread, over_max_length) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, max_length) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, max_length)
 {
     const std::string expected = "Process Controller connection thread aborting socket connection: failed to read entire message";
 
@@ -254,7 +254,7 @@ TEST_F(TestProcessControllerServerConnectionThread, max_length) //NOLINT
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestProcessControllerServerConnectionThread, corrupt_request) //NOLINT
+TEST_F(TestProcessControllerServerConnectionThread, corrupt_request)
 {
     const std::string expected = "Terminated ProcessControllerServerConnectionThread with serialisation exception: ";
 

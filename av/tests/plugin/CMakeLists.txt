@@ -13,7 +13,7 @@ SophosAddTest(TestPlugin
         TestStringUtils.cpp
         TestTaskQueue.cpp
         TestThreatDatabase.cpp
-        PROJECTS pluginimpl
+        PROJECTS pluginimpl fanotifyhandler
         LIBS ${pluginapilib} ${testhelperslib}
         INC_DIRS ${pluginapiinclude} ${testhelpersinclude}
         )

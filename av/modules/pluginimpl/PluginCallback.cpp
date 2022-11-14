@@ -403,21 +403,29 @@ namespace Plugin
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         bool unhealthy = fileSystem->isFile(getOnAccessUnhealthyFlagPath());
-        if (common::PidLockFile::isPidFileLocked(getSoapdPidPath(), sysCalls) && !unhealthy)
+        if (unhealthy)
+        {
+            if(m_soapServiceStatus == E_HEALTH_STATUS_GOOD)
+            {
+                LOGWARN("Sophos On Access Process is unhealthy, turning service health to red");
+            }
+            m_soapServiceStatus = E_HEALTH_STATUS_BAD;
+        }
+        else if (!common::PidLockFile::isPidFileLocked(getSoapdPidPath(), sysCalls))
+        {
+            if(m_soapServiceStatus == E_HEALTH_STATUS_GOOD)
+            {
+                LOGWARN("Sophos On Access Process is not running, turning service health to red");
+            }
+            m_soapServiceStatus = E_HEALTH_STATUS_BAD;
+        }
+        else
         {
             if(m_soapServiceStatus == E_HEALTH_STATUS_BAD)
             {
                 LOGINFO("Sophos On Access Process is now running");
             }
             m_soapServiceStatus = E_HEALTH_STATUS_GOOD;
-        }
-        else
-        {
-            if(m_soapServiceStatus == E_HEALTH_STATUS_GOOD)
-            {
-                LOGWARN("Sophos On Access Process is not running or is otherwise unhealthy, turning service health to red");
-            }
-            m_soapServiceStatus = E_HEALTH_STATUS_BAD;
         }
     }
 
