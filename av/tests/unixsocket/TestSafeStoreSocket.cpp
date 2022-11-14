@@ -196,7 +196,6 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
 TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterSuccessfulQuarantine)
 {
     setupFakeSophosThreatDetectorConfig();
-    WaitForEvent serverWaitGuard;
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
     auto quarantineManager = std::make_shared<MockQuarantineManager>();
@@ -225,7 +224,6 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterSuccessful
 TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterFailedQuarantine)
 {
     setupFakeSophosThreatDetectorConfig();
-    WaitForEvent serverWaitGuard;
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
     auto quarantineManager = std::make_shared<MockQuarantineManager>();
@@ -254,7 +252,6 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterFailedQuar
 TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterUnlinkFailure)
 {
     setupFakeSophosThreatDetectorConfig();
-    WaitForEvent serverWaitGuard;
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
     auto quarantineManager = std::make_shared<MockQuarantineManager>();
@@ -283,7 +280,6 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterUnlinkFail
 TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterQuarantineResults)
 {
     setupFakeSophosThreatDetectorConfig();
-    WaitForEvent serverWaitGuard;
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
     auto quarantineManager = std::make_shared<MockQuarantineManager>();
