@@ -6,6 +6,7 @@
 #include "Logger.h"
 #include "OnAccessProcesControlCallbacks.h"
 #include "OnAccessProductConfigDefaults.h"
+#include "OnAccessServiceCallback.h"
 // Component
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 // Product
@@ -13,7 +14,6 @@
 #include "common/PidLockFile.h"
 #include "common/PluginUtils.h"
 #include "common/SaferStrerror.h"
-#include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
@@ -25,7 +25,8 @@
 #include "AutoVersioningHeaders/AutoVersion.h"
 
 // Base
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/PluginApiImpl/PluginResourceManagement.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 // Std C++
 #include <filesystem>
 #include <fstream>
@@ -38,6 +39,7 @@ namespace fs = sophos_filesystem;
 using namespace sophos_on_access_process::soapd_bootstrap;
 using namespace sophos_on_access_process::fanotifyhandler;
 using namespace sophos_on_access_process::onaccessimpl;
+using namespace sophos_on_access_process::service_callback;
 using namespace unixsocket::updateCompleteSocket;
 
 
@@ -67,6 +69,22 @@ int SoapdBootstrap::outerRun()
 
     LOGINFO("Exiting soapd");
     return 0;
+}
+
+
+void SoapdBootstrap::initialiseTelemetry()
+{
+    Common::Telemetry::TelemetryHelper::getInstance().restore(OnAccessConfig::onAccessTelemetrySocket);
+    auto replier = m_onAccessContext->getReplier();
+    Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, OnAccessConfig::onAccessTelemetrySocket, 5000, 5000);
+    auto pluginCallback = std::make_shared<sophos_on_access_process::service_callback::OnAccessServiceCallback>();
+    m_pluginHandler = std::make_unique<Common::PluginApiImpl::PluginCallBackHandler>
+        (OnAccessConfig::onAccessTelemetrySocket,
+         std::move(replier),
+        pluginCallback,
+        Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM);
+
+    m_pluginHandler->start();
 }
 
 void SoapdBootstrap::innerRun()
@@ -123,6 +141,8 @@ void SoapdBootstrap::innerRun()
     auto processControllerServerThread = std::make_unique<common::ThreadRunner>(processControllerServer,
                                                                                 "processControlServer",
                                                                                 true);
+
+    initialiseTelemetry();
 
     struct pollfd fds[] {
         { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },

@@ -4,6 +4,8 @@
 
 namespace sophos_on_access_process::OnAccessConfig
 {
+    const std::string onAccessTelemetrySocket = "onaccess";
+
     const unsigned long int onAccessProcessFdLimit = 1048576;
 
     const size_t maxAllowedQueueSize = 1048000;

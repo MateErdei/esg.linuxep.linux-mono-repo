@@ -1,13 +1,15 @@
 
 add_library(soapdbootstrap SHARED
+        OnAccessConfigurationUtils.cpp
+        OnAccessConfigurationUtils.h
+        OnAccessProcesControlCallbacks.cpp
+        OnAccessProcesControlCallbacks.h
+        OnAccessServiceCallback.cpp
+        OnAccessServiceCallback.h
         Logger.cpp
         Logger.h
         SoapdBootstrap.cpp
         SoapdBootstrap.h
-        OnAccessProcesControlCallbacks.h
-        OnAccessProcesControlCallbacks.cpp
-        OnAccessConfigurationUtils.h
-        OnAccessConfigurationUtils.cpp
         )
 
 target_include_directories(soapdbootstrap PUBLIC ${CMAKE_SOURCE_DIR}/products/distribution/include)

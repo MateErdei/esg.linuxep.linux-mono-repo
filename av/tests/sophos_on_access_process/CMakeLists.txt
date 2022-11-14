@@ -2,6 +2,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
 
 add_subdirectory(fanotifyhandler)
 add_subdirectory(onaccessimpl)
+add_subdirectory(soapd_bootstrap)
 
 SophosAddTest(TestSophosOnAccessProcessImpl
         ../common/LogInitializedTests.cpp

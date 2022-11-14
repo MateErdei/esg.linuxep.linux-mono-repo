@@ -13,6 +13,9 @@
 #include "common/signals/SigIntMonitor.h"
 #include "common/signals/SigTermMonitor.h"
 
+#include "Common/PluginApiImpl/PluginCallBackHandler.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+
 #include <atomic>
 #include <vector>
 
@@ -42,6 +45,8 @@ namespace sophos_on_access_process::soapd_bootstrap
         void enableOnAccess();
         void disableOnAccess();
 
+        void initialiseTelemetry();
+
         sophos_on_access_process::OnAccessConfig::OnAccessConfiguration getPolicyConfiguration();
 
         std::unique_ptr<common::ThreadRunner> m_eventReaderThread;
@@ -58,5 +63,8 @@ namespace sophos_on_access_process::soapd_bootstrap
         std::shared_ptr<onaccessimpl::ScanRequestQueue> m_scanRequestQueue;
         std::vector<std::shared_ptr<common::ThreadRunner>> m_scanHandlerThreads;
         std::shared_ptr<::fanotifyhandler::EventReaderThread> m_eventReader;
+
+        Common::ZMQWrapperApi::IContextSharedPtr m_onAccessContext = Common::ZMQWrapperApi::createContext();
+        std::unique_ptr<Common::PluginApiImpl::PluginCallBackHandler> m_pluginHandler;
     };
 }
