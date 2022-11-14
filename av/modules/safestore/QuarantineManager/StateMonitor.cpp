@@ -55,7 +55,7 @@ namespace safestore::QuarantineManager
             m_checkWakeUp.wait_for(lock,m_reinitialiseBackoff);
             if (m_stopRequested)
             {
-                LOGDEBUG("State Monitor stop requested"); //fix
+                LOGDEBUG("State Monitor stop requested");
                 break;
             }
             innerRun();
