@@ -3,28 +3,21 @@
 # Copyright (C) 2018-2022 Sophos Plc, Oxford, England.
 # All rights reserved.
 
+import grp
+import datetime
+import os
+import pwd
 import time
 
-try:
-    from .PluginCommunicationTools import FakeManagementAgent
-    from .PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
-    from .PluginCommunicationTools.common import PathsLocation
-    from .PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
-    from . import FakeManagementLog
-except ImportError:
-    from Libs.PluginCommunicationTools import FakeManagementAgent
-    from Libs.PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
-    from Libs.PluginCommunicationTools.common import PathsLocation
-    from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
-    from Libs import FakeManagementLog
+import zmq
 
-
-
-import traceback
+from .common.socket_utils import try_get_socket, ZMQ_CONTEXT
+from .common import PathsLocation
+from .common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
 
 
 class ManagementAgentPluginRequester(object):
-    def __init__(self, plugin_name, logger):
+    def __init__(self, plugin_name: str, logger):
         self.name = plugin_name
         self.logger = logger
         self.__m_socket_path = "ipc://{}/plugins/{}.ipc".format(PathsLocation.ipc_dir(), self.name)
@@ -33,19 +26,19 @@ class ManagementAgentPluginRequester(object):
     def __del__(self):
         self.__m_socket.close()
 
-    def send_message(self, message):
+    def send_message(self, message: Message):
         to_send = serialise_message(message)
         self.__m_socket.send(to_send)
 
-    def build_message(self, command, app_id, contents):
+    def build_message(self, command, app_id, contents) -> Message:
         return Message(app_id, self.name, command.value, contents)
 
     def action(self, app_id, correlation, action):
         self.logger.info("Sending '{}' action [correlation '{}'] to '{}' via '{}'".format(
-                action,
-                correlation,
-                self.name,
-                self.__m_socket_path))
+            action,
+            correlation,
+            self.name,
+            self.__m_socket_path))
         filename = "ScanNow_Action.xml"
         sophos_install = os.environ['SOPHOS_INSTALL']
         with open(os.path.join(sophos_install, "base/mcs/action/"+filename), "w") as f:
@@ -68,9 +61,9 @@ class ManagementAgentPluginRequester(object):
     def policy(self, app_id, policy_xml):
         self.logger.info("Sending policy XML to {} via {}, XML:{}".format(self.name, self.__m_socket_path, policy_xml))
 
-        if app_id == "sav":
+        if app_id == "SAV":
             filename = "SAV-2_Policy.xml"
-        elif app_id == "alc":
+        elif app_id == "ALC":
             filename = "ALC-1_Policy.xml"
         elif app_id == "FLAGS":
             filename = "flags.json"
@@ -153,121 +146,3 @@ class ManagementAgentPluginRequester(object):
         ttl = int(time.time())+10000
         creation_time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         return f"{creation_time}_{ttl}"
-
-
-class FakeManagement(object):
-    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
-
-    def __init__(self):
-        self.logger = None
-        self.agent = None
-
-    def get_fakemanagement_agent_log_path(self):
-        return FakeManagementLog.get_fake_management_log_path()
-
-    def __setup_logger_if_required(self):
-        if not os.path.isfile(self.get_fakemanagement_agent_log_path()):
-            # Need to restart logging as log file path has disappeared
-            self.logger = None
-
-        if self.logger is None:
-            self.logger = FakeManagementAgent.setup_logging(FakeManagementLog.get_fake_management_log_filename(), "Fake Management Agent")
-        return self.logger
-
-    def __create_agent(self):
-        self.agent = FakeManagementAgent.Agent(self.logger)
-        return self.agent
-
-    def start_fake_management(self):
-        self.__setup_logger_if_required()
-        self.__clean_up_agent_if_not_running()
-        if self.agent:
-            raise AssertionError("Agent already initialized")
-        self.__create_agent()
-        self.agent.start()
-
-    def start_fake_management_if_required(self):
-        self.__setup_logger_if_required()
-        self.__clean_up_agent_if_not_running()
-        if self.agent is None:
-            self.logger.info("Starting FakeManagementAgent")
-            self.agent = self.__create_agent()
-            self.agent.start()
-        else:
-            self.logger.info("FakeManagementAgent already running")
-
-    def stop_fake_management(self):
-        if not self.agent:
-            if self.logger:
-                self.logger.info("Agent already stopped")
-            else:
-                print("Agent already stopped")
-            return
-        self.agent.stop()
-        self.agent = None
-        self.logger = None
-
-    def stop_fake_management_if_running(self):
-        if self.agent:
-            self.logger.info("Stopping FakeManagementAgent")
-            self.agent.stop()
-            self.agent = None
-
-    def __clean_up_agent_if_not_running(self):
-        if not self.agent:
-            return
-        if self.agent.is_running():
-            return
-        self.stop_fake_management_if_running()
-
-    def restart_fake_management(self):
-        self.__setup_logger_if_required()
-        if self.agent:
-            self.agent.stop()
-        self.agent = self.__create_agent()
-        self.agent.start()
-
-    def __get_requester(self, plugin_name):
-        return ManagementAgentPluginRequester.ManagementAgentPluginRequester(plugin_name, self.logger)
-
-    def send_plugin_policy(self, plugin_name, app_id, content):
-        plugin = self.__get_requester(plugin_name)
-        plugin.policy(app_id, content)
-
-    def send_plugin_action(self, plugin_name, app_id, correlation, content):
-        plugin = self.__get_requester(plugin_name)
-        plugin.action(app_id, correlation, content)
-
-    def get_plugin_status(self, plugin_name, app_id):
-        try:
-            plugin = self.__get_requester(plugin_name)
-            return plugin.get_status(app_id)
-        except Exception as ex:
-            self.logger.error("Failed to get_plugin_status: %s", str(ex))
-            trace = traceback.format_exc()
-            self.logger.error("Traceback %s", trace)
-            raise
-
-    def wait_for_plugin_status(self, plugin_name, app_id, *texts):
-        timeout = 15
-        plugin = self.__get_requester(plugin_name)
-        deadline = time.time() + int(timeout)
-        status = "FAILED TO FETCH STATUS"
-
-        while time.time() < deadline:
-            status = plugin.get_status(app_id)
-            good = True
-            for t in texts:
-                if t not in status:
-                    good = False
-                    break
-            if good:
-                return
-            time.sleep(0.5)
-
-        self.logger.fatal("Plugin status didn't contain expected texts: %s", status)
-        raise Exception("Plugin status didn't contain expected texts")
-
-    def get_plugin_telemetry(self, plugin_name):
-        plugin = self.__get_requester(plugin_name)
-        return plugin.get_telemetry()

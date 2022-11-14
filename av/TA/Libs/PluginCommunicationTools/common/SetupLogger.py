@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2022 Sophos Plc, Oxford, England.
+# Copyright (C) 2018-2022 Sophos Plc, Oxford, England.
 # All rights reserved.
+
 
 import logging.handlers
 import os
@@ -10,7 +11,7 @@ from .PathsLocation import get_install_location
 
 def setup_logging(filename, name):
     logger = logging.getLogger(name)
-    #Remove any previous handlers which may exist on global logger
+    # Remove any previous handlers which may exist on global logger
     handlers = logger.handlers
 
     for handler in handlers:

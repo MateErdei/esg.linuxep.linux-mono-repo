@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Sophos Plc, Oxford, England.
+# Copyright (C) 2018-2022 Sophos Plc, Oxford, England.
 # All rights reserved.
 
 import os
@@ -24,6 +24,7 @@ class Agent(object):
         self.__m_running = True
         self.run_thread = None
         self.logger = logger
+        self.m_policies = {}
 
     def socket_path(self):
         return self.management_agent_socket_path
@@ -138,6 +139,9 @@ class Agent(object):
         self.logger.info("Received policy request: {}".format(message))
         message.set_ack()
         self.send_reply_to_plugin(message)
+        policy = self.m_policies.get(message.app_id, None)
+        if policy is not None:
+
 
     def handle_send_threat_health(self, message):
         self.logger.info("Received threat health: {}".format(message))
@@ -159,6 +163,7 @@ class Agent(object):
         self.logger.info("Sending reply to plugin: {}".format(message))
         self.send_message_over_agent_socket(message)
 
+    def send_policy(self):
 
 def main():
     LOGGER = setup_logging("fake_management_agent.log", "Fake Management Agent")

@@ -17,6 +17,7 @@ class ControlMessagesToPlugin(Enum):
     CUSTOM_MESSAGE_TO_AGENT = b'SendCustomMessageToAgent'
     STOP_PLUGIN = b'Stop'
 
+
 class Message(object):
     def __init__(self, app_id=None, plugin_name=None, command=None, contents=None, acknowledge=False, error=None):
         self.app_id = app_id
