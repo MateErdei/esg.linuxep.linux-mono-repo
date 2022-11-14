@@ -23,11 +23,11 @@ namespace safestore::QuarantineManager
         const std::chrono::seconds m_maxReinitialiseBackoff = 86400s;
         std::chrono::duration<double> m_lastCheck = std::chrono::system_clock::now().time_since_epoch();
         std::chrono::seconds m_reinitialiseBackoff = 60s;
-
     protected:
         void innerRun();
         std::mutex m_QMCheckLock;
         std::condition_variable m_checkWakeUp;
         std::atomic<bool> m_stopRequested = false;
     };
+
 } // namespace safestore::QuarantineManager

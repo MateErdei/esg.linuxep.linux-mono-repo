@@ -49,10 +49,10 @@ namespace safestore::QuarantineManager
 
             if (m_reinitialiseBackoff >= m_maxReinitialiseBackoff)
             {
-                m_reinitialiseBackoff = 60s;
+                m_reinitialiseBackoff = m_maxReinitialiseBackoff;
             }
 
-            m_checkWakeUp.wait_for(lock,m_reinitialiseBackoff);
+            m_checkWakeUp.wait_for(lock,m_reinitialiseBackoff, [this]{ return m_stopRequested.load(); });
             if (m_stopRequested)
             {
                 LOGDEBUG("State Monitor stop requested");
@@ -75,6 +75,7 @@ namespace safestore::QuarantineManager
                 try
                 {
                     m_quarantineManager->initialise();
+                    m_reinitialiseBackoff = 60s;
                 }
                 catch (const std::exception& ex)
                 {
@@ -83,6 +84,7 @@ namespace safestore::QuarantineManager
 
                 break;
             case QuarantineManagerState::INITIALISED:
+                m_reinitialiseBackoff = 60s;
                 LOGDEBUG("Quarantine Manager is initialised");
                 break;
             case QuarantineManagerState::UNINITIALISED:
@@ -91,6 +93,7 @@ namespace safestore::QuarantineManager
                 try
                 {
                     m_quarantineManager->initialise();
+                    m_reinitialiseBackoff = 60s;
                 }
                 catch (const std::exception& ex)
                 {
@@ -108,6 +111,7 @@ namespace safestore::QuarantineManager
                     {
                         LOGDEBUG("Successfully removed corrupt SafeStore database");
                         m_quarantineManager->initialise();
+                        m_reinitialiseBackoff = 60s;
                         break;
                     }
 
