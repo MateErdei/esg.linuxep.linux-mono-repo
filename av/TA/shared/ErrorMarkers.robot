@@ -26,8 +26,6 @@ Exclude Threat Detector Launcher Died With 11
 Exclude Soapd Died With 11
     mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/soapd died with 11
 
-Exclude SafeStore Died With 11
-    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/safestore died with 11
 
 Exclude Threat Detector Launcher Died
     mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 15

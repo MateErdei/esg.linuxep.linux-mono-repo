@@ -6,6 +6,7 @@ Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
+Resource    ../shared/SafeStoreResources.robot
 
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py

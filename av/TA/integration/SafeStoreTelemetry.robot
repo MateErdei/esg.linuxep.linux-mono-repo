@@ -10,6 +10,7 @@ Library         ../Libs/Telemetry.py
 
 Resource        ../shared/AVAndBaseResources.robot
 Resource        ../shared/ErrorMarkers.robot
+Resource        ../shared/SafeStoreResources.robot
 
 Suite Setup     Telemetry Suite Setup
 Suite Teardown  Uninstall All

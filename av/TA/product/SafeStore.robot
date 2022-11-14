@@ -4,6 +4,7 @@ Force Tags      PRODUCT  SAFESTORE
 
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
+Resource    ../shared/SafeStoreResources.robot
 
 Test Setup     SafeStore Test Setup
 Test Teardown  SafeStore Test Teardown

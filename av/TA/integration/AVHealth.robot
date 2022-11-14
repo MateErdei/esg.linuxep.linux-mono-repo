@@ -6,6 +6,7 @@ Library         ../Libs/SystemFileWatcher.py
 Resource        ../shared/AVAndBaseResources.robot
 Resource        ../shared/ErrorMarkers.robot
 Resource        ../shared/OnAccessResources.robot
+Resource        ../shared/SafeStoreResources.robot
 
 Suite Setup     AV Health Suite Setup
 Suite Teardown  Uninstall All

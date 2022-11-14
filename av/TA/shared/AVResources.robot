@@ -18,6 +18,7 @@ Library         ../Libs/ThreatReportUtils.py
 
 Resource    GlobalSetup.robot
 Resource    ComponentSetup.robot
+Resource    SafeStoreResources.robot
 Resource    RunShellProcess.robot
 
 *** Variables ***
@@ -28,9 +29,6 @@ ${AV_LOG_PATH}                                  ${AV_PLUGIN_PATH}/log/${COMPONEN
 ${SOPHOS_THREAT_DETECTOR_SHUTDOWN_FILE_PATH}    ${AV_PLUGIN_PATH}/chroot/var/threat_detector_expected_shutdown
 ${SOPHOS_THREAT_DETECTOR_PID_FILE_PATH}         ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
 ${ON_ACCESS_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/soapd.log
-${SAFESTORE_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/safestore.log
-${SAFESTORE_PID_FILE}                           ${AV_PLUGIN_PATH}/var/safestore.pid
-${SAFESTORE_SOCKET_PATH}                        ${AV_PLUGIN_PATH}/var/safestore_socket
 ${THREAT_DETECTOR_LOG_PATH}                     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
 ${THREAT_DETECTOR_INFO_LOG_PATH}                ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.info.log
 ${SUSI_DEBUG_LOG_PATH}                          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
@@ -50,7 +48,6 @@ ${PLUGIN_SDDS}                                  ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}                                ${COMPONENT_ROOT_PATH}/sbin/${COMPONENT}
 ${SCHEDULED_FILE_WALKER_LAUNCHER}               ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
 ${ON_ACCESS_BIN}                                ${COMPONENT_ROOT_PATH}/sbin/soapd
-${SAFESTORE_BIN}                                ${COMPONENT_ROOT_PATH}/sbin/safestore
 ${SOPHOS_THREAT_DETECTOR_BINARY}                ${COMPONENT_ROOT_PATH}/sbin/sophos_threat_detector
 ${SOPHOS_THREAT_DETECTOR_LAUNCHER}              ${COMPONENT_ROOT_PATH}/sbin/sophos_threat_detector_launcher
 ${EXPORT_FILE}                                  /etc/exports
@@ -118,10 +115,6 @@ Check OnAccess Not Running
     ${result} =   ProcessUtils.pidof  ${ON_ACCESS_BIN}
     Should Be Equal As Integers  ${result}  ${-1}
 
-Check SafeStore Not Running
-    ${result} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
-    Should Be Equal As Integers  ${result}  ${-1}
-
 Check Threat Detector Not Running
     ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Should Be Equal As Integers  ${result}  ${-1}
@@ -131,9 +124,6 @@ Check Threat Detector PID File Does Not Exist
     Run Keyword And Ignore Error  File Should Not Exist  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
     Remove File  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
 
-Check SafeStore PID File Does Not Exist
-    Run Keyword And Ignore Error  File Should Not Exist  ${SAFESTORE_PID_FILE}
-    Remove File  ${SAFESTORE_PID_FILE}
 
 Count File Log Lines
     [Arguments]  ${path}
@@ -161,12 +151,6 @@ Mark Sophos Threat Detector Log
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
     [Return]  ${count}
 
-Mark SafeStore Log
-    [Arguments]  ${mark}=""
-    ${count} =  Count Optional File Log Lines  ${SAFESTORE_LOG_PATH}
-    Set Suite Variable   ${SAFESTORE_LOG_MARK}  ${count}
-    Log  "SAFESTORE LOG MARK = ${SAFESTORE_LOG_MARK}"
-    [Return]  ${count}
 
 Mark Susi Debug Log
     ${count} =  Count File Log Lines  ${SUSI_DEBUG_LOG_PATH}
@@ -311,51 +295,6 @@ On Access Log Does Not Contain With Offset
         File Log Should Not Contain With Offset  ${ON_ACCESS_LOG_PATH}   ${input}   offset=${offset}
         Sleep   3s
     END
-
-SafeStore Log Contains
-    [Arguments]  ${input}
-    File Log Contains     ${SAFESTORE_LOG_PATH}   ${input}
-
-SafeStore Log Does Not Contain
-    [Arguments]  ${input}
-    LogUtils.Over next 15 seconds ensure log does not contain   ${SAFESTORE_LOG_PATH}  ${input}
-
-SafeStore Log Contains With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
-    File Log Contains With Offset     ${SAFESTORE_LOG_PATH}   ${input}   offset=${offset}
-
-SafeStore Log Contains With Offset Times
-    [Arguments]  ${input}  ${times}
-    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
-    File Log Contains With Offset Times    ${SAFESTORE_LOG_PATH}   ${input}   ${times}   offset=${offset}
-
-SafeStore Log Does Not Contain With Offset
-    [Arguments]  ${input}
-    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
-    # retry for 15s
-    FOR   ${i}   IN RANGE   5
-        File Log Should Not Contain With Offset  ${SAFESTORE_LOG_PATH}   ${input}   offset=${offset}
-        Sleep   3s
-    END
-
-Wait Until SafeStore Log Contains
-    [Arguments]  ${input}  ${timeout}=15  ${interval}=0
-    ${interval} =   Set Variable If
-    ...   ${interval} > 0   ${interval}
-    ...   ${timeout} >= 120   10
-    ...   ${timeout} >= 60   5
-    ...   ${timeout} >= 15   3
-    ...   1
-    Wait Until File Log Contains  SafeStore Log Contains   ${input}   timeout=${timeout}  interval=${interval}
-
-Wait Until SafeStore Log Contains With Offset
-    [Arguments]  ${input}  ${timeout}=15
-    Wait Until File Log Contains  SafeStore Log Contains With Offset  ${input}   timeout=${timeout}
-
-Wait Until SafeStore Log Contains Times With Offset
-    [Arguments]  ${input}  ${timeout}=15  ${times}=1
-    Wait Until File Log Contains Times  SafeStore Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
 
 Threat Detector Log Contains
     [Arguments]  ${input}
@@ -665,24 +604,6 @@ Wait Until On Access running with offset
     ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
     LogUtils.Wait For Log Contains After Mark    ${ON_ACCESS_LOG_PATH}    ProcessPolicy    ${mark}  timeout=60
 
-Wait Until SafeStore running
-    [Arguments]  ${timeout}=${60}
-    ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
-    LogUtils.Wait For Log contains after last restart  ${SAFESTORE_LOG_PATH}  SafeStore started  timeout=${timeout}
-
-Wait Until SafeStore Running With Offset
-    [Arguments]  ${timeout}=${60}
-    ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
-    Wait Until SafeStore Log Contains With Offset
-    ...  SafeStore started
-    ...  timeout=${timeout}
-
-Wait Until SafeStore not running
-    [Arguments]  ${timeout}=30
-    Wait Until Keyword Succeeds
-    ...  ${timeout} secs
-    ...  3 secs
-    ...  Check SafeStore Not Running
 
 Wait until threat detector running
     [Arguments]  ${timeout}=${60}
@@ -748,14 +669,6 @@ Install With Base SDDS
     Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
     Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
 
-Start SafeStore Manually
-    ${handle} =  Start Process  ${SAFESTORE_BIN}  stdout=DEVNULL  stderr=DEVNULL
-    Set Test Variable  ${SAFESTORE_HANDLE}  ${handle}
-    Wait Until SafeStore running
-
-Stop SafeStore Manually
-    ${result} =  Terminate Process  ${SAFESTORE_HANDLE}
-    Set Suite Variable  ${SAFESTORE_HANDLE}  ${None}
 
 Uninstall And Revert Setup
     Uninstall All
@@ -1107,9 +1020,6 @@ Record Soapd Plugin PID
     ${PID} =  ProcessUtils.wait for pid  ${ON_ACCESS_BIN}  ${5}
     [Return]   ${PID}
 
-Record SafeStore Plugin PID
-    ${PID} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  ${5}
-    [Return]   ${PID}
 
 Get Sophos Threat Detector PID From File
     ${PID} =  Get File    ${SOPHOS_THREAT_DETECTOR_PID_FILE_PATH}

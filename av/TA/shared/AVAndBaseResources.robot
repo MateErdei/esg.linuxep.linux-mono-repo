@@ -153,14 +153,6 @@ Start soapd
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  on_access_process
     Should Be Equal As Integers    ${result.rc}    ${0}
 
-Stop SafeStore
-    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   safestore
-    Should Be Equal As Integers    ${result.rc}    ${0}
-
-Start SafeStore
-    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  safestore
-    Should Be Equal As Integers    ${result.rc}    ${0}
-
 Restart sophos_threat_detector
     # with added checks/debugging for LINUXDAR-5808
     ${status} =      Run Keyword And Return Status   Really Restart sophos_threat_detector
@@ -200,11 +192,3 @@ Scan GR Test File
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/gui.exe
     Log  ${output}
     BuiltIn.Should Be Equal As Integers  ${rc}  ${0}  Failed to scan gui.exe
-
-Corrupt SafeStore Database
-    Stop SafeStore
-    Create File    ${SOPHOS_INSTALL}/plugins/av/var/persist-safeStoreDbErrorThreshold    1
-
-    Remove Files    ${SAFESTORE_DB_PATH}    ${SAFESTORE_DB_PASSWORD_PATH}
-    Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
-    Start SafeStore
