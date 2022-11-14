@@ -2,6 +2,7 @@
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
+#include "safestore/SafeStoreServiceCallback.h"
 #include "scan_messages/ThreatDetected.h"
 #include "tests/common/Common.h"
 #include "tests/common/WaitForEvent.h"
@@ -9,6 +10,8 @@
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
 #include "Common/FileSystem/IFilePermissions.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
 #include "common/ApplicationPaths.h"
 
 #include <sys/fcntl.h>
@@ -188,4 +191,138 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
     serverWaitGuard2.wait();
 
     // destructor will stop the thread
+}
+
+TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterSuccessfulQuarantine)
+{
+    setupFakeSophosThreatDetectorConfig();
+    WaitForEvent serverWaitGuard;
+    safestore::SafeStoreServiceCallback safeStoreCallback{};
+
+    auto quarantineManager = std::make_shared<MockQuarantineManager>();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    std::vector<std::string> fileList{"safestore.db", "safestore.pw"};
+
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(fileList));
+    EXPECT_CALL(*mockFileSystem, fileSize(_)).WillRepeatedly(Return(150));
+
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+        .WillRepeatedly(Return(common::CentralEnums::QuarantineResult::SUCCESS));
+    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    server.start();
+    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
+
+    client.sendQuarantineRequest(createThreatDetected());
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0,"quarantine-failures":0,"quarantine-successes":1,"unlink-failures":0})");
+
+    client.sendQuarantineRequest(createThreatDetected());
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0,"quarantine-failures":0,"quarantine-successes":2,"unlink-failures":0})");
+}
+
+TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterFailedQuarantine)
+{
+    setupFakeSophosThreatDetectorConfig();
+    WaitForEvent serverWaitGuard;
+    safestore::SafeStoreServiceCallback safeStoreCallback{};
+
+    auto quarantineManager = std::make_shared<MockQuarantineManager>();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    std::vector<std::string> fileList{"safestore.db", "safestore.pw"};
+
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(fileList));
+    EXPECT_CALL(*mockFileSystem, fileSize(_)).WillRepeatedly(Return(150));
+
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+        .WillRepeatedly(Return(common::CentralEnums::QuarantineResult::NOT_FOUND));
+    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    server.start();
+    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
+
+    client.sendQuarantineRequest(createThreatDetected());
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0,"quarantine-failures":1,"quarantine-successes":1,"unlink-failures":0})");
+
+    client.sendQuarantineRequest(createThreatDetected());
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0,"quarantine-failures":2,"quarantine-successes":2,"unlink-failures":0})");
+}
+
+TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterUnlinkFailure)
+{
+    setupFakeSophosThreatDetectorConfig();
+    WaitForEvent serverWaitGuard;
+    safestore::SafeStoreServiceCallback safeStoreCallback{};
+
+    auto quarantineManager = std::make_shared<MockQuarantineManager>();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    std::vector<std::string> fileList{"safestore.db", "safestore.pw"};
+
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(fileList));
+    EXPECT_CALL(*mockFileSystem, fileSize(_)).WillRepeatedly(Return(150));
+
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+        .WillRepeatedly(Return(common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE));
+    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    server.start();
+    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
+
+    client.sendQuarantineRequest(createThreatDetected());
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0,"quarantine-failures":0,"quarantine-successes":0,"unlink-failures":1})");
+
+    client.sendQuarantineRequest(createThreatDetected());
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0,"quarantine-failures":0,"quarantine-successes":0,"unlink-failures":2})");
+}
+
+TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterQuarantineResults)
+{
+    setupFakeSophosThreatDetectorConfig();
+    WaitForEvent serverWaitGuard;
+    safestore::SafeStoreServiceCallback safeStoreCallback{};
+
+    auto quarantineManager = std::make_shared<MockQuarantineManager>();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    std::vector<std::string> fileList{"safestore.db", "safestore.pw"};
+
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(fileList));
+    EXPECT_CALL(*mockFileSystem, fileSize(_)).WillRepeatedly(Return(150));
+
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+        .WillOnce(Return(common::CentralEnums::QuarantineResult::SUCCESS))
+        .WillOnce(Return(common::CentralEnums::QuarantineResult::DELETED))
+        .WillOnce(Return(common::CentralEnums::QuarantineResult::NOT_FOUND))
+        .WillOnce(Return(common::CentralEnums::QuarantineResult::DELETED))
+        .WillOnce(Return(common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE));
+    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    server.start();
+    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
+
+    // common::CentralEnums::QuarantineResult::SUCCESS
+    client.sendQuarantineRequest(createThreatDetected());
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0,"quarantine-failures":0,"quarantine-successes":1,"unlink-failures":0})");
+
+    // common::CentralEnums::QuarantineResult::DELETED
+    client.sendQuarantineRequest(createThreatDetected());
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0,"quarantine-failures":0,"quarantine-successes":1,"unlink-failures":0})");
+
+    // common::CentralEnums::QuarantineResult::NOT_FOUND
+    client.sendQuarantineRequest(createThreatDetected());
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0,"quarantine-failures":1,"quarantine-successes":1,"unlink-failures":0})");
+
+    // common::CentralEnums::QuarantineResult::DELETED
+    client.sendQuarantineRequest(createThreatDetected());
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0,"quarantine-failures":1,"quarantine-successes":1,"unlink-failures":0})");
+
+    // common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE
+    client.sendQuarantineRequest(createThreatDetected());
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-size":300,"dormant-mode":false,"health":0,"quarantine-failures":1,"quarantine-successes":1,"unlink-failures":1})");
 }

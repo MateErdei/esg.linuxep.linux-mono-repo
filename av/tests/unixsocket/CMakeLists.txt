@@ -38,6 +38,8 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             ../common/LogInitializedTests.cpp
             TestSafeStoreSocket.cpp
             PROJECTS unixsocket
+            INC_DIRS ${testhelpersinclude}
+            LIBS ${log4cpluslib} ${testhelperslib}
             )
 
     add_executable(ProcessControlClientExecutable
