@@ -20,7 +20,7 @@ ManagementAgent::ThreatHealthReceiverImpl::ThreatHealthReceiverImpl::ThreatHealt
 {
 }
 
-void ThreatHealthReceiverImpl::receivedThreatHealth(
+bool ThreatHealthReceiverImpl::receivedThreatHealth(
     const std::string& pluginName,
     const std::string& threatHealth,
     std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj)
@@ -37,6 +37,7 @@ void ThreatHealthReceiverImpl::receivedThreatHealth(
             Common::TaskQueue::ITaskPtr task(
                 new ThreatHealthTask(pluginName, threatHealthValue, healthStatusSharedObj));
             m_taskQueue->queueTask(std::move(task));
+            return true;
         }
         catch (nlohmann::json::parse_error& exception)
         {
@@ -50,4 +51,5 @@ void ThreatHealthReceiverImpl::receivedThreatHealth(
     {
         LOGERROR("HealthStatus shared obj has not been initialised");
     }
+    return false;
 }

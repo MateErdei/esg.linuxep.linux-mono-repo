@@ -59,8 +59,15 @@ namespace ManagementAgent
                         m_serverCallback->receivedRegisterWithManagementAgent(request.m_pluginName);
                         return m_messageBuilder.replyAckMessage(request);
                     case Commands::PLUGIN_SEND_THREAT_HEALTH:
-                        m_serverCallback->receivedThreatHealth(request.m_pluginName, m_messageBuilder.requestExtractThreatHealth(request), m_healthStatusSharedObj);
-                        return m_messageBuilder.replyAckMessage(request);
+                        if (m_serverCallback->receivedThreatHealth(request.m_pluginName, m_messageBuilder.requestExtractThreatHealth(request), m_healthStatusSharedObj))
+                        {
+                            return m_messageBuilder.replyAckMessage(request);
+                        }
+                        else
+                        {
+                            return m_messageBuilder.replySetErrorIfEmpty(
+                                request, "Threat receiver failed to process threat health");
+                        }
                     default:
                         return m_messageBuilder.replySetErrorIfEmpty(request, "Request not supported");
                 }

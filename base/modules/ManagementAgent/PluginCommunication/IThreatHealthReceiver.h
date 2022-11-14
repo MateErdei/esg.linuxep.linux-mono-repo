@@ -27,7 +27,7 @@ namespace ManagementAgent
              * @param pluginName
              * @param threatHealth Threat health in JSON format detailed in IBaseServiceApi.h
              */
-            virtual void receivedThreatHealth(
+            virtual bool receivedThreatHealth(
                 const std::string& pluginName,
                 const std::string& threatHealth,
                 std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus>

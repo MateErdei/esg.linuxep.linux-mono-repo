@@ -22,5 +22,5 @@ public:
 
     MOCK_METHOD1(receivedGetPolicyRequest, bool(const std::string& appId));
     MOCK_METHOD1(receivedRegisterWithManagementAgent, void(const std::string& pluginName));
-    MOCK_METHOD3(receivedThreatHealth, void(const std::string& pluginName, const std::string& threatHealth, std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj));
+    MOCK_METHOD3(receivedThreatHealth, bool(const std::string& pluginName, const std::string& threatHealth, std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj));
 };

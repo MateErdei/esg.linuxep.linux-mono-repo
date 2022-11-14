@@ -347,11 +347,39 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsAcknowle
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH, "threathealth");
 
     auto healthStatusSharedObj = std::make_shared<ManagementAgent::HealthStatusImpl::HealthStatus>();
-    EXPECT_CALL(*m_mockServerCallback, receivedThreatHealth(messageFromPlugin.m_pluginName, "threathealth", _)).WillOnce(Return());
+    EXPECT_CALL(*m_mockServerCallback, receivedThreatHealth(messageFromPlugin.m_pluginName, "threathealth", _)).WillOnce(Return(true));
 
     Common::PluginProtocol::DataMessage ackMessage =
         createAcknowledgementMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH);
 
     auto replyMessage = sendReceive(messageFromPlugin);
     EXPECT_PRED_FORMAT2(dataMessageSimilar, ackMessage, replyMessage);
+}
+
+TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsErrorOnFailureToProcessPluginSendThreatHealth) // NOLINT
+{
+    // File system mocks for the health status obj constructor and destructor
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath()))
+        .WillOnce(Return(false));
+    EXPECT_CALL(
+        *mockFileSystem,
+        writeFile(Common::ApplicationConfiguration::applicationPathManager().getThreatHealthJsonFilePath(), "{}"));
+
+    Common::PluginProtocol::DataMessage messageFromPlugin =
+        createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH, "threathealth");
+
+    auto healthStatusSharedObj = std::make_shared<ManagementAgent::HealthStatusImpl::HealthStatus>();
+    EXPECT_CALL(*m_mockServerCallback, receivedThreatHealth(messageFromPlugin.m_pluginName, "threathealth", _)).WillOnce(Return(false));
+
+    Common::PluginProtocol::DataMessage errorMessage =
+        createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_SEND_THREAT_HEALTH, "");
+    errorMessage.m_error = "Threat receiver failed to process threat health";
+
+    auto replyMessage = sendReceive(messageFromPlugin);
+    EXPECT_PRED_FORMAT2(dataMessageSimilar, errorMessage, replyMessage);
 }
