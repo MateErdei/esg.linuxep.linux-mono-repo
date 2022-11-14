@@ -2,12 +2,12 @@
 
 namespace safestore
 {
-    const char* const telemetrySafeStoreHealth = "health";
-    const char* const telemetrySafeStoreDormantMode = "dormant-mode";
+    constexpr auto telemetrySafeStoreHealth = "health";
+    constexpr auto telemetrySafeStoreDormantMode = "dormant-mode";
 
-    const char* const telemetrySafeStoreDatabaseSize = "database-size";
+    constexpr auto telemetrySafeStoreDatabaseSize = "database-size";
 
-    const char* const telemetrySafeStoreQuarantineSuccess = "quarantine-successes";
-    const char* const telemetrySafeStoreQuarantineFailure = "quarantine-failures";
-    const char* const telemetrySafeStoreUnlinkFailure = "unlink-failures";
+    constexpr auto telemetrySafeStoreQuarantineSuccess = "quarantine-successes";
+    constexpr auto telemetrySafeStoreQuarantineFailure = "quarantine-failures";
+    constexpr auto telemetrySafeStoreUnlinkFailure = "unlink-failures";
 }
