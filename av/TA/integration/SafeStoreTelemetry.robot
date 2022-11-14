@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   SafeStore Telemetry tests
-Force Tags      INTEGRATION  AVBASE  TELEMETRY
+Force Tags      INTEGRATION  AVBASE  TELEMETRY    SAFESTORE
 
 Library         Collections
 
@@ -168,4 +168,5 @@ SafeStore Increments Quarantine Counter After Failed Quarantine
    Dictionary Should Contain Item   ${safeStoreDict}   quarantine-successes   ${0}
    Dictionary Should Contain Item   ${safeStoreDict}   unlink-failures   ${0}
 
+   Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
