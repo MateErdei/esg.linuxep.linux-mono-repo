@@ -4,6 +4,7 @@
 #include "SafeStoreTelemetryConsts.h"
 
 #include "common/ApplicationPaths.h"
+#include "Common/FileSystem/IFileSystemException.h"
 
 #include "safestore/Logger.h"
 
@@ -56,11 +57,20 @@ namespace safestore
             unsigned long size = 0;
             for (auto& file : files)
             {
-                size += fileSystem->fileSize(file);
+                auto tmpSize = fileSystem->fileSize(file);
+
+                if (tmpSize > 0)
+                {
+                    size += tmpSize;
+                }
+                else
+                {
+                    LOGWARN("Failed to get size of " << file << " while computing SafeStore database size for telemetry");
+                }
             }
             return size;
         }
-        catch (std::exception& ex)
+        catch (const Common::FileSystem::IFileSystemException& ex)
         {
             LOGERROR("Telemetry cannot get size of SafeStore database files");
             return std::nullopt;
