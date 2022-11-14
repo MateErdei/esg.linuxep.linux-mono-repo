@@ -65,10 +65,14 @@ namespace Plugin
         private:
             PluginAdapter& m_adapter;
         };
-
     } // namespace
 
-    const PolicyWaiter::policy_list_t PluginAdapter::m_requested_policies{"SAV", "CORE", "FLAGS", "ALC"};
+    const PolicyWaiter::policy_list_t PluginAdapter::m_requested_policies{
+        "SAV",
+        "CORE",
+        "FLAGS",
+        "ALC"
+    };
 
     PluginAdapter::PluginAdapter(
         std::shared_ptr<TaskQueue> taskQueue,
