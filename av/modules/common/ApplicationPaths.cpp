@@ -29,16 +29,6 @@ namespace Plugin
         return getPluginInstall() + "/var";
     }
 
-    std::string getPluginChrootDirPath()
-    {
-        return getPluginInstall() + "/chroot";
-    }
-
-    std::string getPluginChrootVarDirPath()
-    {
-        return getPluginChrootDirPath() + "/var";
-    }
-
     std::string getSafeStorePidPath()
     {
         return getPluginVarDirPath() + "/safestore.pid";
@@ -47,11 +37,6 @@ namespace Plugin
     std::string getSafeStoreSocketPath()
     {
         return getPluginVarDirPath() + "/safestore_socket";
-    }
-
-    std::string getSafeStoreRescanSocketPath()
-    {
-        return getPluginChrootVarDirPath() + "/safestore_rescan_socket";
     }
 
     std::string getSafeStoreDbDirPath()

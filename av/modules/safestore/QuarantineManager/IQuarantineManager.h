@@ -63,11 +63,6 @@ namespace safestore::QuarantineManager
             const std::string& threatName,
             const std::string& sha256,
             datatypes::AutoFd autoFd) = 0;
-
-        /**
-         * Unpack all detections from database and run the avscanner on them.
-         */
-        virtual void rescanDatabase() = 0;
     };
 
 } // namespace safestore::QuarantineManager

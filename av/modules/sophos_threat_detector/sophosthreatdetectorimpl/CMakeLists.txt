@@ -7,8 +7,6 @@ find_package( Boost REQUIRED COMPONENTS program_options)
 
 add_library(sophosthreatdetectorimpl SHARED
         ../../common/config.h
-        SafeStoreRescanWorker.cpp
-        SafeStoreRescanWorker.h
         SophosThreatDetectorMain.cpp
         SophosThreatDetectorMain.h
         Logger.cpp

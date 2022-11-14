@@ -4,11 +4,9 @@
 
 #include "Logger.h"
 #include "Reloader.h"
-#include "SafeStoreRescanWorker.h"
 #include "ShutdownTimer.h"
 #include "ThreatReporter.h"
 
-#include "common/ApplicationPaths.h"
 #include "common/Define.h"
 #include "common/FDUtils.h"
 #include "common/PidLockFile.h"
@@ -23,7 +21,6 @@
 #endif
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
-#include "unixsocket/safeStoreRescanSocket/SafeStoreRescanServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
@@ -451,9 +448,6 @@ namespace sspl::sophosthreatdetectorimpl
         std::shared_ptr<ThreatDetectorControlCallbacks> callbacks = std::make_shared<ThreatDetectorControlCallbacks>(*this);
         unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0660, callbacks);
         processController.start();
-
-        SafeStoreRescanWorker rescanWorker("/var/safestore_rescan_socket");
-        rescanWorker.start();
 
         int returnCode = common::E_CLEAN_SUCCESS;
 

@@ -40,12 +40,6 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             PROJECTS unixsocket
             )
 
-    SophosAddTest(TestSafeStoreRescanSocket
-            ../common/LogInitializedTests.cpp
-            TestSafeStoreRescanSocket.cpp
-            PROJECTS unixsocket
-            )
-
     add_executable(ProcessControlClientExecutable
             ../unixsocket/ProcessControlTestExecutable/ProcessControllClient.cpp)
     target_link_libraries(ProcessControlClientExecutable  PUBLIC

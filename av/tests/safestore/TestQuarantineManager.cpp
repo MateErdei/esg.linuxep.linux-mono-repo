@@ -545,12 +545,3 @@ TEST_F(QuarantineManagerTests, deleteDatabaseDoesNotThrowOnFailure)
     EXPECT_NO_THROW(result = quarantineManager->deleteDatabase());
     ASSERT_FALSE(result);
 }
-
-// TODO: LINUXDAR-5734 - replace this placeholder test
-TEST_F(QuarantineManagerTests, testRescanDatabase)
-{
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
-
-    EXPECT_NO_THROW(quarantineManager->rescanDatabase());
-}

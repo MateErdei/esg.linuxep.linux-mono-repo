@@ -1,7 +1,6 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
-#include "safestore/MockIQuarantineManager.h"
 
 #include "scan_messages/ThreatDetected.h"
 #include "tests/common/Common.h"
@@ -68,6 +67,24 @@ namespace
         std::string m_sha256;
         std::string m_threatId;
     };
+
+    class MockQuarantineManager : public safestore::QuarantineManager::IQuarantineManager
+    {
+    public:
+        MOCK_METHOD(
+            common::CentralEnums::QuarantineResult,
+            quarantineFile,
+            (const std::string& filePath,
+             const std::string& threatId,
+             const std::string& threatName,
+             const std::string& sha256,
+             datatypes::AutoFd autoFd));
+
+        MOCK_METHOD(void, setState,(const safestore::QuarantineManager::QuarantineManagerState& newState));
+        MOCK_METHOD(void, initialise,());
+        MOCK_METHOD(safestore::QuarantineManager::QuarantineManagerState, getState,());
+        MOCK_METHOD(bool, deleteDatabase,());
+    };
 } // namespace
 
 TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
@@ -78,7 +95,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
     {
         WaitForEvent serverWaitGuard;
 
-        auto quarantineManager = std::make_shared<MockIQuarantineManager>();
+        auto quarantineManager = std::make_shared<MockQuarantineManager>();
         EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
             .Times(1)
             .WillOnce(Invoke(
@@ -138,7 +155,7 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
     WaitForEvent serverWaitGuard;
     WaitForEvent serverWaitGuard2;
 
-    auto quarantineManager = std::make_shared<MockIQuarantineManager>();
+    auto quarantineManager = std::make_shared<MockQuarantineManager>();
     EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
         .Times(2)
         .WillOnce(InvokeWithoutArgs(
