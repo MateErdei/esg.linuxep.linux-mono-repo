@@ -342,24 +342,6 @@ namespace Plugin
         return "";
     }
 
-    bool PluginCallback::onaccessStatusFromFileIsInactiveOrHealthy()
-    {
-        std::string status = datatypes::OnaccessStatus::INACTIVE;
-        fs::path statusFilePath = common::getPluginInstallPath() / "var/onaccess.status";
-        if (fs::exists(statusFilePath))
-        {
-            std::ifstream statusFile(statusFilePath.c_str(), std::fstream::in);
-            statusFile >> status;
-            LOGDEBUG("On-access status: " << status);
-        }
-        else
-        {
-            LOGWARN("On-access status file does not exist, assuming unhealthy status");
-        }
-
-        return status == datatypes::OnaccessStatus::INACTIVE || status == datatypes::OnaccessStatus::HEALTHY;
-    }
-
     long PluginCallback::calculateHealth(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
         calculateThreatDetectorHealthStatus(sysCalls);
@@ -390,7 +372,7 @@ namespace Plugin
         }
         else
         {
-            bool dormant = fileSystem->isFile(Plugin::getSafeStoreDormantFlagPath());
+            bool dormant = fileSystem->isFile(getSafeStoreDormantFlagPath());
             if (!common::PidLockFile::isPidFileLocked(getSafeStorePidPath(), sysCalls) )
             {
                 if (m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
@@ -420,8 +402,9 @@ namespace Plugin
 
     void PluginCallback::calculateSoapHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
-        Path soapdPidFile = common::getPluginInstallPath() / "var/soapd.pid";
-        if (common::PidLockFile::isPidFileLocked(soapdPidFile, sysCalls) && onaccessStatusFromFileIsInactiveOrHealthy())
+        auto fileSystem = Common::FileSystem::fileSystem();
+        bool unhealthy = fileSystem->isFile(getOnAccessUnhealthyFlagPath());
+        if (common::PidLockFile::isPidFileLocked(getSoapdPidPath(), sysCalls) && !unhealthy)
         {
             if(m_soapServiceStatus == E_HEALTH_STATUS_BAD)
             {

@@ -58,4 +58,14 @@ namespace Plugin
     {
         return getPluginVarDirPath() + "/safestore_dormant_flag";
     }
+
+    std::string getSoapdPidPath()
+    {
+        return getPluginVarDirPath() + "/soapd.pid";
+    }
+
+    std::string getOnAccessUnhealthyFlagPath()
+    {
+        return getPluginVarDirPath() + "/onaccess_unhealthy_flag";
+    }
 } // namespace Plugin

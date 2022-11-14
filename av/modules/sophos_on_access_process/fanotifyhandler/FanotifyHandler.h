@@ -3,7 +3,6 @@
 #pragma once
 
 #include "IFanotifyHandler.h"
-#include "OnaccessStatusFile.h"
 
 #include "common/LockableData.h"
 #include "datatypes/AutoFd.h"
@@ -97,7 +96,6 @@ namespace sophos_on_access_process::fanotifyhandler
 
             mutable common::LockableData<datatypes::AutoFd> m_fd;
             datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;
-            OnaccessStatusFile m_statusFile;
     };
 }
 

@@ -4,8 +4,11 @@
 
 #include "Logger.h"
 
+#include "common/ApplicationPaths.h"
 #include "common/SaferStrerror.h"
 
+#include <cstdio>
+#include <fstream>
 #include <sstream>
 #include <tuple>
 
@@ -30,12 +33,11 @@ void FanotifyHandler::init()
     int fanotifyFd = m_systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
     if (fanotifyFd == -1)
     {
-        m_statusFile.setStatus(datatypes::OnaccessStatus::UNHEALTHY);
+        std::ofstream onaccessUnhealthyFlagFile(Plugin::getOnAccessUnhealthyFlagPath());
         std::stringstream errMsg;
         errMsg << "Unable to initialise fanotify: " << common::safer_strerror(errno);
         throw std::runtime_error(errMsg.str());
     }
-    m_statusFile.setStatus(datatypes::OnaccessStatus::HEALTHY);
     LOGINFO("Fanotify successfully initialised");
 
     auto fanotify_autofd = m_fd.lock();
@@ -45,7 +47,7 @@ void FanotifyHandler::init()
 
 void FanotifyHandler::close()
 {
-    m_statusFile.setStatus(datatypes::OnaccessStatus::INACTIVE);
+    std::remove(Plugin::getOnAccessUnhealthyFlagPath().c_str());
     auto fanotify_autofd = m_fd.lock();
     fanotify_autofd->close();
 }

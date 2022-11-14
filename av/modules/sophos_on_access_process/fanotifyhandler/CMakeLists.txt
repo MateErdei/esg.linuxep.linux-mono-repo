@@ -5,8 +5,6 @@ add_library(fanotifyhandler SHARED
         IFanotifyHandler.h
         Logger.cpp
         Logger.h
-        OnaccessStatusFile.cpp
-        OnaccessStatusFile.h
         ProcUtils.cpp
         ProcUtils.h
         IFanotifyHandler.h)

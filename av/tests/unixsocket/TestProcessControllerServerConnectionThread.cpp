@@ -156,7 +156,7 @@ TEST_F(TestProcessControllerServerConnectionThread, send_zero_length) //NOLINT
 
 TEST_F(TestProcessControllerServerConnectionThread, bad_notify_pipe_fd) //NOLINT
 {
-    const std::string expected = "Closing Process Controller connection thread, error from notify pipe: Bad file descriptor";
+    const std::string expected = "Closing Process Controller connection thread, error from notify pipe";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -166,7 +166,7 @@ TEST_F(TestProcessControllerServerConnectionThread, bad_notify_pipe_fd) //NOLINT
     struct pollfd fds[2]{};
     fds[1].revents = POLLERR;
     EXPECT_CALL(*m_mockSysCalls, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), SetErrnoAndReturn(EBADF, 1)));
+        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
 
     ProcessControllerServerConnectionThread connectionThread(fdHolder, callback, m_mockSysCalls);
     ::close(fd); // fd in connection Thread now broken
@@ -181,7 +181,7 @@ TEST_F(TestProcessControllerServerConnectionThread, bad_notify_pipe_fd) //NOLINT
 
 TEST_F(TestProcessControllerServerConnectionThread, bad_socket_fd) //NOLINT
 {
-    const std::string expected = "Closing Process Controller connection thread, error from socket: Bad file descriptor";
+    const std::string expected = "Closing Process Controller connection thread, error from socket";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -191,7 +191,7 @@ TEST_F(TestProcessControllerServerConnectionThread, bad_socket_fd) //NOLINT
     struct pollfd fds[2]{};
     fds[0].revents = POLLERR;
     EXPECT_CALL(*m_mockSysCalls, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), SetErrnoAndReturn(EBADF, 1)));
+        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
 
     ProcessControllerServerConnectionThread connectionThread(fdHolder, callback, m_mockSysCalls);
     ::close(fd); // fd in connection Thread now broken
