@@ -77,7 +77,7 @@ namespace Plugin
          * @param appId OUT - the appId for the policy
          * @return whether policy has been updated
          */
-        void processPolicy(const std::string& policyXml, PolicyWaiterSharedPtr policyWaiter);
+        void processPolicy(const std::string& policyXml, const PolicyWaiterSharedPtr& policyWaiter);
         void processAction(const std::string& actionXml);
         void startThreads();
         void innerLoop();

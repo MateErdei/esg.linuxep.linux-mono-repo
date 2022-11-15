@@ -248,7 +248,7 @@ namespace Plugin
         m_callback->setSafeStoreEnabled(m_policyProcessor.isSafeStoreEnabled());
     }
 
-    void PluginAdapter::processPolicy(const std::string& policyXml, PolicyWaiterSharedPtr policyWaiter)
+    void PluginAdapter::processPolicy(const std::string& policyXml, const PolicyWaiterSharedPtr& policyWaiter)
     {
         LOGINFO("Received Policy");
         try
@@ -468,6 +468,10 @@ namespace Plugin
 
     void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName, const scan_messages::E_SCAN_TYPE& scanType)
     {
+        //These should be converted in susiscanner
+        assert(scanType != scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE);
+        assert(scanType != scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN);
+
         std::string telemetryStr = (scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS) ? "on-access-" : "on-demand-";
 
         telemetryStr.append((threatName == "EICAR-AV-Test") ? "threat-eicar-count" : "threat-count");
