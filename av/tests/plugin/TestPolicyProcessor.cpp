@@ -123,7 +123,7 @@ static const std::string ALC_FULL_POLICY //NOLINT
 };
 
 
-std::string GL_POLICY_2 =  // NOLINT
+static const std::string GL_POLICY_2 =  // NOLINT
     R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>
@@ -134,7 +134,7 @@ std::string GL_POLICY_2 =  // NOLINT
 </AUConfigurations>
 )sophos";
 
-std::string GL_CORC_POLICY = R"sophos(<?xml version="1.0"?>
+static const std::string GL_CORC_POLICY = R"sophos(<?xml version="1.0"?>
 <policy RevID="revisionid" policyType="37">
   <proxy>
     <address>address</address>
@@ -222,7 +222,7 @@ std::string GL_CORC_POLICY = R"sophos(<?xml version="1.0"?>
 </policy>
 )sophos";
 
-std::string GL_SAV_POLICY = R"sophos(<?xml version="1.0"?>
+static const std::string GL_SAV_POLICY = R"sophos(<?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
   <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="cffa72668ae45abe2c1caa5dff4523770e257d49e02e47848b424977c6fb3994" policyType="2"/>
   <entity>
@@ -743,398 +743,6 @@ TEST_F(TestPolicyProcessor, processAlcPolicyInvalid)
     EXPECT_FALSE(proc.restartThreatDetector());
 }
 
-TEST_F(TestPolicyProcessor, processSavPolicy)
-{
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_soapConfigPath,
-            R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})sophos",
-            _,
-            0640));
-
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos", _, 0640));
-
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos", _, 0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
-<config>
-    <detectionFeedback>
-        <sendData>false</sendData>
-    </detectionFeedback>
-</config>
-)sophos";
-
-    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    proc.processSavPolicy(attributeMap);
-    EXPECT_TRUE(proc.restartThreatDetector());
-}
-
-TEST_F(TestPolicyProcessor, defaultSXL4lookupValueIsTrue)
-{
-    Plugin::PolicyProcessor proc{nullptr};
-    EXPECT_TRUE(proc.getSXL4LookupsEnabled());
-}
-
-TEST_F(TestPolicyProcessor, processSavPolicyChanged)
-{
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_soapConfigPath,
-            R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})sophos",
-            _,
-            0640))
-        .Times(3);
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
-    {
-        InSequence seq;
-
-        EXPECT_CALL(
-            *m_mockIFileSystemPtr,
-            writeFileAtomically(
-                m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos", _, 0640));
-
-        EXPECT_CALL(
-            *m_mockIFileSystemPtr,
-            writeFileAtomically(
-                m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos", _, 0640));
-
-        EXPECT_CALL(
-            *m_mockIFileSystemPtr,
-            writeFileAtomically(
-                m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos", _, 0640));
-
-        EXPECT_CALL(
-            *m_mockIFileSystemPtr,
-            writeFileAtomically(
-                m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos", _, 0640));
-
-        EXPECT_CALL(
-            *m_mockIFileSystemPtr,
-            writeFileAtomically(
-                m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos", _, 0640));
-
-        EXPECT_CALL(
-            *m_mockIFileSystemPtr,
-            writeFileAtomically(
-                m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos", _, 0640));
-    }
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    std::string policyXmlTrue = R"sophos(<?xml version="1.0"?>
-<config>
-    <detectionFeedback>
-        <sendData>true</sendData>
-    </detectionFeedback>
-</config>
-)sophos";
-
-    std::string policyXmlFalse = R"sophos(<?xml version="1.0"?>
-<config>
-    <detectionFeedback>
-        <sendData>false</sendData>
-    </detectionFeedback>
-</config>
-)sophos";
-
-    auto attributeMapTrue = Common::XmlUtilities::parseXml(policyXmlTrue);
-    auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
-
-    proc.processSavPolicy(attributeMapTrue);
-    EXPECT_TRUE(proc.restartThreatDetector());
-    EXPECT_TRUE(proc.getSXL4LookupsEnabled());
-
-    proc.processSavPolicy(attributeMapFalse);
-    EXPECT_TRUE(proc.restartThreatDetector());
-    EXPECT_FALSE(proc.getSXL4LookupsEnabled());
-
-    proc.processSavPolicy(attributeMapTrue);
-    EXPECT_TRUE(proc.restartThreatDetector());
-    EXPECT_TRUE(proc.getSXL4LookupsEnabled());
-}
-
-TEST_F(TestPolicyProcessor, processSavPolicyMaintainsSXL4state)
-{
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})sophos",
-                                                           _,
-                                                           0640)).Times(4);
-
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
-    {
-        InSequence seq;
-         EXPECT_CALL(
-            *m_mockIFileSystemPtr,
-            writeFileAtomically(
-                m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos", _, 0640));
-
-        EXPECT_CALL(
-            *m_mockIFileSystemPtr,
-            writeFileAtomically(
-                m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos", _, 0640));
-
-        EXPECT_CALL(
-            *m_mockIFileSystemPtr,
-            writeFileAtomically(
-                m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos", _, 0640));
-
-        EXPECT_CALL(
-            *m_mockIFileSystemPtr,
-            writeFileAtomically(
-                m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos", _, 0640));
-    }
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    std::string policyXmlTrue = R"sophos(<?xml version="1.0"?>
-<config>
-    <detectionFeedback>
-        <sendData>true</sendData>
-    </detectionFeedback>
-</config>
-)sophos";
-
-
-    std::string policyXmlFalse = R"sophos(<?xml version="1.0"?>
-<config>
-    <detectionFeedback>
-        <sendData>false</sendData>
-    </detectionFeedback>
-</config>
-)sophos";
-
-    auto attributeMapTrue = Common::XmlUtilities::parseXml(policyXmlTrue);
-    auto attributeMapFalse = Common::XmlUtilities::parseXml(policyXmlFalse);
-
-    proc.processSavPolicy(attributeMapTrue);
-    EXPECT_TRUE(proc.restartThreatDetector());
-    EXPECT_TRUE(proc.getSXL4LookupsEnabled());
-
-    proc.processSavPolicy(attributeMapTrue);
-    EXPECT_FALSE(proc.restartThreatDetector());
-    EXPECT_TRUE(proc.getSXL4LookupsEnabled());
-
-    proc.processSavPolicy(attributeMapFalse);
-    EXPECT_TRUE(proc.restartThreatDetector());
-    EXPECT_FALSE(proc.getSXL4LookupsEnabled());
-
-    proc.processSavPolicy(attributeMapFalse);
-    EXPECT_FALSE(proc.restartThreatDetector());
-    EXPECT_FALSE(proc.getSXL4LookupsEnabled());
-}
-
-TEST_F(TestPolicyProcessor, processSavPolicyMissing)
-{
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos", _, 0640));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos", _, 0640));
-
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos", _, 0640));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos", _, 0640));
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})sophos",
-                                                           _,
-                                                           0640)).Times(2);
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
-<config>
-    <detectionFeedback>
-        <sendData>false</sendData>
-    </detectionFeedback>
-</config>
-)sophos";
-
-    std::string policyXmlInvalid = R"sophos(<?xml version="1.0"?>
-<config>
-</config>
-)sophos";
-
-    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    auto attributeMapInvalid = Common::XmlUtilities::parseXml(policyXmlInvalid);
-    proc.processSavPolicy(attributeMap);
-
-    proc.processSavPolicy(attributeMapInvalid);
-    EXPECT_TRUE(proc.restartThreatDetector());
-}
-
-TEST_F(TestPolicyProcessor, processSavPolicyInvalid)
-{
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos", _, 0640));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos", _, 0640));
-
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos", _, 0640));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos", _, 0640));
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})sophos",
-                                                           _,
-                                                           0640)).Times(2);
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
-<config>
-    <detectionFeedback>
-        <sendData>false</sendData>
-    </detectionFeedback>
-</config>
-)sophos";
-
-    std::string policyXmlInvalid = R"sophos(<?xml version="1.0"?>
-<config>
-    <detectionFeedback>
-        <sendData>absolute nonsense</sendData>
-    </detectionFeedback>
-</config>
-)sophos";
-
-    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-    auto attributeMapInvalid = Common::XmlUtilities::parseXml(policyXmlInvalid);
-    proc.processSavPolicy(attributeMap);
-    proc.processSavPolicy(attributeMapInvalid);
-    EXPECT_TRUE(proc.restartThreatDetector());
-}
-
-TEST_F(TestPolicyProcessor, testProcessFlagSettingsEnabled)
-{
-    UsingMemoryAppender memAppend(*this);
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":true})sophos", _, 0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": true, "safestore.enabled": true})sophos");
-
-    EXPECT_TRUE(appenderContains(
-        "On-access is enabled in the FLAGS policy, assuming on-access policy settings"));
-    EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
-    ASSERT_TRUE(proc.isSafeStoreEnabled());
-}
-
-TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
-{
-    UsingMemoryAppender memAppend(*this);
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": false, "safestore.enabled": false})sophos");
-
-    EXPECT_TRUE(appenderContains(
-        "On-access is disabled in the FLAGS policy, overriding on-access policy settings"));
-    EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
-    ASSERT_FALSE(proc.isSafeStoreEnabled());
-}
-
-TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
-{
-    UsingMemoryAppender memAppend(*this);
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    proc.processFlagSettings("{\"av.something_else\":  false}");
-
-    EXPECT_TRUE(appenderContains("No on-access flag found, overriding on-access policy settings"));
-    EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
-    ASSERT_FALSE(proc.isSafeStoreEnabled());
-}
-
-TEST_F(TestPolicyProcessor, testWriteFlagConfigFailedOnAccess)
-{
-    UsingMemoryAppender memAppend(*this);
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-
-    Common::FileSystem::IFileSystemException ex("error!");
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640))
-        .WillOnce(Throw(ex));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": false, "safestore.enabled": true})sophos");
-
-    EXPECT_TRUE(appenderContains(
-        "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
-    EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
-    ASSERT_TRUE(proc.isSafeStoreEnabled());
-}
-
 TEST_F(TestPolicyProcessor, testProcessFlagSettingCatchesBadJson)
 {
     UsingMemoryAppender memAppend(*this);
@@ -1210,160 +818,90 @@ TEST_F(TestPolicyProcessor, DISABLED_processOnAccessPolicyEnabled)
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     PolicyProcessorUnitTestClass proc;
-    auto policyType = PolicyProcessorUnitTestClass::determinePolicyType(attributeMap, "not a known APP ID");
-    ASSERT_EQ(policyType, Plugin::PolicyType::UNKNOWN);
+
+    std::string policyXml = R"sophos(<?xml version="1.0"?>
+<config>
+    <onAccessScan>
+        <enabled>true</enabled>
+        <linuxExclusions>
+          <filePathSet>
+            <filePath>x</filePath>
+            <filePath>y</filePath>
+          </filePathSet>
+          <excludeRemoteFiles>false</excludeRemoteFiles>
+        </linuxExclusions>
+    </onAccessScan>
+</config>
+)sophos";
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+
+
+    auto telemetryStr = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    auto telemetry = nlohmann::json::parse(telemetryStr);
+    EXPECT_EQ(telemetry["onAccessConfigured"], true);
 }
 
-TEST_F(TestPolicyProcessor, processCorcPolicyWithAllowList)
+TEST_F(TestPolicyProcessor, DISABLED_processOnAccessPolicyDisabled_DISABLED)
 {
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"shaAllowList":["a651a4b1cda12a3bccde8e5c8fb83b3cff1f40977dfe562883808000ffe3f798","42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigPath, settingsJson, _, 0640));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigChrootPath, settingsJson, _, 0640));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":["x","y"]})sophos",
+                                                           _,
+                                                           0640));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(GL_CORC_POLICY);
+
     PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+
+    std::string policyXml = R"sophos(<?xml version="1.0"?>
+<config>
+    <onAccessScan>
+        <enabled>false</enabled>
+        <linuxExclusions>
+          <filePathSet>
+            <filePath>x</filePath>
+            <filePath>y</filePath>
+          </filePathSet>
+          <excludeRemoteFiles>false</excludeRemoteFiles>
+        </linuxExclusions>
+    </onAccessScan>
+</config>
+)sophos";
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+
+
+    // Verify the telemetry is updated
+    auto telemetryStr = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    auto telemetry = nlohmann::json::parse(telemetryStr);
+    EXPECT_EQ(telemetry["onAccessConfigured"], false);
 }
 
-TEST_F(TestPolicyProcessor, processCorcPolicyWithEmptyAllowList)
+TEST_F(TestPolicyProcessor, DISABLED_processInvalidOnAccessPolicy_DISABLED)
 {
-    std::string emptyAllowList = R"(<?xml version="1.0"?>
-        <policy RevID="revisionid" policyType="37">
-          <whitelist>
-          </whitelist>
-        </policy>)";
-
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos";
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigPath, settingsJson, _, 0640));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigChrootPath, settingsJson, _, 0640));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":["x","y"]})sophos",
+                                                           _,
+                                                           0640));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(emptyAllowList);
+
     PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+
+    std::string policyXml = R"sophos(<?xml version="1.0"?>
+<config>
+    <onAccessScan>
+        <enabled>this is supposed to be true/false</enabled>
+        <linuxExclusions>
+          <filePathSet>
+            <filePath>x</filePath>
+            <filePath>y</filePath>
+          </filePathSet>
+          <excludeRemoteFiles>this is supposed to be true/false</excludeRemoteFiles>
+        </linuxExclusions>
+    </onAccessScan>
+</config>
+)sophos";
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+
 }
-
-TEST_F(TestPolicyProcessor, processCorcPolicyWithMissingAllowList)
-{
-    std::string missingAllowList = R"(<?xml version="1.0"?>
-        <policy RevID="revisionid" policyType="37">
-        </policy>)";
-
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos";
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigPath, settingsJson, _, 0640));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigChrootPath, settingsJson, _, 0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(missingAllowList);
-    PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
-}
-
-TEST_F(TestPolicyProcessor, processCorcPolicyWithNonShaTypeAllowListItems)
-{
-    std::string policy = R"(<?xml version="1.0"?>
-        <policy RevID="revisionid" policyType="37">
-        <whitelist>
-            <item type="path">/tmp/a/path</item>
-            <item type="cert-signer">SignerName</item>
-        </whitelist>
-        </policy>)";
-
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos";
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigPath, settingsJson, _, 0640));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigChrootPath, settingsJson, _, 0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(policy);
-    PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
-}
-
-TEST_F(TestPolicyProcessor, processCorcPolicyWithOneEmptyShaTypeAllowListItem)
-{
-    std::string policy = R"(<?xml version="1.0"?>
-        <policy RevID="revisionid" policyType="37">
-        <whitelist>
-            <item type="path">/tmp/a/path</item>
-            <item type="sha256"></item>
-            <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
-            <item type="cert-signer">SignerName</item>
-        </whitelist>
-        </policy>)";
-
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigPath, settingsJson, _, 0640));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigChrootPath, settingsJson, _, 0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(policy);
-    PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
-}
-
-TEST_F(TestPolicyProcessor, processCorcPolicyWithShaAndCommentInAllowList)
-{
-    std::string policy = R"(<?xml version="1.0"?>
-        <policy RevID="revisionid" policyType="37">
-        <whitelist>
-            <item type="path">/tmp/a/path</item>
-            <!-- SHA256 of some file -->
-            <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
-            <item type="cert-signer">SignerName</item>
-        </whitelist>
-        </policy>)";
-
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigPath, settingsJson, _, 0640));
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(
-            m_susiStartupConfigChrootPath, settingsJson, _, 0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-    auto attributeMap = Common::XmlUtilities::parseXml(policy);
-    PolicyProcessorUnitTestClass proc;
-    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
-}
-
-

@@ -323,20 +323,15 @@ TEST_F(TestStringUtils, TestGenerateOnAcessConfig)
 {
     std::vector<std::string> exclusionList = { "x", "y", "z" };
 
-    std::string expectedResult = R"({"enabled":"true","excludeRemoteFiles":"true","exclusions":["x","y","z"]})";
-    EXPECT_EQ(expectedResult, generateOnAccessConfig("true", exclusionList, "true"));
+    std::string expectedResult = R"({"enabled":true,"excludeRemoteFiles":true,"exclusions":["x","y","z"]})";
+    EXPECT_EQ(expectedResult, generateOnAccessConfig(true, exclusionList, true));
 
-    expectedResult = R"({"enabled":"false","excludeRemoteFiles":"false","exclusions":["x","y","z"]})";
-    EXPECT_EQ(expectedResult, generateOnAccessConfig("false", exclusionList, "false"));
-
-    exclusionList = {};
-    expectedResult = R"({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})";
-    EXPECT_EQ(expectedResult, generateOnAccessConfig("", exclusionList, ""));
+    expectedResult = R"({"enabled":false,"excludeRemoteFiles":false,"exclusions":["x","y","z"]})";
+    EXPECT_EQ(expectedResult, generateOnAccessConfig(false, exclusionList, false));
 
     exclusionList = {};
-    expectedResult = R"({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})";
-    EXPECT_EQ(
-        expectedResult, generateOnAccessConfig("this is supposed to be something elese", exclusionList, "same here"));
+    expectedResult = R"({"enabled":false,"excludeRemoteFiles":true,"exclusions":[]})";
+    EXPECT_EQ(expectedResult, generateOnAccessConfig(false, exclusionList, true));
 }
 
 TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineSuccess)
