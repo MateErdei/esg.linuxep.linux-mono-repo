@@ -7,7 +7,6 @@
 #include "common/ApplicationPaths.h"
 #include "common/SaferStrerror.h"
 
-#include <cstdio>
 #include <fstream>
 #include <sstream>
 #include <tuple>

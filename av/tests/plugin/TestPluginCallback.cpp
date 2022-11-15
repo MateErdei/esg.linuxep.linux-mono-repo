@@ -942,7 +942,7 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
     ASSERT_EQ(m_pluginCallback->m_serviceHealth, E_HEALTH_STATUS_GOOD);
 }
 
-TEST_F(TestPluginCallback, calculateSoapHealthStatusReadsTheUnhealthyFlagFileCreatedByFanotifyHandler)
+TEST_F(TestPluginCallback, calculateSoapHealthStatusDetectsExistenceOfTheUnhealthyFlagFileCreatedByFanotifyHandler)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFd = -1;
