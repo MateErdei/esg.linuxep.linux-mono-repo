@@ -465,7 +465,7 @@ namespace safestore::SafeStoreWrapper
             {
                 LOGWARN(
                     "Got " << safeStoreReturnCodeToString(returnCode)
-                           << " when performing FindFirst on SafeStore database");
+                           << " when searching the SafeStore database");
                 break;
             }
             else if (searchHandle.get() == nullptr || objectHandle.getRawHandle() == nullptr)
