@@ -123,12 +123,12 @@ IDE update during command line scan
 
     Dump Log  ${scan_log}
 
-    # do some magic to check that we were scanning without interruption (at least 5 files scanned every second)
+    # do some magic to check that we were scanning without interruption (at least 1 file scanned every second)
     ${time_diff} =   Subtract Date From Date   ${end_time}   ${start_time}   exclude_millis=True
     FOR   ${offset}   IN RANGE   ${time_diff}
         ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
         ${line_count} =  Count Lines In Log  ${scan_log}  [${timestamp}] Scanning \
-        Should Be True   ${5} <= ${line_count}
+        Should Be True   ${1} <= ${line_count}
     END
 
 On access gets IDE update
