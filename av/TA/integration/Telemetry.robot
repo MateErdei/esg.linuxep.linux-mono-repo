@@ -166,21 +166,25 @@ AV plugin increments Scan Now Counter after Save and Restore
     Dictionary Should Contain Item   ${avDict}   scan-now-count   ${2}
 
 
-Telemetry Counters Are Zero by default
-    # Run telemetry to reset counters to 0
-    Run Telemetry Executable With HTTPS Protocol    port=${4436}
-    Remove File   ${TELEMETRY_OUTPUT_JSON}
-
-    Run Telemetry Executable With HTTPS Protocol    port=${4436}
+SafeStore Can Send Telemetry
+    # Assumes threat health is 1 (good)
+    Run Telemetry Executable With HTTPS Protocol    port=${4431}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log   ${telemetryFileContents}
+    Log  ${telemetryFileContents}
+    Check Telemetry  ${telemetryFileContents}
+    ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
+    Should Contain   ${telemetryLogContents}    Gathered telemetry for safestore
 
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
+Telemetry Executable Generates SafeStore Telemetry
+    Start SafeStore
+    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
 
-    Dictionary Should Contain Item   ${avDict}   threat-eicar-count   ${0}
-    Dictionary Should Contain Item   ${avDict}   threat-count   ${0}
-    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
-    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${0}
-    Dictionary Should Contain Item   ${avDict}   detections-dropped-from-safestore-queue   ${0}
+    Check SafeStore Telemetry    dormant-mode   False
+    Check SafeStore Telemetry    health   0
+
+Telemetry Executable Generates SafeStore Telemetry When SafeStore Is In Dormant Mode
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/safestore_dormant_flag    ""
+
+    Check SafeStore Telemetry    dormant-mode   True
+    Check SafeStore Telemetry    health   1
