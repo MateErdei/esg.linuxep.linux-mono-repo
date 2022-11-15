@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited. All rights reserved.
 
 // Tests for the various helper functions within the SafeStoreWrapper.
 // Most of the wrapper code calls into the safestore library so all those tests cannot be done as unit tests, they
@@ -15,67 +15,37 @@ class SafeStoreWrapperTests : public LogInitializedTests
 {
 };
 
-TEST_F(SafeStoreWrapperTests, threatIdFromStringTakesFirst16Bytes)
+TEST_F(SafeStoreWrapperTests, threatIdFromUuidString)
 {
-    auto ssThreatIdStruct = safeStoreIdFromString("abcdefghijklmnop"); // 16 bytes
+    auto ssThreatIdStruct = safeStoreIdFromUuidString("00010203-0405-0607-0809-0a0b0c0d0e0f");
     ASSERT_TRUE(ssThreatIdStruct.has_value());
 
-    ASSERT_EQ((ssThreatIdStruct.value().Data1 & 0x000000ff), 'a');
-    ASSERT_EQ((ssThreatIdStruct.value().Data1 & 0x0000ff00) >> 8, 'b');
-    ASSERT_EQ((ssThreatIdStruct.value().Data1 & 0x00ff0000) >> 16, 'c');
-    ASSERT_EQ((ssThreatIdStruct.value().Data1 & 0xff000000) >> 24, 'd');
-
-    ASSERT_EQ((ssThreatIdStruct.value().Data2 & 0x00ff), 'e');
-    ASSERT_EQ((ssThreatIdStruct.value().Data2 & 0xff00) >> 8, 'f');
-
-    ASSERT_EQ((ssThreatIdStruct.value().Data3 & 0x00ff), 'g');
-    ASSERT_EQ((ssThreatIdStruct.value().Data3 & 0xff00) >> 8, 'h');
-
-    ASSERT_EQ(ssThreatIdStruct.value().Data4[0], 'i');
-    ASSERT_EQ(ssThreatIdStruct.value().Data4[1], 'j');
-    ASSERT_EQ(ssThreatIdStruct.value().Data4[2], 'k');
-    ASSERT_EQ(ssThreatIdStruct.value().Data4[3], 'l');
+    EXPECT_EQ(ssThreatIdStruct.value().Data1, 0x00010203);
+    EXPECT_EQ(ssThreatIdStruct.value().Data2, 0x0405);
+    EXPECT_EQ(ssThreatIdStruct.value().Data3, 0x0607);
+    for (size_t i = 0; i < 8; ++i)
+    {
+        EXPECT_EQ(ssThreatIdStruct.value().Data4[i], 8 + i);
+    }
 }
 
-TEST_F(SafeStoreWrapperTests, threatIdFromStringHandlesShortIds)
+TEST_F(SafeStoreWrapperTests, threatIdFromUuidStringFailsOnInvalidUuid)
 {
-    auto ssThreatIdStruct = safeStoreIdFromString("abcdefg");
-    ASSERT_FALSE(ssThreatIdStruct.has_value());
+    EXPECT_FALSE(safeStoreIdFromUuidString("00010203-0405-0607-0809").has_value());
 }
 
-TEST_F(SafeStoreWrapperTests, threatIdFromStringHandlesMalformedIds)
+TEST_F(SafeStoreWrapperTests, uuidStringFromSafeStoreId)
 {
-    auto ssThreatIdStruct = safeStoreIdFromString("this is not a threat ID because it's too long");
-    ASSERT_FALSE(ssThreatIdStruct.has_value());
+    SafeStore_Id_t safeStoreId { 0x00010203, 0x0405, 0x0607, { 8, 9, 10, 11, 12, 13, 14, 15 } };
+    EXPECT_EQ(uuidStringFromSafeStoreId(safeStoreId), "00010203-0405-0607-0809-0a0b0c0d0e0f");
 }
 
-TEST_F(SafeStoreWrapperTests, stringFromSafeStoreId)
-{
-    std::string idString = "abcdefghijklmnop"; // only 16bytes long.
-    auto ssThreatIdStruct = safeStoreIdFromString(idString);
-    std::string id = stringFromSafeStoreId(ssThreatIdStruct.value());
-    ASSERT_EQ(idString, id);
-}
-
-TEST_F(SafeStoreWrapperTests, stringFromSafeStoreIdDefaultDoesNotThrow)
+TEST_F(SafeStoreWrapperTests, uuidFromSafeStoreIdDefaultDoesNotThrow)
 {
     // The struct 'SafeStore_Id_t' in the safestore library does not default initialise any of its members so
     // for this test a default constructed one should not cause our code to error but will produce a garbage string.
     SafeStore_Id_t ssThreatIdStruct;
-    std::string id;
-    EXPECT_NO_THROW(id = stringFromSafeStoreId(ssThreatIdStruct));
-}
-
-TEST_F(SafeStoreWrapperTests, bytesFromSafeStoreId)
-{
-    std::string idString = "abcdefghijklmnop";
-    auto ssThreatIdStruct = safeStoreIdFromString(idString);
-    auto bytes = bytesFromSafeStoreId(ssThreatIdStruct.value());
-    ASSERT_EQ(bytes.size(), idString.length());
-    for (size_t i = 0; i < idString.length(); ++i)
-    {
-        ASSERT_EQ(bytes[i], 'a' + i);
-    }
+    EXPECT_NO_THROW(uuidStringFromSafeStoreId(ssThreatIdStruct));
 }
 
 TEST_F(SafeStoreWrapperTests, convertObjStatusToSafeStoreObjStatus)

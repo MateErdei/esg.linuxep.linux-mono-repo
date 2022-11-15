@@ -1,4 +1,4 @@
-// Copyright 2021-2022, Sophos Limited.  All rights reserved.
+// Copyright 2021-2022, Sophos Limited. All rights reserved.
 
 #include "../../common/WaitForEvent.h"
 #include "../../common/Common.h"
@@ -67,7 +67,7 @@ TEST_F(TestThreatReporter, testReport) // NOLINT
         "/path",
         scan_messages::E_SMT_THREAT_ACTION_UNKNOWN,
         "sha256",
-        "threatId",
+        "c1c802c6-a878-ee05-babc-c0378d45d8d4",
         false,
         ReportSource::ml,
         datatypes::AutoFd(open("/dev/zero", O_RDONLY)));

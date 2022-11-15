@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022, Sophos Limited. All rights reserved.
 
 #include "ThreatReporterServerConnectionThread.h"
 
@@ -13,6 +13,7 @@
 #include <scan_messages/ThreatDetected.h>
 
 #include <cassert>
+#include <optional>
 #include <stdexcept>
 #include <utility>
 
@@ -202,7 +203,18 @@ void ThreatReporterServerConnectionThread::inner_run()
             }
 
             LOGDEBUG("Read capn of " << bytes_read);
-            auto detectionReader = parseDetection(proto_buffer, bytes_read);
+
+            std::optional<scan_messages::ThreatDetected> threatDetectedOptional;
+            try
+            {
+                threatDetectedOptional = parseDetection(proto_buffer, bytes_read);
+            }
+            catch (const std::exception& e)
+            {
+                LOGERROR("Aborting Threat Reporter connection thread: Failed to parse detection: " << e.what());
+                break;
+            }
+            scan_messages::ThreatDetected detectionReader = std::move(threatDetectedOptional.value());
 
             // read fd
             datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));

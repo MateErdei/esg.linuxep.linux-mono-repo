@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited. All rights reserved.
 
 #include "MockISafeStoreWrapper.h"
 
@@ -7,13 +7,13 @@
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "scan_messages/QuarantineResponse.h"
 
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystem/IFileSystemException.h"
-#include "Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "Common/Helpers/MockFileSystem.h"
 #include "common/ApplicationPaths.h"
 
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <Common/Helpers/MockFileSystem.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -42,7 +42,7 @@ protected:
     // Common test constants
     inline static const std::string m_dir = "/dir";
     inline static const std::string m_file = "file";
-    inline static const std::string m_threatID = "abcdefghijklmnop"; // 16 bytes
+    inline static const std::string m_threatID = "01234567-89ab-cdef-0123-456789abcdef";
     inline static const std::string m_threatName = "threatName";
     inline static const std::string m_SHA256 = "SHA256abcdef";
 };

@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited. All rights reserved.
 
 #include "SafeStoreWrapperImpl.h"
 
@@ -6,143 +6,70 @@
 
 #include "common/ApplicationPaths.h"
 
+#include <Common/UtilityImpl/Uuid.h>
+
+#include <charconv>
+#include <iomanip>
+
 extern "C"
 {
 #include "safestore.h"
 }
 
-namespace
-{
-    class SearchHandleHolder
-    {
-    public:
-        explicit SearchHandleHolder(safestore::SafeStoreWrapper::ISafeStoreHolder& safeStoreHolder) :
-            safeStoreHolder_ { safeStoreHolder }
-        {
-        }
-
-        ~SearchHandleHolder()
-        {
-            auto returnCode = SafeStore_FindClose(safeStoreHolder_.getHandle(), searchHandle_);
-            if (returnCode != SR_OK)
-            {
-                LOGWARN(
-                    "Failed to close a SafeStore search handle: "
-                    << safestore::SafeStoreWrapper::safeStoreReturnCodeToString(returnCode));
-            }
-        }
-
-        SearchHandleHolder(const SearchHandleHolder&) = delete;
-        SearchHandleHolder& operator=(const SearchHandleHolder&) = delete;
-        SearchHandleHolder(SearchHandleHolder&&) = delete;
-        SearchHandleHolder& operator=(SearchHandleHolder&&) = delete;
-
-        [[nodiscard]] SafeStore_Search_t& get()
-        {
-            return searchHandle_;
-        }
-
-    private:
-        SafeStore_Search_t searchHandle_ = nullptr;
-        safestore::SafeStoreWrapper::ISafeStoreHolder& safeStoreHolder_;
-    };
-} // namespace
-
 namespace safestore::SafeStoreWrapper
 {
-    std::optional<SafeStore_Id_t> safeStoreIdFromString(const std::string& safeStoreId)
+    std::optional<SafeStore_Id_t> safeStoreIdFromUuidString(const std::string& uuidString)
     {
-        if (safeStoreId.length() != sizeof(SafeStore_Id_t))
+        if (!Common::UtilityImpl::Uuid::IsValid(uuidString))
         {
-            LOGERROR(
-                "ID length must be " << sizeof(SafeStore_Id_t) << " but the length of ID: " << safeStoreId << " is "
-                                     << safeStoreId.length());
-            return std::nullopt;
+            return {};
         }
 
-        ObjectIdType IdAsBytes(safeStoreId.begin(), safeStoreId.end());
-        return safeStoreIdFromBytes(IdAsBytes);
-    }
-
-    std::optional<SafeStore_Id_t> safeStoreIdFromBytes(const ObjectIdType& safeStoreId)
-    {
-        if (safeStoreId.size() != sizeof(SafeStore_Id_t))
-        {
-            LOGERROR(
-                "ID length must be " << sizeof(SafeStore_Id_t) << " but the length of the passed ID is "
-                                     << safeStoreId.size());
-            return std::nullopt;
-        }
-
-        constexpr unsigned int startOfBytes = 0;
         SafeStore_Id_t id {};
-        id.Data1 = safeStoreId[startOfBytes] | safeStoreId[startOfBytes + 1] << 8 |
-                   safeStoreId[startOfBytes + 2] << 16 | safeStoreId[startOfBytes + 3] << 24;
-        id.Data2 = safeStoreId[startOfBytes + 4] | safeStoreId[startOfBytes + 5] << 8;
-        id.Data3 = safeStoreId[startOfBytes + 6] | safeStoreId[startOfBytes + 7] << 8;
-        id.Data4[0] = safeStoreId[startOfBytes + 8];
-        id.Data4[1] = safeStoreId[startOfBytes + 9];
-        id.Data4[2] = safeStoreId[startOfBytes + 10];
-        id.Data4[3] = safeStoreId[startOfBytes + 11];
-        id.Data4[4] = safeStoreId[startOfBytes + 12];
-        id.Data4[5] = safeStoreId[startOfBytes + 13];
-        id.Data4[6] = safeStoreId[startOfBytes + 14];
-        id.Data4[7] = safeStoreId[startOfBytes + 15];
+
+        // UUID format for reference:
+        // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        // 012345678901234567890123456789012345
+
+        const char* const p = uuidString.c_str();
+        // We skip over the hyphens
+        std::from_chars(p + 0, p + 8, id.Data1, 16);
+        std::from_chars(p + 9, p + 13, id.Data2, 16);
+        std::from_chars(p + 14, p + 18, id.Data3, 16);
+        for (int byteIndex = 0, charIndex = 19; byteIndex < 8; ++byteIndex, charIndex += 2)
+        {
+            if (charIndex == 23)
+            {
+                ++charIndex; // Skip hyphen
+            }
+            std::from_chars(p + charIndex, p + charIndex + 2, id.Data4[byteIndex], 16);
+        }
+
         return id;
     }
 
-    std::string stringFromSafeStoreId(const SafeStore_Id_t& id)
+    std::string uuidStringFromSafeStoreId(const SafeStore_Id_t& id)
     {
-        std::string idString;
-        idString += char(id.Data1 & 0x000000ff);
-        idString += char((id.Data1 & 0x0000ff00) >> 8);
-        idString += char((id.Data1 & 0x00ff0000) >> 16);
-        idString += char((id.Data1 & 0xff000000) >> 24);
+        std::ostringstream oss;
+        oss << std::hex << std::setfill('0');
+        oss << std::setw(8) << id.Data1;
+        oss << '-';
+        oss << std::setw(4) << id.Data2;
+        oss << '-';
+        oss << std::setw(4) << id.Data3;
+        oss << '-';
+        for (int i = 0; i < 8; i += 2)
+        {
+            if (i == 2)
+            {
+                oss << '-';
+            }
+            // If we were to output a single byte, ostream will output it as the character it represents, rather than 2
+            // hexadecimal digits. Instead, we output two bytes simultaneously to prevent this.
+            oss << std::setw(4) << (id.Data4[i] << 8 | id.Data4[i + 1]);
+        }
 
-        idString += char(id.Data2 & 0x00ff);
-        idString += char((id.Data2 & 0xff00) >> 8);
-
-        idString += char(id.Data3 & 0x00ff);
-        idString += char((id.Data3 & 0xff00) >> 8);
-
-        idString += char(id.Data4[0]);
-        idString += char(id.Data4[1]);
-        idString += char(id.Data4[2]);
-        idString += char(id.Data4[3]);
-        idString += char(id.Data4[4]);
-        idString += char(id.Data4[5]);
-        idString += char(id.Data4[6]);
-        idString += char(id.Data4[7]);
-
-        return idString;
-    }
-
-    std::vector<uint8_t> bytesFromSafeStoreId(const SafeStore_Id_t& id)
-    {
-        std::vector<uint8_t> objectIdBytes;
-        int numberOfBytes = sizeof(id);
-        objectIdBytes.reserve(numberOfBytes);
-        objectIdBytes.push_back(id.Data1 & 0x000000ff);
-        objectIdBytes.push_back((id.Data1 & 0x0000ff00) >> 8);
-        objectIdBytes.push_back((id.Data1 & 0x00ff0000) >> 16);
-        objectIdBytes.push_back((id.Data1 & 0xff000000) >> 24);
-
-        objectIdBytes.push_back(id.Data2 & 0x00ff);
-        objectIdBytes.push_back((id.Data2 & 0xff00) >> 8);
-
-        objectIdBytes.push_back(id.Data3 & 0x00ff);
-        objectIdBytes.push_back((id.Data3 & 0xff00) >> 8);
-
-        objectIdBytes.push_back(id.Data4[0]);
-        objectIdBytes.push_back(id.Data4[1]);
-        objectIdBytes.push_back(id.Data4[2]);
-        objectIdBytes.push_back(id.Data4[3]);
-        objectIdBytes.push_back(id.Data4[4]);
-        objectIdBytes.push_back(id.Data4[5]);
-        objectIdBytes.push_back(id.Data4[6]);
-        objectIdBytes.push_back(id.Data4[7]);
-
-        return objectIdBytes;
+        return oss.str();
     }
 
     SafeStore_Config_t convertToSafeStoreConfigId(const ConfigOption& option)
@@ -200,69 +127,41 @@ namespace safestore::SafeStoreWrapper
         return SOS_UNDEFINED;
     }
 
-    /**
-     * Converts the abstract filter type to the concrete SafeStore filter
-     * @param filter
-     * @param ssThreatId A reference to a SafeStore object. Will be written into by this function if threatId is set in
-     * the filter. The object pointed by this reference must stay valid at least as long as the result (but only if
-     * threatId was specified in filter).
-     * @return
-     */
-    SafeStore_Filter_t convertFilterToSafeStoreFilter(const SafeStoreFilter& filter, SafeStore_Id_t& ssThreatId)
+    // see SafeStore_FilterField_t in safestore.h
+    int convertFilterFieldsToSafeStoreInt(const std::vector<FilterField>& fields)
     {
-        SafeStore_Filter_t ssFilter{};
-
-        if (filter.threatId)
+        int activeFields = 0;
+        for (const auto& field : fields)
         {
-            auto ssThreatIdOption = safeStoreIdFromString(filter.threatId.value());
-            if (ssThreatIdOption)
+            switch (field)
             {
-                ssThreatId = std::move(ssThreatIdOption.value());
-                ssFilter.threatId = &ssThreatId;
-                ssFilter.activeFields |= SFF_THREAT_ID;
+                case FilterField::THREAT_ID:
+                    activeFields += 0x0001;
+                    break;
+                case FilterField::THREAT_NAME:
+                    activeFields += 0x0002;
+                    break;
+                case FilterField::START_TIME:
+                    activeFields += 0x0004;
+                    break;
+                case FilterField::END_TIME:
+                    activeFields += 0x0008;
+                    break;
+                case FilterField::OBJECT_TYPE:
+                    activeFields += 0x0010;
+                    break;
+                case FilterField::OBJECT_STATUS:
+                    activeFields += 0x0020;
+                    break;
+                case FilterField::OBJECT_LOCATION:
+                    activeFields += 0x0040;
+                    break;
+                case FilterField::OBJECT_NAME:
+                    activeFields += 0x0080;
+                    break;
             }
-            else
-            {
-                LOGWARN("Invalid threatId value passed to filter SafeStore search");
-            }
         }
-        if (filter.threatName)
-        {
-            ssFilter.threatName = filter.threatName.value().c_str();
-            ssFilter.activeFields |= SFF_THREAT_NAME;
-        }
-        if (filter.startTime)
-        {
-            ssFilter.startTime = filter.startTime.value();
-            ssFilter.activeFields |= SFF_START_TIME;
-        }
-        if (filter.endTime)
-        {
-            ssFilter.endTime = filter.endTime.value();
-            ssFilter.activeFields |= SFF_END_TIME;
-        }
-        if (filter.objectType)
-        {
-            ssFilter.objectType = convertObjTypeToSafeStoreObjType(filter.objectType.value());
-            ssFilter.activeFields |= SFF_OBJECT_TYPE;
-        }
-        if (filter.objectStatus)
-        {
-            ssFilter.objectStatus = convertObjStatusToSafeStoreObjStatus(filter.objectStatus.value());
-            ssFilter.activeFields |= SFF_OBJECT_STATUS;
-        }
-        if (filter.objectLocation)
-        {
-            ssFilter.objectLocation = filter.objectLocation.value().c_str();
-            ssFilter.activeFields |= SFF_OBJECT_LOCATION;
-        }
-        if (filter.objectName)
-        {
-            ssFilter.objectName = filter.objectName.value().c_str();
-            ssFilter.activeFields |= SFF_OBJECT_NAME;
-        }
-
-        return ssFilter;
+        return activeFields;
     }
 
     std::string safeStoreReturnCodeToString(SafeStore_Result_t result)
@@ -331,6 +230,7 @@ namespace safestore::SafeStoreWrapper
     SafeStoreWrapperImpl::SafeStoreWrapperImpl() :
         m_safeStoreHolder(std::make_shared<SafeStoreHolder>()),
         m_releaseMethods(std::make_shared<SafeStoreReleaseMethodsImpl>(m_safeStoreHolder)),
+        m_searchMethods(std::make_shared<SafeStoreSearchMethodsImpl>(m_safeStoreHolder)),
         m_getIdMethods(std::make_shared<SafeStoreGetIdMethodsImpl>(m_safeStoreHolder))
     {
     }
@@ -351,11 +251,11 @@ namespace safestore::SafeStoreWrapper
     SaveFileReturnCode SafeStoreWrapperImpl::saveFile(
         const std::string& directory,
         const std::string& filename,
-        const std::string& threatId,
+        const ThreatId& threatId,
         const std::string& threatName,
         ObjectHandleHolder& objectHandle)
     {
-        auto threatIdSafeStore = safeStoreIdFromString(threatId);
+        auto threatIdSafeStore = safeStoreIdFromUuidString(threatId);
         LOGDEBUG("SafeStoreWrapperImpl::saveFile - directory: " << directory);
         LOGDEBUG("SafeStoreWrapperImpl::saveFile - filename: " << filename);
         LOGDEBUG("SafeStoreWrapperImpl::saveFile - threatId: " << threatId);
@@ -426,62 +326,14 @@ namespace safestore::SafeStoreWrapper
         return std::make_unique<safestore::SafeStoreWrapper::ObjectHandleHolder>(m_getIdMethods, m_releaseMethods);
     }
 
-    std::vector<ObjectHandleHolder> SafeStoreWrapperImpl::find(const SafeStoreFilter& filter)
+    std::unique_ptr<SearchHandleHolder> SafeStoreWrapperImpl::createSearchHandleHolder()
     {
-        // This needs to stay valid at least as long as ssFilter can be used
-        SafeStore_Id_t ssThreatId;
+        return std::make_unique<SearchHandleHolder>(m_releaseMethods);
+    }
 
-        SafeStore_Filter_t ssFilter = convertFilterToSafeStoreFilter(filter, ssThreatId);
-
-        std::vector<ObjectHandleHolder> results;
-
-        SearchHandleHolder searchHandle { *m_safeStoreHolder };
-
-        LOGDEBUG("Starting SafeStore search");
-
-        int i = 0;
-        while (true)
-        {
-            ObjectHandleHolder objectHandle { m_getIdMethods, m_releaseMethods };
-
-            SafeStore_Result_t returnCode;
-            if (i == 0)
-            {
-                returnCode = SafeStore_FindFirst(
-                    m_safeStoreHolder->getHandle(), &ssFilter, &searchHandle.get(), objectHandle.getRawHandlePtr());
-            }
-            else
-            {
-                returnCode = SafeStore_FindNext(
-                    m_safeStoreHolder->getHandle(), searchHandle.get(), objectHandle.getRawHandlePtr());
-            }
-
-            if (returnCode == SR_OBJECT_NOT_FOUND)
-            {
-                LOGDEBUG("No more objects found");
-                break;
-            }
-            else if (returnCode != SR_OK)
-            {
-                LOGWARN(
-                    "Got " << safeStoreReturnCodeToString(returnCode)
-                           << " when searching the SafeStore database");
-                break;
-            }
-            else if (searchHandle.get() == nullptr || objectHandle.getRawHandle() == nullptr)
-            {
-                LOGWARN("SafeStore returned invalid results after successful search");
-                break;
-            }
-
-            LOGDEBUG("Found object " << i);
-
-            results.push_back(std::move(objectHandle));
-
-            ++i;
-        }
-
-        return results;
+    SearchResults SafeStoreWrapperImpl::find(const SafeStoreFilter& filter)
+    {
+        return SearchResults(m_releaseMethods, m_searchMethods, m_getIdMethods, filter);
     }
 
     std::string SafeStoreWrapperImpl::getObjectName(const ObjectHandleHolder& objectHandle)
@@ -499,10 +351,10 @@ namespace safestore::SafeStoreWrapper
     }
 
     bool SafeStoreWrapperImpl::getObjectHandle(
-        const ObjectIdType& objectId,
+        const ObjectId& objectId,
         std::shared_ptr<ObjectHandleHolder> objectHandle)
     {
-        if (auto safeStoreObjectId = safeStoreIdFromBytes(objectId))
+        if (auto safeStoreObjectId = safeStoreIdFromUuidString(objectId))
         {
             auto returnCode = SafeStore_GetObjectHandle(
                 m_safeStoreHolder->getHandle(), &safeStoreObjectId.value(), objectHandle->getRawHandlePtr());
@@ -574,13 +426,13 @@ namespace safestore::SafeStoreWrapper
         return ObjectStatus::UNDEFINED;
     }
 
-    std::string SafeStoreWrapperImpl::getObjectThreatId(const ObjectHandleHolder& objectHandle)
+    ThreatId SafeStoreWrapperImpl::getObjectThreatId(const ObjectHandleHolder& objectHandle)
     {
         SafeStore_Id_t threatId;
         auto returnCode = SafeStore_GetObjectThreatId(objectHandle.getRawHandle(), &threatId);
         if (returnCode == SR_OK)
         {
-            return stringFromSafeStoreId(threatId);
+            return uuidStringFromSafeStoreId(threatId);
         }
         LOGWARN(
             "Got " << safeStoreReturnCodeToString(returnCode) << " while getting object threat ID, returning blank ID");
@@ -692,19 +544,19 @@ namespace safestore::SafeStoreWrapper
         return std::string(bytes.begin(), bytes.end());
     }
 
-    ObjectIdType SafeStoreWrapperImpl::getObjectId(const ObjectHandleHolder& objectHandle)
+    ObjectId SafeStoreWrapperImpl::getObjectId(const ObjectHandleHolder& objectHandle)
     {
         return m_getIdMethods->getObjectId(objectHandle.getRawHandle());
     }
 
-    bool SafeStoreWrapperImpl::restoreObjectById(const ObjectIdType& objectId)
+    bool SafeStoreWrapperImpl::restoreObjectById(const ObjectId& objectId)
     {
         return restoreObjectByIdToLocation(objectId, "");
     }
 
-    bool SafeStoreWrapperImpl::restoreObjectByIdToLocation(const ObjectIdType& objectId, const std::string& path)
+    bool SafeStoreWrapperImpl::restoreObjectByIdToLocation(const ObjectId& objectId, const std::string& path)
     {
-        if (auto safeStoreObjectId = safeStoreIdFromBytes(objectId))
+        if (auto safeStoreObjectId = safeStoreIdFromUuidString(objectId))
         {
             auto returnCode = SafeStore_RestoreObjectById(
                 m_safeStoreHolder->getHandle(), &safeStoreObjectId.value(), path.empty() ? nullptr : path.c_str());
@@ -725,9 +577,9 @@ namespace safestore::SafeStoreWrapper
         return false;
     }
 
-    bool SafeStoreWrapperImpl::restoreObjectsByThreatId(const std::string& threatId)
+    bool SafeStoreWrapperImpl::restoreObjectsByThreatId(const ThreatId& threatId)
     {
-        if (auto ssThreatId = safeStoreIdFromString(threatId))
+        if (auto ssThreatId = safeStoreIdFromUuidString(threatId))
         {
             auto returnCode = SafeStore_RestoreObjectsByThreatId(m_safeStoreHolder->getHandle(), &ssThreatId.value());
             if (returnCode == SR_OK)
@@ -742,9 +594,9 @@ namespace safestore::SafeStoreWrapper
         return false;
     }
 
-    bool SafeStoreWrapperImpl::deleteObjectById(const ObjectIdType& objectId)
+    bool SafeStoreWrapperImpl::deleteObjectById(const ThreatId& objectId)
     {
-        if (auto safeStoreObjectId = safeStoreIdFromBytes(objectId))
+        if (auto safeStoreObjectId = safeStoreIdFromUuidString(objectId))
         {
             auto returnCode = SafeStore_DeleteObjectById(m_safeStoreHolder->getHandle(), &safeStoreObjectId.value());
             if (returnCode == SR_OK)
@@ -759,9 +611,9 @@ namespace safestore::SafeStoreWrapper
         return false;
     }
 
-    bool SafeStoreWrapperImpl::deleteObjectsByThreatId(const std::string& threatId)
+    bool SafeStoreWrapperImpl::deleteObjectsByThreatId(const ThreatId& threatId)
     {
-        if (auto ssThreatId = safeStoreIdFromString(threatId))
+        if (auto ssThreatId = safeStoreIdFromUuidString(threatId))
         {
             auto returnCode = SafeStore_DeleteObjectsByThreatId(m_safeStoreHolder->getHandle(), &ssThreatId.value());
             if (returnCode == SR_OK)
@@ -857,12 +709,79 @@ namespace safestore::SafeStoreWrapper
         }
     }
 
+    void SafeStoreReleaseMethodsImpl::releaseSearchHandle(void* searchHandle)
+    {
+        if (searchHandle != nullptr)
+        {
+            auto returnCode = SafeStore_FindClose(m_safeStoreHolder->getHandle(), searchHandle);
+            searchHandle = nullptr;
+            if (returnCode != SR_OK)
+            {
+                LOGERROR(
+                    "Got " << safeStoreReturnCodeToString(returnCode) << " when cleaning up SafeStore search handle");
+            }
+        }
+    }
+
+    SafeStoreSearchMethodsImpl::SafeStoreSearchMethodsImpl(std::shared_ptr<ISafeStoreHolder> safeStoreHolder) :
+        m_safeStoreHolder(std::move(safeStoreHolder))
+    {
+    }
+
+    bool SafeStoreSearchMethodsImpl::findFirst(
+        const SafeStoreFilter& filter,
+        SearchHandleHolder& searchHandle,
+        ObjectHandleHolder& objectHandle)
+    {
+        // Convert Filter type to SafeStore_Filter_t
+        SafeStore_Filter_t ssFilter;
+        ssFilter.activeFields = convertFilterFieldsToSafeStoreInt(filter.activeFields);
+        if (!filter.threatId.empty())
+        {
+            if (auto ssThreatId = safeStoreIdFromUuidString(filter.threatId))
+            {
+                ssFilter.threatId = &(ssThreatId.value());
+            }
+        }
+        ssFilter.threatName = filter.threatName.c_str();
+        ssFilter.startTime = filter.startTime;
+        ssFilter.endTime = filter.endTime;
+        ssFilter.objectType = convertObjTypeToSafeStoreObjType(filter.objectType);
+        ssFilter.objectStatus = convertObjStatusToSafeStoreObjStatus(filter.objectStatus);
+        ssFilter.objectLocation = filter.objectLocation.c_str();
+        ssFilter.objectName = filter.objectName.c_str();
+
+        auto returnCode = SafeStore_FindFirst(
+            m_safeStoreHolder->getHandle(), &ssFilter, searchHandle.getRawHandlePtr(), objectHandle.getRawHandlePtr());
+
+        if (returnCode == SR_OK)
+        {
+            return true;
+        }
+        LOGERROR(
+            "Got " << safeStoreReturnCodeToString(returnCode) << " when performing FindFirst on SafeStore database");
+        return false;
+    }
+
+    bool SafeStoreSearchMethodsImpl::findNext(SearchHandleHolder& searchHandle, ObjectHandleHolder& objectHandle)
+    {
+        auto returnCode = SafeStore_FindNext(
+            m_safeStoreHolder->getHandle(), searchHandle.getRawHandle(), objectHandle.getRawHandlePtr());
+        if (returnCode == SR_OK)
+        {
+            return true;
+        }
+        LOGERROR(
+            "Got " << safeStoreReturnCodeToString(returnCode) << " when performing FindNext on SafeStore database");
+        return false;
+    }
+
     SafeStoreGetIdMethodsImpl::SafeStoreGetIdMethodsImpl(std::shared_ptr<ISafeStoreHolder> safeStoreHolder) :
         m_safeStoreHolder(safeStoreHolder)
     {
     }
 
-    ObjectIdType SafeStoreGetIdMethodsImpl::getObjectId(SafeStoreObjectHandle objectHandle)
+    ObjectId SafeStoreGetIdMethodsImpl::getObjectId(SafeStoreObjectHandle objectHandle)
     {
         if (objectHandle == nullptr)
         {
@@ -874,7 +793,7 @@ namespace safestore::SafeStoreWrapper
 
         if (returnCode == SR_OK)
         {
-            return bytesFromSafeStoreId(objectId);
+            return uuidStringFromSafeStoreId(objectId);
         }
         else
         {

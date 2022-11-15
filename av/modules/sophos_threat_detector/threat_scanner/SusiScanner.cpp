@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022, Sophos Limited. All rights reserved.
 
 #include "SusiScanner.h"
 
@@ -12,6 +12,7 @@
 
 #include <common/StringUtils.h>
 #include <thirdparty/nlohmann-json/json.hpp>
+#include <Common/UtilityImpl/Uuid.h>
 
 #include <iostream>
 #include <string>
@@ -31,11 +32,9 @@ static std::string create_scanner_config(const std::string& scannerInfo)
 
 namespace
 {
-    // TODO LINUXDAR-5793: Implement correct method of generating threatId
-    std::string generateThreatId(const std::string& filePath, const std::string& threatName)
+    std::string generateThreatId(const std::string& filePath, const std::string& sha256)
     {
-        std::string threatId = "T" + common::sha256_hash(filePath + threatName);
-        return threatId.substr(0, 16);
+        return Common::UtilityImpl::Uuid::CreateVersion5({}, filePath + sha256);
     }
 }
 
@@ -312,7 +311,7 @@ SusiScanner::scan(
             filePath,
             scan_messages::E_SMT_THREAT_ACTION_NONE,
             sha256,
-            generateThreatId(filePath, threatName),
+            generateThreatId(filePath, sha256),
             false, // AV plugin will set this to correct value
             ReportSource::ml, // TODO LINUXDAR-5792: Set depending on SUSI report
             std::move(fd));

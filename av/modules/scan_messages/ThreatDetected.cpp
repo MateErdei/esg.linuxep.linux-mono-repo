@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022, Sophos Limited. All rights reserved.
 
 #include "ThreatDetected.h"
 
@@ -7,6 +7,7 @@
 
 #include "datatypes/AutoFd.h"
 
+#include <Common/UtilityImpl/Uuid.h>
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
@@ -41,6 +42,7 @@ ThreatDetected::ThreatDetected(
     reportSource(reportSource),
     autoFd(std::move(autoFd))
 {
+    validate();
 }
 
 ThreatDetected::ThreatDetected(Sophos::ssplav::ThreatDetected::Reader& reader) :
@@ -63,6 +65,8 @@ ThreatDetected::ThreatDetected(Sophos::ssplav::ThreatDetected::Reader& reader) :
 
 std::string ThreatDetected::serialise() const
 {
+    validate();
+
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::ThreatDetected::Builder threatDetectedBuilder = message.initRoot<Sophos::ssplav::ThreatDetected>();
 
@@ -95,6 +99,14 @@ std::string ThreatDetected::serialise() const
     }
 
     return dataAsString;
+}
+
+void ThreatDetected::validate() const
+{
+    if (!Common::UtilityImpl::Uuid::IsValid(threatId))
+    {
+        throw std::runtime_error("Invalid threat ID: " + threatId);
+    }
 }
 
 bool ThreatDetected::operator==(const ThreatDetected& other) const

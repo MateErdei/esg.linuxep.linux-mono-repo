@@ -119,7 +119,7 @@ SafeStore Quarantines When It Receives A File To Quarantine
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
-    ...  alert_id=Tbd7be297ddf3cd8
+    ...  alert_id=e52cf957-a0dc-5b12-bad2-561197a5cae4
     ...  succeeded=1
     ...  origin=0
     ...  result=0
@@ -144,7 +144,7 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     File Should Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
-    ...  alert_id=Tbd7be297ddf3cd8
+    ...  alert_id=e52cf957-a0dc-5b12-bad2-561197a5cae4
     ...  succeeded=0
     ...  origin=0
     ...  result=3

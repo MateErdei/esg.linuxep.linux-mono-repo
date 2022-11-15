@@ -71,6 +71,9 @@ namespace scan_messages
 
         [[nodiscard]] std::string serialise() const;
 
+        // Checks whether the contained data is valid; throws if not
+        void validate() const;
+
         std::string userID;
         std::int64_t detectionTime;
         common::CentralEnums::ThreatType threatType;

@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022, Sophos Limited. All rights reserved.
 
 #include "ThreatDetected.capnp.h"
 
@@ -22,11 +22,11 @@ namespace
     {
     public:
         std::string m_sha256 = "590165d5fd84b3302e239c260867a2310af2bc3b519b5c9c68ab2515c9bad15b";
-        std::string m_threatId = "Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350";
+        std::string m_threatId = "c1c802c6-a878-ee05-babc-c0378d45d8d4";
         std::string m_englishsXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
   <user userId="User"/>
-  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" name="eicar" threatType="1" origin="0" remote="false">
+  <alert id="c1c802c6-a878-ee05-babc-c0378d45d8d4" name="eicar" threatType="1" origin="0" remote="false">
     <sha256>590165d5fd84b3302e239c260867a2310af2bc3b519b5c9c68ab2515c9bad15b</sha256>
     <path>path/to/threat</path>
   </alert>
@@ -35,7 +35,7 @@ namespace
         std::string m_umlatsXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
   <user userId="πολλῶν δ’ ἀνθρώπων ἴδεν ἄστεα καὶ νόον ἔγνω,, German umlats: Ä Ö Ü ß"/>
-  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" name="Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ" threatType="1" origin="0" remote="false">
+  <alert id="c1c802c6-a878-ee05-babc-c0378d45d8d4" name="Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ" threatType="1" origin="0" remote="false">
     <sha256>590165d5fd84b3302e239c260867a2310af2bc3b519b5c9c68ab2515c9bad15b</sha256>
     <path>/πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·</path>
   </alert>
@@ -44,7 +44,7 @@ namespace
         std::string m_japaneseXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
   <user userId="羅針盤なんて 渋滞のもと"/>
-  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" name="ありったけの夢をかき集め" threatType="1" origin="0" remote="false">
+  <alert id="c1c802c6-a878-ee05-babc-c0378d45d8d4" name="ありったけの夢をかき集め" threatType="1" origin="0" remote="false">
     <sha256>590165d5fd84b3302e239c260867a2310af2bc3b519b5c9c68ab2515c9bad15b</sha256>
     <path>/捜し物を探しに行くのさ ONE PIECE</path>
   </alert>
@@ -184,8 +184,7 @@ static scan_messages::ThreatDetected createEvent(
     const std::string& threatName = "",
     const std::string& threatPath = "",
     const std::string& userID = "",
-    const std::string& sha256 = "",
-    const std::string& threatId = "")
+    const std::string& sha256 = "")
 {
     scan_messages::ThreatDetected threatDetected(
         userID,
@@ -197,7 +196,7 @@ static scan_messages::ThreatDetected createEvent(
         threatPath,
         E_SMT_THREAT_ACTION_SHRED,
         sha256,
-        threatId,
+        "00000000-0000-0000-0000-000000000000",
         false,
         ReportSource::ml,
         datatypes::AutoFd());
@@ -223,7 +222,7 @@ TEST_F(TestStringUtils, TestEmptyPathXML)
     static const std::string expectedXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
   <user userId=""/>
-  <alert id="" name="" threatType="1" origin="0" remote="false">
+  <alert id="00000000-0000-0000-0000-000000000000" name="" threatType="1" origin="0" remote="false">
     <sha256></sha256>
     <path></path>
   </alert>
@@ -243,7 +242,7 @@ TEST_F(TestStringUtils, TestLongPathXML)
     static const std::string expectedXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
   <user userId=""/>
-  <alert id="" name="" threatType="1" origin="0" remote="false">
+  <alert id="00000000-0000-0000-0000-000000000000" name="" threatType="1" origin="0" remote="false">
     <sha256></sha256>
     <path>)sophos" + truncatedPath + R"sophos(</path>
   </alert>
@@ -350,7 +349,7 @@ TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineSuccess)
 {
     std::string expectedEventXml = R"(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
-  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" succeeded="1" origin="0">
+  <alert id="c1c802c6-a878-ee05-babc-c0378d45d8d4" succeeded="1" origin="0">
     <items totalItems="1">
       <item type="file" result="0">
         <descriptor>/threat/path</descriptor>
@@ -368,7 +367,7 @@ TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineFailedToDeleteFile)
 {
     std::string expectedEventXml = R"(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
-  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" succeeded="0" origin="0">
+  <alert id="c1c802c6-a878-ee05-babc-c0378d45d8d4" succeeded="0" origin="0">
     <items totalItems="1">
       <item type="file" result="3">
         <descriptor>/threat/path</descriptor>
@@ -401,7 +400,7 @@ TEST_F(TestStringUtils, generateCoreCleanEventXmlFromVdlDetection)
 
     std::string expectedEventXml = R"(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
-  <alert id="Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350" succeeded="0" origin="1">
+  <alert id="c1c802c6-a878-ee05-babc-c0378d45d8d4" succeeded="0" origin="1">
     <items totalItems="1">
       <item type="file" result="3">
         <descriptor>/threat/path</descriptor>

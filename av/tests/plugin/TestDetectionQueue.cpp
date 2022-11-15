@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited. All rights reserved.
 
 #include "pluginimpl/DetectionQueue.h"
 #include "pluginimpl/PluginCallback.h"
@@ -38,7 +38,7 @@ scan_messages::ThreatDetected basicDetection()
         "/path",
         scan_messages::E_SMT_THREAT_ACTION_UNKNOWN,
         "sha256",
-        "threatId",
+        "01234567-89ab-cdef-0123-456789abcdef",
         false,
         ReportSource::ml,
         datatypes::AutoFd());

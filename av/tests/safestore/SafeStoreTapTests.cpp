@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited. All rights reserved.
 
 // These tests cover the SafeStore wrapper and call into the real safestore library (no mocks) so these
 // test are run in TAP in our robotframework suite. The tests interact heavily with the filesystem so shouldn't be
@@ -13,6 +13,7 @@
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 
+#include <Common/UtilityImpl/Uuid.h>
 #include <common/ApplicationPaths.h>
 #include <gtest/gtest.h>
 
@@ -131,7 +132,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndLookupDetails)
     std::string fakeVirusFilePath1 = "/tmp/fakevirus1";
     fileSystem->writeFile(fakeVirusFilePath1, "a temp test file1");
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath1);
-    std::string threatId = "dummy_threat_ID1";
+    std::string threatId = "00000000-0000-0000-0000-000000000000";
     std::string threatName = "threat name1";
     auto objectHandle1 = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(
@@ -151,7 +152,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndLookupDetails)
     {
         foundAnyResults = true;
         ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
-        ASSERT_EQ(m_safeStoreWrapper->getObjectId(result).size(), 16);
+        ASSERT_TRUE(Common::UtilityImpl::Uuid::IsValid(m_safeStoreWrapper->getObjectId(result)));
         ASSERT_EQ(m_safeStoreWrapper->getObjectType(result), ObjectType::FILE);
         ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
 
@@ -188,7 +189,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineMultipleThreatsAndLookupDetails)
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath1),
             Common::FileSystem::basename(fakeVirusFilePath1),
-            "dummy_threat_ID1",
+            "00000000-0000-0000-0000-000000000000",
             threatName1,
             *objectHandle1),
         SaveFileReturnCode::OK);
@@ -199,7 +200,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineMultipleThreatsAndLookupDetails)
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath2),
             Common::FileSystem::basename(fakeVirusFilePath2),
-            "dummy_threat_ID2",
+            "11111111-1111-1111-1111-111111111111",
             threatName2,
             *objectHandle2),
         SaveFileReturnCode::OK);
@@ -233,7 +234,6 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
     std::string sha256 = "f2c91a583cfd1371a3085187aa5b2841ada3b62f5d1cc6b08bc02703ded3507a";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "dummy_threat_ID1";
     std::string threatName = "threat name1";
     std::vector<uint8_t> someBytes { 1, 2 };
     auto objectHandle1 = m_safeStoreWrapper->createObjectHandleHolder();
@@ -241,7 +241,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath),
             Common::FileSystem::basename(fakeVirusFilePath),
-            threatId,
+            "00000000-0000-0000-0000-000000000000",
             threatName,
             *objectHandle1),
         SaveFileReturnCode::OK);
@@ -278,14 +278,13 @@ TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseThreatAndStatusChangesToQu
     std::string sha256 = "f2c91a583cfd1371a3085187aa5b2841ada3b62f5d1cc6b08bc02703ded3507a";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "dummy_threat_ID1";
     std::string threatName = "threat name1";
     auto objectHandle = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath),
             Common::FileSystem::basename(fakeVirusFilePath),
-            threatId,
+            "00000000-0000-0000-0000-000000000000",
             threatName,
             *objectHandle),
         SaveFileReturnCode::OK);
@@ -323,14 +322,13 @@ TEST_F(SafeStoreWrapperTapTests, getObjectHandleAndSetCustomDataUsingIt)
     std::string sha256 = "f2c91a583cfd1371a3085187aa5b2841ada3b62f5d1cc6b08bc02703ded3507a";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "dummy_threat_ID1";
     std::string threatName = "threat name1";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath),
             Common::FileSystem::basename(fakeVirusFilePath),
-            threatId,
+            "00000000-0000-0000-0000-000000000000",
             threatName,
             *objectHandleFromSaveFile),
         SaveFileReturnCode::OK);
@@ -373,7 +371,6 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdAndVerifyFile)
     std::string contents = "a temp test file";
     fileSystem->writeFile(fakeVirusFilePath, contents);
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "16_characters_ID";
     std::string threatName = "threat name";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
 
@@ -386,7 +383,7 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdAndVerifyFile)
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath),
             Common::FileSystem::basename(fakeVirusFilePath),
-            threatId,
+            "00000000-0000-0000-0000-000000000000",
             threatName,
             *objectHandleFromSaveFile),
         SaveFileReturnCode::OK);
@@ -423,7 +420,6 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdHandleMissingId)
     std::string contents = "a temp test file";
     fileSystem->writeFile(fakeVirusFilePath, contents);
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "16_characters_ID";
     std::string threatName = "threat name";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
 
@@ -433,7 +429,7 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdHandleMissingId)
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath),
             Common::FileSystem::basename(fakeVirusFilePath),
-            threatId,
+            "00000000-0000-0000-0000-000000000000",
             threatName,
             *objectHandleFromSaveFile),
         SaveFileReturnCode::OK);
@@ -441,13 +437,7 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdHandleMissingId)
     fileSystem->removeFile(fakeVirusFilePath);
     ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
 
-    // IDs must be 16 bytes
-    ObjectIdType objectId;
-    for (uint i = 0; i < THREAT_ID_LENGTH; ++i)
-    {
-        objectId.emplace_back(i);
-    }
-    ASSERT_FALSE(m_safeStoreWrapper->restoreObjectById(objectId));
+    ASSERT_FALSE(m_safeStoreWrapper->restoreObjectById("11111111-1111-1111-1111-111111111111"));
 
     // Verify the file
     ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
@@ -470,7 +460,6 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdToLocationAndVerifyFile)
     fileSystem->writeFile(fakeVirusFilePath, contents);
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
     m_filesToDeleteOnTeardown.insert(expectedRestoreLocation);
-    std::string threatId = "16_characters_ID";
     std::string threatName = "threat name";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
 
@@ -483,7 +472,7 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdToLocationAndVerifyFile)
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath),
             Common::FileSystem::basename(fakeVirusFilePath),
-            threatId,
+            "00000000-0000-0000-0000-000000000000",
             threatName,
             *objectHandleFromSaveFile),
         SaveFileReturnCode::OK);
@@ -532,7 +521,6 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdToLocationDoesNotOverwriteExis
     fileSystem->writeFile(expectedRestoreLocation, contents2);
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
     m_filesToDeleteOnTeardown.insert(expectedRestoreLocation);
-    std::string threatId = "16_characters_ID";
     std::string threatName = "threat name";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
 
@@ -545,7 +533,7 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdToLocationDoesNotOverwriteExis
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath),
             Common::FileSystem::basename(fakeVirusFilePath),
-            threatId,
+            "00000000-0000-0000-0000-000000000000",
             threatName,
             *objectHandleFromSaveFile),
         SaveFileReturnCode::OK);
@@ -585,7 +573,7 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectsByThreatIdAndVerifyFile)
     std::string contents = "a temp test file";
     fileSystem->writeFile(fakeVirusFilePath, contents);
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "16_characters_ID";
+    std::string threatId = "00000000-0000-0000-0000-000000000000";
     std::string threatName = "threat name";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
 
@@ -633,8 +621,6 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectsByThreatIdHandlesMissingThreatId)
     std::string contents = "a temp test file";
     fileSystem->writeFile(fakeVirusFilePath, contents);
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "16_characters_ID";
-    std::string aDifferentThreatId = "16_charactersABC";
     std::string threatName = "threat name";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
 
@@ -644,14 +630,14 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectsByThreatIdHandlesMissingThreatId)
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath),
             Common::FileSystem::basename(fakeVirusFilePath),
-            threatId,
+            "00000000-0000-0000-0000-000000000000",
             threatName,
             *objectHandleFromSaveFile),
         SaveFileReturnCode::OK);
 
     fileSystem->removeFile(fakeVirusFilePath);
     ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
-    ASSERT_FALSE(m_safeStoreWrapper->restoreObjectsByThreatId(aDifferentThreatId));
+    ASSERT_FALSE(m_safeStoreWrapper->restoreObjectsByThreatId("11111111-1111-1111-1111-111111111111"));
 
     // Verify the file
     ASSERT_FALSE(fileSystem->exists(fakeVirusFilePath));
@@ -667,14 +653,13 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectByIdAndcheckItIsNoLongerInDatabase)
     std::string fakeVirusFilePath = "/tmp/fakevirus1";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "dummy_threat_ID1";
     std::string threatName = "threat name1";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath),
             Common::FileSystem::basename(fakeVirusFilePath),
-            threatId,
+            "00000000-0000-0000-0000-000000000000",
             threatName,
             *objectHandleFromSaveFile),
         SaveFileReturnCode::OK);
@@ -714,14 +699,13 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectByIdHandlesMissingId)
     std::string fakeVirusFilePath = "/tmp/fakevirus1";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "dummy_threat_ID1";
     std::string threatName = "threat name1";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath),
             Common::FileSystem::basename(fakeVirusFilePath),
-            threatId,
+            "00000000-0000-0000-0000-000000000000",
             threatName,
             *objectHandleFromSaveFile),
         SaveFileReturnCode::OK);
@@ -738,13 +722,7 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectByIdHandlesMissingId)
     }
     ASSERT_EQ(resultsFound, 1);
 
-    // IDs must be 16 bytes
-    ObjectIdType objectId;
-    for (uint i = 0; i < THREAT_ID_LENGTH; ++i)
-    {
-        objectId.emplace_back(i);
-    }
-    ASSERT_FALSE(m_safeStoreWrapper->deleteObjectById(objectId));
+    ASSERT_FALSE(m_safeStoreWrapper->deleteObjectById("11111111-1111-1111-1111-111111111111"));
 
     // Try and find the file in SafeStore DB
     resultsFound = 0;
@@ -766,7 +744,7 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectsByThreatIdAndCheckItIsNoLongerInDa
     std::string fakeVirusFilePath = "/tmp/fakevirus1";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "dummy_threat_ID1";
+    std::string threatId = "00000000-0000-0000-0000-000000000000";
     std::string threatName = "threat name1";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(
@@ -812,7 +790,7 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectsByThreatIdDeletesAllFilesWithSameT
     std::string fakeVirusFilePath = "/tmp/fakevirus1";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "dummy_threat_ID1";
+    std::string threatId = "00000000-0000-0000-0000-000000000000";
     std::string threatName = "threat name";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(
@@ -867,14 +845,13 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectsByThreatIdHandlesMissingId)
     std::string fakeVirusFilePath = "/tmp/fakevirus1";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "dummy_threat_ID1";
     std::string threatName = "threat name1";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(
         m_safeStoreWrapper->saveFile(
             Common::FileSystem::dirName(fakeVirusFilePath),
             Common::FileSystem::basename(fakeVirusFilePath),
-            threatId,
+            "00000000-0000-0000-0000-000000000000",
             threatName,
             *objectHandleFromSaveFile),
         SaveFileReturnCode::OK);
@@ -892,7 +869,7 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectsByThreatIdHandlesMissingId)
     ASSERT_EQ(resultsFound, 1);
 
     // Delete the object specified by ID, this will remove it from the DB
-    ASSERT_FALSE(m_safeStoreWrapper->deleteObjectsByThreatId("unknown threatID"));
+    ASSERT_FALSE(m_safeStoreWrapper->deleteObjectsByThreatId("11111111-1111-1111-1111-111111111111"));
 
     // Try and find the file in SafeStore DB
     resultsFound = 0;
@@ -912,7 +889,7 @@ TEST_F(SafeStoreWrapperTapTests, objectHandlesThatAreInvalidatedDueToRemovalDoNo
     std::string fakeVirusFilePath = "/tmp/fakevirus1";
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
-    std::string threatId = "dummy_threat_ID1";
+    std::string threatId = "00000000-0000-0000-0000-000000000000";
     std::string threatName = "threat name1";
     auto objectHandleFromSaveFile = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(

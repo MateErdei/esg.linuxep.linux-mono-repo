@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022, Sophos Limited. All rights reserved.
 
 #include "unixsocket/threatReporterSocket/ThreatReporterClient.h"
 
@@ -16,7 +16,7 @@ int main()
     std::time_t detectionTimeStamp = std::time(nullptr);
     std::string userID = std::getenv("USER");
     std::string sha256 = "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def";
-    std::string threatId = "Tc1c802c6a878ee05babcc0378d45d8d449a06784c14508f7200a63323ca0a350";
+    std::string threatId = "c1c802c6-a878-ee05-babc-c0378d45d8d4";
 
     const std::string path = "/tmp/fd_chroot/tmp/unix_socket";
     unixsocket::ThreatReporterClientSocket socket(path);
