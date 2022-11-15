@@ -38,7 +38,7 @@ def disable_onaccess():
     mark = log_utils.get_on_access_log_mark()
     shutil.copyfile(os.path.join(SOPHOS_INSTALL, "base/mcs/policy/SAV-2_policy.xml"), AV_POLICY_BKP)
     shutil.copyfile(os.path.join(this_dir, "SAV-2_policy_OA_disabled.xml"), os.path.join("/tmp/", "SAV-2_policy.xml"))
-    shutil.move(os.path.join("/tmp/", "SAV-2_policy.xml"), os.path.join(SOPHOS_INSTALL, "base/mcs/policy/SAV-2_policy.xml"))
+    shutil.move(os.path.join("/tmp", "SAV-2_policy.xml"), os.path.join(SOPHOS_INSTALL, "base/mcs/policy/SAV-2_policy.xml"))
     log_utils.wait_for_on_access_log_contains_after_mark("soapd_bootstrap <> On-access scanning disabled", mark)
     stop_sspl_process("managementagent")
 

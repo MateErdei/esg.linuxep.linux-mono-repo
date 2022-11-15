@@ -244,10 +244,11 @@ def run_slow_scan_onaccess_test(max_file_count):
     # Write clean files until the queue becomes full or we reach max_count
     file_count = run_slow_scan_test("Slow file opens - OA enabled", True, max_file_count)
 
+    # TODO: Make this work on the Central-managed Stress Rig
     # Write the same number of files but with on-access disable
-    disable_onaccess()
-    run_slow_scan_test("Slow file opens - OA disabled", False, file_count)
-    enable_onaccess()
+    #disable_onaccess()
+    #run_slow_scan_test("Slow file opens - OA disabled", False, file_count)
+    #enable_onaccess()
 
     # Write the same number of files but with the product not running
     stop_sspl()
