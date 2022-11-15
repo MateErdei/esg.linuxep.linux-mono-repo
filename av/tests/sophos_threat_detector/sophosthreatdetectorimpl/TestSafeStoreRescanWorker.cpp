@@ -3,10 +3,10 @@
 #include "../../common/LogInitializedTests.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/SafeStoreRescanWorker.h"
 
-#include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include <gtest/gtest.h>
 
@@ -59,7 +59,9 @@ TEST_F(TestSafeStoreRescanWorker, testExitsOnDestructDuringWait) // NOLINT
     }
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    ASSERT_THAT(
+        logMessage,
+        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to: 10 seconds"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 10"));
@@ -86,7 +88,9 @@ TEST_F(TestSafeStoreRescanWorker, testTriggerRescan) // NOLINT
     sleep(1);
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    ASSERT_THAT(
+        logMessage,
+        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to: 10 seconds"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 10"));
@@ -110,7 +114,9 @@ TEST_F(TestSafeStoreRescanWorker, timeOutTriggersRescan) // NOLINT
     sleep(2);
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    ASSERT_THAT(
+        logMessage,
+        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to: 1 seconds"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 1"));
@@ -133,7 +139,9 @@ TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigUseDefaultIfConfigDoesntExi
     sleep(1);
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, Not(::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse.")));
+    ASSERT_THAT(
+        logMessage,
+        Not(::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse.")));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 14400"));
     ASSERT_FALSE(testWorker.m_rescanSent);
@@ -156,7 +164,9 @@ TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesFileReadException) /
     sleep(1);
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    ASSERT_THAT(
+        logMessage,
+        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Could not read rescanInterval file due to: TEST"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to default 4 hours"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
@@ -181,8 +191,11 @@ TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesNonIntegerContent) /
     sleep(1);
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Error parsing integer for rescan interval setting: One second please"));
+    ASSERT_THAT(
+        logMessage,
+        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    ASSERT_THAT(
+        logMessage, ::testing::HasSubstr("Error parsing integer for rescan interval setting: One second please"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to default 4 hours"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 14400"));
@@ -206,7 +219,9 @@ TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesLessThanOneInteger) 
     sleep(1);
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    ASSERT_THAT(
+        logMessage,
+        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Rescan interval cannot be less than 1. Value found: -1"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to default 4 hours"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));

@@ -6,14 +6,14 @@
 
 #include "unixsocket/safeStoreRescanSocket/SafeStoreRescanClient.h"
 
+#include "common/ApplicationPaths.h"
+
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "common/ApplicationPaths.h"
 
 SafeStoreRescanWorker::SafeStoreRescanWorker(const fs::path& safeStoreRescanSocket) :
-    m_safeStoreRescanSocket(safeStoreRescanSocket),
-    m_rescanInterval(parseRescanIntervalConfig())
+    m_safeStoreRescanSocket(safeStoreRescanSocket), m_rescanInterval(parseRescanIntervalConfig())
 {
     LOGDEBUG("SafeStore Rescan socket path: " << safeStoreRescanSocket);
     LOGDEBUG("SafeStore Rescan interval: " << m_rescanInterval);
@@ -44,9 +44,7 @@ void SafeStoreRescanWorker::run()
     {
         std::unique_lock lock(m_rescanLock);
         m_rescanWakeUp.wait_for(
-            lock,
-            std::chrono::seconds(m_rescanInterval),
-            [this] { return m_manualRescan || m_stopRequested; });
+            lock, std::chrono::seconds(m_rescanInterval), [this] { return m_manualRescan || m_stopRequested; });
 
         if (m_stopRequested)
         {
@@ -87,10 +85,11 @@ uint SafeStoreRescanWorker::parseRescanIntervalConfig()
         try
         {
             auto contents = fs->readFile(intervalSettingInChroot);
-            auto[ value, errorMessage ] = Common::UtilityImpl::StringUtils::stringToInt(contents);
+            auto [value, errorMessage] = Common::UtilityImpl::StringUtils::stringToInt(contents);
             if (!errorMessage.empty())
             {
-                LOGDEBUG("Error parsing integer for rescan interval setting: " << contents << " due to: " << errorMessage);
+                LOGDEBUG(
+                    "Error parsing integer for rescan interval setting: " << contents << " due to: " << errorMessage);
             }
             else if (value <= 0)
             {

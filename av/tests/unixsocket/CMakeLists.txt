@@ -43,6 +43,12 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             LIBS ${log4cpluslib} ${testhelperslib}
             )
 
+    SophosAddTest(TestSafeStoreRescanSocket
+            ../common/LogInitializedTests.cpp
+            TestSafeStoreRescanSocket.cpp
+            PROJECTS unixsocket
+            )
+
     add_executable(ProcessControlClientExecutable
             ../unixsocket/ProcessControlTestExecutable/ProcessControllClient.cpp)
     target_link_libraries(ProcessControlClientExecutable  PUBLIC

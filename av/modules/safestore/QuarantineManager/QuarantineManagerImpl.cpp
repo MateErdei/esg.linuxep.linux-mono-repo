@@ -434,4 +434,10 @@ namespace safestore::QuarantineManager
         m_databaseErrorCount = 0;
         setState(QuarantineManagerState::INITIALISED);
     }
+
+    void QuarantineManagerImpl::rescanDatabase()
+    {
+        LOGINFO("SafeStore Database Rescan request received.");
+        // TODO: LINUXDAR-5734 - Implement database unpacking, scanning, and updating here.
+    }
 } // namespace safestore::QuarantineManager
