@@ -132,6 +132,47 @@ AV plugin Saves and Restores Scan Now Counter
     Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
     Dictionary Should Contain Item   ${avDict}   threatHealth   ${1}
 
+
+Scan Now Increments On Demand Eicar Detection Count
+    ${dirtyfile} =  Set Variable  /tmp_test/dirty_file.txt
+
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${dirtyfile}
+
+    Configure and check scan now with offset
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${1}
+
+
+Scan Now Increments On Demand Non-Eicar Detection Count
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  /tmp_test/MLengHighScore-excluded.exe
+    Register Cleanup  Remove File  /tmp_test/MLengHighScore-excluded.exe
+
+    Configure and check scan now with offset
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-count   ${1}
+
+
 On Access Scan Increments On Access Eicar Detection Count
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
