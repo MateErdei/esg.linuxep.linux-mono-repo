@@ -391,6 +391,17 @@ TEST_F(TestPluginCallback, getTelemetry_threatHealth)
     EXPECT_EQ(modifiedTelemetry["threatHealth"], E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 }
 
+TEST_F(TestPluginCallback, setTelemetryScanDetailsToZeroIfNoActivity)
+{
+    json modifiedTelemetry = json::parse(m_pluginCallback->getTelemetry());
+    EXPECT_EQ(modifiedTelemetry["scan-now-count"], 0);
+    EXPECT_EQ(modifiedTelemetry["scheduled-scan-count"], 0);
+    EXPECT_EQ(modifiedTelemetry["on-access-threat-count"], 0);
+    EXPECT_EQ(modifiedTelemetry["on-access-threat-eicar-count"], 0);
+    EXPECT_EQ(modifiedTelemetry["on-demand-threat-count"], 0);
+    EXPECT_EQ(modifiedTelemetry["on-demand-threat-eicar-count"], 0);
+}
+
 TEST_F(TestPluginCallback, getTelemetry_threatHealth_fileDoesNotExist)
 {
     json telemetry = json::parse(m_pluginCallback->getTelemetry());

@@ -22,7 +22,6 @@
 // Std C++
 #include <cstdlib>
 #include <fstream>
-#include <string>
 #include <thread>
 #include <chrono>
 // Std C
@@ -137,9 +136,10 @@ namespace Plugin
 
         telemetry.increment("scan-now-count", 0ul);
         telemetry.increment("scheduled-scan-count", 0ul);
-        telemetry.increment("threat-count", 0ul);
-        telemetry.increment("threat-eicar-count", 0ul);
-        telemetry.increment("detections-dropped-from-safestore-queue", 0ul);
+        telemetry.increment("on-access-threat-count", 0ul);
+        telemetry.increment("on-access-threat-eicar-count", 0ul);
+        telemetry.increment("on-demand-threat-count", 0ul);
+        telemetry.increment("on-demand-threat-eicar-count", 0ul);
 
         std::string telemetryJson = telemetry.serialiseAndReset();
         telemetry.set("threatHealth", m_threatStatus);
@@ -372,7 +372,7 @@ namespace Plugin
         }
         else
         {
-            bool dormant = fileSystem->isFile(getSafeStoreDormantFlagPath());
+            bool dormant = fileSystem->isFile(Plugin::getSafeStoreDormantFlagPath());
             if (!common::PidLockFile::isPidFileLocked(getSafeStorePidPath(), sysCalls) )
             {
                 if (m_safestoreServiceStatus == E_HEALTH_STATUS_GOOD)
@@ -402,17 +402,8 @@ namespace Plugin
 
     void PluginCallback::calculateSoapHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
-        auto fileSystem = Common::FileSystem::fileSystem();
-        bool unhealthy = fileSystem->isFile(getOnAccessUnhealthyFlagPath());
-        if (unhealthy)
-        {
-            if(m_soapServiceStatus == E_HEALTH_STATUS_GOOD)
-            {
-                LOGWARN("Sophos On Access Process is unhealthy, turning service health to red");
-            }
-            m_soapServiceStatus = E_HEALTH_STATUS_BAD;
-        }
-        else if (!common::PidLockFile::isPidFileLocked(getSoapdPidPath(), sysCalls))
+        Path soapdPidFile = common::getPluginInstallPath() / "var/soapd.pid";
+        if (!common::PidLockFile::isPidFileLocked(soapdPidFile, sysCalls))
         {
             if(m_soapServiceStatus == E_HEALTH_STATUS_GOOD)
             {
@@ -426,6 +417,7 @@ namespace Plugin
             {
                 LOGINFO("Sophos On Access Process is now running");
             }
+
             m_soapServiceStatus = E_HEALTH_STATUS_GOOD;
         }
     }
