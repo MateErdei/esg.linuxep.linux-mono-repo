@@ -172,6 +172,8 @@ namespace safestore::SafeStoreWrapper
             std::shared_ptr<ISafeStoreReleaseMethods> releaseMethods) :
             m_getIdMethods(std::move(getIdMethods)), m_safeStoreReleaseMethods(std::move(releaseMethods))
         {
+            assert(m_getIdMethods);
+            assert(m_safeStoreReleaseMethods);
         }
         ObjectHandleHolder(const ObjectHandleHolder&) = delete;
         ObjectHandleHolder& operator=(const ObjectHandleHolder&) = delete;
@@ -196,6 +198,10 @@ namespace safestore::SafeStoreWrapper
             if (m_safeStoreReleaseMethods)
             {
                 m_safeStoreReleaseMethods->releaseObjectHandle(m_handle);
+            }
+            else
+            {
+                assert(m_handle == nullptr);
             }
         }
 
