@@ -165,6 +165,9 @@ TEST_F(TestPluginAdapter, testMainLoop)
 #ifdef ENABLE_CORE_POLICY
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("CORE")).Times(1);
 #endif
+#ifdef ENABLE_CORC_POLICY
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("CORC")).Times(1);
+#endif
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillOnce(QueueStopTask(m_taskQueue));
     pluginAdapter.mainLoop();
 }

@@ -69,6 +69,9 @@ namespace Plugin
 
     const PolicyWaiter::policy_list_t PluginAdapter::m_requested_policies{
         "SAV",
+#ifdef ENABLE_CORC_POLICY
+        "CORC",
+#endif
 #ifdef ENABLE_CORE_POLICY
         "CORE",
 #endif
