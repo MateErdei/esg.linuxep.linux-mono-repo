@@ -10,6 +10,6 @@ ln -snf /vagrant/sspl-plugin-anti-virus/output/test-resources/ /opt/test/inputs/
 ln -snf /vagrant/sspl-plugin-anti-virus/output/base-sdds/ /opt/test/inputs/av/base-sdds
 ln -snf /vagrant/sspl-plugin-anti-virus/output/ /opt/test/inputs/tap_test_output_from_build
 
-apt-get -y install python3.7 python3-pip
-apt-get -y install nfs-kernel-server samba p7zip-full
+apt-get -y install python3.7 python3-pip python3-pkgconfig
+apt-get -y install nfs-kernel-server samba p7zip-full gdb
 python3.7 -m pip install -r requirements.txt
