@@ -132,7 +132,7 @@ AV plugin Saves and Restores Scan Now Counter
     Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
     Dictionary Should Contain Item   ${avDict}   threatHealth   ${1}
 
-Command Line Scan Increments On Demand Eicar Detection Count
+Command Line Scan Increments Telemety Eicar Detection Count
     ${dirtyfile} =  Set Variable  /tmp_test/dirty_file.txt
 
     # Run telemetry to reset counters to 0
@@ -153,8 +153,14 @@ Command Line Scan Increments On Demand Eicar Detection Count
     ${avDict}=    Set Variable     ${telemetryJson['av']}
     Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${1}
 
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
 
-Command Line Scan Increments On Demand Non-Eicar Detection Count
+
+Command Line Scan Increments Telemety Non-Eicar Detection Count
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -173,8 +179,13 @@ Command Line Scan Increments On Demand Non-Eicar Detection Count
     ${avDict}=    Set Variable     ${telemetryJson['av']}
     Dictionary Should Contain Item   ${avDict}   on-demand-threat-count   ${1}
 
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
 
-Scheduled Scan Increments On Demand Eicar Detection Count
+Scheduled Scan Increments Telemetry Eicar Detection And Scheduled Scan Count
     ${dirtyfile} =  Set Variable  /tmp_test/dirty_file.txt
 
     # Run telemetry to reset counters to 0
@@ -187,7 +198,7 @@ Scheduled Scan Increments On Demand Eicar Detection Count
     Send Sav Policy With Imminent Scheduled Scan To Base Exclusions Added
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=60
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -197,9 +208,15 @@ Scheduled Scan Increments On Demand Eicar Detection Count
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
     Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${1}
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${1}
+
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${0}
 
 
-Scheduled Scan Increments On Demand Non-Eicar Detection Count
+Scheduled Scan Increments Telemetry Non-Eicar Detection And Scheduled Scan Count
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -210,7 +227,7 @@ Scheduled Scan Increments On Demand Non-Eicar Detection Count
     Send Sav Policy With Imminent Scheduled Scan To Base Exclusions Added
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan
+    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=60
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -220,9 +237,15 @@ Scheduled Scan Increments On Demand Non-Eicar Detection Count
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
     Dictionary Should Contain Item   ${avDict}   on-demand-threat-count   ${1}
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${1}
+
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${0}
 
 
-Scan Now Increments On Demand Eicar Detection Count
+Scan Now Increments Telemetry Eicar Detection And Scan Now Count
     ${dirtyfile} =  Set Variable  /tmp_test/dirty_file.txt
 
     # Run telemetry to reset counters to 0
@@ -241,9 +264,15 @@ Scan Now Increments On Demand Eicar Detection Count
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
     Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${1}
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
+
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
 
 
-Scan Now Increments On Demand Non-Eicar Detection Count
+Scan Now Increments Telemetry Non-Eicar Detection And Scan Now Count
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -260,9 +289,15 @@ Scan Now Increments On Demand Non-Eicar Detection Count
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
     Dictionary Should Contain Item   ${avDict}   on-demand-threat-count   ${1}
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
+
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
 
 
-On Access Scan Increments On Access Eicar Detection Count
+On Access Scan Increments Telemetry Eicar Count
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -284,8 +319,14 @@ On Access Scan Increments On Access Eicar Detection Count
     ${avDict}=    Set Variable     ${telemetryJson['av']}
     Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${1}
 
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
 
-On Access Scan Increments On Access Non Eicar Detection Count
+
+On Access Scan Increments Telemetry Non Eicar Count
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -322,6 +363,11 @@ On Access Scan Increments On Access Non Eicar Detection Count
 
     Dictionary Should Contain Item   ${avDict}   on-access-threat-count   ${1}
 
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${0}
+    Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
 
 
 AV plugin increments Scan Now Counter after Save and Restore
