@@ -7,6 +7,7 @@
 
 PLUGIN_NAME=@PLUGIN_NAME@
 PRODUCT_LINE_ID="@PRODUCT_LINE_ID@"
+MIN_SAFESTORE_DB_SUPPORTED_AV_VERSION="1.1.0"
 
 
 SCRIPT_LOCATION="${BASH_SOURCE[0]}"
@@ -48,6 +49,10 @@ then
     cp -v ${UNINSTALLDIR}/chroot/log/sophos_threat_detector.log*  ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/log/av.log*  ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/log/soapd.log*  ${SAVE_DIR}
+
+    SAFESTORE_DB_DOWNGRADE=$(date +%s)_SafeStore_${MIN_SAFESTORE_DB_SUPPORTED_AV_VERSION}
+    cp -vr ${UNINSTALLDIR}/var/safestore_db  ${SAVE_DIR}/${SAFESTORE_DB_DOWNGRADE}
+    cp -v ${UNINSTALLDIR}/var/persist-threatDatabase  ${SAVE_DIR}
 fi
 
 rm -f /usr/local/bin/avscanner
