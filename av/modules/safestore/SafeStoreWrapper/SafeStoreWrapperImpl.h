@@ -92,21 +92,6 @@ namespace safestore::SafeStoreWrapper
     public:
         explicit SafeStoreReleaseMethodsImpl(std::shared_ptr<ISafeStoreHolder> safeStoreHolder);
         void releaseObjectHandle(SafeStoreObjectHandle objectHandle) override;
-        void releaseSearchHandle(SafeStoreSearchHandle searchHandle) override;
-
-    private:
-        std::shared_ptr<ISafeStoreHolder> m_safeStoreHolder;
-    };
-
-    class SafeStoreSearchMethodsImpl : public ISafeStoreSearchMethods
-    {
-    public:
-        explicit SafeStoreSearchMethodsImpl(std::shared_ptr<ISafeStoreHolder> safeStoreHolder);
-        bool findFirst(
-            const SafeStoreFilter& filter,
-            SearchHandleHolder& searchHandle,
-            ObjectHandleHolder& objectHandle) override;
-        bool findNext(SearchHandleHolder& searchHandle, ObjectHandleHolder& objectHandle) override;
 
     private:
         std::shared_ptr<ISafeStoreHolder> m_safeStoreHolder;
@@ -128,7 +113,6 @@ namespace safestore::SafeStoreWrapper
         SafeStoreWrapperImpl();
         ~SafeStoreWrapperImpl() override;
         std::unique_ptr<ObjectHandleHolder> createObjectHandleHolder() override;
-        std::unique_ptr<SearchHandleHolder> createSearchHandleHolder() override;
         InitReturnCode initialise(const std::string& dbDirName, const std::string& dbName, const std::string& password)
             override;
         SaveFileReturnCode saveFile(
@@ -140,7 +124,7 @@ namespace safestore::SafeStoreWrapper
         bool finaliseObject(ObjectHandleHolder& objectHandle) override;
         std::optional<uint64_t> getConfigIntValue(ConfigOption option) override;
         bool setConfigIntValue(ConfigOption option, uint64_t value) override;
-        SearchResults find(const SafeStoreFilter& filter) override;
+        std::vector<ObjectHandleHolder> find(const SafeStoreFilter& filter) override;
         ObjectIdType getObjectId(const ObjectHandleHolder& objectHandle) override;
         std::string getObjectName(const ObjectHandleHolder& objectHandle) override;
         bool getObjectHandle(const ObjectIdType& objectId, std::shared_ptr<ObjectHandleHolder> objectHandle) override;
@@ -169,7 +153,6 @@ namespace safestore::SafeStoreWrapper
     private:
         std::shared_ptr<ISafeStoreHolder> m_safeStoreHolder;
         std::shared_ptr<ISafeStoreReleaseMethods> m_releaseMethods;
-        std::shared_ptr<ISafeStoreSearchMethods> m_searchMethods;
         std::shared_ptr<ISafeStoreGetIdMethods> m_getIdMethods;
     };
 } // namespace safestore::SafeStoreWrapper

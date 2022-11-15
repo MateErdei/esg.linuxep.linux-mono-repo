@@ -125,7 +125,6 @@ int main()
     // Create filter to find all files in SafeStore database
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = {FilterField::OBJECT_TYPE};
 
     std::cout << "--- SafeStore File Objects ---" << std::endl;
     // Perform search to get all objects and then print object details

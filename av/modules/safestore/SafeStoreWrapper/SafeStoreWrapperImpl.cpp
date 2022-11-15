@@ -11,6 +11,43 @@ extern "C"
 #include "safestore.h"
 }
 
+namespace
+{
+    class SearchHandleHolder
+    {
+    public:
+        explicit SearchHandleHolder(safestore::SafeStoreWrapper::ISafeStoreHolder& safeStoreHolder) :
+            safeStoreHolder_ { safeStoreHolder }
+        {
+        }
+
+        ~SearchHandleHolder()
+        {
+            auto returnCode = SafeStore_FindClose(safeStoreHolder_.getHandle(), searchHandle_);
+            if (returnCode != SR_OK)
+            {
+                LOGWARN(
+                    "Failed to close a SafeStore search handle: "
+                    << safestore::SafeStoreWrapper::safeStoreReturnCodeToString(returnCode));
+            }
+        }
+
+        SearchHandleHolder(const SearchHandleHolder&) = delete;
+        SearchHandleHolder& operator=(const SearchHandleHolder&) = delete;
+        SearchHandleHolder(SearchHandleHolder&&) = delete;
+        SearchHandleHolder& operator=(SearchHandleHolder&&) = delete;
+
+        [[nodiscard]] SafeStore_Search_t& get()
+        {
+            return searchHandle_;
+        }
+
+    private:
+        SafeStore_Search_t searchHandle_ = nullptr;
+        safestore::SafeStoreWrapper::ISafeStoreHolder& safeStoreHolder_;
+    };
+} // namespace
+
 namespace safestore::SafeStoreWrapper
 {
     std::optional<SafeStore_Id_t> safeStoreIdFromString(const std::string& safeStoreId)
@@ -163,41 +200,69 @@ namespace safestore::SafeStoreWrapper
         return SOS_UNDEFINED;
     }
 
-    // see SafeStore_FilterField_t in safestore.h
-    int convertFilterFieldsToSafeStoreInt(const std::vector<FilterField>& fields)
+    /**
+     * Converts the abstract filter type to the concrete SafeStore filter
+     * @param filter
+     * @param ssThreatId A reference to a SafeStore object. Will be written into by this function if threatId is set in
+     * the filter. The object pointed by this reference must stay valid at least as long as the result (but only if
+     * threatId was specified in filter).
+     * @return
+     */
+    SafeStore_Filter_t convertFilterToSafeStoreFilter(const SafeStoreFilter& filter, SafeStore_Id_t& ssThreatId)
     {
-        int activeFields = 0;
-        for (const auto& field : fields)
+        SafeStore_Filter_t ssFilter{};
+
+        if (filter.threatId)
         {
-            switch (field)
+            auto ssThreatIdOption = safeStoreIdFromString(filter.threatId.value());
+            if (ssThreatIdOption)
             {
-                case FilterField::THREAT_ID:
-                    activeFields += 0x0001;
-                    break;
-                case FilterField::THREAT_NAME:
-                    activeFields += 0x0002;
-                    break;
-                case FilterField::START_TIME:
-                    activeFields += 0x0004;
-                    break;
-                case FilterField::END_TIME:
-                    activeFields += 0x0008;
-                    break;
-                case FilterField::OBJECT_TYPE:
-                    activeFields += 0x0010;
-                    break;
-                case FilterField::OBJECT_STATUS:
-                    activeFields += 0x0020;
-                    break;
-                case FilterField::OBJECT_LOCATION:
-                    activeFields += 0x0040;
-                    break;
-                case FilterField::OBJECT_NAME:
-                    activeFields += 0x0080;
-                    break;
+                ssThreatId = std::move(ssThreatIdOption.value());
+                ssFilter.threatId = &ssThreatId;
+                ssFilter.activeFields |= SFF_THREAT_ID;
+            }
+            else
+            {
+                LOGWARN("Invalid threatId value passed to filter SafeStore search");
             }
         }
-        return activeFields;
+        if (filter.threatName)
+        {
+            ssFilter.threatName = filter.threatName.value().c_str();
+            ssFilter.activeFields |= SFF_THREAT_NAME;
+        }
+        if (filter.startTime)
+        {
+            ssFilter.startTime = filter.startTime.value();
+            ssFilter.activeFields |= SFF_START_TIME;
+        }
+        if (filter.endTime)
+        {
+            ssFilter.endTime = filter.endTime.value();
+            ssFilter.activeFields |= SFF_END_TIME;
+        }
+        if (filter.objectType)
+        {
+            ssFilter.objectType = convertObjTypeToSafeStoreObjType(filter.objectType.value());
+            ssFilter.activeFields |= SFF_OBJECT_TYPE;
+        }
+        if (filter.objectStatus)
+        {
+            ssFilter.objectStatus = convertObjStatusToSafeStoreObjStatus(filter.objectStatus.value());
+            ssFilter.activeFields |= SFF_OBJECT_STATUS;
+        }
+        if (filter.objectLocation)
+        {
+            ssFilter.objectLocation = filter.objectLocation.value().c_str();
+            ssFilter.activeFields |= SFF_OBJECT_LOCATION;
+        }
+        if (filter.objectName)
+        {
+            ssFilter.objectName = filter.objectName.value().c_str();
+            ssFilter.activeFields |= SFF_OBJECT_NAME;
+        }
+
+        return ssFilter;
     }
 
     std::string safeStoreReturnCodeToString(SafeStore_Result_t result)
@@ -266,7 +331,6 @@ namespace safestore::SafeStoreWrapper
     SafeStoreWrapperImpl::SafeStoreWrapperImpl() :
         m_safeStoreHolder(std::make_shared<SafeStoreHolder>()),
         m_releaseMethods(std::make_shared<SafeStoreReleaseMethodsImpl>(m_safeStoreHolder)),
-        m_searchMethods(std::make_shared<SafeStoreSearchMethodsImpl>(m_safeStoreHolder)),
         m_getIdMethods(std::make_shared<SafeStoreGetIdMethodsImpl>(m_safeStoreHolder))
     {
     }
@@ -304,7 +368,8 @@ namespace safestore::SafeStoreWrapper
             threatName.c_str(),
             objectHandle.getRawHandlePtr());
 
-        LOGDEBUG("Got " << safeStoreReturnCodeToString(result) << " when attempting to save file to SafeStore database");
+        LOGDEBUG(
+            "Got " << safeStoreReturnCodeToString(result) << " when attempting to save file to SafeStore database");
         switch (result)
         {
             case SR_OK:
@@ -361,14 +426,62 @@ namespace safestore::SafeStoreWrapper
         return std::make_unique<safestore::SafeStoreWrapper::ObjectHandleHolder>(m_getIdMethods, m_releaseMethods);
     }
 
-    std::unique_ptr<SearchHandleHolder> SafeStoreWrapperImpl::createSearchHandleHolder()
+    std::vector<ObjectHandleHolder> SafeStoreWrapperImpl::find(const SafeStoreFilter& filter)
     {
-        return std::make_unique<SearchHandleHolder>(m_releaseMethods);
-    }
+        // This needs to stay valid at least as long as ssFilter can be used
+        SafeStore_Id_t ssThreatId;
 
-    SearchResults SafeStoreWrapperImpl::find(const SafeStoreFilter& filter)
-    {
-        return SearchResults(m_releaseMethods, m_searchMethods, m_getIdMethods, filter);
+        SafeStore_Filter_t ssFilter = convertFilterToSafeStoreFilter(filter, ssThreatId);
+
+        std::vector<ObjectHandleHolder> results;
+
+        SearchHandleHolder searchHandle { *m_safeStoreHolder };
+
+        LOGDEBUG("Starting SafeStore search");
+
+        int i = 0;
+        while (true)
+        {
+            ObjectHandleHolder objectHandle { m_getIdMethods, m_releaseMethods };
+
+            SafeStore_Result_t returnCode;
+            if (i == 0)
+            {
+                returnCode = SafeStore_FindFirst(
+                    m_safeStoreHolder->getHandle(), &ssFilter, &searchHandle.get(), objectHandle.getRawHandlePtr());
+            }
+            else
+            {
+                returnCode = SafeStore_FindNext(
+                    m_safeStoreHolder->getHandle(), searchHandle.get(), objectHandle.getRawHandlePtr());
+            }
+
+            if (returnCode == SR_OBJECT_NOT_FOUND)
+            {
+                LOGDEBUG("No more objects found");
+                break;
+            }
+            else if (returnCode != SR_OK)
+            {
+                LOGWARN(
+                    "Got " << safeStoreReturnCodeToString(returnCode)
+                           << " when performing FindFirst on SafeStore database");
+                break;
+            }
+            else if (searchHandle.get() == nullptr || objectHandle.getRawHandle() == nullptr)
+            {
+                LOGWARN("SafeStore returned invalid results after successful search");
+                break;
+            }
+
+            LOGDEBUG("Found object " << i);
+
+            results.push_back(std::move(objectHandle));
+
+            ++i;
+        }
+
+        return results;
     }
 
     std::string SafeStoreWrapperImpl::getObjectName(const ObjectHandleHolder& objectHandle)
@@ -469,7 +582,8 @@ namespace safestore::SafeStoreWrapper
         {
             return stringFromSafeStoreId(threatId);
         }
-        LOGWARN("Got " << safeStoreReturnCodeToString(returnCode) << " while getting object threat ID, returning blank ID");
+        LOGWARN(
+            "Got " << safeStoreReturnCodeToString(returnCode) << " while getting object threat ID, returning blank ID");
         return "";
     }
 
@@ -484,7 +598,8 @@ namespace safestore::SafeStoreWrapper
         }
         else
         {
-            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when getting object threat name from SafeStore");
+            LOGERROR(
+                "Got " << safeStoreReturnCodeToString(returnCode) << " when getting object threat name from SafeStore");
         }
         return { buf };
     }
@@ -498,7 +613,9 @@ namespace safestore::SafeStoreWrapper
             LOGDEBUG("Successfully got object store time from SafeStore");
             return safeStoreTime;
         }
-        LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " while getting object store time from SafeStore, returning 0");
+        LOGERROR(
+            "Got " << safeStoreReturnCodeToString(returnCode)
+                   << " while getting object store time from SafeStore, returning 0");
         return 0;
     }
 
@@ -546,12 +663,14 @@ namespace safestore::SafeStoreWrapper
             }
             else
             {
-                LOGERROR("Size of data returned from getting object custom data is larger than buffer, returning empty data");
+                LOGERROR("Size of data returned from getting object custom data is larger than buffer, returning empty "
+                         "data");
             }
         }
         else
         {
-            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when getting custom data, name: " << dataName);
+            LOGERROR(
+                "Got " << safeStoreReturnCodeToString(returnCode) << " when getting custom data, name: " << dataName);
         }
         return dataToReturn;
     }
@@ -616,7 +735,9 @@ namespace safestore::SafeStoreWrapper
                 LOGDEBUG("Successfully restored object with threat ID: " << threatId);
                 return true;
             }
-            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " while trying to restore an object by threat ID: " << threatId);
+            LOGERROR(
+                "Got " << safeStoreReturnCodeToString(returnCode)
+                       << " while trying to restore an object by threat ID: " << threatId);
         }
         return false;
     }
@@ -631,7 +752,9 @@ namespace safestore::SafeStoreWrapper
                 LOGDEBUG("Successfully deleted object from SafeStore");
                 return true;
             }
-            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " while trying to delete an object from SafeStore");
+            LOGERROR(
+                "Got " << safeStoreReturnCodeToString(returnCode)
+                       << " while trying to delete an object from SafeStore");
         }
         return false;
     }
@@ -646,7 +769,9 @@ namespace safestore::SafeStoreWrapper
                 LOGDEBUG("Successfully deleted object from SafeStore with threat ID: " << threatId);
                 return true;
             }
-            LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " while trying to delete an object from SafeStore with threat ID: " << threatId);
+            LOGERROR(
+                "Got " << safeStoreReturnCodeToString(returnCode)
+                       << " while trying to delete an object from SafeStore with threat ID: " << threatId);
         }
         return false;
     }
@@ -726,73 +851,10 @@ namespace safestore::SafeStoreWrapper
             }
             else
             {
-                LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when cleaning up SafeStore object handle");
+                LOGERROR(
+                    "Got " << safeStoreReturnCodeToString(returnCode) << " when cleaning up SafeStore object handle");
             }
         }
-    }
-
-    void SafeStoreReleaseMethodsImpl::releaseSearchHandle(void* searchHandle)
-    {
-        if (searchHandle != nullptr)
-        {
-            auto returnCode = SafeStore_FindClose(m_safeStoreHolder->getHandle(), searchHandle);
-            searchHandle = nullptr;
-            if (returnCode != SR_OK)
-            {
-                LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when cleaning up SafeStore search handle");
-            }
-        }
-    }
-
-    SafeStoreSearchMethodsImpl::SafeStoreSearchMethodsImpl(std::shared_ptr<ISafeStoreHolder> safeStoreHolder) :
-        m_safeStoreHolder(std::move(safeStoreHolder))
-    {
-    }
-
-    bool SafeStoreSearchMethodsImpl::findFirst(
-        const SafeStoreFilter& filter,
-        SearchHandleHolder& searchHandle,
-        ObjectHandleHolder& objectHandle)
-    {
-        // Convert Filter type to SafeStore_Filter_t
-        SafeStore_Filter_t ssFilter;
-        ssFilter.activeFields = convertFilterFieldsToSafeStoreInt(filter.activeFields);
-        if (!filter.threatId.empty())
-        {
-            if (auto ssThreatId = safeStoreIdFromString(filter.threatId))
-            {
-                ssFilter.threatId = &(ssThreatId.value());
-            }
-        }
-        ssFilter.threatName = filter.threatName.c_str();
-        ssFilter.startTime = filter.startTime;
-        ssFilter.endTime = filter.endTime;
-        ssFilter.objectType = convertObjTypeToSafeStoreObjType(filter.objectType);
-        ssFilter.objectStatus = convertObjStatusToSafeStoreObjStatus(filter.objectStatus);
-        ssFilter.objectLocation = filter.objectLocation.c_str();
-        ssFilter.objectName = filter.objectName.c_str();
-
-        auto returnCode = SafeStore_FindFirst(
-            m_safeStoreHolder->getHandle(), &ssFilter, searchHandle.getRawHandlePtr(), objectHandle.getRawHandlePtr());
-
-        if (returnCode == SR_OK)
-        {
-            return true;
-        }
-        LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when performing FindFirst on SafeStore database");
-        return false;
-    }
-
-    bool SafeStoreSearchMethodsImpl::findNext(SearchHandleHolder& searchHandle, ObjectHandleHolder& objectHandle)
-    {
-        auto returnCode = SafeStore_FindNext(
-            m_safeStoreHolder->getHandle(), searchHandle.getRawHandle(), objectHandle.getRawHandlePtr());
-        if (returnCode == SR_OK)
-        {
-            return true;
-        }
-        LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when performing FindNext on SafeStore database");
-        return false;
     }
 
     SafeStoreGetIdMethodsImpl::SafeStoreGetIdMethodsImpl(std::shared_ptr<ISafeStoreHolder> safeStoreHolder) :

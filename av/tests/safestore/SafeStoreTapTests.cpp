@@ -146,7 +146,6 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndLookupDetails)
     // Find all FILE threats in SafeStore
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = { FilterField::OBJECT_TYPE };
     bool foundAnyResults = false;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -207,7 +206,6 @@ TEST_F(SafeStoreWrapperTapTests, quarantineMultipleThreatsAndLookupDetails)
 
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = { FilterField::OBJECT_TYPE };
 
     std::set<std::string> actualObjectNames;
     std::set<std::string> actualThreatNames;
@@ -255,7 +253,6 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
     // Find all FILE threats in SafeStore
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = { FilterField::OBJECT_TYPE };
     int resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -302,7 +299,6 @@ TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseThreatAndStatusChangesToQu
     // Find all FILE threats in SafeStore
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = { FilterField::OBJECT_TYPE };
     int resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -350,7 +346,6 @@ TEST_F(SafeStoreWrapperTapTests, getObjectHandleAndSetCustomDataUsingIt)
     // Find all FILE threats in SafeStore
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = { FilterField::OBJECT_TYPE };
     int resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -689,7 +684,6 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectByIdAndcheckItIsNoLongerInDatabase)
     // Prove that the object is in the DB before we delete it
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = { FilterField::OBJECT_TYPE };
     int resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -735,7 +729,6 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectByIdHandlesMissingId)
     // Prove that the object is in the DB before we delete it
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = { FilterField::OBJECT_TYPE };
     int resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -788,7 +781,6 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectsByThreatIdAndCheckItIsNoLongerInDa
     // Prove that the object is in the DB before we delete it
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = { FilterField::OBJECT_TYPE };
     int resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -844,7 +836,6 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectsByThreatIdDeletesAllFilesWithSameT
     // Prove that the objects are in the DB before we delete it
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = { FilterField::OBJECT_TYPE };
     int resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -891,7 +882,6 @@ TEST_F(SafeStoreWrapperTapTests, deleteObjectsByThreatIdHandlesMissingId)
     // Prove that the object is in the DB before we delete it
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = { FilterField::OBJECT_TYPE };
     int resultsFound = 0;
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
@@ -943,7 +933,6 @@ TEST_F(SafeStoreWrapperTapTests, objectHandlesThatAreInvalidatedDueToRemovalDoNo
     int resultsFound = 0;
     SafeStoreFilter filter;
     filter.objectType = ObjectType::FILE;
-    filter.activeFields = { FilterField::OBJECT_TYPE };
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
         ++resultsFound;

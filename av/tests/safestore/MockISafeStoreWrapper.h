@@ -11,7 +11,6 @@ using namespace safestore::SafeStoreWrapper;
 class MockISafeStoreWrapper : public ISafeStoreWrapper
 {
 public:
-    MOCK_METHOD(std::unique_ptr<SearchHandleHolder>, createSearchHandleHolder, ());
     MOCK_METHOD(std::unique_ptr<ObjectHandleHolder>, createObjectHandleHolder, ());
     MOCK_METHOD(InitReturnCode, initialise, (const std::string&, const std::string&, const std::string&));
     MOCK_METHOD(
@@ -20,7 +19,7 @@ public:
         (const std::string&, const std::string&, const std::string&, const std::string&, ObjectHandleHolder&));
     MOCK_METHOD(std::optional<uint64_t>, getConfigIntValue, (ConfigOption));
     MOCK_METHOD(bool, setConfigIntValue, (ConfigOption, uint64_t));
-    MOCK_METHOD(SearchResults, find, (const SafeStoreFilter&));
+    MOCK_METHOD(std::vector<ObjectHandleHolder>, find, (const SafeStoreFilter&));
     MOCK_METHOD(std::string, getObjectName, (const ObjectHandleHolder&));
     MOCK_METHOD(ObjectIdType, getObjectId, (const ObjectHandleHolder&));
     MOCK_METHOD(ObjectType, getObjectType, (const ObjectHandleHolder&));
@@ -45,7 +44,6 @@ class MockISafeStoreReleaseMethods : public ISafeStoreReleaseMethods
 {
 public:
     MOCK_METHOD1(releaseObjectHandle, void(SafeStoreObjectHandle));
-    MOCK_METHOD1(releaseSearchHandle, void(SafeStoreSearchHandle));
 };
 
 class MockISafeStoreGetIdMethods : public ISafeStoreGetIdMethods
