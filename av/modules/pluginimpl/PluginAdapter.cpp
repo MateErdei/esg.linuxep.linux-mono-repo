@@ -373,7 +373,7 @@ namespace Plugin
     void PluginAdapter::processDetectionReport(const scan_messages::ThreatDetected& detection,  const common::CentralEnums::QuarantineResult& quarantineResult) const
     {
         LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "'");
-        incrementTelemetryThreatCount(detection.threatName);
+        incrementTelemetryThreatCount(detection.threatName, detection.scanType);
         DetectionReporter::processThreatReport(pluginimpl::generateThreatDetectedXml(detection), m_taskQueue);
         DetectionReporter::publishQuarantineCleanEvent(pluginimpl::generateCoreCleanEventXml(detection, quarantineResult), m_taskQueue);
         publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
@@ -466,16 +466,13 @@ namespace Plugin
 
     }
 
-    void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName)
+    void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName, const scan_messages::E_SCAN_TYPE& scanType)
     {
-        if (threatName == "EICAR-AV-Test")
-        {
-            Common::Telemetry::TelemetryHelper::getInstance().increment("threat-eicar-count", 1ul);
-        }
-        else
-        {
-            Common::Telemetry::TelemetryHelper::getInstance().increment("threat-count", 1ul);
-        }
+        std::string telemetryStr = (scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS) ? "on-access-" : "on-demand-";
+
+        telemetryStr.append((threatName == "EICAR-AV-Test") ? "threat-eicar-count" : "threat-count");
+
+        Common::Telemetry::TelemetryHelper::getInstance().increment(telemetryStr, 1ul);
     }
 
     void PluginAdapter::connectToThreatPublishingSocket(const std::string& pubSubSocketAddress)
