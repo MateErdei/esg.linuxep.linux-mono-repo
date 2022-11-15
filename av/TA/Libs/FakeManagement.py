@@ -71,9 +71,9 @@ class ManagementAgentPluginRequester(object):
     def policy(self, app_id, policy_xml):
         self.logger.info("Sending policy XML to {} via {}, XML:{}".format(self.name, self.__m_socket_path, policy_xml))
 
-        if app_id == "sav":
+        if app_id == "SAV":
             filename = "SAV-2_Policy.xml"
-        elif app_id == "alc":
+        elif app_id == "ALC":
             filename = "ALC-1_Policy.xml"
         elif app_id == "FLAGS":
             filename = "flags.json"

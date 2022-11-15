@@ -6,10 +6,8 @@ Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
-Resource    ../shared/SafeStoreResources.robot
 
 Library         ../Libs/CoreDumps.py
-Library         ../Libs/FakeManagementLog.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/ProcessUtils.py
 
@@ -18,21 +16,21 @@ Library         Collections
 
 Test Setup      ThreatDatabase Test Setup
 Test Teardown   ThreatDatabase Test TearDown
+*** Variables ***
+${THREAT_DATABASE_PATH}        ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
 
 *** Test Cases ***
 Threat is added to Threat database when threat is not quarantined
-    ${fake_management_log_path} =   FakeManagementLog.get_fake_management_log_path
-    Register On Fail  Dump Log  ${fake_management_log_path}
     Start AV
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat: 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef to database   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat: T26796de6ce94770 to database   ${avmark}
     Stop AV
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  File Log Contains  ${THREAT_DATABASE_PATH}  265a4b8a-239b-5f7e-8e4b-c78748cbd7ef
+    ...  File Log Contains  ${THREAT_DATABASE_PATH}  T26796de6ce94770
     ${avmark} =  get_av_log_mark
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
@@ -43,19 +41,19 @@ Threat is added to Threat database when threat is not quarantined
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  File Log Contains  ${THREAT_DATABASE_PATH}  265a4b8a-239b-5f7e-8e4b-c78748cbd7ef
+    ...  File Log Contains  ${THREAT_DATABASE_PATH}  T26796de6ce94770
 
 Threat is removed from Threat database when marked as resolved in central
     Start AV
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat: 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef to database   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat: T26796de6ce94770 to database   ${avmark}
 
     ## Only interested in removals after we send the action
     ${avmark} =  get_av_log_mark
-    ${actionContent} =  Set Variable  <action type="sophos.core.threat.sav.clear"><item id="265a4b8a-239b-5f7e-8e4b-c78748cbd7ef"/></action>
-    Send Plugin Action  av  sav  corr123  ${actionContent}
+    ${actionContent} =  Set Variable  <action type="sophos.core.threat.sav.clear"><item id="T26796de6ce94770"/></action>
+    Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
     wait_for_av_log_contains_after_mark   Removed threat from database   ${avmark}
     wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
@@ -65,7 +63,7 @@ Threat database is cleared when we get a core reset action from central
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat: 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef to database   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat: T26796de6ce94770 to database   ${avmark}
     ${actionContent} =  Set Variable  <action type="sophos.core.threat.reset"/>
     Send Plugin Action  av  core  corr123  ${actionContent}
     wait_for_av_log_contains_after_mark   Resetting threat database due to core reset action   ${avmark}
@@ -74,13 +72,12 @@ Threat database is cleared when we get a core reset action from central
 Threat is removed from Threat database when threat is quarantined
     ${avmark} =  get_av_log_mark
     Start AV
-    # Start AV also starts Safestore
-    Wait Until SafeStore running
+    Start SafeStore Manually
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat: 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef to database   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat: T26796de6ce94770 to database   ${avmark}
     ${avmark} =  get_av_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
@@ -88,7 +85,7 @@ Threat is removed from Threat database when threat is quarantined
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
     wait_for_av_log_contains_after_mark  Quarantine succeeded  ${avmark}
-    wait_for_av_log_contains_after_mark   Removed threat id 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef from database   ${avmark}
+    wait_for_av_log_contains_after_mark   Removed threat id T26796de6ce94770 from database   ${avmark}
     wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
     Stop AV
@@ -100,9 +97,7 @@ Threat is removed from Threat database when threat is quarantined
 
 Threat is not added to Threat database when threat is quarantined
     Start AV
-    # Start AV also starts Safestore
-    Wait Until SafeStore running
-
+    Start SafeStore Manually
     ${avmark} =  get_av_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
@@ -144,6 +139,8 @@ Stop AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
 
 ThreatDatabase Test TearDown
-    run teardown functions
+    Stop AV
+    Stop SafeStore Manually
     Remove File  ${THREAT_DATABASE_PATH}
+    run teardown functions
     Component Test TearDown

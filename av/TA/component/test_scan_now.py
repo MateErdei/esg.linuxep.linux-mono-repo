@@ -14,8 +14,8 @@ def test_scan_now(sspl_mock, av_plugin_instance):
                      r'<csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/></config>'
     action_content = r'<?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" ' \
                      r'subtype="ScanMyComputer" replyRequired="1"/>'
-    agent.send_plugin_policy('av', "sav", policy_content)
-    agent.send_plugin_action('av', 'sav', "123", action_content)
+    agent.send_plugin_policy('av', "SAV", policy_content)
+    agent.send_plugin_action('av', 'SAV', "123", action_content)
     av_plugin_instance.wait_log_contains("Received new Action")
     av_plugin_instance.wait_log_contains("Evaluating Scan Now", 20)
     av_plugin_instance.wait_log_contains("Starting scan Scan Now")
@@ -30,7 +30,7 @@ def test_scan_now_no_config(sspl_mock, av_plugin_instance):
     agent = sspl_mock.management
     action_content = r'<?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" ' \
                      r'subtype="ScanMyComputer" replyRequired="1"/>'
-    agent.send_plugin_action('av', 'sav', "123", action_content)
+    agent.send_plugin_action('av', 'SAV', "123", action_content)
     av_plugin_instance.wait_log_contains("Received new Action")
     # AVP will wait 10 seconds (5 for ALC, 5 for SAV) for the policy to arrive
     av_plugin_instance.wait_log_contains("Evaluating Scan Now", 12)

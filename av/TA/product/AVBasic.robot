@@ -5,11 +5,13 @@ Library         Collections
 Library         DateTime
 Library         Process
 Library         OperatingSystem
+Library         ../Libs/CoreDumps.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/SystemFileWatcher.py
+Library         ../Libs/Telemetry.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    ../shared/ErrorMarkers.robot
@@ -35,7 +37,7 @@ ${HANDLE}
 *** Test Cases ***
 AV Plugin Can Receive Actions
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="Test" id="" subtype="TestAction" replyRequired="1"/>
-    Send Plugin Action  av  sav  corr123  ${actionContent}
+    Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Received new Action
 
 
@@ -49,7 +51,7 @@ AV plugin Can Send Status
     Should Contain  ${status}   <product-version>${version}</product-version>
 
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="123" policyType="2"/></config>
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
 
     Wait For Plugin Status  av  SAV  RevID="123"  Res="Same"  <product-version>${version}</product-version>
 
@@ -58,13 +60,38 @@ AV Plugin Can Process Scan Now
     ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
-    Send Plugin Policy  av  sav  ${policyContent}
-    Send Plugin Action  av  sav  corr123  ${actionContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
     AV Plugin Log Contains With Offset  Received new Action
     AV Plugin Log Contains With Offset  Evaluating Scan Now
     AV Plugin Log Contains With Offset  Starting scan Scan Now
     Check ScanNow Log Exists
+
+
+AV Plugin Scan Now Updates Telemetry Count
+    # reset telemetry count
+    ${telemetryString}=  Get Plugin Telemetry  av
+    Log   ${telemetryString}
+
+    ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
+    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
+    ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
+    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
+    AV Plugin Log Contains With Offset  Received new Action
+    AV Plugin Log Contains With Offset  Evaluating Scan Now
+    AV Plugin Log Contains With Offset  Starting scan Scan Now
+    Check ScanNow Log Exists
+
+    ${telemetryString}=  Get Plugin Telemetry  av
+    Log   ${telemetryString}
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
+
+    Dictionary Should Contain Item   ${telemetryJson}   scan-now-count   ${1}
+
+    av_log_contains_only_one_no_saved_telemetry_per_start
 
 
 Scan Now Configuration Is Correct
@@ -128,7 +155,7 @@ AV Plugin Will Fail Scan Now If No Policy
     Register Cleanup  Exclude Scan As Invalid
 
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
-    Send Plugin Action  av  sav  corr123  ${actionContent}
+    Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Refusing to run invalid scan: INVALID
     AV Plugin Log Contains With Offset  Received new Action
     AV Plugin Log Contains With Offset  Evaluating Scan Now
@@ -155,7 +182,7 @@ AV Plugin Scans local secondary mount only once
     ${scanObjectSet} =  Policy Fragment FS Types  hardDrives=true
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${scanName}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     Wait until scheduled scan updated With Offset
 
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: ${scanName}   timeout=30
@@ -179,13 +206,14 @@ AV Plugin Can Disable Scanning Of Mounted NFS Shares
     Register Cleanup  Remove File      ${source}/eicar.com
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
+    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
 
     Test Remote Share  ${destination}
 
 
 AV Plugin Can Disable Scanning Of Mounted SMB Shares
     [Timeout]  10 minutes
-    [Tags]  cifs
+    [Tags]  SMB
     Start Samba
     Register On Fail   Dump Log  /var/log/samba/log.smbd
     Register On Fail   Dump Log  /var/log/samba/log.nmbd
@@ -224,7 +252,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}<filePath>${eicar_path1}</filePath><filePath>/tmp_test/eicar.?</filePath><filePath>/tmp_test/*.txt</filePath><filePath>eicarStr</filePath></filePathSet></posixExclusions>
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     Wait until scheduled scan updated With Offset
 
     Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=240  interval=5
@@ -239,6 +267,26 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     File Log Should Not Contain  ${myscan_log}  "${eicar_path3}" is infected with EICAR-AV-Test
     File Log Should Not Contain  ${myscan_log}  "${eicar_path4}" is infected with EICAR-AV-Test
     File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test (Scheduled)
+
+
+AV Plugin Scan of Infected File Increases Threat Eicar Count And Reports Suspicious Threat Health
+    Create File      /tmp_test/eicar.com    ${EICAR_STRING}
+    Register Cleanup  Remove File  /tmp_test/eicar.com
+    Remove Files      /file_excluded/eicar.com  /tmp_test/smbshare/eicar.com
+    # Run telemetry to reset counters to 0
+    ${telemetryString}=  Get Plugin Telemetry  av
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
+    Dictionary Should Contain Item   ${telemetryJson}   threatHealth   ${1}
+
+    Run Scan Now Scan
+
+    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240  interval=5
+
+    ${telemetryString}=  Get Plugin Telemetry  av
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
+    Log   ${telemetryJson}
+    Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   ${1}
+    Dictionary Should Contain Item   ${telemetryJson}   threatHealth   ${2}
 
 
 AV Plugin Scan Now Does Not Detect PUA
@@ -326,7 +374,7 @@ AV Plugin Gets Customer ID
 
     ${policyContent} =   Get ALC Policy   userpassword=A  username=B
     Log   ${policyContent}
-    Send Plugin Policy  av  alc  ${policyContent}
+    Send Plugin Policy  av  ${ALC_APPID}  ${policyContent}
 
     ${expectedId} =   Set Variable   a1c0f318e58aad6bf90d07cabda54b7d
 
@@ -349,7 +397,7 @@ AV Plugin Gets Customer ID from Obfuscated Creds
     ...   userpassword=CCD8CFFX8bdCDFtU0+hv6MvL3FoxA0YeSNjJyZJWxz1b3uTsBu5p8GJqsfp3SAByOZw=
     ...   username=ABC123
     Log   ${policyContent}
-    Send Plugin Policy  av  alc  ${policyContent}
+    Send Plugin Policy  av  ${ALC_APPID}  ${policyContent}
 
     # md5(md5("ABC123:password"))
     ${expectedId} =   Set Variable   f5c33e370714d94e1d967e53ac4f0437
@@ -369,7 +417,7 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
 
     ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
     Log    ${policyContent}
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     Wait until scheduled scan updated With Offset
 
     ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
@@ -401,8 +449,8 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     ${exclusions} =  Configure Scan Exclusions Everything Else  /run/netns/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
-    Send Plugin Policy  av  sav  ${policyContent}
-    Send Plugin Action  av  sav  corr123  ${actionContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
     AV Plugin Log Contains With Offset  Received new Action
     AV Plugin Log Contains With Offset  Evaluating Scan Now
@@ -430,21 +478,6 @@ AV Plugin Can Process SafeStore Flag Disabled
 
 
 *** Keywords ***
-Start AV
-    Remove Files   /tmp/av.stdout  /tmp/av.stderr
-    mark av log
-    mark sophos threat detector log
-    Check AV Plugin Not Running
-    Check Threat Detector Not Running
-    Check Threat Detector PID File Does Not Exist
-    ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
-    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
-    Register Cleanup   Terminate And Wait until threat detector not running  ${THREAT_DETECTOR_PLUGIN_HANDLE}
-    ${handle} =  Start Process  ${AV_PLUGIN_BIN}
-    Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
-    Register Cleanup   Terminate And Wait until AV Plugin not running  ${AV_PLUGIN_HANDLE}
-    Check AV Plugin Installed With Offset
-
 AVBasic Suite Setup
     Start Fake Management If Required
     Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
@@ -474,7 +507,7 @@ Product Test Setup
     SystemFileWatcher.Start Watching System Files
     Register Cleanup      SystemFileWatcher.stop watching system files
 
-    Remove File  ${THREAT_DATABASE_PATH}
+    Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
     Start AV
     Component Test Setup
     Delete Eicars From Tmp
@@ -518,7 +551,7 @@ Test Remote Share
     ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=false
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningDisabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningDisabled}  timeout=120  interval=5
     Require Sophos Threat Detector Running
@@ -533,7 +566,7 @@ Test Remote Share
     ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=true
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningEnabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
 
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningEnabled}  timeout=120  interval=5
     Require Sophos Threat Detector Running

@@ -56,6 +56,9 @@ Global Setup Tasks
     Set Global Variable  ${AV_PLUGIN_PATH}                  ${COMPONENT_ROOT_PATH}
     Set Global Variable  ${AV_LOG_PATH}                     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
 
+    Set Global Variable  ${SAV_APPID}                       SAV
+    Set Global Variable  ${ALC_APPID}                       ALC
+
 
     Set Global Variable  ${USING_FAKE_AV_SCANNER_FLAG}       UsingFakeAvScanner
     Set Environment Variable  ${USING_FAKE_AV_SCANNER_FLAG}  false

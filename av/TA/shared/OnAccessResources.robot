@@ -102,7 +102,7 @@ Disable OA Scanning
             ${mark} =  get_on_access_log_mark
     END
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
@@ -118,7 +118,7 @@ Enable OA Scanning
             ${mark} =  get_on_access_log_mark
     END
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}

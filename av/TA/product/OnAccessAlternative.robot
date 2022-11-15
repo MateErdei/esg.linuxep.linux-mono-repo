@@ -142,7 +142,7 @@ On Access Does Not Include Remote Files If Excluded In Policy
 
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
@@ -175,7 +175,7 @@ On Access Applies Config Changes When The Mounts Change
 
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  On-access enabled: "true"  mark=${mark}
     wait for on access log contains after mark  On-access scan network: "false"  mark=${mark}
     wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
@@ -192,7 +192,7 @@ On Access Applies Config Changes When The Mounts Change
 
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
 
     wait for on access log contains after mark  On-access enabled: "true"  mark=${mark}
     wait for on access log contains after mark  On-access scan network: "true"  mark=${mark}
@@ -213,7 +213,7 @@ On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Poli
     ${filepath1} =  Set Variable  /tmp_test/eicar.com
     ${filepath2} =  Set Variable  /tmp_test/eicar2.com
     ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/"]  True
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  On-access exclusions: ["/tmp_test/"]  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions with: ["/tmp_test/"]  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
@@ -224,7 +224,7 @@ On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Poli
     check_on_access_log_does_not_contain_after_mark  On-close event for ${filepath1} from  mark=${mark}
 
     ${policyContent} =  Get Complete Sav Policy  []  True
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  On-access exclusions: []  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
 
@@ -238,7 +238,7 @@ On Access Does Not Scan Files If They Match Relative Directory Exclusion In Poli
 
     ${mark} =  get_on_access_log_mark
     ${policyContent} =  Get Complete Sav Policy  ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  True
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  On-access exclusions: ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions with: ["/testdir/folder_without_wildcard/"] ["*/dir/su*ir/*"] ["*/do*er/*"]  mark=${mark}
     ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_without_wildcard
@@ -278,7 +278,7 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
     ${mark} =  get_on_access_log_mark
     ${exclusionList} =  Set Variable  ["eicar","${TEST_DIR}/eicar.???","${TEST_DIR}/hi_i_am_dangerous.*","${TEST_DIR}/*.js"]
     ${policyContent} =  Get Complete Sav Policy  ${exclusionList}  True
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  On-access exclusions: ${exclusionList}  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions with: ["/eicar"] ["/tmp_test/globExclDir/eicar.???"] ["/tmp_test/globExclDir/hi_i_am_dangerous.*"] ["/tmp_test/globExclDir/*.js"]  mark=${mark}
 
@@ -313,7 +313,7 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
 On Access Does Not Monitor A Mount Point If It Matches An Exclusion In Policy
     ${mark} =  get_on_access_log_mark
     ${policyContent} =  Get Complete Sav Policy  ["/"]  True
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  On-access exclusions: ["/"]  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
     wait for on access log contains after mark  Mount point / matches an exclusion in the policy and will be excluded from the scan  mark=${mark}
@@ -332,7 +332,7 @@ On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In
 
     ${mark} =  get_on_access_log_mark
     ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/bind_mount"]  True
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  On-access exclusions: ["/tmp_test/bind_mount"]  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
     wait for on access log contains after mark  Mount point /tmp_test/bind_mount matches an exclusion in the policy and will be excluded from the scan  mark=${mark}
@@ -348,13 +348,13 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     ${disabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
 
     ${mark} =  get_on_access_log_mark
-    Send Plugin Policy  av  sav  ${disabledPolicyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${disabledPolicyContent}
     wait_for_on_access_log_contains_after_mark  On-access enabled: "false"  mark=${mark}
     wait_for_on_access_log_contains_after_mark  Joining eventReader  mark=${mark}
     Sleep   1s
 
     ${mark} =  get_on_access_log_mark
-    Send Plugin Policy  av  sav  ${enabledPolicyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${enabledPolicyContent}
     wait_for_on_access_log_contains_after_mark  On-access enabled: "true"  mark=${mark}
     wait_for_on_access_log_contains_after_mark  Starting eventReader  mark=${mark}
     Wait for on access to be enabled  ${mark}
@@ -373,12 +373,12 @@ On Access Process Handles Consecutive Process Control Requests
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  New on-access configuration: {"enabled":"true"  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
     wait for on access log contains after mark  New on-access configuration: {"enabled":"false"  mark=${mark}
 
@@ -394,7 +394,7 @@ On Access Process Handles Fast Process Control Requests Last Flag is OA Enabled
     Send Plugin Policy  av  FLAGS  ${enabledFlags}
 
     ${enabledPolicy}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${enabledPolicy}
+    Send Plugin Policy  av  ${SAV_APPID}  ${enabledPolicy}
 
     ${mark} =  get_on_access_log_mark
     ${disabledFlags}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
@@ -419,7 +419,7 @@ On Access Is Disabled By Default If No Flags Policy Arrives
     Disable OA Scanning
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
 
     On-access No Eicar Scan
 
@@ -427,7 +427,7 @@ On Access Is Disabled By Default If No Flags Policy Arrives
 On Access Uses Policy Settings If Flags Dont Override Policy
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
@@ -447,7 +447,7 @@ On Access Is Disabled After it Receives Disable Flags
 
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
 
     wait for on access log contains after mark   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
 
@@ -470,7 +470,7 @@ On Access Does not Use Policy Settings If Flags Have Overriden Policy
 
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  sav  ${policyContent}
+    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
 
     wait for on access log contains after mark    Overriding policy, on-access will be disabled  mark=${mark}
     On-access No Eicar Scan
