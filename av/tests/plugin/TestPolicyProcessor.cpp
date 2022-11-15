@@ -787,7 +787,7 @@ TEST_F(TestPolicyProcessor, determinePolicyTypeSav)
 
 TEST_F(TestPolicyProcessor, determinePolicyTypeUnknownWithAppIdSav)
 {
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return("")); // Constructor reads Customer ID
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     auto attributeMap = Common::XmlUtilities::parseXml("<xml></xml>");
     PolicyProcessorUnitTestClass proc;
@@ -797,7 +797,6 @@ TEST_F(TestPolicyProcessor, determinePolicyTypeUnknownWithAppIdSav)
 
 TEST_F(TestPolicyProcessor, determinePolicyTypeUnknownWithUnkownAppId)
 {
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     auto attributeMap = Common::XmlUtilities::parseXml("<xml></xml>");
     auto policyType = PolicyProcessorUnitTestClass::determinePolicyType(attributeMap, "not a known APP ID");
