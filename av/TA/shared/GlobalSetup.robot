@@ -1,6 +1,7 @@
 *** Settings ***
 
 Library         OperatingSystem
+Library         Process
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/InstallSet.py
 Library         ../Libs/LogUtils.py

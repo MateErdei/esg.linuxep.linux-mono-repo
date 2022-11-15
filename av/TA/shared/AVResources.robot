@@ -970,11 +970,19 @@ Remove ext2 mount
 
 Create Local NFS Share
     [Arguments]  ${source}  ${destination}  ${share_opts}=no_root_squash  ${mount_opts}=defaults
+    Register On Fail If Unique  analyse Journalctl   print_always=True
     Copy File If Destination Missing  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp
     Create File   ${EXPORT_FILE}  ${source} localhost(fsid=1,rw,sync,no_subtree_check,${share_opts})\n
     Register On Fail  Run Process  systemctl  status  nfs-server
     Register On Fail  Dump Log  ${EXPORT_FILE}
-    Run Shell Process   exportfs -ra            OnError=Failed to force NFS server reload
+    Register On Fail  Dump Log  ${EXPORT_FILE}_bkp
+
+    # try exportfs. If that fails, restart nfs-server
+    ${status} =      Run Keyword And Return Status
+    ...     Run Shell Process   exportfs -ra            OnError=Failed to force NFS server reload
+    Run Keyword If   ${status} != True
+    ...     Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server   timeout=60s
+
     Run Shell Process   mount -t nfs localhost:${source} ${destination} -o ${mount_opts}   OnError=Failed to mount local NFS share
     Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
 
@@ -1404,6 +1412,8 @@ Require Filesystem
 
 Require NFS Version
     [Arguments]   ${version}
+    Run Keyword And Ignore Error
+    ...  Run Process  modprobe  nfsd
     ${status}   ${content} =   Run Keyword And Ignore Error     Get File   /proc/fs/nfsd/versions
     Pass Execution If    '${status}' == 'FAIL'
     ...     /proc/fs/nfsd/versions does not exist - cannot determine supported NFS versions
