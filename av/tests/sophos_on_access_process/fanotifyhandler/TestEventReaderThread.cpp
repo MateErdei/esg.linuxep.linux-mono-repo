@@ -242,10 +242,6 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
 TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    log4cplus::Logger threadRunnerLogger = Common::Logging::getInstance("Common");
-    threadRunnerLogger.addAppender(m_sharedAppender);
-
-    WaitForEvent shutdownGuard;
 
     int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData(FAN_OPEN);
@@ -256,9 +252,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
-        .WillOnce(DoAll(
-            InvokeWithoutArgs(&shutdownGuard, &WaitForEvent::waitDefault),
-            pollReturnsWithRevents(0, POLLIN)));
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).Times(2)
         .WillRepeatedly(readReturnsStruct(metadata));
@@ -279,13 +273,12 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
 
     eventReaderThread.requestStopIfNotStopped();
     eventReaderThread.startIfNotStarted();
-    EXPECT_TRUE(waitForLog("Starting eventReader"));
 
     std::stringstream logMsg2;
     logMsg2 << "On-open event for " << filePath2 << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg2.str()));
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 2);
-    shutdownGuard.onEventNoArgs();
 }
 
 TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
