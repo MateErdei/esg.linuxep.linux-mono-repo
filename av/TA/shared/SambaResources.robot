@@ -70,4 +70,6 @@ Reload Samba
 Mount Samba Share
     [Arguments]  ${destination}   ${opts}=defaults
     ${result} =  Run Process   mount  -t  cifs  //localhost/testSamba  ${destination}  -o  guest,${opts}
+    Pass Execution If    'Invalid argument' in $result.stderr
+    ...     ${opts} is not a supported CIFS mount option with this installation - skipping test
     Should Be Equal As Integers  ${result.rc}  ${0}  "Failed to mount local SMB share.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}"
