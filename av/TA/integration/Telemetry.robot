@@ -132,6 +132,95 @@ AV plugin Saves and Restores Scan Now Counter
     Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
     Dictionary Should Contain Item   ${avDict}   threatHealth   ${1}
 
+Command Line Scan Increments On Demand Eicar Detection Count
+    ${dirtyfile} =  Set Variable  /tmp_test/dirty_file.txt
+
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${dirtyfile}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${1}
+
+
+Command Line Scan Increments On Demand Non-Eicar Detection Count
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  /tmp_test/MLengHighScore-excluded.exe
+    Register Cleanup  Remove File  /tmp_test/MLengHighScore-excluded.exe
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-count   ${1}
+
+
+Scheduled Scan Increments On Demand Eicar Detection Count
+    ${dirtyfile} =  Set Variable  /tmp_test/dirty_file.txt
+
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    Create File  ${dirtyfile}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${dirtyfile}
+
+    Mark AV Log
+    Send Sav Policy With Imminent Scheduled Scan To Base Exclusions Added
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
+
+    Wait Until AV Plugin Log Contains With Offset  Completed scan
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${1}
+
+
+Scheduled Scan Increments On Demand Non-Eicar Detection Count
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  /tmp_test/MLengHighScore-excluded.exe
+    Register Cleanup  Remove File  /tmp_test/MLengHighScore-excluded.exe
+
+    Mark AV Log
+    Send Sav Policy With Imminent Scheduled Scan To Base Exclusions Added
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
+
+    Wait Until AV Plugin Log Contains With Offset  Completed scan
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Contain Item   ${avDict}   on-demand-threat-count   ${1}
+
 
 Scan Now Increments On Demand Eicar Detection Count
     ${dirtyfile} =  Set Variable  /tmp_test/dirty_file.txt
