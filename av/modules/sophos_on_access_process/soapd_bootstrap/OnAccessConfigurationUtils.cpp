@@ -15,6 +15,38 @@
 namespace fs = sophos_filesystem;
 using json = nlohmann::json;
 
+namespace
+{
+    bool toBoolean(const json::value_type& value)
+    {
+        if (value.is_boolean())
+        {
+            return value.get<bool>();
+        }
+        if (value.is_string())
+        {
+            return sophos_on_access_process::OnAccessConfig::isSettingTrue(value.get<std::string>());
+        }
+        if (value.is_number())
+        {
+            return value.get<int>() != 0;
+        }
+        throw std::runtime_error("Can't convert JSON value to boolean");
+    }
+
+    bool toBoolean(const json& parsedConfig, const std::string& key, bool defaultValue)
+    {
+        try
+        {
+            return toBoolean(parsedConfig.at(key));
+        }
+        catch (const json::out_of_range&)
+        {
+            return defaultValue;
+        }
+    }
+}
+
 namespace sophos_on_access_process::OnAccessConfig
 {
     fs::path policyConfigFilePath()
@@ -165,11 +197,12 @@ namespace sophos_on_access_process::OnAccessConfig
             parsedConfig = json::parse(jsonString);
 
             OnAccessConfiguration configuration{};
-            auto enabled = parsedConfig.value("enabled", "false");
-            configuration.enabled = isSettingTrue(enabled);
-            LOGINFO("On-access enabled: \"" << enabled << "\"");
-            configuration.excludeRemoteFiles = isSettingTrue(parsedConfig.value("excludeRemoteFiles", "false"));
-            std::string scanNetwork = configuration.excludeRemoteFiles ? "\"false\"" : "\"true\"";
+            configuration.enabled = toBoolean(parsedConfig, "enabled", false);
+            LOGINFO("On-access enabled: " << (configuration.enabled ? "true" : "false")  << "");
+
+
+            configuration.excludeRemoteFiles = toBoolean(parsedConfig, "excludeRemoteFiles", false);
+            std::string scanNetwork = configuration.excludeRemoteFiles ? "false" : "true";
             LOGINFO("On-access scan network: " << scanNetwork);
             if (parsedConfig.contains("exclusions"))
             {
