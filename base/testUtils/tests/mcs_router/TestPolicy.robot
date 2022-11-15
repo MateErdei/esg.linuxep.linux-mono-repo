@@ -101,7 +101,7 @@ SAV Policy with Chinese characters is written to File
     Start MCSRouter
     Check Default Policies Exist
     ${chinesepolicy}=  Set Variable  ${SUPPORT_FILES}/CentralXml/SAV_policy_with_chinese.xml
-    Send Policy File  sav  ${chinesepolicy}
+    Send Policy File  SAV  ${chinesepolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
