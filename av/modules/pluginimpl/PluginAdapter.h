@@ -95,8 +95,8 @@ namespace Plugin
         /**
          *
          * @param policyXml
+         * @param policyWaiter - Object that stores whether we've received all policies or not
          * @param appId OUT - the appId for the policy
-         * @return whether policy has been updated
          */
         void processPolicy(const std::string& policyXml, const PolicyWaiterSharedPtr& policyWaiter, const std::string& appId);
         void processAction(const std::string& actionXml);

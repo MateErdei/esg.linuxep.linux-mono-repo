@@ -20,6 +20,15 @@ namespace Plugin
         UNKNOWN
     };
 
+    /**
+     * The policy is semantically invalid
+     */
+    class InvalidPolicyException : public std::runtime_error
+    {
+    public:
+        using std::runtime_error::runtime_error;
+    };
+
     class PolicyProcessor
     {
     public:
@@ -44,7 +53,7 @@ namespace Plugin
 
         void processSavPolicy(const Common::XmlUtilities::AttributesMap& policy);
 
-        void processOnAccessPolicy(const Common::XmlUtilities::AttributesMap& policy);
+        void processCOREpolicy(const Common::XmlUtilities::AttributesMap& policy);
 
         void processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy);
 
@@ -64,6 +73,8 @@ namespace Plugin
 
     protected:
         virtual void notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE requestType);
+
+        void processOnAccessSettingsFromCOREpolicy(const Common::XmlUtilities::AttributesMap& policy);
 
     private:
         void processOnAccessFlagSettings(const nlohmann::json& flagsJson);

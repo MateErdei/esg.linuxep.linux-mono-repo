@@ -69,32 +69,16 @@ std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ThreatDet
 }
 
 std::string pluginimpl::generateOnAccessConfig(
-    const std::string& isEnabled,
+    bool isEnabled,
     const std::vector<std::string>& exclusionList,
-    const std::string& excludeRemoteFiles)
+    bool excludeRemoteFiles)
 {
     json config;
     json exclusions(exclusionList);
 
     config["exclusions"] = exclusions;
-
-    if (isEnabled != "true")
-    {
-        config["enabled"] = "false";
-    }
-    else
-    {
-        config["enabled"] = "true";
-    }
-
-    if (excludeRemoteFiles != "true")
-    {
-        config["excludeRemoteFiles"] = "false";
-    }
-    else
-    {
-        config["excludeRemoteFiles"] = "true";
-    }
+    config["enabled"] = isEnabled;
+    config["excludeRemoteFiles"] = excludeRemoteFiles;
 
     return config.dump();
 }

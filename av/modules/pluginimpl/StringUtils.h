@@ -15,9 +15,9 @@ namespace pluginimpl
     std::string generateThreatDetectedXml(const scan_messages::ThreatDetected& detection);
     std::string generateThreatDetectedJson(const scan_messages::ThreatDetected& detection);
     std::string generateOnAccessConfig(
-        const std::string&,
+        bool enabled,
         const std::vector<std::string>& exclusionList,
-        const std::string& excludeRemoteFiles);
+        bool excludeRemoteFiles);
     std::string generateCoreCleanEventXml(
         const scan_messages::ThreatDetected& detection,
         const common::CentralEnums::QuarantineResult& quarantineResult);

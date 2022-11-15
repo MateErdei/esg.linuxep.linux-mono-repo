@@ -1046,108 +1046,6 @@ TEST_F(TestPolicyProcessor, processSavPolicyInvalid)
     EXPECT_TRUE(proc.restartThreatDetector());
 }
 
-TEST_F(TestPolicyProcessor, processOnAccessPolicyEnabled)
-{
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           R"sophos({"enabled":"true","excludeRemoteFiles":"false","exclusions":["x","y"]})sophos",
-                                                           _,
-                                                           0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
-<config>
-    <onAccessScan>
-        <enabled>true</enabled>
-        <linuxExclusions>
-          <filePathSet>
-            <filePath>x</filePath>
-            <filePath>y</filePath>
-          </filePathSet>
-          <excludeRemoteFiles>false</excludeRemoteFiles>
-        </linuxExclusions>
-    </onAccessScan>
-</config>
-)sophos";
-    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-
-    proc.processOnAccessPolicy(attributeMap);
-
-    auto telemetryStr = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    auto telemetry = nlohmann::json::parse(telemetryStr);
-    EXPECT_EQ(telemetry["onAccessConfigured"], true);
-}
-
-TEST_F(TestPolicyProcessor, processOnAccessPolicyDisabled)
-{
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":["x","y"]})sophos",
-                                                           _,
-                                                           0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
-<config>
-    <onAccessScan>
-        <enabled>false</enabled>
-        <linuxExclusions>
-          <filePathSet>
-            <filePath>x</filePath>
-            <filePath>y</filePath>
-          </filePathSet>
-          <excludeRemoteFiles>false</excludeRemoteFiles>
-        </linuxExclusions>
-    </onAccessScan>
-</config>
-)sophos";
-    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-
-    proc.processOnAccessPolicy(attributeMap);
-
-    // Verify the telemetry is updated
-    auto telemetryStr = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    auto telemetry = nlohmann::json::parse(telemetryStr);
-    EXPECT_EQ(telemetry["onAccessConfigured"], false);
-}
-
-TEST_F(TestPolicyProcessor, processInvalidOnAccessPolicy)
-{
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           R"sophos({"enabled":"false","excludeRemoteFiles":"false","exclusions":["x","y"]})sophos",
-                                                           _,
-                                                           0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
-<config>
-    <onAccessScan>
-        <enabled>this is supposed to be true/false</enabled>
-        <linuxExclusions>
-          <filePathSet>
-            <filePath>x</filePath>
-            <filePath>y</filePath>
-          </filePathSet>
-          <excludeRemoteFiles>this is supposed to be true/false</excludeRemoteFiles>
-        </linuxExclusions>
-    </onAccessScan>
-</config>
-)sophos";
-    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-
-    proc.processOnAccessPolicy(attributeMap);
-}
-
 TEST_F(TestPolicyProcessor, testProcessFlagSettingsEnabled)
 {
     UsingMemoryAppender memAppend(*this);
@@ -1294,6 +1192,23 @@ TEST_F(TestPolicyProcessor, determinePolicyTypeUnknownWithUnkownAppId)
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     auto attributeMap = Common::XmlUtilities::parseXml("<xml></xml>");
+    auto policyType = PolicyProcessorUnitTestClass::determinePolicyType(attributeMap, "not a known APP ID");
+    ASSERT_EQ(policyType, Plugin::PolicyType::UNKNOWN);
+}
+
+// TO BE DELETED ------------------------------------------
+
+
+TEST_F(TestPolicyProcessor, DISABLED_processOnAccessPolicyEnabled)
+{
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           R"sophos({"enabled":"true","excludeRemoteFiles":"false","exclusions":["x","y"]})sophos",
+                                                           _,
+                                                           0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
     PolicyProcessorUnitTestClass proc;
     auto policyType = PolicyProcessorUnitTestClass::determinePolicyType(attributeMap, "not a known APP ID");
     ASSERT_EQ(policyType, Plugin::PolicyType::UNKNOWN);

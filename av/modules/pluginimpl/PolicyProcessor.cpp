@@ -23,6 +23,24 @@
 
 using json = nlohmann::json;
 
+namespace
+{
+    bool boolFromString(const std::string& s)
+    {
+        if (s == "true")
+        {
+            return true;
+        }
+        if (s == "false")
+        {
+            return false;
+        }
+        std::ostringstream ost;
+        ost << "Unable to convert " << s << " to boolean";
+        throw Plugin::InvalidPolicyException(ost.str());
+    }
+}
+
 namespace Plugin
 {
     namespace
@@ -169,35 +187,6 @@ namespace Plugin
         processController.sendProcessControlRequest(processControlRequest);
     }
 
-    void PolicyProcessor::processOnAccessPolicy(const Common::XmlUtilities::AttributesMap& policy)
-    {
-        LOGINFO("Processing On Access Scanning settings");
-
-        auto excludeRemoteFiles = policy.lookup("config/onAccessScan/linuxExclusions/excludeRemoteFiles").contents();
-        auto exclusionList = extractListFromXML(policy, "config/onAccessScan/linuxExclusions/filePathSet/filePath");
-        // TODO: LINUXDAR-5352 update the xml path, this setting will be off by default
-        auto enabled = policy.lookup("config/onAccessScan/enabled").contents();
-        auto config = pluginimpl::generateOnAccessConfig(enabled, exclusionList, excludeRemoteFiles);
-
-        try
-        {
-            auto* fs = Common::FileSystem::fileSystem();
-            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-            fs->writeFileAtomically(getSoapConfigPath(), config, tempDir, 0640);
-        }
-        catch (const Common::FileSystem::IFileSystemException& e)
-        {
-            LOGERROR(
-                "Failed to write On Access Config, Sophos On Access Process will use the default settings "
-                << e.what());
-            return;
-        }
-
-        notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
-
-        setOnAccessConfiguredTelemetry(enabled == "true");
-    }
-
     void PolicyProcessor::setOnAccessConfiguredTelemetry(bool enabled)
     {
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
@@ -208,10 +197,8 @@ namespace Plugin
 
     void PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
-        processOnAccessPolicy(policy);
-
-        bool oldLookupEnabled = m_threatDetectorSettings.isSxlLookupEnabled();
-        m_threatDetectorSettings.setSxlLookupEnabled(isLookupEnabled(policy));
+        bool oldLookupEnabled = m_lookupEnabled;
+        m_lookupEnabled = isLookupEnabled(policy);
 
         if (m_gotFirstSavPolicy && m_threatDetectorSettings.isSxlLookupEnabled() == oldLookupEnabled)
         {
@@ -356,6 +343,39 @@ namespace Plugin
         }
         return PolicyType::UNKNOWN;
     }
+    void PolicyProcessor::processCOREpolicy(const Common::XmlUtilities::AttributesMap& policy)
+    {
+        processOnAccessSettingsFromCOREpolicy(policy);
+    }
+
+    void PolicyProcessor::processOnAccessSettingsFromCOREpolicy(const Common::XmlUtilities::AttributesMap& policy)
+    {
+        LOGINFO("Processing On Access Scanning settings");
+        auto enabled = boolFromString(policy.lookup("policy/onAccessScan/enabled").contents());
+
+        // Assuming the Linux exclusions are put into the generic location in the XML
+
+        auto excludeRemoteFiles = boolFromString(
+            policy.lookup("policy/onAccessScan/exclusions/excludeRemoteFiles").contents());
+        auto exclusionList = extractListFromXML(policy, "policy/onAccessScan/exclusions/filePathSet/filePath");
+        auto config = pluginimpl::generateOnAccessConfig(enabled, exclusionList, excludeRemoteFiles);
+
+        try
+        {
+            auto* fs = Common::FileSystem::fileSystem();
+            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+            fs->writeFileAtomically(getSoapConfigPath(), config, tempDir, 0640);
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR("Failed to write On Access Config, Sophos On Access Process will use the default settings " << e.what());
+            return;
+        }
+
+        notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+        setOnAccessConfiguredTelemetry(enabled);
+    }
+}
 
     void PolicyProcessor::processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {

@@ -302,7 +302,8 @@ namespace Plugin
             }
             else if (policyType == PolicyType::CORE)
             {
-                LOGDEBUG("Processing of CORE policy not implemented");
+                m_policyProcessor.processCOREpolicy(attributeMap);
+                policyWaiter->gotPolicy("CORE");
             }
             else if (policyType == PolicyType::UNKNOWN)
             {
