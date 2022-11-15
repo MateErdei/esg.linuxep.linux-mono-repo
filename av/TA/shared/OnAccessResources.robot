@@ -147,21 +147,29 @@ On-access Scan Eicar Close
 
 
 On-access Scan Eicar Open
-    [Arguments]     ${create-filepath}=/tmp_test/excluded-eicar.com
+    ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
 
-    Create File  ${create-filepath}  ${EICAR_STRING}
+    # create a file without generating fanotify events
+    ${oamark} =  get_on_access_log_mark
+    Create File  ${dirtyfile}-excluded  ${EICAR_STRING}
+    Register Cleanup   Register Cleanup  Remove File  ${dirtyfile}-excluded
 
-    ${filepath} =  Set Variable  /tmp_test/eicar.com
-    Register Cleanup  Remove File  ${filepath}
+    #Generate another event we can expect in logs
+    Create File  ${cleanfile}  ${CLEAN_STRING}
+    Register Cleanup   Remove File   ${cleanfile}
+    wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
 
-    Move File   ${create-filepath}  ${filepath}
+    #Move the first file which doesnt generate a event
+    Move File   ${dirtyfile}-excluded   ${dirtyfile}
+    Register Cleanup   Remove File   ${dirtyfile}
 
     ${mark} =  get_on_access_log_mark
 
-    Get File   ${filepath}
+    Get File   ${dirtyfile}
 
-    wait_for_on_access_log_contains_after_mark  On-open event for ${filepath} from  mark=${mark}
-    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with      mark=${mark}
+    wait_for_on_access_log_contains_after_mark  On-open event for ${dirtyfile} from  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  "${dirtyfile}" is infected with      mark=${mark}
 
 
 On-access No Eicar Scan
