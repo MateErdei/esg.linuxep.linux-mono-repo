@@ -1,48 +1,52 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include <Common/Process/IProcess.h>
 #include <Common/Process/IProcessInfo.h>
+#include <Common/Threads/NotifyPipe.h>
 
 #include <chrono>
 
-namespace Common
+namespace Common::ProcessMonitoring
 {
-    namespace ProcessMonitoring
+    class IProcessProxy
     {
-        class IProcessProxy
-        {
-        public:
-            virtual ~IProcessProxy() = default;
+    public:
+        virtual ~IProcessProxy() = default;
 
-            /**
-             * Stops the process if it is running.
-             */
-            virtual void stop() = 0;
+        /**
+         * Stops the process if it is running.
+         */
+        virtual void stop() = 0;
 
-            virtual std::pair<std::chrono::seconds, Process::ProcessStatus> checkForExit() = 0;
+        using exit_status_t = std::pair<std::chrono::seconds, Process::ProcessStatus>;
 
-            /**
-             * If process is enabled, and is not running, and enough time has passed, start process.
-             * If process is enabled, and is not running, and enough time has not passed, return amount of time to wait.
-             * If process is disabled, and is running, stop process.
-             *
-             * @return How many seconds to wait before we are ready to start again, 3600 if we are running already
-             */
-            virtual std::chrono::seconds ensureStateMatchesOptions() = 0;
+        virtual exit_status_t checkForExit() = 0;
 
-            virtual void setEnabled(bool enabled) = 0;
-            virtual bool isRunning() = 0;
+        /**
+         * If process is enabled, and is not running, and enough time has passed, start process.
+         * If process is enabled, and is not running, and enough time has not passed, return amount of time to wait.
+         * If process is disabled, and is running, stop process.
+         *
+         * @return How many seconds to wait before we are ready to start again, 3600 if we are running already
+         */
+        virtual std::chrono::seconds ensureStateMatchesOptions() = 0;
 
-            virtual std::string name() const = 0;
-            virtual void setCoreDumpMode(const bool mode) = 0;
-        };
-        using IProcessProxyPtr = std::unique_ptr<IProcessProxy>;
-        extern IProcessProxyPtr createProcessProxy(Common::Process::IProcessInfoPtr processInfoPtr);
-    } // namespace ProcessMonitoring
-} // namespace Common
+        virtual void setEnabled(bool enabled) = 0;
+        virtual bool isRunning() = 0;
+
+        [[nodiscard]] virtual std::string name() const = 0;
+        virtual void setCoreDumpMode(bool mode) = 0;
+
+        using NotifyPipeSharedPtr = std::shared_ptr<Common::Threads::NotifyPipe>;
+        /**
+         * Set the pipe that should be notified when the process terminates.
+         * (When BoostProcessHolder callback to us)
+         * @param pipe
+         */
+        virtual void setTerminationCallbackNotifyPipe(NotifyPipeSharedPtr pipe) = 0;
+    };
+    using IProcessProxyPtr = std::unique_ptr<IProcessProxy>;
+    extern IProcessProxyPtr createProcessProxy(Common::Process::IProcessInfoPtr processInfoPtr);
+} // namespace Common::ProcessMonitoring

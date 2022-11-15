@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #ifndef ARTISANBUILD
 #include "gtest/gtest.h"
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
@@ -204,7 +201,7 @@ void TestWatchdogAndWdctl::TearDownTestCase()
     tempDir.reset(nullptr);
 }
 
-TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog) // NOLINT
+TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog)
 {
     {
         // Test uses real user on the machine to start process, so need to make sure the correct user and group ids are obtained.

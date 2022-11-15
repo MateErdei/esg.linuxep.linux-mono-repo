@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 #include "ProcessProxy.h"
 
@@ -16,257 +12,280 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <cassert>
 
-namespace Common
+namespace Common::ProcessMonitoringImpl
 {
-    namespace ProcessMonitoringImpl
+    ProcessProxy::ProcessSharedState::ProcessSharedState() :
+        m_mutex{},
+        m_enabled(true),
+        m_running(false),
+        m_process(Common::Process::createProcess()),
+        m_deathTime(0),
+        m_killIssuedTime(0)
     {
-        ProcessProxy::ProcessSharedState::ProcessSharedState() :
-            m_mutex{},
-            m_enabled(true),
-            m_running(false),
-            m_process(Common::Process::createProcess()),
-            m_deathTime(0),
-            m_killIssuedTime(0)
-        {
-        }
+    }
 
-        ProcessProxy::ProcessProxy(Common::Process::IProcessInfoPtr processInfo) :
-            m_processInfo(std::move(processInfo)), m_sharedState()
+    ProcessProxy::ProcessProxy(Common::Process::IProcessInfoPtr processInfo) :
+        m_processInfo(std::move(processInfo)), m_sharedState()
+    {
+        m_exe = m_processInfo->getExecutableFullPath();
+        if ((!m_exe.empty()) && m_exe[0] != '/')
         {
-            m_exe = m_processInfo->getExecutableFullPath();
-            if ((!m_exe.empty()) && m_exe[0] != '/')
-            {
-                // Convert relative path to absolute path relative to installation directory
-                std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-                m_exe = Common::FileSystem::join(INST, m_exe);
-            }
-            assert(m_sharedState.m_process != nullptr);
-            m_sharedState.m_process->setOutputLimit(1024 * 1024);
-        }
-
-        void ProcessProxy::start()
-        {
-            m_processInfo->refreshUserAndGroupIds();
-            std::pair<bool, uid_t> userId = m_processInfo->getExecutableUser();
-            std::pair<bool, gid_t> groupId = m_processInfo->getExecutableGroup();
+            // Convert relative path to absolute path relative to installation directory
             std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-            m_exe = Common::FileSystem::join(INST, m_processInfo->getExecutableFullPath());
+            m_exe = Common::FileSystem::join(INST, m_exe);
+        }
+        assert(m_sharedState.m_process != nullptr);
+        m_sharedState.m_process->setOutputLimit(1024 * 1024);
+        m_sharedState.m_process->setNotifyProcessFinishedCallBack([this](){
+                                                                      LOGDEBUG("Notify process finished callback called");
+                                                                      m_termination_callback_called.store(true);
+                                                                      m_processTerminationCallbackPipe->notify(); // Will definitely happen after the store
+                                                                  });
+    }
 
-            if (!FileSystem::fileSystem()->isFile(m_exe))
-            {
-                LOGINFO("Executable does not exist at : " << m_exe);
-                return;
-            }
+    void ProcessProxy::start()
+    {
+        m_processInfo->refreshUserAndGroupIds();
+        std::pair<bool, uid_t> userId = m_processInfo->getExecutableUser();
+        std::pair<bool, gid_t> groupId = m_processInfo->getExecutableGroup();
+        std::string INST = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+        m_exe = Common::FileSystem::join(INST, m_processInfo->getExecutableFullPath());
 
-            if (!userId.first || !groupId.first)
-            {
-                LOGERROR("Not starting plugin: invalid user name or group name");
-                return;
-            }
+        if (!FileSystem::fileSystem()->isFile(m_exe))
+        {
+            LOGINFO("Executable does not exist at : " << m_exe);
+            return;
+        }
 
-            LOGINFO("Starting " << m_exe);
+        if (!userId.first || !groupId.first)
+        {
+            LOGERROR("Not starting plugin: invalid user name or group name");
+            return;
+        }
+
+        LOGINFO("Starting " << m_exe);
+        assert(m_sharedState.m_process != nullptr);
+        m_sharedState.m_killIssuedTime = 0;
+        m_termination_callback_called = false;
+        // Add in the installation directory to the environment variables used when starting all plugins
+        Common::Process::EnvPairs envVariables = m_processInfo->getExecutableEnvironmentVariables();
+        envVariables.emplace_back(
+            "SOPHOS_INSTALL", Common::ApplicationConfiguration::applicationPathManager().sophosInstall());
+
+        m_sharedState.m_process->exec(
+            m_exe, m_processInfo->getExecutableArguments(), envVariables, userId.second, groupId.second);
+        m_sharedState.m_running = true;
+    }
+
+    void ProcessProxy::stop()
+    {
+        std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
+        lock_acquired_stop();
+    }
+    void ProcessProxy::lock_acquired_stop()
+    {
+        if (m_exe.empty())
+        {
+            return;
+        }
+
+        if (m_sharedState.m_running)
+        {
+            m_sharedState.m_killIssuedTime = Common::UtilityImpl::TimeUtils::getCurrTime();
+            LOGINFO("Stopping " << m_exe);
             assert(m_sharedState.m_process != nullptr);
-            m_sharedState.m_killIssuedTime = 0;
-            // Add in the installation directory to the environment variables used when starting all plugins
-            Common::Process::EnvPairs envVariables = m_processInfo->getExecutableEnvironmentVariables();
-            envVariables.emplace_back(
-                "SOPHOS_INSTALL", Common::ApplicationConfiguration::applicationPathManager().sophosInstall());
+            m_sharedState.m_process->kill(m_processInfo->getSecondsToShutDown());
+        }
+    }
 
-            m_sharedState.m_process->exec(
-                m_exe, m_processInfo->getExecutableArguments(), envVariables, userId.second, groupId.second);
-            m_sharedState.m_running = true;
+    Common::Process::ProcessStatus ProcessProxy::status()
+    {
+        if (m_exe.empty())
+        {
+            return Common::Process::ProcessStatus::FINISHED;
+        }
+        assert(m_sharedState.m_process != nullptr);
+        return m_sharedState.m_process->getStatus();
+    }
+
+    int ProcessProxy::exitCode()
+    {
+        if (m_exe.empty())
+        {
+            return -1;
+        }
+        assert(m_sharedState.m_process != nullptr);
+        int code = m_sharedState.m_process->exitCode();
+
+        std::string output = m_sharedState.m_process->output();
+        LOGINFO("Output: " << output);
+
+        return code;
+    }
+
+    ProcessProxy::exit_status_t ProcessProxy::checkForExit()
+    {
+        std::unique_lock<std::mutex> lock(m_sharedState.m_mutex);
+        Process::ProcessStatus statusCode;
+        if (m_termination_callback_called)
+        {
+            m_termination_callback_called = false;
+
+            LOGINFO("Waiting for "<<m_exe<<" to exit");
+            auto start = std::chrono::steady_clock::now();
+            // In the process of terminating, so need to wait for exit
+            using Common::Process::Milliseconds;
+            lock.unlock(); // Lock has to be released while we wait, since callback could take it
+            statusCode = m_sharedState.m_process->wait(Milliseconds{10}, 10);
+            lock.lock();
+            auto end = std::chrono::steady_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+            LOGDEBUG("Finished waiting for "<<m_exe<<" to exit after "<<duration.count() << "ms");
+        }
+        else
+        {
+            statusCode = status();
         }
 
-        void ProcessProxy::stop()
+        if (!m_sharedState.m_running)
         {
-            std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
-            lock_acquired_stop();
+            // Don't print out multiple times
+            return {std::chrono::hours(1), statusCode};
         }
-        void ProcessProxy::lock_acquired_stop()
+        if (statusCode == Common::Process::ProcessStatus::FINISHED)
         {
-            if (m_exe.empty())
+            int code = exitCode();
+            m_sharedState.m_lastExit = code;
+            if (code != 0)
             {
-                return;
-            }
-
-            if (m_sharedState.m_running)
-            {
-                m_sharedState.m_killIssuedTime = Common::UtilityImpl::TimeUtils::getCurrTime();
-                LOGINFO("Stopping " << m_exe);
-                assert(m_sharedState.m_process != nullptr);
-                m_sharedState.m_process->kill(m_processInfo->getSecondsToShutDown());
-            }
-        }
-
-        Common::Process::ProcessStatus ProcessProxy::status()
-        {
-            if (m_exe.empty())
-            {
-                return Common::Process::ProcessStatus::FINISHED;
-            }
-            assert(m_sharedState.m_process != nullptr);
-            return m_sharedState.m_process->getStatus();
-        }
-
-        int ProcessProxy::exitCode()
-        {
-            if (m_exe.empty())
-            {
-                return -1;
-            }
-            assert(m_sharedState.m_process != nullptr);
-            int code = m_sharedState.m_process->exitCode();
-
-            std::string output = m_sharedState.m_process->output();
-            LOGINFO("Output: " << output);
-
-            return code;
-        }
-
-        std::pair<std::chrono::seconds, Process::ProcessStatus> ProcessProxy::checkForExit()
-        {
-            std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
-            auto statusCode = status();
-            if (!m_sharedState.m_running)
-            {
-                // Don't print out multiple times
-                return std::pair<std::chrono::seconds, Process::ProcessStatus>(std::chrono::hours(1), statusCode);
-            }
-            if (statusCode == Common::Process::ProcessStatus::FINISHED)
-            {
-                int code = exitCode();
-                m_sharedState.m_lastExit = code;
-                if (code != 0)
+                if (code == ECANCELED)
                 {
-                    if (code == ECANCELED)
+                    if (m_sharedState.m_killIssuedTime != 0)
                     {
-                        if (m_sharedState.m_killIssuedTime != 0)
-                        {
-                            time_t secondsElapsed =
-                                Common::UtilityImpl::TimeUtils::getCurrTime() - m_sharedState.m_killIssuedTime;
-                            LOGWARN(
-                                m_exe << " killed after waiting for " << secondsElapsed
-                                      << " seconds for it to stop cleanly");
-                        }
-                        else
-                        {
-                            LOGERROR(m_exe << " was forcefully stopped. Code=ECANCELED.");
-                        }
-                    }
-                    else if (code == RESTART_EXIT_CODE)
-                    {
-                        LOGINFO(m_exe << " exited with " << code << " to be restarted");
+                        time_t secondsElapsed =
+                            Common::UtilityImpl::TimeUtils::getCurrTime() - m_sharedState.m_killIssuedTime;
+                        LOGWARN(
+                            m_exe << " killed after waiting for " << secondsElapsed
+                                  << " seconds for it to stop cleanly");
                     }
                     else
                     {
-                        // Always log if the process exited with a non-zero code
-                        LOGERROR(m_exe << " died with " << code);
+                        LOGERROR(m_exe << " was forcefully stopped. Code=ECANCELED.");
                     }
                 }
-                else if (m_sharedState.m_enabled)
+                else if (code == RESTART_EXIT_CODE)
                 {
-                    // Log if we weren't expecting the process to exit, even with a zero code
-                    // this can happen when the plugin stops itself eg when edr changes flags
-                    LOGINFO(m_exe << " exited");
-                    // Process will be respawned automatically after a delay
+                    LOGINFO(m_exe << " exited with " << code << " to be restarted");
                 }
-
-                m_sharedState.m_running = false;
-                m_sharedState.m_deathTime = ::time(nullptr);
-            }
-            else if (!m_sharedState.m_enabled)
-            {
-                LOGWARN(m_exe << " still running, despite being disabled: " << (int)statusCode);
-                return std::pair<std::chrono::seconds, Process::ProcessStatus>(std::chrono::seconds(5), statusCode);
-            }
-            return std::pair<std::chrono::seconds, Process::ProcessStatus>(std::chrono::hours(1), statusCode);
-        }
-
-        std::chrono::seconds ProcessProxy::ensureStateMatchesOptions()
-        {
-            std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
-            if (!m_sharedState.m_enabled)
-            {
-                if (m_sharedState.m_running)
+                else
                 {
-                    // Running and we don't want it - stop it
-                    lock_acquired_stop();
+                    // Always log if the process exited with a non-zero code
+                    LOGERROR(m_exe << " died with " << code);
                 }
-                // We don't want it running - wait a long time before calling again
-                return std::chrono::hours(1);
             }
-            else if (m_sharedState.m_running)
+            else if (m_sharedState.m_enabled)
             {
-                // Running and we want it running, so wait a long time before calling again
-                return std::chrono::hours(1);
+                // Log if we weren't expecting the process to exit, even with a zero code
+                // this can happen when the plugin stops itself eg when edr changes flags
+                LOGINFO(m_exe << " exited");
+                // Process will be respawned automatically after a delay
             }
 
-            // Restart immediately if last exit was with RESTART_EXIT_CODE
-            time_t now = ::time(nullptr);
-            if (m_sharedState.m_lastExit == RESTART_EXIT_CODE || (now - m_sharedState.m_deathTime) > 10)
+            m_sharedState.m_running = false;
+            m_sharedState.m_deathTime = ::time(nullptr);
+        }
+        else if (!m_sharedState.m_enabled)
+        {
+            LOGWARN(m_exe << " still running, despite being disabled: " << (int)statusCode);
+            return {std::chrono::seconds(5), statusCode};
+        }
+        return {std::chrono::hours(1), statusCode};
+    }
+
+    std::chrono::seconds ProcessProxy::ensureStateMatchesOptions()
+    {
+        std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
+        if (!m_sharedState.m_enabled)
+        {
+            if (m_sharedState.m_running)
             {
-                start();
-                return std::chrono::hours(1);
+                // Running and we don't want it - stop it
+                lock_acquired_stop();
             }
-            else
-            {
-                LOGDEBUG("Not starting " << m_exe);
-                return std::chrono::seconds(10 - (now - m_sharedState.m_deathTime));
-            }
+            // We don't want it running - wait a long time before calling again
+            return std::chrono::hours(1);
         }
-
-        void ProcessProxy::setCoreDumpMode(const bool mode)
+        else if (m_sharedState.m_running)
         {
-            m_sharedState.m_process->setCoreDumpMode(mode);
+            // Running and we want it running, so wait a long time before calling again
+            return std::chrono::hours(1);
         }
 
-        ProcessProxy::~ProcessProxy() noexcept
+        // Restart immediately if last exit was with RESTART_EXIT_CODE
+        time_t now = ::time(nullptr);
+        if (m_sharedState.m_lastExit == RESTART_EXIT_CODE || (now - m_sharedState.m_deathTime) > 10)
         {
-            try
-            {
-                // cppcheck-suppress virtualCallInConstructor
-                stop();
-                checkForExit();
-            }
-            catch (const std::exception& ex)
-            {
-                PRINT("Exception caught while attempting to stop ProcessProxy in destructor: " << ex.what());
-            }
-            catch (...)
-            {
-                PRINT("Non std::exception caught while attempting to stop ProcessProxy in destructor");
-            }
+            start();
+            return std::chrono::hours(1);
         }
-
-        void ProcessProxy::setEnabled(bool enabled)
+        else
         {
-            std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
-            m_sharedState.m_enabled = enabled;
-            m_sharedState.m_deathTime = 0; // If enabled we want to start as soon as possible
+            LOGDEBUG("Not starting " << m_exe);
+            return std::chrono::seconds(10 - (now - m_sharedState.m_deathTime));
         }
+    }
 
-        bool ProcessProxy::isRunning()
+    void ProcessProxy::setCoreDumpMode(const bool mode)
+    {
+        m_sharedState.m_process->setCoreDumpMode(mode);
+    }
+
+    ProcessProxy::~ProcessProxy() noexcept
+    {
+        try
         {
-            std::pair<std::chrono::seconds, Process::ProcessStatus> data = checkForExit();
-            return data.second == Process::ProcessStatus::RUNNING;
+            // cppcheck-suppress virtualCallInConstructor
+            stop();
+            checkForExit();
         }
-
-        std::string ProcessProxy::name() const { return ""; }
-
-        bool ProcessProxy::runningFlag()
+        catch (const std::exception& ex)
         {
-            std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
-            return m_sharedState.m_running;
+            PRINT("Exception caught while attempting to stop ProcessProxy in destructor: " << ex.what());
         }
-
-        bool ProcessProxy::enabledFlag()
+        catch (...)
         {
-            std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
-            return m_sharedState.m_enabled;
+            PRINT("Non std::exception caught while attempting to stop ProcessProxy in destructor");
         }
+    }
 
-    } // namespace ProcessMonitoringImpl
-} // namespace Common
+    void ProcessProxy::setEnabled(bool enabled)
+    {
+        std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
+        m_sharedState.m_enabled = enabled;
+        m_sharedState.m_deathTime = 0; // If enabled we want to start as soon as possible
+    }
+
+    bool ProcessProxy::isRunning()
+    {
+        std::pair<std::chrono::seconds, Process::ProcessStatus> data = checkForExit();
+        return data.second == Process::ProcessStatus::RUNNING;
+    }
+
+    std::string ProcessProxy::name() const { return ""; }
+
+    bool ProcessProxy::runningFlag()
+    {
+        std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
+        return m_sharedState.m_running;
+    }
+
+    bool ProcessProxy::enabledFlag()
+    {
+        std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
+        return m_sharedState.m_enabled;
+    }
+
+} // namespace Common::ProcessMonitoringImpl
 
 namespace Common::ProcessMonitoring
 {

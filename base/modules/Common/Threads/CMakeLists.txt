@@ -1,4 +1,5 @@
 add_library(threadsobject OBJECT
+        LockableData.h
         NotifyPipe.cpp
         NotifyPipe.h
         AbstractThread.h
