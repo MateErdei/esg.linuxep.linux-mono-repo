@@ -107,6 +107,7 @@ class LogUtils(object):
         self.av_log = os.path.join(self.av_plugin_logs_dir, "av.log")
         self.oa_log = os.path.join(self.av_plugin_logs_dir, "soapd.log")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
+        self.wdctl_log = os.path.join(self.base_logs_dir, "wdctl.log")
         self.marked_mcsrouter_logs = 0
         self.marked_mcs_envelope_logs = 0
         self.marked_watchdog_log = 0
@@ -1030,6 +1031,41 @@ File Log Contains
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_av_log_contains_after_mark"
         return self.wait_for_log_contains_after_mark(self.av_log, expected, mark, timeout=timeout)
 
+#####################################################################
+# Sophos Threat Detector Log
+
+    def get_sophos_threat_detector_log_mark(self) -> LogHandler.LogMark:
+        return self.mark_log_size(self.sophos_threat_detector_log)
+
+    def get_sophos_threat_detector_log_after_mark(self, mark):
+        return self.get_log_after_mark(self.sophos_threat_detector_log, mark)
+
+    def check_sophos_threat_detector_log_contains_after_mark(self, expected, mark):
+        return self.check_log_contains_after_mark(self.sophos_threat_detector_log, expected, mark)
+
+    def check_sophos_threat_detector_log_does_not_contain_after_mark(self, not_expected, mark):
+        return self.check_log_does_not_contain_after_mark(self.sophos_threat_detector_log, not_expected, mark)
+
+    def dump_sophos_threat_detector_log_after_mark(self, mark):
+        return self.dump_marked_log(self.sophos_threat_detector_log, mark)
+
+#####################################################################
+# Wdctl Log
+
+    def get_wdctl_log_mark(self) -> LogHandler.LogMark:
+        return self.mark_log_size(self.wdctl_log)
+
+    def get_wdctl_log_after_mark(self, mark):
+        return self.get_log_after_mark(self.wdctl_log, mark)
+
+    def check_wdctl_log_contains_after_mark(self, expected, mark):
+        return self.check_log_contains_after_mark(self.wdctl_log, expected, mark)
+
+    def check_wdctl_log_does_not_contain_after_mark(self, not_expected, mark):
+        return self.check_log_does_not_contain_after_mark(self.wdctl_log, not_expected, mark)
+
+    def dump_wdctl_log_after_mark(self, mark):
+        return self.dump_marked_log(self.wdctl_log, mark)
 
 def __main(argv):
     # write your tests here

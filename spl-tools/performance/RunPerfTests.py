@@ -176,6 +176,10 @@ def run_clean_file_test(test_name, stop_on_queue_full, max_count):
 
 def run_onaccess_test(max_file_count):
     logging.info("Running AV On-access stress test")
+    log_utils = LogUtils.LogUtils()
+    oa_mark = log_utils.get_on_access_log_mark()
+    td_mark = log_utils.get_sophos_threat_detector_log_mark()
+    wd_mark = log_utils.get_wdctl_log_mark()
 
     # Write clean files until the queue becomes full or we reach max_count
     file_count = run_clean_file_test("File opens - OA enabled", True, max_file_count)
@@ -188,7 +192,80 @@ def run_onaccess_test(max_file_count):
     # Write the same number of files but with the product not running
     stop_sspl()
     run_clean_file_test("File opens - SPL not running", False, file_count)
+    oa_mark2 = log_utils.get_on_access_log_mark()
     start_sspl()
+
+    # Check for FATAL errors
+    log_utils.check_on_access_log_does_not_contain_after_mark("FATAL", oa_mark)
+    log_utils.check_sophos_threat_detector_log_does_not_contain_after_mark("FATAL", td_mark)
+    log_utils.check_wdctl_log_does_not_contain_after_mark("died with", wd_mark)
+    log_utils.wait_for_on_access_log_contains_after_mark("soapd_bootstrap <> No policy override, following policy settings", oa_mark2)
+
+    # Check that the product still works
+    f = open("/tmp/eicar.com", "w")
+    f.write("X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*")
+    f.close()
+    log_utils.wait_for_on_access_log_contains_after_mark("OnAccessImpl <> Detected \"/tmp/eicar.com\" is infected with EICAR-AV-Test", oa_mark2)
+
+
+def run_slow_scan_test(test_name, stop_on_queue_full, max_count):
+    dirpath = os.path.join("/tmp", "onaccess_stress_test_slow_scan")
+    os.makedirs(dirpath)
+    date_time = get_current_date_time_string()
+
+    log_utils = LogUtils.LogUtils()
+    mark = log_utils.get_on_access_log_mark()
+    start_time = get_current_unix_epoch_in_seconds()
+    file_count = 0;
+    while file_count < max_count:
+        file_count += 1
+        destpath = os.path.join(dirpath, "rt{}.jar".format(file_count))
+        shutil.copyfile("rt.jar", destpath)
+        if stop_on_queue_full:
+            try:
+                log_utils.check_on_access_log_does_not_contain_after_mark("Failed to add scan request to queue, on-access scanning queue is full.", mark)
+            except AssertionError as ex:
+                logging.info("At file count {}: {}".format(file_count, str(ex)))
+                break
+    end_time = get_current_unix_epoch_in_seconds()
+    logging.info("Created {} files in {} seconds".format(file_count, end_time - start_time))
+
+    shutil.rmtree(dirpath)
+    record_result(test_name, date_time, start_time, end_time)
+    return file_count
+
+def run_slow_scan_onaccess_test(max_file_count):
+    logging.info("Running AV On-access stress test with slow-scanning files")
+    log_utils = LogUtils.LogUtils()
+    oa_mark = log_utils.get_on_access_log_mark()
+    td_mark = log_utils.get_sophos_threat_detector_log_mark()
+    wd_mark = log_utils.get_wdctl_log_mark()
+
+    # Write clean files until the queue becomes full or we reach max_count
+    file_count = run_slow_scan_test("Slow file opens - OA enabled", True, max_file_count)
+
+    # Write the same number of files but with on-access disable
+    disable_onaccess()
+    run_slow_scan_test("Slow file opens - OA disabled", False, file_count)
+    enable_onaccess()
+
+    # Write the same number of files but with the product not running
+    stop_sspl()
+    run_slow_scan_test("Slow file opens - SPL not running", False, file_count)
+    oa_mark2 = log_utils.get_on_access_log_mark()
+    start_sspl()
+
+    # Check for FATAL errors
+    log_utils.check_on_access_log_does_not_contain_after_mark("FATAL", oa_mark)
+    log_utils.check_sophos_threat_detector_log_does_not_contain_after_mark("FATAL", td_mark)
+    log_utils.check_wdctl_log_does_not_contain_after_mark("died with", wd_mark)
+    log_utils.wait_for_on_access_log_contains_after_mark("soapd_bootstrap <> No policy override, following policy settings", oa_mark2)
+
+    # Check that the product still works
+    f = open("/tmp/eicar.com", "w")
+    f.write("X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*")
+    f.close()
+    log_utils.wait_for_on_access_log_contains_after_mark("OnAccessImpl <> Detected \"/tmp/eicar.com\" is infected with EICAR-AV-Test", oa_mark2)
 
 
 def run_local_live_query_perf_test():
@@ -457,6 +534,7 @@ def add_options():
                                  'local-liveresponse_x1',
                                  'local-liveresponse_x10',
                                  'event-journaler-ingestion',
+                                 'av-onaccess-slow',
                                  'av-onaccess'],
                         help="Select which performance test suite to run")
 
@@ -476,6 +554,9 @@ def add_options():
 
     parser.add_argument('-m', '--max-file-count', type=int, default=100000, action='store',
                         help="Maximum number of files to create for the av-onaccess test")
+    parser.add_argument('-M', '--max-file-count-slow', type=int, default=1000, action='store',
+                        help="Maximum number of files to create for the av-onaccess-slow test")
+
     return parser
 
 
@@ -507,6 +588,8 @@ def main():
         run_event_journaler_ingestion_test()
     elif args.suite == 'av-onaccess':
         run_onaccess_test(args.max_file_count)
+    elif args.suite == 'av-onaccess-slow':
+        run_slow_scan_onaccess_test(args.max_file_count_slow)
 
     logging.info("Finished")
 
