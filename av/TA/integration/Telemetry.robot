@@ -7,15 +7,17 @@ Library         Process
 Library         String
 Library         XML
 Library         ../Libs/fixtures/AVPlugin.py
+Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/ThreatReportUtils.py
 Library         ../Libs/Telemetry.py
 
-Resource        ../shared/ErrorMarkers.robot
+Resource        ../shared/AVAndBaseResources.robot
 Resource        ../shared/AVResources.robot
 Resource        ../shared/BaseResources.robot
-Resource        ../shared/AVAndBaseResources.robot
+Resource        ../shared/ErrorMarkers.robot
+Resource        ../shared/OnAccessResources.robot
 
 Suite Setup     Telemetry Suite Setup
 Suite Teardown  Telemetry Suite Teardown
@@ -129,6 +131,67 @@ AV plugin Saves and Restores Scan Now Counter
 
     Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
     Dictionary Should Contain Item   ${avDict}   threatHealth   ${1}
+
+On Access Scan Increments On Access Eicar Detection Count
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${mark} =  Get on access log mark
+
+    Send Policies to enable on-access
+    Register Cleanup  Send Policies to disable on-access
+
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
+    On-access Scan Eicar Open
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${1}
+
+
+On Access Scan Increments On Access Non Eicar Detection Count
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${mark} =  Get on access log mark
+
+    Send Policies to enable on-access
+    Register Cleanup  Send Policies to disable on-access
+
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
+    #Generate ml file in excluded location
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
+
+    #Generate a event we can look for
+    On-access Scan Clean File
+
+    #Move file
+    Move File  ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+
+    #Do test
+    ${mark} =  Get on access log mark
+    Get Binary File  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    wait for on access log contains after mark  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A (Open)  mark=${mark}
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-count   ${1}
+
 
 
 AV plugin increments Scan Now Counter after Save and Restore
