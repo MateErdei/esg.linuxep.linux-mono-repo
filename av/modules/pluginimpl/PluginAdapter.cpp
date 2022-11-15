@@ -285,7 +285,7 @@ namespace Plugin
             }
             else if (policyType == PolicyType::UNKNOWN)
             {
-                LOGDEBUG("Ignoring unknown policy");
+                LOGDEBUG("Ignoring unknown policy with APPID: " << appId);
             }
         }
         catch(const Common::XmlUtilities::XmlUtilitiesException& e)
