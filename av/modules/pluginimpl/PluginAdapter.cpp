@@ -246,7 +246,7 @@ namespace Plugin
         try
         {
             auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
-            auto policyType = m_policyProcessor.determinePolicyType(attributeMap, appId);
+            auto policyType = Plugin::PolicyProcessor::determinePolicyType(attributeMap, appId);
 
             if (policyType == PolicyType::ALC)
             {
@@ -285,7 +285,7 @@ namespace Plugin
             }
             else if (policyType == PolicyType::UNKNOWN)
             {
-                LOGDEBUG("Ignoring unknown policy with APPID: " << appId);
+                LOGDEBUG("Ignoring unknown policy with APPID: " << appId << ", content: " << policyXml);
             }
         }
         catch(const Common::XmlUtilities::XmlUtilitiesException& e)
