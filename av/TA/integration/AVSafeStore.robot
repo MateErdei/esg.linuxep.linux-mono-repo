@@ -327,7 +327,13 @@ Check Safestore Dormant Flag Does Not Exist
     File Should Not Exist  ${SAFESTORE_DORMANT_FLAG}
 
 
-wait for Safestore to be running
+Create Persistent Timeout Variable
+    Stop Sophos Threat Detector
+    Create File    ${SOPHOS_INSTALL}/plugins/av/chroot/var/safeStoreRescanInterval    1
+    Start Sophos Threat Detector
+    
+    
+Wait for Safestore to be running
     ## password creation only done on first run - can't cover complete log turn-over:
     Wait_For_Entire_log_contains  ${SAFESTORE_LOG_PATH}  Successfully saved SafeStore database password to file  timeout=15
 
