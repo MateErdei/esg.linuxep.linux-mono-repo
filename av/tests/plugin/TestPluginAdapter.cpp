@@ -829,6 +829,41 @@ TEST_F(TestPluginAdapter, testPublishThreatHealth)
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 }
 
+TEST_F(TestPluginAdapter, testPublishThreatHealthWithretrySuceedsAfterFailure)
+{
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+
+    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+
+    m_taskQueue->pushStop();
+    Common::PluginApi::ApiException ex { "dummy error" };
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Return());
+
+    pluginAdapter.publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_GOOD);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
+
+}
+
+TEST_F(TestPluginAdapter, testPublishThreatHealthWithRetryFailsAfter5tries)
+{
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+
+    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+
+    m_taskQueue->pushStop();
+    Common::PluginApi::ApiException ex { "dummy error" };
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).Times(5).WillRepeatedly(Throw(ex));
+
+    pluginAdapter.publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_GOOD);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
+
+}
 TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountIncrementsThreatCount)
 {
     Common::Telemetry::TelemetryHelper::getInstance().reset();

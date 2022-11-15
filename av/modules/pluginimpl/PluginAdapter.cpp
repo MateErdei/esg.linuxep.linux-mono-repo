@@ -7,6 +7,7 @@
 #include "HealthStatus.h"
 #include "Logger.h"
 #include "StringUtils.h"
+#include "ActionUtils.h"
 
 #include "datatypes/SystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
@@ -118,9 +119,16 @@ namespace Plugin
             LOGINFO("Failed to request FLAGS policy at startup (" << e.what() << ")");
         }
 
-        m_callback->setThreatHealth(
-            static_cast<E_HEALTH_STATUS>(pluginimpl::getThreatStatus())
-            );
+        if (m_threatDatabase.isDatabaseEmpty())
+        {
+            m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+            publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_GOOD);
+        }
+        else
+        {
+            m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+            publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+        }
 
         innerLoop();
         LOGSUPPORT("Stopping the main program loop");
@@ -314,12 +322,38 @@ namespace Plugin
         {
             auto attributeMap = Common::XmlUtilities::parseXml(actionXml);
 
-            if (attributeMap.lookup("a:action").value("type", "") == "ScanNow")
+            if (pluginimpl::isScanNowAction(attributeMap))
             {
                 m_scanScheduler->scanNow();
             }
+            else if (pluginimpl::isSAVClearAction(attributeMap))
+            {
+                std::string correlationID = pluginimpl::getThreatID(attributeMap);
+                m_threatDatabase.removeCorrelationID(correlationID);
+                if (m_threatDatabase.isDatabaseEmpty())
+                {
+                    if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_GOOD)
+                    {
+                        LOGINFO("Threat database is now empty, sending good health to Management agent");
+                        publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+                    }
+                }
+            }
+            else if (pluginimpl::isCOREResetThreatHealthAction(attributeMap))
+            {
+                LOGINFO("Resetting threat database due to core reset action");
+                m_threatDatabase.resetDatabase();
+                if (m_threatDatabase.isDatabaseEmpty())
+                {
+                    publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+                }
+                else
+                {
+                    LOGWARN("Failed to clear threat health database");
+                }
+            }
         }
-        catch(const Common::XmlUtilities::XmlUtilitiesException& e)
+        catch (const Common::XmlUtilities::XmlUtilitiesException& e)
         {
             LOGERROR("Exception encountered while parsing Action XML: " << e.what());
         }
@@ -343,10 +377,6 @@ namespace Plugin
         DetectionReporter::processThreatReport(pluginimpl::generateThreatDetectedXml(detection), m_taskQueue);
         DetectionReporter::publishQuarantineCleanEvent(pluginimpl::generateCoreCleanEventXml(detection, quarantineResult), m_taskQueue);
         publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
-        if (quarantineResult != common::CentralEnums::QuarantineResult::SUCCESS)
-        {
-            publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-        }
     }
 
     void PluginAdapter::updateThreatDatabase(const scan_messages::ThreatDetected& detection)
@@ -355,6 +385,22 @@ namespace Plugin
         {
             m_threatDatabase.addThreat(detection.threatId,detection.threatId);
             LOGDEBUG("Added threat: " << detection.threatId << " to database");
+            if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_SUSPICIOUS)
+            {
+                publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+            }
+        }
+        else
+        {
+            m_threatDatabase.removeThreatID(detection.threatId);
+            if (m_threatDatabase.isDatabaseEmpty())
+            {
+                if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_GOOD)
+                {
+                    LOGINFO("Threat database is now empty, sending good health to Management agent");
+                    publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+                }
+            }
         }
     }
 
@@ -378,12 +424,46 @@ namespace Plugin
             LOGDEBUG("Publishing threat health: " << threatHealthToString(threatStatus));
 
             m_callback->setThreatHealth(threatStatus);
-            m_baseService->sendThreatHealth("{\"ThreatHealth\":" + std::to_string(threatStatus) + "}");
+            m_baseService->sendThreatHealth(R"({"ThreatHealth":)" + std::to_string(threatStatus) + "}");
         }
         catch (const Common::ZeroMQWrapper::IIPCException& e)
         {
             LOGERROR("Failed to send threat health: " << e.what());
         }
+        catch (Common::PluginApi::ApiException& e)
+        {
+            LOGWARN("Failed to send threat health: " << e.what());
+        }
+    }
+
+    void PluginAdapter::publishThreatHealthWithRetry(E_HEALTH_STATUS threatStatus) const
+    {
+
+        LOGDEBUG("Publishing threat health: " << threatHealthToString(threatStatus));
+        for (int i = 0; i < 5; ++i)
+        {
+            try
+            {
+                m_baseService->sendThreatHealth(R"({"ThreatHealth":)" + std::to_string(threatStatus) + "}");
+                break;
+            }
+            catch (const Common::ZeroMQWrapper::IIPCException& e)
+            {
+                if (i == 4)
+                {
+                    LOGWARN("Failed to send threat health: " << e.what());
+                }
+            }
+            catch (Common::PluginApi::ApiException& e)
+            {
+                if (i == 4)
+                {
+                    LOGWARN("Failed to send threat health: " << e.what());
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+
     }
 
     void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName)

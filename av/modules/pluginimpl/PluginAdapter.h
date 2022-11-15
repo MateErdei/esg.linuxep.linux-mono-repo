@@ -69,6 +69,7 @@ namespace Plugin
 
     PLUGIN_INTERNAL:
         void publishThreatHealth(E_HEALTH_STATUS threatStatus) const;
+        void publishThreatHealthWithRetry(E_HEALTH_STATUS threatStatus) const;
         static void incrementTelemetryThreatCount(const std::string &threatName);
     private:
         /**
