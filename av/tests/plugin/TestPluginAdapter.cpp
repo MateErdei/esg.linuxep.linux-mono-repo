@@ -7,6 +7,7 @@
 #include "datatypes/sophos_filesystem.h"
 #include "pluginimpl/Logger.h"
 #include "pluginimpl/PluginAdapter.h"
+#include "pluginimpl/DetectionReporter.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -28,6 +29,7 @@
 
 using namespace testing;
 using namespace Plugin;
+using namespace scan_messages;
 
 namespace fs = sophos_filesystem;
 
@@ -147,6 +149,7 @@ TEST_F(TestPluginAdapter, testMainLoop)
 
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillOnce(QueueStopTask(m_taskQueue));
@@ -165,6 +168,7 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows)
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
     Common::PluginApi::ApiException ex { "dummy error" };
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).WillOnce(Throw(ex));
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).WillOnce(Throw(ex));
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).WillOnce(Throw(ex));
@@ -239,6 +243,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
     EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status3Xml, status3Xml)).WillOnce(QueueStopTask(m_taskQueue));
     EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -268,6 +273,7 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
     Task policyTask = {Task::TaskType::Policy, policyXml};
     m_taskQueue->push(policyTask);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -322,6 +328,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID)
 
     EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -367,6 +374,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     Task policyTask = {Task::TaskType::Policy, policyXml};
     m_taskQueue->push(policyTask);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -386,6 +394,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -432,6 +441,7 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -548,6 +558,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
     m_taskQueue->push(policy1Task);
     m_taskQueue->push(policy2Task);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -568,6 +579,7 @@ TEST_F(TestPluginAdapter, testProcessAction)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -606,6 +618,7 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -643,6 +656,7 @@ TEST_F(TestPluginAdapter, testBadProcessActionXMLThrows)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -692,6 +706,7 @@ TEST_F(TestPluginAdapter, testProcessScanComplete)
     pluginAdapter.processScanComplete(scanCompleteXml);
     m_taskQueue->pushStop();
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -717,15 +732,44 @@ TEST_F(TestPluginAdapter, testProcessThreatReport)
     EXPECT_CALL(*mockBaseServicePtr, sendEvent("CORE", threatDetectedXML));
 
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-    pluginAdapter.processThreatReport(threatDetectedXML);
+    DetectionReporter::processThreatReport(threatDetectedXML, m_taskQueue);
     m_taskQueue->pushStop();
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
     pluginAdapter.mainLoop();
     std::string expectedLog = "Sending threat detection notification to central: ";
+    expectedLog.append(threatDetectedXML);
+
+    EXPECT_TRUE(appenderContains(expectedLog));
+}
+
+TEST_F(TestPluginAdapter, publishQuarantineCleanEvent)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    std::string threatDetectedXML = "may be xml data";
+
+    EXPECT_CALL(*mockBaseServicePtr, sendEvent("CORE", threatDetectedXML));
+
+    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    DetectionReporter::publishQuarantineCleanEvent(threatDetectedXML, m_taskQueue);
+    m_taskQueue->pushStop();
+
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
+
+    pluginAdapter.mainLoop();
+    std::string expectedLog = "Sending Clean Event to Central: ";
     expectedLog.append(threatDetectedXML);
 
     EXPECT_TRUE(appenderContains(expectedLog));
@@ -818,7 +862,15 @@ TEST_F(TestPluginAdapter, testPublishThreatHealth)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    std::string threatDetectedXML = R"sophos(
+<notification>
+  <threat name="Very bad file">
+  </threat>
+</notification>
+            )sophos";
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    DetectionReporter::processThreatReport(threatDetectedXML, m_taskQueue);
+    m_taskQueue->pushStop();
 
     EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).Times(1);
     pluginAdapter.publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
@@ -829,57 +881,94 @@ TEST_F(TestPluginAdapter, testPublishThreatHealth)
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 }
 
-TEST_F(TestPluginAdapter, testPublishThreatHealthWithretrySuceedsAfterFailure)
-{
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-
-    m_taskQueue->pushStop();
-    Common::PluginApi::ApiException ex { "dummy error" };
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Return());
-
-    pluginAdapter.publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_GOOD);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-
-}
-
-TEST_F(TestPluginAdapter, testPublishThreatHealthWithRetryFailsAfter5tries)
-{
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-
-    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-
-    m_taskQueue->pushStop();
-    Common::PluginApi::ApiException ex { "dummy error" };
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).Times(5).WillRepeatedly(Throw(ex));
-
-    pluginAdapter.publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_GOOD);
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-
-}
-TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountIncrementsThreatCount)
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandScheduledScanThreatCount)
 {
     Common::Telemetry::TelemetryHelper::getInstance().reset();
-    PluginAdapter::incrementTelemetryThreatCount("Very bad file");
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_SCHEDULED);
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     auto telemetry = nlohmann::json::parse(telemetryResult);
-    EXPECT_EQ(telemetry["threat-count"], 1);
+    EXPECT_EQ(telemetry["on-demand-threat-count"], 1);
 }
 
-TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountIncrementsThreatEicarCount)
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandScheduledScanThreatEicarCount)
 {
     Common::Telemetry::TelemetryHelper::getInstance().reset();
-    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test");
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_SCHEDULED);
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     auto telemetry = nlohmann::json::parse(telemetryResult);
-    EXPECT_EQ(telemetry["threat-eicar-count"], 1);
+    EXPECT_EQ(telemetry["on-demand-threat-eicar-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandMemoryScanThreatCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_MEMORY);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandMemoryScanThreatEicarCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_MEMORY);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-eicar-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandThreatCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_ON_DEMAND);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandThreatEicarCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_ON_DEMAND);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-eicar-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandUnknownThreatCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_UNKNOWN);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandUnknownThreatEicarCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_UNKNOWN);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-eicar-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnAccessThreatCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_ON_ACCESS);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-access-threat-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnAccessThreatEicarCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_ON_ACCESS);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-access-threat-eicar-count"], 1);
 }
 
 TEST_F(TestPluginAdapter, testInvalidTaskType)
@@ -892,6 +981,7 @@ TEST_F(TestPluginAdapter, testInvalidTaskType)
 
     PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
@@ -921,6 +1011,7 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
     EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
