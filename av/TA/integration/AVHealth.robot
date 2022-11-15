@@ -101,6 +101,8 @@ AV Not Running Triggers Bad Status Health
     Check Status Health is Reporting Correctly    GOOD
 
 Sophos Threat Detector Not Running Triggers Bad Status Health
+    # Stopping threat_detector when OA is enabled can lead to some file scans being aborted
+    Register Cleanup  Exclude Aborted Scan Errors
     Check Status Health is Reporting Correctly    GOOD
 
     Stop sophos_threat_detector
