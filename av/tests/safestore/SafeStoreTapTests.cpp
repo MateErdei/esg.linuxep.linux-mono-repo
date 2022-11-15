@@ -125,7 +125,7 @@ TEST_F(SafeStoreWrapperTapTests, writeAndThenRreadBackConfigOptions)
 
 TEST_F(SafeStoreWrapperTapTests, testConfigOptionLimits)
 {
-    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::AUTO_PURGE, false));
+    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::AUTO_PURGE, true));
     ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_OBJECT_SIZE, 33000));
 
     // This currently fails but it's windows only so doesn't need to work on Linux.
@@ -140,11 +140,11 @@ TEST_F(SafeStoreWrapperTapTests, testConfigOptionLimits)
 
     auto maxObjSize = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_OBJECT_SIZE);
     ASSERT_TRUE(maxObjSize.has_value());
-    ASSERT_EQ(maxObjSize.value(), 33000);
+    ASSERT_EQ(maxObjSize.value(), 66000);
 
     auto maxSafeStoreSize = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_SAFESTORE_SIZE);
     ASSERT_TRUE(maxSafeStoreSize.has_value());
-    ASSERT_EQ(maxSafeStoreSize.value(), 66000);
+    ASSERT_EQ(maxSafeStoreSize.value(), 88000);
 
     auto maxObjCount = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_STORED_OBJECT_COUNT);
     ASSERT_TRUE(maxObjCount.has_value());

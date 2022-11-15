@@ -310,6 +310,9 @@ namespace safestore::SafeStoreWrapper
             case SR_INTERNAL_ERROR:
                 LOGWARN("Failed to set config value: " << configOptionToString(option) << " due to internal SafeStore error");
                 return false;
+            case SR_MAX_STORE_SIZE_EXCEEDED:
+                LOGWARN("Failed to set config value: " << configOptionToString(option) << " as current database size exceeds the given value: " << value);
+                return false;
             default:
                 LOGWARN("Failed to set config value: " << configOptionToString(option) << " due to unknown error. Errorcode: " << returnCode);
                 return false;
