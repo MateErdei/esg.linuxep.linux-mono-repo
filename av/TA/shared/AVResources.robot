@@ -950,8 +950,9 @@ Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=180
 
 Configure Scan Exclusions Everything Else
-    [Arguments]  ${inclusion}
-    ${exclusions} =  exclusions_for_everything_else  ${inclusion}
+#   exclude by default bullseye files
+    [Arguments]  ${inclusion}   ${user_exclusion}="<filePath>/mnt/pandorum/</filePath>"
+    ${exclusions} =  exclusions_for_everything_else  ${inclusion}   ${user_exclusion}
     Log  "Excluding all directories except: ${inclusion}"
     Log  "Excluding the following directories: ${exclusions}"
     [return]  ${exclusions}

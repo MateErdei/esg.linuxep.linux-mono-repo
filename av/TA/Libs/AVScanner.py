@@ -74,9 +74,10 @@ def get_exclusion_list_for_everything_else(inclusion):
     exclusions.sort()
     return exclusions
 
-def exclusions_for_everything_else(inclusion):
+def exclusions_for_everything_else(inclusion, user_exclusion):
     exclusions = get_exclusion_list_for_everything_else(inclusion)
     exclusions = ['<filePath>{}</filePath>'.format(f) for f in exclusions]
+    exclusions.append(user_exclusion)
     return ''.join(exclusions)
 
 
