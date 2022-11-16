@@ -1098,6 +1098,10 @@ File Log Contains
     def check_sophos_threat_detector_log_contains_after_mark(self, expected, mark):
         return self.check_log_contains_after_mark(self.sophos_threat_detector_log, expected, mark)
 
+    def wait_for_sophos_threat_detector_log_contains_after_mark(self, expected: str, mark: LogHandler.LogMark, timeout: int = 10):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_av_log_contains_after_mark"
+        return self.wait_for_log_contains_after_mark(self.sophos_threat_detector_log, expected, mark, timeout=timeout)
+
     def check_sophos_threat_detector_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.sophos_threat_detector_log, not_expected, mark)
 
