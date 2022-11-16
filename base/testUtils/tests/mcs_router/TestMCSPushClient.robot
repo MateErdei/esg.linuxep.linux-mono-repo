@@ -372,9 +372,12 @@ Connection is lost between endpoint and proxy
     Start MCS Push Server
     Start Proxy Server With Basic Auth    1235   username   password
     Set Environment Variable  https_proxy   http://username:password@localhost:1235
-    Install Register And Wait First MCS Policy With MCS Policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_300_no_direct.xml
+    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll_300_no_direct.xml
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
     Override LogConf File as Global Level  INFO
     Restart MCSRouter And Clear Logs
+    Wait New MCS Policy Downloaded
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
     Send Message To Push Server And Expect It In MCSRouter Log  First Message
 

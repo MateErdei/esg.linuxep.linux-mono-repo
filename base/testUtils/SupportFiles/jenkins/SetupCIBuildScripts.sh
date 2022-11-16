@@ -26,6 +26,7 @@ function try_command_with_backoff()
 SCRIPTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 
 try_command_with_backoff  python3 -m pip install --upgrade pip
+try_command_with_backoff  python3 -m pip install --upgrade pyyaml --ignore-installed
 PIP_ARGS="-i https://tap-artifactory1.eng.sophos/artifactory/api/pypi/pypi/simple --trusted-host tap-artifactory1.eng.sophos --cert ./sophos_certs.pem"
 try_command_with_backoff  python3 -m pip install --upgrade pip ${PIP_ARGS}
 try_command_with_backoff  python3 -m pip install wheel ${PIP_ARGS}
@@ -36,7 +37,7 @@ if [[ $1 == "--download-pip-cache" ]]
 then
   rm -rf pipCache
   mkdir pipCache
-  try_command_with_backoff python3 -m pip download tap keyrings.alt --dest pipCache ${PIP_ARGS}  || failure "Unable to install tap"
+  try_command_with_backoff python3 -m pip download tap keyrings.alt signing>2.7.0 --dest pipCache ${PIP_ARGS}  || failure "Unable to install tap"
   tar cvzf $2/pipCache.tar.gz pipCache
   rm -rf pipCache
 fi
