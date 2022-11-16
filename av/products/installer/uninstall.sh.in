@@ -27,6 +27,7 @@ UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
 SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 SAVE_DIR="${BASEDIR}/tmp/${PLUGIN_NAME}_downgrade/"
+SAFESTORE_DB_DIR=$(date +%s)_SafeStore_${MIN_SAFESTORE_DB_SUPPORTED_AV_VERSION}
 
 FORCE=0
 DOWNGRADE=0
@@ -50,9 +51,15 @@ then
     cp -v ${UNINSTALLDIR}/log/av.log*  ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/log/soapd.log*  ${SAVE_DIR}
 
-    SAFESTORE_DB_DOWNGRADE=$(date +%s)_SafeStore_${MIN_SAFESTORE_DB_SUPPORTED_AV_VERSION}
-    cp -vr ${UNINSTALLDIR}/var/safestore_db  ${SAVE_DIR}/${SAFESTORE_DB_DOWNGRADE}
-    cp -v ${UNINSTALLDIR}/var/persist-threatDatabase  ${SAVE_DIR}
+    if [[ -d ${UNINSTALLDIR}/var/safestore_db ]]
+    then
+      cp -vr ${UNINSTALLDIR}/var/safestore_db  ${SAVE_DIR}${SAFESTORE_DB_DIR}
+    fi
+
+    if [[ -f ${UNINSTALLDIR}/var/persist-threatDatabase ]]
+    then
+      cp -v ${UNINSTALLDIR}/var/persist-threatDatabase  ${SAVE_DIR}
+    fi
 fi
 
 rm -f /usr/local/bin/avscanner

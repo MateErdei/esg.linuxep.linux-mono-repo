@@ -77,18 +77,22 @@ Check AV Plugin Not Installed
     User Should Not Exist  sophos-spl-av
     User Should Not Exist  sophos-spl-threat-detector
 
-Check Logs and Databases Saved On Downgrade
+Check Logs Saved On Downgrade
     Directory Should Exist  ${AV_BACKUP_DIR}
     File Should Exist  ${AV_BACKUP_DIR}/soapd.log
     File Should Exist  ${AV_BACKUP_DIR}/av.log
     File Should Exist  ${AV_BACKUP_DIR}/sophos_threat_detector.log
+
+Check SafeStore Databases Saved On Downgrade
+    Directory Should Exist  ${AV_BACKUP_DIR}
+    List Files In Directory  ${AV_BACKUP_DIR}
     File Should Exist  ${AV_BACKUP_DIR}/persist-threatDatabase
 
     ${SAFESTORE_DB_BACKUP_DIRS} =    List Directories In Directory    ${AV_BACKUP_DIR}
     FOR   ${dir}  IN  @{SAFESTORE_DB_BACKUP_DIRS}
-        Directory Should Not Be Empty    ${dir}
-        File Should Exist  ${dir}/safestore.db
-        File Should Exist  ${dir}/safestore.pw
+        Directory Should Not Be Empty    ${AV_BACKUP_DIR}/${dir}
+        File Should Exist  ${AV_BACKUP_DIR}/${dir}/safestore.db
+        File Should Exist  ${AV_BACKUP_DIR}/${dir}/safestore.pw
     END
 
 Run plugin uninstaller
