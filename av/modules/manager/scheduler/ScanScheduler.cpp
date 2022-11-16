@@ -6,8 +6,13 @@
 #include "ScanRunner.h"
 #include "ScanSerialiser.h"
 
+#include <common/FDUtils.h>
+#include <common/SaferStrerror.h>
+
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <modules/common/FDUtils.h>
+
+#include <poll.h>
+
 using namespace manager::scheduler;
 
 const time_t INVALID_TIME = static_cast<time_t>(-1);
@@ -24,39 +29,56 @@ void manager::scheduler::ScanScheduler::run()
 
     updateConfigFromPending();
 
-    int exitFD = m_notifyPipe.readFd();
-    int configFD = m_updateConfigurationPipe.readFd();
-    int scanNowFD = m_scanNowPipe.readFd();
-
-    fd_set readFDs;
-    FD_ZERO(&readFDs);
-    int max = -1;
-    max = FDUtils::addFD(&readFDs, exitFD, max);
-    max = FDUtils::addFD(&readFDs, configFD, max);
-    max = FDUtils::addFD(&readFDs, scanNowFD, max);
+    struct pollfd fds[] {
+        { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
+        { .fd = m_updateConfigurationPipe.readFd(), .events = POLLIN, .revents = 0 },
+        { .fd = m_scanNowPipe.readFd(), .events = POLLIN, .revents = 0 },
+    };
 
     while (true)
     {
         struct timespec timeout{};
         findNextTime(timeout);
 
-        fd_set tempRead = readFDs;
-        int ret = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
-
+        auto ret = ::ppoll(fds, std::size(fds), &timeout, nullptr);
         if (ret < 0)
         {
-            // handle error
-            LOGERROR("Failed to start scheduled scan: " << errno);
+            if (errno == EINTR)
+            {
+                continue;
+            }
+
+            LOGERROR("Error from ppoll: " << common::safer_strerror(errno));
             break;
         }
-        else if (ret > 0)
+
+        if (ret > 0)
         {
-            if (FDUtils::fd_isset(exitFD, &tempRead))
+            if ((fds[0].revents & POLLERR) != 0)
+            {
+                LOGERROR("Exiting from scan scheduler, error from notify pipe");
+                break;
+            }
+
+            if ((fds[1].revents & POLLERR) != 0)
+            {
+                LOGERROR("Exiting from scan scheduler, error from Scheduled Scan config");
+                break;
+            }
+
+            if ((fds[2].revents & POLLERR) != 0)
+            {
+                LOGERROR("Exiting from scan scheduler, error from Scan Now config");
+                break;
+            }
+
+            if ((fds[0].revents & POLLIN) != 0)
             {
                 LOGSUPPORT("Exiting from scan scheduler");
                 break;
             }
-            if (FDUtils::fd_isset(configFD, &tempRead))
+
+            if ((fds[1].revents & POLLIN) != 0)
             {
                 updateConfigFromPending();
                 LOGINFO("Configured number of Scheduled Scans: " << m_config.scans().size());
@@ -74,7 +96,8 @@ void manager::scheduler::ScanScheduler::run()
                 }
 
             }
-            if (FDUtils::fd_isset(scanNowFD, &tempRead))
+
+            if ((fds[2].revents & POLLIN) != 0)
             {
                 LOGINFO("Evaluating Scan Now");
                 while (m_scanNowPipe.notified())
