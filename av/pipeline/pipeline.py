@@ -84,7 +84,7 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, environment=None
         robot_exclusion_tags.extend(exclude)
 
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
-        machine.run('mkdir', '/opt/test/coredumps')
+        machine.run('mkdir', '-p', '/opt/test/coredumps')
         machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
                     '--include', *include,
                     '--exclude', *robot_exclusion_tags,
