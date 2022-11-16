@@ -89,8 +89,34 @@ def create_test_telemetry_config_file(telemetry_config_file_path, certificate_pa
     uid = pwd.getpwnam(username).pw_uid
     os.chown(telemetry_config_file_path, uid, -1)
 
+
 def install_base_if_not_installed():
     SOPHOS_INSTALL = get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
     if not os.path.isdir(SOPHOS_INSTALL):
         BuiltIn().run_keyword("Install Base For Component Tests")
         return 0
+
+
+def set_spl_log_level_and_restart_watchdog_if_changed(loglevel: str):
+    """
+
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  [global]\nVERBOSITY=${logLevel}
+
+    :param loglevel:
+    :return:
+    """
+    SOPHOS_INSTALL = get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
+    conf = os.path.join(SOPHOS_INSTALL, "base", "etc", "logger.conf.local")
+    expected = "[global]\nVERBOSITY="+loglevel
+    try:
+        existing = open(conf).read().strip()
+        if existing == expected.strip():
+            logger.info("Log configuration already set")
+            return
+    except OSError:
+        pass
+
+    logger.info("Updating log configuration")
+    open(conf, "w").write(expected)
+    logger.info("Restarting sophos-spl")
+    subprocess.check_call(['systemctl', 'restart', 'sophos-spl'])

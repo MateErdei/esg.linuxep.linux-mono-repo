@@ -56,7 +56,7 @@ Mock Base Installation
 
 Set Base Log Level
     [Arguments]  ${logLevel}
-    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY=${logLevel}
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  [global]\nVERBOSITY=${logLevel}
 
 Set Log Level
     [Arguments]  ${logLevel}

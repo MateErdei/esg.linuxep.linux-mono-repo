@@ -3,6 +3,7 @@ Library         Process
 Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
+Library         ../Libs/BaseUtils.py
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/FileUtils.py
@@ -660,9 +661,8 @@ Install With Base SDDS
     Directory Should Not Exist  ${SOPHOS_INSTALL}
 
     Install Base For Component Tests
-    Set Log Level  DEBUG
-    # restart the service to apply the new log level to watchdog
-    Run Shell Process  systemctl restart sophos-spl  OnError=failed to restart sophos-spl
+
+    Set SPL Log Level And Restart Watchdog if changed   ${LogLevel}
 
     Install AV Directly from SDDS
     Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
@@ -722,7 +722,12 @@ Require Plugin Installed and Running
     [Arguments]  ${LogLevel}=DEBUG
     Install Base if not installed
 
+    Set SPL Log Level And Restart Watchdog if changed   ${LogLevel}
+
     Set Log Level  ${LogLevel}
+    # restart the service to apply the new log level to watchdog
+    Run Shell Process  systemctl restart sophos-spl  OnError=failed to restart sophos-spl
+
     Install AV if not installed
     Start AV Plugin if not running
     ${pid} =  Start Sophos Threat Detector if not running
