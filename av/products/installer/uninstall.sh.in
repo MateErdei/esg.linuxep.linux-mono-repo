@@ -27,7 +27,7 @@ UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
 SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 SAVE_DIR="${BASEDIR}/tmp/${PLUGIN_NAME}_downgrade"
-SAFESTORE_DB_DIR="${BASEDIR}/tmp/safestore_downgrade"
+SAFESTORE_SAVE_DIR="${BASEDIR}/tmp/safestore_downgrade"
 
 FORCE=0
 DOWNGRADE=0
@@ -47,7 +47,7 @@ done
 if (( DOWNGRADE == 1 ))
 then
     mkdir -p ${SAVE_DIR}
-    mkdir -p ${SAFESTORE_DB_DIR}
+    mkdir -p ${SAFESTORE_SAVE_DIR}
     cp -v ${UNINSTALLDIR}/chroot/log/sophos_threat_detector.log*  ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/log/av.log*  ${SAVE_DIR}
     cp -v ${UNINSTALLDIR}/log/soapd.log*  ${SAVE_DIR}
@@ -55,12 +55,12 @@ then
     VERSIONED_SAFESTORE_DB=$(date +%s)_SafeStore_${MIN_SAFESTORE_DB_SUPPORTED_AV_VERSION}
     if [[ -d ${UNINSTALLDIR}/var/safestore_db ]]
     then
-      cp -vr ${UNINSTALLDIR}/var/safestore_db  ${SAFESTORE_DB_DIR}/${VERSIONED_SAFESTORE_DB}
+      cp -vr ${UNINSTALLDIR}/var/safestore_db  ${SAFESTORE_SAVE_DIR}/${VERSIONED_SAFESTORE_DB}
     fi
 
     if [[ -f ${UNINSTALLDIR}/var/persist-threatDatabase ]]
     then
-      cp -v ${UNINSTALLDIR}/var/persist-threatDatabase  ${SAFESTORE_DB_DIR}
+      cp -v ${UNINSTALLDIR}/var/persist-threatDatabase  ${SAFESTORE_SAVE_DIR}
     fi
 fi
 
