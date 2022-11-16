@@ -2,11 +2,12 @@
 
 set -ex
 
-while getopts t:u:bfad flag
+while getopts t:u:bfadc: flag
 do
     case "${flag}" in
         t) MCS_TOKEN=${OPTARG};;
         u) MCS_URL=${OPTARG};;
+        c) MCS_CA=${OPTARG};;
         b) BREAK_UPDATING=true;;
         f) FLAGS=true;;
         a) ALC=true;;
@@ -43,7 +44,8 @@ AV_ROOT=/opt/test/inputs/av
 [[ -f ${AV_ROOT}/SDDS-COMPONENT/manifest.dat ]] || failure 1 "Can't find SDDS-COMPONENT: ${AV_ROOT}/SDDS-COMPONENT/manifest.dat"
 TEST_SUITE=${BASE}/..
 
-export MCS_CA=${MCS_CA:-${TEST_SUITE}/resources/certs/hmr-dev-combined.pem}
+# Dev and QA regions combined, avoids having to override for each.
+export MCS_CA=${MCS_CA:-${TEST_SUITE}/resources/certs/hmr-dev-and-qa-combined.pem}
 
 SDDS_BASE=${AV_ROOT}/base-sdds
 [[ -d $SDDS_BASE ]] || failure 1 "Can't find SDDS_BASE: $SDDS_BASE"
