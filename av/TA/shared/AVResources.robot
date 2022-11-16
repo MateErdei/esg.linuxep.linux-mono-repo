@@ -54,6 +54,7 @@ ${AV_INSTALL_LOG}                               /tmp/avplugin_install.log
 ${AV_UNINSTALL_LOG}                             /tmp/avplugin_uninstall.log
 ${AV_BACKUP_DIR}                                ${SOPHOS_INSTALL}/tmp/av_downgrade/
 ${AV_RESTORED_LOGS_DIRECTORY}                   ${AV_PLUGIN_PATH}/log/downgrade-backup/
+${SAFESTORE_BACKUP_DIR}                         ${SOPHOS_INSTALL}/tmp/safestore_downgrade/
 ${NORMAL_DIRECTORY}                             /home/vagrant/this/is/a/directory/for/scanning
 ${MCS_DIR}                                      ${SOPHOS_INSTALL}/base/mcs
 ${TESTTMP}                                      /tmp_test/SSPLAVTests
