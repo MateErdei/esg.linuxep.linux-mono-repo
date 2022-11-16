@@ -7,6 +7,7 @@
 #include "Common/Threads/AbstractThread.h"
 #include "Common/Threads/NotifyPipe.h"
 #include "datatypes/AutoFd.h"
+#include <datatypes/ISystemCallWrapper.h>
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "scan_messages/ThreatDetected.h"
 #include "scan_messages/QuarantineResponse.h"
@@ -25,7 +26,8 @@ namespace unixsocket
         SafeStoreServerConnectionThread& operator=(const SafeStoreServerConnectionThread&) = delete;
         explicit SafeStoreServerConnectionThread(
             datatypes::AutoFd& fd,
-            std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager);
+            std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager,
+            datatypes::ISystemCallWrapperSharedPtr sysCalls);
         void run() override;
 
     private:
@@ -33,5 +35,6 @@ namespace unixsocket
 
         datatypes::AutoFd m_fd;
         std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> m_quarantineManager;
+        datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
     };
 } // namespace unixsocket

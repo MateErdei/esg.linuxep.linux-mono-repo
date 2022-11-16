@@ -36,6 +36,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
 
     SophosAddTest(TestSafeStoreSocket
             ../common/LogInitializedTests.cpp
+            TestSafeStoreServerConnectionThread.cpp
             TestSafeStoreSocket.cpp
             PROJECTS unixsocket safestoreimpl
             INC_DIRS ${testhelpersinclude}

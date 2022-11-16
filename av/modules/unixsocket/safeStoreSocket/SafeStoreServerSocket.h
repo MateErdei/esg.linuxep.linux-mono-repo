@@ -4,6 +4,7 @@
 
 #include "SafeStoreServerConnectionThread.h"
 
+#include "datatypes/SystemCallWrapper.h"
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "unixsocket/BaseServerSocket.h"
 
@@ -22,7 +23,8 @@ namespace unixsocket
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            return std::make_unique<SafeStoreServerConnectionThread>(fd, m_quarantineManager);
+            auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+            return std::make_unique<SafeStoreServerConnectionThread>(fd, m_quarantineManager, sysCalls);
         }
 
         void logMaxConnectionsError() override
