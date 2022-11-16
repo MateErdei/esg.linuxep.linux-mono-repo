@@ -162,10 +162,14 @@ SafeStore does not quarantine on a Corrupt Database
     wait_for_log_contains_from_mark  ${safestore_mark}  Cannot quarantine file, SafeStore is in
     wait_for_log_contains_from_mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    timeout=200
     wait_for_log_contains_from_mark  ${safestore_mark}  Successfully initialised SafeStore database
+    File Should Exist  ${SCAN_DIRECTORY}/eicar.com
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Check avscanner can detect eicar
+    # Rescan the file without creating it again
+    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com
     wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${safestore_mark}  Finalising file
+    File Should Not Exist  ${SCAN_DIRECTORY}/eicar.com
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
