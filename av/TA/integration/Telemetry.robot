@@ -132,7 +132,7 @@ AV plugin Saves and Restores Scan Now Counter
     Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
     Dictionary Should Contain Item   ${avDict}   threatHealth   ${1}
 
-Command Line Scan Increments Telemety Eicar Detection Count
+Command Line Scan Increments Telemety Threat Eicar Count
     ${dirtyfile} =  Set Variable  /tmp_test/dirty_file.txt
 
     # Run telemetry to reset counters to 0
@@ -160,7 +160,7 @@ Command Line Scan Increments Telemety Eicar Detection Count
     Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
 
 
-Command Line Scan Increments Telemety Non-Eicar Detection Count
+Command Line Scan Increments Telemety Threat Detection Count
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -185,7 +185,7 @@ Command Line Scan Increments Telemety Non-Eicar Detection Count
     Dictionary Should Contain Item   ${avDict}   on-access-threat-count   ${0}
     Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
 
-Scheduled Scan Increments Telemetry Eicar Detection And Scheduled Scan Count
+Scheduled Scan Increments Telemetry Threat Eicar And Scheduled Scan Count
     ${dirtyfile} =  Set Variable  /tmp_test/dirty_file.txt
 
     # Run telemetry to reset counters to 0
@@ -216,7 +216,7 @@ Scheduled Scan Increments Telemetry Eicar Detection And Scheduled Scan Count
     Dictionary Should Contain Item   ${avDict}   scan-now-count   ${0}
 
 
-Scheduled Scan Increments Telemetry Non-Eicar Detection And Scheduled Scan Count
+Scheduled Scan Increments Telemetry Threat And Scheduled Scan Count
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -245,7 +245,7 @@ Scheduled Scan Increments Telemetry Non-Eicar Detection And Scheduled Scan Count
     Dictionary Should Contain Item   ${avDict}   scan-now-count   ${0}
 
 
-Scan Now Increments Telemetry Eicar Detection And Scan Now Count
+Scan Now Increments Telemetry Threat Eicar And Scan Now Count
     ${dirtyfile} =  Set Variable  /tmp_test/dirty_file.txt
 
     # Run telemetry to reset counters to 0
@@ -272,7 +272,7 @@ Scan Now Increments Telemetry Eicar Detection And Scan Now Count
     Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
 
 
-Scan Now Increments Telemetry Non-Eicar Detection And Scan Now Count
+Scan Now Increments Telemetry Threat And Scan Now Count
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -297,7 +297,7 @@ Scan Now Increments Telemetry Non-Eicar Detection And Scan Now Count
     Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
 
 
-On Access Scan Increments Telemetry Eicar Count
+On Access Scan Increments Telemetry Threat Eicar Count
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -326,7 +326,7 @@ On Access Scan Increments Telemetry Eicar Count
     Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
 
 
-On Access Scan Increments Telemetry Non Eicar Count
+On Access Scan Increments Telemetry Threat Count
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
