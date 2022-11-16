@@ -173,7 +173,8 @@ Threat detector triggers reload on SIGUSR1
 
 
 Threat detector exits if it cannot acquire the susi update lock
-    [Tags]  manual
+#   TODO: LINUXDAR-5692 re-enable when bug gets fixed, or when we have a better understanding of the issue
+    [Tags]  disabled
     Dump and Reset Logs
     ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
 #    Register Cleanup    Exclude Failed To Acquire Susi Lock
