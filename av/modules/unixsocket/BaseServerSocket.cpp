@@ -10,6 +10,7 @@
 
 #include <stdexcept>
 
+#include <poll.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
@@ -61,13 +62,10 @@ unixsocket::BaseServerSocket::~BaseServerSocket()
 
 void unixsocket::BaseServerSocket::run()
 {
-    int exitFD = m_notifyPipe.readFd();
-
-    fd_set readFDs;
-    FD_ZERO(&readFDs);
-    int max = -1;
-    max = FDUtils::addFD(&readFDs, exitFD, max);
-    max = FDUtils::addFD(&readFDs, m_socket_fd, max);
+    struct pollfd fds[] {
+        { .fd = m_socket_fd.get(), .events = POLLIN, .revents = 0 }, // socket FD
+        { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
+    };
 
     int ret = ::listen(m_socket_fd, 2);
     if (ret != 0)
@@ -86,31 +84,40 @@ void unixsocket::BaseServerSocket::run()
 
     while (!terminate)
     {
-        fd_set tempRead = readFDs;
-
         //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
-        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
-
-        if (activity < 0)
+        auto ret = ::ppoll(fds, std::size(fds), nullptr, nullptr);
+        if (ret < 0)
         {
-            int error = errno;
-            if (error == EINTR)
+            if (errno == EINTR)
             {
-                LOGDEBUG("Ignoring EINTR from pselect");
+                LOGDEBUG("Ignoring EINTR from ppoll");
                 continue;
             }
 
-            LOGERROR("Socket failed, closing " << m_socketName << ". Error: " << common::safer_strerror(error)<< " (" << error << ')');
+            LOGERROR("Socket failed, closing " << m_socketName << ". Error: " << common::safer_strerror(errno)<< " (" << errno << ')');
+            return;
+        }
+        assert(ret > 0);
+
+        if ((fds[1].revents & POLLERR) != 0)
+        {
+            LOGERROR("Closing " << m_socketName << ", error from notify pipe");
             break;
         }
 
-        if (FDUtils::fd_isset(exitFD, &tempRead))
+        if ((fds[0].revents & POLLERR) != 0)
+        {
+            LOGERROR("Closing " << m_socketName << ", error from socket");
+            break;
+        }
+
+        if ((fds[1].revents & POLLIN) != 0)
         {
             LOGDEBUG("Closing " << m_socketName << " socket");
             break;
         }
 
-        if(FDUtils::fd_isset(m_socket_fd, &tempRead))
+        if ((fds[0].revents & POLLIN) != 0)
         {
             datatypes::AutoFd client_socket(
                 ::accept(m_socket_fd, nullptr, nullptr)
