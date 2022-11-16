@@ -9,7 +9,8 @@ namespace Common::SslImpl
     enum class Digest
     {
         md5,
-        sha256
+        sha256,
+        sha1
     };
 
     /**

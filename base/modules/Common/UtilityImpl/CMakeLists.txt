@@ -9,8 +9,6 @@ add_library(utilityimplobject OBJECT
         UniformIntDistribution.cpp
         UniformIntDistribution.h
         Main.h
-#        MapSerialiser.h
-#        MapSerialiser.cpp
         VectorAsSet.cpp
         VectorAsSet.h
         OrderedSet.h
@@ -28,22 +26,15 @@ add_library(utilityimplobject OBJECT
         SophosSplUsers.cpp
         ISophosSplUsers.h
         WaitForUtils.h
-        WaitForUtils.cpp)
-
-target_include_directories(utilityimplobject PUBLIC
-        ../../Common
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CURL_INCLUDE_DIR}
-        ${BOOST_INCLUDE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nlohmann-json)
-
-add_library(utilityimpl SHARED $<TARGET_OBJECTS:utilityimplobject>)
-
-target_include_directories(utilityimpl PUBLIC
-        ../../Common
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nlohmann-json
+        WaitForUtils.cpp
+        SystemExecutableUtils.cpp
+        SystemExecutableUtils.h
+        Uuid.cpp
+        Uuid.h
         )
+target_include_directories(utilityimplobject PUBLIC ../../Common ${CMAKE_CURRENT_SOURCE_DIR} ${CURL_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
+add_library(utilityimpl SHARED $<TARGET_OBJECTS:utilityimplobject>)
+target_include_directories(utilityimpl PUBLIC ../../Common ${CMAKE_CURRENT_BINARY_DIR})
 
 SET_TARGET_PROPERTIES(utilityimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

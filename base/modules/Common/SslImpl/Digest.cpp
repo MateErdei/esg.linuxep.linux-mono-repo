@@ -66,6 +66,9 @@ namespace Common::SslImpl
             case Digest::sha256:
                 digestNameString = "sha256";
                 break;
+            case Digest::sha1:
+                digestNameString = "sha1";
+                break;
         }
 
         // TODO: replace with EVP_MD_fetch for OpenSSL 3.0
