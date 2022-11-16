@@ -9,21 +9,25 @@
 
 #include <capnp/serialize.h>
 #include <common/FDUtils.h>
+#include <common/SaferStrerror.h>
 #include <scan_messages/ThreatDetected.h>
 
 #include <cassert>
 #include <stdexcept>
 #include <utility>
 
+#include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 using namespace unixsocket;
 
 ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(datatypes::AutoFd& fd,
-                                                                           std::shared_ptr<IMessageCallback> threatReportCallback)
+                                                                           std::shared_ptr<IMessageCallback> threatReportCallback,
+                                                                           datatypes::ISystemCallWrapperSharedPtr sysCalls)
         : m_fd(std::move(fd))
         , m_threatReportCallback(std::move(threatReportCallback))
+        , m_sysCalls(sysCalls)
 {
     if (m_fd < 0)
     {
@@ -114,41 +118,47 @@ void ThreatReporterServerConnectionThread::inner_run()
     uint32_t buffer_size = 512;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
-    int exitFD = m_notifyPipe.readFd();
-
-    fd_set readFDs;
-    FD_ZERO(&readFDs);
-    int max = -1;
-    max = FDUtils::addFD(&readFDs, exitFD, max);
-    max = FDUtils::addFD(&readFDs, socket_fd, max);
+    struct pollfd fds[] {
+        { .fd = socket_fd.get(), .events = POLLIN, .revents = 0 }, // socket FD
+        { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
+    };
     bool loggedLengthOfZero = false;
 
     while (true)
     {
-        fd_set tempRead = readFDs;
-
-        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
-
-        if (activity < 0)
+        auto ret = m_sysCalls->ppoll(fds, std::size(fds), nullptr, nullptr);
+        if (ret < 0)
         {
+            if (errno == EINTR)
+            {
+                continue;
+            }
 
-            LOGERROR("Closing Threat Reporter connection thread, error: " << errno);
+            LOGFATAL("Error from ppoll: " << common::safer_strerror(errno));
+            return;
+        }
+        assert(ret > 0);
+
+        if ((fds[1].revents & POLLERR) != 0)
+        {
+            LOGERROR("Closing Threat Reporter connection thread, error from notify pipe");
             break;
         }
 
-        if (FDUtils::fd_isset(exitFD, &tempRead))
+        if ((fds[0].revents & POLLERR) != 0)
+        {
+            LOGERROR("Closing Threat Reporter connection thread, error from socket");
+            break;
+        }
+
+        if ((fds[1].revents & POLLIN) != 0)
         {
             LOGSUPPORT("Closing Threat Reporter connection thread");
             break;
         }
-        else
-        // if (FDUtils::fd_isset(socket_fd, &tempRead))
-        {
-            // If shouldn't be required - we have no timeout, and only 2 FDs in the pselect.
-            // exitFD will cause break
-            // therefore "else" must be fd_isset(socket_fd, &tempRead)
-            assert(FDUtils::fd_isset(socket_fd, &tempRead));
 
+        if ((fds[0].revents & POLLIN) != 0)
+        {
             // read length
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)

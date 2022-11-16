@@ -6,6 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "datatypes/SystemCallWrapper.h"
 #include "unixsocket/BaseServerSocket.h"
 #include "ThreatReporterServerConnectionThread.h"
 
@@ -24,7 +25,8 @@ namespace unixsocket
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            return std::make_unique<ThreatReporterServerConnectionThread>(fd, m_threatReportCallback);
+            auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+            return std::make_unique<ThreatReporterServerConnectionThread>(fd, m_threatReportCallback, sysCalls);
         }
 
         void logMaxConnectionsError() override

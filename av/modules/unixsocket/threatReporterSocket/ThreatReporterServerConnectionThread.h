@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #define AUTO_FD_IMPLICIT_INT
 #include <datatypes/AutoFd.h>
+#include <datatypes/ISystemCallWrapper.h>
 #include <scan_messages/ThreatDetected.h>
 #include "Common/Threads/NotifyPipe.h"
 #include "Common/Threads/AbstractThread.h"
@@ -26,7 +27,8 @@ namespace unixsocket
         ThreatReporterServerConnectionThread& operator=(const ThreatReporterServerConnectionThread&) = delete;
         explicit ThreatReporterServerConnectionThread(
             datatypes::AutoFd& fd,
-            std::shared_ptr<IMessageCallback> threatReportCallback);
+            std::shared_ptr<IMessageCallback> threatReportCallback,
+            datatypes::ISystemCallWrapperSharedPtr sysCalls);
         void run() override;
 
     private:
@@ -34,6 +36,7 @@ namespace unixsocket
 
         datatypes::AutoFd m_fd;
         std::shared_ptr<IMessageCallback> m_threatReportCallback;
+        datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
     };
 }
 

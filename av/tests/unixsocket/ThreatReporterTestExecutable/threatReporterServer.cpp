@@ -1,6 +1,7 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "datatypes/Print.h"
+#include "datatypes/SystemCallWrapper.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerSocket.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
@@ -50,7 +51,8 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
 
     // start a scanning server
     std::shared_ptr<MessageCallbacks> messageCallbacks = std::make_shared<MessageCallbacks>();
-    unixsocket::ThreatReporterServerConnectionThread connectionThread(serverFd, messageCallbacks);
+    auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+    unixsocket::ThreatReporterServerConnectionThread connectionThread(serverFd, messageCallbacks, sysCalls);
     connectionThread.start();
 
     // send our request
