@@ -46,7 +46,9 @@ def test_av_can_send_telemetry(sspl_mock, av_plugin_instance):
     assert av_dict["sxl4-lookup"] is True
     assert av_dict["scan-now-count"] == 0
     assert av_dict["scheduled-scan-count"] == 0
-    assert av_dict["threat-count"] == 0
-    assert av_dict["threat-eicar-count"] == 0
+    assert av_dict["on-demand-threat-count"] == 0
+    assert av_dict["on-demand-threat-eicar-count"] == 0
+    assert av_dict["on-access-threat-count"] == 0
+    assert av_dict["on-access-threat-eicar-count"] == 0
 
     logger.debug("Completed %s", inspect.currentframe().f_code.co_name)
