@@ -61,12 +61,12 @@ PLATFORM_EXCLUDE_TAG=""
 SAMBA_EXCLUDE_TAG=
 if [[ ! -f /etc/samba/smb.conf ]]
 then
-    echo "Excluding SMB as /etc/samba/smb.conf doesn't exist"
-    SAMBA_EXCLUDE_TAG="-e smb"
+    echo "Excluding CIFS as /etc/samba/smb.conf doesn't exist"
+    SAMBA_EXCLUDE_TAG="-e cifs"
 elif [[ ! -x $(which mount.cifs) ]]
 then
-    echo "Excluding SMB as mount.cifs doesn't exist"
-    SAMBA_EXCLUDE_TAG="-e smb"
+    echo "Excluding CIFS as mount.cifs doesn't exist"
+    SAMBA_EXCLUDE_TAG="-e cifs"
 fi
 
 export TEST_UTILS=$SCRIPT_DIR
