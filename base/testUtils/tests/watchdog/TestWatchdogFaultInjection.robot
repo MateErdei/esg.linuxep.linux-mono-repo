@@ -39,27 +39,28 @@ Test wdctl and Watchdog Can Handle A Plugin That cannot Be Executed And Logs Err
     ...  3 secs
     ...  Check Watchdog Detect Broken Plugins
 
-Test wdctl and Watchdog kills a plugin that will not shutdown cleanly
+Test wdctl and Watchdog aborts a plugin that will not shutdown cleanly
     [Tags]    WATCHDOG  WDCTL  FAULTINJECTION
     [Teardown]  Clean Up Files
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
     Require Fresh Install
 
-    Setup Test Plugin Config  trap -- '' SIGINT SIGTERM\nsleep 11000   ${TEMPDIR}  testplugin
+   setup_test_plugin_config_with_given_executable  SystemProductTestOutput/ignoreSignals
     ## call wdctl to copy configuration
 
 
     ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration    ${TEMPDIR}/testplugin.json
 
 
-    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start    testplugin
+    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start    fakePlugin
     sleep  2
-    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop    testplugin
+    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop    fakePlugin
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  2 secs
-    ...  check_watchdog_log_contains  /opt/sophos-spl/testPlugin.sh died with
-    check_watchdog_log_does_not_contain  /opt/sophos-spl/testPlugin.sh died with 15
+    ...  check_watchdog_log_contains  /opt/sophos-spl/testPlugin died with
+    check_watchdog_log_contains  Killing process with abort signal
+    check_watchdog_log_does_not_contain  /opt/sophos-spl/testPlugin died with 15
 
 
 Watchdog Does Not Throw Unhandled Exception When Machine Id File Is Not Present At Startup

@@ -40,6 +40,20 @@ Test wdctl will block on removing a plugin
     IF    ${TimeDiff} < 4.5
         Fail
     END
+    check_watchdog_log_contains  Killing process
+    check_watchdog_log_contains  Output
 
+Test watchdog logs plugin output during system shutdown
+    [Tags]    WATCHDOG
 
+    setup_test_plugin_config_with_given_executable  SystemProductTestOutput/ignoreSignals
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start   fakePlugin
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check Log Contains  Starting /opt/sophos-spl/testPlugin  ${SOPHOS_INSTALL}/logs/base/watchdog.log  watchdog log
+    mark_watchdog_log
+    ${result} =    Run Process   systemctl  stop  sophos-spl
+    check_marked_watchdog_log_contains  Killing process
+    check_marked_watchdog_log_contains  Output
 *** Keywords ***

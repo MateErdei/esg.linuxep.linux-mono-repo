@@ -134,6 +134,9 @@ TEST_F(TestProcessProxy, WillStartPluginWithExecutable) // NOLINT
         EXPECT_CALL(*mockProcess, exec(absolutePath, args, _, _, _)).Times(1);
         EXPECT_CALL(*mockProcess, kill(2)).Times(1); // In the destructor of PluginProxy
         EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
+        EXPECT_CALL(*mockProcess, exitCode()).Times(1);
+        EXPECT_CALL(*mockProcess, output()).Times(1);
+        EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });
 
@@ -163,7 +166,7 @@ TEST_F(TestProcessProxy, WillWaitAfterExitBeforeRestartingPlugin) // NOLINT
         auto mockProcess = new StrictMock<MockProcess>();
         EXPECT_CALL(*mockProcess, exec(absolutePath, args, _, _, _)).Times(1);
         EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
-        EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, getStatus()).Times(2).WillRepeatedly(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
@@ -202,7 +205,7 @@ TEST_F(TestProcessProxy, checkExpectedExitIsNotLogged) // NOLINT
         auto mockProcess = new StrictMock<MockProcess>();
         EXPECT_CALL(*mockProcess, exec(absolutePath, args, _, _, _)).Times(1);
         EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
-        EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, getStatus()).Times(2).WillRepeatedly(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
         EXPECT_CALL(*mockProcess, kill(2)).WillOnce(Return(false));
@@ -245,7 +248,7 @@ TEST_F(TestProcessProxy, checkDoesNotReportErrorWhenItIssuesKill) // NOLINT
         auto mockProcess = new StrictMock<MockProcess>();
         EXPECT_CALL(*mockProcess, exec(absolutePath, args, _, _, _)).Times(1);
         EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
-        EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, getStatus()).Times(2).WillRepeatedly(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(ECANCELED));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
         EXPECT_CALL(*mockProcess, kill(2)).WillOnce(Return(false));
@@ -293,7 +296,7 @@ TEST_F(TestProcessProxy, checkItDoesReportErrorWhenItDidNotIssueKill) // NOLINT
         auto mockProcess = new StrictMock<MockProcess>();
         EXPECT_CALL(*mockProcess, exec(absolutePath, args, _, _, _)).Times(1);
         EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
-        EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, getStatus()).Times(2).WillRepeatedly(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(ECANCELED));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
@@ -333,7 +336,7 @@ TEST_F(TestProcessProxy, checkItDoesReportDiedWithWhenIsDifferentCode) // NOLINT
         auto mockProcess = new StrictMock<MockProcess>();
         EXPECT_CALL(*mockProcess, exec(absolutePath, args, _, _, _)).Times(1);
         EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
-        EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+        EXPECT_CALL(*mockProcess, getStatus()).Times(2).WillRepeatedly(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(50));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);

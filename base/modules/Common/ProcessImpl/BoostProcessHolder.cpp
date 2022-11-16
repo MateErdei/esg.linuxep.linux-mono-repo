@@ -441,7 +441,7 @@ namespace Common
             {
                 return;
             }
-            LOGDEBUG("Terminating process with abort signal " << m_pid);
+            LOGINFO("Killing process with abort signal " << m_pid);
             ::kill(m_pid, SIGABRT);
         }
 
@@ -451,7 +451,7 @@ namespace Common
             {
                 return;
             }
-            LOGDEBUG("Killing process " << m_pid);
+            LOGINFO("Killing process " << m_pid);
             m_child->terminate();
             cacheResult();
         }

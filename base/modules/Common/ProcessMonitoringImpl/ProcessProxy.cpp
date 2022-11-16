@@ -226,6 +226,7 @@ namespace Common
             {
                 // cppcheck-suppress virtualCallInConstructor
                 stop();
+                checkForExit();
             }
             catch (const std::exception& ex)
             {
