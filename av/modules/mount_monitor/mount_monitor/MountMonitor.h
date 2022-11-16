@@ -2,6 +2,10 @@
 
 #pragma once
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 #include "datatypes/ISystemCallWrapper.h"
 #include "mount_monitor/mountinfo/IMountInfo.h"
 #include "sophos_on_access_process/soapd_bootstrap/OnAccessConfigurationUtils.h"
@@ -36,6 +40,10 @@ namespace mount_monitor::mount_monitor
         bool isIncludedFilesystemType(const mountinfo::IMountPointSharedPtr& mount);
         bool isIncludedMountpoint(const mountinfo::IMountPointSharedPtr& mount);
 
+    TEST_PUBLIC:
+        void addFileSystemToTelemetry(const std::map<std::string, bool>& fileSystemList);
+
+    private:
         OnAccessConfiguration& m_config;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;

@@ -1,5 +1,7 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
+# define TEST_PUBLIC public
+
 #include <gtest/gtest.h>
 
 #include "MockSystemPaths.h"
@@ -14,6 +16,8 @@
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "mount_monitor/mountinfoimpl/SystemPaths.h"
 #include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
+
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <fstream>
 
@@ -323,4 +327,71 @@ TEST_F(TestMountMonitor, TestMonitorLogsErrorIfMarkingFails)
     EXPECT_TRUE(waitForLog("Unable to mark fanotify for mount point "));
     EXPECT_TRUE(waitForLog("On Access Scanning disabled"));
     EXPECT_TRUE(waitForLog("Stopping monitoring of mounts"));
+}
+
+TEST_F(TestMountMonitor, TestMonitorLogsTelemetryFileSystemType)
+{
+    const std::string expectedFileSystem = "tmpfs";
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    struct pollfd fds[2]{};
+    fds[0].revents = POLLIN;
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
+    EXPECT_CALL(*m_mockFanotifyHandler, markMount(_)).WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillOnce(Return(m_sysPaths));
+
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+    common::ThreadRunner mountMonitorThread(mountMonitor, "mountMonitor", true);
+
+    //Wait for us to finish processing mountpoints
+    EXPECT_TRUE(waitForLog("mount points in on-access scanning"));
+
+    auto resContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    PRINT(resContent);
+    ASSERT_TRUE(resContent.find(expectedFileSystem) != std::string::npos);
+    EXPECT_TRUE(waitForLog("Stopping monitoring of mounts"));
+}
+
+TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryIsPersistant)
+{
+    const std::map<std::string, bool> input {
+        {"squashfs", true},
+        {"tmpfs", true}
+    };
+    const std::string expectedFileSystemStr = "{\"file-system-types\":[\"squashfs\",\"tmpfs\"]}";
+
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    mountMonitor->addFileSystemToTelemetry(input);
+    auto firstContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    ASSERT_EQ(firstContent, expectedFileSystemStr);
+
+    auto secondContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    ASSERT_EQ(firstContent, secondContent);
+}
+
+TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryCanBeChangedAndNotDuplicated)
+{
+    const std::map<std::string, bool> input1 {
+        {"squashfs", true},
+        {"tmpfs", true}
+    };
+
+    const std::map<std::string, bool> input2 {
+        {"cifs", true},
+        {"ext4", true}
+    };
+
+    const std::string expectedFileSystemStr1 = "{\"file-system-types\":[\"squashfs\",\"tmpfs\"]}";
+    const std::string expectedFileSystemStr2 = "{\"file-system-types\":[\"cifs\",\"ext4\"]}";
+
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    mountMonitor->addFileSystemToTelemetry(input1);
+    auto firstContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    ASSERT_EQ(firstContent, expectedFileSystemStr1);
+
+    mountMonitor->addFileSystemToTelemetry(input2);
+    auto secondContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    ASSERT_EQ(secondContent, expectedFileSystemStr2);
 }

@@ -9,6 +9,8 @@
 #include "mount_monitor/mountinfoimpl/Mounts.h"
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
 #include <sstream>
 
 #include <poll.h>
@@ -111,6 +113,8 @@ namespace mount_monitor::mount_monitor
 
     void MountMonitor::markMounts(const mountinfo::IMountPointSharedVector& allMounts)
     {
+        //The bool is superfluous, we want unique list of keys
+        std::map<std::string, bool> fileSystemMap;
         int count = 0;
         for (const auto& mount: allMounts)
         {
@@ -133,6 +137,7 @@ namespace mount_monitor::mount_monitor
                 }
                 count++;
                 LOGDEBUG("Including mount point: " << mountPointStr);
+                fileSystemMap.try_emplace(mount->filesystemType(), true);
             }
             else
             {
@@ -140,7 +145,30 @@ namespace mount_monitor::mount_monitor
                 LOGTRACE("Excluding mount point: " << mountPointStr);
             }
         }
+        addFileSystemToTelemetry(fileSystemMap);
         LOGDEBUG("Including " << count << " mount points in on-access scanning");
+    }
+
+    void MountMonitor::addFileSystemToTelemetry(const std::map<std::string, bool>& fileSystemList)
+    {
+        //We do all this instead of addValueToSetInternal because we want it to stick
+        assert(fileSystemList.size() > 0);
+
+        using namespace Common::Telemetry;
+
+        std::list<TelemetryObject> fsTelemetryList;
+
+        for (auto fileSystem : fileSystemList)
+        {
+            TelemetryValue fsVal(fileSystem.first);
+            TelemetryObject fsObj;
+            fsObj.set(fsVal);
+            fsTelemetryList.push_back(fsObj);
+        }
+
+        TelemetryObject endObject;
+        endObject.set(fsTelemetryList);
+        TelemetryHelper::getInstance().set("file-system-types", endObject, true);
     }
 
     void MountMonitor::run()
