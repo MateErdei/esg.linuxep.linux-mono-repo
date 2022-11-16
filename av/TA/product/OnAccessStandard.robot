@@ -65,6 +65,7 @@ On Access Test Teardown
 
     Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
+    Dump Log On Failure   ${SUSI_DEBUG_LOG_PATH}
 
 Mount Image and Wait For Log
     [Arguments]  ${where}  ${image}  ${type}  ${opts}=loop
