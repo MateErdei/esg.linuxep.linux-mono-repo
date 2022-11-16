@@ -512,9 +512,6 @@ AV Plugin uninstalls
     Register Cleanup    Install With Base SDDS
     Check avscanner in /usr/local/bin
     Run plugin uninstaller
-    #LINUXDAR-3861. Remove when this ticket has been closed
-    Remove Users Stop Processes
-    #end
     Check avscanner not in /usr/local/bin
     Check AV Plugin Not Installed
 
@@ -523,9 +520,6 @@ AV Plugin Saves Logs On Downgrade
     Register Cleanup  Install With Base SDDS
     Check AV Plugin Running
     Run plugin uninstaller with downgrade flag
-    #LINUXDAR-3861. Remove when this ticket has been closed
-    Remove Users Stop Processes
-    #end
     Check AV Plugin Not Installed
     Check Logs Saved On Downgrade
 
