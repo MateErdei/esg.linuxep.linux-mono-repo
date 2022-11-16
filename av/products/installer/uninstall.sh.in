@@ -70,7 +70,7 @@ if (( DOWNGRADE == 1 ))
 then
     RESTORE_DIR=${UNINSTALLDIR}/log/downgrade-backup
     mkdir -p "$RESTORE_DIR"
-    for entry in "$SAVE_DIR"/*
+    for entry in "$SAVE_DIR"/*.log*
     do
         cp "$entry"  "$RESTORE_DIR"/"$(basename -- "$entry")"
     done
