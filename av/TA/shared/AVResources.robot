@@ -14,10 +14,10 @@ Library         ../Libs/PluginUtils.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/SophosThreatDetector.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
+Library         ../Libs/ThreatReportUtils.py
 
 Resource    GlobalSetup.robot
 Resource    ComponentSetup.robot
-Resource    SafeStoreResources.robot
 Resource    RunShellProcess.robot
 
 *** Variables ***
@@ -28,6 +28,9 @@ ${AV_LOG_PATH}                                  ${AV_PLUGIN_PATH}/log/${COMPONEN
 ${SOPHOS_THREAT_DETECTOR_SHUTDOWN_FILE_PATH}    ${AV_PLUGIN_PATH}/chroot/var/threat_detector_expected_shutdown
 ${SOPHOS_THREAT_DETECTOR_PID_FILE_PATH}         ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
 ${ON_ACCESS_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/soapd.log
+${SAFESTORE_LOG_PATH}                           ${AV_PLUGIN_PATH}/log/safestore.log
+${SAFESTORE_PID_FILE}                           ${AV_PLUGIN_PATH}/var/safestore.pid
+${SAFESTORE_SOCKET_PATH}                        ${AV_PLUGIN_PATH}/var/safestore_socket
 ${THREAT_DETECTOR_LOG_PATH}                     ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
 ${THREAT_DETECTOR_INFO_LOG_PATH}                ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.info.log
 ${SUSI_DEBUG_LOG_PATH}                          ${AV_PLUGIN_PATH}/chroot/log/susi_debug.log
@@ -47,15 +50,14 @@ ${PLUGIN_SDDS}                                  ${COMPONENT_SDDS}
 ${PLUGIN_BINARY}                                ${COMPONENT_ROOT_PATH}/sbin/${COMPONENT}
 ${SCHEDULED_FILE_WALKER_LAUNCHER}               ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
 ${ON_ACCESS_BIN}                                ${COMPONENT_ROOT_PATH}/sbin/soapd
+${SAFESTORE_BIN}                                ${COMPONENT_ROOT_PATH}/sbin/safestore
 ${SOPHOS_THREAT_DETECTOR_BINARY}                ${COMPONENT_ROOT_PATH}/sbin/sophos_threat_detector
 ${SOPHOS_THREAT_DETECTOR_LAUNCHER}              ${COMPONENT_ROOT_PATH}/sbin/sophos_threat_detector_launcher
 ${EXPORT_FILE}                                  /etc/exports
 ${AV_INSTALL_LOG}                               /tmp/avplugin_install.log
 ${AV_UNINSTALL_LOG}                             /tmp/avplugin_uninstall.log
 ${AV_BACKUP_DIR}                                ${SOPHOS_INSTALL}/tmp/av_downgrade/
-${SAFESTORE_BACKUP_DIR}                         ${SOPHOS_INSTALL}/tmp/safestore_downgrade
 ${AV_RESTORED_LOGS_DIRECTORY}                   ${AV_PLUGIN_PATH}/log/downgrade-backup/
-${AV_RESTORED_VAR_DIRECTORY}                    ${AV_PLUGIN_PATH}/var/downgrade-backup
 ${NORMAL_DIRECTORY}                             /home/vagrant/this/is/a/directory/for/scanning
 ${MCS_DIR}                                      ${SOPHOS_INSTALL}/base/mcs
 ${TESTTMP}                                      /tmp_test/SSPLAVTests
@@ -63,7 +65,6 @@ ${TESTTMP}                                      /tmp_test/SSPLAVTests
 ${CLEAN_STRING}         not an eicar
 ${EICAR_STRING}         X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
 ${EICAR_PUA_STRING}     X5]+)D:)D<5N*PZ5[/EICAR-POTENTIALLY-UNWANTED-OBJECT-TEST!$*M*L
-${DSA_BY_NAME_STRING}   UNIQUE-NONPE-TESTFILE-STUB_1ze492x5f_239c42qe_2342eee_249f3dea_DSA_DET_NO_FORCE_LOOKUP__SUPP_BY_NAME
 
 ${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet>
 ${STATUS_XML}       ${MCS_PATH}/status/SAV_status.xml
@@ -117,6 +118,10 @@ Check OnAccess Not Running
     ${result} =   ProcessUtils.pidof  ${ON_ACCESS_BIN}
     Should Be Equal As Integers  ${result}  ${-1}
 
+Check SafeStore Not Running
+    ${result} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
+    Should Be Equal As Integers  ${result}  ${-1}
+
 Check Threat Detector Not Running
     ${result} =   ProcessUtils.pidof  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Should Be Equal As Integers  ${result}  ${-1}
@@ -126,6 +131,9 @@ Check Threat Detector PID File Does Not Exist
     Run Keyword And Ignore Error  File Should Not Exist  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
     Remove File  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
 
+Check SafeStore PID File Does Not Exist
+    Run Keyword And Ignore Error  File Should Not Exist  ${SAFESTORE_PID_FILE}
+    Remove File  ${SAFESTORE_PID_FILE}
 
 Count File Log Lines
     [Arguments]  ${path}
@@ -153,6 +161,12 @@ Mark Sophos Threat Detector Log
     Log  "SOPHOS_THREAT_DETECTOR LOG MARK = ${SOPHOS_THREAT_DETECTOR_LOG_MARK}"
     [Return]  ${count}
 
+Mark SafeStore Log
+    [Arguments]  ${mark}=""
+    ${count} =  Count Optional File Log Lines  ${SAFESTORE_LOG_PATH}
+    Set Suite Variable   ${SAFESTORE_LOG_MARK}  ${count}
+    Log  "SAFESTORE LOG MARK = ${SAFESTORE_LOG_MARK}"
+    [Return]  ${count}
 
 Mark Susi Debug Log
     ${count} =  Count File Log Lines  ${SUSI_DEBUG_LOG_PATH}
@@ -298,6 +312,51 @@ On Access Log Does Not Contain With Offset
         Sleep   3s
     END
 
+SafeStore Log Contains
+    [Arguments]  ${input}
+    File Log Contains     ${SAFESTORE_LOG_PATH}   ${input}
+
+SafeStore Log Does Not Contain
+    [Arguments]  ${input}
+    LogUtils.Over next 15 seconds ensure log does not contain   ${SAFESTORE_LOG_PATH}  ${input}
+
+SafeStore Log Contains With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
+    File Log Contains With Offset     ${SAFESTORE_LOG_PATH}   ${input}   offset=${offset}
+
+SafeStore Log Contains With Offset Times
+    [Arguments]  ${input}  ${times}
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
+    File Log Contains With Offset Times    ${SAFESTORE_LOG_PATH}   ${input}   ${times}   offset=${offset}
+
+SafeStore Log Does Not Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
+    # retry for 15s
+    FOR   ${i}   IN RANGE   5
+        File Log Should Not Contain With Offset  ${SAFESTORE_LOG_PATH}   ${input}   offset=${offset}
+        Sleep   3s
+    END
+
+Wait Until SafeStore Log Contains
+    [Arguments]  ${input}  ${timeout}=15  ${interval}=0
+    ${interval} =   Set Variable If
+    ...   ${interval} > 0   ${interval}
+    ...   ${timeout} >= 120   10
+    ...   ${timeout} >= 60   5
+    ...   ${timeout} >= 15   3
+    ...   1
+    Wait Until File Log Contains  SafeStore Log Contains   ${input}   timeout=${timeout}  interval=${interval}
+
+Wait Until SafeStore Log Contains With Offset
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  SafeStore Log Contains With Offset  ${input}   timeout=${timeout}
+
+Wait Until SafeStore Log Contains Times With Offset
+    [Arguments]  ${input}  ${timeout}=15  ${times}=1
+    Wait Until File Log Contains Times  SafeStore Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
+
 Threat Detector Log Contains
     [Arguments]  ${input}
     File Log Contains  ${THREAT_DETECTOR_LOG_PATH}   ${input}
@@ -429,19 +488,25 @@ AV Plugin Log Should Not Contain Detection Name And Path With Offset
     AV Plugin Log Should Not Contain With Offset  Found '${name}' in '${path}'
 
 Check String Contains Detection Event XML
-    [Arguments]  ${input}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
+    [Arguments]  ${input}  ${id}  ${name}  ${sha256}  ${path}
     Should Contain  ${input}  type="sophos.core.detection" ts="
     Should Contain  ${input}  <user userId="n/a"/>
-    Should Contain  ${input}  <alert id="${id}" name="${name}" threatType="${threatType}" origin="${origin}" remote="${remote}">
+    Should Contain  ${input}  <alert id="${id}" name="${name}" threatType="1" origin="0" remote="false">
     Should Contain  ${input}  <sha256>${sha256}</sha256>
     Should Contain  ${input}  <path>${path}</path>
     [Return]  ${true}
 
+Wait Until AV Plugin Log Contains Detection Event XML With Offset
+    [Arguments]  ${id}  ${name}  ${sha256}  ${path}  ${timeout}=15  ${interval}=2
+    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central  timeout=${timeout}  interval=${interval}
+    ${marked_av_log} =  Get Marked AV Log
+    Check String Contains Detection Event XML  ${marked_av_log}  ${id}  ${name}  ${sha256}  ${path}
+
 Wait Until AV Plugin Log Contains Detection Event XML After Mark
-    [Arguments]  ${mark}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}  ${timeout}=15
+    [Arguments]  ${mark}  ${id}  ${name}  ${sha256}  ${path}  ${timeout}=15
     wait_for_av_log_contains_after_mark  Sending threat detection notification to central  timeout=${timeout}  mark=${mark}
     ${marked_av_log} =  get av log after mark as unicode  ${mark}
-    Check String Contains Detection Event XML  ${marked_av_log}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
+    Check String Contains Detection Event XML  ${marked_av_log}  ${id}  ${name}  ${sha256}  ${path}
 
 Base CORE Event Paths
     @{paths} =  List Files In Directory  ${MCS_PATH}/event  CORE_*.xml  absolute
@@ -454,21 +519,21 @@ Base Has Number Of CORE Events
     Should Be Equal As Integers  ${expected_count}  ${actual_count}
 
 Base Has Detection Event
-    [Arguments]  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
+    [Arguments]  ${id}  ${name}  ${sha256}  ${path}
     @{files} =  Base CORE Event Paths
     FOR  ${file}  IN  @{files}
         ${xml} =  Get File  ${file}
-        ${was_found} =  Run Keyword And Return Status  Check String Contains Detection Event XML  ${xml}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
+        ${was_found} =  Run Keyword And Return Status  Check String Contains Detection Event XML  ${xml}  ${id}  ${name}  ${sha256}  ${path}
         Return From Keyword If  ${was_found}  ${xml}
     END
     Fail  No matching detection event found
 
 Wait Until Base Has Detection Event
-    [Arguments]  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}  ${timeout}=60  ${interval}=3
+    [Arguments]  ${id}  ${name}  ${sha256}  ${path}  ${timeout}=60  ${interval}=3
     Wait Until Keyword Succeeds
     ...  ${timeout} secs
     ...  ${interval} secs
-    ...  Base Has Detection Event  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
+    ...  Base Has Detection Event  ${id}  ${name}  ${sha256}  ${path}
 
 Check String Contains Clean Event XML
     [Arguments]  ${input}  ${alert_id}  ${succeeded}  ${origin}  ${result}  ${path}
@@ -577,12 +642,12 @@ Check Plugin Installed and Running With Offset
     Wait until threat detector running with offset
 
 Wait until AV Plugin running
-    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${10}
-    LogUtils.Wait For AV Log contains after last restart  Common <> Starting scanScheduler  timeout=${20}
+    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${30}
+    LogUtils.Wait For AV Log contains after last restart  Common <> Starting scanScheduler  timeout=${40}
 
 Wait until AV Plugin running with offset
-    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${10}
-    Wait Until AV Plugin Log Contains With Offset  Common <> Starting scanScheduler  timeout=${20}
+    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${30}
+    Wait Until AV Plugin Log Contains With Offset  Common <> Starting scanScheduler  timeout=${40}
 
 Wait until AV Plugin not running
     [Arguments]  ${timeout}=${30}
@@ -600,6 +665,24 @@ Wait Until On Access running with offset
     ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
     LogUtils.Wait For Log Contains After Mark    ${ON_ACCESS_LOG_PATH}    ProcessPolicy    ${mark}  timeout=60
 
+Wait Until SafeStore running
+    [Arguments]  ${timeout}=${60}
+    ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
+    LogUtils.Wait For Log contains after last restart  ${SAFESTORE_LOG_PATH}  SafeStore started  timeout=${timeout}
+
+Wait Until SafeStore Running With Offset
+    [Arguments]  ${timeout}=${60}
+    ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
+    Wait Until SafeStore Log Contains With Offset
+    ...  SafeStore started
+    ...  timeout=${timeout}
+
+Wait Until SafeStore not running
+    [Arguments]  ${timeout}=30
+    Wait Until Keyword Succeeds
+    ...  ${timeout} secs
+    ...  3 secs
+    ...  Check SafeStore Not Running
 
 Wait until threat detector running
     [Arguments]  ${timeout}=${60}
@@ -665,6 +748,14 @@ Install With Base SDDS
     Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
     Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
 
+Start SafeStore Manually
+    ${handle} =  Start Process  ${SAFESTORE_BIN}  stdout=DEVNULL  stderr=DEVNULL
+    Set Test Variable  ${SAFESTORE_HANDLE}  ${handle}
+    Wait Until SafeStore running
+
+Stop SafeStore Manually
+    ${result} =  Terminate Process  ${SAFESTORE_HANDLE}
+    Set Suite Variable  ${SAFESTORE_HANDLE}  ${None}
 
 Uninstall And Revert Setup
     Uninstall All
@@ -741,7 +832,6 @@ AV And Base Teardown
     Register On Fail  dump log  ${ON_ACCESS_LOG_PATH}
     Register On Fail  dump log  ${TELEMETRY_LOG_PATH}
     Register On Fail  dump log  ${AV_INSTALL_LOG}
-    Register On Fail  dump log  ${SAFESTORE_LOG_PATH}
 
     Run Cleanup Functions
 
@@ -1016,6 +1106,9 @@ Record Soapd Plugin PID
     ${PID} =  ProcessUtils.wait for pid  ${ON_ACCESS_BIN}  ${5}
     [Return]   ${PID}
 
+Record SafeStore Plugin PID
+    ${PID} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  ${5}
+    [Return]   ${PID}
 
 Get Sophos Threat Detector PID From File
     ${PID} =  Get File    ${SOPHOS_THREAT_DETECTOR_PID_FILE_PATH}
@@ -1123,11 +1216,36 @@ Check avscanner can detect eicar in
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}    Detected "${EICAR_PATH}" is infected with EICAR-AV-Test
 
+
 Check avscanner can detect eicar
     [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
     Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
     Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com   ${LOCAL_AVSCANNER}
+
+Check avscanner can detect eicar on read only mount
+    [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
+    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
+    Create Directory  ${SCAN_DIRECTORY}/readOnly
+    ${result} =  run process    mount  --bind  -o  ro  ${SCAN_DIRECTORY}  ${SCAN_DIRECTORY}/readOnly
+    Register Cleanup   Unmount Test Mount  ${SCAN_DIRECTORY}/readOnly
+    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
+    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/readOnly/eicar.com   ${LOCAL_AVSCANNER}
+
+Check avscanner can detect eicar on network mount
+    [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
+
+    ${source} =       Set Variable  /tmp_test/nfsshare
+    ${destination} =  Set Variable  /testmnt/nfsshare
+    Create Directory  ${source}
+    Create Directory  ${destination}
+    Create Local NFS Share   ${source}   ${destination}
+    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
+
+    Create File     ${source}/eicar.com    ${EICAR_STRING}
+    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
+
+    Check avscanner can detect eicar in  ${destination}/eicar.com   ${LOCAL_AVSCANNER}
 
 Check avscanner can scan clean file in
     [Arguments]  ${CLEAN_PATH}  ${LOCAL_AVSCANNER}=${AVSCANNER}
@@ -1197,6 +1315,8 @@ Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Run IDE update with SUSI loaded
 
 Start AV
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    Mark AV Log
     Mark Sophos Threat Detector Log
     Mark SafeStore Log
     Check AV Plugin Not Running
@@ -1204,25 +1324,16 @@ Start AV
     Check Threat Detector PID File Does Not Exist
     Check SafeStore Not Running
     Check SafeStore PID File Does Not Exist
-
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
     Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
     Register Cleanup   Terminate And Wait until threat detector not running  ${THREAT_DETECTOR_PLUGIN_HANDLE}
-
     ${safestore_handle} =  Start Process  ${SAFESTORE_BIN}
-    Set Suite Variable  ${SAFESTORE_HANDLE}  ${safestore_handle}
+    Set Test Variable  ${SAFESTORE_HANDLE}  ${safestore_handle}
     Register Cleanup   Terminate And Wait until safestore not running  ${SAFESTORE_HANDLE}
-
-    Remove Files   /tmp/av.stdout  /tmp/av.stderr
-    Mark AV Log
-    ${fake_management_log_path} =   FakeManagementLog.get_fake_management_log_path
-    ${fake_management_mark} =  LogUtils.mark_log_size  ${fake_management_log_path}
-    ${av_mark} =  get av log mark
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Register Cleanup   Terminate And Wait until AV Plugin not running  ${AV_PLUGIN_HANDLE}
-    Check AV Plugin Installed from Marks  ${fake_management_mark}
-
+    Check AV Plugin Installed With Offset
     Wait Until Safestore Log Contains   SafeStore started
 
 Copy And Extract Image
@@ -1309,9 +1420,13 @@ List AV Plugin Path
     Log  ls -lR: ${result.stdout}
     Remove File  ${TESTTMP}/lsstdout
 
-Get SHA256
-    [Arguments]  ${path}
-    ${result} =  Run Process  sha256sum  -b  ${path}
+Unpack SafeStore Tools To
+    [Arguments]  ${unpack_destination}
+    Create Directory  ${unpack_destination}
+    Register Cleanup   Remove Directory  ${unpack_destination}  recursive=True
+
+    # Tar parent directory is: "/tap_test_output/", remember to add it to your path when accessing its contents.
+    ${result} =   Run Process   tar    xzf    ${BUILD_ARTEFACTS_FOR_TAP}/tap_test_output.tar.gz    -C    ${unpack_destination}/
     Log  ${result.stdout}
-    @{parts} =  Split String  ${result.stdout}
-    [Return]  ${parts}[0]
+    Log  ${result.stderr}
+    Should Be Equal As Integers   ${result.rc}  ${0}

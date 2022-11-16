@@ -95,7 +95,7 @@ TEST_F(SafeStoreWrapperTapTests, readDefaultConfigOptions)
     ASSERT_EQ(maxObjCount.value(), 2000);
 }
 
-TEST_F(SafeStoreWrapperTapTests, writeAndThenRreadBackConfigOptions)
+TEST_F(SafeStoreWrapperTapTests, writeAndThenReadBackConfigOptions)
 {
     ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::AUTO_PURGE, false));
     ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_OBJECT_SIZE, 100000000000));
@@ -117,34 +117,6 @@ TEST_F(SafeStoreWrapperTapTests, writeAndThenRreadBackConfigOptions)
     auto maxSafeStoreSize = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_SAFESTORE_SIZE);
     ASSERT_TRUE(maxSafeStoreSize.has_value());
     ASSERT_EQ(maxSafeStoreSize.value(), 200000000000);
-
-    auto maxObjCount = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_STORED_OBJECT_COUNT);
-    ASSERT_TRUE(maxObjCount.has_value());
-    ASSERT_EQ(maxObjCount.value(), 5000);
-}
-
-TEST_F(SafeStoreWrapperTapTests, testConfigOptionLimits)
-{
-    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::AUTO_PURGE, true));
-    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_OBJECT_SIZE, 33000));
-
-    // This currently fails but it's windows only so doesn't need to work on Linux.
-    // ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_REG_OBJECT_COUNT, 100));
-
-    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_SAFESTORE_SIZE, 66000));
-    ASSERT_TRUE(m_safeStoreWrapper->setConfigIntValue(ConfigOption::MAX_STORED_OBJECT_COUNT, 5000));
-
-    auto autoPurge = m_safeStoreWrapper->getConfigIntValue(ConfigOption::AUTO_PURGE);
-    ASSERT_TRUE(autoPurge.has_value());
-    ASSERT_EQ(autoPurge.value(), 0);
-
-    auto maxObjSize = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_OBJECT_SIZE);
-    ASSERT_TRUE(maxObjSize.has_value());
-    ASSERT_EQ(maxObjSize.value(), 66000);
-
-    auto maxSafeStoreSize = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_SAFESTORE_SIZE);
-    ASSERT_TRUE(maxSafeStoreSize.has_value());
-    ASSERT_EQ(maxSafeStoreSize.value(), 88000);
 
     auto maxObjCount = m_safeStoreWrapper->getConfigIntValue(ConfigOption::MAX_STORED_OBJECT_COUNT);
     ASSERT_TRUE(maxObjCount.has_value());

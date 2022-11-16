@@ -6,8 +6,6 @@ Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
-Resource    ../shared/SafeStoreResources.robot
-Resource    ../shared/OnAccessResources.robot
 
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
@@ -26,6 +24,9 @@ ${NORMAL_DIRECTORY}                  /home/vagrant/this/is/a/directory/for/scann
 ${CUSTOMERID_FILE}                   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
 ${MACHINEID_CHROOT_FILE}             ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${MACHINEID_FILE}                    ${SOPHOS_INSTALL}/base/etc/machine_id.txt
+${SAFESTORE_DB_DIR}                  ${SOPHOS_INSTALL}/plugins/av/var/safestore_db
+${SAFESTORE_DB_PATH}                 ${SAFESTORE_DB_DIR}/safestore.db
+${SAFESTORE_DB_PASSWORD_PATH}        ${SAFESTORE_DB_DIR}/safestore.pw
 ${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_dormant_flag
 
 
@@ -39,8 +40,8 @@ SafeStore Database is Initialised
     Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}
     File Should Exist    ${SAFESTORE_DB_PASSWORD_PATH}
 
-
 SafeStore Can Reinitialise Database Containing Threats
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
     ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
@@ -53,12 +54,11 @@ SafeStore Can Reinitialise Database Containing Threats
     Check avscanner can detect eicar
     wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
 
-    ${filesInSafeStoreDb1} =  List Files In Directory  ${SAFESTORE_DB_DIR}
-    Log  ${filesInSafeStoreDb1}
+    ${filesInSafeStoreDb1} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
+    Log  ${filesInSafeStoreDb1.stdout}
 
     Stop SafeStore
     Check Safestore Not Running
-
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
 
     Start SafeStore
@@ -69,13 +69,10 @@ SafeStore Can Reinitialise Database Containing Threats
     ${ssPassword2} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     Should Be Equal As Strings    ${ssPassword1}    ${ssPassword2}
 
-    ${filesInSafeStoreDb2} =  List Files In Directory  ${SAFESTORE_DB_DIR}
-    Log  ${filesInSafeStoreDb2}
+    ${filesInSafeStoreDb2} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
+    Log  ${filesInSafeStoreDb2.stdout}
 
-    # Removing tmp file: https://www.sqlite.org/tempfiles.html
-    Remove Values From List    ${filesInSafeStoreDb1}    safestore.db-journal
-    Should Be Equal    ${filesInSafeStoreDb1}    ${filesInSafeStoreDb2}
-
+    Should Be Equal    ${filesInSafeStoreDb1.stdout}    ${filesInSafeStoreDb2.stdout}
 
 SafeStore Recovers From Corrupt Database
     ${av_mark} =  Get AV Log Mark
@@ -97,11 +94,10 @@ SafeStore Recovers From Corrupt Database
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
     wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${safestore_mark}  Finalised file: ${SCAN_DIRECTORY}/eicar.com
+    wait_for_log_contains_from_mark  ${safestore_mark}  Finalised file: eicar.com
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
-
 
 SafeStore Quarantines When It Receives A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
@@ -119,39 +115,11 @@ SafeStore Quarantines When It Receives A File To Quarantine
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
-    ...  alert_id=e52cf957-a0dc-5b12-bad2-561197a5cae4
+    ...  alert_id=Tbd7be297ddf3cd8
     ...  succeeded=1
-    ...  origin=1
+    ...  origin=0
     ...  result=0
     ...  path=${SCAN_DIRECTORY}/eicar.com
-
-
-SafeStore Quarantines Archive
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
-
-    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
-    Create Directory  ${ARCHIVE_DIR}
-    Create File  ${ARCHIVE_DIR}/1_dsa    ${DSA_BY_NAME_STRING}
-    Create File  ${ARCHIVE_DIR}/2_eicar  ${EICAR_STRING}
-    Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  1_dsa  2_eicar
-    Remove Directory  ${ARCHIVE_DIR}  recursive=True
-
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
-
-    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
-    File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
-
-    Wait Until Base Has Core Clean Event
-    ...  alert_id=49c016d1-fcfe-543d-8279-6ff8c8f3ce4b
-    ...  succeeded=1
-    ...  origin=1
-    ...  result=0
-    ...  path=${SCAN_DIRECTORY}/test.tar
 
 
 Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
@@ -172,9 +140,9 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     File Should Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
-    ...  alert_id=e52cf957-a0dc-5b12-bad2-561197a5cae4
+    ...  alert_id=Tbd7be297ddf3cd8
     ...  succeeded=0
-    ...  origin=1
+    ...  origin=0
     ...  result=3
     ...  path=${SCAN_DIRECTORY}/eicar.com
 
@@ -195,18 +163,13 @@ SafeStore does not quarantine on a Corrupt Database
     wait_for_log_contains_from_mark  ${safestore_mark}  Cannot quarantine file, SafeStore is in
     wait_for_log_contains_from_mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    timeout=200
     wait_for_log_contains_from_mark  ${safestore_mark}  Successfully initialised SafeStore database
-    File Should Exist  ${SCAN_DIRECTORY}/eicar.com
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    # Rescan the file without creating it again
-    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com
+    Check avscanner can detect eicar
     wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${safestore_mark}  Finalising file
-    File Should Not Exist  ${SCAN_DIRECTORY}/eicar.com
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
-
 
 With SafeStore Enabled But Not Running We Can Send Threats To AV
     register cleanup    Exclude Watchdog Log Unable To Open File Error
@@ -252,79 +215,131 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount
     Wait For AV Log Contains After Mark    File is located on a Network mount:  ${av_mark}
     Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
 
-SafeStore Does Not Restore Quarantined Files When Uninstalled
+
+SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Capacity
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
-    ${av_mark} =  Get AV Log Mark
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
 
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
-
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Check avscanner can detect eicar
-
-    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
-    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
-
-    AV Plugin uninstalls
-
-    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
-
-SafeStore Runs As Root
-    Start SafeStore Manually
-    ${safestore_pid} =  Get Process Id   handle=${SAFESTORE_HANDLE}
-    ${rc}   ${output} =    Run And Return Rc And Output   ps -o user= -p ${safestore_pid}
-
-    Log   ${output}
-    Should Contain   ${output}    root
-
-    Stop SafeStore Manually
-
-SafeStore Quarantines File With Same Path And Sha Again And Discards The Previous Object
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
-
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Check avscanner can detect eicar
-    wait_for_log_contains_from_mark  ${safestore_mark}  Threat ID: e52cf957-a0dc-5b12-bad2-561197a5cae4
-    wait_for_log_contains_from_mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
-    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
-
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Check avscanner can detect eicar
-    wait_for_log_contains_from_mark  ${safestore_mark}  Threat ID: e52cf957-a0dc-5b12-bad2-561197a5cae4
-    wait_for_log_contains_from_mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
-    wait_for_log_contains_from_mark  ${safestore_mark}  ${SCAN_DIRECTORY}/eicar.com has been quarantined before
-    wait_for_log_contains_from_mark  ${safestore_mark}  Removing object
-    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
-
-    # Now try a different path
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Create File  ${NORMAL_DIRECTORY}/eicar2.com  ${EICAR_STRING}
-    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar2.com
-    wait_for_log_contains_from_mark  ${safestore_mark}  Threat ID: 49f9af79-a8bc-5436-9d3a-404a461a976e
-    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
-    check_log_does_not_contain_after_mark  ${SAFESTORE_LOG_PATH}  has been quarantined before  ${safestore_mark}
-    File Should Not Exist   ${SCAN_DIRECTORY}/eicar2.com
-
-
-Threat Detector Triggers SafeStore Rescan On Timeout
-    ${ss_mark} =  Get SafeStore Log Mark
-    Create Persistent Timeout Variable
-    Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}
-
-
-Threat Detector Rescan Socket Does Not Block Shutdown
     Stop SafeStore
-    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
-    Create Persistent Timeout Variable
-    wait_for_log_contains_from_mark  ${td_mark}  Failed to connect to SafeStore Rescan - retrying after sleep
-    Stop sophos_threat_detector
-    wait_for_log_contains_from_mark  ${td_mark}  Stop requested while connecting to SafeStore Rescan
+    # The MaxSafeStoreSize could cause flakiness in the future if the footprint of the SafeStore instance grows, which we can't avoid (fix by increasing its size further)
+    Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxObjectSize" : 32000, "MaxSafeStoreSize" : 144000 }
+    Start SafeStore
 
+    ${eicar1}=    Set Variable     big_eicar1
+    ${eicar2}=    Set Variable     big_eicar2
+    ${eicar3}=    Set Variable     big_eicar3
+
+    Create Big Eicar   ${eicar1}
+    Create Big Eicar   ${eicar2}
+    Create Big Eicar   ${eicar3}
+
+    ${av_mark} =  Get AV Log Mark
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
+
+    Wait For Safestore To Be Running
+
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
+
+    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar1}
+
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
+    Log  ${filesInSafeStoreDb.stdout}
+    Evaluate  '''${eicar1}''' in '''${filesInSafeStoreDb.stdout}'''
+
+    ${av_mark} =  Get AV Log Mark
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
+
+    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar2}
+
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
+    Log  ${filesInSafeStoreDb.stdout}
+    Evaluate  '''${eicar2}''' in '''${filesInSafeStoreDb.stdout}'''
+
+    ${av_mark} =  Get AV Log Mark
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar3}
+
+    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar3}
+
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
+    Log  ${filesInSafeStoreDb.stdout}
+    Evaluate  '''${eicar3}''' in '''${filesInSafeStoreDb.stdout}'''
+
+    Evaluate  '''${eicar1}''' not in '''${filesInSafeStoreDb.stdout}'''
+
+
+SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection Count
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
+
+    Stop SafeStore
+    Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxRegObjectCount" : 1, "MaxStoreObjectCount" : 3 }
+    Start SafeStore
+
+    ${eicar1}=    Set Variable     eicar1
+    ${eicar2}=    Set Variable     eicar2
+    ${eicar3}=    Set Variable     eicar3
+
+    Create File     ${NORMAL_DIRECTORY}/${eicar1}   ${EICAR_STRING}
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/${eicar1}
+    Create File     ${NORMAL_DIRECTORY}/${eicar2}   ${EICAR_STRING}
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/${eicar2}
+    Create File     ${NORMAL_DIRECTORY}/${eicar3}   ${EICAR_STRING}
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/${eicar3}
+
+    ${av_mark} =  Get AV Log Mark
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
+
+    Wait For Safestore To Be Running
+
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
+
+    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar1}
+
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
+    Log  ${filesInSafeStoreDb.stdout}
+    Evaluate  '''${eicar1}''' in '''${filesInSafeStoreDb.stdout}'''
+
+    ${av_mark} =  Get AV Log Mark
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
+
+    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar2}
+
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
+    Log  ${filesInSafeStoreDb.stdout}
+    Evaluate  '''${eicar2}''' in '''${filesInSafeStoreDb.stdout}'''
+
+    ${av_mark} =  Get AV Log Mark
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar3}
+
+    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar3}
+
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
+    Log  ${filesInSafeStoreDb.stdout}
+    Evaluate  '''${eicar3}''' in '''${filesInSafeStoreDb.stdout}'''
+
+    Evaluate  '''${eicar1}''' not in '''${filesInSafeStoreDb.stdout}'''
 
 
 *** Keywords ***
@@ -332,6 +347,8 @@ SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
     LogUtils.save_log_marks_at_start_of_test
     Start SafeStore
+
+    Set Suite Variable  ${safestore_tools_unpacked}  /tmp/safestoretools/tap_test_output
 
     Get AV Log Mark
     Mark Sophos Threat Detector Log
@@ -351,7 +368,6 @@ SafeStore Test Setup
     Register Cleanup      Require No Unhandled Exception
     Register Cleanup      Check For Coredumps  ${TEST NAME}
     Register Cleanup      Check Dmesg For Segfaults
-
 
 SafeStore Test TearDown
     run cleanup functions
@@ -375,15 +391,8 @@ Check SafeStore Dormant Flag Exists
     [Arguments]  ${timeout}=15  ${interval}=2
     Wait Until File exists  ${SAFESTORE_DORMANT_FLAG}  ${timeout}  ${interval}
 
-
 Check Safestore Dormant Flag Does Not Exist
     File Should Not Exist  ${SAFESTORE_DORMANT_FLAG}
-
-
-Create Persistent Timeout Variable
-    Stop Sophos Threat Detector
-    Create File    ${SOPHOS_INSTALL}/plugins/av/chroot/var/safeStoreRescanInterval    1
-    Start Sophos Threat Detector
 
 
 Wait for Safestore to be running
@@ -394,3 +403,12 @@ Wait for Safestore to be running
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Quarantine Manager initialised OK  timeout=15
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully initialised SafeStore database  timeout=5
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  safestore <> SafeStore started  timeout=5
+
+Create Big Eicar
+    [Arguments]  ${filename}
+    Create File     ${NORMAL_DIRECTORY}/${filename}    ${EICAR_STRING}
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/${filename}
+    ${result} =   Run Process   head  -c  31K  </dev/urandom  >>${NORMAL_DIRECTORY}/${filename}  shell=True
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers   ${result.rc}  ${0}

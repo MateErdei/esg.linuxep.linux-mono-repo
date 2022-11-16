@@ -6,7 +6,7 @@
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystem.h"
-#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/FileLoggingSetup.h"
 
 #include <iostream>
 
@@ -43,8 +43,7 @@ void printConfigOptions(std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper)
 
 int main()
 {
-    Common::Logging::ConsoleLoggingSetup loggingSetup;
-
+    Common::Logging::FileLoggingSetup loggerSetup("safestore_print_tool", false);
     // SafeStore wrapper to interact with SafeStore database.
     std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper = std::make_shared<SafeStoreWrapperImpl>();
 
@@ -95,25 +94,25 @@ int main()
         case InitReturnCode::OK:
             break;
         case InitReturnCode::INVALID_ARG:
-            std::cout << "ERROR - got INVALID_ARG when initialising SafeStore database connection" << std::endl;
+            std::cout << "WARN - got INVALID_ARG when initialising SafeStore database connection" << std::endl;
             break;
         case InitReturnCode::UNSUPPORTED_OS:
-            std::cout << "ERROR - got UNSUPPORTED_OS when initialising SafeStore database connection" << std::endl;
+            std::cout << "WARN - got UNSUPPORTED_OS when initialising SafeStore database connection" << std::endl;
             break;
         case InitReturnCode::UNSUPPORTED_VERSION:
-            std::cout << "ERROR - got UNSUPPORTED_VERSION when initialising SafeStore database connection" << std::endl;
+            std::cout << "WARN - got UNSUPPORTED_VERSION when initialising SafeStore database connection" << std::endl;
             break;
         case InitReturnCode::OUT_OF_MEMORY:
-            std::cout << "ERROR - got OUT_OF_MEMORY when initialising SafeStore database connection" << std::endl;
+            std::cout << "WARN - got OUT_OF_MEMORY when initialising SafeStore database connection" << std::endl;
             break;
         case InitReturnCode::DB_OPEN_FAILED:
-            std::cout << "ERROR - got DB_OPEN_FAILED when initialising SafeStore database connection" << std::endl;
+            std::cout << "WARN - got DB_OPEN_FAILED when initialising SafeStore database connection" << std::endl;
             break;
         case InitReturnCode::DB_ERROR:
-            std::cout << "ERROR - got DB_ERROR when initialising SafeStore database connection" << std::endl;
+            std::cout << "WARN - got DB_ERROR when initialising SafeStore database connection" << std::endl;
             break;
         case InitReturnCode::FAILED:
-            std::cout << "ERROR - got FAILED when initialising SafeStore database connection" << std::endl;
+            std::cout << "WARN - got FAILED when initialising SafeStore database connection" << std::endl;
             break;
     }
 

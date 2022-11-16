@@ -2,6 +2,8 @@
 Documentation   Tests for SafeStore wrapper, runs a gtest binary
 Force Tags      PRODUCT  SAFESTORE
 
+Resource    ../shared/AVResources.robot
+
 Library         OperatingSystem
 Library         Process
 
@@ -12,11 +14,7 @@ Test Teardown  SafeStoreWrapper Test Teardown
 
 SafeStoreWrapper Test Setup
     Set Suite Variable  ${safestore_unpacked}  /tmp/safestorewrapper
-    Create Directory  ${safestore_unpacked}
-    ${result} =   Run Process   tar    xzf    ${BUILD_ARTEFACTS_FOR_TAP}/tap_test_output.tar.gz    -C    ${safestore_unpacked}/
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    Should Be Equal As Integers   ${result.rc}  ${0}
+    Unpack SafeStore Tools To  ${safestore_unpacked}
 
 SafeStoreWrapper Test Teardown
     Remove Directory    ${safestore_unpacked}   recursive=True
