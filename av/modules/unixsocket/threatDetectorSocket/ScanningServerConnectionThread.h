@@ -28,6 +28,7 @@ namespace unixsocket
         explicit ScanningServerConnectionThread(
                 datatypes::AutoFd& fd,
                 threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
+                datatypes::ISystemCallWrapperSharedPtr sysCalls,
                 int maxIterations = -1);
         void run() override;
 
@@ -38,6 +39,7 @@ namespace unixsocket
 
         datatypes::AutoFd m_socketFd;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
+        datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         int m_maxIterations;
     };
 

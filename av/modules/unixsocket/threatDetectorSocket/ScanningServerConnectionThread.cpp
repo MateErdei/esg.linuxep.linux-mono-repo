@@ -29,9 +29,11 @@
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         datatypes::AutoFd& fd,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
+        datatypes::ISystemCallWrapperSharedPtr sysCalls,
         int maxIterations)
     : m_socketFd(std::move(fd))
     , m_scannerFactory(std::move(scannerFactory))
+    , m_sysCalls(sysCalls)
     , m_maxIterations(maxIterations)
 {
     if (m_socketFd < 0)
@@ -155,15 +157,11 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
     LOGDEBUG("Scanning Server thread got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
-    auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
 
-    int exitFD = m_notifyPipe.readFd();
-
-    fd_set readFDs;
-    FD_ZERO(&readFDs);
-    int max = -1;
-    max = FDUtils::addFD(&readFDs, exitFD, max);
-    max = FDUtils::addFD(&readFDs, socket_fd, max);
+    struct pollfd fds[] {
+        { .fd = socket_fd.get(), .events = POLLIN, .revents = 0 }, // socket FD
+        { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
+    };
     threat_scanner::IThreatScannerPtr scanner;
     bool loggedLengthOfZero = false;
 
@@ -178,29 +176,39 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             }
         }
 
-        fd_set tempRead = readFDs;
-
-        int activity = sysCallWrapper->pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
-
-        if (activity < 0)
+        auto ret = m_sysCalls->ppoll(fds, std::size(fds), nullptr, nullptr);
+        if (ret < 0)
         {
-            LOGERROR("Closing Scanning connection thread because pselect failed: " << common::safer_strerror(errno));
+            if (errno == EINTR)
+            {
+                continue;
+            }
+
+            LOGFATAL("Error from ppoll: " << common::safer_strerror(errno));
+            return;
+        }
+        assert(ret > 0);
+
+        if ((fds[1].revents & POLLERR) != 0)
+        {
+            LOGERROR("Closing Scanning Server connection thread, error from notify pipe");
             break;
         }
-        // We don't set a timeout so something should have happened
-        assert(activity != 0);
 
-        if (FDUtils::fd_isset(exitFD, &tempRead))
+        if ((fds[0].revents & POLLERR) != 0)
+        {
+            LOGERROR("Closing Scanning Server connection thread, error from socket");
+            break;
+        }
+
+        if ((fds[1].revents & POLLIN) != 0)
         {
             LOGSUPPORT("Closing Scanning connection thread");
             break;
         }
-        else // if(FDUtils::fd_isset(socket_fd, &tempRead))
+
+        if ((fds[0].revents & POLLIN) != 0)
         {
-            // If shouldn't be required - we have no timeout, and only 2 FDs in the pselect.
-            // exitFD will cause break
-            // therefore "else" must be fd_isset(socket_fd, &tempRead)
-            assert(FDUtils::fd_isset(socket_fd, &tempRead));
             // read length
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
@@ -227,7 +235,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             scan_messages::ScanResponse result;
             ssize_t bytes_read;
             std::string errMsg;
-            if (!readCapnProtoMsg(sysCallWrapper, length, buffer_size, proto_buffer, socket_fd, bytes_read, loggedLengthOfZero, errMsg))
+            if (!readCapnProtoMsg(m_sysCalls, length, buffer_size, proto_buffer, socket_fd, bytes_read, loggedLengthOfZero, errMsg))
             {
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);
@@ -255,7 +263,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
 
             // Keep the connection open if we can read the message but get a file that we can't scan
-            if (!isReceivedFdFile(sysCallWrapper, file_fd, errMsg) || !isReceivedFileOpen(sysCallWrapper, file_fd, errMsg))
+            if (!isReceivedFdFile(m_sysCalls, file_fd, errMsg) || !isReceivedFileOpen(m_sysCalls, file_fd, errMsg))
             {
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);

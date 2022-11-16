@@ -8,6 +8,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ScanningServerConnectionThread.h"
 
+#include "datatypes/SystemCallWrapper.h"
 #include "unixsocket/BaseServerSocket.h"
 
 namespace unixsocket
@@ -26,7 +27,8 @@ namespace unixsocket
 
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            return std::make_unique<ScanningServerConnectionThread>(fd, m_scannerFactory);
+            auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+            return std::make_unique<ScanningServerConnectionThread>(fd, m_scannerFactory, sysCalls);
         }
 
         void logMaxConnectionsError() override
