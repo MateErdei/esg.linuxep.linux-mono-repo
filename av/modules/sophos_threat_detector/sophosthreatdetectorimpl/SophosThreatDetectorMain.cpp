@@ -454,39 +454,31 @@ namespace sspl::sophosthreatdetectorimpl
 
         int returnCode = common::E_CLEAN_SUCCESS;
 
-        fd_set readFDs;
-        FD_ZERO(&readFDs);
-        int max = -1;
-
-        max = FDUtils::addFD(&readFDs, sigTermMonitor->monitorFd(), max);
-        max = FDUtils::addFD(&readFDs, usr1Monitor.monitorFd(), max);
+        struct pollfd fds[] {
+            { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
+            { .fd = usr1Monitor.monitorFd(), .events = POLLIN, .revents = 0 },
+        };
 
         while (true)
         {
-            fd_set tempRead = readFDs;
-
             struct timespec timeout {};
             timeout.tv_sec = shutdownTimer->timeout();
             LOGDEBUG("Setting shutdown timeout to " << timeout.tv_sec << " seconds");
             // wait for an activity on one of the sockets
-            int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
-
-            if (activity < 0)
+            auto ret = m_sysCallWrapper->ppoll(fds, std::size(fds), &timeout, nullptr);
+            if (ret < 0)
             {
-                // error in pselect
-                int error = errno;
-                if (error == EINTR)
+                if (errno == EINTR)
                 {
-                    LOGDEBUG("Ignoring EINTR from pselect");
+                    LOGDEBUG("Ignoring EINTR from ppoll");
                     continue;
                 }
 
-                LOGERROR("Failed to read from socket - shutting down. Error: "
-                         << common::safer_strerror(error) << " (" << error << ')');
+                LOGFATAL("Error from ppoll: " << common::safer_strerror(errno));
                 returnCode = common::E_GENERIC_FAILURE;
                 break;
             }
-            else if (activity == 0)
+            else if (ret == 0)
             {
                 // no activity on the fds, must be a timeout
                 if (m_scannerFactory->susiIsInitialized())
@@ -512,7 +504,21 @@ namespace sspl::sophosthreatdetectorimpl
                 }
             }
 
-            if (FDUtils::fd_isset(sigTermMonitor->monitorFd(), &tempRead))
+            if ((fds[0].revents & POLLERR) != 0)
+            {
+                LOGERROR("Shutting down Sophos Threat Detector, error from SIGTERM monitor");
+                returnCode = common::E_GENERIC_FAILURE;
+                break;
+            }
+
+            if ((fds[1].revents & POLLERR) != 0)
+            {
+                LOGERROR("Shutting down Sophos Threat Detector, error from SIGUSR1 monitor");
+                returnCode = common::E_GENERIC_FAILURE;
+                break;
+            }
+
+            if ((fds[1].revents & POLLIN) != 0)
             {
                 LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
                 sigTermMonitor->triggered();
@@ -520,7 +526,7 @@ namespace sspl::sophosthreatdetectorimpl
                 break;
             }
 
-            if (FDUtils::fd_isset(usr1Monitor.monitorFd(), &tempRead))
+            if ((fds[1].revents & POLLIN) != 1)
             {
                 LOGINFO("Sophos Threat Detector received SIGUSR1 - reloading");
                 usr1Monitor.triggered();
