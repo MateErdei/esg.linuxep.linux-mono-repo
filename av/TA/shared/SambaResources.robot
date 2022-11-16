@@ -41,11 +41,11 @@ Create Local SMB Share
 
 Restore Samba config
     Move File  ${SAMBA_CONFIG}_bkp  ${SAMBA_CONFIG}
+    Reload Samba
 
 Remove Local SMB Share
     [Arguments]  ${source}  ${destination}
-    Run Shell Process   umount ${destination}   OnError=Failed to unmount local SMB server
-    Restart Samba
+    Unmount Test Mount  ${destination}
     Remove Directory    ${destination}  recursive=True
     Remove Directory    ${source}  recursive=True
 
