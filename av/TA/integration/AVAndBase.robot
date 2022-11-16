@@ -515,13 +515,13 @@ AV Plugin uninstalls
     Check avscanner not in /usr/local/bin
     Check AV Plugin Not Installed
 
-AV Plugin Saves Logs On Downgrade
+AV Plugin Saves Logs and SafeStore Databases On Downgrade
     Register Cleanup  Exclude MCS Router is dead
     Register Cleanup  Install With Base SDDS
     Check AV Plugin Running
     Run plugin uninstaller with downgrade flag
     Check AV Plugin Not Installed
-    Check Logs Saved On Downgrade
+    Check Logs and Databases Saved On Downgrade
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now
     [Timeout]  15min
