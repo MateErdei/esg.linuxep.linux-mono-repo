@@ -27,30 +27,14 @@ namespace safestore::QuarantineManager
         }
         m_checkWakeUp.notify_one();
     }
+
     void StateMonitor::run()
     {
         announceThreadStarted();
         LOGINFO("Starting Quarantine Manager state monitor");
         while (!m_stopRequested)
         {
-//            auto now = std::chrono::system_clock::now().time_since_epoch();
-//            auto nextTimeToCheckState =
-//                std::min(m_lastCheck + m_reinitialiseBackoff, m_lastCheck + m_maxReinitialiseBackoff);
-//            if (nextTimeToCheckState < now)
-//            {
-//                innerRun();
-//            }
-//            else
-//            {
-//                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//            }
-
             std::unique_lock lock(m_QMCheckLock);
-
-            if (m_reinitialiseBackoff >= m_maxReinitialiseBackoff)
-            {
-                m_reinitialiseBackoff = m_maxReinitialiseBackoff;
-            }
 
             m_checkWakeUp.wait_for(lock,m_reinitialiseBackoff, [this]{ return m_stopRequested.load(); });
             if (m_stopRequested)
@@ -64,8 +48,7 @@ namespace safestore::QuarantineManager
 
     void StateMonitor::innerRun()
     {
-        m_reinitialiseBackoff = m_reinitialiseBackoff * 2;
-//        m_lastCheck = std::chrono::system_clock::now().time_since_epoch();
+        increaseBackOff();
         auto state = m_quarantineManager->getState();
         switch (state)
         {
@@ -122,6 +105,15 @@ namespace safestore::QuarantineManager
                     LOGERROR("Failed to clean up corrupt SafeStore database: " << ex.what());
                 }
                 break;
+        }
+    }
+
+    void StateMonitor::increaseBackOff()
+    {
+        m_reinitialiseBackoff *= 2;
+        if (m_reinitialiseBackoff > m_maxReinitialiseBackoff)
+        {
+            m_reinitialiseBackoff = m_maxReinitialiseBackoff;
         }
     }
 

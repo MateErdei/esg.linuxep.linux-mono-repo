@@ -20,14 +20,15 @@ namespace safestore::QuarantineManager
 
     private:
         std::shared_ptr<IQuarantineManager> m_quarantineManager;
-        const std::chrono::seconds m_maxReinitialiseBackoff = 86400s;
-        std::chrono::duration<double> m_lastCheck = std::chrono::system_clock::now().time_since_epoch();
-        std::chrono::seconds m_reinitialiseBackoff = 60s;
+
     protected:
+        void increaseBackOff();
         void innerRun();
+
         std::mutex m_QMCheckLock;
         std::condition_variable m_checkWakeUp;
         std::atomic<bool> m_stopRequested = false;
+        const std::chrono::seconds m_maxReinitialiseBackoff = 86400s;
+        std::chrono::seconds m_reinitialiseBackoff = 60s;
     };
-
 } // namespace safestore::QuarantineManager

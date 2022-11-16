@@ -47,9 +47,19 @@ public:
         innerRun();
     }
 
-    void callRun()
+    std::chrono::seconds getCurrentBackoffTime()
     {
-        run();
+        return m_reinitialiseBackoff;
+    }
+
+    std::chrono::seconds getMaxBackoffTime()
+    {
+        return m_maxReinitialiseBackoff;
+    }
+
+    void testableBackoffIncrease()
+    {
+        increaseBackOff();
     }
 };
 
@@ -146,19 +156,49 @@ TEST_F(StateMonitorTests, testStateMonitorExitsOnDestructDuringWait)
     testing::internal::CaptureStderr();
 
     auto* filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "10"));
+    EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(false));
+
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
 
+    {
+        TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
+        stateMonitor.start();
+        sleep(1);
+    }
+
+    std::string logMessage = internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO Starting Quarantine Manager state monitor\n"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("State Monitor stop requested"));
+}
+
+
+TEST_F(StateMonitorTests, testStateMonitorBackoffNeverExceedsMax)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "10"));
+    EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(false));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
 
 
-    //bool called = false;
-    {
-        TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
-        stateMonitor.callRun();
-    }
+    TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
+    stateMonitor.start();
 
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("State Monitor stop requested"));
+    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), 60s);
+    stateMonitor.testableBackoffIncrease();
+    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), 120s);
+    stateMonitor.testableBackoffIncrease();
+    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), 240s);
+
+    for (; stateMonitor.getCurrentBackoffTime() < stateMonitor.getMaxBackoffTime(); stateMonitor.testableBackoffIncrease());
+    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), stateMonitor.getMaxBackoffTime());
+    stateMonitor.testableBackoffIncrease();
+    EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), stateMonitor.getMaxBackoffTime());
 }
