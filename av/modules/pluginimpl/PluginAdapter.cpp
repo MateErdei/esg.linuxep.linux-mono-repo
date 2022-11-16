@@ -183,6 +183,7 @@ namespace Plugin
                         if (task.appId == "FLAGS")
                         {
                             processFlags(task.Content);
+                            policyWaiter->gotPolicy("FLAGS");
                         }
                         else
                         {
