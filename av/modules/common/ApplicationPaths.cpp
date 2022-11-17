@@ -83,4 +83,9 @@ namespace Plugin
     {
         return getPluginVarDirPath() + "/onaccess_unhealthy_flag";
     }
+
+    std::string getRelativeSafeStoreRescanIntervalConfigPath()
+    {
+        return "var/safeStoreRescanInterval";
+    }
 } // namespace Plugin

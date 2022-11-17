@@ -452,7 +452,7 @@ namespace sspl::sophosthreatdetectorimpl
         unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0660, callbacks);
         processController.start();
 
-        SafeStoreRescanWorker rescanWorker("/var/safestore_rescan_socket");
+        SafeStoreRescanWorker rescanWorker(Plugin::getRelativeSafeStoreRescanIntervalConfigPath());
         rescanWorker.start();
 
         int returnCode = common::E_CLEAN_SUCCESS;

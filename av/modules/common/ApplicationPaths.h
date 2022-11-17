@@ -19,4 +19,5 @@ namespace Plugin
     std::string getSafeStoreDormantFlagPath();
     std::string getSoapdPidPath();
     std::string getOnAccessUnhealthyFlagPath();
+    std::string getRelativeSafeStoreRescanIntervalConfigPath();
 } // namespace Plugin

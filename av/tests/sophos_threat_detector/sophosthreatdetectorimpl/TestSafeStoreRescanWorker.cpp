@@ -40,14 +40,13 @@ namespace
     };
 } // namespace
 
-TEST_F(TestSafeStoreRescanWorker, testExitsOnDestructDuringWait) // NOLINT
+TEST_F(TestSafeStoreRescanWorker, testExitsOnDestructDuringWait) 
 {
     testing::internal::CaptureStderr();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
-    // Mocking Persistent value filesystem calls
     EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("10"));
 
@@ -70,14 +69,13 @@ TEST_F(TestSafeStoreRescanWorker, testExitsOnDestructDuringWait) // NOLINT
     ASSERT_FALSE(haveIBeenCalled);
 }
 
-TEST_F(TestSafeStoreRescanWorker, testTriggerRescan) // NOLINT
+TEST_F(TestSafeStoreRescanWorker, testTriggerRescan) 
 {
     testing::internal::CaptureStderr();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
-    // Mocking Persistent value filesystem calls
     EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("10"));
 
@@ -94,24 +92,23 @@ TEST_F(TestSafeStoreRescanWorker, testTriggerRescan) // NOLINT
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to: 10 seconds"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 10"));
-    ASSERT_TRUE(testWorker.m_rescanSent);
+    ASSERT_TRUE(haveIBeenCalled);
 }
 
-TEST_F(TestSafeStoreRescanWorker, timeOutTriggersRescan) // NOLINT
+TEST_F(TestSafeStoreRescanWorker, timeOutTriggersRescan) 
 {
     testing::internal::CaptureStderr();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
-    // Mocking Persistent value filesystem calls
     EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("1"));
 
     bool haveIBeenCalled = false;
     TestableWorker testWorker("no socket", haveIBeenCalled);
     testWorker.start();
-    sleep(2);
+    sleep(3);
 
     std::string logMessage = internal::GetCapturedStderr();
     ASSERT_THAT(
@@ -120,17 +117,16 @@ TEST_F(TestSafeStoreRescanWorker, timeOutTriggersRescan) // NOLINT
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to: 1 seconds"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 1"));
-    ASSERT_TRUE(testWorker.m_rescanSent);
+    ASSERT_TRUE(haveIBeenCalled);
 }
 
-TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigUseDefaultIfConfigDoesntExist) // NOLINT
+TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigUseDefaultIfConfigDoesntExist) 
 {
     testing::internal::CaptureStderr();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
-    // Mocking Persistent value filesystem calls
     EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(false));
 
     bool haveIBeenCalled = false;
@@ -144,17 +140,16 @@ TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigUseDefaultIfConfigDoesntExi
         Not(::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse.")));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 14400"));
-    ASSERT_FALSE(testWorker.m_rescanSent);
+    ASSERT_FALSE(haveIBeenCalled);
 }
 
-TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesFileReadException) // NOLINT
+TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesFileReadException) 
 {
     testing::internal::CaptureStderr();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
-    // Mocking Persistent value filesystem calls
     EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
 
@@ -171,17 +166,16 @@ TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesFileReadException) /
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to default 4 hours"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 14400"));
-    ASSERT_FALSE(testWorker.m_rescanSent);
+    ASSERT_FALSE(haveIBeenCalled);
 }
 
-TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesNonIntegerContent) // NOLINT
+TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesNonIntegerContent) 
 {
     testing::internal::CaptureStderr();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
-    // Mocking Persistent value filesystem calls
     EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("One second please"));
 
@@ -199,17 +193,16 @@ TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesNonIntegerContent) /
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to default 4 hours"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 14400"));
-    ASSERT_FALSE(testWorker.m_rescanSent);
+    ASSERT_FALSE(haveIBeenCalled);
 }
 
-TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesLessThanOneInteger) // NOLINT
+TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesLessThanOneInteger) 
 {
     testing::internal::CaptureStderr();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
-    // Mocking Persistent value filesystem calls
     EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("-1"));
 
@@ -226,5 +219,5 @@ TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesLessThanOneInteger) 
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to default 4 hours"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 14400"));
-    ASSERT_FALSE(testWorker.m_rescanSent);
+    ASSERT_FALSE(haveIBeenCalled);
 }

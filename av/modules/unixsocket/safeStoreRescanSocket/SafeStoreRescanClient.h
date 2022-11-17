@@ -15,7 +15,7 @@ namespace unixsocket
     class SafeStoreRescanClient : public unixsocket::BaseClient
     {
     public:
-        explicit SafeStoreRescanClient(std::string socket_path);
+        explicit SafeStoreRescanClient(std::string socket_path, const duration_t& sleepTime = DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
 
         void sendRescanRequest();
     };

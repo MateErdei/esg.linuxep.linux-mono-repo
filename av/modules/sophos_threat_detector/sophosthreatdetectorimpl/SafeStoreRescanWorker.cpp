@@ -40,9 +40,9 @@ void SafeStoreRescanWorker::run()
 
     announceThreadStarted();
 
+    std::unique_lock lock(m_rescanLock);
     while (!m_stopRequested)
     {
-        std::unique_lock lock(m_rescanLock);
         m_rescanWakeUp.wait_for(
             lock, std::chrono::seconds(m_rescanInterval), [this] { return m_manualRescan || m_stopRequested; });
 
@@ -77,14 +77,13 @@ void SafeStoreRescanWorker::sendRescanRequest()
 uint SafeStoreRescanWorker::parseRescanIntervalConfig()
 {
     auto* fs = Common::FileSystem::fileSystem();
-    std::string intervalSettingInChroot = "var/safeStoreRescanInterval";
 
-    if (fs->exists(intervalSettingInChroot))
+    if (fs->exists(Plugin::getRelativeSafeStoreRescanIntervalConfigPath()))
     {
         LOGDEBUG("SafeStore Rescan Worker interval setting file found -- attempting to parse.");
         try
         {
-            auto contents = fs->readFile(intervalSettingInChroot);
+            auto contents = fs->readFile(Plugin::getRelativeSafeStoreRescanIntervalConfigPath());
             auto [value, errorMessage] = Common::UtilityImpl::StringUtils::stringToInt(contents);
             if (!errorMessage.empty())
             {
@@ -97,7 +96,7 @@ uint SafeStoreRescanWorker::parseRescanIntervalConfig()
             }
             else
             {
-                LOGDEBUG("Setting rescan interval to: " << contents << " seconds");
+                LOGINFO("Setting rescan interval to: " << contents << " seconds");
                 return value;
             }
         }
@@ -105,7 +104,7 @@ uint SafeStoreRescanWorker::parseRescanIntervalConfig()
         {
             LOGDEBUG("Could not read rescanInterval file due to: " << e.what());
         }
-        LOGDEBUG("Setting rescan interval to default 4 hours");
+        LOGINFO("Setting rescan interval to default 4 hours");
     }
     return 14400;
 }
