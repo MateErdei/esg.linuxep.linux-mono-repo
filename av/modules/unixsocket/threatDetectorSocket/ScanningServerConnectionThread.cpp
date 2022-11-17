@@ -197,7 +197,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
         if ((fds[0].revents & POLLERR) != 0)
         {
-            LOGERROR("Closing Scanning Server connection thread, error from socket");
+            LOGDEBUG("Closing Scanning Server connection thread, error from socket");
             break;
         }
 
@@ -210,7 +210,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
         if ((fds[0].revents & POLLIN) != 0)
         {
             // read length
-            int32_t length = unixsocket::readLength(socket_fd);
+            auto length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
                 LOGDEBUG("Scanning connection thread closed: EOF");
