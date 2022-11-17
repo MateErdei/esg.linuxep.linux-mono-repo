@@ -348,6 +348,7 @@ SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
     LogUtils.save_log_marks_at_start_of_test
     Start SafeStore
+    Wait For Safestore To Be Running
 
     Set Suite Variable  ${safestore_tools_unpacked}  /tmp/safestoretools/tap_test_output
 
