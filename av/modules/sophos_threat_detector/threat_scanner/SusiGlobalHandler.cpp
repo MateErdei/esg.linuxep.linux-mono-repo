@@ -27,11 +27,19 @@ namespace threat_scanner
         {
             (void)token;
             (void)algorithm;
-            (void)fileChecksum;
-            (void)size;
+
+            auto* susiHandler = reinterpret_cast<SusiGlobalHandler*>(&token);
+
+            for (auto const& sha : susiHandler->m_settings.m_susiAllowListSha256)
+            {
+                if (fileChecksum == sha)
+                {
+                    LOGDEBUG("isAllowlistedFile: allowed by sha: " << sha);
+                    return true;
+                }
+            }
 
             LOGDEBUG("isAllowlistedFile: size=" << size);
-
             return false;
         }
 

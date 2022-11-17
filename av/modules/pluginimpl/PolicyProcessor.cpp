@@ -33,33 +33,27 @@ namespace Plugin
             return pluginInstall + "/var/customer_id.txt";
         }
 
-        std::string getSusiStartupSettingsPath()
-        {
-            auto pluginInstall = getPluginInstall();
-            return pluginInstall + "/var/susi_startup_settings.json";
-        }
-
         std::string getSoapControlSocketPath()
         {
-            auto  pluginInstall = getPluginInstall();
-            return  pluginInstall + "/var/soapd_controller";
+            auto pluginInstall = getPluginInstall();
+            return pluginInstall + "/var/soapd_controller";
         }
 
         std::string getSoapConfigPath()
         {
-            auto  pluginInstall = getPluginInstall();
-            return  pluginInstall + "/var/soapd_config.json";
+            auto pluginInstall = getPluginInstall();
+            return pluginInstall + "/var/soapd_config.json";
         }
 
         std::string getSoapFlagConfigPath()
         {
-            auto  pluginInstall = getPluginInstall();
-            return  pluginInstall + "/var/oa_flag.json";
+            auto pluginInstall = getPluginInstall();
+            return pluginInstall + "/var/oa_flag.json";
         }
-    }
+    } // namespace
 
-    PolicyProcessor::PolicyProcessor(IStoppableSleeperSharedPtr stoppableSleeper)
-        : m_sleeper(std::move(stoppableSleeper))
+    PolicyProcessor::PolicyProcessor(IStoppableSleeperSharedPtr stoppableSleeper) :
+        m_sleeper(std::move(stoppableSleeper))
     {
         auto* fs = Common::FileSystem::fileSystem();
         auto dest = getNonChrootCustomerIdPath();
@@ -118,7 +112,7 @@ namespace Plugin
 
     bool PolicyProcessor::getSXL4LookupsEnabled() const
     {
-        return m_lookupEnabled;
+        return m_threatDetectorSettings.m_susiSxlLookupEnabled;
     }
 
     std::string PolicyProcessor::getCustomerId(const Common::XmlUtilities::AttributesMap& policy)
@@ -181,7 +175,7 @@ namespace Plugin
 
         auto excludeRemoteFiles = policy.lookup("config/onAccessScan/linuxExclusions/excludeRemoteFiles").contents();
         auto exclusionList = extractListFromXML(policy, "config/onAccessScan/linuxExclusions/filePathSet/filePath");
-        //TODO: LINUXDAR-5352 update the xml path, this setting will be off by default
+        // TODO: LINUXDAR-5352 update the xml path, this setting will be off by default
         auto enabled = policy.lookup("config/onAccessScan/enabled").contents();
         auto config = pluginimpl::generateOnAccessConfig(enabled, exclusionList, excludeRemoteFiles);
 
@@ -193,7 +187,9 @@ namespace Plugin
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
-            LOGERROR("Failed to write On Access Config, Sophos On Access Process will use the default settings " << e.what());
+            LOGERROR(
+                "Failed to write On Access Config, Sophos On Access Process will use the default settings "
+                << e.what());
             return;
         }
 
@@ -214,10 +210,10 @@ namespace Plugin
     {
         processOnAccessPolicy(policy);
 
-        bool oldLookupEnabled = m_lookupEnabled;
-        m_lookupEnabled = isLookupEnabled(policy);
+        bool oldLookupEnabled = m_threatDetectorSettings.m_susiSxlLookupEnabled;
+        m_threatDetectorSettings.m_susiSxlLookupEnabled = isLookupEnabled(policy);
 
-        if (m_gotFirstSavPolicy && m_lookupEnabled == oldLookupEnabled)
+        if (m_gotFirstSavPolicy && m_threatDetectorSettings.m_susiSxlLookupEnabled == oldLookupEnabled)
         {
             // Dont restart Threat Detector if its not changed and its not the first policy
             m_restartThreatDetector = false;
@@ -230,28 +226,7 @@ namespace Plugin
             m_gotFirstSavPolicy = true;
         }
 
-        json susiStartupSettings;
-        susiStartupSettings["enableSxlLookup"] = m_lookupEnabled;
-
-        try
-        {
-            auto* fs = Common::FileSystem::fileSystem();
-
-            // Write settings to file
-            auto dest = getSusiStartupSettingsPath();
-            fs->writeFile(dest, susiStartupSettings.dump());
-            ::chmod(dest.c_str(), 0640);
-
-            // Write a copy to chroot
-            dest = Plugin::getPluginInstall() + "/chroot" + dest;
-            fs->writeFile(dest, susiStartupSettings.dump());
-            ::chmod(dest.c_str(), 0640);
-        }
-        catch (const Common::FileSystem::IFileSystemException& e)
-        {
-            LOGERROR(e.what() << ", setting default values for susi startup settings.");
-        }
-
+        saveSusiSettings();
         m_restartThreatDetector = true;
     }
 
@@ -266,7 +241,9 @@ namespace Plugin
         return true;
     }
 
-    std::vector<std::string> PolicyProcessor::extractListFromXML(const Common::XmlUtilities::AttributesMap& policy, const std::string& entityFullPath)
+    std::vector<std::string> PolicyProcessor::extractListFromXML(
+        const Common::XmlUtilities::AttributesMap& policy,
+        const std::string& entityFullPath)
     {
         std::vector<std::string> results;
         auto attrs = policy.lookupMultiple(entityFullPath);
@@ -353,7 +330,9 @@ namespace Plugin
         return m_safeStoreEnabled;
     }
 
-    PolicyType PolicyProcessor::determinePolicyType(const Common::XmlUtilities::AttributesMap& policy, const std::string& appId)
+    PolicyType PolicyProcessor::determinePolicyType(
+        const Common::XmlUtilities::AttributesMap& policy,
+        const std::string& appId)
     {
         if (appId == "ALC")
         {
@@ -377,4 +356,34 @@ namespace Plugin
         }
         return PolicyType::UNKNOWN;
     }
-}
+
+    void PolicyProcessor::processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy)
+    {
+        if (!m_gotFirstCorcPolicy)
+        {
+            LOGINFO("CORC policy received for the first time");
+            m_gotFirstCorcPolicy = true;
+        }
+
+        auto allowList = policy.lookupMultiple("policy/whitelist/item");
+        for (const auto& allowedItem : allowList)
+        {
+            if (allowedItem.value("type") == "sha256" && !allowedItem.contents().empty())
+            {
+                m_threatDetectorSettings.m_susiAllowListSha256.emplace_back(allowedItem.contents());
+            }
+        }
+
+        saveSusiSettings();
+    }
+
+    void PolicyProcessor::saveSusiSettings()
+    {
+        auto dest = Plugin::getSusiStartupSettingsPath();
+        m_threatDetectorSettings.saveSettings(dest, 0640);
+
+        // Also, write a copy to chroot
+        dest = Plugin::getPluginInstall() + "/chroot" + dest;
+        m_threatDetectorSettings.saveSettings(dest, 0640);
+    }
+} // namespace Plugin

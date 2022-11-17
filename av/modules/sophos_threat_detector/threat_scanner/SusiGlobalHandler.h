@@ -8,6 +8,8 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "datatypes/AutoFd.h"
 
+#include "common/ThreatDetector/SusiSettings.h"
+
 #include <atomic>
 #include <memory>
 #include <mutex>
@@ -70,6 +72,8 @@ namespace threat_scanner
          * @return true if we've been told to shut down
          */
         bool isShuttingDown();
+
+        common::ThreatDetector::SusiSettings m_settings;
 
     private:
         std::atomic_bool m_susiInitialised = false;

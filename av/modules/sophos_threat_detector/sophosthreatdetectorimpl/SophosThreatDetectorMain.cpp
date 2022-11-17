@@ -4,31 +4,30 @@
 
 #include "Logger.h"
 #include "Reloader.h"
-#include "SafeStoreRescanWorker.h"
 #include "ShutdownTimer.h"
 #include "ThreatReporter.h"
-#include "ThreatDetectorResources.h"
 
-#include "common/ApplicationPaths.h"
 #include "common/Define.h"
 #include "common/FDUtils.h"
-
+#include "common/PidLockFile.h"
 #include "common/SaferStrerror.h"
+#include "common/ThreatDetector/SusiSettings.h"
+#include "common/signals/SigTermMonitor.h"
 #include "common/signals/SigUSR1Monitor.h"
-#include "common/ThreadRunner.h"
 
 #ifdef USE_SUSI
-#include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
+#    include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
 #else
-#include <sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h>
+#    include <sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h>
 #endif
-
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
-#include "unixsocket/safeStoreRescanSocket/SafeStoreRescanServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
+#include "common/ApplicationPaths.h"
+
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
@@ -40,6 +39,7 @@
 #include <netdb.h>
 #include <sys/capability.h>
 #include <sys/prctl.h>
+#include <unistd.h>
 #include <zlib.h>
 
 namespace sspl::sophosthreatdetectorimpl
@@ -48,19 +48,38 @@ namespace sspl::sophosthreatdetectorimpl
 
     namespace
     {
-        class ScannerFactoryResetter
+        void attempt_dns_query()
         {
-        public:
-            ScannerFactoryResetter(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
-                : m_scannerFactory(std::move(scannerFactory))
-            {}
-            ~ScannerFactoryResetter()
+            struct addrinfo* result { nullptr };
+
+            struct addrinfo hints
             {
-                m_scannerFactory->shutdown();
+            };
+            hints.ai_family = PF_UNSPEC;
+            hints.ai_socktype = SOCK_STREAM;
+            hints.ai_flags |= AI_CANONNAME; // NOLINT(hicpp-signed-bitwise)
+
+            /* resolve the domain name into a list of addresses */
+            int error = getaddrinfo("4.sophosxl.net", nullptr, &hints, &result);
+            if (error != 0)
+            {
+                if (error == EAI_SYSTEM)
+                {
+                    LOGERROR(
+                        "Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: "
+                        << common::safer_strerror(errno));
+                }
+                else
+                {
+                    LOGERROR("Failed DNS query of 4.sophosxl.net: error in getaddrinfo: " << gai_strerror(error));
+                }
             }
-        private:
-            threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
-        };
+            else
+            {
+                LOGINFO("Successful DNS query of 4.sophosxl.net");
+                freeaddrinfo(result);
+            }
+        }
 
         void copy_etc_file_if_present(const fs::path& etcDest, const fs::path& etcSrcFile)
         {
@@ -83,11 +102,7 @@ namespace sspl::sophosthreatdetectorimpl
             etcDest /= "etc";
 
             const std::vector<fs::path> fileVector {
-                "/etc/nsswitch.conf",
-                "/etc/resolv.conf",
-                "/etc/ld.so.cache",
-                "/etc/host.conf",
-                "/etc/hosts",
+                "/etc/nsswitch.conf", "/etc/resolv.conf", "/etc/ld.so.cache", "/etc/host.conf", "/etc/hosts",
             };
 
             for (const fs::path& file : fileVector)
@@ -97,7 +112,7 @@ namespace sspl::sophosthreatdetectorimpl
         }
 
 #if _BullseyeCoverage
-#pragma BullseyeCoverage save off
+#    pragma BullseyeCoverage save off
         static void copy_bullseye_files(const fs::path& chrootPath)
         {
             LOGINFO("Setting up chroot for Bullseye coverage");
@@ -144,15 +159,14 @@ namespace sspl::sophosthreatdetectorimpl
                 LOGERROR("Failed to link: " << covFile << " (" << e.code() << ": " << e.what() << ")");
             }
         }
-#pragma BullseyeCoverage restore
+#    pragma BullseyeCoverage restore
 #endif
 
         void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chrootPath)
         {
-            const std::vector<fs::path> fileVector {
-                "base/etc/machine_id.txt",
-                "plugins/av/VERSION.ini"
-            };
+            const std::vector<fs::path> fileVector { "base/etc/logger.conf",
+                                                     "base/etc/machine_id.txt",
+                                                     "plugins/av/VERSION.ini" };
 
             for (const fs::path& file : fileVector)
             {
@@ -198,6 +212,43 @@ namespace sspl::sophosthreatdetectorimpl
             }
         };
 
+        int dropCapabilities()
+        {
+            int ret = -1;
+            std::unique_ptr<cap_t, stateless_deleter<cap_t, int (*)(void*), &cap_free>> capHandle(cap_get_proc());
+            if (!capHandle)
+            {
+                LOGERROR("Failed to get effective capabilities");
+                return ret;
+            }
+
+            ret = cap_clear(capHandle.get());
+            if (ret != 0)
+            {
+                LOGERROR("Failed to clear effective capabilities");
+                return ret;
+            }
+
+            ret = cap_set_proc(capHandle.get());
+            if (ret != 0)
+            {
+                LOGERROR("Failed to set the dropped capabilities");
+                return ret;
+            }
+
+            return ret;
+        }
+
+        int lockCapabilities()
+        {
+            int ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+            if (ret != 0)
+            {
+                LOGERROR("Failed to lock capabilities: " << common::safer_strerror(errno));
+            }
+            return ret;
+        }
+
         fs::path threat_reporter_socket(const fs::path& pluginInstall)
         {
             return pluginInstall / "chroot/var/threat_report_socket";
@@ -222,9 +273,10 @@ namespace sspl::sophosthreatdetectorimpl
         class ThreatDetectorControlCallbacks : public unixsocket::IProcessControlMessageCallback
         {
         public:
-            explicit ThreatDetectorControlCallbacks(SophosThreatDetectorMain& mainInstance)
-                : m_mainInstance(mainInstance)
-            {}
+            explicit ThreatDetectorControlCallbacks(SophosThreatDetectorMain& mainInstance) :
+                m_mainInstance(mainInstance)
+            {
+            }
 
             void processControlMessage(const scan_messages::E_COMMAND_TYPE& command) override
             {
@@ -246,91 +298,23 @@ namespace sspl::sophosthreatdetectorimpl
         };
     } // namespace
 
-    void SophosThreatDetectorMain::attempt_dns_query()
-    {
-        struct addrinfo* result { nullptr };
-
-        struct addrinfo hints
-        {
-        };
-        hints.ai_family = PF_UNSPEC;
-        hints.ai_socktype = SOCK_STREAM;
-        hints.ai_flags |= AI_CANONNAME; // NOLINT(hicpp-signed-bitwise)
-
-        /* resolve the domain name into a list of addresses */
-        int error = m_sysCallWrapper->getaddrinfo("4.sophosxl.net", nullptr, &hints, &result);
-        if (error != 0)
-        {
-            if (error == EAI_SYSTEM)
-            {
-                LOGERROR("Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: " << common::safer_strerror(errno));
-            }
-            else
-            {
-                LOGERROR("Failed DNS query of 4.sophosxl.net: error in getaddrinfo: " << gai_strerror(error));
-            }
-        }
-        else
-        {
-            LOGINFO("Successful DNS query of 4.sophosxl.net");
-            m_sysCallWrapper->freeaddrinfo(result);
-        }
-    }
-
-    int SophosThreatDetectorMain::dropCapabilities()
-    {
-        int ret = -1;
-        std::unique_ptr<cap_t, stateless_deleter<cap_t, int (*)(void*), &cap_free>> capHandle(m_sysCallWrapper->cap_get_proc());
-        if (!capHandle)
-        {
-            int error = errno;
-            LOGERROR("Failed to get capabilities from call to cap_get_proc: "
-                     <<  error << " (" << common::safer_strerror(error) << ")");
-            return ret;
-        }
-
-        ret = m_sysCallWrapper->cap_clear(capHandle.get());
-        if (ret == -1)
-        {
-            int error = errno;
-            LOGERROR("Failed to clear effective capabilities: "
-                     <<  error << " (" << common::safer_strerror(error) << ")");
-            return ret;
-        }
-
-        ret = m_sysCallWrapper->cap_set_proc(capHandle.get());
-        if (ret == -1)
-        {
-            int error = errno;
-            LOGERROR("Failed to set the dropped capabilities: "
-                     <<  error << " (" << common::safer_strerror(error) << ")");
-            return ret;
-        }
-
-        return ret;
-    }
-
-    int SophosThreatDetectorMain::lockCapabilities()
-    {
-        return m_sysCallWrapper->prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
-    }
-
     void SophosThreatDetectorMain::shutdownThreatDetector()
     {
         LOGINFO("Sophos Threat Detector received shutdown request");
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
         create_shutdown_notice_file(pluginInstall);
-        m_systemFileRestartTrigger.notify();
+        std::exit(0);
     }
 
     void SophosThreatDetectorMain::reloadSUSIGlobalConfiguration()
     {
-        //thread safe atomic bool
+        // thread safe atomic bool
         if (m_scannerFactory->susiIsInitialized())
         {
             LOGINFO("Sophos Threat Detector received reload request");
-            //This ends up calling SusiGlobalHandler::reload which ensures thread safety for SUSI_UpdateGlobalConfiguration
+            // This ends up calling SusiGlobalHandler::reload which ensures thread safety for
+            // SUSI_UpdateGlobalConfiguration
             m_reloader->reload();
         }
         else
@@ -339,13 +323,14 @@ namespace sspl::sophosthreatdetectorimpl
         }
     }
 
-    int SophosThreatDetectorMain::inner_main(const IThreatDetectorResourcesSharedPtr& resources)
+    int SophosThreatDetectorMain::inner_main()
     {
-        m_sysCallWrapper = resources->createSystemCallWrapper();
-        auto sigTermMonitor = resources->createSignalHandler(true);
+        common::signals::SigTermMonitor sigTermMonitor { true };
 
         // Ignore SIGPIPE. send*() or write() on a broken pipe will now fail with errno=EPIPE rather than crash.
-        struct sigaction ignore {};
+        struct sigaction ignore
+        {
+        };
         ignore.sa_handler = SIG_IGN;
         ::sigaction(SIGPIPE, &ignore, nullptr);
 
@@ -359,7 +344,7 @@ namespace sspl::sophosthreatdetectorimpl
         attempt_dns_query();
 
         // ensure zlib library is loaded
-        (void) zlibVersion();
+        (void)zlibVersion();
 
         // ensure all charsets are loaded from boost::locale before entering chroot
         boost::locale::generator gen;
@@ -379,38 +364,33 @@ namespace sspl::sophosthreatdetectorimpl
         // Copy etc files for DNS
         copy_etc_files_for_dns(chrootPath);
 
-#if _BullseyeCoverage
-#pragma BullseyeCoverage save off
+#    if _BullseyeCoverage
+#        pragma BullseyeCoverage save off
         copy_bullseye_files(chrootPath);
-#pragma BullseyeCoverage restore
-#endif
+#        pragma BullseyeCoverage restore
+#    endif
 
-        int ret = m_sysCallWrapper->chroot(chrootPath.c_str());
-        if (ret == -1)
+        int ret = ::chroot(chrootPath.c_str());
+        if (ret != 0)
         {
-            int error = errno;
-            std::stringstream logmsg;
-            logmsg << "Failed to chroot to " << chrootPath.c_str() <<
-                ": " <<  error << " (" << common::safer_strerror(error) << ")";
-            throw std::runtime_error(logmsg.str());
+            LOGERROR("Failed to chroot to " << chrootPath.c_str() << " (" << errno << "): Check permissions");
+            exit(EXIT_FAILURE);
         }
 
-        if (m_sysCallWrapper->getuid() != 0)
+        if (getuid() != 0)
         {
             ret = dropCapabilities();
             if (ret != 0)
             {
-                throw std::runtime_error("Failed to drop capabilities after entering chroot");
+                LOGERROR("Failed to drop capabilities after entering chroot (" << ret << ")");
+                exit(EXIT_FAILURE);
             }
 
             ret = lockCapabilities();
             if (ret != 0)
             {
-                int error = errno;
-                std::stringstream logmsg;
-                logmsg << "Failed to lock capabilities after entering chroot: "
-                       <<  error << " (" << common::safer_strerror(error) << ")";
-                throw std::runtime_error(logmsg.str());
+                LOGERROR("Failed to lock capabilities after entering chroot (" << ret << ")");
+                exit(EXIT_FAILURE);
             }
         }
         else
@@ -418,13 +398,11 @@ namespace sspl::sophosthreatdetectorimpl
             LOGINFO("Running as root - Skip dropping of capabilities");
         }
 
-        ret = m_sysCallWrapper->chdir("/");
-        if (ret == -1)
+        ret = ::chdir("/");
+        if (ret != 0)
         {
-            int error = errno;
-            std::stringstream logmsg;
-            logmsg << "Failed to chdir / after entering chroot " << error << " (" << common::safer_strerror(error) << ")";
-            throw std::runtime_error(logmsg.str());
+            LOGERROR("Failed to chdir / after entering chroot (" << ret << ")");
+            exit(EXIT_FAILURE);
         }
 
         fs::path scanningSocketPath = "/var/scanning_socket";
@@ -436,23 +414,24 @@ namespace sspl::sophosthreatdetectorimpl
 
         remove_shutdown_notice_file(pluginInstall);
         fs::path lockfile = pluginInstall / "chroot/var/threat_detector.pid";
-        auto pidLock = resources->createPidLockFile(lockfile);
+        common::PidLockFile lock(lockfile);
 
-        auto threatReporter = resources->createThreatReporter(threat_reporter_socket(pluginInstall));
+        threat_scanner::IThreatReporterSharedPtr threatReporter =
+            std::make_shared<sspl::sophosthreatdetectorimpl::ThreatReporter>(threat_reporter_socket(pluginInstall));
 
-        auto shutdownTimer = resources->createShutdownTimer(threat_detector_config(pluginInstall));
+        threat_scanner::IScanNotificationSharedPtr shutdownTimer =
+            std::make_shared<ShutdownTimer>(threat_detector_config(pluginInstall));
 
-        auto updateCompleteNotifier = resources->createUpdateCompleteNotifier(updateCompletePath, 0700);
+        auto updateCompleteNotifier =
+            std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(updateCompletePath, 0700);
+        updateCompleteNotifier->start();
 
-        common::ThreadRunner updateCompleteNotifierThread (updateCompleteNotifier, "updateCompleteNotifier", true);
+        m_scannerFactory =
+            std::make_shared<threat_scanner::SusiScannerFactory>(threatReporter, shutdownTimer, updateCompleteNotifier);
 
-        m_scannerFactory = resources->createSusiScannerFactory(threatReporter, shutdownTimer, updateCompleteNotifier);
-        ScannerFactoryResetter scannerFactoryShutdown(m_scannerFactory);
-
-        if (sigTermMonitor->triggered())
+        if (sigTermMonitor.triggered())
         {
             LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
-            // Scanner factory shutdown by scannerFactoryShutdown
             return common::E_CLEAN_SUCCESS;
         }
         m_scannerFactory->update(); // always force an update during start-up
@@ -465,37 +444,37 @@ namespace sspl::sophosthreatdetectorimpl
         LOGINFO("Starting USR1 monitor");
         common::signals::SigUSR1Monitor usr1Monitor(m_reloader); // Create monitor before loading SUSI
 
-        //Always create processController after m_reloader is initialized
+        // Always create processController after m_reloader is initialized
         fs::path processControllerSocketPath = "/var/process_control_socket";
-        std::shared_ptr<ThreatDetectorControlCallbacks> callbacks = std::make_shared<ThreatDetectorControlCallbacks>(*this);
+        std::shared_ptr<ThreatDetectorControlCallbacks> callbacks =
+            std::make_shared<ThreatDetectorControlCallbacks>(*this);
         unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0660, callbacks);
         processController.start();
 
-        SafeStoreRescanWorker rescanWorker(Plugin::getSafeStoreRescanSocketPath());
-        rescanWorker.start();
-
         int returnCode = common::E_CLEAN_SUCCESS;
 
-        constexpr int SIGTERM_MONITOR = 0;
-        constexpr int USR1_MONITOR = 1;
-        constexpr int SYSTEM_FILE_CHANGE = 2;
-        struct pollfd fds[] {
-            { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-            { .fd = usr1Monitor.monitorFd(), .events = POLLIN, .revents = 0 },
-            { .fd = m_systemFileRestartTrigger.readFd(), .events = POLLIN, .revents = 0 },
-        };
+        fd_set readFDs;
+        FD_ZERO(&readFDs);
+        int max = -1;
+
+        max = FDUtils::addFD(&readFDs, sigTermMonitor.monitorFd(), max);
+        max = FDUtils::addFD(&readFDs, usr1Monitor.monitorFd(), max);
 
         while (true)
         {
-            struct timespec timeout {};
+            fd_set tempRead = readFDs;
+
+            struct timespec timeout
+            {
+            };
             timeout.tv_sec = shutdownTimer->timeout();
             LOGDEBUG("Setting shutdown timeout to " << timeout.tv_sec << " seconds");
             // wait for an activity on one of the sockets
-            int activity = ::ppoll(fds, std::size(fds), &timeout, nullptr);
+            int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
 
             if (activity < 0)
             {
-                // error in ppoll
+                // error in pselect
                 int error = errno;
                 if (error == EINTR)
                 {
@@ -503,8 +482,9 @@ namespace sspl::sophosthreatdetectorimpl
                     continue;
                 }
 
-                LOGERROR("Failed to poll signals. Error: "
-                         << common::safer_strerror(error) << " (" << error << ')');
+                LOGERROR(
+                    "Failed to read from socket - shutting down. Error: " << common::safer_strerror(error) << " ("
+                                                                          << error << ')');
                 returnCode = common::E_GENERIC_FAILURE;
                 break;
             }
@@ -518,7 +498,6 @@ namespace sspl::sophosthreatdetectorimpl
                     {
                         LOGDEBUG("No scans requested for " << timeout.tv_sec << " seconds - shutting down.");
                         create_shutdown_notice_file(pluginInstall);
-                        returnCode = common::E_QUICK_RESTART_SUCCESS;
                         break;
                     }
                     else
@@ -534,48 +513,25 @@ namespace sspl::sophosthreatdetectorimpl
                     continue;
                 }
             }
-            if ((fds[SIGTERM_MONITOR].revents & POLLERR) != 0)
-            {
-                LOGFATAL("Error from sigterm pipe");
-                returnCode = common::E_GENERIC_FAILURE;
-                break;
-            }
-            if ((fds[SIGTERM_MONITOR].revents & POLLIN) != 0)
+
+            if (FDUtils::fd_isset(sigTermMonitor.monitorFd(), &tempRead))
             {
                 LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
-                sigTermMonitor->triggered();
+                sigTermMonitor.triggered();
                 returnCode = common::E_CLEAN_SUCCESS;
                 break;
             }
 
-            if ((fds[USR1_MONITOR].revents & POLLERR) != 0)
-            {
-                LOGFATAL("Error from USR1 monitor");
-                returnCode = common::E_GENERIC_FAILURE;
-                break;
-            }
-            if ((fds[USR1_MONITOR].revents & POLLIN) != 0)
+            if (FDUtils::fd_isset(usr1Monitor.monitorFd(), &tempRead))
             {
                 LOGINFO("Sophos Threat Detector received SIGUSR1 - reloading");
                 usr1Monitor.triggered();
-                // Continue running
-            }
-
-            if ((fds[SYSTEM_FILE_CHANGE].revents & POLLERR) != 0)
-            {
-                LOGFATAL("Error from system file change pipe");
-                returnCode = common::E_GENERIC_FAILURE;
-                break;
-            }
-            if ((fds[SYSTEM_FILE_CHANGE].revents & POLLIN) != 0)
-            {
-                LOGINFO("Sophos Threat Detector is restarting to pick up changed system files");
-                returnCode = common::E_QUICK_RESTART_SUCCESS;
-                break;
             }
         }
 
-        // Scanner factory shutdown by scannerFactoryShutdown
+        m_scannerFactory->shutdown();
+        updateCompleteNotifier->tryStop();
+
         LOGINFO("Sophos Threat Detector is exiting with return code " << returnCode);
         return returnCode;
     }
@@ -584,18 +540,17 @@ namespace sspl::sophosthreatdetectorimpl
     {
         try
         {
-            auto resources = std::make_unique<ThreatDetectorResources>();
-            return inner_main(std::move(resources));
+            return inner_main();
         }
         catch (std::exception& ex)
         {
-            LOGFATAL("ThreatDetectorMain, Exception caught at top level: " << ex.what());
-            exit(EXIT_FAILURE);
+            LOGFATAL("Caught std::exception: " << ex.what() << " at top level");
+            return 101;
         }
         catch (...)
         {
-            LOGFATAL("ThreatDetectorMain, Non-std::exception caught at top-level");
-            exit(EXIT_FAILURE);
+            LOGFATAL("Caught unknown exception at top-level");
+            return 100;
         }
     }
-}
+} // namespace sspl::sophosthreatdetectorimpl

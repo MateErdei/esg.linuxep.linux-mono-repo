@@ -11,7 +11,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
-std::string threat_scanner::create_scanner_info(bool scanArchives, bool scanImages)
+std::string threat_scanner::createScannerInfo(bool scanArchives, bool scanImages)
 {
     std::string scannerInfo = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos("scanner": {
         "signatureBased": {

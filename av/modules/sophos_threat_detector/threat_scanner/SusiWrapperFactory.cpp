@@ -11,6 +11,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "SusiWrapper.h"
 
 #include "Common/UtilityImpl/StringUtils.h"
+#include "common/ApplicationPaths.h"
 #include "common/PluginUtils.h"
 #include "common/StringUtils.h"
 
@@ -166,7 +167,7 @@ namespace threat_scanner
             return true;
         }
 
-        std::string create_runtime_config(
+        std::string createRuntimeConfig(
             const std::string& scannerInfo,
             const std::string& endpointId,
             const std::string& customerId,
@@ -208,8 +209,9 @@ namespace threat_scanner
 
     std::shared_ptr<ISusiWrapper> SusiWrapperFactory::createSusiWrapper(const std::string& scannerConfig)
     {
-        std::string scannerInfo = create_scanner_info(false, false);
-        std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId(), isSxlLookupEnabled());
+        std::string scannerInfo = createScannerInfo(false, false);
+        std::string runtimeConfig =
+            createRuntimeConfig(scannerInfo, getEndpointId(), getCustomerId(), isSxlLookupEnabled());
         m_globalHandler->initializeSusi(runtimeConfig);
         return std::make_shared<SusiWrapper>(m_globalHandler, scannerConfig);
     }
@@ -227,8 +229,20 @@ namespace threat_scanner
 
     bool SusiWrapperFactory::reload()
     {
-        std::string scannerInfo = create_scanner_info(false, false);
-        std::string runtimeConfig = create_runtime_config(scannerInfo, getEndpointId(), getCustomerId(), isSxlLookupEnabled());
+        std::string scannerInfo = createScannerInfo(false, false);
+
+        common::ThreatDetector::SusiSettings newSettings(Plugin::getSusiStartupSettingsPath());
+        if (m_globalHandler->m_settings == newSettings)
+        {
+            LOGDEBUG("Skipping reload of SUSI Settings: " << Plugin::getSusiStartupSettingsPath());
+            return true;
+        }
+        // NB, the allow-list data in these settings is loaded here and used in the susi callback isAllowlistedFile(...)
+        m_globalHandler->m_settings = newSettings;
+
+        std::string runtimeConfig = createRuntimeConfig(
+            scannerInfo, getEndpointId(), getCustomerId(), m_globalHandler->m_settings.m_susiSxlLookupEnabled);
+
         return m_globalHandler->reload(runtimeConfig);
     }
 

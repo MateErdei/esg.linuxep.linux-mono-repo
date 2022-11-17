@@ -12,6 +12,6 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 namespace threat_scanner
 {
-    std::string create_scanner_info(bool scanArchives, bool scanImages);
+    std::string createScannerInfo(bool scanArchives, bool scanImages);
     sophos_filesystem::path pluginInstall();
 }

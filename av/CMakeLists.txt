@@ -230,6 +230,8 @@ find_library(ZLIB_LIBRARY
         NO_DEFAULT_PATH
         )
 
+set(JSON_INPUT ${pluginapiinclude}/thirdparty/nlohmann-json)
+
 GET_FILENAME_COMPONENT(OPENSSLCRYPTO_LIBRARY_ABSOLUTE ${CRYPTO_LIBRARY} REALPATH)
 
 add_subdirectory(modules)

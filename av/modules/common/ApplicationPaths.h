@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -8,20 +8,11 @@ namespace Plugin
 {
     std::string getPluginInstall();
     std::string getPluginVarDirPath();
-    std::string getPluginChrootDirPath();
-    std::string getPluginChrootVarDirPath();
-    std::string getRestoreReportSocketPath();
     std::string getSafeStorePidPath();
     std::string getSafeStoreSocketPath();
-    std::string getSafeStoreRescanSocketPath();
     std::string getSafeStoreDbDirPath();
     std::string getSafeStoreDbFileName();
     std::string getSafeStorePasswordFilePath();
     std::string getSafeStoreDormantFlagPath();
-    std::string getSoapdPidPath();
-    std::string getOnAccessUnhealthyFlagPath();
-    std::string getRelativeSafeStoreRescanIntervalConfigPath();
-    std::string getSafeStoreConfigPath();
-    std::string getScanningSocketPath();
-    std::string getPersistThreatDatabaseFilePath();
+    std::string getSusiStartupSettingsPath();
 } // namespace Plugin

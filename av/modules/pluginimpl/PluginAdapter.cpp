@@ -277,7 +277,8 @@ namespace Plugin
             }
             else if (policyType == PolicyType::CORC)
             {
-                LOGDEBUG("Processing of CORC policy not implemented");
+                LOGDEBUG("Processing CORC policy");
+                m_policyProcessor.processCorcPolicy(attributeMap);
             }
             else if (policyType == PolicyType::CORE)
             {

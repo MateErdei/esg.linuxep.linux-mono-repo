@@ -45,7 +45,10 @@ add_library(common SHARED
         signals/SigTermMonitor.cpp
         signals/SigTermMonitor.h
         signals/SigUSR1Monitor.cpp
-        signals/SigUSR1Monitor.h)
+        signals/SigUSR1Monitor.h
+        ThreatDetector/SusiSettings.h
+        ThreatDetector/SusiSettings.cpp
+        )
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
@@ -62,7 +65,7 @@ target_link_libraries(common  PUBLIC
         ${Boost_LIBRARIES}
         )
 
-target_include_directories(common PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${OPENSSL_INCLUDE_DIR})
+target_include_directories(common PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${OPENSSL_INCLUDE_DIR} ${JSON_INPUT})
 target_include_directories(common SYSTEM PUBLIC ${BOOST_INCLUDEDIR})
 
 install(TARGETS common

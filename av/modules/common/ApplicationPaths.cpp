@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "ApplicationPaths.h"
 
@@ -29,21 +29,6 @@ namespace Plugin
         return getPluginInstall() + "/var";
     }
 
-    std::string getPluginChrootDirPath()
-    {
-        return getPluginInstall() + "/chroot";
-    }
-
-    std::string getPluginChrootVarDirPath()
-    {
-        return getPluginChrootDirPath() + "/var";
-    }
-
-    std::string getRestoreReportSocketPath()
-    {
-        return getPluginVarDirPath() + "/restore_report_socket";
-    }
-
     std::string getSafeStorePidPath()
     {
         return getPluginVarDirPath() + "/safestore.pid";
@@ -52,11 +37,6 @@ namespace Plugin
     std::string getSafeStoreSocketPath()
     {
         return getPluginVarDirPath() + "/safestore_socket";
-    }
-
-    std::string getSafeStoreRescanSocketPath()
-    {
-        return getPluginChrootVarDirPath() + "/safestore_rescan_socket";
     }
 
     std::string getSafeStoreDbDirPath()
@@ -79,33 +59,9 @@ namespace Plugin
         return getPluginVarDirPath() + "/safestore_dormant_flag";
     }
 
-    std::string getSoapdPidPath()
+    std::string getSusiStartupSettingsPath()
     {
-        return getPluginVarDirPath() + "/soapd.pid";
-    }
-
-    std::string getOnAccessUnhealthyFlagPath()
-    {
-        return getPluginVarDirPath() + "/onaccess_unhealthy_flag";
-    }
-
-    std::string getRelativeSafeStoreRescanIntervalConfigPath()
-    {
-        return "/var/safeStoreRescanInterval";
-    }
-
-    std::string getSafeStoreConfigPath()
-    {
-        return getPluginVarDirPath() + "/safestore_config.json";
-    }
-
-    std::string getScanningSocketPath()
-    {
-        return getPluginChrootVarDirPath() + "/scanning_socket";
-    }
-
-    std::string getPersistThreatDatabaseFilePath()
-    {
-        return getPluginVarDirPath() + "/persist-threatDatabase";
+        auto pluginInstall = getPluginInstall();
+        return pluginInstall + "/var/susi_startup_settings.json";
     }
 } // namespace Plugin
