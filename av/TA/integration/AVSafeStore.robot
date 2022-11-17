@@ -56,6 +56,9 @@ SafeStore Can Reinitialise Database Containing Threats
 
     Stop SafeStore
     Check Safestore Not Running
+
+    File Should Not Exist  ${NORMAL_DIRECTORY}/eicar.com
+
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
 
     Start SafeStore
@@ -244,6 +247,11 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount
 
     Wait For AV Log Contains After Mark    File is located on a Network mount:  ${av_mark}
     Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+
+SafeStore Does Not Restore Files When Uninstalled
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+
 
 
 *** Keywords ***
