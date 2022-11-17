@@ -262,6 +262,9 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).Times(2)
         .WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
 
+    EXPECT_CALL(*m_mockSysCallWrapper, fstat(_, _))
+        .WillOnce(DoAll())
+
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 

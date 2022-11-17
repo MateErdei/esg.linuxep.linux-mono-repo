@@ -2,11 +2,22 @@
 
 #include "ClientScanRequest.h"
 
+#include "Logger.h"
+
 #include <capnp/message.h>
 #include <capnp/serialize.h>
+
+#include <cassert>
+
 #include <ScanRequest.capnp.h>
 
 using namespace scan_messages;
+
+ClientScanRequest::ClientScanRequest(datatypes::ISystemCallWrapperSharedPtr sysCalls, int fd)
+    :
+    m_autoFd(fd),
+    m_syscalls(std::move(sysCalls))
+{}
 
 std::string ClientScanRequest::serialise() const
 {
@@ -27,6 +38,45 @@ std::string ClientScanRequest::serialise() const
     return dataAsString;
 }
 
+bool ClientScanRequest::fstatIfRequired() const
+{
+    if (!m_autoFd.valid())
+    {
+        return false;
+    }
+    if (!m_syscalls)
+    {
+        return false;
+    }
+    if (m_fstat.st_dev == 0 && m_fstat.st_ino == 0)
+    {
+        int ret = m_syscalls->fstat(m_autoFd.get(), &m_fstat);
+        if (ret != 0)
+        {
+            LOGERROR("Unable to stat: " << m_path);
+            return false;
+        }
+    }
+    return true;
+}
+std::optional<ClientScanRequest::hash_t> ClientScanRequest::hash() const
+{
+    if (!fstatIfRequired())
+    {
+        return {};
+    }
+
+    auto hasher = std::hash<int>{};
+    const hash_t h1 = hasher(m_fstat.st_dev);
+    const hash_t h2 = hasher(m_fstat.st_ino);
+    return h1 ^ (h2 << 1);
+}
+
+bool ClientScanRequest::operator==(const ClientScanRequest& other) const
+{
+    return (other.m_fstat.st_dev == m_fstat.st_dev &&
+            other.m_fstat.st_ino == m_fstat.st_ino);
+}
 
 std::string scan_messages::getScanTypeAsStr(const E_SCAN_TYPE& scanType)
 {

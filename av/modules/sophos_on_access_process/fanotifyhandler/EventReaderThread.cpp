@@ -133,8 +133,7 @@ bool EventReaderThread::handleFanotifyEvent()
             LOGERROR("Got fanotify metadata event without fd");
             continue;
         }
-        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>();
-        scanRequest->setFd(eventFd); // DONATED
+        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>(m_sysCalls, eventFd); // DONATED
 
         std::string filePath;
         std::string executablePath;

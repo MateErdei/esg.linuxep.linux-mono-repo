@@ -9,6 +9,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <queue>
+#include <unordered_set>
 #include <utility>
 
 using namespace scan_messages;
@@ -18,7 +19,12 @@ namespace sophos_on_access_process::onaccessimpl
     class ScanRequestQueue
     {
     public:
-        explicit ScanRequestQueue(size_t maxSize);
+        /**
+         *
+         * @param maxSize
+         * @param useDeDup Perform de-dup on incoming requests
+         */
+        explicit ScanRequestQueue(size_t maxSize, bool useDeDup=true);
 
         /**
          * Add scan request and associated file descriptor to the queue ready for scanning
@@ -48,12 +54,19 @@ namespace sophos_on_access_process::onaccessimpl
         size_t size() const;
 
     private:
+        void clearQueue();
+
+
         std::queue<ClientScanRequestPtr> m_queue;
+
         mutable std::mutex m_lock;
         std::condition_variable m_condition;
 
         const size_t m_maxSize;
         std::atomic_bool m_shuttingDown = false;
+        bool m_useDeDup;
+        using dedup_set_t = std::unordered_set<ClientScanRequest::hash_t>;
+        dedup_set_t m_deDupSet;
     };
 
     using ScanRequestQueueSharedPtr = std::shared_ptr<ScanRequestQueue>;
