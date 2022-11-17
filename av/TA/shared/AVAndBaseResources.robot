@@ -83,17 +83,6 @@ Check Logs Saved On Downgrade
     File Should Exist  ${AV_BACKUP_DIR}/av.log
     File Should Exist  ${AV_BACKUP_DIR}/sophos_threat_detector.log
 
-Check SafeStore Databases Saved On Downgrade
-    Directory Should Exist  ${SAFESTORE_BACKUP_DIR}
-    File Should Exist  ${SAFESTORE_BACKUP_DIR}/persist-threatDatabase
-
-    ${SAFESTORE_DB_BACKUP_DIRS} =    List Directories In Directory    ${SAFESTORE_BACKUP_DIR}
-    FOR   ${dir}  IN  @{SAFESTORE_DB_BACKUP_DIRS}
-        Directory Should Not Be Empty    ${SAFESTORE_BACKUP_DIR}/${dir}
-        File Should Exist  ${SAFESTORE_BACKUP_DIR}/${dir}/safestore.db
-        File Should Exist  ${SAFESTORE_BACKUP_DIR}/${dir}/safestore.pw
-    END
-
 Run plugin uninstaller
     ${result} =   Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh   stderr=STDOUT
     Log    ${result.stdout}

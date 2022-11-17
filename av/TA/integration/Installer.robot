@@ -8,6 +8,7 @@ Resource    ../shared/AVResources.robot
 Resource    ../shared/BaseResources.robot
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/OnAccessResources.robot
+Resource    ../shared/SafeStoreResources.robot
 
 Library         Collections
 Library         Process
@@ -742,6 +743,17 @@ AV Plugin Restores Downgrade Logs
     Directory Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}
     File Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}/av.log
     File Should Exist  ${AV_RESTORED_LOGS_DIRECTORY}/sophos_threat_detector.log
+
+AV Plugin Restores Downgrade SafeStore Databases
+    Restart AV Plugin
+    Wait Until File exists    ${AV_PLUGIN_PATH}/var/persist-threatDatabase
+
+    Run plugin uninstaller with downgrade flag
+    Directory Should Exist  ${SAFESTORE_BACKUP_DIR}
+    Check AV Plugin Not Installed
+    Install AV Directly from SDDS
+
+    Verify SafeStore Database Backups Exist in Path    ${AV_RESTORED_VAR_DIRECTORY}
 
 AV Can not install from SDDS Component
     ${result} =  Run Process  bash  ${COMPONENT_SDDS_COMPONENT}/install.sh  stderr=STDOUT  timeout=30s

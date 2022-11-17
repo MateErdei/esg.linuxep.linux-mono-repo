@@ -143,3 +143,18 @@ Corrupt SafeStore Database
     Remove Files    ${SAFESTORE_DB_PATH}    ${SAFESTORE_DB_PASSWORD_PATH}
     Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
     Start SafeStore
+
+
+Verify SafeStore Database Backups Exist in Path
+    [Arguments]    ${pathToCheck}
+    Directory Should Exist  ${pathToCheck}
+    File Should Exist  ${pathToCheck}/persist-threatDatabase
+
+    ${SAFESTORE_DB_BACKUP_DIRS} =    List Directories In Directory    ${pathToCheck}
+    Should Not Be Empty    ${SAFESTORE_DB_BACKUP_DIRS}
+
+    FOR   ${dir}  IN  @{SAFESTORE_DB_BACKUP_DIRS}
+        Directory Should Not Be Empty    ${SAFESTORE_BACKUP_DIR}/${dir}
+        File Should Exist  ${SAFESTORE_BACKUP_DIR}/${dir}/safestore.db
+        File Should Exist  ${SAFESTORE_BACKUP_DIR}/${dir}/safestore.pw
+    END

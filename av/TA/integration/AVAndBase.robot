@@ -17,6 +17,7 @@ Resource        ../shared/ErrorMarkers.robot
 Resource        ../shared/AVResources.robot
 Resource        ../shared/BaseResources.robot
 Resource        ../shared/AVAndBaseResources.robot
+Resource        ../shared/SafeStoreResources.robot
 
 Suite Setup     AVAndBase Suite Setup
 Suite Teardown  AVAndBase Suite Teardown
@@ -534,7 +535,7 @@ AV Plugin Saves SafeStore and Detections Databases On Downgrade
 
     Run plugin uninstaller with downgrade flag
     Check AV Plugin Not Installed
-    Check SafeStore Databases Saved On Downgrade
+    Verify SafeStore Database Backups Exist in Path    ${SAFESTORE_BACKUP_DIR}
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now
     [Timeout]  15min
