@@ -132,7 +132,7 @@ void SafeStoreServerConnectionThread::inner_run()
             }
 
             LOGFATAL("Error from ppoll: " << common::safer_strerror(errno));
-            return;
+            break;
         }
         assert(ret > 0);
 

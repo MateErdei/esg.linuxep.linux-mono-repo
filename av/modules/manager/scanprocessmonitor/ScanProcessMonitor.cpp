@@ -93,7 +93,25 @@ namespace plugin::manager::scanprocessmonitor
             if (active < 0 and errno != EINTR)
             {
                 auto buf = common::safer_strerror(errno);
-                LOGERROR("failure in ScanProcessMonitor: pselect failed: " << buf);
+                LOGERROR("failure in ScanProcessMonitor: ppoll failed: " << buf);
+                break;
+            }
+
+            if ((fds[0].revents & POLLERR) != 0)
+            {
+                LOGERROR("Shutting down Scan Process Monitor, error from shutdown notify pipe");
+                break;
+            }
+
+            if ((fds[1].revents & POLLERR) != 0)
+            {
+                LOGERROR("Shutting down Scan Process Monitor, error from config-changed notify pipe");
+                break;
+            }
+
+            if ((fds[2].revents & POLLERR) != 0)
+            {
+                LOGERROR("Shutting down Scan Process Monitor, error from policy-changed notify pipe");
                 break;
             }
 

@@ -95,7 +95,7 @@ void unixsocket::BaseServerSocket::run()
             }
 
             LOGERROR("Socket failed, closing " << m_socketName << ". Error: " << common::safer_strerror(errno)<< " (" << errno << ')');
-            return;
+            break;
         }
         assert(ret > 0);
 
