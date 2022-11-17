@@ -150,7 +150,6 @@ namespace sspl::sophosthreatdetectorimpl
         void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chrootPath)
         {
             const std::vector<fs::path> fileVector {
-                "base/etc/logger.conf",
                 "base/etc/machine_id.txt",
                 "plugins/av/VERSION.ini"
             };
@@ -340,7 +339,7 @@ namespace sspl::sophosthreatdetectorimpl
         }
     }
 
-    int SophosThreatDetectorMain::inner_main(IThreatDetectorResourcesSharedPtr resources)
+    int SophosThreatDetectorMain::inner_main(const IThreatDetectorResourcesSharedPtr& resources)
     {
         m_sysCallWrapper = resources->createSystemCallWrapper();
         auto sigTermMonitor = resources->createSignalHandler(true);

@@ -37,7 +37,7 @@ namespace sspl::sophosthreatdetectorimpl
         void attempt_dns_query();
 
     TEST_PUBLIC:
-        int inner_main(IThreatDetectorResourcesSharedPtr resources);
+        int inner_main(const IThreatDetectorResourcesSharedPtr& resources);
 
 
     };

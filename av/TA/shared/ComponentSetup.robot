@@ -57,10 +57,12 @@ Mock Base Installation
 Set Base Log Level
     [Arguments]  ${logLevel}
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  [global]\nVERBOSITY=${logLevel}
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY=${logLevel}
 
 Set Log Level
     [Arguments]  ${logLevel}
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  [global]\nVERBOSITY=${logLevel}
+    Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY=${logLevel}
 
 Bootstrap SUSI From Update Source
     Create File  ${SOPHOS_INSTALL}/base/etc/machine_id.txt  ab7b6758a3ab11ba8a51d25aa06d1cf4

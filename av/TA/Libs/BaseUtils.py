@@ -106,7 +106,8 @@ def set_spl_log_level_and_restart_watchdog_if_changed(loglevel: str):
     :return:
     """
     SOPHOS_INSTALL = get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
-    conf = os.path.join(SOPHOS_INSTALL, "base", "etc", "logger.conf.local")
+    etc = os.path.join(SOPHOS_INSTALL, "base", "etc")
+    conf = os.path.join(etc, "logger.conf.local")
     expected = "[global]\nVERBOSITY="+loglevel
     try:
         existing = open(conf).read().strip()
@@ -118,5 +119,7 @@ def set_spl_log_level_and_restart_watchdog_if_changed(loglevel: str):
 
     logger.info("Updating log configuration")
     open(conf, "w").write(expected)
+    open(os.path.join(etc, "logger.conf"), "w").write(expected)
+
     logger.info("Restarting sophos-spl")
     subprocess.check_call(['systemctl', 'restart', 'sophos-spl'])
