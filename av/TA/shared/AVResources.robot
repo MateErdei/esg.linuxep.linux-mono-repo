@@ -723,10 +723,6 @@ Require Plugin Installed and Running
 
     Set SPL Log Level And Restart Watchdog if changed   ${LogLevel}
 
-    Set Log Level  ${LogLevel}
-    # restart the service to apply the new log level to watchdog
-    Run Shell Process  systemctl restart sophos-spl  OnError=failed to restart sophos-spl
-
     Install AV if not installed
     Start AV Plugin if not running
     ${pid} =  Start Sophos Threat Detector if not running
