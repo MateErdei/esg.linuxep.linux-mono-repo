@@ -143,7 +143,8 @@ On-access Scan Eicar Close
     Register Cleanup  Remove File  ${filepath}
 
     wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${mark}
-    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with EICAR-AV-Test (Close-Write)\   mark=${mark}
+    # With DeDup LINUXDAR-5901, eicar can be detected on either the open or the close, so we can't check
+    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with EICAR-AV-Test   mark=${mark}
 
 
 On-access Scan Eicar Open

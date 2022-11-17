@@ -157,7 +157,8 @@ On Access Scans Password Protected File
     wait_for_on_access_log_contains_after_mark   /tmp/passwd-protected.xls as it is password protected  mark=${mark}
 
     # ensure we've completed the on-close scan
-    wait for on access log contains after mark   Un-caching /tmp/passwd-protected.xls (Close-Write)  mark=${mark}
+    # With DeDup LINUXDAR-5901, the close could be skipped if we haven't scanned the open yet
+    wait for on access log contains after mark   Un-caching /tmp/passwd-protected.xls  mark=${mark}
 
 On Access Scans Corrupted File
     Register Cleanup     Exclude As Corrupted
@@ -169,7 +170,8 @@ On Access Scans Corrupted File
     wait for on access log contains after mark   /tmp/corrupted.xls as it is corrupted  mark=${mark}
 
     # ensure we've completed the on-close scan
-    wait for on access log contains after mark   Un-caching /tmp/corrupted.xls (Close-Write)  mark=${mark}
+    # With DeDup LINUXDAR-5901, the close could be skipped if we haven't scanned the open yet
+    wait for on access log contains after mark   Un-caching /tmp/corrupted.xls  mark=${mark}
 
 On Access Scans File On BFS
     On Access Scans Eicar On Filesystem from Image  bfs  bfsFileSystem
@@ -419,7 +421,8 @@ On Access Receives Close Event On Cached File
     Register Cleanup   Remove File   ${cleanfile}
 
     wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
-    wait for on access log contains after mark  Caching ${cleanfile} (Close-Write)  mark=${oamark}
+    # With DeDup LINUXDAR-5901, the close could be skipped if we haven't scanned the open yet
+    wait for on access log contains after mark  Caching ${cleanfile}  mark=${oamark}
 
     #Check we are cached
     ${oamark} =  get_on_access_log_mark
@@ -446,7 +449,8 @@ On Access Doesnt Cache Close Events With Detections
     Register Cleanup   Remove File   ${testfile}
 
     wait for on access log contains after mark  On-close event for ${testfile} from  mark=${oamark}
-    wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}
+    # With DeDup LINUXDAR-5901, the close could be skipped if we haven't scanned the open yet
+    wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test  mark=${oamark}
     Sleep   1s  #Let the event (hopefully not) be cached
 
     ${oamark} =  get_on_access_log_mark
