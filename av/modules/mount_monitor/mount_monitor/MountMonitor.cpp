@@ -141,7 +141,7 @@ namespace mount_monitor::mount_monitor
             }
             else
             {
-                m_fanotifyHandler->unmarkMount(mountPointStr);
+                std::ignore = m_fanotifyHandler->unmarkMount(mountPointStr);
                 LOGTRACE("Excluding mount point: " << mountPointStr);
             }
         }
