@@ -19,7 +19,6 @@ Test Teardown   AVSophosThreatDetector Test TearDown
 
 *** Variables ***
 ${CLEAN_STRING}     not an eicar
-${NORMAL_DIRECTORY}     /home/vagrant/this/is/a/directory/for/scanning
 ${CUSTOMERID_FILE}  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
 ${MACHINEID_CHROOT_FILE}  ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${MACHINEID_FILE}   ${SOPHOS_INSTALL}/base/etc/machine_id.txt
@@ -520,6 +519,55 @@ Sophos Threat Detector Is Ignoring Reload Request
 
     Wait Until Sophos Threat Detector Log Contains With Offset  Skipping susi reload because susi is not initialised
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
+
+Sophos Threat Detector Scans Archive With Error And Eicar And Reports Successfully
+    Register Cleanup  Exclude As Password Protected
+    Copy File  ${RESOURCES_PATH}/file_samples/scanErrorAndThreat.tar  ${NORMAL_DIRECTORY}
+    ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar  --scan-archives
+    wait_for_log_contains_from_mark  ${td_mark}  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/eicar.com (On Demand)
+    wait_for_log_contains_from_mark  ${td_mark}  Failed to scan ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar/EncryptedSpreadsheet.xlsx as it is password protected
+    wait_for_log_contains_from_mark  ${td_mark}  Calculated the SHA256 of ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar: ${archive_sha}
+    wait_for_log_contains_from_mark  ${td_mark}  Sending report for detection 'EICAR-AV-Test' in ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar
+    Wait Until AV Plugin Log Contains Detection Event XML After Mark
+    ...  mark=${av_mark}
+    ...  id=Td36002598d53fed
+    ...  name=EICAR-AV-Test
+    ...  threatType=1
+    ...  origin=1
+    ...  remote=false
+    ...  sha256=${archive_sha}
+    ...  path=${NORMAL_DIRECTORY}/scanErrorAndThreat.tar
+
+Sophos Threat Detector Scans Archive With Multiple Threats And Reports Successfully
+    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+    Create Directory  ${ARCHIVE_DIR}
+    Create File  ${ARCHIVE_DIR}/1_dsa    ${DSA_BY_NAME_STRING}
+    Create File  ${ARCHIVE_DIR}/2_eicar  ${EICAR_STRING}
+    Run Process  tar  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  1_dsa  2_eicar
+    ${dsa_sha} =  Get SHA256  ${ARCHIVE_DIR}/1_dsa
+    ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/test.tar
+    Should Not Be Equal As Strings  ${dsa_sha}  ${archive_sha}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
+    wait_for_log_contains_from_mark  ${td_mark}  Detected "Troj/TestSFS-G" in ${NORMAL_DIRECTORY}/test.tar/1_dsa (On Demand)
+    wait_for_log_contains_from_mark  ${td_mark}  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/test.tar/2_eicar (On Demand)
+    wait_for_log_contains_from_mark  ${td_mark}  Calculated the SHA256 of ${NORMAL_DIRECTORY}/test.tar: ${archive_sha}
+    wait_for_log_contains_from_mark  ${td_mark}  Sending report for detection 'Troj/TestSFS-G' in ${NORMAL_DIRECTORY}/test.tar
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  Troj/TestSFS-G  ${NORMAL_DIRECTORY}/test.tar
+    Wait Until AV Plugin Log Contains Detection Event XML After Mark
+    ...  mark=${av_mark}
+    ...  id=Te6df7ee25b75923
+    ...  name=Troj/TestSFS-G
+    ...  threatType=1
+    ...  origin=1
+    ...  remote=false
+    ...  sha256=${archive_sha}
+    ...  path=${NORMAL_DIRECTORY}/test.tar
 
 *** Keywords ***
 Stop sophos_threat_detector and mark log

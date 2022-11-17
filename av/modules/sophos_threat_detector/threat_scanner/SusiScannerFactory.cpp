@@ -1,10 +1,12 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022, Sophos Limited. All rights reserved.
 
 #include "SusiScannerFactory.h"
 
 #include "Logger.h"
+#include "ScannerInfo.h"
 #include "SusiScanner.h"
 #include "SusiWrapperFactory.h"
+#include "UnitScanner.h"
 
 #include <utility>
 
@@ -12,7 +14,9 @@ namespace threat_scanner
 {
     IThreatScannerPtr SusiScannerFactory::createScanner(bool scanArchives, bool scanImages)
     {
-        return std::make_unique<SusiScanner>(m_wrapperFactory, scanArchives, scanImages, m_reporter, m_shutdownTimer);
+        std::string scannerConfig = "{" + create_scanner_info(scanArchives, scanImages) + "}";
+        auto unitScanner = std::make_unique<UnitScanner>(m_wrapperFactory->createSusiWrapper(scannerConfig));
+        return std::make_unique<SusiScanner>(std::move(unitScanner), m_reporter, m_shutdownTimer);
     }
 
     SusiScannerFactory::SusiScannerFactory(

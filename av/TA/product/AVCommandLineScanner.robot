@@ -635,6 +635,9 @@ CLS Creates Threat Report
     ...  mark=${mark}
     ...  id=T26796de6ce94770
     ...  name=EICAR-AV-Test
+    ...  threatType=1
+    ...  origin=1
+    ...  remote=false
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
     ...  path=${NORMAL_DIRECTORY}/naughty_eicar
 
@@ -657,7 +660,7 @@ CLS simple encoded eicar in archive
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/test.tar/脅威" is infected with EICAR-AV-Test
-    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/test.tar/脅威
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/test.tar
 
 
 CLS simple eicar in encoded archive
@@ -668,7 +671,7 @@ CLS simple eicar in encoded archive
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain  ${output}  Detected "${NORMAL_DIRECTORY}/脅威.tar/eicar" is infected with EICAR-AV-Test
-    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/脅威.tar/eicar
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/脅威.tar
 
 CLS Scans DiscImage When Image Setting Is On
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso
@@ -1811,6 +1814,9 @@ Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
     ...  mark=${av_mark}
     ...  id=Te1b8af2bc4cb505
     ...  name=EICAR-AV-Test
+    ...  threatType=1
+    ...  origin=1
+    ...  remote=false
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
     ...  path=${NORMAL_DIRECTORY}/eicar_file
 

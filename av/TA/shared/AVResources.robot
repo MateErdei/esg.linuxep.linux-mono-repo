@@ -14,7 +14,6 @@ Library         ../Libs/PluginUtils.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/SophosThreatDetector.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
-Library         ../Libs/ThreatReportUtils.py
 
 Resource    GlobalSetup.robot
 Resource    ComponentSetup.robot
@@ -62,6 +61,7 @@ ${TESTTMP}                                      /tmp_test/SSPLAVTests
 ${CLEAN_STRING}         not an eicar
 ${EICAR_STRING}         X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
 ${EICAR_PUA_STRING}     X5]+)D:)D<5N*PZ5[/EICAR-POTENTIALLY-UNWANTED-OBJECT-TEST!$*M*L
+${DSA_BY_NAME_STRING}   UNIQUE-NONPE-TESTFILE-STUB_1ze492x5f_239c42qe_2342eee_249f3dea_DSA_DET_NO_FORCE_LOOKUP__SUPP_BY_NAME
 
 ${POLICY_7DAYS}     <daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet>
 ${STATUS_XML}       ${MCS_PATH}/status/SAV_status.xml
@@ -427,25 +427,19 @@ AV Plugin Log Should Not Contain Detection Name And Path With Offset
     AV Plugin Log Should Not Contain With Offset  Found '${name}' in '${path}'
 
 Check String Contains Detection Event XML
-    [Arguments]  ${input}  ${id}  ${name}  ${sha256}  ${path}
+    [Arguments]  ${input}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
     Should Contain  ${input}  type="sophos.core.detection" ts="
     Should Contain  ${input}  <user userId="n/a"/>
-    Should Contain  ${input}  <alert id="${id}" name="${name}" threatType="1" origin="0" remote="false">
+    Should Contain  ${input}  <alert id="${id}" name="${name}" threatType="${threatType}" origin="${origin}" remote="${remote}">
     Should Contain  ${input}  <sha256>${sha256}</sha256>
     Should Contain  ${input}  <path>${path}</path>
     [Return]  ${true}
 
-Wait Until AV Plugin Log Contains Detection Event XML With Offset
-    [Arguments]  ${id}  ${name}  ${sha256}  ${path}  ${timeout}=15  ${interval}=2
-    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central  timeout=${timeout}  interval=${interval}
-    ${marked_av_log} =  Get Marked AV Log
-    Check String Contains Detection Event XML  ${marked_av_log}  ${id}  ${name}  ${sha256}  ${path}
-
 Wait Until AV Plugin Log Contains Detection Event XML After Mark
-    [Arguments]  ${mark}  ${id}  ${name}  ${sha256}  ${path}  ${timeout}=15
+    [Arguments]  ${mark}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}  ${timeout}=15
     wait_for_av_log_contains_after_mark  Sending threat detection notification to central  timeout=${timeout}  mark=${mark}
     ${marked_av_log} =  get av log after mark as unicode  ${mark}
-    Check String Contains Detection Event XML  ${marked_av_log}  ${id}  ${name}  ${sha256}  ${path}
+    Check String Contains Detection Event XML  ${marked_av_log}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
 
 Base CORE Event Paths
     @{paths} =  List Files In Directory  ${MCS_PATH}/event  CORE_*.xml  absolute
@@ -458,21 +452,21 @@ Base Has Number Of CORE Events
     Should Be Equal As Integers  ${expected_count}  ${actual_count}
 
 Base Has Detection Event
-    [Arguments]  ${id}  ${name}  ${sha256}  ${path}
+    [Arguments]  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
     @{files} =  Base CORE Event Paths
     FOR  ${file}  IN  @{files}
         ${xml} =  Get File  ${file}
-        ${was_found} =  Run Keyword And Return Status  Check String Contains Detection Event XML  ${xml}  ${id}  ${name}  ${sha256}  ${path}
+        ${was_found} =  Run Keyword And Return Status  Check String Contains Detection Event XML  ${xml}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
         Return From Keyword If  ${was_found}  ${xml}
     END
     Fail  No matching detection event found
 
 Wait Until Base Has Detection Event
-    [Arguments]  ${id}  ${name}  ${sha256}  ${path}  ${timeout}=60  ${interval}=3
+    [Arguments]  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}  ${timeout}=60  ${interval}=3
     Wait Until Keyword Succeeds
     ...  ${timeout} secs
     ...  ${interval} secs
-    ...  Base Has Detection Event  ${id}  ${name}  ${sha256}  ${path}
+    ...  Base Has Detection Event  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
 
 Check String Contains Clean Event XML
     [Arguments]  ${input}  ${alert_id}  ${succeeded}  ${origin}  ${result}  ${path}
@@ -1306,3 +1300,10 @@ List AV Plugin Path
     ${result} =  Run Process  ls  -lR  ${AV_PLUGIN_PATH}  stdout=${TESTTMP}/lsstdout  stderr=STDOUT
     Log  ls -lR: ${result.stdout}
     Remove File  ${TESTTMP}/lsstdout
+
+Get SHA256
+    [Arguments]  ${path}
+    ${result} =  Run Process  sha256sum  -b  ${path}
+    Log  ${result.stdout}
+    @{parts} =  Split String  ${result.stdout}
+    [Return]  ${parts}[0]

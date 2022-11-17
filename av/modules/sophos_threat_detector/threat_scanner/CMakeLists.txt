@@ -1,29 +1,41 @@
 add_library(threat_scanner SHARED
-        Logger.h
-        Logger.cpp
         IScanNotification.h
+        IUnitScanner.h
         ISusiWrapper.h
         ISusiWrapperFactory.h
         IThreatReporter.h
         IThreatScanner.h
         IThreatScannerFactory.h
+        IUpdateCompleteCallback.h
+        Logger.h
+        Logger.cpp
+        ScannerInfo.h
+        ScannerInfo.cpp
+        ScanResult.h
         SusiCertificateFunctions.h
         SusiCertificateFunctions.cpp
         SusiGlobalHandler.h
         SusiGlobalHandler.cpp
         SusiLogger.h
         SusiLogger.cpp
+        SusiResultUtils.h
+        SusiResultUtils.cpp
         SusiScanner.h
         SusiScanner.cpp
         SusiScannerFactory.h
         SusiScannerFactory.cpp
+        SusiScanResultJsonParser.h
+        SusiScanResultJsonParser.cpp
         SusiWrapper.h
         SusiWrapper.cpp
         SusiWrapperFactory.h
         SusiWrapperFactory.cpp
-        ScannerInfo.h
-        ScannerInfo.cpp
-        ThrowIfNotOk.h )
+        ThreatDetectedBuilder.h
+        ThreatDetectedBuilder.cpp
+        ThrowIfNotOk.h
+        UnitScanner.h
+        UnitScanner.cpp
+        )
 
 find_library(SUSI_LIB NAMES susi PATHS ${SUSIPATH})
 find_library(UPDATER_LIB NAMES updater PATHS ${SUSIPATH})

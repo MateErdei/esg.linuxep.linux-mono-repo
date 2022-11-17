@@ -2,13 +2,12 @@
 
 #include "QuarantineManagerImpl.h"
 
-#include "safestore/Logger.h"
-#include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "common/ApplicationPaths.h"
+#include "safestore/Logger.h"
+#include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -16,9 +15,6 @@
 
 #include <optional>
 #include <utility>
-
-#include <fcntl.h>
-#include <sys/stat.h>
 
 namespace
 {
@@ -128,7 +124,7 @@ namespace safestore::QuarantineManager
             auto fileSystem = Common::FileSystem::fileSystem();
             std::string dormantFlag = Plugin::getSafeStoreDormantFlagPath();
             auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-            switch(m_state)
+            switch (m_state)
             {
                 case QuarantineManagerState::INITIALISED:
                     fileSystem->removeFile(dormantFlag, true);
@@ -137,7 +133,7 @@ namespace safestore::QuarantineManager
                     fileSystem->writeFileAtomically(dormantFlag, "SafeStore database uninitialised", tempDir);
                     break;
                 case QuarantineManagerState::CORRUPT:
-                    fileSystem->writeFileAtomically(dormantFlag, "SafeStore database corrupt",tempDir);
+                    fileSystem->writeFileAtomically(dormantFlag, "SafeStore database corrupt", tempDir);
                     break;
                 case QuarantineManagerState::STARTUP:
                     break;
@@ -229,20 +225,19 @@ namespace safestore::QuarantineManager
             LOGDEBUG("File Descriptor: " << autoFd.fd());
 
             datatypes::AutoFd directoryFd(fs->getFileInfoDescriptor(directory));
-            if (!(directoryFd.get() >= 0))
+            if (!directoryFd.valid())
             {
                 LOGWARN("Directory of threat does not exist");
                 return common::CentralEnums::QuarantineResult::NOT_FOUND;
             }
 
-            std::string path = Common::FileSystem::join(directory,filename);
-            datatypes::AutoFd fd2(fs->getFileInfoDescriptorFromDirectoryFD(directoryFd.get(),path.c_str()));
-            if (!(fd2.get() >= 0))
+            datatypes::AutoFd fd2(fs->getFileInfoDescriptorFromDirectoryFD(directoryFd.get(), filename));
+            if (!fd2.valid())
             {
-                LOGWARN("Threat does not exist at path: " << path << " Cannot quarantine it");
+                LOGWARN("Threat does not exist at path: " << filePath << " Cannot quarantine it");
                 return common::CentralEnums::QuarantineResult::NOT_FOUND;
             }
-            if (fs->compareFileDescriptors(autoFd.get(),fd2.get())) //
+            if (fs->compareFileDescriptors(autoFd.get(), fd2.get()))
             {
                 try
                 {
@@ -281,7 +276,6 @@ namespace safestore::QuarantineManager
             {
                 callOnDbError();
             }
-
         }
 
         return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;

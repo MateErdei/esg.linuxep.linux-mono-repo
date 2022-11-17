@@ -116,9 +116,36 @@ SafeStore Quarantines When It Receives A File To Quarantine
     Wait Until Base Has Core Clean Event
     ...  alert_id=Tbd7be297ddf3cd8
     ...  succeeded=1
-    ...  origin=0
+    ...  origin=1
     ...  result=0
     ...  path=${SCAN_DIRECTORY}/eicar.com
+
+
+SafeStore Quarantines Archive
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
+
+    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+    Create Directory  ${ARCHIVE_DIR}
+    Create File  ${ARCHIVE_DIR}/1_dsa    ${DSA_BY_NAME_STRING}
+    Create File  ${ARCHIVE_DIR}/2_eicar  ${EICAR_STRING}
+    Run Process  tar  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  1_dsa  2_eicar
+
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
+
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
+    File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
+
+    Wait Until Base Has Core Clean Event
+    ...  alert_id=Te6df7ee25b75923
+    ...  succeeded=1
+    ...  origin=1
+    ...  result=0
+    ...  path=${SCAN_DIRECTORY}/test.tar
 
 
 Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
@@ -141,7 +168,7 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     Wait Until Base Has Core Clean Event
     ...  alert_id=Tbd7be297ddf3cd8
     ...  succeeded=0
-    ...  origin=0
+    ...  origin=1
     ...  result=3
     ...  path=${SCAN_DIRECTORY}/eicar.com
 

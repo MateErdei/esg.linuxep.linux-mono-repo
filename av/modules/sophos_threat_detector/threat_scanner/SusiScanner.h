@@ -1,34 +1,28 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022, Sophos Limited. All rights reserved.
 
 #pragma once
 
-#ifndef TEST_PUBLIC
-# define TEST_PUBLIC private
-#endif
-
 #include "IScanNotification.h"
-#include "ISusiWrapperFactory.h"
 #include "IThreatReporter.h"
 #include "IThreatScanner.h"
-#include "SusiWrapper.h"
+#include "IUnitScanner.h"
 
-#include <datatypes/AutoFd.h>
 #include <scan_messages/ScanResponse.h>
-#include <scan_messages/ScanType.h>
-
-#include <log4cplus/loglevel.h>
 
 namespace threat_scanner
 {
     class SusiScanner : public IThreatScanner
     {
     public:
-        explicit SusiScanner(
-            const ISusiWrapperFactorySharedPtr& susiWrapperFactory,
-            bool scanArchives,
-            bool scanImages,
+        SusiScanner(
+            std::unique_ptr<IUnitScanner> unitScanner,
             IThreatReporterSharedPtr threatReporter,
-            IScanNotificationSharedPtr shutdownTimer);
+            IScanNotificationSharedPtr shutdownTimer) :
+            m_unitScanner(std::move(unitScanner)),
+            m_threatReporter(std::move(threatReporter)),
+            m_shutdownTimer(std::move(shutdownTimer))
+        {
+        }
 
         scan_messages::ScanResponse scan(
             datatypes::AutoFd& fd,
@@ -36,22 +30,9 @@ namespace threat_scanner
             int64_t scanType,
             const std::string& userID) override;
 
-    TEST_PUBLIC:
-        static std::string susiErrorToReadableError(
-            const std::string& filePath,
-            const std::string& susiError,
-            log4cplus::LogLevel& level);
-
-        static std::string susiResultErrorToReadableError(
-            const std::string& filePath,
-            SusiResult susiError,
-            log4cplus::LogLevel& level);
-
     private:
-        scan_messages::E_SCAN_TYPE convertToCentralScanType(const scan_messages::E_SCAN_TYPE& scanType);
-
-        std::shared_ptr<ISusiWrapper> m_susi;
+        std::unique_ptr<IUnitScanner> m_unitScanner;
         IThreatReporterSharedPtr m_threatReporter;
         IScanNotificationSharedPtr m_shutdownTimer;
     };
-}
+} // namespace threat_scanner

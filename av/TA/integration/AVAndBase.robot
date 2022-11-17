@@ -43,6 +43,9 @@ Wait Until Base Has Naughty Eicar Detection Event
     Wait Until Base Has Detection Event
     ...  id=T26796de6ce94770
     ...  name=EICAR-AV-Test
+    ...  threatType=1
+    ...  origin=1
+    ...  remote=false
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
     ...  path=${SCAN_DIRECTORY}/naughty_eicar
 

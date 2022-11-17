@@ -1,6 +1,4 @@
 
-include(GoogleTest)
-
 SophosAddTest(TestThreatScanner
         ../../common/LogInitializedTests.cpp
         ../../common/LogInitializedTests.h
@@ -8,21 +6,18 @@ SophosAddTest(TestThreatScanner
         MockSusiScannerFactory.h
         MockSusiWrapper.h
         MockSusiWrapperFactory.h
-        TestSusiGlobalHandler.cpp
         TestSusiGlobalCertificateFunctions.cpp
+        TestSusiGlobalHandler.cpp
         TestSusiLogger.cpp
-        TestSusiResponseParsing.cpp
-        TestThreatScanner.cpp
+        TestSusiResultUtils.cpp
+        TestSusiScanner.cpp
         TestSusiScannerFactory.cpp
+        TestSusiScanResultJsonParser.cpp
         TestSusiWrapperFactory.cpp
-        PROJECTS threat_scanner common
-        INC_DIRS ${pluginapiinclude}
-        ${CMAKE_SOURCE_DIR}/modules
-        ${CMAKE_SOURCE_DIR}/tests
-        LIBS pthread
-        )
-SET_TARGET_PROPERTIES(TestThreatScanner
-        PROPERTIES
-        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        TestThreatDetectedBuilder.cpp
+        TestThreatScanner.cpp
+        TestUnitScanner.cpp
+        PROJECTS threat_scanner
+        INC_DIRS ${testhelpersinclude}
+        LIBS ${testhelperslib}
         )
