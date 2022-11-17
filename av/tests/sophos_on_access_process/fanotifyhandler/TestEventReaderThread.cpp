@@ -120,6 +120,12 @@ protected:
             .WillRepeatedly(fstatInodeIncrementing());
     }
 
+    void defaultStat()
+    {
+        EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
+            .WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    }
+
     std::shared_ptr<EventReaderThread> makeDefaultEventReaderThread()
     {
         return std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
@@ -560,6 +566,100 @@ TEST_F(TestEventReaderThread, TestReaderLogsFanotifyQueueOverflow)
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
+
+// DeDup tests
+
+TEST_F(TestEventReaderThread, EventsWithSameInodeAndDeviceAreSkipped)
+{
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+
+    auto metadata = getOpenMetaData(8000);
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .Times(2)
+        .WillRepeatedly(readReturnsStruct(metadata));
+
+    defaultStat();
+
+    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
+        .Times(2)
+        .WillRepeatedly(fstatReturnsDeviceAndInode(1,1));
+
+    const char* filePath = "/tmp/test";
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .Times(2)
+        .WillRepeatedly(readlinkReturnPath(filePath));
+
+    auto eventReader = makeDefaultEventReaderThread();
+    {
+        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+    } // Wait for Reader to finish
+    EXPECT_EQ(m_scanRequestQueue->size(), 1);
+}
+
+TEST_F(TestEventReaderThread, EventsWithDifferentDeviceAreNotSkipped)
+{
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+
+    auto metadata = getOpenMetaData(8000);
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .Times(2)
+        .WillRepeatedly(readReturnsStruct(metadata));
+
+    defaultStat();
+
+    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
+        .WillOnce(fstatReturnsDeviceAndInode(2,1))
+        .WillOnce(fstatReturnsDeviceAndInode(1,1));
+
+    const char* filePath = "/tmp/test";
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .Times(2)
+        .WillRepeatedly(readlinkReturnPath(filePath));
+
+    auto eventReader = makeDefaultEventReaderThread();
+    {
+        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+    } // Wait for Reader to finish
+    EXPECT_EQ(m_scanRequestQueue->size(), 2);
+}
+
+TEST_F(TestEventReaderThread, EventsWithDifferentInodeAreNotSkipped)
+{
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+
+    auto metadata = getOpenMetaData(8000);
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .Times(2)
+        .WillRepeatedly(readReturnsStruct(metadata));
+
+    defaultStat();
+
+    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
+        .WillOnce(fstatReturnsDeviceAndInode(1,1))
+        .WillOnce(fstatReturnsDeviceAndInode(1,2));
+
+    const char* filePath = "/tmp/test";
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .Times(2)
+        .WillRepeatedly(readlinkReturnPath(filePath));
+
+    auto eventReader = makeDefaultEventReaderThread();
+    {
+        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+    } // Wait for Reader to finish
+    EXPECT_EQ(m_scanRequestQueue->size(), 2);
+}
+
+// Queue Full events
 
 TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFull)
 {

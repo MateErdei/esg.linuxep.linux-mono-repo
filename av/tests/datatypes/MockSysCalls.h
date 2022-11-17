@@ -68,4 +68,9 @@ ACTION_P2(pollReturnsWithRevents, index, revents) { arg0[index].revents = revent
 ACTION_P(readReturnsStruct, data) { *static_cast<data_type *>(arg1) = data; return sizeof(data); }
 ACTION_P(readlinkReturnPath, path) { strncpy(arg1, path, arg2); return strnlen(arg1, arg2 - 1) + 1; }
 ACTION_P(fstatReturnsInode, inode) { arg1->st_ino = inode; return 0; }
+ACTION_P(fstatReturnsDeviceAndInode, device, inode) {
+    arg1->st_dev = device;
+    arg1->st_ino = inode;
+    return 0;
+}
 ACTION(fstatInodeEqualsFd) { arg1->st_ino = arg0; return 0; }
