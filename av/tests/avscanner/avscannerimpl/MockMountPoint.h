@@ -12,6 +12,8 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <gmock/gmock.h>
 
+using namespace testing;
+
 namespace fs = sophos_filesystem;
 
 namespace
@@ -19,6 +21,19 @@ namespace
     class MockMountPoint : public mount_monitor::mountinfo::IMountPoint
     {
     public:
+        MockMountPoint()
+        {
+            ON_CALL(*this, device).WillByDefault(Return("MockDevice"));
+            ON_CALL(*this, filesystemType).WillByDefault(Return("ext4"));
+            ON_CALL(*this, isHardDisc).WillByDefault(Return(true));
+            ON_CALL(*this, isNetwork).WillByDefault(Return(true));
+            ON_CALL(*this, isOptical).WillByDefault(Return(0));
+            ON_CALL(*this, isRemovable).WillByDefault(Return(true));
+            ON_CALL(*this, isSpecial).WillByDefault(Return(false));
+            ON_CALL(*this, isDirectory).WillByDefault(Return(true));
+            ON_CALL(*this, mountPoint).WillByDefault(Return("Mount"));
+            ON_CALL(*this, isReadOnly).WillByDefault(Return(true));
+        }
         MOCK_METHOD(std::string, device, (), (const));
         MOCK_METHOD(std::string, filesystemType, (), (const));
         MOCK_METHOD(bool, isHardDisc, (), (const));

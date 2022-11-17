@@ -22,6 +22,7 @@
 #include <fstream>
 
 using namespace mount_monitor::mount_monitor;
+using namespace mount_monitor::mountinfo;
 using namespace testing;
 
 namespace
@@ -354,7 +355,7 @@ TEST_F(TestMountMonitor, TestMonitorLogsTelemetryFileSystemType)
 
 TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryIsPersistant)
 {
-    const std::map<std::string, bool> input {
+    std::map<std::string, bool> input {
         {"squashfs", true},
         {"tmpfs", true}
     };
@@ -372,12 +373,12 @@ TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryIsPersistant)
 
 TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryCanBeChangedAndNotDuplicated)
 {
-    const std::map<std::string, bool> input1 {
+    std::map<std::string, bool> input1 {
         {"squashfs", true},
         {"tmpfs", true}
     };
 
-    const std::map<std::string, bool> input2 {
+    std::map<std::string, bool> input2 {
         {"cifs", true},
         {"ext4", true}
     };
@@ -394,4 +395,83 @@ TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryCanBeChangedAndNotDuplica
     mountMonitor->addFileSystemToTelemetry(input2);
     auto secondContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     ASSERT_EQ(secondContent, expectedFileSystemStr2);
+}
+
+TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryDoesntIncludeSpecialMP)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string expectedFileSystemStr = "{\"file-system-types\":[\"ValidFileSystem\"]}";
+
+    std::vector<IMountPointSharedPtr> mountPointVec;
+    auto testSkipDevice = std::make_shared<NiceMock<MockMountPoint>>();
+    auto testIncDevice = std::make_shared<NiceMock<MockMountPoint>>();
+    mountPointVec.push_back(testSkipDevice);
+    mountPointVec.push_back(testIncDevice);
+
+    EXPECT_CALL(*testSkipDevice, isNetwork()).WillOnce(Return(false));
+    EXPECT_CALL(*testSkipDevice, isHardDisc()).WillOnce(Return(false));
+    EXPECT_CALL(*testSkipDevice, isRemovable()).WillOnce(Return(false));
+    EXPECT_CALL(*testSkipDevice, isOptical()).WillOnce(Return(false));
+    EXPECT_CALL(*testSkipDevice, isSpecial()).WillOnce(Return(true));
+
+    EXPECT_CALL(*testIncDevice, filesystemType()).WillOnce(Return("ValidFileSystem"));
+
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+    mountMonitor->markMounts(mountPointVec);
+
+    EXPECT_TRUE(waitForLog("Including 1 mount points in on-access scanning"));
+
+    auto secondContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    ASSERT_EQ(secondContent, expectedFileSystemStr);
+}
+
+TEST_F(TestMountMonitor, TestFileSystemMapIsLimitedTo100Entries)
+{
+    std::string templateStr = "filesystem";
+    std::map<std::string, bool> input;
+
+    for (uint it=0; it<=(telemetryFileSystemListMax + 10); it++)
+    {
+        auto inputStr = templateStr + std::to_string(it);
+        input.emplace(inputStr, true);
+    }
+
+    ASSERT_GT(input.size(), telemetryFileSystemListMax);
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+    mountMonitor->addFileSystemToTelemetry(input);
+    ASSERT_EQ(input.size(), telemetryFileSystemListMax);
+}
+
+TEST_F(TestMountMonitor, TestFileSystemTelemetryCanHandleLongFileSystemNames)
+{
+    std::string longFileSystemName = "iamareallylongfilesystemtypewhoneedstobetestedintelemetry";
+    std::map<std::string, bool> input {
+        {longFileSystemName
+          , true}
+    };
+
+    const std::string expectedFileSystemStr = "{\"file-system-types\":[\"" + longFileSystemName+ "\"]}";
+
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    mountMonitor->addFileSystemToTelemetry(input);
+    auto content = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    ASSERT_EQ(content, expectedFileSystemStr);
+}
+
+TEST_F(TestMountMonitor, TestFileSystemTelemetryCanHandleNonAlphaNumericCharacters)
+{
+    std::string nonAlphaNumericCharacters = "\\\"#@><./?!£$%^&*(){{}}~:;`¬-_=+1234567890";
+    std::map<std::string, bool> input {
+        {nonAlphaNumericCharacters
+          , true}
+    };
+    PRINT(nonAlphaNumericCharacters);
+
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    mountMonitor->addFileSystemToTelemetry(input);
+    auto content = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    std::string ExpectedTelemetry{ R"sophos({"file-system-types":["\\\"#@><./?!£$%^&*(){{}}~:;`¬-_=+1234567890"]})sophos" };
+    ASSERT_EQ(content, ExpectedTelemetry);
 }
