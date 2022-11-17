@@ -98,22 +98,19 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
     unixsocket::send_fd(clientFd.get(), devNull.get()); // send our test fd
 
     // check for a pending response
-    fd_set readFDs;
-    FD_ZERO(&readFDs);
-    int max = -1;
-    max = FDUtils::addFD(&readFDs, clientFd, max);
-    fd_set tempRead = readFDs;
-    const struct timespec timeout = { .tv_sec = 0, .tv_nsec = 10'000'000 }; // 0.010s
-    int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
+    struct pollfd fds[] {
+        { .fd = clientFd.get(), .events = POLLIN, .revents = 0 },
+    };
 
+    const struct timespec timeout = { .tv_sec = 0, .tv_nsec = 10'000'000 }; // 0.010s
+    auto activity = ::ppoll(fds, std::size(fds), &timeout, nullptr);
     if (activity < 0)
     {
-        // perror("pselect failed");
-
+        // perror("ppoll failed");
     }
     else if(activity != 0)
     {
-        if (FDUtils::fd_isset(clientFd, &tempRead))
+        if ((fds[0].revents & POLLIN) != 0)
         {
             // receive the response
             int length = unixsocket::readLength(clientFd);

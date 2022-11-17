@@ -29,12 +29,6 @@ namespace
         MOCK_METHOD(int, _statfs, (const char *__file, struct ::statfs *__buf));
         MOCK_METHOD(int, _stat, (const char *__file, struct ::stat *__buf));
         MOCK_METHOD(int, _open, (const char *__file, int __oflag, mode_t mode));
-        MOCK_METHOD(int, pselect, (int __nfds,
-                                   fd_set *__restrict __readfds,
-                                   fd_set *__restrict __writefds,
-                                   fd_set *__restrict __exceptfds,
-                                   const struct timespec *__restrict __timeout,
-                                   const __sigset_t *__restrict __sigmask));
         MOCK_METHOD(int, ppoll, (struct pollfd* fd,
                                  nfds_t num_fds,
                                  const struct timespec* timeout,
