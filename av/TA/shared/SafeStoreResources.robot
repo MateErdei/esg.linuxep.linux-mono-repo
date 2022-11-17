@@ -148,7 +148,7 @@ Corrupt SafeStore Database
 Verify SafeStore Database Backups Exist in Path
     [Arguments]    ${pathToCheck}
     Directory Should Exist  ${pathToCheck}
-    File Should Exist  ${pathToCheck}/persist-threatDatabase
+    Wait Until File exists  ${pathToCheck}/persist-threatDatabase
 
     ${SAFESTORE_DB_BACKUP_DIRS} =    List Directories In Directory    ${pathToCheck}
     Should Not Be Empty    ${SAFESTORE_DB_BACKUP_DIRS}
