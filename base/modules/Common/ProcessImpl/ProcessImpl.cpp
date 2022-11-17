@@ -60,6 +60,7 @@ namespace Common::ProcessImpl
         };
 
         int exitCode() override { return m_errorCode; }
+        int nativeExitCode() override { return m_errorCode; }
 
         std::string output() override { return ""; }
 
@@ -85,6 +86,11 @@ namespace Common::ProcessImpl
         };
 
         int exitCode() override
+        {
+            throw Process::IProcessException("Exit Code can be called only after exec and process exit.");
+        }
+
+        int nativeExitCode() override
         {
             throw Process::IProcessException("Exit Code can be called only after exec and process exit.");
         }
@@ -181,6 +187,12 @@ namespace Common::ProcessImpl
     {
         auto processOnBoost = safeAccess();
         return processOnBoost->exitCode();
+    }
+
+    int ProcessImpl::nativeExitCode()
+    {
+        auto processOnBoost = safeAccess();
+        return processOnBoost->nativeExitCode();
     }
 
     std::string ProcessImpl::output()

@@ -83,10 +83,22 @@ namespace Common
              *
              * exitCode of the child process, return only when child process has completed. If child process has not
              * finished call will be blocked.
+             *
+             * Signals are overloaded with exit codes by boost::process::detail::posix::eval_exit_status from is_running.hpp
+             *
              * @return errorcode, 0 success, anything else failure.
              * @pre requires exec to be called before this method.
              */
             virtual int exitCode() = 0;
+
+            /**
+             * Exit code from waiting for the child process, valid only when the child process has completed.
+             *
+             * Separate using WIFEXITED and WIFSIGNALED
+             *
+             * @return native exit code, as returned by waitpid
+             */
+            virtual int nativeExitCode() = 0;
 
             /**
              *

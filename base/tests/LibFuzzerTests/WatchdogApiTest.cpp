@@ -1,7 +1,6 @@
+// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+
 /******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
 
  WatchdogApiTest enables to Fuzz the two Watchdog Inputs Socket as defined by the PluginApiMessage.proto and the wdctl
 protocol By adding files like:
@@ -148,6 +147,7 @@ public:
     }
     bool kill(int secondsBeforeSIGKILL) override { return kill(); }
     int exitCode() override { return 0; };
+    int nativeExitCode() override { return 0; };
     std::string output() override
     {
         while (wait(Common::Process::Milliseconds{ 5 }, 50) != Common::Process::ProcessStatus::FINISHED)

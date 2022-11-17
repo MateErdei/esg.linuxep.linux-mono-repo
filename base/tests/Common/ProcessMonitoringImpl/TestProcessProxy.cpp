@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
@@ -323,7 +319,7 @@ TEST_F(TestProcessProxy, checkItDoesReportErrorWhenItDidNotIssueKill) // NOLINT
     EXPECT_THAT(errStd, ::testing::HasSubstr("was forcefully stopped"));
 }
 
-TEST_F(TestProcessProxy, checkItDoesReportDiedWithWhenIsDifferentCode) // NOLINT
+TEST_F(TestProcessProxy, checkItDoesReportDiedWithWhenIsDifferentCode)
 {
     testing::internal::CaptureStderr();
 
@@ -338,6 +334,7 @@ TEST_F(TestProcessProxy, checkItDoesReportDiedWithWhenIsDifferentCode) // NOLINT
         EXPECT_CALL(*mockProcess, setOutputLimit(_)).Times(1);
         EXPECT_CALL(*mockProcess, getStatus()).Times(2).WillRepeatedly(Return(Common::Process::ProcessStatus::FINISHED));
         EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(50));
+        EXPECT_CALL(*mockProcess, nativeExitCode()).WillOnce(Return(50));
         EXPECT_CALL(*mockProcess, output()).WillOnce(Return(""));
         return std::unique_ptr<Common::Process::IProcess>(mockProcess);
     });

@@ -281,7 +281,7 @@ sleep 10000
         removeFile("success.txt");
     }
 
-    TEST_F(ProcessImpl, CommandNotPassingExpectingArgumentsShouldFail) // NOLINT
+    TEST_F(ProcessImpl, CommandNotPassingExpectingArgumentsShouldFail)
     {
         auto process = createProcess();
 
@@ -290,15 +290,23 @@ sleep 10000
 
         auto error = process->output();
         EXPECT_THAT(error, ::testing::HasSubstr("No such file or directory"));
+        int exitCode = process->nativeExitCode();
+        EXPECT_FALSE(WIFSIGNALED(exitCode));
+        EXPECT_TRUE(WIFEXITED(exitCode));
+        EXPECT_EQ(WEXITSTATUS(exitCode), 1);
         EXPECT_EQ(process->exitCode(), 1);
     }
 
-    TEST_F(ProcessImpl, CommandNotPassingExpectingArgumentsShouldFail_WithoutCallingWait) // NOLINT
+    TEST_F(ProcessImpl, CommandNotPassingExpectingArgumentsShouldFail_WithoutCallingWait)
     {
         auto process = createProcess();
         process->exec("/usr/bin/touch", { "" });
         auto error = process->output();
         EXPECT_THAT(error, ::testing::HasSubstr("No such file or directory"));
+        int exitCode = process->nativeExitCode();
+        EXPECT_FALSE(WIFSIGNALED(exitCode));
+        EXPECT_TRUE(WIFEXITED(exitCode));
+        EXPECT_EQ(WEXITSTATUS(exitCode), 1);
         EXPECT_EQ(process->exitCode(), 1);
     }
 

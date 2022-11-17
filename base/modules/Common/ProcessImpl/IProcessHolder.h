@@ -28,6 +28,7 @@ namespace Common
             virtual Process::ProcessStatus wait(std::chrono::milliseconds timeToWait) = 0;
 
             virtual int exitCode() = 0;
+            virtual int nativeExitCode() = 0;
 
             virtual std::string output() = 0;
 

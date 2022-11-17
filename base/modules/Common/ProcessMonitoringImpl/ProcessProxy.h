@@ -113,6 +113,8 @@ namespace Common::ProcessMonitoringImpl
 
         };
 
+        int nativeExitCode();
+
         /**
          * Pipe that we notify when the process is terminating, during the callback from BoostProcessHolder
          */

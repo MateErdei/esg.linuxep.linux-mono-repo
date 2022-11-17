@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #pragma once
 
 #include "IProcessHolder.h"
@@ -25,6 +22,7 @@ namespace Common
         {
             int exitCode;
             std::string output;
+            int nativeExitCode = 0;
         };
 
         struct BoostChildProcessDestructor
@@ -57,6 +55,7 @@ namespace Common
             Process::ProcessStatus wait(std::chrono::milliseconds timeToWait) override;
 
             int exitCode() override;
+            int nativeExitCode() override;
 
             std::string output() override;
 

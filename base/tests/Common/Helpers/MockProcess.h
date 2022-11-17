@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -37,6 +33,7 @@ public:
     MOCK_METHOD0(kill, bool(void));
     MOCK_METHOD1(kill, bool(int));
     MOCK_METHOD0(exitCode, int(void));
+    MOCK_METHOD(int, nativeExitCode, (), (override));
     MOCK_METHOD0(output, std::string(void));
     MOCK_METHOD0(getStatus, Common::Process::ProcessStatus(void));
     MOCK_METHOD1(setOutputLimit, void(size_t));

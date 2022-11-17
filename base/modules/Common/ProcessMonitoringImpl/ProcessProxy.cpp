@@ -118,9 +118,26 @@ namespace Common::ProcessMonitoringImpl
         int code = m_sharedState.m_process->exitCode();
 
         std::string output = m_sharedState.m_process->output();
-        LOGINFO("Output: " << output);
+        if (!output.empty())
+        {
+            // Don't log if process had no output
+            LOGINFO("Output: " << output);
+        }
 
         return code;
+    }
+
+    int ProcessProxy::nativeExitCode()
+    {
+        if (m_exe.empty())
+        {
+            return -1;
+        }
+        assert(m_sharedState.m_process != nullptr);
+        int code = m_sharedState.m_process->nativeExitCode();
+
+        return code;
+
     }
 
     ProcessProxy::exit_status_t ProcessProxy::checkForExit()
@@ -179,8 +196,28 @@ namespace Common::ProcessMonitoringImpl
                 }
                 else
                 {
+                    int native = nativeExitCode();
                     // Always log if the process exited with a non-zero code
-                    LOGERROR(m_exe << " died with " << code);
+                    if (WIFEXITED(native))
+                    {
+                        // Exited with code
+                        int exitCode = WEXITSTATUS(native);
+                        LOGERROR(m_exe << " died with exit code " << exitCode);
+                    }
+                    else if (WIFSIGNALED(native))
+                    {
+                        // Exited with signal
+                        int signal = WTERMSIG(native);
+                        if (m_sharedState.m_enabled)
+                        {
+                            // Error if the process is enabled
+                            LOGERROR(m_exe << " died with signal " << signal);
+                        }
+                        else
+                        {
+                            LOGINFO(m_exe << " died with signal " << signal << " after being disabled");
+                        }
+                    }
                 }
             }
             else if (m_sharedState.m_enabled)

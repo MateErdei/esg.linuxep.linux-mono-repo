@@ -41,6 +41,7 @@ namespace Common
                 const std::vector<Process::EnvironmentPair>& extraEnvironment) override;
             void exec(const std::string& path, const std::vector<std::string>& arguments) override;
             int exitCode() override;
+            int nativeExitCode() override;
             std::string output() override;
             bool kill() override;
             bool kill(int secondsBeforeSIGKILL) override;

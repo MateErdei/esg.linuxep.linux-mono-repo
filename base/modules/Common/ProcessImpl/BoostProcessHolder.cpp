@@ -245,7 +245,28 @@ namespace Common
                     std::lock_guard<std::mutex> lock{ m_outputAccess };
                     result.output = m_output;
                 }
-                result.exitCode = m_child->exit_code();
+                result.exitCode = m_child->exit_code(); // Signal overloaded with exit code
+                result.nativeExitCode = m_child->native_exit_code(); // Separate signal and exit code
+                /*
+                 * Use native_exit_code to allow us to differentiate signals and exit codes.
+                 * exit_code() is eval_exit_status(native_exit_code()):
+                 *
+                        inline int eval_exit_status(int code)
+                        {
+                            if (WIFEXITED(code))
+                            {
+                                return WEXITSTATUS(code);
+                            }
+                            else if (WIFSIGNALED(code))
+                            {
+                                return WTERMSIG(code);
+                            }
+                            else
+                            {
+                                return code;
+                            }
+                        }
+                 */
                 try
                 {
                     m_callback();
@@ -287,7 +308,7 @@ namespace Common
                 catch (std::exception& ex)
                 {
                     LOGWARN("Exception on retrieving the result from process: " << ex.what());
-                    m_cached.exitCode = 1;
+                    m_cached.exitCode = -255;
                     m_cached.output = ex.what();
                 }
 
@@ -415,6 +436,12 @@ namespace Common
         {
             cacheResult();
             return m_cached.exitCode;
+        }
+
+        int BoostProcessHolder::nativeExitCode()
+        {
+            cacheResult();
+            return m_cached.nativeExitCode;
         }
 
         std::string BoostProcessHolder::output()
