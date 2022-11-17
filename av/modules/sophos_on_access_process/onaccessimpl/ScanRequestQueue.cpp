@@ -31,7 +31,8 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
                 const auto hash = hashOptional.value();
                 if (m_deDupSet.find(hash) != m_deDupSet.end())
                 {
-                    LOGINFO("Skipping scan of " << item->getPath() << " fd=" << item->getFd());
+                    LOGINFO("Skipping scan of " << item->getPath() << " fd=" << item->getFd() << " (" <<
+                            (item->isOpenEvent() ? "Open" : "Close-Write") << ')');
                     return true; // item has been dealt with
                 }
                 // else record it in the set
