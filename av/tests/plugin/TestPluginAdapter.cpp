@@ -956,7 +956,7 @@ TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandUnknownThreat
 TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnAccessThreatCount)
 {
     Common::Telemetry::TelemetryHelper::getInstance().reset();
-    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_ON_ACCESS);
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_ON_ACCESS_CLOSE);
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     auto telemetry = nlohmann::json::parse(telemetryResult);
     EXPECT_EQ(telemetry["on-access-threat-count"], 1);
@@ -965,7 +965,7 @@ TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnAccessThreatCount)
 TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnAccessThreatEicarCount)
 {
     Common::Telemetry::TelemetryHelper::getInstance().reset();
-    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_ON_ACCESS);
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_ON_ACCESS_OPEN);
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     auto telemetry = nlohmann::json::parse(telemetryResult);
     EXPECT_EQ(telemetry["on-access-threat-eicar-count"], 1);

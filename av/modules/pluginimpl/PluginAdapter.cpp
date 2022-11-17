@@ -468,11 +468,10 @@ namespace Plugin
 
     void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName, const scan_messages::E_SCAN_TYPE& scanType)
     {
-        //These should be converted in susiscanner
-        assert(scanType != scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE &&
-                scanType != scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN);
-
-        std::string telemetryStr = (scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS) ? "on-access-" : "on-demand-";
+        std::string telemetryStr =
+            (scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN ||
+             scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE)
+                                                                        ? "on-access-" : "on-demand-";
 
         telemetryStr.append((threatName == "EICAR-AV-Test") ? "threat-eicar-count" : "threat-count");
 
