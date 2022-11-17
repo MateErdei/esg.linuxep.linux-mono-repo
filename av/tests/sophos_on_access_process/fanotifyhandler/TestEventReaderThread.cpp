@@ -73,9 +73,10 @@ protected:
 
     static fanotify_event_metadata getMetaData(
         uint64_t _mask = FAN_CLOSE_WRITE,
-        uint8_t _ver = FANOTIFY_METADATA_VERSION,
         int32_t _fd = 345,
-        int32_t _pid = 1999999999)
+        int32_t _pid = 1999999999,
+        uint8_t _ver = FANOTIFY_METADATA_VERSION // Very unlikely to want to override this
+        )
     {
         return {
             .event_len = FAN_EVENT_METADATA_LEN, .vers = _ver, .reserved = 0,
@@ -244,7 +245,8 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     int fanotifyFD = FANOTIFY_FD;
-    auto metadata = getMetaData(FAN_OPEN);
+    auto metadata1 = getMetaData(FAN_OPEN, 8000, 99999992);
+    auto metadata2 = getMetaData(FAN_OPEN, 8001, 99999991);
     const char* filePath1 = "/tmp/test";
     const char* filePath2 = "/tmp/test/test";
 
@@ -255,21 +257,24 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).Times(2)
-        .WillRepeatedly(readReturnsStruct(metadata));
+        .WillOnce(readReturnsStruct(metadata1))
+        .WillOnce(readReturnsStruct(metadata2));
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
         .WillOnce(readlinkReturnPath(filePath1))
         .WillOnce(readlinkReturnPath(filePath2));
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).Times(2)
         .WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, fstat(_, _))
-        .WillOnce(DoAll())
+    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
+        .WillOnce(fstatReturnsInode(1));
+    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8001, _))
+        .WillOnce(fstatReturnsInode(2));
 
     auto eventReader = std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg1;
-    logMsg1 << "On-open event for " << filePath1 << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    logMsg1 << "On-open event for " << filePath1 << " from Process (PID=" << metadata1.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg1.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -278,7 +283,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     eventReaderThread.startIfNotStarted();
 
     std::stringstream logMsg2;
-    logMsg2 << "On-open event for " << filePath2 << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    logMsg2 << "On-open event for " << filePath2 << " from Process (PID=" << metadata2.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg2.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 2);
@@ -366,7 +371,7 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = FANOTIFY_FD;
 
-    auto metadata = getMetaData(FAN_CLOSE, 2);
+    auto metadata = getMetaData(FAN_CLOSE, 10, 10, 2);
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN));
@@ -386,7 +391,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithoutFD)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     int fanotifyFD = FANOTIFY_FD;
-    auto metadata = getMetaData(FAN_CLOSE, FANOTIFY_METADATA_VERSION, -1);
+    auto metadata = getMetaData(FAN_CLOSE, -1);
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
@@ -406,7 +411,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPid)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     int fanotifyFD = FANOTIFY_FD;
-    auto metadata = getMetaData(FAN_CLOSE, FANOTIFY_METADATA_VERSION, 345, getpid());
+    auto metadata = getMetaData(FAN_CLOSE,  345, getpid());
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
@@ -498,7 +503,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsFanotifyQueueOverflow)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = FANOTIFY_FD;
-    auto metadata = getMetaData(FAN_Q_OVERFLOW, FANOTIFY_METADATA_VERSION, FAN_NOFD);
+    auto metadata = getMetaData(FAN_Q_OVERFLOW, FAN_NOFD);
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
