@@ -16,6 +16,7 @@ Resource        ../shared/AVAndBaseResources.robot
 Resource        ../shared/AVResources.robot
 Resource        ../shared/BaseResources.robot
 Resource        ../shared/ErrorMarkers.robot
+Resource        ../shared/OnAccessResources.robot
 
 Suite Setup     Telemetry Suite Setup
 Suite Teardown  Telemetry Suite Teardown
@@ -95,27 +96,6 @@ AV Plugin sends non-zero processInfo to Telemetry
     Should Not Be Equal As Integers  ${memUsage}  ${0}
     Should Be True  ${0} < ${processAge} < ${10}
 
-
-AV Plugin Scan Now Updates Telemetry Count
-    # Run telemetry to reset counters to 0
-    Run Telemetry Executable With HTTPS Protocol  port=${4435}
-
-    # run a scan, count should increase to 1
-    Configure and check scan now with offset
-
-    Run Telemetry Executable With HTTPS Protocol    port=${4421}
-
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log   ${telemetryFileContents}
-
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
-
-    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
-
-    av_log_contains_only_one_no_saved_telemetry_per_start
-
-
 AV plugin Saves and Restores Scan Now Counter
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol    port=${4433}
@@ -187,31 +167,23 @@ AV plugin increments Scan Now Counter after Save and Restore
     Dictionary Should Contain Item   ${avDict}   scan-now-count   ${2}
 
 
-SafeStore Can Send Telemetry
-    # Assumes threat health is 1 (good)
-    Run Telemetry Executable With HTTPS Protocol    port=${4431}
+On Access Provides Mount Info Telemetry
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${mark} =  Get on access log mark
+
+    #This registers disable with cleanup
+    Send Policies to enable on-access
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log  ${telemetryFileContents}
-    Check Telemetry  ${telemetryFileContents}
-    ${telemetryLogContents} =  Get File    ${TELEMETRY_EXECUTABLE_LOG}
-    Should Contain   ${telemetryLogContents}    Gathered telemetry for safestore
+    Log   ${telemetryFileContents}
 
-Telemetry Executable Generates SafeStore Telemetry
-    Start SafeStore
-    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${oaDict} =    Set Variable     ${telemetryJson['on_access_process']}
 
-    ${av_mark} =  Get AV Log Mark
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Register Cleanup  Send Flags Policy To Base  flags_policy/flags.json
-    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
-
-    Check SafeStore Telemetry    dormant-mode   False
-    Check SafeStore Telemetry    health   0
-
-
-Telemetry Executable Generates SafeStore Telemetry When SafeStore Is In Dormant Mode
-    Create File    ${SOPHOS_INSTALL}/plugins/av/var/safestore_dormant_flag    ""
-
-    Check SafeStore Telemetry    dormant-mode   True
-    Check SafeStore Telemetry    health   1
+    ${mounts} =     get_from_dictionary   ${oaDict}   file-system-types
+    Should Contain    ${mounts}    tmpfs

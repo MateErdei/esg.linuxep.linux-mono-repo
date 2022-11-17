@@ -4,7 +4,7 @@
 
 namespace sophos_on_access_process::OnAccessConfig
 {
-    const std::string onAccessTelemetrySocket = "onaccess";
+    const std::string onAccessTelemetrySocket = "on_access_process";
 
     const unsigned long int onAccessProcessFdLimit = 1048576;
 
