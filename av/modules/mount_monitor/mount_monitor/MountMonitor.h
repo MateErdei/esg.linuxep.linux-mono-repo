@@ -19,6 +19,8 @@
 namespace fanotifyhandler = sophos_on_access_process::fanotifyhandler;
 using namespace sophos_on_access_process::OnAccessConfig;
 
+const ulong telemetryFileSystemListMax = 100;
+
 namespace mount_monitor::mount_monitor
 {
     class MountMonitor : public common::AbstractThreadPluginInterface
@@ -36,17 +38,18 @@ namespace mount_monitor::mount_monitor
         mountinfo::IMountPointSharedVector getIncludedMountpoints(const mountinfo::IMountPointSharedVector& allMountPoints);
     private:
         void run() override;
-        void markMounts(const mountinfo::IMountPointSharedVector& mounts);
         bool isIncludedFilesystemType(const mountinfo::IMountPointSharedPtr& mount);
         bool isIncludedMountpoint(const mountinfo::IMountPointSharedPtr& mount);
 
     TEST_PUBLIC:
-        void addFileSystemToTelemetry(const std::map<std::string, bool>& fileSystemList);
+        void markMounts(const mountinfo::IMountPointSharedVector& mounts);
+        void addFileSystemToTelemetry(std::map<std::string, bool>& fileSystemList);
 
     private:
         OnAccessConfiguration& m_config;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
         const struct timespec m_pollTimeout;
-    };
+
+            };
 }

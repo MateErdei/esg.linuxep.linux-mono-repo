@@ -149,10 +149,17 @@ namespace mount_monitor::mount_monitor
         LOGDEBUG("Including " << count << " mount points in on-access scanning");
     }
 
-    void MountMonitor::addFileSystemToTelemetry(const std::map<std::string, bool>& fileSystemList)
+    void MountMonitor::addFileSystemToTelemetry(std::map<std::string, bool>& fileSystemList)
     {
         //We do all this instead of addValueToSetInternal because we want it to stick
         assert(fileSystemList.size() > 0);
+
+        if (fileSystemList.size() > telemetryFileSystemListMax)
+        {
+            auto begin = fileSystemList.begin();
+            std::advance(begin, telemetryFileSystemListMax),
+            fileSystemList.erase(begin, fileSystemList.end());
+        }
 
         using namespace Common::Telemetry;
 
