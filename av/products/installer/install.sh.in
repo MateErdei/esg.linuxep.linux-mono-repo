@@ -22,6 +22,8 @@ EXIT_FAIL_ACQUIRE_LOCK_FILE=25
 EXIT_FAIL_MISSING_SUPPLEMENTS=26
 EXIT_FAIL_MISSING_VERSIG=27
 EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL=28
+EXIT_FAIL_RESTORE_THREAT_DB=29
+EXIT_FAIL_RESTORE_SAFESTORE_DB=30
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -242,12 +244,7 @@ function apply_permissions()
     chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
     chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
 
-    if [[ -f "${PLUGIN_INSTALL}/var/persist-threatDatabase" ]]
-    then
-        chmod 600 ${PLUGIN_INSTALL}/var/persist-threatDatabase
-    fi
-
-    local safestore_var="${PLUGIN_INSTALL}/var/safestore_db"
+    local safestore_var="${PLUGIN_INSTALL}/var/SAFESTORE_DB"
     mkdir -p "$safestore_var"
     chmod 0700 "${safestore_var}"
     chown root:root "${safestore_var}"
@@ -329,6 +326,48 @@ function create_registration_file()
   rm -f ${TEMP_REG_FILE}
 }
 
+function restore_safestore_databases()
+{
+  PLUGIN_ROOT="${SOPHOS_INSTALL}/plugins/av"
+  SAFESTORE_RESTORE_DIR="${PLUGIN_ROOT}/var/downgrade-backup"
+  SAFESTORE_DB_PATH="${PLUGIN_ROOT}/var/safestore_db"
+
+  if [[ -f "${SAFESTORE_RESTORE_DIR}/persist-threatDatabase" ]]
+  then
+    mv "${SAFESTORE_RESTORE_DIR}/persist-threatDatabase" "${PLUGIN_ROOT}/var/persist-threatDatabase" || failure $EXIT_FAIL_RESTORE_THREAT_DB "Failed to restore threat database"
+  fi
+
+  SAFESTORE_DATABASES=$(find ${SAFESTORE_RESTORE_DIR} -name "*_SafeStore_*")
+
+  IFS=' ' read -r -a PRODUCT_VERSION <<< $(grep PRODUCT_VERSION "${PLUGIN_ROOT}/VERSION.ini") && unset IFS
+  CURRENT_AV_VERSION=${PRODUCT_VERSION[2]}
+
+  COMPATIBLE_SAFESTORE_DBS=()
+  for SAFESTORE_DB in $SAFESTORE_DATABASES
+  do
+    IFS='_' read -r -a DB_NAME <<< $(basename -- "$SAFESTORE_DB") && unset IFS
+
+    if [[ $CURRENT_AV_VERSION < ${DB_NAME[2]} ]]
+    then
+      echo "SafeStore Database ($(readlink -f "$SAFESTORE_DB")) is not compatible with the current AV version ($CURRENT_AV_VERSION) so will not attempt to restore"
+    else
+      COMPATIBLE_SAFESTORE_DBS+=("$SAFESTORE_DB")
+    fi
+  done
+
+  IFS=$'\n' sorted=($(sort -r <<<"${COMPATIBLE_SAFESTORE_DBS[*]}")) && unset IFS
+  DATABASE_TO_RESTORE=$(readlink -f "${sorted[0]}")
+
+  echo "Attempting to restore old SafeStore database: $DATABASE_TO_RESTORE"
+  if [[ -d "${SAFESTORE_DB_PATH}" ]]
+  then
+    echo "SafeStore database already exists so will not attempt to restore: $DATABASE_TO_RESTORE"
+  else
+    mv -v "$DATABASE_TO_RESTORE" "${SAFESTORE_DB_PATH}" || failed $EXIT_FAIL_RESTORE_SAFESTORE_DB "Failed to restore old SafeStore database: $DATABASE_TO_RESTORE"
+    echo "Successfully restored old SafeStore database ($DATABASE_TO_RESTORE) to ${SAFESTORE_DB_PATH}"
+  fi
+}
+
 function install_product()
 {
     local GETENT=/usr/bin/getent
@@ -392,6 +431,8 @@ function install_product()
 
     ln -snf "${PLUGIN_INSTALL}/sbin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
     ln -snf "${PLUGIN_INSTALL}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
+
+    restore_safestore_databases
 
     apply_permissions
 
