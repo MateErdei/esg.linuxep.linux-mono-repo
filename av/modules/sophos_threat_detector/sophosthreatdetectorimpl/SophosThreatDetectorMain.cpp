@@ -469,6 +469,7 @@ namespace sspl::sophosthreatdetectorimpl
             timeout.tv_sec = shutdownTimer->timeout();
             LOGDEBUG("Setting shutdown timeout to " << timeout.tv_sec << " seconds");
             // wait for an activity on one of the sockets
+            // TODO: Replace this with ppoll(). Please do not re-use pselect() elsewhere in the code
             int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
 
             if (activity < 0)
