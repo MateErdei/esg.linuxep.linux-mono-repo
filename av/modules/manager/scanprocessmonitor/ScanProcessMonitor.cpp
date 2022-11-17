@@ -93,7 +93,7 @@ namespace plugin::manager::scanprocessmonitor
             if (active < 0 and errno != EINTR)
             {
                 auto buf = common::safer_strerror(errno);
-                LOGERROR("failure in ScanProcessMonitor: ppoll failed: " << buf);
+                LOGERROR("failure in ScanProcessMonitor: pselect failed: " << buf);
                 break;
             }
 

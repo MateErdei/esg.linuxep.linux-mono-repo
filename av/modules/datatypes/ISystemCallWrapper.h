@@ -27,6 +27,12 @@ namespace datatypes
         virtual int _stat(const char *file, struct ::stat *buf) = 0;
         virtual int _open(const char *file, int oflag, mode_t mode) = 0;
         virtual std::pair<const int, const long> getSystemUpTime() = 0;
+        virtual int pselect(int __nfds,
+                    fd_set *__restrict __readfds,
+                    fd_set *__restrict __writefds,
+                    fd_set *__restrict __exceptfds,
+                    const struct timespec *__restrict __timeout,
+                    const __sigset_t *__restrict __sigmask) = 0;
         virtual int ppoll(struct pollfd* fd,
                     nfds_t num_fds,
                     const struct timespec* timeout,

@@ -15,7 +15,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <cassert>
 #include <utility>
 
-#include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -33,27 +32,35 @@ void FakeDetectionServer::FakeServerConnectionThread::inner_run()
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
-    struct pollfd fds[] {
-        { .fd = socket_fd.get(), .events = POLLIN, .revents = 0 }, // socket FD
-        { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
-    };
+    int exitFD = m_notifyPipe.readFd();
+
+    fd_set readFDs;
+    FD_ZERO(&readFDs);
+    int max = -1;
+    max = FDUtils::addFD(&readFDs, exitFD, max);
+    max = FDUtils::addFD(&readFDs, socket_fd.get(), max);
 
     while (true)
     {
-        auto ret = ::ppoll(fds, std::size(fds), nullptr, nullptr);
-        if (ret < 0)
-        {
-            break;
-        }
-        assert(ret > 0);
+        fd_set tempRead = readFDs;
 
-        if ((fds[1].revents & POLLIN) != 0)
+        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
+
+        if (activity < 0)
         {
             break;
         }
 
-        if ((fds[0].revents & POLLIN) != 0)
+        assert(activity != 0);
+
+        if (FDUtils::fd_isset(exitFD, &tempRead))
         {
+            break;
+        }
+        else
+        {
+            assert(FDUtils::fd_isset(socket_fd.get(), &tempRead));
+
             int32_t length = unixsocket::readLength(socket_fd.get());
             if (length == -2)
             {

@@ -5,29 +5,6 @@ if (POLICY CMP0115) # Visibility
     cmake_policy(SET CMP0115 NEW)
 endif (POLICY CMP0115)
 
-# Poison un-safe standard library functions
-set(UNSAFE_FUNCS "strerror" "strcpy" "wcscpy" "stpcpy" "wcpcpy" "scanf" "sscanf" "vscanf" "fwscanf" "swscanf" "wscanf"
-        "gets(" "puts(" "strcat" "wcscat" "wcrtomb" "wctob" "sprintf" "vsprintf" "vfprintf" "asprintf" "vasprintf"
-        "wcsncpy" "strtok" "wcstok" "mbrlen" "mbsrtowcs" "mbrtowc" "wcrtomb" "wcsrtombs" "asctime" "localtime"
-        "longjmp" "siglongjmp" "setjmp" "sigsetjmp" "mallopt" "mktemp" "tmpnam" "tempnam" "getwd" "getlogin" "getpass"
-        "cuserid" "rexec" "rexec_af" "rand" "srand" "setlocale" "localeconv" "pselect")
-foreach(FUNC ${UNSAFE_FUNCS})
-    message(STATUS "Checking source code for un-safe standard library function: ${FUNC}")
-
-    execute_process (
-            COMMAND bash -c "grep -rwI ${FUNC} modules/*"
-            COMMAND bash -c "grep -rwI ${FUNC} modules/ products/ tests/"
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-            OUTPUT_VARIABLE POISON_FUNCS
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            RESULT_VARIABLE EXIT_CODE
-    )
-
-    if (NOT EXIT_CODE EQUAL 1)
-        message(FATAL_ERROR "Unsafe standard library functions in use: ${POISON_FUNCS}")
-    endif()
-endforeach()
-
 set (STD_FILESYSTEM_IF_REQUIRED
         $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>
         $<$<CXX_COMPILER_ID:Clang>:stdc++fs>)
