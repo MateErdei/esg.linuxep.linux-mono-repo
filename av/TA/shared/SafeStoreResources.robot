@@ -150,10 +150,10 @@ Verify SafeStore Database Backups Exist in Path
     Directory Should Exist  ${pathToCheck}
     Wait Until File exists  ${pathToCheck}/persist-threatDatabase
 
-    ${SAFESTORE_DB_BACKUP_DIRS} =    List Directories In Directory    ${pathToCheck}
-    Should Not Be Empty    ${SAFESTORE_DB_BACKUP_DIRS}
+    ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${pathToCheck}
+    Should Not Be Empty    ${safeStoreDatabaseBackupDirs}
 
-    FOR   ${dir}  IN  @{SAFESTORE_DB_BACKUP_DIRS}
+    FOR   ${dir}  IN  @{safeStoreDatabaseBackupDirs}
         Directory Should Not Be Empty    ${SAFESTORE_BACKUP_DIR}/${dir}
         File Should Exist  ${SAFESTORE_BACKUP_DIR}/${dir}/safestore.db
         File Should Exist  ${SAFESTORE_BACKUP_DIR}/${dir}/safestore.pw
