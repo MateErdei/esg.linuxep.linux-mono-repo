@@ -31,7 +31,7 @@ namespace threat_scanner
         IThreatScannerPtr createScanner(bool scanArchives, bool scanImages) override;
 
         bool update() override;
-        bool reload() override;
+        ReloadResult reload() override;
         void shutdown() override;
         bool susiIsInitialized() override;
 

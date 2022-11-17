@@ -133,39 +133,39 @@ namespace threat_scanner
             return "c1cfcf69a42311a6084bcefe8af02c8a";
         }
 
-        bool isSxlLookupEnabled()
-        {
-            auto susiStartupSettingsPath = pluginInstall() / "var/susi_startup_settings.json";
-
-            std::ifstream fs(susiStartupSettingsPath, std::ifstream::in);
-
-            if (fs.good())
-            {
-                try
-                {
-                    std::stringstream settingsString;
-                    settingsString << fs.rdbuf();
-
-                    auto settingsJson = json::parse(settingsString.str());
-                    if (settingsJson["enableSxlLookup"])
-                    {
-                        LOGDEBUG("SXL Lookups will be enabled");
-                    }
-                    else
-                    {
-                        LOGDEBUG("SXL Lookups will be disabled");
-                    }
-                    return settingsJson["enableSxlLookup"];
-                }
-                catch (const std::exception& e)
-                {
-                    LOGERROR("Unexpected error when reading susi startup settings for global rep setup: " << e.what());
-                }
-            }
-
-            LOGINFO("Turning Live Protection on as default - no susi startup settings found");
-            return true;
-        }
+//        bool isSxlLookupEnabled()
+//        {
+//            auto susiStartupSettingsPath = pluginInstall() / "var/susi_startup_settings.json";
+//
+//            std::ifstream fs(susiStartupSettingsPath, std::ifstream::in);
+//
+//            if (fs.good())
+//            {
+//                try
+//                {
+//                    std::stringstream settingsString;
+//                    settingsString << fs.rdbuf();
+//
+//                    auto settingsJson = json::parse(settingsString.str());
+//                    if (settingsJson["enableSxlLookup"])
+//                    {
+//                        LOGDEBUG("SXL Lookups will be enabled");
+//                    }
+//                    else
+//                    {
+//                        LOGDEBUG("SXL Lookups will be disabled");
+//                    }
+//                    return settingsJson["enableSxlLookup"];
+//                }
+//                catch (const std::exception& e)
+//                {
+//                    LOGERROR("Unexpected error when reading susi startup settings for global rep setup: " << e.what());
+//                }
+//            }
+//
+//            LOGINFO("Turning Live Protection on as default - no susi startup settings found");
+//            return true;
+//        }
 
         std::string createRuntimeConfig(
             const std::string& scannerInfo,
@@ -210,8 +210,11 @@ namespace threat_scanner
     std::shared_ptr<ISusiWrapper> SusiWrapperFactory::createSusiWrapper(const std::string& scannerConfig)
     {
         std::string scannerInfo = createScannerInfo(false, false);
+
+        m_globalHandler->m_settings = common::ThreatDetector::SusiSettings(Plugin::getSusiStartupSettingsPath());
+
         std::string runtimeConfig =
-            createRuntimeConfig(scannerInfo, getEndpointId(), getCustomerId(), isSxlLookupEnabled());
+            createRuntimeConfig(scannerInfo, getEndpointId(), getCustomerId(), m_globalHandler->m_settings.m_susiSxlLookupEnabled);
         m_globalHandler->initializeSusi(runtimeConfig);
         return std::make_shared<SusiWrapper>(m_globalHandler, scannerConfig);
     }
@@ -227,23 +230,34 @@ namespace threat_scanner
         return m_globalHandler->update(pluginInstall() / "chroot/susi/update_source", pluginInstall() / "chroot/var/susi_update.lock");
     }
 
-    bool SusiWrapperFactory::reload()
+    ReloadResult SusiWrapperFactory::reload()
     {
+        ReloadResult result;
         std::string scannerInfo = createScannerInfo(false, false);
 
+        // Read new SUSI settings from disk
         common::ThreatDetector::SusiSettings newSettings(Plugin::getSusiStartupSettingsPath());
+
+        // If settings haven't changed then skip applying them
         if (m_globalHandler->m_settings == newSettings)
         {
             LOGDEBUG("Skipping reload of SUSI Settings: " << Plugin::getSusiStartupSettingsPath());
-            return true;
+            result.success = true;
+            result.allowListChanged = false;
+            return result;
         }
+
+        result.allowListChanged = m_globalHandler->m_settings.m_susiAllowListSha256 != newSettings.m_susiAllowListSha256;
+
         // NB, the allow-list data in these settings is loaded here and used in the susi callback isAllowlistedFile(...)
         m_globalHandler->m_settings = newSettings;
 
         std::string runtimeConfig = createRuntimeConfig(
             scannerInfo, getEndpointId(), getCustomerId(), m_globalHandler->m_settings.m_susiSxlLookupEnabled);
 
-        return m_globalHandler->reload(runtimeConfig);
+        result.success = m_globalHandler->reload(runtimeConfig);
+
+        return result;
     }
 
     void SusiWrapperFactory::shutdown()

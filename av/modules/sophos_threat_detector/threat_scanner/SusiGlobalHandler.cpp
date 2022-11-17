@@ -23,6 +23,8 @@ namespace threat_scanner
 {
     namespace
     {
+
+        // TODO 5921 - m_settings access and setting needs to be thread safe, it's not.
         bool isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size)
         {
             (void)algorithm;

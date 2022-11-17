@@ -2,9 +2,9 @@
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
+
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/Reloader.h"
-#include "tests/common/MockScanner.h"
 #include "tests/common/TestFile.h"
 #include "tests/common/WaitForEvent.h"
 #include "unixsocket/SocketUtils.h"
@@ -38,6 +38,25 @@ namespace
         }
 
         fs::path m_testDir;
+    };
+
+    class MockScanner : public threat_scanner::IThreatScanner
+    {
+    public:
+        MOCK_METHOD(scan_messages::ScanResponse, scan, (datatypes::AutoFd&, const std::string&, int64_t,
+            const std::string& userID));
+
+        MOCK_METHOD(std::string, susiErrorToReadableError, (const std::string& filePath, const std::string& susiError));
+    };
+    class MockScannerFactory : public threat_scanner::IThreatScannerFactory
+    {
+    public:
+        MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanImages));
+
+        MOCK_METHOD(bool, update, ());
+        MOCK_METHOD(ReloadResult, reload, ());
+        MOCK_METHOD(void, shutdown, ());
+        MOCK_METHOD(bool, susiIsInitialized, ());
     };
 }
 

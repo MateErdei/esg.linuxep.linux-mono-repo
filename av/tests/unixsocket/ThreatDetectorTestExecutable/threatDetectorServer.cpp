@@ -56,9 +56,9 @@ namespace
             return true;
         }
 
-        bool reload() override
+        ReloadResult reload() override
         {
-            return true;
+            return {.success = true};
         }
 
         void shutdown() override

@@ -62,7 +62,7 @@ namespace threat_scanner
         return updated;
     }
 
-    bool SusiScannerFactory::reload()
+    ReloadResult SusiScannerFactory::reload()
     {
         return m_wrapperFactory->reload();
     }

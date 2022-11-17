@@ -18,6 +18,7 @@ add_library(threat_scanner SHARED
         SusiGlobalHandler.cpp
         SusiLogger.h
         SusiLogger.cpp
+        SusiReloadResult.h
         SusiResultUtils.h
         SusiResultUtils.cpp
         SusiScanner.h

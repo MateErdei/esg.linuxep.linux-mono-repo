@@ -8,6 +8,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "ISusiWrapperFactory.h"
 #include "SusiGlobalHandler.h"
+#include "SusiReloadResult.h"
 
 namespace threat_scanner
 {
@@ -20,7 +21,7 @@ namespace threat_scanner
 
         bool update() override;
         bool susiIsInitialized() override;
-        bool reload() override;
+        ReloadResult reload() override;
         void shutdown() override;
 
     private:
