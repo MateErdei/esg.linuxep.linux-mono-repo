@@ -87,11 +87,11 @@ Scheduled Scan Increments Telemetry Threat Eicar And Scheduled Scan Count
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${dirtyfile}
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy With Imminent Scheduled Scan To Base Exclusions Added
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=60
+    wait_for_log_contains_from_mark  ${av_mark}  Completed scan  timeout=60
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -116,11 +116,11 @@ Scheduled Scan Increments Telemetry Threat And Scheduled Scan Count
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  /tmp_test/MLengHighScore-excluded.exe
     Register Cleanup  Remove File  /tmp_test/MLengHighScore-excluded.exe
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy With Imminent Scheduled Scan To Base Exclusions Added
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=60
+    wait_for_log_contains_from_mark  ${av_mark}  Completed scan  timeout=60
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
