@@ -179,7 +179,7 @@ static std::string orderedStringReplace(const std::string& pattern, const KeyVal
     return result;
 }
 
-static std::string create_scanner_info(bool scanArchives)
+static std::string createScannerInfo(bool scanArchives)
 {
     std::string scannerInfo = orderedStringReplace(R"sophos("scanner": {
         "signatureBased": {
@@ -371,7 +371,7 @@ int main(int argc, char* argv[])
         libraryPath = argv[2];
     }
 
-    static const std::string scannerInfo = create_scanner_info(true);
+    static const std::string scannerInfo = createScannerInfo(true);
     static const std::string runtimeConfig = create_runtime_config(
         libraryPath,
         scannerInfo

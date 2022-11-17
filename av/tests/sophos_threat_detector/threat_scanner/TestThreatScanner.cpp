@@ -38,7 +38,7 @@ TEST(TestThreatScanner, test_SusiScannerConstruction)
         }
     })";
 
-    EXPECT_EQ(create_scanner_info(false, false), scannerInfo);
+    EXPECT_EQ(createScannerInfo(false, false), scannerInfo);
 }
 
 TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives)
@@ -69,7 +69,7 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives)
         }
     })";
 
-    EXPECT_EQ(create_scanner_info(true, false), scannerInfo);
+    EXPECT_EQ(createScannerInfo(true, false), scannerInfo);
 }
 
 TEST(TestThreatScanner, test_SusiScannerConstructionWithScanImages)
@@ -100,7 +100,7 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanImages)
         }
     })";
 
-    EXPECT_EQ(create_scanner_info(false, true), scannerInfo);
+    EXPECT_EQ(createScannerInfo(false, true), scannerInfo);
 }
 
 TEST(TestThrowIfNotOk, TestOk)

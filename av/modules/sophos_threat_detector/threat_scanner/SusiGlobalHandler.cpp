@@ -25,7 +25,6 @@ namespace threat_scanner
     {
         bool isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size)
         {
-            (void)token;
             (void)algorithm;
 
             auto* susiHandler = reinterpret_cast<SusiGlobalHandler*>(&token);
