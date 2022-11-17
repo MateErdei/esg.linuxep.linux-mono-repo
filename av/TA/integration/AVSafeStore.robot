@@ -129,8 +129,9 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}   timeout=60
-    Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
 
+    Wait for Safestore to be running
+    Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
@@ -373,6 +374,9 @@ SafeStore Test TearDown
     run cleanup functions
     run failure functions if failed
 
+    Stop SafeStore
+    Remove Directory    ${SAFESTORE_DB_DIR}  recursive=True
+
     #restore machineID file
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
     Remove File  ${CUSTOMERID_FILE}
@@ -393,16 +397,6 @@ Check SafeStore Dormant Flag Exists
 
 Check Safestore Dormant Flag Does Not Exist
     File Should Not Exist  ${SAFESTORE_DORMANT_FLAG}
-
-
-Wait for Safestore to be running
-    ## password creation only done on first run - can't cover complete log turn-over:
-    Wait_For_Entire_log_contains  ${SAFESTORE_LOG_PATH}  Successfully saved SafeStore database password to file  timeout=15
-
-    ## Lines logged for every start
-    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Quarantine Manager initialised OK  timeout=15
-    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully initialised SafeStore database  timeout=5
-    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  safestore <> SafeStore started  timeout=5
 
 Create Big Eicar
     [Arguments]  ${filename}

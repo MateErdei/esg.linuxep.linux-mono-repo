@@ -78,10 +78,10 @@ Check AV Plugin Not Installed
     User Should Not Exist  sophos-spl-threat-detector
 
 Check Logs Saved On Downgrade
-    Directory Should Exist  ${AV_BACKUP_DIR}
-    File Should Exist  ${AV_BACKUP_DIR}/soapd.log
-    File Should Exist  ${AV_BACKUP_DIR}/av.log
-    File Should Exist  ${AV_BACKUP_DIR}/sophos_threat_detector.log
+    Directory Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/
+    File Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/soapd.log
+    File Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/av.log
+    File Should Exist  ${SOPHOS_INSTALL}/tmp/av_downgrade/sophos_threat_detector.log
 
 Run plugin uninstaller
     ${result} =   Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh   stderr=STDOUT
@@ -153,6 +153,18 @@ Start soapd
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  on_access_process
     Should Be Equal As Integers    ${result.rc}    ${0}
 
+Stop SafeStore
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   safestore
+    Should Be Equal As Integers    ${result.rc}    ${0}
+
+Start SafeStore
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  safestore
+    Should Be Equal As Integers    ${result.rc}    ${0}
+    Wait for Safestore to be running
+
+Wait for Safestore to be running
+    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  safestore <> SafeStore started  timeout=5
+
 Restart sophos_threat_detector
     # with added checks/debugging for LINUXDAR-5808
     ${status} =      Run Keyword And Return Status   Really Restart sophos_threat_detector
@@ -192,11 +204,3 @@ Scan GR Test File
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/gui.exe
     Log  ${output}
     BuiltIn.Should Be Equal As Integers  ${rc}  ${0}  Failed to scan gui.exe
-
-AV Plugin uninstalls
-    Register Cleanup    Exclude MCS Router is dead
-    Register Cleanup    Install With Base SDDS
-    Check avscanner in /usr/local/bin
-    Run plugin uninstaller
-    Check avscanner not in /usr/local/bin
-    Check AV Plugin Not Installed
