@@ -23,4 +23,8 @@ namespace unixsocket
             return "Environment interruption";
         }
     };
+
+    const int SU_EOF = -2;
+    const int SU_ERROR = -1;
+    const int SU_ZERO = 0;
 }

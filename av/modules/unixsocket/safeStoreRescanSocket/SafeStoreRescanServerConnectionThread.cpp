@@ -22,7 +22,7 @@ SafeStoreRescanServerConnectionThread::SafeStoreRescanServerConnectionThread(
     std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager) :
     m_fd(std::move(fd)), m_quarantineManager(std::move(quarantineManager))
 {
-    if (m_fd < 0)
+    if (!m_fd.valid())
     {
         throw std::runtime_error("Attempting to construct SafeStoreRescanServerConnectionThread with invalid socket fd");
     }
@@ -53,7 +53,7 @@ void SafeStoreRescanServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_fd));
     LOGDEBUG("SafeStore Rescan Server thread got connection " << socket_fd.fd());
-    uint32_t bufferSize = 1;
+    const uint32_t bufferSize = 1;
 
     int exitFD = m_notifyPipe.readFd();
 
@@ -90,25 +90,25 @@ void SafeStoreRescanServerConnectionThread::inner_run()
             break;
         }
         else
-        // if ((fds[1].revents & POLLIN) != 0)
         {
             // If shouldn't be required - we have no timeout, and only 2 FDs in the ppoll.
             // exitFD will cause break
             // therefore "else" must be fd_isset(socket_fd, &tempRead)
+            assert((fds[1].revents & POLLIN) != 0);
 
             // read length
             int32_t length = unixsocket::readLength(socket_fd);
-            if (length == -2)
+            if (length == unixsocket::SU_EOF)
             {
                 LOGDEBUG("SafeStore Rescan connection thread closed: EOF");
                 break;
             }
-            else if (length < 0)
+            else if (length == unixsocket::SU_ERROR)
             {
                 LOGERROR("Aborting SafeStore Rescan connection thread: failed to read length");
                 break;
             }
-            else if (length == 0)
+            else if (length == unixsocket::SU_ZERO)
             {
                 if (not loggedLengthOfZero)
                 {
