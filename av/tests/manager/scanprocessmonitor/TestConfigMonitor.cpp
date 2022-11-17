@@ -112,24 +112,47 @@ TEST_F(TestConfigMonitor, ConfigMonitorFail)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     NotifyPipe configPipe;
-    EXPECT_CALL(*m_mockSystemCallWrapper, pselect(_, _, _, _, _, _)).WillOnce(Return(-1));
+    EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_, _, _, _)).WillOnce(SetErrnoAndReturn(EBADF, -1));
     ConfigMonitor a(configPipe, m_mockSystemCallWrapper, m_testDir);
     a.start();
-    ASSERT_TRUE(waitForLog("failure in ConfigMonitor: pselect failed: "));
+    ASSERT_TRUE(waitForLog("Error from ppoll: Bad file descriptor"));
     a.requestStop();
     a.join();
 }
 
-TEST_F(TestConfigMonitor, ConfigMonitorLogsErrorWhenPselectFails)
+TEST_F(TestConfigMonitor, bad_notify_pipe_fd)
 {
+    const std::string expected = "Closing Config Monitor, error from notify pipe";
     UsingMemoryAppender memoryAppenderHolder(*this);
+
+    struct pollfd fds[2]{};
+    fds[0].revents = POLLERR;
+    EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
 
     NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_mockSystemCallWrapper, m_testDir);
-    EXPECT_CALL(*m_mockSystemCallWrapper, pselect(_, _, _, _, _, _))
-        .WillOnce(DoAll(InvokeWithoutArgs(&a, &Common::Threads::AbstractThread::requestStop), Return(-1)));
     a.start();
-    EXPECT_FALSE(appenderContains("failure in ConfigMonitor: pselect failed: "));
+    EXPECT_TRUE(waitForLog(expected));
+    a.requestStop();
+    a.join();
+}
+
+TEST_F(TestConfigMonitor, bad_inotify_fd)
+{
+    const std::string expected = "Closing Config Monitor, error from inotify";
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    struct pollfd fds[2]{};
+    fds[1].revents = POLLERR;
+    EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
+
+    NotifyPipe configPipe;
+    ConfigMonitor a(configPipe, m_mockSystemCallWrapper, m_testDir);
+    a.start();
+    EXPECT_TRUE(waitForLog(expected));
+    a.requestStop();
     a.join();
 }
 

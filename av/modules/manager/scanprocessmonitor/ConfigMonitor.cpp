@@ -15,6 +15,7 @@
 #include <utility>
 #include <vector>
 
+#include <poll.h>
 #include <sys/inotify.h>
 #include <sys/types.h>
 
@@ -178,34 +179,54 @@ namespace plugin::manager::scanprocessmonitor
     {
         assert(inotifyFD.getFD() >= 0);
 
-        fd_set readFds;
-        FD_ZERO(&readFds);
-        int max_fd = -1;
-        max_fd = FDUtils::addFD(&readFds, m_notifyPipe.readFd(), max_fd);
-        max_fd = FDUtils::addFD(&readFds, inotifyFD.getFD(), max_fd);
+        std::vector<struct pollfd> fds;
+        fds.push_back({ .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 });
+        fds.push_back({ .fd = inotifyFD.getFD(), .events = POLLIN, .revents = 0 });
         for (const auto& iter : m_interestingDirs)
         {
-            max_fd = FDUtils::addFD(&readFds, iter.second->getFD(), max_fd);
+            fds.push_back({ .fd = iter.second->getFD(), .events = POLLIN, .revents = 0 });
         }
 
         while (true)
         {
-            fd_set temp_readFds = readFds;
-            int active = m_sysCalls->pselect(max_fd + 1, &temp_readFds, nullptr, nullptr, nullptr, nullptr);
+            auto ret = m_sysCalls->ppoll(&fds[0], std::size(fds), nullptr, nullptr);
+            if (ret < 0)
+            {
+                if (errno == EINTR)
+                {
+                    continue;
+                }
+
+                LOGERROR("Error from ppoll: " << common::safer_strerror(errno));
+                return false;
+            }
+            assert(ret > 0);
 
             if (stopRequested())
             {
                 return false;
             }
 
-            if (active < 0 and errno != EINTR)
+            if ((fds[0].revents & POLLERR) != 0)
             {
-                LOGERROR("failure in ConfigMonitor: pselect failed: " << common::safer_strerror(errno));
+                LOGERROR("Closing Config Monitor, error from notify pipe");
+                return false;
+            }
+
+            if ((fds[1].revents & POLLERR) != 0)
+            {
+                LOGERROR("Closing Config Monitor, error from inotify");
+                return false;
+            }
+
+            if ((fds[0].revents & POLLIN) != 0)
+            {
+                LOGDEBUG("Closing Config Monitor");
                 return false;
             }
 
             bool interestingDirTouched = false;
-            if (FDUtils::fd_isset(inotifyFD.getFD(), &temp_readFds))
+            if ((fds[1].revents & POLLIN) != 0)
             {
                 // Something changed under m_base (/etc)
                 // Per https://man7.org/linux/man-pages/man7/inotify.7.html
@@ -236,16 +257,15 @@ namespace plugin::manager::scanprocessmonitor
                 }
             }
 
-            for (const auto& iter : m_interestingDirs)
+            for (unsigned long i = 2; i < fds.size(); i++)
             {
-                int fd = iter.second->getFD();
-                if (FDUtils::fd_isset(fd, &temp_readFds))
+                if ((fds[i].revents & POLLIN) != 0)
                 {
                     // flush the buffer
                     char buffer[EVENT_BUF_LEN];
-                    ::read(fd, buffer, EVENT_BUF_LEN);
+                    ::read(fds[i].fd, buffer, EVENT_BUF_LEN);
 
-                    LOGDEBUG("Inotified in directory: " << iter.first);
+                    LOGDEBUG("Inotified in directory");
                     interestingDirTouched = true;
                 }
             }
