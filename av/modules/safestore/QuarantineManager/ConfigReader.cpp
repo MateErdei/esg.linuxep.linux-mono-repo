@@ -22,7 +22,7 @@ namespace safestore
             {
                 auto configContents = fileSystem->readFile(Plugin::getSafeStoreConfigPath());
                 nlohmann::json j = nlohmann::json::parse(configContents);
-                for (const auto& [optionAsString, option] : optionsMap)
+                for (const auto& [optionAsString, option] : GL_OPTIONS_MAP)
                 {
                     if (j.contains(optionAsString) && j[optionAsString].is_number_unsigned())
                     {

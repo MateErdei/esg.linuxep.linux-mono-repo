@@ -333,25 +333,6 @@ namespace safestore::SafeStoreWrapper
         }
     }
 
-    std::string configOptionToString(const ConfigOption& option)
-    {
-        switch(option)
-        {
-            case ConfigOption::MAX_SAFESTORE_SIZE:
-                return "Max_SafeStore_Size";
-            case ConfigOption::MAX_OBJECT_SIZE:
-                return "Max_Object_Size";
-            case ConfigOption::MAX_REG_OBJECT_COUNT:
-                return "Max_Reg_Object_Count";
-            case ConfigOption::AUTO_PURGE:
-                return "Auto_Purge";
-            case ConfigOption::MAX_STORED_OBJECT_COUNT:
-                return "Max_Stored_Object_Count";
-            default:
-                return "Value has no corresponding string";
-        }
-    }
-
     std::optional<uint64_t> SafeStoreWrapperImpl::getConfigIntValue(ConfigOption option)
     {
         uint64_t valueRead = 0;
@@ -371,7 +352,9 @@ namespace safestore::SafeStoreWrapper
         {
             return true;
         }
-        LOGWARN("Got " << safeStoreReturnCodeToString(returnCode) << " when setting config value");
+        LOGWARN(
+            "Got " << safeStoreReturnCodeToString(returnCode)
+                   << " when setting config option: " << configOptionToString(option) << " to: " << value);
         return false;
     }
 
