@@ -87,7 +87,7 @@ SafeStore Recovers From Corrupt Database
     Check SafeStore Dormant Flag Exists
 
     wait_for_log_contains_from_mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    200
-    wait_for_log_contains_from_mark  ${safestore_mark}  Successfully initialised SafeStore database
+    wait_for_log_contains_from_mark  ${safestore_mark}  Quarantine Manager initialised OK
 
     Check Safestore Dormant Flag Does Not Exist
 
