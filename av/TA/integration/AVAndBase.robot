@@ -537,6 +537,26 @@ AV Plugin Saves SafeStore and Detections Databases On Downgrade
     Check AV Plugin Not Installed
     Verify SafeStore Database Backups Exist in Path    ${SAFESTORE_BACKUP_DIR}
 
+Older SafeStore Database is not Restored When it is not Compaitible With Current AV Version
+    Register Cleanup  Exclude MCS Router is dead
+    Register Cleanup  Install With Base SDDS
+    Check AV Plugin Running
+
+    Run plugin uninstaller with downgrade flag
+    Directory Should Exist  ${SAFESTORE_BACKUP_DIR}
+    ${new_ss_db_path} =    Convert To String    ${AV_RESTORED_VAR_DIRECTORY}/123456789_SafeStore_9.9.9
+
+    ${SAFESTORE_DB_BACKUP_DIRS} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
+    Should Not Be Empty    ${SAFESTORE_DB_BACKUP_DIRS}
+    Move Directory    ${AV_RESTORED_VAR_DIRECTORY}/${SAFESTORE_DB_BACKUP_DIRS[0]}    ${new_ss_db_path}
+
+    Check AV Plugin Not Installed
+    Install AV Directly from SDDS
+    ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
+
+    Check SulDownloader Log Contains    "SafeStore Database (${new_ss_db_path}) is not compatible with the current AV version (${version}) so will not attempt to restore"
+    Directory Should Exist    ${new_ss_db_path}
+
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now
     [Timeout]  15min
     ignore coredumps and segfaults
