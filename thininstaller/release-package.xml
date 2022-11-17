@@ -7,7 +7,7 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release--patched_1.2.1_base_for_thininstaller_1.2.2_release"
-                             build-id="20221114123042-cedf6034a94742031cf6550765f6889f17f6a9d7-sphR4Y"/>
+                             build-id="20221117120533-2de5a1e2e97f119c16568829d37129868d0001be-BJHwg2"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
