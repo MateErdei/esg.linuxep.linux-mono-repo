@@ -169,7 +169,7 @@ def run_clean_file_test(test_name, stop_on_queue_full, max_count):
     logging.info("Created {} files in {} seconds".format(file_count, end_time - start_time))
 
     shutil.rmtree(dirpath)
-    record_result(test_name, date_time, start_time, end_time)
+    record_result(test_name, date_time, start_time, end_time, custom_data={"file_count":file_count})
     return file_count
 
 
@@ -231,7 +231,7 @@ def run_slow_scan_test(test_name, stop_on_queue_full, max_count):
     logging.info("Created {} files in {} seconds".format(file_count, end_time - start_time))
 
     shutil.rmtree(dirpath)
-    record_result(test_name, date_time, start_time, end_time)
+    record_result(test_name, date_time, start_time, end_time, custom_data={"file_count":file_count})
     return file_count
 
 def run_slow_scan_onaccess_test(max_file_count):
