@@ -25,6 +25,10 @@ Stop SafeStore
 Start SafeStore
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  safestore
     Should Be Equal As Integers    ${result.rc}    ${0}
+    Wait for Safestore to be running
+
+Wait for Safestore to be running
+   Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  safestore <> SafeStore started  timeout=5
 
 Check SafeStore Not Running
     ${result} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
