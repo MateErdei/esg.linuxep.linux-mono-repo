@@ -237,8 +237,15 @@ class FakeManagement(object):
         plugin = self.__get_requester(plugin_name)
         plugin.policy(app_id, content)
 
+    def send_plugin_policy_from_file(self, plugin_name, app_id, path):
+        content = open(path).read()
+        return self.send_plugin_policy(plugin_name, app_id, content)
+
     def send_av_policy(self, app_id, content):
         return self.send_plugin_policy(PLUGIN_NAME, app_id, content)
+
+    def send_av_policy_from_file(self, app_id, path):
+        return self.send_plugin_policy_from_file(PLUGIN_NAME, app_id, path)
 
     def send_plugin_action(self, plugin_name, app_id, correlation, content):
         plugin = self.__get_requester(plugin_name)

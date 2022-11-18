@@ -119,10 +119,12 @@ Enable OA Scanning
             ${mark} =  get_on_access_log_mark
     END
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
+
+    send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE_oa_enabled.xml
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    send av policy  FLAGS  ${policyContent}
 
     wait for on access log contains after mark  "oa_enabled":true   mark=${mark}
     wait for on access log contains after mark  Starting eventReader   mark=${mark}

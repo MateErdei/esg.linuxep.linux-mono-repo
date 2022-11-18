@@ -27,20 +27,20 @@ Run Scheduled Scan With On Access Enabled
     ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
     Create Sav Policy With Scheduled Scan And On Access Enabled  ${TEMP_SAV_POLICY_FILENAME}  ${time}
     ${policy_contents} =  Get File  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
-    Send Plugin Policy  av  ${SAV_APPID}  ${policy_contents}
+    send av policy  ${SAV_APPID}  ${policy_contents}
     Wait until scheduled scan updated
 
 
 Configure Scan Now Scan
     ${policy_contents} =  Get Complete Sav Policy
-    Send Plugin Policy  av  ${SAV_APPID}  ${policy_contents}
+    send av policy  ${SAV_APPID}  ${policy_contents}
     Wait until scheduled scan updated
 
 Configure Scan Now Scan With On Access Enabled
+    ${mark} =  get_av_log_mark
     Create Sav Policy With On Access Enabled  ${TEMP_SAV_POLICY_FILENAME}
-    ${policy_contents} =  Get File  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
-    Send Plugin Policy  av  ${SAV_APPID}  ${policy_contents}
-    Wait until scheduled scan updated With Offset
+    send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
+    Wait until scheduled scan updated After Mark  ${mark}
 
 Trigger Scan Now Scan
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${ACTION_CONTENT}

@@ -1120,7 +1120,12 @@ File Log Contains
     def wait_for_av_log_contains_after_last_restart(self, expected, timeout: int = 15, mark=None):
         return self.wait_for_log_contains_after_last_restart(self.av_log, expected, timeout, mark)
 
-#####################################################################
+    def dump_av_log_after_mark(self, mark: LogHandler.LogMark):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in dump_av_log_after_mark"
+        self.dump_marked_log(self.av_log, mark)
+
+
+    #####################################################################
 # Sophos Threat Detector Log
 
     def get_sophos_threat_detector_log_mark(self) -> LogHandler.LogMark:
@@ -1153,11 +1158,6 @@ File Log Contains
 
     def get_susi_debug_log_after_mark(self, mark):
         return self.get_log_after_mark(self.susi_debug_log, mark)
-
-    def dump_av_log_after_mark(self, mark: LogHandler.LogMark):
-        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in dump_av_log_after_mark"
-        self.dump_marked_log(self.av_log, mark)
-
 
 #####################################################################
 # SafeStore Log

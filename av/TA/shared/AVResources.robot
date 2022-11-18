@@ -863,6 +863,10 @@ Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=180
 
+Wait until scheduled scan updated After Mark
+    [Arguments]  ${mark}
+    wait_for_av_log_contains_after_mark  Configured number of Scheduled Scans  timeout=180  mark=${mark}
+
 Configure Scan Exclusions Everything Else
 #   exclude by default bullseye files
     [Arguments]  ${inclusion}   ${user_exclusion}="<filePath>/mnt/pandorum/</filePath>"
