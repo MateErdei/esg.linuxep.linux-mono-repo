@@ -49,6 +49,21 @@ AV Plugin Will Fail Scan Now If No Policy
     check_av_log_contains_after_mark  Received new Action  mark=${mark}
     check_av_log_contains_after_mark  Evaluating Scan Now  mark=${mark}
 
+AV Plugin Gets Sxl Lookup Setting From SAV Policy
+    ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}
+    Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
+
+    ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
+    send av policy  ${SAV_APPID}  ${policyContent}
+    Wait until scheduled scan updated With Offset
+
+    ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
+
+    wait_for_log_contains_after_last_restart  ${AV_LOG_PATH}  SAV policy received for the first time.
+    Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
+    ${susiStartupSettings} =   Get File   ${SUSI_STARTUP_SETTINGS_FILE}
+    Should Be Equal   ${susiStartupSettings}   ${expectedSusiStartupSettings}
+
 
 AV Plugin Can Receive Actions
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="Test" id="" subtype="TestAction" replyRequired="1"/>
@@ -378,7 +393,7 @@ AV Plugin Gets Customer ID
     Remove Files   ${customerIdFile1}   ${customerIdFile2}
 
     ${policyContent} =   Get ALC Policy   userpassword=A  username=B
-    Log   ${policyContent}
+    # Send av policy logs the policy
     send av policy  ${ALC_APPID}  ${policyContent}
 
     ${expectedId} =   Set Variable   a1c0f318e58aad6bf90d07cabda54b7d
@@ -401,7 +416,6 @@ AV Plugin Gets Customer ID from Obfuscated Creds
     ...   algorithm=AES256
     ...   userpassword=CCD8CFFX8bdCDFtU0+hv6MvL3FoxA0YeSNjJyZJWxz1b3uTsBu5p8GJqsfp3SAByOZw=
     ...   username=ABC123
-    Log   ${policyContent}
     send av policy  ${ALC_APPID}  ${policyContent}
 
     # md5(md5("ABC123:password"))
@@ -422,10 +436,10 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
 
     ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
     Log    ${policyContent}
-    send av policy  ${SAV_APPID}  ${policyContent}
+    send av policy  SAV  ${policyContent}
     Wait until scheduled scan updated With Offset
 
-    ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false,"shaAllowList":[]}
+    ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
 
     Wait Until AV Plugin Log Contains With Offset  SAV policy received for the first time.
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
