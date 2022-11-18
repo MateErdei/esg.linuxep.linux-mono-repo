@@ -399,7 +399,8 @@ On Access Does Cache Close Events Without Detections
     Register Cleanup   Remove File   ${cleanfile}
 
     wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
-    wait for on access log contains after mark  Caching ${cleanfile} (Close-Write)  mark=${oamark}
+    # The on-close event may be deduplicated so allow either
+    wait for on access log contains after mark  Caching ${cleanfile}  mark=${oamark}
 
     ${oamark} =  get_on_access_log_mark
     Get File   ${cleanfile}
