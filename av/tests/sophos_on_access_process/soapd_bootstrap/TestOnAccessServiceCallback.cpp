@@ -28,6 +28,12 @@ protected:
     std::unique_ptr<OnAccessServiceCallback> m_callback;
 };
 
+TEST_F(TestOnAccessServiceCallback, OnAccessTelemetryGetsTelemetryFromTelemetryHelper)
+{
+    auto resContent = m_callback->getTelemetry();
+    ASSERT_EQ(resContent, "{\"Ratio of Dropped Events\":0.0}");
+}
+
 
 TEST_F(TestOnAccessServiceCallback, OnAccessTelemetryResets)
 {

@@ -57,9 +57,9 @@ TEST_F(TestOnAccessTelemetryUtility, InitialisesToZeroValues)
 TEST_F(TestOnAccessTelemetryUtility, StoresValuesCorrectly)
 {
     const uint eventTotal = 10;
-    const uint eventDropped = 5;
-    const uint scanTotal = 10;
-    const uint scanError = 5;
+    const uint eventDropped = 6;
+    const uint scanTotal = 11;
+    const uint scanError = 7;
 
     populateTelemetryUtility(eventDropped, eventTotal, scanError, scanTotal);
 
