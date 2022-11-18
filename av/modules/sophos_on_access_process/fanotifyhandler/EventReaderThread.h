@@ -9,6 +9,7 @@
 #include "IFanotifyHandler.h"
 
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
+#include "sophos_on_access_process/soapd_bootstrap/OnAccessTelemetryUtility.h"
 
 #include "common/AbstractThreadPluginInterface.h"
 #include "common/Exclusion.h"
@@ -22,6 +23,7 @@
 
 namespace fs = sophos_filesystem;
 namespace onaccessimpl = sophos_on_access_process::onaccessimpl;
+namespace onaccesstelemetry = sophos_on_access_process::OnAccessTelemetry;
 
 namespace sophos_on_access_process::fanotifyhandler
 {
@@ -32,11 +34,16 @@ namespace sophos_on_access_process::fanotifyhandler
             IFanotifyHandlerSharedPtr fanotify,
             datatypes::ISystemCallWrapperSharedPtr sysCalls,
             const fs::path& pluginInstall,
-            onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue);
+            onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue,
+            onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility
+            );
 
         void run() override;
 
         void setExclusions(const std::vector<common::Exclusion>& exclusions);
+
+    TEST_PUBLIC:
+        void innerRun();
 
     private:
         bool handleFanotifyEvent();
@@ -50,13 +57,11 @@ namespace sophos_on_access_process::fanotifyhandler
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         fs::path m_pluginLogDir;
         onaccessimpl::ScanRequestQueueSharedPtr m_scanRequestQueue;
+        onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr m_telemetryUtility;
         pid_t m_pid;
         std::string m_processExclusionStem;
         std::vector<common::Exclusion> m_exclusions;
         mutable std::mutex m_exclusionsLock;
         uint m_EventsWhileQueueFull = 0;
-
-    TEST_PUBLIC:
-        void innerRun();
     };
 }

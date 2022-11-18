@@ -9,6 +9,7 @@
 #include <cstdint>
 
 #include <atomic>
+#include <memory>
 
 namespace sophos_on_access_process::OnAccessTelemetry
 {
@@ -45,4 +46,5 @@ namespace sophos_on_access_process::OnAccessTelemetry
         std::atomic_uint64_t m_scansRequested;
         std::atomic_uint32_t m_scanErrors;
     };
+    using OnAccessTelemetryUtilitySharedPtr = std::shared_ptr<OnAccessTelemetryUtility>;
 }

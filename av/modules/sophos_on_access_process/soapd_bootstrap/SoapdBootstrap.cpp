@@ -85,6 +85,7 @@ void SoapdBootstrap::initialiseTelemetry()
         Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM);
 
     m_pluginHandler->start();
+    m_TelemetryUtility = std::make_shared<OnAccessTelemetry::OnAccessTelemetryUtility>();
 }
 
 void SoapdBootstrap::innerRun()
@@ -126,7 +127,8 @@ void SoapdBootstrap::innerRun()
     m_eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
                                                            sysCallWrapper,
                                                            common::getPluginInstallPath(),
-                                                           m_scanRequestQueue);
+                                                           m_scanRequestQueue,
+                                                           m_TelemetryUtility);
     m_eventReaderThread = std::make_unique<common::ThreadRunner>(m_eventReader,
                                                                  "eventReader",
                                                                  false);
