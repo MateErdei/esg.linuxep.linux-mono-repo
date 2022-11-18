@@ -46,3 +46,66 @@ protected:
         }
     }
 };
+
+
+TEST_F(TestOnAccessTelemetryUtility, InitialisesToZeroValues)
+{
+    EXPECT_EQ(m_TelemetryUtility.m_eventsReceived.load(), 0);
+    EXPECT_EQ(m_TelemetryUtility.m_eventsDropped.load(), 0);
+    EXPECT_EQ(m_TelemetryUtility.m_scansRequested.load(), 0);
+    EXPECT_EQ(m_TelemetryUtility.m_scanErrors.load(), 0);
+}
+
+TEST_F(TestOnAccessTelemetryUtility, StoresValuesCorrectly)
+{
+    const uint eventTotal = 10;
+    const uint eventDropped = 5;
+    const uint scanTotal = 10;
+    const uint scanError = 5;
+
+    populateTelemetryUtility(eventDropped, eventTotal, scanError, scanTotal);
+
+    EXPECT_EQ(m_TelemetryUtility.m_eventsReceived.load(), eventTotal);
+    EXPECT_EQ(m_TelemetryUtility.m_eventsDropped.load(), eventDropped);
+    EXPECT_EQ(m_TelemetryUtility.m_scansRequested.load(), scanTotal);
+    EXPECT_EQ(m_TelemetryUtility.m_scanErrors.load(), scanError);
+}
+
+TEST_F(TestOnAccessTelemetryUtility, NoErrors)
+{
+    const float expectedEventsDroppedPer = 0.0f;
+    const float expectedScanErrorsPer = 0.0f;
+
+    populateTelemetryUtility(0, 10, 0, 10);
+
+    auto result = m_TelemetryUtility.getTelemetry();
+
+    ASSERT_EQ(result.m_percentageEventsDropped, expectedEventsDroppedPer);
+    ASSERT_EQ(result.m_percentageScanErrors, expectedScanErrorsPer);
+}
+
+TEST_F(TestOnAccessTelemetryUtility, AllErrors)
+{
+    const float expectedEventsDroppedPer = 100.0f;
+    const float expectedScanErrorsPer = 100.0f;
+
+    populateTelemetryUtility(10, 10, 10, 10);
+
+    auto result = m_TelemetryUtility.getTelemetry();
+
+    ASSERT_EQ(result.m_percentageEventsDropped, expectedEventsDroppedPer);
+    ASSERT_EQ(result.m_percentageScanErrors, expectedScanErrorsPer);
+}
+
+TEST_F(TestOnAccessTelemetryUtility, AllZeros)
+{
+    const float expectedEventsDroppedPer = 0.0f;
+    const float expectedScanErrorsPer = 0.0f;
+
+    populateTelemetryUtility(0, 0, 0, 0);
+
+    auto result = m_TelemetryUtility.getTelemetry();
+
+    ASSERT_EQ(result.m_percentageEventsDropped, expectedEventsDroppedPer);
+    ASSERT_EQ(result.m_percentageScanErrors, expectedScanErrorsPer);
+}
