@@ -35,6 +35,21 @@ ${HANDLE}
 
 
 *** Test Cases ***
+
+AV Plugin Will Fail Scan Now If No Policy
+    # Test must be before we apply any policies!
+    Register Cleanup  Remove File  ${MCS_ACTION_DIRECTORY}/ScanNow_Action*
+    Register Cleanup  Exclude Scan As Invalid
+
+    ${mark} =  get_av_log_mark
+
+    ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
+    Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
+    wait_for_av_log_contains_after_mark  Refusing to run invalid scan: INVALID  mark=${mark}
+    check_av_log_contains_after_mark  Received new Action  mark=${mark}
+    check_av_log_contains_after_mark  Evaluating Scan Now  mark=${mark}
+
+
 AV Plugin Can Receive Actions
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="Test" id="" subtype="TestAction" replyRequired="1"/>
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
@@ -149,16 +164,6 @@ Scan Now Logs Should Be As Expected
     File Log Contains             ${SCANNOW_LOG_PATH}        1 EICAR-AV-Test infection discovered.
     AV Plugin Log Should Not Contain With Offset             Notify trimmed output
 
-
-AV Plugin Will Fail Scan Now If No Policy
-    Register Cleanup  Remove File  ${MCS_ACTION_DIRECTORY}/ScanNow_Action*
-    Register Cleanup  Exclude Scan As Invalid
-
-    ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
-    Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
-    Wait Until AV Plugin Log Contains With Offset  Refusing to run invalid scan: INVALID
-    AV Plugin Log Contains With Offset  Received new Action
-    AV Plugin Log Contains With Offset  Evaluating Scan Now
 
 
 AV Plugin Scans local secondary mount only once

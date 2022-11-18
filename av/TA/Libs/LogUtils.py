@@ -974,12 +974,13 @@ File Log Contains
         if isinstance(expected, str):
             expected = expected.encode("UTF-8")
 
-        handler = self.get_log_handler(log_path)
-        contents = handler.get_contents(mark)
+        mark.assert_is_good(log_path)
+        contents = mark.get_contents()
         if expected in contents:
             return
 
         logger.error("Failed to find %s in %s" % (expected, log_path))
+        handler = self.get_log_handler(log_path)
         handler.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, log_path))
 
@@ -1113,6 +1114,9 @@ File Log Contains
     def wait_for_av_log_contains_after_mark(self, expected: str, mark: LogHandler.LogMark, timeout: int = 10):
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_av_log_contains_after_mark"
         return self.wait_for_log_contains_after_mark(self.av_log, expected, mark, timeout=timeout)
+
+    def check_av_log_contains_after_mark(self, expected: str, mark: LogHandler.LogMark):
+        return self.check_log_contains_after_mark(self.av_log, expected, mark)
 
     def check_av_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.av_log, not_expected, mark)
