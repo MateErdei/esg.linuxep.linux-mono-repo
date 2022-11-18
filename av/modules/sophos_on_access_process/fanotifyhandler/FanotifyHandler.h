@@ -2,6 +2,10 @@
 
 #pragma once
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 #include "IFanotifyHandler.h"
 
 #include "common/LockableData.h"
@@ -89,10 +93,11 @@ namespace sophos_on_access_process::fanotifyhandler
             void close() final;
 
             [[nodiscard]] int clearCachedFiles() const override;
+TEST_PUBLIC:
+            static void processFaMarkError(const std::string& function, const std::string& path);
 
         private:
             static int processFaMarkError(int result, const std::string& function, const std::string& path);
-            static void processFaMarkError(const std::string& function, const std::string& path);
 
             mutable common::LockableData<datatypes::AutoFd> m_fd;
             datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;

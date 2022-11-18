@@ -4,10 +4,8 @@
 
 #include "Logger.h"
 
-#include "common/ApplicationPaths.h"
 #include "common/SaferStrerror.h"
 
-#include <fstream>
 #include <sstream>
 #include <tuple>
 
@@ -32,7 +30,6 @@ void FanotifyHandler::init()
     int fanotifyFd = m_systemCallWrapper->fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
     if (fanotifyFd == -1)
     {
-        std::ofstream onaccessUnhealthyFlagFile(Plugin::getOnAccessUnhealthyFlagPath());
         std::stringstream errMsg;
         errMsg << "Unable to initialise fanotify: " << common::safer_strerror(errno);
         throw std::runtime_error(errMsg.str());
@@ -46,7 +43,6 @@ void FanotifyHandler::init()
 
 void FanotifyHandler::close()
 {
-    std::remove(Plugin::getOnAccessUnhealthyFlagPath().c_str());
     auto fanotify_autofd = m_fd.lock();
     fanotify_autofd->close();
 }
@@ -101,7 +97,7 @@ int FanotifyHandler::unmarkMount(const std::string& path) const
     return processFaMarkError(result, "unmarkMount", path);
 }
 
-int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
+int FanotifyHandler::cacheFd(const int& fd, const std::string& path, bool surviveModify) const
 {
     assert(m_systemCallWrapper);
     int fanotify_fd = getFd(); // CacheFd only called while fanotify enabled
@@ -111,7 +107,11 @@ int FanotifyHandler::cacheFd(const int& fd, const std::string& path) const
         return 0;
     }
 
-    constexpr unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
+    unsigned int flags = FAN_MARK_ADD | FAN_MARK_IGNORED_MASK;
+    if (surviveModify)
+    {
+        flags |= FAN_MARK_IGNORED_SURV_MODIFY;
+    }
     constexpr uint64_t mask = FAN_OPEN;
     int result = m_systemCallWrapper->fanotify_mark(fanotify_fd, flags, mask, fd, nullptr);
     return processFaMarkError(result, "cacheFd", path);
@@ -159,8 +159,13 @@ void FanotifyHandler::processFaMarkError(const std::string& function, const std:
     std::stringstream logMsg;
     int error = errno;
     logMsg << "fanotify_mark failed in " << function << ": " << common::safer_strerror(error) << " for: " << path;
+    if (error == ENOENT)
+    {
+        std::string log = "Muted error: " + logMsg.str();
+        LOGDEBUG(log);
+    }
     // TODO: Remove this condition once LINUXDAR-5803 is fixed
-    if (function == "unmarkMount")
+    else if (function == "unmarkMount")
     {
         LOGWARN(logMsg.str());
     }
