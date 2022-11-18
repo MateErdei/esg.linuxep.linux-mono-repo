@@ -4,11 +4,14 @@
 
 #include "datatypes/AutoFd.h"
 #include "common/CentralEnums.h"
+#include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
 #include <scan_messages/QuarantineResponse.h>
+
 #include <string>
 
 namespace safestore::QuarantineManager
 {
+    using FdsObjectIdsPair = std::pair<datatypes::AutoFd, SafeStoreWrapper::ObjectIdType>;
     enum class QuarantineManagerState
     {
         // QM is ok and ready to use
@@ -63,6 +66,9 @@ namespace safestore::QuarantineManager
             const std::string& threatName,
             const std::string& sha256,
             datatypes::AutoFd autoFd) = 0;
+
+        virtual std::vector<FdsObjectIdsPair> extractQuarantinedFiles() = 0;
     };
+
 
 } // namespace safestore::QuarantineManager

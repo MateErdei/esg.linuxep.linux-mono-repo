@@ -3,6 +3,7 @@
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
 #include "safestore/SafeStoreServiceCallback.h"
+#include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "scan_messages/ThreatDetected.h"
 #include "tests/common/Common.h"
 #include "tests/common/WaitForEvent.h"
@@ -114,9 +115,9 @@ namespace
              const std::string& threatName,
              const std::string& sha256,
              datatypes::AutoFd autoFd));
-
         MOCK_METHOD(void, setState,(const safestore::QuarantineManager::QuarantineManagerState& newState));
         MOCK_METHOD(void, initialise,());
+        MOCK_METHOD(std::vector<safestore::QuarantineManager::FdsObjectIdsPair> , extractQuarantinedFiles,());
         MOCK_METHOD(safestore::QuarantineManager::QuarantineManagerState, getState,());
         MOCK_METHOD(bool, deleteDatabase,());
     };

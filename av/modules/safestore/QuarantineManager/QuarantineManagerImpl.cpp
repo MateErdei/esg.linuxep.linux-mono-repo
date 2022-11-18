@@ -4,6 +4,7 @@
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "common/ApplicationPaths.h"
 #include "safestore/Logger.h"
@@ -303,6 +304,118 @@ namespace safestore::QuarantineManager
             LOGERROR("Failed to remove Quarantine Database due to: " << ex.what());
             return false;
         }
+    }
+
+    std::vector<FdsObjectIdsPair> QuarantineManagerImpl::extractQuarantinedFiles()
+    {
+        std::vector<FdsObjectIdsPair> files;
+
+        SafeStoreWrapper::SafeStoreFilter filter; // we want to rescan everything in database
+        std::vector<SafeStoreWrapper::ObjectHandleHolder> items = m_safeStore->find(filter);
+        if (items.empty())
+        {
+            LOGDEBUG("No threats to rescan");
+            return files;
+        }
+
+        auto fs = Common::FileSystem::fileSystem();
+        auto fp = Common::FileSystem::filePermissions();
+
+        std::string dirPath = Common::FileSystem::join(Plugin::getPluginVarDirPath(),"tempUnpack");
+        try
+        {
+            fs->makedirs(dirPath);
+            fp->chown(dirPath, "root", "root");
+            fp->chmod(dirPath, S_IRUSR | S_IWUSR );
+        }
+        catch (Common::FileSystem::IFileSystemException &ex)
+        {
+            LOGWARN("Failed to setup directory for rescan of threats with error: " << ex.what());
+            return files;
+        }
+
+        bool failedToCleanUp = false;
+        for (const auto& item : items)
+        {
+            SafeStoreWrapper::ObjectIdType objectId =  m_safeStore->getObjectId(item);
+            bool success = m_safeStore->restoreObjectByIdToLocation(objectId,dirPath);
+            std::vector<std::string> unpackedFiles = fs->listAllFilesInDirectoryTree(dirPath);
+
+            if (unpackedFiles.size() > 1)
+            {
+                LOGERROR("Failed to clean up previous unpacked file");
+                failedToCleanUp = true;
+                break;
+            }
+            if (unpackedFiles.empty())
+            {
+                LOGWARN("Failed to unpack threat for rescan");
+                continue;
+            }
+            if (!success)
+            {
+                LOGWARN("Failed to restore threat for rescan");
+                try
+                {
+                    fs->removeFile(unpackedFiles[0]);
+                }
+                catch (Common::FileSystem::IFileSystemException &ex)
+                {
+                    LOGERROR("Failed to clean up threat with error: " << ex.what());
+                    failedToCleanUp = true;
+                    break;
+                }
+                continue;
+            }
+            std::string filepath = unpackedFiles[0];
+
+            try
+            {
+                fp->chown(filepath,"root","root");
+                fp->chmod(filepath,S_IRUSR);
+            }
+            catch (Common::FileSystem::IFileSystemException &ex)
+            {
+                // horrible state here we want to clean up and drop all filedescriptors asap
+                LOGERROR("Failed to set correct permissions " << ex.what() << " aborting rescan");
+                fs->removeFileOrDirectory(dirPath);
+                return {};
+            }
+
+            datatypes::AutoFd fd(fs->getFileInfoDescriptor(filepath));
+            files.emplace_back(std::move(fd),objectId);
+
+            try
+            {
+                //remove file as soon as we have fd for it to minimise time on disk
+                fs->removeFile(filepath);
+            }
+            catch (Common::FileSystem::IFileSystemException &ex)
+            {
+                LOGERROR("Failed to clean up threat with error: " << ex.what());
+                failedToCleanUp = true;
+                break;
+            }
+        }
+
+        try
+        {
+            fs->removeFileOrDirectory(dirPath);
+        }
+        catch (Common::FileSystem::IFileSystemException &ex)
+        {
+            if (failedToCleanUp)
+            {
+                LOGERROR("Failed to clean up staging location for rescan with error: " << ex.what());
+            }
+            else
+            {
+                //this is less of a problem if the directory is empty
+                LOGWARN("Failed to clean up staging location for rescan with error: " << ex.what());
+            }
+        }
+
+        return files;
     }
 
     // These are private functions, so they are protected by the mutexes on the public interface functions.
