@@ -51,7 +51,7 @@ AV plugin Can Send Status
     Should Contain  ${status}   <product-version>${version}</product-version>
 
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="123" policyType="2"/></config>
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
 
     Wait For Plugin Status  av  SAV  RevID="123"  Res="Same"  <product-version>${version}</product-version>
 
@@ -60,7 +60,7 @@ AV Plugin Can Process Scan Now
     ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
     AV Plugin Log Contains With Offset  Received new Action
@@ -182,7 +182,7 @@ AV Plugin Scans local secondary mount only once
     ${scanObjectSet} =  Policy Fragment FS Types  hardDrives=true
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${scanName}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
     Wait until scheduled scan updated With Offset
 
     Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: ${scanName}   timeout=30
@@ -252,7 +252,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}<filePath>${eicar_path1}</filePath><filePath>/tmp_test/eicar.?</filePath><filePath>/tmp_test/*.txt</filePath><filePath>eicarStr</filePath></filePathSet></posixExclusions>
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
     Wait until scheduled scan updated With Offset
 
     Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=240  interval=5
@@ -374,7 +374,7 @@ AV Plugin Gets Customer ID
 
     ${policyContent} =   Get ALC Policy   userpassword=A  username=B
     Log   ${policyContent}
-    Send Plugin Policy  av  ${ALC_APPID}  ${policyContent}
+    send av policy  ${ALC_APPID}  ${policyContent}
 
     ${expectedId} =   Set Variable   a1c0f318e58aad6bf90d07cabda54b7d
 
@@ -397,7 +397,7 @@ AV Plugin Gets Customer ID from Obfuscated Creds
     ...   userpassword=CCD8CFFX8bdCDFtU0+hv6MvL3FoxA0YeSNjJyZJWxz1b3uTsBu5p8GJqsfp3SAByOZw=
     ...   username=ABC123
     Log   ${policyContent}
-    Send Plugin Policy  av  ${ALC_APPID}  ${policyContent}
+    send av policy  ${ALC_APPID}  ${policyContent}
 
     # md5(md5("ABC123:password"))
     ${expectedId} =   Set Variable   f5c33e370714d94e1d967e53ac4f0437
@@ -417,7 +417,7 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
 
     ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
     Log    ${policyContent}
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
     Wait until scheduled scan updated With Offset
 
     ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false,"shaAllowList":[]}
@@ -449,7 +449,7 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     ${exclusions} =  Configure Scan Exclusions Everything Else  /run/netns/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
     AV Plugin Log Contains With Offset  Received new Action
@@ -462,7 +462,7 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
 AV Plugin Can Process SafeStore Flag Enabled
     Start Fake Management If Required
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    send av policy  FLAGS  ${policyContent}
     Wait Until AV Plugin Log Contains With Offset
     ...   SafeStore flag set. Setting SafeStore to enabled.
     ...   timeout=60
@@ -471,7 +471,7 @@ AV Plugin Can Process SafeStore Flag Enabled
 AV Plugin Can Process SafeStore Flag Disabled
     Start Fake Management If Required
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    send av policy  FLAGS  ${policyContent}
     Wait Until AV Plugin Log Contains With Offset
     ...   SafeStore flag not set. Setting SafeStore to disabled.
     ...   timeout=60
@@ -551,7 +551,7 @@ Test Remote Share
     ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=false
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningDisabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
     Wait until scheduled scan updated With Offset
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningDisabled}  timeout=120  interval=5
     Require Sophos Threat Detector Running
@@ -566,7 +566,7 @@ Test Remote Share
     ${scanObjectSet} =  Policy Fragment FS Types  networkDrives=true
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningEnabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
 
     Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningEnabled}  timeout=120  interval=5
     Require Sophos Threat Detector Running
