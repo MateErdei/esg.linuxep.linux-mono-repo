@@ -93,7 +93,7 @@ SafeStore Recovers From Corrupt Database
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
     wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${safestore_mark}  Finalised file: eicar.com
+    wait_for_log_contains_from_mark  ${safestore_mark}  Finalised file: ${SCAN_DIRECTORY}/eicar.com
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
@@ -130,7 +130,8 @@ SafeStore Quarantines Archive
     Create Directory  ${ARCHIVE_DIR}
     Create File  ${ARCHIVE_DIR}/1_dsa    ${DSA_BY_NAME_STRING}
     Create File  ${ARCHIVE_DIR}/2_eicar  ${EICAR_STRING}
-    Run Process  tar  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  1_dsa  2_eicar
+    Run Process  tar  --sort\=name  --mtime\='UTC 2019-01-01'  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  1_dsa  2_eicar
+    Remove Directory  ${ARCHIVE_DIR}  recursive=True
 
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
@@ -141,7 +142,7 @@ SafeStore Quarantines Archive
     File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
 
     Wait Until Base Has Core Clean Event
-    ...  alert_id=Te6df7ee25b75923
+    ...  alert_id=69acf1db-5edb-55dc-bd95-00413def1cb4
     ...  succeeded=1
     ...  origin=1
     ...  result=0

@@ -90,7 +90,7 @@ SafeStore Increments Quarantine Counter After Successful Quarantine
 
    Check avscanner can detect eicar
    Wait Until SafeStore Log Contains  Received Threat:
-   Wait For Safestore Log Contains After Mark    Finalised file: eicar.com    ${ss_mark}
+   Wait For Safestore Log Contains After Mark    Finalised file: ${SCAN_DIRECTORY}/eicar.com    ${ss_mark}
 
    Stop SafeStore
    Wait Until Keyword Succeeds
@@ -110,7 +110,7 @@ SafeStore Increments Quarantine Counter After Successful Quarantine
 
    Check avscanner can detect eicar
    Wait Until SafeStore Log Contains  Received Threat:
-   LogUtils.Wait For SafeStore Log Contains After Mark    Finalised file: eicar.com    ${ss_mark}
+   Wait For SafeStore Log Contains After Mark    Finalised file: ${SCAN_DIRECTORY}/eicar.com    ${ss_mark}
 
    Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
