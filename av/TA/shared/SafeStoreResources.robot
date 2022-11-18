@@ -161,3 +161,13 @@ Verify SafeStore Database Backups Exist in Path
         File Should Exist  ${SAFESTORE_BACKUP_DIR}/${dir}/safestore.db
         File Should Exist  ${SAFESTORE_BACKUP_DIR}/${dir}/safestore.pw
     END
+
+Remove All But One SafeStore Backup
+    ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
+    ${numberOfSSDatabases}=    Get length    ${safeStoreDatabaseBackupDirs}
+    IF  ${1} < ${numberOfSSDatabases}
+        FOR   ${dir}  IN  @{safeStoreDatabaseBackupDirs}[1:]
+            Remove Directory    ${AV_RESTORED_VAR_DIRECTORY}/${dir}  recursive=True
+            Remove Values From List    ${safeStoreDatabaseBackupDirs}    ${dir}
+        END
+    END
