@@ -19,7 +19,7 @@ std::string OnAccessServiceCallback::getTelemetry()
 {
     LOGDEBUG("Received get telemetry request");
     auto onAccessScanData = m_telemetryUtility->getTelemetry();
-    Common::Telemetry::TelemetryHelper::getInstance().set("Ratio of Dropped Events", onAccessScanData.m_percentageEventsDropped);
+    Common::Telemetry::TelemetryHelper::getInstance().set("Ratio-of-Dropped-Events", onAccessScanData.m_percentageEventsDropped);
     return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
 }
 

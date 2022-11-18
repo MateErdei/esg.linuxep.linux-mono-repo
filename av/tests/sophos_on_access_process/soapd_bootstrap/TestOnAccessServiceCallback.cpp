@@ -31,7 +31,7 @@ protected:
 TEST_F(TestOnAccessServiceCallback, OnAccessTelemetryGetsTelemetryFromTelemetryHelper)
 {
     auto resContent = m_callback->getTelemetry();
-    ASSERT_EQ(resContent, "{\"Ratio of Dropped Events\":0.0}");
+    ASSERT_EQ(resContent, "{\"Ratio-of-Dropped-Events\":0.0}");
 }
 
 
@@ -39,7 +39,7 @@ TEST_F(TestOnAccessServiceCallback, OnAccessTelemetryResets)
 {
     TelemetryHelper::getInstance().increment("This is a test", 1ul);
     auto resContent = m_callback->getTelemetry();
-    ASSERT_EQ(resContent, "{\"Ratio of Dropped Events\":0.0,\"This is a test\":1}");
+    ASSERT_EQ(resContent, "{\"Ratio-of-Dropped-Events\":0.0,\"This is a test\":1}");
     auto resEmpty = m_callback->getTelemetry();
-    ASSERT_EQ(resEmpty, "{\"Ratio of Dropped Events\":0.0}");
+    ASSERT_EQ(resEmpty, "{\"Ratio-of-Dropped-Events\":0.0}");
 }
