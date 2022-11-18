@@ -5,6 +5,7 @@
 #include "OnAccessConfigurationUtils.h"
 
 #include "mount_monitor/mount_monitor/MountMonitor.h"
+#include "mount_monitor/mountinfoimpl/DeviceUtil.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
@@ -63,6 +64,7 @@ namespace sophos_on_access_process::soapd_bootstrap
         std::shared_ptr<onaccessimpl::ScanRequestQueue> m_scanRequestQueue;
         std::vector<std::shared_ptr<common::ThreadRunner>> m_scanHandlerThreads;
         std::shared_ptr<::fanotifyhandler::EventReaderThread> m_eventReader;
+        mount_monitor::mountinfoimpl::DeviceUtilSharedPtr m_deviceUtil;
 
         Common::ZMQWrapperApi::IContextSharedPtr m_onAccessContext = Common::ZMQWrapperApi::createContext();
         std::unique_ptr<Common::PluginApiImpl::PluginCallBackHandler> m_pluginHandler;

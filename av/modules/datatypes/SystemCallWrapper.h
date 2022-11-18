@@ -29,6 +29,11 @@ namespace datatypes
             return ::statfs(file, buf);
         }
 
+        int fstatfs(int fd, struct ::statfs *buf) override
+        {
+            return ::fstatfs(fd, buf);
+        }
+
         int _stat(const char* file, struct ::stat* buf) override
         {
             return ::stat(file, buf);

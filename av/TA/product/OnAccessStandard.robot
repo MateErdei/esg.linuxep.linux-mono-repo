@@ -456,6 +456,37 @@ On Access Doesnt Cache Close Events With Detections
     wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark}
 
 
+On Access Doesn't cache remote files
+    [Tags]  NFS
+    ${source} =       Set Variable  ${TESTTMP}/excluded/nfsshare
+    ${destination} =  Set Variable  ${TESTTMP}/nfsmount
+    Create Directory  ${source}
+    Create Directory  ${destination}
+
+    ${mark} =  get_on_access_log_mark
+    Create Local NFS Share   ${source}   ${destination}
+    wait for on access log contains after mark  Including mount point: ${destination}  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
+
+    Create File   ${source}/testfile  ${CLEAN_STRING}
+
+    ${mark} =  get_on_access_log_mark
+    ${content} =   Get File   ${destination}/testfile
+    Should Be Equal As Strings   ${content}   ${CLEAN_STRING}
+    wait for on access log contains after mark  On-open event for ${destination}/testfile from Process  mark=${mark}
+
+    Check On Access Log Does Not Contain Before Timeout  Caching ${destination}/testfile   ${mark}  ${1}
+
+    # replace the file content on the server
+    Create File   ${source}/testfile  ${EICAR_STRING}   # assumes robot framework will re-use the same file
+
+    ${mark} =  get_on_access_log_mark
+    ${content} =   Get File   ${destination}/testfile
+    Should Be Equal As Strings   ${content}   ${EICAR_STRING}
+    wait for on access log contains after mark  On-open event for ${destination}/testfile from Process  mark=${mark}
+    wait for on access log contains after mark  Detected "${destination}/testfile" is infected with EICAR-AV-Test (Open)  mark=${mark}
+
+
 On Access Processes New File With Same Attributes And Contents As Old File
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
 

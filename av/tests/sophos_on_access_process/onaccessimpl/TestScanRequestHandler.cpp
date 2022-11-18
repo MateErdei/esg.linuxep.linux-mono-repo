@@ -2,16 +2,16 @@
 
 #include "OnAccessImplMemoryAppenderUsingTests.h"
 
-#include "common/RecordingMockSocket.h"
-#include "common/ThreadRunner.h"
 #include "datatypes/sophos_filesystem.h"
-
-#include "sophos_on_access_process/onaccessimpl/ReconnectSettings.h"
+#include "mount_monitor/mountinfoimpl/DeviceUtil.h"
 #include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
+#include "sophos_on_access_process/onaccessimpl/ReconnectSettings.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 #include "sophos_on_access_process/soapd_bootstrap/OnAccessProductConfigDefaults.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "common/RecordingMockSocket.h"
+#include "common/ThreadRunner.h"
 
 #include <gtest/gtest.h>
 
@@ -25,6 +25,29 @@ using namespace sophos_on_access_process::onaccessimpl;
 
 namespace
 {
+    class MockDeviceUtil : public mount_monitor::mountinfo::IDeviceUtil
+    {
+    public:
+        MockDeviceUtil()
+        {
+            ON_CALL(*this, isFloppy).WillByDefault(Return(false));
+            ON_CALL(*this, isLocalFixed).WillByDefault(Return(true));
+            ON_CALL(*this, isNetwork).WillByDefault(Return(false));
+            ON_CALL(*this, isOptical).WillByDefault(Return(false));
+            ON_CALL(*this, isRemovable).WillByDefault(Return(false));
+            ON_CALL(*this, isSystem).WillByDefault(Return(false));
+            ON_CALL(*this, isCachable).WillByDefault(Return(true));
+        }
+
+        MOCK_METHOD(bool, isFloppy, (const std::string& devicePath, const std::string& mountPoint, const std::string& filesystemType));
+        MOCK_METHOD(bool, isLocalFixed, (const std::string& devicePath, const std::string& mountPoint, const std::string& filesystemType));
+        MOCK_METHOD(bool, isNetwork, (const std::string& devicePath, const std::string& mountPoint, const std::string& filesystemType));
+        MOCK_METHOD(bool, isOptical, (const std::string& devicePath, const std::string& mountPoint, const std::string& filesystemType));
+        MOCK_METHOD(bool, isRemovable, (const std::string& devicePath, const std::string& mountPoint, const std::string& filesystemType));
+        MOCK_METHOD(bool, isSystem, (const std::string& devicePath, const std::string& mountPoint, const std::string& filesystemType));
+        MOCK_METHOD(bool, isCachable, (int fd));
+    };
+
     class TestScanRequestHandler : public OnAccessImplMemoryAppenderUsingTests
     {
     protected:
@@ -42,6 +65,7 @@ namespace
             appConfig.setData("PLUGIN_INSTALL", m_testDir );
 
             m_mockFanotifyHandler = std::make_shared<NiceMock<MockFanotifyHandler>>();
+            m_mockDeviceUtil = std::make_shared<MockDeviceUtil>();
         }
 
         using HandlerPtr = std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestHandler>;
@@ -60,17 +84,18 @@ namespace
         }
 
         std::shared_ptr<MockFanotifyHandler> m_mockFanotifyHandler;
+        std::shared_ptr<MockDeviceUtil> m_mockDeviceUtil;
         fs::path m_testDir;
     };
 
-    const struct timespec& oneMillisecond = { 0, 1000000 }; // 1ms
+    constexpr struct timespec oneMillisecond { 0, 1000000 }; // 1ms
 }
 
 TestScanRequestHandler::HandlerPtr TestScanRequestHandler::buildDefaultHandler(std::shared_ptr<unixsocket::IScanningClientSocket> socket)
 {
     auto scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
     return std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        scanRequestQueue, std::move(socket), m_mockFanotifyHandler);
+        scanRequestQueue, std::move(socket), m_mockFanotifyHandler, m_mockDeviceUtil);
 }
 
 [[maybe_unused]] TestScanRequestHandler::HandlerPtr TestScanRequestHandler::buildDefaultHandler()
@@ -90,7 +115,7 @@ TEST_F(TestScanRequestHandler, scan_fileDetected)
 
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        nullptr, socket, m_mockFanotifyHandler);
+        nullptr, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
     scanHandler->scan(scanRequest);
 
     ASSERT_EQ(socket->m_paths.size(), 1);
@@ -111,7 +136,7 @@ TEST_F(TestScanRequestHandler, scan_error)
 
     auto socket = std::make_shared<ExceptionThrowingTestSocket>(false);
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        nullptr, socket, m_mockFanotifyHandler);
+        nullptr, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
     scanHandler->scan(scanRequest, oneMillisecond);
 
     std::stringstream logMsg;
@@ -129,7 +154,7 @@ TEST_F(TestScanRequestHandler, scan_errorWhenShuttingDown)
 
     auto socket = std::make_shared<ExceptionThrowingTestSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        nullptr, socket, m_mockFanotifyHandler);
+        nullptr, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
     EXPECT_THROW(scanHandler->scan(scanRequest), ScanInterruptedException);
 
     EXPECT_TRUE(appenderContains("Scan aborted: Scanner received stop notification"));
@@ -155,7 +180,7 @@ TEST_F(TestScanRequestHandler, scan_threadPopsAllItemsFromQueue)
 
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        scanRequestQueue, socket, m_mockFanotifyHandler);
+        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
 
     std::stringstream logMsg1;
@@ -176,7 +201,7 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileWaiting)
     auto scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        scanRequestQueue, socket, m_mockFanotifyHandler);
+        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
     EXPECT_TRUE(waitForLog("Starting ScanRequestHandler"));
     scanRequestQueue->stop();
@@ -191,7 +216,7 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileScanning)
     auto scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        scanRequestQueue, socket, m_mockFanotifyHandler);
+        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
 
     EXPECT_TRUE(waitForLog("Starting ScanRequestHandler"));
@@ -208,7 +233,8 @@ TEST_F(TestScanRequestHandler, cleanScanOpen)
     auto socket = std::make_shared<RecordingMockSocket>(false, false);
     auto scanHandler = buildDefaultHandler(socket);
 
-    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).WillOnce(Return(0));
+    EXPECT_CALL(*m_mockDeviceUtil, isCachable(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).Times(1);
     EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(0);
 
     scan_messages::ClientScanRequestPtr request(buildRequest());
@@ -222,6 +248,7 @@ TEST_F(TestScanRequestHandler, cleanScanClose)
     auto socket = std::make_shared<RecordingMockSocket>(false, false);
     auto scanHandler = buildDefaultHandler(socket);
 
+    EXPECT_CALL(*m_mockDeviceUtil, isCachable(_)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).Times(1);
     EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(0);
 
@@ -230,6 +257,37 @@ TEST_F(TestScanRequestHandler, cleanScanClose)
 
     EXPECT_EQ(socket->m_paths.size(), 1);
 }
+
+TEST_F(TestScanRequestHandler, cleanScanOpenRemote)
+{
+    auto socket = std::make_shared<RecordingMockSocket>(false, false);
+    auto scanHandler = buildDefaultHandler(socket);
+
+    EXPECT_CALL(*m_mockDeviceUtil, isCachable(_)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(0);
+
+    scan_messages::ClientScanRequestPtr request(buildRequest());
+    scanHandler->scan(request);
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
+}
+
+TEST_F(TestScanRequestHandler, cleanScanCloseRemote)
+{
+    auto socket = std::make_shared<RecordingMockSocket>(false, false);
+    auto scanHandler = buildDefaultHandler(socket);
+
+    EXPECT_CALL(*m_mockDeviceUtil, isCachable(_)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(0);
+
+    scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
+    scanHandler->scan(request);
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
+}
+
 
 TEST_F(TestScanRequestHandler, infectedScanOpen)
 {
@@ -254,7 +312,23 @@ TEST_F(TestScanRequestHandler, infectedScanClose)
     auto scanHandler = buildDefaultHandler(socket);
 
     EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).Times(0);
-    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).Times(1);
+    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).WillOnce(Return(true));
+
+    scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
+    scanHandler->scan(request);
+
+    EXPECT_EQ(socket->m_paths.size(), 1);
+    EXPECT_TRUE(appenderContains("Detected \"/expected\" is infected with threatName (Close-Write)"));
+}
+
+TEST_F(TestScanRequestHandler, infectedScanCloseIgnoreUncacheFailure)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto socket = std::make_shared<RecordingMockSocket>(true, false);
+    auto scanHandler = buildDefaultHandler(socket);
+
+    EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).Times(0);
+    EXPECT_CALL(*m_mockFanotifyHandler, uncacheFd(_,_)).WillOnce(Return(false));
 
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
     scanHandler->scan(request);
@@ -307,16 +381,20 @@ using TestScanRequestHandlerDeathTest = TestScanRequestHandler;
 TEST_F(TestScanRequestHandlerDeathTest, cacheFdError)
 {
     //starts test in a new child process and tries to ensure safety of the main test process
-   (void)(::testing::GTEST_FLAG(death_test_style) = "threadsafe");
+    (void)(::testing::GTEST_FLAG(death_test_style) = "threadsafe");
+    testing::Mock::AllowLeak(m_mockFanotifyHandler.get());
+    testing::Mock::AllowLeak(m_mockDeviceUtil.get());
+
     UsingMemoryAppender memoryAppenderHolder(*this);
     auto socket = std::make_shared<RecordingMockSocket>(false, false);
     auto scanHandler = buildDefaultHandler(socket);
 
     //WillRepeatedly allows us to set the return code and gmock doesn't have to verify how many times we called cacheFd
+    EXPECT_CALL(*m_mockDeviceUtil, isCachable(_)).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFanotifyHandler, cacheFd(_,_,_)).WillRepeatedly(Return(-1));
-    testing::Mock::AllowLeak(m_mockFanotifyHandler.get());
+
     scan_messages::ClientScanRequestPtr request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_OPEN));
-    EXPECT_EXIT(scanHandler->scan(request), ::testing::ExitedWithCode(1),"");
+    EXPECT_EXIT(scanHandler->scan(request), ::testing::ExitedWithCode(1), "");
 }
 
 TEST_F(TestScanRequestHandler, uncacheFdErrorIgnored)
@@ -372,7 +450,7 @@ TEST_F(TestScanRequestHandler, scan_threadCanDumpPerfData)
 
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        scanRequestQueue, socket, m_mockFanotifyHandler, 123, true);
+        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil, 123, true);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
 
     std::stringstream logMsg1;

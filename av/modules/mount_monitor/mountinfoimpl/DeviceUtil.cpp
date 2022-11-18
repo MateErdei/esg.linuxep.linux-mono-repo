@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "DeviceUtil.h"
 
@@ -162,8 +158,8 @@ bool DeviceUtil::isOptical(const std::string& devicePath, const std::string& mou
     {
         struct cdrom_volctrl vol{};
 
-        // I'd like to use CDROMREADTOCHDR and assume success or EIO means its
-        // a CDROM drive.  Unfortuantely, on Redhat 8.0 (see [FML1384]) all
+        // I'd like to use CDROMREADTOCHDR and assume success or EIO means it's
+        // a CD-ROM drive.  Unfortunately, on Redhat 8.0 (see [FML1384]) all
         // hard drives generate EIO on this ioctl.
         if (ioctl(fd, CDROMVOLREAD, &vol) != -1)
         {
@@ -198,7 +194,7 @@ bool DeviceUtil::isRemovable(const std::string& devicePath, const std::string& m
     static_cast<void>(mountPoint);
     static_cast<void>(filesystemType);
 
-    // TODO: Need to also handle removable harddrives - maybe look at device path? LINUXDAR-2678
+    // TODO: Need to also handle removable hard drives - maybe look at device path? LINUXDAR-2678
 
     return isFloppy(devicePath,mountPoint,filesystemType) ||
            isOptical(devicePath,mountPoint,filesystemType);
@@ -284,4 +280,30 @@ bool DeviceUtil::isSystem(
     }
 
     return false;
+}
+
+bool DeviceUtil::isCachable(const int fd)
+{
+    struct ::statfs stat_buf{};
+
+    if(m_systemCallWrapper->fstatfs(fd, &stat_buf) < 0)
+    {
+        return false;
+    }
+
+    if (stat_buf.f_type == 0xff534d42 || // CIFS_MAGIC_NUMBER
+        stat_buf.f_type == 0x65735546 || // FUSE_SUPER_MAGIC
+        stat_buf.f_type == 0x564c || // NCP_SUPER_MAGIC
+        stat_buf.f_type == 0x6969 || // NFS_SUPER_MAGIC
+        stat_buf.f_type == 0x517b || // SMB_SUPER_MAGIC
+        stat_buf.f_type == 0xfe534d42 || // SMB2_MAGIC_NUMBER
+        stat_buf.f_type == 0x73757245 || // CODA_SUPER_MAGIC
+        stat_buf.f_type == 0x5346414f || // AFS_SUPER_MAGIC
+        stat_buf.f_type == 0x01021997 || // V9FS_MAGIC
+        stat_buf.f_type == 0x794c7630) // OVERLAYFS_SUPER_MAGIC
+    {
+        return false;
+    }
+
+    return true;
 }

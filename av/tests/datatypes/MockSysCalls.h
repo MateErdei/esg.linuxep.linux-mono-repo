@@ -1,4 +1,4 @@
-//Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -27,6 +27,7 @@ namespace
         MOCK_METHOD((std::pair<const int, const long>), getSystemUpTime, ());
         MOCK_METHOD(int, _ioctl, (int __fd, unsigned long int __request, char* buffer));
         MOCK_METHOD(int, _statfs, (const char *__file, struct ::statfs *__buf));
+        MOCK_METHOD(int, fstatfs, (int fd, struct ::statfs *__buf));
         MOCK_METHOD(int, _stat, (const char *__file, struct ::stat *__buf));
         MOCK_METHOD(int, _open, (const char *__file, int __oflag, mode_t mode));
         MOCK_METHOD(int, pselect, (int __nfds,
@@ -62,6 +63,7 @@ namespace
     };
 }
 
+ACTION_P(fstatfsReturnsType, f_type) { arg1->f_type = f_type; return 0; }
 ACTION_P2(pollReturnsWithRevents, index, revents) { arg0[index].revents = revents; return 1; }
 ACTION_P(readReturnsStruct, data) { *static_cast<data_type *>(arg1) = data; return sizeof(data); }
 ACTION_P(readlinkReturnPath, path) { strncpy(arg1, path, arg2); return strnlen(arg1, arg2 - 1) + 1; }

@@ -1,10 +1,11 @@
-//Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include "ClientSocketWrapper.h"
 
 #include "scan_messages/ClientScanRequest.h"
+#include "mount_monitor/mountinfo/IDeviceUtil.h"
 #include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 
@@ -20,6 +21,7 @@ namespace sophos_on_access_process::onaccessimpl
             ScanRequestQueueSharedPtr scanRequestQueue,
             IScanningClientSocketSharedPtr socket,
             fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
+            mount_monitor::mountinfo::IDeviceUtilSharedPtr deviceUtil,
             int handlerId=1,
             bool dumpPerfData=false
             );
@@ -34,6 +36,7 @@ namespace sophos_on_access_process::onaccessimpl
         IScanningClientSocketSharedPtr m_socket;
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
         std::unique_ptr<ClientSocketWrapper> m_socketWrapper;
+        mount_monitor::mountinfo::IDeviceUtilSharedPtr  m_deviceUtil;
         int m_handlerId;
         bool m_dumpPerfData;
     };

@@ -7,8 +7,14 @@ add_library(onaccessimpl SHARED
         ScanRequestQueue.cpp
         ScanRequestQueue.h)
 
-target_link_libraries(onaccessimpl  PUBLIC
-        unixsocket
+target_link_libraries(onaccessimpl PUBLIC
+        scanmessages
+        mountinfoimpl
+        )
+
+target_include_directories(onaccessimpl PUBLIC
+        ${pluginapiinclude}
+        ${CMAKE_SOURCE_DIR}/modules
         )
 
 install(TARGETS onaccessimpl

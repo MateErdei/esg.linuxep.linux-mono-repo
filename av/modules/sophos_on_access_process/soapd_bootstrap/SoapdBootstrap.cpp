@@ -131,6 +131,9 @@ void SoapdBootstrap::innerRun()
                                                                  "eventReader",
                                                                  false);
 
+    m_deviceUtil = std::make_shared<mount_monitor::mountinfoimpl::DeviceUtil>(sysCallWrapper);
+
+
     fs::path socketPath = common::getPluginInstallPath() / "var/soapd_controller";
     LOGDEBUG("Control Server Socket is at: " << socketPath);
     auto processControlCallbacks = std::make_shared<sophos_on_access_process::OnAccessConfig::OnAccessProcessControlCallback>(*this);
@@ -313,7 +316,7 @@ void SoapdBootstrap::enableOnAccess(bool changed)
 
         auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
         auto scanHandler = std::make_shared<ScanRequestHandler>(
-            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, threadCount, m_dumpPerfData);
+            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, m_deviceUtil, threadCount, m_dumpPerfData);
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }

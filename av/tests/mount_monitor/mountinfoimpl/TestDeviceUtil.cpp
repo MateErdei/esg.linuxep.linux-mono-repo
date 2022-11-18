@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "mount_monitor/mountinfoimpl/DeviceUtil.h"
 #include "datatypes/SystemCallWrapperFactory.h"
@@ -17,13 +13,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 using namespace datatypes;
 using namespace mount_monitor::mountinfoimpl;
 
-
 using ::testing::Return;
 using ::testing::SetArgPointee;
 using ::testing::SetArgReferee;
 using ::testing::StrictMock;
 using ::testing::DoAll;
-using ::testing::_;
+using ::testing::_; // NOLINT
 
 enum deviceType
 {
@@ -52,24 +47,24 @@ public:
         m_deviceUtil = std::make_shared<DeviceUtil>(m_systemCallWrapperFactory);
     }
 
-    std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_systemCallWrapper;
-    std::shared_ptr<StrictMock<MockSystemCallWrapperFactory>> m_systemCallWrapperFactory;
+    std::shared_ptr<MockSystemCallWrapper> m_systemCallWrapper;
+    std::shared_ptr<MockSystemCallWrapperFactory> m_systemCallWrapperFactory;
     std::shared_ptr<DeviceUtil> m_deviceUtil;
 };
 
-TEST_F(TestDeviceUtil, TestIsNetwork_UnknownType) // NOLINT
+TEST_F(TestDeviceUtil, TestIsNetwork_UnknownType)
 {
     EXPECT_TRUE(m_deviceUtil->isNetwork("1.2.3.4:/networkshare", "/mnt/bar", "unknown"));
     EXPECT_FALSE(m_deviceUtil->isNetwork("../dev/foo", "/mnt/bar", "unknown"));
     EXPECT_FALSE(m_deviceUtil->isNetwork("/dev/foo", "/mnt/bar", "unknown"));
 }
 
-TEST_F(TestDeviceUtil, TestIsSystem_UnknownType) // NOLINT
+TEST_F(TestDeviceUtil, TestIsSystem_UnknownType)
 {
     EXPECT_FALSE(m_deviceUtil->isSystem("/dev/foo", "/mnt/bar", "unknown"));
 }
 
-TEST_F(TestDeviceUtil, TestIsFloppy_FloppyExistsAndHasHardware) // NOLINT
+TEST_F(TestDeviceUtil, TestIsFloppy_FloppyExistsAndHasHardware)
 {
     std::string devicePath = "/dev/sdb";
     int fileDescriptor = 123;
@@ -81,7 +76,7 @@ TEST_F(TestDeviceUtil, TestIsFloppy_FloppyExistsAndHasHardware) // NOLINT
     EXPECT_TRUE(m_deviceUtil->isFloppy(devicePath, "/mnt/floppy", ""));
 }
 
-TEST_F(TestDeviceUtil, TestIsFloppy_FloppyDoesNotExist) // NOLINT
+TEST_F(TestDeviceUtil, TestIsFloppy_FloppyDoesNotExist)
 {
     std::string devicePath = "/dev/sdb";
     int fileDescriptor = -1;
@@ -91,7 +86,7 @@ TEST_F(TestDeviceUtil, TestIsFloppy_FloppyDoesNotExist) // NOLINT
     EXPECT_FALSE(m_deviceUtil->isFloppy(devicePath, "/mnt/floppy", ""));
 }
 
-TEST_F(TestDeviceUtil, TestIsFloppy_FloppyExistsButHardwareDoesNot) // NOLINT
+TEST_F(TestDeviceUtil, TestIsFloppy_FloppyExistsButHardwareDoesNot)
 {
     std::string devicePath = "/dev/sdb";
     int fileDescriptor = 123;
@@ -104,7 +99,7 @@ TEST_F(TestDeviceUtil, TestIsFloppy_FloppyExistsButHardwareDoesNot) // NOLINT
     EXPECT_TRUE(m_deviceUtil->isFloppy(devicePath, "/mnt/floppy", ""));
 }
 
-TEST_F(TestDeviceUtil, TestIsSystem_noTypeButSpecialMount) // NOLINT
+TEST_F(TestDeviceUtil, TestIsSystem_noTypeButSpecialMount)
 {
     std::shared_ptr<DeviceUtil> deviceUtil = std::make_shared<DeviceUtil>(std::make_shared<SystemCallWrapperFactory>());
     // Assumes all build machines will have /proc
@@ -129,7 +124,7 @@ public:
     std::shared_ptr<DeviceUtil> m_deviceUtil;
 };
 
-INSTANTIATE_TEST_SUITE_P(TestDeviceUtil, DeviceUtilParameterizedTest, ::testing::Values(
+auto deviceTypes = ::testing::Values(
     std::make_tuple("nfs", NETWORK),
     std::make_tuple("cifs", NETWORK),
     std::make_tuple("smbfs", NETWORK),
@@ -164,10 +159,45 @@ INSTANTIATE_TEST_SUITE_P(TestDeviceUtil, DeviceUtilParameterizedTest, ::testing:
     std::make_tuple("sockfs", SYSTEM),
     std::make_tuple("usbfs", SYSTEM),
     std::make_tuple("tracefs", SYSTEM),
-    std::make_tuple("fuse.lxcfs", SYSTEM)
-)); // NOLINT
+    std::make_tuple("fuse.lxcfs", SYSTEM),
+    std::make_tuple("ext4", FIXED),
+    std::make_tuple("btrfs", FIXED),
+    std::make_tuple("xfs", FIXED)
+    );
 
-TEST_P(DeviceUtilParameterizedTest, TestDeviceType) // NOLINT
+INSTANTIATE_TEST_SUITE_P(TestDeviceUtil, DeviceUtilParameterizedTest, deviceTypes);
+
+TEST_P(DeviceUtilParameterizedTest, TestIsNetwork)
+{
+    std::string devicePath = "/dev/foo";
+    std::string mountPoint = "/mnt/bar";
+    const std::string& filesystemType = std::get<0>(GetParam());
+    deviceType expectedDeviceType = std::get<1>(GetParam());
+
+    EXPECT_EQ(m_deviceUtil->isNetwork(devicePath, mountPoint, filesystemType), expectedDeviceType == NETWORK);
+}
+
+TEST_P(DeviceUtilParameterizedTest, TestIsSystem)
+{
+    std::string devicePath = "/dev/foo";
+    std::string mountPoint = "/mnt/bar";
+    const std::string& filesystemType = std::get<0>(GetParam());
+    deviceType expectedDeviceType = std::get<1>(GetParam());
+
+    EXPECT_EQ(m_deviceUtil->isSystem(devicePath, mountPoint, filesystemType), expectedDeviceType == SYSTEM);
+}
+
+TEST_P(DeviceUtilParameterizedTest, TestIsOptical)
+{
+    std::string devicePath = "/dev/foo";
+    std::string mountPoint = "/mnt/bar";
+    const std::string& filesystemType = std::get<0>(GetParam());
+    deviceType expectedDeviceType = std::get<1>(GetParam());
+
+    EXPECT_EQ(m_deviceUtil->isOptical(devicePath, mountPoint, filesystemType), expectedDeviceType == OPTICAL);
+}
+
+TEST_P(DeviceUtilParameterizedTest, TestIsRemovable)
 {
     std::string devicePath = "/dev/foo";
     std::string mountPoint = "/mnt/bar";
@@ -177,10 +207,23 @@ TEST_P(DeviceUtilParameterizedTest, TestDeviceType) // NOLINT
     int fileDescriptor = -1;
     EXPECT_CALL(*m_systemCallWrapper, _open(devicePath.c_str(), O_RDONLY | O_NONBLOCK, 0644)).WillOnce(Return(fileDescriptor));
 
-    EXPECT_EQ(m_deviceUtil->isNetwork(devicePath, mountPoint, filesystemType), expectedDeviceType == NETWORK);
-    EXPECT_EQ(m_deviceUtil->isSystem(devicePath, mountPoint, filesystemType), expectedDeviceType == SYSTEM);
-    EXPECT_EQ(m_deviceUtil->isOptical(devicePath, mountPoint, filesystemType), expectedDeviceType == OPTICAL);
     EXPECT_EQ(m_deviceUtil->isRemovable(devicePath, mountPoint, filesystemType), expectedDeviceType == OPTICAL);
+}
+
+TEST_P(DeviceUtilParameterizedTest, TestIsLocalFixed)
+{
+    std::string devicePath = "/dev/foo";
+    std::string mountPoint = "/mnt/bar";
+    const std::string& filesystemType = std::get<0>(GetParam());
+    deviceType expectedDeviceType = std::get<1>(GetParam());
+
+    int fileDescriptor = -1;
+    EXPECT_CALL(*m_systemCallWrapper, _open(devicePath.c_str(), O_RDONLY | O_NONBLOCK, 0644)).WillOnce(Return(fileDescriptor));
+
+    EXPECT_EQ(m_deviceUtil->isLocalFixed(devicePath, mountPoint, filesystemType),
+              expectedDeviceType != NETWORK
+                  && expectedDeviceType != SYSTEM
+                  && expectedDeviceType != OPTICAL);
 }
 
 class SpecialMountParameterizedTest
@@ -221,9 +264,9 @@ INSTANTIATE_TEST_SUITE_P(TestDeviceUtil, SpecialMountParameterizedTest, ::testin
     HUGETLBFS_MAGIC,
     0x1373, // devfs
     0x74726163 // TRACEFS_MAGIC
-)); // NOLINT
+));
 
-TEST_P(SpecialMountParameterizedTest, TestIsSystem_noTypeButSpecialMount) // NOLINT
+TEST_P(SpecialMountParameterizedTest, TestIsSystem_noTypeButSpecialMount)
 {
     std::string devicePath = "/dev/abc";
     std::string mountPoint = "/mnt/special";
@@ -234,4 +277,65 @@ TEST_P(SpecialMountParameterizedTest, TestIsSystem_noTypeButSpecialMount) // NOL
 
     EXPECT_TRUE(m_deviceUtil->isSystem(devicePath, mountPoint, "none"));
     EXPECT_TRUE(m_deviceUtil->isSystem(devicePath, mountPoint, ""));
+}
+
+
+TEST_F(TestDeviceUtil, TestIsCachableFstatFails)
+{
+    int fileDescriptor = 123;
+
+    EXPECT_CALL(*m_systemCallWrapper, fstatfs(fileDescriptor, _)).WillOnce(Return(-1));
+    EXPECT_FALSE(m_deviceUtil->isCachable(fileDescriptor));
+}
+
+
+class CachableFilesystems
+    : public SpecialMountParameterizedTest
+{
+};
+
+auto cachableTypes = ::testing::Values(
+    EXT4_SUPER_MAGIC,
+    EXT3_SUPER_MAGIC,
+    EXT2_SUPER_MAGIC,
+    BTRFS_SUPER_MAGIC,
+    TMPFS_MAGIC,
+    REISERFS_SUPER_MAGIC
+);
+
+INSTANTIATE_TEST_SUITE_P(TestDeviceUtil, CachableFilesystems, cachableTypes);
+
+TEST_P(CachableFilesystems, isCachableReturnsTrue)
+{
+    int fileDescriptor = 123;
+
+    EXPECT_CALL(*m_systemCallWrapper, fstatfs(fileDescriptor, _)).WillOnce(fstatfsReturnsType(GetParam()));
+    EXPECT_TRUE(m_deviceUtil->isCachable(fileDescriptor));
+
+}
+
+class uncachableFilesystems
+    : public SpecialMountParameterizedTest
+{
+};
+
+auto uncachableTypes = ::testing::Values(
+    NFS_SUPER_MAGIC,
+    SMB_SUPER_MAGIC,
+    NCP_SUPER_MAGIC,
+    CODA_SUPER_MAGIC,
+    AFS_SUPER_MAGIC,
+    V9FS_MAGIC,
+    OVERLAYFS_SUPER_MAGIC
+);
+
+INSTANTIATE_TEST_SUITE_P(TestDeviceUtil, uncachableFilesystems, uncachableTypes);
+
+TEST_P(uncachableFilesystems, isCachableReturnsFalse)
+{
+    int fileDescriptor = 123;
+
+    EXPECT_CALL(*m_systemCallWrapper, fstatfs(fileDescriptor, _)).WillOnce(fstatfsReturnsType(GetParam()));
+    EXPECT_FALSE(m_deviceUtil->isCachable(fileDescriptor));
+
 }

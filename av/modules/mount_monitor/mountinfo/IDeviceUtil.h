@@ -1,21 +1,17 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
-
-#include "datatypes/ISystemCallWrapperFactory.h"
-#include "datatypes/SystemCallWrapper.h"
-#include "mount_monitor/mountinfo/IDeviceUtil.h"
 
 #include <memory>
 #include <string>
 
-namespace mount_monitor::mountinfoimpl
+namespace mount_monitor::mountinfo
 {
-    class DeviceUtil : public mountinfo::IDeviceUtil
+    class IDeviceUtil
     {
     public:
-        explicit DeviceUtil(const datatypes::ISystemCallWrapperFactorySharedPtr& systemCallWrapperFactory);
-        explicit DeviceUtil(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
+        inline IDeviceUtil() = default;
+        inline virtual ~IDeviceUtil() = default;
 
         /**
          * Determine if the device specified is a floppy drive.
@@ -23,13 +19,13 @@ namespace mount_monitor::mountinfoimpl
          * @return True if the device is a floppy drive.
          *
          * @param devicePath
-         * @param mountPoint    Optional mount point of the device.
-         * @param filesystemType    Optional type of device's filesystem.
+         * @param mountPoint
+         * @param filesystemType
          */
-        bool isFloppy(
+        virtual bool isFloppy(
             const std::string& devicePath,
             const std::string& mountPoint,
-            const std::string& filesystemType) override;
+            const std::string& filesystemType) = 0;
 
         /**
          * Determine if the device specified is a local fixed (hard) drive.
@@ -37,13 +33,13 @@ namespace mount_monitor::mountinfoimpl
          * @return True if the device is a hard drive.
          *
          * @param devicePath
-         * @param mountPoint    Optional mount point of the device.
-         * @param filesystemType    Optional type of device's filesystem.
+         * @param mountPoint
+         * @param filesystemType
          */
-        bool isLocalFixed(
+        virtual bool isLocalFixed(
             const std::string& devicePath,
             const std::string& mountPoint,
-            const std::string& filesystemType) override;
+            const std::string& filesystemType) = 0;
 
         /**
          * Determine if the device is a network drive.
@@ -51,13 +47,13 @@ namespace mount_monitor::mountinfoimpl
          * @return True if the device is a network drive.
          *
          * @param devicePath
-         * @param mountPoint    Optional mount point of the device.
-         * @param filesystemType    Optional type of device's filesystem.
+         * @param mountPoint
+         * @param filesystemType
          */
-        bool isNetwork(
+        virtual bool isNetwork(
             const std::string& devicePath,
             const std::string& mountPoint,
-            const std::string& filesystemType) override;
+            const std::string& filesystemType) = 0;
 
         /**
          * Determine if the device specified is a CD/DVD to our best ability.
@@ -65,13 +61,13 @@ namespace mount_monitor::mountinfoimpl
          * @return True if the device is optical.
          *
          * @param devicePath
-         * @param mountPoint    Optional mount point of the device.
-         * @param filesystemType    Optional type of device's filesystem.
+         * @param mountPoint
+         * @param filesystemType
          */
-        bool isOptical(
+        virtual bool isOptical(
             const std::string& devicePath,
             const std::string& mountPoint,
-            const std::string& filesystemType) override;
+            const std::string& filesystemType) = 0;
 
         /**
          * Determine if the device specified is removable.
@@ -79,13 +75,13 @@ namespace mount_monitor::mountinfoimpl
          * @return True if the device is removable.
          *
          * @param devicePath
-         * @param mountPoint    Optional mount point of the device.
-         * @param filesystemType    Optional type of device's filesystem.
+         * @param mountPoint
+         * @param filesystemType
          */
-        bool isRemovable(
+        virtual bool isRemovable(
             const std::string& devicePath,
             const std::string& mountPoint,
-            const std::string& filesystemType) override;
+            const std::string& filesystemType) = 0;
 
         /**
          * Determine if the device specified is a system/pseudo filesystem.
@@ -93,13 +89,13 @@ namespace mount_monitor::mountinfoimpl
          * @return True if the device is a system filesystem.
          *
          * @param devicePath
-         * @param mountPoint    Optional mount point of the device.
-         * @param filesystemType    Optional type of device's filesystem.
+         * @param mountPoint
+         * @param filesystemType
          */
-        bool isSystem(
+        virtual bool isSystem(
             const std::string& devicePath,
             const std::string& mountPoint,
-            const std::string& filesystemType) override;
+            const std::string& filesystemType) = 0;
 
         /**
          * Determine if the file descriptor specified is on a filesystem that we can safely cache for
@@ -108,11 +104,9 @@ namespace mount_monitor::mountinfoimpl
          *
          * @param fd
          */
-         bool isCachable(int fd) override;
+        virtual bool isCachable(int fd) = 0;
 
-    private:
-        datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;
     };
 
-    using DeviceUtilSharedPtr = std::shared_ptr<DeviceUtil>;
+    using IDeviceUtilSharedPtr = std::shared_ptr<IDeviceUtil>;
 }

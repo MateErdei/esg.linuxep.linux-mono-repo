@@ -1,4 +1,4 @@
-//Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "ScanRequestHandler.h"
 
@@ -19,6 +19,7 @@
 #include <fstream>
 #include <sstream>
 #include <utility>
+
 #include <fcntl.h>
 
 namespace fs = sophos_filesystem;
@@ -28,11 +29,13 @@ ScanRequestHandler::ScanRequestHandler(
    ScanRequestQueueSharedPtr scanRequestQueue,
     IScanningClientSocketSharedPtr socket,
     fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
+    mount_monitor::mountinfo::IDeviceUtilSharedPtr deviceUtil,
     int handlerId,
     bool dumpPerfData)
     : m_scanRequestQueue(std::move(scanRequestQueue))
     , m_socket(std::move(socket))
     , m_fanotifyHandler(std::move(fanotifyHandler))
+    , m_deviceUtil(std::move(deviceUtil))
     , m_handlerId(handlerId)
     , m_dumpPerfData(dumpPerfData)
 {
@@ -74,15 +77,23 @@ void ScanRequestHandler::scan(
     auto scanType = scan_messages::getScanTypeAsStr(scanRequest->getScanType());
     if (detections.empty() && errorMsg.empty())
     {
-        // Clean file, ret either 0 or 1 errno is logged by m_fanotifyHandler->cacheFd
-        LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath())<< " (" << scanType << ")");
-        int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath(), false);
-        if (ret < 0)
+        if (m_deviceUtil->isCachable(scanRequest->getFd()))
         {
-            std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
-            LOGFATAL("Caching " << escapedPath << " failed. Restarting On Access");
-            std::exit(EXIT_FAILURE);
+            // Clean file, ret either 0 or 1 errno is logged by m_fanotifyHandler->cacheFd
+            LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()) << " (" << scanType << ")");
+            int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath(), false);
+            if (ret < 0)
+            {
+                std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
+                LOGFATAL("Caching " << escapedPath << " failed. Restarting On Access");
+                std::exit(EXIT_FAILURE);
+            }
         }
+        else
+        {
+            LOGDEBUG("Not caching " << common::escapePathForLogging(scanRequest->getPath()) << " (" << scanType << "), as it is on a mutable mount");
+        }
+
     }
     else
     {
