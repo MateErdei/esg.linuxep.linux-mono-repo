@@ -535,7 +535,7 @@ AV Plugin Saves SafeStore and Detections Databases On Downgrade
 
     Run plugin uninstaller with downgrade flag
     Check AV Plugin Not Installed
-    Wait Until File exists  ${COMPONENT_VAR_DIR}/persist-threatDatabase
+    Wait Until File exists  ${SAFESTORE_BACKUP_DIR}/persist-threatDatabase
     Verify SafeStore Database Backups Exist in Path    ${SAFESTORE_BACKUP_DIR}
 
 
