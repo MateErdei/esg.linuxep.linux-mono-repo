@@ -746,13 +746,15 @@ AV Plugin Restores Downgrade Logs
 
 AV Plugin Restores Downgrade SafeStore Databases
     Restart AV Plugin
-    Wait Until File exists    ${AV_PLUGIN_PATH}/var/persist-threatDatabase
+    Wait Until File exists    ${COMPONENT_VAR_DIR}/persist-threatDatabase
 
     Run plugin uninstaller with downgrade flag
     Directory Should Exist  ${SAFESTORE_BACKUP_DIR}
     Check AV Plugin Not Installed
     Install AV Directly from SDDS
 
+    # File will be removed so test it is put back
+    Wait Until File exists  ${COMPONENT_VAR_DIR}/persist-threatDatabase
     Verify SafeStore Database Backups Exist in Path    ${AV_RESTORED_VAR_DIRECTORY}
 
 AV Can not install from SDDS Component
