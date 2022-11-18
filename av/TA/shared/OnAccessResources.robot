@@ -109,6 +109,7 @@ Disable OA Scanning
 
     wait for on access log contains after mark  "oa_enabled":false   mark=${mark}
     wait for on access log contains after mark  Joining eventReader   mark=${mark}
+    wait for on access log contains after mark  Stopping the reading of Fanotify events   mark=${mark}
 
 
 Enable OA Scanning
