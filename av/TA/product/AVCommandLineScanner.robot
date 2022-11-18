@@ -1812,7 +1812,7 @@ Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/eicar_file
     Wait Until AV Plugin Log Contains Detection Event XML After Mark
     ...  mark=${av_mark}
-    ...  id=Te1b8af2bc4cb505
+    ...  id=5153bf93-e659-5d6f-9e3b-b4b9fc193dee
     ...  name=EICAR-AV-Test
     ...  threatType=1
     ...  origin=1
