@@ -769,7 +769,6 @@ AV Plugin Restores Older SafeStore Database On Upgrade
             Remove Directory    ${AV_RESTORED_VAR_DIRECTORY}/${dir}  recursive=True
             Remove Values From List    ${safeStoreDatabaseBackupDirs}    ${dir}
         END
-        ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
     END
 
     Install AV Directly from SDDS
@@ -822,7 +821,13 @@ Older SafeStore Database Is Not Restored When A SafeStore Database Is Already Pr
 
     Run plugin uninstaller with downgrade flag
     ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
-    Should Not Be Empty    ${safeStoreDatabaseBackupDirs}
+    ${numberOfSSDatabases}=    Get length    ${safeStoreDatabaseBackupDirs}
+    IF  ${1} < ${numberOfSSDatabases}
+        FOR   ${dir}  IN  @{safeStoreDatabaseBackupDirs}[1:]
+            Remove Directory    ${AV_RESTORED_VAR_DIRECTORY}/${dir}  recursive=True
+            Remove Values From List    ${safeStoreDatabaseBackupDirs}    ${dir}
+        END
+    END
 
     Move Directory    /tmp/safestore_db_copy    ${SAFESTORE_DB_DIR}
 
