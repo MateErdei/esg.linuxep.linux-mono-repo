@@ -347,17 +347,17 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
 
     Remove File  ${filepath}
 
-    ${enabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    ${disabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
+    ${enabledPolicyContent}=    Get File   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
+    ${disabledPolicyContent}=   Get File   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
 
     ${mark} =  get_on_access_log_mark
-    send av policy  ${SAV_APPID}  ${disabledPolicyContent}
+    send av policy  CORE  ${disabledPolicyContent}
     wait_for_on_access_log_contains_after_mark  On-access enabled: false  mark=${mark}
     wait_for_on_access_log_contains_after_mark  Joining eventReader  mark=${mark}
     Sleep   1s
 
     ${mark} =  get_on_access_log_mark
-    send av policy  ${SAV_APPID}  ${enabledPolicyContent}
+    send av policy  CORE  ${enabledPolicyContent}
     wait_for_on_access_log_contains_after_mark  On-access enabled: true  mark=${mark}
     wait_for_on_access_log_contains_after_mark  Starting eventReader  mark=${mark}
     Wait for on access to be enabled  ${mark}
@@ -371,22 +371,18 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
 
 On Access Process Handles Consecutive Process Control Requests
     ${mark} =  get_on_access_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    send av policy  FLAGS  ${policyContent}
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    send av policy  ${SAV_APPID}  ${policyContent}
+    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
     wait for on access log contains after mark  New on-access configuration: {"enabled":true  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
-    send av policy  ${SAV_APPID}  ${policyContent}
+    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
     wait for on access log contains after mark  New on-access configuration: {"enabled":false  mark=${mark}
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    send av policy  FLAGS  ${policyContent}
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
     wait for on access log contains after mark  Overriding policy, on-access will be disabled  mark=${mark}
     wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  mount points in on-access scanning  mark=${mark}  timeout=${5}
 
@@ -443,20 +439,17 @@ On Access Uses Policy Settings If Flags Dont Override Policy
 
 On Access Is Disabled After it Receives Disable Flags
     ${mark} =  get_on_access_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    send av policy  FLAGS  ${policyContent}
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
 
     wait for on access log contains after mark   No policy override, following policy settings  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    send av policy  ${SAV_APPID}  ${policyContent}
+    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
 
     wait for on access log contains after mark   New on-access configuration: {"enabled":true,"excludeRemoteFiles":false,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    send av policy  FLAGS  ${policyContent}
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
 
     wait for on access log contains after mark   Overriding policy, on-access will be disabled  mark=${mark}
     wait for on access log contains after mark   Stopping the reading of Fanotify events  mark=${mark}
@@ -466,14 +459,12 @@ On Access Is Disabled After it Receives Disable Flags
 
 On Access Does not Use Policy Settings If Flags Have Overriden Policy
     ${mark} =  get_on_access_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    send av policy  FLAGS  ${policyContent}
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
 
     wait for on access log contains after mark   Overriding policy, on-access will be disabled  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    send av policy  ${SAV_APPID}  ${policyContent}
+    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
 
     wait for on access log contains after mark    Overriding policy, on-access will be disabled  mark=${mark}
     On-access No Eicar Scan

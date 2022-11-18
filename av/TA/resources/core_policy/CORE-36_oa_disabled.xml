@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<policy RevID="{{revisionId}}" policyType="36">
+
+    <!-- Core Features -->
+    <coreFeatures>
+        <machineLearningEnabled>{{true|false}}</machineLearningEnabled>
+        <malwareDetectionEnabled>{{true|false}}</malwareDetectionEnabled>
+        <appControlEnabled>{{true|false}}</appControlEnabled>
+        <mlDetectionLevel>{{default|conservative}}</mlDetectionLevel>
+        <behaviouralEnabled>{{true|false}}</behaviouralEnabled>
+        <backgroundScanningEnabled>{{true|false}}</backgroundScanningEnabled>
+        <eventJournalsEnabled>{{true|false}}</eventJournalsEnabled>
+        <backgroundMemoryScanningEnabled>{{true|false}}</backgroundMemoryScanningEnabled>
+        <activeAdversaryMitigationEnabled>{{true|false}}</activeAdversaryMitigationEnabled>
+    </coreFeatures>
+
+    <!-- Linux (SSPL) Features -->
+    <linuxFeatures>
+        <linuxBehaviouralEnabled>{{true|false}}</linuxBehaviouralEnabled>
+    </linuxFeatures>
+
+    <!-- New EDR/RCA/FIM hashing exclusions -->
+    <journalHashing>
+        <exclusions>
+            <excludeRemoteFiles>{{true|false}}</excludeRemoteFiles>
+            <filePathSet>
+                <filePath>{{filePath1}}</filePath>
+                <filePath>{{filePath2}}</filePath>
+            </filePathSet>
+            <processPathSet>
+                <processPath>{{processPath1}}</processPath>
+                <processPath>{{processPath2}}</processPath>
+            </processPathSet>
+        </exclusions>
+    </journalHashing>
+
+    <!-- Block QUIC setting -->
+    <webBlockQuic>
+        <enabled>{{true|false}}</enabled>
+    </webBlockQuic>
+
+    <!-- Https decryption setting -->
+    <webHttpsDecrypt>
+        <enabled>{{true|false}}</enabled>
+    </webHttpsDecrypt>
+
+    <!-- From SAV policy -->
+    <onAccessScan>
+        <enabled>false</enabled>
+        <!-- START New (for finer control over on-access scans) -->
+        <onRead>true</onRead>
+        <onWrite>true</onWrite>
+        <onExec>true</onExec>
+        <!-- END New (for finer control over on-access scans) -->
+        <exclusions>
+            <excludeRemoteFiles>false</excludeRemoteFiles>
+            <filePathSet>
+                <filePath>/mnt/</filePath>
+                <filePath>/uk-filer5/</filePath>
+                <filePath>*excluded*</filePath>
+                <filePath>/opt/test/inputs/test_scripts/</filePath>
+            </filePathSet>
+            <processPathSet>
+                <processPath>{{processPath1}}</processPath>
+                <processPath>{{processPath2}}</processPath>
+                ...
+            </processPathSet>
+        </exclusions>
+    </onAccessScan>
+
+    <amsiProtection>
+        <enabled>{{true|false}}</enabled> <!--Whether Microsoft anti malware scanning interface capability is enabled-->
+        <blockOnDetect>{{true|false}}</blockOnDetect> <!--True to block execution when an AMSI detection occurs, false to run in monitor mode and allow execution to continue.-->
+        <exclusions>
+            <filePathSet>
+                <filePath>{{filePath1}}</filePath>
+                <filePath>{{filePath2}}</filePath>
+            </filePathSet>
+        </exclusions>
+    </amsiProtection>
+
+    <!-- From SED policy -->
+    <tamper-protection>
+        <enabled>{{tamperProtectionEnabled}}</enabled>
+        <ignore-sav>{{tamperProtectionIgnoreSav}}</ignore-sav>
+        <password>{{tamperProtectionPassword}}</password>
+    </tamper-protection>
+
+    <!-- From STAC policy -->
+    <rcaUploadEnabled>{{rcaUploadEnabled}}</rcaUploadEnabled>
+    <rcaUploadUri>{{rcaUploadUri}}</rcaUploadUri>
+    <rcaConfiguration>
+        <nodeLimit>{{nodeLimit}}</nodeLimit>
+        <artifactLimit>{{artifactLimit}}</artifactLimit>
+        <fileReadLimit>{{fileReadLimit}}</fileReadLimit>
+        <fileWriteLimit>{{fileWriteLimit}}</fileWriteLimit>
+        <fileRenameLimit>{{fileRenameLimit}}</fileRenameLimit>
+        <fileDeleteLimit>{{fileDeleteLimit}}</fileDeleteLimit>
+        <regKeyCreateLimit>{{regKeyCreateLimit}}</regKeyCreateLimit>
+        <regKeyDeleteLimit>{{regKeyDeleteLimit}}</regKeyDeleteLimit>
+        <regKeySetValueLimit>{{regKeySetValueLimit}}</regKeySetValueLimit>
+        <regKeyDeleteValueLimit>{{regKeyDeleteValueLimit}}</regKeyDeleteValueLimit>
+        <urlAccessLimit>{{urlAccessLimit}}</urlAccessLimit>
+        <dnsLookupLimit>{{dnsLookupLimit}}</dnsLookupLimit>
+        <ipConnectorLimit>{{ipConnectorLimit}}</ipConnectorLimit>
+    </rcaConfiguration>
+    <rcaUploadHeaders>
+        <header><name>{{headerName1}}</name><value>{{headerValue1}}</value></header>
+        <header><name>{{headerName2}}</name><value>{{headerValue2}}</value></header>
+        ...
+    </rcaUploadHeaders>
+
+    <snapshotUploadUri>{{snapshotUploadUri}}</snapshotUploadUri>
+    <snapshotUploadHeaders>
+        <header><name>{{headerName3}}</name><value>{{headerValue3}}</value></header>
+        <header><name>{{headerName4}}</name><value>{{headerValue4}}</value></header>
+        ...
+    </snapshotUploadHeaders>
+
+    <!-- Monitor Mode policy -->
+    <monitorMode>
+        <enabled>true</enabled>
+    </monitorMode>
+
+    <!-- Aggressive Activity Classification policy -->
+    <aggressiveActivityClassification>
+        <enabled>true</enabled>
+    </aggressiveActivityClassification>
+
+    <!-- Account Preferences Privacy options -->
+    <privacySettings>
+        <cixDataSharingEnabled>{{true|false}}</cixDataSharingEnabled> <!-- true when the toggle is ON -->
+    </privacySettings>
+
+</policy>
