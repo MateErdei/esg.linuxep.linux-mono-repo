@@ -57,8 +57,6 @@ SafeStore Can Reinitialise Database Containing Threats
     Stop SafeStore
     Check Safestore Not Running
 
-    File Should Not Exist  ${NORMAL_DIRECTORY}/eicar.com
-
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
 
     Start SafeStore

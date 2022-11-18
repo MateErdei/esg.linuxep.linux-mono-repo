@@ -1121,7 +1121,6 @@ Check avscanner can detect eicar in
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}    Detected "${EICAR_PATH}" is infected with EICAR-AV-Test
 
-
 Check avscanner can detect eicar
     [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
