@@ -360,24 +360,25 @@ On Access Scans File On NFSv2 no_root_squash
     [Tags]  NFS
     On Access Scans Files On NFS   version=2   share_opts=no_root_squash
 
+# LINUXDAR-6014 - re-enable tests once samba/CIFS test reliability is fixed.
 On Access Scans Files on Samba v1-0
     [Tags]  cifs   disabled
     On Access Scans Files on Samba   vers=1.0
 
 On Access Scans Files on Samba v2-0
-    [Tags]  cifs
+    [Tags]  cifs   disabled
     On Access Scans Files on Samba   vers=2.0
 
 On Access Scans Files on Samba v2-1
-    [Tags]  cifs
+    [Tags]  cifs   disabled
     On Access Scans Files on Samba   vers=2.1
 
 On Access Scans Files on Samba v3-0
-    [Tags]  cifs
+    [Tags]  cifs   disabled
     On Access Scans Files on Samba   vers=3.0
 
 On Access Scans Files on Samba v3-1-1
-    [Tags]  cifs
+    [Tags]  cifs   disabled
     On Access Scans Files on Samba   vers=3.1.1
 
 
