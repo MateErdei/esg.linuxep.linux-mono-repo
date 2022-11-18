@@ -958,3 +958,35 @@ TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorNotRecoverable)
         EXPECT_STREQ(e.what(), "Fatal Error. Restarting On Access: (23 Too many open files in system)");
     }
 }
+
+TEST_F(TestEventReaderThread, TestReaderIncrementsTelemetryOnEventDropped)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto metadata = getMetaData();
+    const char* filePath = "/tmp/test";
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .WillRepeatedly(readReturnsStruct(metadata));
+
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .WillRepeatedly(readlinkReturnPath(filePath));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
+        .WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+
+    auto eventReader = createEventReaderSmallQueue();
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+
+    auto telemetry = m_telemetryUtility->getTelemetry();
+    EXPECT_EQ(telemetry.m_percentageEventsDropped, 50.0f);
+}
