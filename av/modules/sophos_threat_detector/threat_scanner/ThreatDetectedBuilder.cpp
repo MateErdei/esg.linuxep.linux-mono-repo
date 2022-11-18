@@ -77,7 +77,7 @@ namespace threat_scanner
                  path,
                  scan_messages::E_SMT_THREAT_ACTION_NONE,
                  detection.sha256,
-                 generateThreatId(detection.path, detection.name),
+                 generateThreatId(detection.path, detection.sha256),
                  false, // AV plugin will set this to correct value
                  getReportSource(detection.name),
                  std::move(autoFd) };

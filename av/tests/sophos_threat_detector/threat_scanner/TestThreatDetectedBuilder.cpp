@@ -11,21 +11,21 @@ using namespace common::CentralEnums;
 
 namespace
 {
-    class TestReportableDetectionBuilder : public MemoryAppenderUsingTests
+    class TestThreatDetectedBuilder : public MemoryAppenderUsingTests
     {
     public:
-        TestReportableDetectionBuilder() : MemoryAppenderUsingTests("ThreatScanner") {}
+        TestThreatDetectedBuilder() : MemoryAppenderUsingTests("ThreatScanner") {}
     };
 } // namespace
 
-TEST_F(TestReportableDetectionBuilder, getMainDetectionOneDetectionPathMatches_ReturnsExistingDetection)
+TEST_F(TestThreatDetectedBuilder, getMainDetectionOneDetectionPathMatches_ReturnsExistingDetection)
 {
     const Detection detection1{ "/tmp/eicar.txt", "name", "type", "sha256" };
     Detection result = getMainDetection({ detection1 }, "/tmp/eicar.txt", -1);
     EXPECT_EQ(result, detection1);
 }
 
-TEST_F(TestReportableDetectionBuilder, getMainDetectionMultipleDetectionsOnePathMatches_ReturnsMatchingDetection)
+TEST_F(TestThreatDetectedBuilder, getMainDetectionMultipleDetectionsOnePathMatches_ReturnsMatchingDetection)
 {
     const Detection detection1{ "path1", "name1", "type1", "sha256_1" };
     const Detection detection2{ "path2", "name2", "type2", "sha256_2" };
@@ -34,7 +34,7 @@ TEST_F(TestReportableDetectionBuilder, getMainDetectionMultipleDetectionsOnePath
     EXPECT_EQ(result, detection2);
 }
 
-TEST_F(TestReportableDetectionBuilder, getMainDetectionOneDetectionButPathIsShorter_ReturnsNewDetectionWithOriginalPath)
+TEST_F(TestThreatDetectedBuilder, getMainDetectionOneDetectionButPathIsShorter_ReturnsNewDetectionWithOriginalPath)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -50,7 +50,7 @@ TEST_F(TestReportableDetectionBuilder, getMainDetectionOneDetectionButPathIsShor
     EXPECT_FALSE(appenderContains("Failed to calculate the SHA256"));
 }
 
-TEST_F(TestReportableDetectionBuilder, getMainDetectionOneDetectionButPathIsLonger_ReturnsNewDetectionWithOriginalPath)
+TEST_F(TestThreatDetectedBuilder, getMainDetectionOneDetectionButPathIsLonger_ReturnsNewDetectionWithOriginalPath)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -67,7 +67,7 @@ TEST_F(TestReportableDetectionBuilder, getMainDetectionOneDetectionButPathIsLong
 }
 
 TEST_F(
-    TestReportableDetectionBuilder,
+    TestThreatDetectedBuilder,
     getMainDetectionOneDetectionButPathDiffersAndSha256Fails_ReturnsNewDetectionWithUnknownSha256)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -84,7 +84,7 @@ TEST_F(
     EXPECT_TRUE(appenderContains("Failed to calculate the SHA256 of /tmp/eicar.txt: message"));
 }
 
-TEST_F(TestReportableDetectionBuilder, getMainDetectionNoDetections_ReturnsDummyData)
+TEST_F(TestThreatDetectedBuilder, getMainDetectionNoDetections_ReturnsDummyData)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -96,7 +96,7 @@ TEST_F(TestReportableDetectionBuilder, getMainDetectionNoDetections_ReturnsDummy
     EXPECT_FALSE(appenderContains("Failed to calculate the SHA256"));
 }
 
-TEST_F(TestReportableDetectionBuilder, buildThreatDetectedBuildsCorrectObject)
+TEST_F(TestThreatDetectedBuilder, buildThreatDetectedBuildsCorrectObject)
 {
     auto threatDetected = buildThreatDetected(
         { { "/tmp/eicar.txt", "EICAR-AV-Test", "virus", "sha256" } },
@@ -113,7 +113,7 @@ TEST_F(TestReportableDetectionBuilder, buildThreatDetectedBuildsCorrectObject)
     EXPECT_EQ(threatDetected.filePath, "/tmp/eicar.txt");
     EXPECT_EQ(threatDetected.actionCode, scan_messages::E_SMT_THREAT_ACTION_NONE);
     EXPECT_EQ(threatDetected.sha256, "sha256");
-    EXPECT_EQ(threatDetected.threatId, "T793fa6e77475789");
+    EXPECT_EQ(threatDetected.threatId, "1a209c63-54e9-5080-8078-e283df4a0809");
     EXPECT_EQ(threatDetected.isRemote, false);
     EXPECT_EQ(threatDetected.reportSource, ReportSource::vdl);
 }

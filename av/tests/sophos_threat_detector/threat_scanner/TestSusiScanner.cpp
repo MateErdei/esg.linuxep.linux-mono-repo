@@ -54,7 +54,7 @@ namespace
             EXPECT_EQ(threatDetected.filePath, path);
             EXPECT_EQ(threatDetected.actionCode, scan_messages::E_SMT_THREAT_ACTION_NONE);
             EXPECT_EQ(threatDetected.sha256, sha256);
-            EXPECT_EQ(threatDetected.threatId, generateThreatId(path, threatName));
+            EXPECT_EQ(threatDetected.threatId, generateThreatId(path, sha256));
             EXPECT_EQ(threatDetected.isRemote, false);
             EXPECT_EQ(threatDetected.reportSource, threat_scanner::getReportSource(threatName));
         }
