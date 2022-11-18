@@ -355,9 +355,9 @@ TEST_F(TestMountMonitor, TestMonitorLogsTelemetryFileSystemType)
 
 TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryIsPersistant)
 {
-    std::map<std::string, bool> input {
-        {"squashfs", true},
-        {"tmpfs", true}
+    std::set<std::string> input {
+        "squashfs",
+        "tmpfs"
     };
     const std::string expectedFileSystemStr = "{\"file-system-types\":[\"squashfs\",\"tmpfs\"]}";
 
@@ -373,14 +373,14 @@ TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryIsPersistant)
 
 TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryCanBeChangedAndNotDuplicated)
 {
-    std::map<std::string, bool> input1 {
-        {"squashfs", true},
-        {"tmpfs", true}
+    std::set<std::string> input1 {
+        "squashfs",
+        "tmpfs"
     };
 
-    std::map<std::string, bool> input2 {
-        {"cifs", true},
-        {"ext4", true}
+    std::set<std::string> input2 {
+        "cifs",
+        "ext4"
     };
 
     const std::string expectedFileSystemStr1 = "{\"file-system-types\":[\"squashfs\",\"tmpfs\"]}";
@@ -425,10 +425,10 @@ TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryDoesntIncludeSpecialMP)
     ASSERT_EQ(secondContent, expectedFileSystemStr);
 }
 
-TEST_F(TestMountMonitor, TestFileSystemMapIsLimitedTo100Entries)
+TEST_F(TestMountMonitor, TestfileSystemSetIsLimitedTo100Entries)
 {
     std::string templateStr = "filesystem";
-    std::map<std::string, bool> input;
+    std::set<std::string> input;
 
     for (uint it=0; it<=(telemetryFileSystemListMax + 10); it++)
     {
@@ -445,9 +445,8 @@ TEST_F(TestMountMonitor, TestFileSystemMapIsLimitedTo100Entries)
 TEST_F(TestMountMonitor, TestFileSystemTelemetryCanHandleLongFileSystemNames)
 {
     std::string longFileSystemName = "iamareallylongfilesystemtypewhoneedstobetestedintelemetry";
-    std::map<std::string, bool> input {
-        {longFileSystemName
-          , true}
+    std::set<std::string> input {
+        longFileSystemName
     };
 
     const std::string expectedFileSystemStr = "{\"file-system-types\":[\"" + longFileSystemName+ "\"]}";
@@ -462,9 +461,8 @@ TEST_F(TestMountMonitor, TestFileSystemTelemetryCanHandleLongFileSystemNames)
 TEST_F(TestMountMonitor, TestFileSystemTelemetryCanHandleNonAlphaNumericCharacters)
 {
     std::string nonAlphaNumericCharacters = "\\\"#@><./?!£$%^&*(){{}}~:;`¬-_=+1234567890";
-    std::map<std::string, bool> input {
-        {nonAlphaNumericCharacters
-          , true}
+    std::set<std::string> input {
+        nonAlphaNumericCharacters
     };
     PRINT(nonAlphaNumericCharacters);
 

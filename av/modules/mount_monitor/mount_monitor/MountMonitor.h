@@ -14,12 +14,12 @@
 #include "common/AbstractThreadPluginInterface.h"
 #include "common/Exclusion.h"
 
-#include <map>
+#include <set>
 
 namespace fanotifyhandler = sophos_on_access_process::fanotifyhandler;
 using namespace sophos_on_access_process::OnAccessConfig;
 
-const ulong telemetryFileSystemListMax = 100;
+const int telemetryFileSystemListMax = 100;
 
 namespace mount_monitor::mount_monitor
 {
@@ -43,7 +43,7 @@ namespace mount_monitor::mount_monitor
 
     TEST_PUBLIC:
         void markMounts(const mountinfo::IMountPointSharedVector& mounts);
-        void addFileSystemToTelemetry(std::map<std::string, bool>& fileSystemList);
+        void addFileSystemToTelemetry(std::set<std::string>& fileSystemList);
 
     private:
         OnAccessConfiguration& m_config;
@@ -51,5 +51,5 @@ namespace mount_monitor::mount_monitor
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
         const struct timespec m_pollTimeout;
 
-            };
+    };
 }

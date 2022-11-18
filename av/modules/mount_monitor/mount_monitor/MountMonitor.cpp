@@ -114,7 +114,7 @@ namespace mount_monitor::mount_monitor
     void MountMonitor::markMounts(const mountinfo::IMountPointSharedVector& allMounts)
     {
         //The bool is superfluous, we want unique list of keys
-        std::map<std::string, bool> fileSystemMap;
+        std::set<std::string> fileSystemSet;
         int count = 0;
         for (const auto& mount: allMounts)
         {
@@ -137,7 +137,7 @@ namespace mount_monitor::mount_monitor
                 }
                 count++;
                 LOGDEBUG("Including mount point: " << mountPointStr);
-                fileSystemMap.try_emplace(mount->filesystemType(), true);
+                fileSystemSet.emplace(mount->filesystemType());
             }
             else
             {
@@ -145,14 +145,18 @@ namespace mount_monitor::mount_monitor
                 LOGTRACE("Excluding mount point: " << mountPointStr);
             }
         }
-        addFileSystemToTelemetry(fileSystemMap);
+        addFileSystemToTelemetry(fileSystemSet);
         LOGDEBUG("Including " << count << " mount points in on-access scanning");
     }
 
-    void MountMonitor::addFileSystemToTelemetry(std::map<std::string, bool>& fileSystemList)
+    void MountMonitor::addFileSystemToTelemetry(std::set<std::string>& fileSystemList)
     {
         //We do all this instead of addValueToSetInternal because we want it to stick
-        assert(fileSystemList.size() > 0);
+        if (fileSystemList.size() == 0)
+        {
+            //We would have fail to mark errors in the log
+            return;
+        }
 
         if (fileSystemList.size() > telemetryFileSystemListMax)
         {
@@ -167,7 +171,7 @@ namespace mount_monitor::mount_monitor
 
         for (auto fileSystem : fileSystemList)
         {
-            TelemetryValue fsVal(fileSystem.first);
+            TelemetryValue fsVal(fileSystem);
             TelemetryObject fsObj;
             fsObj.set(fsVal);
             fsTelemetryList.push_back(fsObj);
