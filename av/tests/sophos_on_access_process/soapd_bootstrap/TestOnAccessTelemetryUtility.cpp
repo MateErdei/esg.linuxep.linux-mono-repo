@@ -109,3 +109,35 @@ TEST_F(TestOnAccessTelemetryUtility, AllZeros)
     ASSERT_EQ(result.m_percentageEventsDropped, expectedEventsDroppedPer);
     ASSERT_EQ(result.m_percentageScanErrors, expectedScanErrorsPer);
 }
+
+TEST_F(TestOnAccessTelemetryUtility, HandlesPercentageCalculation)
+{
+    const float expectedEventsDroppedPer = 50.0f;
+    const float expectedScanErrorsPer = 50.0f;
+
+    populateTelemetryUtility(5, 10, 5, 10);
+
+    auto result1 = m_TelemetryUtility.getTelemetry();
+
+    EXPECT_EQ(result1.m_percentageEventsDropped, expectedEventsDroppedPer);
+    EXPECT_EQ(result1.m_percentageScanErrors, expectedScanErrorsPer);
+}
+
+
+TEST_F(TestOnAccessTelemetryUtility, ResetsAfterGetTelemetry)
+{
+    const float expectedEventsDroppedPer = 50.0f;
+    const float expectedScanErrorsPer = 50.0f;
+
+    populateTelemetryUtility(5, 10, 5, 10);
+
+    auto result1 = m_TelemetryUtility.getTelemetry();
+
+    EXPECT_EQ(result1.m_percentageEventsDropped, expectedEventsDroppedPer);
+    EXPECT_EQ(result1.m_percentageScanErrors, expectedScanErrorsPer);
+
+    ASSERT_EQ(m_TelemetryUtility.m_eventsReceived.load(), 0);
+    ASSERT_EQ(m_TelemetryUtility.m_eventsDropped.load(), 0);
+    ASSERT_EQ(m_TelemetryUtility.m_scansRequested.load(), 0);
+    ASSERT_EQ(m_TelemetryUtility.m_scanErrors.load(), 0);
+}
