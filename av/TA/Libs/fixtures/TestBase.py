@@ -12,9 +12,11 @@ try:
 except ImportError:
     import Paths
 
+
 def file_content(path):
     with open(path, 'r') as f:
         return f.read()
+
 
 class TestBase(object):
     def get_log(self):

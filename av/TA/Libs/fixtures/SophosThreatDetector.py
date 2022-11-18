@@ -16,6 +16,7 @@ import logging
 logger = logging.getLogger("SophosThreatDetector")
 logger.setLevel(logging.DEBUG)
 
+
 class SophosThreatDetector(TestBase.TestBase):
     def __init__(self):
         super().__init__()
