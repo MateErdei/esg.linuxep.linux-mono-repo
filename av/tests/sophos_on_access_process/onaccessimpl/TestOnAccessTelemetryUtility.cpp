@@ -2,21 +2,19 @@
 
 # define TEST_PUBLIC public
 
-#include "sophos_on_access_process/soapd_bootstrap/OnAccessTelemetryUtility.h"
+#include "OnAccessImplMemoryAppenderUsingTests.h"
 
-#include "common/MemoryAppender.h"
+#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
 
 #include <gtest/gtest.h>
 
-using namespace sophos_on_access_process::OnAccessTelemetry;
+using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
 using namespace testing;
 
 
-class TestOnAccessTelemetryUtility : public MemoryAppenderUsingTests
+class TestOnAccessTelemetryUtility : public OnAccessImplMemoryAppenderUsingTests
 {
 protected:
-    TestOnAccessTelemetryUtility() : MemoryAppenderUsingTests("soapd_bootstrap") {}
-
     OnAccessTelemetryUtility m_TelemetryUtility;
 
     void populateTelemetryUtility(uint64_t eventsDropped, uint64_t eventsTotal, uint64_t scanError, uint64_t scanTotal)

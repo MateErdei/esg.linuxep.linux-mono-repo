@@ -3,12 +3,12 @@
 #pragma once
 
 #include "OnAccessConfigurationUtils.h"
-#include "OnAccessTelemetryUtility.h"
 
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "mount_monitor/mountinfoimpl/DeviceUtil.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
+#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 
 #include "common/ThreadRunner.h"
@@ -69,6 +69,6 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         Common::ZMQWrapperApi::IContextSharedPtr m_onAccessContext = Common::ZMQWrapperApi::createContext();
         std::unique_ptr<Common::PluginApiImpl::PluginCallBackHandler> m_pluginHandler = nullptr;
-        std::shared_ptr<sophos_on_access_process::OnAccessTelemetry::OnAccessTelemetryUtility> m_TelemetryUtility = nullptr;
+        std::shared_ptr<onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtility> m_TelemetryUtility = nullptr;
     };
 }

@@ -6,7 +6,7 @@
 #include <cassert>
 
 
-using namespace sophos_on_access_process::OnAccessTelemetry;
+using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
 
 OnAccessTelemetryUtility::OnAccessTelemetryUtility()
 {

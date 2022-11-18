@@ -33,7 +33,7 @@ EventReaderThread::EventReaderThread(
     datatypes::ISystemCallWrapperSharedPtr sysCalls,
     const fs::path& pluginInstall,
     onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue,
-    onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility)
+    onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility)
     : m_fanotify(std::move(fanotify))
     , m_sysCalls(std::move(sysCalls))
     , m_pluginLogDir(pluginInstall / "log")

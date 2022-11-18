@@ -11,7 +11,7 @@
 #include <atomic>
 #include <memory>
 
-namespace sophos_on_access_process::OnAccessTelemetry
+namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry
 {
     class OnAccessTelemetryUtility
     {

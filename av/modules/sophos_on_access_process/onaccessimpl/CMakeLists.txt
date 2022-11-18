@@ -4,17 +4,15 @@ add_library(onaccessimpl SHARED
         ClientSocketWrapper.h
         Logger.cpp
         Logger.h
+        OnAccessTelemetryUtility.cpp
+        OnAccessTelemetryUtility.h
+        ScanRequestHandler.cpp
+        ScanRequestHandler.h
         ScanRequestQueue.cpp
         ScanRequestQueue.h)
 
-target_link_libraries(onaccessimpl PUBLIC
-        scanmessages
-        mountinfoimpl
-        )
-
-target_include_directories(onaccessimpl PUBLIC
-        ${pluginapiinclude}
-        ${CMAKE_SOURCE_DIR}/modules
+target_link_libraries(onaccessimpl  PUBLIC
+        unixsocket
         )
 
 install(TARGETS onaccessimpl

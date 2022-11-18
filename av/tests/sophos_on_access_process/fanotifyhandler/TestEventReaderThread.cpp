@@ -18,7 +18,7 @@
 using namespace ::testing;
 using namespace sophos_on_access_process::fanotifyhandler;
 using namespace sophos_on_access_process::onaccessimpl;
-using namespace sophos_on_access_process::OnAccessTelemetry;
+using namespace onaccessimpl::onaccesstelemetry;
 
 namespace
 {

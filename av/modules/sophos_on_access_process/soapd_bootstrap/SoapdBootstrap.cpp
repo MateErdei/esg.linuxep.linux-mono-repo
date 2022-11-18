@@ -85,7 +85,7 @@ void SoapdBootstrap::initialiseTelemetry()
         Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM);
 
     m_pluginHandler->start();
-    m_TelemetryUtility = std::make_shared<OnAccessTelemetry::OnAccessTelemetryUtility>();
+    m_TelemetryUtility = std::make_shared<onaccesstelemetry::OnAccessTelemetryUtility>();
 }
 
 void SoapdBootstrap::innerRun()
