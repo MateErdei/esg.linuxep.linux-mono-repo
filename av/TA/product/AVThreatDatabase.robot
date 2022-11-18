@@ -26,12 +26,12 @@ Threat is added to Threat database when threat is not quarantined
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat: 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef to database   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat: 3dde3022-2acd-5674-8815-f62b4b9a37ae to database   ${avmark}
     Stop AV
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  File Log Contains  ${THREAT_DATABASE_PATH}  265a4b8a-239b-5f7e-8e4b-c78748cbd7ef
+    ...  File Log Contains  ${THREAT_DATABASE_PATH}  3dde3022-2acd-5674-8815-f62b4b9a37ae
     ${avmark} =  get_av_log_mark
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
@@ -42,18 +42,18 @@ Threat is added to Threat database when threat is not quarantined
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  File Log Contains  ${THREAT_DATABASE_PATH}  265a4b8a-239b-5f7e-8e4b-c78748cbd7ef
+    ...  File Log Contains  ${THREAT_DATABASE_PATH}  3dde3022-2acd-5674-8815-f62b4b9a37ae
 
 Threat is removed from Threat database when marked as resolved in central
     Start AV
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat: 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef to database   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat: 3dde3022-2acd-5674-8815-f62b4b9a37ae to database   ${avmark}
 
     ## Only interested in removals after we send the action
     ${avmark} =  get_av_log_mark
-    ${actionContent} =  Set Variable  <action type="sophos.core.threat.sav.clear"><item id="265a4b8a-239b-5f7e-8e4b-c78748cbd7ef"/></action>
+    ${actionContent} =  Set Variable  <action type="sophos.core.threat.sav.clear"><item id="3dde3022-2acd-5674-8815-f62b4b9a37ae"/></action>
     Send Plugin Action  av  sav  corr123  ${actionContent}
     wait_for_av_log_contains_after_mark   Removed threat from database   ${avmark}
     wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
@@ -64,7 +64,7 @@ Threat database is cleared when we get a core reset action from central
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat: 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef to database   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat: 3dde3022-2acd-5674-8815-f62b4b9a37ae to database   ${avmark}
     ${actionContent} =  Set Variable  <action type="sophos.core.threat.reset"/>
     Send Plugin Action  av  core  corr123  ${actionContent}
     wait_for_av_log_contains_after_mark   Resetting threat database due to core reset action   ${avmark}
@@ -78,7 +78,7 @@ Threat is removed from Threat database when threat is quarantined
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat: 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef to database   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat: 3dde3022-2acd-5674-8815-f62b4b9a37ae to database   ${avmark}
     ${avmark} =  get_av_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
@@ -86,7 +86,7 @@ Threat is removed from Threat database when threat is quarantined
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
     wait_for_av_log_contains_after_mark  Quarantine succeeded  ${avmark}
-    wait_for_av_log_contains_after_mark   Removed threat id 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef from database   ${avmark}
+    wait_for_av_log_contains_after_mark   Removed threat id 3dde3022-2acd-5674-8815-f62b4b9a37ae from database   ${avmark}
     wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
     Stop AV
