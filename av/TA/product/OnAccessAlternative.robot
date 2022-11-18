@@ -93,6 +93,15 @@ Configure on access log to trace level
     wait for on access log contains after mark  Logger soapd configured for level: TRACE  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
+Send Complete Policies
+    [Arguments]  ${exclusions}
+
+    ${policyContent} =  Get Complete Sav Policy  ${exclusions}  True
+    send av policy  SAV  ${policyContent}
+    ${policyContent} =  Get Complete Core Policy  ${exclusions}  True
+    send av policy  CORE  ${policyContent}
+
+
 *** Test Cases ***
 
 On Access Log Rotates
@@ -112,9 +121,9 @@ On Access Log Rotates
     Verify on access log rotated
 
 On Access Process Parses Policy Config
-    wait for on access log contains after mark  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
-    wait for on access log contains after mark  On-access enabled: "true"  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
-    wait for on access log contains after mark  On-access scan network: "true"  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
+    wait for on access log contains after mark  New on-access configuration: {"enabled":true,"excludeRemoteFiles":false,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
+    wait for on access log contains after mark  On-access enabled: true  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
+    wait for on access log contains after mark  On-access scan network: true  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
     wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
 
 On Access Process Parses Flags Config On startup
@@ -141,15 +150,13 @@ On Access Does Not Include Remote Files If Excluded In Policy
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
+    send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_policy_excludeRemoteFiles.xml
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
-
-    wait for on access log contains after mark  New on-access configuration: {"enabled":"true","excludeRemoteFiles":"true","exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
-    wait for on access log contains after mark  On-access enabled: "true"  mark=${mark}
-    wait for on access log contains after mark  On-access scan network: "false"  mark=${mark}
+    wait for on access log contains after mark  New on-access configuration: {"enabled":true,"excludeRemoteFiles":true,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
+    wait for on access log contains after mark  On-access enabled: true  mark=${mark}
+    wait for on access log contains after mark  On-access scan network: false  mark=${mark}
     wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${mark}
     wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
     check_on_access_log_does_not_contain_after_mark  Including mount point: /testmnt/nfsshare  mark=${mark}
@@ -174,10 +181,12 @@ On Access Applies Config Changes When The Mounts Change
     wait for on access log contains after mark  On-close event for ${filepath} from Process  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
-    wait for on access log contains after mark  On-access enabled: "true"  mark=${mark}
-    wait for on access log contains after mark  On-access scan network: "false"  mark=${mark}
+
+    send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/SAV-2_policy_excludeRemoteFiles.xml
+    send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_policy_excludeRemoteFiles.xml
+
+    wait for on access log contains after mark  On-access enabled: true  mark=${mark}
+    wait for on access log contains after mark  On-access scan network: false  mark=${mark}
     wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
     check_on_access_log_contains_after_mark  Mount point /testmnt/nfsshare has been excluded from scanning  mark=${mark}
@@ -191,11 +200,11 @@ On Access Applies Config Changes When The Mounts Change
     check_on_access_log_does_not_contain_after_mark  On-close event for ${filepath2} from Process  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
 
-    wait for on access log contains after mark  On-access enabled: "true"  mark=${mark}
-    wait for on access log contains after mark  On-access scan network: "true"  mark=${mark}
+    wait for on access log contains after mark  On-access enabled: true  mark=${mark}
+    wait for on access log contains after mark  On-access scan network: true  mark=${mark}
     wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
     check_on_access_log_contains_after_mark  Including mount point: /testmnt/nfsshare  mark=${mark}
@@ -212,8 +221,7 @@ On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Poli
     ${mark} =  get_on_access_log_mark
     ${filepath1} =  Set Variable  /tmp_test/eicar.com
     ${filepath2} =  Set Variable  /tmp_test/eicar2.com
-    ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/"]  True
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    Send Complete Policies  ["/tmp_test/"]
     wait for on access log contains after mark  On-access exclusions: ["/tmp_test/"]  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions with: ["/tmp_test/"]  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
@@ -223,8 +231,7 @@ On Access Does Not Scan Files If They Match Absolute Directory Exclusion In Poli
     Register Cleanup  Remove File  ${filepath1}
     check_on_access_log_does_not_contain_after_mark  On-close event for ${filepath1} from  mark=${mark}
 
-    ${policyContent} =  Get Complete Sav Policy  []  True
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    Send Complete Policies  []
     wait for on access log contains after mark  On-access exclusions: []  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
 
@@ -237,8 +244,7 @@ On Access Does Not Scan Files If They Match Relative Directory Exclusion In Poli
     Configure on access log to trace level
 
     ${mark} =  get_on_access_log_mark
-    ${policyContent} =  Get Complete Sav Policy  ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  True
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    Send Complete Policies    ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]
     wait for on access log contains after mark  On-access exclusions: ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions with: ["/testdir/folder_without_wildcard/"] ["*/dir/su*ir/*"] ["*/do*er/*"]  mark=${mark}
     ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_without_wildcard
@@ -277,8 +283,7 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
 
     ${mark} =  get_on_access_log_mark
     ${exclusionList} =  Set Variable  ["eicar","${TEST_DIR}/eicar.???","${TEST_DIR}/hi_i_am_dangerous.*","${TEST_DIR}/*.js"]
-    ${policyContent} =  Get Complete Sav Policy  ${exclusionList}  True
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    Send Complete Policies    ${exclusionList}
     wait for on access log contains after mark  On-access exclusions: ${exclusionList}  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions with: ["/eicar"] ["/tmp_test/globExclDir/eicar.???"] ["/tmp_test/globExclDir/hi_i_am_dangerous.*"] ["/tmp_test/globExclDir/*.js"]  mark=${mark}
 
@@ -312,8 +317,7 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
 
 On Access Does Not Monitor A Mount Point If It Matches An Exclusion In Policy
     ${mark} =  get_on_access_log_mark
-    ${policyContent} =  Get Complete Sav Policy  ["/"]  True
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    Send Complete Policies    ["/"]
     wait for on access log contains after mark  On-access exclusions: ["/"]  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
     wait for on access log contains after mark  Mount point / matches an exclusion in the policy and will be excluded from scanning  mark=${mark}
@@ -331,8 +335,7 @@ On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In
     Register Cleanup  Unmount Test Mount  ${destination}
 
     ${mark} =  get_on_access_log_mark
-    ${policyContent} =  Get Complete Sav Policy  ["/tmp_test/bind_mount"]  True
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    Send Complete Policies    ["/tmp_test/bind_mount"]
     wait for on access log contains after mark  On-access exclusions: ["/tmp_test/bind_mount"]  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
     wait for on access log contains after mark  Mount point /tmp_test/bind_mount matches an exclusion in the policy and will be excluded from scanning  mark=${mark}
@@ -348,14 +351,14 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
     ${disabledPolicyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
 
     ${mark} =  get_on_access_log_mark
-    Send Plugin Policy  av  ${SAV_APPID}  ${disabledPolicyContent}
-    wait_for_on_access_log_contains_after_mark  On-access enabled: "false"  mark=${mark}
+    send av policy  ${SAV_APPID}  ${disabledPolicyContent}
+    wait_for_on_access_log_contains_after_mark  On-access enabled: false  mark=${mark}
     wait_for_on_access_log_contains_after_mark  Joining eventReader  mark=${mark}
     Sleep   1s
 
     ${mark} =  get_on_access_log_mark
-    Send Plugin Policy  av  ${SAV_APPID}  ${enabledPolicyContent}
-    wait_for_on_access_log_contains_after_mark  On-access enabled: "true"  mark=${mark}
+    send av policy  ${SAV_APPID}  ${enabledPolicyContent}
+    wait_for_on_access_log_contains_after_mark  On-access enabled: true  mark=${mark}
     wait_for_on_access_log_contains_after_mark  Starting eventReader  mark=${mark}
     Wait for on access to be enabled  ${mark}
 
@@ -369,21 +372,21 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
 On Access Process Handles Consecutive Process Control Requests
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    send av policy  FLAGS  ${policyContent}
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
-    wait for on access log contains after mark  New on-access configuration: {"enabled":"true"  mark=${mark}
+    send av policy  ${SAV_APPID}  ${policyContent}
+    wait for on access log contains after mark  New on-access configuration: {"enabled":true  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
-    wait for on access log contains after mark  New on-access configuration: {"enabled":"false"  mark=${mark}
+    wait for on access log contains after mark  New on-access configuration: {"enabled":false  mark=${mark}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    send av policy  FLAGS  ${policyContent}
     wait for on access log contains after mark  Overriding policy, on-access will be disabled  mark=${mark}
     wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  mount points in on-access scanning  mark=${mark}  timeout=${5}
 
@@ -391,14 +394,14 @@ On Access Process Handles Consecutive Process Control Requests
 
 On Access Process Handles Fast Process Control Requests Last Flag is OA Enabled
     ${enabledFlags}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
-    Send Plugin Policy  av  FLAGS  ${enabledFlags}
+    send av policy  FLAGS  ${enabledFlags}
 
     ${enabledPolicy}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  ${SAV_APPID}  ${enabledPolicy}
+    send av policy  ${SAV_APPID}  ${enabledPolicy}
 
     ${mark} =  get_on_access_log_mark
     ${disabledFlags}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    Send Plugin Policy  av  FLAGS  ${disabledFlags}
+    send av policy  FLAGS  ${disabledFlags}
     #need to ensure that the disable flag has been read by soapd,
     #the avp process can ovewrite the flag config before soapd gets a change to read it.
     #this is fine because soapd will always read the latest flag settings as we get a notification after the a config is written
@@ -406,9 +409,9 @@ On Access Process Handles Fast Process Control Requests Last Flag is OA Enabled
     wait for on access log contains after mark   New flag configuration: {"oa_enabled":false}    mark=${mark}  timeout=${2}
 
     ${mark} =  get_on_access_log_mark
-    Send Plugin Policy  av  FLAGS  ${enabledFlags}
+    send av policy  FLAGS  ${enabledFlags}
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
-    wait for on access log contains after mark  New on-access configuration: {"enabled":"true"  mark=${mark}
+    wait for on access log contains after mark  New on-access configuration: {"enabled":true  mark=${mark}
     wait for on access log contains after mark  Finished ProcessPolicy  mark=${mark}
     wait for on access log contains after mark  Setting poll timeout to  mark=${mark}
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
@@ -419,7 +422,7 @@ On Access Is Disabled By Default If No Flags Policy Arrives
     Disable OA Scanning
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
 
     On-access No Eicar Scan
 
@@ -427,13 +430,13 @@ On Access Is Disabled By Default If No Flags Policy Arrives
 On Access Uses Policy Settings If Flags Dont Override Policy
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
 
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    send av policy  FLAGS  ${policyContent}
 
     wait for on access log contains after mark   No policy override, following policy settings  mark=${mark}
-    wait for on access log contains after mark   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
+    wait for on access log contains after mark   New on-access configuration: {"enabled":true,"excludeRemoteFiles":false,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
 
     On-access Scan Eicar Close
 
@@ -441,19 +444,19 @@ On Access Uses Policy Settings If Flags Dont Override Policy
 On Access Is Disabled After it Receives Disable Flags
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    send av policy  FLAGS  ${policyContent}
 
     wait for on access log contains after mark   No policy override, following policy settings  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
 
-    wait for on access log contains after mark   New on-access configuration: {"enabled":"true","excludeRemoteFiles":"false","exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
+    wait for on access log contains after mark   New on-access configuration: {"enabled":true,"excludeRemoteFiles":false,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    send av policy  FLAGS  ${policyContent}
 
     wait for on access log contains after mark   Overriding policy, on-access will be disabled  mark=${mark}
     wait for on access log contains after mark   Stopping the reading of Fanotify events  mark=${mark}
@@ -464,13 +467,13 @@ On Access Is Disabled After it Receives Disable Flags
 On Access Does not Use Policy Settings If Flags Have Overriden Policy
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
+    send av policy  FLAGS  ${policyContent}
 
     wait for on access log contains after mark   Overriding policy, on-access will be disabled  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
+    send av policy  ${SAV_APPID}  ${policyContent}
 
     wait for on access log contains after mark    Overriding policy, on-access will be disabled  mark=${mark}
     On-access No Eicar Scan

@@ -37,6 +37,10 @@ class Agent(object):
         """
         self.m_policies[app_id] = content
 
+    def set_default_policy_from_file(self, app_id, path):
+        content = open(path).read()
+        return self.set_default_policy(app_id, content)
+
     def socket_path(self):
         return self.management_agent_socket_path
 
@@ -179,7 +183,21 @@ class Agent(object):
         self.logger.info("Sending reply to plugin: {}".format(message))
         self.send_message_over_agent_socket(message)
 
-    # def send_policy(self):
+    def get_requester(self):
+        return ManagementAgentPluginRequester.ManagementAgentPluginRequester(self.__m_plugin_name, self.logger)
+
+    def send_policy(self, app_id):
+        """
+        Send policies
+        :param app_id:
+        :return:
+        """
+        content = self.m_policies.get(app_id, None)
+        if content is None:
+            return
+
+        plugin = self.get_requester()
+        plugin.policy(app_id, content)
 
 
 def main():

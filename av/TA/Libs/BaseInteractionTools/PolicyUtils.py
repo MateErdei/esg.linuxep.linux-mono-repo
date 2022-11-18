@@ -12,6 +12,7 @@ RESOURCES_DIR = "/opt/test/inputs/test_scripts/resources"
 SAV_POLICY_FILENAME = "SAV_Policy_Template.xml"
 SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, SAV_POLICY_FILENAME)
 FIXED_SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, "sav_policy", "SAV_Policy_Fixed_Exclusions.xml")
+CORE_POLICY_TEMPLATE_PATH = os.path.join(RESOURCES_DIR, "core_policy", "CORE-36_template.xml")
 
 
 def create_sav_policy_with_scheduled_scan(filename, timestamp):
@@ -97,6 +98,17 @@ def get_complete_sav_policy(
     return sav_policy_builder.get_sav_policy()
 
 
+def get_complete_core_policy(
+        exclusion_list=["*.glob", "globExample?.txt", "/stemexample/*"],
+        on_access_enabled=False):
+    policy_builder = _SavPolicyBuilder(CORE_POLICY_TEMPLATE_PATH, None)
+    if on_access_enabled:
+        policy_builder.set_on_access_on()
+    policy_builder.set_posix_exclusions(exclusion_list)
+    policy_builder.add_replacement('{{excludeRemoteFiles}}', 'false')
+    return policy_builder.get_sav_policy()
+
+
 def create_fixed_sav_policy(filename):
     sav_policy_builder = _SavPolicyBuilder(FIXED_SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day("monday")
@@ -134,6 +146,9 @@ class _SavPolicyBuilder:
             for key, value in self.replacement_map.items():
                 policy = policy.replace(key, value)
             return policy
+
+    def add_replacement(self, src, replacement):
+        self.replacement_map[src] = replacement
 
     def set_scheduled_scan_day(self, day):
         self.replacement_map["{{day}}"] = day

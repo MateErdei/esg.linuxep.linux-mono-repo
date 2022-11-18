@@ -231,11 +231,15 @@ class FakeManagement(object):
         self.agent.start()
 
     def __get_requester(self, plugin_name):
+        if self.agent is not None:
+            return self.agent.get_requester()
         return ManagementAgentPluginRequester.ManagementAgentPluginRequester(plugin_name, self.logger)
 
     def send_plugin_policy(self, plugin_name, app_id, content):
         plugin = self.__get_requester(plugin_name)
         plugin.policy(app_id, content)
+        if self.agent is not None:
+            self.agent.set_default_policy(app_id, content)
 
     def send_plugin_policy_from_file(self, plugin_name, app_id, path):
         content = open(path).read()
