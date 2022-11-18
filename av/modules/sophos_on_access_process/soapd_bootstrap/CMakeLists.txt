@@ -6,6 +6,8 @@ add_library(soapdbootstrap SHARED
         OnAccessProcesControlCallbacks.h
         OnAccessServiceCallback.cpp
         OnAccessServiceCallback.h
+        OnAccessTelemetryUtility.cpp
+        OnAccessTelemetryUtility.h
         Logger.cpp
         Logger.h
         SoapdBootstrap.cpp
