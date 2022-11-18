@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <memory>
 #include <optional>
 #include <string>
@@ -20,10 +21,9 @@
 namespace safestore::SafeStoreWrapper
 {
     // Handle the void* typedefs in safestore.h
-    // These resources are wrapped up in ObjectHandleHolder, SearchHandleHolder and the SafeStoreWrapperImpl.
+    // These resources are wrapped up in ObjectHandleHolder and the SafeStoreWrapperImpl.
     using SafeStoreContext = void*;
     using SafeStoreObjectHandle = void*;
-    using SafeStoreSearchHandle = void*;
     // ObjectId and ThreatId are UUID strings
     using ObjectId = std::string;
     using ThreatId = std::string;
@@ -101,47 +101,41 @@ namespace safestore::SafeStoreWrapper
         LAST = RESTORED
     };
 
-    enum class FilterField
-    {
-        THREAT_ID = 0x0001,
-        THREAT_NAME = 0x0002,
-        START_TIME = 0x0004,
-        END_TIME = 0x0008,
-        OBJECT_TYPE = 0x0010,
-        OBJECT_STATUS = 0x0020,
-        OBJECT_LOCATION = 0x0040,
-        OBJECT_NAME = 0x0080,
-    };
-
     // Contains information used to get filtered data from SafeStore.
+    // Options set to nullopt will not affect the results
     struct SafeStoreFilter
     {
-        // A combination of one or more SafeStore_FilterField_t flags.
-        std::vector<FilterField> activeFields;
-
         // Threat id the object was saved with.
-        std::string threatId;
+        std::optional<std::string> threatId;
 
         // Threat name the object was saved with.
-        std::string threatName;
+        std::optional<std::string> threatName;
 
         // Time interval in which objects were saved. UNIX timestamp in seconds.
-        int64_t startTime;
-        int64_t endTime;
+        // Both do not have to be specified if only one is relevant.
+        std::optional<int64_t> startTime;
+        std::optional<int64_t> endTime;
 
         // Type of the objects to consider.
-        ObjectType objectType = ObjectType::ANY;
+        std::optional<ObjectType> objectType;
 
         // Status of the objects to consider.
-        ObjectStatus objectStatus = ObjectStatus::ANY;
+        std::optional<ObjectStatus> objectStatus;
 
         // Location of the objects to consider.
         // For a file this is the full path of the directory containing the file.
-        std::string objectLocation;
+        std::optional<std::string> objectLocation;
 
         // Name of the objects to consider.
         // For a file this is the name of the file.
-        std::string objectName;
+        std::optional<std::string> objectName;
+
+        bool operator==(const SafeStoreFilter& other) const
+        {
+            return threatId == other.threatId && threatName == other.threatName && startTime == other.startTime &&
+                   endTime == other.endTime && objectType == other.objectType && objectStatus == other.objectStatus &&
+                   objectLocation == other.objectLocation && objectName == other.objectName;
+        }
     };
 
     class ISafeStoreHolder
@@ -165,11 +159,6 @@ namespace safestore::SafeStoreWrapper
          * Utility function to clean up an object handle
          */
         virtual void releaseObjectHandle(SafeStoreObjectHandle objectHandleHolder) = 0;
-
-        /*
-         * Utility function to clean up a search handle
-         */
-        virtual void releaseSearchHandle(SafeStoreSearchHandle searchHandleHolder) = 0;
     };
 
     class ISafeStoreGetIdMethods
@@ -191,13 +180,37 @@ namespace safestore::SafeStoreWrapper
             std::shared_ptr<ISafeStoreReleaseMethods> releaseMethods) :
             m_getIdMethods(std::move(getIdMethods)), m_safeStoreReleaseMethods(std::move(releaseMethods))
         {
+            assert(m_getIdMethods);
+            assert(m_safeStoreReleaseMethods);
         }
         ObjectHandleHolder(const ObjectHandleHolder&) = delete;
         ObjectHandleHolder& operator=(const ObjectHandleHolder&) = delete;
 
+        ObjectHandleHolder(ObjectHandleHolder&& other) noexcept :
+            m_handle(other.m_handle),
+            m_getIdMethods(std::move(other.m_getIdMethods)),
+            m_safeStoreReleaseMethods(std::move(other.m_safeStoreReleaseMethods))
+        {
+            other.m_handle = nullptr;
+        }
+        ObjectHandleHolder& operator=(ObjectHandleHolder&& other) noexcept
+        {
+            std::swap(m_handle, other.m_handle);
+            std::swap(m_getIdMethods, other.m_getIdMethods);
+            std::swap(m_safeStoreReleaseMethods, other.m_safeStoreReleaseMethods);
+            return *this;
+        }
+
         ~ObjectHandleHolder()
         {
-            m_safeStoreReleaseMethods->releaseObjectHandle(m_handle);
+            if (m_safeStoreReleaseMethods)
+            {
+                m_safeStoreReleaseMethods->releaseObjectHandle(m_handle);
+            }
+            else
+            {
+                assert(m_handle == nullptr);
+            }
         }
 
         [[nodiscard]] SafeStoreObjectHandle getRawHandle() const
@@ -222,164 +235,8 @@ namespace safestore::SafeStoreWrapper
 
     private:
         SafeStoreObjectHandle m_handle = nullptr;
-        std::shared_ptr<ISafeStoreGetIdMethods> m_getIdMethods;
-        std::shared_ptr<ISafeStoreReleaseMethods> m_safeStoreReleaseMethods;
-    };
-
-    class SearchHandleHolder
-    {
-    public:
-        explicit SearchHandleHolder(std::shared_ptr<ISafeStoreReleaseMethods> releaseMethods) :
-            m_safeStoreReleaseMethods(std::move(releaseMethods))
-        {
-        }
-        SearchHandleHolder(const SearchHandleHolder&) = delete;
-        SearchHandleHolder& operator=(const SearchHandleHolder&) = delete;
-
-        ~SearchHandleHolder()
-        {
-            m_safeStoreReleaseMethods->releaseSearchHandle(m_handle);
-        }
-
-        SafeStoreSearchHandle* getRawHandlePtr()
-        {
-            return &m_handle;
-        }
-
-        [[nodiscard]] SafeStoreSearchHandle getRawHandle() const
-        {
-            return m_handle;
-        }
-
-    private:
-        SafeStoreSearchHandle m_handle = nullptr;
-        std::shared_ptr<ISafeStoreReleaseMethods> m_safeStoreReleaseMethods;
-    };
-
-    class ISafeStoreSearchMethods
-    {
-    public:
-        virtual ~ISafeStoreSearchMethods() = default;
-
-        /*
-         * Find the first object in the SafeStore database that matches a filter.
-         * The search handle can then be used in findNext.
-         * The object handle will be set the result of the search.
-         * If no object is found then the raw handle within the holder is set to null by SafeStore.
-         */
-        virtual bool findFirst(
-            const SafeStoreFilter& filter,
-            SearchHandleHolder& searchHandle,
-            ObjectHandleHolder& objectHandle) = 0;
-
-        /*
-         * Find the next object that matches a search, here pass in the search handle used from a call to findFirst.
-         * The object handle will be set the result of the search.
-         * If no object is found then the raw handle within the holder is set to null by SafeStore.
-         */
-        virtual bool findNext(SearchHandleHolder& searchHandle, ObjectHandleHolder& objectHandle) = 0;
-    };
-
-    class SearchResults
-    {
-    public:
-        SearchResults(
-            std::shared_ptr<ISafeStoreReleaseMethods> releaseMethods,
-            std::shared_ptr<ISafeStoreSearchMethods> searchMethods,
-            std::shared_ptr<ISafeStoreGetIdMethods> getIdMethods,
-            SafeStoreFilter filter) :
-            m_releaseMethods(std::move(releaseMethods)),
-            m_searchMethods(std::move(searchMethods)),
-            m_getIdMethods(std::move(getIdMethods)),
-            m_filter(std::move(filter))
-        {
-        }
-
-        struct Iterator
-        {
-            using iterator_category = std::forward_iterator_tag;
-
-            explicit Iterator(
-                std::shared_ptr<ISafeStoreReleaseMethods> releaseMethods,
-                std::shared_ptr<ISafeStoreSearchMethods> searchMethods,
-                const std::shared_ptr<ISafeStoreGetIdMethods>& getIdMethods) :
-                m_releaseMethods(std::move(releaseMethods)),
-                m_searchMethods(std::move(searchMethods)),
-                m_objectHolder(std::make_shared<ObjectHandleHolder>(getIdMethods, m_releaseMethods)),
-                m_searchHolder(std::make_shared<SearchHandleHolder>(m_releaseMethods))
-            {
-                // Used for end(), don't set anything, the (ObjectHandleHolder)m_objectHolder.m_handle should be null.
-            }
-
-            Iterator(
-                std::shared_ptr<ISafeStoreReleaseMethods> releaseMethods,
-                std::shared_ptr<ISafeStoreSearchMethods> searchMethods,
-                const std::shared_ptr<ISafeStoreGetIdMethods>& getIdMethods,
-                const SafeStoreFilter& filter) :
-                m_releaseMethods(std::move(releaseMethods)),
-                m_searchMethods(std::move(searchMethods)),
-                m_objectHolder(std::make_shared<ObjectHandleHolder>(getIdMethods, m_releaseMethods)),
-                m_searchHolder(std::make_shared<SearchHandleHolder>(m_releaseMethods))
-            {
-                m_searchMethods->findFirst(filter, *m_searchHolder, *m_objectHolder);
-            }
-
-            ObjectHandleHolder& operator*() const
-            {
-                return *m_objectHolder;
-            }
-
-            ObjectHandleHolder* operator->() const
-            {
-                return m_objectHolder.get();
-            }
-
-            // Pre-increment ++i
-            Iterator& operator++()
-            {
-                m_searchMethods->findNext(*m_searchHolder, *m_objectHolder);
-                return *this;
-            }
-
-            // Post-increment i++
-            Iterator operator++(int)
-            {
-                Iterator tmp = *this;
-                ++(*this);
-                return tmp;
-            }
-
-            friend bool operator==(const Iterator& a, const Iterator& b)
-            {
-                return *a.m_objectHolder == *b.m_objectHolder;
-            }
-
-            friend bool operator!=(const Iterator& a, const Iterator& b)
-            {
-                return !(a == b);
-            }
-
-        private:
-            std::shared_ptr<ISafeStoreReleaseMethods> m_releaseMethods;
-            std::shared_ptr<ISafeStoreSearchMethods> m_searchMethods;
-            std::shared_ptr<ObjectHandleHolder> m_objectHolder;
-            std::shared_ptr<SearchHandleHolder> m_searchHolder;
-        };
-
-        [[nodiscard]] Iterator begin() const
-        {
-            return { m_releaseMethods, m_searchMethods, m_getIdMethods, m_filter };
-        }
-
-        [[nodiscard]] Iterator end() const
-        {
-            return Iterator(m_releaseMethods, m_searchMethods, m_getIdMethods);
-        }
-
-        std::shared_ptr<ISafeStoreReleaseMethods> m_releaseMethods;
-        std::shared_ptr<ISafeStoreSearchMethods> m_searchMethods;
-        std::shared_ptr<ISafeStoreGetIdMethods> m_getIdMethods;
-        SafeStoreFilter m_filter;
+        std::shared_ptr<ISafeStoreGetIdMethods> m_getIdMethods = nullptr;
+        std::shared_ptr<ISafeStoreReleaseMethods> m_safeStoreReleaseMethods = nullptr;
     };
 
     class ISafeStoreWrapper
@@ -392,12 +249,6 @@ namespace safestore::SafeStoreWrapper
          * clean up on destruction.
          */
         virtual std::unique_ptr<ObjectHandleHolder> createObjectHandleHolder() = 0;
-
-        /*
-         * Utility function to generate a SafeStore search handle, the handle needs a reference to this interface to
-         * clean up on destruction.
-         */
-        virtual std::unique_ptr<SearchHandleHolder> createSearchHandleHolder() = 0;
 
         /*
          * Initialise SafeStore and setup any resources needed.
@@ -431,10 +282,8 @@ namespace safestore::SafeStoreWrapper
 
         /*
          * Find objects in the SafeStore database based on a filter, returns an iterator to access the result objects.
-         * The filter must have options set and the active fields member of the filter
-         * must match the search criteria that have been set on the filter.
          */
-        virtual SearchResults find(const SafeStoreFilter& filter) = 0;
+        virtual std::vector<ObjectHandleHolder> find(const SafeStoreFilter& filter) = 0;
 
         /*
          * Return the name of an object in the SafeStore database.

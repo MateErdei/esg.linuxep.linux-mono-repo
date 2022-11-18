@@ -569,6 +569,38 @@ Sophos Threat Detector Scans Archive With Multiple Threats And Reports Successfu
     ...  sha256=${archive_sha}
     ...  path=${NORMAL_DIRECTORY}/test.tar
 
+
+Sophos Threat Detector Gives Different Threat Id Depending On Path And Sha And Is Reproducible
+    Create File  ${NORMAL_DIRECTORY}/eicar.com  ${EICAR_STRING}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar.com
+    wait_for_log_contains_from_mark  ${td_mark}  Threat ID: e52cf957-a0dc-5b12-bad2-561197a5cae4
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar.com
+    wait_for_log_contains_from_mark  ${td_mark}  Threat ID: e52cf957-a0dc-5b12-bad2-561197a5cae4
+    Remove File  ${NORMAL_DIRECTORY}/eicar.com
+
+    # Different path
+    Create File  ${NORMAL_DIRECTORY}/eicar2.com  ${EICAR_STRING}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar2.com
+    wait_for_log_contains_from_mark  ${td_mark}  Threat ID: 49f9af79-a8bc-5436-9d3a-404a461a976e
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar2.com
+    wait_for_log_contains_from_mark  ${td_mark}  Threat ID: 49f9af79-a8bc-5436-9d3a-404a461a976e
+    Remove File  ${NORMAL_DIRECTORY}/eicar2.com
+
+    # Different contents
+    Create File  ${NORMAL_DIRECTORY}/eicar.com  ${EICAR_STRING} foo
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar.com
+    wait_for_log_contains_from_mark  ${td_mark}  Threat ID: e692d7ef-4848-5e7d-b530-64a674a3ad0a
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar.com
+    wait_for_log_contains_from_mark  ${td_mark}  Threat ID: e692d7ef-4848-5e7d-b530-64a674a3ad0a
+    Remove File  ${NORMAL_DIRECTORY}/eicar.com
+
+
 *** Keywords ***
 Stop sophos_threat_detector and mark log
     Stop sophos_threat_detector

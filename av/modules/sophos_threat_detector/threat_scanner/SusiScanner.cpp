@@ -316,6 +316,8 @@ SusiScanner::scan(
             ReportSource::ml, // TODO LINUXDAR-5792: Set depending on SUSI report
             std::move(fd));
 
+        LOGDEBUG("Threat ID: " << threatDetected.threatId);
+
         assert(m_threatReporter);
         m_threatReporter->sendThreatReport(threatDetected);
     }

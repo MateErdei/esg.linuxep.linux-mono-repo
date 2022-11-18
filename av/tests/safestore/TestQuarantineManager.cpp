@@ -208,15 +208,31 @@ TEST_F(QuarantineManagerTests, quarantineFile)
 
     auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
     auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_));
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder())
-        .WillOnce(Return(ByMove(std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods))));
+    void* rawHandle1 = reinterpret_cast<SafeStoreObjectHandle>(1111);
+    auto objectHandle1 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
+    *objectHandle1->getRawHandlePtr() = rawHandle1;
+    auto handleAsArg1 = Property(&ObjectHandleHolder::getRawHandle, rawHandle1); // Matches argument with raw handle
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle1));
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, _))
+    void* rawHandle2 = reinterpret_cast<SafeStoreObjectHandle>(2222);
+    ObjectHandleHolder objectHandle2 { mockGetIdMethods, mockReleaseMethods };
+    *objectHandle2.getRawHandlePtr() = rawHandle2;
+    auto handleAsArg2 = Property(&ObjectHandleHolder::getRawHandle, rawHandle2); // Matches argument with raw handle
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle2));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle1))));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, handleAsArg1))
         .WillOnce(Return(SaveFileReturnCode::OK));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", m_SHA256)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(handleAsArg1, "SHA256", m_SHA256))
+        .WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(handleAsArg1)).WillOnce(Return(true));
+
+    std::vector<ObjectHandleHolder> searchResults;
+    searchResults.push_back(std::move(objectHandle2));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, find(SafeStoreFilter { m_threatID, {}, {}, {}, ObjectType::FILE, {}, {}, {} }))
+        .WillOnce(Return(ByMove(std::move(searchResults))));
 
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
@@ -422,6 +438,183 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     datatypes::AutoFd fdHolder;
     ASSERT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
+        quarantineManager->quarantineFile(
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+}
+
+TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWithSameThreatId)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+    addCommonPersistValueExpects(*filesystemMock);
+    EXPECT_CALL(*filesystemMock, removeFile("/tmp/av/var/safestore_dormant_flag", true)).WillOnce(Return()); // 1
+    EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
+    EXPECT_CALL(*filesystemMock, compareFileDescriptors(_, _)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/dir/file"));
+    EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
+    EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, _)).WillOnce(Return(120));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "a password"))
+        .WillOnce(Return(InitReturnCode::OK));
+
+    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
+    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
+
+    // Newly quarantined object
+    const std::string object1_id = "11111111-1111-1111-1111-111111111111";
+    // Handle 1
+    void* object1_1_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
+    auto object1_1_handle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
+    *object1_1_handle->getRawHandlePtr() = object1_1_rawHandle;
+    auto object1_1_handleArg = Property(&ObjectHandleHolder::getRawHandle, object1_1_rawHandle);
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object1_1_rawHandle));
+    // Handle 2
+    void* object1_2_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(2222);
+    ObjectHandleHolder object1_2_handle { mockGetIdMethods, mockReleaseMethods };
+    *object1_2_handle.getRawHandlePtr() = object1_2_rawHandle;
+    auto object1_2_handleArg = Property(&ObjectHandleHolder::getRawHandle, object1_2_rawHandle);
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object1_2_rawHandle));
+
+    // Previously quarantined objects
+    const std::string object2_id = "22222222-2222-2222-2222-222222222222";
+    void* object2_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(3333);
+    ObjectHandleHolder object2_handle { mockGetIdMethods, mockReleaseMethods };
+    *object2_handle.getRawHandlePtr() = object2_rawHandle;
+    auto object2_handleArg = Property(&ObjectHandleHolder::getRawHandle, object2_rawHandle);
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object2_rawHandle));
+
+    const std::string object3_id = "33333333-3333-3333-3333-333333333333";
+    void* object3_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(4444);
+    ObjectHandleHolder object3_handle { mockGetIdMethods, mockReleaseMethods };
+    *object3_handle.getRawHandlePtr() = object3_rawHandle;
+    auto object3_handleArg = Property(&ObjectHandleHolder::getRawHandle, object3_rawHandle);
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object3_rawHandle));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder())
+        .WillOnce(Return(ByMove(std::move(object1_1_handle))));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, object1_1_handleArg))
+        .WillOnce(Return(SaveFileReturnCode::OK));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "SHA256", m_SHA256))
+        .WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(object1_1_handleArg)).WillOnce(Return(true));
+
+    std::vector<ObjectHandleHolder> searchResults;
+    searchResults.push_back(std::move(object1_2_handle));
+    searchResults.push_back(std::move(object2_handle));
+    searchResults.push_back(std::move(object3_handle));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, find(SafeStoreFilter { m_threatID, {}, {}, {}, ObjectType::FILE, {}, {}, {} }))
+        .WillOnce(Return(ByMove(std::move(searchResults))));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(object1_1_handleArg)).WillOnce(Return(object1_id));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(object1_2_handleArg)).WillOnce(Return(object1_id));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(object2_handleArg)).WillOnce(Return(object2_id));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(object2_id)).WillOnce(Return(true));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(object3_handleArg)).WillOnce(Return(object3_id));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(object3_id)).WillOnce(Return(true));
+
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
+
+    EXPECT_NO_THROW(quarantineManager->initialise());
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
+    datatypes::AutoFd fdHolder;
+    ASSERT_EQ(
+        common::CentralEnums::QuarantineResult::SUCCESS,
+        quarantineManager->quarantineFile(
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+}
+
+TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObjectWithSameThreatId)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+    addCommonPersistValueExpects(*filesystemMock);
+    EXPECT_CALL(*filesystemMock, removeFile("/tmp/av/var/safestore_dormant_flag", true)).WillOnce(Return()); // 1
+    EXPECT_CALL(*filesystemMock, isFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/safestore_db/safestore.pw")).WillOnce(Return("a password"));
+    EXPECT_CALL(*filesystemMock, compareFileDescriptors(_, _)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/dir/file"));
+    EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
+    EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, _)).WillOnce(Return(120));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, initialise("/tmp/av/var/safestore_db", "safestore.db", "a password"))
+        .WillOnce(Return(InitReturnCode::OK));
+
+    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
+    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
+
+    // Newly quarantined object
+    const std::string object1_id = "11111111-1111-1111-1111-111111111111";
+    // Handle 1
+    void* object1_1_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
+    auto object1_1_handle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
+    *object1_1_handle->getRawHandlePtr() = object1_1_rawHandle;
+    auto object1_1_handleArg = Property(&ObjectHandleHolder::getRawHandle, object1_1_rawHandle);
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object1_1_rawHandle));
+    // Handle 2
+    void* object1_2_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(2222);
+    ObjectHandleHolder object1_2_handle { mockGetIdMethods, mockReleaseMethods };
+    *object1_2_handle.getRawHandlePtr() = object1_2_rawHandle;
+    auto object1_2_handleArg = Property(&ObjectHandleHolder::getRawHandle, object1_2_rawHandle);
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object1_2_rawHandle));
+
+    // Previously quarantined objects
+    const std::string object2_id = "22222222-2222-2222-2222-222222222222";
+    void* object2_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(3333);
+    ObjectHandleHolder object2_handle { mockGetIdMethods, mockReleaseMethods };
+    *object2_handle.getRawHandlePtr() = object2_rawHandle;
+    auto object2_handleArg = Property(&ObjectHandleHolder::getRawHandle, object2_rawHandle);
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object2_rawHandle));
+
+    const std::string object3_id = "33333333-3333-3333-3333-333333333333";
+    void* object3_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(4444);
+    ObjectHandleHolder object3_handle { mockGetIdMethods, mockReleaseMethods };
+    *object3_handle.getRawHandlePtr() = object3_rawHandle;
+    auto object3_handleArg = Property(&ObjectHandleHolder::getRawHandle, object3_rawHandle);
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object3_rawHandle));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder())
+        .WillOnce(Return(ByMove(std::move(object1_1_handle))));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, object1_1_handleArg))
+        .WillOnce(Return(SaveFileReturnCode::OK));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "SHA256", m_SHA256))
+        .WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(object1_1_handleArg)).WillOnce(Return(true));
+
+    std::vector<ObjectHandleHolder> searchResults;
+    searchResults.push_back(std::move(object1_2_handle));
+    searchResults.push_back(std::move(object2_handle));
+    searchResults.push_back(std::move(object3_handle));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, find(SafeStoreFilter { m_threatID, {}, {}, {}, ObjectType::FILE, {}, {}, {} }))
+        .WillOnce(Return(ByMove(std::move(searchResults))));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(object1_1_handleArg)).WillOnce(Return(object1_id));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(object1_2_handleArg)).WillOnce(Return(object1_id));
+
+    // This one fails to be deleted
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(object2_handleArg)).WillOnce(Return(object2_id));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(object2_id)).WillOnce(Return(false));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(object3_handleArg)).WillOnce(Return(object3_id));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(object3_id)).WillOnce(Return(true));
+
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
+
+    EXPECT_NO_THROW(quarantineManager->initialise());
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
+    datatypes::AutoFd fdHolder;
+    ASSERT_EQ(
+        common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 }

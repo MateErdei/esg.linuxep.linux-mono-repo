@@ -200,7 +200,8 @@ namespace safestore::QuarantineManager
         const std::string& sha256,
         datatypes::AutoFd autoFd)
     {
-        LOGINFO("Quarantining " << threatName << " in " << common::escapePathForLogging(filePath));
+        const std::string escapedPath = common::escapePathForLogging(filePath);
+        LOGINFO("Attempting to quarantine " << escapedPath << " with threat '" << threatName << "'");
 
         if (!Common::UtilityImpl::Uuid::IsValid(threatId))
         {
@@ -262,17 +263,44 @@ namespace safestore::QuarantineManager
             m_safeStore->setObjectCustomDataString(*objectHandle, "SHA256", sha256);
             LOGDEBUG("File SHA256: " << sha256);
 
-            LOGDEBUG("Finalising file: " << filename);
-            if (m_safeStore->finaliseObject(*objectHandle))
+            LOGDEBUG("Finalising file: " << escapedPath);
+            if (!m_safeStore->finaliseObject(*objectHandle))
             {
-                LOGDEBUG("Finalised file: " << filename);
-                return common::CentralEnums::QuarantineResult::SUCCESS;
-            }
-            else
-            {
-                LOGDEBUG("Failed to finalise file: " << filename);
+                LOGERROR("Failed to finalise file: " << escapedPath);
                 return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
             }
+            LOGDEBUG("Finalised file: " << escapedPath);
+
+            LOGINFO("Quarantined " << escapedPath << " successfully");
+
+            // Search through the database for any objects with the same threatId
+            SafeStoreWrapper::SafeStoreFilter filter;
+            filter.objectType = SafeStoreWrapper::ObjectType::FILE;
+            filter.threatId = threatId;
+
+            auto objects = m_safeStore->find(filter);
+            if (objects.size() > 1)
+            {
+                LOGINFO(escapedPath << " has been quarantined before; removing redundant copies from quarantine");
+
+                const auto newObjectId = m_safeStore->getObjectId(*objectHandle);
+
+                for (const auto& result : objects)
+                {
+                    const auto objectId = m_safeStore->getObjectId(result);
+                    if (objectId == newObjectId)
+                    {
+                        continue;
+                    }
+                    LOGDEBUG("Removing object with ID " << objectId);
+                    if (!m_safeStore->deleteObjectById(objectId))
+                    {
+                        LOGWARN("Failed to remove a redundant quarantined object with ID " << objectId);
+                    }
+                }
+            }
+
+            return common::CentralEnums::QuarantineResult::SUCCESS;
         }
         else
         {
