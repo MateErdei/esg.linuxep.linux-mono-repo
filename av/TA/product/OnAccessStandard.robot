@@ -363,8 +363,6 @@ On Access Caches Open Events Without Detections
 
 
 On Access Doesnt Cache Open Events With Detections
-    #TODO remove after LINUXDAR-5740 is finished
-    [Tags]  manual
     ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
 
