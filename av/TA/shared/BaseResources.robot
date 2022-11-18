@@ -60,6 +60,7 @@ Send Policies to enable on-access
     ${mark} =  get_on_access_log_mark
     Register Cleanup   Send Policies to disable on-access
     Send Flags Policy To Base  flags_policy/flags_onaccess_enabled.json
+    Send CORE Policy To Base  core_policy/CORE-36_oa_enabled.xml
     Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
     Wait for on access to be enabled  ${mark}
 
@@ -75,24 +76,35 @@ Send Policies to enable on-access with exclusions
 Send Policies to disable on-access
     ${mark} =  get_on_access_log_mark
     Send Sav Policy To Base  SAV-2_policy_OA_disabled.xml
+    Send CORE Policy To Base  core_policy/CORE-36_oa_disabled.xml
     wait for on access log contains after mark  Finished ProcessPolicy  mark=${mark}
     #TODO: LINUXDAR-5723 re-enable after ticket is fixed
     #Send Flags Policy To Base  flags_policy/flags.json
 
+Send Policy To Base
+    [Arguments]  ${policyFile}  ${destName}
+    Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/${destName}
+
+
+
 Send Sav Policy To Base
     [Arguments]  ${policyFile}
-    Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/SAV-2_policy.xml
+    Send Policy To Base  ${policyFile}  SAV-2_policy.xml
 
 Send Alc Policy
     Send Alc Policy To Base   ALC_Policy.xml
 
 Send Alc Policy To Base
     [Arguments]  ${policyFile}
-    Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/ALC-1_policy.xml
+    Send Policy To Base  ${policyFile}  ALC-1_policy.xml
 
 Send Flags Policy To Base
     [Arguments]  ${policyFile}
-    Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/flags.json
+    Send Policy To Base  ${policyFile}  flags.json
+
+Send CORE Policy To Base
+    [Arguments]  ${policyFile}
+    Send Policy To Base  ${policyFile}  CORE-36_policy.xml
 
 Send Flags Policy
     Send Flags Policy To Base   flags_policy/flags.json
