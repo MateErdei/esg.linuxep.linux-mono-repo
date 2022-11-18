@@ -470,11 +470,12 @@ AV Plugin Can Process SafeStore Flag Enabled
 
 AV Plugin Can Process SafeStore Flag Disabled
     Start Fake Management If Required
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
-    send av policy  FLAGS  ${policyContent}
-    Wait Until AV Plugin Log Contains With Offset
+    ${mark} =  get_av_log_mark
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
+    wait for av log contains after mark
     ...   SafeStore flag not set. Setting SafeStore to disabled.
     ...   timeout=60
+    ...   mark=${mark}
 
 
 *** Keywords ***
