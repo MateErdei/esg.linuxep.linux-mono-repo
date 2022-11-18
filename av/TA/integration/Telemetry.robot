@@ -187,3 +187,24 @@ On Access Provides Mount Info Telemetry
 
     ${mounts} =     get_from_dictionary   ${oaDict}   file-system-types
     Should Contain    ${mounts}    tmpfs
+
+
+On Access Provides Event Telemetry
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${mark} =  Get on access log mark
+
+    #This registers disable with cleanup
+    Send Policies to enable on-access
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${oaDict} =    Set Variable     ${telemetryJson['on_access_process']}
+
+    ${mounts} =     get_from_dictionary   ${oaDict}   Ratio-of-Dropped-Events
