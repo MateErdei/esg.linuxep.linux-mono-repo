@@ -108,7 +108,7 @@ TEST_F(TestPersistentValue, setStringPersistentValue) // NOLINT
     ASSERT_EQ(value.getValue(), "another value");
 }
 
-TEST_F(TestPersistentValue, filesystemExceptionsSafelyIgnored) // NOLINT
+TEST_F(TestPersistentValue, filesystemExceptionsOutputToStdErr) // NOLINT
 {
     std::string pathToVarDir = "var";
     std::string valueName = "aPersistedValue";
@@ -118,8 +118,13 @@ TEST_F(TestPersistentValue, filesystemExceptionsSafelyIgnored) // NOLINT
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
     EXPECT_CALL(*mockFileSystem, exists(path)).WillOnce(Throw(std::runtime_error("TEST")));
     EXPECT_CALL(*mockFileSystem, writeFile(path, defaultValue)).WillOnce(Throw(std::runtime_error("TEST")));
-    Common::PersistentValue<std::string> value(pathToVarDir,valueName, defaultValue);
-    ASSERT_EQ(value.getValue(), defaultValue);
+    testing::internal::CaptureStderr();
+    {
+        Common::PersistentValue<std::string> value(pathToVarDir, valueName, defaultValue);
+        ASSERT_EQ(value.getValue(), defaultValue);
+    }
+    std::string logMessage = internal::GetCapturedStderr();
+    ASSERT_THAT(logMessage, ::testing::HasSubstr("ERROR Failed to save value to var/persist-aPersistedValue with error TEST" ));
 }
 
 TEST_F(TestPersistentValue, testSetValueAndForceStoreWritesOnSetAndDestruction) // NOLINT

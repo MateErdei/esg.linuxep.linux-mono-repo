@@ -42,7 +42,7 @@ Sul Downloader Requests Fixed Version When Fixed Version In Policy
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
@@ -67,7 +67,7 @@ Sul Downloader Report error correctly when it cannot connect to sdds3
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
@@ -93,7 +93,7 @@ Sul Downloader Forces SDDS2 When Requested Fixed Version Is Unsupported In SDD3
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
@@ -116,7 +116,7 @@ Sul Downloader Uses Current Proxy File for SUS Requests
     Log File  ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     Override LogConf File as Global Level  DEBUG
@@ -160,7 +160,7 @@ Sul Downloader Installs SDDS3 Through Proxy
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
@@ -190,7 +190,7 @@ Sul Downloader Installs SDDS3 Through update cache
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
@@ -225,7 +225,7 @@ Sul Downloader falls back to direct when proxy and UC do not work
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
@@ -265,7 +265,7 @@ Sul Downloader sdds3 sync Does not retry on curl errors
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
@@ -291,7 +291,7 @@ SUS Fault Injection Server Hangs
     Log File    ${SDDS3_OVERRIDE_FILE}
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     Override LogConf File as Global Level  DEBUG
@@ -321,7 +321,7 @@ SUS Fault Injection Server Responds With Unauthorised
     Log File    ${SDDS3_OVERRIDE_FILE}
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     Override LogConf File as Global Level  DEBUG
@@ -351,7 +351,7 @@ SUS Fault Injection Server Responds With Not Found
     Log File    ${SDDS3_OVERRIDE_FILE}
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     Override LogConf File as Global Level  DEBUG
@@ -381,7 +381,7 @@ SUS Fault Injection Server Responds With Internal Server Error
     Log File    ${SDDS3_OVERRIDE_FILE}
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     Override LogConf File as Global Level  DEBUG
@@ -411,7 +411,7 @@ SUS Fault Injection Server Responds With Service Unavailable
     Log File    ${SDDS3_OVERRIDE_FILE}
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     Override LogConf File as Global Level  DEBUG
@@ -441,7 +441,7 @@ SUS Fault Injection Server Responds With Invalid JSON
     Log File    ${SDDS3_OVERRIDE_FILE}
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     Override LogConf File as Global Level  DEBUG
@@ -471,7 +471,7 @@ SUS Fault Injection Server Responds With Large JSON
     Log File    ${SDDS3_OVERRIDE_FILE}
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     Override LogConf File as Global Level  DEBUG
@@ -504,7 +504,7 @@ CDN Fault Injection Does Not Contain Location Given By SUS
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
@@ -533,7 +533,7 @@ CDN Fault Injection Server Responds With Unauthorised Error
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
@@ -561,7 +561,7 @@ CDN Fault Injection Server Responds With Not Found Error
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
@@ -589,7 +589,7 @@ CDN Fault Injection Server Responds With Generic Error
     # should be purged before SDDS3 sync
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
-    ...    5s
+    ...    10s
     ...    1s
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}

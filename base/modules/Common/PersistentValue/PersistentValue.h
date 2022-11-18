@@ -10,6 +10,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <sstream>
 #include <string>
+#include <iostream>
 
 namespace Common
 {
@@ -55,6 +56,7 @@ namespace Common
             catch (std::exception& exception)
             {
                 // Not a lot we can do if this happens
+                std::cerr << "ERROR Failed to save value to " << m_pathToFile << " with error " << exception.what();
             }
         }
 
