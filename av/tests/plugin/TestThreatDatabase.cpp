@@ -2,6 +2,7 @@
 
 #include <pluginimpl/ThreatDatabase.h>
 #include "tests/common/LogInitializedTests.h"
+#include <Common/FileSystem/IFileSystemException.h>
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
@@ -59,6 +60,19 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesMalformedJsonStringInFile)
 
     EXPECT_CALL(*filesystemMock, exists("/path/persist-threatDatabase")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("/path/persist-threatDatabase")).WillOnce(Return("{:stuf}"));
+    EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{}"));
+
+    EXPECT_NO_THROW(Plugin::ThreatDatabase("/path"));
+}
+
+TEST_F(TestThreatDatabase, initDatabaseHandlesPermissionError)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    EXPECT_CALL(*filesystemMock, exists("/path/persist-threatDatabase")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("/path/persist-threatDatabase")).WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
     EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{}"));
 
     EXPECT_NO_THROW(Plugin::ThreatDatabase("/path"));
@@ -278,4 +292,18 @@ TEST_F(TestThreatDatabase, resetHealth)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
     database.resetDatabase();
+}
+
+TEST_F(TestThreatDatabase, resetHealthHandlesFileError)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    EXPECT_CALL(*filesystemMock, exists("/path/persist-threatDatabase")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("/path/persist-threatDatabase")).WillOnce(Return("{\"threatid\":[\"threatid\",\"correlationID\"]}"));
+    EXPECT_CALL(*filesystemMock, writeFile("/path/persist-threatDatabase","{}")).WillOnce(Throw(Common::FileSystem::IFileSystemException("exception"))).WillOnce(Return());
+
+    Plugin::ThreatDatabase database = Plugin::ThreatDatabase("/path");
+    EXPECT_NO_THROW(database.resetDatabase());
 }

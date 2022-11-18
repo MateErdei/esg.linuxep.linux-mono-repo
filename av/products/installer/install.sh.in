@@ -242,6 +242,16 @@ function apply_permissions()
     chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
     chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
 
+    if [[ -f "${PLUGIN_INSTALL}/var/persist-threatDatabase" ]]
+    then
+        chmod 600 ${PLUGIN_INSTALL}/var/persist-threatDatabase
+    fi
+
+    local safestore_var="${PLUGIN_INSTALL}/var/safestore_db"
+    mkdir -p "$safestore_var"
+    chmod 0700 "${safestore_var}"
+    chown root:root "${safestore_var}"
+
     CHROOT="${PLUGIN_INSTALL}/chroot"
     CHROOT_LINK_DIR="${CHROOT}/${PLUGIN_INSTALL#/}"
     mkdir -p ${CHROOT_LINK_DIR}

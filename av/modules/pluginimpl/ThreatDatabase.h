@@ -1,5 +1,8 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 #include <Common/PersistentValue/PersistentValue.h>
+
+#include <common/LockableData.h>
+
 #include <map>
 #include <list>
 namespace Plugin
@@ -19,7 +22,7 @@ namespace Plugin
     private:
         void convertDatabaseToString();
         void convertStringToDatabase();
-        std::map<std::string,std::list<std::string>> m_database;
+        mutable common::LockableData<std::map<std::string,std::list<std::string>>> m_database;
         Common::PersistentValue<std::string> m_databaseInString;
     };
 }

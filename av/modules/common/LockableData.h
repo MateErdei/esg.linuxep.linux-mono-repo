@@ -34,6 +34,9 @@ namespace common
         auto operator->() const noexcept
         { return std::addressof(l->m_data); }
 
+        auto& operator*() noexcept
+        { return l->ref(); }
+
     private:
         std::unique_ptr<Lockable> l;
     };
@@ -42,7 +45,10 @@ namespace common
     struct LockableData
     {
         LockedData<LockableData> lock() { return LockedData(this); }
-
+        const Data& ref() const noexcept
+        {
+            return m_data;
+        }
     private:
         friend struct LockedData<LockableData>;
         friend struct std::default_delete<LockableData>;

@@ -2,6 +2,8 @@
 
 #include "ThreatDatabase.h"
 
+#include <Common/FileSystem/IFileSystemException.h>
+
 #include <thirdparty/nlohmann-json/json.hpp>
 #include <algorithm>
 #include "Logger.h"
@@ -20,8 +22,9 @@ namespace Plugin
 
     void ThreatDatabase::addThreat(const std::string& threatID, const std::string& correlationID)
     {
-        std::map<std::string,std::list<std::string>>::iterator it = m_database.find(threatID);
-        if (it != m_database.end())
+        auto database = m_database.lock();
+        std::map<std::string,std::list<std::string>>::iterator it = database->find(threatID);
+        if (it != database->end())
         {
             std::list oldListIDS = it->second;
             if (std::find(oldListIDS.begin(), oldListIDS.end(), correlationID) == oldListIDS.end() )
@@ -33,15 +36,16 @@ namespace Plugin
         {
             std::list<std::string> ids;
             ids.emplace_back(correlationID);
-            m_database.emplace(threatID,ids);
+            database->emplace(threatID,ids);
         }
 
     }
 
     void ThreatDatabase::removeCorrelationID(const std::string& correlationID)
     {
+        auto database = m_database.lock();
         std::string threatID = "";
-        for (auto const& entry : m_database)
+        for (auto const& entry : *database)
         {
             std::list oldListIDS = entry.second;
             auto iterator = std::find(oldListIDS.begin(), oldListIDS.end(), correlationID);
@@ -57,18 +61,19 @@ namespace Plugin
         }
         else
         {
-            std::map<std::string,std::list<std::string>>::iterator it = m_database.find(threatID);
-            m_database.erase(it);
+            std::map<std::string,std::list<std::string>>::iterator it = database->find(threatID);
+            database->erase(it);
             LOGDEBUG("Removed threat from database");
         }
     }
 
     void ThreatDatabase::removeThreatID(const std::string& threatID, bool ignoreNotInDatabase)
     {
-        std::map<std::string,std::list<std::string>>::iterator it = m_database.find(threatID);
-        if (it != m_database.end())
+        auto database = m_database.lock();
+        std::map<std::string,std::list<std::string>>::iterator it = database->find(threatID);
+        if (it != database->end())
         {
-            m_database.erase(it);
+            database->erase(it);
             LOGDEBUG("Removed threat id " << threatID << " from database");
         }
         else if (!ignoreNotInDatabase)
@@ -79,20 +84,29 @@ namespace Plugin
 
     bool ThreatDatabase::isDatabaseEmpty()
     {
-        return m_database.empty();
+        auto database = m_database.lock();
+        return database->empty();
     }
 
     void ThreatDatabase::resetDatabase()
     {
-        std::map<std::string,std::list<std::string>> tempdatabase;
-        m_database = tempdatabase;
-        m_databaseInString.setValueAndForceStore("{}");
+        auto database = m_database.lock();
+        database->clear();
+        try
+        {
+            m_databaseInString.setValueAndForceStore("{}");
+        }
+        catch (Common::FileSystem::IFileSystemException &ex)
+        {
+            LOGERROR("Cannot reset ThreatDatabase on disk with error: " << ex.what());
+        }
     }
 
     void ThreatDatabase::convertDatabaseToString()
     {
+        auto database = m_database.lock();
         nlohmann::json j;
-        for (const auto& key: m_database)
+        for (const auto& key : *database)
         {
             j[key.first] = key.second;
         }
@@ -110,6 +124,7 @@ namespace Plugin
 
     void ThreatDatabase::convertStringToDatabase()
     {
+        auto database = m_database.lock();
         nlohmann::json j;
 
         try
@@ -118,7 +133,13 @@ namespace Plugin
         }
         catch (nlohmann::json::exception& ex)
         {
+            //this one is a warn as we can recover from this
             LOGWARN("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error: " << ex.what());
+        }
+        catch (Common::FileSystem::IFileSystemException &ex)
+        {
+            // if this happens we have configured some permissions wrong and will probaly need to manually intervene
+            LOGERROR("Resetting ThreatDatabase as we failed to read from ThreatDatabase on disk with error: " << ex.what());
         }
 
         std::map<std::string,std::list<std::string>> tempdatabase;
@@ -139,7 +160,7 @@ namespace Plugin
                 LOGWARN("Not loading "<< it.key() << " into threat database as the parsing failed with error " << ex.what());
             }
         }
-        m_database = tempdatabase;
+        database->swap(tempdatabase);
         LOGINFO("Initialised Threat Database");
     }
 }
