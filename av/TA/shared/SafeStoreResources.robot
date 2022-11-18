@@ -144,6 +144,10 @@ Corrupt SafeStore Database
     Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
     Start SafeStore
 
+Verify SafeStore Database Exists
+    Directory Should Exist    ${SAFESTORE_DB_DIR}
+    File Should Exist    ${SAFESTORE_DB_PATH}
+    File Should Exist    ${SAFESTORE_DB_PASSWORD_PATH}
 
 Verify SafeStore Database Backups Exist in Path
     [Arguments]    ${pathToCheck}
