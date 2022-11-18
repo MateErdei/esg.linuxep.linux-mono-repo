@@ -7,11 +7,19 @@
 #include "sophos_on_access_process/soapd_bootstrap/Logger.h"
 
 using namespace sophos_on_access_process::service_callback;
+using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
+
+OnAccessServiceCallback::OnAccessServiceCallback(OnAccessTelemetryUtilitySharedPtr telemetryUtility) :
+m_telemetryUtility(telemetryUtility)
+{
+
+}
 
 std::string OnAccessServiceCallback::getTelemetry()
 {
     LOGDEBUG("Received get telemetry request");
-
+    auto onAccessScanData = m_telemetryUtility->getTelemetry();
+    Common::Telemetry::TelemetryHelper::getInstance().set("Ratio of Dropped Events", onAccessScanData.m_percentageEventsDropped);
     return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
 }
 
