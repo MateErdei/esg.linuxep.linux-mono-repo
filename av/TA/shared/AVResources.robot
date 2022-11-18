@@ -587,6 +587,11 @@ Wait until AV Plugin running with offset
     ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${10}
     Wait Until AV Plugin Log Contains With Offset  Common <> Starting scanScheduler  timeout=${20}
 
+Wait until AV Plugin running after mark
+    [Arguments]   ${mark}
+    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${30}
+    wait_for_av_log_contains_after_mark  Common <> Starting scanScheduler  timeout=${40}  mark=${mark}
+
 Wait until AV Plugin not running
     [Arguments]  ${timeout}=${30}
     ProcessUtils.wait_for_no_pid  ${PLUGIN_BINARY}  ${timeout}
@@ -691,6 +696,7 @@ Install Base For Component Tests
 
 Install AV Directly from SDDS
     Mark AV Log
+    ${av_mark} =  get_av_log_mark
 
     ${install_log} =  Set Variable   ${AV_INSTALL_LOG}
     ${result} =   Run Process   bash  -x  ${AV_SDDS}/install.sh   timeout=60s  stderr=STDOUT   stdout=${install_log}
@@ -698,7 +704,7 @@ Install AV Directly from SDDS
     File Log Should Not Contain  ${AV_INSTALL_LOG}  chown: cannot access
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install plugin.\noutput: \n${log_contents}"
 
-    Wait until AV Plugin running with offset
+    Wait until AV Plugin running after mark  ${av_mark}
     Wait until threat detector running
 
 Uninstall AV Without /usr/sbin in PATH
