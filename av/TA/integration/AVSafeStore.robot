@@ -246,10 +246,24 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount
     Wait For AV Log Contains After Mark    File is located on a Network mount:  ${av_mark}
     Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
 
-SafeStore Does Not Restore Files When Uninstalled
+SafeStore Does Not Restore Quarantined Files When Uninstalled
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
+    ${av_mark} =  Get AV Log Mark
 
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Check avscanner can detect eicar
+
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
+    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
+
+    Uninstall All
+
+    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
 
 *** Keywords ***
