@@ -125,6 +125,7 @@ void SoapdBootstrap::innerRun()
 
     m_scanRequestQueue = std::make_shared<ScanRequestQueue>(maxScanQueueSize);
 
+    initialiseTelemetry(); //This initialises m_TelemetryUtility
     m_eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
                                                            sysCallWrapper,
                                                            common::getPluginInstallPath(),
@@ -147,8 +148,6 @@ void SoapdBootstrap::innerRun()
     auto processControllerServerThread = std::make_unique<common::ThreadRunner>(processControllerServer,
                                                                                 "processControlServer",
                                                                                 true);
-
-    initialiseTelemetry();
 
     struct pollfd fds[] {
         { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
