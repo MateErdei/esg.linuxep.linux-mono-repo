@@ -32,10 +32,9 @@ namespace safestore::QuarantineManager
     {
         announceThreadStarted();
         LOGINFO("Starting Quarantine Manager state monitor");
+        std::unique_lock lock(m_QMCheckLock);
         while (!m_stopRequested)
         {
-            std::unique_lock lock(m_QMCheckLock);
-
             m_checkWakeUp.wait_for(lock,m_reinitialiseBackoff, [this]{ return m_stopRequested.load(); });
             if (m_stopRequested)
             {
