@@ -257,94 +257,126 @@ TEST_F(TestSusiWrapperFactory, getCustomerIdWithNonUTF8)
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabledReturnsFalse) // NOLINT
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":false})sophos");
-    EXPECT_FALSE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_FALSE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabledReturnsTrue) // NOLINT
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":true})sophos");
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_doesNotExist) // NOLINT
 {
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_emptyFile)
 {
     setupEmptySusiStartupFile();
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_invalidJson)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":false)sophos");
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_string)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":"false"})sophos");
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_unexpectedValue)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":"none"})sophos");
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_corruptedValue)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":fals})sophos");
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_corruptedKey)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLooku":false})sophos");
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_multipleValuesEqual)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":false, "enableSxlLookup":false})sophos");
-    EXPECT_FALSE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_FALSE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_multipleValuesFalseLast)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":true, "enableSxlLookup":false})sophos");
-    EXPECT_FALSE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_FALSE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_multipleValuesTrueLast)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":false, "enableSxlLookup":true})sophos");
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_manyMultipleValuesTrueLast)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":false, "enableSxlLookup":true, "enableSxlLookup":true, "enableSxlLookup":false, "enableSxlLookup":true})sophos");
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_array)
 {
     writeToSusiStartupFile(R"sophos({"enableSxlLookup":[false]})sophos");
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_binaryFile)
 {
     writeBinaryToSusiStartupFile();
-    EXPECT_TRUE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_TRUE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
 
 TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_veryLargeFile)
 {
     writeLargeSusiStartupFile();
-    EXPECT_FALSE(isSxlLookupEnabled());
+    common::ThreatDetector::SusiSettings threatDetectorSettings;
+    threatDetectorSettings.load(m_susiStartupPath);
+    EXPECT_FALSE(threatDetectorSettings.m_susiSxlLookupEnabled);
 }
