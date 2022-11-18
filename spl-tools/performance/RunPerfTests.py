@@ -183,11 +183,13 @@ def run_onaccess_test(max_file_count):
 
     # Write clean files until the queue becomes full or we reach max_count
     file_count = run_clean_file_test("File opens - OA enabled", True, max_file_count)
+    time.sleep(60)
 
     # Write the same number of files but with on-access disable
     disable_onaccess()
     run_clean_file_test("File opens - OA disabled", False, file_count)
     enable_onaccess()
+    time.sleep(60)
 
     # Write the same number of files but with the product not running
     stop_sspl()
