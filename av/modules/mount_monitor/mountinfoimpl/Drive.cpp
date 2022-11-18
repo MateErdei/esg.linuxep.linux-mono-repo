@@ -8,6 +8,7 @@
 
 #include "Common/UtilityImpl/StringUtils.h"
 
+#include <climits>
 #include <stdexcept>
 
 #include <mntent.h>
@@ -52,12 +53,15 @@ Drive::Drive(const std::string& childPath) :
     mntent* mount;
     ulong parentPathSize = 0UL;
 
+    mntent mnt_buf {};
+    char buf[PATH_MAX * 3] {};
+
     if (!f)
     {
         throw std::runtime_error("Could not access /proc/mounts to find parent mount of: " + childPath);
     }
 
-    while ((mount = getmntent(f))) // read next line
+    while ((mount = getmntent_r(f, &mnt_buf, buf, sizeof(buf)))) // read next line
     {
         std::string mountPoint = mount->mnt_dir;
         if (Common::UtilityImpl::StringUtils::startswith(childPath, mountPoint) &&
