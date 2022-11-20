@@ -227,6 +227,16 @@ Threat Detector Triggers SafeStore Rescan On Timeout
     Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}
 
 
+Threat Detector Rescan Socket Does Not Block Shutdown
+    Stop SafeStore
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Create Persistent Timeout Variable
+    wait_for_log_contains_from_mark  ${td_mark}  Failed to connect to SafeStore Rescan - retrying after sleep
+    Stop sophos_threat_detector
+    wait_for_log_contains_from_mark  ${td_mark}  Stop requested while connecting to SafeStore Rescan
+
+
+
 *** Keywords ***
 SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG

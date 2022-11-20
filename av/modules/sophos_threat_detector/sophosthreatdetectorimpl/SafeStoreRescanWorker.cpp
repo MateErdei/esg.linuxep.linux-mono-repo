@@ -27,11 +27,8 @@ SafeStoreRescanWorker::~SafeStoreRescanWorker()
 
 void SafeStoreRescanWorker::tryStop()
 {
-    {
-        std::lock_guard lock(m_rescanLock);
-        m_stopRequested = true;
-    }
-    m_rescanWakeUp.notify_one();
+    m_stopRequested = true;
+    m_rescanWakeUp.notify_all();
 }
 
 void SafeStoreRescanWorker::run()
@@ -70,7 +67,9 @@ void SafeStoreRescanWorker::triggerRescan()
 
 void SafeStoreRescanWorker::sendRescanRequest()
 {
-    unixsocket::SafeStoreRescanClient safeStoreRescanClient(m_safeStoreRescanSocket);
+    auto sleeper = std::make_shared<rescanStoppableSleeper>(*this);
+    unixsocket::SafeStoreRescanClient safeStoreRescanClient(
+        m_safeStoreRescanSocket, std::chrono::seconds { 1 }, sleeper);
     safeStoreRescanClient.sendRescanRequest();
 }
 
@@ -107,4 +106,14 @@ uint SafeStoreRescanWorker::parseRescanIntervalConfig()
         LOGINFO("Setting rescan interval to default 4 hours");
     }
     return 14400;
+}
+
+SafeStoreRescanWorker::rescanStoppableSleeper::rescanStoppableSleeper(SafeStoreRescanWorker& parent) : m_parent(parent)
+{
+}
+
+bool SafeStoreRescanWorker::rescanStoppableSleeper::stoppableSleep(common::StoppableSleeper::duration_t sleepTime)
+{
+    std::unique_lock<std::mutex> lck(m_parent.m_sleeperLock);
+    return m_parent.m_rescanWakeUp.wait_for(lck, sleepTime, [this]() { return m_parent.m_stopRequested.load(); });
 }

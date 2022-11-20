@@ -86,6 +86,6 @@ namespace Plugin
 
     std::string getRelativeSafeStoreRescanIntervalConfigPath()
     {
-        return "var/safeStoreRescanInterval";
+        return "/var/safeStoreRescanInterval";
     }
 } // namespace Plugin
