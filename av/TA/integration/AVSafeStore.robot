@@ -250,7 +250,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
-    Evaluate  '''${eicar1}''' in '''${filesInSafeStoreDb.stdout}'''
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
     ${av_mark} =  Get AV Log Mark
     ${ss_mark} =  Get SafeStore Log Mark
@@ -262,7 +262,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
-    Evaluate  '''${eicar2}''' in '''${filesInSafeStoreDb.stdout}'''
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
 
     ${av_mark} =  Get AV Log Mark
     ${ss_mark} =  Get SafeStore Log Mark
@@ -274,9 +274,9 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
-    Evaluate  '''${eicar3}''' in '''${filesInSafeStoreDb.stdout}'''
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar3}
 
-    Evaluate  '''${eicar1}''' not in '''${filesInSafeStoreDb.stdout}'''
+    Should Not Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
 
 SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection Count
@@ -285,7 +285,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Unpack SafeStore Tools To  ${safestore_tools_unpacked}
 
     Stop SafeStore
-    Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxRegObjectCount" : 1, "MaxStoreObjectCount" : 3 }
+    Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxRegObjectCount" : 1, "MaxStoreObjectCount" : 2 }
     Start SafeStore
 
     ${eicar1}=    Set Variable     eicar1
@@ -293,11 +293,8 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     ${eicar3}=    Set Variable     eicar3
 
     Create File     ${NORMAL_DIRECTORY}/${eicar1}   ${EICAR_STRING}
-    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/${eicar1}
     Create File     ${NORMAL_DIRECTORY}/${eicar2}   ${EICAR_STRING}
-    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/${eicar2}
     Create File     ${NORMAL_DIRECTORY}/${eicar3}   ${EICAR_STRING}
-    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/${eicar3}
 
     ${av_mark} =  Get AV Log Mark
     ${ss_mark} =  Get SafeStore Log Mark
@@ -314,7 +311,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
-    Evaluate  '''${eicar1}''' in '''${filesInSafeStoreDb.stdout}'''
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
     ${av_mark} =  Get AV Log Mark
     ${ss_mark} =  Get SafeStore Log Mark
@@ -326,7 +323,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
-    Evaluate  '''${eicar2}''' in '''${filesInSafeStoreDb.stdout}'''
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
 
     ${av_mark} =  Get AV Log Mark
     ${ss_mark} =  Get SafeStore Log Mark
@@ -338,9 +335,9 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
-    Evaluate  '''${eicar3}''' in '''${filesInSafeStoreDb.stdout}'''
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar3}
 
-    Evaluate  '''${eicar1}''' not in '''${filesInSafeStoreDb.stdout}'''
+    Should Not Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
 
 *** Keywords ***
@@ -381,6 +378,8 @@ SafeStore Test TearDown
     #restore machineID file
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
     Remove File  ${CUSTOMERID_FILE}
+
+    Empty Directory  ${NORMAL_DIRECTORY}
 
     run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests
 
