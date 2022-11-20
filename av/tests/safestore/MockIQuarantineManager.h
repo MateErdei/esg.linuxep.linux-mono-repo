@@ -19,5 +19,6 @@ public:
         common::CentralEnums::QuarantineResult,
         quarantineFile,
         (const std::string&, const std::string&, const std::string&, const std::string&, datatypes::AutoFd));
+    MOCK_METHOD(std::vector<FdsObjectIdsPair>, extractQuarantinedFiles, ());
     MOCK_METHOD(void, rescanDatabase, ());
 };
