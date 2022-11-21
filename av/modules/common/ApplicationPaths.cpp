@@ -58,4 +58,9 @@ namespace Plugin
     {
         return getPluginVarDirPath() + "/safestore_config.json";
     }
+
+    std::string getPersistThreatDatabaseFilePath()
+    {
+        return Plugin::getPluginVarDirPath() + "/persist-threatDatabase";
+    }
 } // namespace Plugin
