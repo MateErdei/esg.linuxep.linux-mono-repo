@@ -246,7 +246,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
 
     Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
-    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar1}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${SCAN_DIRECTORY}/${eicar1}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
@@ -258,7 +258,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
 
     Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
-    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar2}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar2}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
@@ -270,7 +270,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar3}
 
     Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
-    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar3}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar3}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
@@ -308,7 +308,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
 
     Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
-    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar1}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar1}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
@@ -320,7 +320,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
 
     Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
-    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar2}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar2}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
@@ -332,7 +332,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar3}
 
     Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
-    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${eicar3}
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar3}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
@@ -380,7 +380,8 @@ SafeStore Test TearDown
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
     Remove File  ${CUSTOMERID_FILE}
 
-    Empty Directory  ${NORMAL_DIRECTORY}
+    # Error ignored because test might not have created this directory
+    Run Keyword And Ignore Error  Empty Directory  ${NORMAL_DIRECTORY}
 
     run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests
 

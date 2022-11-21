@@ -369,6 +369,19 @@ namespace safestore::QuarantineManager
             {
                 auto configContents = fileSystem->readFile(Plugin::getSafeStoreConfigPath());
                 nlohmann::json j = nlohmann::json::parse(configContents);
+                // Have to check this first, because it breaks setting MaxSafeStoreSize if it's >2x bigger than it
+                if (j.contains("MaxObjectSize") && j["MaxObjectSize"].is_number_unsigned())
+                {
+                    if (safeStore.setConfigIntValue(SafeStoreWrapper::ConfigOption::MAX_OBJECT_SIZE, j["MaxObjectSize"]))
+                    {
+                        LOGINFO("Setting config option: MaxObjectSize to: " << j["MaxObjectSize"]);
+                    }
+                    else
+                    {
+                        LOGWARN("Failed to set config option: MaxObjectSize to: " << j["MaxObjectSize"]);
+                    }
+                    j.erase("MaxObjectSize");
+                }
                 for (const auto& [option, optionAsString] : safestore::SafeStoreWrapper::GL_OPTIONS_MAP)
                 {
                     if (j.contains(optionAsString) && j[optionAsString].is_number_unsigned())
