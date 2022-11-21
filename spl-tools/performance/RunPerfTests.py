@@ -236,6 +236,7 @@ def run_onaccess_test(max_file_count):
     run_clean_file_test("File opens - SPL not running", False, file_count)
     oa_mark2 = log_utils.get_on_access_log_mark()
     start_sspl()
+    time.sleep(60)
 
     # Check for FATAL errors
     log_utils.check_on_access_log_does_not_contain_after_mark("FATAL", oa_mark)
@@ -244,10 +245,7 @@ def run_onaccess_test(max_file_count):
     log_utils.wait_for_on_access_log_contains_after_mark("soapd_bootstrap <> No policy override, following policy settings", oa_mark2)
 
     # Check that the product still works
-    f = open("/tmp/eicar.com", "w")
-    f.write("X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*")
-    f.close()
-    log_utils.wait_for_on_access_log_contains_after_mark("OnAccessImpl <> Detected \"/tmp/eicar.com\" is infected with EICAR-AV-Test", oa_mark2)
+    detect_eicar()
 
 
 def run_slow_scan_test(test_name, stop_on_queue_full, max_count, oa_enabled=False):
@@ -296,19 +294,20 @@ def run_slow_scan_onaccess_test(max_file_count):
 
     # Write clean files until the queue becomes full or we reach max_count
     file_count = run_slow_scan_test("Slow file opens - OA enabled", True, max_file_count, True)
-    time.sleep(180)
+    time.sleep(300)
 
     # Write the same number of files but with on-access disable
     disable_onaccess()
     run_slow_scan_test("Slow file opens - OA disabled", False, file_count)
     enable_onaccess()
-    time.sleep(180)
+    time.sleep(300)
 
     # Write the same number of files but with the product not running
     stop_sspl()
     run_slow_scan_test("Slow file opens - SPL not running", False, file_count)
     oa_mark2 = log_utils.get_on_access_log_mark()
     start_sspl()
+    time.sleep(300)
 
     # Check for FATAL errors
     log_utils.check_on_access_log_does_not_contain_after_mark("FATAL", oa_mark)
@@ -317,10 +316,7 @@ def run_slow_scan_onaccess_test(max_file_count):
     log_utils.wait_for_on_access_log_contains_after_mark("soapd_bootstrap <> No policy override, following policy settings", oa_mark2)
 
     # Check that the product still works
-    f = open("/tmp/eicar.com", "w")
-    f.write("X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*")
-    f.close()
-    log_utils.wait_for_on_access_log_contains_after_mark("OnAccessImpl <> Detected \"/tmp/eicar.com\" is infected with EICAR-AV-Test", oa_mark2)
+    detect_eicar()
 
 
 def get_product_results():
