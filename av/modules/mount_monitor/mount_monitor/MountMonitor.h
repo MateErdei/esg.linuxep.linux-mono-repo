@@ -19,8 +19,6 @@
 namespace fanotifyhandler = sophos_on_access_process::fanotifyhandler;
 using namespace sophos_on_access_process::OnAccessConfig;
 
-const int telemetryFileSystemListMax = 100;
-
 namespace mount_monitor::mount_monitor
 {
     class MountMonitor : public common::AbstractThreadPluginInterface
@@ -36,6 +34,9 @@ namespace mount_monitor::mount_monitor
 
         mountinfo::IMountPointSharedVector getAllMountpoints();
         mountinfo::IMountPointSharedVector getIncludedMountpoints(const mountinfo::IMountPointSharedVector& allMountPoints);
+
+        static constexpr int telemetryFileSystemListMax = 100;
+
     private:
         void run() override;
         bool isIncludedFilesystemType(const mountinfo::IMountPointSharedPtr& mount);
