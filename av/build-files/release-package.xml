@@ -95,8 +95,8 @@
         </build-asset>
 
         <build-asset project="ec" repo="susi">
-            <release-version branch="release--updater--2.0.2"
-                             build-id="20221015113310-93407277599d72fec13347af38fcce0738322fe6-KZTQ57"/>
+            <release-version branch="release/2022-w48"
+                             build-id="20221119214450-8b4c7a574a63a2db19e9728e47856787b40185a6-BX09yc"/>
             <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib"/>
         </build-asset>
 
@@ -115,7 +115,7 @@
 
         <build-asset project="thirdparty" repo="libarchive">
             <release-version branch="release--sophos--core--3.5.2"
-                             build-id="20211129093003-b525273b2abdbabe88d1b2d1dd5360a1e67f4b2d-V7m9kv"/>
+                             build-id="20220830091606-26250850af1ca762e02788c56d5b4a8c4c13c5e6-8fcn7J"/>
             <include artifact-path="release/linux-x64/lib" dest-dir="input/susi_input/libarchive/lib"/>
         </build-asset>
 
