@@ -547,8 +547,9 @@ Sophos Threat Detector Scans Archive With Multiple Threats And Reports Successfu
     Create Directory  ${ARCHIVE_DIR}
     Create File  ${ARCHIVE_DIR}/1_dsa    ${DSA_BY_NAME_STRING}
     Create File  ${ARCHIVE_DIR}/2_eicar  ${EICAR_STRING}
-    Run Process  tar  --sort\=name  --mtime\='UTC 2019-01-01'  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  1_dsa  2_eicar
+    Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  1_dsa  2_eicar
     ${dsa_sha} =  Get SHA256  ${ARCHIVE_DIR}/1_dsa
+    Remove Directory  ${ARCHIVE_DIR}  recursive=True
     ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/test.tar
     Should Not Be Equal As Strings  ${dsa_sha}  ${archive_sha}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
@@ -561,7 +562,7 @@ Sophos Threat Detector Scans Archive With Multiple Threats And Reports Successfu
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  Troj/TestSFS-G  ${NORMAL_DIRECTORY}/test.tar
     Wait Until AV Plugin Log Contains Detection Event XML After Mark
     ...  mark=${av_mark}
-    ...  id=69acf1db-5edb-55dc-bd95-00413def1cb4
+    ...  id=49c016d1-fcfe-543d-8279-6ff8c8f3ce4b
     ...  name=Troj/TestSFS-G
     ...  threatType=1
     ...  origin=1
