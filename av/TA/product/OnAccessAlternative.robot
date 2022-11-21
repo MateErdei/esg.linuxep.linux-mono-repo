@@ -31,8 +31,8 @@ ${DEFAULT_EXCLUSIONS}   ["/mnt/","/uk-filer5/","*excluded*","/opt/test/inputs/te
 On Access Alternative Suite Setup
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${None}
     Set Suite Variable  ${ON_ACCESS_PLUGIN_HANDLE}  ${None}
-    ${customerIdFile} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
-    Create File  ${customerIdFile}  c1cfcf69a42311a6084bcefe8af02c8a
+    Create File  ${COMPONENT_ROOT_PATH}/var/customer_id.txt  c1cfcf69a42311a6084bcefe8af02c8a
+    Create File  ${COMPONENT_ROOT_PATH_CHROOT}/var/customer_id.txt  c1cfcf69a42311a6084bcefe8af02c8a
 
 On Access Suite Teardown
     Terminate On Access And AV
@@ -50,7 +50,8 @@ On Access Test Setup
     Start On Access And AV With Running Threat Detector
     Enable OA Scanning   mark=${oa_mark}
 
-    Register Cleanup  Clear On Access Log When Nearly Full
+    Exclude Threat Report Server died
+
     Register Cleanup  Remove File     ${ONACCESS_FLAG_CONFIG}
     Register Cleanup  Check All Product Logs Do Not Contain Error
     Register Cleanup  Exclude On Access Scan Errors

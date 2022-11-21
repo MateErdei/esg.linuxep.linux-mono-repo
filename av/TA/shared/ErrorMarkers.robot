@@ -25,6 +25,12 @@ Exclude Process Died With Signal 11
 Exclude Threat Detector Launcher Died With 11
     Exclude Process Died With Signal 11  sophos_threat_detector_launcher
 
+Exclude Threat Report Server died
+    # Failed to write Threat Report Client to socket. Exception caught: Environment interruption
+    # Logged if AV plugin goes down while TD trying to send alert
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  UnixSocket <> Failed to write Threat Report Client to socket. Exception caught: Environment interruption
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  UnixSocket <> Failed to write Threat Report Client to socket. Exception caught: Environment interruption
+
 Exclude Soapd Died With 11
     Exclude Process Died With Signal 11  soapd
 
