@@ -22,6 +22,7 @@ namespace Plugin
     private:
         void convertDatabaseToString();
         void convertStringToDatabase();
+        static void setCorruptThreatDatabaseTelemetry(bool corrupt);
         mutable common::LockableData<std::map<std::string,std::list<std::string>>> m_database;
         Common::PersistentValue<std::string> m_databaseInString;
     };

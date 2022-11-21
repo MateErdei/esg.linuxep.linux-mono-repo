@@ -3,6 +3,8 @@
 #include "ThreatDatabase.h"
 
 #include <Common/FileSystem/IFileSystemException.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <common/ApplicationPaths.h>
 
 #include <thirdparty/nlohmann-json/json.hpp>
 #include <algorithm>
@@ -118,8 +120,6 @@ namespace Plugin
         {
             m_databaseInString.setValue(j.dump());
         }
-
-
     }
 
     void ThreatDatabase::convertStringToDatabase()
@@ -135,11 +135,13 @@ namespace Plugin
         {
             //this one is a warn as we can recover from this
             LOGWARN("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error: " << ex.what());
+            setCorruptThreatDatabaseTelemetry(true);
         }
         catch (Common::FileSystem::IFileSystemException &ex)
         {
             // if this happens we have configured some permissions wrong and will probaly need to manually intervene
             LOGERROR("Resetting ThreatDatabase as we failed to read from ThreatDatabase on disk with error: " << ex.what());
+            setCorruptThreatDatabaseTelemetry(true);
         }
 
         std::map<std::string,std::list<std::string>> tempdatabase;
@@ -162,5 +164,13 @@ namespace Plugin
         }
         database->swap(tempdatabase);
         LOGINFO("Initialised Threat Database");
+    }
+
+    void ThreatDatabase::setCorruptThreatDatabaseTelemetry(bool corrupt)
+    {
+        if (Common::FileSystem::fileSystem()->exists(Plugin::getPersistThreatDatabaseFilePath()))
+        {
+            Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", corrupt);
+        }
     }
 }
