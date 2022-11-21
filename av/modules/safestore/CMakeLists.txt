@@ -1,7 +1,5 @@
 
 add_library(safestoreimpl SHARED
-        QuarantineManager/ConfigReader.h
-        QuarantineManager/ConfigReader.cpp
         SafeStoreWrapper/ISafeStoreWrapper.h
         QuarantineManager/IQuarantineManager.h
         Logger.cpp
