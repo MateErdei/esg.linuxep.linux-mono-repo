@@ -161,8 +161,7 @@ void FanotifyHandler::processFaMarkError(const std::string& function, const std:
     logMsg << "fanotify_mark failed in " << function << ": " << common::safer_strerror(error) << " for: " << path;
     if (error == ENOENT)
     {
-        std::string log = "Muted error: " + logMsg.str();
-        LOGDEBUG(log);
+        LOGDEBUG(logMsg.str());
     }
     // TODO: Remove this condition once LINUXDAR-5803 is fixed
     else if (function == "unmarkMount")

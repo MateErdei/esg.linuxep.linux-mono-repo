@@ -332,12 +332,17 @@ TEST_F(TestFanotifyHandler, clearCacheFails)
 TEST_F(TestFanotifyHandler, processFaMarkErrorLogs)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
     errno = ENOENT;
     sophos_on_access_process::fanotifyhandler::FanotifyHandler::processFaMarkError("unmarkMount", "/test/path");
-    EXPECT_TRUE(appenderContains("Muted error: fanotify_mark failed in unmarkMount: No such file or directory for:"));
+    EXPECT_TRUE(appenderContains("[DEBUG] fanotify_mark failed in unmarkMount: No such file or directory for:"));
 
     errno = ENODATA;
     sophos_on_access_process::fanotifyhandler::FanotifyHandler::processFaMarkError("unmarkMount", "/test/path");
-    EXPECT_TRUE(appenderContains("fanotify_mark failed in unmarkMount: No data available for: /test/path"));
+    EXPECT_TRUE(appenderContains("[WARN] fanotify_mark failed in unmarkMount: No data available for: /test/path"));
+
+    errno = ENODATA;
+    sophos_on_access_process::fanotifyhandler::FanotifyHandler::processFaMarkError("markMount", "/test/path");
+    EXPECT_TRUE(appenderContains("[ERROR] fanotify_mark failed in markMount: No data available for: /test/path"));
 }
