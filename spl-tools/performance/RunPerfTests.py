@@ -272,9 +272,6 @@ def run_slow_scan_test(test_name, stop_on_queue_full, max_count, oa_enabled=Fals
     end_time = get_current_unix_epoch_in_seconds()
     logging.info("Created {} files in {} seconds".format(file_count, end_time - start_time))
 
-    custom_data = {"file_count":file_count}
-    custom_data.update(get_product_results())
-
     shutil.rmtree(dirpath)
     custom_data = {"file_count":file_count}
     if oa_enabled:
