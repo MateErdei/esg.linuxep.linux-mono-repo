@@ -300,7 +300,7 @@ TEST_F(TestScanScheduler, scanNow)
 
     ASSERT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
     ASSERT_TRUE(waitForLog("Starting scan Scan Now", 500ms));
-    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 500ms));
+    ASSERT_TRUE(waitForLog("Completed scan Scan Now", 1000ms));
 
     ASSERT_TRUE(waitForLog("Exiting scan thread", 500ms));
     EXPECT_EQ(scanCompletion.m_count, 1);

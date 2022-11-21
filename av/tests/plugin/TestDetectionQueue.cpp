@@ -150,10 +150,10 @@ TEST_F(TestDetectionQueue, TestDetectionsQueuePopBlocksUntilToldToStop) // NOLIN
     Plugin::DetectionQueue queue;
     auto result = std::async(std::launch::async, &Plugin::DetectionQueue::pop, &queue);
 
-    ASSERT_EQ(result.wait_for(100ms), std::future_status::timeout);
+    ASSERT_EQ(result.wait_for(200ms), std::future_status::timeout);
 
     queue.requestStop();
-    ASSERT_EQ(result.wait_for(50ms), std::future_status::ready);
+    ASSERT_EQ(result.wait_for(100ms), std::future_status::ready);
     EXPECT_FALSE(result.get().has_value());
 }
 
@@ -164,7 +164,7 @@ TEST_F(TestDetectionQueue, TestDetectionsQueuePopReturnsImmediately) // NOLINT
     auto detection = basicDetection();
 
     queue.push(detection);
-    ASSERT_EQ(result.wait_for(50ms), std::future_status::ready);
+    ASSERT_EQ(result.wait_for(100ms), std::future_status::ready);
     EXPECT_TRUE(result.get().has_value());
 }
 

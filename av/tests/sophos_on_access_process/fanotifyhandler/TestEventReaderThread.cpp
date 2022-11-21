@@ -276,7 +276,7 @@ TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterNoEvent)
 
     std::stringstream logMsg;
     logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
-    EXPECT_TRUE(waitForLog(logMsg.str()));
+    EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     ASSERT_EQ(m_scanRequestQueue->size(), 1);
     auto event = m_scanRequestQueue->pop();
@@ -307,7 +307,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
 
     std::stringstream logMsg;
     logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
-    EXPECT_TRUE(waitForLog(logMsg.str()));
+    EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
 }
@@ -445,7 +445,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
 
     std::stringstream logMsg;
     logMsg << "unknown operation mask: " << std::hex << metadata.mask;
-    EXPECT_TRUE(waitForLog(logMsg.str()));
+    EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
@@ -471,7 +471,7 @@ TEST_F(TestEventReaderThread, TestReaderSetUnknownPathIfReadLinkFails)
 
     std::stringstream logMsg;
     logMsg << "On-close event for unknown from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
-    EXPECT_TRUE(waitForLog(logMsg.str()));
+    EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     ASSERT_EQ(m_scanRequestQueue->size(), 1); // 0 will cause pop() to hang forever
     auto event = m_scanRequestQueue->pop();
@@ -502,7 +502,7 @@ TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
 
     std::stringstream logMsg;
     logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID unknown";
-    EXPECT_TRUE(waitForLog(logMsg.str()));
+    EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
 }
@@ -584,7 +584,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsInPluginLogDir)
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events", 500ms));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
 
@@ -631,7 +631,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events", 500ms));
     eventReaderThread.requestStopIfNotStopped();
 
     ASSERT_EQ(m_scanRequestQueue->size(), 1);
@@ -656,7 +656,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsFanotifyQueueOverflow)
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Fanotify queue overflowed, some files will not be scanned."));
+    EXPECT_TRUE(waitForLog("Fanotify queue overflowed, some files will not be scanned.", 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
@@ -784,7 +784,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFull)
     auto eventReader = makeSmallEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full.", 500ms));
     EXPECT_EQ(m_smallScanRequestQueue->size(), 3);
 }
 
@@ -817,7 +817,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
     auto eventReader = makeSmallEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    ASSERT_TRUE(waitForLog("Stopping the reading of Fanotify events", 500ms));
     EXPECT_TRUE(appenderContains("Failed to add scan request to queue, on-access scanning queue is full."));
     EXPECT_FALSE(appenderContainsCount("Failed to add scan request to queue, on-access scanning queue is full.", 2));
     EXPECT_EQ(m_smallScanRequestQueue->size(), 3);
@@ -858,7 +858,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTime)
     auto eventReader = makeSmallEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full.", 500ms));
     m_smallScanRequestQueue->restart();
 
     clearMemoryAppender();
@@ -995,10 +995,8 @@ TEST_F(TestEventReaderThread, TestReaderResetsMissedEventCountAfterStopStart)
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     //Wait for queue to fill before restarting
-    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
-
-    //Restart
     eventReaderGuard.onEventNoArgs();
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full.", 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
 
     //Restart
@@ -1060,7 +1058,7 @@ TEST_F(TestEventReaderThread, TestReaderContinuesQuietyWhenPpollReturnsEINTR)
 
     std::stringstream logMsg;
     logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
-    EXPECT_TRUE(waitForLog(logMsg.str()));
+    EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_FALSE(appenderContains("Error from poll"));
 }
 
@@ -1088,7 +1086,7 @@ TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterEAGAIN)
 
     std::stringstream logMsg;
     logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
-    EXPECT_TRUE(waitForLog(logMsg.str()));
+    EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
 
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -1228,7 +1226,7 @@ TEST_F(TestEventReaderThread, TestReaderIncrementsTelemetryOnEventDropped)
     auto eventReader = makeSmallEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full.", 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
 
     auto telemetry = m_telemetryUtility->getTelemetry();

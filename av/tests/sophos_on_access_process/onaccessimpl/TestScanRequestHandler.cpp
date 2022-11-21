@@ -187,7 +187,7 @@ TEST_F(TestScanRequestHandler, scan_threadPopsAllItemsFromQueue)
     logMsg1 << "Detected \"" << filePath1 << "\" is infected with threatName (Open)";
     std::stringstream logMsg2;
     logMsg2 << "Detected \"" << filePath2 << "\" is infected with threatName (Close-Write)";
-    EXPECT_TRUE(waitForLog(logMsg1.str()));
+    EXPECT_TRUE(waitForLog(logMsg1.str(), 500ms));
     EXPECT_TRUE(waitForLog(logMsg2.str()));
     ASSERT_EQ(socket->m_paths.size(), 2);
     scanRequestQueue->stop();

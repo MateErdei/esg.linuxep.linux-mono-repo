@@ -287,13 +287,15 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
         );
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
+    // check these first to ensure the timing is correct
     std::this_thread::sleep_for(500ms);
-
     EXPECT_FALSE(appenderContains("ALC policy has not been sent to the plugin"));
     EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
 
-    EXPECT_TRUE(waitForLog("ALC policy has not been sent to the plugin", 700ms));
-    EXPECT_TRUE(waitForLog("SAV policy has not been sent to the plugin", 200ms));
+    EXPECT_TRUE(waitForLog("Ignoring policy of incorrect type: unknown"));
+
+    EXPECT_TRUE(waitForLog("ALC policy has not been sent to the plugin", 1000ms));
+    EXPECT_TRUE(waitForLog("SAV policy has not been sent to the plugin"));
 
     m_taskQueue->pushStop();
 
