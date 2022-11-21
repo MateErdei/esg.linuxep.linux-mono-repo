@@ -5,20 +5,22 @@
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "datatypes/sophos_filesystem.h"
+#include "pluginimpl/DetectionReporter.h"
 #include "pluginimpl/Logger.h"
 #include "pluginimpl/PluginAdapter.h"
-#include "pluginimpl/DetectionReporter.h"
+
+#include "common/ApplicationPaths.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/Helpers/MockApiBaseServices.h>
 #include <Common/Helpers/MockFileSystem.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/ZeroMQWrapper/IIPCException.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
+
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -199,9 +201,8 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
     fs::path testDir = tmpdir();
     const std::string susiStartupSettingsPath = testDir / "var/susi_startup_settings.json";
     const std::string susiStartupSettingsChrootPath = std::string(testDir / "chroot") + susiStartupSettingsPath;
-    const std::string databasePath = std::string(testDir / "var/persist-threatDatabase") ;
     Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + susiStartupSettingsPath + "', file does not exist");
-    EXPECT_CALL(*mockIFileSystemPtr, exists(databasePath)).WillOnce(Return(false));
+    EXPECT_CALL(*mockIFileSystemPtr, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(false));
     EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillRepeatedly(Throw(ex));
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(_,_)).WillRepeatedly(Throw(ex));
     EXPECT_CALL(*mockIFileSystemPtr, writeFileAtomically(_,_,_,_)).WillRepeatedly(Throw(ex));
@@ -358,11 +359,10 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
     const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
-    const std::string databasePath = std::string(testDir / "var/persist-threatDatabase") ;
     Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
     EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
-    EXPECT_CALL(*mockIFileSystemPtr, exists(databasePath)).WillOnce(Return(false));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(databasePath, "{}")).Times(1);
+    EXPECT_CALL(*mockIFileSystemPtr, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(false));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(Plugin::getPersistThreatDatabaseFilePath(), "{}")).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).WillOnce(QueueStopTask(m_taskQueue));
 
@@ -538,10 +538,9 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
     const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
     const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
-    const std::string databasePath = std::string(testDir / "var/persist-threatDatabase") ;
     Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
-    EXPECT_CALL(*mockIFileSystemPtr, exists(databasePath)).WillOnce(Return(false));
-    EXPECT_CALL(*mockIFileSystemPtr, writeFile(databasePath, "{}")).Times(1);
+    EXPECT_CALL(*mockIFileSystemPtr, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(false));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(Plugin::getPersistThreatDatabaseFilePath(), "{}")).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5)).Times(1);
     EXPECT_CALL(*mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5)).WillOnce(QueueStopTask(m_taskQueue));
