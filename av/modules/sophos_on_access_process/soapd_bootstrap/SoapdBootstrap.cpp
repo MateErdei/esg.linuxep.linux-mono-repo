@@ -318,7 +318,7 @@ void SoapdBootstrap::enableOnAccess(bool changed)
 
         auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
         auto scanHandler = std::make_shared<ScanRequestHandler>(
-            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, m_deviceUtil, threadCount, m_dumpPerfData);
+            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, m_deviceUtil, m_TelemetryUtility, threadCount, m_dumpPerfData);
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }

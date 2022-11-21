@@ -30,12 +30,14 @@ ScanRequestHandler::ScanRequestHandler(
     IScanningClientSocketSharedPtr socket,
     fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
     mount_monitor::mountinfo::IDeviceUtilSharedPtr deviceUtil,
+    onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility,
     int handlerId,
     bool dumpPerfData)
     : m_scanRequestQueue(std::move(scanRequestQueue))
     , m_socket(std::move(socket))
     , m_fanotifyHandler(std::move(fanotifyHandler))
     , m_deviceUtil(std::move(deviceUtil))
+    , m_telemetryUtility(std::move(telemetryUtility))
     , m_handlerId(handlerId)
     , m_dumpPerfData(dumpPerfData)
 {

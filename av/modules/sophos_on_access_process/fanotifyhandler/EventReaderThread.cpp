@@ -38,7 +38,7 @@ EventReaderThread::EventReaderThread(
     , m_sysCalls(std::move(sysCalls))
     , m_pluginLogDir(pluginInstall / "log")
     , m_scanRequestQueue(std::move(scanRequestQueue))
-    , m_telemetryUtility(telemetryUtility)
+    , m_telemetryUtility(std::move(telemetryUtility))
     , m_pid(getpid())
 {
     assert(m_fanotify);

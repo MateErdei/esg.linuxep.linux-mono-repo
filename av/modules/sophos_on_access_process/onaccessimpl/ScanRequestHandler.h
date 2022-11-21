@@ -7,6 +7,7 @@
 #include "scan_messages/ClientScanRequest.h"
 #include "mount_monitor/mountinfo/IDeviceUtil.h"
 #include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
+#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 
 #include "common/AbstractThreadPluginInterface.h"
@@ -22,6 +23,7 @@ namespace sophos_on_access_process::onaccessimpl
             IScanningClientSocketSharedPtr socket,
             fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
             mount_monitor::mountinfo::IDeviceUtilSharedPtr deviceUtil,
+            onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility,
             int handlerId=1,
             bool dumpPerfData=false
             );
@@ -37,6 +39,7 @@ namespace sophos_on_access_process::onaccessimpl
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
         std::unique_ptr<ClientSocketWrapper> m_socketWrapper;
         mount_monitor::mountinfo::IDeviceUtilSharedPtr  m_deviceUtil;
+        onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr m_telemetryUtility;
         int m_handlerId;
         bool m_dumpPerfData;
     };

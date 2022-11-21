@@ -22,6 +22,7 @@ namespace fs = sophos_filesystem;
 namespace fanotifyhandler = sophos_on_access_process::fanotifyhandler;
 using namespace ::testing;
 using namespace sophos_on_access_process::onaccessimpl;
+using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
 
 namespace
 {
@@ -66,6 +67,7 @@ namespace
 
             m_mockFanotifyHandler = std::make_shared<NiceMock<MockFanotifyHandler>>();
             m_mockDeviceUtil = std::make_shared<MockDeviceUtil>();
+            m_telemetryUtility = std::make_shared<OnAccessTelemetryUtility>();
         }
 
         using HandlerPtr = std::shared_ptr<sophos_on_access_process::onaccessimpl::ScanRequestHandler>;
@@ -85,6 +87,7 @@ namespace
 
         std::shared_ptr<MockFanotifyHandler> m_mockFanotifyHandler;
         std::shared_ptr<MockDeviceUtil> m_mockDeviceUtil;
+        OnAccessTelemetryUtilitySharedPtr m_telemetryUtility;
         fs::path m_testDir;
     };
 
@@ -95,7 +98,7 @@ TestScanRequestHandler::HandlerPtr TestScanRequestHandler::buildDefaultHandler(s
 {
     auto scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
     return std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        scanRequestQueue, std::move(socket), m_mockFanotifyHandler, m_mockDeviceUtil);
+        scanRequestQueue, std::move(socket), m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
 }
 
 [[maybe_unused]] TestScanRequestHandler::HandlerPtr TestScanRequestHandler::buildDefaultHandler()
@@ -115,7 +118,7 @@ TEST_F(TestScanRequestHandler, scan_fileDetected)
 
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        nullptr, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
+        nullptr, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
     scanHandler->scan(scanRequest);
 
     ASSERT_EQ(socket->m_paths.size(), 1);
@@ -136,7 +139,7 @@ TEST_F(TestScanRequestHandler, scan_error)
 
     auto socket = std::make_shared<ExceptionThrowingTestSocket>(false);
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        nullptr, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
+        nullptr, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
     scanHandler->scan(scanRequest, oneMillisecond);
 
     std::stringstream logMsg;
@@ -154,7 +157,7 @@ TEST_F(TestScanRequestHandler, scan_errorWhenShuttingDown)
 
     auto socket = std::make_shared<ExceptionThrowingTestSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        nullptr, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
+        nullptr, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
     EXPECT_THROW(scanHandler->scan(scanRequest), ScanInterruptedException);
 
     EXPECT_TRUE(appenderContains("Scan aborted: Scanner received stop notification"));
@@ -180,7 +183,7 @@ TEST_F(TestScanRequestHandler, scan_threadPopsAllItemsFromQueue)
 
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
+        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
 
     std::stringstream logMsg1;
@@ -201,7 +204,7 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileWaiting)
     auto scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
+        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
     EXPECT_TRUE(waitForLog("Starting ScanRequestHandler"));
     scanRequestQueue->stop();
@@ -216,7 +219,7 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileScanning)
     auto scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil);
+        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
 
     EXPECT_TRUE(waitForLog("Starting ScanRequestHandler"));
@@ -450,7 +453,7 @@ TEST_F(TestScanRequestHandler, scan_threadCanDumpPerfData)
 
     auto socket = std::make_shared<RecordingMockSocket>();
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil, 123, true);
+        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility, 123, true);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
 
     std::stringstream logMsg1;
