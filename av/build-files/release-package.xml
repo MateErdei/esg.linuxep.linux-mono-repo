@@ -18,7 +18,7 @@
         </build-asset>
         <build-asset project="core" repo="safestore">
             <release-version branch="release/2022-w45" build-id="20221028165809-a65df1204c5ac290d81e2cc193e5ebc068d5b859-shNHKR"/>
-            <development-version branch="develop" />
+            <development-version branch="develop" build-id="20221116103327-f527fcb346742eded33d84fb498cbc01757e5b9a-frW11u" />
             <include artifact-path="safestore/linux-x64/lib" dest-dir="input/safestore_input"/>
             <include artifact-path="safestore/linux-x64/interface" dest-dir="input/safestore_input"/>
         </build-asset>
