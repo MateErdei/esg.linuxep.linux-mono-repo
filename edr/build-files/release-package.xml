@@ -7,16 +7,16 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-39"
-                             build-id="20220920080453-6a5a0c6601e8c1988f7c9311f638a657d3990747-NtZgBC"/>
+            <release-version branch="release/2022-48"
+                             build-id="20221120203615-3366f54a200355d24cc68279aa2058b63b6e6df8-xhcyE7"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>
 
         <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2022.39"
-                             build-id="20220916140057-9dad584e4aea495a160ae9391e3a5bf2926962c1-Tj5H8m"/>
+            <release-version branch="release/2022.48"
+                             build-id="20221118155025-d32692e307f68463daa6ac0c4c12701837edc13f-ckdn8Z"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="/build/input/sspl-osquery-components"/>
         </build-asset>
@@ -27,8 +27,8 @@
             <include artifact-path="linux-x64-extension" dest-dir="/build/input/linux-x64-extension"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <release-version branch="release/SED_3.1.2_libs"
-                             build-id="20220915141743-ac59579c5b9ae9a5663fd5b99ab385bdeddd579d-eczXih"/>
+            <release-version branch="release/SED_2022.48_libs"
+                             build-id="20221117224033-2870ce2d8227b6dc85bed11690e109ebb0dd71b4-6WiNjb"/>
             <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
         </build-asset>
