@@ -7,7 +7,7 @@
 #include "common/SaferStrerror.h"
 #include "datatypes/AutoFd.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
-#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
+#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryFields.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
@@ -23,20 +23,21 @@ namespace mount_monitor::mount_monitor
         OnAccessConfiguration& config,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
         fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
+        mountinfo::ISystemPathsFactorySharedPtr sysPathsFactory,
         struct timespec pollTimeout)
     : m_config(config)
     , m_sysCalls(std::move(systemCallWrapper))
     , m_fanotifyHandler(std::move(fanotifyHandler))
+    , m_sysPathsFactory(sysPathsFactory)
     , m_pollTimeout(pollTimeout)
     {
     }
 
     mountinfo::IMountPointSharedVector MountMonitor::getAllMountpoints()
     {
-        auto pathsFactory = std::make_shared<mountinfoimpl::SystemPathsFactory>();
         try
         {
-            auto mountInfo = std::make_shared<mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
+            auto mountInfo = std::make_shared<mountinfoimpl::Mounts>(m_sysPathsFactory->createSystemPaths());
             auto allMountpoints = mountInfo->mountPoints();
             LOGINFO("Found " << allMountpoints.size() << " mount points on the system");
             return allMountpoints;
@@ -117,7 +118,7 @@ namespace mount_monitor::mount_monitor
         int count = 0;
         for (const auto& mount: allMounts)
         {
-            if (stopRequested() || !m_fanotifyHandler->isInitialised())
+            if (stopRequested())
             {
                 break;
             }
@@ -157,10 +158,10 @@ namespace mount_monitor::mount_monitor
             return;
         }
 
-        if (fileSystemList.size() > telemetryFileSystemListMax)
+        if (fileSystemList.size() > TELEMETRY_FILE_SYSTEM_LIST_MAX)
         {
             auto begin = fileSystemList.begin();
-            std::advance(begin, telemetryFileSystemListMax),
+            std::advance(begin, TELEMETRY_FILE_SYSTEM_LIST_MAX),
             fileSystemList.erase(begin, fileSystemList.end());
         }
 
@@ -168,7 +169,7 @@ namespace mount_monitor::mount_monitor
 
         std::list<TelemetryObject> fsTelemetryList;
 
-        for (auto fileSystem : fileSystemList)
+        for (const auto& fileSystem : fileSystemList)
         {
             TelemetryValue fsVal(fileSystem);
             TelemetryObject fsObj;
@@ -178,7 +179,7 @@ namespace mount_monitor::mount_monitor
 
         TelemetryObject endObject;
         endObject.set(fsTelemetryList);
-        TelemetryHelper::getInstance().set("file-system-types", endObject, true);
+        TelemetryHelper::getInstance().set(sophos_on_access_process::onaccessimpl::onaccesstelemetry::FILE_SYSTEM_TYPES_STR, endObject, true);
     }
 
     void MountMonitor::run()

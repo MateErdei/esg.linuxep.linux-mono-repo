@@ -430,16 +430,16 @@ TEST_F(TestMountMonitor, TestfileSystemSetIsLimitedTo100Entries)
     std::string templateStr = "filesystem";
     std::set<std::string> input;
 
-    for (uint it=0; it<=(MountMonitor::telemetryFileSystemListMax + 10); it++)
+    for (uint it=0; it<=(MountMonitor::TELEMETRY_FILE_SYSTEM_LIST_MAX + 10); it++)
     {
         auto inputStr = templateStr + std::to_string(it);
         input.emplace(inputStr, true);
     }
 
-    ASSERT_GT(input.size(), MountMonitor::telemetryFileSystemListMax);
+    ASSERT_GT(input.size(), MountMonitor::TELEMETRY_FILE_SYSTEM_LIST_MAX);
     auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
     mountMonitor->addFileSystemToTelemetry(input);
-    EXPECT_EQ(input.size(), MountMonitor::telemetryFileSystemListMax);
+    EXPECT_EQ(input.size(), MountMonitor::TELEMETRY_FILE_SYSTEM_LIST_MAX);
 }
 
 TEST_F(TestMountMonitor, TestFileSystemTelemetryCanHandleLongFileSystemNames)

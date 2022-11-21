@@ -24,6 +24,8 @@ namespace mount_monitor::mount_monitor
     class MountMonitor : public common::AbstractThreadPluginInterface
     {
     public:
+        static constexpr int TELEMETRY_FILE_SYSTEM_LIST_MAX = 100;
+
         MountMonitor(
             OnAccessConfiguration& config,
             datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
@@ -34,8 +36,6 @@ namespace mount_monitor::mount_monitor
 
         mountinfo::IMountPointSharedVector getAllMountpoints();
         mountinfo::IMountPointSharedVector getIncludedMountpoints(const mountinfo::IMountPointSharedVector& allMountPoints);
-
-        static constexpr int telemetryFileSystemListMax = 100;
 
     private:
         void run() override;

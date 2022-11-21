@@ -6,6 +6,8 @@
 # define TEST_PUBLIC private
 #endif
 
+#include "OnAccessTelemetryFields.h"
+
 #include <cstdint>
 
 #include <atomic>
