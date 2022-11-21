@@ -74,6 +74,7 @@ void ScanRequestHandler::scan(
     {
         LOGERROR(errorMsg);
     }
+    m_telemetryUtility->incrementFilesScanned(!errorMsg.empty());
 
     auto detections = response.getDetections();
     auto scanType = scan_messages::getScanTypeAsStr(scanRequest->getScanType());
