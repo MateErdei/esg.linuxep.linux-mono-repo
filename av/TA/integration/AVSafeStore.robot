@@ -285,16 +285,17 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Unpack SafeStore Tools To  ${safestore_tools_unpacked}
 
     Stop SafeStore
-    Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxRegObjectCount" : 1, "MaxStoreObjectCount" : 2 }
+    Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxStoredObjectCount" : 2 }
     Start SafeStore
 
     ${eicar1}=    Set Variable     eicar1
     ${eicar2}=    Set Variable     eicar2
     ${eicar3}=    Set Variable     eicar3
 
-    Create File     ${NORMAL_DIRECTORY}/${eicar1}   ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/${eicar2}   ${EICAR_STRING}
-    Create File     ${NORMAL_DIRECTORY}/${eicar3}   ${EICAR_STRING}
+    # Unique SHAs required to trigger autopurge on object count
+    Create File     ${NORMAL_DIRECTORY}/${eicar1}   ${EICAR_STRING} one
+    Create File     ${NORMAL_DIRECTORY}/${eicar2}   ${EICAR_STRING} two
+    Create File     ${NORMAL_DIRECTORY}/${eicar3}   ${EICAR_STRING} three
 
     ${av_mark} =  Get AV Log Mark
     ${ss_mark} =  Get SafeStore Log Mark
