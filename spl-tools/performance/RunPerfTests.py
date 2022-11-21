@@ -1,9 +1,13 @@
 import argparse
+import csv
+import glob
 import json
 import logging
 import os
+import re
 import shutil
 import socket
+import statistics
 import subprocess
 import sys
 import time
@@ -113,7 +117,7 @@ def record_result(event_name, date_time, start_time, end_time, custom_data=None)
         result["mtr_build_date"] = mtr_build_date
 
     if dry_run:
-        print(result)
+        logging.info(result)
     else:
         r = requests.post('http://sspl-perf-mon:9200/perf-custom/_doc', json=result)
         if r.status_code not in [200, 201]:
@@ -145,7 +149,37 @@ def run_gcc_perf_test():
     if result.returncode != 0:
         exit(1)
 
-def run_clean_file_test(test_name, stop_on_queue_full, max_count):
+
+def enable_perf_dump():
+    log_utils = LogUtils.LogUtils()
+    subprocess.run(["/opt/sophos-spl/bin/wdctl", "stop", "on_access_process"])
+    oa_product_config_contents = "{\"dumpPerfData\": true}"
+    with open("/opt/sophos-spl/plugins/av/var/onaccessproductconfig.json", "w") as f:
+        f.write(oa_product_config_contents)
+    mark = log_utils.get_on_access_log_mark()
+    subprocess.run(["/opt/sophos-spl/bin/wdctl", "start", "on_access_process"])
+    log_utils.wait_for_on_access_log_contains_after_mark("On-access scanning enabled", mark)
+    detect_eicar()
+
+
+def disable_perf_dump():
+    subprocess.run(["/opt/sophos-spl/bin/wdctl", "stop", "on_access_process"])
+    os.remove("/opt/sophos-spl/plugins/av/var/onaccessproductconfig.json")
+    subprocess.run(["/opt/sophos-spl/bin/wdctl", "start", "on_access_process"])
+
+
+def detect_eicar():
+    log_utils = LogUtils.LogUtils()
+    mark = log_utils.get_on_access_log_mark()
+    f = open("/tmp/eicar.com", "w")
+    f.write("X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*")
+    f.close()
+    log_utils.wait_for_on_access_log_contains_after_mark("OnAccessImpl <> Detected \"/tmp/eicar.com\" is infected with EICAR-AV-Test", mark)
+
+
+def run_clean_file_test(test_name, stop_on_queue_full, max_count, oa_enabled=False):
+    if oa_enabled:
+        enable_perf_dump()
     dirpath = os.path.join("/tmp", "onaccess_stress_test")
     os.makedirs(dirpath)
     date_time = get_current_date_time_string()
@@ -168,8 +202,14 @@ def run_clean_file_test(test_name, stop_on_queue_full, max_count):
     end_time = get_current_unix_epoch_in_seconds()
     logging.info("Created {} files in {} seconds".format(file_count, end_time - start_time))
 
+    custom_data = {"file_count":file_count}
+    if oa_enabled:
+        custom_data.update(get_product_results())
+        disable_perf_dump()
+        for perfData in glob.glob("/opt/sophos-spl/plugins/av/var/perfDumpThread*"):
+            os.remove(perfData)
     shutil.rmtree(dirpath)
-    record_result(test_name, date_time, start_time, end_time, custom_data={"file_count":file_count})
+    record_result(test_name, date_time, start_time, end_time, custom_data=custom_data)
     return file_count
 
 
@@ -182,7 +222,7 @@ def run_onaccess_test(max_file_count):
     wd_mark = log_utils.get_wdctl_log_mark()
 
     # Write clean files until the queue becomes full or we reach max_count
-    file_count = run_clean_file_test("File opens - OA enabled", True, max_file_count)
+    file_count = run_clean_file_test("File opens - OA enabled", True, max_file_count, True)
     time.sleep(60)
 
     # Write the same number of files but with on-access disable
@@ -210,7 +250,9 @@ def run_onaccess_test(max_file_count):
     log_utils.wait_for_on_access_log_contains_after_mark("OnAccessImpl <> Detected \"/tmp/eicar.com\" is infected with EICAR-AV-Test", oa_mark2)
 
 
-def run_slow_scan_test(test_name, stop_on_queue_full, max_count):
+def run_slow_scan_test(test_name, stop_on_queue_full, max_count, oa_enabled=False):
+    if oa_enabled:
+        enable_perf_dump()
     dirpath = os.path.join("/tmp", "onaccess_stress_test_slow_scan")
     os.makedirs(dirpath)
     date_time = get_current_date_time_string()
@@ -232,8 +274,17 @@ def run_slow_scan_test(test_name, stop_on_queue_full, max_count):
     end_time = get_current_unix_epoch_in_seconds()
     logging.info("Created {} files in {} seconds".format(file_count, end_time - start_time))
 
+    custom_data = {"file_count":file_count}
+    custom_data.update(get_product_results())
+
     shutil.rmtree(dirpath)
-    record_result(test_name, date_time, start_time, end_time, custom_data={"file_count":file_count})
+    custom_data = {"file_count":file_count}
+    if oa_enabled:
+        custom_data.update(get_product_results())
+        disable_perf_dump()
+        for perfData in glob.glob("/opt/sophos-spl/plugins/av/var/perfDumpThread*"):
+            os.remove(perfData)
+    record_result(test_name, date_time, start_time, end_time, custom_data=custom_data)
     return file_count
 
 def run_slow_scan_onaccess_test(max_file_count):
@@ -244,7 +295,7 @@ def run_slow_scan_onaccess_test(max_file_count):
     wd_mark = log_utils.get_wdctl_log_mark()
 
     # Write clean files until the queue becomes full or we reach max_count
-    file_count = run_slow_scan_test("Slow file opens - OA enabled", True, max_file_count)
+    file_count = run_slow_scan_test("Slow file opens - OA enabled", True, max_file_count, True)
     time.sleep(180)
 
     # Write the same number of files but with on-access disable
@@ -270,6 +321,70 @@ def run_slow_scan_onaccess_test(max_file_count):
     f.write("X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*")
     f.close()
     log_utils.wait_for_on_access_log_contains_after_mark("OnAccessImpl <> Detected \"/tmp/eicar.com\" is infected with EICAR-AV-Test", oa_mark2)
+
+
+def get_product_results():
+    dump_glob = "/opt/sophos-spl/plugins/av/var/perfDumpThread*"
+
+    perf_dump_file_list = glob.glob(dump_glob)
+
+    logging.info("Found dump: {}".format(perf_dump_file_list))
+
+    average_scan_time_list = []
+    average_waiting_time_list = []
+    average_queue_size_list = []
+    total_scans = 0
+    for dump in perf_dump_file_list:
+        logging.info("Processing {}".format(dump))
+
+        scan_duration_results = []
+        in_product_duration_results = []
+        queue_size_at_point_of_insertion = []
+        regex = re.compile(r"perfDumpThread(\d+)_")
+        regex_result = regex.search(dump)
+        thread_id = regex_result.group(1)
+        with open(dump) as f:
+            tsv_results = csv.DictReader(f, delimiter="\t")
+            for line in tsv_results:
+                scan_duration_results.append(int(line["Scan duration"]))
+                in_product_duration_results.append(int(line["In-Product duration"]))
+                queue_size_at_point_of_insertion.append(int(line["Queue size"]))
+
+            if len(scan_duration_results) == 0:
+                logging.info("Skipping file no scans on this thread")
+                continue
+
+            average_scan_time = round(statistics.mean(scan_duration_results) / 100, 3)
+            average_waiting_time = round(statistics.mean(in_product_duration_results) / 100, 3)
+            average_queue_size = round(statistics.mean(queue_size_at_point_of_insertion))
+            total_scans = total_scans + len(scan_duration_results)
+            logging.info("Scans for thread {}: {}".format(thread_id, len(scan_duration_results)))
+            logging.info("Average scan time for thread {} is {}s".format(thread_id, average_scan_time))
+            logging.info("Average waiting time in product for thread {} is {}s".format(thread_id, average_waiting_time))
+            logging.info("Average queue size in product for thread {} is {}".format(thread_id, average_queue_size))
+
+        average_scan_time_list.append(average_scan_time)
+        average_waiting_time_list.append(average_waiting_time)
+        average_queue_size_list.append(average_queue_size)
+
+        logging.info("")
+
+    average_scan_times = round(statistics.mean(average_scan_time_list), 3)
+    average_time_in_product = round(statistics.mean(average_waiting_time_list), 3)
+    average_queue_size = round(statistics.mean(average_queue_size_list))
+    result_json = {
+        "total_scans": total_scans,
+        "average_scan_times": average_scan_times,
+        "average_time_in_product": average_time_in_product,
+        "avereage_queue_size": average_queue_size
+    }
+
+    logging.info("Total scans during testing: {}".format(total_scans))
+    logging.info("Total average scan time: {}s".format(average_scan_times))
+    logging.info("Total average waiting time in queue: {}s".format(average_time_in_product))
+    logging.info("Total average queue size: {}".format(average_queue_size))
+
+    return result_json
 
 
 def run_local_live_query_perf_test():
@@ -521,7 +636,7 @@ def run_event_journaler_ingestion_test():
             logging.error("No result from RunEventJournalerIngestionTest.py")
             exit(1)
 
-        print(result)
+        logging.info(result)
         event_name = f"event-journaler-ingestion_{test_args['name']}"
         custom_data = {"number_of_events_sent": result["number_of_events_sent"], "event_count": result["event_count"]}
         record_result(event_name, date_time, result["start_time"], result["end_time"], custom_data=custom_data)
