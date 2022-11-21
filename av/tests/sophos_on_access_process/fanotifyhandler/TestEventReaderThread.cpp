@@ -14,7 +14,10 @@
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 #include <gtest/gtest.h>
+
+#include <array>
 #include <sstream>
+#include <string_view>
 
 using namespace ::testing;
 using namespace sophos_on_access_process::fanotifyhandler;
@@ -130,6 +133,8 @@ protected:
             .WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
     }
 
+    void setupExpectationsForOneEvent(const char* filePath);
+
     std::shared_ptr<EventReaderThread> makeDefaultEventReaderThread()
     {
         return std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue, m_telemetryUtility);
@@ -148,6 +153,18 @@ protected:
     IFanotifyHandlerSharedPtr m_fakeFanotify;
     struct ::stat m_statbuf {};
 };
+
+void TestEventReaderThread::setupExpectationsForOneEvent(const char* filePath)
+{
+    auto metadata = getMetaData();
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _)).WillOnce(readReturnsStruct(metadata));
+    expectReadlinkReturnsPath(filePath);
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    defaultFstat();
+}
 
 TEST_F(TestEventReaderThread, TestReaderExitsUsingPipe)
 {
@@ -178,6 +195,47 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorIfFanotifySendsNoEvent)
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
 
+TEST_F(TestEventReaderThread, ReceiveEvent)
+{
+    const char* filePath = "/tmp/test";
+    setupExpectationsForOneEvent(filePath);
+
+    {
+        auto eventReader = makeDefaultEventReaderThread();
+        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+    }
+
+    ASSERT_EQ(m_scanRequestQueue->size(), 1);
+    auto event = m_scanRequestQueue->pop();
+    ASSERT_TRUE(event);
+    EXPECT_EQ(event->getPath(), filePath);
+    EXPECT_FALSE(event->isOpenEvent());
+}
+
+TEST_F(TestEventReaderThread, ReceiveExcessivelyLongFilePath)
+{
+    std::array<char, 5000> filePath;
+    filePath.fill(45);
+    *(filePath.rbegin()) = 0;
+    setupExpectationsForOneEvent(filePath.data());
+    /*
+     * EventReader uses a buffer PATH_MAX size.
+     * Per https://linux.die.net/man/2/readlink the system could return something bigger than PATH_MAX.
+     */
+    std::string_view expectedFilePath{filePath.data(), 4095};
+
+    {
+        auto eventReader = makeDefaultEventReaderThread();
+        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+    }
+
+    ASSERT_EQ(m_scanRequestQueue->size(), 1);
+    auto event = m_scanRequestQueue->pop();
+    ASSERT_TRUE(event);
+    EXPECT_EQ(event->getPath(), expectedFilePath);
+    EXPECT_FALSE(event->isOpenEvent());
+}
+
 TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterNoEvent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -204,7 +262,11 @@ TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterNoEvent)
     logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
-    EXPECT_EQ(m_scanRequestQueue->size(), 1);
+    ASSERT_EQ(m_scanRequestQueue->size(), 1);
+    auto event = m_scanRequestQueue->pop();
+    ASSERT_TRUE(event);
+    EXPECT_EQ(event->getPath(), filePath);
+    EXPECT_FALSE(event->isOpenEvent());
 }
 
 
@@ -393,7 +455,11 @@ TEST_F(TestEventReaderThread, TestReaderSetUnknownPathIfReadLinkFails)
     logMsg << "On-close event for unknown from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
-    EXPECT_EQ(m_scanRequestQueue->size(), 1);
+    ASSERT_EQ(m_scanRequestQueue->size(), 1); // 0 will cause pop() to hang forever
+    auto event = m_scanRequestQueue->pop();
+    ASSERT_TRUE(event);
+    EXPECT_EQ(event->getFd(), 345);
+    EXPECT_EQ(event->getPath(), "unknown");
 }
 
 TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
