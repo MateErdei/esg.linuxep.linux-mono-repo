@@ -46,9 +46,12 @@ namespace
             return true;
         }
 
-        bool reload() override
+        ReloadResult reload() override
         {
-            return true;
+            ReloadResult result;
+            result.success = true;
+            result.allowListChanged = true;
+            return result;
         }
 
         void shutdown() override

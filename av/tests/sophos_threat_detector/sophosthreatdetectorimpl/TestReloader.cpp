@@ -40,25 +40,27 @@ TEST_F(TestReloader, testNoArgConstruction) // NOLINT
 TEST_F(TestReloader, testScannerFactoryConstruction) // NOLINT
 {
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-
-    EXPECT_NO_THROW(sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory));
+    auto rescanWorker = std::make_shared<SafeStoreRescanWorker>("/var/safestore_rescan_socket");
+    EXPECT_NO_THROW(sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory,rescanWorker));
 }
 
 TEST_F(TestReloader, testReload) // NOLINT
 {
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    EXPECT_CALL(*scannerFactory, reload()).WillOnce(Return(true));
+    EXPECT_CALL(*scannerFactory, reload()).WillOnce(Return(ReloadResult{true,true}));
 
-    sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory);
+    auto rescanWorker = std::make_shared<SafeStoreRescanWorker>("/var/safestore_rescan_socket");
+    sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory,rescanWorker);
     EXPECT_NO_THROW(reloader.reload());
 }
 
 TEST_F(TestReloader, testReloadFails) // NOLINT
 {
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    EXPECT_CALL(*scannerFactory, reload()).WillOnce(Return(false));
+    EXPECT_CALL(*scannerFactory, reload()).WillOnce(Return(ReloadResult{false,false}));
 
-    sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory);
+    auto rescanWorker = std::make_shared<SafeStoreRescanWorker>("/var/safestore_rescan_socket");
+    sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory,rescanWorker);
     EXPECT_THROW(reloader.reload(), std::runtime_error);
 }
 
@@ -73,7 +75,8 @@ TEST_F(TestReloader, testUpdate) // NOLINT
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     EXPECT_CALL(*scannerFactory, update()).WillOnce(Return(true));
 
-    sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory);
+    auto rescanWorker = std::make_shared<SafeStoreRescanWorker>("/var/safestore_rescan_socket");
+    sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory,rescanWorker);
     EXPECT_NO_THROW(reloader.update());
 }
 
@@ -82,7 +85,8 @@ TEST_F(TestReloader, testUpdateFails) // NOLINT
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     EXPECT_CALL(*scannerFactory, update()).WillOnce(Return(false));
 
-    sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory);
+    auto rescanWorker = std::make_shared<SafeStoreRescanWorker>("/var/safestore_rescan_socket");
+    sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory,rescanWorker);
     EXPECT_THROW(reloader.update(), std::runtime_error);
 }
 
@@ -109,8 +113,8 @@ TEST_F(TestReloader, testResetWithExistingFactory) // NOLINT
 
     auto scannerFactory2 = std::make_shared<StrictMock<MockScannerFactory>>();
     EXPECT_CALL(*scannerFactory2, update()).WillOnce(Return(true));
-
-    sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory);
+    auto rescanWorker = std::make_shared<SafeStoreRescanWorker>("/var/safestore_rescan_socket");
+    sspl::sophosthreatdetectorimpl::Reloader reloader(scannerFactory,rescanWorker);
     reloader.reset(scannerFactory2);
     EXPECT_NO_THROW(reloader.update());
 }

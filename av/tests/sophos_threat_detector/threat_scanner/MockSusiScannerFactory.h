@@ -16,7 +16,7 @@ namespace
             MockSusiScannerFactory()
             {
                 ON_CALL(*this, update).WillByDefault(Return(true));
-                ON_CALL(*this, reload).WillByDefault(Return(true));
+                ON_CALL(*this, reload).WillByDefault(Return(ReloadResult{true,true}));
                 ON_CALL(*this, susiIsInitialized).WillByDefault(Return(true));
             };
 
