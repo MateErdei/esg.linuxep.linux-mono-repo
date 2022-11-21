@@ -262,7 +262,7 @@ SafeStore Does Not Restore Quarantined Files When Uninstalled
     wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
-    Uninstall All
+    AV Plugin uninstalls
 
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 

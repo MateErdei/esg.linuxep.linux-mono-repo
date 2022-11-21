@@ -192,3 +192,11 @@ Scan GR Test File
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/gui.exe
     Log  ${output}
     BuiltIn.Should Be Equal As Integers  ${rc}  ${0}  Failed to scan gui.exe
+
+AV Plugin uninstalls
+    Register Cleanup    Exclude MCS Router is dead
+    Register Cleanup    Install With Base SDDS
+    Check avscanner in /usr/local/bin
+    Run plugin uninstaller
+    Check avscanner not in /usr/local/bin
+    Check AV Plugin Not Installed
