@@ -507,9 +507,10 @@ On Access Scan Times Out When Unable To Connect To Threat Detector
 On Access Logs Scan time in TRACE
     ${mark} =  get_on_access_log_mark
     Configure on access log to trace level
-    wait for on access log contains after mark  Starting eventReader  mark=${mark}
-    wait for on access log contains after mark   mount points in on-access scanning  mark=${mark}
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+    wait for on access log contains after mark  Finished ProcessPolicy  mark=${mark}
 
+    ${mark} =  get_on_access_log_mark
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     Create File  ${filepath}  clean
     Register Cleanup  Remove File  ${filepath}
