@@ -832,9 +832,8 @@ Older SafeStore Database Is Not Restored When It Is Not Compaitible With Current
     Run plugin uninstaller with downgrade flag
     Check AV Plugin Not Installed
 
-    Directory Should Exist  ${SAFESTORE_BACKUP_DIR}
+    Remove All But One SafeStore Backup
     ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
-    Should Not Be Empty    ${safeStoreDatabaseBackupDirs}
     Move Directory    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}    ${AV_RESTORED_VAR_DIRECTORY}/123456789_SafeStore_9.9.9
 
     Install AV Directly from SDDS
