@@ -1,10 +1,12 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "tests/common/LogInitializedTests.h"
+#include "thirdparty/nlohmann-json/json.hpp"
 
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "common/ApplicationPaths.h"
 
 #include <datatypes/sophos_filesystem.h>
@@ -21,6 +23,17 @@ namespace
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData("SOPHOS_INSTALL", "/tmp");
             appConfig.setData("PLUGIN_INSTALL", "/tmp/av");
+
+            Common::Telemetry::TelemetryHelper::getInstance().reset();
+        }
+
+    protected:
+        static void verifyCorruptDatabaseTelemetryNotPresent()
+        {
+            auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+            auto telemetry = nlohmann::json::parse(telemetryResult);
+
+            EXPECT_EQ(telemetry["corrupt-threat-database"], nullptr);
         }
     };
 }
@@ -35,6 +48,7 @@ TEST_F(TestThreatDatabase, initDatabaseWorksWhenNoFile)
     EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{}"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, initDatabaseHandlesEmptyStringInFile)
@@ -48,6 +62,11 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesEmptyStringInFile)
     EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{}"));
 
     EXPECT_NO_THROW(Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()});
+
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+
+    EXPECT_TRUE(telemetry["corrupt-threat-database"]);
 }
 
 TEST_F(TestThreatDatabase, initDatabaseHandlesEmptyDatabaseInFile)
@@ -61,6 +80,7 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesEmptyDatabaseInFile)
     EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{}"));
 
     EXPECT_NO_THROW(Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()});
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, initDatabaseHandlesMalformedJsonStringInFile)
@@ -74,20 +94,12 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesMalformedJsonStringInFile)
     EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{}"));
 
     EXPECT_NO_THROW(Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()});
+
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_TRUE(telemetry["corrupt-threat-database"]);
 }
 
-TEST_F(TestThreatDatabase, initDatabaseHandlesPermissionError)
-{
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
-
-    EXPECT_CALL(*filesystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
-    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{}"));
-
-    EXPECT_NO_THROW(Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()});
-}
 
 TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesCorrectly)
 {
@@ -100,6 +112,7 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesCorrectly)
     EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{\"threatid\":[\"threatid\"]}"));
 
     EXPECT_NO_THROW(Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()});
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, isDatabaseEmptyReturnsTrueOnEmptyDatabase)
@@ -114,6 +127,7 @@ TEST_F(TestThreatDatabase, isDatabaseEmptyReturnsTrueOnEmptyDatabase)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     EXPECT_TRUE(database.isDatabaseEmpty());
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, isDatabaseEmptyReturnsFalseOnNonEmptyDatabase)
@@ -129,6 +143,7 @@ TEST_F(TestThreatDatabase, isDatabaseEmptyReturnsFalseOnNonEmptyDatabase)
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.addThreat("threat","threat");
     EXPECT_FALSE(database.isDatabaseEmpty());
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, addThreatToDatabase)
@@ -143,6 +158,7 @@ TEST_F(TestThreatDatabase, addThreatToDatabase)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.addThreat("threatID","correlationid2");
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, addCorrelationIDToDatabase)
@@ -157,6 +173,7 @@ TEST_F(TestThreatDatabase, addCorrelationIDToDatabase)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.addThreat("threatid","correlationid");
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesHandlesUnexpectedStructureNewCorrelationID)
@@ -171,6 +188,7 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesHandlesUnexpectedStructureNewCor
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.addThreat("threatid","correlationid2");
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesHandlesUnexpectedStructureNewThreatID)
@@ -185,6 +203,7 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesHandlesUnexpectedStructureNewThr
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.addThreat("threatID2","correlationid2");
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, removeCorrelationIDRemovesThreatWhenNoMoreCorrelationIDsForThreatID)
@@ -199,6 +218,7 @@ TEST_F(TestThreatDatabase, removeCorrelationIDRemovesThreatWhenNoMoreCorrelation
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.removeCorrelationID("threatid");
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, removeCorrelationIDHandlesWhenThreatIsNotInDatabase)
@@ -213,6 +233,7 @@ TEST_F(TestThreatDatabase, removeCorrelationIDHandlesWhenThreatIsNotInDatabase)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     EXPECT_NO_THROW(database.removeCorrelationID("threatid2"));
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, removeThreatIDHandlesWhenThreatIsNotInDatabase)
@@ -227,6 +248,7 @@ TEST_F(TestThreatDatabase, removeThreatIDHandlesWhenThreatIsNotInDatabase)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     EXPECT_NO_THROW(database.removeThreatID("threatid2","threatid"));
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, removeCorrelationID)
@@ -241,6 +263,7 @@ TEST_F(TestThreatDatabase, removeCorrelationID)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.removeCorrelationID( "correlationID");
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, removeThreatID)
@@ -255,6 +278,7 @@ TEST_F(TestThreatDatabase, removeThreatID)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.removeThreatID("threatid");
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, removeThreatIDWhenThreatIDNotInDatabase)
@@ -272,6 +296,7 @@ TEST_F(TestThreatDatabase, removeThreatIDWhenThreatIDNotInDatabase)
     EXPECT_NO_THROW(database.removeThreatID("threatid"));
     std::string logMessage = internal::GetCapturedStderr();
     ASSERT_THAT(logMessage, ::testing::Not(::testing::HasSubstr("Cannot remove threat id")));
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, removeThreatIDWhenThreatIDNotInDatabaseLogsWarnningWhenLogTurnedOn)
@@ -289,6 +314,7 @@ TEST_F(TestThreatDatabase, removeThreatIDWhenThreatIDNotInDatabaseLogsWarnningWh
     EXPECT_NO_THROW(database.removeThreatID("threatid",false));
     std::string logMessage = internal::GetCapturedStderr();
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Cannot remove threat id"));
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, resetHealth)
@@ -303,6 +329,7 @@ TEST_F(TestThreatDatabase, resetHealth)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.resetDatabase();
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, resetHealthHandlesFileError)
@@ -317,4 +344,5 @@ TEST_F(TestThreatDatabase, resetHealthHandlesFileError)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     EXPECT_NO_THROW(database.resetDatabase());
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
