@@ -430,7 +430,7 @@ TEST_F(TestMountMonitor, TestfileSystemSetIsLimitedTo100Entries)
     std::string templateStr = "filesystem";
     std::set<std::string> input;
 
-    for (uint it=0; it<=(MountMonitor::TELEMETRY_FILE_SYSTEM_LIST_MAX + 10); it++)
+    for (int it=0; it<=(MountMonitor::TELEMETRY_FILE_SYSTEM_LIST_MAX + 10); it++)
     {
         auto inputStr = templateStr + std::to_string(it);
         input.emplace(inputStr, true);

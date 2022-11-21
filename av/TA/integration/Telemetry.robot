@@ -207,4 +207,4 @@ On Access Provides Event Telemetry
     ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${oaDict} =    Set Variable     ${telemetryJson['on_access_process']}
 
-    ${mounts} =     get_from_dictionary   ${oaDict}   Ratio-of-Dropped-Events
+    get_from_dictionary   ${oaDict}   Ratio-of-Dropped-Events
