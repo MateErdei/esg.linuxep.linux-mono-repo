@@ -431,21 +431,13 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                                                  mode="coverage", release_package=release_package)
 
     with stage.parallel('testing'):
-        if run_tests:
-            with stage.parallel('TA'):
-                test_inputs = get_inputs(context, av_build)
-                with stage.parallel('pytest'):
-                    with stage.parallel('component'):
-                        for (name, machine) in get_test_machines(test_inputs, parameters):
-                            stage.task(task_name=name, func=pytest_task, machine=machine)
+        # AWS first to give the highest chance to start quickest
+        if run_aws_tests:
+            aws_test_inputs = get_inputs(context, av_build, aws=True)
+            machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=aws_test_inputs, platform=tap.Platform.Linux)
+            stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
 
-                with stage.parallel('robot'):
-                    for include in include_tag.split():
-                        with stage.parallel(include):
-                            for (name, machine) in get_test_machines(test_inputs, parameters):
-                                stage.task(task_name=name, func=robot_task, machine=machine,
-                                           include_tag=include)
-
+        # Coverage next, since that is the next slowest
         if do_coverage:
             with stage.parallel('coverage'):
                 coverage_inputs = get_inputs(context, coverage_build, coverage=True)
@@ -483,7 +475,18 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                            machine=machine_bullseye_combine,
                            include_tag=include_tag)
 
-        if run_aws_tests:
-            aws_test_inputs = get_inputs(context, av_build, aws=True)
-            machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=aws_test_inputs, platform=tap.Platform.Linux)
-            stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
+        if run_tests:
+            with stage.parallel('TA'):
+                test_inputs = get_inputs(context, av_build)
+                # Robot before pytest, since pytest is quick
+                with stage.parallel('robot'):
+                    for include in include_tag.split():
+                        with stage.parallel(include):
+                            for (name, machine) in get_test_machines(test_inputs, parameters):
+                                stage.task(task_name=name, func=robot_task, machine=machine,
+                                           include_tag=include)
+
+                with stage.parallel('pytest'):
+                    with stage.parallel('component'):
+                        for (name, machine) in get_test_machines(test_inputs, parameters):
+                            stage.task(task_name=name, func=pytest_task, machine=machine)
