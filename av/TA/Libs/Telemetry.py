@@ -27,6 +27,7 @@ def check_telemetry(telemetry):
     assert "threatMemoryUsage" in av_dict, "No Threat Memory Usage in telemetry"
     assert "threatProcessAge" in av_dict, "No Threat Process Age in telemetry"
     assert "onAccessConfigured" in av_dict, "No onAccessConfigured in telemetry"
+    assert "corrupt-threat-database" in av_dict, "No Corrupt Threat Database value in telemetry"
     assert av_dict["lr-data-hash"] != "unknown", "LR Data Hash is set to unknown in telemetry"
     assert av_dict["ml-lib-hash"] != "unknown", "ML Lib Hash is set to unknown in telemetry"
     assert av_dict["ml-pe-model-version"] != "unknown", "No ML-PE Model is set to unknown in telemetry"
@@ -35,6 +36,7 @@ def check_telemetry(telemetry):
     assert av_dict["sxl4-lookup"], "SXL4 Lookup is defaulting to True in telemetry"
     assert av_dict["health"] == 0, "Health is not set to 0 in telemetry, showing bad AV Plugin Health"
     assert av_dict["threatHealth"] == 1, "Threat Health is not set to 1 in telemetry (1 = good, 2 = suspicious)"
+    assert av_dict["corrupt-threat-database"], "Corrupt Threat Database is defaulting to True in telemetry"
 
 
 def check_safestore_telemetry_dict(telemetry):
