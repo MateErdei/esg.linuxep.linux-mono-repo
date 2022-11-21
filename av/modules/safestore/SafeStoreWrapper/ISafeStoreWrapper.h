@@ -12,6 +12,7 @@
 #pragma once
 
 #include <cassert>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -79,24 +80,14 @@ namespace safestore::SafeStoreWrapper
         MAX_STORED_OBJECT_COUNT
     };
 
-    inline std::string configOptionToString(const ConfigOption& option)
+    static const std::map<ConfigOption, std::string> GL_OPTIONS_MAP
     {
-        switch(option)
-        {
-            case ConfigOption::MAX_SAFESTORE_SIZE:
-                return "Max_SafeStore_Size";
-            case ConfigOption::MAX_OBJECT_SIZE:
-                return "Max_Object_Size";
-            case ConfigOption::MAX_REG_OBJECT_COUNT:
-                return "Max_Reg_Object_Count";
-            case ConfigOption::AUTO_PURGE:
-                return "Auto_Purge";
-            case ConfigOption::MAX_STORED_OBJECT_COUNT:
-                return "Max_Stored_Object_Count";
-            default:
-                return "Value has no corresponding string";
-        }
-    }
+        { ConfigOption::MAX_SAFESTORE_SIZE, "MaxSafeStoreSize" },
+        { ConfigOption::MAX_OBJECT_SIZE, "MaxObjectSize" },
+        { ConfigOption::MAX_REG_OBJECT_COUNT , "MaxRegObjectCount" },
+        { ConfigOption::AUTO_PURGE, "AutoPurge" },
+        { ConfigOption::MAX_STORED_OBJECT_COUNT, "MaxStoredObjectCount" },
+    };
 
     enum class ObjectType
     {

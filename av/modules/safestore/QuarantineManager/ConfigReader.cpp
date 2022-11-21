@@ -3,10 +3,12 @@
 #include "ConfigReader.h"
 
 #include "safestore/Logger.h"
+#include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
 
 #include "common/ApplicationPaths.h"
 
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
 
 #include <thirdparty/nlohmann-json/json.hpp>
 
@@ -22,7 +24,7 @@ namespace safestore
             {
                 auto configContents = fileSystem->readFile(Plugin::getSafeStoreConfigPath());
                 nlohmann::json j = nlohmann::json::parse(configContents);
-                for (const auto& [optionAsString, option] : GL_OPTIONS_MAP)
+                for (const auto& [option, optionAsString] : safestore::SafeStoreWrapper::GL_OPTIONS_MAP)
                 {
                     if (j.contains(optionAsString) && j[optionAsString].is_number_unsigned())
                     {
@@ -40,6 +42,10 @@ namespace safestore
             catch (nlohmann::json::parse_error& e)
             {
                 LOGERROR("Failed to parse SafeStore config json: " << e.what());
+            }
+            catch (Common::FileSystem::IFileSystemException& e)
+            {
+                LOGERROR("Failed to read SafeStore config json: " << e.what());
             }
         }
     }

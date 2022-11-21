@@ -346,6 +346,7 @@ namespace safestore::SafeStoreWrapper
 
     bool SafeStoreWrapperImpl::setConfigIntValue(ConfigOption option, uint64_t value)
     {
+
         auto returnCode =
             SafeStore_SetConfigIntValue(m_safeStoreHolder->getHandle(), convertToSafeStoreConfigId(option), value);
         if (returnCode == SR_OK)
@@ -354,7 +355,7 @@ namespace safestore::SafeStoreWrapper
         }
         LOGWARN(
             "Got " << safeStoreReturnCodeToString(returnCode)
-                   << " when setting config option: " << configOptionToString(option) << " to: " << value);
+                   << " when setting config option: " << GL_OPTIONS_MAP.at(option) << " to: " << value);
         return false;
     }
 
