@@ -349,7 +349,7 @@ TEST_F(TestMountMonitor, TestMonitorLogsTelemetryFileSystemType)
 
     auto resContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     PRINT(resContent);
-    ASSERT_TRUE(resContent.find(expectedFileSystem) != std::string::npos);
+    EXPECT_TRUE(resContent.find(expectedFileSystem) != std::string::npos);
     EXPECT_TRUE(waitForLog("Stopping monitoring of mounts"));
 }
 
@@ -359,16 +359,16 @@ TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryIsPersistant)
         "squashfs",
         "tmpfs"
     };
-    const std::string expectedFileSystemStr = "{\"file-system-types\":[\"squashfs\",\"tmpfs\"]}";
+    auto expectedFileSystemStr =R"sophos({"file-system-types":["squashfs","tmpfs"]})sophos";
 
     auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
 
     mountMonitor->addFileSystemToTelemetry(input);
     auto firstContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    ASSERT_EQ(firstContent, expectedFileSystemStr);
+    EXPECT_EQ(firstContent, expectedFileSystemStr);
 
     auto secondContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    ASSERT_EQ(firstContent, secondContent);
+    EXPECT_EQ(firstContent, secondContent);
 }
 
 TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryCanBeChangedAndNotDuplicated)
@@ -383,24 +383,24 @@ TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryCanBeChangedAndNotDuplica
         "ext4"
     };
 
-    const std::string expectedFileSystemStr1 = "{\"file-system-types\":[\"squashfs\",\"tmpfs\"]}";
-    const std::string expectedFileSystemStr2 = "{\"file-system-types\":[\"cifs\",\"ext4\"]}";
+    auto expectedFileSystemStr1 =R"sophos({"file-system-types":["squashfs","tmpfs"]})sophos";
+    auto expectedFileSystemStr2 =R"sophos({"file-system-types":["cifs","ext4"]})sophos";
 
     auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
 
     mountMonitor->addFileSystemToTelemetry(input1);
     auto firstContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    ASSERT_EQ(firstContent, expectedFileSystemStr1);
+    EXPECT_EQ(firstContent, expectedFileSystemStr1);
 
     mountMonitor->addFileSystemToTelemetry(input2);
     auto secondContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    ASSERT_EQ(secondContent, expectedFileSystemStr2);
+    EXPECT_EQ(secondContent, expectedFileSystemStr2);
 }
 
 TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryDoesntIncludeSpecialMP)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    const std::string expectedFileSystemStr = "{\"file-system-types\":[\"ValidFileSystem\"]}";
+    auto expectedFileSystemStr =R"sophos({"file-system-types":["ValidFileSystem"]})sophos";
 
     std::vector<IMountPointSharedPtr> mountPointVec;
     auto testSkipDevice = std::make_shared<NiceMock<MockMountPoint>>();
@@ -422,7 +422,7 @@ TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryDoesntIncludeSpecialMP)
     EXPECT_TRUE(waitForLog("Including 1 mount points in on-access scanning"));
 
     auto secondContent = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    ASSERT_EQ(secondContent, expectedFileSystemStr);
+    EXPECT_EQ(secondContent, expectedFileSystemStr);
 }
 
 TEST_F(TestMountMonitor, TestfileSystemSetIsLimitedTo100Entries)
@@ -439,7 +439,7 @@ TEST_F(TestMountMonitor, TestfileSystemSetIsLimitedTo100Entries)
     ASSERT_GT(input.size(), MountMonitor::telemetryFileSystemListMax);
     auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
     mountMonitor->addFileSystemToTelemetry(input);
-    ASSERT_EQ(input.size(), MountMonitor::telemetryFileSystemListMax);
+    EXPECT_EQ(input.size(), MountMonitor::telemetryFileSystemListMax);
 }
 
 TEST_F(TestMountMonitor, TestFileSystemTelemetryCanHandleLongFileSystemNames)
@@ -449,18 +449,18 @@ TEST_F(TestMountMonitor, TestFileSystemTelemetryCanHandleLongFileSystemNames)
         longFileSystemName
     };
 
-    const std::string expectedFileSystemStr = "{\"file-system-types\":[\"" + longFileSystemName+ "\"]}";
+    auto expectedFileSystemStr =R"sophos({"file-system-types":["iamareallylongfilesystemtypewhoneedstobetestedintelemetry"]})sophos";
 
     auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
 
     mountMonitor->addFileSystemToTelemetry(input);
     auto content = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    ASSERT_EQ(content, expectedFileSystemStr);
+    EXPECT_EQ(content, expectedFileSystemStr);
 }
 
 TEST_F(TestMountMonitor, TestFileSystemTelemetryCanHandleNonAlphaNumericCharacters)
 {
-    std::string nonAlphaNumericCharacters = "\\\"#@><./?!£$%^&*(){{}}~:;`¬-_=+1234567890";
+    auto nonAlphaNumericCharacters = R"sophos(\"#@><./?!£$%^&*(){{}}~:;`¬-_=+1234567890)sophos";
     std::set<std::string> input {
         nonAlphaNumericCharacters
     };
@@ -471,5 +471,5 @@ TEST_F(TestMountMonitor, TestFileSystemTelemetryCanHandleNonAlphaNumericCharacte
     mountMonitor->addFileSystemToTelemetry(input);
     auto content = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     std::string ExpectedTelemetry{ R"sophos({"file-system-types":["\\\"#@><./?!£$%^&*(){{}}~:;`¬-_=+1234567890"]})sophos" };
-    ASSERT_EQ(content, ExpectedTelemetry);
+    EXPECT_EQ(content, ExpectedTelemetry);
 }
