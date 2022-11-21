@@ -113,7 +113,6 @@ namespace mount_monitor::mount_monitor
 
     void MountMonitor::markMounts(const mountinfo::IMountPointSharedVector& allMounts)
     {
-        //The bool is superfluous, we want unique list of keys
         std::set<std::string> fileSystemSet;
         int count = 0;
         for (const auto& mount: allMounts)
