@@ -202,12 +202,14 @@ AV Plugin Scans local secondary mount only once
     ${scanObjectSet} =  Policy Fragment FS Types  hardDrives=true
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${scanName}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
-    send av policy  ${SAV_APPID}  ${policyContent}
-    Wait until scheduled scan updated With Offset
 
-    Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: ${scanName}   timeout=30
-    Wait Until AV Plugin Log Contains With Offset  Starting scan ${scanName}     timeout=90
-    Wait Until AV Plugin Log Contains With Offset  Completed scan ${scanName}    timeout=60
+    ${av_mark} =  get_av_log_mark
+    send av policy  ${SAV_APPID}  ${policyContent}
+    Wait until scheduled scan updated After Mark  ${av_mark}
+
+    wait_for_log_contains_from_mark  ${av_mark}  Scheduled Scan: ${scanName}   timeout=30
+    wait_for_log_contains_from_mark  ${av_mark}  Starting scan ${scanName}     timeout=90
+    wait_for_log_contains_from_mark  ${av_mark}  Completed scan ${scanName}    timeout=60
     File Should Exist  ${scanName_log}
     File Log Contains  ${scanName_log}  "${destination}/eicar.com" is infected with EICAR-AV-Test (Scheduled)
 
