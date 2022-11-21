@@ -15,16 +15,20 @@ using namespace nlohmann;
 
 namespace common::ThreatDetector
 {
-    std::string SusiSettings::serialise() const
+    SusiSettings::SusiSettings(const std::string& jsonSettingsPath)
     {
-        nlohmann::json settings;
-        settings[ENABLED_SXL_LOOKUP_KEY] = m_susiSxlLookupEnabled;
-        settings[SHA_ALLOW_LIST_KEY] = m_susiAllowListSha256;
-        return settings.dump();
+        load(jsonSettingsPath);
+    }
+
+    bool SusiSettings::operator==(const SusiSettings& rhs) const noexcept
+    {
+        return m_susiAllowListSha256 == rhs.m_susiAllowListSha256 &&
+               m_susiSxlLookupEnabled == rhs.m_susiSxlLookupEnabled;
     }
 
     bool SusiSettings::load(const std::string& threatDetectorSettingsPath)
     {
+        std::scoped_lock scopedLock(m_accessMutex);
         try
         {
             auto fs = Common::FileSystem::fileSystem();
@@ -68,13 +72,9 @@ namespace common::ThreatDetector
         return false;
     }
 
-    SusiSettings::SusiSettings(const std::string& jsonSettingsPath)
-    {
-        load(jsonSettingsPath);
-    }
-
     void SusiSettings::saveSettings(const std::string& path, mode_t permissions) const
     {
+        std::scoped_lock scopedLock(m_accessMutex);
         try
         {
             auto fs = Common::FileSystem::fileSystem();
@@ -86,5 +86,42 @@ namespace common::ThreatDetector
         {
             LOGERROR("Failed to save Threat Detector SUSI settings");
         }
+    }
+
+    std::string SusiSettings::serialise() const
+    {
+        nlohmann::json settings;
+        settings[ENABLED_SXL_LOOKUP_KEY] = m_susiSxlLookupEnabled;
+        settings[SHA_ALLOW_LIST_KEY] = m_susiAllowListSha256;
+        return settings.dump();
+    }
+
+    bool SusiSettings::isAllowListed(const std::string& threatChecksum) const noexcept
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        return std::find(m_susiAllowListSha256.begin(), m_susiAllowListSha256.end(), threatChecksum) != m_susiAllowListSha256.end();
+    }
+
+    void SusiSettings::setAllowList(AllowList&& allowList) noexcept
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        m_susiAllowListSha256 = std::move(allowList);
+    }
+
+    bool SusiSettings::isSxlLookupEnabled() const noexcept
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        return m_susiSxlLookupEnabled;
+    }
+
+    void SusiSettings::setSxlLookupEnabled(bool enabled) noexcept
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        m_susiSxlLookupEnabled = enabled;
+    }
+
+    const AllowList& SusiSettings::accessAllowList() const noexcept
+    {
+        return m_susiAllowListSha256;
     }
 } // namespace common::ThreatDetector

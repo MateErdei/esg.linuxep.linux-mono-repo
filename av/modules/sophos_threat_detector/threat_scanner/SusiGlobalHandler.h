@@ -73,7 +73,7 @@ namespace threat_scanner
          */
         bool isShuttingDown();
 
-        common::ThreatDetector::SusiSettings m_settings;
+        std::unique_ptr<common::ThreatDetector::SusiSettings> m_settings;
 
     private:
         std::atomic_bool m_susiInitialised = false;

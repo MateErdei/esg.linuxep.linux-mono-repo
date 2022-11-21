@@ -112,7 +112,7 @@ namespace Plugin
 
     bool PolicyProcessor::getSXL4LookupsEnabled() const
     {
-        return m_threatDetectorSettings.m_susiSxlLookupEnabled;
+        return m_threatDetectorSettings.isSxlLookupEnabled();
     }
 
     std::string PolicyProcessor::getCustomerId(const Common::XmlUtilities::AttributesMap& policy)
@@ -210,12 +210,12 @@ namespace Plugin
     {
         processOnAccessPolicy(policy);
 
-        bool oldLookupEnabled = m_threatDetectorSettings.m_susiSxlLookupEnabled;
-        m_threatDetectorSettings.m_susiSxlLookupEnabled = isLookupEnabled(policy);
+        bool oldLookupEnabled = m_threatDetectorSettings.isSxlLookupEnabled();
+        m_threatDetectorSettings.setSxlLookupEnabled(isLookupEnabled(policy));
 
-        if (m_gotFirstSavPolicy && m_threatDetectorSettings.m_susiSxlLookupEnabled == oldLookupEnabled)
+        if (m_gotFirstSavPolicy && m_threatDetectorSettings.isSxlLookupEnabled() == oldLookupEnabled)
         {
-            // Dont restart Threat Detector if its not changed and its not the first policy
+            // Don't restart Threat Detector if config has not changed, and it's not the first policy
             m_restartThreatDetector = false;
             return;
         }
@@ -365,15 +365,16 @@ namespace Plugin
             m_gotFirstCorcPolicy = true;
         }
 
-        auto allowList = policy.lookupMultiple("policy/whitelist/item");
-        for (const auto& allowedItem : allowList)
+        auto allowListFromPolicy = policy.lookupMultiple("policy/whitelist/item");
+        std::vector<std::string> sha256AllowList;
+        for (const auto& allowedItem : allowListFromPolicy)
         {
             if (allowedItem.value("type") == "sha256" && !allowedItem.contents().empty())
             {
-                m_threatDetectorSettings.m_susiAllowListSha256.emplace_back(allowedItem.contents());
+                sha256AllowList.emplace_back(allowedItem.contents());
             }
         }
-
+        m_threatDetectorSettings.setAllowList(std::move(sha256AllowList));
         saveSusiSettings();
     }
 

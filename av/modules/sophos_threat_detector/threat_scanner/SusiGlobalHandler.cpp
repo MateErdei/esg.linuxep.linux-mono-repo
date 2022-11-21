@@ -24,20 +24,17 @@ namespace threat_scanner
     namespace
     {
 
-        // TODO 5921 - m_settings access and setting needs to be thread safe, it's not.
         bool isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size)
         {
             (void)algorithm;
 
             auto* susiHandler = reinterpret_cast<SusiGlobalHandler*>(&token);
 
-            for (auto const& sha : susiHandler->m_settings.m_susiAllowListSha256)
+
+            if (susiHandler->m_settings->isAllowListed(fileChecksum))
             {
-                if (fileChecksum == sha)
-                {
-                    LOGDEBUG("isAllowlistedFile: allowed by sha: " << sha);
-                    return true;
-                }
+                LOGDEBUG("isAllowlistedFile, allowed by sha: " << fileChecksum);
+                return true;
             }
 
             LOGDEBUG("isAllowlistedFile: size=" << size);
