@@ -212,6 +212,22 @@ TEST_F(TestEventReaderThread, ReceiveEvent)
     EXPECT_FALSE(event->isOpenEvent());
 }
 
+TEST_F(TestEventReaderThread, ReceiveBadUnicode)
+{
+    const char* filePath = "/tmp/\xef\xbf\xbe_\xef\xbf\xbf_\xEF\xBF\xBE\xEF\xBF\xBF";
+    setupExpectationsForOneEvent(filePath);
+
+    {
+        auto eventReader = makeDefaultEventReaderThread();
+        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+    }
+
+    ASSERT_EQ(m_scanRequestQueue->size(), 1);
+    auto event = m_scanRequestQueue->pop();
+    ASSERT_TRUE(event);
+    EXPECT_EQ(event->getPath(), filePath);
+}
+
 TEST_F(TestEventReaderThread, ReceiveExcessivelyLongFilePath)
 {
     std::array<char, 5000> filePath;
@@ -616,7 +632,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     eventReaderThread.requestStopIfNotStopped();
 
-    EXPECT_EQ(m_scanRequestQueue->size(), 1);
+    ASSERT_EQ(m_scanRequestQueue->size(), 1);
     auto popItem = m_scanRequestQueue->pop();
     EXPECT_TRUE(popItem != nullptr);
     EXPECT_NE(popItem->getFd(), -1);
@@ -992,7 +1008,7 @@ TEST_F(TestEventReaderThread, TestReaderResetsMissedEventCountAfterStopStart)
     eventReaderGuard.onEventNoArgs();
 }
 
-TEST_F(TestEventReaderThread, TestReaderLogsErrorFromPpollAndContinues)
+TEST_F(TestEventReaderThread, TestReaderLogsErrorFromPpollAndThrows)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1012,7 +1028,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorFromPpollAndContinues)
     }
 }
 
-TEST_F(TestEventReaderThread, TestReaderContinuesQuietyWhenPpollThrowsEINTR)
+TEST_F(TestEventReaderThread, TestReaderContinuesQuietyWhenPpollReturnsEINTR)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
