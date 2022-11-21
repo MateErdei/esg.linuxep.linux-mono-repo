@@ -383,7 +383,8 @@ TEST_F(TestScanScheduler, scanNowIncrementsTelemetryCounter)
     scheduler->updateConfig(scheduledScanConfiguration);
     scheduler->scanNow();
 
-    ASSERT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
+    // wait for first log message after telemetry is updated
+    ASSERT_TRUE(waitForLog("Starting scan Scan Now", 500ms));
 
     telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     std::string ExpectedTelemetry{ R"sophos({"scan-now-count":1})sophos" };

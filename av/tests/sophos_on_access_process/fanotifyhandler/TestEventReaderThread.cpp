@@ -413,6 +413,8 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
 
     eventReaderThread.requestStopIfNotStopped();
+
+    clearMemoryAppender();
     eventReaderThread.startIfNotStarted();
 
     std::stringstream logMsg2;
@@ -858,8 +860,10 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTime)
 
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     m_smallScanRequestQueue->restart();
+
+    clearMemoryAppender();
     eventReaderGuard.onEventNoArgs();
-    EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full.", 2, 100ms));
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     EXPECT_TRUE(appenderContains("Queue is no longer full. Number of events dropped: 1"));
 }
 
@@ -904,8 +908,9 @@ TEST_F(TestEventReaderThread, TestReaderLogsCorrectlyWhenQueueIsNoLongerFullButN
     m_smallScanRequestQueue->pop();
     EXPECT_EQ(m_smallScanRequestQueue->size(), 2);
 
+    clearMemoryAppender();
     queueNotFull.onEventNoArgs();
-    EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full.", 2, 100ms));
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     EXPECT_TRUE(appenderContains("Queue is no longer full. Number of events dropped: 2"));
 }
 
@@ -995,13 +1000,17 @@ TEST_F(TestEventReaderThread, TestReaderResetsMissedEventCountAfterStopStart)
     //Restart
     eventReaderGuard.onEventNoArgs();
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+
+    //Restart
     eventReaderThread.requestStopIfNotStopped();
     eventReaderGuard.clear();
+
+    clearMemoryAppender();
     m_smallScanRequestQueue->restart();
     eventReaderThread.startIfNotStarted();
 
     //Wait for queue to fill again and make critical observation
-    EXPECT_TRUE(waitForLogMultiple("Failed to add scan request to queue, on-access scanning queue is full.", 2));
+    EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     EXPECT_FALSE(appenderContains("Queue is no longer full. Number of events dropped: 1"));
 
     //End test
