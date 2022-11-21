@@ -7,6 +7,7 @@ Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/SafeStoreResources.robot
+Resource    ../shared/OnAccessResources.robot
 
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
@@ -265,6 +266,23 @@ SafeStore Does Not Restore Quarantined Files When Uninstalled
 
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
+SafeStore Runs As Root
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    ${av_mark} =  Get AV Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+
+    Create File     ${SCAN_DIRECTORY}/eicar.com  ${EICAR_STRING}
+    Change Owner  ${SCAN_DIRECTORY}/eicar.com  root  root
+    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com
+
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
 
 *** Keywords ***
 SafeStore Test Setup
