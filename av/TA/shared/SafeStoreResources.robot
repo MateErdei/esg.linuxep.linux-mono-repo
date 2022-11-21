@@ -16,6 +16,8 @@ ${SAFESTORE_DB_PASSWORD_PATH}         ${SAFESTORE_DB_DIR}/safestore.pw
 
 ${SAFESTORE_TELEMETRY_BACKUP_JSON}    ${SSPL_BASE}/telemetry/cache/safestore-telemetry.json
 
+${THREAT_DATABASE_PATH}               ${COMPONENT_VAR_DIR}/persist-threatDatabase
+
 
 *** Keywords ***
 Stop SafeStore

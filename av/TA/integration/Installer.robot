@@ -673,7 +673,7 @@ AV Plugin Can Send Telemetry After IDE Update
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
-    Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
+    Remove File  ${THREAT_DATABASE_PATH}
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
 
     Send Policies to enable on-access
@@ -746,106 +746,14 @@ AV Plugin Restores Downgrade Logs
 
 AV Plugin Restores Downgrade SafeStore Databases
     Restart AV Plugin
-    Wait Until File exists    ${COMPONENT_VAR_DIR}/persist-threatDatabase
+    Wait Until File exists    ${THREAT_DATABASE_PATH}
 
     Run plugin uninstaller with downgrade flag
     Directory Should Exist  ${SAFESTORE_BACKUP_DIR}
     Check AV Plugin Not Installed
     Install AV Directly from SDDS
 
-    # File will be removed so test it is put back
-    Wait Until File exists  ${COMPONENT_VAR_DIR}/persist-threatDatabase
     Verify SafeStore Database Backups Exist in Path    ${AV_RESTORED_VAR_DIRECTORY}
-
-AV Plugin Restores Older SafeStore Database On Upgrade
-    Check AV Plugin Running
-    Run plugin uninstaller with downgrade flag
-    Check AV Plugin Not Installed
-
-    Remove All But One SafeStore Backup
-    ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
-
-    Install AV Directly from SDDS
-    Wait Until Keyword Succeeds
-    ...    60 secs
-    ...    5 secs
-    ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database (${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}) to ${SAFESTORE_DB_DIR}
-    Directory Should Not Exist    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}
-    Verify SafeStore Database Exists
-
-    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
-
-AV Plugin Restores Newest SafeStore Database Backup On Upgrade
-    Register Cleanup    Remove Directory    /tmp/safestore_db_copy    recursive=True
-    Check AV Plugin Running
-    Copy Directory    ${SAFESTORE_DB_DIR}    /tmp/safestore_db_copy
-
-    Run plugin uninstaller with downgrade flag
-    Check AV Plugin Not Installed
-
-    # (2003-10-19 16:24:42)
-    Copy Directory    /tmp/safestore_db_copy    ${AV_RESTORED_VAR_DIRECTORY}/1066580682_SafeStore_1.0.0
-    # (2006-02-02 10:01:31)
-    Copy Directory    /tmp/safestore_db_copy    ${AV_RESTORED_VAR_DIRECTORY}/1138874491_SafeStore_1.0.0
-    # (2019-01-13 23:23:49)
-    Copy Directory    /tmp/safestore_db_copy    ${AV_RESTORED_VAR_DIRECTORY}/1376107843_SafeStore_1.0.0
-    # (2013-08-10 04:10:43)
-    Copy Directory    /tmp/safestore_db_copy    ${AV_RESTORED_VAR_DIRECTORY}/1066580682_SafeStore_1.0.0
-    # (2056-11-17 10:57:13) - Newest Database that will be restored
-    Copy Directory    /tmp/safestore_db_copy    ${AV_RESTORED_VAR_DIRECTORY}/2741684233_SafeStore_1.0.0
-
-    Install AV Directly from SDDS
-
-    Wait Until Keyword Succeeds
-    ...    60 secs
-    ...    5 secs
-    ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database (${AV_RESTORED_VAR_DIRECTORY}/2741684233_SafeStore_1.0.0) to ${SAFESTORE_DB_DIR}
-
-    Directory Should Not Exist    ${AV_RESTORED_VAR_DIRECTORY}/2741684233_SafeStore_1.0.0
-    Verify SafeStore Database Exists
-
-    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
-
-Older SafeStore Database Is Not Restored When A SafeStore Database Is Already Present
-    Register Cleanup    Remove Directory    /tmp/safestore_db_copy    recursive=True
-    Check AV Plugin Running
-    Copy Directory    ${SAFESTORE_DB_DIR}    /tmp/safestore_db_copy
-
-    Run plugin uninstaller with downgrade flag
-    Check AV Plugin Not Installed
-
-    Remove All But One SafeStore Backup
-    ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
-    Move Directory    /tmp/safestore_db_copy    ${SAFESTORE_DB_DIR}
-
-    Install AV Directly from SDDS
-
-    Wait Until Keyword Succeeds
-    ...    60 secs
-    ...    5 secs
-    ...    File Log Contains    ${AV_INSTALL_LOG}    SafeStore database already exists so will not attempt to restore: ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}
-    Directory Should Exist    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}
-    Verify SafeStore Database Exists
-
-Older SafeStore Database Is Not Restored When It Is Not Compaitible With Current AV Version
-    Check AV Plugin Running
-    Run plugin uninstaller with downgrade flag
-    Check AV Plugin Not Installed
-
-    Remove All But One SafeStore Backup
-    ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
-    Move Directory    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}    ${AV_RESTORED_VAR_DIRECTORY}/123456789_SafeStore_9.9.9
-
-    Install AV Directly from SDDS
-    ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
-
-    Wait Until Keyword Succeeds
-    ...    60 secs
-    ...    5 secs
-    ...    File Log Contains    ${AV_INSTALL_LOG}    SafeStore Database (${AV_RESTORED_VAR_DIRECTORY}/123456789_SafeStore_9.9.9) is not compatible with the current AV version (${version}) so will not attempt to restore
-    Directory Should Exist    ${AV_RESTORED_VAR_DIRECTORY}/123456789_SafeStore_9.9.9
-
-    Verify SafeStore Database Exists
 
 AV Can not install from SDDS Component
     ${result} =  Run Process  bash  ${COMPONENT_SDDS_COMPONENT}/install.sh  stderr=STDOUT  timeout=30s
@@ -976,7 +884,6 @@ Installer Test Setup
     Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
     Register On Fail  dump log  ${AV_LOG_PATH}
     Register On Fail  dump log  ${ON_ACCESS_LOG_PATH}
-    Register On Fail  dump log  ${SAFESTORE_LOG_PATH}
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
     Require Plugin Installed and Running
@@ -985,8 +892,6 @@ Installer Test Setup
 
     #Register Cleanup has LIFO order, so checking for errors is done last.
     Register Cleanup    Check All Product Logs Do Not Contain Error
-    # TODO: Remove once LINUXDAR-4486 is fixed
-    Register Cleanup    Exclude AV Died With
     Register Cleanup    Exclude CustomerID Failed To Read Error
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude Communication Between AV And Base Due To No Incoming Data

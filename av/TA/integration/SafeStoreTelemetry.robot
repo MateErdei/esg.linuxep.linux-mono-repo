@@ -170,3 +170,34 @@ SafeStore Increments Quarantine Counter After Failed Quarantine
 
    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
+
+Corrupt Threat Database Telemetry Is Not Reported When Database File Is Not On Disk
+    Install With Base SDDS
+    File Should Not Exist   ${THREAT_DATABASE_PATH}
+
+    # Assumes threat health is 1 (good)
+    Run Telemetry Executable With HTTPS Protocol    port=${4431}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    Log    ${telemetryJson}
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Not Contain Key    ${avDict}   corrupt-threat-database
+
+Corrupt Threat Database Telemetry Is Reported
+    Stop AV Plugin
+    Wait until AV Plugin Not Running
+    Create File     ${THREAT_DATABASE_PATH}    {T26796de6ce94770}
+
+    Start AV Plugin
+    Wait Until AV Plugin Log Contains    Initialised Threat Database
+
+    # Assumes threat health is 1 (good)
+    Run Telemetry Executable With HTTPS Protocol    port=${4431}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    Log    ${telemetryJson}
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Check AV Telemetry        corrupt-threat-database    ${True}
+

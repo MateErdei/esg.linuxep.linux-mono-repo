@@ -18,8 +18,6 @@ Library         Collections
 
 Test Setup      ThreatDatabase Test Setup
 Test Teardown   ThreatDatabase Test TearDown
-*** Variables ***
-${THREAT_DATABASE_PATH}        ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
 
 *** Test Cases ***
 Threat is added to Threat database when threat is not quarantined
