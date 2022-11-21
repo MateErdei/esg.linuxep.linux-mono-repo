@@ -245,12 +245,14 @@ Clean CLS Result Does Not Reset Threat Health
     Check Threat Health is Reporting Correctly    SUSPICIOUS
 
 Bad Threat Health is preserved after av plugin restarts
+    Send CORE Policy To Base  core_policy/CORE-36_oa_disabled.xml
     Check Threat Health is Reporting Correctly    GOOD
 
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
 
-    Configure and check scan now with offset
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    ${av_mark} =  Get AV Log Mark
+    Configure and run scan now
+    wait_for_log_contains_from_mark  ${av_mark}  Completed scan  timeout=180
 
     Check Threat Health is Reporting Correctly    SUSPICIOUS
     Stop AV Plugin

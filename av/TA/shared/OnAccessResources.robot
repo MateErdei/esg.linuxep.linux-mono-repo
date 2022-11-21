@@ -96,14 +96,17 @@ Terminate On Access And AV
     Terminate On Access
     Terminate AV
 
+Configure On-access Off With Core Policy With Fake Management
+    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
+
 Disable OA Scanning
     [Arguments]  ${mark}=${None}
     IF   $mark is None
             ${mark} =  get_on_access_log_mark
     END
-    send av policy from file  ${SAV_APPID}   ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
-    send av policy from file  CORE           ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
-    send av policy from file  FLAGS          ${RESOURCES_PATH}/flags_policy/flags.json
+    send av policy from file  ${SAV_APPID}    ${RESOURCES_PATH}/SAV-2_policy_OA_disabled.xml
+    Configure On-access Off With Core Policy With Fake Management
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
 
     wait for on access log contains after mark  "oa_enabled":false   mark=${mark}
     wait for on access log contains after mark  Joining eventReader   mark=${mark}

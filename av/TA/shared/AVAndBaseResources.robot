@@ -91,6 +91,12 @@ Run plugin uninstaller with downgrade flag
     ${result} =   Run Process  ${COMPONENT_SBIN_DIR}/uninstall.sh  --downgrade   stderr=STDOUT
     Log    ${result.stdout}
 
+Configure and run scan now
+    ${av_mark} =  Get AV Log Mark
+    Configure scan now
+    Run Scan Now After Mark  ${av_mark}
+
+
 Configure and check scan now with offset
     Configure scan now
     Check scan now with Offset
@@ -123,6 +129,15 @@ Check scan now with Offset
     Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=10
     AV Plugin Log Contains With Offset  Evaluating Scan Now
     AV Plugin Log Contains With Offset  Starting scan Scan Now
+
+Run Scan Now After Mark
+    [Arguments]  ${av_mark}
+    Register On Fail If Unique  dump log  ${SCANNOW_LOG_PATH}
+    Send Sav Action To Base  ScanNow_Action.xml
+    wait_for_log_contains_from_mark  ${av_mark}  Completed scan Scan Now  timeout=180
+    check_av_log_contains_after_mark  Evaluating Scan Now  mark=${av_mark}
+    check_av_log_contains_after_mark  Starting scan Scan Now  mark=${av_mark}
+
 
 Validate latest Event
     [Arguments]  ${now}
