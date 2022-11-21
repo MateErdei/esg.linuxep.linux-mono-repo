@@ -175,7 +175,6 @@ Corrupt Threat Database Telemetry Is Not Reported When Database File Is Not On D
     Install With Base SDDS
     File Should Not Exist   ${THREAT_DATABASE_PATH}
 
-    # Assumes threat health is 1 (good)
     Run Telemetry Executable With HTTPS Protocol    port=${4431}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -187,17 +186,11 @@ Corrupt Threat Database Telemetry Is Not Reported When Database File Is Not On D
 Corrupt Threat Database Telemetry Is Reported
     Stop AV Plugin
     Wait until AV Plugin Not Running
-    Create File     ${THREAT_DATABASE_PATH}    {T26796de6ce94770}
+    Create File     ${THREAT_DATABASE_PATH}    {T26796de6c
 
     Start AV Plugin
+    Wait Until AV Plugin Log Contains    Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error
     Wait Until AV Plugin Log Contains    Initialised Threat Database
 
-    # Assumes threat health is 1 (good)
-    Run Telemetry Executable With HTTPS Protocol    port=${4431}
-
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
-    Log    ${telemetryJson}
-    ${avDict}=    Set Variable     ${telemetryJson['av']}
     Check AV Telemetry        corrupt-threat-database    ${True}
 
