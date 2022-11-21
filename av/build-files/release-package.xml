@@ -10,15 +10,15 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-45"
-                             build-id="20221031083111-b7dbd1f7018e7210c6e3a8fd26a42f004fa4730f-wlBvi0"/>
+            <release-version branch="release/2022-48"
+                             build-id="20221120203615-3366f54a200355d24cc68279aa2058b63b6e6df8-xhcyE7"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="core" repo="safestore">
-            <release-version branch="release/2022-w45" build-id="20221028165809-a65df1204c5ac290d81e2cc193e5ebc068d5b859-shNHKR"/>
-            <development-version branch="develop" build-id="20221116103327-f527fcb346742eded33d84fb498cbc01757e5b9a-frW11u" />
+            <release-version branch="release/2022-w48" build-id="20221119005352-4f6694485fb06a7fdbb4761720d387d84b61e2df-LuUBmE"/>
+            <development-version branch="develop" />
             <include artifact-path="safestore/linux-x64/lib" dest-dir="input/safestore_input"/>
             <include artifact-path="safestore/linux-x64/interface" dest-dir="input/safestore_input"/>
         </build-asset>
@@ -73,22 +73,22 @@
 
         <!-- SUSI imports -->
         <build-asset project="core" repo="engine">
-            <release-version branch="release/3.85.1"
-                             build-id="20220321101926-4e639779678aba81878512a8dbfa2937d7fac066-SDs0N8"/>
+            <release-version branch="release/3.86.1"
+                             build-id="20220901161552-8505ebffd3ae66bf2c01fcb27a95f36a1bb5b928-WELKtg"/>
             <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="input/susi_input/libsavi"/>
             <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4"
                      dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
 
         <build-asset project="ec" repo="liblocalrep">
-            <release-version branch="release/2.3"
-                             build-id="20220502131229-8f193bbbde6ce5b91b0b94cfc6091093af6d2c21-F8EXYi"/>
+            <release-version branch="release/2022-w46"
+                             build-id="20221118102844-b47ed8a24b70a320e69fc0dd20739574b92e18d1-p4jo0h"/>
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
         <build-asset project="ec" repo="susi">
-            <release-version branch="release/2.0"
-                             build-id="20220518053435-b4fdc1d8d10507b938d5cd56b045eb72377bb225-bQBPKI"/>
+            <release-version branch="release/2022-w48"
+                             build-id="20221119214450-8b4c7a574a63a2db19e9728e47856787b40185a6-BX09yc"/>
             <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib"/>
             <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include"/>
             <include artifact-path="release/rules" dest-dir="input/susi_input/rules"/>

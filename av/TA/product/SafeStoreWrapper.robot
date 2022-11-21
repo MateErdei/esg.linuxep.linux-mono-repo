@@ -24,6 +24,8 @@ SafeStoreWrapper Test Teardown
 *** Test Cases ***
 
 SafeStoreWrapper Tests
+    # TODO LINUXDAR-6206 renable when issue is fixed
+    [Tags]  disabled
     ${Files} =  List Files In Directory  ${safestore_unpacked}
     log  ${Files}
     ${safestore_tests_binary} =   Set Variable  ${safestore_unpacked}/tap_test_output/SafeStoreTapTests
