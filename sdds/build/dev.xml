@@ -216,7 +216,10 @@
         <workingdir>.</workingdir>
     </command>
     </buildcommands>
-
+    <signingexclusions>
+        <promotedfile name="dummy.bpf.o"/>
+        <promotedfile name="task.bpf.o"/>
+    </signingexclusions>
   <publish>
       <!--sdds3-->
       <!--dev version-->
