@@ -14,6 +14,7 @@ Test Teardown  On Access Test Teardown
 *** Test Cases ***
 
 soapd handles missing log directory
+    [Tags]  fault_injection
     # Plugin and Base already mock installed by __init__.robot
     Remove Directory  ${AV_PLUGIN_PATH}/log  recursive=${True}
     Register Cleanup  Create Directory  ${AV_PLUGIN_PATH}/log
