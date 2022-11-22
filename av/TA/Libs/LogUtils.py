@@ -157,6 +157,10 @@ class LogUtils(object):
         else:
             logger.info("File %s does not exist" % str(filename))
 
+    def dump_logs(self, *filenames):
+        for filename in filenames:
+            robot.libraries.BuiltIn.BuiltIn().run_keyword("LogUtils.Dump Log", filename)
+
     def dump_log_on_failure(self, filename):
         robot.libraries.BuiltIn.BuiltIn().run_keyword_if_test_failed("LogUtils.Dump Log", filename)
 
