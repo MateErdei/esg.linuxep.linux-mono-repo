@@ -186,8 +186,7 @@ function set_permissions_on_susi_update_source()
 function bootstrap_susi_from_update_source()
 {
     set_permissions_on_susi_update_source
-    ${PLUGIN_INSTALL}/sbin/susi_bootstrapper
-    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_DIST_VERS}"
+#    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_DIST_VERS}"
 }
 
 function already_installed()
@@ -221,6 +220,8 @@ function apply_permissions()
     chmod 0750 "${PLUGIN_INSTALL}/lib64/libsophosthreatdetectorimpl.so"*
     chmod 0750 "${PLUGIN_INSTALL}/lib64/libthreat_scanner.so"*
     chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/lib64"
+
+
 
     chmod -R 0711 "${PLUGIN_INSTALL}/bin"
     chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/bin"
@@ -261,6 +262,12 @@ function apply_permissions()
     chmod 0710 ${CHROOT_LINK_DIR%/*}
     ln -snf / ${CHROOT_LINK_DIR}/chroot
 
+    mkdir ${CHROOT_LINK_DIR}/sbin
+    chmod 755 ${CHROOT_LINK_DIR}/sbin
+
+    chmod -R 0750 "${CHROOT}/lib64"
+    chown -R root:${GROUP_NAME} "${CHROOT}/lib64"
+
     mkdir -p "${CHROOT_LINK_DIR}/log"
     chmod 0770 "${CHROOT_LINK_DIR}/log"
     chown root:${GROUP_NAME} "${CHROOT_LINK_DIR}/log"
@@ -297,7 +304,7 @@ function apply_permissions()
     chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${CHROOT}/log"
     chown root:${GROUP_NAME} "${CHROOT}/log"
 
-    chmod 0750 ${CHROOT}/susi
+    chmod 0770 ${CHROOT}/susi
     chown root:${GROUP_NAME} "${CHROOT}/susi"
 
     set_permissions_on_susi_update_source

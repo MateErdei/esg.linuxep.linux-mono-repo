@@ -64,7 +64,7 @@ SET_TARGET_PROPERTIES(threat_scanner
         )
 
 install(FILES ${ABS_SUSI_LIB} ${ABS_UPDATER_LIB}
-        DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
+        DESTINATION files/plugins/${PLUGIN_NAME}/chroot/lib64)
 
 set(SUSI_INSTALL_DIR files/plugins/${PLUGIN_NAME}/chroot/susi)
 install(DIRECTORY ${SUSI_SDDS_PATH}/ DESTINATION ${SUSI_INSTALL_DIR})

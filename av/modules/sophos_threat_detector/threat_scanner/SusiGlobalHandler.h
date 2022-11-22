@@ -82,6 +82,7 @@ namespace threat_scanner
 
     private:
         std::atomic_bool m_susiInitialised = false;
+        std::atomic_bool m_susiBootstrapped = false;
         std::atomic_bool m_updatePending = false;
         std::atomic_bool m_shuttingDown = false;
         std::string m_updatePath;
@@ -100,6 +101,8 @@ namespace threat_scanner
          * @return true if update was successful
          */
         bool internal_update(const std::string& path, const std::string& lockfile);
+
+        void bootstrap();
 
         static bool acquireLock(datatypes::AutoFd& fd);
         static bool releaseLock(datatypes::AutoFd& fd);

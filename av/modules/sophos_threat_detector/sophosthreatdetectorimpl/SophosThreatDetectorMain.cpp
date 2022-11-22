@@ -425,15 +425,13 @@ namespace sspl::sophosthreatdetectorimpl
             throw std::runtime_error(logmsg.str());
         }
 
-        fs::path scanningSocketPath = "/var/scanning_socket";
-        fs::path updateCompletePath = "/var/update_complete_socket";
-#else
+        chrootPath = "/";
+#endif
         fs::path scanningSocketPath = chrootPath / "var/scanning_socket";
         fs::path updateCompletePath = chrootPath / "var/update_complete_socket";
-#endif
 
         remove_shutdown_notice_file(pluginInstall);
-        fs::path lockfile = pluginInstall / "chroot/var/threat_detector.pid";
+        fs::path lockfile = chrootPath / "var/threat_detector.pid";
         auto pidLock = resources->createPidLockFile(lockfile);
 
         auto threatReporter = resources->createThreatReporter(threat_reporter_socket(pluginInstall));

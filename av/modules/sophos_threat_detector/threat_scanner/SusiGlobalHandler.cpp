@@ -7,53 +7,35 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "SusiGlobalHandler.h"
 
 #include "Logger.h"
+#include "ScannerInfo.h"
 #include "SusiCertificateFunctions.h"
 #include "SusiLogger.h"
 #include "ThrowIfNotOk.h"
 
-#include "common/ApplicationPaths.h"
 #include "common/ShuttingDownException.h"
 
 #include <Common/Logging/LoggerConfig.h>
 
 #include <sys/file.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include <cassert>
-#include <iomanip>
+#include <filesystem>
 #include <iostream>
 
 namespace threat_scanner
 {
     namespace
     {
-
-        /*
-         * Called by SUSI when a threat is detected. Does not get called on eicars.
-         * @param token - user data pointer which is currently set to be the current SusiGlobalHandler instance.
-         * @param algorithm - the hashing type used for the checksum, we currently only support SHA256.
-         * @param fileChecksum - bytes (unsigned char) that need to be converted to a hex string
-         *  for example, if first byte in fileChecksum is 142 then that is converted to the two characters "8e".
-         * @return bool - returns true if the file checksum is on the allow list.
-         */
         bool isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size)
         {
-            if (algorithm == SUSI_SHA256_ALG)
-            {
-                std::vector<unsigned char> checksumBytes2(fileChecksum, fileChecksum + size);
-                std::ostringstream stream;
-                stream << std::hex << std::setfill('0') << std::nouppercase;
-                std::for_each(
-                    checksumBytes2.cbegin(),
-                    checksumBytes2.cend(),
-                    [&stream](const auto& byte) { stream << std::setw(2) << int(byte); });
+            (void)token;
+            (void)algorithm;
+            (void)fileChecksum;
+            (void)size;
 
-                auto susiHandler = static_cast<SusiGlobalHandler*>(token);
-                if (susiHandler->accessSusiSettings()->isAllowListed(stream.str()))
-                {
-                    LOGDEBUG("Allowed by SHA256: " << stream.str());
-                    return true;
-                }
-            }
+            LOGDEBUG("isAllowlistedFile: size=" << size);
 
             return false;
         }
@@ -64,6 +46,8 @@ namespace threat_scanner
             (void)algorithm;
             (void)fileChecksum;
             (void)size;
+
+            LOGDEBUG("IsBlocklistedFile: size=" << size);
 
             return false;
         }
@@ -109,17 +93,6 @@ namespace threat_scanner
 
         auto res = SUSI_SetLogCallback(&GL_log_callback);
         throwIfNotOk(res, "Failed to set log callback");
-
-        try
-        {
-            m_susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
-        }
-        catch (const std::exception& ex)
-        {
-            m_susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>();
-            LOGWARN("Could not read in SUSI settings, loading defaults. Details: " << ex.what());
-            LOGINFO("Turning Live Protection on as default - failed to read SUSI startup settings found");
-        }
     }
 
     SusiGlobalHandler::~SusiGlobalHandler()
@@ -170,14 +143,36 @@ namespace threat_scanner
         m_shuttingDown.store(true, std::memory_order_release);
     }
 
+    void SusiGlobalHandler::bootstrap()
+    {
+        std::filesystem::path updateSource = "/susi/update_source";
+        std::filesystem::path installDest = "/susi/distribution_version";
+
+        auto prevUmask = ::umask(023);
+
+        LOGINFO("Bootstrapping SUSI from update source: " << updateSource);
+        SusiResult susiResult = SUSI_Install(updateSource.c_str(), installDest.c_str());
+        if (susiResult == SUSI_S_OK)
+        {
+            std::cout << "Successfully installed SUSI to: "  << installDest << std::endl;
+            m_susiBootstrapped.store(true, std::memory_order_release);
+        }
+        else
+        {
+            std::cerr << "Failed to bootstrap SUSI with error: " << susiResult << std::endl;
+        }
+
+        ::umask(prevUmask);
+    }
+
     bool SusiGlobalHandler::update(const std::string& path, const std::string& lockfile)
     {
         /*
-     * We have to hold the init lock while checking if we have init,
-     * and saving the values if not.
-     *
-     * We have to hold the lock, otherwise we could get interrupted on the "m_updatePath = path;" line, and
-     * init could finish, causing no-one to complete the update.
+         * We have to hold the init lock while checking if we have init,
+         * and saving the values if not.
+         *
+         * We have to hold the lock, otherwise we could get interrupted on the "m_updatePath = path;" line, and
+         * init could finish, causing no-one to complete the update.
          */
         // We assume update is rare enough to just always take the lock
         std::lock_guard susiLock(m_globalSusiMutex);
@@ -192,24 +187,6 @@ namespace threat_scanner
         }
 
         return internal_update(path, lockfile);
-    }
-
-    bool SusiGlobalHandler::acquireLock(datatypes::AutoFd& fd)
-    {
-        if (flock(fd.get(), LOCK_EX | LOCK_NB) != 0)
-        {
-            return false;
-        }
-        return true;
-    }
-
-    bool SusiGlobalHandler::releaseLock(datatypes::AutoFd& fd)
-    {
-        if (flock(fd.get(), LOCK_UN | LOCK_NB) != 0)
-        {
-            return false;
-        }
-        return true;
     }
 
     bool SusiGlobalHandler::internal_update(const std::string& path, const std::string& lockfile)
@@ -300,6 +277,17 @@ namespace threat_scanner
             return false;
         }
 
+        //TODO: change to check if distribution_version exists
+        if(m_susiBootstrapped.load(std::memory_order_acquire))
+        {
+            LOGINFO("SUSI already bootstrapped");
+        }
+        else
+        {
+            LOGINFO("Bootstrapping susi");
+            bootstrap();
+        }
+
         LOGINFO("Initializing SUSI");
         auto res = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
         // gets set to true in internal_update only when the update returns SUSI_OK
@@ -372,15 +360,21 @@ namespace threat_scanner
         SUSI_FreeVersionResult(result);
     }
 
-    std::shared_ptr<common::ThreatDetector::SusiSettings> SusiGlobalHandler::accessSusiSettings()
+    bool SusiGlobalHandler::acquireLock(datatypes::AutoFd& fd)
     {
-        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
-        return m_susiSettings;
+        if (flock(fd.get(), LOCK_EX | LOCK_NB) != 0)
+        {
+            return false;
+        }
+        return true;
     }
 
-    void SusiGlobalHandler::setSusiSettings(std::shared_ptr<common::ThreatDetector::SusiSettings>&& settings)
+    bool SusiGlobalHandler::releaseLock(datatypes::AutoFd& fd)
     {
-        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
-        m_susiSettings = std::move(settings);
+        if (flock(fd.get(), LOCK_UN | LOCK_NB) != 0)
+        {
+            return false;
+        }
+        return true;
     }
 } // namespace threat_scanner
