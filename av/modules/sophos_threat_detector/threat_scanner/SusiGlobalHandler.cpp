@@ -143,7 +143,7 @@ namespace threat_scanner
         m_shuttingDown.store(true, std::memory_order_release);
     }
 
-    void SusiGlobalHandler::bootstrap()
+    SusiResult SusiGlobalHandler::bootstrap()
     {
         std::filesystem::path updateSource = "/susi/update_source";
         std::filesystem::path installDest = "/susi/distribution_version";
@@ -154,15 +154,16 @@ namespace threat_scanner
         SusiResult susiResult = SUSI_Install(updateSource.c_str(), installDest.c_str());
         if (susiResult == SUSI_S_OK)
         {
-            std::cout << "Successfully installed SUSI to: "  << installDest << std::endl;
-            m_susiBootstrapped.store(true, std::memory_order_release);
+            LOGINFO("Successfully installed SUSI to: " << installDest);
         }
         else
         {
-            std::cerr << "Failed to bootstrap SUSI with error: " << susiResult << std::endl;
+            LOGERROR("Failed to bootstrap SUSI with error: " << susiResult);
+
         }
 
         ::umask(prevUmask);
+        return susiResult;
     }
 
     bool SusiGlobalHandler::update(const std::string& path, const std::string& lockfile)
@@ -277,29 +278,35 @@ namespace threat_scanner
             return false;
         }
 
-        //TODO: change to check if distribution_version exists
-        if(m_susiBootstrapped.load(std::memory_order_acquire))
+        if(std::filesystem::is_directory("/susi/distribution_version"))
         {
             LOGINFO("SUSI already bootstrapped");
         }
         else
         {
-            LOGINFO("Bootstrapping susi");
-            bootstrap();
+            auto bootstrapResult = bootstrap();
+            throwIfNotOk(bootstrapResult, "Bootstrapping SUSI failed, exiting");
         }
 
         LOGINFO("Initializing SUSI");
-        auto res = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
+        SusiResult initResult = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
         // gets set to true in internal_update only when the update returns SUSI_OK
         m_susiVersionAlreadyLogged = false;
-        if (res != SUSI_S_OK)
+
+        if (initResult != SUSI_S_OK)
         {
-            // This can fail for reasons outside the programs control, therefore is an exception
-            // rather than an assert
             std::ostringstream ost;
-            ost << "Failed to initialise SUSI: 0x" << std::hex << res << std::dec;
+            ost << "Failed to initialise SUSI: 0x" << std::hex << initResult << std::dec;
             LOGERROR(ost.str());
-            throw std::runtime_error(ost.str());
+            LOGINFO("Attempting to re-install SUSI");
+
+            std::filesystem::remove("/susi/distribution_version");
+
+            auto bootstrapResult = bootstrap();
+            throwIfNotOk(bootstrapResult, "Bootstrapping SUSI t re-initialization failed, exiting");
+
+            SusiResult initSecondAttempt = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
+            throwIfNotOk(initSecondAttempt, "Second attempt to initialise SUSI failed, exiting");
         }
 
         LOGSUPPORT("Initialising Global Susi successful");
