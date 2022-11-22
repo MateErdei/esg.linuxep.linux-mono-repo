@@ -3,7 +3,13 @@ Library         Process
 Library         OperatingSystem
 Library         String
 Library         ../Libs/BaseUtils.py
+Library         ../Libs/FakeManagement.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
+
+# Uses functions from AVResources, but can't be included because AVResources need variables only defined
+# once GlobalSetup.Global Setup Tasks has completed
+# Resource    AVResources.robot
 
 Resource    GlobalSetup.robot
 
@@ -20,9 +26,9 @@ Component Test TearDown
     Wait until AV Plugin not running
     Wait until Threat Detector not running
 
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log  encoding_errors=replace
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}  encoding_errors=replace
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace
+    Run Keyword If Test Failed  Dump Log   ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
+    Run Keyword If Test Failed  Dump Log   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
+    Run Keyword If Test Failed  Dump Log   ${THREAT_DETECTOR_LOG_PATH}
 
 
 Setup Base And Component

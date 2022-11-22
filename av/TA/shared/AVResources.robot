@@ -1210,7 +1210,7 @@ Start AV
     Register Cleanup   Terminate And Wait until threat detector not running  ${THREAT_DETECTOR_PLUGIN_HANDLE}
 
     ${safestore_handle} =  Start Process  ${SAFESTORE_BIN}
-    Set Test Variable  ${SAFESTORE_HANDLE}  ${safestore_handle}
+    Set Suite Variable  ${SAFESTORE_HANDLE}  ${safestore_handle}
     Register Cleanup   Terminate And Wait until safestore not running  ${SAFESTORE_HANDLE}
 
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
