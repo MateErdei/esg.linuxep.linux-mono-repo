@@ -183,12 +183,6 @@ function set_permissions_on_susi_update_source()
     chmod -R g=rX,o= "${SUSI_UPDATE_SRC}/model/"
 }
 
-function bootstrap_susi_from_update_source()
-{
-    set_permissions_on_susi_update_source
-#    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_DIST_VERS}"
-}
-
 function already_installed()
 {
     [[ -f "${SOPHOS_INSTALL}/base/pluginRegistry/$1.json" ]]
@@ -431,6 +425,17 @@ function install_product()
         delete_removed_libraries
     fi
 
+    #LINUXDAR-5935 removed libsusi and libupdater from av/lib64, we don't need to keep a copy of them anymore. Affects only upgrades
+    if [[ -e "$SOPHOS_INSTALL/plugins/av/chroot/lib64/libsusi.so" ]]
+    then
+        rm -f "$SOPHOS_INSTALL/plugins/av/chroot/lib64/libsusi.so*"
+    fi
+
+    if [[ -e "$SOPHOS_INSTALL/plugins/av/chroot/lib64/libsusi.so" ]]
+    then
+        rm -f "$SOPHOS_INSTALL/plugins/av/chroot/lib64/libupdater.so*"
+    fi
+
     #Install SUSI
     [ -e "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl" ] && rm "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl/"*
     mkdir -p "$SOPHOS_INSTALL/plugins/av/chroot/susi"
@@ -467,7 +472,7 @@ function install_product()
     ln -snf "${PLUGIN_INSTALL}/bin/avscanner" /usr/local/bin/avscanner
 
     generate_susi_package_manifest
-    bootstrap_susi_from_update_source
+    set_permissions_on_susi_update_source
 
     #Create plugin registration files
     create_registration_file "${PLUGIN_NAME}"
