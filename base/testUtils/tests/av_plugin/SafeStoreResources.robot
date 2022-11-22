@@ -20,11 +20,11 @@ ${THREAT_DATABASE_PATH}             ${AV_PLUGIN_PATH}/var/persist-threatDatabase
 
 *** Keywords ***
 Stop SafeStore
-    ${result} =    RunProcess    ${SOPHOS_INSTALL}/bin/wdctlstopsafestore
+    ${result} =    RunProcess    ${SOPHOS_INSTALL}/bin/wdctl    stop    safestore
     Should Be Equal As Integers    ${result.rc}    ${0}
 
 Start SafeStore
-    ${result} =    RunProcess    ${SOPHOS_INSTALL}/bin/wdctlstartsafestore
+    ${result} =    RunProcess    ${SOPHOS_INSTALL}/bin/wdctl    start    safestore
     Should Be Equal As Integers    ${result.rc}    ${0}
 
 Check SafeStore Running
@@ -53,22 +53,22 @@ Check SafeStore Permissions And Owner
 
 Check SafeStore Installed Correctly
     Wait Until Keyword Succeeds
-    ...    15secs
-    ...    1secs
+    ...    15 secs
+    ...    1 secs
     ...    AV Plugin Log Contains    SafeStore flag set. Setting SafeStore to enabled
 
     File Should Exist    ${SAFESTORE_BIN}
     Wait Until Keyword Succeeds
-    ...    15secs
-    ...    1secs
+    ...    15 secs
+    ...    1 secs
     ...    Check SafeStore Running
     Wait Until Keyword Succeeds
-    ...    15secs
-    ...    1secs
+    ...    15 secs
+    ...    1 secs
     ...    SafeStore Log Contains    Quarantine Manager initialised OK
     Wait Until Keyword Succeeds
-    ...    15secs
-    ...    1secs
+    ...    15 secs
+    ...    1 secs
     ...    SafeStore Log Contains    SafeStore started
     Check SafeStore Database Exists
     Check SafeStore Permissions And Owner
