@@ -38,6 +38,7 @@ SafeStore Database is Initialised
     Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}
     File Should Exist    ${SAFESTORE_DB_PASSWORD_PATH}
 
+
 SafeStore Can Reinitialise Database Containing Threats
     Unpack SafeStore Tools To  ${safestore_tools_unpacked}
     ${av_mark} =  Get AV Log Mark
@@ -72,6 +73,7 @@ SafeStore Can Reinitialise Database Containing Threats
 
     Should Be Equal    ${filesInSafeStoreDb1.stdout}    ${filesInSafeStoreDb2.stdout}
 
+
 SafeStore Recovers From Corrupt Database
     ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
@@ -96,6 +98,7 @@ SafeStore Recovers From Corrupt Database
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
+
 
 SafeStore Quarantines When It Receives A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
@@ -202,6 +205,7 @@ SafeStore does not quarantine on a Corrupt Database
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
+
 With SafeStore Enabled But Not Running We Can Send Threats To AV
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
@@ -214,7 +218,7 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
     Check avscanner can detect eicar
 
     Wait Until AV Plugin Log Contains Detection Name After Mark  ${av_mark}  EICAR-AV-Test
-    Wait For Log Contains From Mark  ${av_mark}    Failed to write to SafeStore socket.  
+    Wait For Log Contains From Mark  ${av_mark}    Failed to write to SafeStore socket.
     Check SafeStore Not Running
     Mark Expected Error In Log    ${AV_PLUGIN_PATH}/log/av.log    Aborting SafeStore connection : failed to read length
 
@@ -230,7 +234,7 @@ SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount
     Check avscanner can detect eicar on read only mount
 
     Wait For Log Contains From Mark  ${av_mark}      File is located on a ReadOnly mount:
-    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'  
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
 
 
 SafeStore Does Not Attempt To Quarantine File On A Network Mount
@@ -243,8 +247,8 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount
 
     Check avscanner can detect eicar on network mount
 
-    Wait For Log Contains From Mark  ${av_mark}      File is located on a Network mount:  
-    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test' 
+    Wait For Log Contains From Mark  ${av_mark}      File is located on a Network mount:
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
 
 
 SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Capacity
@@ -275,7 +279,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     ${ss_mark} =  Get SafeStore Log Mark
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
 
-    Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'  
+    Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${SCAN_DIRECTORY}/${eicar1}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
@@ -287,7 +291,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
 
-    Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'  
+    Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar2}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
@@ -333,13 +337,13 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     ${ss_mark} =  Get SafeStore Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For Log Contains From Mark  ${av_mark}      SafeStore flag set. Setting SafeStore to enabled.  timeout=60
+    Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
 
     Wait For Safestore To Be Running
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
 
-    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
+    Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar1}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
@@ -351,7 +355,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
 
-    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar2}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
@@ -405,6 +409,21 @@ SafeStore Quarantines File With Same Path And Sha Again And Discards The Previou
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar2.com
 
 
+Threat Detector Triggers SafeStore Rescan On Timeout
+    ${ss_mark} =  Get SafeStore Log Mark
+    Create Persistent Timeout Variable
+    Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}
+
+
+Threat Detector Rescan Socket Does Not Block Shutdown
+    Stop SafeStore
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Create Persistent Timeout Variable
+    wait_for_log_contains_from_mark  ${td_mark}  Failed to connect to SafeStore Rescan - retrying after sleep
+    Stop sophos_threat_detector
+    wait_for_log_contains_from_mark  ${td_mark}  Stop requested while connecting to SafeStore Rescan
+
+
 *** Keywords ***
 SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
@@ -433,6 +452,7 @@ SafeStore Test Setup
     Register Cleanup      Check For Coredumps  ${TEST NAME}
     Register Cleanup      Check Dmesg For Segfaults
 
+
 SafeStore Test TearDown
     run cleanup functions
     run failure functions if failed
@@ -447,9 +467,18 @@ SafeStore Test TearDown
 
     run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests
 
+Corrupt SafeStore Database
+    Stop SafeStore
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/persist-safeStoreDbErrorThreshold    1
+
+    Remove Files    ${SAFESTORE_DB_PATH}    ${SAFESTORE_DB_PASSWORD_PATH}
+    Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
+    Start SafeStore
+
 Check SafeStore Dormant Flag Exists
     [Arguments]  ${timeout}=15  ${interval}=2
     Wait Until File exists  ${SAFESTORE_DORMANT_FLAG}  ${timeout}  ${interval}
+
 
 Check Safestore Dormant Flag Does Not Exist
     File Should Not Exist  ${SAFESTORE_DORMANT_FLAG}
@@ -462,3 +491,18 @@ Create Big Eicar Of Size
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Integers   ${result.rc}  ${0}
+
+Create Persistent Timeout Variable
+    Stop Sophos Threat Detector
+    Create File    ${SOPHOS_INSTALL}/plugins/av/chroot/var/safeStoreRescanInterval    1
+    Start Sophos Threat Detector
+
+
+Wait for Safestore to be running
+    ## password creation only done on first run - can't cover complete log turn-over:
+    Wait_For_Entire_log_contains  ${SAFESTORE_LOG_PATH}  Successfully saved SafeStore database password to file  timeout=15
+
+    ## Lines logged for every start
+    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Quarantine Manager initialised OK  timeout=15
+    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully initialised SafeStore database  timeout=5
+    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  safestore <> SafeStore started  timeout=5

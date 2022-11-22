@@ -31,12 +31,13 @@ namespace safestore::QuarantineManager
             const std::string& sha256,
             datatypes::AutoFd autoFd) override;
         std::vector<FdsObjectIdsPair> extractQuarantinedFiles() override;
-        void parseConfig();
+        void setState(const safestore::QuarantineManager::QuarantineManagerState& newState) override;
+        void rescanDatabase() override;
+        void parseConfig() override;
 
     private:
         void callOnDbError();
         void callOnDbSuccess();
-        void setState(const QuarantineManagerState& newState);
         void setConfigWrapper(nlohmann::json json, const safestore::SafeStoreWrapper::ConfigOption& option);
         QuarantineManagerState m_state;
         std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> m_safeStore;
