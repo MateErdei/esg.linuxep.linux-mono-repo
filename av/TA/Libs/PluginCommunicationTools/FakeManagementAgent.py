@@ -3,8 +3,6 @@
 # Copyright (C) 2018-2019 Sophos Plc, Oxford, England.
 # All rights reserved.
 
-
-
 from threading import Thread
 import sys
 import traceback
@@ -14,6 +12,7 @@ from .common.socket_utils import try_get_socket, ZMQ_CONTEXT
 from .common.ProtobufSerialisation import *
 from .common.SetupLogger import setup_logging, get_log_dir
 from .common.PathsLocation import management_agent_socket_path
+
 
 class Agent(object):
     def __init__(self, logger):

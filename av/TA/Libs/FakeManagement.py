@@ -9,11 +9,19 @@ import os
 import pwd
 import time
 import zmq
-from Libs.PluginCommunicationTools import FakeManagementAgent
-from Libs.PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
-from Libs.PluginCommunicationTools.common import PathsLocation
-from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
-from Libs import FakeManagementLog
+try:
+    from .PluginCommunicationTools import FakeManagementAgent
+    from .PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
+    from .PluginCommunicationTools.common import PathsLocation
+    from .PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
+    from . import FakeManagementLog
+except ImportError:
+    from Libs.PluginCommunicationTools import FakeManagementAgent
+    from Libs.PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
+    from Libs.PluginCommunicationTools.common import PathsLocation
+    from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
+    from Libs import FakeManagementLog
+
 
 import traceback
 
@@ -174,8 +182,11 @@ class FakeManagement(object):
     def start_fake_management_if_required(self):
         self.__setup_logger_if_required()
         if self.agent is None:
+            self.logger.info("Starting FakeManagementAgent")
             self.agent = FakeManagementAgent.Agent(self.logger)
             self.agent.start()
+        else:
+            self.logger.info("FakeManagementAgent already running")
 
     def stop_fake_management(self):
         if not self.agent:
@@ -190,6 +201,7 @@ class FakeManagement(object):
 
     def stop_fake_management_if_running(self):
         if self.agent:
+            self.logger.info("Stopping FakeManagementAgent")
             self.agent.stop()
             self.agent = None
 

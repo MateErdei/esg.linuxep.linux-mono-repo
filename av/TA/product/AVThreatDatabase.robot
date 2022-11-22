@@ -9,6 +9,7 @@ Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/SafeStoreResources.robot
 
 Library         ../Libs/CoreDumps.py
+Library         ../Libs/FakeManagementLog.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/ProcessUtils.py
 
@@ -22,6 +23,8 @@ ${THREAT_DATABASE_PATH}        ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDa
 
 *** Test Cases ***
 Threat is added to Threat database when threat is not quarantined
+    ${fake_management_log_path} =   FakeManagementLog.get_fake_management_log_path
+    Register On Fail  Dump Log  ${fake_management_log_path}
     Start AV
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}

@@ -577,12 +577,12 @@ Check Plugin Installed and Running With Offset
     Wait until threat detector running with offset
 
 Wait until AV Plugin running
-    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${30}
-    LogUtils.Wait For AV Log contains after last restart  Common <> Starting scanScheduler  timeout=${40}
+    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${10}
+    LogUtils.Wait For AV Log contains after last restart  Common <> Starting scanScheduler  timeout=${20}
 
 Wait until AV Plugin running with offset
-    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${30}
-    Wait Until AV Plugin Log Contains With Offset  Common <> Starting scanScheduler  timeout=${40}
+    ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${10}
+    Wait Until AV Plugin Log Contains With Offset  Common <> Starting scanScheduler  timeout=${20}
 
 Wait until AV Plugin not running
     [Arguments]  ${timeout}=${30}
@@ -1197,8 +1197,6 @@ Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
     Run IDE update with SUSI loaded
 
 Start AV
-    Remove Files   /tmp/av.stdout  /tmp/av.stderr
-    Mark AV Log
     Mark Sophos Threat Detector Log
     Mark SafeStore Log
     Check AV Plugin Not Running
@@ -1206,16 +1204,25 @@ Start AV
     Check Threat Detector PID File Does Not Exist
     Check SafeStore Not Running
     Check SafeStore PID File Does Not Exist
+
     ${threat_detector_handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}
     Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${threat_detector_handle}
     Register Cleanup   Terminate And Wait until threat detector not running  ${THREAT_DETECTOR_PLUGIN_HANDLE}
+
     ${safestore_handle} =  Start Process  ${SAFESTORE_BIN}
     Set Test Variable  ${SAFESTORE_HANDLE}  ${safestore_handle}
     Register Cleanup   Terminate And Wait until safestore not running  ${SAFESTORE_HANDLE}
+
+    Remove Files   /tmp/av.stdout  /tmp/av.stderr
+    Mark AV Log
+    ${fake_management_log_path} =   FakeManagementLog.get_fake_management_log_path
+    ${fake_management_mark} =  LogUtils.mark_log_size  ${fake_management_log_path}
+    ${av_mark} =  get av log mark
     ${handle} =  Start Process  ${AV_PLUGIN_BIN}
     Set Suite Variable  ${AV_PLUGIN_HANDLE}  ${handle}
     Register Cleanup   Terminate And Wait until AV Plugin not running  ${AV_PLUGIN_HANDLE}
-    Check AV Plugin Installed With Offset
+    Check AV Plugin Installed from Marks  ${fake_management_mark}
+
     Wait Until Safestore Log Contains   SafeStore started
 
 Copy And Extract Image
