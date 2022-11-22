@@ -107,8 +107,11 @@ namespace mount_monitor::mount_monitor
         if (config != m_config)
         {
             m_config = config;
-            LOGINFO("OA config changed, re-enumerating mount points");
-            markMounts(getAllMountpoints());
+            if (m_config.enabled)
+            {
+                LOGINFO("OA config changed, re-enumerating mount points");
+                markMounts(getAllMountpoints());
+            }
         }
     }
 

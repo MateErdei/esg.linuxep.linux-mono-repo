@@ -150,8 +150,6 @@ TEST_F(TestMountMonitor, TestSetExclusions)
     EXPECT_CALL(*localFixedDevice, isDirectory()).WillRepeatedly(Return(true));
     EXPECT_CALL(*localFixedDevice, mountPoint()).WillRepeatedly(Return(excludedMount));
 
-    EXPECT_CALL(*m_mockSysPathsFactory, createSystemPaths()).WillOnce(Return(m_sysPaths));
-
     mount_monitor::mountinfo::IMountPointSharedVector allMountpoints;
     allMountpoints.push_back(localFixedDevice);
 
@@ -203,6 +201,7 @@ TEST_F(TestMountMonitor, TestUpdateConfigSetsAllConfigBeforeReenumeratingMounts)
     EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 2);
 
     sophos_on_access_process::OnAccessConfig::OnAccessConfiguration config{};
+    config.enabled = true;
     config.excludeRemoteFiles = true;
     config.exclusions = exclusions;
     mountMonitor.updateConfig(config);

@@ -386,7 +386,7 @@ On Access Process Handles Consecutive Process Control Requests
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
     wait for on access log contains after mark  Overriding policy, on-access will be disabled  mark=${mark}
-    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
+    wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  mount points in on-access scanning  mark=${mark}  timeout=${5}
 
     On-access No Eicar Scan
 
