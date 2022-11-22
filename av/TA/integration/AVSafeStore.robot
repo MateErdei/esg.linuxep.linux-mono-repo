@@ -124,6 +124,34 @@ SafeStore Quarantines When It Receives A File To Quarantine
     ...  result=0
     ...  path=${SCAN_DIRECTORY}/eicar.com
 
+SafeStore Quarantines When It Receives A File To Quarantine (On Access)
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    ${av_mark} =  Get AV Log Mark
+    ${mark} =  Get on access log mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Send Policies to enable on-access
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    #Check avscanner can detect eicar
+    On-access Scan Eicar Close
+    #File Should Exist  ${AV_PLUGIN_PATH}/var/onaccess_unhealthy_flag
+    #ends at this is eicar
+
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
+    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
+    File Should Not Exist  ${AV_PLUGIN_PATH}/var/onaccess_unhealthy_flag
+
+    Wait Until Base Has Core Clean Event
+    ...  alert_id=Tbd7be297ddf3cd8
+    ...  succeeded=1
+    ...  origin=1
+    ...  result=0
+    ...  path=${SCAN_DIRECTORY}/eicar.com
 
 SafeStore Quarantines Archive
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
