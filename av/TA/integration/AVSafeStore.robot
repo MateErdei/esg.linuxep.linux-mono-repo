@@ -429,7 +429,6 @@ SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
     LogUtils.save_log_marks_at_start_of_test
     Start SafeStore
-    Wait For Safestore To Be Running
 
     Set Suite Variable  ${safestore_tools_unpacked}  /tmp/safestoretools/tap_test_output
 
@@ -496,13 +495,3 @@ Create Persistent Timeout Variable
     Stop Sophos Threat Detector
     Create File    ${SOPHOS_INSTALL}/plugins/av/chroot/var/safeStoreRescanInterval    1
     Start Sophos Threat Detector
-
-
-Wait for Safestore to be running
-    ## password creation only done on first run - can't cover complete log turn-over:
-    Wait_For_Entire_log_contains  ${SAFESTORE_LOG_PATH}  Successfully saved SafeStore database password to file  timeout=15
-
-    ## Lines logged for every start
-    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Quarantine Manager initialised OK  timeout=15
-    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully initialised SafeStore database  timeout=5
-    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  safestore <> SafeStore started  timeout=5
