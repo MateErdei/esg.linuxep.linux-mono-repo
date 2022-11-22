@@ -28,6 +28,13 @@ namespace
         }
 
     protected:
+        static void verifyCorruptDatabaseTelemetryPresent()
+        {
+            auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+            auto telemetry = nlohmann::json::parse(telemetryResult);
+
+            EXPECT_TRUE(telemetry["corrupt-threat-database"]);
+        }
         static void verifyCorruptDatabaseTelemetryNotPresent()
         {
             auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
@@ -63,10 +70,7 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesEmptyStringInFile)
 
     EXPECT_NO_THROW(Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()});
 
-    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
-    auto telemetry = nlohmann::json::parse(telemetryResult);
-
-    EXPECT_TRUE(telemetry["corrupt-threat-database"]);
+    verifyCorruptDatabaseTelemetryPresent();
 }
 
 TEST_F(TestThreatDatabase, initDatabaseHandlesEmptyDatabaseInFile)
@@ -95,9 +99,7 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesMalformedJsonStringInFile)
 
     EXPECT_NO_THROW(Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()});
 
-    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
-    auto telemetry = nlohmann::json::parse(telemetryResult);
-    EXPECT_TRUE(telemetry["corrupt-threat-database"]);
+    verifyCorruptDatabaseTelemetryPresent();
 }
 
 
@@ -109,7 +111,7 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesCorrectly)
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(R"({"threatid":["threatid"]})"));
-    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{\"threatid\":[\"threatid\"]}"));
+    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),R"({"threatid":["threatid"]})"));
 
     EXPECT_NO_THROW(Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()});
     verifyCorruptDatabaseTelemetryNotPresent();
@@ -138,7 +140,7 @@ TEST_F(TestThreatDatabase, isDatabaseEmptyReturnsFalseOnNonEmptyDatabase)
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return("{}"));
-    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{\"threat\":[\"threat\"]}"));
+    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),R"({"threat":["threat"]})"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.addThreat("threat","threat");
@@ -154,7 +156,7 @@ TEST_F(TestThreatDatabase, addThreatToDatabase)
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(R"({"threatid":["threatid"]})"));
-    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{\"threatID\":[\"correlationid2\"],\"threatid\":[\"threatid\"]}"));
+    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),R"({"threatID":["correlationid2"],"threatid":["threatid"]})"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.addThreat("threatID","correlationid2");
@@ -169,7 +171,7 @@ TEST_F(TestThreatDatabase, addCorrelationIDToDatabase)
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(R"({"threatid":["threatid"]})"));
-    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{\"threatid\":[\"threatid\",\"correlationid\"]}"));
+    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),R"({"threatid":["threatid","correlationid"]})"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.addThreat("threatid","correlationid");
@@ -183,8 +185,8 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesHandlesUnexpectedStructureNewCor
         filesystemMock) };
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return("{\"threatid\":1000}"));
-    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{\"threatid\":[\"correlationid2\"]}"));
+    EXPECT_CALL(*filesystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(R"({"threatid":1000})"));
+    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),R"({"threatid":["correlationid2"]})"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.addThreat("threatid","correlationid2");
@@ -198,8 +200,8 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesHandlesUnexpectedStructureNewThr
         filesystemMock) };
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return("{\"threatID1\":1000}"));
-    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{\"threatID2\":[\"correlationid2\"]}"));
+    EXPECT_CALL(*filesystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(R"({"threatID1":1000})"));
+    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),R"({"threatID2":["correlationid2"]})"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.addThreat("threatID2","correlationid2");
@@ -229,7 +231,7 @@ TEST_F(TestThreatDatabase, removeCorrelationIDHandlesWhenThreatIsNotInDatabase)
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(R"({"threatid":["threatid"]})"));
-    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{\"threatid\":[\"threatid\"]}"));
+    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),R"({"threatid":["threatid"]})"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     EXPECT_NO_THROW(database.removeCorrelationID("threatid2"));
@@ -244,7 +246,7 @@ TEST_F(TestThreatDatabase, removeThreatIDHandlesWhenThreatIsNotInDatabase)
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(R"({"threatid":["threatid"]})"));
-    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{\"threatid\":[\"threatid\"]}"));
+    EXPECT_CALL(*filesystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),R"({"threatid":["threatid"]})"));
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     EXPECT_NO_THROW(database.removeThreatID("threatid2","threatid"));

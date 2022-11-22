@@ -764,14 +764,14 @@ AV Plugin Restores Older SafeStore Database On Upgrade
 
     Remove All But One SafeStore Backup
     ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
-    ${threatDatabaseBackup} =    Set Variable    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}
+    ${safeStoreDatabaseBackup} =    Set Variable    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}
 
     Install AV Directly from SDDS
     Wait Until Keyword Succeeds
     ...    60 secs
     ...    5 secs
-    ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database (${threatDatabaseBackup}) to ${SAFESTORE_DB_DIR}
-    Directory Should Not Exist    ${threatDatabaseBackup}
+    ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database (${safeStoreDatabaseBackup}) to ${SAFESTORE_DB_DIR}
+    Directory Should Not Exist    ${safeStoreDatabaseBackup}
     Verify SafeStore Database Exists
 
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
@@ -817,7 +817,7 @@ Older SafeStore Database Is Not Restored When A SafeStore Database Is Already Pr
 
     Remove All But One SafeStore Backup
     ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
-    ${threatDatabaseBackup} =    Set Variable    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}
+    ${safeStoreDatabaseBackup} =    Set Variable    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}
     Move Directory    /tmp/safestore_db_copy    ${SAFESTORE_DB_DIR}
 
     Install AV Directly from SDDS
@@ -825,8 +825,8 @@ Older SafeStore Database Is Not Restored When A SafeStore Database Is Already Pr
     Wait Until Keyword Succeeds
     ...    60 secs
     ...    5 secs
-    ...    File Log Contains    ${AV_INSTALL_LOG}    SafeStore database already exists so will not attempt to restore: ${threatDatabaseBackup}
-    Directory Should Exist    ${threatDatabaseBackup}
+    ...    File Log Contains    ${AV_INSTALL_LOG}    SafeStore database already exists so will not attempt to restore: ${safeStoreDatabaseBackup}
+    Directory Should Exist    ${safeStoreDatabaseBackup}
     Verify SafeStore Database Exists
 
 Older SafeStore Database Is Not Restored When It Is Not Compaitible With Current AV Version
