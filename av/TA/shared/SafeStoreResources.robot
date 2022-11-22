@@ -21,51 +21,31 @@ ${SAFESTORE_TELEMETRY_BACKUP_JSON}    ${SSPL_BASE}/telemetry/cache/safestore-tel
 Stop SafeStore
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   stop   safestore
     Should Be Equal As Integers    ${result.rc}    ${0}
-    Wait Until SafeStore not running
-
 
 Start SafeStore
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start  safestore
     Should Be Equal As Integers    ${result.rc}    ${0}
-    Wait Until SafeStore running
+    Wait for Safestore to be running
 
-
-Wait for Safestore to be running
-    ## password creation only done on first run - can't cover complete log turn-over:
-    Wait_For_Entire_log_contains  ${SAFESTORE_LOG_PATH}  Successfully saved SafeStore database password to file  timeout=15
-
-    ## To avoid potential log issues between tests, check SafeStore dir exists (it is torn down between tests)
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Directory Should Exist  ${SAFESTORE_DB_DIR}
-
-    ## Lines logged for every start
-    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Quarantine Manager initialised OK  timeout=15
-    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully initialised SafeStore database  timeout=5
-    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  safestore <> SafeStore started  timeout=5
-
+Wait for SafeStore to be running
+   Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  safestore <> SafeStore started  timeout=5
 
 Check SafeStore Not Running
     ${result} =   ProcessUtils.pidof  ${SAFESTORE_BIN}
     Should Be Equal As Integers  ${result}  ${-1}
 
-
 Check SafeStore PID File Does Not Exist
     Run Keyword And Ignore Error  File Should Not Exist  ${SAFESTORE_PID_FILE}
     Remove File  ${SAFESTORE_PID_FILE}
-
 
 Record SafeStore Plugin PID
     ${PID} =  ProcessUtils.wait for pid  ${SAFESTORE_BIN}  ${5}
     [Return]   ${PID}
 
-
 Start SafeStore Manually
     ${handle} =  Start Process  ${SAFESTORE_BIN}  stdout=DEVNULL  stderr=DEVNULL
     Set Test Variable  ${SAFESTORE_HANDLE}  ${handle}
     Wait Until SafeStore running
-
 
 Stop SafeStore Manually
     ${result} =  Terminate Process  ${SAFESTORE_HANDLE}
@@ -77,6 +57,12 @@ Wait Until SafeStore running
     ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
     LogUtils.Wait For Log contains after last restart  ${SAFESTORE_LOG_PATH}  SafeStore started  timeout=${timeout}
 
+Wait Until SafeStore Running With Offset
+    [Arguments]  ${timeout}=${60}
+    ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
+    Wait Until SafeStore Log Contains With Offset
+    ...  SafeStore started
+    ...  timeout=${timeout}
 
 Wait Until SafeStore not running
     [Arguments]  ${timeout}=30
@@ -84,7 +70,6 @@ Wait Until SafeStore not running
     ...  ${timeout} secs
     ...  3 secs
     ...  Check SafeStore Not Running
-
 
 Exclude SafeStore Died With 11
     Mark Expected Error In Log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/safestore died with 11
@@ -97,16 +82,32 @@ Mark SafeStore Log
     Log  "SAFESTORE LOG MARK = ${SAFESTORE_LOG_MARK}"
     [Return]  ${count}
 
-
 SafeStore Log Contains
     [Arguments]  ${input}
     File Log Contains     ${SAFESTORE_LOG_PATH}   ${input}
-
 
 SafeStore Log Does Not Contain
     [Arguments]  ${input}
     LogUtils.Over next 15 seconds ensure log does not contain   ${SAFESTORE_LOG_PATH}  ${input}
 
+SafeStore Log Contains With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
+    File Log Contains With Offset     ${SAFESTORE_LOG_PATH}   ${input}   offset=${offset}
+
+SafeStore Log Contains With Offset Times
+    [Arguments]  ${input}  ${times}
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
+    File Log Contains With Offset Times    ${SAFESTORE_LOG_PATH}   ${input}   ${times}   offset=${offset}
+
+SafeStore Log Does Not Contain With Offset
+    [Arguments]  ${input}
+    ${offset} =  Get Variable Value  ${SAFESTORE_LOG_MARK}  0
+    # retry for 15s
+    FOR   ${i}   IN RANGE   5
+        File Log Should Not Contain With Offset  ${SAFESTORE_LOG_PATH}   ${input}   offset=${offset}
+        Sleep   3s
+    END
 
 Wait Until SafeStore Log Contains
     [Arguments]  ${input}  ${timeout}=15  ${interval}=0
@@ -117,6 +118,14 @@ Wait Until SafeStore Log Contains
     ...   ${timeout} >= 15   3
     ...   1
     Wait Until File Log Contains  SafeStore Log Contains   ${input}   timeout=${timeout}  interval=${interval}
+
+Wait Until SafeStore Log Contains With Offset
+    [Arguments]  ${input}  ${timeout}=15
+    Wait Until File Log Contains  SafeStore Log Contains With Offset  ${input}   timeout=${timeout}
+
+Wait Until SafeStore Log Contains Times With Offset
+    [Arguments]  ${input}  ${timeout}=15  ${times}=1
+    Wait Until File Log Contains Times  SafeStore Log Contains With Offset Times  ${input}   ${times}   timeout=${timeout}
 
 
 Check SafeStore Telemetry
@@ -139,12 +148,10 @@ Corrupt SafeStore Database
     Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
     Start SafeStore
 
-
 Verify SafeStore Database Exists
     Directory Should Exist    ${SAFESTORE_DB_DIR}
     File Should Exist    ${SAFESTORE_DB_PATH}
     File Should Exist    ${SAFESTORE_DB_PASSWORD_PATH}
-
 
 Verify SafeStore Database Backups Exist in Path
     [Arguments]    ${pathToCheck}
