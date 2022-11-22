@@ -1,7 +1,7 @@
 # Format file for Sophos C++ code.
 #
 # This is based on clang-format 6.0.0, which is the version
-# that ships with Visual Studio 15.8.  Some settings for 
+# that ships with Visual Studio 15.8.  Some settings for
 # future versions are specified but commented out; code should
 # try to respect those settings but auto-formatting will not
 # be available until we upgrade to a newer version of
@@ -9,67 +9,175 @@
 
 AccessModifierOffset: -4
 AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveMacros: false
 AlignConsecutiveAssignments: false
+AlignConsecutiveBitFields: false
 AlignConsecutiveDeclarations: false
 AlignEscapedNewlines: Right
-AlignOperands: Align
+AlignOperands:   Align
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: true
+AllowAllConstructorInitializersOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortFunctionsOnASingleLine: Empty
+AllowShortEnumsOnASingleLine: true
+AllowShortBlocksOnASingleLine: Always # Changed from Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline # Tried All but we have examples both ways
+AllowShortLambdasOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
+BraceWrapping:
+  AfterCaseLabel:  true
+  AfterClass:      true
+  AfterControlStatement: MultiLine # Changed from Always
+  AfterEnum:       true
+  AfterFunction:   true
+  AfterNamespace:  true
+  AfterObjCDeclaration: true
+  AfterStruct:     true
+  AfterUnion:      true
+  AfterExternBlock: true
+  BeforeCatch:     true
+  BeforeElse:      true
+  BeforeLambdaBody: false
+  BeforeWhile:     true
+  IndentBraces:    false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Allman
+BreakBeforeInheritanceComma: false
+BreakInheritanceList: BeforeColon
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializersBeforeComma: false
 BreakConstructorInitializers: AfterColon
-BreakInheritanceList: AfterColon
-ColumnLimit: 120
+BreakAfterJavaFieldAnnotations: false
+BreakStringLiterals: false
+ColumnLimit:     120
+CommentPragmas:  '^ IWYU pragma:'
+CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
 Cpp11BracedListStyle: false
+DeriveLineEnding: true
+DerivePointerAlignment: false
+DisableFormat:   false
+ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
-IncludeBlocks: Regroup
-IncludeCategories: 
-  - Regex: 'stdafx.h'
-    Priority: -1
-  - Regex: '"[^/]*"'
-    Priority: 2
-  - Regex: '"Common/.*"'
-    Priority: 5
-  - Regex: '".*"'
-    Priority: 3
-  - Regex: '<sys/[^/]*.h>'
-    Priority: 10
-  - Regex: '<[^/]*.h>'
-    Priority: 10
-  - Regex: '<[^/]*>'
-    Priority: 9
-  - Regex: '<.*>'
-    Priority: 8
+ForEachMacros:
+  - foreach
+  - Q_FOREACH
+  - BOOST_FOREACH
+IncludeBlocks:   Regroup
+IncludeCategories:
+  - Regex:           stdafx.h
+    Priority:        -1
+    SortPriority:    0
+  - Regex:           pch.h
+    Priority:        -1
+    SortPriority:    0
+# PluginAPI start
+# This regex needs to be before the general "" and <> ones in order to be grouped separately.
+  - Regex:           '"Common/.*"'
+    Priority:        10
+    SortPriority:    0
+    CaseSensitive:   true
+  - Regex:           '<Common/.*>'
+    Priority:        10
+    SortPriority:    0
+    CaseSensitive:   true
+# PluginAPI end
+  - Regex:           '"[^/]*"'
+    Priority:        2
+    SortPriority:    0
+  - Regex:           '".*"'
+    Priority:        3
+    SortPriority:    0
+# C headers start
+# This regex needs to be before the general <> ones in order to be grouped separately.
+  - Regex:           '<sys/[^/]*.h>'
+    Priority:        11
+    SortPriority:    0
+    CaseSensitive:   true
+  - Regex:           '<[^/]*.h>'
+    Priority:        11
+    SortPriority:    0
+# C headers end
+  - Regex:           '<[^/]*>'
+    Priority:        15
+    SortPriority:    0
+  - Regex:           '<.*>'
+    Priority:        14
+    SortPriority:    0
+IncludeIsMainRegex: '(Test)?$'
+IncludeIsMainSourceRegex: ''
 IndentCaseLabels: true
+IndentCaseBlocks: false
+IndentGotoLabels: true
 IndentPPDirectives: AfterHash
-IndentWidth: 4
+IndentExternBlock: AfterExternBlock
+IndentWidth:     4
+IndentWrappedFunctionNames: false
+InsertTrailingCommas: None
+JavaScriptQuotes: Leave
+JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
+MacroBlockBegin: ''
+MacroBlockEnd:   ''
+MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
-ReflowComments: true
+ObjCBinPackProtocolList: Auto
+ObjCBlockIndentWidth: 2
+ObjCBreakBeforeNestedBlockParam: true
+ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: true
+PenaltyBreakAssignment: 2
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakComment: 300
 PenaltyBreakFirstLessLess: 0
+PenaltyBreakString: 1000
+PenaltyBreakTemplateDeclaration: 10
+PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 1000
 PointerAlignment: Left
+ReflowComments:  true
+SortIncludes:    true
+SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: false
 SpaceBeforeAssignmentOperators: true
-SpaceBeforeCpp11BracedList: true
+SpaceBeforeCpp11BracedList: false
 SpaceBeforeCtorInitializerColon: true
 SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
-SpacesInAngles: false
-SpacesInCStyleCastParentheses: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles:  false
+SpacesInConditionalStatement: false
 SpacesInContainerLiterals: true
+SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-SortIncludes: true
-SortUsingDeclarations: true
-Standard: c++11
-TabWidth: 4
-UseTab: Never
-
+SpaceBeforeSquareBrackets: false
+Standard:        c++17
+StatementMacros:
+  - Q_UNUSED
+  - QT_REQUIRE_VERSION
+TabWidth:        4
+UseCRLF:         false
+UseTab:          Never
+WhitespaceSensitiveMacros:
+  - STRINGIZE
+  - PP_STRINGIZE
+  - BOOST_PP_STRINGIZE
