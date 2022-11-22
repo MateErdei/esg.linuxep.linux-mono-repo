@@ -15,7 +15,6 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
-#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <optional>
 #include <utility>
@@ -182,7 +181,7 @@ namespace safestore::QuarantineManager
             LOGINFO("Quarantine Manager initialised OK");
 
             // Update SafeStore config if config file exists
-            parseConfig(*m_safeStore);
+            parseConfig();
         }
         else
         {
@@ -359,7 +358,7 @@ namespace safestore::QuarantineManager
         setState(QuarantineManagerState::INITIALISED);
     }
 
-    void QuarantineManagerImpl::parseConfig(safestore::SafeStoreWrapper::ISafeStoreWrapper& safeStore)
+    void QuarantineManagerImpl::parseConfig()
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         if (fileSystem->isFile(Plugin::getSafeStoreConfigPath()))
@@ -369,33 +368,13 @@ namespace safestore::QuarantineManager
             {
                 auto configContents = fileSystem->readFile(Plugin::getSafeStoreConfigPath());
                 nlohmann::json j = nlohmann::json::parse(configContents);
-                // Have to check this first, because it breaks setting MaxSafeStoreSize if it's >2x bigger than it
-                if (j.contains("MaxObjectSize") && j["MaxObjectSize"].is_number_unsigned())
-                {
-                    if (safeStore.setConfigIntValue(SafeStoreWrapper::ConfigOption::MAX_OBJECT_SIZE, j["MaxObjectSize"]))
-                    {
-                        LOGINFO("Setting config option: MaxObjectSize to: " << j["MaxObjectSize"]);
-                    }
-                    else
-                    {
-                        LOGWARN("Failed to set config option: MaxObjectSize to: " << j["MaxObjectSize"]);
-                    }
-                    j.erase("MaxObjectSize");
-                }
-                for (const auto& [option, optionAsString] : safestore::SafeStoreWrapper::GL_OPTIONS_MAP)
-                {
-                    if (j.contains(optionAsString) && j[optionAsString].is_number_unsigned())
-                    {
-                        if (safeStore.setConfigIntValue(option, j[optionAsString]))
-                        {
-                            LOGINFO("Setting config option: " << optionAsString << " to: " << j[optionAsString]);
-                        }
-                        else
-                        {
-                            LOGWARN("Failed to set config option: " << optionAsString << " to: " << j[optionAsString]);
-                        }
-                    }
-                }
+
+                // Due to library limitations, config options must be set in this order to avoid undesired behaviour
+                setConfigWrapper(j, SafeStoreWrapper::ConfigOption::AUTO_PURGE);
+                setConfigWrapper(j, SafeStoreWrapper::ConfigOption::MAX_OBJECT_SIZE);
+                setConfigWrapper(j, SafeStoreWrapper::ConfigOption::MAX_SAFESTORE_SIZE);
+                setConfigWrapper(j, SafeStoreWrapper::ConfigOption::MAX_REG_OBJECT_COUNT);
+                setConfigWrapper(j, SafeStoreWrapper::ConfigOption::MAX_STORED_OBJECT_COUNT);
             }
             catch (nlohmann::json::parse_error& e)
             {
@@ -405,6 +384,19 @@ namespace safestore::QuarantineManager
             {
                 LOGERROR("Failed to read SafeStore config json: " << e.what());
             }
+        }
+    }
+
+    void QuarantineManagerImpl::setConfigWrapper(nlohmann::json json, const SafeStoreWrapper::ConfigOption& option)
+    {
+        if (json.contains(SafeStoreWrapper::GL_OPTIONS_MAP.at(option)) &&
+            json[SafeStoreWrapper::GL_OPTIONS_MAP.at(option)]
+                .is_number_unsigned())
+        {
+            m_safeStore->setConfigIntValue(
+                option,
+                json[SafeStoreWrapper::GL_OPTIONS_MAP.at(option)]);
+            json.erase(SafeStoreWrapper::GL_OPTIONS_MAP.at(option));
         }
     }
 } // namespace safestore::QuarantineManager

@@ -6,6 +6,7 @@ Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
+Resource    ../shared/SafeStoreResources.robot
 
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
@@ -24,9 +25,6 @@ ${NORMAL_DIRECTORY}                  /home/vagrant/this/is/a/directory/for/scann
 ${CUSTOMERID_FILE}                   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
 ${MACHINEID_CHROOT_FILE}             ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${MACHINEID_FILE}                    ${SOPHOS_INSTALL}/base/etc/machine_id.txt
-${SAFESTORE_DB_DIR}                  ${SOPHOS_INSTALL}/plugins/av/var/safestore_db
-${SAFESTORE_DB_PATH}                 ${SAFESTORE_DB_DIR}/safestore.db
-${SAFESTORE_DB_PASSWORD_PATH}        ${SAFESTORE_DB_DIR}/safestore.pw
 ${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_dormant_flag
 
 
@@ -44,7 +42,7 @@ SafeStore Can Reinitialise Database Containing Threats
     Unpack SafeStore Tools To  ${safestore_tools_unpacked}
     ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
     wait for Safestore to be running
 
@@ -52,7 +50,7 @@ SafeStore Can Reinitialise Database Containing Threats
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
-    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
 
     ${filesInSafeStoreDb1} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb1.stdout}
@@ -62,8 +60,8 @@ SafeStore Can Reinitialise Database Containing Threats
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
 
     Start SafeStore
-    wait_for_log_contains_from_mark  ${safestore_mark}  Quarantine Manager initialised OK
-    wait_for_log_contains_from_mark  ${safestore_mark}  Successfully initialised SafeStore database
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantine Manager initialised OK
+    Wait For Log Contains From Mark  ${safestore_mark}  Successfully initialised SafeStore database
 
     Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}
     ${ssPassword2} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
@@ -77,7 +75,7 @@ SafeStore Can Reinitialise Database Containing Threats
 SafeStore Recovers From Corrupt Database
     ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
     wait for Safestore to be running
 
@@ -86,15 +84,15 @@ SafeStore Recovers From Corrupt Database
 
     Check SafeStore Dormant Flag Exists
 
-    wait_for_log_contains_from_mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    200
-    wait_for_log_contains_from_mark  ${safestore_mark}  Quarantine Manager initialised OK
+    Wait For Log Contains From Mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    200
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantine Manager initialised OK
 
     Check Safestore Dormant Flag Does Not Exist
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
-    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${safestore_mark}  Finalised file: eicar.com
+    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${safestore_mark}  Finalised file: ${SCAN_DIRECTORY}/eicar.com
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
@@ -105,21 +103,49 @@ SafeStore Quarantines When It Receives A File To Quarantine
     ${av_mark} =  Get AV Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
 
-    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
+    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
-    ...  alert_id=Tbd7be297ddf3cd8
+    ...  alert_id=e52cf957-a0dc-5b12-bad2-561197a5cae4
     ...  succeeded=1
-    ...  origin=0
+    ...  origin=1
     ...  result=0
     ...  path=${SCAN_DIRECTORY}/eicar.com
+
+
+SafeStore Quarantines Archive
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
+
+    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+    Create Directory  ${ARCHIVE_DIR}
+    Create File  ${ARCHIVE_DIR}/1_dsa    ${DSA_BY_NAME_STRING}
+    Create File  ${ARCHIVE_DIR}/2_eicar  ${EICAR_STRING}
+    Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  1_dsa  2_eicar
+    Remove Directory  ${ARCHIVE_DIR}  recursive=True
+
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
+
+    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
+    File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
+
+    Wait Until Base Has Core Clean Event
+    ...  alert_id=49c016d1-fcfe-543d-8279-6ff8c8f3ce4b
+    ...  succeeded=1
+    ...  origin=1
+    ...  result=0
+    ...  path=${SCAN_DIRECTORY}/test.tar
 
 
 Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
@@ -128,7 +154,7 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     ${av_mark} =  Get AV Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}   timeout=60
+    Wait For Log Contains From Mark  ${av_mark}      SafeStore flag set. Setting SafeStore to enabled.   timeout=60
 
     Wait for Safestore to be running
     Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
@@ -136,14 +162,14 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
 
-    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${av_mark}  Quarantine failed
+    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${av_mark}  Quarantine failed
     File Should Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
-    ...  alert_id=Tbd7be297ddf3cd8
+    ...  alert_id=e52cf957-a0dc-5b12-bad2-561197a5cae4
     ...  succeeded=0
-    ...  origin=0
+    ...  origin=1
     ...  result=3
     ...  path=${SCAN_DIRECTORY}/eicar.com
 
@@ -151,23 +177,27 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
 SafeStore does not quarantine on a Corrupt Database
     ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
+    Wait For Log Contains From Mark  ${av_mark}      SafeStore flag set. Setting SafeStore to enabled.  timeout=60
 
-    wait for Safestore to be running
+    Wait for SafeStore to be running
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Corrupt SafeStore Database
     Check avscanner can detect eicar
 
     Wait Until AV Plugin Log Contains Detection Name After Mark  ${av_mark}  EICAR-AV-Test
-    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${safestore_mark}  Cannot quarantine file, SafeStore is in
-    wait_for_log_contains_from_mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    timeout=200
-    wait_for_log_contains_from_mark  ${safestore_mark}  Successfully initialised SafeStore database
+    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${safestore_mark}  Cannot quarantine file, SafeStore is in
+    Wait For Log Contains From Mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    timeout=200
+    Wait For Log Contains From Mark  ${safestore_mark}  Successfully initialised SafeStore database
+    File Should Exist  ${SCAN_DIRECTORY}/eicar.com
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Check avscanner can detect eicar
-    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    # Rescan the file without creating it again
+    Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com
+    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${safestore_mark}  Finalising file
+    File Should Not Exist  ${SCAN_DIRECTORY}/eicar.com
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
@@ -179,12 +209,12 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
 
     ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
+    Wait For Log Contains From Mark  ${av_mark}      SafeStore flag set. Setting SafeStore to enabled.   timeout=60
 
     Check avscanner can detect eicar
 
     Wait Until AV Plugin Log Contains Detection Name After Mark  ${av_mark}  EICAR-AV-Test
-    Wait For AV Log Contains After Mark  Failed to write to SafeStore socket.  mark=${av_mark}
+    Wait For Log Contains From Mark  ${av_mark}    Failed to write to SafeStore socket.  
     Check SafeStore Not Running
     Mark Expected Error In Log    ${AV_PLUGIN_PATH}/log/av.log    Aborting SafeStore connection : failed to read length
 
@@ -195,12 +225,12 @@ SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount
     ${av_mark} =  Get AV Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
+    Wait For Log Contains From Mark  ${av_mark}      SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
     Check avscanner can detect eicar on read only mount
 
-    Wait For AV Log Contains After Mark    File is located on a ReadOnly mount:  ${av_mark}
-    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${av_mark}      File is located on a ReadOnly mount:
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'  
 
 
 SafeStore Does Not Attempt To Quarantine File On A Network Mount
@@ -209,12 +239,12 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount
     ${av_mark} =  Get AV Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
+    Wait For Log Contains From Mark  ${av_mark}      SafeStore flag set. Setting SafeStore to enabled.  timeout=60
 
     Check avscanner can detect eicar on network mount
 
-    Wait For AV Log Contains After Mark    File is located on a Network mount:  ${av_mark}
-    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${av_mark}      File is located on a Network mount:  
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test' 
 
 
 SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Capacity
@@ -231,21 +261,21 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     ${eicar2}=    Set Variable     big_eicar2
     ${eicar3}=    Set Variable     big_eicar3
 
-    Create Big Eicar   ${eicar1}
-    Create Big Eicar   ${eicar2}
-    Create Big Eicar   ${eicar3}
+    Create Big Eicar Of Size  31K   ${eicar1}
+    Create Big Eicar Of Size  31K   ${eicar2}
+    Create Big Eicar Of Size  31K   ${eicar3}
 
     ${av_mark} =  Get AV Log Mark
-    ${ss_mark} =  Get SafeStore Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.  timeout=60
 
     Wait For Safestore To Be Running
 
+    ${ss_mark} =  Get SafeStore Log Mark
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
 
-    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'  
     Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${SCAN_DIRECTORY}/${eicar1}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
@@ -257,11 +287,12 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
 
-    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'  
     Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar2}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
 
     ${av_mark} =  Get AV Log Mark
@@ -269,11 +300,12 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar3}
 
-    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar3}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar3}
 
     Should Not Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
@@ -301,13 +333,13 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     ${ss_mark} =  Get SafeStore Log Mark
 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For AV Log Contains After Mark    SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}  timeout=60
+    Wait For Log Contains From Mark  ${av_mark}      SafeStore flag set. Setting SafeStore to enabled.  timeout=60
 
     Wait For Safestore To Be Running
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
 
-    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar1}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
@@ -319,11 +351,12 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
 
-    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'  ${av_mark}
     Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar2}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
 
     ${av_mark} =  Get AV Log Mark
@@ -331,14 +364,45 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar3}
 
-    Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar3}
 
     ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar3}
 
     Should Not Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
+
+
+SafeStore Quarantines File With Same Path And Sha Again And Discards The Previous Object
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Check avscanner can detect eicar
+    Wait For Log Contains From Mark  ${safestore_mark}  Threat ID: e52cf957-a0dc-5b12-bad2-561197a5cae4
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
+    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Check avscanner can detect eicar
+    Wait For Log Contains From Mark  ${safestore_mark}  Threat ID: e52cf957-a0dc-5b12-bad2-561197a5cae4
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
+    Wait For Log Contains From Mark  ${safestore_mark}  ${SCAN_DIRECTORY}/eicar.com has been quarantined before
+    Wait For Log Contains From Mark  ${safestore_mark}  Removing object
+    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
+
+    # Now try a different path
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Create File  ${NORMAL_DIRECTORY}/eicar2.com  ${EICAR_STRING}
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar2.com
+    Wait For Log Contains From Mark  ${safestore_mark}  Threat ID: 49f9af79-a8bc-5436-9d3a-404a461a976e
+    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
+    check_log_does_not_contain_after_mark  ${SAFESTORE_LOG_PATH}  has been quarantined before  ${safestore_mark}
+    File Should Not Exist   ${SCAN_DIRECTORY}/eicar2.com
 
 
 *** Keywords ***
@@ -375,23 +439,13 @@ SafeStore Test TearDown
 
     Stop SafeStore
     Remove Directory    ${SAFESTORE_DB_DIR}  recursive=True
+    Remove Directory    ${NORMAL_DIRECTORY}  recursive=True
 
     #restore machineID file
     Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
     Remove File  ${CUSTOMERID_FILE}
 
-    # Error ignored because test might not have created this directory
-    Run Keyword And Ignore Error  Empty Directory  ${NORMAL_DIRECTORY}
-
     run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests
-
-Corrupt SafeStore Database
-    Stop SafeStore
-    Create File    ${SOPHOS_INSTALL}/plugins/av/var/persist-safeStoreDbErrorThreshold    1
-
-    Remove Files    ${SAFESTORE_DB_PATH}    ${SAFESTORE_DB_PASSWORD_PATH}
-    Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
-    Start SafeStore
 
 Check SafeStore Dormant Flag Exists
     [Arguments]  ${timeout}=15  ${interval}=2
@@ -400,11 +454,11 @@ Check SafeStore Dormant Flag Exists
 Check Safestore Dormant Flag Does Not Exist
     File Should Not Exist  ${SAFESTORE_DORMANT_FLAG}
 
-Create Big Eicar
-    [Arguments]  ${filename}
+Create Big Eicar Of Size
+    [Arguments]  ${size}  ${filename}
     Create File     ${NORMAL_DIRECTORY}/${filename}    ${EICAR_STRING}
     Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/${filename}
-    ${result} =   Run Process   head  -c  31K  </dev/urandom  >>${NORMAL_DIRECTORY}/${filename}  shell=True
+    ${result} =   Run Process   head  -c  ${size}  </dev/urandom  >>${NORMAL_DIRECTORY}/${filename}  shell=True
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Integers   ${result.rc}  ${0}

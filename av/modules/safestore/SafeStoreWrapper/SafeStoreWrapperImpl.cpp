@@ -351,6 +351,7 @@ namespace safestore::SafeStoreWrapper
             SafeStore_SetConfigIntValue(m_safeStoreHolder->getHandle(), convertToSafeStoreConfigId(option), value);
         if (returnCode == SR_OK)
         {
+            LOGINFO("Setting config option: " << GL_OPTIONS_MAP.at(option) << " to: " << value);
             return true;
         }
         LOGWARN(

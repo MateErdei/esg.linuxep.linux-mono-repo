@@ -83,6 +83,7 @@ namespace
         MOCK_METHOD(void, initialise, ());
         MOCK_METHOD(safestore::QuarantineManager::QuarantineManagerState, getState, ());
         MOCK_METHOD(bool, deleteDatabase, ());
+        MOCK_METHOD(void, parseConfig, ());
     };
 } // namespace
 

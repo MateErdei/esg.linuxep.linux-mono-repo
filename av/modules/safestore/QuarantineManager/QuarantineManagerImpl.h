@@ -8,10 +8,12 @@
 #include <scan_messages/QuarantineResponse.h>
 
 #include "Common/PersistentValue/PersistentValue.h"
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <memory>
 #include <mutex>
 #include <string>
+
 namespace safestore::QuarantineManager
 {
     class QuarantineManagerImpl : public IQuarantineManager
@@ -29,12 +31,13 @@ namespace safestore::QuarantineManager
             const std::string& sha256,
             datatypes::AutoFd autoFd) override;
         std::vector<FdsObjectIdsPair> extractQuarantinedFiles() override;
+        void parseConfig();
 
     private:
         void callOnDbError();
         void callOnDbSuccess();
         void setState(const QuarantineManagerState& newState);
-        void parseConfig(safestore::SafeStoreWrapper::ISafeStoreWrapper& safeStore);
+        void setConfigWrapper(nlohmann::json json, const safestore::SafeStoreWrapper::ConfigOption& option);
         QuarantineManagerState m_state;
         std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> m_safeStore;
         std::mutex m_interfaceMutex;
