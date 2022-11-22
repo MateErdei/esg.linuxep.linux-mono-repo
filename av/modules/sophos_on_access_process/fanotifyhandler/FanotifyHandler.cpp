@@ -163,11 +163,6 @@ void FanotifyHandler::processFaMarkError(const std::string& function, const std:
     {
         LOGDEBUG(logMsg.str());
     }
-    // TODO: Remove this condition once LINUXDAR-5803 is fixed
-    else if (function == "unmarkMount")
-    {
-        LOGWARN(logMsg.str());
-    }
     else
     {
         LOGERROR(logMsg.str());
