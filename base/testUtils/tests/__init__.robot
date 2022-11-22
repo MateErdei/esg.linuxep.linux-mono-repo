@@ -80,6 +80,7 @@ Global Setup Tasks
     ${OPENSSL_FOLDER} =  Unpack Openssl   ${TEMPORARY_DIRECTORIES}
     Set Global Variable  ${OPENSSL_BIN_PATH}            ${TEMPORARY_DIRECTORIES}/openssl/bin64
     Set Global Variable  ${OPENSSL_LIB_PATH}            ${TEMPORARY_DIRECTORIES}/openssl/lib64
+    Unpack AV TAP Tools
 
     # Check that the openssl unpacked otherwise suldownloader and updatescheduler tests may fail with
     # obscure openssl errors on Centos and Rhel
@@ -99,6 +100,15 @@ Global Setup Tasks
 
     Generate Real Warehouse Alc Files
     Set Global Variable  ${GeneratedWarehousePolicies}  ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies
+
+Unpack AV TAP Tools
+    Set Global Variable  ${AV_TEST_TOOLS}         ${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-anti-virus-test-tools
+    Create Directory  ${AV_TEST_TOOLS}
+
+    ${result} =   Run Process    tar    xzf    ${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-anti-virus/tap_test_output.tar.gz    -C    ${AV_TEST_TOOLS}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers   ${result.rc}  ${0}
 
 Global Cleanup Tasks
     Clean Up System Product Test Output
