@@ -14,7 +14,8 @@ namespace scan_messages
 
         //For products internal use
         E_SCAN_TYPE_ON_ACCESS_OPEN = 207,
-        E_SCAN_TYPE_ON_ACCESS_CLOSE = 208
+        E_SCAN_TYPE_ON_ACCESS_CLOSE = 208,
+        E_SCAN_TYPE_SAFESTORE_RESCAN = 209
     };
 }
 

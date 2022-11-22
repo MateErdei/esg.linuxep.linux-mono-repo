@@ -98,6 +98,10 @@ std::string scan_messages::getScanTypeAsStr(const E_SCAN_TYPE& scanType)
         {
             return "Scheduled";
         }
+        case E_SCAN_TYPE_SAFESTORE_RESCAN:
+        {
+            return "SafeStore Rescan";
+        }
         default:
         {
             return "Unknown";
