@@ -753,7 +753,101 @@ AV Plugin Restores Downgrade SafeStore Databases
     Check AV Plugin Not Installed
     Install AV Directly from SDDS
 
+    # File will be removed so test it is put back
+    Wait Until File exists  ${THREAT_DATABASE_PATH}
     Verify SafeStore Database Backups Exist in Path    ${AV_RESTORED_VAR_DIRECTORY}
+
+AV Plugin Restores Older SafeStore Database On Upgrade
+    Check AV Plugin Running
+    Run plugin uninstaller with downgrade flag
+    Check AV Plugin Not Installed
+
+    Remove All But One SafeStore Backup
+    ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
+    ${threatDatabaseBackup} =    Set Variable    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}
+
+    Install AV Directly from SDDS
+    Wait Until Keyword Succeeds
+    ...    60 secs
+    ...    5 secs
+    ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database (${threatDatabaseBackup}) to ${SAFESTORE_DB_DIR}
+    Directory Should Not Exist    ${threatDatabaseBackup}
+    Verify SafeStore Database Exists
+
+    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+
+AV Plugin Restores Newest SafeStore Database Backup On Upgrade
+    Register Cleanup    Remove Directory    /tmp/safestore_db_copy    recursive=True
+    Check AV Plugin Running
+    Copy Directory    ${SAFESTORE_DB_DIR}    /tmp/safestore_db_copy
+
+    Run plugin uninstaller with downgrade flag
+    Check AV Plugin Not Installed
+
+    # (2003-10-19 16:24:42)
+    Copy Directory    /tmp/safestore_db_copy    ${AV_RESTORED_VAR_DIRECTORY}/1066580682_SafeStore_1.0.0
+    # (2006-02-02 10:01:31)
+    Copy Directory    /tmp/safestore_db_copy    ${AV_RESTORED_VAR_DIRECTORY}/1138874491_SafeStore_1.0.0
+    # (2019-01-13 23:23:49)
+    Copy Directory    /tmp/safestore_db_copy    ${AV_RESTORED_VAR_DIRECTORY}/1376107843_SafeStore_1.0.0
+    # (2013-08-10 04:10:43)
+    Copy Directory    /tmp/safestore_db_copy    ${AV_RESTORED_VAR_DIRECTORY}/1066580682_SafeStore_1.0.0
+    # (2056-11-17 10:57:13) - Newest Database that will be restored
+    ${backupToRestore} =    Set Variable    ${AV_RESTORED_VAR_DIRECTORY}/2741684233_SafeStore_1.0.0
+    Copy Directory    /tmp/safestore_db_copy    ${backupToRestore}
+
+    Install AV Directly from SDDS
+
+    Wait Until Keyword Succeeds
+    ...    60 secs
+    ...    5 secs
+    ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database (${backupToRestore}) to ${SAFESTORE_DB_DIR}
+
+    Directory Should Not Exist    ${backupToRestore}
+    Verify SafeStore Database Exists
+    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+
+Older SafeStore Database Is Not Restored When A SafeStore Database Is Already Present
+    Register Cleanup    Remove Directory    /tmp/safestore_db_copy    recursive=True
+    Check AV Plugin Running
+    Copy Directory    ${SAFESTORE_DB_DIR}    /tmp/safestore_db_copy
+
+    Run plugin uninstaller with downgrade flag
+    Check AV Plugin Not Installed
+
+    Remove All But One SafeStore Backup
+    ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
+    ${threatDatabaseBackup} =    Set Variable    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}
+    Move Directory    /tmp/safestore_db_copy    ${SAFESTORE_DB_DIR}
+
+    Install AV Directly from SDDS
+
+    Wait Until Keyword Succeeds
+    ...    60 secs
+    ...    5 secs
+    ...    File Log Contains    ${AV_INSTALL_LOG}    SafeStore database already exists so will not attempt to restore: ${threatDatabaseBackup}
+    Directory Should Exist    ${threatDatabaseBackup}
+    Verify SafeStore Database Exists
+
+Older SafeStore Database Is Not Restored When It Is Not Compaitible With Current AV Version
+    Check AV Plugin Running
+    Run plugin uninstaller with downgrade flag
+    Check AV Plugin Not Installed
+
+    Remove All But One SafeStore Backup
+    ${safeStoreDatabaseBackupDirs} =    List Directories In Directory    ${AV_RESTORED_VAR_DIRECTORY}
+    ${incompatibleBackup} =    Set Variable    ${AV_RESTORED_VAR_DIRECTORY}/123456789_SafeStore_9.9.9
+    Move Directory    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}    ${incompatibleBackup}
+
+    Install AV Directly from SDDS
+    ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
+
+    Wait Until Keyword Succeeds
+    ...    60 secs
+    ...    5 secs
+    ...    File Log Contains    ${AV_INSTALL_LOG}    SafeStore Database (${incompatibleBackup}) is not compatible with the current AV version (${version}) so will not attempt to restore
+    Directory Should Exist    ${incompatibleBackup}
+    Verify SafeStore Database Exists
 
 AV Can not install from SDDS Component
     ${result} =  Run Process  bash  ${COMPONENT_SDDS_COMPONENT}/install.sh  stderr=STDOUT  timeout=30s
@@ -884,6 +978,7 @@ Installer Test Setup
     Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
     Register On Fail  dump log  ${AV_LOG_PATH}
     Register On Fail  dump log  ${ON_ACCESS_LOG_PATH}
+    Register On Fail  dump log  ${SAFESTORE_LOG_PATH}
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
     Require Plugin Installed and Running
