@@ -3,6 +3,7 @@
 # Copyright (C) 2018-2019 Sophos Plc, Oxford, England.
 # All rights reserved.
 
+import os
 from threading import Thread
 import sys
 import traceback
@@ -24,6 +25,12 @@ class Agent(object):
         self.run_thread = None
         self.logger = logger
 
+    def socket_path(self):
+        return self.management_agent_socket_path
+
+    def is_running(self):
+        return self.__m_running
+
     def start(self):
         self.logger.info("Starting FakeManagementAgent")
         self.__m_running = True
@@ -41,6 +48,9 @@ class Agent(object):
         poller = zmq.Poller()
         poller.register(self.management_agent_socket, zmq.POLLIN)
 
+        # ZMQ socket doesn't appear immediately
+        socket_has_appeared = False
+
         try:
             while self.__m_running:
                 try:
@@ -52,11 +62,20 @@ class Agent(object):
                 if self.management_agent_socket in sockets:
                     self.handle_plugin_requests()
 
+                if os.path.exists(self.socket_path()):
+                    self.logger.info("Socket created")
+                    socket_has_appeared = True
+                elif socket_has_appeared:
+                    # Only produce an error after the socket has appeared
+                    self.logger.error("Socket path has disappeared!")
+                    break
+
             self.logger.info("Clean exit from FakeManagementAgent")
         except Exception:
             trace = traceback.format_exc()
             self.logger.error("FakeManagementAgent failed with: " + trace)
         finally:
+            self.__m_running = False
             self.logger.info("Finishing FakeManagementAgent")
 
     def handle_plugin_requests(self):

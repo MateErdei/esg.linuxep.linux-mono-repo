@@ -169,18 +169,25 @@ class FakeManagement(object):
         return FakeManagementLog.get_fake_management_log_path()
 
     def __setup_logger_if_required(self):
+        if not os.path.isfile(self.get_fakemanagement_agent_log_path()):
+            # Need to restart logging as log file path has disappeared
+            self.logger = None
+
         if self.logger is None:
             self.logger = FakeManagementAgent.setup_logging(FakeManagementLog.get_fake_management_log_filename(), "Fake Management Agent")
+        return self.logger
 
     def start_fake_management(self):
+        self.__setup_logger_if_required()
+        self.__clean_up_agent_if_not_running()
         if self.agent:
             raise AssertionError("Agent already initialized")
-        self.__setup_logger_if_required()
         self.agent = FakeManagementAgent.Agent(self.logger)
         self.agent.start()
 
     def start_fake_management_if_required(self):
         self.__setup_logger_if_required()
+        self.__clean_up_agent_if_not_running()
         if self.agent is None:
             self.logger.info("Starting FakeManagementAgent")
             self.agent = FakeManagementAgent.Agent(self.logger)
@@ -204,6 +211,13 @@ class FakeManagement(object):
             self.logger.info("Stopping FakeManagementAgent")
             self.agent.stop()
             self.agent = None
+
+    def __clean_up_agent_if_not_running(self):
+        if not self.agent:
+            return
+        if self.agent.is_running():
+            return
+        self.stop_fake_management_if_running()
 
     def restart_fake_management(self):
         self.__setup_logger_if_required()
