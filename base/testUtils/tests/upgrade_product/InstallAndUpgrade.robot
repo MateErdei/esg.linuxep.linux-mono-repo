@@ -156,6 +156,13 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  15 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
+    Check SafeStore Installed Correctly
+    Mark AV Log
+    Mark SafeStore Log
+    ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
+    ${safeStoreDbBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PATH}
+    ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
+
     Mark Watchdog Log
     Mark Managementagent Log
     Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
@@ -201,6 +208,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check All Product Logs Do Not Contain Critical
 
     Check Current Release With AV Installed Correctly
+    Check SafeStore Upgraded Correctly with Persisted Database    ${safeStoreDbDirBeforeUpgrade}    ${safeStoreDbBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
     Wait For RuntimeDetections to be Installed
 
     ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
