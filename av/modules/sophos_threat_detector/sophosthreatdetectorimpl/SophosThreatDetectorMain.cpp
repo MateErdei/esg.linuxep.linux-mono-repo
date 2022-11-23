@@ -450,7 +450,13 @@ namespace sspl::sophosthreatdetectorimpl
             m_scannerFactory->shutdown();
             return common::E_CLEAN_SUCCESS;
         }
-        m_scannerFactory->update(); // always force an update during start-up
+
+        if(!m_scannerFactory->update()) // always force an update during start-up
+        {
+            m_scannerFactory->shutdown();
+            LOGFATAL("Update at startup failed exiting threat detector main");
+            return common::E_GENERIC_FAILURE;
+        }
 
         m_safeStoreRescanWorker = std::make_shared<SafeStoreRescanWorker>(Plugin::getSafeStoreRescanSocketPath());
 

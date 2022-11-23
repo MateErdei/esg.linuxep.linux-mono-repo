@@ -60,7 +60,7 @@ install(TARGETS threat_scanner
 SET_TARGET_PROPERTIES(threat_scanner
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN/../chroot/lib64:$ORIGIN:$ORIGIN/../../../base/lib64"
         )
 
 install(FILES ${ABS_SUSI_LIB} ${ABS_UPDATER_LIB}

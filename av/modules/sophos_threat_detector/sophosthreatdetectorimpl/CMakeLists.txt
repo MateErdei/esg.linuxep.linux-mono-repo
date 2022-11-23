@@ -39,5 +39,5 @@ install(TARGETS sophosthreatdetectorimpl
 SET_TARGET_PROPERTIES(sophosthreatdetectorimpl
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64"
+        INSTALL_RPATH "$ORIGIN/../chroot/lib64:$ORIGIN:$ORIGIN/../../../base/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64"
         )

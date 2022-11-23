@@ -86,6 +86,7 @@ namespace threat_scanner
         std::atomic_bool m_susiInitialised = false;
         std::atomic_bool m_updatePending = false;
         std::atomic_bool m_shuttingDown = false;
+        std::string m_currentSusiConfig;
         std::string m_updatePath;
         std::string m_lockFile;
         std::mutex m_globalSusiMutex;
