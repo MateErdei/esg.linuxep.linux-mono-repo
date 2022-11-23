@@ -168,6 +168,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  2
+    Toggle SafeStore Flag in MCS Policy    ${True}
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
@@ -498,6 +499,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  2
+    Toggle SafeStore Flag in MCS Policy    ${True}
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
 

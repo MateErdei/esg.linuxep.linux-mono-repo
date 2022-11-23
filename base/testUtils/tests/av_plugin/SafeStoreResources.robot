@@ -1,9 +1,12 @@
 *** Settings ***
 Library    OperatingSystem
 
+Library    ${LIBS_DIRECTORY}/FaultInjectionTools.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource    AVResources.robot
+Resource    ../scheduler_update/SchedulerUpdateResources.robot
 
 *** Variables ***
 ${SAFESTORE_BIN}                    ${AV_PLUGIN_PATH}/sbin/safestore
@@ -65,11 +68,11 @@ Check SafeStore Installed Correctly
     Wait Until Keyword Succeeds
     ...    15 secs
     ...    1 secs
-    ...    SafeStore Log Contains    Quarantine Manager initialised OK
+    ...    Check SafeStore Log Contains    Quarantine Manager initialised OK
     Wait Until Keyword Succeeds
     ...    15 secs
     ...    1 secs
-    ...    SafeStore Log Contains    SafeStore started
+    ...    Check SafeStore Log Contains    SafeStore started
     Check SafeStore Database Exists
     Check SafeStore Permissions And Owner
 
@@ -79,8 +82,10 @@ Check SafeStore Database Exists
     File Exists With Permissions    ${SAFESTORE_DB_PATH}    root    root    -rw-------
     File Exists With Permissions    ${SAFESTORE_DB_PASSWORD_PATH}    root    root    -rw-------
 
-SafeStore Log Contains
-    [Arguments]    ${textToFind}
-    File Should Exist    ${SAFESTORE_LOG_PATH}
-    ${fileContent} =    Get File    ${SAFESTORE_LOG_PATH}
-    Should Contain    ${fileContent}    ${textToFind}
+Toggle SafeStore Flag in MCS Policy
+    [Arguments]    ${enabled}
+    Copy File    ${SOPHOS_INSTALL}/base/mcs/policy/flags.json    /tmp/flags.json
+    Modify Value In Json File    safestore.enabled    ${enabled}    /tmp/flags.json
+    ${modifiedFlags} =    Get File    /tmp/flags.json
+
+    Send Mock Flags Policy    ${modifiedFlags}

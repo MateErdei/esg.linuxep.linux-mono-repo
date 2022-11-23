@@ -54,6 +54,7 @@ class LogUtils(object):
         self.tscheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "tscheduler.log")
         self.update_scheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "updatescheduler.log")
         self.av_log = os.path.join(self.install_path, "plugins", "av", "log", "av.log")
+        self.safestore_log = os.path.join(self.install_path, "plugins", "av", "log", "safestore.log")
         self.sophos_threat_detector_log = os.path.join(self.install_path, "plugins", "av", "chroot", "log", "sophos_threat_detector.log")
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.edr_osquery_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr_osquery.log")
@@ -72,6 +73,7 @@ class LogUtils(object):
         self.marked_managementagent_log = 0
         self.marked_mcs_envelope_logs = 0
         self.marked_mcsrouter_logs = 0
+        self.marked_safestore_log = 0
         self.marked_sophos_threat_detector_log = 0
         self.marked_sul_logs = 0
         self.marked_update_scheduler_logs = 0
@@ -440,8 +442,7 @@ class LogUtils(object):
                                  f"times not the requested {expected_occurrence} times")
 
     def mark_sul_log(self):
-        sul_log = self.suldownloader_log
-        contents = get_log_contents(sul_log)
+        contents = get_log_contents(self.suldownloader_log)
         self.marked_sul_logs = len(contents)
 
     def check_marked_sul_log_contains(self, string_to_contain):
@@ -729,8 +730,7 @@ class LogUtils(object):
                                  f"the requested {expected_occurrence} times")
 
     def mark_update_scheduler_log(self):
-        update_scheduler_log = self.update_scheduler_log
-        contents = get_log_contents(update_scheduler_log)
+        contents = get_log_contents(self.update_scheduler_log)
         self.marked_update_scheduler_logs = len(contents)
 
     def check_marked_update_scheduler_log_contains(self, string_to_contain):
@@ -745,8 +745,7 @@ class LogUtils(object):
 
     # AV Plugin Log Utils
     def mark_av_log(self):
-        av_log = self.av_log
-        contents = get_log_contents(av_log)
+        contents = get_log_contents(self.av_log)
         self.marked_av_log = len(contents)
 
     def check_marked_av_log_contains(self, string_to_contain):
@@ -759,9 +758,28 @@ class LogUtils(object):
             self.dump_log(av_log)
             raise AssertionError(f"av.log log did not contain: {string_to_contain}")
 
+    def check_safestore_log_contains(self, string_to_contain):
+        self.check_log_contains(string_to_contain, self.safestore_log, "SafeStore")
+
+    def check_safestore_log_does_not_contain(self, string_to_not_contain):
+        self.check_log_does_not_contain(string_to_not_contain, self.safestore_log, "SafeStore")
+
+    def mark_safestore_log(self):
+        contents = get_log_contents(self.safestore_log)
+        self.marked_safestore_log = len(contents)
+
+    def check_marked_safestore_log_contains(self, string_to_contain):
+        safestore_log = self.safestore_log
+        contents = get_log_contents(safestore_log)
+
+        contents = contents[self.marked_safestore_log:]
+
+        if string_to_contain not in contents:
+            self.dump_log(safestore_log)
+            raise AssertionError(f"SafeStore log did not contain: {string_to_contain}")
+
     def mark_sophos_threat_detector_log(self):
-        sophos_threat_detector_log = self.sophos_threat_detector_log
-        contents = get_log_contents(sophos_threat_detector_log)
+        contents = get_log_contents(self.sophos_threat_detector_log)
         self.marked_sophos_threat_detector_log = len(contents)
 
     def check_marked_sophos_threat_detector_log_contains(self, string_to_contain):
@@ -833,8 +851,7 @@ class LogUtils(object):
         logger.info(f"livequery log marked at line: {self.marked_livequery_log}")
 
     def check_marked_livequery_log_contains(self, string_to_contain):
-        livequery_log = self.livequery_log
-        contents = get_log_contents(livequery_log)
+        contents = get_log_contents(self.livequery_log)
 
         contents = contents[self.marked_livequery_log:]
 
@@ -843,8 +860,7 @@ class LogUtils(object):
             raise AssertionError(f"Marked livequery log did not contain: {string_to_contain}")
 
     def check_marked_livequery_log_contains_string_n_times(self, string_to_contain, expected_occurrence):
-        livequery_log = self.livequery_log
-        contents = get_log_contents(livequery_log)
+        contents = get_log_contents(self.livequery_log)
 
         contents = contents[self.marked_livequery_log:]
 
@@ -874,8 +890,7 @@ class LogUtils(object):
         self.check_log_contains(string_to_contain, self.mdr_log, "MDR")
 
     def check_mtr_log_does_not_contain(self, string_to_not_contain):
-        mdr_log = self.mdr_log
-        self.check_log_does_not_contain(string_to_not_contain, mdr_log, "MTR Plugin Log")
+        self.check_log_does_not_contain(string_to_not_contain, self.mdr_log, "MTR Plugin Log")
 
     def check_mdr_log_contains_in_order(self, *args):
         log_contains_in_order(self.mdr_log, "MDR", args)
