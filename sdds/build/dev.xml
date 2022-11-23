@@ -250,7 +250,7 @@
       <release-asset artifact-path="prod-sdds3-launchdarkly" source-dir="output/launchdarkly" mode="prod">
           <include glob="*.json"/>
       </release-asset>
-      <release-asset artifact-path="sdds2-specs" source-dir="specs">
+      <release-asset artifact-path="sdds2-specs" source-dir="specs/release-1-2-1-1">
           <include glob="*.xml"/>
       </release-asset>
 
