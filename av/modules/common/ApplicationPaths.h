@@ -8,13 +8,17 @@ namespace Plugin
 {
     std::string getPluginInstall();
     std::string getPluginVarDirPath();
+    std::string getPluginChrootDirPath();
+    std::string getPluginChrootVarDirPath();
     std::string getSafeStorePidPath();
     std::string getSafeStoreSocketPath();
+    std::string getSafeStoreRescanSocketPath();
     std::string getSafeStoreDbDirPath();
     std::string getSafeStoreDbFileName();
     std::string getSafeStorePasswordFilePath();
     std::string getSafeStoreDormantFlagPath();
     std::string getSoapdPidPath();
     std::string getOnAccessUnhealthyFlagPath();
-    std::string getPersistThreatDatabaseFilePath();
+    std::string getRelativeSafeStoreRescanIntervalConfigPath();
+    std::string getScanningClientSocketPath();
 } // namespace Plugin

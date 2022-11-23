@@ -89,8 +89,10 @@ namespace Plugin
         return "/var/safeStoreRescanInterval";
     }
 
-    std::string getPersistThreatDatabaseFilePath()
+    std::string getScanningClientSocketPath()
     {
-        return getPluginVarDirPath() + "/persist-threatDatabase";
+        return "/opt/sophos-spl/plugins/av/chroot/var/scanning_socket";
     }
+
+
 } // namespace Plugin
