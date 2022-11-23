@@ -33,7 +33,7 @@ ${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_
 SafeStore Database is Initialised
     register on fail  dump log  ${SOPHOS_INSTALL}/base/etc/logger.conf.local
     register on fail  dump log  ${SOPHOS_INSTALL}/base/etc/logger.conf
-    wait for Safestore to be running
+    Wait Until SafeStore running
 
     Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}
     File Should Exist    ${SAFESTORE_DB_PASSWORD_PATH}
@@ -45,7 +45,7 @@ SafeStore Can Reinitialise Database Containing Threats
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
-    wait for Safestore to be running
+    Wait Until SafeStore running
 
     ${ssPassword1} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
 
@@ -79,7 +79,7 @@ SafeStore Recovers From Corrupt Database
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
-    wait for Safestore to be running
+    Wait Until SafeStore running
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Corrupt SafeStore Database
@@ -159,7 +159,7 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${av_mark}      SafeStore flag set. Setting SafeStore to enabled.   timeout=60
 
-    Wait for Safestore to be running
+    Wait Until SafeStore running
     Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
@@ -182,7 +182,7 @@ SafeStore does not quarantine on a Corrupt Database
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${av_mark}      SafeStore flag set. Setting SafeStore to enabled.  timeout=60
 
-    Wait for SafeStore to be running
+    Wait Until SafeStore running
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Corrupt SafeStore Database
@@ -274,7 +274,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.  timeout=60
 
-    Wait For Safestore To Be Running
+    Wait Until SafeStore running
 
     ${ss_mark} =  Get SafeStore Log Mark
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
@@ -339,7 +339,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
 
-    Wait For Safestore To Be Running
+    Wait Until SafeStore running
 
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
 
