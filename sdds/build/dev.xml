@@ -251,7 +251,7 @@
           <include glob="*.json"/>
       </release-asset>
       <release-asset artifact-path="sdds2-specs" source-dir="specs">
-          <include glob="release*/**"/>
+          <include glob="*.xml"/>
       </release-asset>
 
       <!--release-package-->
