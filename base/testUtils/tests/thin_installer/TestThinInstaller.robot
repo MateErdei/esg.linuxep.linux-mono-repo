@@ -236,10 +236,9 @@ Thin Installer Repairs Broken Existing Installation
     Should Exist  ${REGISTER_CENTRAL}
 
     Check Root Directory Permissions Are Not Changed
-    ${mcsrouter_log} =  Mcs Router Log
     #there is a race condition where the mcsrouter can restart when
     #the thinstaller is overwriting the mcsrouter zip this causes an an expected critical exception
-    Remove File  ${mcsrouter_log}
+    Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Check Expected Base Processes Are Running
 
 

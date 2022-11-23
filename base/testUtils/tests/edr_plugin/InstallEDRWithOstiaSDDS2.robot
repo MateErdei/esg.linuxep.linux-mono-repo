@@ -628,7 +628,7 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut using SDDS2
 
 Check MCS Envelope Log For Event Success Within Nth Set Of Events Sent
     [Arguments]  ${Event_Number}
-    ${string} =  Check Log And Return Nth Occurence Between Strings  <ns:events   </ns:events>   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log   ${Event_Number}
+    ${string} =  Check Log And Return Nth Occurrence Between Strings  <ns:events   </ns:events>   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log   ${Event_Number}
     Should Contain   ${string}   &lt;number&gt;0&lt;/number&gt
 
 Upgrade Installs EDR Twice

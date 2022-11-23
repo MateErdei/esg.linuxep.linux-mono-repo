@@ -607,7 +607,7 @@ CDN Fault Injection Server Responds With Generic Error
 *** Keywords ***
 Check MCS Envelope Contains Event with Update cache
     [Arguments]  ${Event_Number}
-    ${string}=  Check Log And Return Nth Occurence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Event_Number}
+    ${string}=  Check Log And Return Nth Occurrence Between Strings   <event><appId>ALC</appId>  </event>  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log  ${Event_Number}
     Should contain   ${string}   updateSource&gt;4092822d-0925-4deb-9146-fbc8532f8c55&lt
 
 File Should Contain
