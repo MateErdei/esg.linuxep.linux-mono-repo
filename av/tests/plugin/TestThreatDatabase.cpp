@@ -1,14 +1,14 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "tests/common/LogInitializedTests.h"
-#include "thirdparty/nlohmann-json/json.hpp"
+#include "common/ApplicationPaths.h"
 
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
-#include "common/ApplicationPaths.h"
 
+#include <tests/common/LogInitializedTests.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 #include <datatypes/sophos_filesystem.h>
 #include <pluginimpl/ThreatDatabase.h>
 
