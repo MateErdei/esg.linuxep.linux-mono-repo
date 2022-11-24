@@ -27,7 +27,7 @@ namespace
     class MockRestoreReportProcessor : public IRestoreReportProcessor
     {
     public:
-        MOCK_CONST_METHOD1(processRestoreReport, void(const scan_messages::RestoreReport& restoreReport));
+        MOCK_METHOD(void, processRestoreReport, (const scan_messages::RestoreReport& restoreReport), (const, override));
     };
 } // namespace
 
