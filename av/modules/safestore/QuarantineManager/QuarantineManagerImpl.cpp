@@ -524,7 +524,7 @@ namespace safestore::QuarantineManager
 
     scan_messages::ScanResponse QuarantineManagerImpl::scan(
         unixsocket::ScanningClientSocket& socket,
-        int file_fd)
+        int fd)
     {
         scan_messages::ScanResponse response;
 
@@ -539,7 +539,7 @@ namespace safestore::QuarantineManager
         }
 
         auto request = std::make_shared<scan_messages::ClientScanRequest>();
-        request->setFd(file_fd);
+        request->setFd(fd);
         request->setScanType(scan_messages::E_SCAN_TYPE_SAFESTORE_RESCAN);
         request->setScanInsideArchives(true);
         request->setScanInsideImages(true);

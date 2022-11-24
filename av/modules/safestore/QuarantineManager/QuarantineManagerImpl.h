@@ -54,6 +54,6 @@ namespace safestore::QuarantineManager
         // the count only includes continuous DB errors by resetting states and error counts.
         int m_databaseErrorCount = 0;
         Common::PersistentValue<int> m_dbErrorCountThreshold;
-        scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, int file_fd);
+        static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, int fd);
     };
 } // namespace safestore::QuarantineManager

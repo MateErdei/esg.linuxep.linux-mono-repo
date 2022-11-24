@@ -6,10 +6,9 @@
 #include "SusiScanResultJsonParser.h"
 #include "ThreatDetectedBuilder.h"
 
+#include "common/StringUtils.h"
 #include "scan_messages/ClientScanRequest.h"
 #include "scan_messages/ThreatDetected.h"
-
-#include "common/StringUtils.h"
 
 #include <iostream>
 #include <string>
@@ -48,13 +47,17 @@ scan_messages::ScanResponse SusiScanner::scan(
 
     for (const auto& detection : result.detections)
     {
-        LOGWARN(
-            "Detected \"" << detection.name << "\" in " << common::escapePathForLogging(detection.path) << " ("
-                          << scanTypeStr << ")");
+        if (scanType != E_SCAN_TYPE_SAFESTORE_RESCAN)
+        {
+            LOGWARN(
+                "Detected \"" << detection.name << "\" in " << common::escapePathForLogging(detection.path) << " ("
+                              << scanTypeStr << ")");
+        }
+
         response.addDetection(detection.path, detection.name, detection.sha256);
     }
 
-    if (!result.detections.empty() || scanType == E_SCAN_TYPE_SAFESTORE_RESCAN)
+    if (!result.detections.empty() && scanType != E_SCAN_TYPE_SAFESTORE_RESCAN)
     {
         const auto threatDetected =
             buildThreatDetected(result.detections, file_path, std::move(fd), userID, e_ScanType);

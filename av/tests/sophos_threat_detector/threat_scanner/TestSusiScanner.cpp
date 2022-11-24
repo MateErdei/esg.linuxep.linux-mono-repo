@@ -338,3 +338,31 @@ TEST_F(TestSusiScanner, scan_ArchiveWithDetectionsNotIncludingItself_SendsReport
     EXPECT_TRUE(appenderContains("Detected \"threatName_2\" in /tmp/archive.zip/eicar2.txt (On Demand)"));
     EXPECT_TRUE(appenderContains("Sending report for detection 'threatName_1' in /tmp/archive.zip"));
 }
+
+TEST_F(TestSusiScanner, scan_SafeStoreRescanDoesNotSendThreatDetectedReport)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
+    const auto mockTimer = std::make_shared<StrictMock<MockShutdownTimer>>();
+    SusiScanner susiScanner{ std::unique_ptr<IUnitScanner>{ mockUnitScanner }, nullptr, mockTimer };
+
+    EXPECT_CALL(*mockTimer, reset()).Times(1);
+
+    ScanResult scanResult{ { { "/tmp/eicar.txt", "threatName", "threatType", "sha256" } },
+                           {} };
+    EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
+
+    datatypes::AutoFd autoFd;
+    scan_messages::ScanResponse response = susiScanner.scan(autoFd, "/tmp/eicar.txt", scan_messages::E_SCAN_TYPE_SAFESTORE_RESCAN, userId_);
+
+    EXPECT_FALSE(response.allClean());
+    ASSERT_EQ(response.getDetections().size(), 1);
+    EXPECT_EQ(response.getDetections().at(0).path, "/tmp/eicar.txt");
+    EXPECT_EQ(response.getDetections().at(0).name, "threatName");
+    EXPECT_EQ(response.getDetections().at(0).sha256, "sha256");
+    EXPECT_EQ(response.getErrorMsg(), "");
+
+    EXPECT_FALSE(appenderContains("Detected"));
+    EXPECT_FALSE(appenderContains("Sending report for detection"));
+}
