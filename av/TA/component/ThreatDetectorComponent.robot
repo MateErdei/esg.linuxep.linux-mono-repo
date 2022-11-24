@@ -14,6 +14,7 @@ Resource    ../shared/GlobalSetup.robot
 *** Test Cases ***
 
 Threat Detector Handles inaccessible var
+    [Tags]  fault_injection
     Make chroot var inaccessible
     ${mark} =  get_sophos_threat_detector_log_mark
     Run Sophos Threat Detector as sophos-spl-threat-detector without check
@@ -22,6 +23,7 @@ Threat Detector Handles inaccessible var
     Dump Log  ${THREAT_DETECTOR_LOG_PATH}
 
 Threat Detector Handles nonexistent var
+    [Tags]  fault_injection
     Remove chroot var
     ${mark} =  get_sophos_threat_detector_log_mark
     Run Sophos Threat Detector as sophos-spl-threat-detector without check
