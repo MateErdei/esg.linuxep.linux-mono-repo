@@ -48,7 +48,6 @@ Record SafeStore Plugin PID
 Start SafeStore Manually
     ${handle} =  Start Process  ${SAFESTORE_BIN}  stdout=DEVNULL  stderr=DEVNULL
     Set Test Variable  ${SAFESTORE_HANDLE}  ${handle}
-    Wait Until SafeStore running
 
 
 Stop SafeStore Manually
@@ -60,18 +59,22 @@ Wait Until SafeStore running
     [Arguments]  ${timeout}=${60}
     ProcessUtils.wait_for_pid  ${SAFESTORE_BIN}  ${timeout}
 
-    ## password creation only done on first run - can't cover complete log turn-over:
-    Wait_For_Entire_log_contains  ${SAFESTORE_LOG_PATH}  Successfully saved SafeStore database password to file  timeout=15
-
-    ## Lines logged for every start
-    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Quarantine Manager initialised OK  timeout=15
-    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully initialised SafeStore database  timeout=5
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  safestore <> SafeStore started  timeout=5
 
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  3 secs
     ...  Verify SafeStore Database Exists
+
+
+Wait Until SafeStore Started Successfully
+    Wait Until SafeStore running
+    ## password creation only done on first run - can't cover complete log turn-over:
+    Wait_For_Entire_log_contains  ${SAFESTORE_LOG_PATH}  Successfully saved SafeStore database password to file  timeout=15
+
+    ## Lines logged for every start
+    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Quarantine Manager initialised OK  timeout=15
+    Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully initialised SafeStore database  timeout=5
 
 
 Wait Until SafeStore not running
