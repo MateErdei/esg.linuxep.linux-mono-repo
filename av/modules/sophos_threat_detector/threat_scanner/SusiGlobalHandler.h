@@ -6,11 +6,9 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "SusiTypes.h"
+#include "SusiApiWrapper.h"
 
 #include "datatypes/AutoFd.h"
-
-#include "common/ThreatDetector/SusiSettings.h"
 
 #include <atomic>
 #include <memory>
@@ -26,7 +24,7 @@ namespace threat_scanner
          * Setup log4cplus logging.
          *
          */
-        explicit SusiGlobalHandler();
+        explicit SusiGlobalHandler(std::shared_ptr<ISusiApiWrapper> susiWrapper = std::make_shared<SusiApiWrapper>());
 
         /**
          * Terminate SUSI if it has been initialized.
@@ -75,13 +73,6 @@ namespace threat_scanner
          */
         bool isShuttingDown();
 
-        /*
-         * Return copy of std::shared_ptr<common::ThreatDetector::SusiSettings> so that when we swap in a new set of
-         * settings anything left with the old instance is safe until it re-acquires a new copy.
-         */
-        std::shared_ptr<common::ThreatDetector::SusiSettings> accessSusiSettings();
-        void setSusiSettings(std::shared_ptr<common::ThreatDetector::SusiSettings>&& settings);
-
     private:
         std::atomic_bool m_susiInitialised = false;
         std::atomic_bool m_updatePending = false;
@@ -91,9 +82,7 @@ namespace threat_scanner
         std::mutex m_globalSusiMutex;
         bool m_susiVersionAlreadyLogged = false;
 
-        // Used to make sure we don't change the settings while they're being used.
-        std::mutex m_susiSettingsMutex;
-        std::shared_ptr<common::ThreatDetector::SusiSettings> m_susiSettings;
+        std::shared_ptr<ISusiApiWrapper> m_susiWrapper;
 
         /**
          * Update SUSI. Assumes that SUSI has been initialised
@@ -108,7 +97,7 @@ namespace threat_scanner
         static bool acquireLock(datatypes::AutoFd& fd);
         static bool releaseLock(datatypes::AutoFd& fd);
 
-        static void logSusiVersion();
+        void logSusiVersion();
     };
     using SusiGlobalHandlerSharedPtr = std::shared_ptr<SusiGlobalHandler>;
 }

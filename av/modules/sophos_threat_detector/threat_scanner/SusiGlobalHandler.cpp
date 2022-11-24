@@ -7,7 +7,6 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "SusiGlobalHandler.h"
 
 #include "Logger.h"
-#include "ScannerInfo.h"
 #include "SusiCertificateFunctions.h"
 #include "SusiLogger.h"
 #include "ThrowIfNotOk.h"
@@ -18,7 +17,6 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <sys/file.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 #include <cassert>
 #include <filesystem>
@@ -76,7 +74,8 @@ namespace threat_scanner
         };
     }
 
-    SusiGlobalHandler::SusiGlobalHandler()
+    SusiGlobalHandler::SusiGlobalHandler(std::shared_ptr<ISusiApiWrapper> susiWrapper) :
+        m_susiWrapper(std::move(susiWrapper))
     {
         my_susi_callbacks.token = this;
         auto log_level = std::min(getThreatScannerLogger().getChainedLogLevel(), getSusiDebugLogger().getChainedLogLevel());
@@ -91,7 +90,7 @@ namespace threat_scanner
 
         std::lock_guard susiLock(m_globalSusiMutex);
 
-        auto res = SUSI_SetLogCallback(&GL_log_callback);
+        auto res = m_susiWrapper->SUSI_SetLogCallback(&GL_log_callback);
         throwIfNotOk(res, "Failed to set log callback");
     }
 
@@ -102,12 +101,12 @@ namespace threat_scanner
         if (m_susiInitialised.load(std::memory_order_acquire))
         {
             LOGDEBUG("Exiting Global Susi");
-            auto res = SUSI_Terminate();
+            auto res =  m_susiWrapper->SUSI_Terminate();
             LOGSUPPORT("Exiting Global Susi result = " << std::hex << res << std::dec);
             assert(!SUSI_FAILURE(res));
         }
 
-        auto res = SUSI_SetLogCallback(&GL_fallback_log_callback);
+        auto res =  m_susiWrapper->SUSI_SetLogCallback(&GL_fallback_log_callback);
         static_cast<void>(res); // Ignore res for non-debug builds (since we can't throw an exception in destructors)
         assert(!SUSI_FAILURE(res));
     }
@@ -123,7 +122,7 @@ namespace threat_scanner
         }
 
         LOGDEBUG("Reloading SUSI global configuration");
-        SusiResult res = SUSI_UpdateGlobalConfiguration(config.c_str());
+        SusiResult res = m_susiWrapper->SUSI_UpdateGlobalConfiguration(config.c_str());
         if (SUSI_FAILURE(res))
         {
             LOGWARN("Susi configuration reload failed");
@@ -151,7 +150,7 @@ namespace threat_scanner
         auto prevUmask = ::umask(023);
 
         LOGINFO("Bootstrapping SUSI from update source: " << updateSource);
-        SusiResult susiResult = SUSI_Install(updateSource.c_str(), installDest.c_str());
+        SusiResult susiResult =  m_susiWrapper->SUSI_Install(updateSource.c_str(), installDest.c_str());
         if (susiResult == SUSI_S_OK)
         {
             LOGINFO("Successfully installed SUSI to: " << installDest);
@@ -224,7 +223,7 @@ namespace threat_scanner
         assert(m_susiInitialised.load(std::memory_order_acquire));
         // SUSI is always initialised by the time we get here
         LOGDEBUG("Calling SUSI_Update");
-        SusiResult updateResult = SUSI_Update(path.c_str());
+        SusiResult updateResult =  m_susiWrapper->SUSI_Update(path.c_str());
         if (updateResult == SUSI_I_UPTODATE)
         {
             LOGDEBUG("Threat scanner is already up to date");
@@ -289,7 +288,7 @@ namespace threat_scanner
         }
 
         LOGINFO("Initializing SUSI");
-        SusiResult initResult = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks); // Duplicate any changes here to 2nd init below
+        SusiResult initResult =  m_susiWrapper->SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks); // Duplicate any changes here to 2nd init below
         // gets set to true in internal_update only when the update returns SUSI_OK
         m_susiVersionAlreadyLogged = false;
 
@@ -305,7 +304,7 @@ namespace threat_scanner
             auto bootstrapResult = bootstrap();
             throwIfNotOk(bootstrapResult, "Bootstrapping SUSI at re-initialization failed, exiting");
 
-            SusiResult initSecondAttempt = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
+            SusiResult initSecondAttempt =  m_susiWrapper->SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
             throwIfNotOk(initSecondAttempt, "Second attempt to initialise SUSI failed, exiting");
         }
 
@@ -350,7 +349,7 @@ namespace threat_scanner
     void SusiGlobalHandler::logSusiVersion()
     {
         SusiVersionResult* result = nullptr;
-        auto res = SUSI_GetVersion(&result);
+        auto res =  m_susiWrapper->SUSI_GetVersion(&result);
         if (SUSI_FAILURE(res))
         {
             std::ostringstream ost;
@@ -364,7 +363,7 @@ namespace threat_scanner
         {
             LOGWARN("SUSI Loaded old data");
         }
-        SUSI_FreeVersionResult(result);
+        m_susiWrapper->SUSI_FreeVersionResult(result);
     }
 
     bool SusiGlobalHandler::acquireLock(datatypes::AutoFd& fd)
