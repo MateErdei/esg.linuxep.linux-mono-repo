@@ -1076,7 +1076,7 @@ Run IDE update with expected text
 
 Run IDE update with SUSI loaded
     # Require that SUSI has been initialized
-    Run IDE update with expected text  Threat scanner successfully updated  timeout=120
+    Run IDE update with expected text  Notify clients that the update has completed  timeout=120
 
 Run IDE update
     Run IDE update with expected texts  120  Threat scanner successfully updated  Threat scanner update is pending
