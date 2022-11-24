@@ -64,8 +64,7 @@ function generate_susi_package_manifest()
 function bootstrap_susi_from_update_source()
 {
     set_permissions_on_susi_update_source
-    ${PLUGIN_INSTALL}/sbin/susi_bootstrapper
-    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_DIST_VERS}"
+#    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_DIST_VERS}"
 }
 
 function main()
