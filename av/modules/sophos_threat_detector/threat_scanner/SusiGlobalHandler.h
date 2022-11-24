@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -73,6 +69,13 @@ namespace threat_scanner
          */
         bool isShuttingDown();
 
+        /**
+         * Bootstraps SUSI, will always attempt to bootstrap
+         * make sure there is no distribution_version directory when calling it
+         * @return
+         */
+        SusiResult bootstrap();
+
     private:
         std::atomic_bool m_susiInitialised = false;
         std::atomic_bool m_updatePending = false;
@@ -91,8 +94,6 @@ namespace threat_scanner
          * @return true if update was successful
          */
         bool internal_update(const std::string& path, const std::string& lockfile);
-
-        SusiResult bootstrap();
 
         static bool acquireLock(datatypes::AutoFd& fd);
         static bool releaseLock(datatypes::AutoFd& fd);

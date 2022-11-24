@@ -7,6 +7,7 @@ add_library(common SHARED
         ErrorCodesC.h
         Exclusion.cpp
         Exclusion.h
+        FailedToInitializeSusiException.h
         FDUtils.cpp
         FDUtils.h
         IPidLockFile.h

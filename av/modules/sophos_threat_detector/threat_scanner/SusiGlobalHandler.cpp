@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "SusiGlobalHandler.h"
 
@@ -284,7 +280,7 @@ namespace threat_scanner
         else
         {
             auto bootstrapResult = bootstrap();
-            throwIfNotOk(bootstrapResult, "Bootstrapping SUSI failed, exiting");
+            throwFailedToInitIfNotOk(bootstrapResult, "Bootstrapping SUSI failed, exiting");
         }
 
         LOGINFO("Initializing SUSI");
@@ -299,13 +295,13 @@ namespace threat_scanner
             LOGERROR(ost.str());
             LOGINFO("Attempting to re-install SUSI");
 
-            std::filesystem::remove("/susi/distribution_version");
+            std::filesystem::remove_all("/susi/distribution_version");
 
             auto bootstrapResult = bootstrap();
-            throwIfNotOk(bootstrapResult, "Bootstrapping SUSI at re-initialization failed, exiting");
+            throwFailedToInitIfNotOk(bootstrapResult, "Bootstrapping SUSI at re-initialization failed, exiting");
 
             SusiResult initSecondAttempt =  m_susiWrapper->SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
-            throwIfNotOk(initSecondAttempt, "Second attempt to initialise SUSI failed, exiting");
+            throwFailedToInitIfNotOk(initSecondAttempt, "Second attempt to initialise SUSI failed, exiting");
         }
 
         LOGSUPPORT("Initialising Global Susi successful");

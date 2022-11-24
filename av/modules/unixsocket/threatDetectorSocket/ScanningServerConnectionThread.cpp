@@ -5,14 +5,18 @@
 #include "ScanRequest.capnp.h"
 #include "ThreatDetectedMessageUtils.h"
 
-#include "unixsocket/Logger.h"
-#include "unixsocket/SocketUtils.h"
-
 #include "common/FDUtils.h"
+#include "common/FailedToInitializeSusiException.h"
 #include "common/SaferStrerror.h"
 #include "common/ShuttingDownException.h"
 #include "common/StringUtils.h"
 #include "datatypes/SystemCallWrapper.h"
+#include "unixsocket/Logger.h"
+#include "unixsocket/SocketUtils.h"
+
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include <capnp/serialize.h>
 
@@ -21,10 +25,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <utility>
-
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         datatypes::AutoFd& fd,
@@ -285,6 +285,14 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
                 // The User ID could be spoofed by an untrusted client. Until this is made secure, hardcode it to "n/a"
                 result = scanner->scan(file_fd, requestReader->getPath(), requestReader->getScanType(), "n/a");
+            }
+            catch (FailedToInitializeSusiException&)
+            {
+                errMsg = "Aborting scan, failed to initialise SUSI";
+                result.setErrorMsg(errMsg);
+                sendResponse(socket_fd, result);
+                LOGERROR(errMsg);
+                break;
             }
             catch (ShuttingDownException&)
             {
