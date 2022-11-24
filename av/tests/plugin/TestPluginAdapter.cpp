@@ -29,6 +29,7 @@
 
 using namespace testing;
 using namespace Plugin;
+using namespace scan_messages;
 
 namespace fs = sophos_filesystem;
 
@@ -286,13 +287,15 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
         );
     auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
 
+    // check these first to ensure the timing is correct
     std::this_thread::sleep_for(500ms);
-
     EXPECT_FALSE(appenderContains("ALC policy has not been sent to the plugin"));
     EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
 
-    EXPECT_TRUE(waitForLog("ALC policy has not been sent to the plugin", 700ms));
-    EXPECT_TRUE(waitForLog("SAV policy has not been sent to the plugin", 200ms));
+    EXPECT_TRUE(waitForLog("Ignoring unknown policy with APPID: SAV"));
+
+    EXPECT_TRUE(waitForLog("ALC policy has not been sent to the plugin", 1000ms));
+    EXPECT_TRUE(waitForLog("SAV policy has not been sent to the plugin"));
 
     m_taskQueue->pushStop();
 
@@ -881,23 +884,132 @@ TEST_F(TestPluginAdapter, testPublishThreatHealth)
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 }
 
-TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountIncrementsThreatCount)
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandScheduledScanThreatCount)
 {
     Common::Telemetry::TelemetryHelper::getInstance().reset();
-    PluginAdapter::incrementTelemetryThreatCount("Very bad file");
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_SCHEDULED);
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     auto telemetry = nlohmann::json::parse(telemetryResult);
-    EXPECT_EQ(telemetry["threat-count"], 1);
+    EXPECT_EQ(telemetry["on-demand-threat-count"], 1);
 }
 
-TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountIncrementsThreatEicarCount)
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandScheduledScanThreatEicarCount)
 {
     Common::Telemetry::TelemetryHelper::getInstance().reset();
-    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test");
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_SCHEDULED);
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
     auto telemetry = nlohmann::json::parse(telemetryResult);
-    EXPECT_EQ(telemetry["threat-eicar-count"], 1);
+    EXPECT_EQ(telemetry["on-demand-threat-eicar-count"], 1);
 }
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandMemoryScanThreatCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_MEMORY);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandMemoryScanThreatEicarCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_MEMORY);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-eicar-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandThreatCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_ON_DEMAND);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandThreatEicarCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_ON_DEMAND);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-eicar-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandUnknownThreatCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_UNKNOWN);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnDemandUnknownThreatEicarCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_UNKNOWN);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-demand-threat-eicar-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnAccessThreatCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("Very bad file", E_SCAN_TYPE_ON_ACCESS_CLOSE);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-access-threat-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnAccessThreatEicarCount)
+{
+    Common::Telemetry::TelemetryHelper::getInstance().reset();
+    PluginAdapter::incrementTelemetryThreatCount("EICAR-AV-Test", E_SCAN_TYPE_ON_ACCESS_OPEN);
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-access-threat-eicar-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, testPublishThreatHealthWithretrySuceedsAfterFailure)
+{
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+
+    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+
+    m_taskQueue->pushStop();
+    Common::PluginApi::ApiException ex { "dummy error" };
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Throw(ex)).WillOnce(Return());
+
+    pluginAdapter.publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_GOOD);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
+
+}
+
+TEST_F(TestPluginAdapter, testPublishThreatHealthWithRetryFailsAfter5tries)
+{
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices> >();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+
+    PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+
+    m_taskQueue->pushStop();
+    Common::PluginApi::ApiException ex { "dummy error" };
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).Times(5).WillRepeatedly(Throw(ex));
+
+    pluginAdapter.publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_GOOD);
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
+
+}
+
 
 TEST_F(TestPluginAdapter, testInvalidTaskType)
 {
