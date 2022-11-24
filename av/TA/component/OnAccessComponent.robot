@@ -52,8 +52,13 @@ soapd handles missing threat detector socket
 
 Remove Log directory
     Remove Directory  ${AV_PLUGIN_PATH}/log  recursive=${True}
-    Register Cleanup  Create Directory  ${AV_PLUGIN_PATH}/log
+    Register Cleanup  Restore Log directory
 
+Restore Log directory
+    Create Directory  ${AV_PLUGIN_PATH}/log
+    Run Process   chmod  a+rwx
+    ...  ${COMPONENT_ROOT_PATH}/log  ${COMPONENT_ROOT_PATH}/chroot/log
+    Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/chroot/log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
 
 On Access Test Teardown
     run teardown functions
