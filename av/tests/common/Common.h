@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -33,6 +33,16 @@ void setupFakeSophosThreatDetectorConfig()
     f /= "sophos_threat_detector_launcher";
     std::ofstream ost(f);
     ost.close();
+}
+
+void setupFakePluginConfig()
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    fs::path base = tmpdir();
+    appConfig.setData("PLUGIN_INSTALL", base);
+    fs::create_directories(base / "var");
+    fs::create_directories(base / "chroot/var/sbin");
+    std::ofstream ost(base / "chroot/var/sbin/sophos_threat_detector_launcher"); // Create this file
 }
 
 void setupFakeSafeStoreConfig()

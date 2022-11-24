@@ -1,14 +1,17 @@
-// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+// Copyright 2018-2022 Sophos Limited. All rights reserved.
 
 #include "PluginAdapter.h"
 
+#include "ActionUtils.h"
 #include "DetectionQueue.h"
 #include "DetectionReporter.h"
 #include "HealthStatus.h"
 #include "Logger.h"
 #include "StringUtils.h"
-#include "ActionUtils.h"
 
+#include "common/ApplicationPaths.h"
+#include "common/PluginUtils.h"
+#include "common/StringUtils.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 
@@ -16,8 +19,6 @@
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/ZeroMQWrapper/IIPCException.h"
-#include "common/PluginUtils.h"
-#include "common/ApplicationPaths.h"
 
 namespace fs = sophos_filesystem;
 
@@ -35,13 +36,15 @@ namespace Plugin
             return common::getPluginInstallPath() / "chroot/var/process_control_socket";
         }
 
-
         class ThreatReportCallbacks : public IMessageCallback
         {
         public:
-            explicit ThreatReportCallbacks(PluginAdapter& adapter, const std::string& /* threatEventPublisherSocketPath */)
-                : m_adapter(adapter)
-            {}
+            explicit ThreatReportCallbacks(
+                PluginAdapter& adapter,
+                const std::string& /* threatEventPublisherSocketPath */) :
+                m_adapter(adapter)
+            {
+            }
 
             void processMessage(scan_messages::ThreatDetected detection) override
             {
@@ -52,7 +55,8 @@ namespace Plugin
 
                     // If SafeStore is disabled then we manually set the quarantine result to be a failure. This is
                     // so we can populate the Core Clean event properly.
-                    m_adapter.processDetectionReport(detection, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE);
+                    m_adapter.processDetectionReport(
+                        detection, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE);
 
                     m_adapter.updateThreatDatabase(detection);
                 }
@@ -61,7 +65,7 @@ namespace Plugin
         private:
             PluginAdapter& m_adapter;
         };
-    }
+    } // namespace
 
     PluginAdapter::PluginAdapter(
         std::shared_ptr<TaskQueue> taskQueue,
@@ -74,11 +78,15 @@ namespace Plugin
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_scanScheduler(std::make_shared<manager::scheduler::ScanScheduler>(*this)),
-        m_threatReporterServer(std::make_shared<unixsocket::ThreatReporterServerSocket>(threat_reporter_socket(), 0660,
-                               std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
+        m_threatReporterServer(std::make_shared<unixsocket::ThreatReporterServerSocket>(
+            threat_reporter_socket(),
+            0660,
+            std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
-            process_controller_socket(), std::make_shared<datatypes::SystemCallWrapper>())),
-        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this,*this, m_detectionQueue, getSafeStoreSocketPath())),
+            process_controller_socket(),
+            std::make_shared<datatypes::SystemCallWrapper>())),
+        m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this, *this, m_detectionQueue, getSafeStoreSocketPath())),
+        m_restoreReportingServer{ *this },
         m_waitForPolicyTimeout(waitForPolicyTimeout),
         m_zmqContext(Common::ZMQWrapperApi::createContext()),
         m_threatEventPublisher(m_zmqContext->getPublisher()),
@@ -130,6 +138,8 @@ namespace Plugin
             publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
         }
 
+        m_restoreReportingServer.start();
+
         innerLoop();
         LOGSUPPORT("Stopping the main program loop");
         m_schedulerThread.reset();
@@ -137,6 +147,7 @@ namespace Plugin
         // This queue blocks on pop, so must be notified
         m_detectionQueue->requestStop();
         m_safeStoreWorkerThread.reset();
+        m_restoreReportingServer.requestStop();
         LOGSUPPORT("Finished the main program loop");
     }
 
@@ -154,7 +165,8 @@ namespace Plugin
         PolicyWaiter::policy_list_t policies;
         policies.push_back("SAV");
         policies.push_back("ALC");
-        auto policyWaiter = std::make_shared<PolicyWaiter>(std::move(policies), PolicyWaiter::seconds_t{m_waitForPolicyTimeout});
+        auto policyWaiter =
+            std::make_shared<PolicyWaiter>(std::move(policies), PolicyWaiter::seconds_t{ m_waitForPolicyTimeout });
 
         bool threadsRunning = false;
 
@@ -193,15 +205,17 @@ namespace Plugin
                         break;
 
                     case Task::TaskType::ThreatDetected:
+                    case Task::TaskType::SendCleanEvent:
+                        m_baseService->sendEvent("CORE", task.Content);
+                        break;
+
+                    case Task::TaskType::SendRestoreEvent:
+                        LOGDEBUG("Sending Restore Event to Central: " << task.Content);
                         m_baseService->sendEvent("CORE", task.Content);
                         break;
 
                     case Task::TaskType::SendStatus:
                         m_baseService->sendStatus("SAV", task.Content, task.Content);
-                        break;
-
-                    case Task::TaskType::SendCleanEvent:
-                        m_baseService->sendEvent("CORE", task.Content);
                         break;
                 }
 
@@ -231,7 +245,7 @@ namespace Plugin
         if (m_restartSophosThreatDetector)
         {
             LOGDEBUG("Processing request to restart sophos threat detector");
-            if(!m_taskQueue->queueContainsPolicyTask())
+            if (!m_taskQueue->queueContainsPolicyTask())
             {
                 LOGDEBUG("Requesting scan monitor to reload susi");
                 m_threatDetector->policy_configuration_changed();
@@ -288,7 +302,8 @@ namespace Plugin
             LOGINFO("Processing SAV Policy");
             LOGDEBUG("Processing policy: " << policyXml);
 
-            bool policyIsValid = m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
+            bool policyIsValid =
+                m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
             if (policyIsValid)
             {
                 m_policyProcessor.processSavPolicy(attributeMap);
@@ -304,11 +319,11 @@ namespace Plugin
                 policyWaiter->gotPolicy("SAV");
             }
         }
-        catch(const Common::XmlUtilities::XmlUtilitiesException& e)
+        catch (const Common::XmlUtilities::XmlUtilitiesException& e)
         {
             LOGERROR("Exception encountered while parsing AV policy XML: " << e.what());
         }
-        catch(const std::exception& e)
+        catch (const std::exception& e)
         {
             LOGERROR("Exception encountered while processing AV policy: " << e.what());
         }
@@ -357,7 +372,7 @@ namespace Plugin
         {
             LOGERROR("Exception encountered while parsing Action XML: " << e.what());
         }
-        catch(const std::exception& e)
+        catch (const std::exception& e)
         {
             LOGERROR("Exception encountered while processing Action XML: " << e.what());
         }
@@ -367,15 +382,18 @@ namespace Plugin
     {
         LOGDEBUG("Sending scan complete notification to central: " << scanCompletedXml);
 
-        m_taskQueue->push(Task { .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });
+        m_taskQueue->push(Task{ .taskType = Task::TaskType::ScanComplete, .Content = scanCompletedXml });
     }
 
-    void PluginAdapter::processDetectionReport(const scan_messages::ThreatDetected& detection,  const common::CentralEnums::QuarantineResult& quarantineResult) const
+    void PluginAdapter::processDetectionReport(
+        const scan_messages::ThreatDetected& detection,
+        const common::CentralEnums::QuarantineResult& quarantineResult) const
     {
         LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "'");
         incrementTelemetryThreatCount(detection.threatName, detection.scanType);
         DetectionReporter::processThreatReport(pluginimpl::generateThreatDetectedXml(detection), m_taskQueue);
-        DetectionReporter::publishQuarantineCleanEvent(pluginimpl::generateCoreCleanEventXml(detection, quarantineResult), m_taskQueue);
+        DetectionReporter::publishQuarantineCleanEvent(
+            pluginimpl::generateCoreCleanEventXml(detection, quarantineResult), m_taskQueue);
         publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
     }
 
@@ -383,7 +401,7 @@ namespace Plugin
     {
         if (detection.notificationStatus != scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP)
         {
-            m_threatDatabase.addThreat(detection.threatId,detection.threatId);
+            m_threatDatabase.addThreat(detection.threatId, detection.threatId);
             LOGDEBUG("Added threat: " << detection.threatId << " to database");
             if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_SUSPICIOUS)
             {
@@ -438,7 +456,6 @@ namespace Plugin
 
     void PluginAdapter::publishThreatHealthWithRetry(E_HEALTH_STATUS threatStatus) const
     {
-
         LOGDEBUG("Publishing threat health: " << threatHealthToString(threatStatus));
         for (int i = 0; i < 5; ++i)
         {
@@ -463,15 +480,16 @@ namespace Plugin
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
-
     }
 
-    void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName, const scan_messages::E_SCAN_TYPE& scanType)
+    void PluginAdapter::incrementTelemetryThreatCount(
+        const std::string& threatName,
+        const scan_messages::E_SCAN_TYPE& scanType)
     {
-        std::string telemetryStr =
-            (scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN ||
-             scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE)
-                                                                        ? "on-access-" : "on-demand-";
+        std::string telemetryStr = (scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN ||
+                                    scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE)
+                                       ? "on-access-"
+                                       : "on-demand-";
 
         telemetryStr.append((threatName == "EICAR-AV-Test") ? "threat-eicar-count" : "threat-count");
 
@@ -492,4 +510,15 @@ namespace Plugin
     {
         return m_detectionQueue;
     }
-}
+
+    void PluginAdapter::processRestoreReport(const scan_messages::RestoreReport& restoreReport) const
+    {
+        const std::string escapedPath = common::escapePathForLogging(restoreReport.path);
+        LOGINFO(
+            "Reporting " << (restoreReport.wasSuccessful ? "successful" : "unsuccessful") << " restoration of "
+                         << escapedPath);
+        m_taskQueue->push(Task{ .taskType = Task::TaskType::SendRestoreEvent,
+                                .Content = pluginimpl::generateCoreRestoreEventXml(restoreReport) });
+        LOGDEBUG("Added restore report to task queue");
+    }
+} // namespace Plugin

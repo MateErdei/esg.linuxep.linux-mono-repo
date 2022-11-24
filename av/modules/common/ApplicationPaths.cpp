@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "ApplicationPaths.h"
 
@@ -37,6 +37,11 @@ namespace Plugin
     std::string getPluginChrootVarDirPath()
     {
         return getPluginChrootDirPath() + "/var";
+    }
+
+    std::string getRestoreReportSocketPath()
+    {
+        return getPluginVarDirPath() + "/restore_report_socket";
     }
 
     std::string getSafeStorePidPath()

@@ -31,6 +31,10 @@ add_library(unixsocket SHARED
         processControllerSocket/ProcessControllerServerConnectionThread.h
         processControllerSocket/ProcessControllerClient.cpp
         processControllerSocket/ProcessControllerClient.h
+        restoreReportingSocket/RestoreReportingClient.cpp
+        restoreReportingSocket/RestoreReportingClient.h
+        restoreReportingSocket/RestoreReportingServer.cpp
+        restoreReportingSocket/RestoreReportingServer.h
         threatDetectorSocket/IScanningClientSocket.h
         threatDetectorSocket/ScanningClientSocket.cpp
         threatDetectorSocket/ScanningClientSocket.h

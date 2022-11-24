@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited. All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "ThreatDetected.capnp.h"
 
@@ -50,23 +50,23 @@ namespace
   </alert>
 </event>)sophos";
 
-    scan_messages::ThreatDetected m_simpleThreatDetected =  scan_messages::ThreatDetected (
-        "User ID",
-        DUMMY_TIMESTAMP,
-        ThreatType::virus,
-        "threat name",
-        E_SCAN_TYPE_ON_ACCESS_OPEN,
-        E_NOTIFICATION_STATUS_CLEANED_UP,
-        "/threat/path",
-        E_SMT_THREAT_ACTION_SHRED,
-        "T2677b3f1607845d",
-        m_threatId,
-        false,
-        ReportSource::ml,
-        datatypes::AutoFd());
+        scan_messages::ThreatDetected m_simpleThreatDetected = scan_messages::ThreatDetected(
+            "User ID",
+            DUMMY_TIMESTAMP,
+            ThreatType::virus,
+            "threat name",
+            E_SCAN_TYPE_ON_ACCESS_OPEN,
+            E_NOTIFICATION_STATUS_CLEANED_UP,
+            "/threat/path",
+            E_SMT_THREAT_ACTION_SHRED,
+            "T2677b3f1607845d",
+            m_threatId,
+            false,
+            ReportSource::ml,
+            datatypes::AutoFd());
     };
 
-}
+} // namespace
 
 TEST_F(TestStringUtils, TestgenerateThreatDetectedXml)
 {
@@ -92,12 +92,11 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXml)
     std::string dataAsString = threatDetected.serialise();
 
     const kj::ArrayPtr<const capnp::word> view(
-            reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
-            reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
 
     capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
-            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData = messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
     scan_messages::ThreatDetected threatDetectedMessage(deSerialisedData);
 
@@ -130,12 +129,11 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats)
     std::string dataAsString = threatDetected.serialise();
 
     const kj::ArrayPtr<const capnp::word> view(
-            reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
-            reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
 
     capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
-            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData = messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
     scan_messages::ThreatDetected threatDetectedMessage(deSerialisedData);
     std::string result = generateThreatDetectedXml(threatDetectedMessage);
@@ -167,12 +165,11 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters)
     std::string dataAsString = threatDetected.serialise();
 
     const kj::ArrayPtr<const capnp::word> view(
-            reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
-            reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
 
     capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
-            messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData = messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
     scan_messages::ThreatDetected threatDetectedMessage(deSerialisedData);
     std::string result = generateThreatDetectedXml(threatDetectedMessage);
@@ -208,8 +205,7 @@ static scan_messages::ThreatDetected createEvent(
         reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
 
     capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
-        messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData = messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
     return scan_messages::ThreatDetected(deSerialisedData);
 }
@@ -278,18 +274,17 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON)
         reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
 
     capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
-        messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData = messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
     std::string result = generateThreatDetectedJson(scan_messages::ThreatDetected(deSerialisedData));
 
-    static const std::string expectedJSON = R"sophos({"details":{"filePath":"","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":"eicar"},"items":{"1":{"path":"","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"threatType":1,"time":123})sophos";
+    static const std::string expectedJSON =
+        R"sophos({"details":{"filePath":"","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":"eicar"},"items":{"1":{"path":"","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"threatType":1,"time":123})sophos";
 
     EXPECT_EQ(result, expectedJSON);
 }
 
 TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
 {
-
     std::string threatPath = "path/to/threat";
     std::string userID = "User";
 
@@ -315,18 +310,18 @@ TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
         reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
 
     capnp::FlatArrayMessageReader messageInput(view);
-    Sophos::ssplav::ThreatDetected::Reader deSerialisedData =
-        messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData = messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
     std::string result = generateThreatDetectedJson(scan_messages::ThreatDetected(deSerialisedData));
 
-    static const std::string expectedJSON = R"sophos({"details":{"filePath":"path/to/threat","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":""},"items":{"1":{"path":"path/to/threat","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"threatType":1,"time":123})sophos";
+    static const std::string expectedJSON =
+        R"sophos({"details":{"filePath":"path/to/threat","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":""},"items":{"1":{"path":"path/to/threat","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"threatType":1,"time":123})sophos";
 
     EXPECT_EQ(result, expectedJSON);
 }
 
 TEST_F(TestStringUtils, TestGenerateOnAcessConfig)
 {
-    std::vector<std::string> exclusionList = {"x", "y", "z"};
+    std::vector<std::string> exclusionList = { "x", "y", "z" };
 
     std::string expectedResult = R"({"enabled":"true","excludeRemoteFiles":"true","exclusions":["x","y","z"]})";
     EXPECT_EQ(expectedResult, generateOnAccessConfig("true", exclusionList, "true"));
@@ -340,9 +335,8 @@ TEST_F(TestStringUtils, TestGenerateOnAcessConfig)
 
     exclusionList = {};
     expectedResult = R"({"enabled":"false","excludeRemoteFiles":"false","exclusions":[]})";
-    EXPECT_EQ(expectedResult, generateOnAccessConfig("this is supposed to be something elese",
-                                                     exclusionList,
-                                                     "same here"));
+    EXPECT_EQ(
+        expectedResult, generateOnAccessConfig("this is supposed to be something elese", exclusionList, "same here"));
 }
 
 TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineSuccess)
@@ -359,7 +353,8 @@ TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineSuccess)
 </event>)";
 
     std::string xml;
-    ASSERT_NO_THROW(xml = generateCoreCleanEventXml(m_simpleThreatDetected, common::CentralEnums::QuarantineResult::SUCCESS));
+    ASSERT_NO_THROW(
+        xml = generateCoreCleanEventXml(m_simpleThreatDetected, common::CentralEnums::QuarantineResult::SUCCESS));
     ASSERT_EQ(xml, expectedEventXml);
 }
 
@@ -377,13 +372,15 @@ TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineFailedToDeleteFile)
 </event>)";
 
     std::string xml;
-    ASSERT_NO_THROW(xml = generateCoreCleanEventXml(m_simpleThreatDetected, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE));
+    ASSERT_NO_THROW(
+        xml = generateCoreCleanEventXml(
+            m_simpleThreatDetected, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE));
     ASSERT_EQ(xml, expectedEventXml);
 }
 
 TEST_F(TestStringUtils, generateCoreCleanEventXmlFromVdlDetection)
 {
-    scan_messages::ThreatDetected vdlThreatDetected = scan_messages::ThreatDetected (
+    scan_messages::ThreatDetected vdlThreatDetected = scan_messages::ThreatDetected(
         "User ID",
         DUMMY_TIMESTAMP,
         ThreatType::virus,
@@ -410,6 +407,28 @@ TEST_F(TestStringUtils, generateCoreCleanEventXmlFromVdlDetection)
 </event>)";
 
     std::string xml;
-    ASSERT_NO_THROW(xml = generateCoreCleanEventXml(vdlThreatDetected, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE));
+    ASSERT_NO_THROW(
+        xml = generateCoreCleanEventXml(
+            vdlThreatDetected, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE));
+    ASSERT_EQ(xml, expectedEventXml);
+}
+
+TEST_F(TestStringUtils, generateCoreRestoreEventXml)
+{
+    scan_messages::RestoreReport restoreReport{ DUMMY_TIMESTAMP, "/threat/path", m_threatId, false };
+
+    std::string expectedEventXml = R"(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.restore" ts="1970-01-01T00:02:03.000Z">
+  <alert id="c1c802c6-a878-ee05-babc-c0378d45d8d4" succeeded="0">
+    <items totalItems="1">
+      <item type="file">
+        <descriptor>/threat/path</descriptor>
+      </item>
+    </items>
+  </alert>
+</event>)";
+
+    std::string xml;
+    ASSERT_NO_THROW(xml = generateCoreRestoreEventXml(restoreReport));
     ASSERT_EQ(xml, expectedEventXml);
 }

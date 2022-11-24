@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -10,6 +10,7 @@ namespace Plugin
     std::string getPluginVarDirPath();
     std::string getPluginChrootDirPath();
     std::string getPluginChrootVarDirPath();
+    std::string getRestoreReportSocketPath();
     std::string getSafeStorePidPath();
     std::string getSafeStoreSocketPath();
     std::string getSafeStoreRescanSocketPath();

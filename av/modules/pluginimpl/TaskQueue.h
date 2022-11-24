@@ -1,4 +1,4 @@
-// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+// Copyright 2018-2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -21,33 +21,12 @@ namespace Plugin
             ScanComplete,
             ThreatDetected,
             SendCleanEvent,
-            SendStatus
+            SendStatus,
+            SendRestoreEvent
         };
         TaskType taskType;
         std::string Content;
-        std::string appId="";
-
-        [[nodiscard]] std::string getTaskName() const {
-            switch (taskType)
-            {
-                case TaskType::Policy:
-                    return "Policy";
-                case TaskType::Stop:
-                    return "Stop";
-                case TaskType::Action:
-                    return "Action";
-                case TaskType::ScanComplete:
-                    return "ScanComplete";
-                case TaskType::ThreatDetected:
-                    return "ThreatDetected";
-                case TaskType::SendStatus:
-                    return "SendStatus";
-                case TaskType::SendCleanEvent:
-                    return "SendCleanEvent";
-            }
-
-            return "Unknown task type";
-        }
+        std::string appId = "";
     };
 
     class TaskQueue : public common::StoppableSleeper

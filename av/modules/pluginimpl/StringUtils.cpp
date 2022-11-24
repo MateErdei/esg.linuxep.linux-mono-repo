@@ -1,16 +1,16 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "StringUtils.h"
 
 #include "HealthStatus.h"
 #include "Logger.h"
-#include "ThreatDetected.capnp.h"
+
+#include "datatypes/Time.h"
+#include "datatypes/sophos_filesystem.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
-#include "datatypes/Time.h"
-#include "datatypes/sophos_filesystem.h"
 
 #include <boost/locale.hpp>
 #include <common/StringUtils.h>
@@ -125,9 +125,10 @@ std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ThreatDe
     return threatEvent.dump();
 }
 
-
 // XML defined at https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42255827359/EMP+event-core-clean
-std::string pluginimpl::generateCoreCleanEventXml(const scan_messages::ThreatDetected& detection, const common::CentralEnums::QuarantineResult& quarantineResult)
+std::string pluginimpl::generateCoreCleanEventXml(
+    const scan_messages::ThreatDetected& detection,
+    const common::CentralEnums::QuarantineResult& quarantineResult)
 {
     if (detection.filePath.empty())
     {
@@ -142,7 +143,8 @@ std::string pluginimpl::generateCoreCleanEventXml(const scan_messages::ThreatDet
         utf8Path.resize(centralLimitedStringMaxSize);
     }
 
-    auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(std::chrono::system_clock::from_time_t(detection.detectionTime));
+    auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(
+        std::chrono::system_clock::from_time_t(detection.detectionTime));
     bool overallSuccess = quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS;
 
     std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
@@ -160,9 +162,37 @@ std::string pluginimpl::generateCoreCleanEventXml(const scan_messages::ThreatDet
           { "@@CORRELATION_ID@@", detection.threatId },
           { "@@SUCCESS_OVERALL@@", std::to_string(overallSuccess) },
           { "@@ORIGIN@@", std::to_string(static_cast<int>(getOriginOf(detection.reportSource, detection.threatType))) },
-          { "@@TOTAL_ITEMS@@", std::to_string(1) }, // hard coded until we deal with multiple threats per ThreatDetected object
-          { "@@SUCCESS_DETAILED@@", std::to_string(static_cast<int>(quarantineResult))},
+          { "@@TOTAL_ITEMS@@",
+            std::to_string(1) }, // hard coded until we deal with multiple threats per ThreatDetected object
+          { "@@SUCCESS_DETAILED@@", std::to_string(static_cast<int>(quarantineResult)) },
           { "@@PATH@@", utf8Path } });
+
+    return result;
+}
+
+// XML defined at https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42255827362/EMP+event-core-restore
+std::string pluginimpl::generateCoreRestoreEventXml(const scan_messages::RestoreReport& restoreReport)
+{
+    auto timestamp =
+        Common::UtilityImpl::TimeUtils::MessageTimeStamp(std::chrono::system_clock::from_time_t(restoreReport.time));
+
+    const std::string escapedPath = common::escapePathForLogging(restoreReport.path, true, true, true);
+
+    std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
+        R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.restore" ts="@@TS@@">
+  <alert id="@@ID@@" succeeded="@@SUCCEEDED@@">
+    <items totalItems="1">
+      <item type="file">
+        <descriptor>@@PATH@@</descriptor>
+      </item>
+    </items>
+  </alert>
+</event>)sophos",
+        { { "@@TS@@", timestamp },
+          { "@@ID@@", restoreReport.correlationId },
+          { "@@SUCCEEDED@@", restoreReport.wasSuccessful ? "1" : "0" },
+          { "@@PATH@@", escapedPath } });
 
     return result;
 }
