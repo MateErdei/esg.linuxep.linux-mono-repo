@@ -13,9 +13,12 @@ Test Teardown  SafeStore Test Teardown
 
 SafeStore Test Setup
     Component Test Setup
+    Start SafeStore Manually
+    Wait Until SafeStore Started Successfully
 
 SafeStore Test Teardown
     Stop SafeStore Manually
+    Remove Directory    ${SAFESTORE_DB_DIR}  recursive=True
     List AV Plugin Path
     run teardown functions
     Check All Product Logs Do Not Contain Error
@@ -34,21 +37,18 @@ Send signal to SafeStore
 *** Test Cases ***
 
 SafeStore is killed gracefully
-    Start SafeStore Manually
     Send signal to SafeStore  signal.SIGTERM
     Wait Until SafeStore not running
     SafeStore Log Contains  SafeStore received SIGTERM - shutting down
     SafeStore Log Contains  Exiting SafeStore
 
 SafeStore exits on interrupt signal
-    Start SafeStore Manually
     Send signal to SafeStore  signal.SIGINT
     Wait Until SafeStore not running
     SafeStore Log Contains  SafeStore received SIGINT - shutting down
     SafeStore Log Contains  Exiting SafeStore
 
 SafeStore creates socket with correct permissions
-    Start SafeStore Manually
     ${result} =  Run Process  ls  -l  ${SAFESTORE_SOCKET_PATH}
     # the second variant is needed for Centos (where alternate access methods are enabled)
     Should Contain Any  ${result.stdout}
