@@ -23,6 +23,7 @@ public:
     MOCK_METHOD(bool, setConfigIntValue, (ConfigOption, uint64_t));
     MOCK_METHOD(SearchResults, find, (const SafeStoreFilter&));
     MOCK_METHOD(std::string, getObjectName, (const ObjectHandleHolder&));
+    MOCK_METHOD(std::string, getObjectLocation, (const ObjectHandleHolder&));
     MOCK_METHOD(ObjectId, getObjectId, (const ObjectHandleHolder&));
     MOCK_METHOD(ObjectType, getObjectType, (const ObjectHandleHolder&));
     MOCK_METHOD(ObjectStatus, getObjectStatus, (const ObjectHandleHolder&));

@@ -469,12 +469,13 @@ namespace safestore::QuarantineManager
         setState(QuarantineManagerState::INITIALISED);
     }
 
-    void QuarantineManagerImpl::scanExtractedFiles(std::vector<FdsObjectIdsPair> files)
+    std::vector<SafeStoreWrapper::ObjectId> QuarantineManagerImpl::scanExtractedFilesForRestoreList(std::vector<FdsObjectIdsPair> files)
     {
+        std::vector<SafeStoreWrapper::ObjectId> cleanFiles;
         if (files.empty())
         {
             LOGINFO("No files to Rescan");
-            return;
+            return cleanFiles;
         }
 
         LOGINFO("Number of files to Rescan: " << files.size());
@@ -486,22 +487,31 @@ namespace safestore::QuarantineManager
             auto response = scan(scanningClient, fd.get());
             fd.close(); // Release the file descriptor as soon as we are done with it
 
+            if (!response.getErrorMsg().empty())
+            {
+                LOGERROR("Error on rescan request: " << response.getErrorMsg());
+                continue;
+            }
+
             std::shared_ptr<SafeStoreWrapper::ObjectHandleHolder> objectHandle = m_safeStore->createObjectHandleHolder();
-            m_safeStore->getObjectHandle(objectId, objectHandle);
+            if (!m_safeStore->getObjectHandle(objectId, objectHandle))
+            {
+                LOGERROR("Couldn't get object handle for: " << objectId << ", continuing...");
+                continue;
+            }
             const std::string escapedPath = common::escapePathForLogging(m_safeStore->getObjectLocation(*objectHandle));
 
             if (response.allClean())
             {
-                LOGINFO("Restoring quarantined file: " << escapedPath);
-                auto restoreResult = m_safeStore->restoreObjectById(objectId);
-
-                LOGDEBUG("Restore result: " << restoreResult);
+                LOGDEBUG("Rescan found quarantined file is clean: " << escapedPath);
+                cleanFiles.emplace_back(objectId);
             }
             else
             {
                 LOGDEBUG("Rescan found quarantined file still a threat: " << escapedPath);
             }
         }
+        return cleanFiles;
     }
 
     void QuarantineManagerImpl::rescanDatabase()
@@ -509,7 +519,7 @@ namespace safestore::QuarantineManager
         LOGINFO("SafeStore Database Rescan request received.");
         auto filesToBeScanned = extractQuarantinedFiles();
 
-        scanExtractedFiles(std::move(filesToBeScanned));
+        scanExtractedFilesForRestoreList(std::move(filesToBeScanned));
     }
 
     scan_messages::ScanResponse QuarantineManagerImpl::scan(

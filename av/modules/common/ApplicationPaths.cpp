@@ -91,7 +91,7 @@ namespace Plugin
 
     std::string getScanningClientSocketPath()
     {
-        return "/opt/sophos-spl/plugins/av/chroot/var/scanning_socket";
+        return getPluginChrootVarDirPath() + "/scanning_socket";
     }
 
 

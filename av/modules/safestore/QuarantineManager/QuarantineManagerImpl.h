@@ -37,7 +37,7 @@ namespace safestore::QuarantineManager
         void rescanDatabase() override;
         void parseConfig() override;
 
-        void scanExtractedFiles(std::vector<FdsObjectIdsPair> files);
+        std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(std::vector<FdsObjectIdsPair> files) override;
 
     private:
         void callOnDbError();

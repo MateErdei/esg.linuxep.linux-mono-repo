@@ -67,9 +67,20 @@ namespace safestore::QuarantineManager
             const std::string& sha256,
             datatypes::AutoFd autoFd) = 0;
 
+        /**
+         * Unpack detections.
+         */
         virtual std::vector<FdsObjectIdsPair> extractQuarantinedFiles() = 0;
 
-        virtual void parseConfig() = 0;
+        /**
+         * Run the avscanner on unpacked detections and return vector of objectsIds that are clean.
+         */
+        virtual std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(std::vector<FdsObjectIdsPair> files) = 0;
+
+        /**
+         * Unpack all detections from database and run the avscanner on them.
+         */
+        virtual void rescanDatabase() = 0;
     };
 
 
