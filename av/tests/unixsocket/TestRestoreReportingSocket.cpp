@@ -27,7 +27,7 @@ namespace
     class MockRestoreReportProcessor : public IRestoreReportProcessor
     {
     public:
-        MOCK_METHOD(void, processRestoreReport, (const scan_messages::RestoreReport& restoreReport), (const)); // NOLINT
+        MOCK_CONST_METHOD1(processRestoreReport, void(const scan_messages::RestoreReport& restoreReport));
     };
 } // namespace
 
