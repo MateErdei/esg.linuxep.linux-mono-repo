@@ -16,7 +16,7 @@
 namespace unixsocket
 {
     RestoreReportingClient::RestoreReportingClient(std::shared_ptr<common::StoppableSleeper> sleeper) :
-        BaseClient{ Plugin::getRestoreReportSocketPath(), BaseClient::DEFAULT_SLEEP_TIME, sleeper }
+        BaseClient{ Plugin::getRestoreReportSocketPath(), BaseClient::DEFAULT_SLEEP_TIME, std::move(sleeper) }
     {
         BaseClient::connectWithRetries("Restore Reporting Server");
     }
