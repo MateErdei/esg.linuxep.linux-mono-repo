@@ -17,17 +17,19 @@ Exclude Permission Denied Setting Default Values For Susi Startup Settings
 Exclude Failed To Write To UnixSocket Environment Interuption
     mark_expected_error_in_log  ${AV_LOG_PATH}  UnixSocket <> Failed to write Process Control Request to socket. Exception caught: Environment interruption
 
-Exclude AV Died With
-    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/av died with
+Exclude Process Died With Signal 11
+    [Arguments]  ${exe}
+    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/${exe} died with 11
+    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/${exe} died with signal 11
 
 Exclude Threat Detector Launcher Died With 11
-    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 11
-    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with signal 11
+    Exclude Process Died With Signal 11  sophos_threat_detector_launcher
 
 Exclude Soapd Died With 11
-    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/soapd died with 11
-    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/soapd died with signal 11
+    Exclude Process Died With Signal 11  soapd
 
+Exclude SafeStore Died With 11
+    Exclude Process Died With Signal 11  safestore
 
 Exclude Threat Detector Launcher Died
     mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 15
