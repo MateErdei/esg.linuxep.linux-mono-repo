@@ -469,26 +469,86 @@ namespace safestore::QuarantineManager
         setState(QuarantineManagerState::INITIALISED);
     }
 
+    void QuarantineManagerImpl::scanExtractedFiles(std::vector<FdsObjectIdsPair> files)
+    {
+        if (files.empty())
+        {
+            LOGINFO("No files to Rescan");
+            return;
+        }
+
+        LOGINFO("Number of files to Rescan: " << files.size());
+
+        unixsocket::ScanningClientSocket scanningClient(Plugin::getScanningClientSocketPath());
+
+        for (auto& [fd, objectId] : files)
+        {
+            auto response = scan(scanningClient, fd.get());
+            fd.close(); // Release the file descriptor as soon as we are done with it
+
+            std::shared_ptr<SafeStoreWrapper::ObjectHandleHolder> objectHandle = m_safeStore->createObjectHandleHolder();
+            m_safeStore->getObjectHandle(objectId, objectHandle);
+            const std::string escapedPath = common::escapePathForLogging(m_safeStore->getObjectLocation(*objectHandle));
+
+            if (response.allClean())
+            {
+                LOGINFO("Restoring quarantined file: " << escapedPath);
+                auto restoreResult = m_safeStore->restoreObjectById(objectId);
+
+                LOGDEBUG("Restore result: " << restoreResult);
+            }
+            else
+            {
+                LOGDEBUG("Rescan found quarantined file still a threat: " << escapedPath);
+            }
+        }
+    }
+
     void QuarantineManagerImpl::rescanDatabase()
     {
         LOGINFO("SafeStore Database Rescan request received.");
         auto filesToBeScanned = extractQuarantinedFiles();
 
-        if (!filesToBeScanned.empty())
+        scanExtractedFiles(std::move(filesToBeScanned));
+    }
+
+    scan_messages::ScanResponse QuarantineManagerImpl::scan(
+        unixsocket::ScanningClientSocket& socket,
+        int file_fd)
+    {
+        scan_messages::ScanResponse response;
+
+        if (socket.socketFd() <= 0)
         {
-            LOGINFO("Number of files to Rescan: " << filesToBeScanned.size());
-
-            unixsocket::ScanningClientSocket scanningClient(Plugin::getScanningClientSocketPath());
-
-            for (auto& [fd, fileToScan] : filesToBeScanned)
+            auto connectResult = socket.connect();
+            if (connectResult != 0)
             {
-                scan_messages::ClientScanRequest request;
-                request.setFd(fd.get());
-                request.setScanType(scan_messages::E_SCAN_TYPE_SAFESTORE_RESCAN);
-
+                response.setErrorMsg("Failed to connect");
+                return response;
             }
         }
 
+        auto request = std::make_shared<scan_messages::ClientScanRequest>();
+        request->setFd(file_fd);
+        request->setScanType(scan_messages::E_SCAN_TYPE_SAFESTORE_RESCAN);
+        request->setScanInsideArchives(true);
+        request->setScanInsideImages(true);
+        request->setUserID("root");
 
+        auto sendResult = socket.sendRequest(request);
+        if (!sendResult)
+        {
+            response.setErrorMsg("Failed to send scan request");
+            return response;
+        }
+
+        auto receiveResponse = socket.receiveResponse(response);
+        if (!receiveResponse)
+        {
+            response.setErrorMsg("Failed to get scan response");
+            return response;
+        }
+
+        return response;
     }
 } // namespace safestore::QuarantineManager

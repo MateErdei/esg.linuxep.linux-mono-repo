@@ -389,6 +389,20 @@ namespace safestore::SafeStoreWrapper
         return { buf };
     }
 
+    std::string SafeStoreWrapperImpl::getObjectLocation(const ObjectHandleHolder& objectHandle)
+    {
+        if (objectHandle.getRawHandle() == nullptr)
+        {
+            return {};
+        }
+
+        size_t size = MAX_OBJECT_PATH_LENGTH;
+        char buf[MAX_OBJECT_PATH_LENGTH];
+        auto returnCode = SafeStore_GetObjectLocation(objectHandle.getRawHandle(), buf, &size);
+        LOGDEBUG("Got " << safeStoreReturnCodeToString(returnCode) << " when getting object location from SafeStore");
+        return { buf };
+    }
+
     bool SafeStoreWrapperImpl::getObjectHandle(
         const ObjectIdType& objectId,
         std::shared_ptr<ObjectHandleHolder> objectHandle)

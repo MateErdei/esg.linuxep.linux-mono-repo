@@ -152,6 +152,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndLookupDetails)
     {
         foundAnyResults = true;
         ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
+        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), fakeVirusFilePath1);
         ASSERT_TRUE(Common::UtilityImpl::Uuid::IsValid(m_safeStoreWrapper->getObjectId(result)));
         ASSERT_EQ(m_safeStoreWrapper->getObjectType(result), ObjectType::FILE);
         ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
@@ -209,19 +210,26 @@ TEST_F(SafeStoreWrapperTapTests, quarantineMultipleThreatsAndLookupDetails)
     filter.objectType = ObjectType::FILE;
 
     std::set<std::string> actualObjectNames;
+    std::set<std::string> actualObjectLocations;
     std::set<std::string> actualThreatNames;
     std::set<std::string> expectedObjectNames = {
         Common::FileSystem::basename(fakeVirusFilePath1),
         Common::FileSystem::basename(fakeVirusFilePath2),
+    };
+    std::set<std::string> expectedObjectLocations = {
+        fakeVirusFilePath1,
+        fakeVirusFilePath2,
     };
     std::set<std::string> expectedThreatNames = { threatName1, threatName2 };
 
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
         actualObjectNames.insert(m_safeStoreWrapper->getObjectName(result));
+        actualObjectLocations.insert(m_safeStoreWrapper->getObjectLocation(result));
         actualThreatNames.insert(m_safeStoreWrapper->getObjectThreatName(result));
     }
     ASSERT_EQ(expectedObjectNames, actualObjectNames);
+    ASSERT_EQ(expectedObjectLocations, actualObjectLocations);
     ASSERT_EQ(expectedThreatNames, actualThreatNames);
 }
 
@@ -258,6 +266,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
     {
         ++resultsFound;
         ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
+        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), fakeVirusFilePath);
         ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
 
         // Validate custom data saved ok
@@ -303,6 +312,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseThreatAndStatusChangesToQu
     {
         ++resultsFound;
         ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
+        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), fakeVirusFilePath);
         ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
 
         // Validate custom data saved ok
@@ -349,6 +359,7 @@ TEST_F(SafeStoreWrapperTapTests, getObjectHandleAndSetCustomDataUsingIt)
     {
         ++resultsFound;
         ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
+        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), fakeVirusFilePath);
         ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
 
         // Validate custom data saved ok
@@ -901,7 +912,7 @@ TEST_F(SafeStoreWrapperTapTests, objectHandlesThatAreInvalidatedDueToRemovalDoNo
             *objectHandleFromSaveFile),
         SaveFileReturnCode::OK);
 
-    auto name = m_safeStoreWrapper->getObjectName(*objectHandleFromSaveFile);
+    ASSERT_EQ(m_safeStoreWrapper->getObjectName(*objectHandleFromSaveFile), "fakevirus1");
 
     // Delete the object specified by ID, this will remove it from the DB
     ASSERT_TRUE(m_safeStoreWrapper->deleteObjectsByThreatId(threatId));
@@ -919,5 +930,5 @@ TEST_F(SafeStoreWrapperTapTests, objectHandlesThatAreInvalidatedDueToRemovalDoNo
     ASSERT_EQ(resultsFound, 0);
 
     // This handle is now invalid but calling a function on it should not throw or crash.
-    ASSERT_NO_THROW(name = m_safeStoreWrapper->getObjectName(*objectHandleFromSaveFile));
+    ASSERT_NO_THROW(m_safeStoreWrapper->getObjectName(*objectHandleFromSaveFile));
 }

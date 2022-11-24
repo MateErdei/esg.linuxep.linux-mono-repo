@@ -131,6 +131,7 @@ namespace safestore::SafeStoreWrapper
         SearchResults find(const SafeStoreFilter& filter) override;
         ObjectId getObjectId(const ObjectHandleHolder& objectHandle) override;
         std::string getObjectName(const ObjectHandleHolder& objectHandle) override;
+        std::string getObjectLocation(const ObjectHandleHolder& objectHandle) override;
         bool getObjectHandle(const ObjectId& objectId, std::shared_ptr<ObjectHandleHolder> objectHandle) override;
         ObjectType getObjectType(const ObjectHandleHolder& objectHandle) override;
         ObjectStatus getObjectStatus(const ObjectHandleHolder& objectHandle) override;

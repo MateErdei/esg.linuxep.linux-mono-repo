@@ -21,5 +21,5 @@ public:
         (const std::string&, const std::string&, const std::string&, const std::string&, datatypes::AutoFd));
     MOCK_METHOD(std::vector<FdsObjectIdsPair>, extractQuarantinedFiles, ());
     MOCK_METHOD(void, rescanDatabase, ());
-    MOCK_METHOD(void, parseConfig, ());
+    MOCK_METHOD(void, scanExtractedFiles, (std::vector<FdsObjectIdsPair> files));
 };

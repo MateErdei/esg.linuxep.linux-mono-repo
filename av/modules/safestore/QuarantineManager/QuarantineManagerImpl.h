@@ -4,11 +4,13 @@
 
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
-
-#include <scan_messages/QuarantineResponse.h>
+#include "scan_messages/ScanResponse.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
 #include "Common/PersistentValue/PersistentValue.h"
 #include <thirdparty/nlohmann-json/json.hpp>
+
+#include <scan_messages/QuarantineResponse.h>
 
 #include <memory>
 #include <mutex>
@@ -35,6 +37,8 @@ namespace safestore::QuarantineManager
         void rescanDatabase() override;
         void parseConfig() override;
 
+        void scanExtractedFiles(std::vector<FdsObjectIdsPair> files);
+
     private:
         void callOnDbError();
         void callOnDbSuccess();
@@ -50,5 +54,6 @@ namespace safestore::QuarantineManager
         // the count only includes continuous DB errors by resetting states and error counts.
         int m_databaseErrorCount = 0;
         Common::PersistentValue<int> m_dbErrorCountThreshold;
+        scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, int file_fd);
     };
 } // namespace safestore::QuarantineManager
