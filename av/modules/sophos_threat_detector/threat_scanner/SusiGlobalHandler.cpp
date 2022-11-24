@@ -221,59 +221,30 @@ namespace threat_scanner
         }
         LOGDEBUG("Acquired lock on " << lockfile);
 
-        SusiResult updateResult;
-        bool secondUpdateAttempt = false;
-        do
+        assert(m_susiInitialised.load(std::memory_order_acquire));
+        // SUSI is always initialised by the time we get here
+        LOGDEBUG("Calling SUSI_Update");
+        SusiResult updateResult = SUSI_Update(path.c_str());
+        if (updateResult == SUSI_I_UPTODATE)
         {
-            assert(m_susiInitialised.load(std::memory_order_acquire));
-            // SUSI is always initialised by the time we get here
-            LOGDEBUG("Calling SUSI_Update");
-            updateResult = SUSI_Update(path.c_str());
-            if (updateResult == SUSI_I_UPTODATE)
+            LOGDEBUG("Threat scanner is already up to date");
+        }
+        else if (!SUSI_FAILURE(updateResult))
+        {
+            LOGINFO("Threat scanner successfully updated");
+            if (updateResult == SUSI_W_OLDDATA)
             {
-                LOGDEBUG("Threat scanner is already up to date");
-                break;
+                LOGWARN("SUSI Loaded old data");
             }
-            else if (!SUSI_FAILURE(updateResult))
-            {
-                LOGINFO("Threat scanner successfully updated");
-                if (updateResult == SUSI_W_OLDDATA)
-                {
-                    LOGWARN("SUSI Loaded old data");
-                }
-                m_susiVersionAlreadyLogged = true;
-                logSusiVersion();
-                break;
-            }
-            else
-            {
-                std::ostringstream ost;
-                ost << "Failed to update SUSI: 0x" << std::hex << updateResult << std::dec;
-                LOGERROR(ost.str());
-
-                if (secondUpdateAttempt)
-                {
-                    LOGFATAL("Second update attempt failed, exiting");
-                    break;
-                }
-
-                LOGINFO("Attempting to unload and re-install SUSI");
-
-                auto terminateResult = SUSI_Terminate();
-                LOGSUPPORT("Exiting Global Susi result = " << std::hex << terminateResult << std::dec);
-                throwIfNotOk(terminateResult, "Failed to unload susi");
-
-                std::filesystem::remove("/susi/distribution_version");
-
-                auto bootstrapResult = bootstrap();
-                throwIfNotOk(bootstrapResult, "Bootstrapping SUSI update retry update failed, exiting");
-
-                LOGINFO("Re-initializing SUSI");
-                SusiResult initSecondAttempt = SUSI_Initialize(m_currentSusiConfig.c_str(), &my_susi_callbacks);
-                throwIfNotOk(initSecondAttempt, "Second attempt to initialise SUSI failed, exiting");
-                secondUpdateAttempt = true;
-            }
-        } while (true);
+            m_susiVersionAlreadyLogged = true;
+            logSusiVersion();
+        }
+        else
+        {
+            std::ostringstream ost;
+            ost << "Failed to update SUSI: 0x" << std::hex << updateResult << std::dec;
+            LOGERROR(ost.str());
+        }
 
         m_updatePending.store(false, std::memory_order_release);
         if (releaseLock(fd))
@@ -318,7 +289,7 @@ namespace threat_scanner
         }
 
         LOGINFO("Initializing SUSI");
-        SusiResult initResult = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks);
+        SusiResult initResult = SUSI_Initialize(jsonConfig.c_str(), &my_susi_callbacks); // Duplicate any changes here to 2nd init below
         // gets set to true in internal_update only when the update returns SUSI_OK
         m_susiVersionAlreadyLogged = false;
 
@@ -340,7 +311,6 @@ namespace threat_scanner
 
         LOGSUPPORT("Initialising Global Susi successful");
         m_susiInitialised.store(true, std::memory_order_release); // susi init is now saved
-        m_currentSusiConfig = jsonConfig;
 
         if (isShuttingDown())
         {
