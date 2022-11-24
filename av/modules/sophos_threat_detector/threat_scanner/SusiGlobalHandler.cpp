@@ -10,32 +10,48 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "SusiCertificateFunctions.h"
 #include "SusiLogger.h"
 #include "ThrowIfNotOk.h"
+
 #include "common/ShuttingDownException.h"
 
 #include <Common/Logging/LoggerConfig.h>
 
-#include <cassert>
-#include <iostream>
-
 #include <sys/file.h>
+
+#include <cassert>
+#include <iomanip>
+#include <iostream>
 
 namespace threat_scanner
 {
     namespace
     {
 
+        /*
+         * Called by SUSI when a threat is detected. Does not get called on eicars.
+         * @param token - user data pointer which is currently set to be the current SusiGlobalHandler instance.
+         * @param algorithm - the hashing type used for the checksum, we currently only support SHA256.
+         * @param fileChecksum - bytes (unsigned char) that need to be converted to a hex string
+         *  for example, if first byte in fileChecksum is 142 then that is converted to the two characters "8e".
+         * @return bool - returns true if the file checksum is on the allow list.
+         */
         bool isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size)
         {
-            (void)algorithm;
-            (void)size;
-
-            auto* susiHandler = reinterpret_cast<SusiGlobalHandler*>(&token);
-
-
-            if (susiHandler->m_settings->isAllowListed(fileChecksum))
+            if (algorithm == SUSI_SHA256_ALG)
             {
-                LOGDEBUG("Allowed by SHA256: " << fileChecksum);
-                return true;
+                std::vector<unsigned char> checksumBytes2(fileChecksum, fileChecksum + size);
+                std::ostringstream stream;
+                stream << std::hex << std::setfill('0') << std::nouppercase;
+                std::for_each(
+                    checksumBytes2.cbegin(),
+                    checksumBytes2.cend(),
+                    [&stream](const auto& byte) { stream << std::setw(2) << int(byte); });
+
+                auto susiHandler = static_cast<SusiGlobalHandler*>(token);
+                if (susiHandler->m_settings->isAllowListed(stream.str()))
+                {
+                    LOGDEBUG("Allowed by SHA256: " << stream.str());
+                    return true;
+                }
             }
 
             return false;
@@ -47,8 +63,6 @@ namespace threat_scanner
             (void)algorithm;
             (void)fileChecksum;
             (void)size;
-
-            LOGDEBUG("IsBlocklistedFile: size=" << size);
 
             return false;
         }

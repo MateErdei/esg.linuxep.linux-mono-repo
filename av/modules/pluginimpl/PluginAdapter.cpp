@@ -279,6 +279,8 @@ namespace Plugin
             {
                 LOGDEBUG("Processing CORC policy");
                 m_policyProcessor.processCorcPolicy(attributeMap);
+                setResetThreatDetector(true);
+                policyWaiter->gotPolicy("CORC");
             }
             else if (policyType == PolicyType::CORE)
             {
