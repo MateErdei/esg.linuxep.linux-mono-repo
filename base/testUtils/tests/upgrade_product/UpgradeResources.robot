@@ -38,6 +38,10 @@ Test Setup
     Require Uninstalled
     Set Environment Variable  CORRUPTINSTALL  no
 
+SDDS3 Test Teardown
+    Stop Local SDDS3 Server
+    Test Teardown
+
 Test Teardown
     [Arguments]  ${UninstallAudit}=True
     Run Keyword If Test Failed    Dump Cloud Server Log
