@@ -64,7 +64,6 @@ function generate_susi_package_manifest()
 function bootstrap_susi_from_update_source()
 {
     set_permissions_on_susi_update_source
-#    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_DIST_VERS}"
 }
 
 function main()
@@ -88,7 +87,6 @@ function main()
     ls -lR ${SUSI_UPDATE_SRC}
 
     generate_susi_package_manifest
-    chmod 700 "${PLUGIN_INSTALL}/sbin/susi_bootstrapper"
     bootstrap_susi_from_update_source
 }
 
