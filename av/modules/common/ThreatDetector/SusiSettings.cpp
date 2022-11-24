@@ -32,7 +32,18 @@ namespace common::ThreatDetector
         try
         {
             auto fs = Common::FileSystem::fileSystem();
+            if (!fs->isFile(threatDetectorSettingsPath))
+            {
+                LOGDEBUG("SUSI Settings JSON file does not exist");
+                return false;
+            }
+
             auto settingsJsonContent = fs->readFile(threatDetectorSettingsPath);
+            if (settingsJsonContent.empty())
+            {
+                LOGDEBUG("SUSI Settings JSON file exists but contents is empty");
+                return false;
+            }
             json parsedConfig = json::parse(settingsJsonContent);
 
             if (parsedConfig.contains(ENABLED_SXL_LOOKUP_KEY))
