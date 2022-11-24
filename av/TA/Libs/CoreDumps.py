@@ -90,9 +90,12 @@ class CoreDumps(object):
             previous = previous[-5:]
             if "segfault" in line:
                 if include_next <= 0:
-                    result.append(previous[-4])
-                    result.append(previous[-3])
-                    result.append(previous[-2])
+                    if len(previous) > 4:
+                        result.append(previous[-4])
+                    if len(previous) > 3:
+                        result.append(previous[-3])
+                    if len(previous) > 2:
+                        result.append(previous[-2])
                 result.append(line)
                 segfaults.append(line)
                 include_next = 2
