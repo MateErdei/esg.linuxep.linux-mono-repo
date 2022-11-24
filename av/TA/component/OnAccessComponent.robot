@@ -32,9 +32,17 @@ soapd handles missing threat detector socket
 
     # copy the flags
     Copy File  ${RESOURCES_PATH}/oa_config/flags_on.json  ${COMPONENT_VAR_DIR}/oa_flag.json
+    # copy config
+    Copy File  ${RESOURCES_PATH}/oa_config/config_on.json  ${COMPONENT_VAR_DIR}/soapd_config.json
 
-    Start On Access without Log check
-    Sleep  10
+    Start On Access
+    Sleep  ${1}
+
+    ${oa_mark} =  get_on_access_log_mark
+    On-access Scan Clean File
+
+    wait for on access log contains after mark  OnAccessImpl <> Failed to connect to Sophos Threat Detector - retrying after sleep
+    ...  mark=${oa_mark}  timeout=${5}
 
 
 *** Variables ***
@@ -49,3 +57,4 @@ Remove Log directory
 
 On Access Test Teardown
     run teardown functions
+    Terminate All Processes
