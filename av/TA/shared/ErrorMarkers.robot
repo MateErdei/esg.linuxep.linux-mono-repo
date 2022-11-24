@@ -32,6 +32,7 @@ Exclude Threat Detector Launcher Died
 
 Exclude Threat Detector Launcher Died With 70
     mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with 70
+    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/av/sbin/sophos_threat_detector_launcher died with exit code 70
 
 Exclude Core Not In Policy Features
     mark_expected_error_in_log  ${UPDATE_SCHEDULER}  updatescheduler <> CORE not in the features of the policy.
@@ -127,6 +128,7 @@ Exclude Safestore connection errors
 
 Exclude MCS Router is dead
     mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
+    mark_expected_error_in_log  ${WATCHDOG_LOG}  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
 
 Exclude STD Symlink Error
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  LogSetup <> Create symlink for logs at
