@@ -371,6 +371,7 @@ namespace Plugin
         {
             if (allowedItem.value("type") == "sha256" && !allowedItem.contents().empty())
             {
+                LOGDEBUG("Added SHA256 to allow list: " << allowedItem.contents());
                 sha256AllowList.emplace_back(allowedItem.contents());
             }
         }
