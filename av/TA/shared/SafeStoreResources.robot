@@ -68,7 +68,10 @@ Wait Until SafeStore running
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  Successfully initialised SafeStore database  timeout=5
     Wait_For_Log_contains_after_last_restart  ${SAFESTORE_LOG_PATH}  safestore <> SafeStore started  timeout=5
 
-    Verify SafeStore Database Exists
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  3 secs
+    ...  Verify SafeStore Database Exists
 
 
 Wait Until SafeStore not running
