@@ -310,7 +310,6 @@ namespace safestore::SafeStoreWrapper
         switch (result)
         {
             case SR_OK:
-                LOGDEBUG("Got OK when attempting to save file to SafeStore database");
                 return SaveFileReturnCode::OK;
             case SR_INVALID_ARG:
                 return SaveFileReturnCode::INVALID_ARG;

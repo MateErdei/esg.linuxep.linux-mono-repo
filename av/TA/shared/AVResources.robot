@@ -782,6 +782,7 @@ Restart AV Plugin And Clear The Logs For Integration Tests
     Dump Log  ${ON_ACCESS_LOG_PATH}
     Dump Log  ${SCANNOW_LOG_PATH}
     Dump Log  ${CLOUDSCAN_LOG_PATH}
+    Dump Log  ${SAFESTORE_LOG_PATH}
     Dump Log  ${WATCHDOG_LOG}
 
     Remove File    ${AV_LOG_PATH}

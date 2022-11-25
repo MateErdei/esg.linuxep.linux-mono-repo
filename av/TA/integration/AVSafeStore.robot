@@ -13,6 +13,7 @@ Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/ProcessUtils.py
+Library         ../Libs/FileSampleObfuscator.py
 
 Library         OperatingSystem
 Library         Collections
@@ -552,6 +553,61 @@ Threat Detector Rescan Socket Does Not Block Shutdown
     wait_for_log_contains_from_mark  ${td_mark}  Failed to connect to SafeStore Rescan - retrying after sleep
     Stop sophos_threat_detector
     wait_for_log_contains_from_mark  ${td_mark}  Stop requested while connecting to SafeStore Rescan
+
+
+Allow Listed Files Are Removed From Quarantine
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait Until SafeStore running
+
+    # Start from known place with a CORC policy with an empty allow list
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    # Create threat to scan
+    ${threat_file} =  Set Variable  /tmp_test/MLengHighScore.exe
+    Create Directory  /tmp_test/
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${threat_file}
+    Register Cleanup  Remove File  ${threat_file}
+    File Should Exist  ${threat_file}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} /tmp_test/MLengHighScore.exe
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    wait_for_log_contains_from_mark  ${safestore_mark}   Quarantined /tmp_test/MLengHighScore.exe successfully
+
+    File Should Not Exist  ${threat_file}
+
+    # Allow-list the file
+    Send CORC Policy To Base  corc_policy.xml
+    wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
+    wait_for_log_contains_from_mark  ${safestore_mark}  SafeStore Database Rescan request received
+
+    # TODO LINUXDAR-5918 when file restoring is completed enable this section of the test
+    #Wait Until Keyword Succeeds
+    #...  10 secs
+    #...  1 secs
+    #...  File Should Exist  ${threat_file}
+    #
+    ## Scan threat
+    #${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} /tmp_test/MLengHighScore.exe
+    #Log  ${output}
+    #Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    #
+    ## File is allowed and not treated as a threat
+    #wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    #
+    ## File allowed so should still exist
+    #File Should Exist  ${threat_file}
 
 
 *** Keywords ***
