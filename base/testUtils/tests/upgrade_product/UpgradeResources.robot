@@ -262,6 +262,63 @@ Check Update Reports Have Been Processed
     Should Not Contain    ${filesInProcessedDir}[0]    update_report.json
     Should Contain    ${filesInUpdateVar}    ${filesInProcessedDir}[0]
 
+Check For MTR Recovery
+    Remove File  ${MDR_PLUGIN_PATH}/var/policy/mtr.xml
+    Check MDR Plugin Running
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  5 secs
+    ...  Check Marked Watchdog Log Contains   watchdog <> Starting mtr
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  Check Marked Managementagent Log Contains   managementagent <> Policy ${SOPHOS_INSTALL}/base/mcs/policy/MDR_policy.xml applied to 1 plugins
+    Check File Exists  ${MDR_PLUGIN_PATH}/var/policy/mtr.xml
+
+Check for Management Agent Failing To Send Message To MTR And Check Recovery
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to mtr. Reason: No incoming data
+    ${EvaluationBool} =  Does Management Agent Log Contain    managementagent <> Failure on sending message to mtr. Reason: No incoming data
+    Run Keyword If
+    ...  ${EvaluationBool} == ${True}
+    ...  Check For MTR Recovery
+
+Wait For Version Files to Update
+    [Arguments]    &{expectedVersions}
+    Wait Until Keyword Succeeds
+    ...  150 secs
+    ...  10 secs
+    ...  Version Number In Ini File Should Be    ${InstalledBaseVersionFile}    ${expectedVersions["baseVersion"]}
+    
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Version Number In Ini File Should Be    ${InstalledAVPluginVersionFile}    ${expectedVersions["avVersion"]}
+    
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Version Number In Ini File Should Be    ${InstalledEDRPluginVersionFile}    ${expectedVersions["edrVersion"]}
+    
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Version Number In Ini File Should Be    ${InstalledEJPluginVersionFile}    ${expectedVersions["ejVersion"]}
+    
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Version Number In Ini File Should Be    ${InstalledLRPluginVersionFile}    ${expectedVersions["lrVersion"]}
+    
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Version Number In Ini File Should Be    ${InstalledMDRPluginVersionFile}    ${expectedVersions["mtrVersion"]}
+    
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  5 secs
+    ...  Version Number In Ini File Should Be    ${InstalledRTDPluginVersionFile}    ${expectedVersions["rtdVersion"]}
+
 Get Current Installed Versions
     ${BaseReleaseVersion} =     Get Version Number From Ini File    ${InstalledBaseVersionFile}
     ${AVReleaseVersion} =       Get Version Number From Ini File    ${InstalledAVPluginVersionFile}
@@ -270,8 +327,15 @@ Get Current Installed Versions
     ${LRReleaseVersion} =       Get Version Number From Ini File    ${InstalledLRPluginVersionFile}
     ${MTRReleaseVersion} =      Get Version Number From Ini File    ${InstalledMDRPluginVersionFile}
     ${RTDReleaseVersion} =      Get Version Number From Ini File    ${InstalledRTDPluginVersionFile}
-    @{versions}=  ${BaseReleaseVersion}  ${AVReleaseVersion}  ${EDRReleaseVersion}  ${EJReleaseVersion}  ${LRReleaseVersion}  ${MTRReleaseVersion}  ${RTDReleaseVersion}
-    [Return]    ${versions}
+    &{versions} =    Create Dictionary
+    ...    baseVersion=${BaseReleaseVersion}
+    ...    avVersion=${AVReleaseVersion}
+    ...    edrVersion=${EDRReleaseVersion}
+    ...    ejVersion=${EJReleaseVersion}
+    ...    lrVersion=${LRReleaseVersion}
+    ...    mtrVersion=${MTRReleaseVersion}
+    ...    rtdVersion=${RTDReleaseVersion}
+    [Return]    &{versions}
 
 Get Expected VUT Versions
     ${ExpectedBaseDevVersion} =     Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Base-component
@@ -281,8 +345,15 @@ Get Expected VUT Versions
     ${ExpectedLRDevVersion} =       Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-liveresponse
     ${ExpectedMTRDevVersion} =      Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-MDR
     ${ExpectedRTDDevVersion} =      Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-RuntimeDetections
-    @{versions}=  ${ExpectedBaseDevVersion}  ${ExpectedAVDevVersion}  ${ExpectedEDRDevVersion}  ${ExpectedEJDevVersion}  ${ExpectedLRDevVersion}  ${ExpectedMTRDevVersion}  ${ExpectedRTDDevVersion}
-    [Return]    ${versions}
+    &{versions} =    Create Dictionary
+    ...    baseVersion=${ExpectedBaseDevVersion}
+    ...    avVersion=${ExpectedAVDevVersion}
+    ...    edrVersion=${ExpectedEDRDevVersion}
+    ...    ejVersion=${ExpectedEJDevVersion}
+    ...    lrVersion=${ExpectedLRDevVersion}
+    ...    mtrVersion=${ExpectedMTRDevVersion}
+    ...    rtdVersion=${ExpectedRTDDevVersion}
+    [Return]    &{versions}
 
 Get Expected Release Versions
     [Arguments]    ${policy}
@@ -293,5 +364,12 @@ Get Expected Release Versions
     ${ExpectedAVReleaseVersion} =       Get Version From Warehouse For Rigidname    ${policy}    ServerProtectionLinux-Plugin-AV
     ${ExpectedEDRReleaseVersion} =      Get Version From Warehouse For Rigidname    ${policy}    ServerProtectionLinux-Plugin-EDR
     ${ExpectedMTRReleaseVersion} =      Get Version From Warehouse For Rigidname    ${policy}    ServerProtectionLinux-Plugin-MDR
-    @{versions}=  ${ExpectedBaseReleaseVersion}  ${ExpectedAVReleaseVersion}  ${ExpectedEDRReleaseVersion}  ${ExpectedEJReleaseVersion}  ${ExpectedLRReleaseVersion}  ${ExpectedMTRReleaseVersion}  ${ExpectedRTDReleaseVersion}
-    [Return]    ${versions}
+    &{versions} =    Create Dictionary
+    ...    baseVersion=${ExpectedBaseReleaseVersion}
+    ...    avVersion=${ExpectedAVReleaseVersion}
+    ...    edrVersion=${ExpectedEDRReleaseVersion}
+    ...    ejVersion=${ExpectedEJReleaseVersion}
+    ...    lrVersion=${ExpectedLRReleaseVersion}
+    ...    mtrVersion=${ExpectedMTRReleaseVersion}
+    ...    rtdVersion=${ExpectedRTDReleaseVersion}
+    [Return]    &{versions}

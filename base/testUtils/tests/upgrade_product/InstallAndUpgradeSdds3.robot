@@ -1,4 +1,5 @@
 *** Settings ***
+Library    Collections
 Library    OperatingSystem
 
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
@@ -54,6 +55,10 @@ ${sdds3_primary_repository}                 ${SOPHOS_INSTALL}/base/update/cache/
 We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     [Timeout]    10 minutes
     [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    
+    # TODO: Get expected versions
+    #    &{expectedDogfoodVersions} =    Get Expected Release Versions    ${BaseEdrAndMtrAndAVDogfoodPolicy}
+    #    &{expectedVUTVersions} =    Get Expected VUT Versions
 
     Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVDogfoodPolicy}
 
@@ -76,9 +81,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Check EAP Release With AV Installed Correctly
 #    TODO: Check Versions
-#    ${expectedReleaseVersions} =    Get Expected Release Versions    ${BaseEdrAndMtrAndAVDogfoodPolicy}
-#    ${installedVersions} =    Get Current Installed Versions
-#    Lists Should Be Equal    ${expectedReleaseVersions}    ${installedVersions}    ignore_order=${False}
+#    &{installedVersions} =    Get Current Installed Versions
+#    Dictionaries Should Be Equal    &{expectedDogfoodVersions}    &7{installedVersions}
 
     Send ALC Policy And Prepare For Upgrade    ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Keyword Succeeds
@@ -107,8 +111,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    suldownloader_log    Update success    2
-    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   suldownloader_log
+    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
+    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
     
     # Confirm that the warehouse flags supplement is installed when upgrading
@@ -142,9 +146,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Wait For RuntimeDetections to be Installed
     
 #    TODO: Check Versions
-#    ${expectedVUTVersions} =    Get Expected VUT Versions
-#    ${installedVersions} =    Get Current Installed Versions
-#    Lists Should Be Equal    ${expectedVUTVersions}    ${installedVersions}    ignore_order=${False}
+#    &{installedVersions} =    Get Current Installed Versions
+#    Dictionaries Should Be Equal    &{expectedVUTVersions}    &{installedVersions}
     
     Check Event Journaler Executable Running
     Check AV Plugin Permissions
@@ -159,6 +162,142 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  130 secs
     ...  20 secs
     ...  SHS Status File Contains  <item name="threat" value="2" />
+
+We Can Downgrade From VUT to Dogfood Without Unexpected Errors
+    [Timeout]  10 minutes
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
+
+    # TODO: Get expected versions
+#    &{expectedDogfoodVersions} =    Get Expected Release Versions    ${BaseEdrAndMtrAndAVDogfoodPolicy}
+#    &{expectedVUTVersions} =    Get Expected VUT Versions
+#    ${expectBaseDowngrade} =  Second Version Is Lower  ${expectedVUTVersions["baseVersion"]}  ${expectedDogfoodVersions["baseVersion"]}
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+
+    ${handle}=    Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    force_sdds3_post_install=${True}
+    Override LogConf File as Global Level    DEBUG
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
+
+    Check Current Release With AV Installed Correctly
+    #    TODO: Check Versions
+    #    &{installedVersions} =    Get Current Installed Versions
+    #    Dictionaries Should Be Equal    &{expectedVUTVersions}    &{installedVersions}
+
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+    # Products that should be uninstalled after downgrade
+    Should Exist  ${InstalledLRPluginVersionFile}
+    # The query pack should have been installed with EDR VUT
+    Should Exist  ${Sophos_Scheduled_Query_Pack}
+
+    ${sspl_user_uid} =       Get UID From Username    sophos-spl-user
+    ${sspl_local_uid} =      Get UID From Username    sophos-spl-local
+    ${sspl_network_uid} =    Get UID From Username    sophos-spl-network
+    ${sspl_update_uid} =     Get UID From Username    sophos-spl-updatescheduler
+
+    # Changing the policy here will result in an automatic update
+    # Note when downgrading from a release with live response to a release without live response
+    # results in a second update.
+    Override LogConf File as Global Level  DEBUG
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVDogfoodPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVDogfoodPolicy}
+
+    Stop Local SDDS3 Server
+    ${handle}=    Start Local Dogfood SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Mark Watchdog Log
+    Mark Managementagent Log
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Log Contains   Update success    /tmp/preserve-sul-downgrade   suldownloader log
+#    TODO: Uncomment when version checking is done
+#    Run Keyword If  ${ExpectBaseDowngrade}
+#    ...  Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}    backedup suldownloader log
+
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check Log Contains String At Least N Times   /tmp/preserve-sul-downgrade  Downgrade Log  Update success  1
+    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
+
+    # Wait for successful update (all up to date) after downgrading
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check SulDownloader Log Contains String N Times    Update success    2
+
+    Check for Management Agent Failing To Send Message To MTR And Check Recovery
+
+    Mark Known Upgrade Errors
+    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
+
+    #TODO LINUXDAR-2972 remove when this defect is fixed
+    #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+    #TODO LINUXDAR-5140 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+    Check EAP Release With AV Installed Correctly
+    #    TODO: Check Versions
+    #    ${installedVersions} =    Get Current Installed Versions
+    #    Dictionaries Should Be Equal    ${expectedDogfoodVersions}    ${installedVersions}    ignore_order=${False}
+
+    # Check users haven't been removed and added back
+    ${new_sspl_user_uid} =       Get UID From Username    sophos-spl-user
+    ${new_sspl_local_uid} =      Get UID From Username    sophos-spl-local
+    ${new_sspl_network_uid} =    Get UID From Username    sophos-spl-network
+    ${new_sspl_update_uid} =     Get UID From Username    sophos-spl-updatescheduler
+    Should Be Equal As Integers    ${sspl_user_uid}          ${new_sspl_user_uid}
+    Should Be Equal As Integers    ${sspl_local_uid}         ${new_sspl_local_uid}
+    Should Be Equal As Integers    ${sspl_network_uid}       ${new_sspl_network_uid}
+    Should Be Equal As Integers    ${sspl_update_uid}        ${new_sspl_update_uid}
+
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+    # Upgrade back to master to check we can upgrade from a downgraded product
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Stop Local SDDS3 Server
+    ${handle}=    Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Trigger Update Now
+
+#    TODO: Check Versions
+#    Wait For Version Files to Update    &{expectedVUTVersions}
+
+    # The query pack should have been re-installed
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  File Should Exist  ${Sophos_Scheduled_Query_Pack}
 
 Sul Downloader fails update if expected product missing from SUS
     [Setup]    Test Setup
