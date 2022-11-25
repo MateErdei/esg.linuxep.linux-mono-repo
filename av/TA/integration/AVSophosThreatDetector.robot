@@ -9,6 +9,7 @@ Resource    ../shared/ErrorMarkers.robot
 
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/FileSampleObfuscator.py
 
@@ -23,7 +24,7 @@ ${CLEAN_STRING}     not an eicar
 ${CUSTOMERID_FILE}  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
 ${MACHINEID_CHROOT_FILE}  ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${MACHINEID_FILE}   ${SOPHOS_INSTALL}/base/etc/machine_id.txt
-
+${VDL_DIRECTORY}  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl/
 
 *** Test Cases ***
 Test Global Rep works in chroot
@@ -605,6 +606,32 @@ Sophos Threat Detector Gives Different Threat Id Depending On Path And Sha And I
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar.com
     wait_for_log_contains_from_mark  ${td_mark}  Threat ID: e692d7ef-4848-5e7d-b530-64a674a3ad0a
     Remove File  ${NORMAL_DIRECTORY}/eicar.com
+
+Threat Detector Can Bootstrap New SUSI After A Failed Initialization
+    #Unload SUSI
+    register cleanup    Exclude VDL Folder Missing Errors
+    restart sophos_threat_detector
+
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+
+    #Fake a bad update_source directory
+    Remove Directory  /opt/sophos-spl/plugins/av/chroot/susi/distribution_version/  true
+    Move Directory  ${VDL_DIRECTORY}  /tmp/
+
+    #Attempt to initialize SUSI, bootstrap and init will fail due to the vdl directory missing
+    ${rc}   ${output} =    Run And Return Rc And Output   /opt/sophos-spl/plugins/av/bin/avscanner /opt/sophos-spl/plugins/av/bin/avscanner
+    Log   ${output}
+    Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
+
+    #Reset update source and set lost permissions
+    Move Directory  /tmp/vdl  /opt/sophos-spl/plugins/av/chroot/susi/update_source/
+    Run Process  chmod  -R  777 /opt/sophos-spl/plugins/av/chroot/susi/update_source/vdl
+
+    #Attempt to initialize SUSI, a clean result means sucessfull initialization
+    ${rc}   ${output} =    Run And Return Rc And Output   /opt/sophos-spl/plugins/av/bin/avscanner /opt/sophos-spl/plugins/av/bin/avscanner
+    Log   ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
 
 
 Sophos Threat Detector Triggers SafeStore Rescan When SUSI Config Changes
