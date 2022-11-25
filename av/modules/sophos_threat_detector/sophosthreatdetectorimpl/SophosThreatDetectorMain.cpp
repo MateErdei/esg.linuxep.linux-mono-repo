@@ -336,7 +336,7 @@ namespace sspl::sophosthreatdetectorimpl
         if (susiSettingsChanged)
         {
             LOGINFO("Triggering rescan of SafeStore database");
-            m_safeStoreRescanTrigger->triggerRescan();
+            m_safeStoreRescanWorker->triggerRescan();
         }
         else
         {
@@ -461,9 +461,9 @@ namespace sspl::sophosthreatdetectorimpl
         }
         m_scannerFactory->update(); // always force an update during start-up
 
-        m_safeStoreRescanTrigger = std::make_shared<SafeStoreRescanWorker>(Plugin::getSafeStoreRescanSocketPath());
+        m_safeStoreRescanWorker = std::make_shared<SafeStoreRescanWorker>(Plugin::getSafeStoreRescanSocketPath());
 
-        m_reloader = std::make_shared<Reloader>(m_scannerFactory, m_safeStoreRescanTrigger);
+        m_reloader = std::make_shared<Reloader>(m_scannerFactory, m_safeStoreRescanWorker);
 
         unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, m_scannerFactory);
         server.start();
@@ -477,7 +477,7 @@ namespace sspl::sophosthreatdetectorimpl
         unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0660, callbacks);
         processController.start();
 
-        m_safeStoreRescanTrigger->start();
+        m_safeStoreRescanWorker->start();
 
         int returnCode = common::E_CLEAN_SUCCESS;
 

@@ -12,24 +12,24 @@ using namespace common;
 
 namespace
 {
-    class TestSusSettings : public LogInitializedTests
+    class TestSusiSettings : public LogInitializedTests
     {};
 }
 
-TEST_F(TestSusSettings, SusiSettingsDefaultsSxlLookupToEnabled)
+TEST_F(TestSusiSettings, SusiSettingsDefaultsSxlLookupToEnabled)
 {
     ThreatDetector::SusiSettings susiSettings;
     ASSERT_TRUE(susiSettings.isSxlLookupEnabled());
 }
 
-TEST_F(TestSusSettings, SusiSettingsDefaultsAllowListToEmpty)
+TEST_F(TestSusiSettings, SusiSettingsDefaultsAllowListToEmpty)
 {
     ThreatDetector::SusiSettings susiSettings;
     ASSERT_EQ(susiSettings.accessAllowList().size(), 0);
     ASSERT_FALSE(susiSettings.isAllowListed("something"));
 }
 
-TEST_F(TestSusSettings, SusiSettingsHandlesLoadingEmptyJsonFile)
+TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyJsonFile)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
@@ -40,7 +40,7 @@ TEST_F(TestSusSettings, SusiSettingsHandlesLoadingEmptyJsonFile)
     ASSERT_FALSE(susiSettings.isAllowListed("something"));
 }
 
-TEST_F(TestSusSettings, SusiSettingsHandlesLoadingEmptyButValidJsonFile)
+TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyButValidJsonFile)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
@@ -51,7 +51,7 @@ TEST_F(TestSusSettings, SusiSettingsHandlesLoadingEmptyButValidJsonFile)
     ASSERT_FALSE(susiSettings.isAllowListed("something"));
 }
 
-TEST_F(TestSusSettings, SusiSettingsHandlesMissingFile)
+TEST_F(TestSusiSettings, SusiSettingsHandlesMissingFile)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
@@ -62,7 +62,7 @@ TEST_F(TestSusSettings, SusiSettingsHandlesMissingFile)
     ASSERT_FALSE(susiSettings.isAllowListed("something"));
 }
 
-TEST_F(TestSusSettings, SusiSettingsReadsInAllowList)
+TEST_F(TestSusiSettings, SusiSettingsReadsInAllowList)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -75,7 +75,7 @@ TEST_F(TestSusSettings, SusiSettingsReadsInAllowList)
     ASSERT_TRUE(susiSettings.isAllowListed("42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"));
 }
 
-TEST_F(TestSusSettings, SusiSettingsReadsInSxlLookupEnabled)
+TEST_F(TestSusiSettings, SusiSettingsReadsInSxlLookupEnabled)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -86,7 +86,7 @@ TEST_F(TestSusSettings, SusiSettingsReadsInSxlLookupEnabled)
     ASSERT_TRUE(susiSettings.isSxlLookupEnabled());
 }
 
-TEST_F(TestSusSettings, SusiSettingsReadsInSxlLookupDisabled)
+TEST_F(TestSusiSettings, SusiSettingsReadsInSxlLookupDisabled)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":false,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -97,7 +97,7 @@ TEST_F(TestSusSettings, SusiSettingsReadsInSxlLookupDisabled)
     ASSERT_FALSE(susiSettings.isSxlLookupEnabled());
 }
 
-TEST_F(TestSusSettings, SusiSettingsHandleInvalidJson)
+TEST_F(TestSusiSettings, SusiSettingsHandleInvalidJson)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
