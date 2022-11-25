@@ -24,7 +24,9 @@ ${CLEAN_STRING}     not an eicar
 ${CUSTOMERID_FILE}  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
 ${MACHINEID_CHROOT_FILE}  ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${MACHINEID_FILE}   ${SOPHOS_INSTALL}/base/etc/machine_id.txt
-${VDL_DIRECTORY}  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl/
+${SUSI_UPDATE_SOURCE}   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source
+${SUSI_DISTRIBUTION_VERSION}   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version
+${VDL_DIRECTORY}  ${SUSI_UPDATE_SOURCE}/vdl/
 
 *** Test Cases ***
 Test Global Rep works in chroot
@@ -615,20 +617,20 @@ Threat Detector Can Bootstrap New SUSI After A Failed Initialization
     ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
 
     #Fake a bad update_source directory
-    Remove Directory  /opt/sophos-spl/plugins/av/chroot/susi/distribution_version/  true
+    Remove Directory  ${SUSI_DISTRIBUTION_VERSION}  true
     Move Directory  ${VDL_DIRECTORY}  /tmp/
 
     #Attempt to initialize SUSI, bootstrap and init will fail due to the vdl directory missing
-    ${rc}   ${output} =    Run And Return Rc And Output   /opt/sophos-spl/plugins/av/bin/avscanner /opt/sophos-spl/plugins/av/bin/avscanner
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${AVSCANNER}
     Log   ${output}
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
     #Reset update source and set lost permissions
-    Move Directory  /tmp/vdl  /opt/sophos-spl/plugins/av/chroot/susi/update_source/
-    Run Process  chmod  -R  777 /opt/sophos-spl/plugins/av/chroot/susi/update_source/vdl
+    Move Directory  /tmp/vdl  ${SUSI_UPDATE_SOURCE}
+    Run Process  chmod  -R  777 ${VDL_DIRECTORY}
 
     #Attempt to initialize SUSI, a clean result means sucessfull initialization
-    ${rc}   ${output} =    Run And Return Rc And Output   /opt/sophos-spl/plugins/av/bin/avscanner /opt/sophos-spl/plugins/av/bin/avscanner
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${AVSCANNER}
     Log   ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
