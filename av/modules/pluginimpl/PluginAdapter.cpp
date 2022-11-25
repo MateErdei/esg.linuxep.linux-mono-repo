@@ -3,6 +3,7 @@
 #include "PluginAdapter.h"
 
 #include "DetectionQueue.h"
+#include "DetectionReporter.h"
 #include "HealthStatus.h"
 #include "Logger.h"
 #include "StringUtils.h"
@@ -118,9 +119,16 @@ namespace Plugin
             LOGINFO("Failed to request FLAGS policy at startup (" << e.what() << ")");
         }
 
-        m_callback->setThreatHealth(
-            static_cast<E_HEALTH_STATUS>(pluginimpl::getThreatStatus())
-            );
+        if (m_threatDatabase.isDatabaseEmpty())
+        {
+            m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+            publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_GOOD);
+        }
+        else
+        {
+            m_callback->setThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+            publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+        }
 
         innerLoop();
         LOGSUPPORT("Stopping the main program loop");
@@ -240,7 +248,7 @@ namespace Plugin
         m_callback->setSafeStoreEnabled(m_policyProcessor.isSafeStoreEnabled());
     }
 
-    void PluginAdapter::processPolicy(const std::string& policyXml, PolicyWaiterSharedPtr policyWaiter, const std::string& appId)
+    void PluginAdapter::processPolicy(const std::string& policyXml, const PolicyWaiterSharedPtr& policyWaiter, const std::string& appId)
     {
         LOGINFO("Received Policy");
         try
@@ -319,11 +327,28 @@ namespace Plugin
                 m_threatDatabase.removeCorrelationID(correlationID);
                 if (m_threatDatabase.isDatabaseEmpty())
                 {
+                    if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_GOOD)
+                    {
+                        LOGINFO("Threat database is now empty, sending good health to Management agent");
+                        publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+                    }
+                }
+            }
+            else if (pluginimpl::isCOREResetThreatHealthAction(attributeMap))
+            {
+                LOGINFO("Resetting threat database due to core reset action");
+                m_threatDatabase.resetDatabase();
+                if (m_threatDatabase.isDatabaseEmpty())
+                {
                     publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+                }
+                else
+                {
+                    LOGWARN("Failed to clear threat health database");
                 }
             }
         }
-        catch(const Common::XmlUtilities::XmlUtilitiesException& e)
+        catch (const Common::XmlUtilities::XmlUtilitiesException& e)
         {
             LOGERROR("Exception encountered while parsing Action XML: " << e.what());
         }
@@ -343,11 +368,10 @@ namespace Plugin
     void PluginAdapter::processDetectionReport(const scan_messages::ThreatDetected& detection,  const common::CentralEnums::QuarantineResult& quarantineResult) const
     {
         LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "'");
-        incrementTelemetryThreatCount(detection.threatName);
-        processThreatReport(pluginimpl::generateThreatDetectedXml(detection));
+        incrementTelemetryThreatCount(detection.threatName, detection.scanType);
+        DetectionReporter::processThreatReport(pluginimpl::generateThreatDetectedXml(detection), m_taskQueue);
+        DetectionReporter::publishQuarantineCleanEvent(pluginimpl::generateCoreCleanEventXml(detection, quarantineResult), m_taskQueue);
         publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
-        publishQuarantineCleanEvent(pluginimpl::generateCoreCleanEventXml(detection, quarantineResult));
-        publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
     }
 
     void PluginAdapter::updateThreatDatabase(const scan_messages::ThreatDetected& detection)
@@ -356,13 +380,23 @@ namespace Plugin
         {
             m_threatDatabase.addThreat(detection.threatId,detection.threatId);
             LOGDEBUG("Added threat: " << detection.threatId << " to database");
+            if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_SUSPICIOUS)
+            {
+                publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+            }
         }
-
-    }
-    void PluginAdapter::processThreatReport(const std::string& threatDetectedXML) const
-    {
-        LOGDEBUG("Sending threat detection notification to central: " << threatDetectedXML);
-        m_taskQueue->push(Task { .taskType = Task::TaskType::ThreatDetected, .Content = threatDetectedXML });
+        else
+        {
+            m_threatDatabase.removeThreatID(detection.threatId);
+            if (m_threatDatabase.isDatabaseEmpty())
+            {
+                if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_GOOD)
+                {
+                    LOGINFO("Threat database is now empty, sending good health to Management agent");
+                    publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
+                }
+            }
+        }
     }
 
     void PluginAdapter::publishThreatEvent(const std::string& threatDetectedJSON) const
@@ -385,24 +419,58 @@ namespace Plugin
             LOGDEBUG("Publishing threat health: " << threatHealthToString(threatStatus));
 
             m_callback->setThreatHealth(threatStatus);
-            m_baseService->sendThreatHealth("{\"ThreatHealth\":" + std::to_string(threatStatus) + "}");
+            m_baseService->sendThreatHealth(R"({"ThreatHealth":)" + std::to_string(threatStatus) + "}");
         }
         catch (const Common::ZeroMQWrapper::IIPCException& e)
         {
             LOGERROR("Failed to send threat health: " << e.what());
         }
+        catch (Common::PluginApi::ApiException& e)
+        {
+            LOGWARN("Failed to send threat health: " << e.what());
+        }
     }
 
-    void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName)
+    void PluginAdapter::publishThreatHealthWithRetry(E_HEALTH_STATUS threatStatus) const
     {
-        if (threatName == "EICAR-AV-Test")
+
+        LOGDEBUG("Publishing threat health: " << threatHealthToString(threatStatus));
+        for (int i = 0; i < 5; ++i)
         {
-            Common::Telemetry::TelemetryHelper::getInstance().increment("threat-eicar-count", 1ul);
+            try
+            {
+                m_baseService->sendThreatHealth(R"({"ThreatHealth":)" + std::to_string(threatStatus) + "}");
+                break;
+            }
+            catch (const Common::ZeroMQWrapper::IIPCException& e)
+            {
+                if (i == 4)
+                {
+                    LOGWARN("Failed to send threat health: " << e.what());
+                }
+            }
+            catch (Common::PluginApi::ApiException& e)
+            {
+                if (i == 4)
+                {
+                    LOGWARN("Failed to send threat health: " << e.what());
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
-        else
-        {
-            Common::Telemetry::TelemetryHelper::getInstance().increment("threat-count", 1ul);
-        }
+
+    }
+
+    void PluginAdapter::incrementTelemetryThreatCount(const std::string& threatName, const scan_messages::E_SCAN_TYPE& scanType)
+    {
+        std::string telemetryStr =
+            (scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN ||
+             scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE)
+                                                                        ? "on-access-" : "on-demand-";
+
+        telemetryStr.append((threatName == "EICAR-AV-Test") ? "threat-eicar-count" : "threat-count");
+
+        Common::Telemetry::TelemetryHelper::getInstance().increment(telemetryStr, 1ul);
     }
 
     void PluginAdapter::connectToThreatPublishingSocket(const std::string& pubSubSocketAddress)
@@ -418,11 +486,5 @@ namespace Plugin
     std::shared_ptr<DetectionQueue> PluginAdapter::getDetectionQueue() const
     {
         return m_detectionQueue;
-    }
-
-    void PluginAdapter::publishQuarantineCleanEvent(const std::string& coreCleanEventXml) const
-    {
-        LOGDEBUG("Sending Clean Event to Central: " << coreCleanEventXml);
-        m_taskQueue->push(Task { .taskType = Task::TaskType::SendCleanEvent, .Content = coreCleanEventXml });
     }
 }

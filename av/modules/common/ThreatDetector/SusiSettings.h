@@ -1,9 +1,9 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
+#include <mutex>
 #include <string>
 #include <vector>
-#include <mutex>
 
 namespace common::ThreatDetector
 {
@@ -30,7 +30,6 @@ namespace common::ThreatDetector
         void setSxlLookupEnabled(bool enabled) noexcept;
 
     private:
-
         // Susi can access the allow-list while we're changing it, so make sure it's thread safe.
         mutable std::mutex m_accessMutex;
 

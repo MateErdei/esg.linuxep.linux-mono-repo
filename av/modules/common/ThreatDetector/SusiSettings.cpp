@@ -74,7 +74,8 @@ namespace common::ThreatDetector
         }
         catch (const json::out_of_range& e)
         {
-            LOGERROR("Failed to load Threat Detector SUSI settings JSON due to out of range error, reason: " << e.what());
+            LOGERROR(
+                "Failed to load Threat Detector SUSI settings JSON due to out of range error, reason: " << e.what());
         }
         catch (const json::type_error& e)
         {
@@ -115,7 +116,8 @@ namespace common::ThreatDetector
     bool SusiSettings::isAllowListed(const std::string& threatChecksum) const noexcept
     {
         std::scoped_lock scopedLock(m_accessMutex);
-        return std::find(m_susiAllowListSha256.begin(), m_susiAllowListSha256.end(), threatChecksum) != m_susiAllowListSha256.end();
+        return std::find(m_susiAllowListSha256.begin(), m_susiAllowListSha256.end(), threatChecksum) !=
+               m_susiAllowListSha256.end();
     }
 
     void SusiSettings::setAllowList(AllowList&& allowList) noexcept

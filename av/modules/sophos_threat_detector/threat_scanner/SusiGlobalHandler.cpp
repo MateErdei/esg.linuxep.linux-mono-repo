@@ -116,7 +116,7 @@ namespace threat_scanner
         }
         catch (const std::exception& ex)
         {
-            LOGERROR("Could not read in SUSI settings, loading defaults. Error: " << ex.what());
+            LOGWARN("Could not read in SUSI settings, loading defaults. Details: " << ex.what());
             m_settings = std::make_unique<common::ThreatDetector::SusiSettings>();
         }
     }

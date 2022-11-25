@@ -69,7 +69,8 @@ namespace Plugin
 
     PLUGIN_INTERNAL:
         void publishThreatHealth(E_HEALTH_STATUS threatStatus) const;
-        static void incrementTelemetryThreatCount(const std::string &threatName);
+        void publishThreatHealthWithRetry(E_HEALTH_STATUS threatStatus) const;
+        static void incrementTelemetryThreatCount(const std::string &threatName, const scan_messages::E_SCAN_TYPE& scanType);
     private:
         /**
          *
@@ -77,7 +78,7 @@ namespace Plugin
          * @param appId OUT - the appId for the policy
          * @return whether policy has been updated
          */
-        void processPolicy(const std::string& policyXml, PolicyWaiterSharedPtr policyWaiter, const std::string& appId);
+        void processPolicy(const std::string& policyXml, const PolicyWaiterSharedPtr& policyWaiter, const std::string& appId);
         void processAction(const std::string& actionXml);
         void startThreads();
         void innerLoop();
