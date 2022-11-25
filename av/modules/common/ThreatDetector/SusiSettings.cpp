@@ -107,7 +107,7 @@ namespace common::ThreatDetector
         return settings.dump();
     }
 
-    bool SusiSettings::isAllowListed(const std::string& threatChecksum) const noexcept
+    bool SusiSettings::isAllowListed(const std::string& threatChecksum) const
     {
         std::scoped_lock scopedLock(m_accessMutex);
         return std::find(m_susiAllowListSha256.begin(), m_susiAllowListSha256.end(), threatChecksum) !=

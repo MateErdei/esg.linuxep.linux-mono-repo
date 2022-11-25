@@ -21,7 +21,7 @@ namespace common::ThreatDetector
         void saveSettings(const std::string& path, mode_t permissions) const;
 
         // Allow listing
-        bool isAllowListed(const std::string& threatChecksum) const noexcept;
+        bool isAllowListed(const std::string& threatChecksum) const;
         void setAllowList(AllowList&& allowList) noexcept;
         const AllowList& accessAllowList() const noexcept;
 
