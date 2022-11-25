@@ -44,7 +44,7 @@ float OnAccessTelemetryUtility::calculatePerScanErrors()
     return calculatePercentage(scansRequested, scanErrors);
 }
 
-float OnAccessTelemetryUtility::calculatePercentage(uint64_t total, uint32_t problems)
+float OnAccessTelemetryUtility::calculatePercentage(unsigned long total, unsigned int problems)
 {
     assert(problems <= total);
 
@@ -63,8 +63,8 @@ float OnAccessTelemetryUtility::calculatePercentage(uint64_t total, uint32_t pro
 
 void OnAccessTelemetryUtility::incrementEventReceived(bool dropped)
 {
-    if (m_eventsReceived.load() == std::numeric_limits<uint64_t>::max() ||
-        m_eventsDropped.load() == std::numeric_limits<uint32_t>::max())
+    if (m_eventsReceived.load() == std::numeric_limits<unsigned long>::max() ||
+        m_eventsDropped.load() == std::numeric_limits<unsigned int>::max())
     {
         if (!m_eventsAtLimit.load())
         {
@@ -83,8 +83,8 @@ void OnAccessTelemetryUtility::incrementEventReceived(bool dropped)
 
 void OnAccessTelemetryUtility::incrementFilesScanned(bool error)
 {
-    if (m_scansRequested.load() == std::numeric_limits<uint64_t>::max() ||
-        m_scanErrors.load() == std::numeric_limits<uint32_t>::max())
+    if (m_scansRequested.load() == std::numeric_limits<unsigned long>::max() ||
+        m_scanErrors.load() == std::numeric_limits<unsigned int>::max())
     {
         if (!m_scansAtLimit.load())
         {

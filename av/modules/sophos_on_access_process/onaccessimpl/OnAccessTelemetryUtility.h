@@ -37,16 +37,16 @@ namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry
     private:
         float calculatePerEventsDropped();
         float calculatePerScanErrors();
-        float calculatePercentage(uint64_t total, uint32_t problems);
+        float calculatePercentage(unsigned long total, unsigned int problems);
 
         std::atomic_bool m_eventsAtLimit = false;
         std::atomic_bool m_scansAtLimit = false;
 
     TEST_PUBLIC:
-        std::atomic_uint64_t m_eventsReceived;
-        std::atomic_uint32_t m_eventsDropped;
-        std::atomic_uint64_t m_scansRequested;
-        std::atomic_uint32_t m_scanErrors;
+        std::atomic_ulong m_eventsReceived;
+        std::atomic_uint m_eventsDropped;
+        std::atomic_ulong m_scansRequested;
+        std::atomic_uint m_scanErrors;
     };
     using OnAccessTelemetryUtilitySharedPtr = std::shared_ptr<OnAccessTelemetryUtility>;
 }
