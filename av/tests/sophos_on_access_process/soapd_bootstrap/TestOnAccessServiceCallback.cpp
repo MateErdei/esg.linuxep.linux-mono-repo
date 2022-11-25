@@ -3,6 +3,7 @@
 # define TEST_PUBLIC public
 
 #include "sophos_on_access_process/soapd_bootstrap/OnAccessServiceCallback.h"
+#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryFields.h"
 #include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
 
 #include "common/LogInitializedTests.h"
@@ -31,15 +32,19 @@ protected:
 TEST_F(TestOnAccessServiceCallback, OnAccessTelemetryGetsTelemetryFromTelemetryHelper)
 {
     auto resContent = m_callback->getTelemetry();
-    ASSERT_EQ(resContent, "{\"Ratio-of-Dropped-Events\":0.0}");
+    auto expectedRes = R"sophos({"ratio-of-dropped-events":0.0,"ratio-of-scan-errors":0.0})sophos";
+    EXPECT_EQ(resContent, expectedRes);
 }
 
 
 TEST_F(TestOnAccessServiceCallback, OnAccessTelemetryResets)
 {
-    TelemetryHelper::getInstance().increment("This is a test", 1ul);
+    TelemetryHelper::getInstance().increment("this is a test", 1ul);
     auto resContent = m_callback->getTelemetry();
-    ASSERT_EQ(resContent, "{\"Ratio-of-Dropped-Events\":0.0,\"This is a test\":1}");
+    auto expectedRes1 = R"sophos({"ratio-of-dropped-events":0.0,"ratio-of-scan-errors":0.0,"this is a test":1})sophos";
+    ASSERT_EQ(resContent, expectedRes1);
+
     auto resEmpty = m_callback->getTelemetry();
-    ASSERT_EQ(resEmpty, "{\"Ratio-of-Dropped-Events\":0.0}");
+    auto expectedRes2 = R"sophos({"ratio-of-dropped-events":0.0,"ratio-of-scan-errors":0.0})sophos";
+    EXPECT_EQ(resEmpty, expectedRes2);
 }
