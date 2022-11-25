@@ -183,26 +183,16 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
     testing::internal::CaptureStderr();
     QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
         m_mockSafeStoreWrapper) };
-    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
     TestFile cleanFile1("cleanFile1");
     datatypes::AutoFd fd1{ cleanFile1.open() };
-    auto fd1_response = scan_messages::ScanResponse();
-    const std::string threatPath1 = "one";
 
     std::vector<FdsObjectIdsPair> testFiles;
     testFiles.emplace_back(std::move(fd1), "objectId1");
 
-    unixsocket::ScanningServerSocket server(Plugin::getScanningClientSocketPath(), 0000, scannerFactory);
-    server.start();
-
     std::vector<std::string> expectedResult{};
     auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
     EXPECT_EQ(expectedResult, result);
-
-    server.requestStop();
-    server.join();
 
     std::string logMessage = internal::GetCapturedStderr();
     ASSERT_THAT(logMessage, ::testing::HasSubstr("ERROR Error on rescan request: "));
@@ -222,7 +212,6 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
     auto fd1_response = scan_messages::ScanResponse();
     const std::string threatPath1 = "one";
 
-
     auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
     auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
 
@@ -234,6 +223,9 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId1", _)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
+
+    EXPECT_CALL(*scanner, scan(_, _, _, _)).WillOnce(Return(fd1_response));
+    EXPECT_CALL(*scannerFactory, createScanner(true, true)).WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(Plugin::getScanningClientSocketPath(), 0600, scannerFactory);
     server.start();
