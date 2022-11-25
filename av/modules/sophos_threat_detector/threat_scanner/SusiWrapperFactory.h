@@ -15,8 +15,7 @@ namespace threat_scanner
     {
     public:
         SusiWrapperFactory();
-        std::shared_ptr<ISusiWrapper> createSusiWrapper(
-            const std::string& scannerConfig) override;
+        std::shared_ptr<ISusiWrapper> createSusiWrapper(const std::string& scannerConfig) override;
 
         bool update() override;
         bool susiIsInitialized() override;
@@ -29,4 +28,4 @@ namespace threat_scanner
     };
 
     using SusiWrapperFactorySharedPtr = std::shared_ptr<SusiWrapperFactory>;
-}
+} // namespace threat_scanner

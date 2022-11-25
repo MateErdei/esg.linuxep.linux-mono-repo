@@ -48,7 +48,7 @@ namespace threat_scanner
                     [&stream](const auto& byte) { stream << std::setw(2) << int(byte); });
 
                 auto susiHandler = static_cast<SusiGlobalHandler*>(token);
-                if (susiHandler->m_settings->isAllowListed(stream.str()))
+                if (susiHandler->accessSusiSettings()->isAllowListed(stream.str()))
                 {
                     LOGDEBUG("Allowed by SHA256: " << stream.str());
                     return true;
@@ -112,11 +112,11 @@ namespace threat_scanner
 
         try
         {
-            m_settings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
+            m_susiSettings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
         }
         catch (const std::exception& ex)
         {
-            m_settings = std::make_unique<common::ThreatDetector::SusiSettings>();
+            m_susiSettings = std::make_unique<common::ThreatDetector::SusiSettings>();
             LOGWARN("Could not read in SUSI settings, loading defaults. Details: " << ex.what());
             LOGINFO("Turning Live Protection on as default - failed to read SUSI startup settings found");
         }
@@ -370,5 +370,16 @@ namespace threat_scanner
             LOGWARN("SUSI Loaded old data");
         }
         SUSI_FreeVersionResult(result);
+    }
+
+    std::shared_ptr<common::ThreatDetector::SusiSettings> SusiGlobalHandler::accessSusiSettings()
+    {
+        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        return m_susiSettings;
+    }
+
+    void SusiGlobalHandler::setSusiSettings(std::shared_ptr<common::ThreatDetector::SusiSettings>&& settings)
+    {
+        m_susiSettings = std::move(settings);
     }
 } // namespace threat_scanner

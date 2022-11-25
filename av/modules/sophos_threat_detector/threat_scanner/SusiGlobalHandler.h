@@ -73,7 +73,8 @@ namespace threat_scanner
          */
         bool isShuttingDown();
 
-        std::unique_ptr<common::ThreatDetector::SusiSettings> m_settings;
+        std::shared_ptr<common::ThreatDetector::SusiSettings> accessSusiSettings();
+        void setSusiSettings(std::shared_ptr<common::ThreatDetector::SusiSettings>&& settings);
 
     private:
         std::atomic_bool m_susiInitialised = false;
@@ -83,6 +84,10 @@ namespace threat_scanner
         std::string m_lockFile;
         std::mutex m_globalSusiMutex;
         bool m_susiVersionAlreadyLogged = false;
+
+        // Used to make sure we don't change the settings while they're being used.
+        std::mutex m_susiSettingsMutex;
+        std::shared_ptr<common::ThreatDetector::SusiSettings> m_susiSettings;
 
         /**
          * Update SUSI. Assumes that SUSI has been initialised
