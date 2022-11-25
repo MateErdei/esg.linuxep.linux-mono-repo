@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation    Product tests of sophos_threat_detector
+Documentation    Integration tests of sophos_threat_detector
 Force Tags       INTEGRATION  SOPHOS_THREAT_DETECTOR
 
 Resource    ../shared/ComponentSetup.robot
