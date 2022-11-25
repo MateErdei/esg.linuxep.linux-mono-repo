@@ -9,6 +9,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 // Include the .cpp to get static functions...
 #include "sophos_threat_detector/threat_scanner/SusiWrapperFactory.cpp" // NOLINT
 
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
+
 #include <gtest/gtest.h>
 
 using namespace threat_scanner;
@@ -131,6 +134,8 @@ void TestSusiWrapperFactory::writeLargeSusiStartupFile()
 
 TEST_F(TestSusiWrapperFactory, constructAndShutdown)
 {
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/tmp/TestSusiWrapperFactory");
     SusiWrapperFactory wrapperFact{};
     wrapperFact.shutdown();
 }
@@ -379,4 +384,29 @@ TEST_F(TestSusiWrapperFactory, isSxlLookupEnabled_veryLargeFile)
     common::ThreatDetector::SusiSettings threatDetectorSettings;
     threatDetectorSettings.load(m_susiStartupPath);
     EXPECT_FALSE(threatDetectorSettings.isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiWrapperFactory, susiWrapperFactoryUpdateSusiConfigRegistersChange)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/tmp/TestSusiWrapperFactory");
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+
+    std::string json1 = R"({"enableSxlLookup":true,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
+    std::string json2 = R"({"enableSxlLookup":false,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
+    std::string json3 = R"({"enableSxlLookup":false,"shaAllowList":["different"]})";
+
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSusiStartupSettingsPath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(Plugin::getSusiStartupSettingsPath()))
+        .WillOnce(Return(json1)) // Load this one at construction
+        .WillOnce(Return(json2)) // On update call, load this one and return changed
+        .WillOnce(Return(json3)) // On update call, load this one and return changed
+        .WillOnce(Return(json3)); // On update call, load this one again and return unchanged
+
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    SusiWrapperFactory susiWrapperFactory{};
+    ASSERT_TRUE(susiWrapperFactory.updateSusiConfig());
+    ASSERT_TRUE(susiWrapperFactory.updateSusiConfig());
+    ASSERT_FALSE(susiWrapperFactory.updateSusiConfig());
 }

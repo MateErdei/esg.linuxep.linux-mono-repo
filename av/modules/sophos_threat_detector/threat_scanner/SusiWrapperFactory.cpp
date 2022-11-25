@@ -214,13 +214,15 @@ namespace threat_scanner
 
     bool  SusiWrapperFactory::updateSusiConfig()
     {
-        // Read potentially new SUSI settings from disk (saved to disk by av)
+        // Read potentially new SUSI settings from disk (saved to disk by av plugin process)
         auto newSettings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
         bool changed = *m_globalHandler->m_settings != *newSettings;
         if (changed)
         {
             m_globalHandler->m_settings = std::move(newSettings);
-            // TODO Print summary of new settings?
+            LOGDEBUG("SUSI settings changed");
+            LOGDEBUG("SUSI SXL lookups enabled: " << std::boolalpha << m_globalHandler->m_settings->isSxlLookupEnabled() << std::noboolalpha);
+            LOGDEBUG("SUSI allow-listed items: " << m_globalHandler->m_settings->accessAllowList().size());
         }
         return changed;
     }

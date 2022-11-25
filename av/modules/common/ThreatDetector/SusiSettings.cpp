@@ -61,7 +61,7 @@ namespace common::ThreatDetector
                 m_susiAllowListSha256 = parsedConfig[SHA_ALLOW_LIST_KEY].get<std::vector<std::string>>();
             }
 
-            LOGDEBUG("Loaded Threat Detector SUSI settings");
+            LOGDEBUG("Loaded Threat Detector SUSI settings into SUSI settings object");
             return true;
         }
         catch (const Common::FileSystem::IFileSystemException& e)

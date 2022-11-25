@@ -608,23 +608,37 @@ Sophos Threat Detector Gives Different Threat Id Depending On Path And Sha And I
 
 
 Sophos Threat Detector Triggers SafeStore Rescan When SUSI Config Changes
+    # Start from known place with a CORC policy with an empty allow list
+    Stop sophos_threat_detector
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
-
-    # Send CORC policy with allow list to product, to trigger SafeStore rescan
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
-    Send CORC Policy To Base  corc_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
 
+    # Send CORC policy with populated allow list to product, to trigger SafeStore rescan
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Send CORC Policy To Base  corc_policy.xml
+    wait_for_log_contains_from_mark  ${td_mark}  SUSI settings changed
     wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
+    wait_for_log_contains_from_mark  ${safestore_mark}  SafeStore Database Rescan request received
 
 
 Sophos Threat Detector Does Not Detect Allow Listed File
+    # Start from known place with a CORC policy with an empty allow list
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
 
     Send CORC Policy To Base  corc_policy.xml
     wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
+    wait_for_log_contains_from_mark  ${safestore_mark}  SafeStore Database Rescan request received
 
     # Create threat to scan
     ${allow_listed_threat_file} =  Set Variable  /tmp_test/MLengHighScore.exe
