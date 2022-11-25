@@ -320,27 +320,27 @@ namespace sspl::sophosthreatdetectorimpl
         // Read new SUSI settings into memory
         bool susiSettingsChanged = m_reloader->updateSusiConfig();
 
+        // thread safe atomic bool
+        if (m_scannerFactory->susiIsInitialized())
+        {
+            LOGINFO("Sophos Threat Detector received reload request");
+            // This ends up calling SusiGlobalHandler::reload which ensures thread safety for
+            // SUSI_UpdateGlobalConfiguration
+            m_reloader->reload();
+        }
+        else
+        {
+            LOGDEBUG("Skipping susi reload because susi is not initialised");
+        }
+
         if (susiSettingsChanged)
         {
-            // thread safe atomic bool
-            if (m_scannerFactory->susiIsInitialized())
-            {
-                LOGINFO("Sophos Threat Detector received reload request");
-                // This ends up calling SusiGlobalHandler::reload which ensures thread safety for
-                // SUSI_UpdateGlobalConfiguration
-                m_reloader->reload();
-            }
-            else
-            {
-                LOGDEBUG("Skipping susi reload because susi is not initialised");
-            }
-
             LOGINFO("Triggering rescan of SafeStore database");
             m_safeStoreRescanTrigger->triggerRescan();
         }
         else
         {
-            LOGDEBUG("SUSI reload request ignored because SUSI settings have not changed");
+            LOGDEBUG("Not triggering SafeStore rescan because SUSI settings have not changed");
         }
     }
 

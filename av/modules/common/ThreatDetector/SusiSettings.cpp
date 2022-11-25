@@ -54,6 +54,16 @@ namespace common::ThreatDetector
             if (parsedConfig.contains(ENABLED_SXL_LOOKUP_KEY))
             {
                 m_susiSxlLookupEnabled = parsedConfig[ENABLED_SXL_LOOKUP_KEY];
+
+                // Added to match existing logging behaviour
+                if (m_susiSxlLookupEnabled)
+                {
+                    LOGDEBUG("SXL Lookups will be enabled");
+                }
+                else
+                {
+                    LOGDEBUG("SXL Lookups will be disabled");
+                }
             }
 
             if (parsedConfig.contains(SHA_ALLOW_LIST_KEY))
