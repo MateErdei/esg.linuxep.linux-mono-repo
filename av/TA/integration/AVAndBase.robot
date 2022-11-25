@@ -788,7 +788,7 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     # scan eicar to trigger susi to be loaded
     Check avscanner can detect eicar
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - no susi startup settings found
+    Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - could not read SUSI settings
 
 AV Plugin Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION

@@ -39,7 +39,7 @@ namespace common::ThreatDetector
             auto fs = Common::FileSystem::fileSystem();
             if (!fs->isFile(threatDetectorSettingsPath))
             {
-                LOGDEBUG("SUSI Settings JSON file does not exist");
+                LOGINFO("Turning Live Protection on as default - no SUSI settings found");
                 return false;
             }
 
@@ -64,26 +64,10 @@ namespace common::ThreatDetector
             LOGDEBUG("Loaded Threat Detector SUSI settings into SUSI settings object");
             return true;
         }
-        catch (const Common::FileSystem::IFileSystemException& e)
+        catch (const std::exception& ex)
         {
-            LOGERROR("Could not read Threat Detector SUSI settings: " << e.what());
-        }
-        catch (const json::parse_error& e)
-        {
-            LOGERROR("Failed to load Threat Detector SUSI settings JSON due to parse error, reason: " << e.what());
-        }
-        catch (const json::out_of_range& e)
-        {
-            LOGERROR(
-                "Failed to load Threat Detector SUSI settings JSON due to out of range error, reason: " << e.what());
-        }
-        catch (const json::type_error& e)
-        {
-            LOGERROR("Failed to load Threat Detector SUSI settings JSON due to type error, reason: " << e.what());
-        }
-        catch (const json::other_error& e)
-        {
-            LOGERROR("Failed to load Threat Detector SUSI settings JSON, reason: " << e.what());
+            LOGWARN("Failed to load Threat Detector SUSI settings JSON, reason: " << ex.what());
+            LOGINFO("Turning Live Protection on as default - could not read SUSI settings");
         }
 
         return false;
