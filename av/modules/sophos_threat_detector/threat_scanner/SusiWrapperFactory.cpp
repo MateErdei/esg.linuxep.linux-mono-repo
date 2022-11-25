@@ -10,14 +10,13 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "ScannerInfo.h"
 #include "SusiWrapper.h"
 
+#include "Common/UtilityImpl/StringUtils.h"
 #include "common/ApplicationPaths.h"
 #include "common/PluginUtils.h"
 #include "common/StringUtils.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-
-#include "thirdparty/nlohmann-json/json.hpp"
+#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <fstream>
 
@@ -52,21 +51,19 @@ namespace threat_scanner
                     {
                         LOGERROR("EndpointID cannot be empty");
                     }
-                    else if (common::contains(endpointIdString, "\n"))
+                    else if (common::contains(endpointIdString,"\n"))
                     {
                         LOGERROR("EndpointID cannot contain a new line");
                     }
-                    else if (common::contains(endpointIdString, " "))
+                    else if (common::contains(endpointIdString," "))
                     {
                         LOGERROR("EndpointID cannot contain a empty space");
                     }
                     else if (endpointIdString.length() != 32)
                     {
-                        LOGERROR(
-                            "EndpointID should be 32 hex characters (read " << endpointIdString.length()
-                                                                            << " characters)");
+                        LOGERROR("EndpointID should be 32 hex characters (read " << endpointIdString.length() << " characters)");
                     }
-                    // also covers the case where characters are non-utf8
+                        //also covers the case where characters are non-utf8
                     else if (!common::isStringHex(endpointIdString))
                     {
                         LOGERROR("EndpointID must be in hex format");
@@ -104,20 +101,19 @@ namespace threat_scanner
                     {
                         LOGERROR("CustomerID cannot be empty");
                     }
-                    else if (common::contains(custIdString, "\n"))
+                    else if (common::contains(custIdString,"\n"))
                     {
                         LOGERROR("CustomerID cannot contain a new line");
                     }
-                    else if (common::contains(custIdString, " "))
+                    else if (common::contains(custIdString," "))
                     {
                         LOGERROR("CustomerID cannot contain a empty space");
                     }
                     else if (custIdString.length() != 32)
                     {
-                        LOGERROR(
-                            "CustomerID should be 32 hex characters (read " << custIdString.length() << " characters)");
+                        LOGERROR("CustomerID should be 32 hex characters (read " << custIdString.length() << " characters)");
                     }
-                    // also covers the case where characters are non-utf8
+                    //also covers the case where characters are non-utf8
                     else if (!common::isStringHex(custIdString))
                     {
                         LOGERROR("CustomerID must be in hex format");
@@ -169,39 +165,61 @@ namespace threat_scanner
 })sophos",
                 { { "@@LIBRARY_PATH@@", libraryPath },
                   { "@@VERSION_NUMBER@@", versionNumber },
-                  { "@@ENABLE_SXL_LOOKUP@@", enableSxlLookup ? "true" : "false" },
+                  { "@@ENABLE_SXL_LOOKUP@@", enableSxlLookup?"true":"false" },
                   { "@@CUSTOMER_ID@@", customerId },
                   { "@@MACHINE_ID@@", endpointId },
                   { "@@SCANNER_CONFIG@@", scannerInfo } });
             return runtimeConfig;
         }
-    } // namespace
+    }
 
     std::shared_ptr<ISusiWrapper> SusiWrapperFactory::createSusiWrapper(const std::string& scannerConfig)
     {
         std::string scannerInfo = createScannerInfo(false, false);
+        m_globalHandler->m_settings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
 
-        std::string runtimeConfig = createRuntimeConfig(
-            scannerInfo, getEndpointId(), getCustomerId(), m_globalHandler->accessSusiSettings()->isSxlLookupEnabled());
+        std::string runtimeConfig =
+            createRuntimeConfig(scannerInfo, getEndpointId(), getCustomerId(), m_globalHandler->m_settings->isSxlLookupEnabled());
         m_globalHandler->initializeSusi(runtimeConfig);
         return std::make_shared<SusiWrapper>(m_globalHandler, scannerConfig);
     }
 
     // make a method that reads ALC-policy to get the Customer ID
-    SusiWrapperFactory::SusiWrapperFactory() : m_globalHandler(std::make_shared<SusiGlobalHandler>()) {}
+    SusiWrapperFactory::SusiWrapperFactory()
+        : m_globalHandler(std::make_shared<SusiGlobalHandler>())
+    {
+    }
 
     bool SusiWrapperFactory::update()
     {
-        return m_globalHandler->update(
-            pluginInstall() / "chroot/susi/update_source", pluginInstall() / "chroot/var/susi_update.lock");
+        return m_globalHandler->update(pluginInstall() / "chroot/susi/update_source", pluginInstall() / "chroot/var/susi_update.lock");
     }
 
-    bool SusiWrapperFactory::reload()
+    ReloadResult SusiWrapperFactory::reload()
     {
+        ReloadResult result;
         std::string scannerInfo = createScannerInfo(false, false);
+
+        auto [settingsChanged, newSettings] = checkConfig();
+
+        // If settings haven't changed then skip applying them
+        if (!settingsChanged)
+        {
+            LOGDEBUG("Skipping reload of SUSI Settings: " << Plugin::getSusiStartupSettingsPath());
+            result.success = true;
+            result.allowListChanged = false;
+            return result;
+        }
+
+        // NB, the allow-list data in these settings is loaded here and used in the susi callback isAllowlistedFile(...)
+        m_globalHandler->m_settings = std::move(newSettings);
+
         std::string runtimeConfig = createRuntimeConfig(
-            scannerInfo, getEndpointId(), getCustomerId(), m_globalHandler->accessSusiSettings()->isSxlLookupEnabled());
-        return m_globalHandler->reload(runtimeConfig);
+            scannerInfo, getEndpointId(), getCustomerId(), m_globalHandler->m_settings->isSxlLookupEnabled());
+
+        result.success = m_globalHandler->reload(runtimeConfig);
+
+        return result;
     }
 
     void SusiWrapperFactory::shutdown()
@@ -214,21 +232,27 @@ namespace threat_scanner
         return m_globalHandler->susiIsInitialized();
     }
 
-    bool SusiWrapperFactory::updateSusiConfig()
+    std::pair<bool, std::unique_ptr<common::ThreatDetector::SusiSettings>>  SusiWrapperFactory::checkConfig()
     {
-        // Read potentially new SUSI settings from disk (saved to disk by av plugin process)
-        auto newSettings = std::make_shared<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
-        auto oldSettings = m_globalHandler->accessSusiSettings();
-        bool changed = *oldSettings != *newSettings;
-        if (changed)
-        {
-            LOGDEBUG("SUSI settings changed");
-            LOGDEBUG(
-                "SUSI SXL lookups enabled: " << std::boolalpha << newSettings->isSxlLookupEnabled()
-                                             << std::noboolalpha);
-            LOGDEBUG("SUSI allow-listed items: " << newSettings->getAllowListSize());
-            m_globalHandler->setSusiSettings(std::move(newSettings));
-        }
-        return changed;
+        // Read new SUSI settings from disk
+        auto newSettings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
+//        LOGDEBUG("old");
+//        if (m_globalHandler->m_settings)
+//        {
+//            LOGDEBUG(m_globalHandler->m_settings->isSxlLookupEnabled());
+//            for (auto a : m_globalHandler->m_settings->accessAllowList())
+//            {
+//                LOGDEBUG(a);
+//            }
+//        }
+//        LOGDEBUG("new");
+//        LOGDEBUG(newSettings->isSxlLookupEnabled());
+//        for (auto a : newSettings->accessAllowList())
+//        {
+//            LOGDEBUG(a);
+//        }
+        bool changed = m_globalHandler->m_settings != newSettings;
+
+        return {changed, std::move(newSettings)};
     }
-} // namespace threat_scanner
+}

@@ -544,6 +544,58 @@ SafeStore Rescan Does Not Restore Or Report Threats
     Check Log Does Not Contain After Mark  ${AV_LOG_PATH}   Found 'EICAR-AV-Test'   ${av_mark}
 
 
+Rescan Restores File Added To Allow List
+    Wait Until threat detector running
+    Wait Until SafeStore running
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+
+    # Create threat to scan
+    ${allow_listed_threat_file} =  Set Variable  /tmp_test/MLengHighScore.exe
+    Create Directory  /tmp_test/
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
+    Register Cleanup  Remove File  ${allow_listed_threat_file}
+    Should Exist  ${allow_listed_threat_file}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} /tmp_test/MLengHighScore.exe
+    Log  ${output}
+
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${allow_listed_threat_file}
+    Should Not Exist  ${allow_listed_threat_file}
+
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send CORC Policy To Base  corc_policy.xml
+    #Start AV Plugin Process
+
+    wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
+
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    Wait For Log Contains From Mark  ${ss_mark}  Restored file to disk: ${allow_listed_threat_file}
+
+    # File allowed so should still exist
+    Should Exist  ${allow_listed_threat_file}
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} /tmp_test/MLengHighScore.exe
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    # File is allowed and not treated as a threat
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+
+    # File allowed so should still exist
+    Should Exist  ${allow_listed_threat_file}
+
 
 Threat Detector Rescan Socket Does Not Block Shutdown
     Stop SafeStore

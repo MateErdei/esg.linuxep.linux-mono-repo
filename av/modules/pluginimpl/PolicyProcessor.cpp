@@ -1,29 +1,25 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 // Class
 #include "PolicyProcessor.h"
-
 // Package
 #include "Logger.h"
 #include "StringUtils.h"
-
 // Plugin
 #include "common/ApplicationPaths.h"
-#include "common/StringUtils.h"
-#include "pluginimpl/ObfuscationImpl/Obfuscate.h"
 #include "unixsocket/processControllerSocket/ProcessControllerClient.h"
-
 // Product
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
-// Std C
-#include <sys/stat.h>
-
+#include <Common/FileSystem/IFileSystem.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <common/StringUtils.h>
+#include <pluginimpl/ObfuscationImpl/Obfuscate.h>
 // Third party
 #include <thirdparty/nlohmann-json/json.hpp>
+// Std C
+#include <sys/stat.h>
 
 using json = nlohmann::json;
 
@@ -35,12 +31,6 @@ namespace Plugin
         {
             auto pluginInstall = getPluginInstall();
             return pluginInstall + "/var/customer_id.txt";
-        }
-
-        std::string getSusiStartupSettingsPath()
-        {
-            auto pluginInstall = getPluginInstall();
-            return pluginInstall + "/var/susi_startup_settings.json";
         }
 
         std::string getSoapControlSocketPath()
@@ -122,7 +112,7 @@ namespace Plugin
 
     bool PolicyProcessor::getSXL4LookupsEnabled() const
     {
-        return m_lookupEnabled;
+        return m_threatDetectorSettings.isSxlLookupEnabled();
     }
 
     std::string PolicyProcessor::getCustomerId(const Common::XmlUtilities::AttributesMap& policy)
@@ -132,9 +122,9 @@ namespace Plugin
         {
             return "";
         }
-        std::string username{ primaryLocation.value("UserName") };
-        std::string password{ primaryLocation.value("UserPassword") };
-        std::string algorithm{ primaryLocation.value("Algorithm", "Clear") };
+        std::string username { primaryLocation.value("UserName") };
+        std::string password { primaryLocation.value("UserPassword") };
+        std::string algorithm { primaryLocation.value("Algorithm", "Clear") };
 
         // we check that username and password are not empty mainly for fuzzing purposes as in
         // product we never expect central to send us a policy with empty credentials
@@ -220,12 +210,12 @@ namespace Plugin
     {
         processOnAccessPolicy(policy);
 
-        bool oldLookupEnabled = m_lookupEnabled;
-        m_lookupEnabled = isLookupEnabled(policy);
+        bool oldLookupEnabled = m_threatDetectorSettings.isSxlLookupEnabled();
+        m_threatDetectorSettings.setSxlLookupEnabled(isLookupEnabled(policy));
 
-        if (m_gotFirstSavPolicy && m_lookupEnabled == oldLookupEnabled)
+        if (m_gotFirstSavPolicy && m_threatDetectorSettings.isSxlLookupEnabled() == oldLookupEnabled)
         {
-            // Dont restart Threat Detector if its not changed and its not the first policy
+            // Don't restart Threat Detector if config has not changed, and it's not the first policy
             m_restartThreatDetector = false;
             return;
         }
@@ -236,28 +226,7 @@ namespace Plugin
             m_gotFirstSavPolicy = true;
         }
 
-        json susiStartupSettings;
-        susiStartupSettings["enableSxlLookup"] = m_lookupEnabled;
-
-        try
-        {
-            auto* fs = Common::FileSystem::fileSystem();
-
-            // Write settings to file
-            auto dest = getSusiStartupSettingsPath();
-            fs->writeFile(dest, susiStartupSettings.dump());
-            ::chmod(dest.c_str(), 0640);
-
-            // Write a copy to chroot
-            dest = Plugin::getPluginInstall() + "/chroot" + dest;
-            fs->writeFile(dest, susiStartupSettings.dump());
-            ::chmod(dest.c_str(), 0640);
-        }
-        catch (const Common::FileSystem::IFileSystemException& e)
-        {
-            LOGERROR(e.what() << ", setting default values for susi startup settings.");
-        }
-
+        saveSusiSettings();
         m_restartThreatDetector = true;
     }
 
@@ -354,19 +323,6 @@ namespace Plugin
             LOGINFO("SafeStore flag not set. Setting SafeStore to disabled.");
         }
         m_safeStoreEnabled = ssEnabled;
-
-        if (m_safeStoreEnabled)
-        {
-            m_safeStoreQuarantineMl = flagsJson.value(SS_ML_FLAG, false);
-            if (m_safeStoreQuarantineMl)
-            {
-                LOGDEBUG("SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.");
-            }
-            else
-            {
-                LOGDEBUG("SafeStore Quarantine ML flag not set. SafeStore will not quarantine ML detections.");
-            }
-        }
     }
 
     bool PolicyProcessor::isSafeStoreEnabled() const
@@ -374,8 +330,63 @@ namespace Plugin
         return m_safeStoreEnabled;
     }
 
-    bool PolicyProcessor::shouldSafeStoreQuarantineMl() const
+    PolicyType PolicyProcessor::determinePolicyType(
+        const Common::XmlUtilities::AttributesMap& policy,
+        const std::string& appId)
     {
-        return m_safeStoreQuarantineMl;
+        if (appId == "ALC")
+        {
+            return PolicyType::ALC;
+        }
+        else if (appId == "CORE")
+        {
+            return PolicyType::CORE;
+        }
+        else if (appId == "CORC")
+        {
+            return PolicyType::CORC;
+        }
+        else if (appId == "SAV")
+        {
+            auto policyType = policy.lookup("config/csc:Comp").value("policyType", "unknown");
+            if (policyType == "2")
+            {
+                return PolicyType::SAV;
+            }
+        }
+        return PolicyType::UNKNOWN;
+    }
+
+    void PolicyProcessor::processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy)
+    {
+        if (!m_gotFirstCorcPolicy)
+        {
+            LOGINFO("CORC policy received for the first time");
+            m_gotFirstCorcPolicy = true;
+        }
+
+        auto allowListFromPolicy = policy.lookupMultiple("policy/whitelist/item");
+        std::vector<std::string> sha256AllowList;
+        for (const auto& allowedItem : allowListFromPolicy)
+        {
+            if (allowedItem.value("type") == "sha256" && !allowedItem.contents().empty())
+            {
+                LOGDEBUG("Added SHA256 to allow list: " << allowedItem.contents());
+                sha256AllowList.emplace_back(allowedItem.contents());
+            }
+        }
+        m_threatDetectorSettings.setAllowList(std::move(sha256AllowList));
+        saveSusiSettings();
+    }
+
+    void PolicyProcessor::saveSusiSettings()
+    {
+        auto dest = Plugin::getSusiStartupSettingsPath();
+        m_threatDetectorSettings.saveSettings(dest, 0640);
+
+        // Also, write a copy to chroot
+        dest = Plugin::getPluginInstall() + "/chroot" + dest;
+        //        dest = Plugin::getPluginInstall() + "/chroot" + Plugin::getRelativeSusiStartupSettingsPath();
+        m_threatDetectorSettings.saveSettings(dest, 0640);
     }
 } // namespace Plugin

@@ -25,4 +25,5 @@ namespace Plugin
     std::string getSafeStoreSocketPath();
     std::string getSoapdPidPath();
     std::string getSusiStartupSettingsPath();
+    std::string getRelativeSusiStartupSettingsPath();
 } // namespace Plugin
