@@ -572,17 +572,17 @@ Allow Listed Files Are Removed From Quarantine
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
     # Create threat to scan
-    ${threat_file} =  Set Variable  /tmp_test/MLengHighScore.exe
-    Create Directory  /tmp_test/
+    ${threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Create Directory  ${NORMAL_DIRECTORY}/
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${threat_file}
     Register Cleanup  Remove File  ${threat_file}
     File Should Exist  ${threat_file}
 
     # Scan threat
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} /tmp_test/MLengHighScore.exe
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    wait_for_log_contains_from_mark  ${safestore_mark}   Quarantined /tmp_test/MLengHighScore.exe successfully
+    wait_for_log_contains_from_mark  ${safestore_mark}   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
 
     File Should Not Exist  ${threat_file}
 
@@ -599,7 +599,7 @@ Allow Listed Files Are Removed From Quarantine
     #...  File Should Exist  ${threat_file}
     #
     ## Scan threat
-    #${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} /tmp_test/MLengHighScore.exe
+    #${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
     #Log  ${output}
     #Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
     #
