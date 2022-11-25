@@ -221,7 +221,7 @@ TEST_F(TestRestoreReportSocket, TestClientTimeOutInterrupted)
     EXPECT_FALSE(appenderContains("Reached total maximum number of connection attempts."));
 }
 
-TEST_F(TestRestoreReportSocket, TestConcurrentConnection)
+TEST_F(TestRestoreReportSocket, TestClientsDontBlockAndAllConnectionsGetResolvedInOrder)
 {
     const scan_messages::RestoreReport restoreReport1{
         0, "/path/eicar1.txt", "00000000-0000-0000-0000-000000000000", true
@@ -231,35 +231,59 @@ TEST_F(TestRestoreReportSocket, TestConcurrentConnection)
         0, "/path/eicar2.txt", "11111111-1111-1111-1111-111111111111", false
     };
 
-    MockRestoreReportProcessor mockReporter;
-    WaitForEvent guardReceiveFirstReport;
-    WaitForEvent guardSendSecondReport;
-    WaitForEvent guard;
-    EXPECT_CALL(mockReporter, processRestoreReport(restoreReport1))
-        .WillOnce(InvokeWithoutArgs(
-            [&guardReceiveFirstReport, &guardSendSecondReport]()
-            {
-                guardReceiveFirstReport.onEventNoArgs();
-                guardSendSecondReport.wait();
-            }));
+    const scan_messages::RestoreReport restoreReport3{
+        0, "/path/eicar3.txt", "22222222-2222-2222-2222-222222222222", false
+    };
 
-    // processRestoreReport is not called on restoreReport2
+    MockRestoreReportProcessor mockReporter;
 
     RestoreReportingServer server{ mockReporter };
     server.start();
+
+    WaitForEvent guard1;
+    WaitForEvent guard2;
+    WaitForEvent guard3;
+    WaitForEvent guard4;
+
+    EXPECT_CALL(mockReporter, processRestoreReport(restoreReport1))
+        .WillOnce(InvokeWithoutArgs(
+            [&guard1, &guard2]()
+            {
+                guard1.wait();
+                guard2.onEventNoArgs();
+            }));
+
+    EXPECT_CALL(mockReporter, processRestoreReport(restoreReport2))
+        .WillOnce(InvokeWithoutArgs(
+            [&guard2, &guard3]()
+            {
+                guard2.wait();
+                guard3.onEventNoArgs();
+            }));
+
+    EXPECT_CALL(mockReporter, processRestoreReport(restoreReport3))
+        .WillOnce(InvokeWithoutArgs(
+            [&guard3, &guard4]()
+            {
+                guard3.wait();
+                guard4.onEventNoArgs();
+            }));
 
     {
         RestoreReportingClient client{ nullptr };
         client.sendRestoreReport(restoreReport1);
     }
 
-    guardReceiveFirstReport.wait();
-
     {
         RestoreReportingClient client{ nullptr };
         client.sendRestoreReport(restoreReport2);
-        // Need to sleep until we can be sure the socket communication was attempted
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        guardSendSecondReport.onEventNoArgs();
     }
+
+    {
+        RestoreReportingClient client{ nullptr };
+        client.sendRestoreReport(restoreReport3);
+    }
+
+    guard1.onEventNoArgs();
+    guard4.wait();
 }
