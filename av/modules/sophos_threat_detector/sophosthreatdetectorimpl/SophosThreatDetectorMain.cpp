@@ -338,6 +338,10 @@ namespace sspl::sophosthreatdetectorimpl
             LOGINFO("Triggering rescan of SafeStore database");
             m_safeStoreRescanTrigger->triggerRescan();
         }
+        else
+        {
+            LOGDEBUG("SUSI reload request ignored because SUSI settings have not changed");
+        }
     }
 
     int SophosThreatDetectorMain::inner_main(IThreatDetectorResourcesSharedPtr resources)
