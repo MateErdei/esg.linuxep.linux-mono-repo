@@ -83,6 +83,9 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 #    TODO: Check Versions
 #    Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
 
+    Stop Local SDDS3 Server
+    ${handle}=    Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
     Send ALC Policy And Prepare For Upgrade    ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -95,10 +98,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  120 secs
     ...  15 secs
     ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}
-    
-    Stop Local SDDS3 Server
-    ${handle}=    Start Local SDDS3 Server
-    Set Suite Variable    ${GL_handle}    ${handle}
     
     Mark Watchdog Log
     Mark Managementagent Log
@@ -182,7 +181,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
     Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -208,17 +206,14 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     # Changing the policy here will result in an automatic update
     # Note when downgrading from a release with live response to a release without live response
     # results in a second update.
-    Override LogConf File as Global Level  DEBUG
-
+    Stop Local SDDS3 Server
+    ${handle}=    Start Local Dogfood SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVDogfoodPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
     ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVDogfoodPolicy}
-
-    Stop Local SDDS3 Server
-    ${handle}=    Start Local Dogfood SDDS3 Server
-    Set Suite Variable    ${GL_handle}    ${handle}
 
     Mark Watchdog Log
     Mark Managementagent Log
@@ -280,10 +275,11 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     # Upgrade back to master to check we can upgrade from a downgraded product
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
+
     Trigger Update Now
 
 #    TODO: Check Versions
@@ -315,7 +311,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
      ...   300 secs
      ...   10 secs
      ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
      Wait Until Keyword Succeeds
      ...   150 secs
      ...   10 secs
@@ -327,6 +322,9 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
 #    Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
 
      Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+     Stop Local SDDS3 Server
+     ${handle}=    Start Local SDDS3 Server
+     Set Suite Variable    ${GL_handle}    ${handle}
      Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
      Wait Until Keyword Succeeds
      ...  30 secs
@@ -339,10 +337,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
      ...  150 secs
      ...  5 secs
      ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
-
-     Stop Local SDDS3 Server
-     ${handle}=    Start Local SDDS3 Server
-     Set Suite Variable    ${GL_handle}    ${handle}
 
      Trigger Update Now
 
@@ -399,6 +393,127 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check Update Reports Have Been Processed
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
+
+We Can Downgrade From VUT to Release Without Unexpected Errors
+    [Timeout]  10 minutes
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
+
+    # TODO: Get expected versions
+#   &{expectedReleaseVersions} =    Get Expected Release Versions    ${BaseEdrAndMtrAndAVReleasePolicy}
+#   &{expectedVUTVersions} =    Get Expected VUT Versions
+#   ${expectBaseDowngrade} =  Second Version Is Lower  ${expectedVUTVersions["baseVersion"]}  ${expectedReleaseVersions["baseVersion"]}
+
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+
+    ${handle}=    Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    force_sdds3_post_install=${True}
+    Override LogConf File as Global Level    DEBUG
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
+
+    Check Current Release With AV Installed Correctly
+#   TODO: Check Versions
+#   Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
+
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
+    # Products that should be uninstalled after downgrade
+    Should Exist  ${InstalledLRPluginVersionFile}
+    # The query pack should have been installed with EDR VUT
+    Should Exist  ${Sophos_Scheduled_Query_Pack}
+
+    # Changing the policy here will result in an automatic update
+    # Note when downgrading from a release with live response to a release without live response
+    # results in a second update.
+    Stop Local SDDS3 Server
+    ${handle}=    Start Local Release SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Create File  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    Run Process  chown  -R  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVReleasePolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVReleasePolicy}
+
+    Mark Watchdog Log
+    Mark Managementagent Log
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Log Contains   Update success    /tmp/preserve-sul-downgrade   Downgrade Log
+    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
+
+    Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+#    TODO: Uncomment when version checking is done
+#    Run Keyword If  ${ExpectBaseDowngrade}
+#    ...  Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
+
+    Trigger Update Now
+
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check Log Contains String At Least N Times   /tmp/preserve-sul-downgrade  Downgrade Log  Update success  1
+    #Wait for successful update (all up to date) after downgrading
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check SulDownloader Log Contains String N Times  Update success  2
+
+    Check for Management Agent Failing To Send Message To MTR And Check Recovery
+
+    Mark Known Upgrade Errors
+    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log  updatescheduler <> Update Service (sophos-spl-update.service) failed
+    #TODO LINUXDAR-2972 remove when this defect is fixed
+    # Not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+    #TODO LINUXDAR-5140 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+    Check EAP Release With AV Installed Correctly
+#    TODO: Check Versions
+#    Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
+
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+    # Upgrade back to master to check we can upgrade from a downgraded product
+    Stop Local SDDS3 Server
+    ${handle}=    Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
+
+    Trigger Update Now
+
+#    TODO: Check Versions
+#    Wait For Version Files to Update    &{expectedVUTVersions}
+
+    # The query pack should have been re-installed
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  File Should Exist  ${Sophos_Scheduled_Query_Pack}
 
 Sul Downloader fails update if expected product missing from SUS
     [Setup]    Test Setup
