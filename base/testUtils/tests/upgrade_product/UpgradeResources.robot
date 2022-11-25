@@ -282,6 +282,18 @@ Check for Management Agent Failing To Send Message To MTR And Check Recovery
     ...  ${EvaluationBool} == ${True}
     ...  Check For MTR Recovery
 
+Check Mtr Reconnects To Management Agent After Upgrade
+    Check MDR Log Contains In Order
+    ...  mtr <> Plugin Finished.
+    ...  mtr <> Entering the main loop
+    ...  Received new policy
+    ...  RevID of the new policy
+
+Check Expected Versions Against Installed Versions
+    [Arguments]    &{expectedVersions}
+    &{installedVersions} =    Get Current Installed Versions
+    Dictionaries Should Be Equal    &{expectedVersions}    &{installedVersions}
+
 Wait For Version Files to Update
     [Arguments]    &{expectedVersions}
     Wait Until Keyword Succeeds
