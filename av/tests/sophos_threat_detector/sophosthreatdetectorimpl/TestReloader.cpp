@@ -27,6 +27,7 @@ namespace
         MOCK_METHOD0(reload, ReloadResult());
         MOCK_METHOD0(shutdown, void());
         MOCK_METHOD0(susiIsInitialized, bool());
+        MOCK_METHOD(bool, hasConfigChanged, ());
     };
 }
 

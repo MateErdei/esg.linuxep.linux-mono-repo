@@ -43,6 +43,7 @@ namespace
 
         MOCK_METHOD2(susiErrorToReadableError, std::string(const std::string& filePath, const std::string& susiError));
     };
+
     class MockScannerFactory : public threat_scanner::IThreatScannerFactory
     {
     public:
@@ -52,6 +53,7 @@ namespace
         MOCK_METHOD0(reload, ReloadResult());
         MOCK_METHOD0(shutdown, void());
         MOCK_METHOD0(susiIsInitialized, bool());
+        MOCK_METHOD(bool, hasConfigChanged, ());
     };
 
     class TestScanningServerConnectionThread : public UnixSocketMemoryAppenderUsingTests

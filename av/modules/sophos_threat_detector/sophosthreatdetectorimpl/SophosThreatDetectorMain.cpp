@@ -317,6 +317,8 @@ namespace sspl::sophosthreatdetectorimpl
 
     void SophosThreatDetectorMain::reloadSUSIGlobalConfiguration()
     {
+        bool needToRescanSafeStoreAfterReload = m_reloader->hasConfigChanged();
+
         // thread safe atomic bool
         if (m_scannerFactory->susiIsInitialized())
         {
@@ -328,6 +330,13 @@ namespace sspl::sophosthreatdetectorimpl
         else
         {
             LOGDEBUG("Skipping susi reload because susi is not initialised");
+        }
+
+        // If any of the susi config changes we trigger a rescan (currently allow list or SXL lookups)
+        if (needToRescanSafeStoreAfterReload)
+        {
+            LOGINFO("Triggering rescan of SafeStore database");
+            m_safeStoreRescanTrigger->triggerRescan();
         }
     }
 
@@ -448,9 +457,9 @@ namespace sspl::sophosthreatdetectorimpl
         }
         m_scannerFactory->update(); // always force an update during start-up
 
-        auto rescanWorker = std::make_shared<SafeStoreRescanWorker>("/var/safestore_rescan_socket");
+        m_safeStoreRescanTrigger = std::make_shared<SafeStoreRescanWorker>(Plugin::getSafeStoreRescanSocketPath());
 
-        m_reloader = std::make_shared<Reloader>(m_scannerFactory, rescanWorker);
+        m_reloader = std::make_shared<Reloader>(m_scannerFactory, m_safeStoreRescanTrigger);
 
         unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, m_scannerFactory);
         server.start();
@@ -464,7 +473,7 @@ namespace sspl::sophosthreatdetectorimpl
         unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0660, callbacks);
         processController.start();
 
-        rescanWorker->start();
+        m_safeStoreRescanTrigger->start();
 
         int returnCode = common::E_CLEAN_SUCCESS;
 
@@ -483,6 +492,7 @@ namespace sspl::sophosthreatdetectorimpl
             timeout.tv_sec = shutdownTimer->timeout();
             LOGDEBUG("Setting shutdown timeout to " << timeout.tv_sec << " seconds");
             // wait for an activity on one of the sockets
+            // TODO: Replace this with ppoll(). Please do not re-use pselect() elsewhere in the code
             int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
 
             if (activity < 0)

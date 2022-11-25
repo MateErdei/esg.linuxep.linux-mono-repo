@@ -25,6 +25,7 @@ namespace
             MOCK_METHOD(ReloadResult, reload, (), (override));
             MOCK_METHOD(void, shutdown, (), (override));
             MOCK_METHOD(bool, susiIsInitialized, (), (override));
+            MOCK_METHOD(bool, hasConfigChanged, ());
     };
 
 }

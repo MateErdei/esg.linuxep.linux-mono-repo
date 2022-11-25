@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<policy RevID="revisionid" policyType="37">
+    <proxy>
+        <address>address</address>
+        <port>3456</port>
+        <credentials>credentials</credentials>
+    </proxy>
+    <onAccessScan>
+        <autoExclusions>false</autoExclusions>
+    </onAccessScan>
+    <applicationManagement>
+        <autoExclusions>false</autoExclusions>
+        <appDetection>false</appDetection>
+    </applicationManagement>
+
+    <onDemandScan>
+        <exclusions>
+            <excludeRemoteFiles>false</excludeRemoteFiles>
+            <filePathSet>
+                <filePath>/tmp/test</filePath>
+            </filePathSet>
+            <processPathSet/>
+        </exclusions>
+    </onDemandScan>
+
+    <detectionFeedback>
+        <sendData>true</sendData>
+        <sendFiles>false</sendFiles>
+        <onDemandEnable>true</onDemandEnable>
+    </detectionFeedback>
+    <whitelist>
+        <item type="path">/tmp/a/path</item>
+        <item type="sha256">275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f</item>
+        <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
+        <item type="sha256">c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9</item>
+        <item type="cert-signer">SignerName</item>
+    </whitelist>
+
+    <blocklist>
+        <item type="sha256">bd32855f94147bb8d2212770f84e42ac29379ee4617c552723bfbc9fc4dbb911</item>
+    </blocklist>
+
+    <eventJournalSizeLimit>5250</eventJournalSizeLimit>
+    <eventJournalDiskSpaceLimit>10</eventJournalDiskSpaceLimit>
+
+    <sampleUploadUri>dummy.sophos.com</sampleUploadUri>
+    <sampleUploadHeaders>
+        !-- <header><name>{{headerName5}}</name><value>{{headerValue5}}</value></header> -->
+    </sampleUploadHeaders>
+
+    <applicationControl>
+        <messaging enabled="0" type="snmp"/>
+        <messaging enabled="0" type="smtp"/>
+        <messaging enabled="1" type="desktop">Custom message</messaging>
+        <reportOnlyOnce enabled="1"/>
+        <onAccess value="0"/>
+        <onDemand value="0"/>
+        <detectionAction value="0"/>
+        <classSet behaviour="block"/>
+        <applicationSet behaviour="block"/>
+        <applicationSet behaviour="allow"/>
+    </applicationControl>
+
+    <detectionSuppressions>
+        !-- <detectionKey reportSource="{{reportSource}}" name="{{detectionName}}" thumbprint="{{thumbprint}}"/> -->
+    </detectionSuppressions>
+
+    <!--  Modern web exclusions -->
+    <webHttpsDecrypt>
+        <!-- on/off - EAP windows endpoints only -->
+        <enabled>false</enabled>
+        <exclusions>
+            <categoryExclusionSet>
+                <category>14</category>
+                <category>2</category>
+            </categoryExclusionSet>
+            <siteExclusionSet>
+                <!-- <site>{{hostname|ip_address|ip_address_range}}</site> -->
+            </siteExclusionSet>
+        </exclusions>
+    </webHttpsDecrypt>
+
+    <intelix>
+        <!-- <url>{{intelix_url}}</url> -->
+        <!-- <lookupUrl>{{intelix_lookup_url}}</lookupUrl> -->
+    </intelix>
+</policy>

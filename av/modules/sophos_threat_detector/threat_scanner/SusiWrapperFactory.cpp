@@ -200,19 +200,16 @@ namespace threat_scanner
         ReloadResult result;
         std::string scannerInfo = createScannerInfo(false, false);
 
-        // Read new SUSI settings from disk
-        auto newSettings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
+        auto [settingsChanged, newSettings] = checkConfig();
 
         // If settings haven't changed then skip applying them
-        if (m_globalHandler->m_settings == newSettings)
+        if (!settingsChanged)
         {
             LOGDEBUG("Skipping reload of SUSI Settings: " << Plugin::getSusiStartupSettingsPath());
             result.success = true;
             result.allowListChanged = false;
             return result;
         }
-
-        result.allowListChanged = m_globalHandler->m_settings->accessAllowList() != newSettings->accessAllowList();
 
         // NB, the allow-list data in these settings is loaded here and used in the susi callback isAllowlistedFile(...)
         m_globalHandler->m_settings = std::move(newSettings);
@@ -233,5 +230,19 @@ namespace threat_scanner
     bool SusiWrapperFactory::susiIsInitialized()
     {
         return m_globalHandler->susiIsInitialized();
+    }
+
+    std::pair<bool, std::unique_ptr<common::ThreatDetector::SusiSettings>>  SusiWrapperFactory::checkConfig()
+    {
+        LOGINFO("ALEX SusiWrapperFactory::checkConfig");
+        // Read new SUSI settings from disk
+        auto newSettings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
+        bool changed = true;
+        if (m_globalHandler->m_settings)
+        {
+            changed = m_globalHandler->m_settings != newSettings;
+        }
+
+        return {changed, std::move(newSettings)};
     }
 }

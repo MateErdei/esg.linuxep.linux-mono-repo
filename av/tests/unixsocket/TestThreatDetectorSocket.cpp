@@ -57,6 +57,7 @@ namespace
         MOCK_METHOD(ReloadResult, reload, ());
         MOCK_METHOD(void, shutdown, ());
         MOCK_METHOD(bool, susiIsInitialized, ());
+        MOCK_METHOD(bool, hasConfigChanged, ());
     };
 }
 

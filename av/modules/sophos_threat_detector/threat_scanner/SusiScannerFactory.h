@@ -34,6 +34,7 @@ namespace threat_scanner
         ReloadResult reload() override;
         void shutdown() override;
         bool susiIsInitialized() override;
+        bool hasConfigChanged() override;
 
     private:
         ISusiWrapperFactorySharedPtr m_wrapperFactory;

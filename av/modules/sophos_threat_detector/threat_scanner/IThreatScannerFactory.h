@@ -21,6 +21,7 @@ namespace threat_scanner
         virtual ReloadResult reload() = 0;
         virtual void shutdown() = 0;
         virtual bool susiIsInitialized() = 0;
+        virtual bool hasConfigChanged() = 0;
     };
     using IThreatScannerFactorySharedPtr = std::shared_ptr<IThreatScannerFactory>;
 }

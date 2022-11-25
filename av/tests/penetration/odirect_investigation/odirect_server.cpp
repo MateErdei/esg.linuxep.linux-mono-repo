@@ -81,6 +81,11 @@ namespace
         {
             return true;
         }
+
+        bool hasConfigChanged() override
+        {
+            return false;
+        }
     };
 }
 

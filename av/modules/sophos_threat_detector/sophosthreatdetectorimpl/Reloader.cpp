@@ -6,6 +6,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 #include "Reloader.h"
 
+#include "Logger.h"
+
 void sspl::sophosthreatdetectorimpl::Reloader::update()
 {
     if (!m_scannerFactory)
@@ -31,9 +33,9 @@ void sspl::sophosthreatdetectorimpl::Reloader::reload()
     {
         throw std::runtime_error("Failed to reload threat scanner");
     }
+}
 
-    if (reloadResult.allowListChanged)
-    {
-        m_safeStoreRescanTrigger->triggerRescan();
-    }
+bool sspl::sophosthreatdetectorimpl::Reloader::hasConfigChanged()
+{
+    return m_scannerFactory->hasConfigChanged();
 }

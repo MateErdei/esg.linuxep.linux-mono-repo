@@ -23,6 +23,7 @@ namespace threat_scanner
         bool susiIsInitialized() override;
         ReloadResult reload() override;
         void shutdown() override;
+        std::pair<bool, std::unique_ptr<common::ThreatDetector::SusiSettings>> checkConfig();
 
     private:
         SusiGlobalHandlerSharedPtr m_globalHandler;

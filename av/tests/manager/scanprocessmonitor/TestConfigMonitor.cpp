@@ -85,7 +85,7 @@ static bool waitForPipe(NotifyPipe& expected, steady_clock::duration wait_time)
     return false;
 }
 
-constexpr auto MONITOR_LATENCY = 100ms;
+constexpr auto MONITOR_LATENCY = 500ms;
 
 TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWrite)
 {

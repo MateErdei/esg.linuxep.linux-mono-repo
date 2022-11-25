@@ -76,4 +76,10 @@ namespace threat_scanner
     {
         return m_wrapperFactory->susiIsInitialized();
     }
+
+    bool SusiScannerFactory::hasConfigChanged()
+    {
+        auto [configChanged, newSettings] = m_wrapperFactory->checkConfig();
+        return configChanged;
+    }
 }

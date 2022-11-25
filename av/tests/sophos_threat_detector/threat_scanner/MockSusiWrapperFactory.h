@@ -6,6 +6,9 @@
 
 #include <gmock/gmock.h>
 
+// gmock macro didn't seem to like taking a std::pair
+using checkConfigReturnType = std::pair<bool, std::unique_ptr<common::ThreatDetector::SusiSettings>>;
+
 class MockSusiWrapperFactory : public threat_scanner::ISusiWrapperFactory
 {
 public:
@@ -15,4 +18,6 @@ public:
     MOCK_METHOD0(reload, ReloadResult());
     MOCK_METHOD0(shutdown, void());
     MOCK_METHOD0(susiIsInitialized, bool());
+    MOCK_METHOD(checkConfigReturnType, checkConfig, ());
+
 };
