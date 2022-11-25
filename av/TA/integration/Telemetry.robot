@@ -207,6 +207,29 @@ On Access Provides Event Telemetry
     ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${oaDict} =    Set Variable     ${telemetryJson['on_access_process']}
 
-    ${ratio} =    get_from_dictionary   ${oaDict}   Ratio-of-Dropped-Events
+    ${ratio} =    get_from_dictionary   ${oaDict}   ratio-of-dropped-events
+    Should Be True   isinstance($ratio, float)
+    Should Be True   0.0 <= ${ratio} <= 100.0
+
+
+On Access Provides Scan Telemetry
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${mark} =  Get on access log mark
+
+    #This registers disable with cleanup
+    Send Policies to enable on-access
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${oaDict} =    Set Variable     ${telemetryJson['on_access_process']}
+
+    ${ratio} =    get_from_dictionary   ${oaDict}   ratio-of-scan-errors
     Should Be True   isinstance($ratio, float)
     Should Be True   0.0 <= ${ratio} <= 100.0
