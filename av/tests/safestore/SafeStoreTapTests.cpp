@@ -151,8 +151,8 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndLookupDetails)
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
         foundAnyResults = true;
-        ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
-        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), fakeVirusFilePath1);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), Common::FileSystem::basename(fakeVirusFilePath1));
+        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), Common::FileSystem::dirName(fakeVirusFilePath1));
         ASSERT_TRUE(Common::UtilityImpl::Uuid::IsValid(m_safeStoreWrapper->getObjectId(result)));
         ASSERT_EQ(m_safeStoreWrapper->getObjectType(result), ObjectType::FILE);
         ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
@@ -217,8 +217,8 @@ TEST_F(SafeStoreWrapperTapTests, quarantineMultipleThreatsAndLookupDetails)
         Common::FileSystem::basename(fakeVirusFilePath2),
     };
     std::set<std::string> expectedObjectLocations = {
-        fakeVirusFilePath1,
-        fakeVirusFilePath2,
+        Common::FileSystem::dirName(fakeVirusFilePath1),
+        Common::FileSystem::dirName(fakeVirusFilePath2),
     };
     std::set<std::string> expectedThreatNames = { threatName1, threatName2 };
 
@@ -265,8 +265,8 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
         ++resultsFound;
-        ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
-        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), fakeVirusFilePath);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), Common::FileSystem::basename(fakeVirusFilePath));
+        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), Common::FileSystem::dirName(fakeVirusFilePath));
         ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
 
         // Validate custom data saved ok
@@ -311,8 +311,8 @@ TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseThreatAndStatusChangesToQu
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
         ++resultsFound;
-        ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
-        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), fakeVirusFilePath);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), Common::FileSystem::basename(fakeVirusFilePath));
+        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), Common::FileSystem::dirName(fakeVirusFilePath));
         ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
 
         // Validate custom data saved ok
@@ -358,8 +358,8 @@ TEST_F(SafeStoreWrapperTapTests, getObjectHandleAndSetCustomDataUsingIt)
     for (auto& result : m_safeStoreWrapper->find(filter))
     {
         ++resultsFound;
-        ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), "fakevirus1");
-        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), fakeVirusFilePath);
+        ASSERT_EQ(m_safeStoreWrapper->getObjectName(result), Common::FileSystem::basename(fakeVirusFilePath));
+        ASSERT_EQ(m_safeStoreWrapper->getObjectLocation(result), Common::FileSystem::dirName(fakeVirusFilePath));
         ASSERT_EQ(m_safeStoreWrapper->getObjectThreatName(result), threatName);
 
         // Validate custom data saved ok

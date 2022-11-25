@@ -20,7 +20,10 @@ public:
         common::CentralEnums::QuarantineResult,
         quarantineFile,
         (const std::string&, const std::string&, const std::string&, const std::string&, datatypes::AutoFd));
-    MOCK_METHOD(std::vector<FdsObjectIdsPair>, extractQuarantinedFiles, ());
+    MOCK_METHOD(
+        std::vector<FdsObjectIdsPair>,
+        extractQuarantinedFiles,
+        (datatypes::ISystemCallWrapper & sysCallWrapper));
     MOCK_METHOD(void, rescanDatabase, ());
     MOCK_METHOD(
         std::vector<safestore::SafeStoreWrapper::ObjectId>,

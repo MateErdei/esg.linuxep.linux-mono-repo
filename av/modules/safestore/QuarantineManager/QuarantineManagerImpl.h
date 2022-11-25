@@ -32,7 +32,7 @@ namespace safestore::QuarantineManager
             const std::string& threatName,
             const std::string& sha256,
             datatypes::AutoFd autoFd) override;
-        std::vector<FdsObjectIdsPair> extractQuarantinedFiles() override;
+        std::vector<FdsObjectIdsPair> extractQuarantinedFiles(datatypes::ISystemCallWrapper& sysCallWrapper) override;
         void setState(const safestore::QuarantineManager::QuarantineManagerState& newState) override;
         void rescanDatabase() override;
         void parseConfig() override;

@@ -258,6 +258,8 @@ namespace safestore::SafeStoreWrapper
                 return "EXPORT_FILE_EXISTS";
             case SR_ILLEGAL_RESTORE_LOCATION:
                 return "ILLEGAL_RESTORE_LOCATION";
+            case SR_PERMISSION_DENIED:
+                return "PERMISSION_DENIED";
             default:
                 return "UNKNOWN, code: " + std::to_string(static_cast<int>(result));
         }

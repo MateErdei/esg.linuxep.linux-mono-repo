@@ -442,14 +442,64 @@ SafeStore Quarantines File With Same Path And Sha Again And Discards The Previou
 
 Threat Detector Triggers SafeStore Rescan On Timeout
     ${ss_mark} =  Get SafeStore Log Mark
-    Create Persistent Timeout Variable
+    Create Rescan Interval File
     Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}
+
+
+SafeStore Rescan Does Not Restore Or Report Threats
+    ## TODO: LINUXDAR-5921 - Replace rescan trigger with policy change to stop this test being flaky.
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
+
+    ${eicar1}=    Set Variable     eicar1
+    ${eicar2}=    Set Variable     eicar2
+
+    # Unique SHAs required to trigger autopurge on object count
+    Create File     ${NORMAL_DIRECTORY}/${eicar1}   ${EICAR_STRING} one
+    Create File     ${NORMAL_DIRECTORY}/${eicar2}   ${EICAR_STRING} two
+
+    ${av_mark} =  Get AV Log Mark
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+
+    Wait Until SafeStore running
+
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
+
+    Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar1}
+
+    ${av_mark} =  Get AV Log Mark
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar2}
+
+    Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
+    Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${NORMAL_DIRECTORY}/${eicar2}
+
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
+    Log  ${filesInSafeStoreDb.stdout}
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
+    Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
+
+    ${av_mark} =  Get AV Log Mark
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Create Rescan Interval File  10
+    Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}   timeout=15
+    Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar1}  ${ss_mark}  timeout=15
+    Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar2}  ${ss_mark}  timeout=15
+    Check Log Does Not Contain After Mark  ${AV_LOG_PATH}   Found 'EICAR-AV-Test'   ${av_mark}
+
 
 
 Threat Detector Rescan Socket Does Not Block Shutdown
     Stop SafeStore
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
-    Create Persistent Timeout Variable
+    Create Rescan Interval File
     wait_for_log_contains_from_mark  ${td_mark}  Failed to connect to SafeStore Rescan - retrying after sleep
     Stop sophos_threat_detector
     wait_for_log_contains_from_mark  ${td_mark}  Stop requested while connecting to SafeStore Rescan
@@ -538,7 +588,9 @@ Create Big Eicar Of Size
     Log  ${result.stderr}
     Should Be Equal As Integers   ${result.rc}  ${0}
 
-Create Persistent Timeout Variable
+Create Rescan Interval File
+    [Arguments]  ${interval}=1
     Stop Sophos Threat Detector
-    Create File    ${SOPHOS_INSTALL}/plugins/av/chroot/var/safeStoreRescanInterval    1
+    Create File    ${SOPHOS_INSTALL}/plugins/av/chroot/var/safeStoreRescanInterval    ${interval}
+    Register Cleanup   Remove File  ${SOPHOS_INSTALL}/plugins/av/chroot/var/safeStoreRescanInterval
     Start Sophos Threat Detector

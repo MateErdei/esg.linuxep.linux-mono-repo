@@ -1,11 +1,12 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "datatypes/AutoFd.h"
 #include "common/CentralEnums.h"
+#include "datatypes/AutoFd.h"
+#include "datatypes/ISystemCallWrapper.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
-#include <scan_messages/QuarantineResponse.h>
+#include "scan_messages/QuarantineResponse.h"
 
 #include <string>
 
@@ -23,7 +24,7 @@ namespace safestore::QuarantineManager
         // The DB is corrupt (this is triggered when we keep getting DB errors)
         CORRUPT,
 
-        //The QM is starting up, guarenteed to change
+        // The QM is starting up, guarenteed to change
         STARTUP
     };
 
@@ -60,7 +61,7 @@ namespace safestore::QuarantineManager
          * Delete the file.
          * Store the checksum of the file.
          */
-        virtual  common::CentralEnums::QuarantineResult quarantineFile(
+        virtual common::CentralEnums::QuarantineResult quarantineFile(
             const std::string& filePath,
             const std::string& threatId,
             const std::string& threatName,
@@ -70,18 +71,19 @@ namespace safestore::QuarantineManager
         /**
          * Unpack detections.
          */
-        virtual std::vector<FdsObjectIdsPair> extractQuarantinedFiles() = 0;
+        virtual std::vector<FdsObjectIdsPair> extractQuarantinedFiles(
+            datatypes::ISystemCallWrapper& sysCallWrapper) = 0;
 
         /**
          * Run the avscanner on unpacked detections and return vector of objectsIds that are clean.
          */
-        virtual std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(std::vector<FdsObjectIdsPair> files) = 0;
+        virtual std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(
+            std::vector<FdsObjectIdsPair> files) = 0;
 
         /**
          * Unpack all detections from database and run the avscanner on them.
          */
         virtual void rescanDatabase() = 0;
     };
-
 
 } // namespace safestore::QuarantineManager
