@@ -10,6 +10,7 @@ Resource    ../shared/ErrorMarkers.robot
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/ProcessUtils.py
+Library         ../Libs/FileSampleObfuscator.py
 
 Suite Setup     AVSophosThreatDetector Suite Setup
 Suite Teardown  AVSophosThreatDetector Suite TearDown
@@ -604,6 +605,38 @@ Sophos Threat Detector Gives Different Threat Id Depending On Path And Sha And I
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar.com
     wait_for_log_contains_from_mark  ${td_mark}  Threat ID: e692d7ef-4848-5e7d-b530-64a674a3ad0a
     Remove File  ${NORMAL_DIRECTORY}/eicar.com
+
+
+Sophos Threat Detector Does Not Detect Allow Listed File
+    #Stop AV Plugin Process
+    Wait Until threat detector running
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    #Register Cleanup   Send Sav Policy With No Scheduled Scans
+
+    Send CORC Policy To Base  corc_policy.xml
+    #Start AV Plugin Process
+
+    wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
+
+    # Create threat to scan
+    ${allow_listed_threat_file} =  Set Variable  /tmp_test/MLengHighScore.exe
+    Create Directory  /tmp_test/
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
+    Register Cleanup  Remove File  ${allow_listed_threat_file}
+    Should Exist  ${allow_listed_threat_file}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} /tmp_test/MLengHighScore.exe
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    # File is allowed and not treated as a threat
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+
+    # File allowed so should still exist
+    Should Exist  ${allow_listed_threat_file}
 
 
 *** Keywords ***

@@ -99,6 +99,12 @@ Send Sav Action To Base
     ${savActionFilename} =  Generate Random String
     Copy File  ${RESOURCES_PATH}/${actionFile}  ${MCS_PATH}/action/SAV_action_${savActionFilename}.xml
 
+Send CORC Policy To Base
+    [Arguments]  ${policyFile}
+    Copy File  ${RESOURCES_PATH}/corc_policy/${policyFile}  ${MCS_PATH}/policy/CORC_policy.xml.TEMP
+    Run Process  chmod  666  ${MCS_PATH}/policy/CORC_policy.xml.TEMP
+    Move File  ${MCS_PATH}/policy/CORC_policy.xml.TEMP  ${MCS_PATH}/policy/CORC_policy.xml
+
 Prepare To Run Telemetry Executable
     Prepare To Run Telemetry Executable With HTTPS Protocol
 
