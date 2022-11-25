@@ -13,6 +13,7 @@ namespace Plugin
     std::string getPluginInstall();
     std::string getPluginVarDirPath();
     std::string getRelativeSafeStoreRescanIntervalConfigPath();
+    std::string getRestoreReportSocketPath();
     std::string getSafeStoreConfigPath();
     std::string getSafeStoreDbDirPath();
     std::string getSafeStoreDbFileName();
