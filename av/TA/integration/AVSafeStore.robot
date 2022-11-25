@@ -488,8 +488,8 @@ SafeStore Rescan Does Not Restore Or Report Threats
     ${av_mark} =  Get AV Log Mark
     ${ss_mark} =  Get SafeStore Log Mark
 
-    Create Rescan Interval File  10
-    Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}   timeout=15
+    Create Rescan Interval File  30
+    Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}   timeout=35
     Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar1}  ${ss_mark}  timeout=15
     Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar2}  ${ss_mark}  timeout=15
     Check Log Does Not Contain After Mark  ${AV_LOG_PATH}   Found 'EICAR-AV-Test'   ${av_mark}
