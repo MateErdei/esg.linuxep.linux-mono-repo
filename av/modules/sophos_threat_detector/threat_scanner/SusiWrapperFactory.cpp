@@ -234,7 +234,6 @@ namespace threat_scanner
 
     std::pair<bool, std::unique_ptr<common::ThreatDetector::SusiSettings>>  SusiWrapperFactory::checkConfig()
     {
-        LOGINFO("ALEX SusiWrapperFactory::checkConfig");
         // Read new SUSI settings from disk
         auto newSettings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
         bool changed = true;
