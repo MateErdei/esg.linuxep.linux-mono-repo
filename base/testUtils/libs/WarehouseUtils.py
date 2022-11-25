@@ -797,6 +797,29 @@ class WarehouseUtils(object):
     def second_version_is_lower(self, version1, version2):
         return version.parse(version1) > version.parse(version2)
 
+    def copy_vut_supplements_for_release_warehouse(self, sdds3RepoPath):
+        vut_sdds3_repo_path = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "sdds3", "repo")
+
+        vut_sdds3_package_path = os.path.join(vut_sdds3_repo_path, "package")
+        release_sdds3_package_path = os.path.join(sdds3RepoPath, "package")
+
+        vut_sdds3_supplement_path = os.path.join(vut_sdds3_repo_path, "supplement")
+        release_sdds3_supplement_path = os.path.join(sdds3RepoPath, "supplement")
+
+        if not os.path.isdir(release_sdds3_supplement_path):
+            os.mkdir(release_sdds3_supplement_path)
+
+        files = os.listdir(vut_sdds3_supplement_path)
+        for f in files:
+            if not os.path.isfile(os.path.join(release_sdds3_supplement_path, f)):
+                shutil.copy(os.path.join(vut_sdds3_supplement_path, f), release_sdds3_supplement_path)
+
+        for (dirpath, dirnames, filenames) in os.walk(vut_sdds3_package_path):
+            for package in filenames:
+                if package.startswith(("DataSetA", "LocalRepData", "ML_MODEL3_LINUX_X86_64", "RuntimeDetectionRules", "ScheduledQueryPack", "SSPLFLAGS")):
+                    if not os.path.isfile(os.path.join(release_sdds3_package_path, package)):
+                        shutil.copy(os.path.join(vut_sdds3_package_path, package), os.path.join(release_sdds3_package_path, package))
+
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":

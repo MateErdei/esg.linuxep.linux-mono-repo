@@ -94,141 +94,6 @@ We Can Install From A Ballista Warehouse
 #    Force A failure If you want to check for anything with the teardown logs
 #    Fail
 
-We Can Upgrade From Dogfood to VUT Without Unexpected Errors
-    [Timeout]  10 minutes
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVDogfoodPolicy}
-
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseEdrAndMtrAndAVDogfoodPolicy}  force_legacy_install=${True}
-    Override Local LogConf File Using Content  [suldownloader]\nVERBOSITY = DEBUG\n[av]\nVERBOSITY = DEBUG\n[threat_detector]\nVERBOSITY = DEBUG\n
-
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-
-    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  1
-
-    Check EAP Release With AV Installed Correctly
-    ${ExpectedBaseDevVersion} =     get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Base-component
-    ${ExpectedBaseReleaseVersion} =     get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Base-component  ServerProtectionLinux-Base
-    ${BaseReleaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    Should Be Equal As Strings  ${ExpectedBaseReleaseVersion}  ${BaseReleaseVersion}
-    ${ExpectedMtrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-MDR
-    ${ExpectedMtrReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-MDR
-    ${MtrReleaseVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedMtrReleaseVersion}  ${MtrReleaseVersion}
-    ${ExpectedEdrDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-EDR
-    ${ExpectedEdrReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-EDR
-    ${EdrReleaseVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedEdrReleaseVersion}  ${EdrReleaseVersion}
-    ${ExpectedLRDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedLRReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-liveresponse  ServerProtectionLinux-Base
-    ${LrReleaseVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedLRReleaseVersion}  ${LRReleaseVersion}
-    ${ExpectedAVDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-AV
-    ${ExpectedAVReleaseVersion} =      get_version_from_warehouse_for_rigidname  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-AV
-    ${AVReleaseVersion} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedAVReleaseVersion}  ${AVReleaseVersion}
-    ${ExpectedRuntimedetectionsDevVersion} =       get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
-    ${ExpectedRuntimedetectionsReleaseVersion} =      get_version_from_warehouse_for_rigidname_in_componentsuite  ${BaseEdrAndMtrAndAVDogfoodPolicy}  ServerProtectionLinux-Plugin-RuntimeDetections  ServerProtectionLinux-Base
-    ${RuntimeDetectionsReleaseVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedRuntimedetectionsReleaseVersion}  ${RuntimeDetectionsReleaseVersion}
-    ${ExpectedEJDevVersion} =    get_version_for_rigidname_in_vut_warehouse    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedEJReleaseVersion} =    get_version_from_warehouse_for_rigidname_in_componentsuite    ${BaseEdrAndMtrAndAVDogfoodPolicy}    ServerProtectionLinux-Plugin-EventJournaler    ServerProtectionLinux-Base
-    ${EJReleaseVersion} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
-    Should Be Equal As Strings    ${ExpectedEJReleaseVersion}    ${EJReleaseVersion}
-
-    Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVVUTPolicy}
-    Wait until threat detector running
-
-    ${HealthyShsStatusXmlContents} =  Set Variable  <item name="health" value="1" />
-
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  15 secs
-    ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
-
-    Mark Watchdog Log
-    Mark Managementagent Log
-    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
-    Trigger Update Now
-
-
-    SHS Status File Contains  ${HealthyShsStatusXmlContents}
-
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   suldownloader_log   Update success  2
-
-    SHS Status File Contains  ${HealthyShsStatusXmlContents}
-
-    #confirm that the warehouse flags supplement is installed when upgrading
-    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
-
-    Check Watchdog Service File Has Correct Kill Mode
-
-    Mark Known Upgrade Errors
-
-    # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
-    # This is only an issue with versions of base before we started using boost process
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
-    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
-
-    #TODO LINUXDAR-2972 remove when this defect is fixed
-    #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
-
-    #this is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
-
-    #TODO LINUXDAR-5140 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
-    Run Keyword And Expect Error  *
-    ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
-
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
-
-    Check Current Release With AV Installed Correctly
-    Wait For RuntimeDetections to be Installed
-
-    ${BaseDevVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
-    Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseDevVersion}
-    ${MtrDevVersion} =      Get Version Number From Ini File   ${InstalledMDRPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedMtrDevVersion}  ${MtrDevVersion}
-    ${EDRDevVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EDRDevVersion}
-    ${LRDevVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LRDevVersion}
-    ${AVDevVersion} =       Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVDevVersion}
-    ${RuntimedetectionsVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
-    Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimedetectionsVersion}
-    ${EJDevVersion} =       Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
-    Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJDevVersion}
-
-    Check Event Journaler Executable Running
-    Check AV Plugin Permissions
-    Check Update Reports Have Been Processed
-    SHS Status File Contains  ${HealthyShsStatusXmlContents}
-
-    # This will turn health bad because "Check AV Plugin Can Scan Files" scans an eicar.
-    Check AV Plugin Can Scan Files
-    ## MA waits up to 120 seconds after an update before it starts generating SHS status again
-    ## this is so it doesn't report bad health for plugin services that are starting up again
-    Wait Until Keyword Succeeds
-    ...  130 secs
-    ...  20 secs
-    ...  SHS Status File Contains  <item name="threat" value="2" />
-
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
@@ -275,7 +140,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LrDevVersion}
     ${EJDevVersion} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJDevVersion}
-    ${RuntimeDetectionsDevVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    ${RuntimeDetectionsDevVersion} =      Get Version Number From Ini File   ${InstalledRTDPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimeDetectionsDevVersion}
 
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
@@ -355,7 +220,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${EdrReleaseVersion} =                    Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     ${AVReleaseVersion} =                     Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
     ${LRReleaseVersion} =                     Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
-    ${RuntimedetectionsReleaseVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    ${RuntimedetectionsReleaseVersion} =      Get Version Number From Ini File   ${InstalledRTDPluginVersionFile}
     ${EJReleaseVersion} =                     Get Version Number From Ini File   ${InstalledEJPluginVersionFile}
 
     Should Be Equal As Strings      ${BaseReleaseVersion}               ${ExpectedBaseReleaseVersion}
@@ -405,7 +270,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
-    ...  version_number_in_ini_file_should_be  ${InstalledRuntimedetectionsPluginVersionFile}    ${ExpectedRuntimedetectionsDevVersion}
+    ...  version_number_in_ini_file_should_be  ${InstalledRTDPluginVersionFile}    ${ExpectedRuntimedetectionsDevVersion}
 
     ${BaseVersion} =     Get Version Number From Ini File   ${InstalledBaseVersionFile}
     Should Be Equal As Strings  ${ExpectedBaseDevVersion}  ${BaseVersion}
@@ -415,7 +280,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVVersion}
     ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
-    ${RuntimeDetectionsVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    ${RuntimeDetectionsVersion} =      Get Version Number From Ini File   ${InstalledRTDPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimeDetectionsVersion}
     ${EJVersion} =    Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJVersion}
@@ -538,7 +403,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EDRDevVersion}
     ${LRDevVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LRDevVersion}
-    ${RuntimedetectionsVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    ${RuntimedetectionsVersion} =      Get Version Number From Ini File   ${InstalledRTDPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimedetectionsVersion}
     ${EJDevVersion} =       Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJDevVersion}
@@ -592,7 +457,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ${LrDevVersion} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedLRDevVersion}  ${LrDevVersion}
     ${ExpectedRuntimedetectionsDevVersion} =      get_version_for_rigidname_in_vut_warehouse   ServerProtectionLinux-Plugin-RuntimeDetections
-    ${RuntimeDetectionsDevVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    ${RuntimeDetectionsDevVersion} =      Get Version Number From Ini File   ${InstalledRTDPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimeDetectionsDevVersion}
     ${ExpectedEJDevVersion} =    get_version_for_rigidname_in_vut_warehouse    ServerProtectionLinux-Plugin-EventJournaler
     ${EJDevVersion} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
@@ -702,7 +567,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
-    ...  version_number_in_ini_file_should_be  ${InstalledRuntimedetectionsPluginVersionFile}    ${ExpectedRuntimedetectionsDevVersion}
+    ...  version_number_in_ini_file_should_be  ${InstalledRTDPluginVersionFile}    ${ExpectedRuntimedetectionsDevVersion}
 
     #wait for AV plugin to be running before attempting uninstall
     Wait Until Keyword Succeeds
@@ -718,7 +583,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Should Be Equal As Strings  ${ExpectedAVDevVersion}  ${AVVersion}
     ${EdrVersion} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedEDRDevVersion}  ${EdrVersion}
-    ${RuntimedetectionsVersion} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    ${RuntimedetectionsVersion} =      Get Version Number From Ini File   ${InstalledRTDPluginVersionFile}
     Should Be Equal As Strings  ${ExpectedRuntimedetectionsDevVersion}  ${RuntimedetectionsVersion}
     ${EJVersion} =    Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings    ${ExpectedEJDevVersion}    ${EJVersion}
@@ -910,61 +775,11 @@ Check EAP Release Installed Correctly
     Check MDR Plugin Installed
     Check Installed Correctly
 
-
-Check Current Release With AV Installed Correctly
-    Check Mcs Router Running
-    Check MDR Plugin Installed
-    Check AV Plugin Installed
-    Check Installed Correctly
-
-Check EAP Release With AV Installed Correctly
-    Check MCS Router Running
-    Check MDR Plugin Installed
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  MDR Plugin Log Contains  Run SophosMTR
-    Check AV Plugin Installed
-    Check Installed Correctly
-
-
-Check Installed Correctly
-    Should Exist    ${SOPHOS_INSTALL}
-
-    Check Correct MCS Password And ID For Local Cloud Saved
-
-    ${result}=  Run Process  stat  -c  "%A"  /opt
-    ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
-    Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
-    ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
-    Check Expected Base Processes Except SDU Are Running
-
 Component Version has changed
     [Arguments]  ${oldVersion}  ${InstalledVersionFile}
     ${NewDevVersion} =  Get Version Number From Ini File   ${InstalledVersionFile}
     Should Not Be Equal As Strings  ${oldVersion}  ${NewDevVersion}
 
-Check Update Reports Have Been Processed
-    Directory Should Exist  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
-    ${files_in_processed_dir} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
-    Log  ${files_in_processed_dir}
-    ${filesInUpdateVar} =  List Files In Directory  ${SOPHOS_INSTALL}/base/update/var/updatescheduler
-    Log  ${filesInUpdateVar}
-    ${UpdateReportCount} =  Count Files In Directory  ${SOPHOS_INSTALL}/base/update/var/updatescheduler  update_report[0-9]*.json
-
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  2 secs
-    ...  Check N Update Reports Processed  ${UpdateReportCount}
-
-    Should Contain  ${files_in_processed_dir}[0]  update_report
-    Should Not Contain  ${files_in_processed_dir}[0]  update_report.json
-    Should Contain  ${filesInUpdateVar}   ${files_in_processed_dir}[0]
-
-Check N Update Reports Processed
-    [Arguments]  ${update_report_count}
-    ${processed_file_count} =  Count Files In Directory  ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
-    Should Be Equal As Integers  ${processed_file_count}  ${update_report_count}
 
 Get Pid Of Process
     [Arguments]  ${process_name}

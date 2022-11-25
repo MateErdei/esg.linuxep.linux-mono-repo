@@ -1,14 +1,21 @@
 *** Settings ***
 Library    OperatingSystem
 
-Library     ${LIBS_DIRECTORY}/LogUtils.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${LIBS_DIRECTORY}/TelemetryUtils.py
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
-Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/MCSRouter.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/TelemetryUtils.py
+Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
+Library    ${LIBS_DIRECTORY}/WarehouseUtils.py
 
+Resource    ../av_plugin/AVResources.robot
+Resource    ../event_journaler/EventJournalerResources.robot
 Resource    ../installer/InstallerResources.robot
+Resource    ../management_agent/ManagementAgentResources.robot
+Resource    ../mcs_router/McsRouterResources.robot
+Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../telemetry/TelemetryResources.robot
 Resource    ../watchdog/LogControlResources.robot
@@ -17,8 +24,8 @@ Resource    UpgradeResources.robot
 Suite Setup      Suite Setup Without Ostia
 Suite Teardown   Suite Teardown Without Ostia
 
-Test Setup       Test Setup
-Test Teardown    SDDS3 Test Teardown
+Test Setup       Test Setup with Ostia
+Test Teardown    Test Teardown With Ostia
 
 Test Timeout  10 mins
 Force Tags  LOAD9
@@ -44,7 +51,118 @@ ${sdds3_primary}                            ${SOPHOS_INSTALL}/base/update/cache/
 ${sdds3_primary_repository}                 ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository
 
 *** Test Cases ***
+We Can Upgrade From Dogfood to VUT Without Unexpected Errors
+    [Timeout]    10 minutes
+    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+
+    Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVDogfoodPolicy}
+
+    ${handle}=    Start Local Dogfood SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+
+    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    force_sdds3_post_install=${True}
+    Override LogConf File as Global Level    DEBUG
+
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+
+    Wait Until Keyword Succeeds
+    ...   150 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
+
+    Check EAP Release With AV Installed Correctly
+#    TODO: Check Versions
+#    ${expectedReleaseVersions} =    Get Expected Release Versions    ${BaseEdrAndMtrAndAVDogfoodPolicy}
+#    ${installedVersions} =    Get Current Installed Versions
+#    Lists Should Be Equal    ${expectedReleaseVersions}    ${installedVersions}    ignore_order=${False}
+
+    Send ALC Policy And Prepare For Upgrade    ${BaseEdrAndMtrAndAVVUTPolicy}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check Policy Written Match File    ALC-1_policy.xml    ${BaseEdrAndMtrAndAVVUTPolicy}
+    Wait Until Threat Detector Running
+    
+    ${HealthyShsStatusXmlContents} =  Set Variable    <item name="health" value="1" />
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  15 secs
+    ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}
+    
+    Stop Local SDDS3 Server
+    ${handle}=    Start Local SDDS3 Server
+    Set Suite Variable    ${GL_handle}    ${handle}
+    
+    Mark Watchdog Log
+    Mark Managementagent Log
+    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+    
+    Trigger Update Now
+    
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    Wait Until Keyword Succeeds
+    ...   300 secs
+    ...   10 secs
+    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    suldownloader_log    Update success    2
+    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   suldownloader_log
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    
+    # Confirm that the warehouse flags supplement is installed when upgrading
+    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
+    
+    Check Watchdog Service File Has Correct Kill Mode
+    
+    Mark Known Upgrade Errors
+    # If the policy comes down fast enough SophosMtr will not have started by the time MTR plugin is restarted
+    # This is only an issue with versions of base before we started using boost process
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  ProcessImpl <> The PID -1 does not exist or is not a child of the calling process.
+    #  This is raised when PluginAPI has been changed so that it is no longer compatible until upgrade has completed.
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/mtr/log/mtr.log  mtr <> Policy is invalid: RevID not found
+
+    #TODO LINUXDAR-2972 remove when this defect is fixed
+    # Not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
+
+    # This is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
+
+    #TODO LINUXDAR-5140 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
+    Run Keyword And Expect Error  *
+    ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+    
+    Check Current Release With AV Installed Correctly
+    Wait For RuntimeDetections to be Installed
+    
+#    TODO: Check Versions
+#    ${expectedVUTVersions} =    Get Expected VUT Versions
+#    ${installedVersions} =    Get Current Installed Versions
+#    Lists Should Be Equal    ${expectedVUTVersions}    ${installedVersions}    ignore_order=${False}
+    
+    Check Event Journaler Executable Running
+    Check AV Plugin Permissions
+    Check Update Reports Have Been Processed
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    
+    # This will turn health bad because "Check AV Plugin Can Scan Files" scans an eicar.
+    Check AV Plugin Can Scan Files
+    ## MA waits up to 120 seconds after an update before it starts generating SHS status again
+    ## this is so it doesn't report bad health for plugin services that are starting up again
+    Wait Until Keyword Succeeds
+    ...  130 secs
+    ...  20 secs
+    ...  SHS Status File Contains  <item name="threat" value="2" />
+
 Sul Downloader fails update if expected product missing from SUS
+    [Setup]    Test Setup
+    [Teardown]    SDDS3 Test Teardown
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_FakePlugin.xml
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -68,9 +186,6 @@ Sul Downloader fails update if expected product missing from SUS
 
 
 Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
-    [Setup]    Test Setup With Ostia
-    [Teardown]    Test Teardown With Ostia
-
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -120,9 +235,6 @@ Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
 
 
 SDDS3 updating respects ALC feature codes
-    [Setup]    Test Setup With Ostia
-    [Teardown]    Test Teardown With Ostia
-
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -167,9 +279,6 @@ SDDS3 updating respects ALC feature codes
 
 
 SDDS3 updating with changed unused feature codes do not change version
-    [Setup]    Test Setup With Ostia
-    [Teardown]    Test Teardown With Ostia
-
     Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -186,7 +295,7 @@ SDDS3 updating with changed unused feature codes do not change version
     ${EdrVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     ${LrVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     ${AVVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    ${RuntimeDetectionsVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    ${RuntimeDetectionsVersionBeforeUpdate} =      Get Version Number From Ini File   ${InstalledRTDPluginVersionFile}
     ${EJVersionBeforeUpdate} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
 
     Override LogConf File as Global Level  DEBUG
@@ -203,7 +312,7 @@ SDDS3 updating with changed unused feature codes do not change version
     ${EdrVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledEDRPluginVersionFile}
     ${LrVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledLRPluginVersionFile}
     ${AVVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledAVPluginVersionFile}
-    ${RuntimeDetectionsVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledRuntimedetectionsPluginVersionFile}
+    ${RuntimeDetectionsVersionAfterUpdate} =      Get Version Number From Ini File   ${InstalledRTDPluginVersionFile}
     ${EJVersionAfterUpdate} =      Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
     Should Be Equal As Strings  ${RuntimeDetectionsVersionBeforeUpdate}  ${RuntimeDetectionsVersionAfterUpdate}
     Should Be Equal As Strings  ${MtrVersionBeforeUpdate}  ${MtrVersionAfterUpdate}
@@ -215,9 +324,6 @@ SDDS3 updating with changed unused feature codes do not change version
 
 
 SDDS3 updating when warehouse files have not changed does not extract the zip files
-    [Setup]    Test Setup With Ostia
-    [Teardown]    Test Teardown With Ostia
-
     Start Local Cloud Server
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -240,9 +346,6 @@ SDDS3 updating when warehouse files have not changed does not extract the zip fi
 
 
 We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False Then Update Using SDDS3 When Flag Turns True
-    [Setup]    Test Setup With Ostia
-    [Teardown]    Test Teardown With Ostia
-
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -289,7 +392,6 @@ We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False 
 
 
 We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True Then Update Using SDDS2 When Flag Turns False
-    [Setup]    Test Setup With Ostia
     [Teardown]    Test Teardown With Ostia And Fake Cloud MCS Flag Override
     ${desired_flags} =     Catenate    SEPARATOR=\n
     ...  {
@@ -345,9 +447,6 @@ We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True T
 
 
 Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installations of Components
-    [Setup]    Test Setup With Ostia
-    [Teardown]    Test Teardown With Ostia
-
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -380,9 +479,6 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
 
 
 During Transition From SDDS3 to SDDS2 SDDS3 Cache Is Removed Before Downloading SDDS2 Files
-    [Setup]    Test Setup With Ostia
-    [Teardown]    Test Teardown With Ostia
-
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -412,9 +508,6 @@ During Transition From SDDS3 to SDDS2 SDDS3 Cache Is Removed Before Downloading 
 
 
 Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
-    [Setup]    Test Setup With Ostia
-    [Teardown]    Test Teardown With Ostia
-
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -454,8 +547,6 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
 
 
 SDDS3 Mechanism Is Updated in UpdateScheduler Telemetry After Successful Update To SDDS3
-    [Setup]    Test Setup With Ostia
-    [Teardown]    Test Teardown With Ostia
     Cleanup Telemetry Server
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle}=  Start Local SDDS3 Server
@@ -506,6 +597,19 @@ SDDS3 Mechanism Is Updated in UpdateScheduler Telemetry After Successful Update 
 
 
 *** Keywords ***
+Test Setup With Ostia
+    Test Setup
+    Setup Ostia Warehouse Environment
+
+Test Teardown With Ostia
+    Stop Local SDDS3 Server
+    Teardown Ostia Warehouse Environment
+    Test Teardown
+
+Test Teardown With Ostia And Fake Cloud MCS Flag Override
+    Test Teardown With Ostia
+    Remove File  /tmp/mcs_flags
+
 Create Dummy Local SDDS2 Cache Files
     Create File         ${sdds2_primary}/1
     Create Directory    ${sdds2_primary}/2
@@ -531,16 +635,3 @@ Check Local SDDS2 Cache Has Contents
 Check Local SDDS3 Cache Has Contents
     Directory Should Not Be Empty    ${sdds3_primary}
     Directory Should Not Be Empty    ${sdds3_primary_repository}
-
-Test Setup With Ostia
-    Test Setup
-    Setup Ostia Warehouse Environment
-
-Test Teardown With Ostia
-    Stop Local SDDS3 Server
-    Teardown Ostia Warehouse Environment
-    Test Teardown
-
-Test Teardown With Ostia And Fake Cloud MCS Flag Override
-    Test Teardown With Ostia
-    Remove File  /tmp/mcs_flags

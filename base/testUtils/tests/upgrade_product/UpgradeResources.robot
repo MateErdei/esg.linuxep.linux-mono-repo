@@ -1,20 +1,23 @@
 *** Settings ***
-Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/MCSRouter.py
-Library     ${LIBS_DIRECTORY}/OSUtils.py
-Library     ${LIBS_DIRECTORY}/WarehouseUtils.py
-Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
-Library     ${LIBS_DIRECTORY}/TeardownTools.py
-Library     ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
-Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
-Library     ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
-Library     Process
-Library     OperatingSystem
-Library     String
+Library    Collections
+Library    OperatingSystem
+Library    Process
+Library    String
 
+Library    ${LIBS_DIRECTORY}/CentralUtils.py
+Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/MCSRouter.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/TemporaryDirectoryManager.py
+Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/UpdateServer.py
+Library    ${LIBS_DIRECTORY}/WarehouseUtils.py
+
+Resource    ../av_plugin/AVResources.robot
+Resource    ../installer/InstallerResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
-Resource    ../thin_installer/ThinInstallerResources.robot
-Resource    ../liveresponse_plugin/LiveResponseResources.robot
+Resource    ../mdr_plugin/MDRResources.robot
 
 
 *** Variables ***
@@ -24,14 +27,14 @@ ${InstalledMDRPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/mtr/VE
 ${InstalledAVPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
 ${InstalledMDRSuiteVersionFile}                 ${SOPHOS_INSTALL}/plugins/mtr/dbos/data/VERSION.ini
 ${InstalledEDRPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
-${InstalledRuntimedetectionsPluginVersionFile}  ${SOPHOS_INSTALL}/plugins/runtimedetections/VERSION.ini
+${InstalledRTDPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/runtimedetections/VERSION.ini
 ${InstalledLRPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
 ${InstalledEJPluginVersionFile}                 ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
 ${InstalledHBTPluginVersionFile}                ${SOPHOS_INSTALL}/plugins/heartbeat/VERSION.ini
 ${WarehouseBaseVersionFileExtension}            ./TestInstallFiles/ServerProtectionLinux-Base/files/base/VERSION.ini
 ${WarehouseMDRPluginVersionFileExtension}       ./TestInstallFiles/ServerProtectionLinux-MDR-Control/files/plugins/mtr/VERSION.ini
 ${WarehouseMDRSuiteVersionFileExtension}        ./TestInstallFiles/ServerProtectionLinux-MDR-DBOS-Component/files/plugins/mtr/dbos/data/VERSION.ini
-${sdds3_server_output}                             /tmp/sdds3_server.log
+${sdds3_server_output}                          /tmp/sdds3_server.log
 
 *** Keywords ***
 Test Setup
@@ -67,7 +70,6 @@ Suite Setup Without Ostia
     Install Local SSL Server Cert To System
     Regenerate Certificates
     Set Local CA Environment Variable
-
 
 Suite Teardown
     Teardown Ostia Warehouse Environment
@@ -187,16 +189,109 @@ Create Local SDDS3 Override
     Create File    ${SDDS3_OVERRIDE_FILE}    content=${override_file_contents}
 
 Start Local SDDS3 Server
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
+    [Arguments]    ${launchdarklyPath}=${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly    ${sdds3repoPath}=${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo
+    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${launchdarklyPath} --sdds3 ${sdds3repoPath}  shell=true
+    [Return]  ${handle}
+
+Start Local Dogfood SDDS3 Server
+    Copy VUT Supplements For Release Warehouse    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood/repo
+    ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood/repo
+    [Return]  ${handle}
+
+Start Local Release SDDS3 Server
+    Copy VUT Supplements For Release Warehouse    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-release/repo
+    ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-release/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-release/repo
     [Return]  ${handle}
 
 Start Local SDDS3 Server With Empty Repo
     Create Directory  /tmp/FakeFlags
     Create Directory    /tmp/FakeRepo
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/FakeFlags --sdds3 /tmp/FakeRepo  shell=true
+    ${handle}=    Start Local SDDS3 Server    /tmp/FakeFlags    /tmp/FakeRepo
     [Return]  ${handle}
 
 Stop Local SDDS3 Server
-    terminate process  ${GL_handle}  True
+    Terminate Process  ${GL_handle}  True
     Dump Teardown Log    ${sdds3_server_output}
-    terminate all processes  True
+    Terminate All Processes  True
+
+Check EAP Release With AV Installed Correctly
+    Check MCS Router Running
+    Check MDR Plugin Installed
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check MDR Log Contains  Run SophosMTR
+    Check AV Plugin Installed
+    Check Installed Correctly
+
+Check Current Release With AV Installed Correctly
+    Check MCS Router Running
+    Check MDR Plugin Installed
+    Check AV Plugin Installed
+    Check Installed Correctly
+
+Check Installed Correctly
+    Should Exist    ${SOPHOS_INSTALL}
+    Check Correct MCS Password And ID For Local Cloud Saved
+
+    ${result}=  Run Process  stat  -c  "%A"  /opt
+    ${ExpectedPerms}=  Set Variable  "drwxr-xr-x"
+    Should Be Equal As Strings  ${result.stdout}  ${ExpectedPerms}
+    ${version_number} =  Get Version Number From Ini File  ${InstalledBaseVersionFile}
+    Check Expected Base Processes Except SDU Are Running
+
+Check N Update Reports Processed
+    [Arguments]  ${updateReportCount}
+    ${processedFileCount} =    Count Files In Directory    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
+    Should Be Equal As Integers    ${processedFileCount}    ${updateReportCount}
+
+Check Update Reports Have Been Processed
+    Directory Should Exist    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
+    ${filesInProcessedDir} =    List Files In Directory    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/processedReports
+    Log    ${filesInProcessedDir}
+    ${filesInUpdateVar} =    List Files In Directory    ${SOPHOS_INSTALL}/base/update/var/updatescheduler
+    Log    ${filesInUpdateVar}
+    ${UpdateReportCount} =    Count Files In Directory    ${SOPHOS_INSTALL}/base/update/var/updatescheduler    update_report[0-9]*.json
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Check N Update Reports Processed    ${UpdateReportCount}
+
+    Should Contain    ${filesInProcessedDir}[0]    update_report
+    Should Not Contain    ${filesInProcessedDir}[0]    update_report.json
+    Should Contain    ${filesInUpdateVar}    ${filesInProcessedDir}[0]
+
+Get Current Installed Versions
+    ${BaseReleaseVersion} =     Get Version Number From Ini File    ${InstalledBaseVersionFile}
+    ${AVReleaseVersion} =       Get Version Number From Ini File    ${InstalledAVPluginVersionFile}
+    ${EDRReleaseVersion} =      Get Version Number From Ini File    ${InstalledEDRPluginVersionFile}
+    ${EJReleaseVersion} =       Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
+    ${LRReleaseVersion} =       Get Version Number From Ini File    ${InstalledLRPluginVersionFile}
+    ${MTRReleaseVersion} =      Get Version Number From Ini File    ${InstalledMDRPluginVersionFile}
+    ${RTDReleaseVersion} =      Get Version Number From Ini File    ${InstalledRTDPluginVersionFile}
+    @{versions}=  ${BaseReleaseVersion}  ${AVReleaseVersion}  ${EDRReleaseVersion}  ${EJReleaseVersion}  ${LRReleaseVersion}  ${MTRReleaseVersion}  ${RTDReleaseVersion}
+    [Return]    ${versions}
+
+Get Expected VUT Versions
+    ${ExpectedBaseDevVersion} =     Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Base-component
+    ${ExpectedAVDevVersion} =       Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-AV
+    ${ExpectedEDRDevVersion} =      Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-EDR
+    ${ExpectedEJDevVersion} =       Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-EventJournaler
+    ${ExpectedLRDevVersion} =       Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-liveresponse
+    ${ExpectedMTRDevVersion} =      Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-MDR
+    ${ExpectedRTDDevVersion} =      Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-RuntimeDetections
+    @{versions}=  ${ExpectedBaseDevVersion}  ${ExpectedAVDevVersion}  ${ExpectedEDRDevVersion}  ${ExpectedEJDevVersion}  ${ExpectedLRDevVersion}  ${ExpectedMTRDevVersion}  ${ExpectedRTDDevVersion}
+    [Return]    ${versions}
+
+Get Expected Release Versions
+    [Arguments]    ${policy}
+    ${ExpectedBaseReleaseVersion} =     Get Version From Warehouse For Rigidname In ComponentSuite    ${policy}    ServerProtectionLinux-Base-component             ServerProtectionLinux-Base
+    ${ExpectedEJReleaseVersion} =       Get Version From Warehouse For Rigidname In ComponentSuite    ${policy}    ServerProtectionLinux-Plugin-EventJournaler      ServerProtectionLinux-Base
+    ${ExpectedLRReleaseVersion} =       Get Version From Warehouse For Rigidname In ComponentSuite    ${policy}    ServerProtectionLinux-Plugin-liveresponse        ServerProtectionLinux-Base
+    ${ExpectedRTDReleaseVersion} =      Get Version From Warehouse For Rigidname In ComponentSuite    ${policy}    ServerProtectionLinux-Plugin-RuntimeDetections   ServerProtectionLinux-Base
+    ${ExpectedAVReleaseVersion} =       Get Version From Warehouse For Rigidname    ${policy}    ServerProtectionLinux-Plugin-AV
+    ${ExpectedEDRReleaseVersion} =      Get Version From Warehouse For Rigidname    ${policy}    ServerProtectionLinux-Plugin-EDR
+    ${ExpectedMTRReleaseVersion} =      Get Version From Warehouse For Rigidname    ${policy}    ServerProtectionLinux-Plugin-MDR
+    @{versions}=  ${ExpectedBaseReleaseVersion}  ${ExpectedAVReleaseVersion}  ${ExpectedEDRReleaseVersion}  ${ExpectedEJReleaseVersion}  ${ExpectedLRReleaseVersion}  ${ExpectedMTRReleaseVersion}  ${ExpectedRTDReleaseVersion}
+    [Return]    ${versions}
