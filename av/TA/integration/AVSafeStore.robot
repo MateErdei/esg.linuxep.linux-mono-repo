@@ -7,6 +7,7 @@ Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/SafeStoreResources.robot
+Resource    ../shared/OnAccessResources.robot
 
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
@@ -38,6 +39,7 @@ SafeStore Database is Initialised
     Directory Should Not Be Empty    ${SAFESTORE_DB_DIR}
     File Should Exist    ${SAFESTORE_DB_PASSWORD_PATH}
 
+
 SafeStore Can Reinitialise Database Containing Threats
     ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
@@ -56,6 +58,7 @@ SafeStore Can Reinitialise Database Containing Threats
 
     Stop SafeStore
     Check Safestore Not Running
+
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
 
     Start SafeStore
@@ -72,6 +75,7 @@ SafeStore Can Reinitialise Database Containing Threats
     # Removing tmp file: https://www.sqlite.org/tempfiles.html
     Remove Values From List    ${filesInSafeStoreDb1}    safestore.db-journal
     Should Be Equal    ${filesInSafeStoreDb1}    ${filesInSafeStoreDb2}
+
 
 SafeStore Recovers From Corrupt Database
     ${av_mark} =  Get AV Log Mark
@@ -97,6 +101,7 @@ SafeStore Recovers From Corrupt Database
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
+
 
 SafeStore Quarantines When It Receives A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
@@ -202,6 +207,7 @@ SafeStore does not quarantine on a Corrupt Database
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
+
 With SafeStore Enabled But Not Running We Can Send Threats To AV
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
@@ -246,6 +252,34 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount
     Wait For AV Log Contains After Mark    File is located on a Network mount:  ${av_mark}
     Wait For AV Log Contains After Mark    Found 'EICAR-AV-Test'  ${av_mark}
 
+SafeStore Does Not Restore Quarantined Files When Uninstalled
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    ${av_mark} =  Get AV Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Check avscanner can detect eicar
+
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
+    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
+
+    AV Plugin uninstalls
+
+    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
+
+SafeStore Runs As Root
+    Start SafeStore Manually
+    ${safestore_pid} =  Get Process Id   handle=${SAFESTORE_HANDLE}
+    ${rc}   ${output} =    Run And Return Rc And Output   ps -o user= -p ${safestore_pid}
+
+    Log   ${output}
+    Should Contain   ${output}    root
+
+    Stop SafeStore Manually
 
 SafeStore Quarantines File With Same Path And Sha Again And Discards The Previous Object
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
@@ -277,6 +311,22 @@ SafeStore Quarantines File With Same Path And Sha Again And Discards The Previou
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar2.com
 
 
+Threat Detector Triggers SafeStore Rescan On Timeout
+    ${ss_mark} =  Get SafeStore Log Mark
+    Create Persistent Timeout Variable
+    Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}
+
+
+Threat Detector Rescan Socket Does Not Block Shutdown
+    Stop SafeStore
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Create Persistent Timeout Variable
+    wait_for_log_contains_from_mark  ${td_mark}  Failed to connect to SafeStore Rescan - retrying after sleep
+    Stop sophos_threat_detector
+    wait_for_log_contains_from_mark  ${td_mark}  Stop requested while connecting to SafeStore Rescan
+
+
+
 *** Keywords ***
 SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
@@ -302,6 +352,7 @@ SafeStore Test Setup
     Register Cleanup      Check For Coredumps  ${TEST NAME}
     Register Cleanup      Check Dmesg For Segfaults
 
+
 SafeStore Test TearDown
     run cleanup functions
     run failure functions if failed
@@ -312,15 +363,30 @@ SafeStore Test TearDown
 
     run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests
 
+Corrupt SafeStore Database
+    Stop SafeStore
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/persist-safeStoreDbErrorThreshold    1
+
+    Remove Files    ${SAFESTORE_DB_PATH}    ${SAFESTORE_DB_PASSWORD_PATH}
+    Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
+    Start SafeStore
+
 Check SafeStore Dormant Flag Exists
     [Arguments]  ${timeout}=15  ${interval}=2
     Wait Until File exists  ${SAFESTORE_DORMANT_FLAG}  ${timeout}  ${interval}
+
 
 Check Safestore Dormant Flag Does Not Exist
     File Should Not Exist  ${SAFESTORE_DORMANT_FLAG}
 
 
-wait for Safestore to be running
+Create Persistent Timeout Variable
+    Stop Sophos Threat Detector
+    Create File    ${SOPHOS_INSTALL}/plugins/av/chroot/var/safeStoreRescanInterval    1
+    Start Sophos Threat Detector
+
+
+Wait for Safestore to be running
     ## password creation only done on first run - can't cover complete log turn-over:
     Wait_For_Entire_log_contains  ${SAFESTORE_LOG_PATH}  Successfully saved SafeStore database password to file  timeout=15
 
