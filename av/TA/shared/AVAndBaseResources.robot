@@ -71,6 +71,7 @@ User Should Exist
     File Log Contains   /etc/passwd   ${user}
 
 Check AV Plugin Not Installed
+    Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}
     Directory Should Not Exist  ${SOPHOS_INSTALL}/plugins/${COMPONENT}/sbin/
     File Should Not Exist  ${PLUGIN_REGISTRY}/av.json
     File Should Not Exist  ${PLUGIN_REGISTRY}/sophos_threat.json

@@ -7,6 +7,7 @@ Resource    ../shared/AVAndBaseResources.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/SafeStoreResources.robot
+Resource    ../shared/OnAccessResources.robot
 
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/OnFail.py
@@ -58,6 +59,7 @@ SafeStore Can Reinitialise Database Containing Threats
 
     Stop SafeStore
     Check Safestore Not Running
+
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
 
     Start SafeStore
@@ -378,6 +380,35 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
 
     Should Not Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
+SafeStore Does Not Restore Quarantined Files When Uninstalled
+    [Teardown]  SafeStore Test Teardown When AV Already Uninstalled
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    ${av_mark} =  Get AV Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Check avscanner can detect eicar
+
+    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
+    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
+
+    AV Plugin uninstalls
+
+    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
+
+SafeStore Runs As Root
+    Start SafeStore Manually
+    ${safestore_pid} =  Get Process Id   handle=${SAFESTORE_HANDLE}
+    ${rc}   ${output} =    Run And Return Rc And Output   ps -o user= -p ${safestore_pid}
+
+    Log   ${output}
+    Should Contain   ${output}    root
+
+    Stop SafeStore Manually
 
 SafeStore Quarantines File With Same Path And Sha Again And Discards The Previous Object
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
@@ -454,11 +485,26 @@ SafeStore Test Setup
 
 
 SafeStore Test TearDown
+    Stop SafeStore
+    run cleanup functions
+    run failure functions if failed
+    dump log  ${SAFESTORE_LOG_PATH}
+    dump log  ${WATCHDOG_LOG}
+    dump log  ${SOPHOS_INSTALL}/plugins/av/log/av.log
+    List Directory  ${SOPHOS_INSTALL}/plugins/av/var
+    Remove Directory    ${SAFESTORE_DB_DIR}  recursive=True
+    Remove Directory    ${NORMAL_DIRECTORY}  recursive=True
+
+    #restore machineID file
+    Create File  ${MACHINEID_FILE}  3ccfaf097584e65c6c725c6827e186bb
+    Remove File  ${CUSTOMERID_FILE}
+
+    run keyword if test failed  Restart AV Plugin And Clear The Logs For Integration Tests
+
+SafeStore Test Teardown When AV Already Uninstalled
     run cleanup functions
     run failure functions if failed
 
-    Stop SafeStore
-    Remove Directory    ${SAFESTORE_DB_DIR}  recursive=True
     Remove Directory    ${NORMAL_DIRECTORY}  recursive=True
 
     #restore machineID file
