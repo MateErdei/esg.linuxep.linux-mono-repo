@@ -17,31 +17,12 @@ class TestOnAccessTelemetryUtility : public OnAccessImplMemoryAppenderUsingTests
 protected:
     OnAccessTelemetryUtility m_TelemetryUtility;
 
-    void populateTelemetryUtility(uint64_t eventsDropped, uint64_t eventsTotal, uint64_t scanError, uint64_t scanTotal)
+    void initialiseTelemetryWithValues(uint32_t dropped, uint64_t events, uint32_t errors, uint64_t scans)
     {
-        uint64_t eventDroppedCount = 0;
-        for (uint64_t i = 0; i < eventsTotal; i++)
-        {
-            bool dropped = false;
-            if (eventDroppedCount < eventsDropped)
-            {
-                dropped = true;
-            }
-            eventDroppedCount++;
-            m_TelemetryUtility.incrementEventReceived(dropped);
-        }
-
-        uint64_t scanErrorCount = 0;
-        for (uint64_t i = 0; i < scanTotal; i++)
-        {
-            bool error = false;
-            if (scanErrorCount < scanError)
-            {
-                error = true;
-            }
-            scanErrorCount++;
-            m_TelemetryUtility.incrementFilesScanned(error);
-        }
+        m_TelemetryUtility.m_eventsReceived.store(events);
+        m_TelemetryUtility.m_eventsDropped.store(dropped);
+        m_TelemetryUtility.m_scansRequested.store(scans);
+        m_TelemetryUtility.m_scanErrors.store(errors);
     }
 };
 
@@ -54,6 +35,47 @@ TEST_F(TestOnAccessTelemetryUtility, InitialisesToZeroValues)
     EXPECT_EQ(m_TelemetryUtility.m_scanErrors.load(), 0);
 }
 
+TEST_F(TestOnAccessTelemetryUtility, IncrementsScanEvent)
+{
+    m_TelemetryUtility.incrementFilesScanned(false);
+
+    EXPECT_EQ(m_TelemetryUtility.m_eventsReceived.load(), 0);
+    EXPECT_EQ(m_TelemetryUtility.m_eventsDropped.load(), 0);
+    EXPECT_EQ(m_TelemetryUtility.m_scansRequested.load(), 1);
+    EXPECT_EQ(m_TelemetryUtility.m_scanErrors.load(), 0);
+}
+
+TEST_F(TestOnAccessTelemetryUtility, IncrementsScanEventAndError)
+{
+    m_TelemetryUtility.incrementFilesScanned(true);
+
+    EXPECT_EQ(m_TelemetryUtility.m_eventsReceived.load(), 0);
+    EXPECT_EQ(m_TelemetryUtility.m_eventsDropped.load(), 0);
+    EXPECT_EQ(m_TelemetryUtility.m_scansRequested.load(), 1);
+    EXPECT_EQ(m_TelemetryUtility.m_scanErrors.load(), 1);
+}
+
+TEST_F(TestOnAccessTelemetryUtility, IncrementsEventReceived)
+{
+    m_TelemetryUtility.incrementEventReceived(false);
+
+    EXPECT_EQ(m_TelemetryUtility.m_eventsReceived.load(), 1);
+    EXPECT_EQ(m_TelemetryUtility.m_eventsDropped.load(), 0);
+    EXPECT_EQ(m_TelemetryUtility.m_scansRequested.load(), 0);
+    EXPECT_EQ(m_TelemetryUtility.m_scanErrors.load(), 0);
+}
+
+TEST_F(TestOnAccessTelemetryUtility, IncrementsEventReceivedAndDropped)
+{
+    m_TelemetryUtility.incrementEventReceived(true);
+
+    EXPECT_EQ(m_TelemetryUtility.m_eventsReceived.load(), 1);
+    EXPECT_EQ(m_TelemetryUtility.m_eventsDropped.load(), 1);
+    EXPECT_EQ(m_TelemetryUtility.m_scansRequested.load(), 0);
+    EXPECT_EQ(m_TelemetryUtility.m_scanErrors.load(), 0);
+}
+
+
 TEST_F(TestOnAccessTelemetryUtility, StoresValuesCorrectly)
 {
     const uint eventTotal = 10;
@@ -61,7 +83,7 @@ TEST_F(TestOnAccessTelemetryUtility, StoresValuesCorrectly)
     const uint scanTotal = 11;
     const uint scanError = 7;
 
-    populateTelemetryUtility(eventDropped, eventTotal, scanError, scanTotal);
+    initialiseTelemetryWithValues(eventDropped, eventTotal, scanError, scanTotal);
 
     EXPECT_EQ(m_TelemetryUtility.m_eventsReceived.load(), eventTotal);
     EXPECT_EQ(m_TelemetryUtility.m_eventsDropped.load(), eventDropped);
@@ -69,12 +91,12 @@ TEST_F(TestOnAccessTelemetryUtility, StoresValuesCorrectly)
     EXPECT_EQ(m_TelemetryUtility.m_scanErrors.load(), scanError);
 }
 
-TEST_F(TestOnAccessTelemetryUtility, NoErrors)
+TEST_F(TestOnAccessTelemetryUtility, NoScanErrorsOrDroppedEvents)
 {
     const float expectedEventsDroppedPer = 0.0f;
     const float expectedScanErrorsPer = 0.0f;
 
-    populateTelemetryUtility(0, 10, 0, 10);
+    initialiseTelemetryWithValues(0, 10, 0, 10);
 
     auto result = m_TelemetryUtility.getTelemetry();
 
@@ -82,12 +104,12 @@ TEST_F(TestOnAccessTelemetryUtility, NoErrors)
     ASSERT_EQ(result.m_percentageScanErrors, expectedScanErrorsPer);
 }
 
-TEST_F(TestOnAccessTelemetryUtility, AllErrors)
+TEST_F(TestOnAccessTelemetryUtility, AllScanErrorsOrDroppedEvents)
 {
     const float expectedEventsDroppedPer = 100.0f;
     const float expectedScanErrorsPer = 100.0f;
 
-    populateTelemetryUtility(10, 10, 10, 10);
+    initialiseTelemetryWithValues(10, 10, 10, 10);
 
     auto result = m_TelemetryUtility.getTelemetry();
 
@@ -95,12 +117,12 @@ TEST_F(TestOnAccessTelemetryUtility, AllErrors)
     ASSERT_EQ(result.m_percentageScanErrors, expectedScanErrorsPer);
 }
 
-TEST_F(TestOnAccessTelemetryUtility, AllZeros)
+TEST_F(TestOnAccessTelemetryUtility, NoEventsAndNoScans)
 {
     const float expectedEventsDroppedPer = 0.0f;
     const float expectedScanErrorsPer = 0.0f;
 
-    populateTelemetryUtility(0, 0, 0, 0);
+    initialiseTelemetryWithValues(0, 0, 0, 0);
 
     auto result = m_TelemetryUtility.getTelemetry();
 
@@ -113,7 +135,7 @@ TEST_F(TestOnAccessTelemetryUtility, HandlesPercentageCalculation)
     const float expectedEventsDroppedPer = 50.0f;
     const float expectedScanErrorsPer = 50.0f;
 
-    populateTelemetryUtility(5, 10, 5, 10);
+    initialiseTelemetryWithValues(5, 10, 5, 10);
 
     auto result1 = m_TelemetryUtility.getTelemetry();
 
@@ -127,7 +149,7 @@ TEST_F(TestOnAccessTelemetryUtility, ResetsAfterGetTelemetry)
     const float expectedEventsDroppedPer = 50.0f;
     const float expectedScanErrorsPer = 50.0f;
 
-    populateTelemetryUtility(5, 10, 5, 10);
+    initialiseTelemetryWithValues(5, 10, 5, 10);
 
     auto result1 = m_TelemetryUtility.getTelemetry();
 
@@ -145,10 +167,7 @@ TEST_F(TestOnAccessTelemetryUtility, HandlesExtremeValues)
     const float expectedEventsDroppedPer = 5.42101e-17f;
     const float expectedScanErrorsPer = 0.00152586f;
 
-    m_TelemetryUtility.m_eventsReceived.store(std::numeric_limits<uint64_t>::max());
-    m_TelemetryUtility.m_eventsDropped.store(10);
-    m_TelemetryUtility.m_scansRequested.store(std::numeric_limits<uint32_t>::max());
-    m_TelemetryUtility.m_scanErrors.store(std::numeric_limits<uint16_t>::max());
+    initialiseTelemetryWithValues(10, std::numeric_limits<uint64_t>::max(), std::numeric_limits<uint16_t>::max(), std::numeric_limits<uint32_t>::max());
 
     auto result = m_TelemetryUtility.getTelemetry();
 
@@ -160,11 +179,12 @@ TEST_F(TestOnAccessTelemetryUtility, HandlesIncrementingBeyondLimitEvents)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    m_TelemetryUtility.m_eventsReceived.store(std::numeric_limits<uint64_t>::max());
+    initialiseTelemetryWithValues(0, std::numeric_limits<uint64_t>::max(), 0, 0);
 
     EXPECT_EQ(m_TelemetryUtility.m_eventsReceived.load(), std::numeric_limits<uint64_t>::max());
 
-    populateTelemetryUtility(1, 1, 1, 1);
+    m_TelemetryUtility.incrementFilesScanned(true);
+    m_TelemetryUtility.incrementEventReceived(true);
 
     EXPECT_TRUE(waitForLog("A Telemetry Value for Events at limit"));
 
@@ -181,11 +201,12 @@ TEST_F(TestOnAccessTelemetryUtility, HandlesIncrementingBeyondLimitScans)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    m_TelemetryUtility.m_scansRequested.store(std::numeric_limits<uint64_t>::max());
+    initialiseTelemetryWithValues(0, 0, 0, std::numeric_limits<uint64_t>::max());
 
     EXPECT_EQ(m_TelemetryUtility.m_scansRequested.load(), std::numeric_limits<uint64_t>::max());
 
-    populateTelemetryUtility(1, 1, 1, 1);
+    m_TelemetryUtility.incrementFilesScanned(true);
+    m_TelemetryUtility.incrementEventReceived(true);
 
     EXPECT_TRUE(waitForLog("A Telemetry Value for Scans at limit"));
 
@@ -202,15 +223,15 @@ TEST_F(TestOnAccessTelemetryUtility, HandlesOnlyLogsOnceIfAboveLimitEventsReceiv
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    m_TelemetryUtility.m_eventsReceived.store(std::numeric_limits<uint64_t>::max());
+    initialiseTelemetryWithValues(0, std::numeric_limits<uint64_t>::max(), 0, 0);
 
     EXPECT_EQ(m_TelemetryUtility.m_eventsReceived.load(), std::numeric_limits<uint64_t>::max());
 
-    populateTelemetryUtility(0, 1, 0, 0);
+    m_TelemetryUtility.incrementEventReceived(false);
 
     EXPECT_TRUE(waitForLog("A Telemetry Value for Events at limit"));
 
-    populateTelemetryUtility(0, 1, 0, 0);
+    m_TelemetryUtility.incrementEventReceived(false);
 
     EXPECT_TRUE(waitForLogMultiple("A Telemetry Value for Events at limit", 1));
 }
@@ -219,16 +240,15 @@ TEST_F(TestOnAccessTelemetryUtility, HandlesOnlyLogsOnceIfAboveLimitEventsDroppe
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    m_TelemetryUtility.m_eventsDropped.store(std::numeric_limits<uint32_t>::max());
-    m_TelemetryUtility.m_scansRequested.store(std::numeric_limits<uint32_t>::max() + 1);
+    initialiseTelemetryWithValues(std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max() + 1, 0, 0);
 
     EXPECT_EQ(m_TelemetryUtility.m_eventsDropped.load(), std::numeric_limits<uint32_t>::max());
 
-    populateTelemetryUtility(1, 1, 0, 0);
+    m_TelemetryUtility.incrementEventReceived(true);
 
     EXPECT_TRUE(waitForLog("A Telemetry Value for Events at limit"));
 
-    populateTelemetryUtility(1, 1, 0, 0);
+    m_TelemetryUtility.incrementEventReceived(true);;
 
     EXPECT_TRUE(waitForLogMultiple("A Telemetry Value for Events at limit", 1));
 }
@@ -238,15 +258,15 @@ TEST_F(TestOnAccessTelemetryUtility, HandlesOnlyLogsOnceIfAboveLimitScansMade)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    m_TelemetryUtility.m_scansRequested.store(std::numeric_limits<uint64_t>::max());
+    initialiseTelemetryWithValues(0, 0, 0, std::numeric_limits<uint64_t>::max());
 
     EXPECT_EQ(m_TelemetryUtility.m_scansRequested.load(), std::numeric_limits<uint64_t>::max());
 
-    populateTelemetryUtility(0, 0, 0, 1);
+    m_TelemetryUtility.incrementFilesScanned(false);
 
     EXPECT_TRUE(waitForLog("A Telemetry Value for Scans at limit"));
 
-    populateTelemetryUtility(0, 0, 0, 1);
+    m_TelemetryUtility.incrementFilesScanned(false);
 
     EXPECT_TRUE(waitForLogMultiple("A Telemetry Value for Scans at limit", 1));
 }
@@ -255,16 +275,15 @@ TEST_F(TestOnAccessTelemetryUtility, HandlesOnlyLogsOnceIfAboveLimitScansError)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    m_TelemetryUtility.m_scanErrors.store(std::numeric_limits<uint32_t>::max());
-    m_TelemetryUtility.m_scansRequested.store(std::numeric_limits<uint32_t>::max() + 1);
+    initialiseTelemetryWithValues(0, 0, std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max() + 1);
 
     EXPECT_EQ(m_TelemetryUtility.m_scanErrors.load(), std::numeric_limits<uint32_t>::max());
 
-    populateTelemetryUtility(0, 0, 1, 1);
+    m_TelemetryUtility.incrementFilesScanned(true);
 
     EXPECT_TRUE(waitForLog("A Telemetry Value for Scans at limit"));
 
-    populateTelemetryUtility(0, 0, 1, 1);
+    m_TelemetryUtility.incrementFilesScanned(true);
 
     EXPECT_TRUE(waitForLogMultiple("A Telemetry Value for Scans at limit", 1));
 }
