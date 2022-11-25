@@ -41,7 +41,7 @@ Test wdctl will block on removing a plugin
         Fail
     END
     check_watchdog_log_contains  Killing process
-    check_watchdog_log_contains  Output
+    # Output now only present if plugin has output
 
 Test watchdog logs plugin output during system shutdown
     [Tags]    WATCHDOG
@@ -55,5 +55,5 @@ Test watchdog logs plugin output during system shutdown
     mark_watchdog_log
     ${result} =    Run Process   systemctl  stop  sophos-spl
     check_marked_watchdog_log_contains  Killing process
-    check_marked_watchdog_log_contains  Output
+    # Output now only present if plugin has output
 *** Keywords ***

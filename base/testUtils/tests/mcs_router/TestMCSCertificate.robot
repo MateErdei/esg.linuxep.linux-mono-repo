@@ -29,7 +29,7 @@ MCS Router Stops If MCS Certificate Cannot Be Read By Sophos-spl-user
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  5 secs
-    ...  Check Log Contains   ${SOPHOS_INSTALL}/base/bin/mcsrouter died with 100   ${SOPHOS_INSTALL}/logs/base/watchdog.log   Watchdog
+    ...  Check Log Contains   ${SOPHOS_INSTALL}/base/bin/mcsrouter died with exit code 100   ${SOPHOS_INSTALL}/logs/base/watchdog.log   Watchdog
 
 Successful Register With Central Replacing MCS Certificate
     Copy File   ${SUPPORT_FILES}/CloudAutomation/root-ca.crt.pem  /tmp/mcs_rootca.crt.0

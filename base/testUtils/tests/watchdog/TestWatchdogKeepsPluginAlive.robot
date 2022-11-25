@@ -34,7 +34,7 @@ Test watchdog restarts child after kill
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  Check Watchdog Log Contains  /opt/sophos-spl/testPlugin.sh died with 15
+    ...  Check Watchdog Log Contains  /opt/sophos-spl/testPlugin.sh died with signal 15
     ## Then waits 10 seconds and restarts
     Wait For Plugin To Start Again  /tmp/TestWatchdogRestartsChildAfterKill  30
 
