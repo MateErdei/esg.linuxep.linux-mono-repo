@@ -19,6 +19,7 @@ Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
 
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../installer/InstallerResources.robot
+Resource    ../update/SDDS3Resources.robot
 Resource    ../upgrade_product/UpgradeResources.robot
 Resource    SulDownloaderResources.robot
 
