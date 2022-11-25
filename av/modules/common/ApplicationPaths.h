@@ -6,13 +6,21 @@
 
 namespace Plugin
 {
+    std::string getOnAccessUnhealthyFlagPath();
+    std::string getPersistThreatDatabaseFilePath();
+    std::string getPluginChrootDirPath();
+    std::string getPluginChrootVarDirPath();
     std::string getPluginInstall();
     std::string getPluginVarDirPath();
-    std::string getSafeStorePidPath();
-    std::string getSafeStoreSocketPath();
+    std::string getRelativeSafeStoreRescanIntervalConfigPath();
+    std::string getSafeStoreConfigPath();
     std::string getSafeStoreDbDirPath();
     std::string getSafeStoreDbFileName();
-    std::string getSafeStorePasswordFilePath();
     std::string getSafeStoreDormantFlagPath();
+    std::string getSafeStorePasswordFilePath();
+    std::string getSafeStorePidPath();
+    std::string getSafeStoreRescanSocketPath();
+    std::string getSafeStoreSocketPath();
+    std::string getSoapdPidPath();
     std::string getSusiStartupSettingsPath();
 } // namespace Plugin

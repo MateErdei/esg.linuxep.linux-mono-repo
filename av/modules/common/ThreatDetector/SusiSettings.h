@@ -14,8 +14,8 @@ namespace common::ThreatDetector
     public:
         SusiSettings() = default;
         explicit SusiSettings(const std::string& jsonSettingsPath);
-        bool operator==(const SusiSettings& other) const noexcept;
-        bool operator!=(const SusiSettings& other) const noexcept;
+        bool operator==(const SusiSettings& other) const;
+        bool operator!=(const SusiSettings& other) const;
 
         bool load(const std::string& threatDetectorSettingsPath);
         void saveSettings(const std::string& path, mode_t permissions) const;

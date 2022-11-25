@@ -46,8 +46,8 @@ add_library(common SHARED
         signals/SigTermMonitor.h
         signals/SigUSR1Monitor.cpp
         signals/SigUSR1Monitor.h
-        ThreatDetector/SusiSettings.h
         ThreatDetector/SusiSettings.cpp
+        ThreatDetector/SusiSettings.h
         )
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
