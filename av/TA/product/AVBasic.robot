@@ -420,7 +420,7 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
     Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     Wait until scheduled scan updated With Offset
 
-    ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
+    ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false,"shaAllowList":[]}
 
     Wait Until AV Plugin Log Contains With Offset  SAV policy received for the first time.
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
