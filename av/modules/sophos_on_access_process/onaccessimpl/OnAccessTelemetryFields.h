@@ -7,4 +7,6 @@
 namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry
 {
     static const std::string FILE_SYSTEM_TYPES_STR = "file-system-types";
+    static const std::string RATIO_DROPPED_EVENTS = "ratio-of-dropped-events";
+    static const std::string RATIO_SCAN_ERRORS = "ratio-of-scan-errors";
 }

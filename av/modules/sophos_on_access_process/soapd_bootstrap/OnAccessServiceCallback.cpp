@@ -1,10 +1,9 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "OnAccessServiceCallback.h"
+#include "Logger.h"
 
-#include "common/ApplicationPaths.h"
-
-#include "sophos_on_access_process/soapd_bootstrap/Logger.h"
+#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryFields.h"
 
 using namespace sophos_on_access_process::service_callback;
 using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
@@ -19,10 +18,10 @@ std::string OnAccessServiceCallback::getTelemetry()
 {
     LOGDEBUG("Received get telemetry request");
     auto onAccessScanData = m_telemetryUtility->getTelemetry();
-    Common::Telemetry::TelemetryHelper::getInstance().set("Ratio-of-Dropped-Events", onAccessScanData.m_percentageEventsDropped);
+    Common::Telemetry::TelemetryHelper::getInstance().set(RATIO_DROPPED_EVENTS, onAccessScanData.m_percentageEventsDropped);
+    Common::Telemetry::TelemetryHelper::getInstance().set(RATIO_SCAN_ERRORS, onAccessScanData.m_percentageScanErrors);
     return Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
 }
-
 
 
 //The below are not used by OnAccess
