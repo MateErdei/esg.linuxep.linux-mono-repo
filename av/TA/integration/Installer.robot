@@ -541,6 +541,9 @@ Check no duplicate virus data files
     ${vdlInUse} =   Set Variable  ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version/${susiHash}/vdb
     ${vdlUpdate} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/vdl
 
+    #force a bootstrap
+    Check avscanner can detect eicar
+
     # Check there are no symlinks from a versioned copy
     Check no symlinks in directory  ${vdlInUse}
     Check no symlinks in directory  ${vdlUpdate}
@@ -549,7 +552,7 @@ Check no duplicate virus data files
     Check no duplicate files in directory  ${vdlInUse}
     Check no duplicate files in directory  ${vdlUpdate}
 
-    Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
     # Check there are still no symlinks or .0 duplicate files
     Check no symlinks in directory  ${vdlUpdate}
@@ -631,6 +634,7 @@ Check installer corrects permissions of chroot files on upgrade
     stop sophos_threat_detector
     wait until threat detector not running
     Wait Until Sophos Threat Detector Log Contains With Offset  Closing lock file
+    #Product will log the chroot path, so only /var/threat_detector.pid will show up in the threat detector log
     ${tdPidFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/var/threat_detector.pid
     Create file   ${tdPidFile}
     Change Owner  ${tdPidFile}  sophos-spl-user  sophos-spl-group
@@ -650,7 +654,8 @@ Check installer corrects permissions of chroot files on upgrade
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     threat detector log should not contain with offset  Failed to read customerID - using default value
 
-    wait until sophos threat detector log contains with offset  Lock taken on: ${tdPidFile}
+    #Product logs the chroot path
+    wait until sophos threat detector log contains with offset  Lock taken on: /var/threat_detector.pid
 
 Check installer can handle versioned copied Virus Data from 1-0-0
     # Simulate the versioned copied Virus Data that exists in a 1.0.0 install
@@ -956,6 +961,7 @@ ${IDE_NAME}         peend.ide
 ...     chroot/susi/update_source
 ...     chroot/tmp
 ...     chroot/var
+...     chroot/susi
 ...     log
 ...     var
 
