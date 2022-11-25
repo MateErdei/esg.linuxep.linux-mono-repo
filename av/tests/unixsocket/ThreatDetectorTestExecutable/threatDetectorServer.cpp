@@ -56,9 +56,9 @@ namespace
             return true;
         }
 
-        ReloadResult reload() override
+        bool reload() override
         {
-            return {.success = true};
+            return true;
         }
 
         void shutdown() override
@@ -70,7 +70,7 @@ namespace
             return true;
         }
 
-        bool hasConfigChanged() override
+        bool updateSusiConfig() override
         {
             return false;
         }

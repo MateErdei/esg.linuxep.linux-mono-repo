@@ -62,7 +62,7 @@ namespace threat_scanner
         return updated;
     }
 
-    ReloadResult SusiScannerFactory::reload()
+    bool SusiScannerFactory::reload()
     {
         return m_wrapperFactory->reload();
     }
@@ -77,9 +77,8 @@ namespace threat_scanner
         return m_wrapperFactory->susiIsInitialized();
     }
 
-    bool SusiScannerFactory::hasConfigChanged()
+    bool SusiScannerFactory::updateSusiConfig()
     {
-        auto [configChanged, newSettings] = m_wrapperFactory->checkConfig();
-        return configChanged;
+        return m_wrapperFactory->updateSusiConfig();
     }
 }

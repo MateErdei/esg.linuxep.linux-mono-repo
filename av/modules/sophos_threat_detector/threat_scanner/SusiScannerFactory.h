@@ -31,10 +31,10 @@ namespace threat_scanner
         IThreatScannerPtr createScanner(bool scanArchives, bool scanImages) override;
 
         bool update() override;
-        ReloadResult reload() override;
+        bool reload() override;
         void shutdown() override;
         bool susiIsInitialized() override;
-        bool hasConfigChanged() override;
+        bool updateSusiConfig() override;
 
     private:
         ISusiWrapperFactorySharedPtr m_wrapperFactory;

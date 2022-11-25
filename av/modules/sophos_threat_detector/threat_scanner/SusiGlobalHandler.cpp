@@ -11,6 +11,7 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "SusiLogger.h"
 #include "ThrowIfNotOk.h"
 
+#include "common/ApplicationPaths.h"
 #include "common/ShuttingDownException.h"
 
 #include <Common/Logging/LoggerConfig.h>
@@ -92,6 +93,7 @@ namespace threat_scanner
     }
 
     SusiGlobalHandler::SusiGlobalHandler()
+    : m_settings(std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath()))
     {
         my_susi_callbacks.token = this;
         auto log_level = std::min(getThreatScannerLogger().getChainedLogLevel(), getSusiDebugLogger().getChainedLogLevel());

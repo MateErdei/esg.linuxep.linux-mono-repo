@@ -32,6 +32,7 @@
         <item type="path">/tmp/a/path</item>
         <item type="sha256">275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f</item>
         <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
+        <!-- SHA256 of MLengHighScore.exe -->
         <item type="sha256">c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9</item>
         <item type="cert-signer">SignerName</item>
     </whitelist>

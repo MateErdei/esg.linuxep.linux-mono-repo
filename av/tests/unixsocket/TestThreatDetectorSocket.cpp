@@ -54,10 +54,10 @@ namespace
         MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanImages));
 
         MOCK_METHOD(bool, update, ());
-        MOCK_METHOD(ReloadResult, reload, ());
+        MOCK_METHOD(bool, reload, ());
         MOCK_METHOD(void, shutdown, ());
         MOCK_METHOD(bool, susiIsInitialized, ());
-        MOCK_METHOD(bool, hasConfigChanged, ());
+        MOCK_METHOD(bool, updateSusiConfig, ());
     };
 }
 

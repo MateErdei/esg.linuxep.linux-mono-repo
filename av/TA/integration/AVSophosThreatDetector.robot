@@ -607,16 +607,22 @@ Sophos Threat Detector Gives Different Threat Id Depending On Path And Sha And I
     Remove File  ${NORMAL_DIRECTORY}/eicar.com
 
 
+Sophos Threat Detector Triggers SafeStore Rescan When SUSI Config Changes
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+
+    # Send CORC policy with allow list to product, to trigger SafeStore rescan
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy.xml
+
+    wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
+
+
 Sophos Threat Detector Does Not Detect Allow Listed File
-    #Stop AV Plugin Process
-    Wait Until threat detector running
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    #Register Cleanup   Send Sav Policy With No Scheduled Scans
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
 
     Send CORC Policy To Base  corc_policy.xml
-    #Start AV Plugin Process
-
     wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
 

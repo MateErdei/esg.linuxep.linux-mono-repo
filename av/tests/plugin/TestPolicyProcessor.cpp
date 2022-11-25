@@ -1421,3 +1421,34 @@ TEST_F(TestPolicyProcessor, processCorcPolicyWithOneEmptyShaTypeAllowListItem)
     PolicyProcessorUnitTestClass proc;
     ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
 }
+
+TEST_F(TestPolicyProcessor, processCorcPolicyWithShaAndCommentInAllowList)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+        <whitelist>
+            <item type="path">/tmp/a/path</item>
+            <!-- SHA256 of some file -->
+            <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
+            <item type="cert-signer">SignerName</item>
+        </whitelist>
+        </policy>)";
+
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(
+            m_susiStartupConfigPath, settingsJson, _, 0640));
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(
+            m_susiStartupConfigChrootPath, settingsJson, _, 0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    auto attributeMap = Common::XmlUtilities::parseXml(policy);
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+}
+
+

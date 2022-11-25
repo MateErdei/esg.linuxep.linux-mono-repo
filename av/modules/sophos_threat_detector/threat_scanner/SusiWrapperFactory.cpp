@@ -176,7 +176,6 @@ namespace threat_scanner
     std::shared_ptr<ISusiWrapper> SusiWrapperFactory::createSusiWrapper(const std::string& scannerConfig)
     {
         std::string scannerInfo = createScannerInfo(false, false);
-        m_globalHandler->m_settings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
 
         std::string runtimeConfig =
             createRuntimeConfig(scannerInfo, getEndpointId(), getCustomerId(), m_globalHandler->m_settings->isSxlLookupEnabled());
@@ -195,31 +194,12 @@ namespace threat_scanner
         return m_globalHandler->update(pluginInstall() / "chroot/susi/update_source", pluginInstall() / "chroot/var/susi_update.lock");
     }
 
-    ReloadResult SusiWrapperFactory::reload()
+    bool SusiWrapperFactory::reload()
     {
-        ReloadResult result;
         std::string scannerInfo = createScannerInfo(false, false);
-
-        auto [settingsChanged, newSettings] = checkConfig();
-
-        // If settings haven't changed then skip applying them
-        if (!settingsChanged)
-        {
-            LOGDEBUG("Skipping reload of SUSI Settings: " << Plugin::getSusiStartupSettingsPath());
-            result.success = true;
-            result.allowListChanged = false;
-            return result;
-        }
-
-        // NB, the allow-list data in these settings is loaded here and used in the susi callback isAllowlistedFile(...)
-        m_globalHandler->m_settings = std::move(newSettings);
-
         std::string runtimeConfig = createRuntimeConfig(
             scannerInfo, getEndpointId(), getCustomerId(), m_globalHandler->m_settings->isSxlLookupEnabled());
-
-        result.success = m_globalHandler->reload(runtimeConfig);
-
-        return result;
+        return m_globalHandler->reload(runtimeConfig);
     }
 
     void SusiWrapperFactory::shutdown()
@@ -232,16 +212,16 @@ namespace threat_scanner
         return m_globalHandler->susiIsInitialized();
     }
 
-    std::pair<bool, std::unique_ptr<common::ThreatDetector::SusiSettings>>  SusiWrapperFactory::checkConfig()
+    bool  SusiWrapperFactory::updateSusiConfig()
     {
-        // Read new SUSI settings from disk
+        // Read potentially new SUSI settings from disk (saved to disk by av)
         auto newSettings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
-        bool changed = true;
-        if (m_globalHandler->m_settings)
+        bool changed = *m_globalHandler->m_settings != *newSettings;
+        if (changed)
         {
-            changed = m_globalHandler->m_settings != newSettings;
+            m_globalHandler->m_settings = std::move(newSettings);
+            // TODO Print summary of new settings?
         }
-
-        return {changed, std::move(newSettings)};
+        return changed;
     }
 }

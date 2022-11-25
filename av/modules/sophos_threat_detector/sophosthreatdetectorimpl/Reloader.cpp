@@ -26,16 +26,13 @@ void sspl::sophosthreatdetectorimpl::Reloader::reload()
     {
         throw std::runtime_error("Failed to reload threat scanner: No scanner factory available");
     }
-
-    auto reloadResult = m_scannerFactory->reload();
-
-    if (!reloadResult.success)
+    else if (!m_scannerFactory->reload())
     {
         throw std::runtime_error("Failed to reload threat scanner");
     }
 }
 
-bool sspl::sophosthreatdetectorimpl::Reloader::hasConfigChanged()
+bool sspl::sophosthreatdetectorimpl::Reloader::updateSusiConfig()
 {
-    return m_scannerFactory->hasConfigChanged();
+    return m_scannerFactory->updateSusiConfig();
 }

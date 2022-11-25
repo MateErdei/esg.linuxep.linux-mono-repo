@@ -20,10 +20,15 @@ namespace common::ThreatDetector
         load(jsonSettingsPath);
     }
 
-    bool SusiSettings::operator==(const SusiSettings& rhs) const noexcept
+    bool SusiSettings::operator==(const SusiSettings& other) const noexcept
     {
-        return m_susiAllowListSha256 == rhs.m_susiAllowListSha256 &&
-               m_susiSxlLookupEnabled == rhs.m_susiSxlLookupEnabled;
+        return m_susiAllowListSha256 == other.m_susiAllowListSha256 &&
+               m_susiSxlLookupEnabled == other.m_susiSxlLookupEnabled;
+    }
+
+    bool SusiSettings::operator!=(const SusiSettings& other) const noexcept
+    {
+        return !(*this == other);
     }
 
     bool SusiSettings::load(const std::string& threatDetectorSettingsPath)

@@ -30,7 +30,7 @@ namespace sspl::sophosthreatdetectorimpl
             m_scannerFactory = std::move(scannerFactory);
         }
 
-        bool hasConfigChanged();
+        bool updateSusiConfig();
     private:
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
         std::shared_ptr<SafeStoreRescanWorker> m_safeStoreRescanTrigger;
