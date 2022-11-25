@@ -4,13 +4,13 @@
 
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
-#include "scan_messages/QuarantineResponse.h"
 #include "scan_messages/ScanResponse.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
 #include "Common/PersistentValue/PersistentValue.h"
-
 #include <thirdparty/nlohmann-json/json.hpp>
+
+#include <scan_messages/QuarantineResponse.h>
 
 #include <memory>
 #include <mutex>
@@ -37,8 +37,8 @@ namespace safestore::QuarantineManager
         void rescanDatabase() override;
         void parseConfig() override;
 
-        std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(
-            std::vector<FdsObjectIdsPair> files) override;
+        std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(std::vector<FdsObjectIdsPair> files) override;
+        std::optional<scan_messages::RestoreReport> restoreFile(const std::string& objectId) override;
 
     private:
         void callOnDbError();

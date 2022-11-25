@@ -56,6 +56,13 @@ public:
 
     StrictMock<MockISafeStoreWrapper>* m_mockSafeStoreWrapper;
     StrictMock<MockFileSystem>* m_mockFileSystem;
+
+    // Common test constants
+    inline static const std::string m_dir = "/dir";
+    inline static const std::string m_file = "file";
+    inline static const std::string m_threatID = "01234567-89ab-cdef-0123-456789abcdef";
+    inline static const std::string m_threatName = "threatName";
+    inline static const std::string m_SHA256 = "SHA256abcdef";
 };
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothingWithEmptyArgs)
@@ -71,15 +78,14 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothing
     ASSERT_THAT(logMessage, ::testing::HasSubstr("No files to Rescan"));
 }
 
-// TODO: LINUXDAR-6280 - Re-enable test after figuring out its flakiness
-TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFiles)
+TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
 {
     QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
         m_mockSafeStoreWrapper) };
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
-    const std::string threatPath = "/threat/path";
+    const std::string threatPath = "/testDir";
 
     TestFile cleanFile1("cleanFile1");
     datatypes::AutoFd fd1{ cleanFile1.open() };
@@ -166,7 +172,7 @@ TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFiles)
         .WillOnce(Return(fd4_response));
     EXPECT_CALL(*scannerFactory, createScanner(true, true)).WillOnce(Return(ByMove(std::move(scanner))));
 
-    unixsocket::ScanningServerSocket server(Plugin::getScanningSocketPath(), 0600, scannerFactory);
+    unixsocket::ScanningServerSocket server(Plugin::getScanningClientSocketPath(), 0600, scannerFactory);
     server.start();
 
     std::vector<std::string> expectedResult{ "objectId1", "objectId3" };
@@ -199,8 +205,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
 }
 
 
-// TODO: LINUXDAR-6280 - Re-enable test after figuring out its flakiness
-TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFilesSkipsHandleFailure)
+TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
 {
     testing::internal::CaptureStderr();
     QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
@@ -208,52 +213,27 @@ TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFilesSkipsHandleFailu
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
-    const std::string threatPath = "/threat/path";
-
     TestFile cleanFile1("cleanFile1");
     datatypes::AutoFd fd1{ cleanFile1.open() };
     auto fd1_response = scan_messages::ScanResponse();
     const std::string threatPath1 = "one";
-
-    TestFile dirtyFile1("dirtyFile1");
-    datatypes::AutoFd fd2{ dirtyFile1.open() };
-    auto fd2_response = scan_messages::ScanResponse();
-    fd2_response.addDetection("two", "THREAT", "sha256");
-    const std::string threatName2 = "two";
 
     auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
     auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
 
     std::vector<FdsObjectIdsPair> testFiles;
     testFiles.emplace_back(std::move(fd1), "objectId1");
-    testFiles.emplace_back(std::move(fd2), "objectId2");
 
     auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId1", _)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
 
-    EXPECT_CALL(*scanner, scan(_, _, _, _))
-        .Times(2)
-        .WillOnce(Return(fd1_response))
-        .WillOnce(Return(fd2_response));
+    EXPECT_CALL(*scanner, scan(_, _, _, _)).WillOnce(Return(fd1_response));
     EXPECT_CALL(*scannerFactory, createScanner(true, true)).WillOnce(Return(ByMove(std::move(scanner))));
 
-    void* rawHandle2 = reinterpret_cast<SafeStoreObjectHandle>(2222);
-    auto objectHandle2 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle2->getRawHandlePtr() = rawHandle2;
-    auto handleAsArg2 = Property(&ObjectHandleHolder::getRawHandle, rawHandle2); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle2));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId2", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg2)).WillOnce(Return(threatPath));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg2)).WillOnce(Return(threatName2));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).Times(2)
-        .WillOnce(Return(ByMove(std::move(objectHandle))))
-        .WillOnce(Return(ByMove(std::move(objectHandle2))));
-
-    unixsocket::ScanningServerSocket server(Plugin::getScanningSocketPath(), 0600, scannerFactory);
+    unixsocket::ScanningServerSocket server(Plugin::getScanningClientSocketPath(), 0600, scannerFactory);
     server.start();
 
     std::vector<std::string> expectedResult{};
@@ -265,55 +245,4 @@ TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFilesSkipsHandleFailu
 
     std::string logMessage = internal::GetCapturedStderr();
     ASSERT_THAT(logMessage, ::testing::HasSubstr("ERROR Couldn't get object handle for: objectId1, continuing..."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Rescan found quarantined file still a threat: /threat/path/two"));
-}
-
-
-// TODO: LINUXDAR-6280 - Re-enable test after figuring out its flakiness
-TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFilesHandlesNameAndLocationFailure)
-{
-    testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
-    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    auto scanner = std::make_unique<StrictMock<MockScanner>>();
-
-    TestFile cleanFile1("cleanFile1");
-    datatypes::AutoFd fd1{ cleanFile1.open() };
-    auto fd1_response = scan_messages::ScanResponse();
-    const std::string threatPath1 = "one";
-
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-
-    std::vector<FdsObjectIdsPair> testFiles;
-    testFiles.emplace_back(std::move(fd1), "objectId1");
-
-    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle->getRawHandlePtr() = rawHandle;
-    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId1", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return(""));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(""));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
-
-    EXPECT_CALL(*scanner, scan(_, _, _, _)).WillOnce(Return(fd1_response));
-    EXPECT_CALL(*scannerFactory, createScanner(true, true)).WillOnce(Return(ByMove(std::move(scanner))));
-
-    unixsocket::ScanningServerSocket server(Plugin::getScanningSocketPath(), 0600, scannerFactory);
-    server.start();
-
-    std::vector<std::string> expectedResult{"objectId1"};
-    auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
-    EXPECT_EQ(expectedResult, result);
-
-    server.requestStop();
-    server.join();
-
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("WARN Couldn't get object name for: objectId1."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("WARN Couldn't get object location for: objectId1."));
 }

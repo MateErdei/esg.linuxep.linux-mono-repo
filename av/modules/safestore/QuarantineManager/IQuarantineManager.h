@@ -7,8 +7,10 @@
 #include "datatypes/ISystemCallWrapper.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
 #include "scan_messages/QuarantineResponse.h"
+#include "scan_messages/RestoreReport.h"
 
 #include <string>
+#include <optional>
 
 namespace safestore::QuarantineManager
 {
@@ -84,6 +86,10 @@ namespace safestore::QuarantineManager
          * Unpack all detections from database and run the avscanner on them.
          */
         virtual void rescanDatabase() = 0;
+
+        virtual void parseConfig() = 0;
+
+        virtual std::optional<scan_messages::RestoreReport> restoreFile(const std::string& objectId) = 0;
     };
 
 } // namespace safestore::QuarantineManager

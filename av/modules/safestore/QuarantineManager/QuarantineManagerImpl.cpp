@@ -10,6 +10,7 @@
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 #include "scan_messages/ClientScanRequest.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
+#include "unixsocket/restoreReportingSocket/RestoreReportingClient.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
@@ -21,7 +22,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include <optional>
 #include <utility>
 
 namespace
@@ -534,13 +534,73 @@ namespace safestore::QuarantineManager
         return cleanFiles;
     }
 
+    std::optional<scan_messages::RestoreReport> QuarantineManagerImpl::restoreFile(const std::string& objectId)
+    {
+        // Get all details
+        std::shared_ptr<SafeStoreWrapper::ObjectHandleHolder> objectHandle = m_safeStore->createObjectHandleHolder();
+        if (!m_safeStore->getObjectHandle(objectId, objectHandle))
+        {
+            LOGERROR("Couldn't get object handle for: " << objectId);
+            return {};
+        }
+
+        const std::string path =
+            m_safeStore->getObjectLocation(*objectHandle) + "/" + m_safeStore->getObjectName(*objectHandle);
+        const std::string escapedPath = common::escapePathForLogging(path);
+
+        const std::string threatId = m_safeStore->getObjectThreatId(*objectHandle);
+
+        // Create report
+        scan_messages::RestoreReport restoreReport{ std::time(nullptr), path, threatId, false };
+
+        // Attempt Restore
+        if (!m_safeStore->restoreObjectById(objectId))
+        {
+            LOGERROR("Unable to restore clean file: " << escapedPath);
+            return restoreReport;
+        }
+        LOGINFO("Restored file to disk: " << escapedPath);
+
+        // Delete file
+        if (!m_safeStore->deleteObjectById(objectId))
+        {
+            LOGERROR("Unable to remove file from SafeStore database: " << escapedPath);
+            try
+            {
+                auto fs = Common::FileSystem::fileSystem();
+                fs->removeFile(path);
+                LOGINFO("Cleaned up restored file from disk: " << escapedPath);
+            }
+            catch (Common::FileSystem::IFileSystemException& e)
+            {
+                LOGERROR(
+                    "Unable to clean up restored file from disk: "
+                    << escapedPath << " -- file now both restored and quarantined, manual intervention required.");
+            }
+            return restoreReport;
+        }
+        restoreReport.wasSuccessful = true;
+        return restoreReport;
+    }
+
     void QuarantineManagerImpl::rescanDatabase()
     {
         LOGINFO("SafeStore Database Rescan request received.");
         datatypes::SystemCallWrapper sysCallWrapper;
         auto filesToBeScanned = extractQuarantinedFiles(sysCallWrapper);
 
-        scanExtractedFilesForRestoreList(std::move(filesToBeScanned));
+        auto objectIdsToRestore = scanExtractedFilesForRestoreList(std::move(filesToBeScanned));
+        for (const auto& objectId : objectIdsToRestore)
+        {
+            auto restoreReport = restoreFile(objectId);
+            // Send report
+            if (restoreReport.has_value())
+            {
+                std::shared_ptr<common::StoppableSleeper> sleeper; // TODO - This whole QM file will be interruptable in the future
+                unixsocket::RestoreReportingClient client(sleeper);
+                client.sendRestoreReport(restoreReport.value());
+            }
+        }
     }
 
     scan_messages::ScanResponse QuarantineManagerImpl::scan(unixsocket::ScanningClientSocket& socket, int fd)
