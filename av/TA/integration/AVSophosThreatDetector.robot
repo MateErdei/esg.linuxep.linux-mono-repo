@@ -517,10 +517,10 @@ Sophos Threat Detector Is Ignoring Reload Request
     Start sophos_threat_detector
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
-    Stop AV Plugin Process
-    Register Cleanup   Send Sav Policy With No Scheduled Scans
-    Send Sav Policy With Imminent Scheduled Scan To Base
-    Start AV Plugin Process
+
+    # Need the settings to change before any reload attempts are even tried, so send a new allow list
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy.xml
 
     Wait Until Sophos Threat Detector Log Contains With Offset  Skipping susi reload because susi is not initialised
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
