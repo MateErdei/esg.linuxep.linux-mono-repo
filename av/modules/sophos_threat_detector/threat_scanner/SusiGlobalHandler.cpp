@@ -93,7 +93,6 @@ namespace threat_scanner
     }
 
     SusiGlobalHandler::SusiGlobalHandler()
-    : m_settings(std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath()))
     {
         my_susi_callbacks.token = this;
         auto log_level = std::min(getThreatScannerLogger().getChainedLogLevel(), getSusiDebugLogger().getChainedLogLevel());
@@ -110,6 +109,16 @@ namespace threat_scanner
 
         auto res = SUSI_SetLogCallback(&GL_log_callback);
         throwIfNotOk(res, "Failed to set log callback");
+
+        try
+        {
+            m_settings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
+        }
+        catch (const std::exception& ex)
+        {
+            LOGERROR("Could not read in SUSI settings, loading defaults. Error: " << ex.what());
+            m_settings = std::make_unique<common::ThreatDetector::SusiSettings>();
+        }
     }
 
     SusiGlobalHandler::~SusiGlobalHandler()
