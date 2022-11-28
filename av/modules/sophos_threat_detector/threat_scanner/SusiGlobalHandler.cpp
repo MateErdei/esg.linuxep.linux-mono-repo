@@ -147,7 +147,7 @@ namespace threat_scanner
 
         LOGINFO("Bootstrapping SUSI from update source: " << updateSource);
         SusiResult susiResult =  m_susiWrapper->SUSI_Install(updateSource.c_str(), installDest.c_str());
-        if (SUSI_FAILURE(SUSI_S_OK))
+        if (!SUSI_FAILURE(susiResult))
         {
             LOGINFO("Successfully installed SUSI to: " << installDest);
         }
