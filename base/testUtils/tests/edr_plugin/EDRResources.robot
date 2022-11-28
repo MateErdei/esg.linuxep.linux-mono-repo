@@ -186,6 +186,7 @@ EDR Suite Setup
     UpgradeResources.Suite Setup
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
+    Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
     ${result} =  Run Process  curl -v https://ostia.eng.sophos/latest/sspl-warehouse/master   shell=True
     Should Be Equal As Integers  ${result.rc}  0  "Failed to Verify connection to Update Server. Please, check endpoint is configured. (Hint: tools/setup_sspl/setupEnvironment2.sh).\nStdOut: ${result.stdout}\nStdErr: ${result.stderr}"
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
@@ -194,6 +195,7 @@ EDR Suite Setup
 EDR Suite Teardown
     UpgradeResources.Suite Teardown
     Stop Local SDDS3 Server
+    Remove Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL
 
 Setup SUS all develop
     Remove Directory   /tmp/launchdarkly   recursive=True
