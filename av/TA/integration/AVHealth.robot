@@ -89,6 +89,8 @@ Check Threat Health is Reporting Correctly
 
 *** Test Cases ***
 AV Not Running Triggers Bad Status Health
+    # Stopping threat_detector when OA is enabled can lead to some file scans being aborted
+    Register Cleanup  Exclude Aborted Scan Errors
     Check Status Health is Reporting Correctly    GOOD
 
     Stop AV Plugin
