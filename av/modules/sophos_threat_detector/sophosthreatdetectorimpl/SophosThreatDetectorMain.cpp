@@ -52,7 +52,7 @@ namespace sspl::sophosthreatdetectorimpl
         {
         public:
             ScannerFactoryResetter(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
-                : m_scannerFactory(scannerFactory)
+                : m_scannerFactory(std::move(scannerFactory))
             {}
             ~ScannerFactoryResetter()
             {
