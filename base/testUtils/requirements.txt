@@ -12,3 +12,4 @@ websockets
 robotframework
 watchdog
 proxy.py
+artifactory

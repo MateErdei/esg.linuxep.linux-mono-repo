@@ -709,7 +709,7 @@ class WarehouseUtils(object):
 
         env_key = "BALLISTA_CONFIG"
         generated_ballista_policy_name = "ballista.xml"
-        os.environ[env_key] = f"{username}:{password}
+        os.environ[env_key] = f"{username}:{password}"
         ballista_config = TemplateConfig(env_key, None, PROD_BUILD_CERTS, BALLISTA_ADDRESS)
 
         if os.path.isabs(template_policy) or os.path.dirname(template_policy):
