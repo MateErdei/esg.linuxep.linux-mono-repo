@@ -453,7 +453,6 @@ namespace sspl::sophosthreatdetectorimpl
 
         if(!m_scannerFactory->update()) // always force an update during start-up
         {
-            m_scannerFactory->shutdown();
             LOGFATAL("Update at startup failed exiting threat detector main");
             return common::E_GENERIC_FAILURE;
         }
