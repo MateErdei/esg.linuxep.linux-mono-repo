@@ -99,14 +99,21 @@ set(FEATURE_LIST "AV")
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(MEMORYCHECK_SUPPRESSIONS_FILE "${CMAKE_SOURCE_DIR}/build/valgrind/suppressions.supp")
+
 # Check process children and give detail for each leak
-## --trace-children=yes
-set(MEMORYCHECK_COMMAND_OPTIONS
-        "${MEMORYCHECK_COMMAND_OPTIONS} --leak-check=full --error-exitcode=80")
+string(APPEND MEMORYCHECK_COMMAND_OPTIONS " --trace-children=yes")
+string(APPEND MEMORYCHECK_COMMAND_OPTIONS " --trace-children-skip=*/scheduled_file_walker_launcher") # for TestScanScheduler
 
-set(MEMORYCHECK_COMMAND_OPTIONS
-        "${MEMORYCHECK_COMMAND_OPTIONS} --gen-suppressions=all --suppressions=${CMAKE_SOURCE_DIR}/build/valgrind/suppressions.supp")
+string(APPEND MEMORYCHECK_COMMAND_OPTIONS " --leak-check=full")
+string(APPEND MEMORYCHECK_COMMAND_OPTIONS " --max-stackframe=2621440") # for sync_versioned_files
 
+string(APPEND MEMORYCHECK_COMMAND_OPTIONS " --error-exitcode=80")
+string(APPEND MEMORYCHECK_COMMAND_OPTIONS " --gen-suppressions=all")
+
+# string(APPEND MEMORYCHECK_COMMAND_OPTIONS " --verbose")
+string(APPEND MEMORYCHECK_COMMAND_OPTIONS " --show-error-list=yes") # show used suppressions
+string(APPEND MEMORYCHECK_COMMAND_OPTIONS " --fullpath-after=${CMAKE_SOURCE_DIR}/")
 
 include (CTest)
 enable_testing()
