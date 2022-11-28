@@ -125,14 +125,14 @@ def _cleanup_local_warehouses():
 def _get_sophos_install_path():
     sophos_install_path = BuiltIn().get_variable_value("${SOPHOS_INSTALL}", "/opt/sophos-spl")
     if not os.path.isdir(sophos_install_path):
-        raise OSError("sophos install path: \"{}\", does not exist".format(sophos_install_path))
+        raise OSError(f"sophos install path: \"{sophos_install_path}\", does not exist")
     return sophos_install_path
 
 
 def _install_upgrade_certs(root_ca, ps_root_ca):
     sophos_install_path = _get_sophos_install_path()
-    logger.info("root_ca:  {}".format(root_ca))
-    logger.info("ps_root_ca:  {}".format(ps_root_ca))
+    logger.info(f"root_ca:  {root_ca}")
+    logger.info(f"ps_root_ca:  {ps_root_ca}")
 
     try:
         shutil.copy(root_ca, os.path.join(sophos_install_path, ROOT_CA_INSTALLATION_EXTENSION))
@@ -146,12 +146,12 @@ def _install_sophos_alias_file(url):
     sophos_install_path = _get_sophos_install_path()
     sophos_alias_file_path = os.path.join(sophos_install_path, SOPHOS_ALIAS_EXTENSION)
     base_update_var_directory = os.path.dirname(sophos_alias_file_path)
-    logger.info("Sophos alias URL: {}".format(url))
+    logger.info(f"Sophos alias URL: {url}")
     if not os.path.isdir(base_update_var_directory):
-        raise OSError("cannot create sophos alias file as \"{}\" does not exist".format(base_update_var_directory))
+        raise OSError(f"cannot create sophos alias file as \"{base_update_var_directory}\" does not exist")
     with open(sophos_alias_file_path, "w") as sophos_alias_file:
         sophos_alias_file.write(url)
-        logger.info("wrote alias '{}' to '{}'".format(url, sophos_alias_file_path))
+        logger.info(f"wrote alias '{url}' to '{sophos_alias_file_path}'")
 
 
 def _remove_sophos_alias_file():
@@ -161,13 +161,13 @@ def _remove_sophos_alias_file():
 
 
 def calculate_hashed_creds(username, password):
-    credentials_as_string = "{}:{}".format(username, password)
+    credentials_as_string = f"{username}:{password}"
     hash = hashlib.md5(credentials_as_string.encode("utf-8"))
     logger.info(credentials_as_string)
     return hash.hexdigest()
 
 
-def getYesterday():
+def get_yesterday():
     now = datetime.date.today()
     yesterday = now - datetime.timedelta(days=1)
     return yesterday.strftime("%A")  # Returns day as week day name
@@ -322,9 +322,7 @@ def get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidnam
                 continue
             examined.append(sdds_name)
 
-            logger.debug("get_version_of_component_with_tag_from_spec_xml_from_componentsuite: {} -> {}".format(
-                sdds_name, spec_xml)
-            )
+            logger.debug(f"get_version_of_component_with_tag_from_spec_xml_from_componentsuite: {sdds_name} -> {spec_xml}")
 
             importref = get_importrefrence_for_component_with_tag_from_componentsuite(rigidname,
                                                                                       componentsuite_rigid_name, tag,
@@ -351,7 +349,7 @@ class TemplateConfig:
         :param username: username for the warehouse this policy is made for
         :param build_type: build type (prod or dev) of the products in the warehouse (needed for cert disambiguation)
         """
-        self.yesterday = getYesterday()
+        self.yesterday = get_yesterday()
         self.local_connection_address = None
         self.env_key = env_key
         environment_config = os.environ.get(env_key, None)
@@ -384,7 +382,7 @@ class TemplateConfig:
 
     def _set_customer_file_domain(self):
         if "localhost" in self.get_connection_address():
-            self.customer_file_domain = "localhost:{}".format(self.local_customer_file_port)
+            self.customer_file_domain = f"localhost:{self.local_customer_file_port}"
         elif "ostia" in self.get_connection_address():
             self.customer_file_domain = "ostia.eng.sophos:443"
         else:
@@ -402,23 +400,20 @@ class TemplateConfig:
         # don't do this if using a ballista override
         if self.use_local_warehouses and self.remote_connection_address not in ADDRESS_DICT.values():
             self.local_customer_file_port = OSTIA_ADDRESSES[self.remote_connection_address]
-            self.local_connection_address = "https://localhost:{}".format(self.local_customer_file_port)
-            logger.info("setting {} local connection address to {} as local warehouse directory was found".format(
-                self.remote_connection_address, self.local_connection_address
-            ))
+            self.local_connection_address = f"https://localhost:{self.local_customer_file_port}"
+            logger.info(f"setting {self.remote_connection_address} local connection address to {self.local_connection_address} as local warehouse directory was found")
 
     def get_connection_address(self):
         if self.local_connection_address:
-            logger.info("returning '{}' as connection address".format(self.local_connection_address))
+            logger.info(f"returning '{self.local_connection_address}' as connection address")
             return self.local_connection_address
         else:
-            logger.info("returning '{}' as connection address".format(self.remote_connection_address))
+            logger.info(f"returning '{self.remote_connection_address}' as connection address")
             return self.remote_connection_address
 
     def _validate_values(self):
         if self.build_type not in [PROD_BUILD_CERTS, DEV_BUILD_CERTS]:
-            raise ValueError("Build type override for {} is invalid, should be {} or {}, was {}".format(
-                self.env_key, PROD_BUILD_CERTS, DEV_BUILD_CERTS, self.build_type))
+            raise ValueError(f"Build type override for {self.env_key} is invalid, should be {PROD_BUILD_CERTS} or {DEV_BUILD_CERTS}, was {self.build_type}")
 
     def _define_hashed_creds(self):
         self.hashed_credentials = calculate_hashed_creds(self.username, self.password)
@@ -459,11 +454,11 @@ class TemplateConfig:
         if proposed_output_path is None:
             output_policy = os.path.join(GENERATED_FILE_DIRECTORY, template_file_name)
         else:
-            logger.info("ALC policy will be placed at: {}".format(proposed_output_path))
+            logger.info(f"ALC policy will be placed at: {proposed_output_path}")
             output_policy = proposed_output_path
 
         if not os.path.isfile(template_policy):
-            raise OSError("{} does not exist".format(template_policy))
+            raise OSError(f"{template_policy} does not exist")
 
         password_marker = "@PASSWORD@"
         username_marker = "@USERNAME@"
@@ -481,16 +476,15 @@ class TemplateConfig:
             with open(output_policy, "w+") as output_file:  # replaces existing file if exists
                 output_file.write(template_string_with_replaced_values)
                 logger.info(
-                    """
-                    Wrote real warehouse policy \"{}\" with:
-                    username: {}
-                    password: {}
-                    connection address: {}
+                    f"""
+                    Wrote real warehouse policy \"{self.policy_file_name}\" with:
+                    username: {self.username}
+                    password: {self.password}
+                    connection address: {self.get_connection_address()}
                     full contents:
-                    {}
+                    {template_string_with_replaced_values}
                     
-                    """.format(self.policy_file_name, self.username, self.password, self.get_connection_address(),
-                               template_string_with_replaced_values)
+                    """
                 )
         return output_policy
 
@@ -571,11 +565,11 @@ class WarehouseUtils(object):
         if template_config:
             return template_config
         else:
-            raise KeyError("{} not found in template_configuration_values dictionary".format(policy_filename))
+            raise KeyError(f"{policy_filename} not found in template_configuration_values dictionary")
 
     def _get_template_config_from_dictionary_using_path(self, policy_file_path):
         if not os.path.isfile(policy_file_path):
-            raise OSError("{} is not a file".format(policy_file_path))
+            raise OSError(f"{policy_file_path} is not a file")
         file_name = os.path.basename(policy_file_path)
         template_config = self._get_template_config_from_dictionary_using_filename(file_name)
         return template_config
@@ -689,12 +683,12 @@ class WarehouseUtils(object):
             customer_directory = os.path.join(local_warehouse_branch, timestamp, "customer")
 
             self.update_server.start_update_server(port, customer_directory)
-            logger.info("started local warehouse customer file server on localhost:{} for {}".format(port, branch_name))
-            self.update_server.can_curl_url("https://localhost:{}".format(port))
+            logger.info(f"started local warehouse customer file server on localhost:{port} for {branch_name}")
+            self.update_server.can_curl_url(f"https://localhost:{port}")
 
         self.update_server.start_update_server(WAREHOUSE_LOCAL_SERVER_PORT, LOCAL_WAREHOUSES_ROOT)
-        logger.info("started local warehouse catalogue server on localhost:{}".format(WAREHOUSE_LOCAL_SERVER_PORT))
-        self.update_server.can_curl_url("https://localhost:{}".format(WAREHOUSE_LOCAL_SERVER_PORT))
+        logger.info(f"started local warehouse catalogue server on localhost:{WAREHOUSE_LOCAL_SERVER_PORT}")
+        self.update_server.can_curl_url(f"https://localhost:{WAREHOUSE_LOCAL_SERVER_PORT}")
 
     def setup_local_warehouses_if_needed(self):
         if os.path.isdir(LOCAL_WAREHOUSES):
@@ -715,7 +709,7 @@ class WarehouseUtils(object):
 
         env_key = "BALLISTA_CONFIG"
         generated_ballista_policy_name = "ballista.xml"
-        os.environ[env_key] = "{}:{}".format(username, password)
+        os.environ[env_key] = f"{username}:{password}
         ballista_config = TemplateConfig(env_key, None, PROD_BUILD_CERTS, BALLISTA_ADDRESS)
 
         if os.path.isabs(template_policy) or os.path.dirname(template_policy):
@@ -738,7 +732,7 @@ class WarehouseUtils(object):
         # LOCAL_WAREHOUSES=${SYSTEMPRODUCT_TEST_INPUT}/local_warehouses/dev/sspl-warehouse
         # templateConfig = self._get_template_config_from_dictionary_using_path(template_path)
         # base = templateConfig.get_basename_from_url()
-        logger.info("Disable_Product_Warehouse_to_ensure_we_only_perform_a_supplement_update for {}".format(branch))
+        logger.info(f"Disable_Product_Warehouse_to_ensure_we_only_perform_a_supplement_update for {branch}")
         path = self.__get_localwarehouse_path_for_branch(branch)
 
         PROTECTED_SUPPLEMENT_WAREHOUSES = [
@@ -747,23 +741,23 @@ class WarehouseUtils(object):
 
         for x in os.listdir(path):
             if x in PROTECTED_SUPPLEMENT_WAREHOUSES:
-                logger.debug("Not renaming supplement warehouse: {}".format(x))
+                logger.debug(f"Not renaming supplement warehouse: {x}")
                 continue
             src = os.path.join(path, x)
             bak = src + ".bak"
             if not os.path.isfile(bak):
-                logger.debug("Renaming {} to {}".format(src, bak))
+                logger.debug(f"Renaming {src} to {bak}")
                 os.rename(src, bak)
 
     def Restore_Product_Warehouse(self, branch="develop"):
-        logger.info("Restore_Product_Warehouse - after breaking for supplement-only update - for {}".format(branch))
+        logger.info(f"Restore_Product_Warehouse - after breaking for supplement-only update - for {branch}")
         path = self.__get_localwarehouse_path_for_branch(branch)
 
         for x in os.listdir(path):
             if x.endswith(".bak"):
                 src = os.path.join(path, x)
                 target = src[:-4]
-                logger.debug("Renaming {} to {}".format(src, target))
+                logger.debug(f"Renaming {src} to {target}")
                 os.rename(os.path.join(path, x), target)
 
     def get_version_from_warehouse_for_rigidname(self, template_policy, rigidname, tag="RECOMMENDED"):
@@ -831,8 +825,8 @@ class WarehouseUtils(object):
             split_version = branch.strip(branch_filter).split(version_separator)
             selected_release_branch_version = int(release_branch.split(version_separator)[-1])
 
-            current_release_branch_incorrect = (release_type == "current_shipping" and 4 < selected_release_branch_version)\
-                                                or (split_version[0].isdigit() and selected_release_branch_version <= int(split_version[0]))
+            current_release_branch_incorrect = (release_type == "current_shipping" and 4 < selected_release_branch_version) \
+                                               or (split_version[0].isdigit() and selected_release_branch_version <= int(split_version[0]))
 
             if len(split_version) == 1:
                 if current_release_branch_incorrect:
