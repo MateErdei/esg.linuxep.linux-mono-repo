@@ -794,7 +794,7 @@ class WarehouseUtils(object):
         return version.parse(version1) > version.parse(version2)
 
     def gather_sdds3_warehouse_files(self, release_type):
-        release_branches, builds, respin_branches = [], [], []
+        release_branches, builds = [], []
         version_separator = ""
 
         current_year = datetime.date.today().year
@@ -812,11 +812,6 @@ class WarehouseUtils(object):
             branch_name = os.path.basename(path)
             if branch_name.startswith(branch_filter):
                 release_branches.append(branch_name)
-
-        for branch in release_branches:
-            branch_version = branch.strip(branch_filter)
-            if not branch_version.isdigit() or len(branch_version.split(version_separator)) > 1:
-                respin_branches.append(branch)
 
         # Remove sprint branches
         if release_type == "current_shipping":
@@ -836,11 +831,13 @@ class WarehouseUtils(object):
 
     def unpack_sdds3_artifact(self, build_url, artifact_name, output_dir):
         unpack_location = os.path.join(output_dir, artifact_name)
-        artifact_url = os.path.join(build_url, "build", f"prod-sdds3-{artifact_name}.zip")
 
-        r = requests.get(artifact_url)
-        z = zipfile.ZipFile(io.BytesIO(r.content))
-        z.extractall(unpack_location)
+        if not os.path.exists(unpack_location):
+            artifact_url = os.path.join(build_url, "build", f"prod-sdds3-{artifact_name}.zip")
+
+            r = requests.get(artifact_url)
+            z = zipfile.ZipFile(io.BytesIO(r.content))
+            z.extractall(unpack_location)
 
     def setup_release_warehouse(self, release_type):
         try:
