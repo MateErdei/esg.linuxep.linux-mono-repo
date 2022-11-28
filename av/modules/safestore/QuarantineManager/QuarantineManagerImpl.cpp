@@ -509,12 +509,16 @@ namespace safestore::QuarantineManager
             auto objectName = m_safeStore->getObjectName(*objectHandle);
             if (objectName.empty())
             {
-                LOGERROR("Couldn't get object name for: " << objectId << ", cannot restore a nameless detection. Continuing...");
-                continue;
+                LOGWARN("Couldn't get object name for: " << objectId << ".");
             }
 
-            const std::string escapedPath = common::escapePathForLogging(
-                m_safeStore->getObjectLocation(*objectHandle) + "/" + objectName);
+            auto objectLocation = m_safeStore->getObjectLocation(*objectHandle);
+            if (objectLocation.empty())
+            {
+                LOGWARN("Couldn't get object location for: " << objectId << ".");
+            }
+
+            const std::string escapedPath = common::escapePathForLogging(objectLocation + "/" + objectName);
 
             if (response.allClean())
             {
