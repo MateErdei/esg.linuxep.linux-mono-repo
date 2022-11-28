@@ -116,7 +116,7 @@ TEST_F(TestMounts, TestMountInfoFile_Exists) // NOLINT
 TEST_F(TestMounts, TestMountPoint_rootDirNotInMountInfoFile) // NOLINT
 {
     CreateFile(m_mountInfoFile, "tmpfs /run tmpfs rw,nosuid,noexec,relatime,size=1020904k,mode=755 0 0\n");
-    CreateFile(m_findfsCmdPath, "#!/bin/bash\necho /dev/abc1\n", S_IRWXU);
+    CreateFile(m_findfsCmdPath, "#! /bin/sh\necho /dev/abc1\n", S_IRWXU);
 
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
     EXPECT_CALL(*m_systemPaths, findfsCmdPath()).WillRepeatedly(Return(m_findfsCmdPath));
@@ -133,8 +133,8 @@ TEST_F(TestMounts, TestMountPoint_rootfs_uuid) // NOLINT
 {
     CreateFile(m_mountInfoFile, "/dev/root / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
-    CreateFile(m_findfsCmdPath, "#!/bin/bash\necho /dev/abc1\n", S_IRWXU);
-    CreateFile(m_mountCmdPath, "#!/bin/bash\nexit 77\n", S_IRWXU);
+    CreateFile(m_findfsCmdPath, "#! /bin/sh\necho /dev/abc1\n", S_IRWXU);
+    CreateFile(m_mountCmdPath, "#! /bin/sh\nexit 77\n", S_IRWXU);
 
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
     EXPECT_CALL(*m_systemPaths, cmdlineInfoFilePath()).WillOnce(Return(m_cmdlineInfoFile));
@@ -151,7 +151,7 @@ TEST_F(TestMounts, TestMountPoint_rootfs_label) // NOLINT
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=LABEL=rootLabel ro quiet splash");
-    CreateFile(m_findfsCmdPath, "#!/bin/bash\necho /dev/abc1\n", S_IRWXU);
+    CreateFile(m_findfsCmdPath, "#! /bin/sh\necho /dev/abc1\n", S_IRWXU);
 
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
     EXPECT_CALL(*m_systemPaths, cmdlineInfoFilePath()).WillOnce(Return(m_cmdlineInfoFile));
@@ -184,8 +184,8 @@ TEST_F(TestMounts, TestMountPoint_findfsAndMountNotExecutable) // NOLINT
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
-    CreateFile(m_findfsCmdPath, "#!/bin/bash\necho /dev/abc1", S_IRUSR);
-    CreateFile(m_mountCmdPath, "#!/bin/bash\necho mount: /dev/abc1 mounted on /.", S_IRUSR);
+    CreateFile(m_findfsCmdPath, "#! /bin/sh\necho /dev/abc1", S_IRUSR);
+    CreateFile(m_mountCmdPath, "#! /bin/sh\necho mount: /dev/abc1 mounted on /.", S_IRUSR);
 
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
     EXPECT_CALL(*m_systemPaths, cmdlineInfoFilePath()).WillOnce(Return(m_cmdlineInfoFile));
@@ -203,8 +203,8 @@ TEST_F(TestMounts, TestMountPoint_findfs_fails) // NOLINT
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
-    CreateFile(m_findfsCmdPath, "#!/bin/bash\nexit 77", S_IRWXU);
-    CreateFile(m_mountCmdPath, "#!/bin/bash\necho mount: /dev/abc1 mounted on /.", S_IRWXU);
+    CreateFile(m_findfsCmdPath, "#! /bin/sh\nexit 77", S_IRWXU);
+    CreateFile(m_mountCmdPath, "#! /bin/sh\necho mount: /dev/abc1 mounted on /.", S_IRWXU);
 
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
     EXPECT_CALL(*m_systemPaths, cmdlineInfoFilePath()).WillOnce(Return(m_cmdlineInfoFile));
@@ -222,8 +222,8 @@ TEST_F(TestMounts, TestMountPoint_findfs_fails_mount_returns_empty) // NOLINT
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
-    CreateFile(m_findfsCmdPath, "#!/bin/bash\nexit 77", S_IRWXU);
-    CreateFile(m_mountCmdPath, "#!/bin/bash\nexit 0", S_IRWXU);
+    CreateFile(m_findfsCmdPath, "#! /bin/sh\nexit 77", S_IRWXU);
+    CreateFile(m_mountCmdPath, "#! /bin/sh\nexit 0", S_IRWXU);
 
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
     EXPECT_CALL(*m_systemPaths, cmdlineInfoFilePath()).WillOnce(Return(m_cmdlineInfoFile));
@@ -241,8 +241,8 @@ TEST_F(TestMounts, TestMountPoint_findfs_fails_mount_returns_one_space) // NOLIN
 {
     CreateFile(m_mountInfoFile, "rootfs / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n");
     CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=UUID=9232e4a0-bdf4-4c83-9d9c-68816a9809a4 ro quiet splash");
-    CreateFile(m_findfsCmdPath, "#!/bin/bash\nexit 77", S_IRWXU);
-    CreateFile(m_mountCmdPath, "#!/bin/bash\necho mount: foobar", S_IRWXU);
+    CreateFile(m_findfsCmdPath, "#! /bin/sh\nexit 77", S_IRWXU);
+    CreateFile(m_mountCmdPath, "#! /bin/sh\necho mount: foobar", S_IRWXU);
 
     EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
     EXPECT_CALL(*m_systemPaths, cmdlineInfoFilePath()).WillOnce(Return(m_cmdlineInfoFile));
