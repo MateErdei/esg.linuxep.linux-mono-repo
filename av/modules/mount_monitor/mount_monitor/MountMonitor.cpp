@@ -7,6 +7,7 @@
 #include "common/SaferStrerror.h"
 #include "datatypes/AutoFd.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
+#include "sophos_on_access_process/soapd_bootstrap/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryFields.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
@@ -73,6 +74,13 @@ namespace mount_monitor::mount_monitor
 
     bool MountMonitor::isIncludedFilesystemType(const mountinfo::IMountPointSharedPtr& mp)
     {
+        auto itr = FILE_SYSTEMS_TO_EXCLUDE.find(mp->filesystemType());
+        if (itr != FILE_SYSTEMS_TO_EXCLUDE.cend())
+        {
+            LOGINFO("Mount point " << mp->mountPoint().c_str() << " is not supported and will be excluded from scanning");
+            return false;
+        }
+
         if (mp->isHardDisc() || (mp->isNetwork() && !m_config.excludeRemoteFiles) || mp->isRemovable() || mp->isOptical())
         {
             return true;
