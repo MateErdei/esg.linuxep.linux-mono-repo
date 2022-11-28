@@ -172,7 +172,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
         .WillOnce(Return(fd4_response));
     EXPECT_CALL(*scannerFactory, createScanner(true, true)).WillOnce(Return(ByMove(std::move(scanner))));
 
-    unixsocket::ScanningServerSocket server(Plugin::getScanningClientSocketPath(), 0600, scannerFactory);
+    unixsocket::ScanningServerSocket server(Plugin::getScanningSocketPath(), 0600, scannerFactory);
     server.start();
 
     std::vector<std::string> expectedResult{ "objectId1", "objectId3" };
@@ -233,7 +233,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
     EXPECT_CALL(*scanner, scan(_, _, _, _)).WillOnce(Return(fd1_response));
     EXPECT_CALL(*scannerFactory, createScanner(true, true)).WillOnce(Return(ByMove(std::move(scanner))));
 
-    unixsocket::ScanningServerSocket server(Plugin::getScanningClientSocketPath(), 0600, scannerFactory);
+    unixsocket::ScanningServerSocket server(Plugin::getScanningSocketPath(), 0600, scannerFactory);
     server.start();
 
     std::vector<std::string> expectedResult{};
