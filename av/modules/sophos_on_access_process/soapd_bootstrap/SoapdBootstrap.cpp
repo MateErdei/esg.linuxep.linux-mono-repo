@@ -74,14 +74,16 @@ int SoapdBootstrap::outerRun()
 
 void SoapdBootstrap::initialiseTelemetry()
 {
+    using namespace ::onaccessimpl::onaccesstelemetry;
+
     m_TelemetryUtility = std::make_shared<onaccesstelemetry::OnAccessTelemetryUtility>();
 
-    Common::Telemetry::TelemetryHelper::getInstance().restore(OnAccessConfig::onAccessTelemetrySocket);
+    Common::Telemetry::TelemetryHelper::getInstance().restore(ON_ACCESS_TELEMETRY_SOCKET);
     auto replier = m_onAccessContext->getReplier();
-    Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, OnAccessConfig::onAccessTelemetrySocket, 5000, 5000);
+    Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, ON_ACCESS_TELEMETRY_SOCKET, 5000, 5000);
     auto pluginCallback = std::make_shared<sophos_on_access_process::service_callback::OnAccessServiceCallback>(m_TelemetryUtility);
     m_pluginHandler = std::make_unique<Common::PluginApiImpl::PluginCallBackHandler>
-        (OnAccessConfig::onAccessTelemetrySocket,
+        (ON_ACCESS_TELEMETRY_SOCKET,
          std::move(replier),
         pluginCallback,
         Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM);
