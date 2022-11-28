@@ -425,15 +425,8 @@ function install_product()
     fi
 
     #LINUXDAR-5935 removed libsusi and libupdater from av/lib64, we don't need to keep a copy of them anymore. Affects only upgrades
-    if [[ -e "$SOPHOS_INSTALL/plugins/av/lib64/libsusi.so" ]]
-    then
-        rm -f "$SOPHOS_INSTALL/plugins/av/lib64/libsusi.so*"
-    fi
-
-    if [[ -e "$SOPHOS_INSTALL/plugins/av/lib64/libupdater.so" ]]
-    then
-        rm -f "$SOPHOS_INSTALL/plugins/av/lib64/libupdater.so*"
-    fi
+    rm -f "$SOPHOS_INSTALL/plugins/av/lib64/libsusi.so*"
+    rm -f "$SOPHOS_INSTALL/plugins/av/lib64/libupdater.so*"
 
     #Install SUSI
     [ -e "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl" ] && rm "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl/"*
