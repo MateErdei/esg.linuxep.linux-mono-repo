@@ -46,7 +46,7 @@ namespace common::ThreatDetector
             auto settingsJsonContent = fs->readFile(threatDetectorSettingsPath);
             if (settingsJsonContent.empty())
             {
-                LOGDEBUG("SUSI Settings JSON file exists but contents is empty");
+                LOGDEBUG("SUSI Settings JSON file exists but contents are empty");
                 return false;
             }
             json parsedConfig = json::parse(settingsJsonContent);
