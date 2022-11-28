@@ -26,7 +26,7 @@ ${MACHINEID_CHROOT_FILE}  ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/et
 ${MACHINEID_FILE}   ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${SUSI_UPDATE_SOURCE}   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source
 ${SUSI_DISTRIBUTION_VERSION}   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version
-${VDL_DIRECTORY}  ${SUSI_UPDATE_SOURCE}/vdl/
+${VDL_DIRECTORY}  ${SUSI_UPDATE_SOURCE}/vdl
 
 *** Test Cases ***
 Test Global Rep works in chroot
@@ -627,7 +627,8 @@ Threat Detector Can Bootstrap New SUSI After A Failed Initialization
 
     #Reset update source and set lost permissions
     Move Directory  /tmp/vdl  ${SUSI_UPDATE_SOURCE}
-    Run Process  chmod  -R  777 ${VDL_DIRECTORY}
+    Run Process  chown  -R  sophos-spl-threat-detector:sophos-spl-group  ${VDL_DIRECTORY}
+    Run Process  chmod  -R  770  ${VDL_DIRECTORY}
 
     #Attempt to initialize SUSI, a clean result means sucessfull initialization
     ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${AVSCANNER}
