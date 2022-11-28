@@ -818,26 +818,11 @@ class WarehouseUtils(object):
             if not branch_version.isdigit() or len(branch_version.split(version_separator)) > 1:
                 respin_branches.append(branch)
 
-        release_branch = sorted([i for i in release_branches if i not in respin_branches],
-                                key=lambda x: int(str(x).split(version_separator)[-1]), reverse=True)[0]
+        # Remove sprint branches
+        if release_type == "current_shipping":
+            release_branches = [i for i in release_branches if int(i.strip(branch_filter).split(version_separator)[0]) <= 4]
 
-        for branch in respin_branches:
-            split_version = branch.strip(branch_filter).split(version_separator)
-            selected_release_branch_version = int(release_branch.split(version_separator)[-1])
-
-            current_release_branch_incorrect = (release_type == "current_shipping" and 4 < selected_release_branch_version) \
-                                               or (split_version[0].isdigit() and selected_release_branch_version <= int(split_version[0]))
-
-            if len(split_version) == 1:
-                if current_release_branch_incorrect:
-                    release_branch = branch
-            else:
-                if (sum(split_version[0] in s for s in respin_branches)) == 1 and current_release_branch_incorrect:
-                    release_branch = branch
-                else:
-                    if current_release_branch_incorrect:
-                        release_branch = sorted(respin_branches, key=lambda x: split_version[0], reverse=True)[0]
-
+        release_branch = sorted(release_branches, key=lambda x: int(x[len(branch_filter):].split(version_separator)[0]), reverse=True)[0]
         for build in ArtifactoryPath(os.path.join(warehouse_repo_url, release_branch)):
             builds.append(build)
         latest_build = sorted(builds, key=lambda x: int(os.path.basename(x).split('-')[0]), reverse=True)[0]
