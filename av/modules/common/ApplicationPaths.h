@@ -20,5 +20,7 @@ namespace Plugin
     std::string getSoapdPidPath();
     std::string getOnAccessUnhealthyFlagPath();
     std::string getRelativeSafeStoreRescanIntervalConfigPath();
-    std::string getScanningClientSocketPath();
+    std::string getSafeStoreConfigPath();
+    std::string getScanningSocketPath();
+    std::string getPersistThreatDatabaseFilePath();
 } // namespace Plugin

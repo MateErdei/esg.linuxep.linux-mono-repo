@@ -89,10 +89,18 @@ namespace Plugin
         return "/var/safeStoreRescanInterval";
     }
 
-    std::string getScanningClientSocketPath()
+    std::string getSafeStoreConfigPath()
+    {
+        return getPluginVarDirPath() + "/safestore_config.json";
+    }
+
+    std::string getScanningSocketPath()
     {
         return getPluginChrootVarDirPath() + "/scanning_socket";
     }
 
-
+    std::string getPersistThreatDatabaseFilePath()
+    {
+        return getPluginVarDirPath() + "/persist-threatDatabase";
+    }
 } // namespace Plugin

@@ -14,7 +14,7 @@
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include <Common/UtilityImpl/Uuid.h>
+#include "Common/UtilityImpl/Uuid.h"
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -485,7 +485,7 @@ namespace safestore::QuarantineManager
 
         LOGINFO("Number of files to Rescan: " << files.size());
 
-        unixsocket::ScanningClientSocket scanningClient(Plugin::getScanningClientSocketPath());
+        unixsocket::ScanningClientSocket scanningClient(Plugin::getScanningSocketPath());
 
         for (auto& [fd, objectId] : files)
         {
@@ -510,7 +510,7 @@ namespace safestore::QuarantineManager
 
             if (response.allClean())
             {
-                LOGDEBUG("Rescan found quarantined file is clean: " << escapedPath);
+                LOGDEBUG("Rescan found quarantined file no longer a threat: " << escapedPath);
                 cleanFiles.emplace_back(objectId);
             }
             else
