@@ -85,27 +85,29 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
+    const std::string threatPath = "/threat/path";
+
     TestFile cleanFile1("cleanFile1");
     datatypes::AutoFd fd1{ cleanFile1.open() };
     auto fd1_response = scan_messages::ScanResponse();
-    const std::string threatPath1 = "one";
+    const std::string threatName1 = "one";
 
     TestFile dirtyFile1("dirtyFile1");
     datatypes::AutoFd fd2{ dirtyFile1.open() };
     auto fd2_response = scan_messages::ScanResponse();
     fd2_response.addDetection("two", "THREAT", "sha256");
-    const std::string threatPath2 = "two";
+    const std::string threatName2 = "two";
 
     TestFile cleanFile2("cleanFile2");
     datatypes::AutoFd fd3{ cleanFile2.open() };
     auto fd3_response = scan_messages::ScanResponse();
-    const std::string threatPath3 = "three";
+    const std::string threatName3 = "three";
 
     TestFile dirtyFile2("dirtyFile2");
     datatypes::AutoFd fd4{ dirtyFile2.open() };
     auto fd4_response = scan_messages::ScanResponse();
     fd4_response.addDetection("four", "THREAT", "sha256");
-    const std::string threatPath4 = "four";
+    const std::string threatName4 = "four";
 
     std::vector<FdsObjectIdsPair> testFiles;
     testFiles.emplace_back(std::move(fd1), "objectId1");
@@ -123,7 +125,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle1));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId1", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg1)).WillOnce(Return(threatPath1));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg1)).WillOnce(Return(threatPath));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg1)).WillOnce(Return(threatName1));
 
     void* rawHandle2 = reinterpret_cast<SafeStoreObjectHandle>(2222);
     auto objectHandle2 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
@@ -132,7 +135,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle2));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId2", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg2)).WillOnce(Return(threatPath2));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg2)).WillOnce(Return(threatPath));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg2)).WillOnce(Return(threatName2));
 
     void* rawHandle3 = reinterpret_cast<SafeStoreObjectHandle>(3333);
     auto objectHandle3 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
@@ -141,7 +145,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle3));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId3", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg3)).WillOnce(Return(threatPath3));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg3)).WillOnce(Return(threatPath));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg3)).WillOnce(Return(threatName3));
 
     void* rawHandle4 = reinterpret_cast<SafeStoreObjectHandle>(4444);
     auto objectHandle4 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
@@ -150,7 +155,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle4));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId4", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg4)).WillOnce(Return(threatPath4));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg4)).WillOnce(Return(threatPath));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg4)).WillOnce(Return(threatName4));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).Times(4)
         .WillOnce(Return(ByMove(std::move(objectHandle1))))
