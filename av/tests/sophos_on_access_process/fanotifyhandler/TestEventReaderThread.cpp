@@ -511,8 +511,9 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFD = FANOTIFY_FD;
+    int version = 2;
 
-    auto metadata = getMetaData(FAN_CLOSE, 10, 10, 2);
+    auto metadata = getMetaData(FAN_CLOSE, 10, 10, version);
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN));
@@ -522,7 +523,7 @@ TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "Fanotify wrong protocol version " << metadata.vers;
+    logMsg << "Fanotify wrong protocol version " << version;
     EXPECT_TRUE(waitForLog(logMsg.str()));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }

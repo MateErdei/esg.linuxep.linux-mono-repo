@@ -118,7 +118,7 @@ bool EventReaderThread::handleFanotifyEvent()
     {
         if (metadata->vers != FANOTIFY_METADATA_VERSION)
         {
-            LOGERROR("Fanotify wrong protocol version " << metadata->vers);
+            LOGERROR("Fanotify wrong protocol version " << (unsigned int) metadata->vers);
             return false;
         }
 
