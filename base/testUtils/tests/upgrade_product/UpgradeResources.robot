@@ -194,13 +194,13 @@ Start Local SDDS3 Server
     [Return]  ${handle}
 
 Start Local Dogfood SDDS3 Server
-    Copy VUT Supplements For Release Warehouse    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood/repo
+    Setup Release Warehouse    dogfood
     ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood/repo
     [Return]  ${handle}
 
 Start Local Release SDDS3 Server
-    Copy VUT Supplements For Release Warehouse    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-release/repo
-    ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-release/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-release/repo
+    Setup Release Warehouse    current_shipping
+    ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-current_shipping/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-current_shipping/repo
     [Return]  ${handle}
 
 Start Local SDDS3 Server With Empty Repo

@@ -4,20 +4,22 @@
 # All rights reserved.
 
 import datetime
-import time
+import hashlib
+import io
 import os
 import shutil
-import hashlib
-import glob
-import UpdateServer
-import robot.api.logger as logger
-from robot.libraries.BuiltIn import BuiltIn
-import xml.etree.ElementTree as ET
-import requests
 import subprocess
+import xml.etree.ElementTree as ET
+import zipfile
+
+import requests
+import robot.api.logger as logger
+from artifactory import ArtifactoryPath
 from packaging import version
+from robot.libraries.BuiltIn import BuiltIn
 
 import PathManager
+import UpdateServer
 
 THIS_FILE = os.path.realpath(__file__)
 LIBS_DIR = PathManager.get_libs_path()
@@ -797,14 +799,74 @@ class WarehouseUtils(object):
     def second_version_is_lower(self, version1, version2):
         return version.parse(version1) > version.parse(version2)
 
-    def copy_vut_supplements_for_release_warehouse(self, sdds3RepoPath):
+    def gather_sdds3_warehouse_files(self, release_type):
+        release_branches, builds, respin_branches = [], [], []
+        version_separator = ""
+
+        current_year = datetime.date.today().year
+        warehouse_repo_url = "https://artifactory.sophos-ops.com/artifactory/esg-build-candidate/linuxep.sspl-warehouse"
+
+        if release_type == "dogfood":
+            version_separator = "-"
+        elif release_type == "current_shipping":
+            version_separator = "."
+        else:
+            raise AssertionError(f"Invalid argument {release_type}: use dogfood or current_shipping")
+
+        branch_filter = f"release--{current_year}{version_separator}"
+        for path in ArtifactoryPath(warehouse_repo_url):
+            branch_name = os.path.basename(path)
+            if branch_name.startswith(branch_filter):
+                release_branches.append(branch_name)
+
+        for branch in release_branches:
+            branch_version = branch.split(branch_filter)[1]
+            if not branch_version.isdigit() or len(branch_version.split(version_separator)) > 1:
+                release_branches.remove(branch)
+                respin_branches.append(branch)
+
+        release_branch = sorted(release_branches, key=lambda x: int(str(x).split(version_separator)[-1]), reverse=True)[0]
+        for branch in respin_branches:
+            version = branch.split(branch_filter)[1].split(version_separator)[0]
+
+            # Check if respin version is later than the currently selected release branch
+            if version.isdigit():
+                if int(release_branch.split(version_separator)[-1]) <= int(version[0]):
+                    release_branch = branch
+
+        for build in ArtifactoryPath(os.path.join(warehouse_repo_url, release_branch)):
+            builds.append(build)
+        latest_build = sorted(builds, key=lambda x: int(os.path.basename(x).split('-')[0]), reverse=True)[0]
+
+        output_dir = os.path.join(SYSTEMPRODUCT_TEST_INPUT, f"sdds3-{release_type}")
+        if not os.path.isdir(output_dir):
+            os.mkdir(output_dir)
+
+        self.unpack_sdds3_artifact(latest_build, "launchdarkly", output_dir)
+        self.unpack_sdds3_artifact(latest_build, "repo", output_dir)
+
+    def unpack_sdds3_artifact(self, build_url, artifact_name, output_dir):
+        unpack_location = os.path.join(output_dir, artifact_name)
+        artifact_url = os.path.join(build_url, "build", f"prod-sdds3-{artifact_name}.zip")
+
+        r = requests.get(artifact_url)
+        z = zipfile.ZipFile(io.BytesIO(r.content))
+        z.extractall(unpack_location)
+
+    def setup_release_warehouse(self, release_type):
+        try:
+            self.gather_sdds3_warehouse_files(release_type)
+        except Exception as ex:
+            raise AssertionError(f"Failed to gather {release_type} warehouse files. Error: {ex}")
+
+        sdds3repo_path = os.path.join(SYSTEMPRODUCT_TEST_INPUT, f"sdds3-{release_type}", "repo")
         vut_sdds3_repo_path = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "sdds3", "repo")
 
         vut_sdds3_package_path = os.path.join(vut_sdds3_repo_path, "package")
-        release_sdds3_package_path = os.path.join(sdds3RepoPath, "package")
+        release_sdds3_package_path = os.path.join(sdds3repo_path, "package")
 
         vut_sdds3_supplement_path = os.path.join(vut_sdds3_repo_path, "supplement")
-        release_sdds3_supplement_path = os.path.join(sdds3RepoPath, "supplement")
+        release_sdds3_supplement_path = os.path.join(sdds3repo_path, "supplement")
 
         if not os.path.isdir(release_sdds3_supplement_path):
             os.mkdir(release_sdds3_supplement_path)
