@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-class FailedToInitializeSusiException : virtual public std::runtime_error
+class FailedToInitializeSusiException : public std::runtime_error
 {
 public:
     explicit FailedToInitializeSusiException(const std::string& errorMsg)
