@@ -392,7 +392,7 @@ On Access Includes Included Mount On Top Of Excluded Mount
     ${mark} =  get_on_access_log_mark
     Bind Mount Directory  ${excludedMount}  ${dest}
     wait for on access log contains after mark
-    ...  Mount point ${dest} is system and will be excluded from the scan
+    ...  Mount point ${dest} is system and will be excluded from scanning
     ...  mark=${mark}
     Bind Mount Directory  ${includedMount}  ${dest}
     wait for on access log contains after mark  Including mount point: ${dest}  mark=${mark}
@@ -409,7 +409,7 @@ On Access Excludes Excluded Mount On Top Of Included Mount
     Bind Mount Directory  ${includedMount}  ${dest}
     wait for on access log contains after mark  Including mount point: ${dest}  mark=${mark}
     Bind Mount Directory  ${excludedMount}  ${dest}
-    wait for on access log contains after mark  Mount point ${dest} is system and will be excluded from the scan  mark=${mark}
+    wait for on access log contains after mark  Mount point ${dest} is system and will be excluded from scanning  mark=${mark}
 
 
 On Access Doesnt Scan Threat Detector Events

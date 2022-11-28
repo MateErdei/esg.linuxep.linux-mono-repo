@@ -87,12 +87,12 @@ namespace mount_monitor::mount_monitor
         }
         else if (mp->isSpecial())
         {
-            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is system and will be excluded from the scan");
+            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is system and will be excluded from scanning");
             return false;
         }
         else
         {
-            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " has been excluded from the scan");
+            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " has been excluded from scanning");
             return false;
         }
     }
