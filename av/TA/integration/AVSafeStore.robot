@@ -594,3 +594,8 @@ Create Rescan Interval File
     Create File    ${SOPHOS_INSTALL}/plugins/av/chroot/var/safeStoreRescanInterval    ${interval}
     Register Cleanup   Remove File  ${SOPHOS_INSTALL}/plugins/av/chroot/var/safeStoreRescanInterval
     Start Sophos Threat Detector
+
+    ## Short interval can leak between tests, so have to restart TD to clear it from the process.
+    Register Cleanup   Stop Sophos Threat Detector
+    Register Cleanup   Mark Expected Error In Log    ${THREAT_DETECTOR_LOG_PATH}    UnixSocket <> Aborting scan, scanner is shutting down
+    Register Cleanup   Start Sophos Threat Detector
