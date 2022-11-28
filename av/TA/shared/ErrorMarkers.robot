@@ -82,8 +82,8 @@ Exclude Failed To Scan Files
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan file:
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  [Reached total maximum number of reconnection attempts. Aborting scan.]
     mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  NamedScanRunner <> Failed to scan one or more files due to an error
-    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  /opt/test/inputs/test_scripts/resources/file_samples/
-    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  ${RESOURCES_PATH}/file_samples/
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  Failed to scan /opt/test/inputs/test_scripts/resources/file_samples/
+    mark_expected_error_in_log  ${SCANNOW_LOG_PATH}  Failed to scan ${RESOURCES_PATH}/file_samples/
 
 Exclude Aborted Scan Errors
     mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}  OnAccessImpl <> Aborting scan, scanner is shutting down
