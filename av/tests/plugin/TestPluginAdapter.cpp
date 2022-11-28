@@ -274,7 +274,7 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
 <invalidPolicy />
 )sophos";
 
-    Task policyTask = { .taskType = Task::TaskType::Policy, .Content = policyXml, .appId = "SAV" };
+    Task policyTask = { .taskType = Task::TaskType::Policy, .Content = policyXml, .appId = "unknown" };
     m_taskQueue->push(policyTask);
 
     EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
@@ -289,7 +289,7 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
     EXPECT_FALSE(appenderContains("ALC policy has not been sent to the plugin"));
     EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
 
-    EXPECT_TRUE(waitForLog("Ignoring unknown policy with APPID: SAV"));
+    EXPECT_TRUE(waitForLog("Ignoring unknown policy with APPID: unknown"));
 
     EXPECT_TRUE(waitForLog("ALC policy has not been sent to the plugin", 1000ms));
     EXPECT_TRUE(waitForLog("SAV policy has not been sent to the plugin"));
@@ -739,12 +739,12 @@ TEST_F(TestPluginAdapter, publishQuarantineCleanEvent)
 TEST_F(TestPluginAdapter, processRestoreReport)
 {
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    expectedDefaultPolicyRequests(*mockBaseService);
 
     const RestoreReport restoreReport{ 0, "/tmp/eicar.txt", "correlationId", true };
     const auto eventXml = pluginimpl::generateCoreRestoreEventXml(restoreReport);
-
-    EXPECT_CALL(*mockBaseServicePtr, sendEvent("CORE", eventXml));
+    EXPECT_CALL(*mockBaseService, sendEvent("CORE", eventXml));
+    EXPECT_CALL(*mockBaseService, sendThreatHealth(R"({"ThreatHealth":1})")).Times(1);
 
     PluginAdapter pluginAdapter(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -757,10 +757,6 @@ TEST_F(TestPluginAdapter, processRestoreReport)
 
     m_taskQueue->pushStop();
 
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("SAV")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("ALC")).Times(1);
-    EXPECT_CALL(*mockBaseServicePtr, requestPolicies("FLAGS")).Times(1);
 
     internal::CaptureStderr();
     pluginAdapter.mainLoop();
