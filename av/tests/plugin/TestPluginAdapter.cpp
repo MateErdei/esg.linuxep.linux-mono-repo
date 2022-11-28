@@ -416,7 +416,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
     Task policyTask = { Task::TaskType::Policy, brokenPolicyXml };
     m_taskQueue->push(policyTask);
 
-    EXPECT_TRUE(waitForLog("Exception encountered while parsing AV policy XML: Error parsing xml"));
+    EXPECT_TRUE(waitForLog("Exception encountered while parsing AV policy XML: Error parsing xml", 500ms));
 
     Task stopTask = { Task::TaskType::Stop, "" };
     m_taskQueue->push(stopTask);
@@ -503,11 +503,11 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
 
     Task policyTask = { Task::TaskType::Policy, invalidPolicyXml };
     m_taskQueue->push(policyTask);
-    EXPECT_TRUE(waitForLog("Received Policy"));
+    EXPECT_TRUE(waitForLog("Received Policy", 500ms));
 
     Task stopTask = { Task::TaskType::Stop, "" };
     m_taskQueue->push(stopTask);
-    EXPECT_TRUE(waitForLog("Stop task received"));
+    EXPECT_TRUE(waitForLog("Stop task received", 500ms));
 
     EXPECT_FALSE(appenderContains("SAV policy received for the first time."));
     EXPECT_FALSE(appenderContains("Processing request to restart sophos threat detector"));
@@ -596,7 +596,7 @@ TEST_F(TestPluginAdapter, testProcessAction)
     expectedLog.append(actionXml);
 
     EXPECT_TRUE(waitForLog(expectedLog));
-    EXPECT_TRUE(waitForLog("Evaluating Scan Now"));
+    EXPECT_TRUE(waitForLog("Evaluating Scan Now", 500ms));
 
     m_taskQueue->pushStop();
 

@@ -333,7 +333,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsCombinedFanotifyEventAndEventTypeSe
 
     std::stringstream closeLogMsg;
     closeLogMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
-    EXPECT_TRUE(waitForLog(closeLogMsg.str()));
+    EXPECT_TRUE(waitForLog(closeLogMsg.str(), 500ms));
 
     std::stringstream openLogMsg;
     openLogMsg << "On-open event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
@@ -368,7 +368,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
 
     std::stringstream logMsg;
     logMsg << "On-open event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
-    EXPECT_TRUE(waitForLog(logMsg.str()));
+    EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
 }
@@ -408,7 +408,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
 
     std::stringstream logMsg1;
     logMsg1 << "On-open event for " << filePath1 << " from Process (PID=" << metadata1.pid << ") and UID " << m_statbuf.st_uid;
-    EXPECT_TRUE(waitForLog(logMsg1.str()));
+    EXPECT_TRUE(waitForLog(logMsg1.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
 
@@ -608,7 +608,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsExcludedPaths)
     eventReader->setExclusions(exclusions);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events", 500ms));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
 
@@ -819,8 +819,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     ASSERT_TRUE(waitForLog("Stopping the reading of Fanotify events", 500ms));
-    EXPECT_TRUE(appenderContains("Failed to add scan request to queue, on-access scanning queue is full."));
-    EXPECT_FALSE(appenderContainsCount("Failed to add scan request to queue, on-access scanning queue is full.", 2));
+    EXPECT_TRUE(appenderContainsCount("Failed to add scan request to queue, on-access scanning queue is full.", 1));
     EXPECT_EQ(m_smallScanRequestQueue->size(), 3);
 }
 
