@@ -112,11 +112,11 @@ namespace threat_scanner
 
         try
         {
-            m_susiSettings = std::make_unique<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
+            m_susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
         }
         catch (const std::exception& ex)
         {
-            m_susiSettings = std::make_unique<common::ThreatDetector::SusiSettings>();
+            m_susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>();
             LOGWARN("Could not read in SUSI settings, loading defaults. Details: " << ex.what());
             LOGINFO("Turning Live Protection on as default - failed to read SUSI startup settings found");
         }
