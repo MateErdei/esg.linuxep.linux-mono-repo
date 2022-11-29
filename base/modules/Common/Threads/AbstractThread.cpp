@@ -1,9 +1,5 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2004-2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+
 #include "AbstractThread.h"
 namespace Common
 {
@@ -38,6 +34,7 @@ namespace Common
             {
                 m_thread.join();
             }
+            m_threadStartedFlag = false;
         }
 
         bool AbstractThread::stopRequested() { return m_notifyPipe.notified(); }

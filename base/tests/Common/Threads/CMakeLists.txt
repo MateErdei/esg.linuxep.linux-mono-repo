@@ -7,6 +7,7 @@ function(addTest TEST)
 endfunction()
 
 addTest(TestNotifyPipe)
+addTest(TestAbstractThread)
 
 SET_TARGET_PROPERTIES(TestNotifyPipe
         PROPERTIES
