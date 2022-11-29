@@ -16,7 +16,7 @@ namespace Plugin
 {
     class DetectionQueue
     {
-        uint m_maxSize = 1024;
+        uint m_maxSize = 250;
         std::mutex m_mutex;
         std::condition_variable m_cond;
         std::queue<scan_messages::ThreatDetected> m_list;
