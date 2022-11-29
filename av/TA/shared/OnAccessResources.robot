@@ -137,7 +137,7 @@ On-access Scan Clean File
 
 On-access Scan Eicar Close
     #${pid} =  Get Robot Pid
-    ${filepath} =  Set Variable  /tmp_test/eicar.com
+    [Arguments]  ${filepath}=/tmp_test/eicar.com
 
     ${mark} =  get_on_access_log_mark
     Create File  ${filepath}  ${EICAR_STRING}

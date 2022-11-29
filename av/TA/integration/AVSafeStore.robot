@@ -130,28 +130,26 @@ SafeStore Quarantines When It Receives A File To Quarantine (On Access)
     ${av_mark} =  Get AV Log Mark
     ${mark} =  Get on access log mark
 
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
     wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
-    Send Policies to enable on-access
+    wait_for_log_contains_from_mark  ${av_mark}  On-access is enabled in the FLAGS policy, assuming on-access policy settings
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    #Check avscanner can detect eicar
     On-access Scan Eicar Close
-    #File Should Exist  ${AV_PLUGIN_PATH}/var/onaccess_unhealthy_flag
-    #ends at this is eicar
 
-    wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
+    wait_for_log_contains_from_mark  ${safestore_mark}   Quarantined
     wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
-    File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
+    File Should Not Exist   /tmp_test/eicar.com
     File Should Not Exist  ${AV_PLUGIN_PATH}/var/onaccess_unhealthy_flag
 
     Wait Until Base Has Core Clean Event
-    ...  alert_id=Tbd7be297ddf3cd8
+    ...  alert_id=bae565b3-a00c-5a15-8a25-e7de709ffa33
     ...  succeeded=1
     ...  origin=1
     ...  result=0
-    ...  path=${SCAN_DIRECTORY}/eicar.com
+    ...  path=/tmp_test/eicar.com
 
 SafeStore Quarantines Archive
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
@@ -266,6 +264,35 @@ SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount
     Wait For Log Contains From Mark  ${av_mark}      File is located on a ReadOnly mount:
     Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
 
+SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount (On Access)
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    #create the eicar on readOnly mount before starting OA & SS
+    Create File     /tmp_test/eicar.com    ${EICAR_STRING}
+    Create Directory  /tmp_test/readOnly
+    ${result} =  run process    mount  --bind  -o  ro  /tmp_test/  /tmp_test/readOnly
+    Register Cleanup   Unmount Test Mount  /tmp_test/readOnly
+    Register Cleanup   Remove File   /tmp_test/eicar.com
+
+    #start OA and SS
+    ${av_mark} =  Get AV Log Mark
+    ${mark} =  Get on access log mark
+
+    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    wait_for_log_contains_from_mark  ${av_mark}  On-access is enabled in the FLAGS policy, assuming on-access policy settings
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+
+    #read & detect eicar
+    ${result} =  run process    cat   /tmp_test/readOnly/eicar.com
+
+    Log  ${result}
+
+    Wait For Log Contains From Mark  ${av_mark}      File is located on a ReadOnly mount:
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
 
 SafeStore Does Not Attempt To Quarantine File On A Network Mount
     register cleanup    Exclude Watchdog Log Unable To Open File Error
