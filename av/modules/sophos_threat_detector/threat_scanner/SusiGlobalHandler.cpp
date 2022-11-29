@@ -380,6 +380,7 @@ namespace threat_scanner
 
     void SusiGlobalHandler::setSusiSettings(std::shared_ptr<common::ThreatDetector::SusiSettings>&& settings)
     {
+        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
         m_susiSettings = std::move(settings);
     }
 } // namespace threat_scanner

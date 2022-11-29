@@ -73,6 +73,10 @@ namespace threat_scanner
          */
         bool isShuttingDown();
 
+        /*
+         * Return copy of std::shared_ptr<common::ThreatDetector::SusiSettings> so that when we swap in a new set of
+         * settings anything left with the old instance is safe until it re-acquires a new copy.
+         */
         std::shared_ptr<common::ThreatDetector::SusiSettings> accessSusiSettings();
         void setSusiSettings(std::shared_ptr<common::ThreatDetector::SusiSettings>&& settings);
 
