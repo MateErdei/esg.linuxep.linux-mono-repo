@@ -329,16 +329,32 @@ TEST_F(TestFanotifyHandler, clearCacheFails)
 }
 
 
-TEST_F(TestFanotifyHandler, processFaMarkErrorLogs)
+TEST_F(TestFanotifyHandler, processFaMarkErrorLogsErrorsAtErrorLogLevel)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
+    errno = ENODATA;
+    sophos_on_access_process::fanotifyhandler::FanotifyHandler::processFaMarkError("markMount", "/test/path");
+    EXPECT_TRUE(waitForLog("[ERROR] fanotify_mark failed in markMount: No data available for: /test/path"));
+}
+
+TEST_F(TestFanotifyHandler, processFaMarkErrorLogsNoFileAtDebugLogLevel)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
     errno = ENOENT;
     sophos_on_access_process::fanotifyhandler::FanotifyHandler::processFaMarkError("unmarkMount", "/test/path");
-    EXPECT_TRUE(appenderContains("[DEBUG] fanotify_mark failed in unmarkMount: No such file or directory for:"));
+    EXPECT_TRUE(waitForLog("[DEBUG] fanotify_mark failed in unmarkMount: No such file or directory for: /test/path"));
+}
 
-    errno = ENODATA;
-    sophos_on_access_process::fanotifyhandler::FanotifyHandler::processFaMarkError("markMount", "/test/path");
-    EXPECT_TRUE(appenderContains("[ERROR] fanotify_mark failed in markMount: No data available for: /test/path"));
+TEST_F(TestFanotifyHandler, processFaMarkErrorLogsPermissionDeniedAtWarnLogLevel)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
+    errno = EACCES;
+    sophos_on_access_process::fanotifyhandler::FanotifyHandler::processFaMarkError("unmarkMount", "/test/path");
+    EXPECT_TRUE(waitForLog("[WARN] fanotify_mark failed in unmarkMount: Permission denied for: /test/path"));
 }
