@@ -75,7 +75,8 @@ namespace Plugin
         void publishThreatEvent(const std::string& threatDetectedJSON) const;
         void updateThreatDatabase(const scan_messages::ThreatDetected& detection) override;
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
-        bool isSafeStoreEnabled();
+        bool isSafeStoreEnabled() const;
+        bool shouldSafeStoreQuarantineMl() const;
         [[nodiscard]] std::shared_ptr<DetectionQueue> getDetectionQueue() const;
         void processRestoreReport(const scan_messages::RestoreReport& restoreReport) const override;
 

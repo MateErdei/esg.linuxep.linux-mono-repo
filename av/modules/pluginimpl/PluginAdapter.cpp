@@ -48,9 +48,30 @@ namespace Plugin
 
             void processMessage(scan_messages::ThreatDetected detection) override
             {
-                // detection is not moved if the push fails, so can still be used by processDetectionReport
-                if (!m_adapter.isSafeStoreEnabled() || !m_adapter.getDetectionQueue()->push(detection))
+                const std::string escapedPath = common::escapePathForLogging(detection.filePath);
+                bool shouldQuarantine = true;
+
+                if (!m_adapter.isSafeStoreEnabled())
                 {
+                    LOGINFO(escapedPath << " was not quarantined due to SafeStore being disabled");
+                    shouldQuarantine = false;
+                }
+                else if (
+                    detection.reportSource == common::CentralEnums::ReportSource::ml &&
+                    !m_adapter.shouldSafeStoreQuarantineMl())
+                {
+                    LOGINFO(escapedPath << " was not quarantined due to being reported as an ML detection");
+                    shouldQuarantine = false;
+                }
+
+                // detection is not moved if the push fails, so can still be used by processDetectionReport
+                if (!shouldQuarantine || !m_adapter.getDetectionQueue()->push(detection))
+                {
+                    if (shouldQuarantine) // i.e. failed to push
+                    {
+                        LOGWARN("SafeStore queue is full, unable to quarantine " << escapedPath);
+                    }
+
                     detection.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
 
                     // If SafeStore is disabled then we manually set the quarantine result to be a failure. This is
@@ -500,9 +521,14 @@ namespace Plugin
         m_threatEventPublisher->connect("ipc://" + pubSubSocketAddress);
     }
 
-    bool PluginAdapter::isSafeStoreEnabled()
+    bool PluginAdapter::isSafeStoreEnabled() const
     {
         return m_policyProcessor.isSafeStoreEnabled();
+    }
+
+    bool PluginAdapter::shouldSafeStoreQuarantineMl() const
+    {
+        return m_policyProcessor.shouldSafeStoreQuarantineMl();
     }
 
     std::shared_ptr<DetectionQueue> PluginAdapter::getDetectionQueue() const
