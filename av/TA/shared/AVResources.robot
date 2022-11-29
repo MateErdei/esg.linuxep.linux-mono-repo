@@ -1180,15 +1180,7 @@ Check avscanner can detect eicar on network mount
     [Tags]   NFS
     [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
 
-#    ${source} =       Set Variable  /tmp_test/nfsshare
     ${destination} =  Set Variable  /testmnt/nfsshare
-#    Create Directory  ${source}
-#    Create Directory  ${destination}
-#    Create Local NFS Share   ${source}   ${destination}
-#
-#    Create File     ${source}/eicar.com    ${EICAR_STRING}
-#    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com   HERE IS DIFFERENCE
-
     Create eicar on network mount
     Check avscanner can detect eicar in  ${destination}/eicar.com   ${LOCAL_AVSCANNER}
 
