@@ -63,6 +63,11 @@ namespace Plugin
                     LOGINFO(escapedPath << " was not quarantined due to being reported as an ML detection");
                     shouldQuarantine = false;
                 }
+                else if (detection.threatType == common::CentralEnums::ThreatType::pua)
+                {
+                    LOGINFO(escapedPath << " was not quarantined due to being a PUA");
+                    shouldQuarantine = false;
+                }
 
                 // detection is not moved if the push fails, so can still be used by processDetectionReport
                 if (!shouldQuarantine || !m_adapter.getDetectionQueue()->push(detection))

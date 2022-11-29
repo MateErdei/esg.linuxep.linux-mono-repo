@@ -590,6 +590,34 @@ SafeStore Quarantines Ml Detection If Ml Flag Is Enabled
     Should Contain  ${print_tool_result.stdout}  MLengHighScore.exe
 
 
+SafeStore Does Not Quarantine Pua Detection
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
+
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/PsExec.exe  ${NORMAL_DIRECTORY}/PsExec.exe
+
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/PsExec.exe
+
+    Wait For Log Contains From Mark  ${av_mark}  ${NORMAL_DIRECTORY}/PsExec.exe was not quarantined due to being a PUA
+
+    Wait Until Base Has Core Clean Event
+    ...  alert_id=ca835a27-afe8-5e24-888c-5284c0ea4ac8
+    ...  succeeded=0
+    ...  origin=3
+    ...  result=3
+    ...  path=${NORMAL_DIRECTORY}/PsExec.exe
+
+    File Should Exist  ${NORMAL_DIRECTORY}/PsExec.exe
+
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
+    ${print_tool_result} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
+    Log  ${print_tool_result.stdout}
+    Should Not Contain  ${print_tool_result.stdout}  PsExec.exe
+
+
 *** Keywords ***
 SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
