@@ -1,0 +1,159 @@
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+
+#include <pluginimpl/PolicyProcessor.h>
+
+#include "PluginMemoryAppenderUsingTests.h"
+
+#include "datatypes/sophos_filesystem.h"
+
+#include <Common/Helpers/MockFileSystem.h>
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <Common/FileSystem/IFileSystemException.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+
+#include <thirdparty/nlohmann-json/json.hpp>
+
+#include <gtest/gtest.h>
+
+namespace fs = sophos_filesystem;
+
+namespace
+{
+    class TestPolicyProcessor_FLAGS_policy : public PluginMemoryAppenderUsingTests
+    {
+    protected:
+        fs::path m_testDir;
+        void SetUp() override
+        {
+            const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+            m_testDir = fs::temp_directory_path();
+            m_testDir /= test_info->test_case_name();
+            m_testDir /= test_info->name();
+            fs::remove_all(m_testDir);
+            fs::create_directories(m_testDir);
+
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
+            appConfig.setData("PLUGIN_INSTALL", m_testDir );
+            
+            m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
+            m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
+            m_soapConfigPath = m_testDir / "var/soapd_config.json";
+            m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
+            m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+        }
+
+        void TearDown() override
+        {
+            fs::remove_all(m_testDir);
+        }
+        
+        std::string m_susiStartupConfigPath;
+        std::string m_susiStartupConfigChrootPath;
+        std::string m_soapConfigPath;
+        std::string m_soapFlagConfigPath;
+        std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
+    };
+
+    class PolicyProcessorUnitTestClass : public Plugin::PolicyProcessor
+    {
+    public:
+        PolicyProcessorUnitTestClass()
+            : Plugin::PolicyProcessor(nullptr)
+        {}
+    protected:
+        void notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE /*cmd*/) override
+        {
+            PRINT("Notified soapd");
+        }
+    };
+}
+
+TEST_F(TestPolicyProcessor_FLAGS_policy, testProcessFlagSettingsEnabled)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":true})sophos", _, 0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+
+    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": true, "safestore.enabled": true})sophos");
+
+    EXPECT_TRUE(appenderContains(
+        "On-access is enabled in the FLAGS policy, assuming on-access policy settings"));
+    EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
+    ASSERT_TRUE(proc.isSafeStoreEnabled());
+}
+
+TEST_F(TestPolicyProcessor_FLAGS_policy, testProcessFlagSettingsDisabled)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+
+    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": false, "safestore.enabled": false})sophos");
+
+    EXPECT_TRUE(appenderContains(
+        "On-access is disabled in the FLAGS policy, overriding on-access policy settings"));
+    EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
+    ASSERT_FALSE(proc.isSafeStoreEnabled());
+}
+
+TEST_F(TestPolicyProcessor_FLAGS_policy, testProcessFlagSettingsDefault)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+
+    proc.processFlagSettings("{\"av.something_else\":  false}");
+
+    EXPECT_TRUE(appenderContains("No on-access flag found, overriding on-access policy settings"));
+    EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
+    ASSERT_FALSE(proc.isSafeStoreEnabled());
+}
+
+TEST_F(TestPolicyProcessor_FLAGS_policy, testWriteFlagConfigFailedOnAccess)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+
+    Common::FileSystem::IFileSystemException ex("error!");
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640))
+        .WillOnce(Throw(ex));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+
+    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": false, "safestore.enabled": true})sophos");
+
+    EXPECT_TRUE(appenderContains(
+        "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
+    EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
+    ASSERT_TRUE(proc.isSafeStoreEnabled());
+}

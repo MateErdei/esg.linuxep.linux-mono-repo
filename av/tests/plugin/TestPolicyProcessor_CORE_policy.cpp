@@ -232,7 +232,11 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyEnabled)
 
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+#ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+                                                           R"sophos({"enabled":true,"excludeRemoteFiles":false})sophos",
+#else
                                                            R"sophos({"enabled":true,"excludeRemoteFiles":false,"exclusions":[]})sophos",
+#endif
                                                            _,
                                                            0640));
 
@@ -260,7 +264,11 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyDisabled)
 
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+#ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+                                                           R"sophos({"enabled":false,"excludeRemoteFiles":false})sophos",
+#else
                                                            R"sophos({"enabled":false,"excludeRemoteFiles":false,"exclusions":[]})sophos",
+#endif
                                                            _,
                                                            0640));
 
@@ -288,7 +296,11 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyExcludeRemoteEnable
 
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+#ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+                                                           R"sophos({"enabled":false,"excludeRemoteFiles":true})sophos",
+#else
                                                            R"sophos({"enabled":false,"excludeRemoteFiles":true,"exclusions":[]})sophos",
+#endif
                                                            _,
                                                            0640));
 
@@ -301,6 +313,8 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyExcludeRemoteEnable
     proc.processCOREpolicy(attributeMap);
 }
 
+
+#ifndef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
 TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyPathExclusions)
 {
     std::string CORE_policy{R"sophos(<?xml version="1.0"?>
@@ -338,3 +352,4 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyPathExclusions)
 
     proc.processCOREpolicy(attributeMap);
 }
+#endif

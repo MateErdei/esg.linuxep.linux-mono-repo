@@ -16,8 +16,8 @@
 #include <Common/FileSystem/IFileSystemException.h>
 #include <common/StringUtils.h>
 #include <pluginimpl/ObfuscationImpl/Obfuscate.h>
-// Third party
-#include <thirdparty/nlohmann-json/json.hpp>
+// Std C++
+#include <fstream>
 // Std C
 #include <sys/stat.h>
 
@@ -38,6 +38,19 @@ namespace
         std::ostringstream ost;
         ost << "Unable to convert " << s << " to boolean";
         throw Plugin::InvalidPolicyException(ost.str());
+    }
+
+    json readConfigFromFile(const std::string& filepath)
+    {
+        std::ifstream f(filepath);
+        if (f.good())
+        {
+            return json::parse(f);
+        }
+        else
+        {
+            return json{};
+        }
     }
 }
 
@@ -187,6 +200,20 @@ namespace Plugin
         processController.sendProcessControlRequest(processControlRequest);
     }
 
+    void PolicyProcessor::processOnAccessSettingsFromSAVpolicy(const Common::XmlUtilities::AttributesMap& policy)
+    {
+#ifndef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+        return;
+#endif
+        LOGINFO("Processing On Access Scanning settings from SAV policy");
+        json config = readOnAccessConfig();
+
+        auto exclusionList = extractListFromXML(policy, "config/onAccessScan/linuxExclusions/filePathSet/filePath");
+        json exclusions(exclusionList);
+        config["exclusions"] = exclusions;
+        writeOnAccessConfig(config);
+    }
+
     void PolicyProcessor::setOnAccessConfiguredTelemetry(bool enabled)
     {
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
@@ -197,6 +224,8 @@ namespace Plugin
 
     void PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
+        processOnAccessSettingsFromSAVpolicy(policy);
+
         bool oldLookupEnabled = m_lookupEnabled;
         m_lookupEnabled = isLookupEnabled(policy);
 
@@ -343,22 +372,41 @@ namespace Plugin
         }
         return PolicyType::UNKNOWN;
     }
-    void PolicyProcessor::processCOREpolicy(const Common::XmlUtilities::AttributesMap& policy)
+    void PolicyProcessor::processCOREpolicy(const AttributesMap& policy)
     {
         processOnAccessSettingsFromCOREpolicy(policy);
     }
 
-    void PolicyProcessor::processOnAccessSettingsFromCOREpolicy(const Common::XmlUtilities::AttributesMap& policy)
+    void PolicyProcessor::processOnAccessSettingsFromCOREpolicy(const AttributesMap& policy)
     {
-        LOGINFO("Processing On Access Scanning settings");
-        auto enabled = boolFromString(policy.lookup("policy/onAccessScan/enabled").contents());
-
-        // Assuming the Linux exclusions are put into the generic location in the XML
-
-        auto excludeRemoteFiles = boolFromString(
+        LOGINFO("Processing On Access Scanning settings from CORE policy");
+        const auto on_access_enabled = boolFromString(policy.lookup("policy/onAccessScan/enabled").contents());
+        const auto excludeRemoteFiles = boolFromString(
             policy.lookup("policy/onAccessScan/exclusions/excludeRemoteFiles").contents());
+
+        json config = readOnAccessConfig();
+        config["excludeRemoteFiles"] = excludeRemoteFiles;
+        config["enabled"] = on_access_enabled;
+
+#ifndef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+        // Assuming the Linux exclusions are put into the generic location in the XML
         auto exclusionList = extractListFromXML(policy, "policy/onAccessScan/exclusions/filePathSet/filePath");
-        auto config = pluginimpl::generateOnAccessConfig(enabled, exclusionList, excludeRemoteFiles);
+        json exclusions(exclusionList);
+        config["exclusions"] = exclusions;
+#endif
+        writeOnAccessConfig(config);
+        setOnAccessConfiguredTelemetry(on_access_enabled);
+    }
+
+    nlohmann::json PolicyProcessor::readOnAccessConfig()
+    {
+        return readConfigFromFile(getSoapConfigPath());
+    }
+
+    void PolicyProcessor::writeOnAccessConfig(const json& configJson)
+    {
+        // convert to string
+        auto config = configJson.dump();
 
         try
         {
@@ -373,7 +421,6 @@ namespace Plugin
         }
 
         notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
-        setOnAccessConfiguredTelemetry(enabled);
     }
 }
 

@@ -9,6 +9,8 @@
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
+#define USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+
 namespace Plugin
 {
     enum class PolicyType
@@ -33,6 +35,7 @@ namespace Plugin
     {
     public:
         using IStoppableSleeperSharedPtr = common::IStoppableSleeperSharedPtr;
+        using AttributesMap = Common::XmlUtilities::AttributesMap;
         explicit PolicyProcessor(IStoppableSleeperSharedPtr stoppableSleeper);
         virtual ~PolicyProcessor() = default;
 
@@ -49,16 +52,16 @@ namespace Plugin
          * @param policy
          * @return True if the customer ID has changed - if sophos_threat_detector needs to be restarted
          */
-        void processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy);
+        void processAlcPolicy(const AttributesMap& policy);
 
-        void processSavPolicy(const Common::XmlUtilities::AttributesMap& policy);
+        void processSavPolicy(const AttributesMap& policy);
 
-        void processCOREpolicy(const Common::XmlUtilities::AttributesMap& policy);
+        void processCOREpolicy(const AttributesMap& policy);
 
         void processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy);
 
-        static std::string getCustomerId(const Common::XmlUtilities::AttributesMap& policy);
-        static bool isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy);
+        static std::string getCustomerId(const AttributesMap& policy);
+        static bool isLookupEnabled(const AttributesMap& policy);
         [[nodiscard]] bool getSXL4LookupsEnabled() const;
 
         static void setOnAccessConfiguredTelemetry(bool enabled);
@@ -74,7 +77,8 @@ namespace Plugin
     protected:
         virtual void notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE requestType);
 
-        void processOnAccessSettingsFromCOREpolicy(const Common::XmlUtilities::AttributesMap& policy);
+        void processOnAccessSettingsFromCOREpolicy(const AttributesMap& policy);
+        void processOnAccessSettingsFromSAVpolicy(const AttributesMap& policy);
 
     private:
         void processOnAccessFlagSettings(const nlohmann::json& flagsJson);
@@ -82,8 +86,11 @@ namespace Plugin
         void saveSusiSettings();
 
         static std::vector<std::string> extractListFromXML(
-            const Common::XmlUtilities::AttributesMap& policy,
+            const AttributesMap& policy,
             const std::string& entityFullPath);
+
+        static nlohmann::json readOnAccessConfig();
+        void writeOnAccessConfig(const nlohmann::json& configJson);
 
         IStoppableSleeperSharedPtr m_sleeper;
         std::string m_customerId;

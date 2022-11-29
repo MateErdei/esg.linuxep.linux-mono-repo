@@ -47,6 +47,16 @@ namespace
         {
             fs::remove_all(m_testDir);
         }
+
+        void expectWriteSoapdConfig()
+        {
+#ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                                   _,
+                                                                   _,
+                                                                   0640)).WillRepeatedly(Return());
+#endif
+        }
         
         std::string m_susiStartupConfigPath;
         std::string m_susiStartupConfigChrootPath;
@@ -273,6 +283,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicy)
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
+    expectWriteSoapdConfig();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -300,6 +311,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, defaultSXL4lookupValueIsTrue)
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyChanged)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
+    expectWriteSoapdConfig();
     {
         InSequence seq;
         EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
@@ -350,6 +362,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyChanged)
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMaintainsSXL4state)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
+    expectWriteSoapdConfig();
     {
         InSequence seq;
         EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
@@ -406,6 +419,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMissing)
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+    expectWriteSoapdConfig();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -439,6 +453,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyInvalid)
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+    expectWriteSoapdConfig();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -467,91 +482,41 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyInvalid)
     EXPECT_TRUE(proc.restartThreatDetector());
 }
 
-TEST_F(TestPolicyProcessor_SAV_policy, testProcessFlagSettingsEnabled)
+#ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+
+// Tests for getting on-access exclusions from SAV policy
+
+TEST_F(TestPolicyProcessor_SAV_policy, getOnAccessExclusions)
 {
-    UsingMemoryAppender memAppend(*this);
-
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":true})sophos", _, 0640));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           R"sophos({"exclusions":["x","y"]})sophos",
+                                                           _,
+                                                           0640));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     PolicyProcessorUnitTestClass proc;
 
-    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": true, "safestore.enabled": true})sophos");
+        std::string policyXml = R"sophos(<?xml version="1.0"?>
+    <config>
+        <onAccessScan>
+            <enabled>this is supposed to be true/false</enabled>
+            <linuxExclusions>
+              <filePathSet>
+                <filePath>x</filePath>
+                <filePath>y</filePath>
+              </filePathSet>
+              <excludeRemoteFiles>this is supposed to be true/false</excludeRemoteFiles>
+            </linuxExclusions>
+        </onAccessScan>
+    </config>
+    )sophos";
 
-    EXPECT_TRUE(appenderContains(
-        "On-access is enabled in the FLAGS policy, assuming on-access policy settings"));
-    EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
-    ASSERT_TRUE(proc.isSafeStoreEnabled());
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    proc.processSavPolicy(attributeMap);
 }
 
-TEST_F(TestPolicyProcessor_SAV_policy, testProcessFlagSettingsDisabled)
-{
-    UsingMemoryAppender memAppend(*this);
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": false, "safestore.enabled": false})sophos");
-
-    EXPECT_TRUE(appenderContains(
-        "On-access is disabled in the FLAGS policy, overriding on-access policy settings"));
-    EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
-    ASSERT_FALSE(proc.isSafeStoreEnabled());
-}
-
-TEST_F(TestPolicyProcessor_SAV_policy, testProcessFlagSettingsDefault)
-{
-    UsingMemoryAppender memAppend(*this);
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    proc.processFlagSettings("{\"av.something_else\":  false}");
-
-    EXPECT_TRUE(appenderContains("No on-access flag found, overriding on-access policy settings"));
-    EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
-    ASSERT_FALSE(proc.isSafeStoreEnabled());
-}
-
-TEST_F(TestPolicyProcessor_SAV_policy, testWriteFlagConfigFailedOnAccess)
-{
-    UsingMemoryAppender memAppend(*this);
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
-
-    Common::FileSystem::IFileSystemException ex("error!");
-    EXPECT_CALL(
-        *m_mockIFileSystemPtr,
-        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640))
-        .WillOnce(Throw(ex));
-
-    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
-
-    PolicyProcessorUnitTestClass proc;
-
-    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": false, "safestore.enabled": true})sophos");
-
-    EXPECT_TRUE(appenderContains(
-        "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
-    EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
-    ASSERT_TRUE(proc.isSafeStoreEnabled());
-}
+#endif

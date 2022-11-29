@@ -8,6 +8,7 @@ SophosAddTest(TestPlugin
         TestPolicyProcessor.cpp
         TestPolicyProcessor_ALC_policy.cpp
         TestPolicyProcessor_CORE_policy.cpp
+        TestPolicyProcessor_FLAGS_policy.cpp
         TestPolicyProcessor_SAV_policy.cpp
         TestPlugin.cpp
         TestPluginAdapter.cpp
