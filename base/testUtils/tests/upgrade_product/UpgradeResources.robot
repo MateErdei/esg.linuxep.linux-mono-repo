@@ -15,6 +15,7 @@ Library    ${LIBS_DIRECTORY}/UpdateServer.py
 Library    ${LIBS_DIRECTORY}/WarehouseUtils.py
 
 Resource    ../av_plugin/AVResources.robot
+Resource    ../av_plugin/SafeStoreResources.robot
 Resource    ../installer/InstallerResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../mdr_plugin/MDRResources.robot
@@ -226,6 +227,7 @@ Check Current Release With AV Installed Correctly
     Check MCS Router Running
     Check MDR Plugin Installed
     Check AV Plugin Installed
+    Check SafeStore Installed Correctly
     Check Installed Correctly
 
 Check Installed Correctly
