@@ -101,9 +101,9 @@ Send Sav Action To Base
 
 Send CORC Policy To Base
     [Arguments]  ${policyFile}
-    Copy File  ${RESOURCES_PATH}/corc_policy/${policyFile}  ${MCS_PATH}/policy/CORC_policy.xml.TEMP
-    Run Process  chmod  666  ${MCS_PATH}/policy/CORC_policy.xml.TEMP
-    Move File  ${MCS_PATH}/policy/CORC_policy.xml.TEMP  ${MCS_PATH}/policy/CORC_policy.xml
+    Copy File  ${RESOURCES_PATH}/corc_policy/${policyFile}  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP
+    Run Process  chmod  666  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP
+    Move File  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP  ${MCS_PATH}/policy/CORC_policy.xml
 
 Prepare To Run Telemetry Executable
     Prepare To Run Telemetry Executable With HTTPS Protocol
