@@ -194,12 +194,10 @@ Start Local SDDS3 Server
     [Return]  ${handle}
 
 Start Local Dogfood SDDS3 Server
-    Setup Release Warehouse    dogfood
     ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-dogfood/repo
     [Return]  ${handle}
 
 Start Local Release SDDS3 Server
-    Setup Release Warehouse    current_shipping
     ${handle}=    Start Local SDDS3 Server    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-current_shipping/launchdarkly    ${SYSTEMPRODUCT_TEST_INPUT}/sdds3-current_shipping/repo
     [Return]  ${handle}
 
@@ -292,7 +290,7 @@ Check Mtr Reconnects To Management Agent After Upgrade
 Check Expected Versions Against Installed Versions
     [Arguments]    &{expectedVersions}
     &{installedVersions} =    Get Current Installed Versions
-    Dictionaries Should Be Equal    &{expectedVersions}    &{installedVersions}
+    Dictionaries Should Be Equal    ${expectedVersions}    ${installedVersions}
 
 Wait For Version Files to Update
     [Arguments]    &{expectedVersions}
@@ -350,13 +348,13 @@ Get Current Installed Versions
     [Return]    &{versions}
 
 Get Expected VUT Versions
-    ${ExpectedBaseDevVersion} =     Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Base-component
-    ${ExpectedAVDevVersion} =       Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-AV
-    ${ExpectedEDRDevVersion} =      Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-EDR
-    ${ExpectedEJDevVersion} =       Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedLRDevVersion} =       Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedMTRDevVersion} =      Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-MDR
-    ${ExpectedRTDDevVersion} =      Get Version For Rigidname In VUT Warehouse    ServerProtectionLinux-Plugin-RuntimeDetections
+    ${ExpectedBaseDevVersion} =     Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Base
+    ${ExpectedAVDevVersion} =       Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-AV
+    ${ExpectedEDRDevVersion} =      Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-EDR
+    ${ExpectedEJDevVersion} =       Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-EventJournaler
+    ${ExpectedLRDevVersion} =       Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-liveresponse
+    ${ExpectedMTRDevVersion} =      Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-MDR
+    ${ExpectedRTDDevVersion} =      Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-RuntimeDetections
     &{versions} =    Create Dictionary
     ...    baseVersion=${ExpectedBaseDevVersion}
     ...    avVersion=${ExpectedAVDevVersion}
@@ -368,14 +366,14 @@ Get Expected VUT Versions
     [Return]    &{versions}
 
 Get Expected Release Versions
-    [Arguments]    ${policy}
-    ${ExpectedBaseReleaseVersion} =     Get Version From Warehouse For Rigidname In ComponentSuite    ${policy}    ServerProtectionLinux-Base-component             ServerProtectionLinux-Base
-    ${ExpectedEJReleaseVersion} =       Get Version From Warehouse For Rigidname In ComponentSuite    ${policy}    ServerProtectionLinux-Plugin-EventJournaler      ServerProtectionLinux-Base
-    ${ExpectedLRReleaseVersion} =       Get Version From Warehouse For Rigidname In ComponentSuite    ${policy}    ServerProtectionLinux-Plugin-liveresponse        ServerProtectionLinux-Base
-    ${ExpectedRTDReleaseVersion} =      Get Version From Warehouse For Rigidname In ComponentSuite    ${policy}    ServerProtectionLinux-Plugin-RuntimeDetections   ServerProtectionLinux-Base
-    ${ExpectedAVReleaseVersion} =       Get Version From Warehouse For Rigidname    ${policy}    ServerProtectionLinux-Plugin-AV
-    ${ExpectedEDRReleaseVersion} =      Get Version From Warehouse For Rigidname    ${policy}    ServerProtectionLinux-Plugin-EDR
-    ${ExpectedMTRReleaseVersion} =      Get Version From Warehouse For Rigidname    ${policy}    ServerProtectionLinux-Plugin-MDR
+    [Arguments]    ${releaseType}
+    ${ExpectedBaseReleaseVersion} =     Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Base-component
+    ${ExpectedAVReleaseVersion} =       Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-AV
+    ${ExpectedEDRReleaseVersion} =      Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-EDR
+    ${ExpectedEJReleaseVersion} =       Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-EventJournaler
+    ${ExpectedLRReleaseVersion} =       Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-liveresponse
+    ${ExpectedMTRReleaseVersion} =      Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-MDR
+    ${ExpectedRTDReleaseVersion} =      Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-RuntimeDetections
     &{versions} =    Create Dictionary
     ...    baseVersion=${ExpectedBaseReleaseVersion}
     ...    avVersion=${ExpectedAVReleaseVersion}
