@@ -110,6 +110,7 @@ Disable OA Scanning
     wait for on access log contains after mark  "oa_enabled":false   mark=${mark}
     wait for on access log contains after mark  Joining eventReader   mark=${mark}
     wait for on access log contains after mark  Stopping the reading of Fanotify events   mark=${mark}
+    wait for on access log contains after mark  On-access scanning disabled   mark=${mark}
 
 
 Enable OA Scanning
@@ -126,6 +127,8 @@ Enable OA Scanning
     wait for on access log contains after mark  "oa_enabled":true   mark=${mark}
     wait for on access log contains after mark  Starting eventReader   mark=${mark}
     wait for on access log contains after mark   mount points in on-access scanning   mark=${mark}
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
 
 On-access Scan Clean File
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt

@@ -58,7 +58,7 @@ On Access Test Setup
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
     Register Cleanup  Exclude CustomerID Failed To Read Error
-    Register On Fail  Dump log  ${AV_PLUGIN_PATH}/log/soapd.log
+    Register On Fail  Dump log  ${ON_ACCESS_LOG_PATH}
 
 
 On Access Test Teardown
@@ -576,10 +576,7 @@ On Access Can Handle Unlimited Marks
 
 On Access Can Be enabled After It Gets Disabled In Policy
     Disable OA Scanning
-
-    ${mark} =  get_on_access_log_mark
     Enable OA Scanning
-    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
 
     On-access Scan Eicar Close
 
