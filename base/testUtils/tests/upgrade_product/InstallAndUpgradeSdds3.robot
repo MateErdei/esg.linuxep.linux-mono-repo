@@ -79,7 +79,6 @@ Sul Downloader fails update if expected product missing from SUS
 We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     [Timeout]    10 minutes
     [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-    [Setup]    Test Setup with Ostia and Release Warehouses
 
     &{expectedDogfoodVersions} =    Get Expected Release Versions    dogfood
     &{expectedVUTVersions} =    Get Expected VUT Versions
@@ -184,7 +183,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
-    [Setup]    Test Setup with Ostia and Release Warehouses
 
     &{expectedDogfoodVersions} =    Get Expected Release Versions    dogfood
     &{expectedVUTVersions} =    Get Expected VUT Versions
@@ -304,7 +302,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 We Can Upgrade From Release to VUT Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
-    [Setup]    Test Setup with Ostia and Release Warehouses
 
     &{expectedReleaseVersions} =    Get Expected Release Versions    current_shipping
     &{expectedVUTVersions} =    Get Expected VUT Versions
@@ -398,7 +395,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
 We Can Downgrade From VUT to Release Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
-    [Setup]    Test Setup with Ostia and Release Warehouses
 
     &{expectedReleaseVersions} =    Get Expected Release Versions    current_shipping
     &{expectedVUTVersions} =    Get Expected VUT Versions
@@ -920,11 +916,6 @@ SDDS3 Mechanism Is Updated in UpdateScheduler Telemetry After Successful Update 
 
 
 *** Keywords ***
-Test Setup with Ostia and Release Warehouses
-    Setup Release Warehouse    dogfood
-    Setup Release Warehouse    current_shipping
-    Test Setup With Ostia
-
 Test Setup With Ostia
     Test Setup
     Setup Ostia Warehouse Environment

@@ -32,6 +32,7 @@ try_command_with_backoff  python3 -m pip install --upgrade pip ${PIP_ARGS}
 try_command_with_backoff  python3 -m pip install wheel ${PIP_ARGS}
 try_command_with_backoff  python3 -m pip install --upgrade tap ${PIP_ARGS}  || failure "Unable to install tap"
 try_command_with_backoff  python3 -m pip install --upgrade keyrings.alt ${PIP_ARGS}  || failure "Unable to install dependency"
+try_command_with_backoff  python3 -m pip install --upgrade artifactory ${PIP_ARGS}  || failure "Unable to install dependency"
 
 if [[ $1 == "--download-pip-cache" ]]
 then

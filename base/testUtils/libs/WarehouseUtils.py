@@ -5,16 +5,13 @@
 
 import datetime
 import hashlib
-import io
 import os
 import shutil
 import subprocess
 import xml.etree.ElementTree as ET
-import zipfile
 
 import requests
 import robot.api.logger as logger
-from artifactory import ArtifactoryPath
 from packaging import version
 from robot.libraries.BuiltIn import BuiltIn
 
@@ -32,7 +29,6 @@ GENERATED_FILE_DIRECTORY = os.path.join(REAL_WAREHOUSE_DIRECTORY, "GeneratedAlcP
 
 FILER_6_DIRECTORY = os.path.join("/", "mnt", "filer6", "bfr", "sspl-warehouse")
 SYSTEMPRODUCT_TEST_INPUT = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
-BUILD_JWT = os.environ.get("BUILD_JWT")
 LOCAL_WAREHOUSES_ROOT = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "local_warehouses")
 LOCAL_WAREHOUSES = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse")
 WAREHOUSE_LOCAL_SERVER_PORT = 443
@@ -817,81 +813,6 @@ class WarehouseUtils(object):
 
     def second_version_is_lower(self, version1, version2):
         return version.parse(version1) > version.parse(version2)
-
-    def gather_sdds3_warehouse_files(self, release_type):
-        release_branches, builds = [], []
-        version_separator = ""
-
-        current_year = datetime.date.today().year
-        warehouse_repo_url = "https://artifactory.sophos-ops.com/artifactory/esg-build-candidate/linuxep.sspl-warehouse"
-
-        if release_type == "dogfood":
-            version_separator = "-"
-        elif release_type == "current_shipping":
-            version_separator = "."
-        else:
-            raise AssertionError(f"Invalid argument {release_type}: use dogfood or current_shipping")
-
-        branch_filter = f"release--{current_year}{version_separator}"
-        for path in ArtifactoryPath(warehouse_repo_url, token=BUILD_JWT):
-            branch_name = os.path.basename(path)
-            if branch_name.startswith(branch_filter):
-                release_branches.append(branch_name)
-
-        # Remove sprint branches
-        if release_type == "current_shipping":
-            release_branches = [i for i in release_branches if int(i.strip(branch_filter).split(version_separator)[0]) <= 4]
-
-        release_branch = sorted(release_branches, key=lambda x: int(x[len(branch_filter):].split(version_separator)[0]), reverse=True)[0]
-        for build in ArtifactoryPath(os.path.join(warehouse_repo_url, release_branch), token=BUILD_JWT):
-            builds.append(build)
-        latest_build = sorted(builds, key=lambda x: int(os.path.basename(x).split('-')[0]), reverse=True)[0]
-
-        output_dir = os.path.join(SYSTEMPRODUCT_TEST_INPUT, f"sdds3-{release_type}")
-        if not os.path.isdir(output_dir):
-            os.mkdir(output_dir)
-
-        self.unpack_sdds3_artifact(latest_build, "launchdarkly", output_dir)
-        self.unpack_sdds3_artifact(latest_build, "repo", output_dir)
-
-    def unpack_sdds3_artifact(self, build_url, artifact_name, output_dir):
-        unpack_location = os.path.join(output_dir, artifact_name)
-
-        if not os.path.exists(unpack_location):
-            artifact_url = os.path.join(build_url, "build", f"prod-sdds3-{artifact_name}.zip")
-
-            r = requests.get(artifact_url)
-            z = zipfile.ZipFile(io.BytesIO(r.content))
-            z.extractall(unpack_location)
-
-    def setup_release_warehouse(self, release_type):
-        try:
-            self.gather_sdds3_warehouse_files(release_type)
-        except Exception as ex:
-            raise AssertionError(f"Failed to gather {release_type} warehouse files. Error: {ex}")
-
-        sdds3repo_path = os.path.join(SYSTEMPRODUCT_TEST_INPUT, f"sdds3-{release_type}", "repo")
-        vut_sdds3_repo_path = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "sdds3", "repo")
-
-        vut_sdds3_package_path = os.path.join(vut_sdds3_repo_path, "package")
-        release_sdds3_package_path = os.path.join(sdds3repo_path, "package")
-
-        vut_sdds3_supplement_path = os.path.join(vut_sdds3_repo_path, "supplement")
-        release_sdds3_supplement_path = os.path.join(sdds3repo_path, "supplement")
-
-        if not os.path.isdir(release_sdds3_supplement_path):
-            os.mkdir(release_sdds3_supplement_path)
-
-        files = os.listdir(vut_sdds3_supplement_path)
-        for f in files:
-            if not os.path.isfile(os.path.join(release_sdds3_supplement_path, f)):
-                shutil.copy(os.path.join(vut_sdds3_supplement_path, f), release_sdds3_supplement_path)
-
-        for (dirpath, dirnames, filenames) in os.walk(vut_sdds3_package_path):
-            for package in filenames:
-                if package.startswith(("DataSetA", "LocalRepData", "ML_MODEL3_LINUX_X86_64", "RuntimeDetectionRules", "ScheduledQueryPack", "SSPLFLAGS")):
-                    if not os.path.isfile(os.path.join(release_sdds3_package_path, package)):
-                        shutil.copy(os.path.join(vut_sdds3_package_path, package), os.path.join(release_sdds3_package_path, package))
 
 
 # If ran directly, file sets up local warehouse directory from filer6
