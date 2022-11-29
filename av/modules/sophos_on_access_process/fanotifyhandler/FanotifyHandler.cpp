@@ -163,6 +163,10 @@ void FanotifyHandler::processFaMarkError(const std::string& function, const std:
     {
         LOGDEBUG(logMsg.str());
     }
+    else if (error == EACCES)
+    {
+        LOGWARN(logMsg.str());
+    }
     else
     {
         LOGERROR(logMsg.str());
