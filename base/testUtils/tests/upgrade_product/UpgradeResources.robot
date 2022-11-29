@@ -349,13 +349,13 @@ Get Current Installed Versions
 
 Get Expected Versions
     [Arguments]    ${releaseType}
-    ${ExpectedBaseReleaseVersion} =     Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Base-component
-    ${ExpectedAVReleaseVersion} =       Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-AV
-    ${ExpectedEDRReleaseVersion} =      Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-EDR
-    ${ExpectedEJReleaseVersion} =       Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedLRReleaseVersion} =       Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedMTRReleaseVersion} =      Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-MDR
-    ${ExpectedRTDReleaseVersion} =      Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-RuntimeDetections
+    ${ExpectedBaseReleaseVersion} =     Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Base-component
+    ${ExpectedAVReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-AV
+    ${ExpectedEDRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-EDR
+    ${ExpectedEJReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-EventJournaler
+    ${ExpectedLRReleaseVersion} =       Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-liveresponse
+    ${ExpectedMTRReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-MDR
+    ${ExpectedRTDReleaseVersion} =      Get Version For Rigidname In SDDS3 Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-RuntimeDetections
     &{versions} =    Create Dictionary
     ...    baseVersion=${ExpectedBaseReleaseVersion}
     ...    avVersion=${ExpectedAVReleaseVersion}

@@ -100,7 +100,7 @@
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="0-6-0/warehouse" dest-dir="local_warehouses/dev/sspl-warehouse/0-6-0/warehouse/warehouse" />
 
             <!-- sdds3-->
-            <include artifact-path="sdds3-repo-999" dest-dir="sdds3/repo" />
+            <include artifact-path="sdds3-repo-999" dest-dir="sdds3/repo-999" />
             <include artifact-path="sdds3-repo" dest-dir="sdds3/repo" />
             <include artifact-path="sdds3-launchdarkly" dest-dir="sdds3/launchdarkly" />
             <include artifact-path="sdds3-launchdarkly-999" dest-dir="sdds3/launchdarkly-999" />
