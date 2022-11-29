@@ -29,7 +29,10 @@ unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(
     const unixsocket::BaseClient::duration_t& sleepTime)
     : BaseClient(std::move(socket_path), sleepTime, std::move(sleeper))
 {
-    connectWithRetries(m_socketPath, max_retries);
+    if (max_retries >= 0)
+    {
+        connectWithRetries(m_socketPath, max_retries);
+    }
 }
 
 void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const scan_messages::ProcessControlSerialiser& processControl)
