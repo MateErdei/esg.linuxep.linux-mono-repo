@@ -32,6 +32,7 @@ GENERATED_FILE_DIRECTORY = os.path.join(REAL_WAREHOUSE_DIRECTORY, "GeneratedAlcP
 
 FILER_6_DIRECTORY = os.path.join("/", "mnt", "filer6", "bfr", "sspl-warehouse")
 SYSTEMPRODUCT_TEST_INPUT = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
+BUILD_JWT = os.environ.get("BUILD_JWT")
 LOCAL_WAREHOUSES_ROOT = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "local_warehouses")
 LOCAL_WAREHOUSES = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse")
 WAREHOUSE_LOCAL_SERVER_PORT = 443
@@ -808,7 +809,7 @@ class WarehouseUtils(object):
             raise AssertionError(f"Invalid argument {release_type}: use dogfood or current_shipping")
 
         branch_filter = f"release--{current_year}{version_separator}"
-        for path in ArtifactoryPath(warehouse_repo_url):
+        for path in ArtifactoryPath(warehouse_repo_url, token=BUILD_JWT):
             branch_name = os.path.basename(path)
             if branch_name.startswith(branch_filter):
                 release_branches.append(branch_name)
@@ -818,7 +819,7 @@ class WarehouseUtils(object):
             release_branches = [i for i in release_branches if int(i.strip(branch_filter).split(version_separator)[0]) <= 4]
 
         release_branch = sorted(release_branches, key=lambda x: int(x[len(branch_filter):].split(version_separator)[0]), reverse=True)[0]
-        for build in ArtifactoryPath(os.path.join(warehouse_repo_url, release_branch)):
+        for build in ArtifactoryPath(os.path.join(warehouse_repo_url, release_branch), token=BUILD_JWT):
             builds.append(build)
         latest_build = sorted(builds, key=lambda x: int(os.path.basename(x).split('-')[0]), reverse=True)[0]
 
