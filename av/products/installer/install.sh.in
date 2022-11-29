@@ -89,7 +89,7 @@ SUSI_UPDATE_SRC="$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/"
 SUSI_DIST_VERS="$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/"
 LOCKFILE="${PLUGIN_INSTALL}/chroot/var/susi_update.lock"
 TD_PID_FILE="${PLUGIN_INSTALL}/chroot/var/threat_detector.pid"
-SAFESTORE_DB_PATH="${PLUGIN_INSTALL}/var/safestore_db"
+SAFESTORE_DB_PATH="${VAR}/safestore_db"
 
 function delete_removed_vdl()
 {
@@ -234,15 +234,15 @@ function apply_permissions()
 
     chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
 
-    mkdir -p "${PLUGIN_INSTALL}/var"
-    chmod 0770 "${PLUGIN_INSTALL}/var"
-    chmod -R g+r "${PLUGIN_INSTALL}/var"
-    chown -R ${USER_NAME}:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
-    chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/var"
+    mkdir -p "${VAR}"
+    chmod 0770 "${VAR}"
+    chmod -R g+r+t "${VAR}"
+    chown -R ${USER_NAME}:${GROUP_NAME} "${VAR}"
+    chown root:${GROUP_NAME} "${VAR}"
 
-    if [[ -f "${PLUGIN_INSTALL}/var/persist-threatDatabase" ]]
+    if [[ -f "${VAR}/persist-threatDatabase" ]]
     then
-        chmod 600 ${PLUGIN_INSTALL}/var/persist-threatDatabase
+        chmod 600 ${VAR}/persist-threatDatabase
     fi
 
     mkdir -p "$SAFESTORE_DB_PATH"
@@ -337,11 +337,11 @@ function create_registration_file()
 
 function restore_safestore_databases()
 {
-  SAFESTORE_RESTORE_DIR="${PLUGIN_INSTALL}/var/downgrade-backup"
+  SAFESTORE_RESTORE_DIR="${VAR}/downgrade-backup"
 
   if [[ -f "${SAFESTORE_RESTORE_DIR}/persist-threatDatabase" ]]
   then
-    mv "${SAFESTORE_RESTORE_DIR}/persist-threatDatabase" "${PLUGIN_INSTALL}/var/persist-threatDatabase" || failure $EXIT_FAIL_RESTORE_THREAT_DB "Failed to restore threat database"
+    mv "${SAFESTORE_RESTORE_DIR}/persist-threatDatabase" "${VAR}/persist-threatDatabase" || failure $EXIT_FAIL_RESTORE_THREAT_DB "Failed to restore threat database"
   fi
 
   SAFESTORE_DATABASES=$(find ${SAFESTORE_RESTORE_DIR} -name "*_SafeStore_*")
