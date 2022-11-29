@@ -463,7 +463,7 @@ namespace sspl::sophosthreatdetectorimpl
 
         m_safeStoreRescanWorker = std::make_shared<SafeStoreRescanWorker>(Plugin::getSafeStoreRescanSocketPath());
 
-        m_reloader = std::make_shared<Reloader>(m_scannerFactory, m_safeStoreRescanWorker);
+        m_reloader = std::make_shared<Reloader>(m_scannerFactory);
 
         unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, m_scannerFactory);
         server.start();

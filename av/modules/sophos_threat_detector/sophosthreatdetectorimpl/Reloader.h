@@ -18,10 +18,8 @@ namespace sspl::sophosthreatdetectorimpl
     public:
         Reloader() = default;
 
-        explicit Reloader(
-            threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
-            std::shared_ptr<SafeStoreRescanWorker> storeRescanWorker) :
-            m_scannerFactory(std::move(scannerFactory)), m_safeStoreRescanWorker(std::move(storeRescanWorker))
+        explicit Reloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory) :
+            m_scannerFactory(std::move(scannerFactory))
         {
         }
 
@@ -37,6 +35,5 @@ namespace sspl::sophosthreatdetectorimpl
 
     private:
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
-        std::shared_ptr<SafeStoreRescanWorker> m_safeStoreRescanWorker;
     };
 } // namespace sspl::sophosthreatdetectorimpl
