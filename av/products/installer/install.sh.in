@@ -337,12 +337,12 @@ function restore_safestore_databases()
 
   if [[ -f "${SAFESTORE_RESTORE_DIR}/persist-threatDatabase" ]]
   then
-    mv "${SAFESTORE_RESTORE_DIR}/persist-threatDatabase" "${PLUGIN_ROOT}/var/persist-threatDatabase" || failure $EXIT_FAIL_RESTORE_THREAT_DB "Failed to restore threat database"
+    mv "${SAFESTORE_RESTORE_DIR}/persist-threatDatabase" "${PLUGIN_INSTALL}/var/persist-threatDatabase" || failure $EXIT_FAIL_RESTORE_THREAT_DB "Failed to restore threat database"
   fi
 
   SAFESTORE_DATABASES=$(find ${SAFESTORE_RESTORE_DIR} -name "*_SafeStore_*")
 
-  IFS=' ' read -r -a PRODUCT_VERSION <<< $(grep PRODUCT_VERSION "${PLUGIN_ROOT}/VERSION.ini") && unset IFS
+  IFS=' ' read -r -a PRODUCT_VERSION <<< $(grep PRODUCT_VERSION "${PLUGIN_INSTALL}/VERSION.ini") && unset IFS
   CURRENT_AV_VERSION=${PRODUCT_VERSION[2]}
 
   COMPATIBLE_SAFESTORE_DBS=()
