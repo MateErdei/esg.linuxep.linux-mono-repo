@@ -31,7 +31,7 @@ namespace
             ON_CALL(*this, isRemovable).WillByDefault(Return(true));
             ON_CALL(*this, isSpecial).WillByDefault(Return(false));
             ON_CALL(*this, isDirectory).WillByDefault(Return(true));
-            ON_CALL(*this, mountPoint).WillByDefault(Return("Mount"));
+            ON_CALL(*this, mountPoint).WillByDefault(Return("testmount"));
             ON_CALL(*this, isReadOnly).WillByDefault(Return(true));
         }
         MOCK_METHOD(std::string, device, (), (const));

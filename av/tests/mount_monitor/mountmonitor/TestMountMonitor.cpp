@@ -16,6 +16,7 @@
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "mount_monitor/mountinfoimpl/SystemPaths.h"
 #include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
+#include "sophos_on_access_process/soapd_bootstrap/OnAccessProductConfigDefaults.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
@@ -471,4 +472,128 @@ TEST_F(TestMountMonitor, TestFileSystemTelemetryCanHandleNonAlphaNumericCharacte
     auto content = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
     std::string ExpectedTelemetry{ R"sophos({"file-system-types":["\\\"#@><./?!£$%^&*(){{}}~:;`¬-_=+1234567890"]})sophos" };
     EXPECT_EQ(content, ExpectedTelemetry);
+}
+
+TEST_F(TestMountMonitor, TestMountIsExcludedAsItsOnExcludedList)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    ASSERT_TRUE(FILE_SYSTEMS_TO_EXCLUDE.size() > 0);
+
+    auto excludedFileSystem = FILE_SYSTEMS_TO_EXCLUDE.cbegin()->substr();
+    PRINT(excludedFileSystem);
+    std::string expectedMessage = "Mount point testmount using filesystem " + excludedFileSystem + " is not supported and will be excluded from scanning";
+
+    std::shared_ptr<NiceMock<MockMountPoint>> excludedMount = std::make_shared<NiceMock<MockMountPoint>>();
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    EXPECT_CALL(*excludedMount, filesystemType()).WillOnce(Return(excludedFileSystem));
+    EXPECT_FALSE(mountMonitor->isIncludedFilesystemType(excludedMount));
+    EXPECT_TRUE(waitForLog(expectedMessage));
+}
+
+TEST_F(TestMountMonitor, TestMountIsExcludedAsItsSpecial)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string expectedMessage = "Mount point testmount is system and will be excluded from scanning";
+
+    std::shared_ptr<NiceMock<MockMountPoint>> excludedMount = std::make_shared<NiceMock<MockMountPoint>>();
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    EXPECT_CALL(*excludedMount, isHardDisc()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isNetwork()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isRemovable()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isOptical()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isSpecial()).WillOnce(Return(true));
+
+    EXPECT_FALSE(mountMonitor->isIncludedFilesystemType(excludedMount));
+    EXPECT_TRUE(waitForLog(expectedMessage));
+}
+
+TEST_F(TestMountMonitor, TestMountIsExcludedAsItDoesntHavePropertiesForScannableMount)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string expectedMessage = "Mount point testmount has been excluded from scanning";
+
+    std::shared_ptr<NiceMock<MockMountPoint>> excludedMount = std::make_shared<NiceMock<MockMountPoint>>();
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    EXPECT_CALL(*excludedMount, isHardDisc()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isNetwork()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isRemovable()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isOptical()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isSpecial()).WillOnce(Return(false));
+
+    EXPECT_FALSE(mountMonitor->isIncludedFilesystemType(excludedMount));
+    EXPECT_TRUE(waitForLog(expectedMessage));
+}
+
+TEST_F(TestMountMonitor, TestMountIsIncludedIfHardDisc)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::shared_ptr<NiceMock<MockMountPoint>> excludedMount = std::make_shared<NiceMock<MockMountPoint>>();
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    EXPECT_CALL(*excludedMount, isHardDisc()).WillOnce(Return(true));
+    EXPECT_TRUE(mountMonitor->isIncludedFilesystemType(excludedMount));
+}
+
+TEST_F(TestMountMonitor, TestMountIsIncludedIfNetworkAndNotRemote)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::shared_ptr<NiceMock<MockMountPoint>> excludedMount = std::make_shared<NiceMock<MockMountPoint>>();
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    ASSERT_TRUE( m_config.excludeRemoteFiles == false);
+
+    EXPECT_CALL(*excludedMount, isHardDisc()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isNetwork()).WillOnce(Return(true));
+    EXPECT_TRUE(mountMonitor->isIncludedFilesystemType(excludedMount));
+}
+
+TEST_F(TestMountMonitor, TestMountIsExcludedIfNetworkAndIsRemote)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::shared_ptr<NiceMock<MockMountPoint>> excludedMount = std::make_shared<NiceMock<MockMountPoint>>();
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    m_config.excludeRemoteFiles = true;
+
+    EXPECT_CALL(*excludedMount, isHardDisc()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isNetwork()).WillOnce(Return(true));
+    EXPECT_CALL(*excludedMount, isRemovable()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isOptical()).WillOnce(Return(false));
+    EXPECT_FALSE(mountMonitor->isIncludedFilesystemType(excludedMount));
+}
+
+TEST_F(TestMountMonitor, TestMountIsIncludedIfRemovable)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::shared_ptr<NiceMock<MockMountPoint>> excludedMount = std::make_shared<NiceMock<MockMountPoint>>();
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    EXPECT_CALL(*excludedMount, isHardDisc()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isNetwork()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isRemovable()).WillOnce(Return(true));
+    EXPECT_TRUE(mountMonitor->isIncludedFilesystemType(excludedMount));
+}
+
+TEST_F(TestMountMonitor, TestMountIsIncludedIfOptical)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::shared_ptr<NiceMock<MockMountPoint>> excludedMount = std::make_shared<NiceMock<MockMountPoint>>();
+    auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
+
+    EXPECT_CALL(*excludedMount, isHardDisc()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isNetwork()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isRemovable()).WillOnce(Return(false));
+    EXPECT_CALL(*excludedMount, isOptical()).WillOnce(Return(true));
+    EXPECT_TRUE(mountMonitor->isIncludedFilesystemType(excludedMount));
 }

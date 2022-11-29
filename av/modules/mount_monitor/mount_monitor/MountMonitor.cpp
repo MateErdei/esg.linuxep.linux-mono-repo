@@ -74,10 +74,11 @@ namespace mount_monitor::mount_monitor
 
     bool MountMonitor::isIncludedFilesystemType(const mountinfo::IMountPointSharedPtr& mp)
     {
-        auto itr = FILE_SYSTEMS_TO_EXCLUDE.find(mp->filesystemType());
-        if (itr != FILE_SYSTEMS_TO_EXCLUDE.cend())
+        auto fileSystemType = mp->filesystemType();
+        if (FILE_SYSTEMS_TO_EXCLUDE.find(fileSystemType) != FILE_SYSTEMS_TO_EXCLUDE.cend())
         {
-            LOGINFO("Mount point " << mp->mountPoint().c_str() << " is not supported and will be excluded from scanning");
+            LOGINFO("Mount point " << mp->mountPoint().c_str() << " using filesystem "
+                                   << fileSystemType << " is not supported and will be excluded from scanning");
             return false;
         }
 

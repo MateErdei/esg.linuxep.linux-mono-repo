@@ -39,12 +39,12 @@ namespace mount_monitor::mount_monitor
 
     private:
         void run() override;
-        bool isIncludedFilesystemType(const mountinfo::IMountPointSharedPtr& mount);
         bool isIncludedMountpoint(const mountinfo::IMountPointSharedPtr& mount);
 
     TEST_PUBLIC:
         void markMounts(const mountinfo::IMountPointSharedVector& mounts);
         void addFileSystemToTelemetry(std::set<std::string>& fileSystemList);
+        bool isIncludedFilesystemType(const mountinfo::IMountPointSharedPtr& mount);
 
     private:
         OnAccessConfiguration& m_config;
