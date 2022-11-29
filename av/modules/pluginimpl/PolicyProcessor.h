@@ -11,6 +11,10 @@
 
 #define USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 namespace Plugin
 {
     enum class PolicyType
@@ -74,8 +78,26 @@ namespace Plugin
             return m_restartThreatDetector;
         }
 
+        /**
+         * Try and send a reload request to SOAPD if we can
+         */
+        virtual void notifyOnAccessProcessIfRequired();
+
+        using clock_t = std::chrono::steady_clock;
+        using seconds_t = std::chrono::seconds;
+        using timepoint_t = std::chrono::time_point<clock_t>;
+
+        /**
+         * Get the timeout before we should notify SOAPD
+         * @return
+         */
+        [[nodiscard]] timepoint_t timeout() const;
+
+    TEST_PUBLIC:
+        [[nodiscard]] timepoint_t timeout(timepoint_t now) const;
+
     protected:
-        virtual void notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE requestType);
+        void markOnAccessReloadPending();
 
         void processOnAccessSettingsFromCOREpolicy(const AttributesMap& policy);
         void processOnAccessSettingsFromSAVpolicy(const AttributesMap& policy);
@@ -101,6 +123,7 @@ namespace Plugin
         bool m_gotFirstAlcPolicy = false;
         bool m_gotFirstCorcPolicy = false;
         bool m_restartThreatDetector = false;
+        bool m_pendingOnAccessProcessReload = false;
 
         inline static const std::string OA_FLAG { "av.onaccess.enabled" };
         inline static const std::string SS_FLAG { "safestore.enabled" };

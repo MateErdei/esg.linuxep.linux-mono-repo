@@ -169,7 +169,11 @@ namespace Plugin
         while (true)
         {
             Task task{};
-            bool gotTask = m_taskQueue->pop(task, policyWaiter->timeout());
+            auto timeout = std::min({
+                policyWaiter->timeout(),
+                m_policyProcessor.timeout()
+            } );
+            bool gotTask = m_taskQueue->pop(task, timeout);
             if (gotTask)
             {
                 switch (task.taskType)
@@ -222,6 +226,9 @@ namespace Plugin
             {
                 // timeout waiting for policy
                 policyWaiter->checkTimeout();
+
+                // or timeout to notify soapd
+                m_policyProcessor.notifyOnAccessProcessIfRequired();
             }
 
             // if we've got policies, or timed out the initial wait then start threads

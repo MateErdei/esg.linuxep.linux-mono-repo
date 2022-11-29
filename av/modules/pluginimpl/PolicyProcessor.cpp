@@ -54,6 +54,15 @@ namespace
             return json{};
         }
     }
+
+    using timepoint_t = Plugin::PolicyProcessor::timepoint_t;
+    using seconds_t = Plugin::PolicyProcessor::seconds_t;
+
+
+    timepoint_t getNow()
+    {
+        return Plugin::PolicyProcessor::clock_t::now();
+    }
 }
 
 namespace Plugin
@@ -195,11 +204,21 @@ namespace Plugin
         return common::md5_hash(cred); // always do the second hash
     }
 
-    void PolicyProcessor::notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE requestType)
+    void PolicyProcessor::markOnAccessReloadPending()
     {
-        unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath(), m_sleeper);
-        scan_messages::ProcessControlSerialiser processControlRequest(requestType);
-        processController.sendProcessControlRequest(processControlRequest);
+        m_pendingOnAccessProcessReload = true;
+    }
+
+
+    void PolicyProcessor::notifyOnAccessProcessIfRequired()
+    {
+        if (m_pendingOnAccessProcessReload)
+        {
+            unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath(), m_sleeper);
+            scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+            processController.sendProcessControlRequest(processControlRequest);
+            m_pendingOnAccessProcessReload = false;
+        }
     }
 
     void PolicyProcessor::processOnAccessSettingsFromSAVpolicy(const Common::XmlUtilities::AttributesMap& policy)
@@ -318,7 +337,7 @@ namespace Plugin
             auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
             fs->writeFileAtomically(getSoapFlagConfigPath(), oaConfig.dump(), tempDir, 0640);
 
-            notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+            markOnAccessReloadPending();
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
@@ -422,7 +441,22 @@ namespace Plugin
             return;
         }
 
-        notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+        markOnAccessReloadPending();
+    }
+
+    PolicyProcessor::timepoint_t PolicyProcessor::timeout() const
+    {
+        return timeout(getNow());
+    }
+
+    timepoint_t PolicyProcessor::timeout(timepoint_t now) const
+    {
+        if (m_pendingOnAccessProcessReload)
+        {
+            return now + seconds_t{1};
+        }
+        static constexpr seconds_t MAX_TIMEOUT{9999999};
+        return now + MAX_TIMEOUT;
     }
 }
 

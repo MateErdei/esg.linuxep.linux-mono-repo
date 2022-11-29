@@ -1,6 +1,6 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
-#include <pluginimpl/PolicyProcessor.h>
+#include "TestPolicyProcessor.h"
 
 #include "PluginMemoryAppenderUsingTests.h"
 
@@ -79,19 +79,6 @@ namespace
         std::string m_soapFlagConfigPath;
         std::string m_customerIdPath;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
-    };
-
-    class PolicyProcessorUnitTestClass : public Plugin::PolicyProcessor
-    {
-    public:
-        PolicyProcessorUnitTestClass()
-            : Plugin::PolicyProcessor(nullptr)
-        {}
-    protected:
-        void notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE /*cmd*/) override
-        {
-            PRINT("Notified soapd");
-        }
     };
 }
 
