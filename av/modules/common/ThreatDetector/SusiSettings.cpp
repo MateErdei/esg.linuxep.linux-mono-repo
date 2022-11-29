@@ -69,6 +69,7 @@ namespace common::ThreatDetector
             if (parsedConfig.contains(SHA_ALLOW_LIST_KEY))
             {
                 m_susiAllowListSha256 = parsedConfig[SHA_ALLOW_LIST_KEY].get<std::vector<std::string>>();
+                LOGDEBUG("Number of SHA256 allow-listed items: " << m_susiAllowListSha256.size());
             }
 
             LOGDEBUG("Loaded Threat Detector SUSI settings into SUSI settings object");

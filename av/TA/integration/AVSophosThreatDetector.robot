@@ -610,14 +610,18 @@ Sophos Threat Detector Gives Different Threat Id Depending On Path And Sha And I
 Sophos Threat Detector Triggers SafeStore Rescan When SUSI Config Changes
     # Start from known place with a CORC policy with an empty allow list
     Stop sophos_threat_detector
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
     Send CORC Policy To Base  corc_policy_empty_allowlist.xml
     Start sophos_threat_detector
+    wait_for_log_contains_from_mark  ${td_mark}  SXL Lookups will be enabled
+    wait_for_log_contains_from_mark  ${td_mark}  Number of SHA256 allow-listed items: 0
 
     # Send CORC policy with populated allow list to product, to trigger SafeStore rescan
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Send CORC Policy To Base  corc_policy.xml
+    wait_for_log_contains_from_mark  ${td_mark}  Number of SHA256 allow-listed items: 3
     wait_for_log_contains_from_mark  ${td_mark}  SUSI settings changed
     wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
     wait_for_log_contains_from_mark  ${safestore_mark}  SafeStore Database Rescan request received
