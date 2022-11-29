@@ -5,17 +5,13 @@
 #include "Logger.h"
 #include "Reloader.h"
 #include "SafeStoreRescanWorker.h"
-#include "ShutdownTimer.h"
-#include "ThreatReporter.h"
 #include "ThreatDetectorResources.h"
 
 #include "common/ApplicationPaths.h"
 #include "common/Define.h"
 #include "common/FDUtils.h"
-
 #include "common/SaferStrerror.h"
 #include "common/ThreatDetector/SusiSettings.h"
-#include "common/signals/SigTermMonitor.h"
 #include "common/signals/SigUSR1Monitor.h"
 #include "common/ThreadRunner.h"
 
@@ -27,10 +23,7 @@
 
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
-#include "unixsocket/safeStoreRescanSocket/SafeStoreRescanServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
-
-#include "common/ApplicationPaths.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
