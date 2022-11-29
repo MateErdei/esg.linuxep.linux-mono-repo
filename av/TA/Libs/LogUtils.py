@@ -983,6 +983,32 @@ File Log Contains
         handler.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, log_path))
 
+    def check_log_contains_in_order_after_mark(self, log_path, expected_items, mark):
+        if mark is None:
+            logger.error("No mark passed for check_log_contains_after_mark")
+            raise AssertionError("No mark set to find %s in %s" % (expected_items, log_path))
+
+        encoded_expected = []
+        for string in expected_items:
+            encoded_expected.append(string.encode("UTF-8"))
+
+        handler = self.get_log_handler(log_path)
+        contents = handler.get_contents(mark)
+        index = 0
+
+        for string in encoded_expected:
+            logger.info("Looking for {}".format(string))
+            index = contents.find(string, index)
+            if index != -1:
+                logger.info("{} log contains {}".format(log_path, string))
+                index = index + len(string)
+            else:
+                logger.error(contents)
+                raise AssertionError("Remainder of {} log doesn't contain {}".format(log_path, string))
+
+        return
+
+
     def get_log_after_mark(self, log_path, mark):
         assert mark is not None
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in get_log_after_mark"
@@ -1067,6 +1093,10 @@ File Log Contains
         """
         time.sleep(timeout)
         return self.check_on_access_log_does_not_contain_after_mark(not_expected, mark)
+
+    def check_on_access_log_contains_in_order(self, expected_items, mark):
+        logger.info(expected_items)
+        return self.check_log_contains_in_order_after_mark(self.oa_log, expected_items, mark)
 
 #####################################################################
 # AV Log

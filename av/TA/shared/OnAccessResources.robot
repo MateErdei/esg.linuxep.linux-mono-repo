@@ -129,6 +129,10 @@ Enable OA Scanning
     wait for on access log contains after mark   mount points in on-access scanning   mark=${mark}
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
 
+    #Ensure that all threads start in order
+    ${list}=  create list  Fanotify successfully initialised  Starting eventReader  Starting mountMonitor  mount points in on-access scanning  Starting scanHandler 0  On-access scanning enabled
+    check_on_access_log_contains_in_order  ${list}  mark=${mark}
+
 
 On-access Scan Clean File
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
