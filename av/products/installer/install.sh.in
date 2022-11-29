@@ -235,8 +235,8 @@ function apply_permissions()
     chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
 
     mkdir -p "${VAR}"
-    chmod 0770 "${VAR}"
-    chmod -R g+r+t "${VAR}"
+    chmod +t 0770 "${VAR}"
+    chmod -R g+r "${VAR}"
     chown -R ${USER_NAME}:${GROUP_NAME} "${VAR}"
     chown root:${GROUP_NAME} "${VAR}"
 
