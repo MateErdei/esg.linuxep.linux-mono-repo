@@ -14,7 +14,7 @@ function failure()
 
 echo "Setting up machine"
 yum upgrade
-yum -y install python3
+yum -y install python3 openssl11-libs
 
 # prepare gcc build area
 if [[ -d /root/gcc-build-test ]]
