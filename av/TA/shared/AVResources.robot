@@ -3,7 +3,6 @@ Library         Process
 Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
-Library         ../Libs/BaseUtils.py
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/FileUtils.py
@@ -369,6 +368,7 @@ Count Lines In Log With Offset
     [Return]  ${lines_count}
 
 Check Threat Detector Copied Files To Chroot
+    Wait Until Sophos Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/logger.conf" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf"
     Wait Until Sophos Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/machine_id.txt" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/machine_id.txt"
     Wait Until Sophos Threat Detector Log Contains  Copying "/opt/sophos-spl/plugins/av/VERSION.ini" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/VERSION.ini"
     #dns query files
@@ -378,9 +378,11 @@ Check Threat Detector Copied Files To Chroot
     Wait Until Sophos Threat Detector Log Contains  Copying "/etc/host.conf" to: "/opt/sophos-spl/plugins/av/chroot/etc/host.conf"
     Wait Until Sophos Threat Detector Log Contains  Copying "/etc/hosts" to: "/opt/sophos-spl/plugins/av/chroot/etc/hosts"
 
+    Threat Detector Does Not Log Contain  Failed to copy: /opt/sophos-spl/base/etc/logger.conf
     Threat Detector Does Not Log Contain  Failed to copy: /opt/sophos-spl/base/etc/machine_id.txt
     Threat Detector Does Not Log Contain  Failed to copy: /opt/sophos-spl/plugins/av/VERSION.ini
 
+    File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/machine_id.txt
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/VERSION.ini
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/nsswitch.conf
@@ -654,18 +656,17 @@ Check AV Plugin Installed With Offset
     ...  FakeManagement Log Contains   Registered plugin: ${COMPONENT}
 
 Install With Base SDDS
-    [Arguments]  ${LogLevel}=DEBUG
     Uninstall All
     Directory Should Not Exist  ${SOPHOS_INSTALL}
 
     Install Base For Component Tests
-
-    Set SPL Log Level And Restart Watchdog if changed   ${LogLevel}
+    Set Log Level  DEBUG
+    # restart the service to apply the new log level to watchdog
+    Run Shell Process  systemctl restart sophos-spl  OnError=failed to restart sophos-spl
 
     Install AV Directly from SDDS
-    wait_for_av_log_contains_after_last_restart  Starting sophos_threat_detector monitor
-    wait_for_sophos_threat_detector_log_contains_after_last_restart
-    ...  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
+    Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
+    Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
 
 
 Uninstall And Revert Setup
@@ -721,8 +722,7 @@ Require Plugin Installed and Running
     [Arguments]  ${LogLevel}=DEBUG
     Install Base if not installed
 
-    Set SPL Log Level And Restart Watchdog if changed   ${LogLevel}
-
+    Set Log Level  ${LogLevel}
     Install AV if not installed
     Start AV Plugin if not running
     ${pid} =  Start Sophos Threat Detector if not running
@@ -881,20 +881,39 @@ Remove ext2 mount
     Run Shell Process   umount ${destination}   OnError=Failed to unmount ext2 fs
     Remove file   ${source}
 
+Debug NFS Server
+    ${result} =   Run Process  systemctl  status  nfs-server
+    Log   ${result.stdout}
+
+    Analyse Journalctl   print_always=True
+
+    Dump Log  ${EXPORT_FILE}
+    Dump Log  ${EXPORT_FILE}_bkp
+
 Create Local NFS Share
-    [Arguments]  ${source}  ${destination}
+    [Arguments]  ${source}  ${destination}  ${share_opts}=no_root_squash  ${mount_opts}=defaults
     Copy File If Destination Missing  ${EXPORT_FILE}  ${EXPORT_FILE}_bkp
-    Create File   ${EXPORT_FILE}  ${source} localhost(fsid=1,rw,sync,no_subtree_check,no_root_squash)\n
-    Register On Fail  Run Process  systemctl  status  nfs-server
-    Register On Fail  Dump Log  ${EXPORT_FILE}
-    Run Shell Process   systemctl restart nfs-server            OnError=Failed to restart NFS server
-    Run Shell Process   mount -t nfs localhost:${source} ${destination}   OnError=Failed to mount local NFS share
+    Create File   ${EXPORT_FILE}  ${source} localhost(fsid=1,rw,sync,no_subtree_check,${share_opts})\n
+    Register On Fail  Debug NFS Server
+
+    Run Shell Process   systemctl start nfs-server   OnError=Failed to start NFS server   timeout=60s
+    # try exportfs. If that fails, restart nfs-server
+    ${status} =      Run Keyword And Return Status
+    ...     Run Shell Process   exportfs -ra            OnError=Failed to force NFS server reload
+    Run Keyword If   ${status} != True
+    ...     Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server   timeout=60s
+
+    Run Shell Process   mount -t nfs localhost:${source} ${destination} -o ${mount_opts}
+    ...   OnError=Failed to mount local NFS share
+    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
 
 Remove Local NFS Share
     [Arguments]  ${source}  ${destination}
     Unmount Test Mount  ${destination}
+    Remove Directory    ${destination}
+
     Move File  ${EXPORT_FILE}_bkp  ${EXPORT_FILE}
-    Run Shell Process   systemctl restart nfs-server   OnError=Failed to restart NFS server
+    Run Shell Process   exportfs -ra            OnError=Failed to force NFS server reload
     Remove Directory    ${source}  recursive=True
 
 Check Scan Now Configuration File is Correct
@@ -1133,28 +1152,44 @@ Check avscanner can detect eicar
     Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
     Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/eicar.com   ${LOCAL_AVSCANNER}
 
+Create eicar on read only mount
+    [Arguments]   ${dir_path}=${SCAN_DIRECTORY}
+    Create File     ${dir_path}/eicar.com    ${EICAR_STRING}
+    Create Directory  ${dir_path}/readOnly
+    ${result} =  run process    mount  --bind  -o  ro  ${dir_path}  /${dir_path}/readOnly
+    Register Cleanup   Unmount Test Mount  ${dir_path}/readOnly
+    Register Cleanup   Remove File   ${dir_path}/eicar.com
+
 Check avscanner can detect eicar on read only mount
     [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
-    Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    Create Directory  ${SCAN_DIRECTORY}/readOnly
-    ${result} =  run process    mount  --bind  -o  ro  ${SCAN_DIRECTORY}  ${SCAN_DIRECTORY}/readOnly
-    Register Cleanup   Unmount Test Mount  ${SCAN_DIRECTORY}/readOnly
-    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
+    Create eicar on read only mount
     Check avscanner can detect eicar in  ${SCAN_DIRECTORY}/readOnly/eicar.com   ${LOCAL_AVSCANNER}
 
-Check avscanner can detect eicar on network mount
-    [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
-
+Create eicar on network mount
+    [Tags]   NFS
     ${source} =       Set Variable  /tmp_test/nfsshare
     ${destination} =  Set Variable  /testmnt/nfsshare
     Create Directory  ${source}
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
-    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
 
     Create File     ${source}/eicar.com    ${EICAR_STRING}
-    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
+    Register Cleanup   Remove File   ${source}/eicar.com
 
+Check avscanner can detect eicar on network mount
+    [Tags]   NFS
+    [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
+
+#    ${source} =       Set Variable  /tmp_test/nfsshare
+    ${destination} =  Set Variable  /testmnt/nfsshare
+#    Create Directory  ${source}
+#    Create Directory  ${destination}
+#    Create Local NFS Share   ${source}   ${destination}
+#
+#    Create File     ${source}/eicar.com    ${EICAR_STRING}
+#    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com   HERE IS DIFFERENCE
+
+    Create eicar on network mount
     Check avscanner can detect eicar in  ${destination}/eicar.com   ${LOCAL_AVSCANNER}
 
 Check avscanner can scan clean file in
@@ -1315,6 +1350,16 @@ Require Filesystem
     Pass Execution If    ${file_does_not_exist}  /proc/filesystems does not exist - cannot determine supported filesystems
     ${file_does_not_contain} =  Does File Not Contain  /proc/filesystems  ${fs_type}
     Pass Execution If    ${file_does_not_contain}  ${fs_type} is not a supported filesystem with this kernel - skipping test
+
+Require NFS Version
+    [Arguments]   ${version}
+    Run Keyword And Ignore Error
+    ...  Run Process  modprobe  nfsd
+    ${status}   ${content} =   Run Keyword And Ignore Error     Get File   /proc/fs/nfsd/versions
+    Pass Execution If    '${status}' == 'FAIL'
+    ...     /proc/fs/nfsd/versions does not exist - cannot determine supported NFS versions
+    Pass Execution If    '-${version}' in ' ${content.strip()} '
+    ...     ${version} is not a supported NFS version with this NFS installation - skipping test
 
 Terminate And Wait until threat detector not running
     [Arguments]   ${handle}
