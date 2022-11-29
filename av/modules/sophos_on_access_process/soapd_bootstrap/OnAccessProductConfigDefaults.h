@@ -19,13 +19,13 @@ namespace sophos_on_access_process::OnAccessConfig
    const size_t defaultMaxScanQueueSize = 4000;
 
     //FileSystem
-    static const std::unordered_set<std::string> FILE_SYSTEMS_TO_EXCLUDE
+    const std::unordered_set<std::string> FILE_SYSTEMS_TO_EXCLUDE
     {
            "aufs",
            "autofs",
            "bpf",
            "efivarfs",
-           "fuse.gvfs",
+           "fuse.gvfsd-fuse",
            "fuse.vmware-vmblock",
            "inotifyfs",
            "nssadmin",
