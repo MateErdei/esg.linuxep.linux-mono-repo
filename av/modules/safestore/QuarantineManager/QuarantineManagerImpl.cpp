@@ -536,6 +536,7 @@ namespace safestore::QuarantineManager
 
     std::optional<scan_messages::RestoreReport> QuarantineManagerImpl::restoreFile(const std::string& objectId)
     {
+        LOGINFO("Attempting to restore object: " << objectId);
         // Get all details
         std::shared_ptr<SafeStoreWrapper::ObjectHandleHolder> objectHandle = m_safeStore->createObjectHandleHolder();
         if (!m_safeStore->getObjectHandle(objectId, objectHandle))
@@ -544,11 +545,27 @@ namespace safestore::QuarantineManager
             return {};
         }
 
-        const std::string path =
-            m_safeStore->getObjectLocation(*objectHandle) + "/" + m_safeStore->getObjectName(*objectHandle);
+        auto objectName = m_safeStore->getObjectName(*objectHandle);
+        if (objectName.empty())
+        {
+            LOGWARN("Couldn't get object name for: " << objectId << ".");
+        }
+
+        auto objectLocation = m_safeStore->getObjectLocation(*objectHandle);
+        if (objectLocation.empty())
+        {
+            LOGWARN("Couldn't get object location for: " << objectId << ".");
+        }
+
+        const std::string path = objectLocation + "/" + objectName;
         const std::string escapedPath = common::escapePathForLogging(path);
 
         const std::string threatId = m_safeStore->getObjectThreatId(*objectHandle);
+        if (threatId.empty())
+        {
+            LOGERROR("Couldn't get threatId for: " << escapedPath << ", unable to restore.");
+            return {};
+        }
 
         // Create report
         scan_messages::RestoreReport restoreReport{ std::time(nullptr), path, threatId, false };
