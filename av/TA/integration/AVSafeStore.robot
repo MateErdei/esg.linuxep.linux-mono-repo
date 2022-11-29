@@ -307,6 +307,40 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount
     Wait For Log Contains From Mark  ${av_mark}      File is located on a Network mount:
     Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
 
+SafeStore Does Not Attempt To Quarantine File On A Network Mount (On Access)
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    #create eicar on network mount
+    ${source} =       Set Variable  /tmp_test/nfsshare
+    ${destination} =  Set Variable  /testmnt/nfsshare
+    Create Directory  ${source}
+    Create Directory  ${destination}
+    Create Local NFS Share   ${source}   ${destination}
+    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
+
+    Create File     ${source}/eicar.com    ${EICAR_STRING}
+    Register Cleanup   Remove File   ${SCAN_DIRECTORY}/eicar.com
+
+    #start OA and SS
+    ${av_mark} =  Get AV Log Mark
+    ${mark} =  Get on access log mark
+
+    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    wait_for_log_contains_from_mark  ${av_mark}  On-access is enabled in the FLAGS policy, assuming on-access policy settings
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+
+    #read eicar
+    ${result} =  run process    cat   ${destination}/eicar.com
+
+    Log  ${result}
+
+    Wait For Log Contains From Mark  ${av_mark}      File is located on a Network mount:
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
+
 
 SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Capacity
     register cleanup    Exclude Watchdog Log Unable To Open File Error
