@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "SafeStoreRescanWorker.h"
-
 #include "sophos_threat_detector/threat_scanner/IThreatScannerFactory.h"
 
 #include "common/signals/IReloadable.h"
