@@ -1087,8 +1087,8 @@ File Log Contains
     def check_av_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.av_log, not_expected, mark)
 
-    def wait_for_av_log_contains_after_last_restart(self, expected, timeout: int):
-        return self.wait_for_log_contains_after_last_restart(self.av_log, expected, timeout)
+    def wait_for_av_log_contains_after_last_restart(self, expected, timeout: int = 15, mark=None):
+        return self.wait_for_log_contains_after_last_restart(self.av_log, expected, timeout, mark)
 
 #####################################################################
 # Sophos Threat Detector Log
@@ -1108,6 +1108,9 @@ File Log Contains
 
     def check_sophos_threat_detector_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.sophos_threat_detector_log, not_expected, mark)
+
+    def wait_for_sophos_threat_detector_log_contains_after_last_restart(self, expected, timeout: int = 15, mark=None):
+        return self.wait_for_log_contains_after_last_restart(self.sophos_threat_detector_log, expected, timeout, mark)
 
     def dump_sophos_threat_detector_log_after_mark(self, mark):
         return self.dump_marked_log(self.sophos_threat_detector_log, mark)

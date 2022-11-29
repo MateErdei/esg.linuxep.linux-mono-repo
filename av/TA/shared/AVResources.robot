@@ -378,11 +378,9 @@ Check Threat Detector Copied Files To Chroot
     Wait Until Sophos Threat Detector Log Contains  Copying "/etc/host.conf" to: "/opt/sophos-spl/plugins/av/chroot/etc/host.conf"
     Wait Until Sophos Threat Detector Log Contains  Copying "/etc/hosts" to: "/opt/sophos-spl/plugins/av/chroot/etc/hosts"
 
-    Threat Detector Does Not Log Contain  Failed to copy: /opt/sophos-spl/base/etc/logger.conf
     Threat Detector Does Not Log Contain  Failed to copy: /opt/sophos-spl/base/etc/machine_id.txt
     Threat Detector Does Not Log Contain  Failed to copy: /opt/sophos-spl/plugins/av/VERSION.ini
 
-    File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/machine_id.txt
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/VERSION.ini
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/nsswitch.conf
@@ -656,6 +654,7 @@ Check AV Plugin Installed With Offset
     ...  FakeManagement Log Contains   Registered plugin: ${COMPONENT}
 
 Install With Base SDDS
+    [Arguments]  ${LogLevel}=DEBUG
     Uninstall All
     Directory Should Not Exist  ${SOPHOS_INSTALL}
 
@@ -664,8 +663,9 @@ Install With Base SDDS
     Set SPL Log Level And Restart Watchdog if changed   ${LogLevel}
 
     Install AV Directly from SDDS
-    Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
-    Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
+    wait_for_av_log_contains_after_last_restart  Starting sophos_threat_detector monitor
+    wait_for_sophos_threat_detector_log_contains_after_last_restart
+    ...  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
 
 
 Uninstall And Revert Setup
