@@ -414,12 +414,6 @@ function install_product()
         "${SOPHOS_INSTALL}/bin/wdctl" stop "safestore" &>/dev/null || echo Failed to stop SafeStore
     fi
 
-    #Create plugin registration files
-    create_registration_file "${PLUGIN_NAME}"
-    create_registration_file "threat_detector"
-    create_registration_file "on_access_process"
-    create_registration_file "safestore"
-
     #Install files using versioned copy (apart from SUSI)
     find "$DIST/files/plugins" -type f -not -path "$DIST/files/plugins/av/chroot/susi/*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
@@ -467,6 +461,12 @@ function install_product()
 
     generate_susi_package_manifest
     bootstrap_susi_from_update_source
+
+    #Create plugin registration files
+    create_registration_file "${PLUGIN_NAME}"
+    create_registration_file "threat_detector"
+    create_registration_file "on_access_process"
+    create_registration_file "safestore"
 
     #After install start AV Plugin
     "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
