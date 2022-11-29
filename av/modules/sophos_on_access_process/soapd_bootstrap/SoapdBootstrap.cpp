@@ -74,16 +74,14 @@ int SoapdBootstrap::outerRun()
 
 void SoapdBootstrap::initialiseTelemetry()
 {
-    using namespace ::onaccessimpl::onaccesstelemetry;
-
     m_TelemetryUtility = std::make_shared<onaccesstelemetry::OnAccessTelemetryUtility>();
 
-    Common::Telemetry::TelemetryHelper::getInstance().restore(ON_ACCESS_TELEMETRY_SOCKET);
+    Common::Telemetry::TelemetryHelper::getInstance().restore(OnAccessConfig::onAccessTelemetrySocket);
     auto replier = m_onAccessContext->getReplier();
-    Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, ON_ACCESS_TELEMETRY_SOCKET, 5000, 5000);
+    Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, OnAccessConfig::onAccessTelemetrySocket, 5000, 5000);
     auto pluginCallback = std::make_shared<sophos_on_access_process::service_callback::OnAccessServiceCallback>(m_TelemetryUtility);
     m_pluginHandler = std::make_unique<Common::PluginApiImpl::PluginCallBackHandler>
-        (ON_ACCESS_TELEMETRY_SOCKET,
+        (OnAccessConfig::onAccessTelemetrySocket,
          std::move(replier),
         pluginCallback,
         Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM);
@@ -160,13 +158,11 @@ void SoapdBootstrap::innerRun()
     //if flagJsonString is empty then readFlagConfigFile has already logged a WARN
     if(!flagJsonString.empty())
     {
-        LOGINFO("Found Flag config on startup");
-        m_onAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
-        std::string setting = m_onAccessEnabledFlag ? "not override policy" : "override policy";
+        std::string setting = OnAccessConfig::parseFlagConfiguration(flagJsonString) ? "not override policy" : "override policy";
         LOGINFO("Flag is set to " << setting);
     }
 
-    ProcessPolicy(true);
+    ProcessPolicy();
 
     while (true)
     {
@@ -202,11 +198,13 @@ void SoapdBootstrap::innerRun()
         }
     }
 
+    // Stop the other things that can call ProcessPolicy()
     processControllerServer->tryStop();
     updateClient->tryStop();
     processControllerServerThread.reset();
     updateClientThread.reset();
-    disableOnAccess(true);
+
+    disableOnAccess();
 }
 
 sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::getPolicyConfiguration()
@@ -216,55 +214,55 @@ sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::
     return oaConfig;
 }
 
-void SoapdBootstrap::ProcessPolicy(bool onStart)
+void SoapdBootstrap::ProcessPolicy()
 {
     std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
-    LOGDEBUG("ProcessPolicy " << onStart);
+    LOGDEBUG("ProcessPolicy");
 
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
-    auto newOnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
-    bool flagChanged = onStart || (m_onAccessEnabledFlag != newOnAccessEnabledFlag);
-    m_onAccessEnabledFlag = newOnAccessEnabledFlag;
+    auto OnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
 
-    if(!m_onAccessEnabledFlag)
+    auto oaConfig = getPolicyConfiguration();
+    bool OnAccessEnabledPolicySetting = oaConfig.enabled;
+
+    if(checkIfOAShouldBeEnabled(OnAccessEnabledFlag, OnAccessEnabledPolicySetting))
+    {
+        m_mountMonitor->updateConfig(oaConfig);
+        //Set exclusions first before starting receiving fanotify events
+        m_eventReader->setExclusions(oaConfig.exclusions);
+        enableOnAccess();
+    }
+    else
+    {
+        disableOnAccess();
+    }
+
+    LOGDEBUG("Finished ProcessPolicy");
+}
+
+bool SoapdBootstrap::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting)
+{
+    if(!OnAccessEnabledFlag)
     {
         LOGINFO("Overriding policy, on-access will be disabled");
-        disableOnAccess(flagChanged);
+        return false;
     }
     else
     {
         LOGINFO("No policy override, following policy settings");
-
-        auto oaConfig = getPolicyConfiguration();
-        m_mountMonitor->updateConfig(oaConfig);
-
-
-        bool newOaEnabledState = oaConfig.enabled;
-        bool oldOaEnabledState = m_currentOaEnabledState.load();
-        m_currentOaEnabledState.store(newOaEnabledState);
-        bool changed = onStart || (oldOaEnabledState != newOaEnabledState);
-
-        if (newOaEnabledState)
-        {
-            enableOnAccess(changed);
-        }
-        else
-        {
-            disableOnAccess(changed);
-        }
-        m_eventReader->setExclusions(oaConfig.exclusions);
+        return OnAccessEnabledPolicySetting;
     }
-    LOGDEBUG("Finished ProcessPolicy " << onStart);
 }
 
-void SoapdBootstrap::disableOnAccess(bool changed)
+void SoapdBootstrap::disableOnAccess()
 {
     // Log if on-access was enabled before
-    if (changed)
+    if (!m_currentOaEnabledState)
     {
-        LOGINFO("On-access scanning disabled");
+        return;
     }
 
+    LOGINFO("Disabling on-access scanning");
     /*
      * EventReader and scanHandler threads are not thread-safe with
      * fanotify handler being closed.
@@ -272,8 +270,6 @@ void SoapdBootstrap::disableOnAccess(bool changed)
      * mount monitor should be thread-safe vs. fanotify handler being closed
      * but isn't worth running when fanotify is turned off.
      */
-
-    std::lock_guard<std::mutex> guard(m_onAccessChangeStateLock);
 
     // Async stop event reader and mount monitor
     m_eventReader->tryStop();
@@ -291,25 +287,29 @@ void SoapdBootstrap::disableOnAccess(bool changed)
 
     // Disable fanotify and close fanotify descriptor
     m_fanotifyHandler->close();
+
+    LOGINFO("On-access scanning disabled");
+    m_currentOaEnabledState.store(false);
 }
 
-void SoapdBootstrap::enableOnAccess(bool changed)
+void SoapdBootstrap::enableOnAccess()
 {
-    if (!changed)
+    if (m_currentOaEnabledState)
     {
         return;
     }
 
-    LOGINFO("On-access scanning enabled");
-
-    std::lock_guard<std::mutex> guard(m_onAccessChangeStateLock);
+    LOGINFO("Enabling on-access scanning");
 
     m_fanotifyHandler->init();
 
-    m_eventReaderThread->startIfNotStarted();
-    m_mountMonitorThread->startIfNotStarted();
-
+    // Ensure queue is empty and running before we put anything in to it.
     m_scanRequestQueue->restart();
+
+    // Start reading for events before we mark filesystems.
+    m_eventReaderThread->startIfNotStarted();
+
+    m_mountMonitorThread->startIfNotStarted(); // Returns only once initial marks are done
 
     std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
 
@@ -324,4 +324,7 @@ void SoapdBootstrap::enableOnAccess(bool changed)
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }
+
+    LOGINFO("On-access scanning enabled");
+    m_currentOaEnabledState.store(true);
 }
