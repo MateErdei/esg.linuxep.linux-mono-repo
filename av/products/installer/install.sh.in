@@ -361,13 +361,16 @@ function restore_safestore_databases()
   IFS=$'\n' sorted=($(sort -r <<<"${COMPATIBLE_SAFESTORE_DBS[*]}")) && unset IFS
   DATABASE_TO_RESTORE=$(readlink -f "${sorted[0]}")
 
-  echo "Attempting to restore old SafeStore database: $DATABASE_TO_RESTORE"
-  if [[ -d "${SAFESTORE_DB_PATH}" ]]
+  if [[ -d "$DATABASE_TO_RESTORE" ]]
   then
-    echo "SafeStore database already exists so will not attempt to restore: $DATABASE_TO_RESTORE"
-  else
-    mv -v "$DATABASE_TO_RESTORE" "${SAFESTORE_DB_PATH}" || failed $EXIT_FAIL_RESTORE_SAFESTORE_DB "Failed to restore old SafeStore database: $DATABASE_TO_RESTORE"
-    echo "Successfully restored old SafeStore database ($DATABASE_TO_RESTORE) to ${SAFESTORE_DB_PATH}"
+    echo "Attempting to restore old SafeStore database: $DATABASE_TO_RESTORE"
+    if [[ -d "${SAFESTORE_DB_PATH}" ]]
+    then
+      echo "SafeStore database already exists so will not attempt to restore: $DATABASE_TO_RESTORE"
+    else
+      mv -v "$DATABASE_TO_RESTORE" "${SAFESTORE_DB_PATH}" || failed $EXIT_FAIL_RESTORE_SAFESTORE_DB "Failed to restore old SafeStore database: $DATABASE_TO_RESTORE"
+      echo "Successfully restored old SafeStore database ($DATABASE_TO_RESTORE) to ${SAFESTORE_DB_PATH}"
+    fi
   fi
 }
 
