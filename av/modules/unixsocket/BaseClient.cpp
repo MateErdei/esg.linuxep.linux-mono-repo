@@ -49,27 +49,37 @@ void unixsocket::BaseClient::connectWithRetries()
 void unixsocket::BaseClient::connectWithRetries(const std::string& socketName)
 {
     const int MAX_CONN_RETRIES = 10;
+    std::ignore = connectWithRetries(socketName, MAX_CONN_RETRIES);
+}
 
+bool BaseClient::connectWithRetries(const std::string& socketName, int max_retries)
+{
     int count = 0;
     m_connectStatus = attemptConnect();
 
     while (m_connectStatus != 0)
     {
-        if (++count >= MAX_CONN_RETRIES)
+        if (++count >= max_retries)
         {
             LOGDEBUG("Reached total maximum number of connection attempts.");
-            return;
+            return false;
         }
 
         LOGDEBUG("Failed to connect to " << socketName << " - retrying after sleep");
         if (m_sleeper->stoppableSleep(m_sleepTime))
         {
             LOGINFO("Stop requested while connecting to "<< socketName);
-            return;
+            return false;
         }
 
         m_connectStatus = attemptConnect();
     }
 
     assert(m_connectStatus == 0);
+    return true;
+}
+
+bool BaseClient::isConnected() const
+{
+    return m_connectStatus == 0;
 }

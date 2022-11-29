@@ -214,10 +214,15 @@ namespace Plugin
     {
         if (m_pendingOnAccessProcessReload)
         {
-            unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath(), m_sleeper);
-            scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
-            processController.sendProcessControlRequest(processControlRequest);
-            m_pendingOnAccessProcessReload = false;
+            unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath(),
+                                                                        m_sleeper,
+                                                                        0);
+            if (processController.isConnected())
+            {
+                scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+                processController.sendProcessControlRequest(processControlRequest);
+                m_pendingOnAccessProcessReload = false;
+            }
         }
     }
 

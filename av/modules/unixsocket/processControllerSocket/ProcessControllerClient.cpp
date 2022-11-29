@@ -24,12 +24,13 @@ unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::st
 
 unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(
     std::string socket_path,
-    unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper)
-    : BaseClient(std::move(socket_path), DEFAULT_SLEEP_TIME, std::move(sleeper))
+    unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper,
+    int max_retries,
+    const unixsocket::BaseClient::duration_t& sleepTime)
+    : BaseClient(std::move(socket_path), sleepTime, std::move(sleeper))
 {
-    connectWithRetries();
+    connectWithRetries(m_socketPath, max_retries);
 }
-
 
 void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const scan_messages::ProcessControlSerialiser& processControl)
 {
