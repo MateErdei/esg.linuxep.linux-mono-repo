@@ -123,7 +123,7 @@ namespace Plugin
         bool m_gotFirstAlcPolicy = false;
         bool m_gotFirstCorcPolicy = false;
         bool m_restartThreatDetector = false;
-        bool m_pendingOnAccessProcessReload = false;
+        int m_pendingOnAccessProcessReload = 0;
 
         inline static const std::string OA_FLAG { "av.onaccess.enabled" };
         inline static const std::string SS_FLAG { "safestore.enabled" };

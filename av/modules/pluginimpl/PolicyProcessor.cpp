@@ -206,22 +206,26 @@ namespace Plugin
 
     void PolicyProcessor::markOnAccessReloadPending()
     {
-        m_pendingOnAccessProcessReload = true;
+        // Try 10 times to send reload to soapd - if it doesn't receive the message,
+        // it will probably read the new config file when it starts up
+        m_pendingOnAccessProcessReload = 10;
     }
 
 
     void PolicyProcessor::notifyOnAccessProcessIfRequired()
     {
-        if (m_pendingOnAccessProcessReload)
+        if (m_pendingOnAccessProcessReload > 0)
         {
+            m_pendingOnAccessProcessReload--; // Only retry a finite amount of times
             unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath(),
                                                                         m_sleeper,
                                                                         0);
             if (processController.isConnected())
             {
+                // Successfully connected to soapd
                 scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
                 processController.sendProcessControlRequest(processControlRequest);
-                m_pendingOnAccessProcessReload = false;
+                m_pendingOnAccessProcessReload = 0;
             }
         }
     }
@@ -456,7 +460,7 @@ namespace Plugin
 
     timepoint_t PolicyProcessor::timeout(timepoint_t now) const
     {
-        if (m_pendingOnAccessProcessReload)
+        if (m_pendingOnAccessProcessReload > 0)
         {
             return now + seconds_t{1};
         }
