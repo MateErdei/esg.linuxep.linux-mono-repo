@@ -40,6 +40,7 @@ namespace
             m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
             m_soapConfigPath = m_testDir / "var/soapd_config.json";
             m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
+            m_customerIdPath = m_testDir / "var/customer_id.txt";
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
         }
 
@@ -48,10 +49,29 @@ namespace
             fs::remove_all(m_testDir);
         }
 
+        void expectReadSoapdConfig()
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapConfigPath)).WillRepeatedly(
+                Throw(Common::FileSystem::IFileSystemException("Test exception"))
+            );
+        }
+
+        void expectReadCustomerIdOnce()
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
+        }
+
+        void expectReadCustomerIdRepeatedly()
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillRepeatedly(Return(""));
+        }
+
+
         std::string m_susiStartupConfigPath;
         std::string m_susiStartupConfigChrootPath;
         std::string m_soapConfigPath;
         std::string m_soapFlagConfigPath;
+        std::string m_customerIdPath;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
     };
 
@@ -230,7 +250,8 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyEnabled)
   </onAccessScan>
 </policy>)sophos"};
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    expectReadSoapdConfig();
+    expectReadCustomerIdOnce();
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
 #ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
                                                            R"sophos({"enabled":true,"excludeRemoteFiles":false})sophos",
@@ -262,7 +283,8 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyDisabled)
   </onAccessScan>
 </policy>)sophos"};
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    expectReadSoapdConfig();
+    expectReadCustomerIdOnce();
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
 #ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
                                                            R"sophos({"enabled":false,"excludeRemoteFiles":false})sophos",
@@ -294,7 +316,8 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyExcludeRemoteEnable
   </onAccessScan>
 </policy>)sophos"};
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    expectReadSoapdConfig();
+    expectReadCustomerIdOnce();
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
 #ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
                                                            R"sophos({"enabled":false,"excludeRemoteFiles":true})sophos",
@@ -338,7 +361,8 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyPathExclusions)
   </onAccessScan>
 </policy>)sophos"};
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    expectReadSoapdConfig();
+    expectReadCustomerIdOnce();
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
                                                            R"sophos({"enabled":false,"excludeRemoteFiles":true,"exclusions":["a","b"]})sophos",
                                                            _,

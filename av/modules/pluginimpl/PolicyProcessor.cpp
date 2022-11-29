@@ -42,12 +42,14 @@ namespace
 
     json readConfigFromFile(const std::string& filepath)
     {
-        std::ifstream f(filepath);
-        if (f.good())
+        auto* fs = Common::FileSystem::fileSystem();
+
+        try
         {
-            return json::parse(f);
+            auto contents = fs->readFile(filepath);
+            return json::parse(contents);
         }
-        else
+        catch (const Common::FileSystem::IFileSystemException& ex)
         {
             return json{};
         }

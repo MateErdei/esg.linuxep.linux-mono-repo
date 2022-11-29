@@ -40,6 +40,7 @@ namespace
             m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
             m_soapConfigPath = m_testDir / "var/soapd_config.json";
             m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
+            m_customerIdPath = m_testDir / "var/customer_id.txt";
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
         }
 
@@ -57,11 +58,26 @@ namespace
                                                                    0640)).WillRepeatedly(Return());
 #endif
         }
+
+        void expectReadSoapdConfig()
+        {
+#ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapConfigPath)).WillRepeatedly(
+                    Throw(Common::FileSystem::IFileSystemException("Test exception"))
+                );
+#endif
+        }
+
+        void expectReadCustomerId()
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
+        }
         
         std::string m_susiStartupConfigPath;
         std::string m_susiStartupConfigChrootPath;
         std::string m_soapConfigPath;
         std::string m_soapFlagConfigPath;
+        std::string m_customerIdPath;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
     };
 
@@ -280,10 +296,11 @@ static const std::string GL_SAV_POLICY = R"sophos(<?xml version="1.0"?>
 
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicy)
 {
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    expectWriteSoapdConfig();
+    expectReadSoapdConfig();
+    expectReadCustomerId();
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
-    expectWriteSoapdConfig();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -310,7 +327,8 @@ TEST_F(TestPolicyProcessor_SAV_policy, defaultSXL4lookupValueIsTrue)
 
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyChanged)
 {
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
+    expectReadSoapdConfig();
+    expectReadCustomerId();
     expectWriteSoapdConfig();
     {
         InSequence seq;
@@ -361,7 +379,8 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyChanged)
 
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMaintainsSXL4state)
 {
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillRepeatedly(Return(""));
+    expectReadSoapdConfig();
+    expectReadCustomerId();
     expectWriteSoapdConfig();
     {
         InSequence seq;
@@ -414,7 +433,8 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMaintainsSXL4state)
 
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMissing)
 {
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    expectReadSoapdConfig();
+    expectReadCustomerId();
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
@@ -448,7 +468,8 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMissing)
 
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyInvalid)
 {
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    expectReadSoapdConfig();
+    expectReadCustomerId();
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
@@ -488,7 +509,8 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyInvalid)
 
 TEST_F(TestPolicyProcessor_SAV_policy, getOnAccessExclusions)
 {
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    expectReadSoapdConfig();
+    expectReadCustomerId();
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
