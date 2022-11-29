@@ -634,14 +634,12 @@ Sophos Threat Detector Does Not Detect Allow Listed File
     Send CORC Policy To Base  corc_policy_empty_allowlist.xml
     Start sophos_threat_detector
 
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
     Send CORC Policy To Base  corc_policy.xml
     wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
-    wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
-    wait_for_log_contains_from_mark  ${safestore_mark}  SafeStore Database Rescan request received
+    wait_for_log_contains_from_mark  ${td_mark}  Number of SHA256 allow-listed items: 3
 
     # Create threat to scan
     ${allow_listed_threat_file} =  Set Variable  /tmp_test/MLengHighScore.exe
