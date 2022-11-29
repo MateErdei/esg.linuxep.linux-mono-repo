@@ -903,24 +903,24 @@ Check AV installer sets correct home directory for the users it creates
     Should Be Equal As Strings  ${homedir}  /opt/sophos-spl
 
 IDE Update Invalidates On Access Cache
-    Mark On Access Log
     Send Policies to enable on-access
     Register Cleanup  Exclude On Access Scan Errors
-
     ${srcfile} =  Set Variable  /tmp_test/clean.txt
+
+    ${oa_mark} =  Get On Access Log Mark
     Create File  ${srcfile}  clean
     Register Cleanup  Remove File  ${srcfile}
-    Wait Until On Access Log Contains With Offset  On-close event for ${srcfile} from
+    wait for log contains from mark  ${oa_mark}  On-close event for ${srcfile} from
     Get File  ${srcfile}
-    Wait Until On Access Log Contains With Offset   Caching ${srcfile}
+    wait for log contains from mark  ${oa_mark}  Caching ${srcfile}
 
-    Mark On Access Log
+    ${oa_mark} =  Get On Access Log Mark
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
-    Wait Until On Access Log Contains With Offset  Clearing on-access cache
+    wait for log contains from mark  ${oa_mark}  Clearing on-access cache
 
-    Mark On Access Log
+    ${oa_mark} =  Get On Access Log Mark
     Get File  ${srcfile}
-    Wait Until On Access Log Contains With Offset  On-open event for ${srcfile} from  timeout=60
+    wait for log contains from mark  ${oa_mark}  On-open event for ${srcfile} from  timeout=60
 
 
 SSPLAV can load old VDL
