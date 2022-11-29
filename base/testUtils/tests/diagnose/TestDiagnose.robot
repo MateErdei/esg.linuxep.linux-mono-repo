@@ -262,7 +262,7 @@ Diagnose Tool Deletes Temp Directory if tar fails
 
 Diagnose Tool Sets Correct Directory Permissions
     Create Directory  ${TAR_FILE_DIRECTORY}
-    Run  chmod 700 ${TAR_FILE_DIRECTORY}
+    Run Process  chmod 700 ${TAR_FILE_DIRECTORY}
     ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
     LogUtils.Dump Log    ${TAR_FILE_DIRECTORY}/diagnose.log
     Should Be Equal As Integers   ${retcode}  0
@@ -274,7 +274,7 @@ Diagnose Tool Sets Correct Directory Permissions
 
 Diagnose Tool Does Not Gather JournalCtl Data Older Than 10 Days
     Create Directory  ${TAR_FILE_DIRECTORY}
-    Run  chmod 700 ${TAR_FILE_DIRECTORY}
+    Run Process  chmod 700 ${TAR_FILE_DIRECTORY}
     ${result} =   Run Process   ${SOPHOS_INSTALL}/bin/sophos_diagnose    ${TAR_FILE_DIRECTORY}
     Log  ${result.stdout}
     Should Be Equal As Integers  ${result.rc}  0     msg=Diagnose Failed with message: ${result.stderr}
