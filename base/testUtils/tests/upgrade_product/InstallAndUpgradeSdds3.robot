@@ -207,7 +207,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
-    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
 
     Check Current Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
@@ -237,27 +236,22 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-    Trigger Update Now
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
 
+    Trigger Update Now
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check Log Contains   Update success    /tmp/preserve-sul-downgrade   suldownloader log
-    Run Keyword If  ${ExpectBaseDowngrade}
-    ...  Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}    backedup suldownloader log
+    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
+    Run Keyword If  ${ExpectBaseDowngrade}    Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}    backedup suldownloader log
 
     Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  10 secs
-    ...  Check Log Contains String At Least N Times   /tmp/preserve-sul-downgrade  Downgrade Log  Update success  1
-    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
-
     # Wait for successful update (all up to date) after downgrading
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  10 secs
-    ...  Check SulDownloader Log Contains String N Times    Update success    2
+    ...  Check SulDownloader Log Contains String N Times    Update success    1
+    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
@@ -279,7 +273,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Check All Product Logs Do Not Contain Critical
 
     Check EAP Release With AV Installed Correctly
-    Check Expected Versions Against Installed Versions    ${expectedDogfoodVersions}
+    Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
 
     # Check users haven't been removed and added back
     ${new_sspl_user_uid} =       Get UID From Username    sophos-spl-user
@@ -291,7 +285,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Should Be Equal As Integers    ${sspl_network_uid}       ${new_sspl_network_uid}
     Should Be Equal As Integers    ${sspl_update_uid}        ${new_sspl_update_uid}
 
-    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     # Upgrade back to master to check we can upgrade from a downgraded product
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
@@ -337,7 +330,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check EAP Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
 
-    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -354,20 +346,14 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...  5 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
+    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...   120 secs
-    ...   10 secs
-    ...   Check Log Contains  Installing product: ServerProtectionLinux-Base-component  /tmp/preserve-sul-downgrade   Downgrade Log
-    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
-
-    SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade   Downgrade Log   Update success  2
+    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
+    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
@@ -430,7 +416,6 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
@@ -464,32 +449,27 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-    Trigger Update Now
+    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
 
+    Trigger Update Now
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check Log Contains   Update success    /tmp/preserve-sul-downgrade   Downgrade Log
+    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
+    Run Keyword If  ${ExpectBaseDowngrade}    Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}  backedup suldownloader log
+
+    Trigger Update Now
+    # Wait for successful update (all up to date) after downgrading
+    Wait Until Keyword Succeeds
+    ...  200 secs
+    ...  10 secs
+    ...  Check SulDownloader Log Contains String N Times    Update success    1
     Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
 
     Wait Until Keyword Succeeds
     ...   60 secs
     ...   10 secs
     ...   Should Not Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
-    Run Keyword If  ${ExpectBaseDowngrade}
-    ...  Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
-
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  10 secs
-    ...  Check Log Contains String At Least N Times   /tmp/preserve-sul-downgrade  Downgrade Log  Update success  1
-    # Wait for successful update (all up to date) after downgrading
-    Wait Until Keyword Succeeds
-    ...  200 secs
-    ...  10 secs
-    ...  Check SulDownloader Log Contains String N Times  Update success  2
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
@@ -512,7 +492,6 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Check EAP Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
 
-    Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     # Upgrade back to master to check we can upgrade from a downgraded product
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
