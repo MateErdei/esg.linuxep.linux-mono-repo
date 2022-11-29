@@ -51,6 +51,7 @@ python3 -m venv "${VENV}" && source "${VENV}/bin/activate"
   "$TEST_UTILS/SupportFiles/jenkins/SetupCIBuildScripts.sh" || fail 'Error: Failed to get CI scripts'
   export BUILD_JWT=$(cat "$TEST_UTILS/SupportFiles/jenkins/jwt_token.txt")
   python3 -m build_scripts.artisan_fetch -m "$MODE" "$TEST_UTILS/$TEST_PACKAGE_XML" || fail "Error: Failed to fetch inputs"
+  python3 "$TEST_UTILS/libs/GatherReleaseWarehouses.py"  ${SYSTEMPRODUCT_TEST_INPUT}
 deactivate && rm -rf "${VENV}"
 chmod +x ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/sdds3-builder || fail "Error: Failed to chmod sdds3-builder inputs"
 try_command_with_backoff cp -r /mnt/filer6/linux/SSPL/testautomation/sdds-specs $SYSTEMPRODUCT_TEST_INPUT/sdds-specs || fail "Error: Failed to fetch inputs"
