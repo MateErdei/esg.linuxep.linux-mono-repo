@@ -23,7 +23,7 @@ namespace common::ThreatDetector
         // Allow listing
         bool isAllowListed(const std::string& threatChecksum) const;
         void setAllowList(AllowList&& allowList) noexcept;
-        const AllowList& accessAllowList() const noexcept;
+        size_t getAllowListSize() const noexcept;
 
         // SXL lookups
         bool isSxlLookupEnabled() const noexcept;

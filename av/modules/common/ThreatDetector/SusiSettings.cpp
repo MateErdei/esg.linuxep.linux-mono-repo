@@ -134,8 +134,9 @@ namespace common::ThreatDetector
         m_susiSxlLookupEnabled = enabled;
     }
 
-    const AllowList& SusiSettings::accessAllowList() const noexcept
+    size_t SusiSettings::getAllowListSize() const noexcept
     {
-        return m_susiAllowListSha256;
+        std::scoped_lock scopedLock(m_accessMutex);
+        return m_susiAllowListSha256.size();
     }
 } // namespace common::ThreatDetector

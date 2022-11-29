@@ -25,7 +25,7 @@ TEST_F(TestSusiSettings, SusiSettingsDefaultsSxlLookupToEnabled)
 TEST_F(TestSusiSettings, SusiSettingsDefaultsAllowListToEmpty)
 {
     ThreatDetector::SusiSettings susiSettings;
-    ASSERT_EQ(susiSettings.accessAllowList().size(), 0);
+    ASSERT_EQ(susiSettings.getAllowListSize(), 0);
     ASSERT_FALSE(susiSettings.isAllowListed("something"));
 }
 
@@ -36,7 +36,7 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyJsonFile)
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(""));
     ThreatDetector::SusiSettings susiSettings("settings.json");
-    ASSERT_EQ(susiSettings.accessAllowList().size(), 0);
+    ASSERT_EQ(susiSettings.getAllowListSize(), 0);
     ASSERT_FALSE(susiSettings.isAllowListed("something"));
 }
 
@@ -47,7 +47,7 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyButValidJsonFile)
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return("{}"));
     ThreatDetector::SusiSettings susiSettings("settings.json");
-    ASSERT_EQ(susiSettings.accessAllowList().size(), 0);
+    ASSERT_EQ(susiSettings.getAllowListSize(), 0);
     ASSERT_FALSE(susiSettings.isAllowListed("something"));
 }
 
@@ -58,7 +58,7 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesMissingFile)
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).Times(0);
     ThreatDetector::SusiSettings susiSettings("settings.json");
-    ASSERT_EQ(susiSettings.accessAllowList().size(), 0);
+    ASSERT_EQ(susiSettings.getAllowListSize(), 0);
     ASSERT_FALSE(susiSettings.isAllowListed("something"));
 }
 
@@ -70,7 +70,7 @@ TEST_F(TestSusiSettings, SusiSettingsReadsInAllowList)
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
     ThreatDetector::SusiSettings susiSettings("settings.json");
-    ASSERT_EQ(susiSettings.accessAllowList().size(), 1);
+    ASSERT_EQ(susiSettings.getAllowListSize(), 1);
     ASSERT_FALSE(susiSettings.isAllowListed("not allow listed"));
     ASSERT_TRUE(susiSettings.isAllowListed("42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"));
 }
@@ -104,7 +104,7 @@ TEST_F(TestSusiSettings, SusiSettingsHandleInvalidJson)
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return("this is not valid json"));
     ThreatDetector::SusiSettings susiSettings("settings.json");
-    ASSERT_EQ(susiSettings.accessAllowList().size(), 0);
+    ASSERT_EQ(susiSettings.getAllowListSize(), 0);
     ASSERT_FALSE(susiSettings.isAllowListed("not allow listed"));
     ASSERT_TRUE(susiSettings.isSxlLookupEnabled());
 }
