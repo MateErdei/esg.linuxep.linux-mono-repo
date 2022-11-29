@@ -16,20 +16,17 @@
         <build-asset project="linuxep" repo="sspl-plugin-edr-component">
             <development-version branch="develop"/>
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="edr/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="edr/SDDS3-PACKAGE" dest-dir="sspl-edr-plugin-sdds3"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/SDDS-COMPONENT" dest-dir="sspl-edr-plugin"/>
             <include mode="edr-coverage" artifact-path="sspl-edr-coverage/covfile" dest-dir="coverage"/>
         </build-asset>
         <build-asset project="linuxep" repo="capsule8-sensor">
             <development-version branch="master"/>
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="SDDS-COMPONENT" dest-dir="sspl-runtimedetections-plugin"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="SDDS3-PACKAGE" dest-dir="sspl-runtimedetections-plugin-sdds3"/>
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,lr-coverage" artifact-path="sspl-rdrules" dest-dir="sspl-runtimedetections-plugin/content_rules"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-event-journaler">
             <development-version branch="develop"/>
             <include mode="system-test,base-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
-            <include mode="system-test,base-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="eventjournaler/SDDS3-PACKAGE" dest-dir="sspl-plugin-event-journaler-sdds3"/>
             <include mode="system-test,base-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="eventjournaler/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage/manualTools" dest-dir="sspl-plugin-event-journaler-manual-tools"/>
             <include mode="ej-coverage" artifact-path="sspl-plugin-eventjournaler-coverage//SDDS-COMPONENT" dest-dir="sspl-plugin-event-journaler"/>
@@ -38,12 +35,10 @@
         <build-asset project="linuxep" repo="sspl-plugin-anti-virus">
             <development-version branch="develop"/>
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="sspl-plugin-anti-virus"/>
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="sspl-plugin-anti-virus/SDDS3-PACKAGE" dest-dir="sspl-plugin-anti-virus-sdds3"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
             <development-version branch="develop"/>
             <include mode="system-test,base-coverage,ej-coverage,edr-coverage,lr-coverage" artifact-path="mdr/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
-            <include mode="system-test,base-coverage,ej-coverage,edr-coverage,lr-coverage" artifact-path="mdr/SDDS3-PACKAGE" dest-dir="sspl-mdr-control-plugin-sdds3"/>
             <include mode="system-test,base-coverage,ej-coverage,edr-coverage,lr-coverage,mdr-coverage" artifact-path="mdr-060/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin-060"/>
             <include mode="mdr-coverage" artifact-path="mdr-coverage/SDDS-COMPONENT" dest-dir="sspl-mdr-control-plugin"/>
             <include mode="mdr-coverage" artifact-path="mdr-coverage/covfile" dest-dir="coverage"/>
@@ -56,7 +51,6 @@
         <build-asset project="winep" repo="liveterminal">
             <development-version branch="develop" />
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="liveterminal/sdds" dest-dir="liveterminal" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage" artifact-path="liveterminal/SDDS3-PACKAGE" dest-dir="liveterminal-sdds3" />
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="websocket_server" dest-dir="websocket_server" />
             <include mode="lr-coverage" artifact-path="sspl-liveterminal-coverage/sdds" dest-dir="liveterminal" />
             <include mode="lr-coverage" artifact-path="linux/bullseye" dest-dir="coverage" />

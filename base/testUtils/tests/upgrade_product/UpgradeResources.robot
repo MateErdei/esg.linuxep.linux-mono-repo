@@ -347,25 +347,7 @@ Get Current Installed Versions
     ...    rtdVersion=${RTDReleaseVersion}
     [Return]    &{versions}
 
-Get Expected VUT Versions
-    ${ExpectedBaseDevVersion} =     Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Base
-    ${ExpectedAVDevVersion} =       Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-AV
-    ${ExpectedEDRDevVersion} =      Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-EDR
-    ${ExpectedEJDevVersion} =       Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-EventJournaler
-    ${ExpectedLRDevVersion} =       Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-liveresponse
-    ${ExpectedMTRDevVersion} =      Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-MDR
-    ${ExpectedRTDDevVersion} =      Get Version For Rigidname In SDDS3 VUT Warehouse    ServerProtectionLinux-Plugin-RuntimeDetections
-    &{versions} =    Create Dictionary
-    ...    baseVersion=${ExpectedBaseDevVersion}
-    ...    avVersion=${ExpectedAVDevVersion}
-    ...    edrVersion=${ExpectedEDRDevVersion}
-    ...    ejVersion=${ExpectedEJDevVersion}
-    ...    lrVersion=${ExpectedLRDevVersion}
-    ...    mtrVersion=${ExpectedMTRDevVersion}
-    ...    rtdVersion=${ExpectedRTDDevVersion}
-    [Return]    &{versions}
-
-Get Expected Release Versions
+Get Expected Versions
     [Arguments]    ${releaseType}
     ${ExpectedBaseReleaseVersion} =     Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Base-component
     ${ExpectedAVReleaseVersion} =       Get Version For Rigidname In Release Warehouse    ${releaseType}    ServerProtectionLinux-Plugin-AV

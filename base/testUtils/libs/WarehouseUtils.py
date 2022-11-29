@@ -787,22 +787,11 @@ class WarehouseUtils(object):
             shell=True)
         return version.strip().decode()
 
-    def get_version_for_rigidname_in_sdds3_vut_warehouse(self, rigidname):
-        rigidnames_against_product_input_dir = {
-            "ServerProtectionLinux-Base": "sspl-base-sdds3",
-            "ServerProtectionLinux-Plugin-AV": "sspl-plugin-anti-virus-sdds3",
-            "ServerProtectionLinux-Plugin-EDR": "sspl-edr-plugin-sdds3",
-            "ServerProtectionLinux-Plugin-EventJournaler": "sspl-plugin-event-journaler-sdds3",
-            "ServerProtectionLinux-Plugin-MDR": "sspl-mdr-control-plugin-sdds3",
-            "ServerProtectionLinux-Plugin-RuntimeDetections": "sspl-runtimedetections-plugin-sdds3",
-            "ServerProtectionLinux-Plugin-liveresponse": "liveterminal-sdds3",
-        }
-        return get_version_from_sdds_import_file(os.path.join(SYSTEMPRODUCT_TEST_INPUT,
-                                                              rigidnames_against_product_input_dir[rigidname],
-                                                              "SDDS-Import.xml"))
-
-    def get_version_for_rigidname_in_release_warehouse(self, release_type, rigidname):
-        warehouse_root = os.path.join(SYSTEMPRODUCT_TEST_INPUT, f"sdds3-{release_type}", "repo", "package")
+    def get_version_for_rigidname_in_sdds3_warehouse(self, release_type, rigidname):
+        if release_type == "vut":
+            warehouse_root = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "sdds3", "repo", "package")
+        else:
+            warehouse_root = os.path.join(SYSTEMPRODUCT_TEST_INPUT, f"sdds3-{release_type}", "repo", "package")
         product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
 
         packages = os.listdir(warehouse_root)

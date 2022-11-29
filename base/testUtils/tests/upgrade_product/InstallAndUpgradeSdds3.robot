@@ -80,8 +80,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     [Timeout]    10 minutes
     [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
-    &{expectedDogfoodVersions} =    Get Expected Release Versions    dogfood
-    &{expectedVUTVersions} =    Get Expected VUT Versions
+    &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
+    &{expectedVUTVersions} =    Get Expected Versions    vut
 
     Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVDogfoodPolicy}
 
@@ -114,19 +114,19 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  2 secs
     ...  Check Policy Written Match File    ALC-1_policy.xml    ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Threat Detector Running
-    
+
     ${HealthyShsStatusXmlContents} =  Set Variable    <item name="health" value="1" />
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  15 secs
     ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}
-    
+
     Mark Watchdog Log
     Mark Managementagent Log
     Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
-    
+
     Trigger Update Now
-    
+
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
     Wait Until Keyword Succeeds
     ...   300 secs
@@ -134,12 +134,12 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
     Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
-    
+
     # Confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
-    
+
     Check Watchdog Service File Has Correct Kill Mode
-    
+
     Mark Known Upgrade Errors
     # If the policy comes down fast enough SophosMtr will not have started by the time MTR plugin is restarted
     # This is only an issue with versions of base before we started using boost process
@@ -161,16 +161,16 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
-    
+
     Check Current Release With AV Installed Correctly
     Wait For RuntimeDetections to be Installed
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
-    
+
     Check Event Journaler Executable Running
     Check AV Plugin Permissions
     Check Update Reports Have Been Processed
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
-    
+
     # This will turn health bad because "Check AV Plugin Can Scan Files" scans an eicar.
     Check AV Plugin Can Scan Files
     ## MA waits up to 120 seconds after an update before it starts generating SHS status again
@@ -184,8 +184,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
 
-    &{expectedDogfoodVersions} =    Get Expected Release Versions    dogfood
-    &{expectedVUTVersions} =    Get Expected VUT Versions
+    &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
+    &{expectedVUTVersions} =    Get Expected Versions    vut
     ${expectBaseDowngrade} =  Second Version Is Lower  ${expectedVUTVersions["baseVersion"]}  ${expectedDogfoodVersions["baseVersion"]}
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
@@ -303,8 +303,8 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
-    &{expectedReleaseVersions} =    Get Expected Release Versions    current_shipping
-    &{expectedVUTVersions} =    Get Expected VUT Versions
+    &{expectedReleaseVersions} =    Get Expected Versions    current_shipping
+    &{expectedVUTVersions} =    Get Expected Versions    vut
 
     Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVReleasePolicy}
 
@@ -396,8 +396,8 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
 
-    &{expectedReleaseVersions} =    Get Expected Release Versions    current_shipping
-    &{expectedVUTVersions} =    Get Expected VUT Versions
+    &{expectedReleaseVersions} =    Get Expected Versions    current_shipping
+    &{expectedVUTVersions} =    Get Expected Versions    vut
     ${expectBaseDowngrade} =  Second Version Is Lower  ${expectedVUTVersions["baseVersion"]}  ${expectedReleaseVersions["baseVersion"]}
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
