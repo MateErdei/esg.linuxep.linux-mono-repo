@@ -97,7 +97,7 @@ namespace common::ThreatDetector
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
-            LOGERROR("Failed to save Threat Detector SUSI settings");
+            LOGERROR("Failed to save Threat Detector SUSI settings: " << e.what());
         }
     }
 
