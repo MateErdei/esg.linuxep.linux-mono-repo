@@ -22,6 +22,7 @@ namespace common::ThreatDetector
 
     bool SusiSettings::operator==(const SusiSettings& other) const
     {
+        std::scoped_lock scopedLock(m_accessMutex);
         return m_susiAllowListSha256 == other.m_susiAllowListSha256 &&
                m_susiSxlLookupEnabled == other.m_susiSxlLookupEnabled;
     }
