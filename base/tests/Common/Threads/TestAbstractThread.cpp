@@ -21,6 +21,19 @@ namespace
 
 }
 
+TEST(TestAbstractThread, testAnnounceThreadBlocks)
+{
+    auto testThread = TestThread();
+    auto start = std::chrono::steady_clock::now();
+    testThread.start();
+    auto end = std::chrono::steady_clock::now();
+
+    ASSERT_GT(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(), 100);
+
+    testThread.requestStop();
+    testThread.join();
+}
+
 TEST(TestAbstractThread, testAnnounceThreadBlocksASecondTime)
 {
     auto testThread = TestThread();
@@ -28,16 +41,11 @@ TEST(TestAbstractThread, testAnnounceThreadBlocksASecondTime)
     testThread.requestStop();
     testThread.join();
 
-    auto start = std::chrono::system_clock::now();
+    auto start = std::chrono::steady_clock::now();
     testThread.start();
-    auto end = std::chrono::system_clock::now();
+    auto end = std::chrono::steady_clock::now();
 
-    auto startMs = std::chrono::duration_cast<std::chrono::milliseconds>(start.time_since_epoch()).count();
-    auto endMs = std::chrono::duration_cast<std::chrono::milliseconds>(end.time_since_epoch()).count();
-
-    auto duration = endMs - startMs;
-
-    ASSERT_GT(duration, 100);
+    ASSERT_GT(std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(), 100);
 
     testThread.requestStop();
     testThread.join();
