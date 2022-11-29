@@ -3,7 +3,10 @@
 # Copyright (C) 2018-2022 Sophos Plc, Oxford, England.
 # All rights reserved.
 
+import os
 import time
+import traceback
+
 
 try:
     from .PluginCommunicationTools import FakeManagementAgent
@@ -17,10 +20,6 @@ except ImportError:
     from Libs.PluginCommunicationTools.common import PathsLocation
     from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
     from Libs import FakeManagementLog
-
-
-
-import traceback
 
 PLUGIN_NAME = "av"
 
