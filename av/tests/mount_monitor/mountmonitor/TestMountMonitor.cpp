@@ -118,10 +118,6 @@ TEST_F(TestMountMonitor, TestGetIncludedMountpoints)
     EXPECT_CALL(*opticalDevice, mountPoint()).WillOnce(Return("opticalDevice"));
 
     std::shared_ptr<NiceMock<MockMountPoint>> specialDevice = std::make_shared<NiceMock<MockMountPoint>>();
-    EXPECT_CALL(*specialDevice, isHardDisc()).WillOnce(Return(false));
-    EXPECT_CALL(*specialDevice, isNetwork()).WillOnce(Return(false));
-    EXPECT_CALL(*specialDevice, isRemovable()).WillOnce(Return(false));
-    EXPECT_CALL(*specialDevice, isOptical()).WillOnce(Return(false));
     EXPECT_CALL(*specialDevice, isSpecial()).WillOnce(Return(true));
     EXPECT_CALL(*specialDevice, mountPoint()).WillRepeatedly(Return("specialDevice"));
 
@@ -185,7 +181,7 @@ TEST_F(TestMountMonitor, TestUpdateConfigSetsAllConfigBeforeReenumeratingMounts)
     std::shared_ptr<NiceMock<MockMountPoint>> networkDevice = std::make_shared<NiceMock<MockMountPoint>>();
     EXPECT_CALL(*networkDevice, isHardDisc()).WillRepeatedly(Return(false));
     EXPECT_CALL(*networkDevice, isNetwork()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*networkDevice, isSpecial()).WillOnce(Return(false));
+    EXPECT_CALL(*networkDevice, isSpecial()).WillRepeatedly(Return(false));
     EXPECT_CALL(*networkDevice, isRemovable()).WillOnce(Return(false));
     EXPECT_CALL(*networkDevice, isOptical()).WillOnce(Return(false));
     EXPECT_CALL(*networkDevice, isDirectory()).WillRepeatedly(Return(true));
@@ -408,10 +404,6 @@ TEST_F(TestMountMonitor, TestMonitorFileSystemTelemetryDoesntIncludeSpecialMP)
     mountPointVec.push_back(testSkipDevice);
     mountPointVec.push_back(testIncDevice);
 
-    EXPECT_CALL(*testSkipDevice, isNetwork()).WillOnce(Return(false));
-    EXPECT_CALL(*testSkipDevice, isHardDisc()).WillOnce(Return(false));
-    EXPECT_CALL(*testSkipDevice, isRemovable()).WillOnce(Return(false));
-    EXPECT_CALL(*testSkipDevice, isOptical()).WillOnce(Return(false));
     EXPECT_CALL(*testSkipDevice, isSpecial()).WillOnce(Return(true));
 
     EXPECT_CALL(*testIncDevice, filesystemType()).Times(2).WillRepeatedly(Return("ValidFileSystem"));
@@ -501,10 +493,6 @@ TEST_F(TestMountMonitor, TestMountIsExcludedAsItsSpecial)
     std::shared_ptr<NiceMock<MockMountPoint>> excludedMount = std::make_shared<NiceMock<MockMountPoint>>();
     auto mountMonitor = std::make_shared<MountMonitor>(m_config, m_mockSysCallWrapper, m_mockFanotifyHandler, m_mockSysPathsFactory);
 
-    EXPECT_CALL(*excludedMount, isHardDisc()).WillOnce(Return(false));
-    EXPECT_CALL(*excludedMount, isNetwork()).WillOnce(Return(false));
-    EXPECT_CALL(*excludedMount, isRemovable()).WillOnce(Return(false));
-    EXPECT_CALL(*excludedMount, isOptical()).WillOnce(Return(false));
     EXPECT_CALL(*excludedMount, isSpecial()).WillOnce(Return(true));
 
     EXPECT_FALSE(mountMonitor->isIncludedFilesystemType(excludedMount));

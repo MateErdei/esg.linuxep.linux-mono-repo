@@ -81,15 +81,14 @@ namespace mount_monitor::mount_monitor
                                    << fileSystemType << " is not supported and will be excluded from scanning");
             return false;
         }
-
-        if (mp->isHardDisc() || (mp->isNetwork() && !m_config.excludeRemoteFiles) || mp->isRemovable() || mp->isOptical())
-        {
-            return true;
-        }
         else if (mp->isSpecial())
         {
             LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is system and will be excluded from scanning");
             return false;
+        }
+        else if (mp->isHardDisc() || (mp->isNetwork() && !m_config.excludeRemoteFiles) || mp->isRemovable() || mp->isOptical())
+        {
+            return true;
         }
         else
         {
