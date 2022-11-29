@@ -333,6 +333,7 @@ void EventReaderThread::throwIfErrorNotRecoverable()
         {
             return;
         }
+        case EPERM:
         case EINTR:
         case EACCES:
         {
