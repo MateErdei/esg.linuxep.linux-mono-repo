@@ -369,6 +369,10 @@ function restore_safestore_databases()
       echo "SafeStore database already exists so will not attempt to restore: $DATABASE_TO_RESTORE"
     else
       mv -v "$DATABASE_TO_RESTORE" "${SAFESTORE_DB_PATH}" || failed $EXIT_FAIL_RESTORE_SAFESTORE_DB "Failed to restore old SafeStore database: $DATABASE_TO_RESTORE"
+      if [[ -z "$(ls -A $SAFESTORE_RESTORE_DIR)" ]]
+      then
+         rm -rf "$SAFESTORE_RESTORE_DIR"
+      fi
       echo "Successfully restored old SafeStore database ($DATABASE_TO_RESTORE) to ${SAFESTORE_DB_PATH}"
     fi
   fi
