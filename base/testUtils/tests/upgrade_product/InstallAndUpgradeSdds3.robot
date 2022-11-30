@@ -132,7 +132,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
-    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
+    Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
     # Confirm that the warehouse flags supplement is installed when upgrading
@@ -249,7 +249,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  200 secs
     ...  10 secs
     ...  Check SulDownloader Log Contains String N Times    Update success    1
-    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
+    Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
@@ -339,7 +339,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
 
     ${HealthyShsStatusXmlContents} =  Set Variable  <item name="health" value="1" />
     Wait Until Keyword Succeeds
-    ...  150 secs
+    ...  200 secs
     ...  5 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
@@ -350,7 +350,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
-    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
+    Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
@@ -459,8 +459,8 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  10 secs
-    ...  Check SulDownloader Log Contains String N Times    Update success    1
-    Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
+    ...  Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    SulDownloader Log    Update success    1
+    Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
 
     Wait Until Keyword Succeeds
     ...   60 secs
