@@ -6,6 +6,7 @@
 import datetime
 import hashlib
 import os
+import re
 import shutil
 import subprocess
 import xml.etree.ElementTree as ET
@@ -798,8 +799,9 @@ class WarehouseUtils(object):
         for package in packages:
             if package.startswith(product_name):
                 version = package[len(product_name)+1:-15]
-                if not version.endswith("9.999"):
+                if not re.match(r"^((?:(9+)\.)?){3}(\*|\d+)$", version):
                     return version
+        raise AssertionError(f"Did not find {rigidname} in {warehouse_root}")
 
     def second_version_is_lower(self, version1, version2):
         return version.parse(version1) > version.parse(version2)
