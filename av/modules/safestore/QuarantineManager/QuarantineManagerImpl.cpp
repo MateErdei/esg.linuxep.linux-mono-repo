@@ -582,18 +582,6 @@ namespace safestore::QuarantineManager
         if (!m_safeStore->deleteObjectById(objectId))
         {
             LOGERROR("Unable to remove file from SafeStore database: " << escapedPath);
-            try
-            {
-                auto fs = Common::FileSystem::fileSystem();
-                fs->removeFile(path);
-                LOGINFO("Cleaned up restored file from disk: " << escapedPath);
-            }
-            catch (Common::FileSystem::IFileSystemException& e)
-            {
-                LOGERROR(
-                    "Unable to clean up restored file from disk: "
-                    << escapedPath << " -- file now both restored and quarantined, manual intervention required.");
-            }
             return restoreReport;
         }
         restoreReport.wasSuccessful = true;

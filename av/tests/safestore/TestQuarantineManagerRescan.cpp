@@ -435,7 +435,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfRestoreFails)
     ASSERT_THAT(logMessage, ::testing::HasSubstr("ERROR Unable to restore clean file: /path/to/location/testName"));
 }
 
-TEST_F(QuarantineManagerRescanTests, restoreFileCleansUpRestoredFileIfDeleteFails)
+TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfDeleteFails)
 {
     testing::internal::CaptureStderr();
     QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
@@ -463,8 +463,6 @@ TEST_F(QuarantineManagerRescanTests, restoreFileCleansUpRestoredFileIfDeleteFail
     EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectById(objectId)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(objectId)).WillOnce(Return(false));
 
-    EXPECT_CALL(*m_mockFileSystem, removeFile("/path/to/location/testName"));
-
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).value().wasSuccessful);
 
     std::string logMessage = internal::GetCapturedStderr();
@@ -472,50 +470,4 @@ TEST_F(QuarantineManagerRescanTests, restoreFileCleansUpRestoredFileIfDeleteFail
     ASSERT_THAT(
         logMessage,
         ::testing::HasSubstr("ERROR Unable to remove file from SafeStore database: /path/to/location/testName"));
-    ASSERT_THAT(
-        logMessage, ::testing::HasSubstr("INFO Cleaned up restored file from disk: /path/to/location/testName"));
-}
-
-TEST_F(QuarantineManagerRescanTests, restoreFileLogsWhenCleanupForFailedDeleteFails)
-{
-    testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
-
-    std::string objectId = "objectId";
-    std::string objectName = "testName";
-    std::string objectLocation = "/path/to/location";
-    std::string threatId = "threatId";
-
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-
-    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle->getRawHandlePtr() = rawHandle;
-    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return(objectName));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(objectLocation));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectThreatId(handleAsArg)).WillOnce(Return(threatId));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectById(objectId)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(objectId)).WillOnce(Return(false));
-
-    EXPECT_CALL(*m_mockFileSystem, removeFile("/path/to/location/testName"))
-        .WillOnce(Throw(Common::FileSystem::IFileSystemException("did not delete")));
-
-    EXPECT_FALSE(quarantineManager.restoreFile(objectId).value().wasSuccessful);
-
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("INFO Restored file to disk: /path/to/location/testName"));
-    ASSERT_THAT(
-        logMessage,
-        ::testing::HasSubstr("ERROR Unable to remove file from SafeStore database: /path/to/location/testName"));
-    ASSERT_THAT(
-        logMessage,
-        ::testing::HasSubstr(
-            "ERROR Unable to clean up restored file from disk: /path/to/location/testName -- file now both restored and quarantined, manual intervention required."));
 }
