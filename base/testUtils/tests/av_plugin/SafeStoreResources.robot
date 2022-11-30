@@ -23,36 +23,36 @@ ${THREAT_DATABASE_PATH}             ${AV_PLUGIN_PATH}/var/persist-threatDatabase
 
 *** Keywords ***
 Stop SafeStore
-    ${result} =    RunProcess    ${SOPHOS_INSTALL}/bin/wdctl    stop    safestore
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl    stop    safestore
     Should Be Equal As Integers    ${result.rc}    ${0}
 
 Start SafeStore
-    ${result} =    RunProcess    ${SOPHOS_INSTALL}/bin/wdctl    start    safestore
+    ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl    start    safestore
     Should Be Equal As Integers    ${result.rc}    ${0}
 
 Check SafeStore Running
-    ${result} =    Get SafeStore PID
-    Should Be Equal As Integers    ${result}    ${0}
+    ${result} =    Run Process    pgrep    safestore
+    Should Be Equal As Integers    ${result.rc}    ${0}
 
 Check SafeStore Not Running
-    ${result} =    Get SafeStore PID
-    Should Be Equal As Integers    ${result}    ${-1}
+    ${result} =    Run Process    pgrep    safestore
+    Should Be Equal As Integers    ${result.rc}    ${-1}
 
 Get SafeStore PID
-    ${pid} =     Run Process    pgrep    -f    ${SAFESTORE_BIN}
+    ${pid} =     Run Process    pgrep    safestore
     [Return]    ${pid.stdout}
 
 Check SafeStore Permissions And Owner
     ${safeStorePid} =    Get SafeStore PID
     ${watchdogPid} =    Run Process    pgrep    sophos_watchdog
 
-    ${user} =    Run Process    ps    -o    user    -p    ${safeStorePid.stdout}
-    ${group} =    Run Process    ps    -o    group    -p    ${safeStorePid.stdout}
-    ${parentPid} =    Run Process    ps    -o    ppid    -p    ${safeStorePid.stdout}
+    ${user} =    Run Process    ps    -o    user    -p    ${safeStorePid}
+    ${group} =    Run Process    ps    -o    group    -p    ${safeStorePid}
+    ${watchdogChildPids} =    Run Process    pgrep    -P    ${watchdogPid.stdout}
 
     Should Contain    ${user.stdout}    root
     Should Contain    ${group.stdout}    root
-    Should Be Equal As Integers    ${parentPid.stdout}    ${watchdogPid.stdout}
+    Should Contain    ${watchdogChildPids.stdout}    ${safeStorePid}
 
 Check SafeStore Installed Correctly
     Wait Until Keyword Succeeds

@@ -101,8 +101,10 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
+    Toggle SafeStore Flag in MCS Policy    ${True}
 
     Check EAP Release With AV Installed Correctly
+    Check SafeStore Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
 
     Stop Local SDDS3 Server
@@ -252,6 +254,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  10 secs
     ...  Check SulDownloader Log Contains String N Times    Update success    1
     Check Log Does Not Contain    Running in SDDS2 updating mode    /tmp/preserve-sul-downgrade   Downgrade Log
+    Toggle SafeStore Flag in MCS Policy    ${True}
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
@@ -273,6 +276,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Check All Product Logs Do Not Contain Critical
 
     Check EAP Release With AV Installed Correctly
+    Check SafeStore Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
 
     # Check users haven't been removed and added back
@@ -294,6 +298,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Trigger Update Now
 
     Wait For Version Files to Update    &{expectedVUTVersions}
+    Check SafeStore Installed Correctly
 
     # The query pack should have been re-installed
     Wait Until Keyword Succeeds
