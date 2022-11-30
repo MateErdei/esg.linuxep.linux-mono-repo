@@ -132,7 +132,9 @@ bool Drive::isRemovable() const
  */
 bool Drive::isSpecial() const
 {
-    return m_deviceUtil->isSystem(device(), mountPoint(), filesystemType());
+    return
+        (m_deviceUtil->isSystem(device(), mountPoint(), filesystemType()) ||
+        m_deviceUtil->isNotSupported(filesystemType()));
 }
 
 bool Drive::isDirectory() const

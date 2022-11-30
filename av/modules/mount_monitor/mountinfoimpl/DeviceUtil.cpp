@@ -281,6 +281,20 @@ bool DeviceUtil::isSystem(
     return false;
 }
 
+/**
+         * Determine if the device specified is not a supported filesystem for On Access and On Demand.
+         * There is a separate list for On Access only exclusions
+         *
+         * @return True if the device is a supported filesystem
+         *
+         * @param filesystemType    Optional type of device's filesystem.
+ */
+
+bool DeviceUtil::isNotSupported(const std::string& filesystemType)
+{
+    return (filesystemType == "fuse.gvfsd-fuse");
+}
+
 bool DeviceUtil::isCachable(const int fd)
 {
     struct ::statfs stat_buf{};

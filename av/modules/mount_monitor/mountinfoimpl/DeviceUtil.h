@@ -96,10 +96,22 @@ namespace mount_monitor::mountinfoimpl
          * @param mountPoint    Optional mount point of the device.
          * @param filesystemType    Optional type of device's filesystem.
          */
+
         bool isSystem(
             const std::string& devicePath,
             const std::string& mountPoint,
             const std::string& filesystemType) override;
+
+        /**
+         * Determine if the device specified is not a supported filesystem for On Access and On Demand.
+         * There is a separate list for On Access only exclusions
+         *
+         * @return True if the device is not a supported filesystem
+         *
+         * @param filesystemType    Optional type of device's filesystem.
+         */
+
+        bool isNotSupported( const std::string& filesystemType) override;
 
         /**
          * Determine if the file descriptor specified is on a filesystem that we can safely cache for

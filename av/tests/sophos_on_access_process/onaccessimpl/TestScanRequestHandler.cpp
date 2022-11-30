@@ -37,6 +37,7 @@ namespace
             ON_CALL(*this, isOptical).WillByDefault(Return(false));
             ON_CALL(*this, isRemovable).WillByDefault(Return(false));
             ON_CALL(*this, isSystem).WillByDefault(Return(false));
+            ON_CALL(*this, isNotSupported).WillByDefault(Return(false));
             ON_CALL(*this, isCachable).WillByDefault(Return(true));
         }
 
@@ -46,6 +47,7 @@ namespace
         MOCK_METHOD(bool, isOptical, (const std::string& devicePath, const std::string& mountPoint, const std::string& filesystemType));
         MOCK_METHOD(bool, isRemovable, (const std::string& devicePath, const std::string& mountPoint, const std::string& filesystemType));
         MOCK_METHOD(bool, isSystem, (const std::string& devicePath, const std::string& mountPoint, const std::string& filesystemType));
+        MOCK_METHOD(bool, isNotSupported, (const std::string& filesystemType));
         MOCK_METHOD(bool, isCachable, (int fd));
     };
 

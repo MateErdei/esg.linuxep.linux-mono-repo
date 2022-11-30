@@ -98,6 +98,17 @@ namespace mount_monitor::mountinfo
             const std::string& filesystemType) = 0;
 
         /**
+         * Determine if the device specified is not supported filesystem for On Access and On Demand.
+         * There is a separate list for On Access only exclusions
+         *
+         * @return True if the device is a supported filesystem
+         *
+         * @param filesystemType    Optional type of device's filesystem.
+         */
+
+        virtual bool isNotSupported( const std::string& filesystemType) = 0;
+
+        /**
          * Determine if the file descriptor specified is on a filesystem that we can safely cache for
          *
          * @return True if the fd is on a safe filesystem
