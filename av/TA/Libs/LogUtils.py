@@ -1100,25 +1100,12 @@ File Log Contains
             time.sleep(0.5)
 
         # timed out wait, so now check contents since last start
+        return self.check_on_access_log_contains_expected_after_unexpected(expected, not_expected)
 
+    def check_on_access_log_contains_expected_after_unexpected(self, expected, unexpected):
+        log_path = self.oa_log
         handler = self.get_log_handler(log_path)
-        contents = b"".join(handler.get_content_since_last_start())
-        contentsStr = _ensure_str(contents)
-        expected_find = contents.rfind(expected)
-        if expected_find >= 0:
-            remainder = contents[expected_find:]
-            if not_expected not in remainder:
-                return True
-            logger.info("Searched contents of %s: %s" %(log_path, contentsStr))
-            raise AssertionError("Found unexpected %s after expected %s in %s" % (not_expected, expected, log_path))
-
-        logger.info("Searched contents of %s: %s" %(log_path, contentsStr))
-
-        if not_expected in contents:
-            raise AssertionError("Found unexpected %s but not expected %s in %s" % (not_expected, expected, log_path))
-
-        raise AssertionError("Failed to find expected %s in %s" % (expected, log_path))
-
+        handler.check_log_contains_expected_after_unexpected(expected, unexpected)
 
 #####################################################################
 # AV Log

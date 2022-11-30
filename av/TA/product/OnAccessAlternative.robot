@@ -103,6 +103,13 @@ Send Complete Policies
     send av policy  CORE  ${policyContent}
 
 
+wait for on access to be enabled In Log
+    [Arguments]  ${mark}
+    wait_for_on_access_log_contains_expected_after_unexpected
+    ...  expected=On-access scanning enabled
+    ...  not_expected=On-access scanning disabled
+    ...  mark=${mark}
+
 *** Test Cases ***
 
 On Access Log Rotates
@@ -431,28 +438,24 @@ On Access Is Disabled By Default If No Flags Policy Arrives
 
 On Access Uses Policy Settings If Flags Dont Override Policy
     ${mark} =  get_on_access_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
-    send av policy  ${SAV_APPID}  ${policyContent}
+    send_av_policy_from_file   ${SAV_APPID}  ${RESOURCES_PATH}/SAV-2_policy_OA_enabled.xml
+    send_av_policy_from_file   FLAGS         ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
 
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    send av policy  FLAGS  ${policyContent}
+    wait for on access to be enabled In Log  ${mark}
 
-    wait for on access log contains after mark   No policy override, following policy settings  mark=${mark}
-    wait for on access log contains after mark   New on-access configuration: {"enabled":true,"excludeRemoteFiles":false,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
+    check on access log contains expected after unexpected
+    ...  expected=No policy override, following policy settings
+    ...  unexpected=Overriding policy, on-access will be disabled
 
     On-access Scan Eicar Close
 
 
 On Access Is Disabled After it Receives Disable Flags
+    # Setup - ensure on-access is enabled
     ${mark} =  get_on_access_log_mark
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-
-    wait for on access log contains after mark   No policy override, following policy settings  mark=${mark}
-
-    ${mark} =  get_on_access_log_mark
     send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
-
-    wait for on access log contains after mark   New on-access configuration: {"enabled":true,"excludeRemoteFiles":false,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
+    Wait For On Access to be enabled In Log  ${mark}
 
     ${mark} =  get_on_access_log_mark
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
@@ -465,13 +468,16 @@ On Access Is Disabled After it Receives Disable Flags
 
 On Access Does not Use Policy Settings If Flags Have Overriden Policy
     ${mark} =  get_on_access_log_mark
-    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
+    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
+    Wait For On Access to be enabled In Log  ${mark}
 
+    ${mark} =  get_on_access_log_mark
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
     wait for on access log contains after mark   Overriding policy, on-access will be disabled  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
-    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
-
+    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
     wait for on access log contains after mark    Overriding policy, on-access will be disabled  mark=${mark}
     On-access No Eicar Scan
 

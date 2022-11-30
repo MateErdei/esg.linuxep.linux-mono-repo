@@ -283,3 +283,23 @@ class LogHandler:
 
         logger.error("Failed to find %s in any log files for %s" % (expected, self.__m_log_path))
         raise AssertionError("Failed to find %s in any log files for %s" % (expected, self.__m_log_path))
+
+    def check_log_contains_expected_after_unexpected(self, expected, unexpected):
+        log_path = self.__m_log_path
+        expected = ensure_binary(expected)
+        unexpected = ensure_binary(unexpected)
+        contents = b"".join(self.get_content_since_last_start())
+        contentsStr = ensure_unicode(contents)
+        expected_find = contents.rfind(expected)
+        if expected_find >= 0:
+            remainder = contents[expected_find:]
+            if unexpected not in remainder:
+                return True
+            logger.info("Searched contents of %s: %s" % (log_path, contentsStr))
+            raise AssertionError("Found unexpected %s after expected %s in %s" % (unexpected, expected, log_path))
+        logger.info("Searched contents of %s: %s" % (log_path, contentsStr))
+
+        if unexpected in contents:
+            raise AssertionError("Found unexpected %s but not expected %s in %s" % (unexpected, expected, log_path))
+
+        raise AssertionError("Failed to find expected %s in %s" % (expected, log_path))
