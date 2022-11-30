@@ -73,7 +73,8 @@ Check SafeStore Installed Correctly
     ...    15 secs
     ...    1 secs
     ...    Check SafeStore Log Contains    SafeStore started
-    Check SafeStore Database Exists
+#    TODO LINUXDAR-6268: Enable once 2022-51 sprint build is in dogfood
+#    Check SafeStore Database Exists
     Check SafeStore Permissions And Owner
 
 Check SafeStore Database Exists
