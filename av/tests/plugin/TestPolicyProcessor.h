@@ -10,6 +10,7 @@
 #include "datatypes/Print.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/Helpers/MockFileSystem.h"
 
 namespace fs = sophos_filesystem;
 
@@ -28,6 +29,7 @@ namespace
     {
     protected:
         fs::path m_testDir;
+        std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
 
         void createTestDir()
         {

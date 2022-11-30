@@ -2,7 +2,6 @@
 
 #include "TestPolicyProcessor.h"
 
-#include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/FileSystem/IFileSystemException.h>
 
@@ -36,7 +35,6 @@ namespace
         std::string m_soapConfigPath;
         std::string m_soapFlagConfigPath;
         std::string m_customerIdPath;
-        std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
     };
 
 }
